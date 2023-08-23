@@ -124,6 +124,7 @@ const ActionSheet = () => {
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
+            native={true}
           />
         </BottomSheetView>
       </BottomSheetModal>

@@ -9,7 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import {Platform} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
 import {UidType} from '../../../agora-rn-uikit';
 import {
@@ -24,12 +25,24 @@ import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
 import {useLayout, useRender, useRtc} from 'customization-api';
 import {filterObject} from '../../utils';
+import {ScreenshareContext} from './useScreenshare';
+import useMuteToggleLocal, {
+  MUTE_LOCAL_TYPE,
+} from '../../utils/useMuteToggleLocal';
+import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
+import {LocalVideoStreamError} from 'react-native-agora';
+
+export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
-  const {dispatch} = useRtc();
+  const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const processRef = useRef(false);
+  const enableVideoRef = useRef(false);
+  const {dispatch, RtcEngine} = useRtc();
   const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
   const isPinned = useRef(0);
-  const {setScreenShareData, screenShareData} = useScreenContext();
+  const {setScreenShareData, screenShareData, setScreenShareOnFullView} =
+    useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
   // const userText = useString('remoteUserDefaultLabel')();
@@ -40,12 +53,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {currentLayout} = useLayout();
   const renderListRef = useRef({renderList: renderList});
   const currentLayoutRef = useRef({currentLayout: currentLayout});
-
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
-
+  const screenShareDataRef = useRef({screenShareData: screenShareData});
+  const localMute = useMuteToggleLocal();
+  const {video} = useLocalUserInfo();
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
   }, [pinnedUid]);
+
+  useEffect(() => {
+    screenShareDataRef.current.screenShareData = screenShareData;
+  }, [screenShareData]);
 
   useEffect(() => {
     renderListRef.current.renderList = renderList;
@@ -93,6 +111,26 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
+    RtcEngine?.addListener(
+      'LocalVideoStateChanged',
+      (localVideoState, error) => {
+        console.info('LocalVideoStateChanged', localVideoState, error);
+        switch (error) {
+          case LocalVideoStreamError.ExtensionCaptureStarted:
+            processRef.current = true;
+            setScreenshareActive(true);
+            break;
+          case LocalVideoStreamError.ExtensionCaptureStoped:
+          case LocalVideoStreamError.ExtensionCaptureDisconnected:
+          case LocalVideoStreamError.ScreenCapturePermissionDenied:
+            processRef.current = true;
+            setScreenshareActive(false);
+            break;
+          default:
+            break;
+        }
+      },
+    );
     events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
@@ -106,6 +144,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             return {
               ...prevState,
               [screenUidOfUser]: {
+                ...prevState[screenUidOfUser],
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: true,
                 ts: value || 0,
@@ -114,10 +153,21 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           });
           break;
         case EventActions.SCREENSHARE_STOPPED:
+          //if user pinned some remote screenshare view as fullscreen view on native and remote stop the screenshare
+          //then we need to exit the fullscreen view
+          if (
+            screenShareDataRef.current.screenShareData[screenUidOfUser] &&
+            screenShareDataRef.current.screenShareData[screenUidOfUser]
+              ?.isExpanded
+          ) {
+            setScreenShareOnFullView(false);
+          }
           setScreenShareData((prevState) => {
             return {
               ...prevState,
               [screenUidOfUser]: {
+                ...prevState[screenUidOfUser],
+                isExpanded: false,
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: false,
                 ts: value || 0,
@@ -136,11 +186,96 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     });
   }, []);
 
+  const startUserScreenshare = async (captureAudio: boolean = false) => {
+    if (!isScreenshareActive) {
+      // either user can publish local video or screenshare stream
+      // so if user video is turned on then we are turning off video before screenshare
+      await RtcEngine?.startScreenCapture({
+        captureVideo: true,
+        captureAudio,
+      });
+      if (Platform.OS === 'android') {
+        processRef.current = true;
+        setScreenshareActive(true);
+      }
+      //For ios will update state in the video state changed callback
+    } else {
+      console.log('screenshare is already active');
+    }
+  };
+
+  const stopUserScreenShare = async (
+    enableVideo: boolean = false,
+    forceStop: boolean = false,
+  ) => {
+    if (isScreenshareActive || forceStop) {
+      enableVideoRef.current = enableVideo;
+      await RtcEngine?.stopScreenCapture();
+      if (Platform.OS === 'android') {
+        processRef.current = true;
+        setScreenshareActive(false);
+      }
+      //For ios will update state in the video state changed callback
+    } else {
+      console.log('no screenshare is active');
+    }
+  };
+
+  useEffect(() => {
+    if (processRef.current) {
+      //native screenshare is started
+      if (isScreenshareActive) {
+        //to increase the performance - stop incoming video stream
+        RtcEngine.muteAllRemoteVideoStreams(true);
+
+        //since native screenshare uses local user video
+        //we need to turn on video if its off.
+        //otherwise remote user can't see the screen shared from the mobile
+        if (!video) {
+          localMute(MUTE_LOCAL_TYPE.video);
+        }
+      }
+      //native screenshare is stopped
+      else {
+        //resume the incoming video stream
+        RtcEngine.muteAllRemoteVideoStreams(false);
+
+        //edge case - if screenshare is going on and user want to enable the video
+        //then we will inform the user to stop screenshare and start camera
+        //in that case if video is off then turned it on.
+        //if video is on - that's fine
+        if (enableVideoRef.current) {
+          enableVideoRef.current = false;
+          if (!video) {
+            localMute(MUTE_LOCAL_TYPE.video);
+          }
+        }
+        //regular usecase - once screenshare stopped will stop user video - since screenshare uses local user video
+        else {
+          //
+          if (video) {
+            localMute(MUTE_LOCAL_TYPE.video);
+          }
+        }
+      }
+      processRef.current = false;
+    }
+  }, [isScreenshareActive]);
+
+  const ScreenshareStoppedCallback = () => {};
+
   return (
-    <>
+    <ScreenshareContext.Provider
+      value={{
+        isScreenshareActive,
+        startUserScreenshare,
+        stopUserScreenShare,
+        //@ts-ignore
+        ScreenshareStoppedCallback,
+      }}>
       {props.children}
       <KeepAwake />
-    </>
+    </ScreenshareContext.Provider>
   );
 };
 

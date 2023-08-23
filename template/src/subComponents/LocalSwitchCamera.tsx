@@ -2,8 +2,9 @@ import React, {useContext} from 'react';
 import {useString} from '../utils/useString';
 import {PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
-import {useLocalUserInfo, useRtc} from 'customization-api';
+import {isAndroid, isIOS, useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import {useScreenshare} from './screenshare/useScreenshare';
 
 export interface LocalSwitchCameraProps {
   showLabel?: boolean;
@@ -13,6 +14,7 @@ export interface LocalSwitchCameraProps {
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
+  const {isScreenshareActive} = useScreenshare();
   const {RtcEngine} = useRtc();
   const local = useLocalUserInfo();
   const {showLabel = $config.ICON_TEXT, disabled = false} = props;
@@ -24,7 +26,11 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     RtcEngine.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
   };
-  const isVideoEnabled = local.video === ToggleState.enabled;
+  const isNativeScreenShareActive =
+    (isAndroid() || isIOS()) && isScreenshareActive;
+  const isVideoEnabled = isNativeScreenShareActive
+    ? false
+    : local.video === ToggleState.enabled;
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: 'switch-camera',

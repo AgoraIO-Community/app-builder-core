@@ -14,6 +14,8 @@ import React, {SetStateAction, useState, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
+import StartScreenSharePopup from './popups/StartScreenSharePopup';
+import StopScreenSharePopup from './popups/StopScreenSharePopup';
 import {SdkApiContext} from './SdkApiContext';
 import {useRtc, useMeetingInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
@@ -30,6 +32,10 @@ export interface VideoCallContextInterface {
   showLayoutOption: boolean;
   setShowLayoutOption: React.Dispatch<SetStateAction<boolean>>;
   activeSpeaker: UidType;
+  showStartScreenSharePopup: boolean;
+  setShowStartScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
+  showStopScreenSharePopup: boolean;
+  setShowStopScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -40,6 +46,10 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   showLayoutOption: false,
   setShowLayoutOption: () => {},
   activeSpeaker: 0,
+  showStartScreenSharePopup: false,
+  setShowStartScreenSharePopup: () => {},
+  showStopScreenSharePopup: false,
+  setShowStopScreenSharePopup: () => {},
 });
 
 interface VideoCallProviderProps {
@@ -49,6 +59,10 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
+  const [showStartScreenSharePopup, setShowStartScreenSharePopup] =
+    useState(false);
+  const [showStopScreenSharePopup, setShowStopScreenSharePopup] =
+    useState(false);
   const {join, enterRoom} = useContext(SdkApiContext);
   const meetingInfo = useMeetingInfo();
   const {deviceList} = useContext(DeviceContext);
@@ -82,7 +96,13 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         showLayoutOption,
         setShowLayoutOption,
         activeSpeaker,
+        showStartScreenSharePopup,
+        setShowStartScreenSharePopup,
+        showStopScreenSharePopup,
+        setShowStopScreenSharePopup,
       }}>
+      <StartScreenSharePopup />
+      <StopScreenSharePopup />
       <StopRecordingPopup />
       <InvitePopup />
       {props.children}

@@ -50,6 +50,7 @@
   "dependencies": {
     "@apollo/client": "3.3.20",
     "@gorhom/bottom-sheet": "4.4.5",
+    "@openspacelabs/react-native-zoomable-view": "^2.1.1",
     "@react-native-async-storage/async-storage": "1.17.11",
     "@react-native-community/checkbox": "0.4.2",
     "@react-native-community/clipboard": "1.5.1",
@@ -57,6 +58,7 @@
     "@sentry/react-native": "2.4.3",
     "@sentry/tracing": "6.2.1",
     "@supersami/rn-foreground-service": "^1.1.1",
+    "add": "^2.0.6",
     "agora-react-native-rtm": "1.5.1",
     "agora-rtc-sdk-ng": "4.14.0",
     "agora-rtm-sdk": "1.4.3-203",
@@ -70,6 +72,7 @@
     "nanoevents": "7.0.1",
     "nanoid": "4.0.0",
     "nosleep.js": "0.12.0",
+    "npm": "^9.7.2",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-is": "18.0.0",

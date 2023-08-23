@@ -10,11 +10,9 @@
 *********************************************
 */
 import {useLocalUserInfo, useRtc} from 'customization-api';
-import {useContext, useEffect, useRef, useState} from 'react';
-
-import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import {isMobileUA, isWebInternal} from './common';
-import {AppState} from 'react-native';
+import {useContext} from 'react';
+import {PropsContext, ClientRole, ToggleState} from '../../agora-rn-uikit';
+import {isAndroid, isIOS, isWebInternal} from './common';
 import {SdkMuteQueueContext} from '../components/SdkMuteToggleListener';
 
 export enum MUTE_LOCAL_TYPE {
@@ -27,50 +25,11 @@ export enum MUTE_LOCAL_TYPE {
 function useMuteToggleLocal() {
   const {RtcEngine, dispatch} = useRtc();
   const local = useLocalUserInfo();
+  const isLiveStream = $config.EVENT_MODE;
+  const {rtcProps} = useContext(PropsContext);
+  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
-
-  const appState = useRef(AppState.currentState);
-  const [appStateVisible, setAppStateVisible] = useState(appState.current);
-  const isCamON = useRef(local.video);
-
-  useEffect(() => {
-    if ($config.AUDIO_ROOM || !isMobileUA()) return;
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      appState.current = nextAppState;
-      setAppStateVisible(appState.current);
-    });
-
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
-    if (appStateVisible === 'background') {
-      isCamON.current = local.video;
-      if (isCamON.current) {
-        isWebInternal()
-          ? RtcEngine.muteLocalVideoStream(true)
-          : RtcEngine.enableLocalVideo(false);
-
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [0],
-        });
-      }
-    }
-    if (appStateVisible === 'active' && isCamON.current) {
-      isWebInternal()
-        ? RtcEngine.muteLocalVideoStream(false)
-        : RtcEngine.enableLocalVideo(true);
-      dispatch({
-        type: 'LocalMuteVideo',
-        value: [1],
-      });
-    }
-  }, [appStateVisible]);
 
   const toggleMute = async (
     type: MUTE_LOCAL_TYPE,
@@ -169,7 +128,17 @@ function useMuteToggleLocal() {
                 : await RtcEngine.enableLocalVideo(
                     localVideoState === ToggleState.enabled ? false : true,
                   );
-
+              /**
+               * In native only
+               * hotfix for livestream co-presenter video publishing
+               * enableLocalVideo -> only enabled local video not publishing video stream
+               * enable publishing for livestreaming presenter(who raised hand and approved by host)
+               */
+              if ((isAndroid() || isIOS()) && isLiveStream && isBroadCasting) {
+                await RtcEngine.muteLocalVideoStream(
+                  localVideoState === ToggleState.enabled ? true : false,
+                );
+              }
               // Enable UI
               dispatch({
                 type: 'LocalMuteVideo',
