@@ -19,6 +19,8 @@ import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ThemeConfig from '../../theme';
+import {useVideoCall} from '../../components/useVideoCall';
+
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import ZoomableWrapper from './ZoomableWrapper';
@@ -30,11 +32,13 @@ interface VideoRendererProps {
   isMax?: boolean;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
+  const {activeSpeaker: activeSpeakerUID} = useVideoCall();
+  //const isActiveSpeaker = useIsActiveSpeaker();
   const {dispatch, RtcEngine} = useRtc();
   const {height, width} = useWindowDimensions();
-  const isActiveSpeaker = useIsActiveSpeaker();
   const {pinnedUid, activeUids} = useRender();
-  const activeSpeaker = isActiveSpeaker(user.uid);
+  const activeSpeaker = user.uid == activeSpeakerUID;
+  //const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();

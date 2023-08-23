@@ -202,6 +202,7 @@ export default class RtcEngine {
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
   private speakerDeviceId = '';
+  private usersVolumeLevel = [];
   // Create channel profile and set it here
 
   // Create channel profile and set it here
@@ -463,6 +464,9 @@ export default class RtcEngine {
     });
 
     this.client.on('volume-indicator', (volumes) => {
+      this.usersVolumeLevel = volumes;
+      /**
+       * old active speaker logic
       const highestvolumeObj = volumes.reduce(
         (highestVolume, volume, index) => {
           if (highestVolume === null) {
@@ -490,6 +494,7 @@ export default class RtcEngine {
         activeSpeakerCallBack(activeSpeakerUid);
         this.activeSpeakerUid = activeSpeakerUid;
       }
+       */
     });
 
     // this.client.on('stream-fallback', (evt))
@@ -533,6 +538,10 @@ export default class RtcEngine {
 
     await this.publish();
     console.log('enabling screen sleep');
+  }
+
+  getUsersVolumeLevel() {
+    return this.usersVolumeLevel;
   }
 
   async leaveChannel(): Promise<void> {
