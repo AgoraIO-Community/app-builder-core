@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from 'react';
 import events, {EventPersistLevel} from '../rtm-events-api';
 import useIsLocalUserSpeaking from './useIsLocalUserSpeaking';
 import {filterObject} from '../utils/index';
+import {isWeb} from '../utils/common';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -31,9 +32,15 @@ const useFindActiveSpeaker = () => {
   useEffect(() => {
     //sending local user speaking and non speaking volume to remote users
     let volume = 0;
-    //@ts-ignore
-    const volumes = RtcEngine?.getUsersVolumeLevel();
-    const localUserData = volumes.find((i) => i.uid == uid);
+    let volumes = [];
+    if (isWeb()) {
+      //@ts-ignore
+      volumes = RtcEngine?.getUsersVolumeLevel();
+    } else {
+      //todo on native
+    }
+
+    const localUserData = volumes.find(i => i.uid == uid);
     if (localUserData && localUserData.level) {
       volume = Math.round(localUserData.level * 100) / 100;
     }
@@ -107,9 +114,9 @@ const useFindActiveSpeaker = () => {
         //@ts-ignore
         const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
         const normalizedValues = {};
-        speakingUids?.forEach((uid) => {
+        speakingUids?.forEach(uid => {
           const uuid = parseInt(uid);
-          const data = currentUsersVolume?.find((i) => i.uid === uuid);
+          const data = currentUsersVolume?.find(i => i.uid === uuid);
           const returnVal = normalize(
             data?.level || usersVolume.current[uuid]?.speakingVolume, //current level
             usersVolume.current[uid]?.nonSpeakingVolume || 0,
@@ -125,9 +132,9 @@ const useFindActiveSpeaker = () => {
 
         //for logging purpose
         let obj = {};
-        sorted.map((i) => {
+        sorted.map(i => {
           let id = parseInt(i);
-          const curtdata = currentUsersVolume.find((i) => i.uid === id);
+          const curtdata = currentUsersVolume.find(i => i.uid === id);
           const cl =
             curtdata && curtdata?.level
               ? Math.round(curtdata?.level * 100) / 100
