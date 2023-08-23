@@ -201,7 +201,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       const deepLink = async () => {
         const initialUrl = await Linking.getInitialURL();
         console.log('debugging getting initialUrl', initialUrl);
-        Linking.addEventListener('url', (e) => {
+        Linking.addEventListener('url', e => {
           console.log('debugging url from listener', e.url);
           deepLinkUrl(e.url);
         });
@@ -216,7 +216,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       regEvent.current = false;
       SDKMethodEventsManager.on('login', async (res, rej, token) => {
         try {
-          setStore((prevState) => {
+          setStore(prevState => {
             return {...prevState, token};
           });
           setTimeout(async () => {
@@ -224,7 +224,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               .then(() => {
                 res();
               })
-              .catch((error) => {
+              .catch(error => {
                 rej('SDK Login failed' + JSON.stringify(error));
               });
           });
@@ -285,7 +285,8 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   useEffect(() => {
     // Ignore if on sdk since IDP flow is not supported
-    if (isSDK()) {
+    // For unauthenticated flow authLogin should be called to get the token
+    if (isSDK() && ENABLE_AUTH) {
       setIsAuthenticated(true);
       setLoading(false);
       return () => {};
@@ -300,7 +301,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     ) {
       //fetch user details
       getUserDetails()
-        .then((_) => {
+        .then(_ => {
           //Each time user refresh the page we have to redirect the user to IDP login.then only we can able to refresh the token
           //because we can't read the cookie so we don't know expirytime.
           //so each time page refresh will get new token
@@ -363,11 +364,11 @@ const AuthProvider = (props: AuthProviderProps) => {
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
         enableTokenAuth()
-          .then((res) => {
+          .then(res => {
             setIsAuthenticated(true);
             history.push('/create');
           })
-          .catch((error) => {
+          .catch(error => {
             //don't show token expire/not found toast in the sdk
             //we have event emitter to inform the customer application
             //they have to listen for those events
@@ -389,8 +390,8 @@ const AuthProvider = (props: AuthProviderProps) => {
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
       })
-        .then((response) => response.json())
-        .then((response) => {
+        .then(response => response.json())
+        .then(response => {
           // unauthenticated flow all platform we will have to handle the token manually
           // we need to store token manually
           if (!response.token) {
@@ -401,7 +402,7 @@ const AuthProvider = (props: AuthProviderProps) => {
                 console.log('debugging token auth enabled');
                 //set auth enabled on useEffect
               })
-              .catch((error) => {
+              .catch(error => {
                 //we don't need to show token expire/not found toast in the sdk
                 //we have event emitter to inform the customer application
                 //they have to listen for those events
@@ -416,7 +417,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               });
           }
         })
-        .catch((error) => {
+        .catch(error => {
           if (error instanceof Error) {
             setAuthError(error.message);
           } else {
@@ -430,7 +431,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const authLogout = () => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
       idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
-        .then((res) => {
+        .then(res => {
           console.log('user successfully logged out');
           setIsAuthenticated(false);
         })
@@ -450,7 +451,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         history.push('/create');
       } else {
         tokenLogout()
-          .then((res) => {
+          .then(res => {
             console.log('user successfully logged out');
           })
           .catch(() => {
