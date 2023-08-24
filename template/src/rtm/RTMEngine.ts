@@ -32,7 +32,7 @@ class RTMEngine {
 
   private async destroyClientInstance() {
     await this.engine.logout();
-    await this.engine.destroyClient();
+    // await this.engine.destroyClient();
   }
 
   private constructor() {
@@ -64,10 +64,10 @@ class RTMEngine {
   get channelUid() {
     return this.channelId;
   }
-  destroy() {
+  async destroy() {
     try {
-      this.destroyClientInstance();
-      RTMEngine._instance = null;
+      await this.destroyClientInstance();
+      // RTMEngine._instance = null;
       this.localUID = '';
       this.channelId = '';
     } catch (error) {

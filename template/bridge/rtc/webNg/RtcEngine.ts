@@ -25,6 +25,7 @@ import AgoraRTC, {
   ClientRoleOptions,
   CameraVideoTrackInitConfig,
   MicrophoneAudioTrackInitConfig,
+  IMicrophoneAudioTrack,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
@@ -252,7 +253,10 @@ export default class RtcEngine {
     }
   }
 
-  async enableVideo(): Promise<void> {
+  async enableVideo(
+    preferredCameraId?: string,
+    preferredMicrophoneId?: string,
+  ): Promise<void> {
     /**
      * Issue: Backgrounding the browser or app causes the audio streaming to be cut off.
      * Impact: All browsers and apps that use WKWebView on iOS 15.x, such as Safari and Chrome.
@@ -264,14 +268,16 @@ export default class RtcEngine {
 
     const audioConfig: MicrophoneAudioTrackInitConfig = {
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
-      // microphoneId: this.audioDeviceId,
+      microphoneId: preferredMicrophoneId,
     };
     const videoConfig: CameraVideoTrackInitConfig = {
       encoderConfig: this.videoProfile,
-      // cameraId: this.videoDeviceId,
+      cameraId: preferredCameraId,
     };
     try {
       let [localAudio, localVideo] =
+        // If preferred devices are not present, the createTrack call will fallover to
+        // the catch block below.
         await AgoraRTC.createMicrophoneAndCameraTracks(
           audioConfig,
           videoConfig,
@@ -289,9 +295,15 @@ export default class RtcEngine {
     } catch (e) {
       let audioError = false;
       let videoError = false;
-      try {
-        let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
 
+      try {
+        let localAudio: IMicrophoneAudioTrack;
+        try {
+          localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
+        } catch (e) {
+          videoConfig.microphoneId = '';
+          localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
+        }
         this.localStream.audio = localAudio;
         this.audioDeviceId = localAudio
           ?.getMediaStreamTrack()
@@ -300,8 +312,15 @@ export default class RtcEngine {
       } catch (error) {
         audioError = error;
       }
+
       try {
-        let localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+        let localVideo: ICameraVideoTrack;
+        try {
+          localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+        } catch (e) {
+          videoConfig.cameraId = '';
+          localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+        }
         this.localStream.video = localVideo;
         this.videoDeviceId = localVideo
           ?.getMediaStreamTrack()
@@ -310,6 +329,7 @@ export default class RtcEngine {
       } catch (error) {
         videoError = error;
       }
+
       e.status = {audioError, videoError};
       throw e;
       // if (audioError && videoError) throw e;

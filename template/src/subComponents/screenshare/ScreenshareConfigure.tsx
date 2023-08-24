@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2022 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 import React, {useContext, useEffect, useRef, useState} from 'react';
@@ -119,62 +119,72 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    events.on(controlMessageEnum.kickScreenshare, () => {
-      //if screenscreen already active. then below method will stop the screen share
-      // @ts-ignore
-      rtc.RtcEngine.startScreenshare();
-    });
+    const unsubKickScreenshare = events.on(
+      controlMessageEnum.kickScreenshare,
+      () => {
+        //if screenscreen already active. then below method will stop the screen share
+        // @ts-ignore
+        rtc.RtcEngine.startScreenshare();
+      },
+    );
+    const unsubScreenshareAttribute = events.on(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      (data) => {
+        const payload = JSON.parse(data.payload);
+        const action = payload.action;
+        const value = payload.value;
 
-    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-
-      if (data?.sender) {
-        let screenUidOfUser =
-          renderListRef.current.renderList[data?.sender]?.screenUid;
-        if (!screenUidOfUser) {
-          screenUidOfUser = payload?.screenUidOfUser;
-        }
-        if (screenUidOfUser) {
-          switch (action) {
-            case EventActions.SCREENSHARE_STARTED:
-              setScreenShareData((prevState) => {
-                return {
-                  ...prevState,
-                  [screenUidOfUser]: {
-                    name: renderListRef.current.renderList[screenUidOfUser]
-                      ?.name,
-                    isActive: true,
-                    ts: value || 0,
-                  },
-                };
-              });
-              break;
-            case EventActions.SCREENSHARE_STOPPED:
-              setScreenShareData((prevState) => {
-                return {
-                  ...prevState,
-                  [screenUidOfUser]: {
-                    name: renderListRef.current.renderList[screenUidOfUser]
-                      ?.name,
-                    isActive: false,
-                    ts: value || 0,
-                  },
-                };
-              });
-              //if remote user started/stopped the screenshare then change the layout to pinned/grid
-              //if user pinned somebody then don't triggerlayout change
-              if (!pinnedUidRef.current.pinnedUid) {
-                triggerChangeLayout(false);
-              }
-              break;
-            default:
-              break;
+        if (data?.sender) {
+          let screenUidOfUser =
+            renderListRef.current.renderList[data?.sender]?.screenUid;
+          if (!screenUidOfUser) {
+            screenUidOfUser = payload?.screenUidOfUser;
+          }
+          if (screenUidOfUser) {
+            switch (action) {
+              case EventActions.SCREENSHARE_STARTED:
+                setScreenShareData((prevState) => {
+                  return {
+                    ...prevState,
+                    [screenUidOfUser]: {
+                      name: renderListRef.current.renderList[screenUidOfUser]
+                        ?.name,
+                      isActive: true,
+                      ts: value || 0,
+                    },
+                  };
+                });
+                break;
+              case EventActions.SCREENSHARE_STOPPED:
+                setScreenShareData((prevState) => {
+                  return {
+                    ...prevState,
+                    [screenUidOfUser]: {
+                      name: renderListRef.current.renderList[screenUidOfUser]
+                        ?.name,
+                      isActive: false,
+                      ts: value || 0,
+                    },
+                  };
+                });
+                //if remote user started/stopped the screenshare then change the layout to pinned/grid
+                //if user pinned somebody then don't triggerlayout change
+                if (!pinnedUidRef.current.pinnedUid) {
+                  triggerChangeLayout(false);
+                }
+                break;
+              default:
+                break;
+            }
           }
         }
-      }
-    });
+      },
+    );
+
+    return () => {
+      unsubKickScreenshare();
+      unsubScreenshareAttribute();
+    };
   }, []);
 
   const ScreenshareStoppedCallback = () => {
@@ -223,11 +233,15 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const stopUserScreenShare = () => {
-    if (!isScreenshareActive) return;
+    if (!isScreenshareActive) {
+      return;
+    }
     userScreenshare(false);
   };
   const startUserScreenshare = () => {
-    if (isScreenshareActive) return;
+    if (isScreenshareActive) {
+      return;
+    }
     userScreenshare(true);
   };
 
