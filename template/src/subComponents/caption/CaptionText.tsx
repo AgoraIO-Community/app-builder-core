@@ -39,7 +39,7 @@ const CaptionText = ({
     let textHeight = event.nativeEvent.layout.height; // height of the <Text>
 
     /* safari at only zoom level 85% gives value as 27,54,81... for lineHeight instead of 28,56,84... */
-    /* IOS goves 19.33 instead of 19 */
+    /* IOS goves 21.33 instead of 21 */
     /* so added the threshold of 1 in isDiffLineHeight */
     const isDiffLineHeight = textHeight % LINE_HEIGHT > 1;
     const delta = isDiffLineHeight
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   mobileNameFontSize: {
     fontSize: 16,
-    lineHeight: 21,
+    lineHeight: 19,
   },
   desktopNameFontSize: {
     fontSize: 18,
