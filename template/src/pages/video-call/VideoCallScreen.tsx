@@ -34,7 +34,7 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript from '../../subComponents/caption/Transcript';
-import {useCaption} from '../../subComponents/caption/useCaption';
+
 import Spacer from '../../atoms/Spacer';
 
 const VideoCallScreen = () => {
@@ -44,7 +44,7 @@ const VideoCallScreen = () => {
   const {
     data: {meetingTitle, isHost},
   } = useMeetingInfo();
-  const {isCaptionON} = useCaption();
+
   const {
     ChatComponent,
     VideocallComponent,
@@ -54,7 +54,7 @@ const VideoCallScreen = () => {
     TopbarComponent,
     VideocallBeforeView,
     VideocallAfterView,
-  } = useCustomization((data) => {
+  } = useCustomization(data => {
     let components: {
       VideocallComponent?: React.ComponentType;
       ChatComponent: React.ComponentType<ChatProps>;
@@ -163,7 +163,8 @@ const VideoCallScreen = () => {
       <VideocallBeforeView />
       <View style={style.full}>
         <ButtonTemplateProvider
-          value={{buttonTemplateName: ButtonTemplateName.topBar}}>
+          value={{buttonTemplateName: ButtonTemplateName.topBar}}
+        >
           <TopbarComponent />
         </ButtonTemplateProvider>
         <Spacer size={10} />
@@ -172,7 +173,8 @@ const VideoCallScreen = () => {
             style.videoView,
             {paddingHorizontal: isDesktop() ? 32 : 10},
             {paddingVertical: isSmall() ? 10 : 0},
-          ]}>
+          ]}
+        >
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />
@@ -195,8 +197,9 @@ const VideoCallScreen = () => {
           <></>
         ) : (
           <ButtonTemplateProvider
-            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
-            {isCaptionON && <CaptionContainer />}
+            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}
+          >
+            <CaptionContainer />
             {<Spacer size={10} />}
             <BottombarComponent />
           </ButtonTemplateProvider>

@@ -49,7 +49,6 @@ const Transcript = (props: TranscriptProps) => {
   const {
     meetingTranscript,
     isLangChangeInProgress,
-
     isSTTListenerAdded,
     setIsSTTListenerAdded,
   } = useCaption();
@@ -68,7 +67,7 @@ const Transcript = (props: TranscriptProps) => {
   const {streamMessageCallback} = useStreamMessageUtils();
   const {downloadTranscript} = useTranscriptDownload();
   const [isFocused, setIsFocused] = React.useState(false);
-  const {setIsTranscriptON} = useCaption();
+
   const {transcriptHeight} = useCaptionWidth();
   const isScrolledToEnd = React.useRef(false);
 
@@ -80,7 +79,7 @@ const Transcript = (props: TranscriptProps) => {
     setIsFocused(false);
   };
 
-  const handleLayout = (event) => {
+  const handleLayout = event => {
     if (flatListRef.current && !isWebInternal()) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
@@ -152,7 +151,7 @@ const Transcript = (props: TranscriptProps) => {
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     // Filter the data based on the search query
-    const filteredResults = meetingTranscript.filter((item) =>
+    const filteredResults = meetingTranscript.filter(item =>
       item.text.toLowerCase().includes(text.toLowerCase()),
     );
     setShowButton(false);
@@ -180,10 +179,6 @@ const Transcript = (props: TranscriptProps) => {
     }
   };
 
-  // React.useEffect(() => {
-  //   renderListRef.current.renderList = renderList;
-  // }, [renderList]);
-
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
       RtcEngine.addListener(
@@ -191,9 +186,6 @@ const Transcript = (props: TranscriptProps) => {
         handleStreamMessageCallback as unknown as StreamMessageCallback,
       );
     }
-    return () => {
-      setIsTranscriptON(false);
-    };
   }, []);
 
   return (
@@ -213,7 +205,8 @@ const Transcript = (props: TranscriptProps) => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         {paddingBottom: 20},
-      ]}>
+      ]}
+    >
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
         {!searchQuery && (
@@ -242,7 +235,8 @@ const Transcript = (props: TranscriptProps) => {
           <TouchableOpacity
             onPress={() => {
               setSearchQuery('');
-            }}>
+            }}
+          >
             <ImageIcon
               name="close"
               iconSize={20}
@@ -285,7 +279,7 @@ const Transcript = (props: TranscriptProps) => {
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
-              keyExtractor={(item) => item.uid + '-' + item.time}
+              keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
               onScroll={handleScroll}
               onLayout={handleLayout}
@@ -306,7 +300,8 @@ const Transcript = (props: TranscriptProps) => {
                   right: 0,
                   alignItems: 'center',
                   zIndex: 9999,
-                }}>
+                }}
+              >
                 <PrimaryButton
                   iconName={'view-last'}
                   containerStyle={styles.showLatestBtn}

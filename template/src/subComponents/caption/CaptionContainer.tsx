@@ -40,11 +40,12 @@ const CaptionContainer = () => {
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
-  const {isLangChangeInProgress} = useCaption();
+  const {isLangChangeInProgress, isCaptionON} = useCaption();
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
   const {isCaptionNotFullWidth} = useCaptionWidth();
+  if (!isCaptionON) return <></>;
 
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
@@ -64,13 +65,15 @@ const CaptionContainer = () => {
             maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
             width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
           },
-        ]}>
+        ]}
+      >
         <View
           style={[
             isMobileUA() ? styles.mobileContainer : styles.container,
             isMobileUA() && {marginHorizontal: 0},
             !isMobileUA() && isSmall() && {marginTop: 0},
-          ]}>
+          ]}
+        >
           <CaptionsActionMenu
             actionMenuVisible={actionMenuVisible}
             setActionMenuVisible={setActionMenuVisible}
@@ -99,7 +102,8 @@ const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
       }}
       onMouseLeave={() => {
         setIsHovered(false);
-      }}>
+      }}
+    >
       {children}
     </div>
   ) : (
@@ -129,7 +133,8 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
         right: isMobile ? 3 : 8,
         top: isMobile ? 3 : 8,
         zIndex: 999,
-      }}>
+      }}
+    >
       <IconButton
         hoverEffect={true}
         hoverEffectStyle={{
@@ -216,7 +221,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
         .then(() => {
           console.log('stt restarted successfully');
         })
-        .catch((error) => {
+        .catch(error => {
           console.log('Error in restarting', error);
           // Handle the error case
         });

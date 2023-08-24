@@ -28,35 +28,20 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
+
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
-
-  const {
-    isTranscriptON,
-    setIsTranscriptON,
-    isSTTActive,
-    setLanguage,
-    language: prevLang,
-  } = useCaption();
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
-  const username = useGetName();
+  const {isSTTActive, language: prevLang} = useCaption();
   const isDisabled = !isAuthorizedSTTUser();
-
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
 
-  //const isTranscriptON = sidePanel === SidePanelType.Transcript;
+  const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
     if (isSTTActive) {
-      setIsTranscriptON((prev) => {
-        const newIsTranscriptON = !prev;
-        setSidePanel(
-          newIsTranscriptON ? SidePanelType.Transcript : SidePanelType.None,
-        );
-        return newIsTranscriptON;
-      });
+      setSidePanel(
+        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
+      );
     } else {
       isFirstTimePopupOpen.current = true;
       setLanguagePopup(true);
@@ -100,7 +85,6 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     } else {
       setSidePanel(SidePanelType.None);
     }
-    setIsTranscriptON((prev) => !prev);
     try {
       const res = await start(language);
       if (res?.message.includes('STARTED')) {

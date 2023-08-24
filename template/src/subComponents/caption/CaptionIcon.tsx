@@ -17,6 +17,7 @@ interface CaptionIconProps {
   disabled?: boolean;
   isOnActionSheet?: boolean;
   isMobileView?: boolean;
+  closeActionSheet?: () => void;
 }
 
 const CaptionIcon = (props: CaptionIconProps) => {
@@ -26,6 +27,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     disabled = false,
     isOnActionSheet = false,
     isMobileView = false,
+    closeActionSheet,
   } = props;
   const {
     isCaptionON,
@@ -51,7 +53,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
     onPress: () => {
       if (isSTTActive) {
         // is lang popup has been shown once for any user in meeting
-        setIsCaptionON((prev) => !prev);
+        setIsCaptionON(prev => !prev);
+        closeActionSheet();
       } else {
         isFirstTimePopupOpen.current = true;
         setLanguagePopup(true);
@@ -81,12 +84,12 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const onConfirm = async (langChanged, language) => {
     setLanguagePopup(false);
-
+    closeActionSheet();
     isFirstTimePopupOpen.current = false;
     const method = isCaptionON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-    setIsCaptionON((prev) => !prev);
+    setIsCaptionON(prev => !prev);
     try {
       const res = await start(language);
       if (res?.message.includes('STARTED')) {
