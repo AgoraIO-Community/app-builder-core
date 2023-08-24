@@ -1,4 +1,4 @@
 const useIsLocalUserSpeaking = () => {
-  return () => {};
+  return false;
 };
 export default useIsLocalUserSpeaking;
