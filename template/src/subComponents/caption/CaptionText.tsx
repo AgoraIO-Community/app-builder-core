@@ -17,7 +17,7 @@ interface CaptionTextProps {
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
-const MOBILE_LINE_HEIGHT = 19;
+const MOBILE_LINE_HEIGHT = 21;
 const MAX_CAPTIONS_LINES_ALLOWED = 3;
 
 const CaptionText = ({
@@ -84,7 +84,8 @@ const CaptionText = ({
               : 1 - (activelinesAvailable + 1) * 0.2,
         },
         !isActiveSpeaker && activelinesAvailable === 3 && {height: 0},
-      ]}>
+      ]}
+    >
       <Text
         style={[
           styles.captionUserName,
@@ -92,7 +93,8 @@ const CaptionText = ({
         ]}
         numberOfLines={1}
         textBreakStrategy="simple"
-        ellipsizeMode="tail">
+        ellipsizeMode="tail"
+      >
         {user}
       </Text>
       <View
@@ -107,7 +109,8 @@ const CaptionText = ({
                     MAX_CAPTIONS_LINES_ALLOWED - activelinesAvailable,
                   )) * LINE_HEIGHT,
           },
-        ]}>
+        ]}
+      >
         <Text
           onLayout={handleTextLayout}
           style={[
@@ -115,7 +118,8 @@ const CaptionText = ({
             isMobile
               ? styles.mobileCaptionFontSize
               : styles.desktopCaptionFontSize,
-          ]}>
+          ]}
+        >
           {value}
         </Text>
       </View>
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
   },
   mobileNameFontSize: {
     fontSize: 16,
-    lineHeight: 19,
+    lineHeight: 21,
   },
   desktopNameFontSize: {
     fontSize: 18,
@@ -168,7 +172,7 @@ const styles = StyleSheet.create({
   },
   mobileCaptionFontSize: {
     fontSize: 16,
-    lineHeight: 19,
+    lineHeight: 21,
   },
   desktopCaptionFontSize: {
     fontSize: 24,
