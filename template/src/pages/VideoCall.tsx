@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 // @ts-nocheck
@@ -70,7 +70,7 @@ import isSDK from '../utils/isSDK';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {CaptionProvider} from '../subComponents/caption/useCaption';
 import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
-
+import StorageContext from '../components/StorageContext';
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -120,6 +120,14 @@ const VideoCall: React.FC = () => {
   });
   const {phrase} = useParams<{phrase: string}>();
 
+  const {store} = useContext(StorageContext);
+  const {
+    join: SdkJoinState,
+    microphoneDevice: sdkMicrophoneDevice,
+    cameraDevice: sdkCameraDevice,
+    clearState,
+  } = useContext(SdkApiContext);
+
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -139,9 +147,12 @@ const VideoCall: React.FC = () => {
     geoFencing: $config.GEO_FENCING,
     audioRoom: $config.AUDIO_ROOM,
     activeSpeaker: $config.ACTIVE_SPEAKER,
+    preferredCameraId:
+      sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
+    preferredMicrophoneId:
+      sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
   });
 
-  const {join: SdkJoinState, clearState} = useContext(SdkApiContext);
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
 
@@ -210,14 +221,12 @@ const VideoCall: React.FC = () => {
 
   React.useEffect(() => {
     if (isJoinDataFetched === true && !queryComplete) {
-      setRtcProps({
-        appId: $config.APP_ID,
+      setRtcProps((prevRtcProps) => ({
+        ...prevRtcProps,
         channel: data.channel,
         uid: data.uid,
         token: data.token,
         rtm: data.rtmToken,
-        dual: true,
-        profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
               key: data.encryptionSecret,
@@ -228,10 +237,7 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
-        geoFencing: $config.GEO_FENCING,
-        audioRoom: $config.AUDIO_ROOM,
-        activeSpeaker: $config.ACTIVE_SPEAKER,
-      });
+      }));
 
       // 1. Store the display name from API
       // if (data.username) {

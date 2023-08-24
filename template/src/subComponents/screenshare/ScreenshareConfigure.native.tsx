@@ -184,6 +184,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           break;
       }
     });
+
+    return () => {
+      unsubScreenShareAttribute();
+    };
   }, []);
 
   const startUserScreenshare = async (captureAudio: boolean = false) => {

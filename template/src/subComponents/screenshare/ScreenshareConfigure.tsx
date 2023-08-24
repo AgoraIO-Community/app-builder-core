@@ -119,11 +119,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    events.on(controlMessageEnum.kickScreenshare, () => {
-      //if screenscreen already active. then below method will stop the screen share
-      // @ts-ignore
-      rtc.RtcEngine.startScreenshare();
-    });
+    const unsubKickScreenshare = events.on(
+      controlMessageEnum.kickScreenshare,
+      () => {
+        //if screenscreen already active. then below method will stop the screen share
+        // @ts-ignore
+        rtc.RtcEngine.startScreenshare();
+      },
+    );
+    const unsubScreenshareAttribute = events.on(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      (data) => {
+        const payload = JSON.parse(data.payload);
+        const action = payload.action;
+        const value = payload.value;
 
     events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const payload = JSON.parse(data.payload);
