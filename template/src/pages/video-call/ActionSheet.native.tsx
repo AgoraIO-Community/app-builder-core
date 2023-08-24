@@ -24,7 +24,6 @@ import {isAndroid, isIOS} from '../../utils/common';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
 import Transcript from '../../subComponents/caption/Transcript';
-import {useCaption} from '../../subComponents/caption/useCaption';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -36,8 +35,6 @@ const ActionSheet = () => {
   const participantsSheetRef = useRef<BottomSheetModal>(null);
   const settingsSheetRef = useRef<BottomSheetModal>(null);
   const transcriptSheetRef = useRef<BottomSheetModal>(null);
-
-  const {setIsTranscriptON, isCaptionON} = useCaption();
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
@@ -99,10 +96,6 @@ const ActionSheet = () => {
   }, [sidePanel]);
 
   React.useEffect(() => {
-    handleSheetChanges(0);
-  }, [isCaptionON]);
-
-  React.useEffect(() => {
     if (isIOS()) {
       KeyboardManager.setEnable(false);
       return () => KeyboardManager.setEnable(true);
@@ -111,10 +104,6 @@ const ActionSheet = () => {
 
   function onDismiss() {
     setSidePanel(SidePanelType.None);
-  }
-  function onTranscriptDismiss() {
-    setSidePanel(SidePanelType.None);
-    setIsTranscriptON(false);
   }
 
   return (
@@ -139,7 +128,8 @@ const ActionSheet = () => {
             <Spacer size={12} />
           </>
         )}
-        handleIndicatorStyle={styles.handleIndicatorStyle}>
+        handleIndicatorStyle={styles.handleIndicatorStyle}
+      >
         <BottomSheetView>
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
@@ -164,7 +154,8 @@ const ActionSheet = () => {
         )}
         android_keyboardInputMode="adjustResize"
         keyboardBehavior="extend"
-        stackBehavior="push">
+        stackBehavior="push"
+      >
         <BottomSheetView>
           <Chat showHeader={false} />
         </BottomSheetView>
@@ -183,7 +174,8 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Participants} />
         )}
-        stackBehavior="push">
+        stackBehavior="push"
+      >
         <BottomSheetView>
           <ParticipantView showHeader={false} />
         </BottomSheetView>
@@ -202,7 +194,8 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Settings} />
         )}
-        stackBehavior="push">
+        stackBehavior="push"
+      >
         <BottomSheetView>
           <SettingsView showHeader={false} />
         </BottomSheetView>
@@ -213,7 +206,7 @@ const ActionSheet = () => {
         snapPoints={['100%']}
         ref={transcriptSheetRef}
         name="TranscriptSheet"
-        onDismiss={onTranscriptDismiss}
+        onDismiss={onDismiss}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
@@ -221,7 +214,8 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Transcript} />
         )}
-        stackBehavior="push">
+        stackBehavior="push"
+      >
         <BottomSheetView>
           <Transcript showHeader={false} />
         </BottomSheetView>

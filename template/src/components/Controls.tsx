@@ -55,8 +55,6 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
-import TranscriptIcon from '../../src/subComponents/caption/TranscriptIcon';
-import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
 import {useCaption} from '../../src/subComponents/caption/useCaption';
 import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
@@ -77,18 +75,19 @@ const MoreButton = () => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const layouts = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
-  const layout = layouts.findIndex((item) => item.name === currentLayout);
+  const layout = layouts.findIndex(item => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
   const username = useGetName();
   const {
     isCaptionON,
-    isTranscriptON,
     isSTTActive,
-    setIsTranscriptON,
     setIsCaptionON,
     setLanguage,
     language: prevLang,
   } = useCaption();
+
+  const isTranscriptON = sidePanel === SidePanelType.Transcript;
+
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
@@ -122,7 +121,7 @@ const MoreButton = () => {
       setActionMenuVisible(false);
       STT_clicked.current = !isCaptionON ? 'caption' : null;
       if (isSTTActive) {
-        setIsCaptionON((prev) => !prev);
+        setIsCaptionON(prev => !prev);
         // is lang popup has been shown once for any user in meeting
       } else {
         isFirstTimePopupOpen.current = true;
@@ -141,7 +140,6 @@ const MoreButton = () => {
       setActionMenuVisible(false);
       STT_clicked.current = !isTranscriptON ? 'transcript' : null;
       if (isSTTActive) {
-        setIsTranscriptON((prev) => !prev);
         !isTranscriptON
           ? setSidePanel(SidePanelType.Transcript)
           : setSidePanel(SidePanelType.None);
@@ -238,7 +236,7 @@ const MoreButton = () => {
       callback: () => {
         //setShowLayoutOption(true);
       },
-      onHoverCallback: (isHovered) => {
+      onHoverCallback: isHovered => {
         setShowLayoutOption(isHovered);
       },
       onHoverContent: (
@@ -312,9 +310,8 @@ const MoreButton = () => {
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
 
     if (isCaptionClicked) {
-      setIsCaptionON((prev) => !prev);
+      setIsCaptionON(prev => !prev);
     } else {
-      setIsTranscriptON((prev) => !prev);
     }
 
     try {
@@ -339,7 +336,7 @@ const MoreButton = () => {
       <ActionMenu
         containerStyle={{width: 180}}
         hoverMode={true}
-        onHover={(isVisible) => setIsHoveredOnModal(isVisible)}
+        onHover={isVisible => setIsHoveredOnModal(isVisible)}
         from={'control-bar'}
         actionMenuVisible={isHovered || isHoveredOnModal}
         setActionMenuVisible={setActionMenuVisible}
@@ -355,7 +352,8 @@ const MoreButton = () => {
         }}
         onMouseLeave={() => {
           setIsHovered(false);
-        }}>
+        }}
+      >
         {/** placeholder to hovering */}
         <View
           style={{
@@ -368,7 +366,7 @@ const MoreButton = () => {
           }}
         />
         <IconButton
-          setRef={(ref) => {
+          setRef={ref => {
             moreBtnRef.current = ref;
           }}
           onPress={() => {
@@ -405,14 +403,14 @@ const Controls = () => {
   }, [renderList]);
 
   React.useEffect(() => {
-    // for native events are set in VideoCallMobileView as this action is action sheet
+    // for native events are set in ActionSheetContent as this action is action sheet
     if (isWebInternal()) {
-      events.on(EventNames.STT_ACTIVE, (data) => {
+      events.on(EventNames.STT_ACTIVE, data => {
         const payload = JSON.parse(data?.payload);
         setIsSTTActive(payload.active);
       });
 
-      events.on(EventNames.STT_LANGUAGE, (data) => {
+      events.on(EventNames.STT_LANGUAGE, data => {
         const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
         const actionText =
           prevLang.indexOf('') !== -1
@@ -438,7 +436,7 @@ const Controls = () => {
         // syncing local set language
         newLang && setLanguage(newLang);
         // add spoken lang msg to transcript
-        setMeetingTranscript((prev) => {
+        setMeetingTranscript(prev => {
           return [
             ...prev,
             {
@@ -467,13 +465,15 @@ const Controls = () => {
         {
           paddingHorizontal: isDesktop('toolbar') ? 32 : 16,
         },
-      ]}>
+      ]}
+    >
       {width >= BREAKPOINTS.md && (
         <View style={style.leftContent}>
           <View
             testID="layout-btn"
             style={{marginRight: 10}}
-            collapsable={false}>
+            collapsable={false}
+          >
             {/**
              * .measure returns undefined on Android unless collapsable=false or onLayout are specified
              * so added collapsable property
@@ -517,7 +517,8 @@ const Controls = () => {
               testID="localVideo-btn"
               style={{
                 marginHorizontal: 10,
-              }}>
+              }}
+            >
               <LocalVideoMute showToolTip={true} />
             </View>
           )}
@@ -526,7 +527,8 @@ const Controls = () => {
               testID="switchCamera-btn"
               style={{
                 marginHorizontal: 10,
-              }}>
+              }}
+            >
               <LocalSwitchCamera />
             </View>
           )}
@@ -537,7 +539,8 @@ const Controls = () => {
                 testID="screenShare-btn"
                 style={{
                   marginHorizontal: 10,
-                }}>
+                }}
+              >
                 <ScreenshareButton />
               </View>
             )}
@@ -546,7 +549,8 @@ const Controls = () => {
               testID="recording-btn"
               style={{
                 marginHorizontal: 10,
-              }}>
+              }}
+            >
               <Recording />
             </View>
           )}

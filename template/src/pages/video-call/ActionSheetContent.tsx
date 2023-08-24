@@ -33,7 +33,7 @@ import {useChatNotification} from '../../components/chat-notification/useChatNot
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
-import {isWeb, useLocalUserInfo, useRtc} from 'customization-api';
+import {isWeb, useLocalUserInfo, useRender, useRtc} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
@@ -43,6 +43,10 @@ import {useCaption} from '../../subComponents/caption/useCaption';
 
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
+import {EventNames} from '../../rtm-events';
+import events from '../../rtm-events-api';
+import {getLanguageLabel} from '../../subComponents/caption/utils';
+import Toast from '../../../react-native-toast-message';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -158,7 +162,8 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
               {
                 color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
               },
-            ]}>
+            ]}
+          >
             Switch
           </Text>
           <Text
@@ -168,7 +173,8 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
                 color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
                 marginTop: 0,
               },
-            ]}>
+            ]}
+          >
             Camera
           </Text>
         </View>
@@ -259,7 +265,8 @@ const EndCallIcon = (props: EndCallIconProps) => {
         style={[
           styles.iconContainer,
           {backgroundColor: $config.SEMANTIC_ERROR},
-        ]}>
+        ]}
+      >
         <LocalEndcall {...props} />
       </View>
     </View>
@@ -283,17 +290,22 @@ const LayoutIcon = (props: LayoutIconProps) => {
 
 interface CaptionIconBtnProps {
   showLabel?: boolean;
+  onPress?: () => void;
 }
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {showLabel = $config.ICON_TEXT, onPress} = props;
   const {isAuthorizedSTTUser} = useSTTAPI();
   const {isCaptionON} = useCaption();
   const isDisabled = !isAuthorizedSTTUser();
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <CaptionIcon isOnActionSheet={true} showLabel={false} />
+        <CaptionIcon
+          isOnActionSheet={true}
+          showLabel={false}
+          closeActionSheet={onPress}
+        />
       </View>
       {showLabel && (
         <View>
@@ -305,7 +317,8 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
                   ? $config.SEMANTIC_NEUTRAL
                   : $config.FONT_COLOR,
               },
-            ]}>
+            ]}
+          >
             {isCaptionON ? 'Hide' : 'Show'}
           </Text>
           <Text
@@ -317,7 +330,8 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
                   : $config.FONT_COLOR,
                 marginTop: 0,
               },
-            ]}>
+            ]}
+          >
             Caption
           </Text>
         </View>
@@ -333,7 +347,8 @@ interface TranscriptIconProps {
 const TranscriptIconBtn = (props: TranscriptIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
   const {isAuthorizedSTTUser} = useSTTAPI();
-  const {isTranscriptON} = useCaption();
+  const {sidePanel} = useSidePanel();
+  const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const isDisabled = !isAuthorizedSTTUser();
   return (
     <View style={styles.iconWithText}>
@@ -350,7 +365,8 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
                   ? $config.SEMANTIC_NEUTRAL
                   : $config.FONT_COLOR,
               },
-            ]}>
+            ]}
+          >
             {isTranscriptON ? 'Hide' : 'Show'}
           </Text>
           <Text
@@ -362,7 +378,8 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
                   : $config.FONT_COLOR,
                 marginTop: 0,
               },
-            ]}>
+            ]}
+          >
             Transcript
           </Text>
         </View>
@@ -399,7 +416,7 @@ export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
   ShareIcon,
 ];
 
-const ActionSheetContent = (props) => {
+const ActionSheetContent = props => {
   const {handleSheetChanges, isExpanded, native = false} = props;
   const {onlineUsersCount, localUid} = useContext(ChatContext);
   const {isScreenshareActive} = useScreenshare();
@@ -414,8 +431,60 @@ const ActionSheetContent = (props) => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
+  const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
+  const {renderList} = useRender();
 
-  const layout = layouts.findIndex((item) => item.name === currentLayout);
+  //STT events on mount
+  React.useEffect(() => {
+    events.on(EventNames.STT_ACTIVE, data => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+
+    events.on(EventNames.STT_LANGUAGE, data => {
+      const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
+      const actionText =
+        prevLang.indexOf('') !== -1
+          ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+          : `changed the spoken language from "${getLanguageLabel(
+              prevLang,
+            )}" to "${getLanguageLabel(newLang)}" `;
+      const msg = `${renderList[uid]?.name || username} ${actionText} `;
+
+      Toast.show({
+        type: 'info',
+        leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+        text1: `Spoken Language ${
+          prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+        }`,
+        visibilityTime: 3000,
+        text2: msg,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      // syncing local set language
+      newLang && setLanguage(newLang);
+      // add spoken lang msg to transcript
+      setMeetingTranscript(prev => {
+        return [
+          ...prev,
+          {
+            name: 'langUpdate',
+            time: new Date().getTime(),
+            uid: `langUpdate-${uid}`,
+            text: actionText,
+          },
+        ];
+      });
+    });
+  }, []);
+
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
+  const layout = layouts.findIndex(item => item.name === currentLayout);
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
   const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
@@ -450,7 +519,8 @@ const ActionSheetContent = (props) => {
         style={[
           styles.row,
           {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
-        ]}>
+        ]}
+      >
         {isAudioVideoControlsDisabled ? null : (
           <AudioIcon
             isMobileView={true}
@@ -487,18 +557,19 @@ const ActionSheetContent = (props) => {
         <EndCallIcon showLabel={false} isOnActionSheet={true} />
 
         <ShowMoreIcon
-          isExpanded={isExpanded}
           showNotification={
             (!isExpanded && totalUnreadCount !== 0) ||
             ($config.EVENT_MODE && isPendingRequestToReview)
           }
+          isExpanded={isExpanded}
           onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
         />
       </View>
 
       <CarouselWrapper
         isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
-        native={native}>
+        native={native}
+      >
         <>
           {/**
            * In event mode when raise hand feature is active
@@ -546,7 +617,13 @@ const ActionSheetContent = (props) => {
           {/* invite */}
           <ShareIcon />
           {/* caption  */}
-          {$config.ENABLE_STT ? <CaptionIconBtn /> : <></>}
+          {$config.ENABLE_STT ? (
+            <CaptionIconBtn
+              onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+            />
+          ) : (
+            <></>
+          )}
           {native && $config.SCREEN_SHARING && !isPaginationRequired ? (
             <ScreenshareIcon />
           ) : (
