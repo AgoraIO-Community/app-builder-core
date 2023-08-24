@@ -111,8 +111,13 @@ const useFindActiveSpeaker = () => {
       } else {
         console.log('debugging multiple users are speaking ', speakingUids);
         //get current volume levels for users
-        //@ts-ignore
-        const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
+        let currentUsersVolume = {};
+        if (isWeb()) {
+          //@ts-ignore
+          currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
+        } else {
+        }
+
         const normalizedValues = {};
         speakingUids?.forEach(uid => {
           const uuid = parseInt(uid);
