@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 import React, {useEffect, useRef, useState} from 'react';
@@ -131,59 +131,66 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         }
       },
     );
-    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
+    const unsubScreenShareAttribute = events.on(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      (data) => {
+        const payload = JSON.parse(data.payload);
+        const action = payload.action;
+        const value = payload.value;
 
-      const screenUidOfUser =
-        renderListRef.current.renderList[data.sender].screenUid;
-      switch (action) {
-        case EventActions.SCREENSHARE_STARTED:
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [screenUidOfUser]: {
-                ...prevState[screenUidOfUser],
-                name: renderListRef.current.renderList[screenUidOfUser]?.name,
-                isActive: true,
-                ts: value || 0,
-              },
-            };
-          });
-          break;
-        case EventActions.SCREENSHARE_STOPPED:
-          //if user pinned some remote screenshare view as fullscreen view on native and remote stop the screenshare
-          //then we need to exit the fullscreen view
-          if (
-            screenShareDataRef.current.screenShareData[screenUidOfUser] &&
-            screenShareDataRef.current.screenShareData[screenUidOfUser]
-              ?.isExpanded
-          ) {
-            setScreenShareOnFullView(false);
-          }
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [screenUidOfUser]: {
-                ...prevState[screenUidOfUser],
-                isExpanded: false,
-                name: renderListRef.current.renderList[screenUidOfUser]?.name,
-                isActive: false,
-                ts: value || 0,
-              },
-            };
-          });
-          //if remote user started/stopped the screenshare then change the layout to pinned/grid
-          //if user pinned somebody then don't triggerlayout change
-          if (!pinnedUidRef.current.pinnedUid) {
-            triggerChangeLayout(false);
-          }
-          break;
-        default:
-          break;
-      }
-    });
+        const screenUidOfUser =
+          renderListRef.current.renderList[data.sender].screenUid;
+        switch (action) {
+          case EventActions.SCREENSHARE_STARTED:
+            setScreenShareData((prevState) => {
+              return {
+                ...prevState,
+                [screenUidOfUser]: {
+                  ...prevState[screenUidOfUser],
+                  name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                  isActive: true,
+                  ts: value || 0,
+                },
+              };
+            });
+            break;
+          case EventActions.SCREENSHARE_STOPPED:
+            //if user pinned some remote screenshare view as fullscreen view on native and remote stop the screenshare
+            //then we need to exit the fullscreen view
+            if (
+              screenShareDataRef.current.screenShareData[screenUidOfUser] &&
+              screenShareDataRef.current.screenShareData[screenUidOfUser]
+                ?.isExpanded
+            ) {
+              setScreenShareOnFullView(false);
+            }
+            setScreenShareData((prevState) => {
+              return {
+                ...prevState,
+                [screenUidOfUser]: {
+                  ...prevState[screenUidOfUser],
+                  isExpanded: false,
+                  name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                  isActive: false,
+                  ts: value || 0,
+                },
+              };
+            });
+            //if remote user started/stopped the screenshare then change the layout to pinned/grid
+            //if user pinned somebody then don't triggerlayout change
+            if (!pinnedUidRef.current.pinnedUid) {
+              triggerChangeLayout(false);
+            }
+            break;
+          default:
+            break;
+        }
+      },
+    );
+
+    return () => {
+      unsubScreenShareAttribute();
+    };
   }, []);
 
   const startUserScreenshare = async (captureAudio: boolean = false) => {
