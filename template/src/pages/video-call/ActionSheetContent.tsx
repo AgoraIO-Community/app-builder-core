@@ -1,24 +1,14 @@
+/* eslint-disable react-native/no-inline-styles */
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useContext} from 'react';
 import ImageIcon from '../../atoms/ImageIcon';
-import LocalAudioMute, {
-  LocalAudioMuteProps,
-} from '../../subComponents/LocalAudioMute';
-import LocalVideoMute, {
-  LocalVideoMuteProps,
-} from '../../subComponents/LocalVideoMute';
-import LocalEndcall, {
-  LocalEndcallProps,
-} from '../../subComponents/LocalEndCall';
+import LocalAudioMute from '../../subComponents/LocalAudioMute';
+import LocalVideoMute from '../../subComponents/LocalVideoMute';
+import LocalEndcall from '../../subComponents/LocalEndCall';
 import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
-import {numFormatter} from '../../utils';
-import IconButton from '../../atoms/IconButton';
-import {useLayout} from '../../utils/useLayout';
-import useLayoutsData from '../../pages/video-call/useLayoutsData';
-import {useChangeDefaultLayout} from '../../pages/video-call/DefaultLayouts';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {ClientRole} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
@@ -26,14 +16,12 @@ import LiveStreamControls from '../../components/livestream/views/LiveStreamCont
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {
   ChatIconButton,
-  ParticipantsCountView,
   ParticipantsIconButton,
 } from '../../../src/components/Navbar';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
-import Settings from '../../components/Settings';
-import {isWeb, useLocalUserInfo, useRender, useRtc} from 'customization-api';
+import {useLocalUserInfo, useRender} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
@@ -162,8 +150,7 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
               {
                 color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
               },
-            ]}
-          >
+            ]}>
             Switch
           </Text>
           <Text
@@ -173,8 +160,7 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
                 color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
                 marginTop: 0,
               },
-            ]}
-          >
+            ]}>
             Camera
           </Text>
         </View>
@@ -265,8 +251,7 @@ const EndCallIcon = (props: EndCallIconProps) => {
         style={[
           styles.iconContainer,
           {backgroundColor: $config.SEMANTIC_ERROR},
-        ]}
-      >
+        ]}>
         <LocalEndcall {...props} />
       </View>
     </View>
@@ -317,8 +302,7 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
                   ? $config.SEMANTIC_NEUTRAL
                   : $config.FONT_COLOR,
               },
-            ]}
-          >
+            ]}>
             {isCaptionON ? 'Hide' : 'Show'}
           </Text>
           <Text
@@ -330,8 +314,7 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
                   : $config.FONT_COLOR,
                 marginTop: 0,
               },
-            ]}
-          >
+            ]}>
             Caption
           </Text>
         </View>
@@ -365,8 +348,7 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
                   ? $config.SEMANTIC_NEUTRAL
                   : $config.FONT_COLOR,
               },
-            ]}
-          >
+            ]}>
             {isTranscriptON ? 'Hide' : 'Show'}
           </Text>
           <Text
@@ -378,8 +360,7 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
                   : $config.FONT_COLOR,
                 marginTop: 0,
               },
-            ]}
-          >
+            ]}>
             Transcript
           </Text>
         </View>
@@ -416,15 +397,18 @@ export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
   ShareIcon,
 ];
 
+const ToastIcon = ({color}) => (
+  <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+    <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+  </View>
+);
+
 const ActionSheetContent = props => {
   const {handleSheetChanges, isExpanded, native = false} = props;
-  const {onlineUsersCount, localUid} = useContext(ChatContext);
+  const {localUid} = useContext(ChatContext);
   const {isScreenshareActive} = useScreenshare();
-  const layouts = useLayoutsData();
-  const {currentLayout} = useLayout();
-  const changeLayout = useChangeDefaultLayout();
   const {rtcProps} = useContext(PropsContext);
-  const {sidePanel, setSidePanel} = useSidePanel();
+  const {setSidePanel} = useSidePanel();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -477,22 +461,13 @@ const ActionSheetContent = props => {
         ];
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const ToastIcon = ({color}) => (
-    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
-      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
-    </View>
-  );
-  const layout = layouts.findIndex(item => item.name === currentLayout);
-  const isLiveStream = $config.EVENT_MODE;
-  const isAudience = rtcProps?.role == ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
+  const isAudience = rtcProps?.role === ClientRole.Audience;
+  const isBroadCasting = rtcProps?.role === ClientRole.Broadcaster;
   const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
-
-  const handleLayoutChange = () => {
-    changeLayout();
-  };
 
   const isAudioRoom = $config.AUDIO_ROOM;
   const isVoiceChatHost = !$config.EVENT_MODE && $config.AUDIO_ROOM && isHost;
@@ -508,10 +483,11 @@ const ActionSheetContent = props => {
   const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
 
   const isPaginationRequired = isLiveStream || (isConferencing && isHost);
+  const localUser = useLocalUserInfo();
 
   const isVideoDisabled = native
-    ? useLocalUserInfo().video === ToggleState.disabled || isScreenshareActive
-    : useLocalUserInfo().video === ToggleState.disabled;
+    ? localUser.video === ToggleState.disabled || isScreenshareActive
+    : localUser.video === ToggleState.disabled;
   return (
     <View>
       {/* Row Always Visible */}
@@ -519,8 +495,7 @@ const ActionSheetContent = props => {
         style={[
           styles.row,
           {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
-        ]}
-      >
+        ]}>
         {isAudioVideoControlsDisabled ? null : (
           <AudioIcon
             isMobileView={true}
@@ -537,7 +512,8 @@ const ActionSheetContent = props => {
         {(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
           <ChatIcon showLabel={false} />
         )}
-        {(isAudioCastAudience && isLiveStream && isAudience) ||
+        {isAudioCastAudience ||
+        (isLiveStream && isAudience) ||
         (isBroadCasting && !isHost) ? (
           $config.RAISE_HAND && isAudioRoom ? (
             <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
@@ -568,8 +544,7 @@ const ActionSheetContent = props => {
 
       <CarouselWrapper
         isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
-        native={native}
-      >
+        native={native}>
         <>
           {/**
            * In event mode when raise hand feature is active
