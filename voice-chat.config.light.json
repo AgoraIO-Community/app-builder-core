@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "b8c2ef0f986541a8992451c07d30fb4b",
   "PROJECT_ID": "8d2b1a60e4e0e95ac455",
-  "FRONTEND_ENDPOINT": "",
+  "FRONTEND_ENDPOINT": "https://voicecall.agora.io",
   "BACKEND_ENDPOINT": "https://managedservices-prod.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
