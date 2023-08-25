@@ -27,11 +27,6 @@ import {filterObject} from '../../utils';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 
 const VideoCallMobileView = () => {
-  const {
-    data: {meetingTitle},
-  } = useMeetingInfo();
-  const {isRecordingActive} = useRecording();
-  const recordingLabel = 'Recording';
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
 
   const {RtcEngine, dispatch} = useContext(RtcContext);
@@ -109,48 +104,61 @@ const VideoCallMobileView = () => {
     }
   }, [appStateVisible, isScreenshareActive]);
 
+  return isScreenShareOnFullView &&
+    maxScreenShareUid &&
+    renderList[maxScreenShareUid] &&
+    renderList[maxScreenShareUid]?.video ? (
+    <VideoRenderer user={renderList[maxScreenShareUid]} />
+  ) : (
+    <VideoCallView />
+  );
+};
+
+const VideoCallView = React.memo(() => {
   return (
-    <>
-      {isScreenShareOnFullView &&
-      maxScreenShareUid &&
-      renderList[maxScreenShareUid] &&
-      renderList[maxScreenShareUid]?.video ? (
-        <VideoRenderer user={renderList[maxScreenShareUid]} />
-      ) : (
-        <View style={styles.container}>
-          <View style={styles.titleBar}>
-            <Text style={styles.title}>{trimText(meetingTitle)}</Text>
-            <Spacer size={8} horizontal={false} />
-            <View style={styles.countView}>
-              <View
-                style={{
-                  width: 45,
-                  height: 35,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  alignSelf: 'center',
-                  zIndex: isWebInternal() ? 3 : 0,
-                  //flex: 1,
-                }}
-              >
-                <ParticipantsCount />
-              </View>
-              {isRecordingActive ? (
-                <RecordingInfo recordingLabel={recordingLabel} />
-              ) : (
-                <></>
-              )}
-            </View>
-          </View>
-          <Spacer size={16} />
-          <View style={styles.videoView}>
-            <VideoComponent />
-            <CaptionContainer />
-          </View>
-          <ActionSheet />
+    <View style={styles.container}>
+      <VideoCallHeader />
+      <Spacer size={16} />
+      <View style={styles.videoView}>
+        <VideoComponent />
+        <CaptionContainer />
+      </View>
+      <ActionSheet />
+    </View>
+  );
+});
+
+const VideoCallHeader = () => {
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
+  const {isRecordingActive} = useRecording();
+  const recordingLabel = 'Recording';
+  return (
+    <View style={styles.titleBar}>
+      <Text style={styles.title}>{trimText(meetingTitle)}</Text>
+      <Spacer size={8} horizontal={false} />
+      <View style={styles.countView}>
+        <View
+          style={{
+            width: 45,
+            height: 35,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            zIndex: isWebInternal() ? 3 : 0,
+            //flex: 1,
+          }}
+        >
+          <ParticipantsCount />
         </View>
-      )}
-    </>
+        {isRecordingActive ? (
+          <RecordingInfo recordingLabel={recordingLabel} />
+        ) : (
+          <></>
+        )}
+      </View>
+    </View>
   );
 };
 
