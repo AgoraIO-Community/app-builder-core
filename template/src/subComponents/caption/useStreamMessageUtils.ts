@@ -7,11 +7,6 @@ type StreamMessageCallback = (args: [number, Uint8Array]) => void;
 type FinalListType = {
   [key: string]: string[];
 };
-type TranscriptItem = {
-  uid: string;
-  time: number;
-  text: string;
-};
 
 const useStreamMessageUtils = (): {
   streamMessageCallback: StreamMessageCallback;
@@ -28,12 +23,12 @@ const useStreamMessageUtils = (): {
   const finalTranscriptList: FinalListType = {};
   const queue = new PQueue({concurrency: 1});
 
-  const streamMessageCallback: StreamMessageCallback = (args) => {
-    const queueCallback = (args: [number, Uint8Array]) => {
+  const streamMessageCallback: StreamMessageCallback = args => {
+    const queueCallback = (args1: [number, Uint8Array]) => {
       /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
-      const [uid, payload] = args;
+      const [, payload] = args1;
       let nonFinalText = ''; // holds intermediate results
       let finalText = ''; // holds final strings
       let currentFinalText = ''; // holds current caption
@@ -44,6 +39,13 @@ const useStreamMessageUtils = (): {
         .decode(payload as Uint8Array) as any;
 
       console.log('STT - Parsed Textstream : ', textstream);
+      console.log(
+        `STT-callback: %c${textstream.uid} %c${textstream.words
+          .map(word => (word.text === '.' ? '' : word.text))
+          .join(' ')}`,
+        'color:red',
+        'color:blue',
+      );
 
       // Identifing Current & Prev Speakers for the Captions
       /*
@@ -61,14 +63,14 @@ const useStreamMessageUtils = (): {
      Clearing Required:                           A               B                A                     C
 
      Logic:
-     time           :  t0  t1 t2 t3 t4 t5       
+     time           :  t0  t1 t2 t3 t4 t5
      textstream.uid :   A  B  A  C  B  C
      (B)prevSpeaker :   -  -  A  B  A  C
      (B)activeSpeake:   -  A  B  A  C  B
-     Prev Data clear:   -  -  A  B  A  C 
+     Prev Data clear:   -  -  A  B  A  C
      ################## CHANGE ######################
      (A)prevSpeaker :   -  A  B  A  C  B
-     (A)activeSpeake:   A  B  A  C  B  C 
+     (A)activeSpeake:   A  B  A  C  B  C
 
      Clear when textStream.uid == prevSpeakerRef.current
 
@@ -79,6 +81,11 @@ const useStreamMessageUtils = (): {
         if (prevSpeakerRef.current !== '') {
           finalList[prevSpeakerRef.current] = [];
           isInterjecting = true;
+          console.log(
+            '%cSTT-callback%c Interjection! ',
+            'color:#fff',
+            'background: #222; color: #bada55',
+          );
         }
         prevSpeakerRef.current = activeSpeakerRef.current;
         activeSpeakerRef.current = textstream.uid;
@@ -130,7 +137,7 @@ const useStreamMessageUtils = (): {
 
       /* Updating Meeting Transcript */
       if (currentFinalText.length) {
-        setMeetingTranscript((prevTranscript) => {
+        setMeetingTranscript(prevTranscript => {
           const lastTranscriptIndex = prevTranscript.length - 1;
           const lastTranscript =
             lastTranscriptIndex >= 0
@@ -138,7 +145,7 @@ const useStreamMessageUtils = (): {
               : null;
 
           /*
-            checking if the last item transcript matches with current uid 
+            checking if the last item transcript matches with current uid
             If yes then updating the last transcript msg with current text
             If no then adding a new entry in the transcript
           */
@@ -154,9 +161,6 @@ const useStreamMessageUtils = (): {
               updatedTranscript,
             ];
           } else {
-            const isLangUpdate =
-              lastTranscript?.uid.toString().indexOf('langUpdate') > -1;
-
             finalTranscriptList[textstream.uid] = [currentFinalText];
 
             return [
@@ -171,8 +175,8 @@ const useStreamMessageUtils = (): {
         });
       }
 
-      /* 
-     Previous final words of the uid are prepended and 
+      /*
+     Previous final words of the uid are prepended and
      then current non final words so that context of speech is not lost
     */
       const existingStringBuffer = isInterjecting
@@ -186,7 +190,7 @@ const useStreamMessageUtils = (): {
 
       // updating the captions
       captionText &&
-        setCaptionObj((prevState) => {
+        setCaptionObj(prevState => {
           return {
             ...prevState,
             [textstream.uid]: {
@@ -196,12 +200,12 @@ const useStreamMessageUtils = (): {
           };
         });
 
-      console.group('STT-logs');
-      console.log('Recived uid =>', textstream.uid);
-      console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
-      console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
-      console.log('final List =>', finalList);
-      console.groupEnd();
+      // console.group('STT-logs');
+      // console.log('Recived uid =>', textstream.uid);
+      // console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
+      // console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
+      // console.log('final List =>', finalList);
+      // console.groupEnd();
     };
     (async () => {
       await queue.add(() => queueCallback(args));
