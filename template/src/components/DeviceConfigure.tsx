@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 import React, {
@@ -64,6 +64,8 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const {store, setStore} = useContext(StorageContext);
   const {rememberedDevicesList, activeDeviceId} = store;
 
+  const mountRef = useRef(true);
+
   // const {mediaDevice: sdkMediaDevice} = useContext(SdkApiContext);
   const {
     microphoneDevice: sdkMicrophoneDevice,
@@ -82,7 +84,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   const isChrome = useMemo(() => {
     return (
-      deviceList.filter((device) => device.deviceId === 'default').length > 0
+      deviceList.filter(device => device.deviceId === 'default').length > 0
     );
   }, [deviceList]);
 
@@ -100,7 +102,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   ) => {
     // const {kind, deviceId} = device;
 
-    setStore((prevState) => ({
+    setStore(prevState => ({
       ...prevState,
       activeDeviceId: {
         ...activeDeviceId,
@@ -119,7 +121,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     //   'rememberedDevicesList',
     //   JSON.stringify(rememberedDevicesList.current),
     // );
-    setStore((prevState) => ({
+    setStore(prevState => ({
       ...prevState,
       rememberedDevicesList: {
         ...prevState.rememberedDevicesList,
@@ -249,7 +251,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     switch (kind) {
       case 'audioinput':
         const audioInputFallbackDeviceId = deviceListLocal.find(
-          (device) =>
+          device =>
             device.kind === 'audioinput' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
@@ -257,13 +259,13 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         break;
       case 'videoinput':
         const videoInputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'videoinput',
+          device => device.kind === 'videoinput',
         )?.deviceId;
         setSelectedCam(videoInputFallbackDeviceId);
         break;
       case 'audiooutput':
         const audioOutputFallbackDeviceId = deviceListLocal.find(
-          (device) =>
+          device =>
             device.kind === 'audiooutput' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
@@ -277,7 +279,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     deviceId: deviceId,
     deviceList: MediaDeviceInfo[],
   ) => {
-    return deviceList.find((device) => device.deviceId === deviceId)
+    return deviceList.find(device => device.deviceId === deviceId)
       ? true
       : false;
   };
@@ -318,7 +320,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       .then(() => {
         promise.res();
       })
-      .catch((e) => {
+      .catch(e => {
         promise.rej(e);
       })
       .finally(() => {
@@ -328,14 +330,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     // Notify updated state every 20s
-    let count = 0;
-    const interval = setInterval(() => {
-      count = count + 1;
-      refreshDeviceList(count % 10 !== 0);
-    }, 2000);
-    return () => {
-      clearInterval(interval);
-    };
+    if (mountRef.current) {
+      mountRef.current = false;
+      let count = 0;
+      const interval = setInterval(() => {
+        count = count + 1;
+        refreshDeviceList(count % 10 !== 0);
+      }, 2000);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+    return () => {};
   }, []);
 
   useEffect(() => {
@@ -379,7 +385,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         }
 
         const defaultSpeaker = deviceList.find(
-          (device) =>
+          device =>
             device.deviceId === 'default' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
@@ -440,7 +446,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           checkDeviceExists(storedDevice, deviceList)
         ) {
           log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
-          setDevice(storedDevice).catch((e:Error) => {
+          setDevice(storedDevice).catch((e: Error) => {
             log(
               logTag,
               deviceLogTag,
@@ -525,7 +531,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }
 
     const didChangeDeviceExistBefore = previousDeviceList.find(
-      (device) => device.deviceId === changedDevice.deviceId,
+      device => device.deviceId === changedDevice.deviceId,
     )
       ? true
       : false;
@@ -626,7 +632,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           .then(() => {
             queueItem.resolveQueued();
           })
-          .catch((e) => queueItem.rejectQueued(e));
+          .catch(e => queueItem.rejectQueued(e));
       }
     };
     return new Promise<void>((res, rej) => {
