@@ -32,68 +32,74 @@ const useFindActiveSpeaker = () => {
   };
 
   useEffect(() => {
-    //sending local user speaking and non speaking volume to remote users
-    let volume = 0;
-    let volumes = [];
-    if (isWeb()) {
-      //@ts-ignore
-      volumes = RtcEngine?.getUsersVolumeLevel();
-    } else {
-      //todo on native
-    }
-
-    const localUserData = volumes.find((i) => i.uid == uid);
-    if (localUserData && localUserData.level) {
-      volume = Math.round(localUserData.level * 100) / 100;
-    }
-    if (volume) {
-      if (isLocalUserSpeaking && volume > maxSpeakingVolumeRef.current) {
-        //for remote users
-        maxSpeakingVolumeRef.current = volume;
-        hasUserJoinedRTM &&
-          events.send(
-            volumeEnum.SPEAKING_VOLUME,
-            volume.toString(),
-            EventPersistLevel.LEVEL2,
-          );
-        //for local user
-        speakingVolumeEventCallBack({
-          payload: volume.toString(),
-          sender: uid,
-        });
-      } else if (
-        !isLocalUserSpeaking &&
-        volume < minNonSpeakingVolumeRef.current
-      ) {
-        //for remote users
-        minNonSpeakingVolumeRef.current = volume;
-        hasUserJoinedRTM &&
-          events.send(
-            volumeEnum.NON_SPEAKING_VOLUME,
-            volume.toString(),
-            EventPersistLevel.LEVEL2,
-          );
-        //for local user
-        nonSpeakingVolumeEventCallback({
-          payload: volume.toString(),
-          sender: uid,
-        });
+    if ($config.ACTIVE_SPEAKER) {
+      //sending local user speaking and non speaking volume to remote users
+      let volume = 0;
+      let volumes = [];
+      if (isWeb()) {
+        //@ts-ignore
+        volumes = RtcEngine?.getUsersVolumeLevel();
+      } else {
+        //todo on native
       }
-    }
 
-    //inform local user is speaking
-    if (isLocalUserSpeaking) {
-      //inform remote users
-      hasUserJoinedRTM &&
-        events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
-      //for local usage
-      isSpeakingEventCallback({payload: 'true', sender: uid});
-    } else {
-      //inform remote users
-      hasUserJoinedRTM &&
-        events.send(volumeEnum.IS_SPEAKING, 'false', EventPersistLevel.LEVEL2);
-      //for local usage
-      isSpeakingEventCallback({payload: 'false', sender: uid});
+      const localUserData = volumes.find((i) => i.uid == uid);
+      if (localUserData && localUserData.level) {
+        volume = Math.round(localUserData.level * 100) / 100;
+      }
+      if (volume) {
+        if (isLocalUserSpeaking && volume > maxSpeakingVolumeRef.current) {
+          //for remote users
+          maxSpeakingVolumeRef.current = volume;
+          hasUserJoinedRTM &&
+            events.send(
+              volumeEnum.SPEAKING_VOLUME,
+              volume.toString(),
+              EventPersistLevel.LEVEL2,
+            );
+          //for local user
+          speakingVolumeEventCallBack({
+            payload: volume.toString(),
+            sender: uid,
+          });
+        } else if (
+          !isLocalUserSpeaking &&
+          volume < minNonSpeakingVolumeRef.current
+        ) {
+          //for remote users
+          minNonSpeakingVolumeRef.current = volume;
+          hasUserJoinedRTM &&
+            events.send(
+              volumeEnum.NON_SPEAKING_VOLUME,
+              volume.toString(),
+              EventPersistLevel.LEVEL2,
+            );
+          //for local user
+          nonSpeakingVolumeEventCallback({
+            payload: volume.toString(),
+            sender: uid,
+          });
+        }
+      }
+
+      //inform local user is speaking
+      if (isLocalUserSpeaking) {
+        //inform remote users
+        hasUserJoinedRTM &&
+          events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
+        //for local usage
+        isSpeakingEventCallback({payload: 'true', sender: uid});
+      } else {
+        //inform remote users
+        hasUserJoinedRTM &&
+          events.send(
+            volumeEnum.IS_SPEAKING,
+            'false',
+            EventPersistLevel.LEVEL2,
+          );
+        //for local usage
+        isSpeakingEventCallback({payload: 'false', sender: uid});
+      }
     }
   }, [isLocalUserSpeaking, hasUserJoinedRTM]);
 
@@ -262,17 +268,21 @@ const useFindActiveSpeaker = () => {
     };
   };
   useEffect(() => {
-    events.on(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
-    events.on(volumeEnum.NON_SPEAKING_VOLUME, nonSpeakingVolumeEventCallback);
-    events.on(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+    if ($config.ACTIVE_SPEAKER) {
+      events.on(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
+      events.on(volumeEnum.NON_SPEAKING_VOLUME, nonSpeakingVolumeEventCallback);
+      events.on(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+    }
 
     return () => {
-      events.off(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
-      events.off(
-        volumeEnum.NON_SPEAKING_VOLUME,
-        nonSpeakingVolumeEventCallback,
-      );
-      events.off(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+      if ($config.ACTIVE_SPEAKER) {
+        events.off(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
+        events.off(
+          volumeEnum.NON_SPEAKING_VOLUME,
+          nonSpeakingVolumeEventCallback,
+        );
+        events.off(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+      }
     };
   }, []);
 

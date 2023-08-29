@@ -7,6 +7,7 @@ const useIsLocalUserSpeaking = () => {
   const {audio} = useLocalUserInfo();
   const speechRef = useRef(null);
   const audioRef = useRef(audio);
+  const audioTrackRef = useRef(null);
 
   useEffect(() => {
     audioRef.current = audio;
@@ -46,8 +47,11 @@ const useIsLocalUserSpeaking = () => {
           audio: true,
         })
         .then((audioStream) => {
+          audioTrackRef.current = audioStream.getAudioTracks();
           speechRef.current = null;
-          speechRef.current = hark(audioStream, {interval: 100});
+          speechRef.current = hark(audioStream, {
+            interval: 100,
+          });
           speechRef.current.on('speaking', speakingCallBack);
           speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
         });
@@ -57,10 +61,21 @@ const useIsLocalUserSpeaking = () => {
   };
 
   useEffect(() => {
-    navigator.mediaDevices.ondevicechange = (event) => {
+    if ($config.ACTIVE_SPEAKER) {
+      navigator.mediaDevices.ondevicechange = () => {
+        listenForSpeaker();
+      };
       listenForSpeaker();
+    }
+    return () => {
+      if ($config.ACTIVE_SPEAKER) {
+        speechRef.current && speechRef.current.stop();
+        audioTrackRef.current &&
+          audioTrackRef.current?.length &&
+          audioTrackRef.current[0].stop();
+        navigator.mediaDevices.ondevicechange = () => {};
+      }
     };
-    listenForSpeaker();
   }, []);
 
   return isSpeaking;
