@@ -1,9 +1,10 @@
 import {useLocalUserInfo, useRender, useRtc} from 'customization-api';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import events, {EventPersistLevel} from '../rtm-events-api';
 import useIsLocalUserSpeaking from './useIsLocalUserSpeaking';
 import {filterObject} from '../utils/index';
 import {isWeb} from '../utils/common';
+import ChatContext from '../components/ChatContext';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -12,6 +13,7 @@ enum volumeEnum {
 }
 const useFindActiveSpeaker = () => {
   const isLocalUserSpeaking = useIsLocalUserSpeaking();
+  const {hasUserJoinedRTM} = useContext(ChatContext);
   const {RtcEngine} = useRtc();
   const {renderList} = useRender();
   const {uid} = useLocalUserInfo();
@@ -40,7 +42,7 @@ const useFindActiveSpeaker = () => {
       //todo on native
     }
 
-    const localUserData = volumes.find(i => i.uid == uid);
+    const localUserData = volumes.find((i) => i.uid == uid);
     if (localUserData && localUserData.level) {
       volume = Math.round(localUserData.level * 100) / 100;
     }
@@ -48,11 +50,12 @@ const useFindActiveSpeaker = () => {
       if (isLocalUserSpeaking && volume > maxSpeakingVolumeRef.current) {
         //for remote users
         maxSpeakingVolumeRef.current = volume;
-        events.send(
-          volumeEnum.SPEAKING_VOLUME,
-          volume.toString(),
-          EventPersistLevel.LEVEL2,
-        );
+        hasUserJoinedRTM &&
+          events.send(
+            volumeEnum.SPEAKING_VOLUME,
+            volume.toString(),
+            EventPersistLevel.LEVEL2,
+          );
         //for local user
         speakingVolumeEventCallBack({
           payload: volume.toString(),
@@ -64,11 +67,12 @@ const useFindActiveSpeaker = () => {
       ) {
         //for remote users
         minNonSpeakingVolumeRef.current = volume;
-        events.send(
-          volumeEnum.NON_SPEAKING_VOLUME,
-          volume.toString(),
-          EventPersistLevel.LEVEL2,
-        );
+        hasUserJoinedRTM &&
+          events.send(
+            volumeEnum.NON_SPEAKING_VOLUME,
+            volume.toString(),
+            EventPersistLevel.LEVEL2,
+          );
         //for local user
         nonSpeakingVolumeEventCallback({
           payload: volume.toString(),
@@ -80,16 +84,18 @@ const useFindActiveSpeaker = () => {
     //inform local user is speaking
     if (isLocalUserSpeaking) {
       //inform remote users
-      events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
+      hasUserJoinedRTM &&
+        events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
       //for local usage
       isSpeakingEventCallback({payload: 'true', sender: uid});
     } else {
       //inform remote users
-      events.send(volumeEnum.IS_SPEAKING, 'false', EventPersistLevel.LEVEL2);
+      hasUserJoinedRTM &&
+        events.send(volumeEnum.IS_SPEAKING, 'false', EventPersistLevel.LEVEL2);
       //for local usage
       isSpeakingEventCallback({payload: 'false', sender: uid});
     }
-  }, [isLocalUserSpeaking]);
+  }, [isLocalUserSpeaking, hasUserJoinedRTM]);
 
   //findout who is active speaker using usersVolume(speaking and non speaking volume) and current user volume
   const findActiveSpeaker = () => {
@@ -119,9 +125,9 @@ const useFindActiveSpeaker = () => {
         }
 
         const normalizedValues = {};
-        speakingUids?.forEach(uid => {
+        speakingUids?.forEach((uid) => {
           const uuid = parseInt(uid);
-          const data = currentUsersVolume?.find(i => i.uid === uuid);
+          const data = currentUsersVolume?.find((i) => i.uid === uuid);
           const returnVal = normalize(
             data?.level || usersVolume.current[uuid]?.speakingVolume, //current level
             usersVolume.current[uid]?.nonSpeakingVolume || 0,
@@ -137,9 +143,9 @@ const useFindActiveSpeaker = () => {
 
         //for logging purpose
         let obj = {};
-        sorted.map(i => {
+        sorted.map((i) => {
           let id = parseInt(i);
-          const curtdata = currentUsersVolume.find(i => i.uid === id);
+          const curtdata = currentUsersVolume.find((i) => i.uid === id);
           const cl =
             curtdata && curtdata?.level
               ? Math.round(curtdata?.level * 100) / 100

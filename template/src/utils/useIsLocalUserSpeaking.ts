@@ -30,7 +30,15 @@ const useIsLocalUserSpeaking = () => {
     }
   };
 
-  useEffect(() => {
+  const listenForSpeaker = () => {
+    try {
+      if (speechRef.current) {
+        speechRef.current?.stop && speechRef.current?.stop();
+      }
+    } catch (error) {
+      console.log('error on stopping the hark', error);
+    }
+
     try {
       //detect local user speaking or not
       navigator.mediaDevices
@@ -38,11 +46,21 @@ const useIsLocalUserSpeaking = () => {
           audio: true,
         })
         .then((audioStream) => {
+          speechRef.current = null;
           speechRef.current = hark(audioStream, {interval: 100});
           speechRef.current.on('speaking', speakingCallBack);
           speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
         });
-    } catch (error) {}
+    } catch (error) {
+      console.log('error on starting the hark', error);
+    }
+  };
+
+  useEffect(() => {
+    navigator.mediaDevices.ondevicechange = (event) => {
+      listenForSpeaker();
+    };
+    listenForSpeaker();
   }, []);
 
   return isSpeaking;
