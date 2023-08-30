@@ -95,7 +95,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowStopRecordingPopup,
         showLayoutOption,
         setShowLayoutOption,
-        activeSpeaker,
+        activeSpeaker: $config.ACTIVE_SPEAKER ? activeSpeaker : 0,
         showStartScreenSharePopup,
         setShowStartScreenSharePopup,
         showStopScreenSharePopup,

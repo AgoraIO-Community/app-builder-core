@@ -1,9 +1,14 @@
-import {useLocalUserInfo, useRender, useRtc} from 'customization-api';
-import {useEffect, useRef, useState} from 'react';
+import {
+  useLocalUid,
+  useLocalUserInfo,
+  useRender,
+  useRtc,
+} from 'customization-api';
+import {useContext, useEffect, useRef, useState} from 'react';
 import events, {EventPersistLevel} from '../rtm-events-api';
 import useIsLocalUserSpeaking from './useIsLocalUserSpeaking';
 import {filterObject} from '../utils/index';
-import {isWeb} from '../utils/common';
+import ChatContext from '../components/ChatContext';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -11,7 +16,9 @@ enum volumeEnum {
   NON_SPEAKING_VOLUME = 'NON_SPEAKING_VOLUME',
 }
 const useFindActiveSpeaker = () => {
+  const localUid = useLocalUid();
   const isLocalUserSpeaking = useIsLocalUserSpeaking();
+  const {hasUserJoinedRTM} = useContext(ChatContext);
   const {RtcEngine} = useRtc();
   const {renderList} = useRender();
   const {uid} = useLocalUserInfo();
@@ -29,67 +36,80 @@ const useFindActiveSpeaker = () => {
     return (value - min) / (max - min);
   };
 
-  useEffect(() => {
-    //sending local user speaking and non speaking volume to remote users
-    let volume = 0;
-    let volumes = [];
-    if (isWeb()) {
-      //@ts-ignore
-      volumes = RtcEngine?.getUsersVolumeLevel();
-    } else {
-      //todo on native
-    }
+  const log: (arg1: string, ...args: any[]) => void = (arg1, ...args) => {
+    console.log('[ActiveSpeaker]' + arg1, ...args);
+  };
 
-    const localUserData = volumes.find(i => i.uid == uid);
-    if (localUserData && localUserData.level) {
-      volume = Math.round(localUserData.level * 100) / 100;
-    }
-    if (volume) {
-      if (isLocalUserSpeaking && volume > maxSpeakingVolumeRef.current) {
-        //for remote users
-        maxSpeakingVolumeRef.current = volume;
-        events.send(
-          volumeEnum.SPEAKING_VOLUME,
-          volume.toString(),
-          EventPersistLevel.LEVEL2,
-        );
-        //for local user
-        speakingVolumeEventCallBack({
-          payload: volume.toString(),
-          sender: uid,
-        });
-      } else if (
-        !isLocalUserSpeaking &&
-        volume < minNonSpeakingVolumeRef.current
-      ) {
-        //for remote users
-        minNonSpeakingVolumeRef.current = volume;
-        events.send(
-          volumeEnum.NON_SPEAKING_VOLUME,
-          volume.toString(),
-          EventPersistLevel.LEVEL2,
-        );
-        //for local user
-        nonSpeakingVolumeEventCallback({
-          payload: volume.toString(),
-          sender: uid,
-        });
+  useEffect(() => {
+    if ($config.ACTIVE_SPEAKER) {
+      isLocalUserSpeaking
+        ? log(' %cLocal user started speaking', 'color:green')
+        : log(' %cLocal user stopped speaking', 'color:red');
+
+      //sending local user speaking and non speaking volume to remote users
+      let volume = 0;
+      //@ts-ignore
+      const volumes = RtcEngine?.getUsersVolumeLevel();
+
+      const localUserData = volumes.find((i) => i.uid == uid);
+      if (localUserData && localUserData.level) {
+        volume = Math.round(localUserData.level * 100) / 100;
+      }
+      if (volume) {
+        if (isLocalUserSpeaking && volume > maxSpeakingVolumeRef.current) {
+          //for remote users
+          maxSpeakingVolumeRef.current = volume;
+          hasUserJoinedRTM &&
+            events.send(
+              volumeEnum.SPEAKING_VOLUME,
+              volume.toString(),
+              EventPersistLevel.LEVEL2,
+            );
+          //for local user
+          speakingVolumeEventCallBack({
+            payload: volume.toString(),
+            sender: uid,
+          });
+        } else if (
+          !isLocalUserSpeaking &&
+          volume < minNonSpeakingVolumeRef.current
+        ) {
+          //for remote users
+          minNonSpeakingVolumeRef.current = volume;
+          hasUserJoinedRTM &&
+            events.send(
+              volumeEnum.NON_SPEAKING_VOLUME,
+              volume.toString(),
+              EventPersistLevel.LEVEL2,
+            );
+          //for local user
+          nonSpeakingVolumeEventCallback({
+            payload: volume.toString(),
+            sender: uid,
+          });
+        }
+      }
+
+      //inform local user is speaking
+      if (isLocalUserSpeaking) {
+        //inform remote users
+        hasUserJoinedRTM &&
+          events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
+        //for local usage
+        isSpeakingEventCallback({payload: 'true', sender: uid});
+      } else {
+        //inform remote users
+        hasUserJoinedRTM &&
+          events.send(
+            volumeEnum.IS_SPEAKING,
+            'false',
+            EventPersistLevel.LEVEL2,
+          );
+        //for local usage
+        isSpeakingEventCallback({payload: 'false', sender: uid});
       }
     }
-
-    //inform local user is speaking
-    if (isLocalUserSpeaking) {
-      //inform remote users
-      events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
-      //for local usage
-      isSpeakingEventCallback({payload: 'true', sender: uid});
-    } else {
-      //inform remote users
-      events.send(volumeEnum.IS_SPEAKING, 'false', EventPersistLevel.LEVEL2);
-      //for local usage
-      isSpeakingEventCallback({payload: 'false', sender: uid});
-    }
-  }, [isLocalUserSpeaking]);
+  }, [isLocalUserSpeaking, hasUserJoinedRTM]);
 
   //findout who is active speaker using usersVolume(speaking and non speaking volume) and current user volume
   const findActiveSpeaker = () => {
@@ -102,58 +122,76 @@ const useFindActiveSpeaker = () => {
       }),
     );
     if (!speakingUids || speakingUids?.length == 0) {
-      console.log('debugging no active speaker');
+      log(' %cFinal No Active speaker', 'color:red');
       setActiveSpeaker(0);
     } else {
       if (speakingUids?.length === 1) {
-        console.log('debugging only one user is speaking ', speakingUids[0]);
+        log(
+          ' %cFinal Active Speaker - Only one user is speaking',
+          'color:green',
+          renderListRef.current[speakingUids[0]]?.name,
+        );
         setActiveSpeaker(parseInt(speakingUids[0]));
       } else {
-        console.log('debugging multiple users are speaking ', speakingUids);
+        //for logging
+        let speakerNames = '';
+
         //get current volume levels for users
-        let currentUsersVolume = {};
-        if (isWeb()) {
-          //@ts-ignore
-          currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
-        } else {
-        }
+        //@ts-ignore
+        const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
 
         const normalizedValues = {};
-        speakingUids?.forEach(uid => {
-          const uuid = parseInt(uid);
-          const data = currentUsersVolume?.find(i => i.uid === uuid);
+        speakingUids?.forEach((speakerUid) => {
+          //for logging
+          speakerNames =
+            speakerNames + ' ' + renderListRef.current[speakerUid]?.name;
+
+          const uuid = parseInt(speakerUid);
+          const data = currentUsersVolume?.find((i) => i.uid === uuid);
           const returnVal = normalize(
             data?.level || usersVolume.current[uuid]?.speakingVolume, //current level
-            usersVolume.current[uid]?.nonSpeakingVolume || 0,
+            usersVolume.current[uuid]?.nonSpeakingVolume || 0,
             usersVolume.current[uuid]?.speakingVolume || 100,
           );
           normalizedValues[uuid] = returnVal;
         });
 
+        log(
+          ' %cFinal Multiple users are speaking',
+          'color:green',
+          speakerNames,
+        );
+
         const sorted = Object.keys(normalizedValues).sort((a, b) => {
           return normalizedValues[b] - normalizedValues[a];
         });
+
+        log(
+          ' %cFinal Active Speaker',
+          'color:green',
+          renderListRef.current[sorted[0]]?.name,
+        );
         setActiveSpeaker(parseInt(sorted[0]));
 
         //for logging purpose
         let obj = {};
-        sorted.map(i => {
+        sorted.map((i) => {
           let id = parseInt(i);
-          const curtdata = currentUsersVolume.find(i => i.uid === id);
+          const curtdata = currentUsersVolume.find((i) => i.uid === id);
           const cl =
             curtdata && curtdata?.level
               ? Math.round(curtdata?.level * 100) / 100
-              : 'no vol';
+              : 0;
           obj[id] = {
             name: renderListRef.current[id]?.name,
             normalizedVolume: normalizedValues[id],
-            currentVolume: cl,
+            currentVolume: cl || usersVolume.current[id]?.speakingVolume,
             minNonSpeakingVolume: usersVolume.current[id]?.nonSpeakingVolume,
             speakingVolume: usersVolume.current[id]?.speakingVolume,
             isSpeaking: usersVolume.current[id]?.isSpeaking,
           };
         });
-        console.log('debugging active speaker data', JSON.stringify(obj));
+        log(' %cFinal Active speaker data', 'color:green', JSON.stringify(obj));
         //for logging purpose
       }
     }
@@ -218,12 +256,12 @@ const useFindActiveSpeaker = () => {
   };
 
   const isSpeakingEventCallback = ({payload, sender}) => {
-    // console.log(
-    //   'debugging ',
-    //   sender,
-    //   ' is speaking ',
-    //   payload === 'true' ? true : false,
-    // );
+    if (sender == localUid) {
+      // log(' local user speaking stauts', sender, '=', payload);
+    } else {
+      log(' remote user speaking status ', sender, '=', payload);
+    }
+
     usersVolume.current = {
       ...usersVolume.current,
       [sender]: {
@@ -235,7 +273,12 @@ const useFindActiveSpeaker = () => {
   };
 
   const speakingVolumeEventCallBack = ({payload, sender}) => {
-    //console.log('debugging speaking volume sender', sender, '=', payload);
+    if (sender == localUid) {
+      log(' local user speaking volume ', sender, '=', payload);
+    } else {
+      log(' remote user speaking volume ', sender, '=', payload);
+    }
+
     usersVolume.current = {
       ...usersVolume.current,
       [sender]: {
@@ -246,7 +289,12 @@ const useFindActiveSpeaker = () => {
   };
 
   const nonSpeakingVolumeEventCallback = ({payload, sender}) => {
-    //console.log('debugging non speaking volume sender', sender, '=', payload);
+    if (sender == localUid) {
+      log(' local user non speaking volume ', sender, '=', payload);
+    } else {
+      log(' remote user non speaking volume ', sender, '=', payload);
+    }
+
     usersVolume.current = {
       ...usersVolume.current,
       [sender]: {
@@ -256,17 +304,21 @@ const useFindActiveSpeaker = () => {
     };
   };
   useEffect(() => {
-    events.on(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
-    events.on(volumeEnum.NON_SPEAKING_VOLUME, nonSpeakingVolumeEventCallback);
-    events.on(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+    if ($config.ACTIVE_SPEAKER) {
+      events.on(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
+      events.on(volumeEnum.NON_SPEAKING_VOLUME, nonSpeakingVolumeEventCallback);
+      events.on(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+    }
 
     return () => {
-      events.off(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
-      events.off(
-        volumeEnum.NON_SPEAKING_VOLUME,
-        nonSpeakingVolumeEventCallback,
-      );
-      events.off(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+      if ($config.ACTIVE_SPEAKER) {
+        events.off(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
+        events.off(
+          volumeEnum.NON_SPEAKING_VOLUME,
+          nonSpeakingVolumeEventCallback,
+        );
+        events.off(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
+      }
     };
   }, []);
 
