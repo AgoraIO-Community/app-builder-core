@@ -22,6 +22,7 @@ const useStreamMessageUtils = (): {
   const finalList: FinalListType = {};
   const finalTranscriptList: FinalListType = {};
   const queue = new PQueue({concurrency: 1});
+  let counter = 0;
 
   const streamMessageCallback: StreamMessageCallback = args => {
     const queueCallback = (args1: [number, Uint8Array]) => {
@@ -40,8 +41,14 @@ const useStreamMessageUtils = (): {
 
       console.log('STT - Parsed Textstream : ', textstream);
       console.log(
-        `STT-callback: %c${textstream.uid} %c${textstream.words
-          .map(word => (word.text === '.' ? '' : word.text))
+        `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
+          .map(word =>
+            word.text === '.'
+              ? ''
+              : word.isFinal
+              ? word.text + ' --Final--'
+              : word.text,
+          )
           .join(' ')}`,
         'color:red',
         'color:blue',
