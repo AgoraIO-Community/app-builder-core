@@ -25,6 +25,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import VideoRenderer from './VideoRenderer';
 import {filterObject} from '../../utils';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
+import useAppState from '../../utils/useAppState';
 
 const VideoCallMobileView = () => {
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
@@ -41,65 +42,57 @@ const VideoCallMobileView = () => {
     ? Object.keys(maxScreenShareData)[0]
     : null;
 
-  const appState = useRef(AppState.currentState);
   const {isScreenshareActive} = useScreenshare();
-  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const appStateVisible = useAppState();
   const isCamON = useRef(local.video);
   const isScreenShareOn = useRef(isScreenshareActive);
-
-  useEffect(() => {
-    if ($config.AUDIO_ROOM || !isMobileUA()) return;
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      appState.current = nextAppState;
-      setAppStateVisible(appState.current);
-    });
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
 
   useEffect(() => {
     // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
     //native screenshare use local uid to publish the screenshare stream
     //so when user minimize the app we shouldnot pause the local video
-    if (
-      appStateVisible === 'background' &&
-      isScreenshareActive &&
-      (isAndroid() || isIOS())
-    ) {
-      isScreenShareOn.current = true;
-    }
-    if (
-      appStateVisible === 'active' &&
-      !isScreenshareActive &&
-      (isAndroid() || isIOS())
-    ) {
-      isScreenShareOn.current = false;
-    }
-    if (!((isAndroid() || isIOS()) && isScreenshareActive)) {
-      if (appStateVisible === 'background') {
-        isCamON.current =
-          isAndroid() || isIOS()
-            ? local.video && !isScreenShareOn.current
-            : local.video;
-        if (isCamON.current) {
+    if ($config.AUDIO_ROOM || !isMobileUA()) {
+      return;
+    } else {
+      if (
+        appStateVisible === 'background' &&
+        isScreenshareActive &&
+        (isAndroid() || isIOS())
+      ) {
+        isScreenShareOn.current = true;
+      }
+      if (
+        appStateVisible === 'active' &&
+        !isScreenshareActive &&
+        (isAndroid() || isIOS())
+      ) {
+        isScreenShareOn.current = false;
+      }
+      if (!((isAndroid() || isIOS()) && isScreenshareActive)) {
+        if (appStateVisible === 'background') {
+          isCamON.current =
+            isAndroid() || isIOS()
+              ? local.video && !isScreenShareOn.current
+              : local.video;
+          if (isCamON.current) {
+            isWebInternal()
+              ? RtcEngine.muteLocalVideoStream(true)
+              : RtcEngine.enableLocalVideo(false);
+            dispatch({
+              type: 'LocalMuteVideo',
+              value: [0],
+            });
+          }
+        }
+        if (appStateVisible === 'active' && isCamON.current) {
           isWebInternal()
-            ? RtcEngine.muteLocalVideoStream(true)
-            : RtcEngine.enableLocalVideo(false);
+            ? RtcEngine.muteLocalVideoStream(false)
+            : RtcEngine.enableLocalVideo(true);
           dispatch({
             type: 'LocalMuteVideo',
-            value: [0],
+            value: [1],
           });
         }
-      }
-      if (appStateVisible === 'active' && isCamON.current) {
-        isWebInternal()
-          ? RtcEngine.muteLocalVideoStream(false)
-          : RtcEngine.enableLocalVideo(true);
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [1],
-        });
       }
     }
   }, [appStateVisible, isScreenshareActive]);
@@ -148,8 +141,7 @@ const VideoCallHeader = () => {
             alignSelf: 'center',
             zIndex: isWebInternal() ? 3 : 0,
             //flex: 1,
-          }}
-        >
+          }}>
           <ParticipantsCount />
         </View>
         {isRecordingActive ? (
