@@ -19,6 +19,8 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
 import useIsHandRaised from '../../utils/useIsHandRaised';
+import {isAndroid, isIOS} from '../../utils/common';
+import {useVideoCall} from '../../components/useVideoCall';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -27,10 +29,14 @@ import useIsHandRaised from '../../utils/useIsHandRaised';
 
 export interface ScreenshareButtonProps {
   render?: (onPress: () => void, isScreenshareActive: boolean) => JSX.Element;
+  showLabel?: boolean;
+  isOnActionSheet?: boolean;
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {rtcProps} = useContext(PropsContext);
+  const {showLabel = $config.ICON_TEXT || false, isOnActionSheet = false} =
+    props;
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -38,11 +44,24 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const isHandRaised = useIsHandRaised();
   const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
     useScreenshare();
+  const {setShowStartScreenSharePopup} = useVideoCall();
   //commented for v1 release
   //const screenShareButton = useString('screenShareButton')();
 
-  const onPress = () =>
-    isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
+  const onPress = () => {
+    if (isScreenshareActive) {
+      stopUserScreenShare();
+    } else {
+      if (isAndroid() || isIOS()) {
+        //native screen we need to stop user video before proceeding the screenshare
+        //so showing confirm popup to stop camera(if cam on ) and option to share audio
+        setShowStartScreenSharePopup(true);
+      } else {
+        startUserScreenshare();
+      }
+    }
+  };
+
   const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Share';
   let iconButtonProps: IconButtonProps = {
     iconProps: {
@@ -53,11 +72,11 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     },
     onPress,
     btnTextProps: {
-      text: $config.ICON_TEXT ? screenShareButton : '',
+      text: showLabel ? screenShareButton : '',
       textColor: $config.FONT_COLOR,
     },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (
     rtcProps.role == ClientRole.Audience &&
     $config.EVENT_MODE &&

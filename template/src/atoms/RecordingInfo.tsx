@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
-    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+    color: $config.FONT_COLOR + hexadecimalTransparency['50%'],
   },
   recordingStatus: {
     width: 12,

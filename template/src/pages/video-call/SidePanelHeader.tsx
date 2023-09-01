@@ -1,4 +1,10 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import React, {useContext} from 'react';
 import SidePanelHeader, {
   SidePanelStyles,
@@ -11,6 +17,18 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useChatUIControl} from '../../components/chat-ui/useChatUIControl';
 import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
+import {useCaption} from '../../subComponents/caption/useCaption';
+import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
+import {calculatePosition, isWebInternal} from '../../utils/common';
+import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorPopup';
+import useSTTAPI from '../../subComponents/caption/useSTTAPI';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
+import useGetName from '../../utils/useGetName';
+import {LanguageType} from '../../subComponents/caption/utils';
+import {useMeetingInfo} from 'customization-api';
+import useStreamMessageUtils from '../../subComponents/caption/useStreamMessageUtils';
+import useTranscriptDownload from '../../subComponents/caption/useTranscriptDownload';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -130,6 +148,146 @@ export const ChatHeader = () => {
         setSidePanel(SidePanelType.None);
       }}
     />
+  );
+};
+
+export const TranscriptHeader = (props) => {
+  const {setSidePanel} = useSidePanel();
+  const moreIconRef = React.useRef<View>(null);
+  const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+
+  const label = 'Meeting Transcript';
+
+  return (
+    <SidePanelHeader
+      centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
+      trailingIconName={'more-menu'}
+      ref={moreIconRef}
+      trailingIconOnPress={() => {
+        setActionMenuVisible(true);
+      }}
+      trailingIconName2={'close'}
+      trailingIconOnPress2={() => {
+        setSidePanel(SidePanelType.None);
+      }}>
+      <TranscriptHeaderActionMenu
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        btnRef={moreIconRef}
+      />
+    </SidePanelHeader>
+  );
+};
+
+interface TranscriptHeaderActionMenuProps {
+  actionMenuVisible: boolean;
+  setActionMenuVisible: (actionMenuVisible: boolean) => void;
+  btnRef: React.RefObject<View>;
+}
+
+const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
+  const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
+  const {
+    language: prevLang,
+    meetingTranscript,
+    isLangChangeInProgress,
+    setLanguage,
+  } = useCaption();
+  const {downloadTranscript} = useTranscriptDownload();
+  const [modalPosition, setModalPosition] = React.useState({});
+  const [isPosCalculated, setIsPosCalculated] = React.useState(false);
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+  const {restart} = useSTTAPI();
+  const username = useGetName();
+  const actionMenuitems: ActionMenuItem[] = [];
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+
+  isHost &&
+    actionMenuitems.push({
+      icon: 'lang-select',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Change Spoken Language ',
+      disabled: isLangChangeInProgress,
+      callback: () => {
+        setActionMenuVisible(false);
+        setLanguagePopup(true);
+      },
+    });
+
+  actionMenuitems.push({
+    icon: 'download',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Download Transcript',
+    disabled: meetingTranscript.length === 0,
+    callback: () => {
+      downloadTranscript();
+      setActionMenuVisible(false);
+    },
+  });
+
+  const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
+    setLanguagePopup(false);
+    if (langChanged) {
+      restart(language)
+        .then(() => {
+          console.log('stt restarted successfully');
+        })
+        .catch((error) => {
+          console.log('Error in restarting', error);
+          // Handle the error case
+        });
+    }
+  };
+
+  React.useEffect(() => {
+    if (actionMenuVisible) {
+      //getting btnRef x,y
+      btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          const data = calculatePosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          setModalPosition(data);
+          setIsPosCalculated(true);
+        },
+      );
+    }
+  }, [actionMenuVisible]);
+  return (
+    <>
+      <ActionMenu
+        from={'transcript-header'}
+        actionMenuVisible={actionMenuVisible && isPosCalculated}
+        setActionMenuVisible={setActionMenuVisible}
+        modalPosition={modalPosition}
+        items={actionMenuitems}
+      />
+
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onLanguageChange}
+      />
+    </>
   );
 };
 

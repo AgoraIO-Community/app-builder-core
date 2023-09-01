@@ -7,10 +7,11 @@ import ImageIcon from '../../atoms/ImageIcon';
 import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import {useString} from '../../utils/useString';
 import {useLayout, useRender} from 'customization-api';
-import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
+//import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
 import {isMobileUA, isWeb, isWebInternal, useIsSmall} from '../../utils/common';
 import AnimatedActiveSpeaker from '../../atoms/AnimatedActiveSpeaker';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
+//import useIsSpeaking from '../../utils/useIsSpeaking';
 
 interface NameWithMicIconProps {
   user: RenderInterface;
@@ -27,8 +28,11 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
     currentLayout === getGridLayoutName();
   const {user} = props;
   const {height, width} = useWindowDimensions();
-  const isActiveSpeaker = useIsActiveSpeaker();
-  const isSpeaking = isActiveSpeaker(user.uid);
+  //const activeSpeakerUid = useIsSpeaking();
+  // const isActiveSpeaker = useIsActiveSpeaker();
+  // const isSpeaking = isActiveSpeaker(user.uid);
+  //const isSpeaking = activeSpeakerUid == user.uid;
+  const isSpeaking = false;
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';

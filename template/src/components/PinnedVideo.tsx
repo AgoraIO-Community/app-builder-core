@@ -29,10 +29,11 @@ import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
+import {useVideoCall} from './useVideoCall';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid, activeUids, renderList, activeSpeaker} = useRender();
+  const {pinnedUid, activeUids, renderList} = useRender();
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
   const {width, height} = useWindowDimensions();
@@ -40,6 +41,9 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   //const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
+  //const {activeSpeaker} = useVideoCall();
+  const activeSpeaker = 0;
+
   const [uids, setUids] = useState(renderData);
 
   const [screenShareOn, setScreenShareOn] = useState(false);

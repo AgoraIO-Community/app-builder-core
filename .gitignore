@@ -62,6 +62,9 @@ template/*.jsbundle
 # CocoaPods
 template/ios/Pods/
 
+# IOS Builds
+template/ios/build/
+
 # UI Kit
 template/agora-rn-uikit/
 
@@ -108,3 +111,4 @@ template/theme-dark.json
 template/customization/*
 Builds
 esbuild-bin
+template/pnpm-lock.yaml

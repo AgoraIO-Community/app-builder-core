@@ -10,7 +10,7 @@
 *********************************************
 */
 // @ts-nocheck
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, Text, useWindowDimensions} from 'react-native';
 import {
   RtcConfigure,
@@ -18,6 +18,9 @@ import {
   ClientRole,
   ChannelProfile,
   LocalUserContext,
+  UidType,
+  CallbacksInterface,
+  ToggleState,
 } from '../../agora-rn-uikit';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
@@ -38,7 +41,11 @@ import {useString} from '../utils/useString';
 import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {
+  useMeetingInfo,
+  MeetingInfoDefaultValue,
+  validateMeetingInfoData,
+} from '../components/meeting-info/useMeetingInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
@@ -54,10 +61,16 @@ import {useWakeLock} from '../components/useWakeLock';
 import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
+import {useAuth} from '../auth/AuthProvider';
 import PermissionHelper from '../components/precall/PermissionHelper';
 import {currentFocus, FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
-
+import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
+import isSDK from '../utils/isSDK';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {CaptionProvider} from '../subComponents/caption/useCaption';
+import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
+import StorageContext from '../components/StorageContext';
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -106,6 +119,15 @@ const VideoCall: React.FC = () => {
     editName: false,
   });
   const {phrase} = useParams<{phrase: string}>();
+
+  const {store} = useContext(StorageContext);
+  const {
+    join: SdkJoinState,
+    microphoneDevice: sdkMicrophoneDevice,
+    cameraDevice: sdkCameraDevice,
+    clearState,
+  } = useContext(SdkApiContext);
+
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -124,13 +146,24 @@ const VideoCall: React.FC = () => {
     role: ClientRole.Broadcaster,
     geoFencing: $config.GEO_FENCING,
     audioRoom: $config.AUDIO_ROOM,
+    activeSpeaker: $config.ACTIVE_SPEAKER,
+    preferredCameraId:
+      sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
+    preferredMicrophoneId:
+      sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
   });
 
+  const history = useHistory();
+  const currentMeetingPhrase = useRef(history.location.pathname);
+
   const useJoin = useJoinMeeting();
+  const {setMeetingInfo} = useSetMeetingInfo();
+  const {isJoinDataFetched, data} = useMeetingInfo();
 
   React.useEffect(() => {
     return () => {
       console.log('Videocall unmounted');
+      setMeetingInfo(MeetingInfoDefaultValue);
       if (awake) {
         release();
       }
@@ -138,26 +171,62 @@ const VideoCall: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    useJoin(phrase)
-      .then(() => {})
-      .catch((error) => {
-        setGlobalErrorMessage(error);
-        history.push('/');
-      });
+    if (!SdkJoinState.phrase) {
+      useJoin(phrase)
+        .then(() => {})
+        .catch((error) => {
+          setGlobalErrorMessage(error);
+          history.push('/');
+        });
+    }
   }, []);
 
-  const {isJoinDataFetched, data} = useMeetingInfo();
+  useEffect(() => {
+    if (!isSDK() || !SdkJoinState.initialized) {
+      return;
+    }
+    const {
+      phrase: sdkMeetingPhrase,
+      meetingDetails: sdkMeetingDetails,
+      skipPrecall,
+      promise,
+    } = SdkJoinState;
+
+    const sdkMeetingPath = `/${sdkMeetingPhrase}`;
+
+    setCallActive(skipPrecall);
+
+    if (sdkMeetingDetails) {
+      setQueryComplete(false);
+      setMeetingInfo((meetingInfo) => {
+        return {
+          isJoinDataFetched: true,
+          data: {
+            ...meetingInfo.data,
+            ...sdkMeetingDetails,
+          },
+        };
+      });
+    } else if (sdkMeetingPhrase) {
+      setQueryComplete(false);
+      currentMeetingPhrase.current = sdkMeetingPath;
+      useJoin(sdkMeetingPhrase).catch((error) => {
+        setGlobalErrorMessage(error);
+        history.push('/');
+        currentMeetingPhrase.current = '';
+        promise.rej(error);
+      });
+    }
+  }, [SdkJoinState]);
 
   React.useEffect(() => {
-    if (isJoinDataFetched === true) {
-      setRtcProps({
-        appId: $config.APP_ID,
+    if (isJoinDataFetched === true && !queryComplete) {
+      setRtcProps((prevRtcProps) => ({
+        ...prevRtcProps,
         channel: data.channel,
         uid: data.uid,
         token: data.token,
         rtm: data.rtmToken,
-        dual: true,
-        profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
               key: data.encryptionSecret,
@@ -168,25 +237,55 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
-        geoFencing: $config.GEO_FENCING,
-        audioRoom: $config.AUDIO_ROOM,
-      });
+      }));
 
       // 1. Store the display name from API
       // if (data.username) {
       //   setUsername(data.username);
       // }
-      queryComplete ? {} : setQueryComplete(isJoinDataFetched);
+      setQueryComplete(true);
     }
-  }, [isJoinDataFetched]);
+  }, [isJoinDataFetched, data, queryComplete]);
 
-  const history = useHistory();
-  const callbacks = {
-    EndCall: () =>
+  const callbacks: CallbacksInterface = {
+    // RtcLeft: () => {},
+    // RtcJoined: () => {
+    //   if (SdkJoinState.phrase && SdkJoinState.skipPrecall) {
+    //     SdkJoinState.promise?.res();
+    //   }
+    // },
+    EndCall: () => {
+      clearState('join');
       setTimeout(() => {
+        // TODO: These callbacks are being called twice
         SDKEvents.emit('leave');
         history.push('/');
-      }, 0),
+      }, 0);
+    },
+    UserJoined: (uid: UidType) => {
+      console.log('UIKIT Callback: UserJoined', uid);
+      SDKEvents.emit('rtc-user-joined', uid);
+    },
+    UserOffline: (uid: UidType) => {
+      console.log('UIKIT Callback: UserOffline', uid);
+      SDKEvents.emit('rtc-user-joined', uid);
+    },
+    RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
+      console.log('UIKIT Callback: RemoteAudioStateChanged', uid, status);
+      if (status === 0) {
+        SDKEvents.emit('rtc-user-unpublished', uid, 'audio');
+      } else {
+        SDKEvents.emit('rtc-user-published', uid, 'audio');
+      }
+    },
+    RemoteVideoStateChanged: (uid: UidType, status: 0 | 2) => {
+      console.log('UIKIT Callback: RemoteVideoStateChanged', uid, status);
+      if (status === 0) {
+        SDKEvents.emit('rtc-user-unpublished', uid, 'video');
+      } else {
+        SDKEvents.emit('rtc-user-published', uid, 'video');
+      }
+    },
   };
   const [isCameraAvailable, setCameraAvailable] = useState(false);
   const [isMicAvailable, setMicAvailable] = useState(false);
@@ -232,14 +331,14 @@ const VideoCall: React.FC = () => {
                                   setRecordingActive={setRecordingActive}
                                   callActive={callActive}>
                                   <UserPreferenceProvider>
-                                    <EventsConfigure>
-                                      <WhiteboardProvider>
-                                        <RecordingProvider
-                                          value={{
-                                            setRecordingActive,
-                                            isRecordingActive,
-                                          }}>
-                                          <ScreenshareConfigure>
+                                    <WhiteboardProvider>
+                                      <RecordingProvider
+                                        value={{
+                                          setRecordingActive,
+                                          isRecordingActive,
+                                        }}>
+                                        <ScreenshareConfigure>
+                                          <EventsConfigure>
                                             <LiveStreamContextProvider
                                               value={{
                                                 setRtcProps,
@@ -254,40 +353,44 @@ const VideoCall: React.FC = () => {
                                                       {!isMobileUA() && (
                                                         <PermissionHelper />
                                                       )}
-                                                      {callActive ? (
-                                                        <VideoMeetingDataProvider>
-                                                          <VideoCallProvider>
-                                                            <VideoCallScreen />
-                                                          </VideoCallProvider>
-                                                        </VideoMeetingDataProvider>
-                                                      ) : $config.PRECALL ? (
-                                                        <PreCallProvider
-                                                          value={{
-                                                            callActive,
-                                                            setCallActive,
-                                                            isCameraAvailable,
-                                                            isMicAvailable,
-                                                            setCameraAvailable,
-                                                            setMicAvailable,
-                                                            isPermissionRequested,
-                                                            setIsPermissionRequested,
-                                                            isSpeakerAvailable,
-                                                            setSpeakerAvailable,
-                                                          }}>
-                                                          <Precall />
-                                                        </PreCallProvider>
-                                                      ) : (
-                                                        <></>
-                                                      )}
+                                                      <SdkMuteToggleListener>
+                                                        {callActive ? (
+                                                          <VideoMeetingDataProvider>
+                                                            <VideoCallProvider>
+                                                              <CaptionProvider>
+                                                                <VideoCallScreen />
+                                                              </CaptionProvider>
+                                                            </VideoCallProvider>
+                                                          </VideoMeetingDataProvider>
+                                                        ) : $config.PRECALL ? (
+                                                          <PreCallProvider
+                                                            value={{
+                                                              callActive,
+                                                              setCallActive,
+                                                              isCameraAvailable,
+                                                              isMicAvailable,
+                                                              setCameraAvailable,
+                                                              setMicAvailable,
+                                                              isPermissionRequested,
+                                                              setIsPermissionRequested,
+                                                              isSpeakerAvailable,
+                                                              setSpeakerAvailable,
+                                                            }}>
+                                                            <Precall />
+                                                          </PreCallProvider>
+                                                        ) : (
+                                                          <></>
+                                                        )}
+                                                      </SdkMuteToggleListener>
                                                     </NetworkQualityProvider>
                                                   </CustomUserContextHolder>
                                                 </LocalUserContext>
                                               </LiveStreamDataProvider>
                                             </LiveStreamContextProvider>
-                                          </ScreenshareConfigure>
-                                        </RecordingProvider>
-                                      </WhiteboardProvider>
-                                    </EventsConfigure>
+                                          </EventsConfigure>
+                                        </ScreenshareConfigure>
+                                      </RecordingProvider>
+                                    </WhiteboardProvider>
                                   </UserPreferenceProvider>
                                 </RtmConfigure>
                               </ScreenShareProvider>

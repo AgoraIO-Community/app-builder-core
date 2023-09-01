@@ -100,6 +100,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                 <View style={styles.iconContainer}>
                   <ImageIcon
                     base64={isBase64Icon}
+                    base64TintColor={iconColor}
                     iconType="plain"
                     iconSize={20}
                     name={

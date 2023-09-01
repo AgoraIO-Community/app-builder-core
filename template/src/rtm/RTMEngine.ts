@@ -32,7 +32,7 @@ class RTMEngine {
 
   private async destroyClientInstance() {
     await this.engine.logout();
-    await this.engine.destroyClient();
+    // await this.engine.destroyClient();
   }
 
   private constructor() {
@@ -47,6 +47,12 @@ class RTMEngine {
 
     return RTMEngine._instance;
   }
+  setLocalUID(localUID: string) {
+    this.localUID = localUID;
+  }
+  setChannelId(channelID: string) {
+    this.channelId = channelID;
+  }
 
   setLoginInfo(localUID: string, channelID: string) {
     this.localUID = localUID;
@@ -58,10 +64,12 @@ class RTMEngine {
   get channelUid() {
     return this.channelId;
   }
-  destroy() {
+  async destroy() {
     try {
-      this.destroyClientInstance();
-      RTMEngine._instance = null;
+      await this.destroyClientInstance();
+      // RTMEngine._instance = null;
+      this.localUID = '';
+      this.channelId = '';
     } catch (error) {
       console.log('Error destroying instance error: ', error);
     }

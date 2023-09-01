@@ -46,8 +46,16 @@ const RecordingContext = createContext<RecordingContextInterface>({
 });
 
 const START_RECORDING = gql`
-  mutation startRecordingSession($passphrase: String!, $secret: String) {
-    startRecordingSession(passphrase: $passphrase, secret: $secret)
+  mutation startRecordingSession(
+    $passphrase: String!
+    $secret: String
+    $config: recordingConfig!
+  ) {
+    startRecordingSession(
+      passphrase: $passphrase
+      secret: $secret
+      config: $config
+    )
   }
 `;
 
@@ -124,7 +132,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
-    () => {
+    return () => {
       events.off(EventNames.RECORDING_ATTRIBUTE);
     };
   }, []);
@@ -149,6 +157,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
     }
   }, [isRecordingActive]);
@@ -163,6 +172,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           rtcProps.encryption && rtcProps.encryption.key
             ? rtcProps.encryption.key
             : '',
+        config: {
+          resolution: 'SD360p',
+          trigger: 'AUTO',
+        },
       },
     })
       .then((res) => {

@@ -97,6 +97,12 @@ interface ConfigInterface {
   ICON_TEXT: boolean;
   ICON_BG_COLOR: string;
   TOOLBAR_COLOR: string;
+  ACTIVE_SPEAKER: boolean;
+  // TOAST_NOTIFICATIONS: boolean;
+  ENABLE_TOKEN_AUTH: boolean;
+  ENABLE_IDP_AUTH: boolean;
+  PROJECT_ID: string;
+  ENABLE_STT: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

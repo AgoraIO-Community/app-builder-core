@@ -54,7 +54,7 @@ const LogoutButton = () => {
   };
 
   const login = () => {
-    history.push('/authenticate');
+    history.push('/login');
   };
 
   return (

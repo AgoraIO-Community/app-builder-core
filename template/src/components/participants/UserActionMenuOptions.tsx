@@ -379,6 +379,7 @@ export default function UserActionMenuOptionsOptions(
               visibilityTime: 5000,
               primaryBtn: null,
               secondaryBtn: null,
+              leadingIcon: null,
             });
             endRemoteCall(user.uid);
           }}

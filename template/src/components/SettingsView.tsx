@@ -43,9 +43,12 @@ import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useFocus} from '../utils/useFocus';
 import {SettingsHeader} from '../pages/video-call/SidePanelHeader';
+import {useUserPreference} from './useUserPreference';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const {saveName} = useUserPreference();
   const [saved, setSaved] = useState(false);
   const username = useGetName();
   const [newName, setNewName] = useState(username);
@@ -83,6 +86,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         setSaved(false);
       }, 2000);
       setEditable(false);
+      saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
       inputRef.current.focus();
@@ -246,6 +250,7 @@ const SettingsView = (props) => {
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
+  const {transcriptHeight} = useCaptionWidth();
 
   return (
     <View
@@ -261,6 +266,7 @@ const SettingsView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <SettingsHeader {...props} />}
       <ScrollView style={style.contentContainer}>

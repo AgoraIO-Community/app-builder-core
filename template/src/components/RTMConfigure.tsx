@@ -31,6 +31,9 @@ import {EventUtils, EventsQueue} from '../rtm-events';
 import {EventPersistLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
+import SDKEvents from '../utils/SdkEvents';
+import isSDK from '../utils/isSDK';
+import {useAsyncEffect} from '../utils/useAsyncEffect';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -94,7 +97,7 @@ const RtmConfigure = (props: any) => {
     if (!isWebInternal()) return;
     window.addEventListener(
       'beforeunload',
-      isWeb() ? handBrowserClose : () => {},
+      isWeb() && !isSDK() ? handBrowserClose : () => {},
     );
 
     window.addEventListener('pagehide', logoutRtm);
@@ -102,7 +105,7 @@ const RtmConfigure = (props: any) => {
     return () => {
       window.removeEventListener(
         'beforeunload',
-        isWeb() ? handBrowserClose : () => {},
+        isWeb() && !isSDK() ? handBrowserClose : () => {},
       );
       window.removeEventListener('pagehide', logoutRtm);
     };
@@ -114,8 +117,9 @@ const RtmConfigure = (props: any) => {
         uid: localUid.toString(),
         token: rtcProps.rtm,
       });
+      RTMEngine.getInstance().setLocalUID(localUid.toString());
       timerValueRef.current = 5;
-      setAttribute();
+      await setAttribute();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -144,7 +148,14 @@ const RtmConfigure = (props: any) => {
 
   const joinChannel = async () => {
     try {
-      await engine.current.joinChannel(rtcProps.channel);
+      if (RTMEngine.getInstance().channelUid !== rtcProps.channel) {
+        await engine.current.joinChannel(rtcProps.channel);
+        RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        console.log('Emitting rtm joined');
+        SDKEvents.emit('_rtm-joined', rtcProps.channel);
+      } else {
+        console.log('RTM already joined channel skipping');
+      }
       timerValueRef.current = 5;
       await getMembers();
     } catch (error) {
@@ -260,7 +271,7 @@ const RtmConfigure = (props: any) => {
 
   const init = async () => {
     engine.current = RTMEngine.getInstance().engine;
-    RTMEngine.getInstance().setLoginInfo(localUid.toString(), rtcProps.channel);
+    RTMEngine.getInstance();
 
     engine.current.on('connectionStateChanged', (evt: any) => {
       //console.log(evt);
@@ -380,7 +391,7 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
-    doLoginAndSetupRTM();
+    await doLoginAndSetupRTM();
   };
 
   const runQueuedEvents = async () => {
@@ -414,25 +425,41 @@ const RtmConfigure = (props: any) => {
       const {payload, persistLevel, source} = JSON.parse(value);
       console.log('CUSTOM_EVENT_API:  emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
+      // Because async gets evaluated in a different order when in an sdk
+      if (evt === 'name') {
+        setTimeout(() => {
+          EventUtils.emitEvent(evt, source, {
+            payload,
+            persistLevel,
+            sender,
+            ts,
+          });
+        }, 200);
+      }
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
     }
   };
 
   const end = async () => {
-    callActive
-      ? (RTMEngine.getInstance().destroy(),
-        EventUtils.clear(),
-        setHasUserJoinedRTM(false),
-        // setLogin(false),
-        console.log('RTM cleanup done'))
-      : {};
+    if (!callActive) {
+      return;
+    }
+    await RTMEngine.getInstance().destroy();
+    setHasUserJoinedRTM(false);
+    // setLogin(false),
+    console.log('RTM cleanup done');
   };
 
-  useEffect(() => {
-    callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
-    return () => {
-      end();
+  useAsyncEffect(async () => {
+    if (!callActive) {
+      console.log('waiting to init RTM');
+      setLogin(true);
+    } else {
+      await init();
+    }
+    return async () => {
+      await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rtcProps.channel, rtcProps.appId, callActive]);

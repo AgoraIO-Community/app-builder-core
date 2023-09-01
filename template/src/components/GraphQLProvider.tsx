@@ -15,62 +15,87 @@ import {
   InMemoryCache,
   ApolloProvider,
   NormalizedCacheObject,
+  // from,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
-import React, {createContext, useContext, useRef} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import StorageContext from './StorageContext';
-import AsyncStorage from '@react-native-async-storage/async-storage'; //'@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const GraphQLContext = createContext<{
   client: ApolloClient<NormalizedCacheObject>;
 }>({client: {}});
 
-const GraphQLProvider = (props: {children: React.ReactNode}) => {
-  const httpLink = createHttpLink({
-    uri: `${$config.BACKEND_ENDPOINT}/query`,
-  });
-  const {store} = useContext(StorageContext);
-  const authLink = setContext(async (_, {headers}) => {
+const httpLink = createHttpLink({
+  uri: `${$config.BACKEND_ENDPOINT}/v1/query`,
+  credentials: 'include',
+});
+
+const authLink = (token: string) =>
+  setContext(async (_, {headers}) => {
     // get the authentication token from local storage if it exists
     // return the headers to the context so httpLink can read them
-    const storeString = await AsyncStorage.getItem('store');
-    let token;
-    if (storeString) {
-      token = JSON.parse(storeString).token;
-    }
-    console.log('link module token', storeString);
-    if (token) {
-      return {
-        headers: {
-          ...headers,
+    return {
+      headers: {
+        ...headers,
+        'X-Project-ID': $config.PROJECT_ID,
+        'X-Platform-ID': 'turnkey_web',
+        ...(token && {
           authorization: token ? `Bearer ${token}` : '',
-        },
-      };
-    } else {
-      return headers;
-    }
+        }),
+      },
+    };
   });
 
-  const client = useRef(
+const GraphQLProvider = (props: {children: React.ReactNode}) => {
+  const {store} = useContext(StorageContext);
+  const [client, setClient] = useState(
     new ApolloClient({
-      link: authLink.concat(httpLink),
+      link: authLink(store?.token).concat(httpLink),
       cache: new InMemoryCache(),
     }),
   );
 
-  // useEffect(() => {
-  //   console.log("store changed", store)
-  //   client.current = new ApolloClient({
-  //     link: authLink.concat(httpLink),
-  //     cache: new InMemoryCache(),
-  //   });
-  // }, [authLink, httpLink, store]);
-  console.log('GraphQL render triggered', store);
+  useEffect(() => {
+    console.log('debugging GRAPHQL token changed', store.token);
+    setClient(
+      new ApolloClient({
+        link: authLink(store?.token).concat(httpLink),
+        cache: new InMemoryCache(),
+      }),
+    );
+  }, [store?.token]);
+
+  // const errorLink = onError(
+  //   ({graphQLErrors, networkError, operation, forward}) => {
+  //     console.log('supriya graphQLErrors: ', graphQLErrors);
+  //     // To retry on network errors, we recommend the RetryLink
+  //     // instead of the onError link. This just logs the error.
+  //     if (networkError) {
+  //       console.log(`supriya [Network error]: ${networkError}`);
+  //       // switch (err.extensions.code) {
+  //       //   // Apollo Server sets code to UNAUTHENTICATED
+  //       //   // when an AuthenticationError is thrown in a resolver
+  //       //   case 'UNAUTHENTICATED':
+  //       //     // Modify the operation context with a new token
+  //       //     const oldHeaders = operation.getContext().headers;
+  //       //     operation.setContext({
+  //       //       headers: {
+  //       //         ...oldHeaders,
+  //       //         authorization: getNewToken(),
+  //       //       },
+  //       //     });
+  //       //     // Retry the request, returning the new observable
+  //       //     return forward(operation);
+  //       // }
+  //     }
+  //   },
+  // );
 
   return (
-    <GraphQLContext.Provider value={{client: client.current}}>
-      <ApolloProvider client={client.current}>{props.children}</ApolloProvider>
+    <GraphQLContext.Provider value={{client: client}}>
+      <ApolloProvider client={client}>{props.children}</ApolloProvider>
     </GraphQLContext.Provider>
   );
 };

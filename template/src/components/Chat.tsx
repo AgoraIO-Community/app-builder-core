@@ -42,6 +42,7 @@ import CommonStyles from './CommonStyles';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -80,15 +81,17 @@ const Chat = (props?: ChatProps) => {
   } = useChatNotification();
 
   const {primaryColor} = useContext(ColorContext);
+  const {transcriptHeight} = useCaptionWidth();
 
-  React.useEffect(() => {
-    return () => {
-      // reset both the active tabs
-      setGroupActive(false);
-      setPrivateActive(false);
-      setSelectedUser(0);
-    };
-  }, []);
+  //not need since state are controlled by chatUIControl
+  // React.useEffect(() => {
+  //   return () => {
+  //     // reset both the active tabs
+  //     setGroupActive(false);
+  //     setPrivateActive(false);
+  //     setSelectedUser(0);
+  //   };
+  // }, []);
 
   const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
@@ -154,6 +157,7 @@ const Chat = (props?: ChatProps) => {
           isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
+          transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view

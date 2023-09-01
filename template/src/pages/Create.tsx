@@ -28,9 +28,7 @@ import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import SDKEvents from '../utils/SdkEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -42,6 +40,9 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import isSDK from '../utils/isSDK';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -117,27 +118,11 @@ const Create = () => {
     //   )}-${randomNameGenerator(3)}`,
     // );
 
-    if (isWebInternal()) {
+    if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
-    const unbind = SDKEvents.on(
-      'joinMeetingWithPhrase',
-      (phrase, resolve, reject) => {
-        console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
-        try {
-          setMeetingInfo(MeetingInfoDefaultValue);
-          history.push(phrase);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      },
-    );
-    SDKEvents.emit('joinInit');
-    return () => {
-      unbind();
-    };
+    return () => {};
   }, []);
 
   const showShareScreen = () => {
@@ -162,6 +147,7 @@ const Create = () => {
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
+          leadingIcon: null,
         });
         showShareScreen();
       } catch (error) {
@@ -228,6 +214,7 @@ const Create = () => {
       visibilityTime: 1000 * 10,
       primaryBtn: null,
       secondaryBtn: null,
+      leadingIcon: null,
     });
   };
 
@@ -241,10 +228,29 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <View style={style.root}>
+            {!isMobileUA() ? (
+              <IDPLogoutComponent containerStyle={{marginBottom: -100}} />
+            ) : (
+              <></>
+            )}
             <ScrollView contentContainerStyle={style.main}>
               <Card>
                 <View>
-                  <Logo />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <Logo />
+                    {isMobileUA() ? (
+                      <IDPLogoutComponent
+                        containerStyle={{marginTop: 0, marginRight: 0}}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                  </View>
                   <Spacer size={isDesktop ? 20 : 16} />
                   <Text style={style.heading}>{getHeading()}</Text>
                   <Spacer size={40} />

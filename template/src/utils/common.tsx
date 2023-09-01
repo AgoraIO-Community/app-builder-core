@@ -30,11 +30,8 @@ const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
 
 const useHasBrandLogo = () => () => !!$config.LOGO;
 
-const shouldAuthenticate: boolean =
-  $config.ENABLE_APPLE_OAUTH ||
-  $config.ENABLE_GOOGLE_OAUTH ||
-  $config.ENABLE_MICROSOFT_OAUTH ||
-  $config.ENABLE_SLACK_OAUTH;
+const shouldAuthenticate: boolean = false;
+// $config.ENABLE_TOKEN_AUTH || $config.ENABLE_IDP_AUTH;
 
 //for our internal usage don't check Platform - electron and web will same kind ui checks. thats why we have isWeb for external usage
 const isWebInternal = () => ReactNativePlatform.OS === 'web';
@@ -205,6 +202,58 @@ const useResponsive = () => {
     }
   };
 };
+
+const processDeepLinkURI = (url: string): string => {
+  return url
+    .replace(`${$config.PRODUCT_ID.toLowerCase()}://my-host`, '')
+    .replace($config.FRONTEND_ENDPOINT, '');
+};
+
+const getParamFromURL = (url, param) => {
+  const include = url.includes(param);
+
+  if (!include) return null;
+
+  const params = url.split(/([&,?,=])/);
+  const index = params.indexOf(param);
+  const value = params[index + 2];
+  return value;
+};
+const throttleFn = (fn: Function, wait: number = 300) => {
+  let inThrottle: boolean,
+    lastFn: ReturnType<typeof setTimeout>,
+    lastTime: number;
+  return function (this: any) {
+    const context = this,
+      args = arguments;
+    if (!inThrottle) {
+      fn.apply(context, args);
+      lastTime = Date.now();
+      inThrottle = true;
+    } else {
+      clearTimeout(lastFn);
+      lastFn = setTimeout(() => {
+        if (Date.now() - lastTime >= wait) {
+          fn.apply(context, args);
+          lastTime = Date.now();
+        }
+      }, Math.max(wait - (Date.now() - lastTime), 0));
+    }
+  };
+};
+
+const debounceFn = (fn: Function, ms = 300) => {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), ms);
+  };
+};
+
+const capitalizeFirstLetter = (word: string): string => {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+};
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -223,4 +272,9 @@ export {
   trimText,
   calculatePosition,
   useResponsive,
+  processDeepLinkURI,
+  getParamFromURL,
+  throttleFn,
+  debounceFn,
+  capitalizeFirstLetter,
 };

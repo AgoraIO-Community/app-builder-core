@@ -18,6 +18,7 @@ import {
   isValidReactComponent,
   isWebInternal,
   useIsDesktop,
+  useIsSmall,
 } from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
@@ -31,6 +32,10 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import Transcript from '../../subComponents/caption/Transcript';
+
+import Spacer from '../../atoms/Spacer';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -39,6 +44,7 @@ const VideoCallScreen = () => {
   const {
     data: {meetingTitle, isHost},
   } = useMeetingInfo();
+
   const {
     ChatComponent,
     VideocallComponent,
@@ -48,7 +54,7 @@ const VideoCallScreen = () => {
     TopbarComponent,
     VideocallBeforeView,
     VideocallAfterView,
-  } = useCustomization((data) => {
+  } = useCustomization(data => {
     let components: {
       VideocallComponent?: React.ComponentType;
       ChatComponent: React.ComponentType<ChatProps>;
@@ -142,34 +148,8 @@ const VideoCallScreen = () => {
     return components;
   });
 
-  useEffect(() => {
-    // setTimeout(() => {
-    //   events.send(
-    //     controlMessageEnum.newUserJoined,
-    //     JSON.stringify({name}),
-    //     EventPersistLevel.LEVEL1,
-    //   );
-    // }, 1000);
-
-    /**
-     * OLD: Commenting this code as getDevices API is web only
-     * The below code fails on native app
-     * RESPONSE: Added isWebInternal check to restrict execution only on web.
-     */
-    if (isWebInternal()) {
-      new Promise((res) =>
-        //@ts-ignore
-        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
-          res(devices);
-        }),
-      ).then((devices: MediaDeviceInfo[]) => {
-        SDKEvents.emit('join', meetingTitle, devices, isHost);
-        console.log('SDKEvents: Event Called join');
-      });
-    }
-  }, []);
-
   const isDesktop = useIsDesktop();
+  const isSmall = useIsSmall();
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -183,14 +163,18 @@ const VideoCallScreen = () => {
       <VideocallBeforeView />
       <View style={style.full}>
         <ButtonTemplateProvider
-          value={{buttonTemplateName: ButtonTemplateName.topBar}}>
+          value={{buttonTemplateName: ButtonTemplateName.topBar}}
+        >
           <TopbarComponent />
         </ButtonTemplateProvider>
+        <Spacer size={10} />
         <View
           style={[
             style.videoView,
-            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
-          ]}>
+            {paddingHorizontal: isDesktop() ? 32 : 10},
+            {paddingVertical: isSmall() ? 10 : 0},
+          ]}
+        >
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />
@@ -207,12 +191,16 @@ const VideoCallScreen = () => {
             <></>
           )}
           {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
+          {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
         </View>
         {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
           <></>
         ) : (
           <ButtonTemplateProvider
-            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
+            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}
+          >
+            <CaptionContainer />
+            {<Spacer size={10} />}
             <BottombarComponent />
           </ButtonTemplateProvider>
         )}

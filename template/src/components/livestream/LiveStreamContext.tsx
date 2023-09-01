@@ -299,7 +299,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   /** ******* SETTING UP ROLES BEGINS ******* */
   React.useEffect(() => {
-    events.on(EventNames.ROLE_ATTRIBUTE, (data) => {
+    const unsubRoleAttribute = events.on(EventNames.ROLE_ATTRIBUTE, (data) => {
       setRaiseHandList((prevState) => {
         return {
           ...prevState,
@@ -313,6 +313,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         };
       });
     });
+
+    return () => {
+      unsubRoleAttribute();
+    };
   }, []);
 
   React.useEffect(() => {
@@ -342,178 +346,206 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   React.useEffect(() => {
     /** ********************** HOST EVENTS SECTION BEGINS ********************** */
-    events.on(EventNames.RAISED_ATTRIBUTE, (data) => {
-      if (!isHost) return;
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-      const isProcessed = payload?.isProcessed || false;
+    const unsubRaisedAttribute = events.on(
+      EventNames.RAISED_ATTRIBUTE,
+      (data) => {
+        if (!isHost) return;
+        const payload = JSON.parse(data.payload);
+        const action = payload.action;
+        const value = payload.value;
+        const isProcessed = payload?.isProcessed || false;
 
-      switch (action) {
-        // 1. Host can receive raise hand request with true or false value
-        case LiveStreamControlMessageEnum.raiseHandRequest:
-          switch (value) {
-            case RaiseHandValue.TRUE:
-              // Step 1: Show notifications
-              if (
-                payload.ts > rtmInitTimstamp &&
-                sidePanelRef.current !== SidePanelType.Participants
-              ) {
-                showToast(
-                  `${trimText(getAttendeeName(data.sender))} ${
-                    LSNotificationObject.RAISE_HAND_RECEIVED.text1
-                  }`,
-                  LSNotificationObject.RAISE_HAND_RECEIVED.text2,
-                  data.sender,
-                  data.ts,
-                );
-              }
-              // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
-              addOrUpdateLiveStreamRequest(data.sender, {
-                ts: data.ts,
-                raised: RaiseHandValue.TRUE,
-                role: ClientRole.Audience,
-                isProcessed: isProcessed,
-              });
-              break;
-            case RaiseHandValue.FALSE:
-              // Step 1: Show notifications
-              if (
-                payload.ts > rtmInitTimstamp &&
-                sidePanelRef.current !== SidePanelType.Participants
-              ) {
-                showToast(
-                  `${trimText(getAttendeeName(data.sender))} ${
-                    LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
-                  }`,
-                  LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,
-                );
-              }
-              // 2. All Hosts in channel update raised state to "false" when attendee recalls their request
-              addOrUpdateLiveStreamRequest(data.sender, {
-                ts: data.ts,
-                raised: RaiseHandValue.FALSE,
-                role: ClientRole.Audience,
-                isProcessed: isProcessed,
-              });
-            default:
-              break;
-          }
-          break;
-        // 2. All Hosts in channel gets notified when an attendee's request gets approved or rejected
-        case LiveStreamControlMessageEnum.notifyHostsInChannel:
-          if (!isHost) return;
-          switch (value) {
-            case RaiseHandValue.TRUE:
-              addOrUpdateLiveStreamRequest(data.sender, {
-                ts: data.ts,
-                raised: RaiseHandValue.TRUE,
-                role: ClientRole.Broadcaster,
-                isProcessed: isProcessed,
-              });
-              break;
-            case RaiseHandValue.FALSE:
-              addOrUpdateLiveStreamRequest(data.sender, {
-                ts: data.ts,
-                raised: RaiseHandValue.FALSE,
-                role: ClientRole.Audience,
-                isProcessed: isProcessed,
-              });
-              break;
-            default:
-              break;
-          }
-          break;
-        default:
-          break;
-      }
-    });
+        switch (action) {
+          // 1. Host can receive raise hand request with true or false value
+          case LiveStreamControlMessageEnum.raiseHandRequest:
+            switch (value) {
+              case RaiseHandValue.TRUE:
+                // Step 1: Show notifications
+                if (
+                  payload.ts > rtmInitTimstamp &&
+                  sidePanelRef.current !== SidePanelType.Participants
+                ) {
+                  showToast(
+                    `${trimText(getAttendeeName(data.sender))} ${
+                      LSNotificationObject.RAISE_HAND_RECEIVED.text1
+                    }`,
+                    LSNotificationObject.RAISE_HAND_RECEIVED.text2,
+                    data.sender,
+                    data.ts,
+                  );
+                }
+                // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
+                addOrUpdateLiveStreamRequest(data.sender, {
+                  ts: data.ts,
+                  raised: RaiseHandValue.TRUE,
+                  role: ClientRole.Audience,
+                  isProcessed: isProcessed,
+                });
+                break;
+              case RaiseHandValue.FALSE:
+                // Step 1: Show notifications
+                if (
+                  payload.ts > rtmInitTimstamp &&
+                  sidePanelRef.current !== SidePanelType.Participants
+                ) {
+                  showToast(
+                    `${trimText(getAttendeeName(data.sender))} ${
+                      LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
+                    }`,
+                    LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,
+                  );
+                }
+                // 2. All Hosts in channel update raised state to "false" when attendee recalls their request
+                addOrUpdateLiveStreamRequest(data.sender, {
+                  ts: data.ts,
+                  raised: RaiseHandValue.FALSE,
+                  role: ClientRole.Audience,
+                  isProcessed: isProcessed,
+                });
+              default:
+                break;
+            }
+            break;
+          // 2. All Hosts in channel gets notified when an attendee's request gets approved or rejected
+          case LiveStreamControlMessageEnum.notifyHostsInChannel:
+            if (!isHost) return;
+            switch (value) {
+              case RaiseHandValue.TRUE:
+                addOrUpdateLiveStreamRequest(data.sender, {
+                  ts: data.ts,
+                  raised: RaiseHandValue.TRUE,
+                  role: ClientRole.Broadcaster,
+                  isProcessed: isProcessed,
+                });
+                break;
+              case RaiseHandValue.FALSE:
+                addOrUpdateLiveStreamRequest(data.sender, {
+                  ts: data.ts,
+                  raised: RaiseHandValue.FALSE,
+                  role: ClientRole.Audience,
+                  isProcessed: isProcessed,
+                });
+                break;
+              default:
+                break;
+            }
+            break;
+          default:
+            break;
+        }
+      },
+    );
     /** ********************** HOST EVENTS SECTION ENDS ********************** */
 
     /** ********************** AUDIENCE EVENTS SECTION BEGINS ********************** */
     // 1. Audience receives this when the request is accepted by host
-    events.on(LiveStreamControlMessageEnum.raiseHandRequestAccepted, (data) => {
-      if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
-        return;
-      showToast(
-        LSNotificationObject.RAISE_HAND_ACCEPTED.text1,
-        LSNotificationObject.RAISE_HAND_ACCEPTED.text2,
-      );
-      // Promote user's privileges to host
-      changeClientRoleTo(ClientRole.Broadcaster);
-      // Audience updates its local attributes and notfies all host when request is approved
-      UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
-    });
+    const unsubRaiseHandReqAcpt = events.on(
+      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
+      (data) => {
+        if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
+          return;
+        showToast(
+          LSNotificationObject.RAISE_HAND_ACCEPTED.text1,
+          LSNotificationObject.RAISE_HAND_ACCEPTED.text2,
+        );
+        // Promote user's privileges to host
+        changeClientRoleTo(ClientRole.Broadcaster);
+        // Audience updates its local attributes and notfies all host when request is approved
+        UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+      },
+    );
     /** 2. Audience receives this when the request is rejected by host
      * 2.a  Audience receives this when the request is rejected by host which is not yet approved
      * 2.b  Audience receives this when the request when is demoted by the host
      */
-    events.on(LiveStreamControlMessageEnum.raiseHandRequestRejected, (data) => {
-      /** 2.a */
-      if (
-        raiseHandListRef.current[localUidRef.current].role ==
-        ClientRole.Audience
-      ) {
-        showToast(
-          LSNotificationObject.RAISE_HAND_REJECTED.text1,
-          LSNotificationObject.RAISE_HAND_REJECTED.text2,
-        );
-      } else if (
-        raiseHandListRef.current[localUidRef.current].role ==
-        ClientRole.Broadcaster
-      ) {
-        /** 2.b */
-        showToast(
-          LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text1,
-          LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text2,
-        );
-        screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
+    const unsubRaiseHandReqRej = events.on(
+      LiveStreamControlMessageEnum.raiseHandRequestRejected,
+      (data) => {
+        /** 2.a */
+        if (
+          raiseHandListRef.current[localUidRef.current].role ==
+          ClientRole.Audience
+        ) {
+          showToast(
+            LSNotificationObject.RAISE_HAND_REJECTED.text1,
+            LSNotificationObject.RAISE_HAND_REJECTED.text2,
+          );
+        } else if (
+          raiseHandListRef.current[localUidRef.current].role ==
+          ClientRole.Broadcaster
+        ) {
+          /** 2.b */
+          showToast(
+            LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text1,
+            LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text2,
+          );
+          screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
 
-        // Demote user's privileges to audience
-        changeClientRoleTo(ClientRole.Audience);
-      }
-      // Audience updates its local attributes and notfies all host when demoted/request rejected
-      UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
-    });
+          // Demote user's privileges to audience
+          changeClientRoleTo(ClientRole.Audience);
+        }
+        // Audience updates its local attributes and notfies all host when demoted/request rejected
+        UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
+      },
+    );
     // 3. Audience when receives kickUser notifies all host when is kicked out
-    events.on(controlMessageEnum.kickUser, (data) => {
+    const unsubKickUser = events.on(controlMessageEnum.kickUser, (data) => {
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
       UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
     });
     // 4. Host promote audience as co-host
-    events.on(LiveStreamControlMessageEnum.promoteAsCoHost, (data) => {
-      showToast(
-        LSNotificationObject.PROMOTE_AS_CO_HOST.text1,
-        LSNotificationObject.PROMOTE_AS_CO_HOST.text2,
-      );
-      // Promote user's privileges to host
-      changeClientRoleTo(ClientRole.Broadcaster);
-      // Audience updates its local attributes and notfies all host when request is approved
-      UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
-    });
+    const unsubPromoteAsCoHost = events.on(
+      LiveStreamControlMessageEnum.promoteAsCoHost,
+      (data) => {
+        showToast(
+          LSNotificationObject.PROMOTE_AS_CO_HOST.text1,
+          LSNotificationObject.PROMOTE_AS_CO_HOST.text2,
+        );
+        // Promote user's privileges to host
+        changeClientRoleTo(ClientRole.Broadcaster);
+        // Audience updates its local attributes and notfies all host when request is approved
+        UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+      },
+    );
     // 4. New co-host has joined
-    events.on(LiveStreamControlMessageEnum.coHostJoined, ({payload}) => {
-      try {
-        const data = JSON.parse(payload);
-        if (data?.uid) {
-          setCoHostUids((prevState) => {
-            return [...prevState, parseInt(data.uid)];
-          });
-        }
-      } catch (error) {}
-    });
+    const unsubCoHostJoined = events.on(
+      LiveStreamControlMessageEnum.coHostJoined,
+      ({payload}) => {
+        try {
+          const data = JSON.parse(payload);
+          if (data?.uid) {
+            setCoHostUids((prevState) => {
+              return [...prevState, parseInt(data.uid)];
+            });
+          }
+        } catch (error) {}
+      },
+    );
     // 5. Co-host removed
-    events.on(LiveStreamControlMessageEnum.coHostRemoved, ({payload}) => {
-      try {
-        const data = JSON.parse(payload);
-        if (data?.uid) {
-          setCoHostUids((prevState) => {
-            return [...prevState.filter((i) => i !== parseInt(data.uid))];
-          });
-        }
-      } catch (error) {}
-    });
+    const unsubCoHostRemoved = events.on(
+      LiveStreamControlMessageEnum.coHostRemoved,
+      ({payload}) => {
+        try {
+          const data = JSON.parse(payload);
+          if (data?.uid) {
+            setCoHostUids((prevState) => {
+              return [...prevState.filter((i) => i !== parseInt(data.uid))];
+            });
+          }
+        } catch (error) {}
+      },
+    );
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
+
+    return () => {
+      unsubRaisedAttribute();
+      unsubRaiseHandReqAcpt();
+      unsubRaiseHandReqRej();
+      unsubKickUser();
+      unsubPromoteAsCoHost();
+      unsubCoHostJoined();
+      unsubCoHostRemoved();
+    };
   }, []);
 
   /** ******* EVENT LISTENERS SECTION ENDS ******* */

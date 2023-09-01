@@ -36,6 +36,30 @@ export interface MeetingInfoContextInterface {
   };
 }
 
+export const validateMeetingInfoData = (
+  meetingInfo: Partial<MeetingInfoContextInterface['data']>,
+) => {
+  const {
+    channel,
+    encryptionSecret,
+    rtmToken,
+    screenShareToken,
+    screenShareUid,
+    token,
+    uid,
+  } = meetingInfo;
+  if ($config.ENCRYPTION_ENABLED && !encryptionSecret) {
+    return false;
+  }
+  if ($config.SCREEN_SHARING && (!screenShareToken || !screenShareUid)) {
+    return false;
+  }
+  if (!channel || !rtmToken || !token || !uid) {
+    return false;
+  }
+  return true;
+};
+
 export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
   isJoinDataFetched: false,
   data: {

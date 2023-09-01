@@ -39,6 +39,7 @@ import StorageContext from './StorageContext';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {VideoPreviewProps} from './precall/VideoPreview';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -326,7 +327,18 @@ const Precall = (props: any) => {
           {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
             //  Live (Audience) - Mobile
             <View style={{flex: 1}}>
-              <MeetingName textStyle={style.meetingTitleStyle} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <MeetingName textStyle={style.meetingTitleStyle} />
+                <IDPLogoutComponent
+                  containerStyle={{marginTop: 0, marginRight: 0}}
+                />
+              </View>
+
               <Spacer size={24} />
               <View testID="precall-mobile-join" style={{flex: 1}}>
                 <JoinRoomInputView isDesktop={false} />
@@ -335,7 +347,17 @@ const Precall = (props: any) => {
           ) : (
             // Conferncing / Live (Host)
             <View style={{flex: 1}}>
-              <MeetingName textStyle={{textAlign: 'center'}} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <MeetingName textStyle={{textAlign: 'center'}} />
+                <IDPLogoutComponent
+                  containerStyle={{marginTop: 0, marginRight: 0}}
+                />
+              </View>
               <Spacer size={24} />
               <View style={{flex: 1}}>
                 <View

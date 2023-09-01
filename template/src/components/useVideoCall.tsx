@@ -10,10 +10,19 @@
 *********************************************
 */
 
-import React, {SetStateAction, useState} from 'react';
+import React, {SetStateAction, useState, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
+import StartScreenSharePopup from './popups/StartScreenSharePopup';
+import StopScreenSharePopup from './popups/StopScreenSharePopup';
+import {SdkApiContext} from './SdkApiContext';
+import {useRtc, useMeetingInfo} from 'customization-api';
+import SDKEvents from '../utils/SdkEvents';
+import DeviceContext from './DeviceContext';
+import useSetName from '../utils/useSetName';
+import useFindActiveSpeaker from '../utils/useFindActiveSpeaker';
+import {UidType} from 'customization-api';
 
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
@@ -22,6 +31,11 @@ export interface VideoCallContextInterface {
   setShowStopRecordingPopup: React.Dispatch<SetStateAction<boolean>>;
   showLayoutOption: boolean;
   setShowLayoutOption: React.Dispatch<SetStateAction<boolean>>;
+  activeSpeaker: UidType;
+  showStartScreenSharePopup: boolean;
+  setShowStartScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
+  showStopScreenSharePopup: boolean;
+  setShowStopScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -31,6 +45,11 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setShowStopRecordingPopup: () => {},
   showLayoutOption: false,
   setShowLayoutOption: () => {},
+  activeSpeaker: 0,
+  showStartScreenSharePopup: false,
+  setShowStartScreenSharePopup: () => {},
+  showStopScreenSharePopup: false,
+  setShowStopScreenSharePopup: () => {},
 });
 
 interface VideoCallProviderProps {
@@ -40,6 +59,33 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
+  const [showStartScreenSharePopup, setShowStartScreenSharePopup] =
+    useState(false);
+  const [showStopScreenSharePopup, setShowStopScreenSharePopup] =
+    useState(false);
+  const {join, enterRoom} = useContext(SdkApiContext);
+  const meetingInfo = useMeetingInfo();
+  const {deviceList} = useContext(DeviceContext);
+  const setUsername = useSetName();
+  const activeSpeaker = useFindActiveSpeaker();
+
+  useEffect(() => {
+    if (join.initialized && join.phrase) {
+      if (join.userName && join.skipPrecall) {
+        setUsername(join.userName);
+      }
+      join.promise.res(meetingInfo.data);
+    }
+    if (enterRoom.promise) {
+      enterRoom.promise.res(meetingInfo.data);
+    }
+    SDKEvents.emit(
+      'join',
+      meetingInfo.data.meetingTitle,
+      deviceList,
+      meetingInfo.data.isHost,
+    );
+  }, []);
   return (
     <VideoCallContext.Provider
       value={{
@@ -49,7 +95,14 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowStopRecordingPopup,
         showLayoutOption,
         setShowLayoutOption,
+        activeSpeaker: $config.ACTIVE_SPEAKER ? activeSpeaker : 0,
+        showStartScreenSharePopup,
+        setShowStartScreenSharePopup,
+        showStopScreenSharePopup,
+        setShowStopScreenSharePopup,
       }}>
+      <StartScreenSharePopup />
+      <StopScreenSharePopup />
       <StopRecordingPopup />
       <InvitePopup />
       {props.children}

@@ -4,7 +4,7 @@
   // "files":["./customization-api/index.ts","./global.d.ts","./bridge/rtm/web/index.ts","./bridge/rtc/webNg/index.ts"],
   // --------------------------------------------------------
   // Use with typescript tsc command
-  "files": ["./src/SDKAppWrapper.tsx", "./index.rsdk.tsx", "./global.d.ts"],
+  "files": ["./index.rsdk.tsx", "./global.d.ts"],
   // --------------------------------------------------------
   "compilerOptions": {
     /* Basic Options */
@@ -47,8 +47,8 @@
     // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
 
     /* Module Resolution Options */
-    // "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
-    "noResolve": true /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
+    "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
+    "noResolve": false /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
     "baseUrl": "./" /* Base directory to resolve non-absolute module names. */,
     "resolveJsonModule": true,
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
