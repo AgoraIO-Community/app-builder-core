@@ -31,11 +31,14 @@ import useMuteToggleLocal, {
 } from '../../utils/useMuteToggleLocal';
 import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
 import {LocalVideoStreamError} from 'react-native-agora';
+import useAppState from '../../utils/useAppState';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const isAndroidScreenShareStarted = useRef(false);
+  const appState = useAppState();
   const processRef = useRef(false);
   const enableVideoRef = useRef(false);
   const {dispatch, RtcEngine} = useRtc();
@@ -77,7 +80,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
     if (data) {
       const recentScreenshare = Object.keys(data)
-        .map((i) => parseInt(i))
+        .map(i => parseInt(i))
         .sort((a, b) => {
           return data[a].ts - data[b].ts;
         });
@@ -114,26 +117,33 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     RtcEngine?.addListener(
       'LocalVideoStateChanged',
       (localVideoState, error) => {
-        console.info('LocalVideoStateChanged', localVideoState, error);
-        switch (error) {
-          case LocalVideoStreamError.ExtensionCaptureStarted:
-            processRef.current = true;
-            setScreenshareActive(true);
-            break;
-          case LocalVideoStreamError.ExtensionCaptureStoped:
-          case LocalVideoStreamError.ExtensionCaptureDisconnected:
-          case LocalVideoStreamError.ScreenCapturePermissionDenied:
-            processRef.current = true;
-            setScreenshareActive(false);
-            break;
-          default:
-            break;
+        if (Platform.OS === 'android') {
+          switch (error) {
+            case LocalVideoStreamError.ScreenCapturePermissionDenied:
+              isAndroidScreenShareStarted.current = false;
+              break;
+          }
+        } else {
+          switch (error) {
+            case LocalVideoStreamError.ExtensionCaptureStarted:
+              processRef.current = true;
+              setScreenshareActive(true);
+              break;
+            case LocalVideoStreamError.ExtensionCaptureStoped:
+            case LocalVideoStreamError.ExtensionCaptureDisconnected:
+            case LocalVideoStreamError.ScreenCapturePermissionDenied:
+              processRef.current = true;
+              setScreenshareActive(false);
+              break;
+            default:
+              break;
+          }
         }
       },
     );
     const unsubScreenShareAttribute = events.on(
       EventNames.SCREENSHARE_ATTRIBUTE,
-      (data) => {
+      data => {
         const payload = JSON.parse(data.payload);
         const action = payload.action;
         const value = payload.value;
@@ -142,7 +152,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           renderListRef.current.renderList[data.sender].screenUid;
         switch (action) {
           case EventActions.SCREENSHARE_STARTED:
-            setScreenShareData((prevState) => {
+            setScreenShareData(prevState => {
               return {
                 ...prevState,
                 [screenUidOfUser]: {
@@ -164,7 +174,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             ) {
               setScreenShareOnFullView(false);
             }
-            setScreenShareData((prevState) => {
+            setScreenShareData(prevState => {
               return {
                 ...prevState,
                 [screenUidOfUser]: {
@@ -201,15 +211,32 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         captureVideo: true,
         captureAudio,
       });
+      /**
+       * android -> user will see the confirmation popup from the system,
+       * if user denied permission we will update isAndroidScreenShareStarted.current as false in the video state change callback
+       * if user allowed permission we will update screenshare as active in appState useeffect
+       */
       if (Platform.OS === 'android') {
-        processRef.current = true;
-        setScreenshareActive(true);
+        isAndroidScreenShareStarted.current = true;
       }
       //For ios will update state in the video state changed callback
     } else {
       console.log('screenshare is already active');
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (
+        appState === 'active' &&
+        isAndroidScreenShareStarted.current === true
+      ) {
+        isAndroidScreenShareStarted.current = false;
+        processRef.current = true;
+        setScreenshareActive(true);
+      }
+    }, 1000);
+  }, [appState]);
 
   const stopUserScreenShare = async (
     enableVideo: boolean = false,

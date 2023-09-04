@@ -25,6 +25,7 @@ PODS:
   - AgoraRtcEngine_iOS/SuperResolution (3.7.0.3)
   - AgoraRtcEngine_iOS/VideoPreprocess (3.7.0.3)
   - AgoraRtcEngine_iOS/VirtualBackground (3.7.0.3)
+  - AgoraRtcEngine_Special_iOS (3.7.2.4)
   - AgoraRtm_iOS (1.5.1)
   - BEMCheckBox (1.4.1)
   - boost (1.76.0)
@@ -404,8 +405,8 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
-  - react-native-agora (3.7.1):
-    - AgoraRtcEngine_iOS (= 3.7.0.3)
+  - react-native-agora (3.7.2-rc.3):
+    - AgoraRtcEngine_Special_iOS (= 3.7.2.4)
     - React-Core
   - react-native-keep-awake (4.0.0):
     - React
@@ -523,6 +524,8 @@ PODS:
     - IQKeyboardManagerSwift (= 6.5.4)
     - React
     - React-RCTText
+  - rn-fetch-blob (0.12.0):
+    - React-Core
   - RNCAsyncStorage (1.19.2):
     - React-Core
   - RNCCheckbox (0.5.16):
@@ -568,6 +571,8 @@ PODS:
   - RNSentry (5.9.0):
     - React-Core
     - Sentry/HybridSDK (= 8.9.4)
+  - RNShare (7.9.0):
+    - React-Core
   - RNSVG (13.6.0):
     - React-Core
   - RNVectorIcons (9.2.0):
@@ -648,6 +653,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeKeyboardManager (from `../node_modules/react-native-keyboard-manager`)
+  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
@@ -656,6 +662,7 @@ DEPENDENCIES:
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
+  - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -663,6 +670,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - AgoraRtcEngine_iOS
+    - AgoraRtcEngine_Special_iOS
     - AgoraRtm_iOS
     - BEMCheckBox
     - CocoaAsyncSocket
@@ -769,6 +777,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeKeyboardManager:
     :path: "../node_modules/react-native-keyboard-manager"
+  rn-fetch-blob:
+    :path: "../node_modules/rn-fetch-blob"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCCheckbox:
@@ -785,6 +795,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNSentry:
     :path: "../node_modules/@sentry/react-native"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -795,6 +807,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   agora-react-native-rtm: 20cd594088d33caa46c75f2d079efbac62848cec
   AgoraRtcEngine_iOS: 549bb3853d5afb18fabca4197786f39f31141da8
+  AgoraRtcEngine_Special_iOS: 0ebb16a61343394538886b048ffced6b5497673a
   AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
@@ -831,7 +844,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: c328ef8c381d7b22cc11d1eb298d8ff8a8e7a70d
+  react-native-agora: 16de7d9657b24dcf1ea6edebb30d06fe3e050c68
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
@@ -851,6 +864,7 @@ SPEC CHECKSUMS:
   React-utils: b79f2411931f9d3ea5781404dcbb2fa8a837e13a
   ReactCommon: 4b2bdcb50a3543e1c2b2849ad44533686610826d
   ReactNativeKeyboardManager: 93ac3934a51f548c54ac02d61c90e33220bba086
+  rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: f57e929cd7757f2cb3dd8186d123c09e8281a1ad
   RNCCheckbox: 75255b03e604bbcc26411eb31c4cbe3e3865f538
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
@@ -859,6 +873,7 @@ SPEC CHECKSUMS:
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
   RNSentry: c167b3da6aa7f3cf85d909caae905d043a062b6c
+  RNShare: be91a5c149585affb02c25b351bd07ba927c7006
   RNSVG: 3a79c0c4992213e4f06c08e62730c5e7b9e4dc17
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Sentry: 56c76eed917f7dffd46db50906afbf5c9aa2673a
