@@ -25,7 +25,6 @@ PODS:
   - AgoraRtcEngine_iOS/SuperResolution (3.7.0.3)
   - AgoraRtcEngine_iOS/VideoPreprocess (3.7.0.3)
   - AgoraRtcEngine_iOS/VirtualBackground (3.7.0.3)
-  - AgoraRtcEngine_Special_iOS (3.7.2.4)
   - AgoraRtm_iOS (1.5.1)
   - BEMCheckBox (1.4.1)
   - boost (1.76.0)
@@ -405,8 +404,8 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
-  - react-native-agora (3.7.2-rc.3):
-    - AgoraRtcEngine_Special_iOS (= 3.7.2.4)
+  - react-native-agora (3.7.1):
+    - AgoraRtcEngine_iOS (= 3.7.0.3)
     - React-Core
   - react-native-keep-awake (4.0.0):
     - React
@@ -670,7 +669,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - AgoraRtcEngine_iOS
-    - AgoraRtcEngine_Special_iOS
     - AgoraRtm_iOS
     - BEMCheckBox
     - CocoaAsyncSocket
@@ -807,7 +805,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   agora-react-native-rtm: 20cd594088d33caa46c75f2d079efbac62848cec
   AgoraRtcEngine_iOS: 549bb3853d5afb18fabca4197786f39f31141da8
-  AgoraRtcEngine_Special_iOS: 0ebb16a61343394538886b048ffced6b5497673a
   AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
@@ -844,7 +841,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: 16de7d9657b24dcf1ea6edebb30d06fe3e050c68
+  react-native-agora: c328ef8c381d7b22cc11d1eb298d8ff8a8e7a70d
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58

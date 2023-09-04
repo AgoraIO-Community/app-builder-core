@@ -80,7 +80,7 @@
     "react-dom": "18.2.0",
     "react-is": "18.0.0",
     "react-native": "0.72.4",
-    "react-native-agora": "3.7.2-rc.3",
+    "react-native-agora": "3.7.1",
     "react-native-exit-app": "1.1.0",
     "react-native-gesture-handler": "2.8.0",
     "react-native-hyperlink": "0.0.19",
