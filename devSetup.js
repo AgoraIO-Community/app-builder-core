@@ -4,7 +4,13 @@ const ROOT = path.join(process.cwd(), "template");
 
 console.log("\n\n\tConfiguring the project for dev environment");
 
-const dotFiles = ["_eslintrc.js", "_prettierrc.js", "_watchmanconfig"];
+const dotFiles = [
+  "_buckconfig",
+  "_eslintrc.js",
+  "_gitattributes",
+  "_prettierrc.js",
+  "_watchmanconfig",
+];
 
 async function processDotfiles() {
   try {
