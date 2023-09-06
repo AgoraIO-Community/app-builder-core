@@ -15,7 +15,7 @@ import Video from './src/App';
 import './src/assets/font-styles.css'
 
 Sentry.init({
-  dsn: 'https://b5df0450fe284baa8376e62ace331580@o615358.ingest.sentry.io/5749898',
+  dsn: 'https://b5df0450fe284baa8376e62ace331580@o615358.ingest.sentry.io/2324242',
 });
 
 AppRegistry.registerComponent('App', () => Video);
