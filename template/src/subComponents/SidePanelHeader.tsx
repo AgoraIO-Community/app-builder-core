@@ -53,29 +53,29 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
             <View style={{width: 30, height: 'auto'}}></View>
           ) : null}
           {props?.centerComponent ? props.centerComponent : null}
-          <View
-            ref={ref}
-            style={props?.trailingIconName2 && SidePanelStyles.row}>
+          <View style={props?.trailingIconName2 && SidePanelStyles.row}>
             {props?.trailingIconName ? (
-              <IconButton
-                hoverEffect={true}
-                hoverEffectStyle={{
-                  backgroundColor: $config.ICON_BG_COLOR,
-                  borderRadius: 20,
-                }}
-                iconProps={{
-                  iconType: 'plain',
-                  iconContainerStyle: {
-                    padding: 5,
-                  },
-                  iconSize: 20,
-                  name: props?.trailingIconName,
-                  tintColor: $config.SECONDARY_ACTION_COLOR,
-                }}
-                onPress={() => {
-                  props?.trailingIconOnPress && props.trailingIconOnPress();
-                }}
-              />
+              <View ref={ref} collapsable={false}>
+                <IconButton
+                  hoverEffect={true}
+                  hoverEffectStyle={{
+                    backgroundColor: $config.ICON_BG_COLOR,
+                    borderRadius: 20,
+                  }}
+                  iconProps={{
+                    iconType: 'plain',
+                    iconContainerStyle: {
+                      padding: 5,
+                    },
+                    iconSize: 20,
+                    name: props?.trailingIconName,
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
+                  }}
+                  onPress={() => {
+                    props?.trailingIconOnPress && props.trailingIconOnPress();
+                  }}
+                />
+              </View>
             ) : null}
             {props?.trailingIconName2 ? (
               <IconButton
