@@ -20,6 +20,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+ios/.xcode.env.local
 
 # Android/IntelliJ
 #
@@ -28,6 +29,7 @@ build/
 .gradle
 local.properties
 *.iml
+*.hprof
 
 # Visual Studio Code
 #
@@ -57,15 +59,13 @@ buck-out/
 **/fastlane/screenshots
 **/fastlane/test_output
 
-*/fastlane/report.xml
-*/fastlane/Preview.html
-*/fastlane/screenshots
 
 # Bundle artifact
 *.jsbundle
 
-# CocoaPods
+# Ruby / CocoaPods
 /ios/Pods/
+/vendor/bundle/
 
 
 #UI Kit

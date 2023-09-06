@@ -7,7 +7,6 @@ console.log("\n\n\tConfiguring the project for dev environment");
 const dotFiles = [
   "_buckconfig",
   "_eslintrc.js",
-  "_gitattributes",
   "_prettierrc.js",
   "_watchmanconfig",
 ];
