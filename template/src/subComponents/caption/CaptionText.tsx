@@ -3,7 +3,7 @@ import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
-import {isMobileUA} from '../../utils/common';
+import {isAndroid, isMobileUA} from '../../utils/common';
 
 interface CaptionTextProps {
   user: string;
@@ -39,12 +39,18 @@ const CaptionText = ({
     let textHeight = event.nativeEvent.layout.height; // height of the <Text>
 
     /* safari at only zoom level 85% gives value as 27,54,81... for lineHeight instead of 28,56,84... */
-    /* IOS goves 21.33 instead of 21 */
+    /* IOS,Androis gives 21.33 instead of 21 */
     /* so added the threshold of 1 in isDiffLineHeight */
-    const isDiffLineHeight = textHeight % LINE_HEIGHT > 1;
+
+    const lineHeightOffset = textHeight % LINE_HEIGHT;
+    const isDiffLineHeight = lineHeightOffset > 1;
+    const isLineHeightGreater = lineHeightOffset < 15;
     const delta = isDiffLineHeight
-      ? LINE_HEIGHT - (textHeight % LINE_HEIGHT)
+      ? isLineHeightGreater
+        ? -lineHeightOffset
+        : LINE_HEIGHT - lineHeightOffset
       : 0;
+
     const currentLines = Math.floor((textHeight + delta) / LINE_HEIGHT); // calculate numberOfLines
     const currentAllowedLines = Math.min(
       currentLines,
@@ -84,8 +90,7 @@ const CaptionText = ({
               : 1 - (activelinesAvailable + 1) * 0.2,
         },
         !isActiveSpeaker && activelinesAvailable === 3 && {height: 0},
-      ]}
-    >
+      ]}>
       <Text
         style={[
           styles.captionUserName,
@@ -93,8 +98,7 @@ const CaptionText = ({
         ]}
         numberOfLines={1}
         textBreakStrategy="simple"
-        ellipsizeMode="tail"
-      >
+        ellipsizeMode="tail">
         {user}
       </Text>
       <View
@@ -109,8 +113,7 @@ const CaptionText = ({
                     MAX_CAPTIONS_LINES_ALLOWED - activelinesAvailable,
                   )) * LINE_HEIGHT,
           },
-        ]}
-      >
+        ]}>
         <Text
           onLayout={handleTextLayout}
           style={[
@@ -118,8 +121,8 @@ const CaptionText = ({
             isMobile
               ? styles.mobileCaptionFontSize
               : styles.desktopCaptionFontSize,
-          ]}
-        >
+            isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+          ]}>
           {value}
         </Text>
       </View>
@@ -136,7 +139,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 620,
     justifyContent: 'flex-end',
-
     borderStyle: 'dotted',
   },
 
@@ -159,7 +161,6 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
     fontSize: ThemeConfig.FontSize.medium,
-    lineHeight: 22,
     maxWidth: 200,
   },
   mobileNameFontSize: {
@@ -172,10 +173,10 @@ const styles = StyleSheet.create({
   },
   mobileCaptionFontSize: {
     fontSize: 16,
-    lineHeight: 21,
+    lineHeight: MOBILE_LINE_HEIGHT,
   },
   desktopCaptionFontSize: {
     fontSize: 24,
-    lineHeight: 28,
+    lineHeight: DESKTOP_LINE_HEIGHT,
   },
 });
