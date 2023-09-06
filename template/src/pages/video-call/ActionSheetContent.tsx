@@ -599,7 +599,11 @@ const ActionSheetContent = (props) => {
           ) : (
             <></>
           )}
-          {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
+          {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
+            <ScreenshareIcon />
+          ) : (
+            <></>
+          )}
         </>
       </CarouselWrapper>
     </View>
