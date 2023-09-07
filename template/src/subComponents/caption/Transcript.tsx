@@ -205,8 +205,7 @@ const Transcript = (props: TranscriptProps) => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         {paddingBottom: 20},
-      ]}
-    >
+      ]}>
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
         {!searchQuery && (
@@ -235,8 +234,7 @@ const Transcript = (props: TranscriptProps) => {
           <TouchableOpacity
             onPress={() => {
               setSearchQuery('');
-            }}
-          >
+            }}>
             <ImageIcon
               name="close"
               iconSize={20}
@@ -258,23 +256,21 @@ const Transcript = (props: TranscriptProps) => {
       ) : (
         <>
           <View style={{flex: 1}}>
-            {/* <FlatList
+            <FlatList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
-              keyExtractor={(item) => item.uid + '-' + item.time}
+              keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={
-                isWebInternal() ? debounceFn(handleScroll, 100) : handleScroll
-              }
+              onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
               ListFooterComponentStyle={styles.footer}
               contentContainerStyle={styles.content}
-            /> */}
-            <VirtualizedList
+            />
+            {/* <VirtualizedList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
@@ -289,7 +285,7 @@ const Transcript = (props: TranscriptProps) => {
               contentContainerStyle={styles.content}
               getItemCount={() => renderedData.length}
               getItem={(data, index) => renderedData[index]}
-            />
+            /> */}
 
             {showButton ? (
               <View
@@ -300,8 +296,7 @@ const Transcript = (props: TranscriptProps) => {
                   right: 0,
                   alignItems: 'center',
                   zIndex: 9999,
-                }}
-              >
+                }}>
                 <PrimaryButton
                   iconName={'view-last'}
                   containerStyle={styles.showLatestBtn}
