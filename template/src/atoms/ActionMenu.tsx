@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   modalView: {
     //don't added overflow: hidden, bottombar minimized version layout popup will be shown in the overflow
     position: 'absolute',
-    width: 230,
+    // width: 230,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     shadowColor: '#000',
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    marginRight: 12,
   },
   backDrop: {
     position: 'absolute',
