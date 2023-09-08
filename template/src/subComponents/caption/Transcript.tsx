@@ -19,6 +19,7 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
 import {
   calculatePosition,
+  debounceFn,
   isMobileUA,
   isWebInternal,
   useIsSmall,
@@ -279,7 +280,9 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={handleScroll}
+              onScroll={
+                isWebInternal() ? debounceFn(handleScroll, 200) : handleScroll
+              }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
