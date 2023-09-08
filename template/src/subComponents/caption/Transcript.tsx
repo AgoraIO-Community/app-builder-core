@@ -115,13 +115,15 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleViewLatest = () => {
-    flatListRef.current.scrollToOffset({
-      offset: contentHeightRef.current,
-      animated: false,
-    });
-    setShowButton(false);
-
-    isScrolledToEnd.current = true;
+    // flatListRef.current.scrollToOffset({
+    //   offset: contentHeightRef.current,
+    //   animated: false,
+    // });
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({animated: false});
+      setShowButton(false);
+      isScrolledToEnd.current = true;
+    }
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
@@ -256,7 +258,7 @@ const Transcript = (props: TranscriptProps) => {
       ) : (
         <>
           <View style={{flex: 1}}>
-            <FlatList
+            {/* <FlatList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
@@ -269,8 +271,8 @@ const Transcript = (props: TranscriptProps) => {
               ListFooterComponent={DownloadTranscriptBtn}
               ListFooterComponentStyle={styles.footer}
               contentContainerStyle={styles.content}
-            />
-            {/* <VirtualizedList
+            /> */}
+            <VirtualizedList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
@@ -285,7 +287,7 @@ const Transcript = (props: TranscriptProps) => {
               contentContainerStyle={styles.content}
               getItemCount={() => renderedData.length}
               getItem={(data, index) => renderedData[index]}
-            /> */}
+            />
 
             {showButton ? (
               <View
