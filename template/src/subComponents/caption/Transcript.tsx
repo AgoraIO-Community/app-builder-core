@@ -13,7 +13,13 @@ import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
-import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
+import {
+  calculatePosition,
+  debounceFn,
+  isMobileUA,
+  isWebInternal,
+  useIsSmall,
+} from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import {useRtc, useContent} from 'customization-api';
 import {useCaption} from './useCaption';
@@ -104,13 +110,15 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleViewLatest = () => {
-    flatListRef.current.scrollToOffset({
-      offset: contentHeightRef.current,
-      animated: false,
-    });
-    setShowButton(false);
-
-    isScrolledToEnd.current = true;
+    // flatListRef.current.scrollToOffset({
+    //   offset: contentHeightRef.current,
+    //   animated: false,
+    // });
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({animated: false});
+      setShowButton(false);
+      isScrolledToEnd.current = true;
+    }
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
@@ -250,11 +258,9 @@ const Transcript = (props: TranscriptProps) => {
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
-              keyExtractor={(item) => item.uid + '-' + item.time}
+              keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={
-                isWebInternal() ? debounceFn(handleScroll, 100) : handleScroll
-              }
+              onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
@@ -268,7 +274,9 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={handleScroll}
+              onScroll={
+                isWebInternal() ? debounceFn(handleScroll, 200) : handleScroll
+              }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
