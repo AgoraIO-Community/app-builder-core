@@ -19,6 +19,7 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
 import {
   calculatePosition,
+  debounceFn,
   isMobileUA,
   isWebInternal,
   useIsSmall,
@@ -115,13 +116,15 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleViewLatest = () => {
-    flatListRef.current.scrollToOffset({
-      offset: contentHeightRef.current,
-      animated: false,
-    });
-    setShowButton(false);
-
-    isScrolledToEnd.current = true;
+    // flatListRef.current.scrollToOffset({
+    //   offset: contentHeightRef.current,
+    //   animated: false,
+    // });
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({animated: false});
+      setShowButton(false);
+      isScrolledToEnd.current = true;
+    }
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
@@ -205,8 +208,7 @@ const Transcript = (props: TranscriptProps) => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         {paddingBottom: 20},
-      ]}
-    >
+      ]}>
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
         {!searchQuery && (
@@ -235,8 +237,7 @@ const Transcript = (props: TranscriptProps) => {
           <TouchableOpacity
             onPress={() => {
               setSearchQuery('');
-            }}
-          >
+            }}>
             <ImageIcon
               name="close"
               iconSize={20}
@@ -263,11 +264,9 @@ const Transcript = (props: TranscriptProps) => {
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
-              keyExtractor={(item) => item.uid + '-' + item.time}
+              keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={
-                isWebInternal() ? debounceFn(handleScroll, 100) : handleScroll
-              }
+              onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
@@ -281,7 +280,9 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={handleScroll}
+              onScroll={
+                isWebInternal() ? debounceFn(handleScroll, 200) : handleScroll
+              }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
@@ -300,8 +301,7 @@ const Transcript = (props: TranscriptProps) => {
                   right: 0,
                   alignItems: 'center',
                   zIndex: 9999,
-                }}
-              >
+                }}>
                 <PrimaryButton
                   iconName={'view-last'}
                   containerStyle={styles.showLatestBtn}
