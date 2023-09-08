@@ -39,20 +39,20 @@ const useStreamMessageUtils = (): {
         .lookupType('Text')
         .decode(payload as Uint8Array) as any;
 
-      console.log('STT - Parsed Textstream : ', textstream);
-      console.log(
-        `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
-          .map(word =>
-            word.text === '.'
-              ? ''
-              : word.isFinal
-              ? word.text + ' --Final--'
-              : word.text,
-          )
-          .join(' ')}`,
-        'color:red',
-        'color:blue',
-      );
+      //console.log('STT - Parsed Textstream : ', textstream);
+      // console.log(
+      //   `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
+      //     .map(word =>
+      //       word.text === '.'
+      //         ? ''
+      //         : word.isFinal
+      //         ? word.text + ' --Final--'
+      //         : word.text,
+      //     )
+      //     .join(' ')}`,
+      //   'color:red',
+      //   'color:blue',
+      // );
 
       // Identifing Current & Prev Speakers for the Captions
       /*
@@ -88,11 +88,11 @@ const useStreamMessageUtils = (): {
         if (prevSpeakerRef.current !== '') {
           finalList[prevSpeakerRef.current] = [];
           isInterjecting = true;
-          console.log(
-            '%cSTT-callback%c Interjection! ',
-            'color:#fff',
-            'background: #222; color: #bada55',
-          );
+          // console.log(
+          //   '%cSTT-callback%c Interjection! ',
+          //   'color:#fff',
+          //   'background: #222; color: #bada55',
+          // );
         }
         prevSpeakerRef.current = activeSpeakerRef.current;
         activeSpeakerRef.current = textstream.uid;
