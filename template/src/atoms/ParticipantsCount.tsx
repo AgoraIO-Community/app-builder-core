@@ -41,6 +41,7 @@ const ParticipantsCount = () => {
         text: numFormatter(onlineUsersCount),
         textColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
         textStyle: {
+          fontFamily: 'Source Sans Pro',
           fontWeight: '600',
           fontSize: 12,
           lineHeight: 12,
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
   participantCountView: {
     flexDirection: 'row',
     padding: 12,
-    paddingVertical: isMobileUA ? 5 : 12,
+    paddingVertical: isMobileUA() ? 5 : 8,
     backgroundColor: $config.ICON_BG_COLOR,
     borderRadius: 25,
     borderWidth: 1,

@@ -11,7 +11,7 @@ import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {ClientRole} from '../../../agora-rn-uikit';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {
@@ -21,14 +21,14 @@ import {
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
-import {useLocalUserInfo, useRender} from 'customization-api';
+import {useContent, useLocalUserInfo, ToolbarItem} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
-
+import Settings from '../../components/Settings';
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {EventNames} from '../../rtm-events';
@@ -44,7 +44,7 @@ interface ShowMoreIconProps {
 const ShowMoreIcon = (props: ShowMoreIconProps) => {
   const {isExpanded, onPress, showNotification} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <TouchableOpacity onPress={onPress}>
           <ImageIcon
@@ -54,147 +54,65 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
         </TouchableOpacity>
         {showNotification && <View style={styles.notification} />}
       </View>
-    </View>
+    </ToolbarItem>
   );
 };
 
 //Icon for Live Streaming Controls
-interface LiveStreamIconProps {
-  isHandRaised: boolean;
-  showLabel?: boolean;
-}
-const LiveStreamIcon = (props: LiveStreamIconProps) => {
-  const {isHandRaised, showLabel = $config.ICON_TEXT} = props;
-  return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <LiveStreamControls
-          showControls={true}
-          isDesktop={false}
-          showLabel={false}
-        />
-      </View>
-      {showLabel && (
-        <Text style={styles.iconText}>
-          {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
-        </Text>
-      )}
-    </View>
-  );
+const LiveStreamIcon = () => {
+  //toolbaritem wrapped in the LiveStreamControls
+  return <LiveStreamControls showControls={true} />;
 };
 
 //Icon for Chat
-interface ChatIconProps {
-  showLabel?: boolean;
-}
-const ChatIcon = (props: ChatIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+const ChatIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <ChatIconButton isOnActionSheet={true} />
-      </View>
-      {showLabel && <Text style={styles.iconText}>Chat</Text>}
-    </View>
+    <ToolbarItem>
+      <ChatIconButton />
+    </ToolbarItem>
   );
 };
 
 //Icon for Participants
-interface ParticipantsIconProps {
-  showNotification: boolean;
-}
-const ParticipantsIcon = (props: ParticipantsIconProps) => {
-  const {showNotification} = props;
+const ParticipantsIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <ParticipantsIconButton isOnActionSheet={true} />
-      </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>People</Text>}
-      {/* {showNotification && <View style={styles.notification} />} */}
-    </View>
+    <ToolbarItem>
+      <ParticipantsIconButton />
+    </ToolbarItem>
   );
 };
 
 //Icon for Recording
-interface RecordingIconProps {
-  showLabel?: boolean;
-}
-const RecordingIcon = (props: RecordingIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+
+const RecordingIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <Recording showLabel={false} isOnActionSheet={true} />
-      </View>
-      {showLabel && <Text style={styles.iconText}>Record</Text>}
-    </View>
+    <ToolbarItem>
+      <Recording />
+    </ToolbarItem>
   );
 };
 
-interface SwitchCameraIconProps {
-  disabled: boolean;
-}
-const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
-  const {disabled} = props;
+const SwitchCameraIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <LocalSwitchCamera showLabel={false} disabled={disabled} />
-      </View>
-      {$config.ICON_TEXT && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
-              },
-            ]}>
-            Switch
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Camera
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem>
+      <LocalSwitchCamera />
+    </ToolbarItem>
   );
 };
 
-interface SettingsIconProps {
-  onPress: () => void;
-}
-const SettingsIcon = (props: SettingsIconProps) => {
-  const {onPress} = props;
+const SettingsIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
-        <ImageIcon
-          name={'settings'}
-          tintColor={$config.SECONDARY_ACTION_COLOR}
-        />
-      </TouchableOpacity>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Settings</Text>}
-    </View>
+    <ToolbarItem>
+      <Settings />
+    </ToolbarItem>
   );
 };
 
 const ShareIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
-      </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Invite</Text>}
-    </View>
+    <ToolbarItem>
+      <CopyJoinInfo />
+    </ToolbarItem>
   );
 };
 const ScreenshareIcon = () => {
@@ -208,68 +126,35 @@ const ScreenshareIcon = () => {
   );
 };
 
-interface AudioIconProps {
-  isMobileView: boolean;
-  isOnActionSheet: boolean;
-  showLabel: boolean;
-  disabled: boolean;
-}
-const AudioIcon = (props: AudioIconProps) => {
+const AudioIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <LocalAudioMute {...props} />
-      </View>
-    </View>
+    <ToolbarItem>
+      <LocalAudioMute />
+    </ToolbarItem>
   );
 };
 
-interface CamIconProps {
-  isMobileView: boolean;
-  isOnActionSheet: boolean;
-  showLabel: boolean;
-  disabled: boolean;
-}
-const CamIcon = (props: CamIconProps) => {
+const CamIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <LocalVideoMute {...props} />
-      </View>
-    </View>
+    <ToolbarItem>
+      <LocalVideoMute />
+    </ToolbarItem>
   );
 };
 
-interface EndCallIconProps {
-  showLabel: boolean;
-  isOnActionSheet: boolean;
-}
-const EndCallIcon = (props: EndCallIconProps) => {
+const EndCallIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View
-        style={[
-          styles.iconContainer,
-          {backgroundColor: $config.SEMANTIC_ERROR},
-        ]}>
-        <LocalEndcall {...props} />
-      </View>
-    </View>
+    <ToolbarItem>
+      <LocalEndcall />
+    </ToolbarItem>
   );
 };
 
-interface LayoutIconProps {
-  showLabel?: boolean;
-}
-const LayoutIcon = (props: LayoutIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+const LayoutIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <LayoutIconButton showLabel={false} />
-      </View>
-      {showLabel && <Text style={styles.iconText}>Layout</Text>}
-    </View>
+    <ToolbarItem>
+      <LayoutIconButton />
+    </ToolbarItem>
   );
 };
 
@@ -369,41 +254,13 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
   );
 };
 
-type ActionSheetComponentsProps = [
-  (props: AudioIconProps) => JSX.Element,
-  (props: CamIconProps) => JSX.Element,
-  (props: EndCallIconProps) => JSX.Element,
-  (props: ShowMoreIconProps) => JSX.Element,
-  (props: ChatIconProps) => JSX.Element,
-  (props: ParticipantsIconProps) => JSX.Element,
-  (props) => JSX.Element,
-  (props: SwitchCameraIconProps) => JSX.Element,
-  (props: LayoutIconProps) => JSX.Element,
-  (props: SettingsIconProps) => JSX.Element,
-  (props) => JSX.Element,
-];
-
-export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
-  AudioIcon,
-  CamIcon,
-  EndCallIcon,
-  ShowMoreIcon,
-  ChatIcon,
-  ParticipantsIcon,
-  RecordingIcon,
-  SwitchCameraIcon,
-  LayoutIcon,
-  SettingsIcon,
-  ShareIcon,
-];
-
 const ToastIcon = ({color}) => (
   <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
     <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
   </View>
 );
 
-const ActionSheetContent = (props) => {
+const ActionSheetContent = props => {
   const {handleSheetChanges, isExpanded, native = false} = props;
   const {localUid} = useContext(ChatContext);
   const {isScreenshareActive} = useScreenshare();
@@ -411,21 +268,21 @@ const ActionSheetContent = (props) => {
   const {setSidePanel} = useSidePanel();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
   const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
 
   //STT events on mount
   React.useEffect(() => {
-    events.on(EventNames.STT_ACTIVE, (data) => {
+    events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
     });
 
-    events.on(EventNames.STT_LANGUAGE, (data) => {
+    events.on(EventNames.STT_LANGUAGE, data => {
       const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
       const actionText =
         prevLang.indexOf('') !== -1
@@ -433,7 +290,7 @@ const ActionSheetContent = (props) => {
           : `changed the spoken language from "${getLanguageLabel(
               prevLang,
             )}" to "${getLanguageLabel(newLang)}" `;
-      const msg = `${renderList[uid]?.name || username} ${actionText} `;
+      const msg = `${defaultContent[uid]?.name || username} ${actionText} `;
 
       Toast.show({
         type: 'info',
@@ -449,7 +306,7 @@ const ActionSheetContent = (props) => {
       // syncing local set language
       newLang && setLanguage(newLang);
       // add spoken lang msg to transcript
-      setMeetingTranscript((prev) => {
+      setMeetingTranscript(prev => {
         return [
           ...prev,
           {

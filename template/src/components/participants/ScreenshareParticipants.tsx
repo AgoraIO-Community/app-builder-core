@@ -14,12 +14,12 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {RenderInterface} from 'customization-api';
+import {ContentInterface} from 'customization-api';
 import {isWebInternal, isMobileUA} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
-const ScreenshareParticipants = (props: {user: RenderInterface}) => {
+const ScreenshareParticipants = (props: {user: ContentInterface}) => {
   const screenshareRef = useRef();
   const [isHovered, setIsHovered] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);

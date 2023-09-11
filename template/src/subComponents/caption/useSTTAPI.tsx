@@ -1,8 +1,8 @@
 import React from 'react';
 import StorageContext from '../../components/StorageContext';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useCaption} from './useCaption';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
@@ -20,7 +20,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const {store} = React.useContext(StorageContext);
   const {
     data: {roomId, isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {
     language,
     isSTTActive,
@@ -57,7 +57,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   };
 
   const startWithDelay = (lang: LanguageType[]): Promise<string> =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setTimeout(async () => {
         const res = await start(lang);
         resolve(res);
@@ -75,7 +75,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         events.send(
           EventNames.STT_ACTIVE,
           JSON.stringify({active: true}),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Session,
         );
         setIsSTTActive(true);
         console.log(`stt lang update from: ${language} to ${lang}`);
@@ -88,7 +88,7 @@ const useSTTAPI = (): IuseSTTAPI => {
             prevLang: language,
             newLang: lang,
           }),
-          EventPersistLevel.LEVEL3,
+          PersistanceLevel.Session,
         );
         setLanguage(lang);
 
@@ -99,8 +99,8 @@ const useSTTAPI = (): IuseSTTAPI => {
             : `changed the spoken language from "${getLanguageLabel(
                 language,
               )}" to "${getLanguageLabel(lang)}" `;
-        const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
-        setMeetingTranscript((prev) => {
+        //const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
+        setMeetingTranscript(prev => {
           return [
             ...prev,
             {
@@ -128,7 +128,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       // events.send(
       //   EventNames.STT_ACTIVE,
       //   JSON.stringify({active: false}),
-      //   EventPersistLevel.LEVEL3,
+      //   PersistanceLevel.Session,
       // );
       setIsSTTActive(false);
       return res;

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { stylePropType } from '../utils/prop-types';
 import styles, { HEIGHT } from './base/styles';
 import Checkbox from '../../../src/subComponents/Checkbox';
-import { PrimaryButton } from 'customization-api';
+import PrimaryButton from '../../../src/atoms/PrimaryButton';
 import TertiaryButton from '../../../src/atoms/TertiaryButton';
 
 function BaseToast({

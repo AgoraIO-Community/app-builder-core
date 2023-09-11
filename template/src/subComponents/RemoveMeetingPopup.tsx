@@ -16,7 +16,7 @@ interface RemoveMeetingPopupProps {
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
   const removeMeetingLabelHeading = 'Remove ' + props.username + '?';
-  const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the meeting later.`;
+  const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the room later.`;
 
   const cancelBtnLabel = 'CANCEL';
   const removeBtnLabel = 'REMOVE';

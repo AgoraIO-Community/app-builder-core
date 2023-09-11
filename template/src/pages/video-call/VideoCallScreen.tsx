@@ -7,10 +7,10 @@ import {
   Platform,
 } from 'react-native';
 import {useCustomization} from 'customization-implementation';
-import Navbar from '../../components/Navbar';
+import Navbar, {NavbarProps} from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
-import Controls from '../../components/Controls';
+import Controls, {ControlsProps} from '../../components/Controls';
 import Chat, {ChatProps} from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {
@@ -23,28 +23,29 @@ import {
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
-import {
-  ButtonTemplateProvider,
-  ButtonTemplateName,
-} from '../../utils/useButtonTemplate';
+import {ToolbarProvider, ToolbarPosition} from '../../utils/useToolbar';
 import SDKEvents from '../../utils/SdkEvents';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+import {
+  ToolbarCustomItem,
+  controlMessageEnum,
+  useUserName,
+} from 'customization-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript from '../../subComponents/caption/Transcript';
 
 import Spacer from '../../atoms/Spacer';
+import Leftbar, {LeftbarProps} from '../../components/Leftbar';
+import Rightbar, {RightbarProps} from '../../components/Rightbar';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
   const [name] = useUserName();
-  const rtc = useRtc();
   const {
     data: {meetingTitle, isHost},
-  } = useMeetingInfo();
-
+  } = useRoomInfo();
   const {
     ChatComponent,
     VideocallComponent,
@@ -54,16 +55,30 @@ const VideoCallScreen = () => {
     TopbarComponent,
     VideocallBeforeView,
     VideocallAfterView,
+    LeftbarComponent,
+    RightbarComponent,
+    BottombarProps,
+    TopbarProps,
+    LeftbarProps,
+    RightbarProps,
+    VideocallWrapper,
   } = useCustomization(data => {
     let components: {
+      VideocallWrapper: React.ComponentType;
       VideocallComponent?: React.ComponentType;
       ChatComponent: React.ComponentType<ChatProps>;
-      BottombarComponent: React.ComponentType;
+      BottombarComponent: React.ComponentType<ControlsProps>;
       ParticipantsComponent: React.ComponentType;
       SettingsComponent: React.ComponentType;
-      TopbarComponent: React.ComponentType;
+      TopbarComponent: React.ComponentType<NavbarProps>;
       VideocallBeforeView: React.ComponentType;
       VideocallAfterView: React.ComponentType;
+      LeftbarComponent: React.ComponentType<LeftbarProps>;
+      RightbarComponent: React.ComponentType<RightbarProps>;
+      BottombarProps?: ToolbarCustomItem[];
+      TopbarProps?: ToolbarCustomItem[];
+      LeftbarProps?: ToolbarCustomItem[];
+      RightbarProps?: ToolbarCustomItem[];
     } = {
       BottombarComponent: Controls,
       TopbarComponent: Navbar,
@@ -72,6 +87,13 @@ const VideoCallScreen = () => {
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
+      VideocallWrapper: React.Fragment,
+      LeftbarComponent: Leftbar,
+      RightbarComponent: Rightbar,
+      BottombarProps: [],
+      TopbarProps: [],
+      LeftbarProps: [],
+      RightbarProps: [],
     };
     if (
       data?.components?.videoCall &&
@@ -110,19 +132,65 @@ const VideoCallScreen = () => {
       // }
 
       if (
-        data?.components?.videoCall.bottomBar &&
-        typeof data?.components?.videoCall.bottomBar !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.bottomBar)
+        data?.components?.videoCall.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.bottomToolBar)
       ) {
-        components.BottombarComponent = data?.components?.videoCall.bottomBar;
+        components.BottombarComponent =
+          data?.components?.videoCall.bottomToolBar;
       }
 
       if (
-        data?.components?.videoCall.topBar &&
-        typeof data?.components?.videoCall.topBar !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.topBar)
+        data?.components?.videoCall.topToolBar &&
+        typeof data?.components?.videoCall.topToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.topToolBar)
       ) {
-        components.TopbarComponent = data?.components?.videoCall.topBar;
+        components.TopbarComponent = data?.components?.videoCall.topToolBar;
+      }
+
+      if (
+        data?.components?.videoCall.leftToolBar &&
+        typeof data?.components?.videoCall.leftToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.leftToolBar)
+      ) {
+        components.LeftbarComponent = data?.components?.videoCall.leftToolBar;
+      }
+
+      if (
+        data?.components?.videoCall.rightToolBar &&
+        typeof data?.components?.videoCall.rightToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.rightToolBar)
+      ) {
+        components.RightbarComponent = data?.components?.videoCall.rightToolBar;
+      }
+
+      if (
+        data?.components?.videoCall.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar === 'object' &&
+        data?.components?.videoCall.bottomToolBar.length
+      ) {
+        components.BottombarProps = data?.components?.videoCall.bottomToolBar;
+      }
+      if (
+        data?.components?.videoCall.topToolBar &&
+        typeof data?.components?.videoCall.topToolBar === 'object' &&
+        data?.components?.videoCall.topToolBar.length
+      ) {
+        components.TopbarProps = data?.components?.videoCall.topToolBar;
+      }
+      if (
+        data?.components?.videoCall.rightToolBar &&
+        typeof data?.components?.videoCall.rightToolBar === 'object' &&
+        data?.components?.videoCall.rightToolBar.length
+      ) {
+        components.RightbarProps = data?.components?.videoCall.rightToolBar;
+      }
+      if (
+        data?.components?.videoCall.leftToolBar &&
+        typeof data?.components?.videoCall.leftToolBar === 'object' &&
+        data?.components?.videoCall.leftToolBar.length
+      ) {
+        components.LeftbarProps = data?.components?.videoCall.leftToolBar;
       }
 
       if (
@@ -132,6 +200,15 @@ const VideoCallScreen = () => {
       ) {
         components.ParticipantsComponent =
           data?.components?.videoCall.participantsPanel;
+      }
+
+      //todo hari - need to remove wrapper
+      if (
+        data?.components?.videoCall.wrapper &&
+        typeof data?.components?.videoCall.wrapper !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.wrapper)
+      ) {
+        components.VideocallWrapper = data?.components?.videoCall.wrapper;
       }
 
       // commented for v1 release
@@ -160,52 +237,89 @@ const VideoCallScreen = () => {
   ) : (
     // Desktop View
     <>
-      <VideocallBeforeView />
-      <View style={style.full}>
-        <ButtonTemplateProvider
-          value={{buttonTemplateName: ButtonTemplateName.topBar}}
-        >
-          <TopbarComponent />
-        </ButtonTemplateProvider>
-        <Spacer size={10} />
-        <View
-          style={[
-            style.videoView,
-            {paddingHorizontal: isDesktop() ? 32 : 10},
-            {paddingVertical: isSmall() ? 10 : 0},
-          ]}
-        >
-          <VideoComponent />
-          {sidePanel === SidePanelType.Participants ? (
-            <ParticipantsComponent />
-          ) : (
-            <></>
-          )}
-          {sidePanel === SidePanelType.Chat ? (
-            $config.CHAT ? (
-              <ChatComponent />
+      <VideocallWrapper>
+        <VideocallBeforeView />
+        <View style={style.fullRow}>
+          <ToolbarProvider value={{position: ToolbarPosition.left}}>
+            {LeftbarProps?.length ? (
+              <LeftbarComponent
+                customItems={LeftbarProps}
+                includeDefaultItems={false}
+              />
             ) : (
+              <LeftbarComponent />
+            )}
+          </ToolbarProvider>
+          <View style={style.full}>
+            <ToolbarProvider value={{position: ToolbarPosition.top}}>
+              {TopbarProps?.length ? (
+                <TopbarComponent
+                  customItems={TopbarProps}
+                  includeDefaultItems={false}
+                />
+              ) : (
+                <TopbarComponent />
+              )}
+            </ToolbarProvider>
+            <View
+              style={[
+                style.videoView,
+                {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
+              ]}>
+              <VideoComponent />
+              {sidePanel === SidePanelType.Participants ? (
+                <ParticipantsComponent />
+              ) : (
+                <></>
+              )}
+              {sidePanel === SidePanelType.Chat ? (
+                $config.CHAT ? (
+                  <ChatComponent />
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
+              {sidePanel === SidePanelType.Settings ? (
+                <SettingsComponent />
+              ) : (
+                <></>
+              )}
+              {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+            </View>
+            {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>
-            )
-          ) : (
-            <></>
-          )}
-          {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
-          {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+            ) : (
+              <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+                {BottombarProps?.length ? (
+                  <BottombarComponent
+                    customItems={BottombarProps}
+                    includeDefaultItems={false}
+                  />
+                ) : (
+                  <>
+                    <CaptionContainer />
+                    <Spacer size={10} />
+                    <BottombarComponent />
+                  </>
+                )}
+              </ToolbarProvider>
+            )}
+          </View>
+          <ToolbarProvider value={{position: ToolbarPosition.right}}>
+            {RightbarProps?.length ? (
+              <RightbarComponent
+                customItems={RightbarProps}
+                includeDefaultItems={false}
+              />
+            ) : (
+              <RightbarComponent />
+            )}
+          </ToolbarProvider>
         </View>
-        {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
-          <></>
-        ) : (
-          <ButtonTemplateProvider
-            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}
-          >
-            <CaptionContainer />
-            {<Spacer size={10} />}
-            <BottombarComponent />
-          </ButtonTemplateProvider>
-        )}
-      </View>
-      <VideocallAfterView />
+        <VideocallAfterView />
+      </VideocallWrapper>
     </>
   );
 };
@@ -215,6 +329,11 @@ const style = StyleSheet.create({
   full: {
     flex: 1,
     flexDirection: 'column',
+    overflow: 'hidden',
+  },
+  fullRow: {
+    flex: 1,
+    flexDirection: 'row',
     overflow: 'hidden',
   },
   videoView: {

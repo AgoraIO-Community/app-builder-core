@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {UidType, ToggleState} from '../../agora-rn-uikit';
 
 /**
@@ -17,7 +17,7 @@ import {UidType, ToggleState} from '../../agora-rn-uikit';
  * @returns function
  */
 function useIsVideoEnabled() {
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
 
   /**
    *
@@ -25,7 +25,7 @@ function useIsVideoEnabled() {
    * @returns boolean
    */
   const isVideoEnabled = (uid: UidType): boolean =>
-    renderList[uid]?.video === ToggleState.enabled;
+    defaultContent[uid]?.video === ToggleState.enabled;
 
   return isVideoEnabled;
 }

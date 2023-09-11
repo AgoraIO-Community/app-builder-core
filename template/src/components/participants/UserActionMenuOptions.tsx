@@ -1,14 +1,12 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 import {
-  MUTE_REMOTE_TYPE,
-  RenderInterface,
+  ContentInterface,
   SidePanelType,
   useLayout,
   useLocalUid,
-  useMeetingInfo,
-  useRemoteMute,
-  useRender,
-  useRtc,
+  useRoomInfo,
+  useContent,
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
@@ -20,13 +18,13 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
-import {ClientRole, UidType} from '../../../agora-rn-uikit';
+import {ClientRole, DispatchContext, UidType} from '../../../agora-rn-uikit';
 import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
   RaiseHandValue,
 } from '../livestream/Types';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
@@ -37,7 +35,7 @@ import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 import {calculatePosition, trimText} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
-  user: RenderInterface;
+  user: ContentInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
@@ -57,15 +55,15 @@ export default function UserActionMenuOptionsOptions(
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
-  const {pinnedUid, activeUids} = useRender();
-  const {dispatch} = useRtc();
+  const {pinnedUid, activeUids, customContent} = useContent();
+  const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
   const {openPrivateChat} = useChatMessages();
   const {hostUids, audienceUids} = useLiveStreamDataContext();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const remoteRequest = useRemoteRequest();
   const remoteMute = useRemoteMute();
   const endRemoteCall = useRemoteEndCall();
@@ -90,7 +88,7 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       items.push({
-        disabled: activeUids.length === 1,
+        disabled: activeUids?.filter((i) => !customContent[i])?.length === 1,
         icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
         onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -216,7 +214,7 @@ export default function UserActionMenuOptionsOptions(
                 events.send(
                   LiveStreamControlMessageEnum.raiseHandRequestRejected,
                   '',
-                  EventPersistLevel.LEVEL1,
+                  PersistanceLevel.None,
                   user.uid,
                 );
               },
@@ -228,7 +226,7 @@ export default function UserActionMenuOptionsOptions(
           icon: 'remove-meeting',
           iconColor: $config.SEMANTIC_ERROR,
           textColor: $config.SEMANTIC_ERROR,
-          title: 'Remove From Meeting',
+          title: 'Remove From Room',
           callback: () => {
             setActionMenuVisible(false);
             setRemoveMeetingPopupVisible(true);

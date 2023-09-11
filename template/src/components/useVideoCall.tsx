@@ -17,7 +17,7 @@ import StopRecordingPopup from './popups/StopRecordingPopup';
 import StartScreenSharePopup from './popups/StartScreenSharePopup';
 import StopScreenSharePopup from './popups/StopScreenSharePopup';
 import {SdkApiContext} from './SdkApiContext';
-import {useRtc, useMeetingInfo} from 'customization-api';
+import {useRoomInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 import useSetName from '../utils/useSetName';
@@ -64,7 +64,7 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showStopScreenSharePopup, setShowStopScreenSharePopup] =
     useState(false);
   const {join, enterRoom} = useContext(SdkApiContext);
-  const meetingInfo = useMeetingInfo();
+  const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
   const activeSpeaker = useFindActiveSpeaker();
@@ -74,16 +74,16 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
       if (join.userName && join.skipPrecall) {
         setUsername(join.userName);
       }
-      join.promise.res(meetingInfo.data);
+      join.promise.res(roomInfo.data);
     }
     if (enterRoom.promise) {
-      enterRoom.promise.res(meetingInfo.data);
+      enterRoom.promise.res(roomInfo.data);
     }
     SDKEvents.emit(
       'join',
-      meetingInfo.data.meetingTitle,
+      roomInfo.data.meetingTitle,
       deviceList,
-      meetingInfo.data.isHost,
+      roomInfo.data.isHost,
     );
   }, []);
   return (

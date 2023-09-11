@@ -10,13 +10,18 @@
 *********************************************
 */
 import {createHook} from 'customization-implementation';
-import React, {useState, useEffect, useRef} from 'react';
-import {useRender, useRtc} from 'customization-api';
+import React, {useState, useEffect, useRef, useContext} from 'react';
+import {useContent} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useLocalUid, UidType, RenderInterface} from '../../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import {
+  useLocalUid,
+  UidType,
+  ContentInterface,
+  DispatchContext,
+} from '../../../agora-rn-uikit';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {useChatUIControl} from '../chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from '../chat-ui/useChatUIControls';
 import {useChatNotification} from '../chat-notification/useChatNotification';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
@@ -63,17 +68,12 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
-  const {dispatch} = useRtc();
-  const {renderList} = useRender();
+  const {dispatch} = useContext(DispatchContext);
+  const {defaultContent} = useContent();
   const localUid = useLocalUid();
-  const {setSidePanel} = useSidePanel();
-  const {
-    groupActive,
-    selectedChatUserId,
-    setGroupActive,
-    setPrivateActive,
-    setSelectedChatUserId,
-  } = useChatUIControl();
+  const {setSidePanel, sidePanel} = useSidePanel();
+  const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
+    useChatUIControls();
   const {
     setUnreadGroupMessageCount,
     setUnreadIndividualMessageCount,
@@ -86,8 +86,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     [key: string]: messageStoreInterface[];
   }>({});
 
-  const renderListRef = useRef({renderList: renderList});
-  const groupActiveRef = useRef<boolean>();
+  const defaultContentRef = useRef({defaultContent: defaultContent});
+  const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
   //commented for v1 release
@@ -95,16 +95,17 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const fromText = (name: string) => `${name} commented in the public chat`;
   const privateMessageLabel = 'You’ve received a private message';
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   useEffect(() => {
-    groupActiveRef.current = groupActive;
-  }, [groupActive]);
+    groupActiveRef.current =
+      chatType === ChatType.Group && sidePanel === SidePanelType.Chat;
+  }, [chatType, sidePanel]);
 
   useEffect(() => {
-    individualActiveRef.current = selectedChatUserId;
-  }, [selectedChatUserId]);
+    individualActiveRef.current = privateChatUser;
+  }, [privateChatUser]);
 
   const openPrivateChat = (uidAsNumber) => {
     //move this logic into ChatContainer
@@ -118,15 +119,15 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     //     [uidAsNumber]: 0,
     //   };
     // });
-    setGroupActive(false);
-    setSelectedChatUserId(uidAsNumber);
-    setPrivateActive(true);
+
+    setPrivateChatUser(uidAsNumber);
+    setChatType(ChatType.Private);
     setSidePanel(SidePanelType.Chat);
   };
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
@@ -153,9 +154,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         type: 'info',
         text1: isPrivateMessage
           ? privateMessageLabel
-          : renderListRef.current.renderList[uidAsNumber]?.name
+          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
-              trimText(renderListRef.current.renderList[uidAsNumber]?.name),
+              trimText(
+                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+              ),
             )
           : '',
         text2: isPrivateMessage
@@ -170,9 +173,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           } else {
             //move this logic into ChatContainer
             // setUnreadGroupMessageCount(0);
-            setPrivateActive(false);
-            setSelectedChatUserId(0);
-            setGroupActive(true);
+            setPrivateChatUser(0);
+            setChatType(ChatType.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },
@@ -417,7 +419,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           value: messageData,
           action: ChatMessageActionEnum.Create,
         }),
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
         toUid,
       );
       addMessageToPrivateStore(toUid, messageData, true);
@@ -434,7 +436,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           value: messageData,
           action: ChatMessageActionEnum.Create,
         }),
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
       );
       addMessageToStore(localUid, messageData);
     }
@@ -454,7 +456,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...editMsgData},
             action: ChatMessageActionEnum.Update,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
           toUid,
         );
         setPrivateMessageStore((prevState) => {
@@ -485,7 +487,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...editMsgData},
             action: ChatMessageActionEnum.Update,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
         );
         setMessageStore((prevState) => {
           const newState = prevState.map((item) => {
@@ -516,7 +518,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...deleteMsgData},
             action: ChatMessageActionEnum.Delete,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
           toUid,
         );
         setPrivateMessageStore((prevState) => {
@@ -547,7 +549,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...deleteMsgData},
             action: ChatMessageActionEnum.Delete,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
         );
         setMessageStore((prevState) => {
           const newState = prevState.map((item) => {

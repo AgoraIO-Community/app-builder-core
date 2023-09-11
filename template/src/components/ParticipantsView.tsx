@@ -19,7 +19,7 @@ import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
 import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
 import ChatContext from './ChatContext';
@@ -27,7 +27,6 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import TertiaryButton from '../atoms/TertiaryButton';
 import HostControlView from './HostControlView';
-import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
@@ -37,13 +36,13 @@ import SidePanelHeader, {
   SidePanelStyles,
 } from '../subComponents/SidePanelHeader';
 import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 
 const ParticipantView = (props) => {
-  const {activeUids} = useRender();
+  const {activeUids, customContent} = useContent();
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     attendeeUids: attendeeUidsVideoMeeting,
@@ -63,7 +62,7 @@ const ParticipantView = (props) => {
   const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const isSmall = useIsSmall();
   //video meeting
   const [showHostSection, setShowHostSection] = useState(true);
@@ -206,7 +205,8 @@ const ParticipantView = (props) => {
           <>
             <AllHostParticipants
               emptyMessage={'No Users has joined yet'}
-              uids={activeUids}
+              //custom content shouldn't be shown in the participant list. so filtering the activeuids
+              uids={activeUids.filter((i) => !customContent[i])}
               isMobile={isSmall()}
               updateActionSheet={props.updateActionSheet}
               handleClose={props.handleClose}

@@ -1,26 +1,23 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
+import {View, StyleSheet} from 'react-native';
 import {
-  View,
-  StyleSheet,
-  Platform,
-  TouchableOpacity,
-  useWindowDimensions,
-} from 'react-native';
-import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
+  PropsContext,
+  DispatchContext,
+  ContentInterface,
+} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
-import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {useLayout, useRender, useRtc} from 'customization-api';
+import useActiveSpeaker from '../../utils/useActiveSpeaker';
+import {useLayout, useContent, useRtc} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ThemeConfig from '../../theme';
-import {useVideoCall} from '../../components/useVideoCall';
-
+import {createHook} from 'customization-implementation';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import ZoomableWrapper from './ZoomableWrapper';
@@ -28,17 +25,15 @@ import {isAndroid} from '../../utils/common';
 import {isIOS} from '../../utils/common';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 interface VideoRendererProps {
-  user: RenderInterface;
+  user: ContentInterface;
   isMax?: boolean;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
-  const {activeSpeaker: activeSpeakerUID} = useVideoCall();
-  //const isActiveSpeaker = useIsActiveSpeaker();
-  const {dispatch, RtcEngine} = useRtc();
-  const {height, width} = useWindowDimensions();
-  const {pinnedUid, activeUids} = useRender();
-  const activeSpeaker = user.uid == activeSpeakerUID;
-  //const activeSpeaker = isActiveSpeaker(user.uid);
+  const {dispatch} = useContext(DispatchContext);
+  const {RtcEngineUnsafe} = useRtc();
+  const activeSpeaker = useActiveSpeaker();
+  const {pinnedUid} = useContent();
+  const isActiveSpeaker = activeSpeaker === user?.uid;
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -74,7 +69,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     //if screenshare is on fullscreen then get the width/height to set landscape mode
     if (isScreenShareOnFullView) {
       if (isAndroid() || isIOS()) {
-        const cb = (args) => {
+        const cb = args => {
           if (
             args?.uid == user.uid &&
             args?.width &&
@@ -84,14 +79,17 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             landscapeModeRef.current.landscapeMode && setLandscapeMode(false);
           }
         };
-        const subscription = RtcEngine.addListener('RemoteVideoStats', cb);
+        const subscription = RtcEngineUnsafe.addListener(
+          'RemoteVideoStats',
+          cb,
+        );
         setTimeout(() => {
           subscription.remove();
         }, 5000);
       } else {
         if (screenShareData && screenShareData?.[user.uid] && isMobileUA()) {
           //@ts-ignore
-          const data = RtcEngine.getRemoteVideoStats(user.uid);
+          const data = RtcEngineUnsafe.getRemoteVideoStats(user.uid);
           if (
             data &&
             data?.receiveResolutionHeight &&
@@ -113,7 +111,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     <>
       <UserActionMenuOptionsOptions
         actionMenuVisible={actionMenuVisible}
-        setActionMenuVisible={(flag) => {
+        setActionMenuVisible={flag => {
           //once user clicks action menu item -> hide the action menu and set parent isHovered false
           if (!flag) {
             setIsHovered(false);
@@ -136,7 +134,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           }}
           style={[
             maxStyle.container,
-            activeSpeaker
+            isActiveSpeaker
               ? maxStyle.activeContainerStyle
               : user.video
               ? maxStyle.noVideoStyle
@@ -177,7 +175,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 setScreenShareOnFullView(
                   !screenShareData[user.uid]?.isExpanded,
                 );
-                setScreenShareData((prevState) => {
+                setScreenShareData(prevState => {
                   return {
                     ...prevState,
                     [user.uid]: {
@@ -242,11 +240,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             />
           </ZoomableWrapper>
           {!isScreenShareOnFullView && (
-            <NameWithMicIcon
-              videoTileWidth={videoTileWidth}
-              user={user}
-              isMax={isMax}
-            />
+            <VideoContainerProvider value={{videoTileWidth}}>
+              <NameWithMicIcon name={user.name} muted={!user.audio} />
+            </VideoContainerProvider>
           )}
           {!isScreenShareOnFullView &&
           user.uid !== rtcProps?.screenShareUid &&
@@ -294,12 +290,11 @@ interface MoreMenuProps {
   videoMoreMenuRef: any;
 }
 const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
-  const {activeUids} = useRender();
+  const {activeUids, customContent} = useContent();
+  const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
   const {currentLayout} = useLayout();
   const reduceSpace =
-    isMobileUA() &&
-    activeUids.length > 4 &&
-    currentLayout === getGridLayoutName();
+    isMobileUA() && activeUidsLen > 4 && currentLayout === getGridLayoutName();
   return (
     <>
       <View
@@ -317,7 +312,7 @@ const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
           }}
           iconProps={{
             iconContainerStyle: {
-              padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
+              padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
               backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
             },
             name: 'more-menu',
@@ -391,5 +386,9 @@ const maxStyle = StyleSheet.create({
     borderColor: 'transparent',
   },
 });
+
+const VideoContainerContext = React.createContext({videoTileWidth: 0});
+const VideoContainerProvider = VideoContainerContext.Provider;
+export const useVideoContainer = createHook(VideoContainerContext);
 
 export default VideoRenderer;

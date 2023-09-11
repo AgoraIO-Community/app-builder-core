@@ -4,8 +4,8 @@ import SDKMethodEventsManager, {
 } from '../utils/SdkMethodEvents';
 import {
   validateMeetingInfoData,
-  MeetingInfoContextInterface,
-} from './meeting-info/useMeetingInfo';
+  RoomInfoContextInterface,
+} from './room-info/useRoomInfo';
 import {CustomizationApiInterface} from 'customization-api';
 import {Unsubscribe} from 'nanoevents';
 
@@ -24,7 +24,7 @@ type SdkApiContextInterface = {
     | {
         initialized: true;
         phrase: string;
-        meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
+        meetingDetails?: Partial<RoomInfoContextInterface['data']>;
         userName: string;
         skipPrecall: boolean;
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
@@ -76,8 +76,8 @@ const SdkApiInitState: SdkApiContextInterface = {
   microphoneDevice: {},
   speakerDevice: {},
   cameraDevice: {},
-  onMuteVideo: (_) => {},
-  onMuteAudio: (_) => {},
+  onMuteVideo: _ => {},
+  onMuteAudio: _ => {},
   clearState: () => {},
 };
 
@@ -96,7 +96,7 @@ type commonEventHandlers = {
 };
 
 const commonEventHandlers: commonEventHandlers = {
-  join: (setter) => {
+  join: setter => {
     return SDKMethodEventsManager.on(
       'join',
       (res, rej, roomDetail, skipPrecall, userName) => {
@@ -130,7 +130,7 @@ const commonEventHandlers: commonEventHandlers = {
       },
     );
   },
-  customize: (setter) => {
+  customize: setter => {
     return SDKMethodEventsManager.on('customize', (res, rej, customization) => {
       setter({
         customization: customization,
@@ -138,7 +138,7 @@ const commonEventHandlers: commonEventHandlers = {
       res();
     });
   },
-  microphoneDevice: (setter) => {
+  microphoneDevice: setter => {
     return SDKMethodEventsManager.on(
       'microphoneDevice',
       (res, rej, deviceId) => {
@@ -149,7 +149,7 @@ const commonEventHandlers: commonEventHandlers = {
       },
     );
   },
-  speakerDevice: (setter) => {
+  speakerDevice: setter => {
     return SDKMethodEventsManager.on('speakerDevice', (res, rej, deviceId) => {
       setter({
         deviceId,
@@ -157,7 +157,7 @@ const commonEventHandlers: commonEventHandlers = {
       });
     });
   },
-  cameraDevice: (setter) => {
+  cameraDevice: setter => {
     return SDKMethodEventsManager.on('cameraDevice', (res, rej, deviceId) => {
       setter({
         deviceId,
@@ -169,19 +169,19 @@ const commonEventHandlers: commonEventHandlers = {
 
 const registerListener = () => {
   moduleEventsUnsub = [
-    commonEventHandlers.customize((state) => {
+    commonEventHandlers.customize(state => {
       SdkApiInitState.customize = state;
     }),
-    commonEventHandlers.join((state) => {
+    commonEventHandlers.join(state => {
       SdkApiInitState.join = state;
     }),
-    commonEventHandlers.microphoneDevice((state) => {
+    commonEventHandlers.microphoneDevice(state => {
       SdkApiInitState.microphoneDevice = state;
     }),
-    commonEventHandlers.speakerDevice((state) => {
+    commonEventHandlers.speakerDevice(state => {
       SdkApiInitState.speakerDevice = state;
     }),
-    commonEventHandlers.cameraDevice((state) => {
+    commonEventHandlers.cameraDevice(state => {
       SdkApiInitState.cameraDevice = state;
     }),
     SDKMethodEventsManager.on('muteVideo', defaultMuteListener),
@@ -192,10 +192,10 @@ const registerListener = () => {
 registerListener();
 
 const deRegisterListener = () => {
-  moduleEventsUnsub.forEach((v) => v());
+  moduleEventsUnsub.forEach(v => v());
 };
 
-const SdkApiContextProvider: React.FC = (props) => {
+const SdkApiContextProvider: React.FC = props => {
   const [joinState, setJoinState] = useState(SdkApiInitState.join);
   const [enterRoom, setEnterRoom] =
     useState<extractPromises<_InternalSDKMethodEventsMap['join']>>();
@@ -227,7 +227,7 @@ const SdkApiContextProvider: React.FC = (props) => {
     muteAudioListener.current = value;
   };
 
-  const clearState: SdkApiContextInterface['clearState'] = (key) => {
+  const clearState: SdkApiContextInterface['clearState'] = key => {
     switch (key) {
       case 'join':
         setJoinState(SdkApiInitState.join);
@@ -260,19 +260,19 @@ const SdkApiContextProvider: React.FC = (props) => {
     deRegisterListener();
 
     const unsub = [
-      commonEventHandlers.customize((state) => {
+      commonEventHandlers.customize(state => {
         setUserCustomization(state);
       }),
-      commonEventHandlers.join((state) => {
+      commonEventHandlers.join(state => {
         setJoinState(state);
       }),
-      commonEventHandlers.microphoneDevice((state) => {
+      commonEventHandlers.microphoneDevice(state => {
         setMicrophoneDeviceState(state);
       }),
-      commonEventHandlers.speakerDevice((state) => {
+      commonEventHandlers.speakerDevice(state => {
         setSpeakerDeviceState(state);
       }),
-      commonEventHandlers.cameraDevice((state) => {
+      commonEventHandlers.cameraDevice(state => {
         setCameraDeviceState(state);
       }),
       SDKMethodEventsManager.on('muteVideo', (...args) => {
@@ -284,7 +284,7 @@ const SdkApiContextProvider: React.FC = (props) => {
     ];
 
     return () => {
-      unsub.forEach((v) => v());
+      unsub.forEach(v => v());
       registerListener();
     };
   }, []);

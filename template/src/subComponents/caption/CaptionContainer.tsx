@@ -18,10 +18,8 @@ import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
 
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
-import events, {EventPersistLevel} from '../../rtm-events-api';
-import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
-import {useMeetingInfo} from 'customization-api';
+import {useRoomInfo} from 'customization-api';
 import {
   SIDE_PANEL_MAX_WIDTH,
   SIDE_PANEL_GAP,
@@ -65,15 +63,13 @@ const CaptionContainer = () => {
             maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
             width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
           },
-        ]}
-      >
+        ]}>
         <View
           style={[
             isMobileUA() ? styles.mobileContainer : styles.container,
             isMobileUA() && {marginHorizontal: 0},
             !isMobileUA() && isSmall() && {marginTop: 0},
-          ]}
-        >
+          ]}>
           <CaptionsActionMenu
             actionMenuVisible={actionMenuVisible}
             setActionMenuVisible={setActionMenuVisible}
@@ -102,8 +98,7 @@ const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
       }}
       onMouseLeave={() => {
         setIsHovered(false);
-      }}
-    >
+      }}>
       {children}
     </div>
   ) : (
@@ -133,8 +128,7 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
         right: isMobile ? 3 : 8,
         top: isMobile ? 3 : 8,
         zIndex: 999,
-      }}
-    >
+      }}>
       <IconButton
         hoverEffect={true}
         hoverEffectStyle={{
@@ -187,7 +181,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const username = useGetName();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   // only Host is authorized to start/stop stt
   isHost &&

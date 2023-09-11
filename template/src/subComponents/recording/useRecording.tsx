@@ -24,11 +24,11 @@ import Toast from '../../../react-native-toast-message';
 import {createHook} from 'customization-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
 
 export interface RecordingContextInterface {
@@ -97,7 +97,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive} = props?.value;
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids} = useContent();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -150,8 +150,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
-          ? `This meeting is being recorded by ${
-              trimText(renderList[uidWhoStarted]?.name) || 'user'
+          ? `This room is being recorded by ${
+              trimText(defaultContent[uidWhoStarted]?.name) || 'user'
             }`
           : '',
         visibilityTime: 3000,
@@ -192,7 +192,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
               action: EventActions.RECORDING_STARTED,
               value: `${localUid}`,
             }),
-            EventPersistLevel.LEVEL3,
+            PersistanceLevel.Session,
           );
           // 2. set the local recording state to true to update the UI
           setUidWhoStarted(localUid);
@@ -255,7 +255,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
                 action: EventActions.RECORDING_STOPPED,
                 value: '',
               }),
-              EventPersistLevel.LEVEL3,
+              PersistanceLevel.Session,
             );
             // 2. set the local recording state to false to update the UI
             setRecordingActive(false);
@@ -272,7 +272,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           action: EventActions.RECORDING_STOP_REQUEST,
           value: '',
         }),
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
       );
     }
   };

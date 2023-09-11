@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import {useRender, useRtc} from 'customization-api';
+import {useContent, useRtc} from 'customization-api';
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -19,9 +19,9 @@ import {ImageIcon as UiKitImageIcon} from '../../../agora-rn-uikit';
 
 const VideoPreview: React.FC = () => {
   const rtc = useRtc();
-  rtc?.RtcEngine?.startPreview();
+  rtc?.RtcEngineUnsafe?.startPreview();
 
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids} = useContent();
   const [maxUid] = activeUids;
 
   if (!maxUid) {
@@ -32,7 +32,7 @@ const VideoPreview: React.FC = () => {
     <View style={styles.container}>
       <View style={{flex: 1}}>
         <MaxVideoView
-          user={renderList[maxUid]}
+          user={defaultContent[maxUid]}
           key={maxUid}
           fallback={Fallback}
           containerStyle={{

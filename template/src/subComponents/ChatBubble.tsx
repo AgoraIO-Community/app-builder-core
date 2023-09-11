@@ -16,16 +16,17 @@ import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWebInternal} from '../utils/common';
-import {useChatUIControl, useRender} from 'customization-api';
+import {useChatUIControls, useContent} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {formatAMPM} from '../utils';
+import {ChatType} from '../components/chat-ui/useChatUIControls';
 
 const ChatBubble = (props: ChatBubbleProps) => {
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {primaryColor} = useContext(ColorContext);
-  const {privateActive, selectedChatUserId} = useChatUIControl();
+  const {chatType, privateChatUser} = useChatUIControls();
   let {
     isLocal,
     isSameUser,
@@ -62,15 +63,15 @@ const ChatBubble = (props: ChatBubbleProps) => {
     )
   ) : (
     <>
-      {!isSameUser && !(privateActive && selectedChatUserId) ? (
+      {!isSameUser && !(chatType === ChatType.Private && privateChatUser) ? (
         <Text
           style={
             isLocal ? style.localUsernameStyle : style.remoteUsernameStyle
           }>
           {isLocal
             ? 'You'
-            : renderList[uid]
-            ? renderList[uid].name
+            : defaultContent[uid]
+            ? defaultContent[uid].name
             : remoteUserDefaultLabel}
         </Text>
       ) : (

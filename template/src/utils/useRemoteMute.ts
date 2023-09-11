@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
 import {UidType} from '../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 
 export enum MUTE_REMOTE_TYPE {
   audio,
@@ -26,7 +26,7 @@ export enum MUTE_REMOTE_TYPE {
 function useRemoteMute() {
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
 
@@ -46,7 +46,7 @@ function useRemoteMute() {
               events.send(
                 controlMessageEnum.muteAudio,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -55,7 +55,7 @@ function useRemoteMute() {
             events.send(
               controlMessageEnum.muteAudio,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;
@@ -66,7 +66,7 @@ function useRemoteMute() {
               events.send(
                 controlMessageEnum.muteVideo,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -75,7 +75,7 @@ function useRemoteMute() {
             events.send(
               controlMessageEnum.muteVideo,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;

@@ -10,10 +10,14 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {RenderInterface, useLocalUid} from '../../agora-rn-uikit';
+import {
+  DispatchContext,
+  ContentInterface,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import StorageContext from './StorageContext';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
@@ -46,7 +50,7 @@ const UPDATE_USER_NAME_MUTATION = gql`
 const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   const localUid = useLocalUid();
   const screenShareUid = useLocalScreenShareUid();
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
 
   const {store, setStore} = useContext(StorageContext);
   const {hasUserJoinedRTM} = useContext(ChatContext);
@@ -126,14 +130,14 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           screenShareUid: screenShareUid,
           name: displayName || userText,
         }),
-        EventPersistLevel.LEVEL2,
+        PersistanceLevel.Sender,
       );
     }
   }, [displayName, hasUserJoinedRTM]);
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };

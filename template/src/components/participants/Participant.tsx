@@ -13,7 +13,7 @@ import React, {useContext, useRef, useState} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {ClientRole, RenderInterface} from '../../../agora-rn-uikit';
+import {ClientRole, ContentInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
@@ -21,16 +21,15 @@ import Spacer from '../../atoms/Spacer';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import {useChatMessages} from '../chat-messages/useChatMessages';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
-import {ButtonTemplateName} from '../../utils/useButtonTemplate';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import {
   RaiseHandValue,
   LiveStreamContext,
   LiveStreamControlMessageEnum,
 } from '../livestream';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import IconButton from '../../atoms/IconButton';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -42,8 +41,7 @@ import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import {
   SidePanelType,
   useLayout,
-  useRender,
-  useRtc,
+  useContent,
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
@@ -51,7 +49,7 @@ import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
-  user: RenderInterface;
+  user: ContentInterface;
   showControls: boolean;
   isHostUser: boolean;
   isAudienceUser: boolean;
@@ -79,7 +77,7 @@ const Participant = (props: ParticipantInterface) => {
   } = props;
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const showModal = () => {
     setActionMenuVisible((state) => !state);
@@ -173,8 +171,6 @@ const Participant = (props: ParticipantInterface) => {
                                   : $config.SEMANTIC_ERROR,
                               };
                             }}
-                            showLabel={false}
-                            isMobileView={isMobile}
                           />
                         </View>
                       )
@@ -206,8 +202,6 @@ const Participant = (props: ParticipantInterface) => {
                                 : $config.SEMANTIC_ERROR,
                             };
                           }}
-                          showLabel={false}
-                          isMobileView={isMobile}
                         />
                       </View>
                     )

@@ -26,7 +26,7 @@ import {
   PermissionState,
   ImageIcon as UiKitImageIcon,
 } from '../../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
@@ -96,7 +96,7 @@ const Fallback = () => {
 };
 
 const VideoPreview = () => {
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids} = useContent();
 
   const [maxUid] = activeUids;
 
@@ -111,7 +111,7 @@ const VideoPreview = () => {
           flex: 1,
         }}>
         <MaxVideoView
-          user={renderList[maxUid]}
+          user={defaultContent[maxUid]}
           key={maxUid}
           fallback={Fallback}
           containerStyle={{

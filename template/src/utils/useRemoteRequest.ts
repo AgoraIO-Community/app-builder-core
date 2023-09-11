@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
 import {UidType} from '../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 
 export enum REQUEST_REMOTE_TYPE {
   audio,
@@ -26,7 +26,7 @@ export enum REQUEST_REMOTE_TYPE {
 function useRemoteRequest() {
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const isPSTN = useIsPSTN();
 
   return async (type: REQUEST_REMOTE_TYPE, uid?: UidType) => {
@@ -41,7 +41,7 @@ function useRemoteRequest() {
               events.send(
                 controlMessageEnum.requestAudio,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -50,7 +50,7 @@ function useRemoteRequest() {
             events.send(
               controlMessageEnum.requestAudio,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;
@@ -61,7 +61,7 @@ function useRemoteRequest() {
               events.send(
                 controlMessageEnum.requestVideo,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -70,7 +70,7 @@ function useRemoteRequest() {
             events.send(
               controlMessageEnum.requestVideo,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;

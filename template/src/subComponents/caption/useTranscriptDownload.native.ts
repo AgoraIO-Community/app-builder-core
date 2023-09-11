@@ -1,17 +1,17 @@
 import {formatTranscriptContent} from './utils';
 import {useCaption} from './useCaption';
 import RNFetchBlob from 'rn-fetch-blob';
-import {isAndroid, isIOS, useMeetingInfo, useRender} from 'customization-api';
+import {isAndroid, isIOS, useRoomInfo, useContent} from 'customization-api';
 import Share from 'react-native-share';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
 } => {
   const {meetingTranscript} = useCaption();
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const downloadTranscript = (): Promise<string | null> => {
     return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ const useTranscriptDownload = (): {
         const [finalContent, fileName] = formatTranscriptContent(
           meetingTranscript,
           meetingTitle,
-          renderList,
+          defaultContent,
         );
 
         // get path to the Documents directory, don't have access to Downloads folder so saving in documents 1
@@ -40,18 +40,18 @@ const useTranscriptDownload = (): {
               console.warn('android download complete !');
               // need to show the preview of downloaded file
               Share.open({url: `file://${filePath}`, type: 'text/plain'})
-                .then((res) => {
+                .then(res => {
                   console.warn('File shared successfully:', res);
                   resolve(filePath);
                 })
-                .catch((error) => {
+                .catch(error => {
                   console.error('Error sharing file:', error);
                   reject(error);
                 });
             }
             resolve(filePath);
           })
-          .catch((error) => {
+          .catch(error => {
             console.error('Error downloading content:', error);
             reject(error);
           });

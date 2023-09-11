@@ -1,16 +1,17 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import useLayoutsData from './useLayoutsData';
 import {isArray, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
-import {useRender, useRtc} from 'customization-api';
+import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
+import {DispatchContext} from '../../../agora-rn-uikit';
 
 const VideoComponent = () => {
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const [layout, setLayoutIndex] = useState(0);
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
-  const {activeUids, pinnedUid} = useRender();
+  const {activeUids, pinnedUid} = useContent();
 
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {
@@ -18,7 +19,7 @@ const VideoComponent = () => {
         dispatch({type: 'UserPin', value: [0]});
       }
       const gridLayoutName = getGridLayoutName();
-      if (currentLayout !== gridLayoutName) {
+      if (currentLayout !== gridLayoutName && layoutsData?.length <= 2) {
         setLayout(gridLayoutName);
       }
     }

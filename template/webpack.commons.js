@@ -34,15 +34,15 @@ module.exports = {
   plugins: [
     // Using html webpack plugin to utilize our index.html
     !isSdk &&
-    new HtmlWebpackPlugin({
-      title: configVars['$config.APP_NAME'],
-      template: isElectron ? 'electron/index.html' : 'web/index.html',
-    }),
+      new HtmlWebpackPlugin({
+        title: configVars['$config.APP_NAME'],
+        template: isElectron ? 'electron/index.html' : 'web/index.html',
+      }),
     isDevelopment &&
-    !isSdk &&
-    new ReactRefreshWebpackPlugin({
-      overlay: false,
-    }),
+      !isSdk &&
+      new ReactRefreshWebpackPlugin({
+        overlay: false,
+      }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -141,9 +141,20 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: ['style-loader', 'css-loader'],
       },
-
+      {
+        test: /\.(wasm)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'wasm',
+              name: '[name].[ext]',
+            },
+          },
+        ],
+      },
     ],
   },
 };

@@ -25,10 +25,10 @@ import {
 } from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
-import useCreateMeeting from '../utils/useCreateMeeting';
+import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
-import useJoinMeeting from '../utils/useJoinMeeting';
-import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+import useJoinRoom from '../utils/useJoinRoom';
+import {RoomInfoDefaultValue} from '../components/room-info/useRoomInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -40,7 +40,7 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import isSDK from '../utils/isSDK';
 
@@ -63,7 +63,7 @@ const Create = () => {
     return components;
   });
 
-  const useJoin = useJoinMeeting();
+  const useJoin = useJoinRoom();
   const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
@@ -73,8 +73,8 @@ const Create = () => {
   const [pstnToggle, setPstnToggle] = useState(false);
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
-  const createRoomFun = useCreateMeeting();
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const createRoomFun = useCreateRoom();
+  const {setRoomInfo} = useSetRoomInfo();
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
   // const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -101,13 +101,13 @@ const Create = () => {
       if ($config.EVENT_MODE) {
         return 'CREATE A STREAM';
       } else {
-        return 'CREATE A MEETING';
+        return 'CREATE A ROOM';
       }
     }
   };
 
   const createMeetingButton = btnLabel();
-  const haveMeetingID = 'Join with a meeting ID';
+  const haveMeetingID = 'Join with a room ID';
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
@@ -137,13 +137,15 @@ const Create = () => {
     if (roomTitle !== '') {
       setLoading(true);
       try {
-        setMeetingInfo(MeetingInfoDefaultValue);
+        setRoomInfo(RoomInfoDefaultValue);
+        //@ts-ignore
+        //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({
           type: 'success',
           text1: trimText(roomTitle) + createdText,
-          text2: 'Your New meeting is now live',
+          text2: 'Your New room is now live',
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
@@ -185,7 +187,7 @@ const Create = () => {
       if ($config.EVENT_MODE) {
         return 'Create a Livestream';
       } else {
-        return 'Create a Meeting';
+        return 'Create a Room';
       }
     }
   };
@@ -201,7 +203,7 @@ const Create = () => {
       if ($config.EVENT_MODE) {
         return 'Stream Name';
       } else {
-        return 'Meeting Name';
+        return 'Room Name';
       }
     }
   };
@@ -296,7 +298,7 @@ const Create = () => {
                         <Tooltip
                           activeBgStyle={style.tooltipActiveBgStyle}
                           defaultBgStyle={style.tooltipDefaultBgStyle}
-                          toolTipMessage="Turning on will give everyone the control of this meeting"
+                          toolTipMessage="Turning on will give everyone the control of this room"
                           renderContent={(
                             isToolTipVisible,
                             setToolTipVisible,

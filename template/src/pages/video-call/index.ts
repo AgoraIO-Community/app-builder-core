@@ -1,20 +1,52 @@
 import ParticipantsView from '../../components/ParticipantsView';
 import Chat from '../../components/Chat';
-import Navbar, {NavBarComponentsArray} from '../../components/Navbar';
-import SettingsView from '../../components/SettingsView';
-import Controls, {ControlsComponentsArray} from '../../components/Controls';
+import Navbar, {
+  MeetingTitleToolbarItem,
+  ParticipantCountToolbarItem,
+  RecordingStatusToolbarItem,
+  ChatToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToobarItem,
+} from '../../components/Navbar';
+import Controls, {
+  LayoutToolbarItem,
+  InviteToolbarItem,
+  RaiseHandToolbarItem,
+  LocalAudioToolbarItem,
+  LocalVideoToolbarItem,
+  SwitchCameraToolbarItem,
+  ScreenShareToolbarItem,
+  RecordingToolbarItem,
+  LocalEndcallToolbarItem,
+} from '../../components/Controls';
 import ChatBubble from '../../subComponents/ChatBubble';
-import {ChatTextInput, ChatSendButton} from '../../subComponents/ChatInput';
+import {ChatInput} from '../../subComponents/ChatInput';
+import SettingsView from '../../components/SettingsView';
 
+const ToolbarComponents = {
+  MeetingTitleToolbarItem,
+  ParticipantCountToolbarItem,
+  RecordingStatusToolbarItem,
+  ChatToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToobarItem,
+  LayoutToolbarItem,
+  InviteToolbarItem,
+  RaiseHandToolbarItem,
+  LocalAudioToolbarItem,
+  LocalVideoToolbarItem,
+  SwitchCameraToolbarItem,
+  ScreenShareToolbarItem,
+  RecordingToolbarItem,
+  LocalEndcallToolbarItem,
+};
 export {
   ParticipantsView,
   Chat,
   Navbar,
-  NavBarComponentsArray,
   SettingsView,
   Controls,
-  ControlsComponentsArray,
   ChatBubble,
-  ChatTextInput,
-  ChatSendButton,
+  ChatInput,
+  ToolbarComponents,
 };

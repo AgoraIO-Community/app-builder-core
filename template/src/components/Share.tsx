@@ -26,7 +26,7 @@ import {SHARE_LINK_CONTENT_TYPE, useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
 import Logo from '../components/common/Logo';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useHistory} from '../components/Router';
 import {useCustomization} from 'customization-implementation';
 import {isMobileUA, isValidReactComponent, trimText} from '../utils/common';
@@ -47,7 +47,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
     data: {roomId, isHost, pstn, isSeparateHostLink, meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {showSubLabel = true} = props;
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
@@ -63,8 +63,8 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   //   'enterMeetingAfterCreateButton',
   // )();
   // const copyInviteButton = useString('copyInviteButton')();
-  const meetingUrlText = 'Meeting Link';
-  const meetingIdText = 'Meeting ID';
+  const meetingUrlText = 'Room Link';
+  const meetingIdText = 'Room ID';
   const hostIdText = 'Host ID';
   const attendeeUrlLabel = 'Attendee Link';
   const attendeeIdLabel = 'Attendee ID';
@@ -74,7 +74,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const pinLabel = 'Pin';
   const enterMeetingAfterCreateButton = isLiveStream
     ? 'Start Stream (as host)'
-    : 'Start Meeting (as host)';
+    : 'Start Room (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
   const history = useHistory();
   const enterMeeting = () => {
@@ -273,11 +273,11 @@ const Share = () => {
   const {copyShareLinkToClipboard} = useShareLink();
   const {
     data: {roomId, meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const enterMeetingAfterCreateButton = isLiveStream
     ? 'Start Stream (as host)'
-    : 'Start Meeting (as host)';
+    : 'Start Room (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
   const history = useHistory();
   const enterMeeting = () => {

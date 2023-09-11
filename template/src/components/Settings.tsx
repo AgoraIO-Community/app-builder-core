@@ -16,6 +16,9 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useString} from '../utils/useString';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
@@ -23,6 +26,7 @@ export interface SettingsIconButtonProps {
 
 const Settings = (props: SettingsIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
+  const {isToolbarMenuItem} = useToolbarMenu();
   //commented for v1 release
   //const settingsLabel = useString('settingsLabel')();
   const settingsLabel = 'Settings';
@@ -32,6 +36,7 @@ const Settings = (props: SettingsIconButtonProps) => {
       ? setSidePanel(SidePanelType.None)
       : setSidePanel(SidePanelType.Settings);
   };
+  const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
 
@@ -45,17 +50,40 @@ const Settings = (props: SettingsIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: $config.ICON_TEXT ? settingsLabel : '',
+      text: showLabel ? settingsLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
 
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   return props?.render ? (
     props.render(onPress, isPanelActive)
   ) : (
     <>
       <View>
-        <IconButton {...iconButtonProps} />
+        {isToolbarMenuItem ? (
+          <ToolbarMenuItem {...iconButtonProps} />
+        ) : (
+          <IconButton {...iconButtonProps} />
+        )}
       </View>
     </>
   );

@@ -1,16 +1,16 @@
 import {formatTranscriptContent} from './utils';
 import {useCaption} from './useCaption';
-import {useMeetingInfo, useRender} from 'customization-api';
+import {useRoomInfo, useContent} from 'customization-api';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
 } => {
   const {meetingTranscript} = useCaption();
 
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const downloadTranscript = (): Promise<string | null> => {
     return new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ const useTranscriptDownload = (): {
         const [finalContent, fileName] = formatTranscriptContent(
           meetingTranscript,
           meetingTitle,
-          renderList,
+          defaultContent,
         );
 
         // blob with required content

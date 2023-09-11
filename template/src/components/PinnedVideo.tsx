@@ -9,63 +9,55 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   ScrollView,
   View,
   StyleSheet,
   Pressable,
-  FlatList,
   useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {
-  layoutComponent,
-  useLocalUid,
-  useRender,
-  useRtc,
-} from 'customization-api';
+import {useLocalUid, useContent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
-import {useVideoCall} from './useVideoCall';
+import {BREAKPOINTS, isMobileUA} from '../utils/common';
+import {DispatchContext} from '../../agora-rn-uikit';
 const {topPinned} = layoutProps;
 
-const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid, activeUids, renderList} = useRender();
+const PinnedVideo = ({renderData}) => {
+  const {pinnedUid, defaultContent, activeUids} = useContent();
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
-  const {width, height} = useWindowDimensions();
+  const {width} = useWindowDimensions();
   const isDesktop = width > BREAKPOINTS.xl;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   //const [maxUid, ...minUids] = renderData;
-  const {dispatch} = useRtc();
-  //const {activeSpeaker} = useVideoCall();
   const activeSpeaker = 0;
-
+  const {dispatch} = useContext(DispatchContext);
   const [uids, setUids] = useState(renderData);
 
   const [screenShareOn, setScreenShareOn] = useState(false);
 
   useEffect(() => {
-    const nonPinnedUids = activeUids.filter((uid) => uid !== pinnedUid);
+    const nonPinnedUids = activeUids.filter(uid => uid !== pinnedUid);
 
     const nonActiveSpeakerUids = nonPinnedUids.filter(
-      (uid) => uid !== activeSpeaker,
+      uid => uid !== activeSpeaker,
     );
 
-    const remoteScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
+    const remoteScreenShareUids = nonActiveSpeakerUids.filter(uid => {
       return (
-        renderList[uid].type === 'screenshare' &&
-        renderList[uid].parentUid !== localUid
+        defaultContent[uid]?.type === 'screenshare' &&
+        defaultContent[uid]?.parentUid !== localUid
       );
     });
 
-    const localScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
+    const localScreenShareUids = nonActiveSpeakerUids.filter(uid => {
       return (
-        renderList[uid].type === 'screenshare' &&
-        renderList[uid].parentUid === localUid
+        defaultContent[uid]?.type === 'screenshare' &&
+        defaultContent[uid]?.parentUid === localUid
       );
     });
     if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
@@ -73,7 +65,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
     }
 
     const restOfTheUids = nonActiveSpeakerUids.filter(
-      (uid) => renderList[uid].type !== 'screenshare',
+      uid => defaultContent[uid]?.type !== 'screenshare',
     );
 
     /**
@@ -93,10 +85,10 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       pinnedUid !== activeSpeaker ? activeSpeaker : 0,
       ...localScreenShareUids,
       ...restOfTheUids,
-    ].filter((uid) => uid !== undefined && uid !== 0);
+    ].filter(uid => uid !== undefined && uid !== 0);
 
     setUids(updatedOrder);
-  }, [activeUids, renderList, activeSpeaker, pinnedUid]);
+  }, [activeUids, defaultContent, activeSpeaker, pinnedUid]);
 
   return (
     <View

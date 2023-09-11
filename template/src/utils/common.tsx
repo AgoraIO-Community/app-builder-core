@@ -254,6 +254,10 @@ const capitalizeFirstLetter = (word: string): string => {
   return word.charAt(0).toUpperCase() + word.slice(1);
 };
 
+const CustomToolbarSort = (a, b) =>
+  (a.hasOwnProperty('order') ? a.order : 999999) -
+  (b.hasOwnProperty('order') ? b.order : 999999);
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -277,4 +281,5 @@ export {
   throttleFn,
   debounceFn,
   capitalizeFirstLetter,
+  CustomToolbarSort,
 };

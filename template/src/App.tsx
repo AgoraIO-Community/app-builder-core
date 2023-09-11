@@ -14,11 +14,11 @@ import {Platform} from 'react-native';
 import KeyboardManager from 'react-native-keyboard-manager';
 import AppWrapper from './AppWrapper';
 import {
-  MeetingInfoContextInterface,
-  MeetingInfoDefaultValue,
-  MeetingInfoProvider,
-} from './components/meeting-info/useMeetingInfo';
-import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
+  RoomInfoContextInterface,
+  RoomInfoDefaultValue,
+  RoomInfoProvider,
+} from './components/room-info/useRoomInfo';
+import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
 
@@ -32,7 +32,7 @@ if (Platform.OS === 'ios') {
 
 //Extending the UI Kit Type defintion to add custom attribute to render interface
 declare module 'agora-rn-uikit' {
-  interface DefaultRenderInterface {
+  interface DefaultContentInterface {
     name: string;
     screenUid: number;
     offline: boolean;
@@ -45,19 +45,47 @@ declare module 'agora-rn-uikit' {
 }
 
 const App: React.FC = () => {
-  const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
-    MeetingInfoDefaultValue,
-  );
+  //commented for v1 release
+  //const CustomRoutes = useCustomization((data) => data?.customRoutes);
+  // const RenderCustomRoutes = () => {
+  //   try {
+  //     return (
+  //       CustomRoutes &&
+  //       Array.isArray(CustomRoutes) &&
+  //       CustomRoutes.length &&
+  //       CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
+  //         let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+  //         return (
+  //           <RouteComponent
+  //             path={CUSTOM_ROUTES_PREFIX + item.path}
+  //             exact={item.exact}
+  //             key={i}
+  //             failureRedirectTo={
+  //               item.failureRedirectTo ? item.failureRedirectTo : '/'
+  //             }
+  //             {...item.routeProps}>
+  //             <item.component {...item.componentProps} />
+  //           </RouteComponent>
+  //         );
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.error('Error on rendering the custom routes');
+  //     return null;
+  //   }
+  // };
+  const [roomInfo, setRoomInfo] =
+    useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 
   return (
     <AppWrapper>
-      <SetMeetingInfoProvider value={{setMeetingInfo}}>
-        <MeetingInfoProvider value={{...meetingInfo}}>
+      <SetRoomInfoProvider value={{setRoomInfo}}>
+        <RoomInfoProvider value={{...roomInfo}}>
           <ShareLinkProvider>
             <AppRoutes />
           </ShareLinkProvider>
-        </MeetingInfoProvider>
-      </SetMeetingInfoProvider>
+        </RoomInfoProvider>
+      </SetRoomInfoProvider>
     </AppWrapper>
   );
 };

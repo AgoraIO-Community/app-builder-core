@@ -19,48 +19,81 @@ import ChatContext from '../../../components/ChatContext';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
 import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {isMobileUA} from '../../../utils/common';
+import {IconButtonProps} from '../../../atoms/IconButton';
+import {useToolbarMenu} from '../../../utils/useMenu';
+import ToolbarMenuItem from '../../../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../../../utils/useActionSheet';
 
-interface LocalRaiseHandProps {
-  showLabel?: boolean;
-}
+interface LocalRaiseHandProps {}
 const LocalRaiseHand = (props: LocalRaiseHandProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
   const {rtcProps} = useContext(PropsContext);
   const {localUid} = useContext(ChatContext);
-  const {activeUids} = useRender();
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {activeUids} = useContent();
+  const {isOnActionSheet, showLabel} = useActionSheet();
+
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
-    toggle ? 'Lower hand' : 'Raise Hand';
+    toggle
+      ? isOnActionSheet
+        ? 'Lower\nHand'
+        : 'Lower hand'
+      : isOnActionSheet
+      ? 'Raise\nHand'
+      : 'Raise hand';
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
-  return (
-    <IconButton
-      iconProps={{
-        name: isHandRasied ? 'lower-hand' : 'raise-hand',
-        tintColor: isHandRasied
-          ? $config.PRIMARY_ACTION_TEXT_COLOR
-          : $config.SECONDARY_ACTION_COLOR,
-        iconBackgroundColor: isHandRasied
-          ? $config.PRIMARY_ACTION_BRAND_COLOR
-          : '',
-        base64: isMobileUA() ? true : false,
-      }}
-      btnTextProps={{
-        text: showLabel ? handStatusText(isHandRasied) : '',
-        textColor: $config.FONT_COLOR,
-      }}
-      onPress={() => {
-        if (isHandRasied) {
-          audienceRecallsRequest();
-        } else {
-          audienceSendsRequest();
-        }
-      }}
-    />
+  const iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: isHandRasied ? 'lower-hand' : 'raise-hand',
+      tintColor: isHandRasied
+        ? $config.PRIMARY_ACTION_TEXT_COLOR
+        : $config.SECONDARY_ACTION_COLOR,
+      iconBackgroundColor: isHandRasied
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : '',
+      base64: isMobileUA() ? true : false,
+    },
+    btnTextProps: {
+      text: showLabel ? handStatusText(isHandRasied) : '',
+      textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
+    },
+    onPress: () => {
+      if (isHandRasied) {
+        audienceRecallsRequest();
+      } else {
+        audienceSendsRequest();
+      }
+    },
+  };
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
+  return isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
+  ) : (
+    <IconButton {...iconButtonProps} />
   );
 };
 

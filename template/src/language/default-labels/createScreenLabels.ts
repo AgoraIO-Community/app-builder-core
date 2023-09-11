@@ -10,10 +10,10 @@ export interface I18nCreateScreenLabelsInterface {
 }
 
 export const CreateScreenLabels: I18nCreateScreenLabelsInterface = {
-  meetingNameInputPlaceholder: 'Name your Meeting',
+  meetingNameInputPlaceholder: 'Name your Room',
   //commented for v1 release
-  // createMeetingButton: 'Create Meeting',
-  // haveMeetingID: 'Have a Meeting ID?',
+  // createMeetingButton: 'Create Room',
+  // haveMeetingID: 'Have a Room ID?',
   // pstnToggle: 'Use PSTN (Join by dialing a number)',
   // hostControlsToggle: (toggle) =>
   //   toggle

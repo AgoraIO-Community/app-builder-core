@@ -12,39 +12,36 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {RtcContext} from '../../agora-rn-uikit';
+import {RtcContext, DispatchContext} from '../../agora-rn-uikit';
 import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
-import {useRender} from 'customization-api';
-import {useParams} from '../components/Router';
-import StorageContext from './StorageContext';
-import {isWebInternal, trimText} from '../utils/common';
+import {useContent} from 'customization-api';
+import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
-import {isAndroid, isIOS} from '../utils/common';
 
 interface Props {
   children: React.ReactNode;
 }
 
-const EventsConfigure: React.FC<Props> = (props) => {
-  const {setStore} = useContext(StorageContext);
+const EventsConfigure: React.FC<Props> = props => {
   //@ts-ignore
   const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
     useScreenshare();
   const isLiveStream = $config.EVENT_MODE;
-  const {RtcEngine, dispatch} = useContext(RtcContext);
-  const {renderList} = useRender();
-  const renderListRef = useRef({renderList});
+  const {dispatch} = useContext(DispatchContext);
+  const {RtcEngineUnsafe} = useContext(RtcContext);
+  const {defaultContent} = useContent();
+  const defaultContentRef = useRef({defaultContent});
   const isScreenshareActiveRef = useRef({isScreenshareActive});
-  const {phrase} = useParams<{phrase: string}>();
   useEffect(() => {
     isScreenshareActiveRef.current.isScreenshareActive = isScreenshareActive;
   }, [isScreenshareActive]);
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
+
   useEffect(() => {
     //user joined event listener
     // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
@@ -63,7 +60,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
       Toast.show({
         type: 'info',
         // text1: `${
-        //   renderListRef.current.renderList[sender].name || 'The host'
+        //   defaultContentRef.current.defaultContent[sender].name || 'The host'
         // } muted you.`,
         text1: 'The host has muted your video.',
         visibilityTime: 3000,
@@ -79,8 +76,8 @@ const EventsConfigure: React.FC<Props> = (props) => {
         stopUserScreenShare(false, true);
       } else {
         isWebInternal()
-          ? await RtcEngine.muteLocalVideoStream(true)
-          : await RtcEngine.enableLocalVideo(false);
+          ? await RtcEngineUnsafe.muteLocalVideoStream(true)
+          : await RtcEngineUnsafe.enableLocalVideo(false);
         await updateVideoStream(true);
         dispatch({
           type: 'LocalMuteVideo',
@@ -92,7 +89,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
       Toast.show({
         type: 'info',
         // text1: `${
-        //   renderListRef.current.renderList[sender].name || 'The host'
+        //   defaultContentRef.current.defaultContent[sender].name || 'The host'
         // } muted you.`,
         text1: 'The host has muted your audio.',
         visibilityTime: 3000,
@@ -100,7 +97,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         secondaryBtn: null,
         leadingIcon: null,
       });
-      RtcEngine.muteLocalAudioStream(true);
+      RtcEngineUnsafe.muteLocalAudioStream(true);
       dispatch({
         type: 'LocalMuteAudio',
         value: [0],
@@ -119,7 +116,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
 
       Toast.show({
         type: 'info',
-        text1: 'The host has removed you from the meeting.',
+        text1: 'The host has removed you from the room.',
         visibilityTime: 5000,
         primaryBtn: null,
         secondaryBtn: null,
@@ -143,7 +140,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
             textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
             text="UNMUTE"
             onPress={() => {
-              RtcEngine.muteLocalAudioStream(false);
+              RtcEngineUnsafe.muteLocalAudioStream(false);
               dispatch({
                 type: 'LocalMuteAudio',
                 value: [1],
@@ -168,8 +165,8 @@ const EventsConfigure: React.FC<Props> = (props) => {
             text="UNMUTE"
             onPress={async () => {
               isWebInternal()
-                ? await RtcEngine.muteLocalVideoStream(false)
-                : await RtcEngine.enableLocalVideo(true);
+                ? await RtcEngineUnsafe.muteLocalVideoStream(false)
+                : await RtcEngineUnsafe.enableLocalVideo(true);
               await updateVideoStream(false);
               dispatch({
                 type: 'LocalMuteVideo',
@@ -185,7 +182,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
 
     const updateVideoStream = async (enabled: boolean) => {
       if ((isAndroid() || isIOS()) && isLiveStream) {
-        await RtcEngine.muteLocalVideoStream(enabled);
+        await RtcEngineUnsafe.muteLocalVideoStream(enabled);
       }
     };
 

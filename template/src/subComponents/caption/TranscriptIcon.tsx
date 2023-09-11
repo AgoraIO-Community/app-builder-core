@@ -1,14 +1,10 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
 import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import {useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import useGetName from '../../utils/useGetName';
-import events, {EventPersistLevel} from '../../rtm-events-api';
-import {EventNames} from '../../rtm-events';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;

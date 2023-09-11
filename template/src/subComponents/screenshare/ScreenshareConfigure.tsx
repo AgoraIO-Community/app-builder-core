@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {PropsContext, UidType} from '../../../agora-rn-uikit';
+import {DispatchContext, PropsContext, UidType} from '../../../agora-rn-uikit';
 import {ScreenshareContext} from './useScreenshare';
 import {
   getGridLayoutName,
@@ -20,16 +20,15 @@ import {
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
-import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
 import {
   controlMessageEnum,
   useLayout,
-  useRender,
+  useContent,
   useRtc,
 } from 'customization-api';
 import {filterObject} from '../../utils';
@@ -38,9 +37,9 @@ export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
-  const {dispatch} = rtc;
-  const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
+  const {defaultContent, activeUids, pinnedUid} = useContent();
   const isPinned = useRef(0);
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
@@ -48,8 +47,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
   // const userText = useString('remoteUserDefaultLabel')();
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
-  const userText = 'User';
+  // const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  // const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
@@ -58,7 +57,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
-  const renderListRef = useRef({renderList: renderList});
+  const defaultContentRef = useRef({defaultContent: defaultContent});
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
 
   useEffect(() => {
@@ -66,8 +65,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, [pinnedUid]);
 
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   useEffect(() => {
     currentLayoutRef.current.currentLayout = currentLayout;
@@ -85,7 +84,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
     if (data) {
       const recentScreenshare = Object.keys(data)
-        .map((i) => parseInt(i))
+        .map(i => parseInt(i))
         .sort((a, b) => {
           return data[a].ts - data[b].ts;
         });
@@ -124,31 +123,32 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       () => {
         //if screenscreen already active. then below method will stop the screen share
         // @ts-ignore
-        rtc.RtcEngine.startScreenshare();
+        rtc.RtcEngineUnsafe.startScreenshare();
       },
     );
     const unsubScreenshareAttribute = events.on(
       EventNames.SCREENSHARE_ATTRIBUTE,
-      (data) => {
+      data => {
         const payload = JSON.parse(data.payload);
         const action = payload.action;
         const value = payload.value;
 
         if (data?.sender) {
           let screenUidOfUser =
-            renderListRef.current.renderList[data?.sender]?.screenUid;
+            defaultContentRef.current.defaultContent[data?.sender]?.screenUid;
           if (!screenUidOfUser) {
             screenUidOfUser = payload?.screenUidOfUser;
           }
           if (screenUidOfUser) {
             switch (action) {
               case EventActions.SCREENSHARE_STARTED:
-                setScreenShareData((prevState) => {
+                setScreenShareData(prevState => {
                   return {
                     ...prevState,
                     [screenUidOfUser]: {
-                      name: renderListRef.current.renderList[screenUidOfUser]
-                        ?.name,
+                      name: defaultContentRef.current.defaultContent[
+                        screenUidOfUser
+                      ]?.name,
                       isActive: true,
                       ts: value || 0,
                     },
@@ -156,12 +156,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
                 });
                 break;
               case EventActions.SCREENSHARE_STOPPED:
-                setScreenShareData((prevState) => {
+                setScreenShareData(prevState => {
                   return {
                     ...prevState,
                     [screenUidOfUser]: {
-                      name: renderListRef.current.renderList[screenUidOfUser]
-                        ?.name,
+                      name: defaultContentRef.current.defaultContent[
+                        screenUidOfUser
+                      ]?.name,
                       isActive: false,
                       ts: value || 0,
                     },
@@ -197,9 +198,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         action: EventActions.SCREENSHARE_STOPPED,
         value: 0,
       }),
-      EventPersistLevel.LEVEL2,
+      PersistanceLevel.Sender,
     );
-    setScreenShareData((prevState) => {
+    setScreenShareData(prevState => {
       return {
         ...prevState,
         [screenShareUid]: {
@@ -218,7 +219,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     // @ts-ignore
-    rtc.RtcEngine.addListener('ScreenshareStopped', ScreenshareStoppedCallback);
+    rtc.RtcEngineUnsafe.addListener(
+      'ScreenshareStopped',
+      ScreenshareStoppedCallback,
+    );
   }, []);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
@@ -252,24 +256,25 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     console.log('screenshare query executed');
     try {
       // @ts-ignore
-      await rtc.RtcEngine.startScreenshare(
+      await rtc.RtcEngineUnsafe.startScreenshare(
         screenShareToken,
         channel,
         null,
         screenShareUid,
         appId,
-        rtc.RtcEngine as unknown as IAgoraRTC,
+        rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
       );
       isActive && setScreenshareActive(true);
 
       if (isActive) {
         // 1. Set local state
-        setScreenShareData((prevState) => {
+        setScreenShareData(prevState => {
           return {
             ...prevState,
             [screenShareUid]: {
-              name: renderListRef.current.renderList[screenShareUid]?.name,
+              name: defaultContentRef.current.defaultContent[screenShareUid]
+                ?.name,
               isActive: true,
               ts: timeNow(),
             },
@@ -283,7 +288,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             value: timeNow(),
             screenUidOfUser: screenShareUid,
           }),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
       }
     } catch (e) {

@@ -2,7 +2,7 @@
  * Core contexts
  */
 import {createHook} from 'customization-implementation';
-import {RtcContext, RenderContext} from '../agora-rn-uikit';
+import {RtcContext, ContentContext} from '../agora-rn-uikit';
 
 // commented for v1 release
 //import {default as DeviceContext} from '../src/components/DeviceContext';
@@ -14,7 +14,7 @@ export const useRtc = createHook(RtcContext);
 /**
  * The Render app state governs the information necessary to render each user content view displayed in the videocall screen.
  */
-export const useRender = createHook(RenderContext);
+export const useContent = createHook(ContentContext);
 
 export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
 
@@ -40,10 +40,8 @@ export type {LayoutContextInterface} from '../src/utils/useLayout';
 // export type {ScreenshareContextInterface} from '../src/subComponents/screenshare/useScreenshare';
 export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
-export {useMeetingInfo} from '../src/components/meeting-info/useMeetingInfo';
-export type {MeetingInfoContextInterface} from '../src/components/meeting-info/useMeetingInfo';
-export {useChatUIControl} from '../src/components/chat-ui/useChatUIControl';
-export type {ChatUIControlInterface} from '../src/components/chat-ui/useChatUIControl';
+export {useRoomInfo} from '../src/components/room-info/useRoomInfo';
+export type {RoomInfoContextInterface} from '../src/components/room-info/useRoomInfo';
 export {useMessages} from '../src/app-state/useMessages';
 export type {messageInterface} from '../src/app-state/useMessages';
 export {SidePanelType} from '../src/subComponents/SidePanelEnum';
@@ -51,3 +49,9 @@ export {useSidePanel} from '../src/utils/useSidePanel';
 
 //hook used to get/set username
 export {default as useUserName} from '../src/utils/useUserName';
+
+export {
+  useChatUIControls,
+  ChatType,
+} from '../src/components/chat-ui/useChatUIControls';
+export type {ChatUIControlsInterface} from '../src/components/chat-ui/useChatUIControls';

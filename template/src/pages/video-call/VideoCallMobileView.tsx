@@ -1,13 +1,12 @@
-import {StyleSheet, Text, View, AppState} from 'react-native';
-import React, {useRef, useContext, useState, useEffect} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useRef, useContext, useEffect} from 'react';
 import VideoComponent from './VideoComponent';
 import ActionSheet from './ActionSheet';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 
 import {useRecording} from '../../subComponents/recording/useRecording';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
 import {
@@ -17,10 +16,9 @@ import {
   isWebInternal,
   trimText,
 } from '../../utils/common';
-import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
-import {useLocalUserInfo, useRender} from 'customization-api';
+import {DispatchContext, RtcContext} from '../../../agora-rn-uikit';
+import {useLocalUserInfo, useContent} from 'customization-api';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
-import ImageIcon from '../../atoms/ImageIcon';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import VideoRenderer from './VideoRenderer';
 import {filterObject} from '../../utils';
@@ -30,9 +28,10 @@ import useAppState from '../../utils/useAppState';
 const VideoCallMobileView = () => {
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
 
-  const {RtcEngine, dispatch} = useContext(RtcContext);
+  const {RtcEngineUnsafe} = useContext(RtcContext);
+  const {dispatch} = useContext(DispatchContext);
   const local = useLocalUserInfo();
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
 
   const maxScreenShareData = filterObject(
     screenShareData,
@@ -76,8 +75,8 @@ const VideoCallMobileView = () => {
               : local.video;
           if (isCamON.current) {
             isWebInternal()
-              ? RtcEngine.muteLocalVideoStream(true)
-              : RtcEngine.enableLocalVideo(false);
+              ? RtcEngineUnsafe.muteLocalVideoStream(true)
+              : RtcEngineUnsafe.enableLocalVideo(false);
             dispatch({
               type: 'LocalMuteVideo',
               value: [0],
@@ -86,8 +85,8 @@ const VideoCallMobileView = () => {
         }
         if (appStateVisible === 'active' && isCamON.current) {
           isWebInternal()
-            ? RtcEngine.muteLocalVideoStream(false)
-            : RtcEngine.enableLocalVideo(true);
+            ? RtcEngineUnsafe.muteLocalVideoStream(false)
+            : RtcEngineUnsafe.enableLocalVideo(true);
           dispatch({
             type: 'LocalMuteVideo',
             value: [1],
@@ -99,18 +98,82 @@ const VideoCallMobileView = () => {
 
   return isScreenShareOnFullView &&
     maxScreenShareUid &&
-    renderList[maxScreenShareUid] &&
-    renderList[maxScreenShareUid]?.video ? (
-    <VideoRenderer user={renderList[maxScreenShareUid]} />
+    defaultContent[maxScreenShareUid] &&
+    defaultContent[maxScreenShareUid]?.video ? (
+    <VideoRenderer user={defaultContent[maxScreenShareUid]} />
   ) : (
     <VideoCallView />
   );
 };
 
 const VideoCallView = React.memo(() => {
+  //toolbar changes
+  // const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
+  // useCustomization((data) => {
+  //   let components: {
+  //     BottombarComponent: React.ComponentType<ControlsProps>;
+  //     BottombarProps?: ToolbarCustomItem[];
+  //     TopbarComponent: React.ComponentType<NavbarProps>;
+  //     TopbarProps?: ToolbarCustomItem[];
+  //   } = {
+  //     BottombarComponent: ActionSheet,
+  //     BottombarProps: [],
+  //     TopbarComponent: NavbarMobile,
+  //     TopbarProps: [],
+  //   };
+  //   if (
+  //     data?.components?.videoCall &&
+  //     typeof data?.components?.videoCall === 'object'
+  //   ) {
+  //     if (
+  //       data?.components?.videoCall.bottomToolBar &&
+  //       typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+  //       isValidReactComponent(data?.components?.videoCall.bottomToolBar)
+  //     ) {
+  //       components.BottombarComponent =
+  //         data?.components?.videoCall.bottomToolBar;
+  //     }
+  //     if (
+  //       data?.components?.videoCall.bottomToolBar &&
+  //       typeof data?.components?.videoCall.bottomToolBar === 'object' &&
+  //       data?.components?.videoCall.bottomToolBar.length
+  //     ) {
+  //       components.BottombarProps = data?.components?.videoCall.bottomToolBar;
+  //     }
+
+  //     if (
+  //       data?.components?.videoCall.topToolBar &&
+  //       typeof data?.components?.videoCall.topToolBar !== 'object' &&
+  //       isValidReactComponent(data?.components?.videoCall.topToolBar)
+  //     ) {
+  //       components.TopbarComponent = data?.components?.videoCall.topToolBar;
+  //     }
+
+  //     if (
+  //       data?.components?.videoCall.topToolBar &&
+  //       typeof data?.components?.videoCall.topToolBar === 'object' &&
+  //       data?.components?.videoCall.topToolBar.length
+  //     ) {
+  //       components.TopbarProps = data?.components?.videoCall.topToolBar;
+  //     }
+  //   }
+
+  //   return components;
+  // });
+
   return (
     <View style={styles.container}>
       <VideoCallHeader />
+      {/* <ToolbarProvider value={{position: ToolbarPosition.top}}>
+        {TopbarProps?.length ? (
+          <TopbarComponent
+            customItems={TopbarProps}
+            includeDefaultItems={false}
+          />
+        ) : (
+          <TopbarComponent />
+        )}
+      </ToolbarProvider> */}
       <Spacer size={16} />
       <View style={styles.videoView}>
         <VideoComponent />
@@ -124,7 +187,7 @@ const VideoCallView = React.memo(() => {
 const VideoCallHeader = () => {
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {isRecordingActive} = useRecording();
   const recordingLabel = 'Recording';
   return (

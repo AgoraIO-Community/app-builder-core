@@ -1,5 +1,5 @@
-import {useLocalUserInfo, useRender, useRtc} from 'customization-api';
-import React, {useEffect, useState} from 'react';
+import {useLocalUserInfo} from 'customization-api';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Image,
@@ -12,10 +12,10 @@ import Popup from '../../atoms/Popup';
 import ThemeConfig from '../../theme';
 //@ts-ignore
 import permissionHelper from '../../assets/permission.png';
-import {PermissionState} from '../../../agora-rn-uikit';
+import {DispatchContext, PermissionState} from '../../../agora-rn-uikit';
 
 const PermissionHelper = () => {
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const {permissionStatus} = useLocalUserInfo();
   const [showPopup, setShowPopup] = useState(false);
 

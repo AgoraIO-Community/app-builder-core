@@ -8,6 +8,6 @@ export interface I18nJoinScreenLabelsInterface {
 
 export const JoinScreenLabels: I18nJoinScreenLabelsInterface = {
   //commented for v1 release
-  // meetingIdInputPlaceholder: 'Enter Meeting ID',
-  // enterMeetingButton: 'Enter Meeting',
+  // meetingIdInputPlaceholder: 'Enter Room ID',
+  // enterMeetingButton: 'Enter Room',
 };

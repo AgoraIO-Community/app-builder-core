@@ -21,7 +21,7 @@ import {
   useResponsive,
   isValidReactComponent,
 } from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useCustomization} from 'customization-implementation';
 import {
   PreCallJoinBtn,
@@ -258,7 +258,7 @@ const Precall = () => {
   const {
     isJoinDataFetched,
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 
@@ -274,7 +274,7 @@ const Precall = () => {
     if (isJoinDataFetched) {
       new Promise((res) =>
         // @ts-ignore
-        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+        rtc.RtcEngineUnsafe.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {

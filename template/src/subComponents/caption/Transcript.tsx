@@ -1,10 +1,6 @@
 import {
   StyleSheet,
   View,
-  ScrollView,
-  Button,
-  FlatList,
-  Dimensions,
   TextInput,
   TouchableOpacity,
   Text,
@@ -17,14 +13,9 @@ import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
-import {
-  calculatePosition,
-  isMobileUA,
-  isWebInternal,
-  useIsSmall,
-} from '../../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
-import {useRtc, useRender} from 'customization-api';
+import {useRtc, useContent} from 'customization-api';
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
@@ -36,7 +27,6 @@ import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
-import useTranscriptDownload from './useTranscriptDownload';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 
 interface TranscriptProps {
@@ -58,14 +48,13 @@ const Transcript = (props: TranscriptProps) => {
   const [showButton, setShowButton] = React.useState(false);
 
   const contentHeightRef = React.useRef(0);
-  const flatListHeightRef = React.useRef(0);
   const flatListRef = React.useRef(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
-  const {RtcEngine} = useRtc();
-  const {renderList} = useRender();
+  const {RtcEngineUnsafe} = useRtc();
+  const {defaultContent} = useContent();
   const {streamMessageCallback} = useStreamMessageUtils();
-  const {downloadTranscript} = useTranscriptDownload();
+
   const [isFocused, setIsFocused] = React.useState(false);
 
   const {transcriptHeight} = useCaptionWidth();
@@ -79,7 +68,7 @@ const Transcript = (props: TranscriptProps) => {
     setIsFocused(false);
   };
 
-  const handleLayout = event => {
+  const handleLayout = () => {
     if (flatListRef.current && !isWebInternal()) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
@@ -101,12 +90,12 @@ const Transcript = (props: TranscriptProps) => {
         />
 
         <Text style={styles.langChange}>
-          {renderList[item?.uid?.split('-')[1]].name + ' ' + item.text}
+          {defaultContent[item?.uid?.split('-')[1]].name + ' ' + item.text}
         </Text>
       </View>
     ) : (
       <TranscriptText
-        user={renderList[item.uid].name}
+        user={defaultContent[item.uid].name}
         time={item.time}
         value={item.text}
         searchQuery={searchQuery}
@@ -181,7 +170,7 @@ const Transcript = (props: TranscriptProps) => {
 
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
-      RtcEngine.addListener(
+      RtcEngineUnsafe.addListener(
         'StreamMessage',
         handleStreamMessageCallback as unknown as StreamMessageCallback,
       );
@@ -205,8 +194,7 @@ const Transcript = (props: TranscriptProps) => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         {paddingBottom: 20},
-      ]}
-    >
+      ]}>
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
         {!searchQuery && (
@@ -235,8 +223,7 @@ const Transcript = (props: TranscriptProps) => {
           <TouchableOpacity
             onPress={() => {
               setSearchQuery('');
-            }}
-          >
+            }}>
             <ImageIcon
               name="close"
               iconSize={20}
@@ -300,8 +287,7 @@ const Transcript = (props: TranscriptProps) => {
                   right: 0,
                   alignItems: 'center',
                   zIndex: 9999,
-                }}
-              >
+                }}>
                 <PrimaryButton
                   iconName={'view-last'}
                   containerStyle={styles.showLatestBtn}

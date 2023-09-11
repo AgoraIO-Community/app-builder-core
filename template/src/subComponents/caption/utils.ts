@@ -1,4 +1,4 @@
-import {RenderObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
+import {ContentObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
 import {TranscriptItem} from './useCaption';
 
 export function formatTime(timestamp: number): string {
@@ -53,8 +53,8 @@ export const langData: LanguageData[] = [
 export function getLanguageLabel(
   languageCode: LanguageType[],
 ): string | undefined {
-  const langLabels = languageCode.map((langCode) => {
-    return langData.find((data) => data.value === langCode).label;
+  const langLabels = languageCode.map(langCode => {
+    return langData.find(data => data.value === langCode).label;
   });
   return langLabels ? langLabels.join(', ') : undefined;
 }
@@ -80,23 +80,23 @@ export function formatDateWithTimeZone(date: Date): string {
 export const formatTranscriptContent = (
   meetingTranscript: TranscriptItem[],
   meetingTitle: string,
-  renderList: RenderObjects,
+  defaultContent: ContentObjects,
 ) => {
   const formattedContent = meetingTranscript
-    .map((item) => {
+    .map(item => {
       if (item.uid.toString().indexOf('langUpdate') !== -1) {
-        return `${renderList[item?.uid?.split('-')[1]]?.name} ${item.text}`;
+        return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
       }
-      return `${renderList[item.uid].name} ${formatTime(Number(item.time))}:\n${
-        item.text
-      }`;
+      return `${defaultContent[item.uid].name} ${formatTime(
+        Number(item.time),
+      )}:\n${item.text}`;
     })
     .join('\n\n');
 
   const startTime = formatDateWithTimeZone(new Date(meetingTranscript[0].time));
-  const attendees = Object.entries(renderList)
-    .filter((arr) => arr[1].type === 'rtc')
-    .map((arr) => arr[1].name)
+  const attendees = Object.entries(defaultContent)
+    .filter(arr => arr[1].type === 'rtc')
+    .map(arr => arr[1].name)
     .join(',');
 
   const info =

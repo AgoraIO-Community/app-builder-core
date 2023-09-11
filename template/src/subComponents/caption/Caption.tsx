@@ -1,6 +1,6 @@
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
-import {useRender, useRtc} from 'customization-api';
+import {useContent, useRtc} from 'customization-api';
 import {useCaption} from './useCaption';
 import CaptionText from './CaptionText';
 import Loading from '../Loading';
@@ -10,7 +10,7 @@ import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/Rt
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const Caption: React.FC = () => {
-  const {RtcEngine} = useRtc();
+  const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
     captionObj, //state for current live caption for all users
@@ -21,7 +21,7 @@ const Caption: React.FC = () => {
   } = useCaption();
 
   const {streamMessageCallback} = useStreamMessageUtils();
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
 
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(0);
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
@@ -41,7 +41,7 @@ const Caption: React.FC = () => {
 
   React.useEffect(() => {
     !isSTTListenerAdded &&
-      RtcEngine.addListener(
+      RtcEngineUnsafe.addListener(
         'StreamMessage',
         handleStreamMessageCallback as unknown as StreamMessageCallback,
       );
@@ -73,19 +73,19 @@ const Caption: React.FC = () => {
               top: -25,
               left: 180,
             }}>
-            Active: {renderList[activeSpeakerRef.current]?.name || ''} Line :{' '}
+            Active: {defaultContent[activeSpeakerRef.current]?.name || ''} Line :{' '}
             {activelinesAvailable}
           </Text>
           <Text
             style={{color: 'white', position: 'absolute', top: -25, left: 0}}>
-            Prev: {renderList[prevSpeakerRef.current]?.name || ' '} Line :
+            Prev: {defaultContent[prevSpeakerRef.current]?.name || ' '} Line :
             {Math.min(inActiveLinesAvailable, 3 - activelinesAvailable)}
           </Text> */}
 
           {captionObj[prevSpeakerRef.current] &&
           captionObj[prevSpeakerRef.current].text ? (
             <CaptionText
-              user={renderList[prevSpeakerRef.current].name || 'Speaker'}
+              user={defaultContent[prevSpeakerRef.current].name || 'Speaker'}
               value={captionObj[prevSpeakerRef.current].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={false}
@@ -100,7 +100,7 @@ const Caption: React.FC = () => {
           {captionObj[activeSpeakerRef.current] &&
           captionObj[activeSpeakerRef.current].text ? (
             <CaptionText
-              user={renderList[activeSpeakerRef.current].name || 'Speaker'}
+              user={defaultContent[activeSpeakerRef.current].name || 'Speaker'}
               value={captionObj[activeSpeakerRef.current].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}

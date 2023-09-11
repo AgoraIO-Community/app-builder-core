@@ -1,18 +1,14 @@
-import React, { useContext, useEffect, createContext, useRef } from 'react';
-import { SdkApiContext } from './SdkApiContext';
-import {
-  useMuteToggleLocal,
-  useLocalUserInfo,
-  ToggleState,
-  MUTE_LOCAL_TYPE,
-} from 'customization-api';
+import React, {useContext, useEffect, createContext, useRef} from 'react';
+import {SdkApiContext} from './SdkApiContext';
+import {useLocalUserInfo, ToggleState} from 'customization-api';
+import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 
 export const SdkMuteQueueContext = createContext({
-  videoMuteQueue: { current: [] },
-  audioMuteQueue: { current: [] },
+  videoMuteQueue: {current: []},
+  audioMuteQueue: {current: []},
 });
 
-const SdkMuteToggleListener = (props) => {
+const SdkMuteToggleListener = props => {
   const videoMuteQueue = useRef([]);
   const audioMuteQueue = useRef([]);
 
@@ -83,7 +79,7 @@ const SdkMuteToggleListener = (props) => {
   }, [local]);
 
   return (
-    <SdkMuteQueueContext.Provider value={{ videoMuteQueue, audioMuteQueue }}>
+    <SdkMuteQueueContext.Provider value={{videoMuteQueue, audioMuteQueue}}>
       {props.children}
     </SdkMuteQueueContext.Provider>
   );
