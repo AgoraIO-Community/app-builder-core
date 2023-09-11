@@ -403,7 +403,7 @@ const ToastIcon = ({color}) => (
   </View>
 );
 
-const ActionSheetContent = (props) => {
+const ActionSheetContent = props => {
   const {handleSheetChanges, isExpanded, native = false} = props;
   const {localUid} = useContext(ChatContext);
   const {isScreenshareActive} = useScreenshare();
@@ -420,12 +420,12 @@ const ActionSheetContent = (props) => {
 
   //STT events on mount
   React.useEffect(() => {
-    events.on(EventNames.STT_ACTIVE, (data) => {
+    events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
     });
 
-    events.on(EventNames.STT_LANGUAGE, (data) => {
+    events.on(EventNames.STT_LANGUAGE, data => {
       const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
       const actionText =
         prevLang.indexOf('') !== -1
@@ -449,7 +449,7 @@ const ActionSheetContent = (props) => {
       // syncing local set language
       newLang && setLanguage(newLang);
       // add spoken lang msg to transcript
-      setMeetingTranscript((prev) => {
+      setMeetingTranscript(prev => {
         return [
           ...prev,
           {
@@ -599,11 +599,11 @@ const ActionSheetContent = (props) => {
           ) : (
             <></>
           )}
-          {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
+          {/* {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
             <ScreenshareIcon />
           ) : (
             <></>
-          )}
+          )} */}
         </>
       </CarouselWrapper>
     </View>
@@ -625,7 +625,7 @@ const CarouselWrapper = ({isPaginationRequired, children, native}) => {
               <View style={styles.row}>
                 {/* Transcript */}
                 <TranscriptIconBtn />
-                {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
+                {/* {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>} */}
               </View>
             ),
           },
