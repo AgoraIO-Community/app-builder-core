@@ -543,7 +543,9 @@ const ActionSheetContent = props => {
       </View>
 
       <CarouselWrapper
-        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
+        isPaginationRequired={
+          $config.ENABLE_STT && isPaginationRequired && !native
+        }
         native={native}>
         <>
           {/**
@@ -592,7 +594,7 @@ const ActionSheetContent = props => {
           {/* invite */}
           <ShareIcon />
           {/* caption  */}
-          {$config.ENABLE_STT ? (
+          {$config.ENABLE_STT && !native ? (
             <CaptionIconBtn
               onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
             />
@@ -634,7 +636,7 @@ const CarouselWrapper = ({isPaginationRequired, children, native}) => {
     </View>
   ) : (
     <View style={styles.row}>
-      {$config.ENABLE_STT ? (
+      {$config.ENABLE_STT && !native ? (
         <>
           {children}
           <TranscriptIconBtn />
