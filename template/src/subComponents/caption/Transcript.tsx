@@ -259,21 +259,23 @@ const Transcript = (props: TranscriptProps) => {
       ) : (
         <>
           <View style={{flex: 1}}>
-            {/* <FlatList
+            <FlatList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={handleScroll}
+              onScroll={
+                isWebInternal() ? debounceFn(handleScroll, 200) : handleScroll
+              }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
               ListFooterComponentStyle={styles.footer}
               contentContainerStyle={styles.content}
-            /> */}
-            <VirtualizedList
+            />
+            {/* <VirtualizedList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
@@ -290,7 +292,7 @@ const Transcript = (props: TranscriptProps) => {
               contentContainerStyle={styles.content}
               getItemCount={() => renderedData.length}
               getItem={(data, index) => renderedData[index]}
-            />
+            /> */}
 
             {showButton ? (
               <View
