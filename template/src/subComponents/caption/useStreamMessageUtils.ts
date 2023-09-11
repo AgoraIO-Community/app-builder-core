@@ -23,6 +23,7 @@ const useStreamMessageUtils = (): {
   const finalTranscriptList: FinalListType = {};
   const queue = new PQueue({concurrency: 1});
   let counter = 0;
+  let lastOfftime = 0;
 
   const streamMessageCallback: StreamMessageCallback = args => {
     const queueCallback = (args1: [number, Uint8Array]) => {
@@ -83,7 +84,13 @@ const useStreamMessageUtils = (): {
 
     */
 
-      if (textstream.uid !== activeSpeakerRef.current) {
+      const finalWord = textstream.words.filter(word => word.isFinal === true);
+      // when we only get final word for the previous speaker then don't flip previous speaker as active but update in place.
+
+      if (
+        textstream.uid !== activeSpeakerRef.current &&
+        !(finalWord.length > 0 && textstream.uid === prevSpeakerRef.current)
+      ) {
         // we have a speaker change so clear the context for prev speaker
         if (prevSpeakerRef.current !== '') {
           finalList[prevSpeakerRef.current] = [];

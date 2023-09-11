@@ -26,7 +26,7 @@ const useStreamMessageUtils = (): {
   const finalList: FinalListType = {};
   const finalTranscriptList: FinalListType = {};
 
-  const streamMessageCallback: StreamMessageCallback = (args) => {
+  const streamMessageCallback: StreamMessageCallback = args => {
     /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
@@ -71,7 +71,13 @@ const useStreamMessageUtils = (): {
 
     */
 
-    if (textstream.uid !== activeSpeakerRef.current) {
+    const finalWord = textstream.words.filter(word => word.isFinal === true);
+    // when we only get final word for the previous speaker then don't flip previous speaker as active but update in place.
+
+    if (
+      textstream.uid !== activeSpeakerRef.current &&
+      !(finalWord.length > 0 && textstream.uid === prevSpeakerRef.current)
+    ) {
       // we have a speaker change so clear the context for prev speaker
       if (prevSpeakerRef.current !== '') {
         finalList[prevSpeakerRef.current] = [];
@@ -125,7 +131,7 @@ const useStreamMessageUtils = (): {
 
     /* Updating Meeting Transcript */
     if (currentFinalText.length) {
-      setMeetingTranscript((prevTranscript) => {
+      setMeetingTranscript(prevTranscript => {
         const lastTranscriptIndex = prevTranscript.length - 1;
         const lastTranscript =
           lastTranscriptIndex >= 0 ? prevTranscript[lastTranscriptIndex] : null;
@@ -179,7 +185,7 @@ const useStreamMessageUtils = (): {
 
     // updating the captions
     captionText &&
-      setCaptionObj((prevState) => {
+      setCaptionObj(prevState => {
         return {
           ...prevState,
           [textstream.uid]: {
