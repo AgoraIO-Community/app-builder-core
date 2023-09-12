@@ -486,7 +486,7 @@ export const RecordingToolbarItem = () => {
 export const MoreButtonToolbarItem = () => {
   const {width} = useWindowDimensions();
   return (
-    width < BREAKPOINTS.md && (
+    (width < BREAKPOINTS.md || $config.ENABLE_STT) && (
       <ToolbarItem testID="more-btn">
         <MoreButton />
       </ToolbarItem>
