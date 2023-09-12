@@ -400,13 +400,15 @@ const Controls = () => {
   }, [renderList]);
 
   React.useEffect(() => {
+    events.on(EventNames.STT_ACTIVE, data => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+  }, []);
+
+  React.useEffect(() => {
     // for native events are set in ActionSheetContent as this action is action sheet
     if (isWebInternal()) {
-      events.on(EventNames.STT_ACTIVE, data => {
-        const payload = JSON.parse(data?.payload);
-        setIsSTTActive(payload.active);
-      });
-
       events.on(EventNames.STT_LANGUAGE, data => {
         const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
         const actionText =
