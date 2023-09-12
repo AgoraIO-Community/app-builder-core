@@ -105,6 +105,7 @@ interface ConfigInterface {
   ENABLE_STT: boolean;
   ENABLE_AINS: boolean;
   ENABLE_VIRTUAL_BACKGROUND: boolean;
+  ENABLE_WHITEBOARD: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

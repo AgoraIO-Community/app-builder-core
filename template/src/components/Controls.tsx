@@ -50,7 +50,7 @@ import {useCaption} from '../../src/subComponents/caption/useCaption';
 import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
 import {EventNames} from '../rtm-events';
-import events from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
 import {getLanguageLabel} from '../../src/subComponents/caption/utils';
 import ImageIcon from '../atoms/ImageIcon';
@@ -60,6 +60,8 @@ import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import useAINS from '../utils/useAINS';
 import useVB from '../utils/useVB';
+import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import {RoomPhase} from 'white-web-sdk';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -69,7 +71,7 @@ const MoreButton = () => {
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const layouts = useLayoutsData();
-  const {currentLayout} = useLayout();
+  const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex(item => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
   const {
@@ -201,6 +203,83 @@ const MoreButton = () => {
     });
   }
   //virtual background
+
+  //whiteboard start
+
+  const {
+    whiteboardRoomState,
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+  } = useContext(whiteboardContext);
+
+  const WhiteboardStoppedCallBack = () => {
+    toggleWhiteboard(true, false);
+  };
+
+  const WhiteboardStartedCallBack = () => {
+    toggleWhiteboard(false, false);
+  };
+
+  useEffect(() => {
+    whiteboardActive &&
+      currentLayout !== 'whiteboard' &&
+      setLayout('whiteboard');
+    events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
+
+    return () => {
+      events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
+      events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
+    };
+  }, []);
+
+  const toggleWhiteboard = (
+    whiteboardActive: boolean,
+    triggerEvent: boolean,
+  ) => {
+    if (whiteboardActive) {
+      leaveWhiteboardRoom();
+      setLayout('grid');
+      triggerEvent &&
+        events.send(
+          'WhiteBoardStopped',
+          JSON.stringify({}),
+          PersistanceLevel.Session,
+        );
+    } else {
+      joinWhiteboardRoom();
+      setLayout('whiteboard');
+      triggerEvent &&
+        events.send(
+          'WhiteBoardStarted',
+          JSON.stringify({}),
+          PersistanceLevel.Session,
+        );
+    }
+  };
+  const WhiteboardDisabled =
+    !isHost ||
+    whiteboardRoomState === RoomPhase.Connecting ||
+    whiteboardRoomState === RoomPhase.Disconnecting;
+
+  //whiteboard ends
+
+  if (isHost && $config.ENABLE_WHITEBOARD) {
+    actionMenuitems.push({
+      disabled: WhiteboardDisabled,
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'white-board',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: whiteboardActive ? 'Turn off Whiteboard' : 'Turn on Whiteboard',
+      callback: () => {
+        setActionMenuVisible(false);
+        toggleWhiteboard(whiteboardActive, true);
+      },
+    });
+  }
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 

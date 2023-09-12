@@ -64,6 +64,7 @@ import {CaptionProvider} from '../subComponents/caption/useCaption';
 import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 import StorageContext from '../components/StorageContext';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
+import WhiteboardConfigure from '../components/whiteboard/WhiteboardConfigure';
 
 enum RnEncryptionEnum {
   /**
@@ -350,7 +351,9 @@ const VideoCall: React.FC = () => {
                                                       <VideoMeetingDataProvider>
                                                         <VideoCallProvider>
                                                           <CaptionProvider>
-                                                            <VideoCallScreen />
+                                                            <WhiteboardConfigure>
+                                                              <VideoCallScreen />
+                                                            </WhiteboardConfigure>
                                                           </CaptionProvider>
                                                         </VideoCallProvider>
                                                       </VideoMeetingDataProvider>
