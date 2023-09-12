@@ -117,15 +117,10 @@ const Transcript = (props: TranscriptProps) => {
 
   const handleViewLatest = () => {
     setShowButton(false);
-    // flatListRef.current.scrollToOffset({
-    //   offset: contentHeightRef.current,
-    //   animated: false,
-    // });
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({animated: false});
-
-      isScrolledToEnd.current = true;
-    }
+    flatListRef.current.scrollToOffset({
+      offset: contentHeightRef.current,
+      animated: false,
+    });
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
