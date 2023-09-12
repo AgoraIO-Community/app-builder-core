@@ -35,6 +35,8 @@ import {EventNames} from '../../rtm-events';
 import events from '../../rtm-events-api';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
+import {CustomToolbarSort} from '../../utils/common';
+import {ActionSheetProvider} from '../../utils/useActionSheet';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -261,7 +263,16 @@ const ToastIcon = ({color}) => (
 );
 
 const ActionSheetContent = props => {
-  const {handleSheetChanges, isExpanded, native = false} = props;
+  const {
+    handleSheetChanges,
+    isExpanded,
+    customItems = [],
+    includeDefaultItems = true,
+    displayCustomBottomSheetContent = false,
+    customBottomSheetContent,
+    native = false,
+  } = props;
+
   const {localUid} = useContext(ChatContext);
   const {isScreenshareActive} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
@@ -345,122 +356,205 @@ const ActionSheetContent = props => {
   const isVideoDisabled = native
     ? localUser.video === ToggleState.disabled || isScreenshareActive
     : localUser.video === ToggleState.disabled;
+
+  const defaultItems = [
+    {
+      default: true,
+      order: 0,
+      hide: 'no',
+      align: 'start',
+      component: isAudioVideoControlsDisabled ? null : <AudioIcon />,
+    },
+    {
+      default: true,
+      order: 0,
+      hide: 'no',
+      align: 'start',
+      /*For AudioCast Host:Chat ,Attendee:Raise Hand 
+            For VoiceChat Host:Chat, Attendee:Chat
+           */
+      component: (isAudioCastHost ||
+        isVoiceChatHost ||
+        isVoiceChatAudience) && <ChatIcon />,
+    },
+
+    {
+      default: true,
+      order: 0,
+      hide: 'no',
+      align: 'start',
+      component:
+        (isAudioCastAudience && isLiveStream && isAudience) ||
+        (isBroadCasting && !isHost) ? (
+          $config.RAISE_HAND && isAudioRoom ? (
+            <LiveStreamIcon />
+          ) : null
+        ) : null,
+    },
+    {
+      default: true,
+      order: 1,
+      hide: 'no',
+      align: 'start',
+      component:
+        !isAudioRoom && (isAudioVideoControlsDisabled ? null : <CamIcon />),
+    },
+    {
+      default: true,
+      order: 2,
+      hide: 'no',
+      align: 'start',
+      component: <EndCallIcon />,
+    },
+    //reset of the controls
+    {
+      default: true,
+      order: 4,
+      hide: 'no',
+      align: 'start',
+      component:
+        (isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+          $config.RAISE_HAND && !isAudioRoom ? (
+            <LiveStreamIcon />
+          ) : null
+        ) : null,
+    },
+    {
+      default: true,
+      order: 5,
+      hide: 'no',
+      align: 'start',
+      component: <LayoutIcon />,
+    },
+    {
+      default: true,
+      order: 6,
+      hide: 'no',
+      align: 'start',
+      component: !(
+        isAudioCastHost ||
+        isVoiceChatHost ||
+        isVoiceChatAudience
+      ) && <ChatIcon />,
+    },
+    {
+      default: true,
+      order: 7,
+      hide: 'no',
+      align: 'start',
+      component: <ParticipantsIcon />,
+    },
+    {
+      default: true,
+      order: 8,
+      hide: 'no',
+      align: 'start',
+      component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
+    },
+    {
+      default: true,
+      order: 9,
+      hide: 'no',
+      align: 'start',
+      component:
+        !isAudioRoom &&
+        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
+    },
+    {
+      default: true,
+      order: 10,
+      hide: 'no',
+      align: 'start',
+      component: <SettingsIcon />,
+    },
+    {
+      default: true,
+      order: 11,
+      hide: 'no',
+      align: 'start',
+      component: <ShareIcon />,
+    },
+  ];
+
+  //todo: hari refactor STT button and Native screenshare button
+  //and add into above array
+  //todo: hari - update CarouselWrapper pagination logic based on array length
+  /**
+     {$config.ENABLE_STT ? (
+      <CaptionIconBtn
+        onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+      />
+    ) : (
+      <></>
+    )}
+    {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
+      <ScreenshareIcon />
+    ) : (
+      <></>
+    )}
+  */
+
+  const isHidden = i => {
+    return i?.hide === 'yes';
+  };
+  const combinedItems = customItems
+    ?.filter(i => !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultItems : [])
+    //to filter empty component because of some condition array will have empty component
+    ?.filter(i => i?.component)
+    ?.sort(CustomToolbarSort);
+
+  if (displayCustomBottomSheetContent) {
+    return <View>{customBottomSheetContent}</View>;
+  }
   return (
     <View>
       {/* Row Always Visible */}
-      <View
-        style={[
-          styles.row,
-          {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
-        ]}>
-        {isAudioVideoControlsDisabled ? null : (
-          <AudioIcon
-            isMobileView={true}
-            isOnActionSheet={true}
-            showLabel={false}
-            disabled={isLiveStream && isAudience && !isBroadCasting}
-          />
-        )}
-
-        {/*For AudioCast Host:Chat ,Attendee:Raise Hand 
-          For VoiceChat Host:Chat, Attendee:Chat
-         */}
-
-        {(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
-          <ChatIcon showLabel={false} />
-        )}
-        {isAudioCastAudience ||
-        (isLiveStream && isAudience) ||
-        (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
-          ) : null
-        ) : null}
-
-        {!isAudioRoom &&
-          (isAudioVideoControlsDisabled ? null : (
-            <CamIcon
-              isOnActionSheet={true}
-              isMobileView={true}
-              showLabel={false}
-              disabled={isLiveStream && isAudience && !isBroadCasting}
-            />
-          ))}
-
-        <EndCallIcon showLabel={false} isOnActionSheet={true} />
-
-        <ShowMoreIcon
-          showNotification={
-            (!isExpanded && totalUnreadCount !== 0) ||
-            ($config.EVENT_MODE && isPendingRequestToReview)
-          }
-          isExpanded={isExpanded}
-          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
-        />
-      </View>
-
-      <CarouselWrapper
-        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
-        native={native}>
-        <>
-          {/**
-           * In event mode when raise hand feature is active
-           * and audience is promoted to host, the audience can also
-           * demote himself
-           */}
-          {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-            $config.RAISE_HAND && !isAudioRoom ? (
-              <LiveStreamIcon isHandRaised={isHandRaised} />
-            ) : null
-          ) : null}
-
-          {/* Layout view */}
-          <LayoutIcon />
-
-          {/* chat */}
-          {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
-            <ChatIcon />
-          )}
-          {/* participants */}
-          <ParticipantsIcon
-            showNotification={$config.EVENT_MODE && isPendingRequestToReview}
-          />
-          {/* record */}
-          {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
-
-          {/* switch camera */}
-          {!isAudioRoom &&
-            (isAudioVideoControlsDisabled ? null : (
-              <SwitchCameraIcon
-                disabled={
-                  (isLiveStream && isAudience && !isBroadCasting) ||
-                  isVideoDisabled
-                }
-              />
-            ))}
-
-          {/* settings */}
-          <SettingsIcon
-            onPress={() => {
-              setSidePanel(SidePanelType.Settings);
-            }}
-          />
-
-          {/* invite */}
-          <ShareIcon />
-          {/* caption  */}
-          {$config.ENABLE_STT ? (
-            <CaptionIconBtn
+      <ActionSheetProvider isOnFirstRow={true}>
+        <View
+          style={[
+            styles.row,
+            {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
+          ]}>
+          {/**If no items more than 4 then render firstrender first 3 items and render show more icon  */}
+          {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
+          {combinedItems
+            ?.slice(0, combinedItems?.length > 4 ? 3 : 4)
+            ?.map(i => {
+              const Component = i?.component;
+              if (Component) {
+                return i?.default ? Component : <Component />;
+              } else {
+                return null;
+              }
+            })}
+          {combinedItems && combinedItems?.length > 4 ? (
+            <ShowMoreIcon
+              isExpanded={isExpanded}
+              showNotification={
+                (!isExpanded && totalUnreadCount !== 0) ||
+                ($config.EVENT_MODE && isPendingRequestToReview)
+              }
               onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
             />
           ) : (
             <></>
           )}
-          {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
-            <ScreenshareIcon />
-          ) : (
-            <></>
-          )}
+        </View>
+      </ActionSheetProvider>
+      <CarouselWrapper
+        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
+        native={native}>
+        <>
+          {combinedItems?.length > 4 &&
+            combinedItems?.slice(3, combinedItems?.length)?.map(i => {
+              const Component = i?.component;
+              if (Component) {
+                return i?.default ? Component : <Component />;
+              } else {
+                return null;
+              }
+            })}
         </>
       </CarouselWrapper>
     </View>

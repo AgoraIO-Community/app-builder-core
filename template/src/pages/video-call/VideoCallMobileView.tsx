@@ -13,17 +13,26 @@ import {
   isAndroid,
   isIOS,
   isMobileUA,
+  isValidReactComponent,
   isWebInternal,
   trimText,
 } from '../../utils/common';
 import {DispatchContext, RtcContext} from '../../../agora-rn-uikit';
-import {useLocalUserInfo, useContent} from 'customization-api';
+import {
+  useLocalUserInfo,
+  useContent,
+  ToolbarCustomItem,
+} from 'customization-api';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import VideoRenderer from './VideoRenderer';
 import {filterObject} from '../../utils';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import useAppState from '../../utils/useAppState';
+import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
+import {ActionSheetProvider} from '../../utils/useActionSheet';
+import {useCustomization} from 'customization-implementation';
+import NavbarMobile from '../../components/NavbarMobile';
 
 const VideoCallMobileView = () => {
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
@@ -108,63 +117,62 @@ const VideoCallMobileView = () => {
 
 const VideoCallView = React.memo(() => {
   //toolbar changes
-  // const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
-  // useCustomization((data) => {
-  //   let components: {
-  //     BottombarComponent: React.ComponentType<ControlsProps>;
-  //     BottombarProps?: ToolbarCustomItem[];
-  //     TopbarComponent: React.ComponentType<NavbarProps>;
-  //     TopbarProps?: ToolbarCustomItem[];
-  //   } = {
-  //     BottombarComponent: ActionSheet,
-  //     BottombarProps: [],
-  //     TopbarComponent: NavbarMobile,
-  //     TopbarProps: [],
-  //   };
-  //   if (
-  //     data?.components?.videoCall &&
-  //     typeof data?.components?.videoCall === 'object'
-  //   ) {
-  //     if (
-  //       data?.components?.videoCall.bottomToolBar &&
-  //       typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
-  //       isValidReactComponent(data?.components?.videoCall.bottomToolBar)
-  //     ) {
-  //       components.BottombarComponent =
-  //         data?.components?.videoCall.bottomToolBar;
-  //     }
-  //     if (
-  //       data?.components?.videoCall.bottomToolBar &&
-  //       typeof data?.components?.videoCall.bottomToolBar === 'object' &&
-  //       data?.components?.videoCall.bottomToolBar.length
-  //     ) {
-  //       components.BottombarProps = data?.components?.videoCall.bottomToolBar;
-  //     }
+  const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
+    useCustomization(data => {
+      let components: {
+        BottombarComponent: React.ComponentType;
+        BottombarProps?: ToolbarCustomItem[];
+        TopbarComponent: React.ComponentType;
+        TopbarProps?: ToolbarCustomItem[];
+      } = {
+        BottombarComponent: ActionSheet,
+        BottombarProps: [],
+        TopbarComponent: NavbarMobile,
+        TopbarProps: [],
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall.bottomToolBar &&
+          typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall.bottomToolBar)
+        ) {
+          components.BottombarComponent =
+            data?.components?.videoCall.bottomToolBar;
+        }
+        if (
+          data?.components?.videoCall.bottomToolBar &&
+          typeof data?.components?.videoCall.bottomToolBar === 'object' &&
+          data?.components?.videoCall.bottomToolBar.length
+        ) {
+          components.BottombarProps = data?.components?.videoCall.bottomToolBar;
+        }
 
-  //     if (
-  //       data?.components?.videoCall.topToolBar &&
-  //       typeof data?.components?.videoCall.topToolBar !== 'object' &&
-  //       isValidReactComponent(data?.components?.videoCall.topToolBar)
-  //     ) {
-  //       components.TopbarComponent = data?.components?.videoCall.topToolBar;
-  //     }
+        if (
+          data?.components?.videoCall.topToolBar &&
+          typeof data?.components?.videoCall.topToolBar !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall.topToolBar)
+        ) {
+          components.TopbarComponent = data?.components?.videoCall.topToolBar;
+        }
 
-  //     if (
-  //       data?.components?.videoCall.topToolBar &&
-  //       typeof data?.components?.videoCall.topToolBar === 'object' &&
-  //       data?.components?.videoCall.topToolBar.length
-  //     ) {
-  //       components.TopbarProps = data?.components?.videoCall.topToolBar;
-  //     }
-  //   }
+        if (
+          data?.components?.videoCall.topToolBar &&
+          typeof data?.components?.videoCall.topToolBar === 'object' &&
+          data?.components?.videoCall.topToolBar.length
+        ) {
+          components.TopbarProps = data?.components?.videoCall.topToolBar;
+        }
+      }
 
-  //   return components;
-  // });
+      return components;
+    });
 
   return (
     <View style={styles.container}>
-      <VideoCallHeader />
-      {/* <ToolbarProvider value={{position: ToolbarPosition.top}}>
+      <ToolbarProvider value={{position: ToolbarPosition.top}}>
         {TopbarProps?.length ? (
           <TopbarComponent
             customItems={TopbarProps}
@@ -173,49 +181,26 @@ const VideoCallView = React.memo(() => {
         ) : (
           <TopbarComponent />
         )}
-      </ToolbarProvider> */}
-      <Spacer size={16} />
+      </ToolbarProvider>
       <View style={styles.videoView}>
         <VideoComponent />
         <CaptionContainer />
       </View>
-      <ActionSheet />
+      <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+        <ActionSheetProvider>
+          {BottombarProps?.length ? (
+            <BottombarComponent
+              customItems={BottombarProps}
+              includeDefaultItems={false}
+            />
+          ) : (
+            <BottombarComponent />
+          )}
+        </ActionSheetProvider>
+      </ToolbarProvider>
     </View>
   );
 });
-
-const VideoCallHeader = () => {
-  const {
-    data: {meetingTitle},
-  } = useRoomInfo();
-  const {isRecordingActive} = useRecording();
-  const recordingLabel = 'Recording';
-  return (
-    <View style={styles.titleBar}>
-      <Text style={styles.title}>{trimText(meetingTitle)}</Text>
-      <Spacer size={8} horizontal={false} />
-      <View style={styles.countView}>
-        <View
-          style={{
-            width: 45,
-            height: 35,
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            zIndex: isWebInternal() ? 3 : 0,
-            //flex: 1,
-          }}>
-          <ParticipantsCount />
-        </View>
-        {isRecordingActive ? (
-          <RecordingInfo recordingLabel={recordingLabel} />
-        ) : (
-          <></>
-        )}
-      </View>
-    </View>
-  );
-};
 
 export default VideoCallMobileView;
 
