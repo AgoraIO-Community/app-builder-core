@@ -280,9 +280,15 @@ interface CaptionIconBtnProps {
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   const {showLabel = $config.ICON_TEXT, onPress} = props;
-  const {isAuthorizedSTTUser} = useSTTAPI();
-  const {isCaptionON} = useCaption();
-  const isDisabled = !isAuthorizedSTTUser();
+  const {isCaptionON, isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+
+  const isDisabled = !(
+    $config.ENABLE_STT &&
+    (isHost || (!isHost && isSTTActive))
+  );
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
@@ -329,10 +335,17 @@ interface TranscriptIconProps {
 
 const TranscriptIconBtn = (props: TranscriptIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
-  const {isAuthorizedSTTUser} = useSTTAPI();
   const {sidePanel} = useSidePanel();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
-  const isDisabled = !isAuthorizedSTTUser();
+  const {isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+
+  const isDisabled = !(
+    $config.ENABLE_STT &&
+    (isHost || (!isHost && isSTTActive))
+  );
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>

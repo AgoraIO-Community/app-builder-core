@@ -77,13 +77,11 @@ const MoreButton = () => {
   const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex(item => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
-  const username = useGetName();
   const {
     isCaptionON,
-    isSTTActive,
     setIsCaptionON,
-    setLanguage,
     language: prevLang,
+    isSTTActive,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -93,10 +91,11 @@ const MoreButton = () => {
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
 
-  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
+  const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useMeetingInfo();
+
   const {
     showLayoutOption,
     setShowInvitePopup,
@@ -115,7 +114,7 @@ const MoreButton = () => {
     icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    disabled: !isAuthorizedSTTUser(),
+    disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
     title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
     callback: () => {
       setActionMenuVisible(false);
@@ -134,7 +133,7 @@ const MoreButton = () => {
     icon: 'transcript',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    disabled: !isAuthorizedSTTUser(),
+    disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
     title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
     callback: () => {
       setActionMenuVisible(false);
@@ -352,8 +351,7 @@ const MoreButton = () => {
         }}
         onMouseLeave={() => {
           setIsHovered(false);
-        }}
-      >
+        }}>
         {/** placeholder to hovering */}
         <View
           style={{
@@ -389,7 +387,6 @@ const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
   // attendee can view option if any host has started STT
-  const {isAuthorizedSTTUser} = useSTTAPI();
   const {renderList} = useRender();
   const {
     data: {isHost},
@@ -465,15 +462,13 @@ const Controls = () => {
         {
           paddingHorizontal: isDesktop('toolbar') ? 32 : 16,
         },
-      ]}
-    >
+      ]}>
       {width >= BREAKPOINTS.md && (
         <View style={style.leftContent}>
           <View
             testID="layout-btn"
             style={{marginRight: 10}}
-            collapsable={false}
-          >
+            collapsable={false}>
             {/**
              * .measure returns undefined on Android unless collapsable=false or onLayout are specified
              * so added collapsable property
@@ -517,8 +512,7 @@ const Controls = () => {
               testID="localVideo-btn"
               style={{
                 marginHorizontal: 10,
-              }}
-            >
+              }}>
               <LocalVideoMute showToolTip={true} />
             </View>
           )}
@@ -527,8 +521,7 @@ const Controls = () => {
               testID="switchCamera-btn"
               style={{
                 marginHorizontal: 10,
-              }}
-            >
+              }}>
               <LocalSwitchCamera />
             </View>
           )}
@@ -539,8 +532,7 @@ const Controls = () => {
                 testID="screenShare-btn"
                 style={{
                   marginHorizontal: 10,
-                }}
-              >
+                }}>
                 <ScreenshareButton />
               </View>
             )}
@@ -549,8 +541,7 @@ const Controls = () => {
               testID="recording-btn"
               style={{
                 marginHorizontal: 10,
-              }}
-            >
+              }}>
               <Recording />
             </View>
           )}
