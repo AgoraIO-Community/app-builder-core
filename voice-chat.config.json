@@ -58,5 +58,6 @@
   "ENABLE_IDP_AUTH": false,
   "PROJECT_ID": "8d2b1a60e4e0e95ac455",
   "ENABLE_STT": true,
-  "ENABLE_AINS": true
+  "ENABLE_AINS": true,
+  "ENABLE_VIRTUAL_BACKGROUND": true
 }

@@ -58,5 +58,6 @@
   "ENABLE_TOKEN_AUTH": false,
   "ENABLE_IDP_AUTH": false,
   "ENABLE_STT": true,
-  "ENABLE_AINS": true
+  "ENABLE_AINS": true,
+  "ENABLE_VIRTUAL_BACKGROUND": true
 }

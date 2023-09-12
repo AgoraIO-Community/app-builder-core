@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {PropsContext} from '../../agora-rn-uikit';
+import {PropsContext, ToggleState} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -39,6 +39,7 @@ import {
   useChatUIControls,
   useContent,
   useLayout,
+  useLocalUserInfo,
   useRecording,
   useSidePanel,
 } from 'customization-api';
@@ -58,6 +59,7 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import useAINS from '../utils/useAINS';
+import useVB from '../utils/useVB';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -123,6 +125,82 @@ const MoreButton = () => {
     });
   }
   //AINS
+
+  //virtual background
+
+  const [isImageVBOn, setIsImageVBOn] = useState(false);
+  const [isColorVBOn, setIsColorVBOn] = useState(false);
+  const [isBlurVBOn, setIsBlurVBOn] = useState(false);
+
+  const {colorVB, disableVB, imageVB, blurVB} = useVB();
+  const {video: localVideoStatus} = useLocalUserInfo();
+  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+    actionMenuitems.push({
+      disabled: localVideoStatus !== ToggleState.enabled,
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'vb-blur',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isBlurVBOn ? 'Remove Blur BG' : 'Apply Blur BG',
+      callback: () => {
+        setActionMenuVisible(false);
+        if (isBlurVBOn) {
+          setIsBlurVBOn(false);
+          disableVB();
+        } else {
+          setIsColorVBOn(false);
+          setIsImageVBOn(false);
+          setIsBlurVBOn(true);
+          blurVB();
+        }
+      },
+    });
+
+    actionMenuitems.push({
+      disabled: localVideoStatus !== ToggleState.enabled,
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'vb-color',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isColorVBOn ? 'Remove Color BG' : 'Apply Color BG',
+      callback: () => {
+        setActionMenuVisible(false);
+        if (isColorVBOn) {
+          setIsColorVBOn(false);
+          disableVB();
+        } else {
+          setIsImageVBOn(false);
+          setIsBlurVBOn(false);
+          setIsColorVBOn(true);
+          colorVB();
+        }
+      },
+    });
+    actionMenuitems.push({
+      disabled: localVideoStatus !== ToggleState.enabled,
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'vb-image',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isImageVBOn ? 'Remove Image BG' : 'Apply Image BG',
+      callback: () => {
+        setActionMenuVisible(false);
+        if (isImageVBOn) {
+          setIsImageVBOn(false);
+          disableVB();
+        } else {
+          setIsBlurVBOn(false);
+          setIsColorVBOn(false);
+          setIsImageVBOn(true);
+          imageVB();
+        }
+      },
+    });
+  }
+  //virtual background
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 

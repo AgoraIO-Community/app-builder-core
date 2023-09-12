@@ -104,6 +104,7 @@ interface ConfigInterface {
   PROJECT_ID: string;
   ENABLE_STT: boolean;
   ENABLE_AINS: boolean;
+  ENABLE_VIRTUAL_BACKGROUND: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
