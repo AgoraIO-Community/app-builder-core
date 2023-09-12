@@ -288,7 +288,7 @@ const Transcript = (props: TranscriptProps) => {
               onContentSizeChange={handleContentSizeChange}
               onScroll={
                 isWebInternal()
-                  ? debounceFn(handleScroll, isMobileUA() ? 500 : 300)
+                  ? debounceFn(handleScroll, isMobileUA() ? 300 : 300)
                   : handleScroll
               }
               onLayout={handleLayout}
