@@ -117,16 +117,15 @@ const Transcript = (props: TranscriptProps) => {
 
   const handleViewLatest = () => {
     setShowButton(false);
-    flatListRef.current.scrollToOffset({
-      offset: contentHeightRef.current,
-      animated: false,
-    });
-    // if (flatListRef.current) {
+    // flatListRef.current.scrollToOffset({
+    //   offset: contentHeightRef.current,
+    //   animated: false,
+    // });
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({animated: false});
 
-    //   flatListRef.current.scrollToEnd({animated: false});
-
-    //   isScrolledToEnd.current = true;
-    // }
+      isScrolledToEnd.current = true;
+    }
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
@@ -286,12 +285,12 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              // onScroll={
-              //   isWebInternal()
-              //     ? debounceFn(handleScroll, isMobileUA() ? 300 : 300)
-              //     : handleScroll
-              // }
-              onScroll={handleScroll}
+              onScroll={
+                isWebInternal()
+                  ? debounceFn(handleScroll, isMobileUA() ? 300 : 300)
+                  : handleScroll
+              }
+              // onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
