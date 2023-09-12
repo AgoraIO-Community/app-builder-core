@@ -57,6 +57,7 @@ import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import useAINS from '../utils/useAINS';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -94,6 +95,34 @@ const MoreButton = () => {
   const {isRecordingActive, startRecording, inProgress} = useRecording();
   const {setChatType} = useChatUIControls();
   const actionMenuitems: ActionMenuItem[] = [];
+
+  //AINS
+  const [isANISEnabled, setIsANISEnabled] = useState(false);
+  const {disableNoiseSuppression, enableNoiseSuppression} = useAINS();
+  const toggleAINS = () => {
+    if (isANISEnabled) {
+      disableNoiseSuppression();
+      setIsANISEnabled(false);
+    } else {
+      enableNoiseSuppression();
+      setIsANISEnabled(true);
+    }
+  };
+  if ($config.ENABLE_AINS) {
+    actionMenuitems.push({
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'ains',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isANISEnabled ? 'Turn off AINS' : 'Turn on AINS',
+      callback: () => {
+        setActionMenuVisible(false);
+        toggleAINS();
+      },
+    });
+  }
+  //AINS
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 

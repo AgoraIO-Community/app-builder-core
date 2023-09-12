@@ -103,6 +103,7 @@ interface ConfigInterface {
   ENABLE_IDP_AUTH: boolean;
   PROJECT_ID: string;
   ENABLE_STT: boolean;
+  ENABLE_AINS: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
