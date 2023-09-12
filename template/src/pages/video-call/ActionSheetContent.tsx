@@ -280,15 +280,9 @@ interface CaptionIconBtnProps {
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   const {showLabel = $config.ICON_TEXT, onPress} = props;
-  const {isCaptionON, isSTTActive} = useCaption();
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
-
-  const isDisabled = !(
-    $config.ENABLE_STT &&
-    (isHost || (!isHost && isSTTActive))
-  );
+  const {isCaptionON} = useCaption();
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const isDisabled = !isAuthorizedSTTUser();
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
@@ -337,15 +331,8 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
   const {sidePanel} = useSidePanel();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
-  const {isSTTActive} = useCaption();
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
-
-  const isDisabled = !(
-    $config.ENABLE_STT &&
-    (isHost || (!isHost && isSTTActive))
-  );
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const isDisabled = !isAuthorizedSTTUser();
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
@@ -432,13 +419,16 @@ const ActionSheetContent = props => {
   const {renderList} = useRender();
 
   //STT events on mount
+
   React.useEffect(() => {
     if (native) return;
     events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
     });
-
+  }, []);
+  React.useEffect(() => {
+    if (native) return;
     events.on(EventNames.STT_LANGUAGE, data => {
       const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
       const actionText =
