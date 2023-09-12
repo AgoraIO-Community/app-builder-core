@@ -286,11 +286,12 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={
-                isWebInternal()
-                  ? debounceFn(handleScroll, isMobileUA() ? 300 : 300)
-                  : handleScroll
-              }
+              // onScroll={
+              //   isWebInternal()
+              //     ? debounceFn(handleScroll, isMobileUA() ? 300 : 300)
+              //     : handleScroll
+              // }
+              onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
