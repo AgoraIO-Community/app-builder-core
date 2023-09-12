@@ -107,7 +107,7 @@ const VideoCallMobileView = () => {
   );
 };
 
-const VideoCallView = () => {
+const VideoCallView = React.memo(() => {
   return (
     <View style={styles.container}>
       <VideoCallHeader />
@@ -119,7 +119,7 @@ const VideoCallView = () => {
       <ActionSheet />
     </View>
   );
-};
+});
 
 const VideoCallHeader = () => {
   const {
