@@ -136,6 +136,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setShowButton(false);
     if (isScrolledToEnd.current) {
       isScrolledToEnd.current = false;
       return;
@@ -144,7 +145,13 @@ const Transcript = (props: TranscriptProps) => {
     const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
     const isAtBottom =
       contentOffset.y + layoutMeasurement.height >= contentSize.height - 1; // -1 threshold when the exact bottom position not calcualted , diff ~.5
-    setShowButton(!isAtBottom);
+    if (isMobileUA()) {
+      setTimeout(() => {
+        setShowButton(!isAtBottom);
+      }, 300);
+    } else {
+      setShowButton(!isAtBottom);
+    }
   };
 
   const handleSearch = (text: string) => {
