@@ -281,7 +281,7 @@ const Transcript = (props: TranscriptProps) => {
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
               onScroll={
-                isWebInternal() ? debounceFn(handleScroll, 200) : handleScroll
+                isWebInternal() ? debounceFn(handleScroll, 500) : handleScroll
               }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
