@@ -23,6 +23,7 @@ const useStreamMessageUtils = (): {
   const finalTranscriptList: FinalListType = {};
   const queue = new PQueue({concurrency: 1});
   let counter = 0;
+  let lastOfftime = 0;
 
   const streamMessageCallback: StreamMessageCallback = args => {
     const queueCallback = (args1: [number, Uint8Array]) => {
@@ -39,20 +40,20 @@ const useStreamMessageUtils = (): {
         .lookupType('Text')
         .decode(payload as Uint8Array) as any;
 
-      console.log('STT - Parsed Textstream : ', textstream);
-      console.log(
-        `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
-          .map(word =>
-            word.text === '.'
-              ? ''
-              : word.isFinal
-              ? word.text + ' --Final--'
-              : word.text,
-          )
-          .join(' ')}`,
-        'color:red',
-        'color:blue',
-      );
+      //console.log('STT - Parsed Textstream : ', textstream);
+      // console.log(
+      //   `STT-callback(${++counter}): %c${textstream.uid} %c${textstream.words
+      //     .map(word =>
+      //       word.text === '.'
+      //         ? ''
+      //         : word.isFinal
+      //         ? word.text + ' --Final--'
+      //         : word.text,
+      //     )
+      //     .join(' ')}`,
+      //   'color:red',
+      //   'color:blue',
+      // );
 
       // Identifing Current & Prev Speakers for the Captions
       /*
@@ -83,16 +84,22 @@ const useStreamMessageUtils = (): {
 
     */
 
-      if (textstream.uid !== activeSpeakerRef.current) {
+      const finalWord = textstream.words.filter(word => word.isFinal === true);
+      // when we only get final word for the previous speaker then don't flip previous speaker as active but update in place.
+
+      if (
+        textstream.uid !== activeSpeakerRef.current &&
+        !(finalWord.length > 0 && textstream.uid === prevSpeakerRef.current)
+      ) {
         // we have a speaker change so clear the context for prev speaker
         if (prevSpeakerRef.current !== '') {
           finalList[prevSpeakerRef.current] = [];
           isInterjecting = true;
-          console.log(
-            '%cSTT-callback%c Interjection! ',
-            'color:#fff',
-            'background: #222; color: #bada55',
-          );
+          // console.log(
+          //   '%cSTT-callback%c Interjection! ',
+          //   'color:#fff',
+          //   'background: #222; color: #bada55',
+          // );
         }
         prevSpeakerRef.current = activeSpeakerRef.current;
         activeSpeakerRef.current = textstream.uid;

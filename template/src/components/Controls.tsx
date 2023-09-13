@@ -287,7 +287,7 @@ const MoreButton = () => {
     icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    disabled: !isAuthorizedSTTUser(),
+    disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
     title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
     callback: () => {
       setActionMenuVisible(false);
@@ -306,7 +306,7 @@ const MoreButton = () => {
     icon: 'transcript',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    disabled: !isAuthorizedSTTUser(),
+    disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
     title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
     callback: () => {
       setActionMenuVisible(false);
@@ -756,13 +756,15 @@ const Controls = (props: ControlsProps) => {
   }, [defaultContent]);
 
   React.useEffect(() => {
+    events.on(EventNames.STT_ACTIVE, data => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+  }, []);
+
+  React.useEffect(() => {
     // for native events are set in ActionSheetContent as this action is action sheet
     if (isWebInternal()) {
-      events.on(EventNames.STT_ACTIVE, data => {
-        const payload = JSON.parse(data?.payload);
-        setIsSTTActive(payload.active);
-      });
-
       events.on(EventNames.STT_LANGUAGE, data => {
         const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
         const actionText =
