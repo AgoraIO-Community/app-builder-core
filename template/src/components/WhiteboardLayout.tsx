@@ -26,7 +26,6 @@ import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {BREAKPOINTS, isMobileUA} from '../utils/common';
 import {DispatchContext} from '../../agora-rn-uikit';
-import useActiveSpeaker from '../utils/useActiveSpeaker';
 import WhiteboardConfigure, {
   whiteboardContext,
 } from './whiteboard/WhiteboardConfigure';
@@ -36,7 +35,6 @@ const {topPinned} = layoutProps;
 
 const WhiteboardLayout = ({renderData}) => {
   const {pinnedUid, defaultContent, activeUids} = useContent();
-  //const activeSpeaker = useActiveSpeaker();
   const activeSpeaker = undefined;
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();

@@ -21,8 +21,6 @@ import {useRoomInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 import useSetName from '../utils/useSetName';
-import useFindActiveSpeaker from '../utils/useFindActiveSpeaker';
-import {UidType} from 'customization-api';
 
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
@@ -31,7 +29,6 @@ export interface VideoCallContextInterface {
   setShowStopRecordingPopup: React.Dispatch<SetStateAction<boolean>>;
   showLayoutOption: boolean;
   setShowLayoutOption: React.Dispatch<SetStateAction<boolean>>;
-  activeSpeaker: UidType;
   showStartScreenSharePopup: boolean;
   setShowStartScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
   showStopScreenSharePopup: boolean;
@@ -45,7 +42,6 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setShowStopRecordingPopup: () => {},
   showLayoutOption: false,
   setShowLayoutOption: () => {},
-  activeSpeaker: 0,
   showStartScreenSharePopup: false,
   setShowStartScreenSharePopup: () => {},
   showStopScreenSharePopup: false,
@@ -67,7 +63,6 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
-  const activeSpeaker = useFindActiveSpeaker();
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
@@ -95,7 +90,6 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowStopRecordingPopup,
         showLayoutOption,
         setShowLayoutOption,
-        activeSpeaker: $config.ACTIVE_SPEAKER ? activeSpeaker : 0,
         showStartScreenSharePopup,
         setShowStartScreenSharePopup,
         showStopScreenSharePopup,
