@@ -288,6 +288,7 @@ const ActionSheetContent = props => {
 
   //STT events on mount
   React.useEffect(() => {
+    if (native) return;
     events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
