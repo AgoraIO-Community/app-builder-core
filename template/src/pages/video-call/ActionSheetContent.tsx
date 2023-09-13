@@ -167,9 +167,14 @@ interface CaptionIconBtnProps {
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   const {showLabel = $config.ICON_TEXT, onPress} = props;
-  const {isAuthorizedSTTUser} = useSTTAPI();
-  const {isCaptionON} = useCaption();
-  const isDisabled = !isAuthorizedSTTUser();
+  const {isCaptionON, isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const isDisabled = !(
+    $config.ENABLE_STT &&
+    (isHost || (!isHost && isSTTActive))
+  );
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
@@ -219,7 +224,14 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
   const {isAuthorizedSTTUser} = useSTTAPI();
   const {sidePanel} = useSidePanel();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
-  const isDisabled = !isAuthorizedSTTUser();
+  const {isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const isDisabled = !(
+    $config.ENABLE_STT &&
+    (isHost || (!isHost && isSTTActive))
+  );
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
@@ -293,7 +305,10 @@ const ActionSheetContent = props => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
     });
+  }, []);
 
+  React.useEffect(() => {
+    if (native) return;
     events.on(EventNames.STT_LANGUAGE, data => {
       const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
       const actionText =
