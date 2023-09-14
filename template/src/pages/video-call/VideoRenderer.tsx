@@ -23,9 +23,7 @@ import ZoomableWrapper from './ZoomableWrapper';
 import {isAndroid} from '../../utils/common';
 import {isIOS} from '../../utils/common';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import LocalEventEmitter, {
-  LocalEventsEnum,
-} from '../../rtm-events-api/LocalEvents';
+import useActiveSpeaker from '../../utils/useActiveSpeaker';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -35,7 +33,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
   const {pinnedUid} = useContent();
-  const [isActiveSpeaker, setIsActiveSpeaker] = useState(false);
+  const activeSpeaker = useActiveSpeaker();
+  const isActiveSpeaker = activeSpeaker === user.uid;
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -62,21 +61,6 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   } = useScreenContext();
 
   const {isScreenshareActive} = useScreenshare();
-
-  useEffect(() => {
-    if ($config.ACTIVE_SPEAKER) {
-      const listenActiveSpeaker = data => {
-        setIsActiveSpeaker(data === user.uid);
-      };
-      LocalEventEmitter.on(LocalEventsEnum.ACTIVE_SPEAKER, listenActiveSpeaker);
-      return () => {
-        LocalEventEmitter.off(
-          LocalEventsEnum.ACTIVE_SPEAKER,
-          listenActiveSpeaker,
-        );
-      };
-    }
-  }, []);
 
   useEffect(() => {
     landscapeModeRef.current.landscapeMode = landscapeMode;
