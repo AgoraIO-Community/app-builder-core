@@ -30,6 +30,7 @@ import {
   PreCallSelectDevice,
   PreCallVideoPreview,
   PreCallJoinCallBtnProps,
+  PreCallLocalMute,
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
@@ -40,10 +41,11 @@ import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import {VideoPreviewComponent} from './precall/VideoPreview';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
@@ -116,7 +118,7 @@ const JoinRoomInputView = ({isDesktop}) => {
 };
 
 const JoinRoomName = ({isDesktop}) => {
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
@@ -153,7 +155,7 @@ const JoinRoomName = ({isDesktop}) => {
 };
 
 const JoinRoomButton = () => {
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
@@ -194,12 +196,12 @@ const Precall = () => {
     DeviceSelect,
     PrecallAfterView,
     PrecallBeforeView,
-  } = useCustomization((data) => {
+  } = useCustomization(data => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType;
-      VideoPreview: React.ComponentType;
+      VideoPreview: VideoPreviewComponent;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
       PrecallAfterView: React.Fragment,
@@ -272,7 +274,7 @@ const Precall = () => {
 
   useEffect(() => {
     if (isJoinDataFetched) {
-      new Promise((res) =>
+      new Promise(res =>
         // @ts-ignore
         rtc.RtcEngineUnsafe.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
@@ -283,7 +285,7 @@ const Precall = () => {
     }
   }, [isJoinDataFetched]);
 
-  const FpePrecallComponent = useCustomization((data) => {
+  const FpePrecallComponent = useCustomization(data => {
     // commented for v1 release
     if (
       data?.components?.precall &&
@@ -311,7 +313,10 @@ const Precall = () => {
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
-                <MeetingName textStyle={style.meetingTitleStyle} />
+                <MeetingName
+                  textStyle={style.meetingTitleStyle}
+                  prefix="You are joining"
+                />
               </View>
               <Spacer size={32} />
               <JoinRoomInputView isDesktop={true} />
@@ -333,7 +338,10 @@ const Precall = () => {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <MeetingName textStyle={{textAlign: 'left'}} />
+                {/* <MeetingName
+                  textStyle={style.meetingTitleStyle}
+                  prefix="You are joining"
+                /> */}
                 {!isMobileUA() ? (
                   <IDPLogoutComponent
                     containerStyle={{marginRight: 0, marginTop: 0}}
@@ -356,7 +364,22 @@ const Precall = () => {
                       ? style.leftContentVertical
                       : style.leftContentHorizontal
                   }>
-                  <VideoPreview />
+                  {/* <VideoPreview />
+                  <JoinRoomButton /> */}
+                  <VideoPreview>
+                    <VideoPreview.Heading>
+                      <MeetingName
+                        textStyle={style.meetingTitleStyle}
+                        prefix="You are joining"
+                      />
+                    </VideoPreview.Heading>
+                    <VideoPreview.Controls>
+                      <PreCallLocalMute />
+                    </VideoPreview.Controls>
+                    <VideoPreview.JoinBtn>
+                      <JoinRoomButton />
+                    </VideoPreview.JoinBtn>
+                  </VideoPreview>
                 </View>
                 <Spacer size={24} horizontal={!isDesktop() ? false : true} />
                 <Card
@@ -374,7 +397,7 @@ const Precall = () => {
                       width: '100%',
                       padding: 32,
                     }}>
-                    <JoinRoomButton />
+                    {/* <JoinRoomButton /> */}
                   </View>
                 </Card>
                 {/* {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>} */}
@@ -415,8 +438,8 @@ const style = StyleSheet.create({
     flex: 2.5,
     borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
+    // borderWidth: 1,
+    // borderColor: $config.CARD_LAYER_3_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
@@ -427,8 +450,8 @@ const style = StyleSheet.create({
     width: '100%',
     borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
+    // borderWidth: 1,
+    // borderColor: $config.CARD_LAYER_3_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
@@ -480,9 +503,9 @@ const style = StyleSheet.create({
   },
   meetingTitleStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '700',
-    fontSize: ThemeConfig.FontSize.extraLarge,
-    lineHeight: ThemeConfig.FontSize.extraLarge,
+    fontWeight: '600',
+    fontSize: ThemeConfig.FontSize.large,
+    lineHeight: 28,
     color: $config.FONT_COLOR,
     paddingLeft: 0,
   },

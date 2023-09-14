@@ -5,6 +5,7 @@ import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
+import {useVB} from '../../components/virtual-background/useVB';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -12,6 +13,7 @@ const VideoComponent = () => {
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const {activeUids, pinnedUid} = useContent();
+  const {isVBActive, imageVB} = useVB();
 
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {
@@ -27,12 +29,16 @@ const VideoComponent = () => {
 
   useEffect(() => {
     if (isArray(layoutsData)) {
-      let index = layoutsData.findIndex((item) => item.name === currentLayout);
+      let index = layoutsData.findIndex(item => item.name === currentLayout);
       if (index >= 0) {
         setLayoutIndex(index);
       }
     }
   }, [currentLayout]);
+
+  useEffect(() => {
+    isVBActive && imageVB();
+  }, []);
 
   if (
     layoutsData &&

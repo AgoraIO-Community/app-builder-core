@@ -97,5 +97,6 @@ export interface IconsInterface {
   transcript: string;
   'view-last': string;
   'transcript-mode': string;
+  vb: string;
   '': string;
 }

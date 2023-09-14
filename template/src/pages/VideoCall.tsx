@@ -65,6 +65,7 @@ import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 import StorageContext from '../components/StorageContext';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import WhiteboardConfigure from '../components/whiteboard/WhiteboardConfigure';
+import {VBProvider} from '../components/virtual-background/useVB';
 
 enum RnEncryptionEnum {
   /**
@@ -346,37 +347,39 @@ const VideoCall: React.FC = () => {
                                                   {!isMobileUA() && (
                                                     <PermissionHelper />
                                                   )}
-                                                  <SdkMuteToggleListener>
-                                                    {callActive ? (
-                                                      <VideoMeetingDataProvider>
-                                                        <VideoCallProvider>
-                                                          <CaptionProvider>
-                                                            <WhiteboardConfigure>
-                                                              <VideoCallScreen />
-                                                            </WhiteboardConfigure>
-                                                          </CaptionProvider>
-                                                        </VideoCallProvider>
-                                                      </VideoMeetingDataProvider>
-                                                    ) : $config.PRECALL ? (
-                                                      <PreCallProvider
-                                                        value={{
-                                                          callActive,
-                                                          setCallActive,
-                                                          isCameraAvailable,
-                                                          isMicAvailable,
-                                                          setCameraAvailable,
-                                                          setMicAvailable,
-                                                          isPermissionRequested,
-                                                          setIsPermissionRequested,
-                                                          isSpeakerAvailable,
-                                                          setSpeakerAvailable,
-                                                        }}>
-                                                        <Precall />
-                                                      </PreCallProvider>
-                                                    ) : (
-                                                      <></>
-                                                    )}
-                                                  </SdkMuteToggleListener>
+                                                  <VBProvider>
+                                                    <SdkMuteToggleListener>
+                                                      {callActive ? (
+                                                        <VideoMeetingDataProvider>
+                                                          <VideoCallProvider>
+                                                            <CaptionProvider>
+                                                              <WhiteboardConfigure>
+                                                                <VideoCallScreen />
+                                                              </WhiteboardConfigure>
+                                                            </CaptionProvider>
+                                                          </VideoCallProvider>
+                                                        </VideoMeetingDataProvider>
+                                                      ) : $config.PRECALL ? (
+                                                        <PreCallProvider
+                                                          value={{
+                                                            callActive,
+                                                            setCallActive,
+                                                            isCameraAvailable,
+                                                            isMicAvailable,
+                                                            setCameraAvailable,
+                                                            setMicAvailable,
+                                                            isPermissionRequested,
+                                                            setIsPermissionRequested,
+                                                            isSpeakerAvailable,
+                                                            setSpeakerAvailable,
+                                                          }}>
+                                                          <Precall />
+                                                        </PreCallProvider>
+                                                      ) : (
+                                                        <></>
+                                                      )}
+                                                    </SdkMuteToggleListener>
+                                                  </VBProvider>
                                                 </NetworkQualityProvider>
                                               </LocalUserContext>
                                             </LiveStreamDataProvider>

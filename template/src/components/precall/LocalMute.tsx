@@ -29,9 +29,10 @@ import PreCallSettings from './PreCallSettings';
 import Spacer from '../../atoms/Spacer';
 import {usePreCall} from './usePreCall';
 import DeviceContext from '../DeviceContext';
+import VBButton from '../virtual-background/VBButton';
 
 const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
-  const {VideoMute, AudioMute} = useCustomization((data) => {
+  const {VideoMute, AudioMute} = useCustomization(data => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
       AudioMute: React.ComponentType<LocalVideoMuteProps>;
@@ -76,12 +77,12 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
   // refactor later to set mic/camera availablity oustside settings panel <selectDevice>
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable} = usePreCall();
-  const audioDevices = deviceList.filter((device) => {
+  const audioDevices = deviceList.filter(device => {
     if (device.kind === 'audioinput') {
       return true;
     }
   });
-  const videoDevices = deviceList.filter((device) => {
+  const videoDevices = deviceList.filter(device => {
     if (device.kind === 'videoinput') {
       return true;
     }
@@ -117,6 +118,12 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
           <PreCallSettings />
         </>
       )}
+      {$config.ENABLE_VIRTUAL_BACKGROUND && (
+        <>
+          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
+          <VBButton />
+        </>
+      )}
     </View>
   );
 };
@@ -130,7 +137,7 @@ export default PreCallLocalMute;
 const style = StyleSheet.create({
   precallControls: {
     flexDirection: 'row',
-    paddingVertical: 32,
+    padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
