@@ -42,6 +42,7 @@ import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import {VideoPreviewComponent} from './precall/VideoPreview';
+import VBPanel from './virtual-background/VBPanel';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -190,6 +191,16 @@ const JoinRoomButton = () => {
 
 const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
+
+  // const {isVBActive, setIsVBActive} = useVB();
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
+  const [isVBOpen, setIsVBOpen] = React.useState(false);
+  React.useEffect(() => {
+    setIsSettingsOpen(!isVBOpen);
+  }, [isVBOpen]);
+  React.useEffect(() => {
+    setIsVBOpen(!isSettingsOpen);
+  }, [isSettingsOpen]);
   const {
     VideoPreview,
     MeetingName,
@@ -374,7 +385,12 @@ const Precall = () => {
                       />
                     </VideoPreview.Heading>
                     <VideoPreview.Controls>
-                      <PreCallLocalMute />
+                      <PreCallLocalMute
+                        isSettingsOpen={isSettingsOpen}
+                        setIsSettingsOpen={setIsSettingsOpen}
+                        isVBOpen={isVBOpen}
+                        setIsVBOpen={setIsVBOpen}
+                      />
                     </VideoPreview.Controls>
                     <VideoPreview.JoinBtn>
                       <JoinRoomButton />
@@ -388,10 +404,21 @@ const Precall = () => {
                       ? style.rightContentVertical
                       : style.rightContentHorizontal
                   }>
-                  <View style={style.rightInputContent}>
+                  {/* <View style={style.rightInputContent}>
                     <JoinRoomName isDesktop={true} />
                     <DeviceSelect />
-                  </View>
+                  </View> */}
+                  {isVBOpen ? (
+                    <VBPanel fromScreen="preCall" />
+                  ) : isSettingsOpen ? (
+                    <View style={style.rightInputContent}>
+                      <JoinRoomName isDesktop={true} />
+                      <DeviceSelect />
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+
                   <View
                     style={{
                       width: '100%',

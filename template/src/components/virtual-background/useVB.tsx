@@ -102,7 +102,7 @@ const VBProvider = ({children}) => {
     const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
     let htmlElement = document.createElement('img');
     // htmlElement.crossorigin = 'anonymous'
-    htmlElement.src = imagePath;
+    htmlElement.src = imagePath.default;
     htmlElement.onload = async () => {
       if (processor.current) {
         localVideoTrack

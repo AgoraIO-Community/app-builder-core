@@ -11,18 +11,21 @@ import {useVB} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 
 const VBCard = ({type, icon, path}) => {
-  const {setVBmode, setSelectedImage} = useVB();
+  const {setVBmode, setSelectedImage, selectedImage, vbMode} = useVB();
   const handleClick = () => {
     setVBmode(type);
     if (path) setSelectedImage(path);
   };
+  const isSelected = path ? path === selectedImage : vbMode === type;
   return (
-    <Pressable style={styles.card} onPress={handleClick}>
+    <Pressable
+      style={[styles.card, isSelected && styles.active]}
+      onPress={handleClick}>
       {path ? (
         <Image
           style={styles.img}
           source={{
-            uri: path,
+            uri: path.default,
           }}
         />
       ) : (
@@ -39,23 +42,25 @@ const VBCard = ({type, icon, path}) => {
 
 const VBPanel = props => {
   const isSmall = useIsSmall();
-  const {showHeader = true} = props;
+  const {showHeader = true, fromScreen = ''} = props;
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
   const options = [
     {type: 'none', icon: 'remove'},
     {type: 'blur', icon: 'blur'},
     {type: 'custom', icon: 'add'},
-    {type: 'image', icon: 'vb', path: require('./images/book.jpg').default},
-    {type: 'image', icon: 'vb', path: require('./images/beach.jpg').default},
-    {type: 'image', icon: 'vb', path: require('./images/office.jpg').default},
-    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg').default},
-    {type: 'image', icon: 'vb', path: require('./images/office1.jpg').default},
+    {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
   ];
   return (
     <View
       style={[
-        isMobileUA()
+        fromScreen === 'preCall'
+          ? {}
+          : isMobileUA()
           ? //mobile and mobile web
             CommonStyles.sidePanelContainerNative
           : isSmall()
@@ -68,7 +73,7 @@ const VBPanel = props => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
-      {showHeader && <VBHeader />}
+      {showHeader && <VBHeader fromScreen={fromScreen} />}
       <View style={styles.container}>
         {options.map((item, index) => (
           <VBCard
@@ -103,6 +108,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+  },
+  active: {
+    borderWidth: 1,
+    borderColor: 'blue',
   },
   img: {
     width: '100%',

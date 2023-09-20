@@ -145,14 +145,16 @@ export const ChatHeader = () => {
   );
 };
 
-export const VBHeader = () => {
+export const VBHeader = props => {
   const label = `Virtual Background`;
   const {setSidePanel} = useSidePanel();
   const {setIsVBActive} = useVB();
+  const trailingIconName =
+    props?.fromScreen === 'preCall' ? undefined : 'close';
   return (
     <SidePanelHeader
       centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
-      trailingIconName="close"
+      trailingIconName={trailingIconName}
       trailingIconOnPress={() => {
         setSidePanel(SidePanelType.None);
         setIsVBActive(false);

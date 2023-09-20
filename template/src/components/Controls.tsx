@@ -130,10 +130,6 @@ const MoreButton = () => {
   //AINS
 
   //virtual background
-
-  const [isImageVBOn, setIsImageVBOn] = useState(false);
-  const [isColorVBOn, setIsColorVBOn] = useState(false);
-  const [isBlurVBOn, setIsBlurVBOn] = useState(false);
   const {isVBActive, setIsVBActive} = useVB();
 
   const {video: localVideoStatus} = useLocalUserInfo();
@@ -156,16 +152,6 @@ const MoreButton = () => {
       callback: () => {
         setActionMenuVisible(false);
         toggleVB();
-
-        // if (isImageVBOn) {
-        //   setIsImageVBOn(false);
-        //   disableVB();
-        // } else {
-        //   setIsBlurVBOn(false);
-        //   setIsColorVBOn(false);
-        //   setIsImageVBOn(true);
-        //   imageVB();
-        // }
       },
     });
   }
