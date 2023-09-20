@@ -14,13 +14,18 @@ const VBCard = ({type, icon, path}) => {
   const {setVBmode, setSelectedImage, selectedImage, vbMode} = useVB();
   const handleClick = () => {
     setVBmode(type);
-    if (path) setSelectedImage(path);
+    if (path) {
+      setSelectedImage(path);
+    } else {
+      setVBmode(type);
+    }
   };
   const isSelected = path ? path === selectedImage : vbMode === type;
   return (
     <Pressable
       style={[styles.card, isSelected && styles.active]}
       onPress={handleClick}>
+      {isSelected && <TickIcon />}
       {path ? (
         <Image
           style={styles.img}
@@ -37,6 +42,22 @@ const VBCard = ({type, icon, path}) => {
         />
       )}
     </Pressable>
+  );
+};
+
+const TickIcon = () => {
+  return (
+    <View style={styles.tickContainer}>
+      <View style={styles.triangle} />
+
+      <ImageIcon
+        iconSize={14}
+        base64={true}
+        name="done"
+        iconType="plain"
+        base64TintColor={$config.SECONDARY_ACTION_COLOR}
+      />
+    </View>
   );
 };
 
@@ -111,11 +132,36 @@ const styles = StyleSheet.create({
   },
   active: {
     borderWidth: 1,
-    borderColor: 'blue',
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   img: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+  },
+  triangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderRightWidth: 24,
+    borderBottomWidth: 24,
+    borderLeftColor: 'transparent',
+    borderRightColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderBottomColor: 'transparent',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+
+  tickContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderTopLeftRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+    elevation: 1,
   },
 });
