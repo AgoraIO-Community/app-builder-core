@@ -17,8 +17,7 @@ const VBButton = () => {
           iconBackgroundColor: isVBActive
             ? $config.PRIMARY_ACTION_BRAND_COLOR
             : '',
-          base64: true,
-          base64TintColor: $config.SECONDARY_ACTION_COLOR,
+          tintColor: $config.SECONDARY_ACTION_COLOR,
           name: 'vb',
           iconSize: 26,
         }}

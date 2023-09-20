@@ -98,5 +98,6 @@ export interface IconsInterface {
   'view-last': string;
   'transcript-mode': string;
   vb: string;
+  'vb-blur': string;
   '': string;
 }

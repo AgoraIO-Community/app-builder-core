@@ -59,9 +59,10 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import useAINS from '../utils/useAINS';
-import useVB from '../utils/useVB';
+
 import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
+import {useVB} from './virtual-background/useVB';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -133,72 +134,38 @@ const MoreButton = () => {
   const [isImageVBOn, setIsImageVBOn] = useState(false);
   const [isColorVBOn, setIsColorVBOn] = useState(false);
   const [isBlurVBOn, setIsBlurVBOn] = useState(false);
+  const {isVBActive, setIsVBActive} = useVB();
 
-  const {colorVB, disableVB, imageVB, blurVB} = useVB();
   const {video: localVideoStatus} = useLocalUserInfo();
+  const toggleVB = () => {
+    if (isVBActive) {
+      setSidePanel(SidePanelType.None);
+    } else {
+      setSidePanel(SidePanelType.VirtualBackground);
+    }
+    setIsVBActive(prev => !prev);
+  };
   if ($config.ENABLE_VIRTUAL_BACKGROUND) {
     actionMenuitems.push({
-      disabled: localVideoStatus !== ToggleState.enabled,
       isBase64Icon: true,
       //@ts-ignore
-      icon: 'vb-blur',
+      icon: 'vb',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: isBlurVBOn ? 'Remove Blur BG' : 'Apply Blur BG',
+      title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
       callback: () => {
         setActionMenuVisible(false);
-        if (isBlurVBOn) {
-          setIsBlurVBOn(false);
-          disableVB();
-        } else {
-          setIsColorVBOn(false);
-          setIsImageVBOn(false);
-          setIsBlurVBOn(true);
-          blurVB();
-        }
-      },
-    });
+        toggleVB();
 
-    actionMenuitems.push({
-      disabled: localVideoStatus !== ToggleState.enabled,
-      isBase64Icon: true,
-      //@ts-ignore
-      icon: 'vb-color',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: isColorVBOn ? 'Remove Color BG' : 'Apply Color BG',
-      callback: () => {
-        setActionMenuVisible(false);
-        if (isColorVBOn) {
-          setIsColorVBOn(false);
-          disableVB();
-        } else {
-          setIsImageVBOn(false);
-          setIsBlurVBOn(false);
-          setIsColorVBOn(true);
-          colorVB();
-        }
-      },
-    });
-    actionMenuitems.push({
-      disabled: localVideoStatus !== ToggleState.enabled,
-      isBase64Icon: true,
-      //@ts-ignore
-      icon: 'vb-image',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: isImageVBOn ? 'Remove Image BG' : 'Apply Image BG',
-      callback: () => {
-        setActionMenuVisible(false);
-        if (isImageVBOn) {
-          setIsImageVBOn(false);
-          disableVB();
-        } else {
-          setIsBlurVBOn(false);
-          setIsColorVBOn(false);
-          setIsImageVBOn(true);
-          imageVB();
-        }
+        // if (isImageVBOn) {
+        //   setIsImageVBOn(false);
+        //   disableVB();
+        // } else {
+        //   setIsBlurVBOn(false);
+        //   setIsColorVBOn(false);
+        //   setIsImageVBOn(true);
+        //   imageVB();
+        // }
       },
     });
   }

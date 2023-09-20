@@ -36,10 +36,6 @@ const VideoComponent = () => {
     }
   }, [currentLayout]);
 
-  useEffect(() => {
-    isVBActive && imageVB();
-  }, []);
-
   if (
     layoutsData &&
     layoutsData[layout] &&

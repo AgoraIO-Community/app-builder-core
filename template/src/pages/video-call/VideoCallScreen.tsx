@@ -39,6 +39,7 @@ import Transcript from '../../subComponents/caption/Transcript';
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
+import VBPanel from '../../components/virtual-background/VBPanel';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -287,6 +288,11 @@ const VideoCallScreen = () => {
                 <></>
               )}
               {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+              {sidePanel === SidePanelType.VirtualBackground ? (
+                <VBPanel />
+              ) : (
+                <></>
+              )}
             </View>
             {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>

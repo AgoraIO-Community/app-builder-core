@@ -109,10 +109,6 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
   const {isVBActive, imageVB, disableVB} = useVB();
   const [maxUid] = activeUids;
 
-  React.useEffect(() => {
-    isVBActive ? imageVB() : disableVB();
-  }, [isVBActive]);
-
   if (!maxUid) {
     return null;
   }

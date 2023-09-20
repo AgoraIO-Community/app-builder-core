@@ -93,9 +93,9 @@ const RtmConfigure = (props: any) => {
   }, [defaultContent]);
 
   React.useEffect(() => {
-    const handBrowserClose = (ev) => {
-      ev.preventDefault();
-      return (ev.returnValue = 'Are you sure you want to exit?');
+    const handBrowserClose = ev => {
+      // ev.preventDefault();
+      // return (ev.returnValue = 'Are you sure you want to exit?');
     };
     const logoutRtm = () => {
       engine.current.leaveChannel(rtcProps.channel);
@@ -184,7 +184,7 @@ const RtmConfigure = (props: any) => {
     try {
       await engine.current
         .getChannelMembersBychannelId(rtcProps.channel)
-        .then(async (data) => {
+        .then(async data => {
           await Promise.all(
             data.members.map(async (member: any) => {
               const backoffAttributes = backOff(
@@ -375,7 +375,7 @@ const RtmConfigure = (props: any) => {
       }
     });
 
-    engine.current.on('channelMessageReceived', (evt) => {
+    engine.current.on('channelMessageReceived', evt => {
       console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
 
       const {uid, channelId, text, ts} = evt;
