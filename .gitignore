@@ -108,7 +108,6 @@ template/theme-dark.json
 *.log
 
 #FPE plugin folder
-template/customization/*
 Builds
 esbuild-bin
 template/pnpm-lock.yaml
