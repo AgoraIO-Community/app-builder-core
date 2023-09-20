@@ -4,11 +4,14 @@ import {
   useContent,
   useRtc,
 } from 'customization-api';
-import {useContext, useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import useIsLocalUserSpeaking from './useIsLocalUserSpeaking';
 import {filterObject} from '../utils/index';
 import ChatContext from '../components/ChatContext';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -26,7 +29,14 @@ const useFindActiveSpeaker = () => {
   const maxSpeakingVolumeRef = useRef(0);
   const minNonSpeakingVolumeRef = useRef(100);
   const usersVolume = useRef({});
-  const [activeSpeaker, setActiveSpeaker] = useState(0);
+  const activeSpeakerUid = useRef(undefined);
+
+  const emitActiveSpeaker = (uid: UidType) => {
+    if (uid !== activeSpeakerUid.current) {
+      activeSpeakerUid.current = uid;
+      LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
+    }
+  };
 
   useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -119,7 +129,7 @@ const useFindActiveSpeaker = () => {
     );
     if (!speakingUids || speakingUids?.length == 0) {
       log(' %cFinal No Active speaker', 'color:red');
-      setActiveSpeaker(0);
+      emitActiveSpeaker(0);
     } else {
       if (speakingUids?.length === 1) {
         log(
@@ -127,7 +137,7 @@ const useFindActiveSpeaker = () => {
           'color:green',
           defaultContentRef.current[speakingUids[0]]?.name,
         );
-        setActiveSpeaker(parseInt(speakingUids[0]));
+        emitActiveSpeaker(parseInt(speakingUids[0]));
       } else {
         //for logging
         let speakerNames = '';
@@ -167,7 +177,8 @@ const useFindActiveSpeaker = () => {
           'color:green',
           defaultContentRef.current[sorted[0]]?.name,
         );
-        setActiveSpeaker(parseInt(sorted[0]));
+
+        emitActiveSpeaker(parseInt(sorted[0]));
 
         //for logging purpose
         let obj = {};
@@ -318,6 +329,6 @@ const useFindActiveSpeaker = () => {
     };
   }, []);
 
-  return activeSpeaker;
+  return null;
 };
 export default useFindActiveSpeaker;

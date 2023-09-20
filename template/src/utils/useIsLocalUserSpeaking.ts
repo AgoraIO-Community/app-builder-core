@@ -46,7 +46,7 @@ const useIsLocalUserSpeaking = () => {
         .getUserMedia({
           audio: true,
         })
-        .then((audioStream) => {
+        .then(audioStream => {
           audioTrackRef.current = audioStream.getAudioTracks();
           speechRef.current = null;
           speechRef.current = hark(audioStream, {
@@ -66,16 +66,14 @@ const useIsLocalUserSpeaking = () => {
         listenForSpeaker();
       };
       listenForSpeaker();
-    }
-    return () => {
-      if ($config.ACTIVE_SPEAKER) {
+      return () => {
         speechRef.current && speechRef.current.stop();
         audioTrackRef.current &&
           audioTrackRef.current?.length &&
           audioTrackRef.current[0].stop();
         navigator.mediaDevices.ondevicechange = () => {};
-      }
-    };
+      };
+    }
   }, []);
 
   return isSpeaking;

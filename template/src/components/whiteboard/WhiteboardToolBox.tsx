@@ -20,13 +20,13 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 
   const handleSelect = (applicanceName: ApplianceNames) => {
     setSelectedTool(applicanceName);
-    whiteboardRoom.current.setMemberState({
+    whiteboardRoom.current?.setMemberState({
       currentApplianceName: applicanceName,
     });
   };
 
   const handleClear = () => {
-    whiteboardRoom.current.cleanCurrentScene();
+    whiteboardRoom.current?.cleanCurrentScene();
   };
 
   return (

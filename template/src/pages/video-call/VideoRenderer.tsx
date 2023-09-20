@@ -1,5 +1,5 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import {
   PropsContext,
   DispatchContext,
@@ -10,7 +10,6 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
-import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useLayout, useContent, useRtc} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
@@ -24,16 +23,18 @@ import ZoomableWrapper from './ZoomableWrapper';
 import {isAndroid} from '../../utils/common';
 import {isIOS} from '../../utils/common';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
+import useActiveSpeaker from '../../utils/useActiveSpeaker';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
+  const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
-  const activeSpeaker = useActiveSpeaker();
   const {pinnedUid} = useContent();
-  const isActiveSpeaker = activeSpeaker === user?.uid;
+  const activeSpeaker = useActiveSpeaker();
+  const isActiveSpeaker = activeSpeaker === user.uid;
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -216,7 +217,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               fallback={() => {
                 return FallbackLogo(
                   user?.name,
-                  activeSpeaker,
+                  isActiveSpeaker,
                   (showReplacePin || showPinForMe) && !isMobileUA()
                     ? true
                     : false,

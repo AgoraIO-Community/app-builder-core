@@ -23,7 +23,7 @@ export interface WhiteboardPropsInterface {
   children: React.ReactNode;
 }
 
-const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
+const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
   const [whiteboardActive, setWhiteboardActive] = useState(false);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
@@ -50,13 +50,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
           floatBar: true,
           isWritable: isHost,
         })
-        .then((room) => {
+        .then(room => {
           whiteboardRoom.current = room;
-          whiteboardRoom.current.setViewMode(ViewMode.Freedom);
-          whiteboardRoom.current.bindHtmlElement(whiteboardPaper);
+          whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
+          whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
           setWhiteboardRoomState(RoomPhase.Connected);
         })
-        .catch((err) => {
+        .catch(err => {
           setWhiteboardRoomState(InitState);
           console.log(err);
         });
@@ -71,12 +71,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
     try {
       setWhiteboardRoomState(RoomPhase.Disconnecting);
       whiteboardRoom.current
-        .disconnect()
+        ?.disconnect()
         .then(() => {
-          whiteboardRoom.current.bindHtmlElement(null);
+          whiteboardRoom.current?.bindHtmlElement(null);
           setWhiteboardRoomState(RoomPhase.Disconnected);
         })
-        .catch((err) => {
+        .catch(err => {
           setWhiteboardRoomState(InitState);
           console.log(err);
         });
