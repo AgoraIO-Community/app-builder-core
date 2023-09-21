@@ -119,7 +119,8 @@ const MoreButton = () => {
       icon: 'ains',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: isANISEnabled ? 'Turn off AINS' : 'Turn on AINS',
+      title: 'Noise Cancellation',
+      toggleStatus: isANISEnabled,
       callback: () => {
         setActionMenuVisible(false);
         toggleAINS();
