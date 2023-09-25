@@ -256,7 +256,7 @@ const reactSdk = {
     );
   },
   bundleSdkTypedefs: () => {
-    return src(['../Builds/customization-api.d.ts', '../Builds/reactSdk.d.ts'])
+    return src(['../Builds/customization-api.d.ts', './static.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
@@ -358,7 +358,7 @@ module.exports.reactSdk = series(
   reactSdk.webpack,
   general.generateApiTypedefs,
   general.bundleApiTypedefs,
-  reactSdk.generateSdkTypedefs,
+  // reactSdk.generateSdkTypedefs,
   reactSdk.bundleSdkTypedefs,
   general.cleanTempFiles,
   general.generateNpmPackage,
