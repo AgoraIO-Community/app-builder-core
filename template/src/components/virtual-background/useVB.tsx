@@ -1,7 +1,7 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useEffect, useRef} from 'react';
-import {useRtc} from 'customization-api';
+import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import Image from 'react-native';
 import VirtualBackgroundExtension from 'agora-extension-virtual-background';
@@ -15,7 +15,7 @@ export const VBContext = React.createContext<{
   // for vb state
   isVBActive: boolean;
   setIsVBActive: React.Dispatch<React.SetStateAction<boolean>>;
-  imageVB: () => Promise<void>;
+  imageVB: (imagePath: string) => Promise<void>;
   disableVB: () => Promise<void>;
   blurVB: () => Promise<void>;
   vbMode: string;
@@ -25,7 +25,7 @@ export const VBContext = React.createContext<{
 }>({
   isVBActive: false,
   setIsVBActive: () => {},
-  imageVB: async () => {},
+  imageVB: async (imagePath: string) => {},
   disableVB: async () => {},
   blurVB: async () => {},
   vbMode: 'none',
@@ -34,25 +34,71 @@ export const VBContext = React.createContext<{
   setSelectedImage: () => {},
 });
 
+// Initialize processors for the main view and preview view
+let mainViewProcessor = null;
+let previewViewProcessor = null;
+
+// Function to initialize processors
+const initializeProcessors = () => {
+  const mainViewExtension = new VirtualBackgroundExtension();
+  AgoraRTC.registerExtensions([mainViewExtension]);
+  mainViewProcessor = mainViewExtension.createProcessor();
+  mainViewProcessor.init(wasm1).then(() => {
+    mainViewProcessor.current.disable();
+  });
+
+  previewViewProcessor = mainViewExtension.createProcessor();
+  previewViewProcessor.init(wasm1).then(() => {
+    previewViewProcessor.current.disable();
+  });
+};
+
 const VBProvider = ({children}) => {
   const [isVBActive, setIsVBActive] = React.useState<boolean>(false);
   const [vbMode, setVBmode] = React.useState<mode>('none');
   const [selectedImage, setSelectedImage] = React.useState(null);
+  const [saveVB, setSaveVB] = React.useState(false);
   const {RtcEngineUnsafe} = useRtc();
+
+  // can be original video track/clone track
+  const [videoTrack, setVideoTrack] = React.useState(null);
+  const {sidePanel} = useSidePanel();
+
   let processor =
     useRef<ReturnType<VirtualBackgroundExtension['_createProcessor']>>(null);
 
   useEffect(() => {
-    const vbExtension = new VirtualBackgroundExtension();
-    AgoraRTC.registerExtensions([vbExtension]);
-    processor.current = vbExtension.createProcessor();
-    processor.current.init(wasm1).then(() => {
-      processor.current.disable();
-    });
+    initializeProcessors();
   }, []);
 
+  const applyVirtualBackgroundToMainView = async options => {
+    const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
+    //  mainViewProcessor && (await mainViewProcessor.disable()); // Disable the old processor
+    localVideoTrack
+      ?.pipe(mainViewProcessor)
+      .pipe(localVideoTrack?.processorDestination);
+    mainViewProcessor.setOptions(options);
+    await mainViewProcessor.enable();
+  };
+
+  // Function to apply virtual background to the preview view
+  const applyVirtualBackgroundToPreviewView = async options => {
+    const localVideoTrack = videoTrack; // Use the preview view's video track
+    // previewViewProcessor && (await previewViewProcessor.disable()); // Disable the old processor
+    localVideoTrack
+      ?.pipe(previewViewProcessor)
+      .pipe(localVideoTrack?.processorDestination);
+    previewViewProcessor.setOptions(options);
+    await previewViewProcessor.enable();
+  };
+
+  const unpipeProcessor = async () => {
+    if (processor.current) {
+      await processor.current.unpipe();
+    }
+  };
+
   React.useEffect(() => {
-    // isVBActive ? imageVB() : disableVB();
     switch (vbMode) {
       case 'blur':
         blurVB();
@@ -69,54 +115,36 @@ const VBProvider = ({children}) => {
       default:
         disableVB();
     }
-  }, [isVBActive, vbMode, selectedImage]);
-
-  const colorVB = async () => {
-    //@ts-ignore
-    const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
-
-    if (processor.current) {
-      localVideoTrack
-        ?.pipe(processor.current)
-        .pipe(localVideoTrack?.processorDestination);
-      processor.current.setOptions({type: 'color', color: '#00ff00'});
-      await processor?.current?.enable();
-    }
-  };
+  }, [vbMode, selectedImage, saveVB]);
 
   const blurVB = async () => {
-    //@ts-ignore
-    const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
-
-    if (processor.current) {
-      localVideoTrack
-        ?.pipe(processor.current)
-        .pipe(localVideoTrack?.processorDestination);
-      processor.current.setOptions({blurDegree: 3, type: 'blur'});
-      await processor?.current?.enable();
+    const blurConfig = {blurDegree: 3, type: 'blur'};
+    if (saveVB || sidePanel !== SidePanelType.VirtualBackground) {
+      applyVirtualBackgroundToMainView(blurConfig);
+    } else {
+      applyVirtualBackgroundToPreviewView(blurConfig);
     }
   };
 
-  const imageVB = async imagePath => {
-    //@ts-ignore
-    const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
+  const imageVB = async (imagePath: {default: string}) => {
     let htmlElement = document.createElement('img');
+
     // htmlElement.crossorigin = 'anonymous'
     htmlElement.src = imagePath.default;
-    htmlElement.onload = async () => {
-      if (processor.current) {
-        localVideoTrack
-          ?.pipe(processor.current)
-          .pipe(localVideoTrack?.processorDestination);
-        processor.current.setOptions({source: htmlElement, type: 'img'});
-        await processor?.current?.enable();
+    htmlElement.onload = () => {
+      if (saveVB || sidePanel !== SidePanelType.VirtualBackground) {
+        applyVirtualBackgroundToMainView({source: htmlElement, type: 'img'});
+      } else {
+        applyVirtualBackgroundToPreviewView({source: htmlElement, type: 'img'});
       }
     };
   };
 
   const disableVB = async () => {
-    if (processor.current) {
-      await processor?.current?.disable();
+    if (saveVB || sidePanel !== SidePanelType.VirtualBackground) {
+      await mainViewProcessor.disable();
+    } else {
+      await previewViewProcessor.disable();
     }
   };
 
@@ -132,6 +160,9 @@ const VBProvider = ({children}) => {
         setVBmode,
         selectedImage,
         setSelectedImage,
+        videoTrack,
+        setVideoTrack,
+        setSaveVB,
       }}>
       {children}
     </VBContext.Provider>

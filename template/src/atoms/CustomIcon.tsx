@@ -100,4 +100,5 @@ export interface IconsInterface {
   vb: string;
   'vb-blur': string;
   '': string;
+  done: string;
 }

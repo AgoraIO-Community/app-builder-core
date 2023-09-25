@@ -1,4 +1,11 @@
-import {Pressable, StyleSheet, Text, View, Image} from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+} from 'react-native';
 import React from 'react';
 import {useIsSmall, isMobileUA, isWebInternal} from '../../../src/utils/common';
 import CommonStyles from '../CommonStyles';
@@ -9,15 +16,31 @@ import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
 import ImageIcon from '../../atoms/ImageIcon';
 import {useVB} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
+import VideoPreview from './VideoPreview';
+import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
+import ThemeConfig from '../../theme';
+import TertiaryButton from '../../atoms/TertiaryButton';
+import PrimaryButton from '../../atoms/PrimaryButton';
+import Spacer from '../../atoms/Spacer';
 
 const VBCard = ({type, icon, path}) => {
-  const {setVBmode, setSelectedImage, selectedImage, vbMode} = useVB();
+  const {
+    setVBmode,
+    setSelectedImage,
+    selectedImage,
+    vbMode,
+    setSaveVB,
+    setVideoTrack,
+  } = useVB();
+  const {RtcEngineUnsafe} = useRtc();
+
   const handleClick = () => {
+    setSaveVB(false);
     setVBmode(type);
     if (path) {
       setSelectedImage(path);
     } else {
-      setVBmode(type);
+      setSelectedImage(null);
     }
   };
   const isSelected = path ? path === selectedImage : vbMode === type;
@@ -66,6 +89,9 @@ const VBPanel = props => {
   const {showHeader = true, fromScreen = ''} = props;
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
+  const {setIsVBActive, setSaveVB} = useVB();
+  const {setSidePanel} = useSidePanel();
+
   const options = [
     {type: 'none', icon: 'remove'},
     {type: 'blur', icon: 'blur'},
@@ -76,6 +102,7 @@ const VBPanel = props => {
     {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
   ];
+
   return (
     <View
       style={[
@@ -95,16 +122,48 @@ const VBPanel = props => {
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <VBHeader fromScreen={fromScreen} />}
-      <View style={styles.container}>
-        {options.map((item, index) => (
-          <VBCard
-            key={index}
-            type={item.type}
-            icon={item.icon}
-            path={item.path}
-          />
-        ))}
-      </View>
+
+      {fromScreen === 'videoCall' ? <VideoPreview /> : <></>}
+      <ScrollView>
+        <View style={styles.container}>
+          {options.map((item, index) => (
+            <VBCard
+              key={index}
+              type={item.type}
+              icon={item.icon}
+              path={item.path}
+            />
+          ))}
+        </View>
+        {fromScreen === 'videoCall' ? (
+          <View style={styles.btnContainer}>
+            <View style={{flex: 1}}>
+              <TertiaryButton
+                text={'Cancel'}
+                textStyle={styles.btnText}
+                containerStyle={styles.btn}
+                onPress={() => {
+                  setSidePanel(SidePanelType.None);
+                  setIsVBActive(false);
+                }}
+              />
+            </View>
+            <Spacer size={12} horizontal />
+            <View style={{flex: 1}}>
+              <PrimaryButton
+                textStyle={styles.btnText}
+                containerStyle={styles.btn}
+                onPress={() => {
+                  setSaveVB(true);
+                }}
+                text={'Save'}
+              />
+            </View>
+          </View>
+        ) : (
+          <></>
+        )}
+      </ScrollView>
     </View>
   );
 };
@@ -123,7 +182,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    height: 80,
+    //  height: 80,
+    aspectRatio: 2 / 1,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     alignItems: 'center',
@@ -163,5 +223,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
     elevation: 1,
+  },
+  btnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    textTransform: 'capitalize',
+  },
+  btnContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 12,
+  },
+  btn: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: ThemeConfig.BorderRadius.small,
+    minWidth: 'auto',
   },
 });
