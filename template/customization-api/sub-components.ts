@@ -13,7 +13,7 @@ export {default as TextInput} from '../src/atoms/TextInput';
 
 // commented for v1 release
 //Precall components
-//export * from '../src/components/precall/index';
+export * from '../src/components/precall/index';
 
 //video call components
 export {
