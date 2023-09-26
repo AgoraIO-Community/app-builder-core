@@ -26,8 +26,8 @@ export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
  * UI contexts
  */
 // commented for v1 release
-//export {usePreCall} from '../src/components/precall/usePreCall';
-//export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
+export {usePreCall} from '../src/components/precall/usePreCall';
+export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
 export {useLayout} from '../src/utils/useLayout';
 export type {LayoutContextInterface} from '../src/utils/useLayout';
 // commented for v1 release
