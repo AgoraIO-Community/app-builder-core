@@ -31,11 +31,7 @@ const VideoPreview = () => {
     setVideoTrack(clonedVideoTrack);
   };
 
-  const createCameraTrack = async () => {
-    const localVideo = await AgoraRTC.createCameraVideoTrack();
-    localVideo.play(vContainerRef.current);
-    setVideoTrack(localVideo);
-  };
+  const destroyCameraTrack = () => {};
 
   const cloneCameraTrack = () => {
     if (isLocalVideoON) {
@@ -70,15 +66,33 @@ const VideoPreview = () => {
     }
   };
 
+  const createCameraTrack = async () => {
+    if (isLocalVideoON) {
+      const localVideo = await AgoraRTC.createCameraVideoTrack();
+      localVideo.play(vContainerRef.current);
+      setVideoTrack(localVideo);
+      return localVideo;
+    }
+    return null;
+  };
+
   React.useEffect(() => {
     if (vContainerRef.current) {
-      if (isLocalVideoON) {
-        createCameraTrack();
-        //cloneCameraTrack();
-      }
-      // return destroyClonedCameraTrack;
+      const initialize = async () => {
+        const localVideo = await createCameraTrack();
+        return () => {
+          console.log('cleanup local preview');
+          if (localVideo) {
+            localVideo.stop();
+            localVideo.close();
+          }
+        };
+      };
+
+      initialize();
     }
   }, []);
+
   return (
     <View style={styles.container1}>
       {isLocalVideoON ? (
