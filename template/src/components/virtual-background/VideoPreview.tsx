@@ -12,7 +12,7 @@ type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 const VideoPreview = () => {
   const {defaultContent, activeUids} = useContent();
-  const {setVideoTrack} = useVB();
+  const {setVideoTrack, setSaveVB} = useVB();
   const [maxUid] = activeUids;
   const rtc = useContext(RtcContext);
   const {RtcEngineUnsafe} = rtc as unknown as {
@@ -67,7 +67,7 @@ const VideoPreview = () => {
   };
 
   const createCameraTrack = async () => {
-    if (isLocalVideoON) {
+    if (isLocalVideoON && vContainerRef.current) {
       const localVideo = await AgoraRTC.createCameraVideoTrack();
       localVideo.play(vContainerRef.current);
       setVideoTrack(localVideo);
@@ -77,20 +77,20 @@ const VideoPreview = () => {
   };
 
   React.useEffect(() => {
-    if (vContainerRef.current) {
-      const initialize = async () => {
-        const localVideo = await createCameraTrack();
-        return () => {
-          console.log('cleanup local preview');
-          if (localVideo) {
-            localVideo.stop();
-            localVideo.close();
-          }
-        };
-      };
+    let localVideo = null;
+    const initialize = async () => {
+      localVideo = await createCameraTrack();
+    };
 
-      initialize();
-    }
+    initialize();
+    return () => {
+      console.log('cleanup local preview');
+      if (localVideo) {
+        localVideo.stop();
+        localVideo.close();
+        setSaveVB(false);
+      }
+    };
   }, []);
 
   return (

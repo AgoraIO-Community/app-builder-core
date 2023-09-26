@@ -44,12 +44,12 @@ const initializeProcessors = () => {
   AgoraRTC.registerExtensions([mainViewExtension]);
   mainViewProcessor = mainViewExtension.createProcessor();
   mainViewProcessor.init(wasm1).then(() => {
-    mainViewProcessor.current.disable();
+    mainViewProcessor.disable();
   });
 
   previewViewProcessor = mainViewExtension.createProcessor();
   previewViewProcessor.init(wasm1).then(() => {
-    previewViewProcessor.current.disable();
+    previewViewProcessor.disable();
   });
 };
 
@@ -115,7 +115,7 @@ const VBProvider = ({children}) => {
       default:
         disableVB();
     }
-  }, [vbMode, selectedImage, saveVB]);
+  }, [vbMode, selectedImage, saveVB, videoTrack]);
 
   const blurVB = async () => {
     const blurConfig = {blurDegree: 3, type: 'blur'};
