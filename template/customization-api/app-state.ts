@@ -47,6 +47,9 @@ export type {messageInterface} from '../src/app-state/useMessages';
 export {SidePanelType} from '../src/subComponents/SidePanelEnum';
 export {useSidePanel} from '../src/utils/useSidePanel';
 
+export {useNoiseSupression} from '../src/app-state/useNoiseSupression';
+export {useVideoQuality} from '../src/app-state/useVideoQuality';
+
 //hook used to get/set username
 export {default as useUserName} from '../src/utils/useUserName';
 

@@ -16,6 +16,7 @@ import {IconsInterface} from '../atoms/CustomIcon';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Toggle from './Toggle';
 
 export interface ActionMenuItem {
   isBase64Icon?: boolean;
@@ -24,6 +25,7 @@ export interface ActionMenuItem {
   iconColor: string;
   textColor: string;
   title: string;
+  toggleStatus?: boolean;
   callback: () => void;
   onHoverCallback?: (isHovered: boolean) => void;
   onHoverContent?: JSX.Element;
@@ -62,6 +64,7 @@ const ActionMenu = (props: ActionMenuProps) => {
           onHoverIcon,
           isBase64Icon = false,
           title,
+          toggleStatus,
           callback,
           iconColor,
           textColor,
@@ -113,6 +116,17 @@ const ActionMenu = (props: ActionMenuProps) => {
                   style={[styles.text, textColor ? {color: textColor} : {}]}>
                   {title}
                 </Text>
+                {toggleStatus !== undefined && toggleStatus !== null ? (
+                  <View style={styles.toggleContainer}>
+                    <Toggle
+                      disabled={disabled}
+                      isEnabled={toggleStatus}
+                      toggleSwitch={callback}
+                    />
+                  </View>
+                ) : (
+                  <></>
+                )}
               </TouchableOpacity>
             </>
           )}
@@ -220,13 +234,19 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginLeft: 12,
   },
+  toggleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    marginLeft: 'auto',
+  },
   text: {
     paddingVertical: 14,
     color: $config.SECONDARY_ACTION_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    marginRight: 12,
+    marginRight: 8,
   },
   backDrop: {
     position: 'absolute',

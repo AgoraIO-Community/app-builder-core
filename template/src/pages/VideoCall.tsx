@@ -65,6 +65,8 @@ import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 import StorageContext from '../components/StorageContext';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import WhiteboardConfigure from '../components/whiteboard/WhiteboardConfigure';
+import {NoiseSupressionProvider} from '../app-state/useNoiseSupression';
+import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 
 enum RnEncryptionEnum {
   /**
@@ -307,92 +309,96 @@ const VideoCall: React.FC = () => {
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
-                  <ChatUIControlsProvider>
-                    <ChatNotificationProvider>
-                      <LayoutProvider
-                        value={{
-                          currentLayout,
-                          setLayout,
-                        }}>
-                        <FocusProvider value={{currentFocus, setFocus}}>
-                          <SidePanelProvider
+                  <NoiseSupressionProvider>
+                    <VideoQualityContextProvider>
+                      <ChatUIControlsProvider>
+                        <ChatNotificationProvider>
+                          <LayoutProvider
                             value={{
-                              sidePanel,
-                              setSidePanel,
+                              currentLayout,
+                              setLayout,
                             }}>
-                            <ChatMessagesProvider>
-                              <ScreenShareProvider>
-                                <RtmConfigure
-                                  setRecordingActive={setRecordingActive}
-                                  callActive={callActive}>
-                                  <UserPreferenceProvider>
-                                    <EventsConfigure>
-                                      <RecordingProvider
-                                        value={{
-                                          setRecordingActive,
-                                          isRecordingActive,
-                                        }}>
-                                        <ScreenshareConfigure>
-                                          <LiveStreamContextProvider
+                            <FocusProvider value={{currentFocus, setFocus}}>
+                              <SidePanelProvider
+                                value={{
+                                  sidePanel,
+                                  setSidePanel,
+                                }}>
+                                <ChatMessagesProvider>
+                                  <ScreenShareProvider>
+                                    <RtmConfigure
+                                      setRecordingActive={setRecordingActive}
+                                      callActive={callActive}>
+                                      <UserPreferenceProvider>
+                                        <EventsConfigure>
+                                          <RecordingProvider
                                             value={{
-                                              setRtcProps,
-                                              rtcProps,
-                                              callActive,
+                                              setRecordingActive,
+                                              isRecordingActive,
                                             }}>
-                                            <LiveStreamDataProvider>
-                                              <LocalUserContext
-                                                localUid={rtcProps?.uid}>
-                                                <NetworkQualityProvider>
-                                                  {!isMobileUA() && (
-                                                    <PermissionHelper />
-                                                  )}
-                                                  <SdkMuteToggleListener>
-                                                    {callActive ? (
-                                                      <VideoMeetingDataProvider>
-                                                        <VideoCallProvider>
-                                                          <CaptionProvider>
-                                                            <WhiteboardConfigure>
-                                                              <VideoCallScreen />
-                                                            </WhiteboardConfigure>
-                                                          </CaptionProvider>
-                                                        </VideoCallProvider>
-                                                      </VideoMeetingDataProvider>
-                                                    ) : $config.PRECALL ? (
-                                                      <PreCallProvider
-                                                        value={{
-                                                          callActive,
-                                                          setCallActive,
-                                                          isCameraAvailable,
-                                                          isMicAvailable,
-                                                          setCameraAvailable,
-                                                          setMicAvailable,
-                                                          isPermissionRequested,
-                                                          setIsPermissionRequested,
-                                                          isSpeakerAvailable,
-                                                          setSpeakerAvailable,
-                                                        }}>
-                                                        <Precall />
-                                                      </PreCallProvider>
-                                                    ) : (
-                                                      <></>
-                                                    )}
-                                                  </SdkMuteToggleListener>
-                                                </NetworkQualityProvider>
-                                              </LocalUserContext>
-                                            </LiveStreamDataProvider>
-                                          </LiveStreamContextProvider>
-                                        </ScreenshareConfigure>
-                                      </RecordingProvider>
-                                    </EventsConfigure>
-                                  </UserPreferenceProvider>
-                                </RtmConfigure>
-                              </ScreenShareProvider>
-                            </ChatMessagesProvider>
-                          </SidePanelProvider>
-                        </FocusProvider>
-                      </LayoutProvider>
-                    </ChatNotificationProvider>
-                  </ChatUIControlsProvider>
+                                            <ScreenshareConfigure>
+                                              <LiveStreamContextProvider
+                                                value={{
+                                                  setRtcProps,
+                                                  rtcProps,
+                                                  callActive,
+                                                }}>
+                                                <LiveStreamDataProvider>
+                                                  <LocalUserContext
+                                                    localUid={rtcProps?.uid}>
+                                                    <NetworkQualityProvider>
+                                                      {!isMobileUA() && (
+                                                        <PermissionHelper />
+                                                      )}
+                                                      <SdkMuteToggleListener>
+                                                        {callActive ? (
+                                                          <VideoMeetingDataProvider>
+                                                            <VideoCallProvider>
+                                                              <CaptionProvider>
+                                                                <WhiteboardConfigure>
+                                                                  <VideoCallScreen />
+                                                                </WhiteboardConfigure>
+                                                              </CaptionProvider>
+                                                            </VideoCallProvider>
+                                                          </VideoMeetingDataProvider>
+                                                        ) : $config.PRECALL ? (
+                                                          <PreCallProvider
+                                                            value={{
+                                                              callActive,
+                                                              setCallActive,
+                                                              isCameraAvailable,
+                                                              isMicAvailable,
+                                                              setCameraAvailable,
+                                                              setMicAvailable,
+                                                              isPermissionRequested,
+                                                              setIsPermissionRequested,
+                                                              isSpeakerAvailable,
+                                                              setSpeakerAvailable,
+                                                            }}>
+                                                            <Precall />
+                                                          </PreCallProvider>
+                                                        ) : (
+                                                          <></>
+                                                        )}
+                                                      </SdkMuteToggleListener>
+                                                    </NetworkQualityProvider>
+                                                  </LocalUserContext>
+                                                </LiveStreamDataProvider>
+                                              </LiveStreamContextProvider>
+                                            </ScreenshareConfigure>
+                                          </RecordingProvider>
+                                        </EventsConfigure>
+                                      </UserPreferenceProvider>
+                                    </RtmConfigure>
+                                  </ScreenShareProvider>
+                                </ChatMessagesProvider>
+                              </SidePanelProvider>
+                            </FocusProvider>
+                          </LayoutProvider>
+                        </ChatNotificationProvider>
+                      </ChatUIControlsProvider>
+                    </VideoQualityContextProvider>
+                  </NoiseSupressionProvider>
                 </DeviceConfigure>
               </RtcConfigure>
             </PropsProvider>

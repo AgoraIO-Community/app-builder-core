@@ -58,10 +58,10 @@ import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
-import useAINS from '../utils/useAINS';
 import useVB from '../utils/useVB';
 import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
+import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -100,29 +100,26 @@ const MoreButton = () => {
   const {setChatType} = useChatUIControls();
   const actionMenuitems: ActionMenuItem[] = [];
 
+  const {isNoiseSupressionEnabled, setNoiseSupression} = useNoiseSupression();
+
   //AINS
-  const [isANISEnabled, setIsANISEnabled] = useState(false);
-  const {disableNoiseSuppression, enableNoiseSuppression} = useAINS();
-  const toggleAINS = () => {
-    if (isANISEnabled) {
-      disableNoiseSuppression();
-      setIsANISEnabled(false);
-    } else {
-      enableNoiseSuppression();
-      setIsANISEnabled(true);
-    }
-  };
   if ($config.ENABLE_AINS) {
     actionMenuitems.push({
+      disabled:
+        isNoiseSupressionEnabled === ToggleState.disabling ||
+        isNoiseSupressionEnabled === ToggleState.enabling,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'ains',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: isANISEnabled ? 'Turn off AINS' : 'Turn on AINS',
+      title:
+        isNoiseSupressionEnabled === ToggleState.enabled
+          ? 'Turn off AINS'
+          : 'Turn on AINS',
       callback: () => {
         setActionMenuVisible(false);
-        toggleAINS();
+        setNoiseSupression(p => !p);
       },
     });
   }
