@@ -17,12 +17,18 @@ import ImageIcon from '../../atoms/ImageIcon';
 import {Option, useVB} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
-import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
+import {
+  SidePanelType,
+  useLocalUserInfo,
+  useRtc,
+  useSidePanel,
+} from 'customization-api';
 import ThemeConfig from '../../theme';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import Spacer from '../../atoms/Spacer';
 import Toast from '../../../react-native-toast-message';
+import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 
 const convertBlobToBase64 = async blobURL => {
   return new Promise((resolve, reject) => {
@@ -84,14 +90,16 @@ const VBCard = ({type, icon, path}) => {
           } else {
             Toast.show({
               type: 'error',
-              text1: 'Please select a JPG or PNG file',
+              text2: 'Please select a JPG or PNG file',
+              text1: 'Upload Failed',
               visibilityTime: 3000,
             });
           }
         } else {
           Toast.show({
             type: 'error',
-            text1: 'File size must be less than 1MB.',
+            text2: 'File size must be less than 1MB.',
+            text1: 'Upload Failed',
             visibilityTime: 3000,
           });
         }
@@ -182,6 +190,9 @@ const VBPanel = props => {
   const {transcriptHeight} = useCaptionWidth();
   const {setIsVBActive, setSaveVB, options} = useVB();
   const {setSidePanel} = useSidePanel();
+  const {video: localVideoStatus} = useLocalUserInfo();
+
+  const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
   return (
     <View
@@ -202,6 +213,25 @@ const VBPanel = props => {
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <VBHeader fromScreen={fromScreen} />}
+
+      {fromScreen === 'preCall' && !isLocalVideoON ? (
+        <View style={styles.textContainer}>
+          <View style={styles.iconStyleView}>
+            <ImageIcon
+              iconSize={20}
+              iconType="plain"
+              name={'done-fill'}
+              base64={true}
+              base64TintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            />
+          </View>
+          <Text style={styles.text}>
+            Selected effects will be applied once camera is turned ON.
+          </Text>
+        </View>
+      ) : (
+        <></>
+      )}
 
       {fromScreen === 'videoCall' ? <VideoPreview /> : <></>}
       <ScrollView>
@@ -321,5 +351,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: ThemeConfig.BorderRadius.small,
     minWidth: 'auto',
+  },
+  text: {
+    color: $config.SECONDARY_ACTION_COLOR,
+    fontSize: 12,
+    lineheight: 16,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+  },
+  textContainer: {
+    padding: 12,
+    borderRadius: 4,
+    borderLeftColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderLeftWidth: 4,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    margin: 20,
+    marginBottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  iconStyleView: {
+    marginRight: 4,
   },
 });

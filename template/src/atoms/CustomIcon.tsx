@@ -101,4 +101,5 @@ export interface IconsInterface {
   'vb-blur': string;
   '': string;
   done: string;
+  'done-fill': string;
 }

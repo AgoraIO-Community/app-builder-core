@@ -7,6 +7,7 @@ import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import {RtcLocalView} from 'react-native-agora';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
+import ThemeConfig from '../../../src/theme';
 
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
@@ -98,8 +99,11 @@ const VideoPreview = () => {
       {isLocalVideoON ? (
         <View ref={vContainerRef} style={{width: 300, height: 166}}></View>
       ) : (
-        <View>
-          <Text style={styles.text}>Switch ON CAM for preview</Text>
+        <View style={styles.msgContainer}>
+          <Text style={styles.text}>Camera is off.</Text>
+          <Text style={styles.text}>
+            Saved changes are applied as soon as camera turns ON.
+          </Text>
         </View>
       )}
     </View>
@@ -119,6 +123,16 @@ const styles = StyleSheet.create({
 
   text: {
     color: $config.SECONDARY_ACTION_COLOR,
-    fontSize: 14,
+    fontSize: 12,
+    lineheight: 16,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+  },
+  msgContainer: {
+    padding: 12,
+    borderRadius: 4,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
