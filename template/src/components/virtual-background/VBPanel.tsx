@@ -14,7 +14,7 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {VBHeader} from '../../../src/pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
 import ImageIcon from '../../atoms/ImageIcon';
-import {useVB} from './useVB';
+import {Option, useVB} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
 import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
@@ -22,6 +22,25 @@ import ThemeConfig from '../../theme';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import Spacer from '../../atoms/Spacer';
+import Toast from '../../../react-native-toast-message';
+
+const convertBlobToBase64 = async blobURL => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.onerror = reject;
+    xhr.open('GET', blobURL);
+    xhr.send();
+  });
+};
 
 const VBCard = ({type, icon, path}) => {
   const {
@@ -30,9 +49,55 @@ const VBCard = ({type, icon, path}) => {
     selectedImage,
     vbMode,
     setSaveVB,
-    setVideoTrack,
+    setOptions,
   } = useVB();
   const {RtcEngineUnsafe} = useRtc();
+  const fileInputRef = React.useRef(null);
+
+  const handleFileUpload = e => {
+    const selectedFile = e.target.files[0];
+
+    if (selectedFile) {
+      // check  if file size (less than 1MB)
+      if (selectedFile.size <= 1024 * 1024) {
+        // check image format
+        if (
+          selectedFile.type === 'image/jpeg' ||
+          selectedFile.type === 'image/png'
+        ) {
+          // sction on selected file
+          convertBlobToBase64(URL.createObjectURL(selectedFile))
+            .then(base64Data => {
+              // Use base64Data as the source for the Image component
+              const newCard: Option = {
+                type: 'image',
+                icon: 'vb',
+                path: base64Data as string,
+              };
+              setOptions(prevOptions => [...prevOptions, newCard]);
+            })
+            .catch(error => {
+              console.error('Error converting Blob URL to base64:', error);
+            });
+
+          if (selectedFile) {
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'Please select a JPG or PNG file',
+              visibilityTime: 3000,
+            });
+          }
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'File size must be less than 1MB.',
+            visibilityTime: 3000,
+          });
+        }
+      }
+    }
+  };
 
   const handleClick = () => {
     setSaveVB(false);
@@ -42,27 +107,53 @@ const VBCard = ({type, icon, path}) => {
     } else {
       setSelectedImage(null);
     }
+    if (type === 'custom') {
+      fileInputRef.current.click();
+    }
   };
   const isSelected = path ? path === selectedImage : vbMode === type;
   return (
     <Pressable
       style={[styles.card, isSelected && styles.active]}
       onPress={handleClick}>
-      {isSelected && <TickIcon />}
+      {isSelected && type !== 'custom' && <TickIcon />}
       {path ? (
         <Image
           style={styles.img}
           source={{
-            uri: path.default,
+            uri: path?.default ? path.default : path,
           }}
         />
       ) : (
-        <ImageIcon
-          iconType="plain"
-          iconSize={24}
-          name={icon}
-          tintColor={$config.SECONDARY_ACTION_COLOR}
-        />
+        <div>
+          {type === 'custom' ? (
+            <>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                style={{display: 'none'}}
+                id={`file-input-${type}`}
+                ref={fileInputRef}
+              />
+
+              {/* You can use your custom "add" icon here */}
+              <ImageIcon
+                iconType="plain"
+                iconSize={24}
+                name={icon}
+                tintColor={$config.SECONDARY_ACTION_COLOR}
+              />
+            </>
+          ) : (
+            <ImageIcon
+              iconType="plain"
+              iconSize={24}
+              name={icon}
+              tintColor={$config.SECONDARY_ACTION_COLOR}
+            />
+          )}
+        </div>
       )}
     </Pressable>
   );
@@ -89,25 +180,8 @@ const VBPanel = props => {
   const {showHeader = true, fromScreen = ''} = props;
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
-  const {setIsVBActive, setSaveVB} = useVB();
+  const {setIsVBActive, setSaveVB, options} = useVB();
   const {setSidePanel} = useSidePanel();
-
-  const options = [
-    {type: 'none', icon: 'remove'},
-    {type: 'blur', icon: 'blur'},
-    {type: 'custom', icon: 'add'},
-    {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
-  ];
 
   return (
     <View

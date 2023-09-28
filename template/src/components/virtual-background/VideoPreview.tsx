@@ -12,7 +12,7 @@ type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 const VideoPreview = () => {
   const {defaultContent, activeUids} = useContent();
-  const {setVideoTrack, setSaveVB} = useVB();
+  const {setPreviewVideoTrack, setSaveVB} = useVB();
   const [maxUid] = activeUids;
   const rtc = useContext(RtcContext);
   const {RtcEngineUnsafe} = rtc as unknown as {
@@ -28,7 +28,7 @@ const VideoPreview = () => {
     const clonedVideoTrack = await AgoraRTC?.createCustomVideoTrack({
       mediaStreamTrack: clonedMediaStreamTrack,
     });
-    setVideoTrack(clonedVideoTrack);
+    setPreviewVideoTrack(clonedVideoTrack);
   };
 
   const destroyCameraTrack = () => {};
@@ -70,7 +70,7 @@ const VideoPreview = () => {
     if (isLocalVideoON && vContainerRef.current) {
       const localVideo = await AgoraRTC.createCameraVideoTrack();
       localVideo.play(vContainerRef.current);
-      setVideoTrack(localVideo);
+      setPreviewVideoTrack(localVideo);
       return localVideo;
     }
     return null;
