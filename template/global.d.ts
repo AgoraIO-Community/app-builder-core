@@ -106,6 +106,7 @@ interface ConfigInterface {
   ENABLE_AINS: boolean;
   ENABLE_VIRTUAL_BACKGROUND: boolean;
   ENABLE_WHITEBOARD: boolean;
+  ENABLE_CHAT_NOTIFICATION: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

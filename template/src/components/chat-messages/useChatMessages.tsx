@@ -107,7 +107,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     individualActiveRef.current = privateChatUser;
   }, [privateChatUser]);
 
-  const openPrivateChat = (uidAsNumber) => {
+  const openPrivateChat = uidAsNumber => {
     //move this logic into ChatContainer
     // setUnreadPrivateMessageCount(
     //   unreadPrivateMessageCount -
@@ -138,6 +138,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       uid: string,
       isPrivateMessage: boolean = false,
     ) => {
+      if (!$config.ENABLE_CHAT_NOTIFICATION) {
+        return;
+      }
       //don't show group message notification if group chat is open
       if (!isPrivateMessage && groupActiveRef.current) {
         return;
@@ -183,7 +186,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
     const unsubPublicChatMessage = events.on(
       EventNames.PUBLIC_CHAT_MESSAGE,
-      (data) => {
+      data => {
         const payload = JSON.parse(data.payload);
         const messageAction = payload.action;
         const messageData = payload.value;
@@ -201,14 +204,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
              * then we will increment the unread count
              */
             if (!groupActiveRef.current) {
-              setUnreadGroupMessageCount((prevState) => {
+              setUnreadGroupMessageCount(prevState => {
                 return prevState + 1;
               });
             }
             break;
           case ChatMessageActionEnum.Update:
-            setMessageStore((prevState) => {
-              const newState = prevState.map((item) => {
+            setMessageStore(prevState => {
+              const newState = prevState.map(item => {
                 if (
                   item.msgId === messageData.msgId &&
                   item.uid === data.sender
@@ -226,8 +229,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             });
             break;
           case ChatMessageActionEnum.Delete:
-            setMessageStore((prevState) => {
-              const newState = prevState.map((item) => {
+            setMessageStore(prevState => {
+              const newState = prevState.map(item => {
                 if (
                   item.msgId === messageData.msgId &&
                   item.uid === data.sender
@@ -252,7 +255,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
     const unsubPrivateChatMessage = events.on(
       EventNames.PRIVATE_CHAT_MESSAGE,
-      (data) => {
+      data => {
         const payload = JSON.parse(data.payload);
         const messageAction = payload.action;
         const messageData = payload.value;
@@ -283,7 +286,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
              */
 
             if (!(individualActiveRef.current === data.sender)) {
-              setUnreadIndividualMessageCount((prevState) => {
+              setUnreadIndividualMessageCount(prevState => {
                 const prevCount =
                   prevState && prevState[data.sender]
                     ? prevState[data.sender]
@@ -296,9 +299,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             }
             break;
           case ChatMessageActionEnum.Update:
-            setPrivateMessageStore((prevState) => {
+            setPrivateMessageStore(prevState => {
               const privateChatOfUid = prevState[data.sender];
-              const updatedData = privateChatOfUid.map((item) => {
+              const updatedData = privateChatOfUid.map(item => {
                 if (
                   item.msgId === messageData.msgId &&
                   item.uid === data.sender
@@ -320,9 +323,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             });
             break;
           case ChatMessageActionEnum.Delete:
-            setPrivateMessageStore((prevState) => {
+            setPrivateMessageStore(prevState => {
               const privateChatOfUid = prevState[data.sender];
-              const updatedData = privateChatOfUid.map((item) => {
+              const updatedData = privateChatOfUid.map(item => {
                 if (
                   item.msgId === messageData.msgId &&
                   item.uid === data.sender
@@ -375,7 +378,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     body: messageInterface,
     local: boolean,
   ) => {
-    setPrivateMessageStore((state) => {
+    setPrivateMessageStore(state => {
       let newState = {...state};
       newState[uid] !== undefined
         ? (newState[uid] = [
@@ -446,7 +449,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     if (typeof msg == 'string' && msg.trim() === '') return;
     if (toUid) {
       const checkData = privateMessageStore[toUid].filter(
-        (item) => item.msgId === msgId && item.uid === localUid,
+        item => item.msgId === msgId && item.uid === localUid,
       );
       if (checkData && checkData.length) {
         const editMsgData = {msg, updatedTimestamp: timeNow()};
@@ -459,9 +462,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           PersistanceLevel.None,
           toUid,
         );
-        setPrivateMessageStore((prevState) => {
+        setPrivateMessageStore(prevState => {
           const privateChatOfUid = prevState[toUid];
-          const updatedData = privateChatOfUid.map((item) => {
+          const updatedData = privateChatOfUid.map(item => {
             if (item.msgId === msgId) {
               return {...item, ...editMsgData};
             } else {
@@ -477,7 +480,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     } else {
       //check if user has permission to edit
       const checkData = messageStore.filter(
-        (item) => item.msgId === msgId && item.uid === localUid,
+        item => item.msgId === msgId && item.uid === localUid,
       );
       if (checkData && checkData.length) {
         const editMsgData = {msg, updatedTimestamp: timeNow()};
@@ -489,8 +492,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           }),
           PersistanceLevel.None,
         );
-        setMessageStore((prevState) => {
-          const newState = prevState.map((item) => {
+        setMessageStore(prevState => {
+          const newState = prevState.map(item => {
             if (item.msgId === msgId) {
               return {...item, ...editMsgData};
             } else {
@@ -508,7 +511,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const deleteChatMessage = (msgId: string, toUid?: UidType) => {
     if (toUid) {
       const checkData = privateMessageStore[toUid].filter(
-        (item) => item.msgId === msgId && item.uid === localUid,
+        item => item.msgId === msgId && item.uid === localUid,
       );
       if (checkData && checkData.length) {
         const deleteMsgData = {updatedTimestamp: timeNow()};
@@ -521,9 +524,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           PersistanceLevel.None,
           toUid,
         );
-        setPrivateMessageStore((prevState) => {
+        setPrivateMessageStore(prevState => {
           const privateChatOfUid = prevState[toUid];
-          const updatedData = privateChatOfUid.map((item) => {
+          const updatedData = privateChatOfUid.map(item => {
             if (item.msgId === msgId) {
               return {...item, isDeleted: true, ...deleteMsgData};
             } else {
@@ -539,7 +542,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     } else {
       //check if user has permission to delete
       const checkData = messageStore.filter(
-        (item) => item.msgId === msgId && item.uid === localUid,
+        item => item.msgId === msgId && item.uid === localUid,
       );
       if (checkData && checkData.length) {
         const deleteMsgData = {updatedTimestamp: timeNow()};
@@ -551,8 +554,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           }),
           PersistanceLevel.None,
         );
-        setMessageStore((prevState) => {
-          const newState = prevState.map((item) => {
+        setMessageStore(prevState => {
+          const newState = prevState.map(item => {
             if (item.msgId === msgId) {
               return {...item, isDeleted: true, ...deleteMsgData};
             } else {
