@@ -24,6 +24,7 @@ import {isAndroid} from '../../utils/common';
 import {isIOS} from '../../utils/common';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import useActiveSpeaker from '../../utils/useActiveSpeaker';
+import {useVideoCall} from '../../components/useVideoCall';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -107,6 +108,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const isNativeScreenShareActive =
     (isAndroid() || isIOS()) && isScreenshareActive;
   const enableExpandButton = isNativeScreenShareActive ? false : true;
+
+  const {enablePinForMe} = useVideoCall();
 
   return (
     <>
@@ -218,7 +221,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 return FallbackLogo(
                   user?.name,
                   isActiveSpeaker,
-                  (showReplacePin || showPinForMe) && !isMobileUA()
+                  enablePinForMe &&
+                    (showReplacePin || showPinForMe) &&
+                    !isMobileUA()
                     ? true
                     : false,
                   isMax,
@@ -255,7 +260,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {(showReplacePin || showPinForMe) && !isMobileUA() ? (
+          {enablePinForMe &&
+          (showReplacePin || showPinForMe) &&
+          !isMobileUA() ? (
             <IconButton
               onPress={() => {
                 dispatch({type: 'UserPin', value: [user.uid]});

@@ -33,6 +33,7 @@ import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 import {calculatePosition, trimText} from '../../utils/common';
+import {useVideoCall} from '../useVideoCall';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -71,6 +72,7 @@ export default function UserActionMenuOptionsOptions(
     useContext(LiveStreamContext);
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
+  const {enablePinForMe} = useVideoCall();
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
@@ -87,26 +89,28 @@ export default function UserActionMenuOptionsOptions(
         audienceUids.indexOf(user.uid) !== -1
       )
     ) {
-      items.push({
-        disabled: activeUids?.filter((i) => !customContent[i])?.length === 1,
-        icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-        onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: pinnedUid
-          ? user.uid === pinnedUid
-            ? 'Unpin'
-            : 'Replace Pin'
-          : 'Pin for me',
-        callback: () => {
-          setActionMenuVisible(false);
-          dispatch({
-            type: 'UserPin',
-            value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
-          });
-          setLayout(getPinnedLayoutName());
-        },
-      });
+      if (enablePinForMe) {
+        items.push({
+          disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+          icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+          onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: pinnedUid
+            ? user.uid === pinnedUid
+              ? 'Unpin'
+              : 'Replace Pin'
+            : 'Pin for me',
+          callback: () => {
+            setActionMenuVisible(false);
+            dispatch({
+              type: 'UserPin',
+              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+            });
+            setLayout(getPinnedLayoutName());
+          },
+        });
+      }
     }
 
     /**
@@ -246,7 +250,7 @@ export default function UserActionMenuOptionsOptions(
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Change Name',
         callback: () => {
-          setFocus((prevState) => {
+          setFocus(prevState => {
             return {
               ...prevState,
               editName: true,

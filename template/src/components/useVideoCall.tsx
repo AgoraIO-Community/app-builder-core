@@ -33,6 +33,8 @@ export interface VideoCallContextInterface {
   setShowStartScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
   showStopScreenSharePopup: boolean;
   setShowStopScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
+  enablePinForMe: boolean;
+  setEnablePinForMe: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -46,12 +48,15 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setShowStartScreenSharePopup: () => {},
   showStopScreenSharePopup: false,
   setShowStopScreenSharePopup: () => {},
+  enablePinForMe: true,
+  setEnablePinForMe: () => {},
 });
 
 interface VideoCallProviderProps {
   children: React.ReactNode;
 }
 const VideoCallProvider = (props: VideoCallProviderProps) => {
+  const [enablePinForMe, setEnablePinForMe] = useState(true);
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
@@ -94,6 +99,8 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowStartScreenSharePopup,
         showStopScreenSharePopup,
         setShowStopScreenSharePopup,
+        enablePinForMe,
+        setEnablePinForMe,
       }}>
       <StartScreenSharePopup />
       <StopScreenSharePopup />
