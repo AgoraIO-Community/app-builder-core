@@ -19,6 +19,7 @@ import events, {EventPersistLevel} from '../rtm-events-api';
 export enum MUTE_REMOTE_TYPE {
   audio,
   video,
+  chat,
 }
 /**
  * Returns an asynchronous function to toggle muted state of the given track type for a remote user with the given uid or if no uid provided, mutes everyone else in the meeting.
@@ -74,6 +75,26 @@ function useRemoteMute() {
             // To everyone
             events.send(
               controlMessageEnum.muteVideo,
+              '',
+              EventPersistLevel.LEVEL1,
+            );
+          }
+          break;
+        case MUTE_REMOTE_TYPE.chat:
+          if (uid) {
+            // To individual
+            if (!isPSTN(uid)) {
+              events.send(
+                controlMessageEnum.muteChat,
+                '',
+                EventPersistLevel.LEVEL1,
+                uid,
+              );
+            }
+          } else {
+            // To everyone
+            events.send(
+              controlMessageEnum.muteChat,
               '',
               EventPersistLevel.LEVEL1,
             );

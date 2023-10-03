@@ -55,6 +55,7 @@ export interface chatContext {
 }
 
 export enum controlMessageEnum {
+  muteChat = '0',
   muteVideo = '1',
   muteAudio = '2',
   muteSingleVideo = '3',
