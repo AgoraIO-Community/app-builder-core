@@ -5,6 +5,7 @@ import {
   View,
   Image,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import React from 'react';
 import {useIsSmall, isMobileUA, isWebInternal} from '../../../src/utils/common';
@@ -29,6 +30,7 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import Spacer from '../../atoms/Spacer';
 import Toast from '../../../react-native-toast-message';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
+const screenHeight = Dimensions.get('window').height;
 
 const convertBlobToBase64 = async blobURL => {
   return new Promise((resolve, reject) => {
@@ -191,6 +193,7 @@ const VBPanel = props => {
   const {setIsVBActive, setSaveVB, options} = useVB();
   const {setSidePanel} = useSidePanel();
   const {video: localVideoStatus} = useLocalUserInfo();
+  const maxPanelHeight = screenHeight * 0.8;
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
@@ -198,7 +201,7 @@ const VBPanel = props => {
     <View
       style={[
         fromScreen === 'preCall'
-          ? {}
+          ? {height: maxPanelHeight}
           : isMobileUA()
           ? //mobile and mobile web
             CommonStyles.sidePanelContainerNative
