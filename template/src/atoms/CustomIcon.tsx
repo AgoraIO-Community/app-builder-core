@@ -102,4 +102,6 @@ export interface IconsInterface {
   '': string;
   done: string;
   'done-fill': string;
+  blur: string;
+  add: string;
 }

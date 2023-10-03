@@ -1,14 +1,16 @@
+import React, {useState, useRef} from 'react';
 import {
-  Pressable,
   StyleSheet,
   Text,
   View,
   Image,
+  Pressable,
   ScrollView,
   Dimensions,
 } from 'react-native';
-import React from 'react';
+
 import {useIsSmall, isMobileUA, isWebInternal} from '../../../src/utils/common';
+
 import CommonStyles from '../CommonStyles';
 import {useLayout} from '../../../src/utils/useLayout';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
@@ -30,16 +32,24 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import Spacer from '../../atoms/Spacer';
 import Toast from '../../../react-native-toast-message';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
+import {IconsInterface} from '../../atoms/CustomIcon';
+
 const screenHeight = Dimensions.get('window').height;
 
-const convertBlobToBase64 = async blobURL => {
+interface VBCardProps {
+  type: string;
+  icon: keyof IconsInterface;
+  path?: string & {default?: string};
+}
+
+const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = 'blob';
     xhr.onload = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        resolve(reader.result);
+        resolve(reader.result as string);
       };
       reader.onerror = reject;
       reader.readAsDataURL(xhr.response);
@@ -50,7 +60,7 @@ const convertBlobToBase64 = async blobURL => {
   });
 };
 
-const VBCard = ({type, icon, path}) => {
+const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
   const {
     setVBmode,
     setSelectedImage,
@@ -59,52 +69,48 @@ const VBCard = ({type, icon, path}) => {
     setSaveVB,
     setOptions,
   } = useVB();
-  const {RtcEngineUnsafe} = useRtc();
-  const fileInputRef = React.useRef(null);
 
-  const handleFileUpload = e => {
-    const selectedFile = e.target.files[0];
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files && e.target.files[0];
 
     if (selectedFile) {
-      // check  if file size (less than 1MB)
+      // check if file size (less than 1MB)
       if (selectedFile.size <= 1024 * 1024) {
         // check image format
         if (
           selectedFile.type === 'image/jpeg' ||
           selectedFile.type === 'image/png'
         ) {
-          // sction on selected file
           convertBlobToBase64(URL.createObjectURL(selectedFile))
-            .then(base64Data => {
-              // Use base64Data as the source for the Image component
+            .then((base64Data: string) => {
+              //base64Data as the source for the Image component
               const newCard: Option = {
                 type: 'image',
                 icon: 'vb',
-                path: base64Data as string,
+                path: base64Data,
               };
               setOptions(prevOptions => [...prevOptions, newCard]);
             })
             .catch(error => {
               console.error('Error converting Blob URL to base64:', error);
             });
-
-          if (selectedFile) {
-          } else {
-            Toast.show({
-              type: 'error',
-              text2: 'Please select a JPG or PNG file',
-              text1: 'Upload Failed',
-              visibilityTime: 3000,
-            });
-          }
         } else {
           Toast.show({
             type: 'error',
-            text2: 'File size must be less than 1MB.',
+            text2: 'Please select a JPG or PNG file',
             text1: 'Upload Failed',
             visibilityTime: 3000,
           });
         }
+      } else {
+        Toast.show({
+          type: 'error',
+          text2: 'File size must be less than 1MB.',
+          text1: 'Upload Failed',
+          visibilityTime: 3000,
+        });
       }
     }
   };
@@ -117,11 +123,13 @@ const VBCard = ({type, icon, path}) => {
     } else {
       setSelectedImage(null);
     }
-    if (type === 'custom') {
+    if (type === 'custom' && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
+
   const isSelected = path ? path === selectedImage : vbMode === type;
+
   return (
     <Pressable
       style={[styles.card, isSelected && styles.active]}
@@ -130,14 +138,12 @@ const VBCard = ({type, icon, path}) => {
       {path ? (
         <Image
           style={styles.img}
-          source={{
-            uri: path?.default ? path.default : path,
-          }}
+          source={{uri: path?.default ? path.default : path}}
         />
       ) : (
         <div>
-          {type === 'custom' ? (
-            <>
+          <>
+            {type === 'custom' ? (
               <input
                 type="file"
                 accept="image/*"
@@ -146,34 +152,26 @@ const VBCard = ({type, icon, path}) => {
                 id={`file-input-${type}`}
                 ref={fileInputRef}
               />
-
-              {/* You can use your custom "add" icon here */}
-              <ImageIcon
-                iconType="plain"
-                iconSize={24}
-                name={icon}
-                tintColor={$config.SECONDARY_ACTION_COLOR}
-              />
-            </>
-          ) : (
+            ) : (
+              <></>
+            )}
             <ImageIcon
               iconType="plain"
               iconSize={24}
               name={icon}
               tintColor={$config.SECONDARY_ACTION_COLOR}
             />
-          )}
+          </>
         </div>
       )}
     </Pressable>
   );
 };
 
-const TickIcon = () => {
+const TickIcon: React.FC = () => {
   return (
     <View style={styles.tickContainer}>
       <View style={styles.triangle} />
-
       <ImageIcon
         iconSize={14}
         base64={true}
@@ -185,7 +183,12 @@ const TickIcon = () => {
   );
 };
 
-const VBPanel = props => {
+interface VBPanelProps {
+  showHeader?: boolean;
+  fromScreen?: string;
+}
+
+const VBPanel: React.FC<VBPanelProps> = props => {
   const isSmall = useIsSmall();
   const {showHeader = true, fromScreen = ''} = props;
   const {currentLayout} = useLayout();
@@ -203,13 +206,10 @@ const VBPanel = props => {
         fromScreen === 'preCall'
           ? {height: maxPanelHeight}
           : isMobileUA()
-          ? //mobile and mobile web
-            CommonStyles.sidePanelContainerNative
+          ? CommonStyles.sidePanelContainerNative
           : isSmall()
-          ? // desktop minimized
-            CommonStyles.sidePanelContainerWebMinimzed
-          : // desktop maximized
-            CommonStyles.sidePanelContainerWeb,
+          ? CommonStyles.sidePanelContainerWebMinimzed
+          : CommonStyles.sidePanelContainerWeb,
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
@@ -229,7 +229,7 @@ const VBPanel = props => {
             />
           </View>
           <Text style={styles.text}>
-            Selected effects will be applied once camera is turned ON.
+            Selected effects will be applied once the camera is turned ON.
           </Text>
         </View>
       ) : (
@@ -286,8 +286,6 @@ export default VBPanel;
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    borderwidth: 1,
-    borderColor: 'white',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -295,7 +293,6 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    //  height: 80,
     aspectRatio: 2 / 1,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
@@ -358,7 +355,7 @@ const styles = StyleSheet.create({
   text: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontSize: 12,
-    lineheight: 16,
+    lineHeight: 16,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
   },

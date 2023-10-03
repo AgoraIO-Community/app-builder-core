@@ -7,20 +7,21 @@ import Image from 'react-native';
 import VirtualBackgroundExtension from 'agora-extension-virtual-background';
 //@ts-ignore
 import wasm1 from '../../../node_modules/agora-extension-virtual-background/wasms/agora-wasm.wasm';
+import {IconsInterface} from '../../atoms/CustomIcon';
 //@ts-ignore
 
-type VBMode = 'blur' | 'image' | 'custom' | 'none';
+export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
 type ImageOptions = {
   type: 'image';
-  icon: string;
+  icon: keyof IconsInterface;
   path: string;
 };
 
 export type Option = {
   type: VBMode;
-  icon: string;
-  path?: string;
+  icon: keyof IconsInterface;
+  path?: string & {default?: string};
 };
 
 // processors for the main view and preview view
