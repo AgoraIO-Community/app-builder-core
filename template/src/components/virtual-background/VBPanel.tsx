@@ -17,7 +17,7 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {VBHeader} from '../../../src/pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
 import ImageIcon from '../../atoms/ImageIcon';
-import {Option, useVB} from './useVB';
+import {Option, useVB, VBMode} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
 import {
@@ -37,7 +37,7 @@ import {IconsInterface} from '../../atoms/CustomIcon';
 const screenHeight = Dimensions.get('window').height;
 
 interface VBCardProps {
-  type: string;
+  type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
 }
