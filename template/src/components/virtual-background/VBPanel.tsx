@@ -17,7 +17,7 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {VBHeader} from '../../../src/pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
 import ImageIcon from '../../atoms/ImageIcon';
-import {Option, useVB, VBMode} from './useVB';
+import {Option, saveImagesToIndexDB, useVB, VBMode} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
 import {
@@ -92,6 +92,7 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
                 path: base64Data,
               };
               setOptions(prevOptions => [...prevOptions, newCard]);
+              saveImagesToIndexDB(base64Data);
             })
             .catch(error => {
               console.error('Error converting Blob URL to base64:', error);
