@@ -22,6 +22,7 @@ import Controls, {
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
 import SettingsView from '../../components/SettingsView';
+import WhiteboardButton from '../../components/whiteboard/WhiteboardButton';
 
 const ToolbarComponents = {
   MeetingTitleToolbarItem,
@@ -39,6 +40,7 @@ const ToolbarComponents = {
   ScreenShareToolbarItem,
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
+  WhiteboardToolbarItem: WhiteboardButton,
 };
 export {
   ParticipantsView,

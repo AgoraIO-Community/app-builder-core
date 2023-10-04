@@ -1,17 +1,14 @@
-import React, {useCallback, useContext, useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   PersistanceLevel,
   ToolbarItem,
   customEvents,
-  useContent,
   useLayout,
   useRoomInfo,
 } from 'customization-api';
-import {Text, TouchableOpacity, Image, View} from 'react-native';
-import WhiteboardView from './WhiteboardView';
 import {whiteboardContext} from './WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
-import IconButton from '../../src/atoms/IconButton';
+import IconButton from '../../atoms/IconButton';
 
 const WhiteboardButton = () => {
   const {
@@ -47,14 +44,11 @@ const WhiteboardButton = () => {
     };
   }, []);
 
-  const {setCustomContent} = useContent();
-
   const toggleWhiteboard = (
     whiteboardActive: boolean,
     triggerEvent: boolean,
   ) => {
     if (whiteboardActive) {
-      // setCustomContent(1223, false);
       leaveWhiteboardRoom();
       setLayout('grid');
       triggerEvent &&
@@ -65,7 +59,6 @@ const WhiteboardButton = () => {
         );
     } else {
       joinWhiteboardRoom();
-      // setCustomContent(1223, WhiteboardView, {showToolbox: true});
       setLayout('whiteboard');
       triggerEvent &&
         customEvents.send(
