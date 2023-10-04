@@ -13,7 +13,6 @@ const VideoComponent = () => {
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const {activeUids, pinnedUid} = useContent();
-  const {isVBActive, imageVB} = useVB();
 
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {

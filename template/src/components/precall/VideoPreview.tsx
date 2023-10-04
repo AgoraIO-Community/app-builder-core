@@ -106,7 +106,7 @@ export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
 
 const VideoPreview: VideoPreviewComponent = ({children}) => {
   const {defaultContent, activeUids} = useContent();
-  const {isVBActive, imageVB, disableVB} = useVB();
+
   const [maxUid] = activeUids;
 
   if (!maxUid) {

@@ -2,8 +2,6 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {ToolbarItem} from 'customization-api';
 import IconButton from '../../atoms/IconButton';
-import {useCaption} from '../../../src/subComponents/caption/useCaption';
-import {useVB} from './useVB';
 
 const VBButton = props => {
   const {isVBOpen, setIsVBOpen} = props;

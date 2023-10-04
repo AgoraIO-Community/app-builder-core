@@ -50,9 +50,6 @@ type VirtualBackgroundConfig = {
 type VBContextValue = {
   isVBActive: boolean;
   setIsVBActive: React.Dispatch<React.SetStateAction<boolean>>;
-  imageVB: () => void;
-  disableVB: () => void;
-  blurVB: () => void;
   vbMode: VBMode;
   setVBmode: React.Dispatch<React.SetStateAction<VBMode>>;
   selectedImage: string | null;
@@ -66,9 +63,6 @@ type VBContextValue = {
 export const VBContext = React.createContext<VBContextValue>({
   isVBActive: false,
   setIsVBActive: () => {},
-  imageVB: () => {},
-  disableVB: () => {},
-  blurVB: () => {},
   vbMode: 'none',
   setVBmode: () => {},
   selectedImage: null,
@@ -223,9 +217,7 @@ const VBProvider: React.FC = ({children}) => {
       case 'image':
         imageVB();
         break;
-      case 'custom':
-        //TODO: custom upload
-        break;
+
       case 'none':
         disableVB();
         break;
@@ -294,9 +286,6 @@ const VBProvider: React.FC = ({children}) => {
       value={{
         isVBActive,
         setIsVBActive,
-        imageVB,
-        disableVB,
-        blurVB,
         vbMode,
         setVBmode,
         selectedImage,
