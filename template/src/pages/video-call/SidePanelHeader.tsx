@@ -27,8 +27,10 @@ import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorP
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import useGetName from '../../utils/useGetName';
 import {LanguageType} from '../../subComponents/caption/utils';
-import {useRoomInfo} from 'customization-api';
+import {useRoomInfo, usePreCall} from 'customization-api';
 import useTranscriptDownload from '../../subComponents/caption/useTranscriptDownload';
+import {useVB} from '../../components/virtual-background/useVB';
+import {PropsContext} from '../../../agora-rn-uikit';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -139,6 +141,27 @@ export const ChatHeader = () => {
       trailingIconName="close"
       trailingIconOnPress={() => {
         setSidePanel(SidePanelType.None);
+      }}
+    />
+  );
+};
+
+export const VBHeader = () => {
+  const label = `Virtual Background`;
+  const {setSidePanel} = useSidePanel();
+  const {setIsVBActive} = useVB();
+
+  const {
+    rtcProps: {callActive},
+  } = useContext(PropsContext);
+  const trailingIconName = callActive ? 'close' : undefined;
+  return (
+    <SidePanelHeader
+      centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
+      trailingIconName={trailingIconName}
+      trailingIconOnPress={() => {
+        setSidePanel(SidePanelType.None);
+        setIsVBActive(false);
       }}
     />
   );

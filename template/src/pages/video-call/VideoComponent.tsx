@@ -5,6 +5,7 @@ import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
+import {useVB} from '../../components/virtual-background/useVB';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -27,7 +28,7 @@ const VideoComponent = () => {
 
   useEffect(() => {
     if (isArray(layoutsData)) {
-      let index = layoutsData.findIndex((item) => item.name === currentLayout);
+      let index = layoutsData.findIndex(item => item.name === currentLayout);
       if (index >= 0) {
         setLayoutIndex(index);
       }
