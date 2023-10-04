@@ -97,5 +97,11 @@ export interface IconsInterface {
   transcript: string;
   'view-last': string;
   'transcript-mode': string;
+  vb: string;
+  'vb-blur': string;
   '': string;
+  done: string;
+  'done-fill': string;
+  blur: string;
+  add: string;
 }

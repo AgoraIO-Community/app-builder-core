@@ -32,6 +32,7 @@ import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import {isMobileUA, isWebInternal, useResponsive} from '../../utils/common';
+import {useVB} from '../virtual-background/useVB';
 
 const Fallback = () => {
   const {isCameraAvailable, isMicAvailable} = usePreCall();
@@ -94,39 +95,78 @@ const Fallback = () => {
     </View>
   );
 };
+type VideoPreviewProps = {
+  children: React.ReactNode;
+};
+export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
+  Controls: React.FC;
+  JoinBtn: React.FC;
+  Heading: React.FC;
+};
 
-const VideoPreview = () => {
+const VideoPreview: VideoPreviewComponent = ({children}) => {
   const {defaultContent, activeUids} = useContent();
-
+  const {isVBActive, imageVB, disableVB} = useVB();
   const [maxUid] = activeUids;
 
   if (!maxUid) {
     return null;
   }
   const styles = useStyles();
+
+  const headingChildren = React.Children.toArray(children).filter(
+    child => React.isValidElement(child) && child.type === VideoPreview.Heading,
+  );
+  const controlChildren = React.Children.toArray(children).filter(
+    child =>
+      React.isValidElement(child) && child.type === VideoPreview.Controls,
+  );
+
+  const joinBtnChildren = React.Children.toArray(children).filter(
+    child => React.isValidElement(child) && child.type === VideoPreview.JoinBtn,
+  );
   return (
-    <View style={[styles.container]}>
-      <View
-        style={{
-          flex: 1,
-        }}>
-        <MaxVideoView
-          user={defaultContent[maxUid]}
-          key={maxUid}
-          fallback={Fallback}
-          containerStyle={{
-            minHeight: 200,
-            width: '100%',
-            height: '100%',
-            // borderTopLeftRadius: 4,
-            // borderTopRightRadius: 4,
-          }}
-        />
+    <View style={styles.container}>
+      <View style={styles.heading}>{headingChildren}</View>
+      <View style={styles.container1}>
+        <View
+          style={{
+            width: 404,
+            height: 256,
+          }}>
+          <MaxVideoView
+            user={defaultContent[maxUid]}
+            key={maxUid}
+            fallback={Fallback}
+            containerStyle={{
+              minHeight: 200,
+              width: '100%',
+              height: '100%',
+              borderRadius: 8,
+            }}
+          />
+        </View>
+        {/* <PreCallLocalMute isMobileView={isMobileUA() ? true : false} /> */}
+        {controlChildren}
       </View>
-      <PreCallLocalMute isMobileView={isMobileUA() ? true : false} />
+      <Spacer size={4} />
+      <View style={styles.container2}>{joinBtnChildren}</View>
     </View>
   );
 };
+
+VideoPreview.Controls = ({children}) => {
+  return <>{children}</>;
+};
+
+VideoPreview.JoinBtn = ({children}) => {
+  return <>{children}</>;
+};
+
+VideoPreview.Heading = ({children}) => {
+  return <>{children}</>;
+};
+
 export default VideoPreview;
 
 const useStyles = () => {
@@ -155,8 +195,7 @@ const useStyles = () => {
       backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
       justifyContent: 'center',
       alignItems: 'center',
-      // borderTopLeftRadius: 4,
-      // borderTopRightRadius: 4,
+      borderRadius: 8,
     },
     fallbackContainer: {
       minHeight: 200,
@@ -175,10 +214,26 @@ const useStyles = () => {
       alignSelf: 'center',
     },
     container: {
-      flex: 1,
       position: 'relative',
-      justifyContent: 'space-between',
       overflow: 'hidden',
+      margin: 'auto',
+      maxWidth: 440,
+    },
+    container1: {
+      padding: 20,
+      paddingBottom: 8,
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      backgroundColor: $config.CARD_LAYER_1_COLOR,
+    },
+    container2: {
+      padding: 20,
+      borderBottomLeftRadius: 16,
+      borderBottomRightRadius: 16,
+      backgroundColor: $config.CARD_LAYER_1_COLOR,
+    },
+    heading: {
+      marginBottom: 20,
     },
     avatar: {
       width: 100,

@@ -40,6 +40,7 @@ import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
+import VBPanel from '../../components/virtual-background/VBPanel';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -289,6 +290,11 @@ const VideoCallScreen = () => {
                 <></>
               )}
               {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+              {sidePanel === SidePanelType.VirtualBackground ? (
+                <VBPanel fromScreen="videoCall" />
+              ) : (
+                <></>
+              )}
             </View>
             {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>
