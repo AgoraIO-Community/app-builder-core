@@ -409,7 +409,7 @@ const Precall = () => {
                     <DeviceSelect />
                   </View> */}
                   {isVBOpen ? (
-                    <VBPanel fromScreen="preCall" />
+                    <VBPanel />
                   ) : isSettingsOpen ? (
                     <View style={style.rightInputContent}>
                       <JoinRoomName isDesktop={true} />

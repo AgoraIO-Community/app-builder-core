@@ -291,7 +291,7 @@ const VideoCallScreen = () => {
               )}
               {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
               {sidePanel === SidePanelType.VirtualBackground ? (
-                <VBPanel fromScreen="videoCall" />
+                <VBPanel />
               ) : (
                 <></>
               )}

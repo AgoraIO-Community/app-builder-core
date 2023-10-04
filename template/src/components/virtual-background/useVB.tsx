@@ -149,6 +149,7 @@ export const retrieveImagesFromIndexDB = async () => {
     }
   });
 };
+//TODO: export methods as utils
 
 const VBProvider: React.FC = ({children}) => {
   const [isVBActive, setIsVBActive] = React.useState<boolean>(false);
@@ -217,7 +218,6 @@ const VBProvider: React.FC = ({children}) => {
       case 'image':
         imageVB();
         break;
-
       case 'none':
         disableVB();
         break;

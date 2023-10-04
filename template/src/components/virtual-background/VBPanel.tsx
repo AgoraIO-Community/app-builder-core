@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -20,18 +20,15 @@ import ImageIcon from '../../atoms/ImageIcon';
 import {Option, saveImagesToIndexDB, useVB, VBMode} from './useVB';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
-import {
-  SidePanelType,
-  useLocalUserInfo,
-  useRtc,
-  useSidePanel,
-} from 'customization-api';
+import {SidePanelType, useLocalUserInfo, useSidePanel} from 'customization-api';
 import ThemeConfig from '../../theme';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import Spacer from '../../atoms/Spacer';
 import Toast from '../../../react-native-toast-message';
-import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
+import PropsContext, {
+  ToggleState,
+} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import {IconsInterface} from '../../atoms/CustomIcon';
 
 const screenHeight = Dimensions.get('window').height;
@@ -184,14 +181,9 @@ const TickIcon: React.FC = () => {
   );
 };
 
-interface VBPanelProps {
-  showHeader?: boolean;
-  fromScreen?: string;
-}
-
-const VBPanel: React.FC<VBPanelProps> = props => {
+const VBPanel: React.FC = () => {
   const isSmall = useIsSmall();
-  const {showHeader = true, fromScreen = ''} = props;
+
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
   const {setIsVBActive, setSaveVB, options} = useVB();
@@ -201,10 +193,14 @@ const VBPanel: React.FC<VBPanelProps> = props => {
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
+  const {
+    rtcProps: {callActive},
+  } = useContext(PropsContext);
+
   return (
     <View
       style={[
-        fromScreen === 'preCall'
+        !callActive
           ? {height: maxPanelHeight}
           : isMobileUA()
           ? CommonStyles.sidePanelContainerNative
@@ -216,9 +212,9 @@ const VBPanel: React.FC<VBPanelProps> = props => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
-      {showHeader && <VBHeader fromScreen={fromScreen} />}
+      <VBHeader />
 
-      {fromScreen === 'preCall' && !isLocalVideoON ? (
+      {!callActive && !isLocalVideoON ? (
         <View style={styles.textContainer}>
           <View style={styles.iconStyleView}>
             <ImageIcon
@@ -237,7 +233,7 @@ const VBPanel: React.FC<VBPanelProps> = props => {
         <></>
       )}
 
-      {fromScreen === 'videoCall' ? <VideoPreview /> : <></>}
+      {callActive ? <VideoPreview /> : <></>}
       <ScrollView>
         <View style={styles.container}>
           {options.map((item, index) => (
@@ -249,7 +245,7 @@ const VBPanel: React.FC<VBPanelProps> = props => {
             />
           ))}
         </View>
-        {fromScreen === 'videoCall' ? (
+        {callActive ? (
           <View style={styles.btnContainer}>
             <View style={{flex: 1}}>
               <TertiaryButton
