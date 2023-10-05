@@ -88,7 +88,11 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
                 icon: 'vb',
                 path: base64Data,
               };
-              setOptions(prevOptions => [...prevOptions, newCard]);
+              setOptions(prevOptions => {
+                const updatedOptions = [...prevOptions];
+                updatedOptions.splice(3, 0, newCard);
+                return updatedOptions;
+              });
               saveImagesToIndexDB(base64Data);
             })
             .catch(error => {
