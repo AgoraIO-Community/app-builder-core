@@ -120,17 +120,19 @@ export default function UserActionMenuOptionsOptions(
       /**
        * Chat menu
        */
-      items.push({
-        icon: 'chat-outlined',
-        onHoverIcon: 'chat-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Message Privately',
-        callback: () => {
-          setActionMenuVisible(false);
-          openPrivateChat(user.uid);
-        },
-      });
+      if ($config.CHAT) {
+        items.push({
+          icon: 'chat-outlined',
+          onHoverIcon: 'chat-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: 'Message Privately',
+          callback: () => {
+            setActionMenuVisible(false);
+            openPrivateChat(user.uid);
+          },
+        });
+      }
 
       /**
        * Only host can see this menu item - request/mute - video/audio, promote to co host,demote to audience,remove form meeting
