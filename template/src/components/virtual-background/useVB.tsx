@@ -1,5 +1,5 @@
 import {createHook} from 'customization-implementation';
-import React from 'react';
+import React, {useContext} from 'react';
 import {useEffect, useRef} from 'react';
 import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
@@ -8,6 +8,7 @@ import VirtualBackgroundExtension from 'agora-extension-virtual-background';
 //@ts-ignore
 import wasm1 from '../../../node_modules/agora-extension-virtual-background/wasms/agora-wasm.wasm';
 import {IconsInterface} from '../../atoms/CustomIcon';
+import {PropsContext} from '../../../agora-rn-uikit';
 //@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
@@ -178,6 +179,12 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
+  const {
+    rtcProps: {callActive},
+  } = useContext(PropsContext);
+
+  const isPreCallScreen = !callActive;
+
   let processor =
     useRef<ReturnType<VirtualBackgroundExtension['_createProcessor']>>(null);
 
@@ -246,7 +253,7 @@ const VBProvider: React.FC = ({children}) => {
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
-    if (saveVB || sidePanel !== SidePanelType.VirtualBackground) {
+    if (saveVB || isPreCallScreen) {
       applyVirtualBackgroundToMainView(blurConfig);
     } else {
       applyVirtualBackgroundToPreviewView(blurConfig);
@@ -265,7 +272,7 @@ const VBProvider: React.FC = ({children}) => {
     htmlElement.src =
       typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
     htmlElement.onload = () => {
-      if (saveVB || sidePanel !== SidePanelType.VirtualBackground) {
+      if (saveVB || isPreCallScreen) {
         applyVirtualBackgroundToMainView(imgConfig);
       } else {
         applyVirtualBackgroundToPreviewView(imgConfig);
@@ -274,7 +281,7 @@ const VBProvider: React.FC = ({children}) => {
   };
 
   const disableVB = async () => {
-    if (saveVB || sidePanel !== SidePanelType.VirtualBackground) {
+    if (saveVB || isPreCallScreen) {
       await mainViewProcessor.disable();
     } else {
       await previewViewProcessor.disable();
