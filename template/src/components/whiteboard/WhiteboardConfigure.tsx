@@ -1,4 +1,5 @@
 import {useRoomInfo} from 'customization-api';
+import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
@@ -129,5 +130,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     </whiteboardContext.Provider>
   );
 };
+
+export const useWhiteboard = createHook(whiteboardContext);
 
 export default WhiteboardConfigure;
