@@ -89,6 +89,7 @@ const VideoPreview = () => {
       if (localVideo) {
         localVideo.stop();
         localVideo.close();
+        setPreviewVideoTrack(null);
         setSaveVB(false);
       }
     };
