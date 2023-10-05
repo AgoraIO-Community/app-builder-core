@@ -12,7 +12,7 @@
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": false,
   "PRECALL": true,
-  "CHAT": true,
+  "CHAT": false,
   "CLOUD_RECORDING": true,
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
@@ -49,7 +49,7 @@
   "SECONDARY_FONT_COLOR": "#FFFFFF",
   "PROFILE": "480p_8",
   "ICON_TEXT": true,
-  "PRIMARY_ACTION_BRAND_COLOR": "#099DFD",
+  "PRIMARY_ACTION_BRAND_COLOR": "#1171C8",
   "PRIMARY_ACTION_TEXT_COLOR": "#FFFFFF",
   "SECONDARY_ACTION_COLOR": "#FFFFFF",
   "FONT_COLOR": "#FFFFFF",
@@ -72,12 +72,12 @@
   "HARD_CODED_BLACK_COLOR": "#000000",
   "ICON_BG_COLOR": "#242529",
   "TOOLBAR_COLOR": "#111111",
-  "ACTIVE_SPEAKER": false,
+  "ACTIVE_SPEAKER": true,
   "ENABLE_IDP_AUTH": false,
   "ENABLE_TOKEN_AUTH": false,
   "ENABLE_STT": true,
   "ENABLE_AINS": true,
   "ENABLE_VIRTUAL_BACKGROUND": true,
   "ENABLE_WHITEBOARD": true,
-  "ENABLE_CHAT_NOTIFICATION": true
+  "ENABLE_CHAT_NOTIFICATION": false
 }
