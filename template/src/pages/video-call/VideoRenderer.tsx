@@ -207,7 +207,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {!isScreenShareOnFullView && <NetworkQualityPill user={user} />}
+          {!isScreenShareOnFullView && <NetworkQualityPill uid={user?.uid} />}
           <ZoomableWrapper
             enableZoom={
               isScreenShareOnFullView &&
