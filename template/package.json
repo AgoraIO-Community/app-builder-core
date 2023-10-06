@@ -116,6 +116,7 @@
     "babel-loader": "8.2.4",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-define": "2.0.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "cross-env": "7.0.3",
     "css-loader": "6.7.2",
     "del": "5.1.0",

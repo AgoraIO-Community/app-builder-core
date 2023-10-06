@@ -19,12 +19,17 @@ import SDKAppWrapper, {
 import React from 'react';
 import * as RN from 'react-native-web';
 import './src/assets/font-styles.css';
+import AgoraRTC from 'agora-rtc-sdk-ng';
 
 export * from 'customization-api';
 export * from 'customization-implementation';
 
 interface AppBuilderReactSdkInterface extends AppBuilderSdkApiInterface {
   View: React.FC;
+}
+
+if (process.env.NODE_ENV === 'production') {
+  AgoraRTC.setLogLevel(4);
 }
 
 const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
