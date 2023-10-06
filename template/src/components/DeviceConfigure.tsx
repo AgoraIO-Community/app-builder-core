@@ -374,6 +374,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           },
         }[kind];
 
+        // non chrome, ignore speaker
+        if (!isChrome && kind === 'audiooutput') {
+          setUiSelectedSpeaker('');
+          return;
+        }
+
         if (uiSelectedState && uiSelectedState.trim().length != 0) {
           return;
         }
@@ -440,7 +446,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           checkDeviceExists(storedDevice, deviceList)
         ) {
           log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
-          setDevice(storedDevice).catch((e:Error) => {
+          setDevice(storedDevice).catch((e: Error) => {
             log(
               logTag,
               deviceLogTag,
@@ -731,6 +737,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         setSelectedSpeaker,
         deviceList,
         setDeviceList,
+        isChrome,
       }}>
       {props.children}
     </DeviceContext.Provider>

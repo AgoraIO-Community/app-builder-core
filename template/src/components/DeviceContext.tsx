@@ -20,6 +20,7 @@ interface DeviceContext {
   setSelectedSpeaker: (speaker: string) => Promise<any>;
   deviceList: MediaDeviceInfo[];
   setDeviceList: (devices: MediaDeviceInfo[]) => void;
+  isChrome: boolean;
 }
 
 const DeviceContext = createContext<DeviceContext>({
@@ -31,5 +32,6 @@ const DeviceContext = createContext<DeviceContext>({
   setSelectedMic: async () => {},
   setSelectedSpeaker: async () => {},
   setDeviceList: () => {},
+  isChrome: false,
 });
 export default DeviceContext;

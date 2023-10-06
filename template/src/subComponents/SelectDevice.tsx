@@ -251,7 +251,7 @@ interface SelectSpeakerDeviceProps {
 }
 
 const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
-  const {selectedSpeaker, setSelectedSpeaker, deviceList} =
+  const {selectedSpeaker, setSelectedSpeaker, deviceList, isChrome} =
     useContext(DeviceContext);
   const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
@@ -299,7 +299,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
       <Text style={style.label}>Speaker</Text>
       {(local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
         local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
-      (!data || data.length === 0) ? (
+      (!isChrome || !data || data.length === 0) ? (
         <Dropdown
           icon={props?.isIconDropdown ? 'speaker' : undefined}
           enabled={!isPickerDisabled}
