@@ -28,10 +28,6 @@ interface AppBuilderReactSdkInterface extends AppBuilderSdkApiInterface {
   View: React.FC;
 }
 
-if (APPBUILDER_PUBLIC_NODE_ENV === 'production') {
-  AgoraRTC.setLogLevel(4);
-}
-
 const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
   ...AppBuilderSdkApi,
   View: SDKAppWrapper,

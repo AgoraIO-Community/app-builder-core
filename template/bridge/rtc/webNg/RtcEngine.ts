@@ -165,7 +165,15 @@ if ($config.GEO_FENCING) {
 }
 
 if ($config.LOG_ENABLED) {
-  AgoraRTC.setLogLevel(0);
+  if (
+    (APPBUILDER_PUBLIC_TARGET === 'wsdk' ||
+      APPBUILDER_PUBLIC_TARGET === 'rsdk') &&
+    APPBUILDER_PUBLIC_NODE_ENV === 'production'
+  ) {
+    AgoraRTC.setLogLevel(4);
+  } else {
+    AgoraRTC.setLogLevel(0);
+  }
   AgoraRTC.enableLogUpload();
 } else {
   AgoraRTC.disableLogUpload();
