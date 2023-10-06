@@ -88,7 +88,11 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
                 icon: 'vb',
                 path: base64Data,
               };
-              setOptions(prevOptions => [...prevOptions, newCard]);
+              setOptions(prevOptions => {
+                const updatedOptions = [...prevOptions];
+                updatedOptions.splice(3, 0, newCard);
+                return updatedOptions;
+              });
               saveImagesToIndexDB(base64Data);
             })
             .catch(error => {
@@ -245,35 +249,35 @@ const VBPanel: React.FC = () => {
             />
           ))}
         </View>
-        {callActive ? (
-          <View style={styles.btnContainer}>
-            <View style={{flex: 1}}>
-              <TertiaryButton
-                text={'Cancel'}
-                textStyle={styles.btnText}
-                containerStyle={styles.btn}
-                onPress={() => {
-                  setSidePanel(SidePanelType.None);
-                  setIsVBActive(false);
-                }}
-              />
-            </View>
-            <Spacer size={12} horizontal />
-            <View style={{flex: 1}}>
-              <PrimaryButton
-                textStyle={styles.btnText}
-                containerStyle={styles.btn}
-                onPress={() => {
-                  setSaveVB(true);
-                }}
-                text={'Save'}
-              />
-            </View>
-          </View>
-        ) : (
-          <></>
-        )}
       </ScrollView>
+      {callActive ? (
+        <View style={styles.btnContainer}>
+          <View style={{flex: 1}}>
+            <TertiaryButton
+              text={'Cancel'}
+              textStyle={styles.btnText}
+              containerStyle={styles.btn}
+              onPress={() => {
+                setSidePanel(SidePanelType.None);
+                setIsVBActive(false);
+              }}
+            />
+          </View>
+          <Spacer size={12} horizontal />
+          <View style={{flex: 1}}>
+            <PrimaryButton
+              textStyle={styles.btnText}
+              containerStyle={styles.btn}
+              onPress={() => {
+                setSaveVB(true);
+              }}
+              text={'Save'}
+            />
+          </View>
+        </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };
@@ -337,11 +341,11 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   btnContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 12,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
   btn: {
     paddingVertical: 10,
