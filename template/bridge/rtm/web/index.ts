@@ -97,7 +97,14 @@ export default class RtmEngine {
 
   createClient(APP_ID: string) {
     this.appId = APP_ID;
-    this.client = AgoraRTM.createInstance(this.appId);
+    this.client = AgoraRTM.createInstance(this.appId, {
+      logFilter:
+        APPBUILDER_PUBLIC_NODE_ENV === 'production' &&
+        (APPBUILDER_PUBLIC_TARGET === 'rsdk' ||
+          APPBUILDER_PUBLIC_TARGET === 'wsdk')
+          ? AgoraRTM.LOG_FILTER_OFF
+          : AgoraRTM.LOG_FILTER_INFO,
+    });
 
     window.rtmClient = this.client;
 

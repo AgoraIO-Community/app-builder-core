@@ -101,6 +101,16 @@ interface ConfigInterface {
   TOAST_NOTIFICATIONS: boolean;
 }
 declare var $config: ConfigInterface;
+
+declare var APPBUILDER_PUBLIC_NODE_ENV: 'production' | 'development';
+declare var APPBUILDER_PUBLIC_TARGET:
+  | 'rsdk'
+  | 'wsdk'
+  | 'web'
+  | 'windows'
+  | 'linux'
+  | 'mac'
+  | 'android';
 declare module 'customization' {
   const customizationConfig: {};
   export default customizationConfig;

@@ -10,10 +10,9 @@ import AgoraRTC from 'agora-rtc-sdk-ng';
 export * from 'customization-api';
 export * from 'customization-implementation';
 
-if (process.env.NODE_ENV === 'production') {
+if (APPBUILDER_PUBLIC_NODE_ENV === 'production') {
   AgoraRTC.setLogLevel(4);
 }
-
 
 const AppBuilderWebSdkApi: AppBuilderSdkApiInterface = AppBuilderSdkApi;
 

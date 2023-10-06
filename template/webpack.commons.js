@@ -16,6 +16,7 @@ competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
  */
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const configVars = require('./configTransform');
@@ -34,15 +35,15 @@ module.exports = {
   plugins: [
     // Using html webpack plugin to utilize our index.html
     !isSdk &&
-    new HtmlWebpackPlugin({
-      title: configVars['$config.APP_NAME'],
-      template: isElectron ? 'electron/index.html' : 'web/index.html',
-    }),
+      new HtmlWebpackPlugin({
+        title: configVars['$config.APP_NAME'],
+        template: isElectron ? 'electron/index.html' : 'web/index.html',
+      }),
     isDevelopment &&
-    !isSdk &&
-    new ReactRefreshWebpackPlugin({
-      overlay: false,
-    }),
+      !isSdk &&
+      new ReactRefreshWebpackPlugin({
+        overlay: false,
+      }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -123,10 +124,18 @@ module.exports = {
             ],
             plugins: [
               // Adds support for class properties
-              ['transform-define', configVars],
+              [
+                'transform-define',
+                {
+                  ...configVars,
+                  APPBUILDER_PUBLIC_NODE_ENV: process.env.NODE_ENV,
+                  APPBUILDER_PUBLIC_TARGET: process.env.TARGET,
+                },
+              ],
               '@babel/plugin-proposal-optional-chaining',
               '@babel/plugin-proposal-class-properties',
               isDevelopment && !isSdk && require.resolve('react-refresh/babel'),
+              isProduction && isSdk && 'transform-remove-console',
             ].filter(Boolean),
           },
         },
@@ -141,9 +150,8 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: ['style-loader', 'css-loader'],
       },
-
     ],
   },
 };
