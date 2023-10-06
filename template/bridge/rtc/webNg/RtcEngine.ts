@@ -176,6 +176,7 @@ if ($config.LOG_ENABLED) {
   }
   AgoraRTC.enableLogUpload();
 } else {
+  AgoraRTC.setLogLevel(4);
   AgoraRTC.disableLogUpload();
 }
 
