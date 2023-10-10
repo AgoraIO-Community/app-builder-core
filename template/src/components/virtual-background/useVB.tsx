@@ -169,14 +169,14 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
+    // {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
   const {
