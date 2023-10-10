@@ -77,9 +77,9 @@ const MoreButton = () => {
   const {setSidePanel, sidePanel} = useSidePanel();
   const {
     isCaptionON,
-    isSTTActive,
     setIsCaptionON,
     language: prevLang,
+    isSTTActive,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -89,7 +89,7 @@ const MoreButton = () => {
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
 
-  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
+  const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -703,6 +703,13 @@ const Controls = (props: ControlsProps) => {
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
+
+  React.useEffect(() => {
+    events.on(EventNames.STT_ACTIVE, data => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+  }, []);
 
   React.useEffect(() => {
     events.on(EventNames.STT_ACTIVE, data => {

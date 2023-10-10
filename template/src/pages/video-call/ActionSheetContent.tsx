@@ -221,7 +221,6 @@ interface TranscriptIconProps {
 
 const TranscriptIconBtn = (props: TranscriptIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
-  const {isAuthorizedSTTUser} = useSTTAPI();
   const {sidePanel} = useSidePanel();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const {isSTTActive} = useCaption();
@@ -299,6 +298,7 @@ const ActionSheetContent = props => {
   const {defaultContent} = useContent();
 
   //STT events on mount
+
   React.useEffect(() => {
     if (native) return;
     events.on(EventNames.STT_ACTIVE, data => {
@@ -306,7 +306,6 @@ const ActionSheetContent = props => {
       setIsSTTActive(payload.active);
     });
   }, []);
-
   React.useEffect(() => {
     if (native) return;
     events.on(EventNames.STT_LANGUAGE, data => {
@@ -592,7 +591,7 @@ const CarouselWrapper = ({isPaginationRequired, children, native}) => {
               <View style={styles.row}>
                 {/* Transcript */}
                 <TranscriptIconBtn />
-                {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
+                {/* {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>} */}
               </View>
             ),
           },
@@ -601,7 +600,7 @@ const CarouselWrapper = ({isPaginationRequired, children, native}) => {
     </View>
   ) : (
     <View style={styles.row}>
-      {$config.ENABLE_STT ? (
+      {$config.ENABLE_STT && !native ? (
         <>
           {children}
           <TranscriptIconBtn />
