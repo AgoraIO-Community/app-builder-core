@@ -34,6 +34,7 @@ import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 import {calculatePosition, trimText} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
+import {customEvents} from 'customization-api';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -41,6 +42,8 @@ interface UserActionMenuOptionsOptionsProps {
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
   from: 'partcipant' | 'screenshare-participant' | 'video-tile';
+  disableChat: boolean;
+  setDisableChat: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
@@ -55,7 +58,14 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
-  const {user, actionMenuVisible, setActionMenuVisible} = props;
+  const {
+    user,
+    actionMenuVisible,
+    setActionMenuVisible,
+    disableChat,
+    setDisableChat,
+  } = props;
+
   const {pinnedUid, activeUids, customContent} = useContent();
   const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
@@ -130,6 +140,29 @@ export default function UserActionMenuOptionsOptions(
           callback: () => {
             setActionMenuVisible(false);
             openPrivateChat(user.uid);
+          },
+        });
+      }
+
+      if ($config.DISABLE_CHAT_OPTION) {
+        items.push({
+          icon: 'chat-outlined',
+          onHoverIcon: 'chat-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+
+          title: `${disableChat ? 'Enable' : 'Disable'} Chat`,
+          callback: () => {
+            // send l2 custom events
+            console.warn('sending1 custom events for disable-chat');
+            setDisableChat(prev => !prev);
+            setActionMenuVisible(false);
+
+            customEvents.send(
+              'DisableChat',
+              JSON.stringify({}),
+              PersistanceLevel.Session,
+            );
           },
         });
       }
@@ -291,7 +324,7 @@ export default function UserActionMenuOptionsOptions(
       });
     }
     setActionMenuitems(items);
-  }, [pinnedUid, isHost, raiseHandList, hostUids, user]);
+  }, [pinnedUid, isHost, raiseHandList, hostUids, user, disableChat]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState({});

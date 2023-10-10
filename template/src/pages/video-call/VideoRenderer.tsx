@@ -50,6 +50,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
+  const [disableChat, setDisableChat] = React.useState(false);
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
   );
@@ -125,6 +126,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         user={user}
         btnRef={videoMoreMenuRef}
         from={'video-tile'}
+        disableChat={disableChat}
+        setDisableChat={setDisableChat}
       />
       <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
         <View
