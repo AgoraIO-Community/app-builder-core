@@ -17,6 +17,8 @@ import useMuteToggleLocal, {
   MUTE_LOCAL_TYPE,
 } from '../src/utils/useMuteToggleLocal';
 import {RoomPhase} from 'white-web-sdk';
+import {useScreenContext} from '../src/components/contexts/ScreenShareContext';
+import {filterObject} from '../src/utils/index';
 export {
   VideoRenderer,
   DispatchContext,
@@ -32,4 +34,6 @@ export {
   useMuteToggleLocal,
   MUTE_LOCAL_TYPE,
   RoomPhase,
+  useScreenContext,
+  filterObject,
 };
