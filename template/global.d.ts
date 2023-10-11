@@ -107,6 +107,7 @@ interface ConfigInterface {
   ENABLE_VIRTUAL_BACKGROUND: boolean;
   ENABLE_WHITEBOARD: boolean;
   ENABLE_CHAT_NOTIFICATION: boolean;
+  PICTURE_IN_PICTURE: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

@@ -16,6 +16,7 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {
   isMobileUA,
   isValidReactComponent,
+  isWeb,
   isWebInternal,
   useIsDesktop,
   useIsSmall,
@@ -41,6 +42,7 @@ import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import PictureInPicture from '../../subComponents/PictureInPicture';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -243,6 +245,7 @@ const VideoCallScreen = () => {
       <VideocallWrapper>
         <VideocallBeforeView />
         <View style={style.fullRow}>
+          {$config.PICTURE_IN_PICTURE && isWeb() ? <PictureInPicture /> : <></>}
           <ToolbarProvider value={{position: ToolbarPosition.left}}>
             {LeftbarProps?.length ? (
               <LeftbarComponent
