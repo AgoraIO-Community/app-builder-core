@@ -35,6 +35,7 @@ import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 import {calculatePosition, trimText} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {customEvents} from 'customization-api';
+import {useDisableChat} from '../disable-chat/useDisableChat';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -42,8 +43,6 @@ interface UserActionMenuOptionsOptionsProps {
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
   from: 'partcipant' | 'screenshare-participant' | 'video-tile';
-  disableChat: boolean;
-  setDisableChat: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
@@ -58,13 +57,7 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
-  const {
-    user,
-    actionMenuVisible,
-    setActionMenuVisible,
-    disableChat,
-    setDisableChat,
-  } = props;
+  const {user, actionMenuVisible, setActionMenuVisible} = props;
 
   const {pinnedUid, activeUids, customContent} = useContent();
   const {dispatch} = useContext(DispatchContext);
@@ -83,6 +76,23 @@ export default function UserActionMenuOptionsOptions(
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const {enablePinForMe} = useVideoCall();
+  const {setDisableChatUids, disableChatUids} = useDisableChat();
+
+  useEffect(() => {
+    customEvents.on('DisableChat', data => {
+      // for other users
+      const {disableChatUid, disableChat} = JSON.parse(data?.payload);
+      setDisableChatUids(prevState => {
+        // upate disable uids
+        return {
+          ...prevState,
+          [disableChatUid]: {
+            disableChat,
+          },
+        };
+      });
+    });
+  }, []);
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
@@ -145,20 +155,38 @@ export default function UserActionMenuOptionsOptions(
       }
 
       if ($config.DISABLE_CHAT_OPTION) {
+        console.log('disable chat uids', disableChatUids);
+        const isDisableChat = disableChatUids[user.uid]?.disableChat || false;
         items.push({
           icon: 'chat-outlined',
           onHoverIcon: 'chat-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
-          title: `${disableChat ? 'Enable' : 'Disable'} Chat`,
+          title: `${isDisableChat ? 'Enable' : 'Disable'} Chat`,
           callback: () => {
             // send l2 custom events
             console.warn('sending1 custom events for disable-chat');
-            setDisableChat(prev => !prev);
+            //    setDisableChat(prev => !prev); // for local user
+
+            setDisableChatUids(prevState => {
+              // upate disable uids
+              const isDisabled = prevState[user.uid]
+                ? prevState[user.uid].disableChat
+                : false;
+              return {
+                ...prevState,
+                [user.uid]: {
+                  disableChat: !isDisableChat,
+                },
+              };
+            });
             setActionMenuVisible(false);
             customEvents.send(
               'DisableChat',
-              JSON.stringify({}),
+              JSON.stringify({
+                disableChatUid: user.uid,
+                disableChat: !isDisableChat,
+              }), // uid for chat disabled user
               PersistanceLevel.Session,
             );
           },
@@ -322,7 +350,7 @@ export default function UserActionMenuOptionsOptions(
       });
     }
     setActionMenuitems(items);
-  }, [pinnedUid, isHost, raiseHandList, hostUids, user, disableChat]);
+  }, [pinnedUid, isHost, raiseHandList, hostUids, user, disableChatUids]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState({});

@@ -10,7 +10,7 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
-import {useLayout, useContent, useRtc} from 'customization-api';
+import {useLayout, useContent, useRtc, customEvents} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
@@ -50,7 +50,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  const [disableChat, setDisableChat] = React.useState(false);
+
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
   );
@@ -126,8 +126,6 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         user={user}
         btnRef={videoMoreMenuRef}
         from={'video-tile'}
-        disableChat={disableChat}
-        setDisableChat={setDisableChat}
       />
       <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
         <View

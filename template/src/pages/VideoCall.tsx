@@ -68,6 +68,7 @@ import WhiteboardConfigure from '../components/whiteboard/WhiteboardConfigure';
 import {NoiseSupressionProvider} from '../app-state/useNoiseSupression';
 import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
+import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 
 enum RnEncryptionEnum {
   /**
@@ -356,11 +357,13 @@ const VideoCall: React.FC = () => {
                                                           {callActive ? (
                                                             <VideoMeetingDataProvider>
                                                               <VideoCallProvider>
-                                                                <CaptionProvider>
-                                                                  <WhiteboardConfigure>
-                                                                    <VideoCallScreen />
-                                                                  </WhiteboardConfigure>
-                                                                </CaptionProvider>
+                                                                <DisableChatProvider>
+                                                                  <CaptionProvider>
+                                                                    <WhiteboardConfigure>
+                                                                      <VideoCallScreen />
+                                                                    </WhiteboardConfigure>
+                                                                  </CaptionProvider>
+                                                                </DisableChatProvider>
                                                               </VideoCallProvider>
                                                             </VideoMeetingDataProvider>
                                                           ) : $config.PRECALL ? (
