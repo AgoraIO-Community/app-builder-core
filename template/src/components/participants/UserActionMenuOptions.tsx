@@ -145,24 +145,24 @@ export default function UserActionMenuOptionsOptions(
       }
 
       if ($config.DISABLE_CHAT_OPTION) {
-        // items.push({
-        //   icon: 'chat-outlined',
-        //   onHoverIcon: 'chat-filled',
-        //   iconColor: $config.SECONDARY_ACTION_COLOR,
-        //   textColor: $config.SECONDARY_ACTION_COLOR,
-        //   title: `${disableChat ? 'Enable' : 'Disable'} Chat`,
-        //   callback: () => {
-        //     // send l2 custom events
-        //     console.warn('sending1 custom events for disable-chat');
-        //     setDisableChat(prev => !prev);
-        //     setActionMenuVisible(false);
-        //     customEvents.send(
-        //       'DisableChat',
-        //       JSON.stringify({}),
-        //       PersistanceLevel.Session,
-        //     );
-        //   },
-        // });
+        items.push({
+          icon: 'chat-outlined',
+          onHoverIcon: 'chat-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: `${disableChat ? 'Enable' : 'Disable'} Chat`,
+          callback: () => {
+            // send l2 custom events
+            console.warn('sending1 custom events for disable-chat');
+            setDisableChat(prev => !prev);
+            setActionMenuVisible(false);
+            customEvents.send(
+              'DisableChat',
+              JSON.stringify({}),
+              PersistanceLevel.Session,
+            );
+          },
+        });
       }
 
       /**
