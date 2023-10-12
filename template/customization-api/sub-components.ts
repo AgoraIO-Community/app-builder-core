@@ -50,6 +50,7 @@ export {
   MaxVideoView as UiKitMaxVideoView,
   ClientRole as UikitClientRole,
   ChannelProfile as UikitChannelProfile,
+  PropsContext as UikitPropsContext,
 } from '../agora-rn-uikit';
 export {default as Toolbar} from '../src/atoms/Toolbar';
 export {default as ToolbarItem} from '../src/atoms/ToolbarItem';
