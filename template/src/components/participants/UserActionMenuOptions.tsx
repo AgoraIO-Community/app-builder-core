@@ -59,7 +59,8 @@ export default function UserActionMenuOptionsOptions(
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
 
-  const {pinnedUid, activeUids, customContent} = useContent();
+  const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
+    useContent();
   const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
@@ -110,26 +111,54 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        items.push({
-          disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
-          icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-          onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: pinnedUid
-            ? user.uid === pinnedUid
-              ? 'Unpin'
-              : 'Replace Pin'
-            : 'Pin for me',
-          callback: () => {
-            setActionMenuVisible(false);
-            dispatch({
-              type: 'UserPin',
-              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+        if (pinnedUid !== user.uid) {
+          items.push({
+            disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+            icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+            onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: pinnedUid
+              ? user.uid === pinnedUid
+                ? 'Unpin'
+                : 'Replace Pin'
+              : 'Pin for me',
+            callback: () => {
+              setActionMenuVisible(false);
+              dispatch({
+                type: 'UserPin',
+                value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+              });
+              setLayout(getPinnedLayoutName());
+            },
+          });
+          if (secondaryPinnedUid !== user.uid) {
+            items.push({
+              disabled:
+                activeUids?.filter(i => !customContent[i])?.length === 1,
+              icon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-outlined',
+              onHoverIcon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-filled',
+              iconColor: $config.SECONDARY_ACTION_COLOR,
+              textColor: $config.SECONDARY_ACTION_COLOR,
+              title: secondaryPinnedUid
+                ? user.uid === secondaryPinnedUid
+                  ? 'Unpin Secondary Pin'
+                  : 'Pin to Top'
+                : 'Pin to Top',
+              callback: () => {
+                setActionMenuVisible(false);
+                dispatch({
+                  type: 'UserSecondaryPin',
+                  value: [
+                    secondaryPinnedUid && user.uid === secondaryPinnedUid
+                      ? 0
+                      : user.uid,
+                  ],
+                });
+              },
             });
-            setLayout(getPinnedLayoutName());
-          },
-        });
+          }
+        }
       }
     }
 
@@ -350,7 +379,15 @@ export default function UserActionMenuOptionsOptions(
       });
     }
     setActionMenuitems(items);
-  }, [pinnedUid, isHost, raiseHandList, hostUids, user, disableChatUids]);
+  }, [
+    pinnedUid,
+    isHost,
+    raiseHandList,
+    hostUids,
+    user,
+    disableChatUids,
+    secondaryPinnedUid,
+  ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState({});

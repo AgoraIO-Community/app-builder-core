@@ -173,7 +173,7 @@ const WhiteboardLayout = ({renderData}) => {
                 }
                 key={'minVideo' + i}
                 onPress={() => {
-                  dispatch({type: 'SwapVideo', value: [minUid]});
+                  dispatch({type: 'DequeVideo', value: [minUid]});
                 }}>
                 <RenderComponent uid={minUid} />
               </Pressable>

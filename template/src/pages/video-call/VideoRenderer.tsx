@@ -25,6 +25,7 @@ import {isIOS} from '../../utils/common';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useVideoCall} from '../../components/useVideoCall';
+import VisibilitySensor from './VisibilitySensor';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -50,6 +51,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
+  const {setVideoTileInViewPortState} = useVideoCall();
 
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
@@ -217,34 +219,44 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 ? true
                 : false
             }>
-            <MaxVideoView
-              fallback={() => {
-                return FallbackLogo(
-                  user?.name,
-                  isActiveSpeaker,
-                  enablePinForMe &&
-                    (showReplacePin || showPinForMe) &&
-                    !isMobileUA()
-                    ? true
-                    : false,
-                  isMax,
-                  avatarSize,
+            <VisibilitySensor
+              trigger={activeSpeaker}
+              onChange={isVisible => {
+                setVideoTileInViewPortState(user.uid, isVisible);
+                console.log(
+                  'debugging its visible',
+                  isVisible + ' ' + user.uid,
                 );
-              }}
-              user={isNativeScreenShareActive ? {...user, video: 0} : user}
-              containerStyle={{
-                width:
-                  landscapeMode && isScreenShareOnFullView ? height : '100%',
-                height:
-                  landscapeMode && isScreenShareOnFullView ? width : '100%',
-                // width: '100%',
-                // height: '100%',
-              }}
-              key={user.uid}
-              landscapeMode={
-                landscapeMode && isScreenShareOnFullView ? true : false
-              }
-            />
+              }}>
+              <MaxVideoView
+                fallback={() => {
+                  return FallbackLogo(
+                    user?.name,
+                    isActiveSpeaker,
+                    enablePinForMe &&
+                      (showReplacePin || showPinForMe) &&
+                      !isMobileUA()
+                      ? true
+                      : false,
+                    isMax,
+                    avatarSize,
+                  );
+                }}
+                user={isNativeScreenShareActive ? {...user, video: 0} : user}
+                containerStyle={{
+                  width:
+                    landscapeMode && isScreenShareOnFullView ? height : '100%',
+                  height:
+                    landscapeMode && isScreenShareOnFullView ? width : '100%',
+                  // width: '100%',
+                  // height: '100%',
+                }}
+                key={user.uid}
+                landscapeMode={
+                  landscapeMode && isScreenShareOnFullView ? true : false
+                }
+              />
+            </VisibilitySensor>
           </ZoomableWrapper>
           {!isScreenShareOnFullView && (
             <VideoContainerProvider value={{videoTileWidth}}>

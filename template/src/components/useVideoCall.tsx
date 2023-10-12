@@ -10,18 +10,27 @@
 *********************************************
 */
 
-import React, {SetStateAction, useState, useContext, useEffect} from 'react';
+import React, {
+  SetStateAction,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
 import StartScreenSharePopup from './popups/StartScreenSharePopup';
 import StopScreenSharePopup from './popups/StopScreenSharePopup';
 import {SdkApiContext} from './SdkApiContext';
-import {useRoomInfo} from 'customization-api';
+import {UidType, useRoomInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 import useSetName from '../utils/useSetName';
 
+interface InViewPortState {
+  [key: number]: boolean;
+}
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
   setShowInvitePopup: React.Dispatch<SetStateAction<boolean>>;
@@ -35,6 +44,8 @@ export interface VideoCallContextInterface {
   setShowStopScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
   enablePinForMe: boolean;
   setEnablePinForMe: React.Dispatch<SetStateAction<boolean>>;
+  videoTileInViewPortState: InViewPortState;
+  setVideoTileInViewPortState: (uid: UidType, visible: boolean) => void;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -50,6 +61,8 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setShowStopScreenSharePopup: () => {},
   enablePinForMe: true,
   setEnablePinForMe: () => {},
+  videoTileInViewPortState: {},
+  setVideoTileInViewPortState: () => {},
 });
 
 interface VideoCallProviderProps {
@@ -68,6 +81,18 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
+  //const videoTileInViewPortStateRef = useRef({});
+  const [videoTileInViewPortState, setVideoTileInViewPortStateL] = useState({});
+
+  const setVideoTileInViewPortState = (uid: UidType, visible: boolean) => {
+    //videoTileInViewPortStateRef.current[uid] = visible;
+    setVideoTileInViewPortStateL(prevState => {
+      return {
+        ...prevState,
+        [uid]: visible,
+      };
+    });
+  };
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
@@ -101,6 +126,9 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowStopScreenSharePopup,
         enablePinForMe,
         setEnablePinForMe,
+        setVideoTileInViewPortState,
+        //videoTileInViewPortState: videoTileInViewPortStateRef.current,
+        videoTileInViewPortState,
       }}>
       <StartScreenSharePopup />
       <StopScreenSharePopup />

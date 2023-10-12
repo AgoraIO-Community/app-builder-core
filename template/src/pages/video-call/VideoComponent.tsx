@@ -18,6 +18,7 @@ const VideoComponent = () => {
     if (activeUids && activeUids.length === 1) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
+        dispatch({type: 'UserSecondaryPin', value: [0]});
       }
       const gridLayoutName = getGridLayoutName();
       if (currentLayout !== gridLayoutName && layoutsData?.length <= 2) {

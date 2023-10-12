@@ -51,7 +51,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
   if (
     $config.EVENT_MODE &&
     rtcProps?.role === ClientRole.Audience &&
-    activeUids.filter((i) => !customContent[i]).length === 0
+    activeUids.filter(i => !customContent[i]).length === 0
   ) {
     return (
       <View style={style.infoTextContainer}>
@@ -73,12 +73,12 @@ const GridVideo: LayoutComponent = ({renderData}) => {
             <Pressable
               disabled={renderData.length === 1}
               onPress={() => {
-                if (!(ridx === 0 && cidx === 0)) {
-                  dispatch({
-                    type: 'SwapVideo',
-                    value: [renderData[ridx * dims.c + cidx]],
-                  });
-                }
+                //if (!(ridx === 0 && cidx === 0)) {
+                dispatch({
+                  type: 'UserPin',
+                  value: [renderData[ridx * dims.c + cidx]],
+                });
+                //}
                 setPinnedLayout();
               }}
               style={{
