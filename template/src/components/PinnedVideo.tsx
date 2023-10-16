@@ -9,13 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   ScrollView,
   View,
   StyleSheet,
   Pressable,
   useWindowDimensions,
+  TouchableOpacity,
+  Text,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
 import {useLocalUid, useContent} from 'customization-api';
@@ -26,9 +28,11 @@ import {BREAKPOINTS, isMobileUA} from '../utils/common';
 import {DispatchContext} from '../../agora-rn-uikit';
 import {useVideoCall} from '../components/useVideoCall';
 import useActiveSpeaker from '../utils/useActiveSpeaker';
+import ImageIcon from '../atoms/ImageIcon';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
+  const [isOnTop, setIsOnTop] = useState(true);
   const {pinnedUid, defaultContent, activeUids, secondaryPinnedUid} =
     useContent();
   const [collapse, setCollapse] = useState(false);
@@ -54,14 +58,14 @@ const PinnedVideo = ({renderData}) => {
       'debugging activeSpeaker ' + activeSpeaker + ' ',
       videoTileInViewPortState,
     );
-    if (activeSpeaker && !videoTileInViewPortState[activeSpeaker]) {
+    if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
       dispatch({
         type: 'ActiveSpeaker',
         value: [activeSpeaker],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSpeaker, videoTileInViewPortState]);
+  }, [activeSpeaker, videoTileInViewPortState, isOnTop]);
 
   // useEffect(() => {
   //   const nonPinnedUids = activeUids.filter(uid => uid !== pinnedUid);
@@ -112,7 +116,22 @@ const PinnedVideo = ({renderData}) => {
 
   //   setUids(updatedOrder);
   // }, [activeUids, defaultContent, activeSpeaker, pinnedUid]);
+  const scrollRef = useRef() as any;
 
+  const scrollToTop = () => {
+    scrollRef?.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  };
+  const handleScroll = (event: any) => {
+    console.log('debugging x', event.nativeEvent.contentOffset.y);
+    if (event.nativeEvent.contentOffset.y >= 5) {
+      isOnTop && setIsOnTop(false);
+    } else {
+      !isOnTop && setIsOnTop(true);
+    }
+  };
   return (
     <View
       style={{
@@ -120,68 +139,98 @@ const PinnedVideo = ({renderData}) => {
         flex: 1,
       }}>
       {!collapse && (
-        <ScrollView
-          horizontal={!isSidePinnedlayout}
-          showsHorizontalScrollIndicator={isMobileUA() ? false : true}
-          decelerationRate={0}
-          style={
-            isSidePinnedlayout
-              ? {
-                  width: '20%',
-                  paddingRight: 8,
-                }
-              : {
-                  flex: 1,
-                  minHeight: 160,
-                  marginBottom: 8,
-                }
-          }>
-          {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
-          {minUids?.map((minUid, i) => {
-            //first item -> maximized view so returning null
-            //if (i === 0) return null;
-            //remaining items -> minimized view
-            {
-              /**Rendering minimized views */
-            }
-            return (
-              <Pressable
-                //old
-                //if user pinned somebody then side panel items should not be clickable - swap video should be called
-                //instead we will show replace pin button on hovering the video tile
-                //old
-                disabled={
-                  //old fix
-                  //activeSpeaker || pinnedUid || screenShareOn ? true : false
-                  //old fix
+        <>
+          <ScrollView
+            onScroll={handleScroll}
+            ref={scrollRef}
+            horizontal={!isSidePinnedlayout}
+            showsHorizontalScrollIndicator={isMobileUA() ? false : true}
+            decelerationRate={0}
+            style={
+              isSidePinnedlayout
+                ? {
+                    width: '20%',
+                    paddingRight: 8,
+                  }
+                : {
+                    flex: 1,
+                    minHeight: 160,
+                    marginBottom: 8,
+                  }
+            }>
+            {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
+            {minUids?.map((minUid, i) => {
+              //first item -> maximized view so returning null
+              //if (i === 0) return null;
+              //remaining items -> minimized view
+              {
+                /**Rendering minimized views */
+              }
+              return (
+                <Pressable
+                  //old
+                  //if user pinned somebody then side panel items should not be clickable - swap video should be called
+                  //instead we will show replace pin button on hovering the video tile
+                  //old
+                  disabled={
+                    //old fix
+                    //activeSpeaker || pinnedUid || screenShareOn ? true : false
+                    //old fix
 
-                  //latest fix : pinned video sidepanel layout should not be clickable
-                  //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
-                  true
-                }
-                style={
-                  isSidePinnedlayout
-                    ? {
-                        width: '100%',
-                        height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                        zIndex: 40,
-                        paddingBottom: 8,
-                      }
-                    : {
-                        // width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                        width: 254,
-                        height: '100%',
-                        zIndex: 40,
-                        marginRight: 8,
-                      }
-                }
-                key={'minVideo' + i}
-                onPress={() => {}}>
-                <RenderComponent uid={minUid} />
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+                    //latest fix : pinned video sidepanel layout should not be clickable
+                    //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
+                    true
+                  }
+                  style={
+                    isSidePinnedlayout
+                      ? {
+                          width: '100%',
+                          height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                          zIndex: 40,
+                          paddingBottom: 8,
+                        }
+                      : {
+                          // width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                          width: 254,
+                          height: '100%',
+                          zIndex: 40,
+                          marginRight: 8,
+                        }
+                  }
+                  key={'minVideo' + i}
+                  onPress={() => {}}>
+                  <RenderComponent uid={minUid} />
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+          {!isOnTop && (
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                padding: 10,
+                borderRadius: 5,
+                zIndex: 999,
+                backgroundColor: $config.CARD_LAYER_1_COLOR,
+                flexDirection: 'row',
+                left: '6%',
+              }}
+              onPress={scrollToTop}>
+              <Text style={{color: $config.FONT_COLOR, textAlign: 'center'}}>
+                {activeSpeaker
+                  ? `Active Speaker: ${defaultContent[activeSpeaker]?.name}`
+                  : 'Go to Top'}
+              </Text>
+              <ImageIcon
+                iconType="plain"
+                name={'arrow-up'}
+                iconSize={20}
+                tintColor={$config.SEMANTIC_NEUTRAL}
+              />
+            </TouchableOpacity>
+          )}
+        </>
       )}
       {maxUid && (
         <View
