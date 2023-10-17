@@ -179,7 +179,7 @@ const PinnedVideo = ({renderData}) => {
 
                     //latest fix : pinned video sidepanel layout should not be clickable
                     //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
-                    false
+                    true
                   }
                   style={
                     isSidePinnedlayout
@@ -199,10 +199,10 @@ const PinnedVideo = ({renderData}) => {
                   }
                   key={'minVideo' + i}
                   onPress={() => {
-                    dispatch({
-                      type: 'DequeVideo',
-                      value: [minUid],
-                    });
+                    // dispatch({
+                    //   type: 'DequeVideo',
+                    //   value: [minUid],
+                    // });
                   }}>
                   <RenderComponent uid={minUid} />
                 </Pressable>

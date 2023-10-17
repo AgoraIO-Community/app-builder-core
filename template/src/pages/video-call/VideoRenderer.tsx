@@ -165,8 +165,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 padding: 8,
                 top: 8,
                 left: 8,
-                backgroundColor:
-                  $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
+                backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
               }}>
               <ImageIcon
                 iconType="plain"
@@ -261,12 +260,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                   return FallbackLogo(
                     user?.name,
                     isActiveSpeaker,
-                    // enablePinForMe &&
-                    //   (showReplacePin || showPinForMe) &&
-                    //   !isMobileUA()
-                    // ? true
-                    // : false,
-                    false,
+                    enablePinForMe &&
+                      (showReplacePin || showPinForMe) &&
+                      !isMobileUA()
+                      ? true
+                      : false,
                     isMax,
                     avatarSize,
                   );
@@ -293,7 +291,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             </VideoContainerProvider>
           )}
           {!isScreenShareOnFullView &&
-          user.uid !== rtcProps?.screenShareUid &&
+          // user.uid !== rtcProps?.screenShareUid &&
           (isHovered || actionMenuVisible || isMobileUA()) ? (
             <MoreMenu
               videoMoreMenuRef={videoMoreMenuRef}
@@ -302,7 +300,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {/* {enablePinForMe &&
+          {enablePinForMe &&
           (showReplacePin || showPinForMe) &&
           !isMobileUA() ? (
             <IconButton
@@ -329,7 +327,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             />
           ) : (
             <></>
-          )} */}
+          )}
         </View>
       </PlatformWrapper>
     </>

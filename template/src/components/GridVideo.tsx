@@ -37,7 +37,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
 const GridVideo: LayoutComponent = ({renderData}) => {
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const {activeUids, customContent} = useContent();
+  const {activeUids, customContent, pinnedUid} = useContent();
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
@@ -74,10 +74,12 @@ const GridVideo: LayoutComponent = ({renderData}) => {
               disabled={renderData.length === 1}
               onPress={() => {
                 //if (!(ridx === 0 && cidx === 0)) {
-                dispatch({
-                  type: 'DequeVideo',
-                  value: [renderData[ridx * dims.c + cidx]],
-                });
+                if (!pinnedUid) {
+                  dispatch({
+                    type: 'DequeVideo',
+                    value: [renderData[ridx * dims.c + cidx]],
+                  });
+                }
                 //}
                 setPinnedLayout();
               }}
