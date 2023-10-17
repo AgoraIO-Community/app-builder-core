@@ -29,6 +29,7 @@ import {DispatchContext} from '../../agora-rn-uikit';
 import {useVideoCall} from '../components/useVideoCall';
 import useActiveSpeaker from '../utils/useActiveSpeaker';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
@@ -126,7 +127,10 @@ const PinnedVideo = ({renderData}) => {
   };
   const handleScroll = (event: any) => {
     console.log('debugging x', event.nativeEvent.contentOffset.y);
-    if (event.nativeEvent.contentOffset.y >= 5) {
+    if (
+      (isSidePinnedlayout && event.nativeEvent.contentOffset.y >= 5) ||
+      (!isSidePinnedlayout && event.nativeEvent.contentOffset.x >= 5)
+    ) {
       isOnTop && setIsOnTop(false);
     } else {
       !isOnTop && setIsOnTop(true);
@@ -210,34 +214,60 @@ const PinnedVideo = ({renderData}) => {
             })}
           </ScrollView>
           {!isOnTop && (
-            <TouchableOpacity
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 27,
-                zIndex: 999,
-                backgroundColor: $config.CARD_LAYER_5_COLOR,
-                flexDirection: 'row',
-                left: '4%',
-              }}
-              onPress={scrollToTop}>
-              <ImageIcon
-                iconType="plain"
-                name={'arrow-up'}
-                iconSize={20}
-                tintColor={$config.FONT_COLOR}
-              />
-              <Text
+            <View
+              style={
+                isSidePinnedlayout
+                  ? {
+                      width: '20%',
+                      position: 'absolute',
+                      bottom: 0,
+                      zIndex: 999,
+                    }
+                  : {
+                      position: 'absolute',
+                      right: 5,
+                      top: 5,
+                    }
+              }>
+              <TouchableOpacity
                 style={{
-                  marginLeft: 4,
-                  color: $config.FONT_COLOR,
-                  textAlign: 'center',
-                }}>
-                Go to Active Speaker
-              </Text>
-            </TouchableOpacity>
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  flexDirection: 'row',
+                  borderRadius: 27,
+                  backgroundColor: $config.CARD_LAYER_5_COLOR,
+                  maxWidth: 180,
+                  alignSelf: 'center',
+                }}
+                onPress={scrollToTop}>
+                <ImageIcon
+                  iconType="plain"
+                  name={'view-last'}
+                  iconSize={20}
+                  tintColor={$config.FONT_COLOR}
+                  iconContainerStyle={
+                    isSidePinnedlayout
+                      ? {
+                          transform: [{rotate: '180deg'}],
+                        }
+                      : {
+                          transform: [{rotate: '90deg'}],
+                        }
+                  }
+                />
+                <Text
+                  style={{
+                    marginLeft: 4,
+                    color: $config.FONT_COLOR,
+                    textAlign: 'center',
+                    fontSize: 14,
+                    fontFamily: ThemeConfig.FontFamily.sansPro,
+                    alignSelf: 'center',
+                  }}>
+                  Go to Active Speaker
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
         </>
       )}
