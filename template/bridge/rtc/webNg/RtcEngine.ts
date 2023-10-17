@@ -233,6 +233,9 @@ export default class RtcEngine {
 
   async enableAudio(): Promise<void> {
     const audioConfig: MicrophoneAudioTrackInitConfig = {
+      encoderConfig: $config.AUDIO_ENCODER_CONFIG_PRESET
+        ? $config.AUDIO_ENCODER_CONFIG_PRESET
+        : undefined,
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
       // microphoneId: this.audioDeviceId,
     };
@@ -266,6 +269,9 @@ export default class RtcEngine {
     const audioConfig: MicrophoneAudioTrackInitConfig = {
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
       microphoneId: preferredMicrophoneId,
+      encoderConfig: $config.AUDIO_ENCODER_CONFIG_PRESET
+        ? $config.AUDIO_ENCODER_CONFIG_PRESET
+        : undefined,
     };
     const videoConfig: CameraVideoTrackInitConfig = {
       encoderConfig: this.videoProfile,

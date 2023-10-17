@@ -99,6 +99,7 @@ interface ConfigInterface {
   TOOLBAR_COLOR: string;
   ACTIVE_SPEAKER: boolean;
   TOAST_NOTIFICATIONS: boolean;
+  AUDIO_ENCODER_CONFIG_PRESET: string;
 }
 declare var $config: ConfigInterface;
 
