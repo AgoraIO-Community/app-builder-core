@@ -75,7 +75,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
               onPress={() => {
                 //if (!(ridx === 0 && cidx === 0)) {
                 dispatch({
-                  type: 'UserPin',
+                  type: 'DequeVideo',
                   value: [renderData[ridx * dims.c + cidx]],
                 });
                 //}

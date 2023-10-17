@@ -9,7 +9,10 @@ import {
   useContent,
   useSidePanel,
 } from 'customization-api';
-import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
+import {
+  DefaultLayouts,
+  getPinnedLayoutName,
+} from '../../pages/video-call/DefaultLayouts';
 import useRemoteRequest, {
   REQUEST_REMOTE_TYPE,
 } from '../../utils/useRemoteRequest';
@@ -58,7 +61,7 @@ export default function UserActionMenuOptionsOptions(
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
-
+  const {currentLayout} = useLayout();
   const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
     useContent();
   const {dispatch} = useContext(DispatchContext);
@@ -120,9 +123,9 @@ export default function UserActionMenuOptionsOptions(
             textColor: $config.SECONDARY_ACTION_COLOR,
             title: pinnedUid
               ? user.uid === pinnedUid
-                ? 'Unpin'
-                : 'Replace Pin'
-              : 'Pin for me',
+                ? 'Remove from large'
+                : 'View in large'
+              : 'View in large',
             callback: () => {
               setActionMenuVisible(false);
               dispatch({
@@ -132,7 +135,7 @@ export default function UserActionMenuOptionsOptions(
               setLayout(getPinnedLayoutName());
             },
           });
-          if (secondaryPinnedUid !== user.uid) {
+          if (currentLayout === DefaultLayouts[1].name) {
             items.push({
               disabled:
                 activeUids?.filter(i => !customContent[i])?.length === 1,
@@ -142,9 +145,9 @@ export default function UserActionMenuOptionsOptions(
               textColor: $config.SECONDARY_ACTION_COLOR,
               title: secondaryPinnedUid
                 ? user.uid === secondaryPinnedUid
-                  ? 'Unpin Secondary Pin'
-                  : 'Pin to Top'
-                : 'Pin to Top',
+                  ? 'Remove from top'
+                  : 'Pin to top'
+                : 'Pin to top',
               callback: () => {
                 setActionMenuVisible(false);
                 dispatch({
@@ -387,6 +390,7 @@ export default function UserActionMenuOptionsOptions(
     user,
     disableChatUids,
     secondaryPinnedUid,
+    currentLayout,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

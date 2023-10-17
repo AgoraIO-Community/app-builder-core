@@ -39,7 +39,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
-  const {defaultContent, activeUids, pinnedUid} = useContent();
+  const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isPinned = useRef(0);
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
@@ -59,10 +60,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
+  const secondaryPinnedUidRef = useRef({
+    secondaryPinnedUid: secondaryPinnedUid,
+  });
 
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
   }, [pinnedUid]);
+
+  useEffect(() => {
+    secondaryPinnedUidRef.current.secondaryPinnedUid = secondaryPinnedUid;
+  }, [secondaryPinnedUid]);
 
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
@@ -122,7 +130,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         type: 'UserPin',
         value: [screenShareUid],
       });
-      if (parentUid) {
+      if (parentUid && !secondaryPinnedUidRef.current) {
         dispatch({
           type: 'UserSecondaryPin',
           value: [parentUid],

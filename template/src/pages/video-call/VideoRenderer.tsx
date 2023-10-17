@@ -11,7 +11,11 @@ import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import {useLayout, useContent, useRtc, customEvents} from 'customization-api';
-import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
+import {
+  DefaultLayouts,
+  getGridLayoutName,
+  getPinnedLayoutName,
+} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
@@ -26,6 +30,7 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useVideoCall} from '../../components/useVideoCall';
 import VisibilitySensor from './VisibilitySensor';
+import ImageIcon from '../../atoms/ImageIcon';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -34,7 +39,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
-  const {pinnedUid} = useContent();
+  const {pinnedUid, secondaryPinnedUid} = useContent();
   const activeSpeaker = useActiveSpeaker();
   const isActiveSpeaker = activeSpeaker === user.uid;
   const [isHovered, setIsHovered] = useState(false);
@@ -150,6 +155,29 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
+          {currentLayout === DefaultLayouts[1].name &&
+          user.uid === secondaryPinnedUid ? (
+            <View
+              style={{
+                position: 'absolute',
+                zIndex: 2,
+                borderRadius: 50,
+                padding: 8,
+                top: 8,
+                left: 8,
+                backgroundColor:
+                  $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
+              }}>
+              <ImageIcon
+                iconType="plain"
+                name={'pin-filled'}
+                iconSize={16}
+                tintColor={$config.FONT_COLOR}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
           {enableExpandButton &&
           screenShareData &&
           screenShareData?.[user.uid] &&
@@ -233,11 +261,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                   return FallbackLogo(
                     user?.name,
                     isActiveSpeaker,
-                    enablePinForMe &&
-                      (showReplacePin || showPinForMe) &&
-                      !isMobileUA()
-                      ? true
-                      : false,
+                    // enablePinForMe &&
+                    //   (showReplacePin || showPinForMe) &&
+                    //   !isMobileUA()
+                    // ? true
+                    // : false,
+                    false,
                     isMax,
                     avatarSize,
                   );
@@ -273,7 +302,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {enablePinForMe &&
+          {/* {enablePinForMe &&
           (showReplacePin || showPinForMe) &&
           !isMobileUA() ? (
             <IconButton
@@ -282,7 +311,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               }}
               containerStyle={maxStyle.replacePinContainer}
               btnTextProps={{
-                text: showReplacePin ? 'Replace Pin' : 'Pin for me',
+                //text: showReplacePin ? 'Replace Pin' : 'View in large',
+                text: 'View in large',
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {
                   marginTop: 0,
@@ -299,7 +329,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             />
           ) : (
             <></>
-          )}
+          )} */}
         </View>
       </PlatformWrapper>
     </>

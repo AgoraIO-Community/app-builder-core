@@ -179,7 +179,7 @@ const PinnedVideo = ({renderData}) => {
 
                     //latest fix : pinned video sidepanel layout should not be clickable
                     //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
-                    true
+                    false
                   }
                   style={
                     isSidePinnedlayout
@@ -198,7 +198,12 @@ const PinnedVideo = ({renderData}) => {
                         }
                   }
                   key={'minVideo' + i}
-                  onPress={() => {}}>
+                  onPress={() => {
+                    dispatch({
+                      type: 'DequeVideo',
+                      value: [minUid],
+                    });
+                  }}>
                   <RenderComponent uid={minUid} />
                 </Pressable>
               );
@@ -209,25 +214,29 @@ const PinnedVideo = ({renderData}) => {
               style={{
                 position: 'absolute',
                 bottom: 0,
-                padding: 10,
-                borderRadius: 5,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 27,
                 zIndex: 999,
-                backgroundColor: $config.CARD_LAYER_1_COLOR,
+                backgroundColor: $config.CARD_LAYER_5_COLOR,
                 flexDirection: 'row',
                 left: '6%',
               }}
               onPress={scrollToTop}>
-              <Text style={{color: $config.FONT_COLOR, textAlign: 'center'}}>
-                {activeSpeaker
-                  ? `Active Speaker: ${defaultContent[activeSpeaker]?.name}`
-                  : 'Go to Top'}
-              </Text>
               <ImageIcon
                 iconType="plain"
                 name={'arrow-up'}
                 iconSize={20}
-                tintColor={$config.SEMANTIC_NEUTRAL}
+                tintColor={$config.FONT_COLOR}
               />
+              <Text
+                style={{
+                  marginLeft: 4,
+                  color: $config.FONT_COLOR,
+                  textAlign: 'center',
+                }}>
+                Go to Active Speaker
+              </Text>
             </TouchableOpacity>
           )}
         </>
@@ -267,7 +276,6 @@ const PinnedVideo = ({renderData}) => {
             )}
             {pinnedUid ? (
               <IconButton
-                disabled={true}
                 containerStyle={{
                   paddingHorizontal: 8,
                   paddingVertical: 10,
@@ -285,8 +293,7 @@ const PinnedVideo = ({renderData}) => {
                   iconContainerStyle: {
                     padding: 0,
                   },
-                  //name: 'unpin-filled',
-                  name: 'pin-filled',
+                  name: 'unpin-filled',
                   iconSize: 20,
                   tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 }}
@@ -294,8 +301,7 @@ const PinnedVideo = ({renderData}) => {
                   dispatch({type: 'UserPin', value: [0]});
                 }}
                 btnTextProps={{
-                  //text: 'Unpin',
-                  text: 'Pinned',
+                  text: 'Remove from large',
                   textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                   textStyle: {
                     marginTop: 0,

@@ -42,7 +42,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const enableVideoRef = useRef(false);
   const {RtcEngineUnsafe} = useRtc();
   const {dispatch} = useContext(DispatchContext);
-  const {defaultContent, activeUids, pinnedUid} = useContent();
+  const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isPinned = useRef(0);
   const {setScreenShareData, screenShareData, setScreenShareOnFullView} =
     useScreenContext();
@@ -57,12 +58,19 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const currentLayoutRef = useRef({currentLayout: currentLayout});
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
+  const secondaryPinnedUidRef = useRef({
+    secondaryPinnedUid: secondaryPinnedUid,
+  });
   const screenShareDataRef = useRef({screenShareData: screenShareData});
   const localMute = useMuteToggleLocal();
   const {video} = useLocalUserInfo();
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
   }, [pinnedUid]);
+
+  useEffect(() => {
+    secondaryPinnedUidRef.current.secondaryPinnedUid = secondaryPinnedUid;
+  }, [secondaryPinnedUid]);
 
   useEffect(() => {
     screenShareDataRef.current.screenShareData = screenShareData;
@@ -118,7 +126,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         type: 'UserPin',
         value: [screenShareUid],
       });
-      if (parentUid) {
+      if (parentUid && !secondaryPinnedUidRef.current) {
         dispatch({
           type: 'UserSecondaryPin',
           value: [parentUid],

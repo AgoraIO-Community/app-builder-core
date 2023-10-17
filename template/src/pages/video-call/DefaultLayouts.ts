@@ -16,7 +16,7 @@ const DefaultLayouts: LayoutItem[] = [
   },
   {
     name: 'pinned',
-    label: 'Pinned',
+    label: 'Sidebar',
     //iconName: 'pinned',
     //for mobile view top pinned icon and desktop left pinned icon
     icon: isMobileView
