@@ -220,7 +220,7 @@ const PinnedVideo = ({renderData}) => {
                 zIndex: 999,
                 backgroundColor: $config.CARD_LAYER_5_COLOR,
                 flexDirection: 'row',
-                left: '6%',
+                left: '4%',
               }}
               onPress={scrollToTop}>
               <ImageIcon
