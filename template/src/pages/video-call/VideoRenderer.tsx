@@ -250,10 +250,6 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               trigger={activeSpeaker}
               onChange={isVisible => {
                 setVideoTileInViewPortState(user.uid, isVisible);
-                console.log(
-                  'debugging its visible',
-                  isVisible + ' ' + user.uid,
-                );
               }}>
               <MaxVideoView
                 fallback={() => {

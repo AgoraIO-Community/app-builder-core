@@ -48,17 +48,6 @@ const PinnedVideo = ({renderData}) => {
   //const [uids, setUids] = useState(renderData);
 
   useEffect(() => {
-    console.log('debugging pinnedUid ', pinnedUid);
-  }, [pinnedUid]);
-  useEffect(() => {
-    console.log('debugging secondaryPinnedUid ', secondaryPinnedUid);
-  }, [secondaryPinnedUid]);
-
-  useEffect(() => {
-    console.log(
-      'debugging activeSpeaker ' + activeSpeaker + ' ',
-      videoTileInViewPortState,
-    );
     if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
       dispatch({
         type: 'ActiveSpeaker',
@@ -126,7 +115,6 @@ const PinnedVideo = ({renderData}) => {
     });
   };
   const handleScroll = (event: any) => {
-    console.log('debugging x', event.nativeEvent.contentOffset.y);
     if (
       (isSidePinnedlayout && event.nativeEvent.contentOffset.y >= 5) ||
       (!isSidePinnedlayout && event.nativeEvent.contentOffset.x >= 5)
