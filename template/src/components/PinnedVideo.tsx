@@ -190,12 +190,7 @@ const PinnedVideo = ({renderData}) => {
                         }
                   }
                   key={'minVideo' + i}
-                  onPress={() => {
-                    // dispatch({
-                    //   type: 'DequeVideo',
-                    //   value: [minUid],
-                    // });
-                  }}>
+                  onPress={() => {}}>
                   <RenderComponent uid={minUid} />
                 </Pressable>
               );
