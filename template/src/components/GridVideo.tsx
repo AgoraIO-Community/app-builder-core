@@ -74,12 +74,10 @@ const GridVideo: LayoutComponent = ({renderData}) => {
               disabled={renderData.length === 1}
               onPress={() => {
                 //if (!(ridx === 0 && cidx === 0)) {
-                if (!pinnedUid) {
-                  dispatch({
-                    type: 'DequeVideo',
-                    value: [renderData[ridx * dims.c + cidx]],
-                  });
-                }
+                dispatch({
+                  type: 'ActiveSpeaker',
+                  value: [renderData[ridx * dims.c + cidx]],
+                });
                 //}
                 setPinnedLayout();
               }}

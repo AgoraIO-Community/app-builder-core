@@ -190,18 +190,13 @@ const PinnedVideo = ({renderData}) => {
                         }
                   }
                   key={'minVideo' + i}
-                  onPress={() => {
-                    // dispatch({
-                    //   type: 'DequeVideo',
-                    //   value: [minUid],
-                    // });
-                  }}>
+                  onPress={() => {}}>
                   <RenderComponent uid={minUid} />
                 </Pressable>
               );
             })}
           </ScrollView>
-          {!isOnTop && (
+          {$config.ACTIVE_SPEAKER && !isOnTop && (
             <View
               style={
                 isSidePinnedlayout

@@ -122,10 +122,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
       isPinned.current = screenShareUid;
-      // dispatch({
-      //   type: 'DequeVideo',
-      //   value: [screenShareUid],
-      // });
       dispatch({
         type: 'UserPin',
         value: [screenShareUid],
