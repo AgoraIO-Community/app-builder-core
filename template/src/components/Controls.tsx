@@ -106,6 +106,7 @@ const MoreButton = () => {
   //AINS
   if ($config.ENABLE_AINS) {
     actionMenuitems.push({
+      toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
         isNoiseSupressionEnabled === ToggleState.disabling ||
         isNoiseSupressionEnabled === ToggleState.enabling,
@@ -114,10 +115,8 @@ const MoreButton = () => {
       icon: 'ains',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title:
-        isNoiseSupressionEnabled === ToggleState.enabled
-          ? 'Turn off AINS'
-          : 'Turn on AINS',
+      title: 'Noise Cancellation',
+      //isNoiseSupressionEnabled === ToggleState.enabled
       callback: () => {
         setActionMenuVisible(false);
         setNoiseSupression(p => !p);
