@@ -196,7 +196,7 @@ const PinnedVideo = ({renderData}) => {
               );
             })}
           </ScrollView>
-          {!isOnTop && (
+          {$config.ACTIVE_SPEAKER && !isOnTop && (
             <View
               style={
                 isSidePinnedlayout
