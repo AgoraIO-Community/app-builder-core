@@ -19,6 +19,7 @@ import {JoinRoomButtonTextInterface} from '../../language/default-labels/precall
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
 import {useUserPreference} from '../useUserPreference';
+import {useSetRoomInfo} from '../room-info/useSetRoomInfo';
 
 export interface PreCallJoinWaitingRoomBtnProps {
   render?: (
@@ -32,36 +33,39 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();
-  const {isJoinDataFetched} = useRoomInfo();
+  const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
+  const {setRoomInfo} = useSetRoomInfo();
 
   const waitingRoomButton =
     useString<JoinRoomButtonTextInterface>('waitingRoomButton');
   const {saveName} = useUserPreference();
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
-      ready: isJoinDataFetched,
-      role: $config.EVENT_MODE ? rtcProps.role : undefined,
+      ready: isInWaitingRoom,
     }),
   );
+
   useEffect(() => {
-    if (rtcProps?.role) {
-      setButtonText(
-        waitingRoomButton({
-          ready: isJoinDataFetched,
-          role: $config.EVENT_MODE ? rtcProps.role : undefined,
-        }),
-      );
-    }
-  }, [rtcProps?.role]);
+    setButtonText(
+      waitingRoomButton({
+        ready: !isInWaitingRoom,
+      }),
+    );
+  }, [isInWaitingRoom]);
 
   const onSubmit = () => {
     saveName(username?.trim());
-    //  setCallActive(true); TODO:// enter waiting room;
+
+    // Enter waiting rooom;
+    setRoomInfo(prev => {
+      return {...prev, isInWaitingRoom: true};
+    });
+    // send a message to host for asking permission to enter the call , then set setCallActive(true) isInWaitingRoom:false
   };
 
   const title = buttonText;
   const onPress = () => onSubmit();
-  const disabled = !isJoinDataFetched || username === '';
+  const disabled = isInWaitingRoom || username === '';
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (

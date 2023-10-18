@@ -31,5 +31,6 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
             role === ClientRole.Broadcaster ? 'HOST' : 'AUDIENCE'
           }`
       : `Loading...`,
-  waitingRoomButton: ({ready, role}) => (ready ? 'Ask To Join' : `Loading...`),
+  waitingRoomButton: ({ready}) =>
+    ready ? 'Ask To Join' : `Waiting for approval...`,
 };
