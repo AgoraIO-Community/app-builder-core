@@ -1,11 +1,10 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import useLayoutsData from './useLayoutsData';
 import {isArray, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
-import {useVB} from '../../components/virtual-background/useVB';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -13,21 +12,22 @@ const VideoComponent = () => {
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const {activeUids, pinnedUid} = useContent();
-
+  const currentLayoutRef = useRef(currentLayout);
+  const gridLayoutName = getGridLayoutName();
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
         dispatch({type: 'UserSecondaryPin', value: [0]});
       }
-      const gridLayoutName = getGridLayoutName();
-      if (currentLayout !== gridLayoutName && layoutsData?.length <= 2) {
+      if (currentLayoutRef.current != gridLayoutName) {
         setLayout(gridLayoutName);
       }
     }
   }, [activeUids]);
 
   useEffect(() => {
+    currentLayoutRef.current = currentLayout;
     if (isArray(layoutsData)) {
       let index = layoutsData.findIndex(item => item.name === currentLayout);
       if (index >= 0) {
