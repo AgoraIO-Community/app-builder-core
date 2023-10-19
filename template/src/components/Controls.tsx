@@ -349,7 +349,10 @@ const MoreButton = () => {
 
   if (globalWidth <= BREAKPOINTS.md) {
     actionMenuitems.push({
-      icon: layouts[layout]?.iconName,
+      //below icon key is dummy value
+      icon: 'grid',
+      externalIconString: layouts[layout]?.icon,
+      isExternalIcon: true,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: 'Layout',
