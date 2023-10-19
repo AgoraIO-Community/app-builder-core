@@ -54,7 +54,7 @@
   "ICON_TEXT": true,
   "ICON_BG_COLOR": "#EBF1F5",
   "TOOLBAR_COLOR": "#FFFFFF00",
-  "ACTIVE_SPEAKER": false,
+  "ACTIVE_SPEAKER": true,
   "ENABLE_TOKEN_AUTH": false,
   "ENABLE_IDP_AUTH": false,
   "ENABLE_STT": true,
