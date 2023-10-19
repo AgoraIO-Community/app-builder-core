@@ -23,7 +23,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb, isWebInternal} from '../utils/common';
-import {useContent} from 'customization-api';
+import {useContent, useIsAttendee, useUserName} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -31,13 +31,14 @@ import {
   getMessageTime,
   get32BitUid,
 } from '../rtm/utils';
-import {EventUtils, EventsQueue} from '../rtm-events';
-import {PersistanceLevel} from '../rtm-events-api';
+import {EventUtils, EventsQueue, EventNames} from '../rtm-events';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -52,6 +53,8 @@ const RtmConfigure = (props: any) => {
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
+  const {isInWaitingRoom} = useRoomInfo();
+  const {isAttendee} = useIsAttendee();
 
   /**
    * inside event callback state won't have latest value.
@@ -82,6 +85,9 @@ const RtmConfigure = (props: any) => {
   const timerValueRef: any = useRef(5);
 
   React.useEffect(() => {
+    // if ($config.WAITING_ROOM && isAttendee(uid)) {
+    //   return;
+    // }
     setTotalOnlineUsers(
       Object.keys(
         filterObject(
@@ -462,14 +468,28 @@ const RtmConfigure = (props: any) => {
     if (!callActive) {
       console.log('waiting to init RTM');
       setLogin(true);
-    } else {
+    }
+    if (isInWaitingRoom) {
+      const name = defaultContentRef.current.defaultContent[localUid].name;
+      await init();
+      events.send(
+        EventNames.WAITING_ROOM_REQUEST,
+        JSON.stringify({
+          userName: name,
+          uid: localUid,
+        }),
+        PersistanceLevel.Sender,
+      );
+    }
+
+    if (callActive) {
       await init();
     }
     return async () => {
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId, callActive]);
+  }, [rtcProps.channel, rtcProps.appId, callActive, isInWaitingRoom]);
 
   return (
     <ChatContext.Provider

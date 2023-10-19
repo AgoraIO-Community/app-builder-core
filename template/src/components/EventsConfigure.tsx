@@ -13,13 +13,14 @@ import React, {useContext, useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import {RtcContext, DispatchContext} from '../../agora-rn-uikit';
-import events from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
 import {useContent} from 'customization-api';
 import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
+import {EventNames} from '../../src/rtm-events';
 
 interface Props {
   children: React.ReactNode;
@@ -177,6 +178,52 @@ const EventsConfigure: React.FC<Props> = props => {
           />
         ),
         secondaryBtn: SecondaryBtn,
+      });
+    });
+
+    events.on(EventNames.WAITING_ROOM_REQUEST, data => {
+      const {userName, uid} = JSON.parse(data?.payload);
+
+      const AllowBtn = () => (
+        <PrimaryButton
+          containerStyle={style.primaryBtn}
+          textStyle={style.primaryBtnText}
+          text="Allow"
+          onPress={() => {
+            events.send(
+              EventNames.WAITING_ROOM_RESPONSE,
+              JSON.stringify({entryApproved: true}),
+              PersistanceLevel.None,
+              uid,
+            );
+            Toast.hide();
+          }}
+        />
+      );
+      const DenyBtn = () => (
+        <TertiaryButton
+          containerStyle={style.secondaryBtn}
+          textStyle={style.primaryBtnText}
+          text="Deny"
+          onPress={() => {
+            events.send(
+              EventNames.WAITING_ROOM_RESPONSE,
+              JSON.stringify({entryApproved: false}),
+              PersistanceLevel.None,
+              uid,
+            );
+            Toast.hide();
+          }}
+        />
+      );
+
+      Toast.show({
+        type: 'info',
+        text1: 'Approval Required',
+        text2: `${userName} is waiting for approval to join the call`,
+        visibilityTime: 30000,
+        primaryBtn: <AllowBtn />,
+        secondaryBtn: <DenyBtn />,
       });
     });
 

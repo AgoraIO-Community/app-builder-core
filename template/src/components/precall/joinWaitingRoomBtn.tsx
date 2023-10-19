@@ -16,7 +16,7 @@ import {usePreCall} from './usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
-import {useRoomInfo} from '../room-info/useRoomInfo';
+
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../useWakeLock';
 import isMobileOrTablet from '../../utils/isMobileOrTablet';
@@ -24,6 +24,11 @@ import {isWebInternal} from '../../utils/common';
 import useSetName from '../../utils/useSetName';
 import {useUserPreference} from '../useUserPreference';
 import {useSetRoomInfo} from '../room-info/useSetRoomInfo';
+import {EventNames} from '../../rtm-events';
+import {useRoomInfo} from '../room-info/useRoomInfo';
+import Toast from '../../../react-native-toast-message';
+
+import events, {PersistanceLevel} from '../../rtm-events-api';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -55,17 +60,50 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     }),
   );
 
+  useEffect(() => {
+    events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
+      const {entryApproved} = JSON.parse(data?.payload);
+      // on response from host, waiting room permission is reset
+      setRoomInfo(prev => {
+        return {...prev, isInWaitingRoom: false};
+      });
+      if (entryApproved) {
+        // entering in call screen
+        setCallActive(true);
+      } else {
+        // inform user that entry was denied by the host
+        Toast.show({
+          text1: `Approval Required`,
+          text2: 'Permission to enter the meeting was denied by the host',
+          visibilityTime: 3000,
+          type: 'error',
+          primaryBtn: null,
+          secondaryBtn: null,
+        });
+      }
+    });
+  }, []);
+
+  const requestHostPermission = () => {
+    events.send(
+      EventNames.WAITING_ROOM_REQUEST,
+      JSON.stringify({}),
+      PersistanceLevel.Sender,
+    );
+  };
+
   const onSubmit = () => {
     setUsername(username.trim());
+    //updating name in the backend
+    saveName(username.trim());
     // Enter waiting rooom;
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
     });
     // send a message to host for asking permission to enter the call , then set setCallActive(true) isInWaitingRoom:false
 
-    // setCallActive(true);
-    //updating name in the backend
-    saveName(username.trim());
+    // requestHostPermission();
+
     // Play a sound to avoid autoblocking in safari
     if (isWebInternal() || isMobileOrTablet()) {
       audio.volume = 0;
