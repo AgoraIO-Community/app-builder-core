@@ -100,14 +100,36 @@ const PinnedVideo = ({renderData}) => {
                     marginBottom: 8,
                   }
             }>
+            {secondaryPinnedUid ? (
+              <Pressable
+                disabled={true}
+                style={
+                  isSidePinnedlayout
+                    ? {
+                        width: '100%',
+                        height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                        zIndex: 40,
+                        paddingBottom: 8,
+                      }
+                    : {
+                        // width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                        width: 254,
+                        height: '100%',
+                        zIndex: 40,
+                        marginRight: 8,
+                      }
+                }
+                key={'minVideo' + secondaryPinnedUid}
+                onPress={() => {}}>
+                <RenderComponent uid={secondaryPinnedUid} />
+              </Pressable>
+            ) : (
+              <></>
+            )}
             {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
             {minUids?.map((minUid, i) => {
-              //first item -> maximized view so returning null
-              //if (i === 0) return null;
-              //remaining items -> minimized view
-              {
-                /**Rendering minimized views */
-              }
+              if (minUid === secondaryPinnedUid) return null;
+              //rendering minimized view
               return (
                 <Pressable
                   //old
@@ -204,7 +226,7 @@ const PinnedVideo = ({renderData}) => {
           )}
         </>
       )}
-      {maxUid && (
+      {(pinnedUid || maxUid) && (
         <View
           style={
             isSidePinnedlayout
@@ -213,7 +235,7 @@ const PinnedVideo = ({renderData}) => {
                 : style.width80
               : style.flex8
           }>
-          <View style={style.flex1} key={'maxVideo' + maxUid}>
+          <View style={style.flex1} key={'maxVideo' + (pinnedUid || maxUid)}>
             {isSidePinnedlayout && (
               <IconButton
                 containerStyle={{
@@ -278,7 +300,7 @@ const PinnedVideo = ({renderData}) => {
               <></>
             )}
             {/** Render the maximized view */}
-            <RenderComponent uid={maxUid} isMax={true} />
+            <RenderComponent uid={pinnedUid || maxUid} isMax={true} />
           </View>
         </View>
       )}
