@@ -45,7 +45,6 @@ const PinnedVideo = ({renderData}) => {
   const activeSpeaker = useActiveSpeaker();
   const {dispatch} = useContext(DispatchContext);
   const {videoTileInViewPortState} = useVideoCall();
-  //const [uids, setUids] = useState(renderData);
 
   useEffect(() => {
     if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
@@ -57,55 +56,6 @@ const PinnedVideo = ({renderData}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSpeaker, videoTileInViewPortState, isOnTop]);
 
-  // useEffect(() => {
-  //   const nonPinnedUids = activeUids.filter(uid => uid !== pinnedUid);
-
-  //   const nonActiveSpeakerUids = nonPinnedUids.filter(
-  //     uid => uid !== activeSpeaker,
-  //   );
-
-  //   const remoteScreenShareUids = nonActiveSpeakerUids.filter(uid => {
-  //     return (
-  //       defaultContent[uid]?.type === 'screenshare' &&
-  //       defaultContent[uid]?.parentUid !== localUid
-  //     );
-  //   });
-
-  //   const localScreenShareUids = nonActiveSpeakerUids.filter(uid => {
-  //     return (
-  //       defaultContent[uid]?.type === 'screenshare' &&
-  //       defaultContent[uid]?.parentUid === localUid
-  //     );
-  //   });
-  //   if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
-  //     setScreenShareOn(true);
-  //   }
-
-  //   const restOfTheUids = nonActiveSpeakerUids.filter(
-  //     uid => defaultContent[uid]?.type !== 'screenshare',
-  //   );
-
-  //   /**
-  //    * Order for pinned layout -
-  //    * - [1] means only one user
-  //    * - [N] means multiple users
-  //    * 1.Pinned User[1]
-  //    * 2.Remote screenshare users[N]
-  //    * 3.Active Speaker[1]
-  //    * 4.Local Screenshare[1]
-  //    * 5 and etc.Other Users[N]
-  //    */
-
-  //   const updatedOrder = [
-  //     pinnedUid,
-  //     ...remoteScreenShareUids,
-  //     pinnedUid !== activeSpeaker ? activeSpeaker : 0,
-  //     ...localScreenShareUids,
-  //     ...restOfTheUids,
-  //   ].filter(uid => uid !== undefined && uid !== 0);
-
-  //   setUids(updatedOrder);
-  // }, [activeUids, defaultContent, activeSpeaker, pinnedUid]);
   const scrollRef = useRef() as any;
 
   const scrollToTop = () => {
