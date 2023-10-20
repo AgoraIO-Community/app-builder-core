@@ -126,7 +126,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         type: 'UserPin',
         value: [screenShareUid],
       });
-      if (parentUid && !secondaryPinnedUidRef.current) {
+      if (parentUid && !secondaryPinnedUidRef.current.secondaryPinnedUid) {
         dispatch({
           type: 'UserSecondaryPin',
           value: [parentUid],
