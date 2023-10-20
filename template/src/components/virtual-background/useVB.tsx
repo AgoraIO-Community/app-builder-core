@@ -171,12 +171,12 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
-     {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
-     {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
-     {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
-     {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
-     {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
-     {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
   const {
@@ -191,6 +191,15 @@ const VBProvider: React.FC = ({children}) => {
   useEffect(() => {
     initializeProcessors();
   }, []);
+
+  //if vitrual got closed by some other settings/chat panel then update the state
+  //ex: user open vitrual background using more menu and then open chat will hide the vitrual background panel
+  //so we need to update the state
+  useEffect(() => {
+    if (sidePanel !== SidePanelType.VirtualBackground) {
+      setIsVBActive(false);
+    }
+  }, [sidePanel]);
 
   const applyVirtualBackgroundToMainView = async (
     config: VirtualBackgroundConfig,
