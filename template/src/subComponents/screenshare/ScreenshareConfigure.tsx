@@ -131,6 +131,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           type: 'UserSecondaryPin',
           value: [parentUid],
         });
+      } else if (
+        parentUid &&
+        secondaryPinnedUidRef.current.secondaryPinnedUid
+      ) {
+        dispatch({
+          type: 'ActiveSpeaker',
+          value: [parentUid],
+        });
       }
       layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
