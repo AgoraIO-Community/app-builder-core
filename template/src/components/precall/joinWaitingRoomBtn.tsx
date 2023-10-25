@@ -29,6 +29,7 @@ import {useRoomInfo} from '../room-info/useRoomInfo';
 import Toast from '../../../react-native-toast-message';
 
 import events, {PersistanceLevel} from '../../rtm-events-api';
+import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -53,6 +54,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const waitingRoomButton =
     useString<JoinRoomButtonTextInterface>('waitingRoomButton');
   const {setRoomInfo} = useSetRoomInfo();
+  const {request: requestToJoin} = useWaitingRoomAPI();
 
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
@@ -92,6 +94,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     );
   };
 
+  const requestServerToJoinRoom = async () => {
+    const res = await requestToJoin();
+    console.log('in join btn', res);
+  };
+
   const onSubmit = () => {
     setUsername(username.trim());
     //updating name in the backend
@@ -100,9 +107,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
     });
-    // send a message to host for asking permission to enter the call , then set setCallActive(true) isInWaitingRoom:false
-
+    // send a L2 message to host for asking permission to enter the call , then set setCallActive(true) isInWaitingRoom:false on receiving WAITING_ROOM_RESPONSE,
     // requestHostPermission();
+
+    // join request API to server, server will send RTM message to all hosts regarding request from this user,
+    requestServerToJoinRoom();
 
     // Play a sound to avoid autoblocking in safari
     if (isWebInternal() || isMobileOrTablet()) {

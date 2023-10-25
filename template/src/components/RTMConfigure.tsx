@@ -293,6 +293,9 @@ const RtmConfigure = (props: any) => {
       // console.log(evt);
     });
     engine.current.on('channelMemberJoined', (data: any) => {
+      // if ($config.WAITING_ROOM && isAttendee(data.uid)) {
+      //   return;
+      // }
       const backoffAttributes = backOff(
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
@@ -427,7 +430,26 @@ const RtmConfigure = (props: any) => {
     ts: number,
   ) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
-    const {evt, value} = data;
+    let evt = '',
+      value = {};
+    //TODO:waiting-room BE should refactor payload as per existing format
+    if (data.feat === 'WAITING_ROOM') {
+      const outputData = {
+        evt: `${data.feat}_${data.etyp}`,
+        payload: JSON.stringify({
+          attendee_uid: data.data.data.attendee_uid,
+        }),
+        persistLevel: 1,
+        source: 'core',
+      };
+      const formattedData = JSON.stringify(outputData);
+      evt = data.feat + '_' + data.etyp;
+      value = formattedData;
+    } else {
+      evt = data.evt;
+      value = data.value;
+    }
+
     // Step 1: Set local attributes
     if (value?.persistLevel === PersistanceLevel.Session) {
       const rtmAttribute = {key: evt, value: value};
@@ -469,9 +491,18 @@ const RtmConfigure = (props: any) => {
       console.log('waiting to init RTM');
       setLogin(true);
     }
+    await init();
+    return async () => {
+      await end();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rtcProps.channel, rtcProps.appId, callActive]);
+
+  React.useEffect(() => {
     if (isInWaitingRoom) {
+      return; // server will broadcast rtm message to all the host for approval request
       const name = defaultContentRef.current.defaultContent[localUid].name;
-      await init();
+      // joining the RTM channel with existing credentails , but this security issue as the token is already recived with joinChannel response
       events.send(
         EventNames.WAITING_ROOM_REQUEST,
         JSON.stringify({
@@ -481,15 +512,7 @@ const RtmConfigure = (props: any) => {
         PersistanceLevel.Sender,
       );
     }
-
-    if (callActive) {
-      await init();
-    }
-    return async () => {
-      await end();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId, callActive, isInWaitingRoom]);
+  }, [isInWaitingRoom]);
 
   return (
     <ChatContext.Provider

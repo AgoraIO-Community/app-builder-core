@@ -181,8 +181,9 @@ const EventsConfigure: React.FC<Props> = props => {
       });
     });
 
-    events.on(EventNames.WAITING_ROOM_REQUEST, data => {
-      const {userName, uid} = JSON.parse(data?.payload);
+    events.on('WAITING_ROOM_REQUEST', data => {
+      debugger;
+      const {attendee_uid} = JSON.parse(data?.payload);
 
       const AllowBtn = () => (
         <PrimaryButton
@@ -190,11 +191,13 @@ const EventsConfigure: React.FC<Props> = props => {
           textStyle={style.primaryBtnText}
           text="Allow"
           onPress={() => {
+            // user approving waiting room request
+            // todo: need to make approve rest endpoint call with true payload
             events.send(
               EventNames.WAITING_ROOM_RESPONSE,
               JSON.stringify({entryApproved: true}),
               PersistanceLevel.None,
-              uid,
+              attendee_uid,
             );
             Toast.hide();
           }}
@@ -206,11 +209,13 @@ const EventsConfigure: React.FC<Props> = props => {
           textStyle={style.primaryBtnText}
           text="Deny"
           onPress={() => {
+            // user rejecting waiting room request
+            // todo: need to make approve rest endpoint call with false payload
             events.send(
               EventNames.WAITING_ROOM_RESPONSE,
               JSON.stringify({entryApproved: false}),
               PersistanceLevel.None,
-              uid,
+              attendee_uid,
             );
             Toast.hide();
           }}
@@ -220,7 +225,7 @@ const EventsConfigure: React.FC<Props> = props => {
       Toast.show({
         type: 'info',
         text1: 'Approval Required',
-        text2: `${userName} is waiting for approval to join the call`,
+        text2: `${attendee_uid} is waiting for approval to join the call`,
         visibilityTime: 30000,
         primaryBtn: <AllowBtn />,
         secondaryBtn: <DenyBtn />,
