@@ -20,7 +20,7 @@ import {
   Text,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {useLocalUid, useContent} from 'customization-api';
+import {useContent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -34,10 +34,8 @@ const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
   const [isOnTop, setIsOnTop] = useState(true);
-  const {pinnedUid, defaultContent, activeUids, secondaryPinnedUid} =
-    useContent();
+  const {pinnedUid, secondaryPinnedUid} = useContent();
   const [collapse, setCollapse] = useState(false);
-  const localUid = useLocalUid();
   const {width} = useWindowDimensions();
   const isDesktop = width > BREAKPOINTS.xl;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
