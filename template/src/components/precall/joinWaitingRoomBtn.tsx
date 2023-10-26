@@ -64,12 +64,16 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
-      const {entryApproved} = JSON.parse(data?.payload);
-      // on response from host, waiting room permission is reset
+      const {approved, rtc} = JSON.parse(data?.payload);
+      // on approve/reject response from host, waiting room permission is reset
       setRoomInfo(prev => {
-        return {...prev, isInWaitingRoom: false};
+        return {
+          ...prev,
+          isInWaitingRoom: false,
+          data: {...prev.data, token: rtc.token},
+        };
       });
-      if (entryApproved) {
+      if (approved) {
         // entering in call screen
         setCallActive(true);
       } else {
@@ -103,6 +107,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     setUsername(username.trim());
     //updating name in the backend
     saveName(username.trim());
+    //setCallActive(true);
     // Enter waiting rooom;
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};

@@ -12,7 +12,7 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {RtcContext, DispatchContext} from '../../agora-rn-uikit';
+import {RtcContext, DispatchContext, useLocalUid} from '../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
@@ -22,6 +22,7 @@ import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import {EventNames} from '../../src/rtm-events';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 
 interface Props {
   children: React.ReactNode;
@@ -46,6 +47,9 @@ const EventsConfigure: React.FC<Props> = props => {
   const {
     data: {isHost},
   } = useRoomInfo();
+
+  const {approval} = useWaitingRoomAPI();
+  const localUid = useLocalUid();
 
   useEffect(() => {
     //user joined event listener
@@ -188,10 +192,6 @@ const EventsConfigure: React.FC<Props> = props => {
     events.on(EventNames.WAITING_ROOM_REQUEST, data => {
       if (!isHost) return;
       const {uid, userName} = JSON.parse(data?.payload);
-
-      // const attendee_name =
-      //   defaultContentRef.current.defaultContent[attendee_uid]?.name ||
-      //   'Attendee';
       const AllowBtn = () => (
         <PrimaryButton
           containerStyle={style.primaryBtn}
@@ -199,13 +199,13 @@ const EventsConfigure: React.FC<Props> = props => {
           text="Allow"
           onPress={() => {
             // user approving waiting room request
-            // todo: need to make approve rest endpoint call with true payload
-            events.send(
-              EventNames.WAITING_ROOM_RESPONSE,
-              JSON.stringify({entryApproved: true}),
-              PersistanceLevel.None,
-              uid,
-            );
+            const res = approval({
+              host_uid: localUid,
+              attendee_uid: uid,
+              approved: true,
+            });
+            console.log('waiting-room:approval', res);
+            // server will send the RTM message with approved status and RTC token to the approved attendee.
             Toast.hide();
           }}
         />
@@ -217,13 +217,13 @@ const EventsConfigure: React.FC<Props> = props => {
           text="Deny"
           onPress={() => {
             // user rejecting waiting room request
-            // todo: need to make approve rest endpoint call with false payload
-            events.send(
-              EventNames.WAITING_ROOM_RESPONSE,
-              JSON.stringify({entryApproved: false}),
-              PersistanceLevel.None,
-              uid,
-            );
+            const res = approval({
+              host_uid: localUid,
+              attendee_uid: uid,
+              approved: false,
+            });
+            console.log('waiting-room:reject', res);
+            // server will send the RTM message with rejected status and RTC token to the approved attendee.
             Toast.hide();
           }}
         />

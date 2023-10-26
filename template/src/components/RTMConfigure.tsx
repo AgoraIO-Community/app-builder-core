@@ -433,17 +433,35 @@ const RtmConfigure = (props: any) => {
       value = {};
     //TODO:waiting-room BE should refactor payload as per existing format
     if (data.feat === 'WAITING_ROOM') {
-      const outputData = {
-        evt: `${data.feat}_${data.etyp}`,
-        payload: JSON.stringify({
-          attendee_uid: data.data.data.attendee_uid,
-        }),
-        persistLevel: 1,
-        source: 'core',
-      };
-      const formattedData = JSON.stringify(outputData);
-      evt = data.feat + '_' + data.etyp + '_SERVER';
-      value = formattedData;
+      if (data.etyp === 'REQUEST') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            attendee_uid: data.data.data.attendee_uid,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp + '_SERVER';
+        value = formattedData;
+      }
+      if (data.etyp === 'RESPONSE') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            attendee_uid: data.data.data.attendee_uid,
+            approved: data.data.data.approved,
+            channelName: data.data.data.channel_name,
+            rtc: data.data.data.rtc,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp;
+        value = formattedData;
+      }
     } else {
       evt = data.evt;
       value = data.value;

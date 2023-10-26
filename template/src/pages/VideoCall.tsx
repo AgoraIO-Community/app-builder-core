@@ -157,7 +157,7 @@ const VideoCall: React.FC = () => {
 
   const useJoin = useJoinRoom();
   const {setRoomInfo} = useSetRoomInfo();
-  const {isJoinDataFetched, data} = useRoomInfo();
+  const {isJoinDataFetched, data, isInWaitingRoom} = useRoomInfo();
 
   React.useEffect(() => {
     return () => {
@@ -219,7 +219,7 @@ const VideoCall: React.FC = () => {
   }, [SdkJoinState]);
 
   React.useEffect(() => {
-    if (isJoinDataFetched === true && !queryComplete) {
+    if (isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)) {
       setRtcProps(prevRtcProps => ({
         ...prevRtcProps,
         channel: data.channel,
