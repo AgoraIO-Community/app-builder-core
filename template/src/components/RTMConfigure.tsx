@@ -39,7 +39,6 @@ import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
-
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -443,7 +442,7 @@ const RtmConfigure = (props: any) => {
         source: 'core',
       };
       const formattedData = JSON.stringify(outputData);
-      evt = data.feat + '_' + data.etyp;
+      evt = data.feat + '_' + data.etyp + '_SERVER';
       value = formattedData;
     } else {
       evt = data.evt;
@@ -500,7 +499,7 @@ const RtmConfigure = (props: any) => {
 
   React.useEffect(() => {
     if (isInWaitingRoom) {
-      return; // server will broadcast rtm message to all the host for approval request
+      //   return; // server will broadcast rtm message to all the host for approval request
       const name = defaultContentRef.current.defaultContent[localUid].name;
       // joining the RTM channel with existing credentails , but this security issue as the token is already recived with joinChannel response
       events.send(
