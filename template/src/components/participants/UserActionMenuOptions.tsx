@@ -114,54 +114,56 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        if (pinnedUid !== user.uid) {
+        //if (pinnedUid !== user.uid) {
+        items.push({
+          //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+          disabled: activeUids?.length === 1,
+          icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+          onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: pinnedUid
+            ? user.uid === pinnedUid
+              ? 'Remove from large'
+              : 'View in large'
+            : 'View in large',
+          callback: () => {
+            setActionMenuVisible(false);
+            dispatch({
+              type: 'UserPin',
+              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+            });
+            setLayout(getPinnedLayoutName());
+          },
+        });
+        if (currentLayout === DefaultLayouts[1].name) {
           items.push({
-            disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
-            icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-            onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+            // disabled:
+            //   activeUids?.filter(i => !customContent[i])?.length === 1,
+            disabled: activeUids?.length === 1,
+            icon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-outlined',
+            onHoverIcon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: pinnedUid
-              ? user.uid === pinnedUid
-                ? 'Remove from large'
-                : 'View in large'
-              : 'View in large',
+            title: secondaryPinnedUid
+              ? user.uid === secondaryPinnedUid
+                ? 'Remove from top'
+                : 'Pin to top'
+              : 'Pin to top',
             callback: () => {
               setActionMenuVisible(false);
               dispatch({
-                type: 'UserPin',
-                value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+                type: 'UserSecondaryPin',
+                value: [
+                  secondaryPinnedUid && user.uid === secondaryPinnedUid
+                    ? 0
+                    : user.uid,
+                ],
               });
-              setLayout(getPinnedLayoutName());
             },
           });
-          if (currentLayout === DefaultLayouts[1].name) {
-            items.push({
-              disabled:
-                activeUids?.filter(i => !customContent[i])?.length === 1,
-              icon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-outlined',
-              onHoverIcon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-filled',
-              iconColor: $config.SECONDARY_ACTION_COLOR,
-              textColor: $config.SECONDARY_ACTION_COLOR,
-              title: secondaryPinnedUid
-                ? user.uid === secondaryPinnedUid
-                  ? 'Remove from top'
-                  : 'Pin to top'
-                : 'Pin to top',
-              callback: () => {
-                setActionMenuVisible(false);
-                dispatch({
-                  type: 'UserSecondaryPin',
-                  value: [
-                    secondaryPinnedUid && user.uid === secondaryPinnedUid
-                      ? 0
-                      : user.uid,
-                  ],
-                });
-              },
-            });
-          }
         }
+        //}
       }
     }
 

@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
 import {isMobileUA} from '../../utils/common';
 import {ApplianceNames} from 'white-web-sdk';
@@ -18,10 +18,17 @@ import {ApplianceNames} from 'white-web-sdk';
 const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
 
+  useEffect(() => {
+    whiteboardRoom.current?.setMemberState({
+      strokeColor: [0, 0, 0],
+    });
+  }, [whiteboardRoom]);
+
   const handleSelect = (applicanceName: ApplianceNames) => {
     setSelectedTool(applicanceName);
     whiteboardRoom.current?.setMemberState({
       currentApplianceName: applicanceName,
+      strokeColor: [0, 0, 0],
     });
   };
 
@@ -602,8 +609,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 const style = StyleSheet.create({
   toolboxContainer: {
     position: 'absolute',
-    top: 50,
-    left: 30,
+    top: 60,
+    left: 20,
     zIndex: 10,
   },
   toolboxContainerMobile: {

@@ -34,8 +34,13 @@ import ImageIcon from '../../atoms/ImageIcon';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
+  CustomChild?: React.ComponentType;
 }
-const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
+const VideoRenderer: React.FC<VideoRendererProps> = ({
+  user,
+  isMax = false,
+  CustomChild,
+}) => {
   const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
@@ -146,7 +151,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           }}
           style={[
             maxStyle.container,
-            isActiveSpeaker
+            !CustomChild && isActiveSpeaker
               ? maxStyle.activeContainerStyle
               : user.video
               ? maxStyle.noVideoStyle
@@ -237,7 +242,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {!isScreenShareOnFullView && <NetworkQualityPill uid={user?.uid} />}
+          {!isScreenShareOnFullView && !CustomChild && (
+            <NetworkQualityPill uid={user?.uid} />
+          )}
           <ZoomableWrapper
             enableZoom={
               isScreenShareOnFullView &&
@@ -251,37 +258,43 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               onChange={isVisible => {
                 setVideoTileInViewPortState(user.uid, isVisible);
               }}>
-              <MaxVideoView
-                fallback={() => {
-                  return FallbackLogo(
-                    user?.name,
-                    isActiveSpeaker,
-                    enablePinForMe &&
-                      (showReplacePin || showPinForMe) &&
-                      !isMobileUA()
-                      ? true
-                      : false,
-                    isMax,
-                    avatarSize,
-                  );
-                }}
-                user={isNativeScreenShareActive ? {...user, video: 0} : user}
-                containerStyle={{
-                  width:
-                    landscapeMode && isScreenShareOnFullView ? height : '100%',
-                  height:
-                    landscapeMode && isScreenShareOnFullView ? width : '100%',
-                  // width: '100%',
-                  // height: '100%',
-                }}
-                key={user.uid}
-                landscapeMode={
-                  landscapeMode && isScreenShareOnFullView ? true : false
-                }
-              />
+              {CustomChild ? (
+                <CustomChild />
+              ) : (
+                <MaxVideoView
+                  fallback={() => {
+                    return FallbackLogo(
+                      user?.name,
+                      isActiveSpeaker,
+                      enablePinForMe &&
+                        (showReplacePin || showPinForMe) &&
+                        !isMobileUA()
+                        ? true
+                        : false,
+                      isMax,
+                      avatarSize,
+                    );
+                  }}
+                  user={isNativeScreenShareActive ? {...user, video: 0} : user}
+                  containerStyle={{
+                    width:
+                      landscapeMode && isScreenShareOnFullView
+                        ? height
+                        : '100%',
+                    height:
+                      landscapeMode && isScreenShareOnFullView ? width : '100%',
+                    // width: '100%',
+                    // height: '100%',
+                  }}
+                  key={user.uid}
+                  landscapeMode={
+                    landscapeMode && isScreenShareOnFullView ? true : false
+                  }
+                />
+              )}
             </VisibilitySensor>
           </ZoomableWrapper>
-          {!isScreenShareOnFullView && (
+          {!isScreenShareOnFullView && !CustomChild && (
             <VideoContainerProvider value={{videoTileWidth}}>
               <NameWithMicIcon name={user.name} muted={!user.audio} />
             </VideoContainerProvider>
