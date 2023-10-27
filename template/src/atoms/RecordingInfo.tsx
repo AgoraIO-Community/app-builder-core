@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
     color: $config.FONT_COLOR + hexadecimalTransparency['50%'],
+    marginLeft: 4,
   },
   recordingStatus: {
     width: 12,
