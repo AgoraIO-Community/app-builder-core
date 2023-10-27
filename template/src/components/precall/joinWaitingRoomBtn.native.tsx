@@ -20,6 +20,10 @@ import {useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
 import {useUserPreference} from '../useUserPreference';
 import {useSetRoomInfo} from '../room-info/useSetRoomInfo';
+import Toast from '../../../react-native-toast-message';
+import events from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
+import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 
 export interface PreCallJoinWaitingRoomBtnProps {
   render?: (
@@ -44,6 +48,35 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       ready: isInWaitingRoom,
     }),
   );
+  const {request: requestToJoin} = useWaitingRoomAPI();
+
+  useEffect(() => {
+    events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
+      const {approved, rtc} = JSON.parse(data?.payload);
+      // on approve/reject response from host, waiting room permission is reset
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          isInWaitingRoom: false,
+          data: {...prev.data, token: rtc.token},
+        };
+      });
+      if (approved) {
+        // entering in call screen
+        setCallActive(true);
+      } else {
+        // inform user that entry was denied by the host
+        Toast.show({
+          text1: `Approval Required`,
+          text2: 'Permission to enter the meeting was denied by the host',
+          visibilityTime: 3000,
+          type: 'error',
+          primaryBtn: null,
+          secondaryBtn: null,
+        });
+      }
+    });
+  }, []);
 
   useEffect(() => {
     setButtonText(
@@ -53,6 +86,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     );
   }, [isInWaitingRoom]);
 
+  const requestServerToJoinRoom = async () => {
+    const res = await requestToJoin({send_event: true});
+    console.log('in join btn', res);
+  };
+
   const onSubmit = () => {
     saveName(username?.trim());
 
@@ -60,6 +98,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
     });
+
+    // join request API to server, server will send RTM message to all hosts regarding request from this user,
+    requestServerToJoinRoom();
     // send a message to host for asking permission to enter the call , then set setCallActive(true) isInWaitingRoom:false
   };
 

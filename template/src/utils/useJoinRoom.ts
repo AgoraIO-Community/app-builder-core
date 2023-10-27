@@ -82,7 +82,7 @@ export default function useJoinRoom() {
     try {
       let response = null;
       if (isWaitingRoomEnabled) {
-        response = await requestToJoin();
+        response = await requestToJoin({send_event: false});
         console.log('in use join', response);
       } else {
         response = await client.query({

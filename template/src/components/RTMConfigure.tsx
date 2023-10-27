@@ -443,7 +443,7 @@ const RtmConfigure = (props: any) => {
           source: 'core',
         };
         const formattedData = JSON.stringify(outputData);
-        evt = data.feat + '_' + data.etyp + '_SERVER';
+        evt = data.feat + '_' + data.etyp; //rename if client side RTM meessage is to be sent for approval
         value = formattedData;
       }
       if (data.etyp === 'RESPONSE') {
@@ -517,7 +517,8 @@ const RtmConfigure = (props: any) => {
 
   React.useEffect(() => {
     if (isInWaitingRoom) {
-      //   return; // server will broadcast rtm message to all the host for approval request
+      return; // server will broadcast rtm message to all the host for approval request
+      // remove return if need to avoid polling and sending Client side L2 messages
       const name = defaultContentRef.current.defaultContent[localUid].name;
       // joining the RTM channel with existing credentails , but this security issue as the token is already recived with joinChannel response
       events.send(

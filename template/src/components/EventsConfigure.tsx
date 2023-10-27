@@ -35,7 +35,7 @@ const EventsConfigure: React.FC<Props> = props => {
   const isLiveStream = $config.EVENT_MODE;
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useContext(RtcContext);
-  const {defaultContent} = useContent();
+  const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent});
   const isScreenshareActiveRef = useRef({isScreenshareActive});
   useEffect(() => {
@@ -50,6 +50,10 @@ const EventsConfigure: React.FC<Props> = props => {
 
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
+  const activeUidsRef = React.useRef({activeUids: activeUids});
+  useEffect(() => {
+    activeUidsRef.current.activeUids = activeUids;
+  }, [activeUids]);
 
   useEffect(() => {
     //user joined event listener
@@ -191,7 +195,12 @@ const EventsConfigure: React.FC<Props> = props => {
 
     events.on(EventNames.WAITING_ROOM_REQUEST, data => {
       if (!isHost) return;
-      const {uid, userName} = JSON.parse(data?.payload);
+      //  const {uid, userName} = JSON.parse(data?.payload);
+      const {attendee_uid} = JSON.parse(data?.payload);
+      const userName =
+        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+      // check if any other host has approved then dont show permission to join the room
+      console.log(activeUidsRef);
       const AllowBtn = () => (
         <PrimaryButton
           containerStyle={style.primaryBtn}
@@ -201,7 +210,7 @@ const EventsConfigure: React.FC<Props> = props => {
             // user approving waiting room request
             const res = approval({
               host_uid: localUid,
-              attendee_uid: uid,
+              attendee_uid: attendee_uid,
               approved: true,
             });
             console.log('waiting-room:approval', res);
@@ -219,7 +228,7 @@ const EventsConfigure: React.FC<Props> = props => {
             // user rejecting waiting room request
             const res = approval({
               host_uid: localUid,
-              attendee_uid: uid,
+              attendee_uid: attendee_uid,
               approved: false,
             });
             console.log('waiting-room:reject', res);

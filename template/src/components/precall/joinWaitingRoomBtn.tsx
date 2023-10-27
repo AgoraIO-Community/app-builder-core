@@ -28,7 +28,7 @@ import {EventNames} from '../../rtm-events';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import Toast from '../../../react-native-toast-message';
 
-import events, {PersistanceLevel} from '../../rtm-events-api';
+import events from '../../rtm-events-api';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 
 const audio = new Audio(
@@ -90,16 +90,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     });
   }, []);
 
-  const requestHostPermission = () => {
-    events.send(
-      EventNames.WAITING_ROOM_REQUEST,
-      JSON.stringify({}),
-      PersistanceLevel.Sender,
-    );
-  };
-
   const requestServerToJoinRoom = async () => {
-    const res = await requestToJoin();
+    const res = await requestToJoin({send_event: true});
     console.log('in join btn', res);
   };
 
@@ -112,8 +104,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
     });
-    // send a L2 message to host for asking permission to enter the call , then set setCallActive(true) isInWaitingRoom:false on receiving WAITING_ROOM_RESPONSE,
-    // requestHostPermission();
 
     // join request API to server, server will send RTM message to all hosts regarding request from this user,
     requestServerToJoinRoom();
