@@ -49,10 +49,13 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     }),
   );
   const {request: requestToJoin} = useWaitingRoomAPI();
+  const shouldPollRef = React.useRef(false);
 
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
       const {approved, rtc} = JSON.parse(data?.payload);
+      // stop polling if user has responsed with yes / no
+      shouldPollRef.current = false;
       // on approve/reject response from host, waiting room permission is reset
       setRoomInfo(prev => {
         return {
@@ -87,11 +90,28 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   }, [isInWaitingRoom]);
 
   const requestServerToJoinRoom = async () => {
-    const res = await requestToJoin({send_event: true});
-    console.log('in join btn', res);
-  };
+    let pollingInterval = null;
+    // polling for every 30 second
+    const pollFunction = async () => {
+      if (shouldPollRef.current) {
+        const res = await requestToJoin({send_event: true});
+        console.log('in join btn', res);
+      }
 
+      if (!shouldPollRef.current) {
+        // If the request is approved/rejected stop polling
+        clearInterval(pollingInterval);
+      }
+    };
+
+    // Call the polling function immediately
+    pollFunction();
+
+    // Set up a polling interval
+    pollingInterval = setInterval(pollFunction, 30000);
+  };
   const onSubmit = () => {
+    shouldPollRef.current = true;
     saveName(username?.trim());
 
     // Enter waiting rooom;
