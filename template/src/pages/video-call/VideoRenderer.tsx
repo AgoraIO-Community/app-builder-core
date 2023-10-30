@@ -11,7 +11,11 @@ import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import {useLayout, useContent, useRtc, customEvents} from 'customization-api';
-import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
+import {
+  DefaultLayouts,
+  getGridLayoutName,
+  getPinnedLayoutName,
+} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
@@ -25,15 +29,22 @@ import {isIOS} from '../../utils/common';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useVideoCall} from '../../components/useVideoCall';
+import VisibilitySensor from './VisibilitySensor';
+import ImageIcon from '../../atoms/ImageIcon';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
+  CustomChild?: React.ComponentType;
 }
-const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
+const VideoRenderer: React.FC<VideoRendererProps> = ({
+  user,
+  isMax = false,
+  CustomChild,
+}) => {
   const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
-  const {pinnedUid} = useContent();
+  const {pinnedUid, secondaryPinnedUid} = useContent();
   const activeSpeaker = useActiveSpeaker();
   const isActiveSpeaker = activeSpeaker === user.uid;
   const [isHovered, setIsHovered] = useState(false);
@@ -50,6 +61,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
+  const {setVideoTileInViewPortState} = useVideoCall();
 
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
@@ -139,7 +151,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           }}
           style={[
             maxStyle.container,
-            isActiveSpeaker
+            !CustomChild && isActiveSpeaker
               ? maxStyle.activeContainerStyle
               : user.video
               ? maxStyle.noVideoStyle
@@ -147,6 +159,28 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ]}>
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
+          )}
+          {currentLayout === DefaultLayouts[1].name &&
+          user.uid === secondaryPinnedUid ? (
+            <View
+              style={{
+                position: 'absolute',
+                zIndex: 2,
+                borderRadius: 50,
+                padding: 8,
+                top: 8,
+                left: 8,
+                backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+              }}>
+              <ImageIcon
+                iconType="plain"
+                name={'pin-filled'}
+                iconSize={16}
+                tintColor={$config.FONT_COLOR}
+              />
+            </View>
+          ) : (
+            <></>
           )}
           {enableExpandButton &&
           screenShareData &&
@@ -208,7 +242,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {!isScreenShareOnFullView && <NetworkQualityPill uid={user?.uid} />}
+          {!isScreenShareOnFullView && !CustomChild && (
+            <NetworkQualityPill uid={user?.uid} />
+          )}
           <ZoomableWrapper
             enableZoom={
               isScreenShareOnFullView &&
@@ -217,42 +253,54 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 ? true
                 : false
             }>
-            <MaxVideoView
-              fallback={() => {
-                return FallbackLogo(
-                  user?.name,
-                  isActiveSpeaker,
-                  enablePinForMe &&
-                    (showReplacePin || showPinForMe) &&
-                    !isMobileUA()
-                    ? true
-                    : false,
-                  isMax,
-                  avatarSize,
-                );
-              }}
-              user={isNativeScreenShareActive ? {...user, video: 0} : user}
-              containerStyle={{
-                width:
-                  landscapeMode && isScreenShareOnFullView ? height : '100%',
-                height:
-                  landscapeMode && isScreenShareOnFullView ? width : '100%',
-                // width: '100%',
-                // height: '100%',
-              }}
-              key={user.uid}
-              landscapeMode={
-                landscapeMode && isScreenShareOnFullView ? true : false
-              }
-            />
+            <VisibilitySensor
+              trigger={activeSpeaker}
+              onChange={isVisible => {
+                setVideoTileInViewPortState(user.uid, isVisible);
+              }}>
+              {CustomChild ? (
+                <CustomChild />
+              ) : (
+                <MaxVideoView
+                  fallback={() => {
+                    return FallbackLogo(
+                      user?.name,
+                      isActiveSpeaker,
+                      enablePinForMe &&
+                        (showReplacePin || showPinForMe) &&
+                        !isMobileUA()
+                        ? true
+                        : false,
+                      isMax,
+                      avatarSize,
+                    );
+                  }}
+                  user={isNativeScreenShareActive ? {...user, video: 0} : user}
+                  containerStyle={{
+                    width:
+                      landscapeMode && isScreenShareOnFullView
+                        ? height
+                        : '100%',
+                    height:
+                      landscapeMode && isScreenShareOnFullView ? width : '100%',
+                    // width: '100%',
+                    // height: '100%',
+                  }}
+                  key={user.uid}
+                  landscapeMode={
+                    landscapeMode && isScreenShareOnFullView ? true : false
+                  }
+                />
+              )}
+            </VisibilitySensor>
           </ZoomableWrapper>
-          {!isScreenShareOnFullView && (
+          {!isScreenShareOnFullView && !CustomChild && (
             <VideoContainerProvider value={{videoTileWidth}}>
               <NameWithMicIcon name={user.name} muted={!user.audio} />
             </VideoContainerProvider>
           )}
           {!isScreenShareOnFullView &&
-          user.uid !== rtcProps?.screenShareUid &&
+          // user.uid !== rtcProps?.screenShareUid &&
           (isHovered || actionMenuVisible || isMobileUA()) ? (
             <MoreMenu
               videoMoreMenuRef={videoMoreMenuRef}
@@ -270,7 +318,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               }}
               containerStyle={maxStyle.replacePinContainer}
               btnTextProps={{
-                text: showReplacePin ? 'Replace Pin' : 'Pin for me',
+                //text: showReplacePin ? 'Replace Pin' : 'View in large',
+                text: 'View in large',
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {
                   marginTop: 0,

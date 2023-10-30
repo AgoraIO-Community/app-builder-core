@@ -10,20 +10,36 @@
 *********************************************
 */
 
-import React, {useRef, useEffect, useContext} from 'react';
+import React, {useRef, useEffect, useContext, useState} from 'react';
 import {whiteboardContext} from './WhiteboardConfigure';
 import {StyleSheet, View, Text} from 'react-native';
 import {RoomPhase, ApplianceNames} from 'white-web-sdk';
 import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardCanvas from './WhiteboardCanvas';
+import {useContent, useLayout} from 'customization-api';
 
-interface WhiteboardViewInterface {
-  showToolbox?: boolean;
-}
+interface WhiteboardViewInterface {}
 
-const WhiteboardView: React.FC<WhiteboardViewInterface> = ({showToolbox}) => {
+const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const wbSurfaceRef = useRef();
-  const {whiteboardRoomState} = useContext(whiteboardContext);
+  const {whiteboardRoomState, whiteboardUid} = useContext(whiteboardContext);
+  const {currentLayout} = useLayout();
+  const [showToolbox, setShowToolbox] = useState(false);
+  const {activeUids} = useContent();
+  useEffect(() => {
+    if (currentLayout === 'grid') {
+      setShowToolbox(false);
+    } else {
+      if (
+        currentLayout == 'pinned' &&
+        activeUids &&
+        activeUids?.length &&
+        activeUids[0] == whiteboardUid
+      ) {
+        setShowToolbox(true);
+      }
+    }
+  }, [currentLayout, activeUids]);
 
   return (
     <View style={style.flex1}>

@@ -32,9 +32,7 @@ const WhiteboardButton = () => {
   };
 
   useEffect(() => {
-    whiteboardActive &&
-      currentLayout !== 'whiteboard' &&
-      setLayout('whiteboard');
+    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
     customEvents.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
     customEvents.on('WhiteBoardStarted', WhiteboardStartedCallBack);
 
@@ -59,7 +57,7 @@ const WhiteboardButton = () => {
         );
     } else {
       joinWhiteboardRoom();
-      setLayout('whiteboard');
+      setLayout('pinned');
       triggerEvent &&
         customEvents.send(
           'WhiteBoardStarted',

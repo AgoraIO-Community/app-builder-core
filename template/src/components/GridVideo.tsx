@@ -37,7 +37,8 @@ const layout = (len: number, isDesktop: boolean = true) => {
 const GridVideo: LayoutComponent = ({renderData}) => {
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const {activeUids, customContent} = useContent();
+  const {activeUids, customContent, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
@@ -51,7 +52,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
   if (
     $config.EVENT_MODE &&
     rtcProps?.role === ClientRole.Audience &&
-    activeUids.filter((i) => !customContent[i]).length === 0
+    activeUids.filter(i => !customContent[i]).length === 0
   ) {
     return (
       <View style={style.infoTextContainer}>
@@ -73,12 +74,18 @@ const GridVideo: LayoutComponent = ({renderData}) => {
             <Pressable
               disabled={renderData.length === 1}
               onPress={() => {
-                if (!(ridx === 0 && cidx === 0)) {
+                //if (!(ridx === 0 && cidx === 0)) {
+                const currentUid = renderData[ridx * dims.c + cidx];
+                if (
+                  currentUid !== pinnedUid &&
+                  currentUid !== secondaryPinnedUid
+                ) {
                   dispatch({
-                    type: 'SwapVideo',
+                    type: 'ActiveSpeaker',
                     value: [renderData[ridx * dims.c + cidx]],
                   });
                 }
+                //}
                 setPinnedLayout();
               }}
               style={{

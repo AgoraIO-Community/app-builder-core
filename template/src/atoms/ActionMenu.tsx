@@ -19,6 +19,8 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Toggle from './Toggle';
 
 export interface ActionMenuItem {
+  isExternalIcon?: boolean;
+  externalIconString?: string;
   isBase64Icon?: boolean;
   icon: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
@@ -60,9 +62,11 @@ const ActionMenu = (props: ActionMenuProps) => {
     return items?.map(
       (
         {
-          icon,
+          icon = '',
           onHoverIcon,
           isBase64Icon = false,
+          isExternalIcon = false,
+          externalIconString = '',
           title,
           toggleStatus,
           callback,
@@ -101,16 +105,29 @@ const ActionMenu = (props: ActionMenuProps) => {
                 onPress={callback}
                 key={icon + index}>
                 <View style={styles.iconContainer}>
-                  <ImageIcon
-                    base64={isBase64Icon}
-                    base64TintColor={iconColor}
-                    iconType="plain"
-                    iconSize={20}
-                    name={
-                      isHovered && onHoverIcon && !disabled ? onHoverIcon : icon
-                    }
-                    tintColor={iconColor}
-                  />
+                  {isExternalIcon ? (
+                    <ImageIcon
+                      base64={isBase64Icon}
+                      base64TintColor={iconColor}
+                      iconType="plain"
+                      iconSize={20}
+                      icon={externalIconString}
+                      tintColor={iconColor}
+                    />
+                  ) : (
+                    <ImageIcon
+                      base64={isBase64Icon}
+                      base64TintColor={iconColor}
+                      iconType="plain"
+                      iconSize={20}
+                      name={
+                        isHovered && onHoverIcon && !disabled
+                          ? onHoverIcon
+                          : icon
+                      }
+                      tintColor={iconColor}
+                    />
+                  )}
                 </View>
                 <Text
                   style={[styles.text, textColor ? {color: textColor} : {}]}>

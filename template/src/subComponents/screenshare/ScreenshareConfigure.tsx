@@ -39,7 +39,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
-  const {defaultContent, activeUids, pinnedUid} = useContent();
+  const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isPinned = useRef(0);
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
@@ -59,10 +60,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
+  const secondaryPinnedUidRef = useRef({
+    secondaryPinnedUid: secondaryPinnedUid,
+  });
 
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
   }, [pinnedUid]);
+
+  useEffect(() => {
+    secondaryPinnedUidRef.current.secondaryPinnedUid = secondaryPinnedUid;
+  }, [secondaryPinnedUid]);
 
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
@@ -94,21 +102,44 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           isPinned.current !== recentScreenshare[0] &&
           activeUids.indexOf(recentScreenshare[0]) !== -1
         ) {
-          triggerChangeLayout(true, recentScreenshare[0]);
+          triggerChangeLayout(
+            true,
+            recentScreenshare[0],
+            defaultContentRef.current.defaultContent[recentScreenshare[0]]
+              ?.parentUid,
+          );
         }
       }
     }
   }, [activeUids, screenShareData]);
 
-  const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+  const triggerChangeLayout = (
+    pinned: boolean,
+    screenShareUid?: UidType,
+    parentUid?: UidType,
+  ) => {
     let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
       isPinned.current = screenShareUid;
       dispatch({
-        type: 'SwapVideo',
+        type: 'UserPin',
         value: [screenShareUid],
       });
+      if (parentUid && !secondaryPinnedUidRef.current.secondaryPinnedUid) {
+        dispatch({
+          type: 'UserSecondaryPin',
+          value: [parentUid],
+        });
+      } else if (
+        parentUid &&
+        secondaryPinnedUidRef.current.secondaryPinnedUid
+      ) {
+        dispatch({
+          type: 'ActiveSpeaker',
+          value: [parentUid],
+        });
+      }
       layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
       isPinned.current = 0;
@@ -173,6 +204,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
                 if (!pinnedUidRef.current.pinnedUid) {
                   triggerChangeLayout(false);
                 }
+                if (screenUidOfUser === pinnedUidRef.current.pinnedUid) {
+                  triggerChangeLayout(false);
+                  dispatch({
+                    type: 'UserPin',
+                    value: [0],
+                  });
+                }
                 break;
               default:
                 break;
@@ -214,6 +252,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     //if user pinned somebody then don't triggerlayout change
     if (!pinnedUidRef.current.pinnedUid) {
       triggerChangeLayout(false);
+    }
+    if (screenShareUid === pinnedUidRef.current.pinnedUid) {
+      triggerChangeLayout(false);
+      dispatch({
+        type: 'UserPin',
+        value: [0],
+      });
     }
   };
 

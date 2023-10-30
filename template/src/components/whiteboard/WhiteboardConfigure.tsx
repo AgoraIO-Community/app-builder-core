@@ -1,4 +1,4 @@
-import {useRoomInfo} from 'customization-api';
+import {UidType, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
@@ -13,6 +13,7 @@ export const whiteboardContext = createContext(
 );
 
 export interface whiteboardContextInterface {
+  whiteboardUid: UidType;
   whiteboardActive: boolean;
   whiteboardRoomState: RoomPhase;
   joinWhiteboardRoom: () => void;
@@ -31,7 +32,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const [whiteboardRoomState, setWhiteboardRoomState] = useState(
     RoomPhase.Disconnected,
   );
-
+  const whiteboardUidRef = useRef(Date.now());
+  console.log('debugging whiteboardUid', whiteboardUidRef.current);
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
 
@@ -50,7 +52,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
       setWhiteboardRoomState(RoomPhase.Connecting);
       whiteWebSdkClient.current
         .joinRoom({
-          uid: `${Date.now()}`,
+          uid: `${whiteboardUidRef.current}`,
           uuid: room_uuid,
           roomToken: room_token,
           floatBar: true,
@@ -125,6 +127,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         joinWhiteboardRoom,
         leaveWhiteboardRoom,
         whiteboardRoom,
+        whiteboardUid: whiteboardUidRef.current,
       }}>
       {props.children}
     </whiteboardContext.Provider>

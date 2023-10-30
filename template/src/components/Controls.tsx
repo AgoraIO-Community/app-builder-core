@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {PropsContext, ToggleState} from '../../agora-rn-uikit';
+import {DispatchContext, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -63,9 +63,12 @@ import {RoomPhase} from 'white-web-sdk';
 import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 import {useVB} from './virtual-background/useVB';
+import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
 
 const MoreButton = () => {
+  const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
+  const {setCustomContent} = useContent();
   const [_, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
@@ -106,6 +109,7 @@ const MoreButton = () => {
   //AINS
   if ($config.ENABLE_AINS) {
     actionMenuitems.push({
+      toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
         isNoiseSupressionEnabled === ToggleState.disabling ||
         isNoiseSupressionEnabled === ToggleState.enabling,
@@ -114,10 +118,8 @@ const MoreButton = () => {
       icon: 'ains',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title:
-        isNoiseSupressionEnabled === ToggleState.enabled
-          ? 'Turn off AINS'
-          : 'Turn on AINS',
+      title: 'Noise Cancellation',
+      //isNoiseSupressionEnabled === ToggleState.enabled
       callback: () => {
         setActionMenuVisible(false);
         setNoiseSupression(p => !p);
@@ -160,6 +162,7 @@ const MoreButton = () => {
     whiteboardActive,
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
+    whiteboardUid,
   } = useContext(whiteboardContext);
 
   const WhiteboardStoppedCallBack = () => {
@@ -171,9 +174,7 @@ const MoreButton = () => {
   };
 
   useEffect(() => {
-    whiteboardActive &&
-      currentLayout !== 'whiteboard' &&
-      setLayout('whiteboard');
+    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
     events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
     events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
 
@@ -189,6 +190,7 @@ const MoreButton = () => {
   ) => {
     if (whiteboardActive) {
       leaveWhiteboardRoom();
+      setCustomContent(whiteboardUid, false);
       setLayout('grid');
       triggerEvent &&
         events.send(
@@ -198,7 +200,12 @@ const MoreButton = () => {
         );
     } else {
       joinWhiteboardRoom();
-      setLayout('whiteboard');
+      setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+      dispatch({
+        type: 'UserPin',
+        value: [whiteboardUid],
+      });
+      setLayout('pinned');
       triggerEvent &&
         events.send(
           'WhiteBoardStarted',
@@ -350,7 +357,10 @@ const MoreButton = () => {
 
   if (globalWidth <= BREAKPOINTS.md) {
     actionMenuitems.push({
-      icon: layouts[layout]?.iconName,
+      //below icon key is dummy value
+      icon: 'grid',
+      externalIconString: layouts[layout]?.icon,
+      isExternalIcon: true,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: 'Layout',
