@@ -55,6 +55,7 @@ type VBContextValue = {
   setVBmode: React.Dispatch<React.SetStateAction<VBMode>>;
   selectedImage: string | null;
   setSelectedImage: React.Dispatch<React.SetStateAction<string | null>>;
+  previewVideoTrack: ILocalVideoTrack | null;
   setPreviewVideoTrack: React.Dispatch<React.SetStateAction<ILocalVideoTrack> | null>;
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
@@ -68,6 +69,7 @@ export const VBContext = React.createContext<VBContextValue>({
   setVBmode: () => {},
   selectedImage: null,
   setSelectedImage: () => {},
+  previewVideoTrack: null,
   setPreviewVideoTrack: () => {},
   setSaveVB: () => {},
   options: [],
@@ -219,6 +221,7 @@ const VBProvider: React.FC = ({children}) => {
   ) => {
     const localVideoTrack = previewVideoTrack; // Use the preview view's video track
     // previewViewProcessor && (await previewViewProcessor.disable()); // Disable the old processor
+    if (!localVideoTrack) return;
     localVideoTrack
       ?.pipe(previewViewProcessor)
       .pipe(localVideoTrack?.processorDestination);
@@ -262,10 +265,9 @@ const VBProvider: React.FC = ({children}) => {
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
+    !isPreCallScreen && applyVirtualBackgroundToPreviewView(blurConfig);
     if (saveVB || isPreCallScreen) {
       applyVirtualBackgroundToMainView(blurConfig);
-    } else {
-      applyVirtualBackgroundToPreviewView(blurConfig);
     }
   };
 
@@ -281,10 +283,9 @@ const VBProvider: React.FC = ({children}) => {
     htmlElement.src =
       typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
     htmlElement.onload = () => {
+      !isPreCallScreen && applyVirtualBackgroundToPreviewView(imgConfig);
       if (saveVB || isPreCallScreen) {
         applyVirtualBackgroundToMainView(imgConfig);
-      } else {
-        applyVirtualBackgroundToPreviewView(imgConfig);
       }
     };
   };
@@ -306,6 +307,7 @@ const VBProvider: React.FC = ({children}) => {
         setVBmode,
         selectedImage,
         setSelectedImage,
+        previewVideoTrack,
         setPreviewVideoTrack,
         setSaveVB,
         options,
