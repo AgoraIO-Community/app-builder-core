@@ -158,7 +158,7 @@ export default function useJoinRoom() {
                 ? data.whiteboard.room_token
                 : data?.joinChannel?.whiteboard?.room_token,
               room_uuid: isWaitingRoomEnabled
-                ? data.whiteboard.room_uid
+                ? data.whiteboard.room_uuid
                 : data?.joinChannel?.whiteboard?.room_uuid,
             };
             if (whiteboard?.room_token && whiteboard?.room_uuid) {
