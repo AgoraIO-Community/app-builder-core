@@ -9,7 +9,7 @@ import {useLocalUid} from '../../../agora-rn-uikit';
 import {useParams} from '../../components/Router';
 
 interface IuseWaitingRoomAPI {
-  request: ({send_event: boolean}) => Promise<void>;
+  request: ({meetingPhrase: string, send_event: boolean}) => Promise<void>;
   approval: ({
     host_uid: number,
     attendee_uid,
@@ -39,9 +39,9 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
     return res;
   };
 
-  const request = async ({send_event}) => {
+  const request = async ({meetingPhrase, send_event}) => {
     const payload = JSON.stringify({
-      passphrase: phrase,
+      passphrase: meetingPhrase || phrase,
       send_event: send_event,
     });
     const res = await apiCall('request', payload);
