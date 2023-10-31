@@ -53,7 +53,6 @@ const RtmConfigure = (props: any) => {
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
   const {isInWaitingRoom} = useRoomInfo();
-  const {isAttendee} = useIsAttendee();
 
   /**
    * inside event callback state won't have latest value.
@@ -84,14 +83,14 @@ const RtmConfigure = (props: any) => {
   const timerValueRef: any = useRef(5);
 
   React.useEffect(() => {
-    // if ($config.WAITING_ROOM && isAttendee(uid)) {
-    //   return;
-    // }
     setTotalOnlineUsers(
       Object.keys(
         filterObject(
           defaultContent,
-          ([k, v]) => v?.type === 'rtc' && !v.offline,
+          ([k, v]) =>
+            v?.type === 'rtc' &&
+            !v.offline &&
+            activeUids.indexOf(v?.uid) !== -1,
         ),
       ).length,
     );
@@ -292,9 +291,6 @@ const RtmConfigure = (props: any) => {
       // console.log(evt);
     });
     engine.current.on('channelMemberJoined', (data: any) => {
-      // if ($config.WAITING_ROOM && isAttendee(data.uid)) {
-      //   return;
-      // }
       const backoffAttributes = backOff(
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
