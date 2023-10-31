@@ -10,14 +10,15 @@
 *********************************************
 */
 
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
-import {isMobileUA} from '../../utils/common';
+import {isMobileUA, isWeb} from '../../utils/common';
 import {ApplianceNames} from 'white-web-sdk';
+import StorageContext from '../../components/StorageContext';
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
-
+  const {store} = useContext(StorageContext);
   useEffect(() => {
     whiteboardRoom.current?.setMemberState({
       strokeColor: [0, 0, 0],
@@ -34,6 +35,41 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 
   const handleClear = () => {
     whiteboardRoom.current?.cleanCurrentScene();
+  };
+
+  const onFileChange = event => {
+    try {
+      const selectedFile = event.target.files[0];
+
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/upload`, {
+        method: 'GET',
+        headers: {
+          authorization: store?.token ? `Bearer ${store?.token}` : '',
+        },
+      })
+        .then(async res => {
+          const data = await res.json();
+          if (data?.url) {
+            const url = data?.url?.replaceAll('\u0026', '&');
+            const myHeaders = new Headers();
+            myHeaders.append('Content-Type', selectedFile?.type);
+            const file = selectedFile;
+            const requestOptions = {
+              method: 'PUT',
+              headers: myHeaders,
+              body: file,
+              redirect: 'follow',
+            };
+            fetch(url, requestOptions)
+              .then(response => console.log('debugging res', response.text()))
+              .then(result => console.log('debugging result', result))
+              .catch(error => console.log('error', error));
+          }
+        })
+        .catch(err => {
+          console.log('debugging err', err);
+        });
+    } catch (error) {}
   };
 
   return (
@@ -601,6 +637,33 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             </g>
           </svg>
         </Pressable>
+        {isWeb() ? (
+          <>
+            <input type="file" id="docpicker" hidden onChange={onFileChange} />
+            <Pressable
+              style={style.tool}
+              onPress={() => {
+                document.getElementById('docpicker').click();
+              }}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                viewBox="0 0 24 24"
+                fill="none">
+                <title>File Upload</title>
+                <path
+                  d="M12 14V4M12 4L9.5001 6.5M12 4L14.5001 6.5M15.5001 14H16C16.9428 14 17.4142 14 17.7071 14.2929C18 14.5858 18 15.0572 18 16V18C18 18.9428 18 19.4142 17.7071 19.7071C17.4142 20 16.9428 20 16 20H8.0001C7.05729 20 6.58588 20 6.29299 19.7071C6.0001 19.4142 6.0001 18.9428 6.0001 18V16C6.0001 15.0572 6.0001 14.5858 6.29299 14.2929C6.58588 14 7.05729 14 8.0001 14H8.5001"
+                  stroke="#464455"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </Pressable>
+          </>
+        ) : (
+          <></>
+        )}
       </View>
     </View>
   );
