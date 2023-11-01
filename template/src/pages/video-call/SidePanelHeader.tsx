@@ -31,6 +31,7 @@ import {useRoomInfo, usePreCall} from 'customization-api';
 import useTranscriptDownload from '../../subComponents/caption/useTranscriptDownload';
 import {useVB} from '../../components/virtual-background/useVB';
 import {PropsContext} from '../../../agora-rn-uikit';
+import useLiveStreamingUids from '../../utils/useLiveStreamingUids';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -51,7 +52,12 @@ export const SettingsHeader = props => {
 
 export const PeopleHeader = () => {
   const {onlineUsersCount} = useContext(ChatContext);
-  const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
+  const {hostUids, audienceUids} = useLiveStreamingUids();
+  const count = $config.EVENT_MODE
+    ? hostUids.length + audienceUids.length
+    : onlineUsersCount;
+  const participantsLabel = `People (${numFormatter(count)})`;
+
   const {setSidePanel} = useSidePanel();
   return (
     <SidePanelHeader

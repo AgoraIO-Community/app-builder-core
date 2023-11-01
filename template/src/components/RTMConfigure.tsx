@@ -446,10 +446,10 @@ const RtmConfigure = (props: any) => {
         const outputData = {
           evt: `${data.feat}_${data.etyp}`,
           payload: JSON.stringify({
-            attendee_uid: data.data.data.attendee_uid,
             approved: data.data.data.approved,
             channelName: data.data.data.channel_name,
-            rtc: data.data.data.rtc,
+            mainUser: data.data.data.mainUser,
+            screenShare: data.data.data.screenShare,
           }),
           persistLevel: 1,
           source: 'core',
@@ -509,24 +509,7 @@ const RtmConfigure = (props: any) => {
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId, callActive]);
-
-  React.useEffect(() => {
-    if (isInWaitingRoom) {
-      return; // server will broadcast rtm message to all the host for approval request
-      // remove return if need to avoid polling and sending Client side L2 messages
-      const name = defaultContentRef.current.defaultContent[localUid].name;
-      // joining the RTM channel with existing credentails , but this security issue as the token is already recived with joinChannel response
-      events.send(
-        EventNames.WAITING_ROOM_REQUEST,
-        JSON.stringify({
-          userName: name,
-          uid: localUid,
-        }),
-        PersistanceLevel.Sender,
-      );
-    }
-  }, [isInWaitingRoom]);
+  }, [rtcProps.channel, rtcProps.appId]);
 
   return (
     <ChatContext.Provider

@@ -141,17 +141,15 @@ export default function useJoinRoom() {
               ? data.screenShare.rtc
               : data.joinChannel.screenShare.rtc;
           }
-          if (data?.joinChannel?.isHost || data?.isHost) {
-            roomInfo.isHost = isWaitingRoomEnabled
-              ? data.isHost
-              : data.joinChannel.isHost;
-          }
+          roomInfo.isHost = isWaitingRoomEnabled
+            ? data.isHost
+            : data.joinChannel.isHost;
+
           if (data?.joinChannel?.title || data?.title) {
             roomInfo.meetingTitle = isWaitingRoomEnabled
               ? data.title
               : data.joinChannel.title;
           }
-
           if (data?.joinChannel?.whiteboard || data?.whiteboard) {
             const whiteboard: RoomInfoContextInterface['data']['whiteboard'] = {
               room_token: isWaitingRoomEnabled

@@ -30,6 +30,7 @@ import Toast from '../../../react-native-toast-message';
 
 import events from '../../rtm-events-api';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
+import {UserType} from '../RTMConfigure';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -65,21 +66,34 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
-      const {approved, rtc} = JSON.parse(data?.payload);
+      const {approved, mainUser, screenShare} = JSON.parse(data?.payload);
       // stop polling if user has responsed with yes / no
       shouldPollRef.current = false;
       // on approve/reject response from host, waiting room permission is reset
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isInWaitingRoom: false,
-          data: {...prev.data, token: rtc.token},
-        };
-      });
+
       if (approved) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isInWaitingRoom: false,
+            data: {
+              ...prev.data,
+              token: mainUser.rtc,
+              screenShareToken: screenShare.rtc,
+              //screenShareUid: screenShare.uid,
+            },
+          };
+        });
         // entering in call screen
-        setCallActive(true);
+        window.setTimeout(() => setCallActive(true), 0);
+        // setCallActive(true);
       } else {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isInWaitingRoom: false,
+          };
+        });
         // inform user that entry was denied by the host
         Toast.show({
           text1: `Approval Required`,
