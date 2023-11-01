@@ -56,7 +56,7 @@ export const PeopleHeader = () => {
   const count = $config.EVENT_MODE
     ? hostUids.length + audienceUids.length
     : onlineUsersCount;
-  const participantsLabel = `People (${numFormatter(count)})`;
+  const participantsLabel = `People`;
 
   const {setSidePanel} = useSidePanel();
   return (
