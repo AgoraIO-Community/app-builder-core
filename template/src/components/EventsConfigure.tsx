@@ -195,10 +195,17 @@ const EventsConfigure: React.FC<Props> = props => {
 
     events.on(EventNames.WAITING_ROOM_REQUEST, data => {
       if (!isHost) return;
-      //  const {uid, userName} = JSON.parse(data?.payload);
-      const {attendee_uid} = JSON.parse(data?.payload);
+
+      const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
+        data?.payload,
+      );
       const userName =
         defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+      // put the attendee in waitingroom in renderlist
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [attendee_uid, {isInWaitingRoom: true}],
+      });
       // check if any other host has approved then dont show permission to join the room
       console.log(activeUidsRef);
       const AllowBtn = () => (
@@ -211,9 +218,14 @@ const EventsConfigure: React.FC<Props> = props => {
             const res = approval({
               host_uid: localUid,
               attendee_uid: attendee_uid,
+              attendee_screenshare_uid: attendee_screenshare_uid,
               approved: true,
             });
             console.log('waiting-room:approval', res);
+            dispatch({
+              type: 'UpdateRenderList',
+              value: [attendee_uid, {isInWaitingRoom: false}],
+            });
             // server will send the RTM message with approved status and RTC token to the approved attendee.
             Toast.hide();
           }}

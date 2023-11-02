@@ -427,13 +427,14 @@ const RtmConfigure = (props: any) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
     let evt = '',
       value = {};
-    //TODO:waiting-room BE should refactor payload as per existing format
+
     if (data.feat === 'WAITING_ROOM') {
       if (data.etyp === 'REQUEST') {
         const outputData = {
           evt: `${data.feat}_${data.etyp}`,
           payload: JSON.stringify({
             attendee_uid: data.data.data.attendee_uid,
+            attendee_screenshare_uid: data.data.data.attendee_screenshare_uid,
           }),
           persistLevel: 1,
           source: 'core',

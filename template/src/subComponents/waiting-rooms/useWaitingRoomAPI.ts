@@ -9,11 +9,15 @@ import {useLocalUid} from '../../../agora-rn-uikit';
 import {useParams} from '../../components/Router';
 
 interface IuseWaitingRoomAPI {
-  request: ({meetingPhrase: string, send_event: boolean}) => Promise<void>;
-  approval: ({
-    host_uid: number,
-    attendee_uid,
-    approved: boolean,
+  request: (params: {
+    meetingPhrase?: string;
+    send_event: boolean;
+  }) => Promise<void>;
+  approval: (params: {
+    host_uid: number;
+    attendee_uid: number;
+    attendee_screenshare_uid?: number;
+    approved: boolean;
   }) => Promise<void>;
 }
 
@@ -49,11 +53,17 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
     return res;
   };
 
-  const approval = async ({host_uid, attendee_uid, approved}) => {
+  const approval = async ({
+    host_uid,
+    attendee_uid,
+    approved,
+    attendee_screenshare_uid,
+  }) => {
     const payload = JSON.stringify({
       passphrase: phrase,
       host_uid: host_uid, //host id of approver,
       attendee_uid: attendee_uid, //uid of whose request was approved,
+      attendee_screenshare_uid: attendee_screenshare_uid, // screenshare uid of attendee
       approved: approved, //approval status,
     });
     const res = await apiCall('approval', payload);
