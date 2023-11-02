@@ -15,9 +15,13 @@ import {StyleSheet, View, Pressable} from 'react-native';
 import {isMobileUA, isWeb} from '../../utils/common';
 import {ApplianceNames} from 'white-web-sdk';
 import StorageContext from '../../components/StorageContext';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
+  const {
+    data: {roomId},
+  } = useRoomInfo();
   const {store} = useContext(StorageContext);
   useEffect(() => {
     whiteboardRoom.current?.setMemberState({
@@ -40,7 +44,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   const onFileChange = event => {
     try {
       const selectedFile = event.target.files[0];
-
       fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/upload`, {
         method: 'GET',
         headers: {
@@ -53,16 +56,34 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             const url = data?.url?.replaceAll('\u0026', '&');
             const myHeaders = new Headers();
             myHeaders.append('Content-Type', selectedFile?.type);
-            const file = selectedFile;
             const requestOptions = {
               method: 'PUT',
               headers: myHeaders,
-              body: file,
-              redirect: 'follow',
+              body: selectedFile,
             };
             fetch(url, requestOptions)
-              .then(response => console.log('debugging res', response.text()))
-              .then(result => console.log('debugging result', result))
+              .then(() => {
+                const myHeaders2 = new Headers();
+                myHeaders2.append('Content-Type', 'application/json');
+                myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+                const body = JSON.stringify({
+                  resource_url: url,
+                  passphrase: roomId?.host,
+                  conversion_type: 'static',
+                  conversion_scale: 3,
+                });
+                fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/fileconvert`, {
+                  method: 'POST',
+                  headers: myHeaders2,
+                  body: body,
+                })
+                  .then(res2 => {
+                    console.log('debugging file convert success', res2);
+                  })
+                  .catch(error2 => {
+                    console.log('debugging file convert error', error2);
+                  });
+              })
               .catch(error => console.log('error', error));
           }
         })
