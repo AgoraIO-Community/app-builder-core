@@ -241,7 +241,12 @@ const EventsConfigure: React.FC<Props> = props => {
             const res = approval({
               host_uid: localUid,
               attendee_uid: attendee_uid,
+              attendee_screenshare_uid: attendee_screenshare_uid,
               approved: false,
+            });
+            dispatch({
+              type: 'UpdateRenderList',
+              value: [attendee_uid, {isInWaitingRoom: false}],
             });
             console.log('waiting-room:reject', res);
             // server will send the RTM message with rejected status and RTC token to the approved attendee.

@@ -14,7 +14,12 @@ import React, {useContext, useEffect} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
 import {useString} from '../../utils/useString';
-import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
+import {
+  ChannelProfile,
+  DispatchContext,
+  PropsContext,
+  useLocalUid,
+} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 
 import useGetName from '../../utils/useGetName';
@@ -64,12 +69,19 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     }),
   );
 
+  const {dispatch} = useContext(DispatchContext);
+  const localUid = useLocalUid();
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
       const {approved, mainUser, screenShare} = JSON.parse(data?.payload);
       // stop polling if user has responsed with yes / no
       shouldPollRef.current = false;
       // on approve/reject response from host, waiting room permission is reset
+      // update waitinng room status on uid
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [localUid, {isInWaitingRoom: false}],
+      });
 
       if (approved) {
         setRoomInfo(prev => {
@@ -80,10 +92,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
               ...prev.data,
               token: mainUser.rtc,
               screenShareToken: screenShare.rtc,
-              //screenShareUid: screenShare.uid,
+              screenShareUid: screenShare.uid,
             },
           };
         });
+
         // entering in call screen
         window.setTimeout(() => setCallActive(true), 0);
         // setCallActive(true);
@@ -135,6 +148,12 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     //updating name in the backend
     saveName(username.trim());
     //setCallActive(true);
+
+    // add the waitingRoomStatus to the uid
+    dispatch({
+      type: 'UpdateRenderList',
+      value: [localUid, {isInWaitingRoom: true}],
+    });
     // Enter waiting rooom;
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
