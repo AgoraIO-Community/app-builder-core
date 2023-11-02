@@ -69,6 +69,7 @@ import {NoiseSupressionProvider} from '../app-state/useNoiseSupression';
 import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
+import {isWeb} from '../utils/common';
 
 enum RnEncryptionEnum {
   /**
@@ -359,9 +360,14 @@ const VideoCall: React.FC = () => {
                                                               <VideoCallProvider>
                                                                 <DisableChatProvider>
                                                                   <CaptionProvider>
-                                                                    <WhiteboardConfigure>
+                                                                    {$config.ENABLE_WHITEBOARD &&
+                                                                    isWeb() ? (
+                                                                      <WhiteboardConfigure>
+                                                                        <VideoCallScreen />
+                                                                      </WhiteboardConfigure>
+                                                                    ) : (
                                                                       <VideoCallScreen />
-                                                                    </WhiteboardConfigure>
+                                                                    )}
                                                                   </CaptionProvider>
                                                                 </DisableChatProvider>
                                                               </VideoCallProvider>
