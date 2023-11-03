@@ -97,6 +97,7 @@ const MoreButton = () => {
   const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
+    isWhiteBoardOn,
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
@@ -177,14 +178,27 @@ const MoreButton = () => {
 
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-    events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
 
-    return () => {
-      events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
-      events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
-    };
+    // if (!$config.WAITING_ROOM) {
+    //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
+    // }
+
+    // return () => {
+    //   if (!$config.WAITING_ROOM) {
+    //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
+    //   }
+    // };
   }, []);
+
+  React.useEffect(() => {
+    if (isWhiteBoardOn) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  }, [isWhiteBoardOn]);
 
   const toggleWhiteboard = (
     whiteboardActive: boolean,

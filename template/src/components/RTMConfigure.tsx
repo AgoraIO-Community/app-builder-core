@@ -451,6 +451,7 @@ const RtmConfigure = (props: any) => {
             channelName: data.data.data.channel_name,
             mainUser: data.data.data.mainUser,
             screenShare: data.data.data.screenShare,
+            whiteboard: data.data.data.whiteboard,
           }),
           persistLevel: 1,
           source: 'core',

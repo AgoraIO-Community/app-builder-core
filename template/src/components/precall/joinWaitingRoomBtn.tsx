@@ -73,7 +73,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const localUid = useLocalUid();
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
-      const {approved, mainUser, screenShare} = JSON.parse(data?.payload);
+      const {approved, mainUser, screenShare, whiteboard} = JSON.parse(
+        data?.payload,
+      );
       // stop polling if user has responsed with yes / no
       shouldPollRef.current = false;
       // on approve/reject response from host, waiting room permission is reset
@@ -93,6 +95,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
               token: mainUser.rtc,
               screenShareToken: screenShare.rtc,
               screenShareUid: screenShare.uid,
+              whiteboard,
             },
           };
         });

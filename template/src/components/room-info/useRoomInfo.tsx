@@ -39,6 +39,7 @@ export interface RoomInfoContextInterface {
     screenShareToken?: string;
   };
   isInWaitingRoom?: boolean;
+  isWhiteBoardOn?: boolean;
 }
 
 export const validateMeetingInfoData = (
@@ -68,6 +69,7 @@ export const validateMeetingInfoData = (
 export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   isJoinDataFetched: false,
   isInWaitingRoom: false,
+  isWhiteBoardOn: false,
   data: {
     isHost: false,
     meetingTitle: '',

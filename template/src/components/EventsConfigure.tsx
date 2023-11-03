@@ -23,6 +23,7 @@ import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import {EventNames} from '../../src/rtm-events';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 
 interface Props {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ const EventsConfigure: React.FC<Props> = props => {
   const {
     data: {isHost},
   } = useRoomInfo();
+  const {setRoomInfo} = useSetRoomInfo();
 
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
@@ -190,6 +192,23 @@ const EventsConfigure: React.FC<Props> = props => {
           />
         ),
         secondaryBtn: SecondaryBtn,
+      });
+    });
+
+    events.on('WhiteBoardStarted', () => {
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          isWhiteBoardOn: true,
+        };
+      });
+    });
+    events.on('WhiteBoardStopped', () => {
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          isWhiteBoardOn: false,
+        };
       });
     });
 
