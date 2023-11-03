@@ -196,10 +196,15 @@ const EventsConfigure: React.FC<Props> = props => {
     events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
       if (!isHost) return;
       const {attendee_uid} = JSON.parse(data?.payload);
+      // update waiting room status in other host's panel
       dispatch({
         type: 'UpdateRenderList',
         value: [attendee_uid, {isInWaitingRoom: false}],
       });
+      // hide toast in other host's screen
+      if (Toast.getToastId() === attendee_uid) {
+        Toast.hide();
+      }
     });
 
     events.on(EventNames.WAITING_ROOM_REQUEST, data => {
@@ -217,11 +222,13 @@ const EventsConfigure: React.FC<Props> = props => {
       });
       // check if any other host has approved then dont show permission to join the room
       console.log(activeUidsRef);
-      const AllowBtn = () => (
+      let btns: any = {};
+      btns.toastId = attendee_uid;
+      btns.primaryBtn = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
           textStyle={style.primaryBtnText}
-          text="Allow"
+          text="Admit"
           onPress={() => {
             // user approving waiting room request
             const res = approval({
@@ -246,7 +253,7 @@ const EventsConfigure: React.FC<Props> = props => {
           }}
         />
       );
-      const DenyBtn = () => (
+      btns.secondaryBtn = (
         <TertiaryButton
           containerStyle={style.secondaryBtn}
           textStyle={style.primaryBtnText}
@@ -281,8 +288,7 @@ const EventsConfigure: React.FC<Props> = props => {
         text1: 'Approval Required',
         text2: `${userName} is waiting for approval to join the call`,
         visibilityTime: 30000,
-        primaryBtn: <AllowBtn />,
-        secondaryBtn: <DenyBtn />,
+        ...btns,
       });
     });
 

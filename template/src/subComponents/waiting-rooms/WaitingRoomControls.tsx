@@ -7,6 +7,7 @@ import useWaitingRoomAPI from './useWaitingRoomAPI';
 import {DispatchContext, useLocalUid} from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import Toast from '../../../react-native-toast-message';
 
 const WaitingRoomButton = props => {
   const {uid, screenUid, isAccept} = props;
@@ -25,6 +26,11 @@ const WaitingRoomButton = props => {
       attendee_screenshare_uid: screenUid,
       approved: approved,
     });
+
+    // hide Toast if approve/reject from panel
+    if (Toast.getToastId() === uid) {
+      Toast.hide();
+    }
 
     dispatch({
       type: 'UpdateRenderList',
