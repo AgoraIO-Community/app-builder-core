@@ -193,6 +193,15 @@ const EventsConfigure: React.FC<Props> = props => {
       });
     });
 
+    events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
+      if (!isHost) return;
+      const {attendee_uid} = JSON.parse(data?.payload);
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [attendee_uid, {isInWaitingRoom: false}],
+      });
+    });
+
     events.on(EventNames.WAITING_ROOM_REQUEST, data => {
       if (!isHost) return;
 
@@ -226,6 +235,12 @@ const EventsConfigure: React.FC<Props> = props => {
               type: 'UpdateRenderList',
               value: [attendee_uid, {isInWaitingRoom: false}],
             });
+            // inform other that hosts as well
+            events.send(
+              EventNames.WAITING_ROOM_STATUS_UPDATE,
+              JSON.stringify({attendee_uid, approved: true}),
+              PersistanceLevel.None,
+            );
             // server will send the RTM message with approved status and RTC token to the approved attendee.
             Toast.hide();
           }}
@@ -248,6 +263,12 @@ const EventsConfigure: React.FC<Props> = props => {
               type: 'UpdateRenderList',
               value: [attendee_uid, {isInWaitingRoom: false}],
             });
+            // inform other that hosts as well
+            events.send(
+              'WAITING_ROOM_STATUS_UPDATE',
+              JSON.stringify({attendee_uid, approved: false}),
+              PersistanceLevel.None,
+            );
             console.log('waiting-room:reject', res);
             // server will send the RTM message with rejected status and RTC token to the approved attendee.
             Toast.hide();

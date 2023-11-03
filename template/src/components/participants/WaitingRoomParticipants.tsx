@@ -4,6 +4,7 @@ import {useContent} from 'customization-api';
 import {filterObject} from '../../utils';
 import Participant from './Participant';
 import ParticipantSectionTitle from './ParticipantSectionTitle';
+import {useWaitingRoomContext} from '../contexts/WaitingRoomContext';
 
 const WaitingRoomParticipants = props => {
   const {defaultContent} = useContent();
@@ -21,24 +22,19 @@ const WaitingRoomParticipants = props => {
     return defaultContent[uid]?.screenUid || '';
   };
 
-  const uids = Object.keys(
-    filterObject(
-      defaultContent,
-      ([k, v]) =>
-        v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
-    ),
-  );
+  const {waitingRoomUids} = useWaitingRoomContext();
+
   return (
     <>
       <ParticipantSectionTitle
         title={WaitingRoomParticipantsLabel}
-        count={uids.length}
+        count={waitingRoomUids.length}
         isOpen={showWaitingRoomSection}
         onPress={() => setShowWaitingRoomSection(!showWaitingRoomSection)}
       />
       {showWaitingRoomSection ? (
         <View>
-          {uids.map(uid => (
+          {waitingRoomUids.map(uid => (
             <Participant
               isLocal={false}
               name={getParticipantName(uid)}
@@ -51,7 +47,7 @@ const WaitingRoomParticipants = props => {
               handleClose={handleClose}
               updateActionSheet={updateActionSheet}
               waitingRoomUser={true}
-              uid={Number(uid)}
+              uid={uid}
               screenUid={getScreenShareUid(uid)}
             />
           ))}

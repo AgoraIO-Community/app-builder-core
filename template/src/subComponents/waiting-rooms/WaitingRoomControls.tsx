@@ -5,6 +5,8 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import useWaitingRoomAPI from './useWaitingRoomAPI';
 import {DispatchContext, useLocalUid} from '../../../agora-rn-uikit';
+import events, {PersistanceLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 const WaitingRoomButton = props => {
   const {uid, screenUid, isAccept} = props;
@@ -28,6 +30,11 @@ const WaitingRoomButton = props => {
       type: 'UpdateRenderList',
       value: [uid, {isInWaitingRoom: false}],
     });
+    events.send(
+      EventNames.WAITING_ROOM_STATUS_UPDATE,
+      JSON.stringify({attendee_uid: uid, approved: isAccept}),
+      PersistanceLevel.None,
+    );
   };
 
   const ButtonComponent = isAccept ? PrimaryButton : TertiaryButton;

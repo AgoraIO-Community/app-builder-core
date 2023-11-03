@@ -69,6 +69,7 @@ import {NoiseSupressionProvider} from '../app-state/useNoiseSupression';
 import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
+import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 
 enum RnEncryptionEnum {
   /**
@@ -355,17 +356,19 @@ const VideoCall: React.FC = () => {
                                                       <VBProvider>
                                                         <SdkMuteToggleListener>
                                                           {callActive ? (
-                                                            <VideoMeetingDataProvider>
-                                                              <VideoCallProvider>
-                                                                <DisableChatProvider>
-                                                                  <CaptionProvider>
-                                                                    <WhiteboardConfigure>
-                                                                      <VideoCallScreen />
-                                                                    </WhiteboardConfigure>
-                                                                  </CaptionProvider>
-                                                                </DisableChatProvider>
-                                                              </VideoCallProvider>
-                                                            </VideoMeetingDataProvider>
+                                                            <WaitingRoomProvider>
+                                                              <VideoMeetingDataProvider>
+                                                                <VideoCallProvider>
+                                                                  <DisableChatProvider>
+                                                                    <CaptionProvider>
+                                                                      <WhiteboardConfigure>
+                                                                        <VideoCallScreen />
+                                                                      </WhiteboardConfigure>
+                                                                    </CaptionProvider>
+                                                                  </DisableChatProvider>
+                                                                </VideoCallProvider>
+                                                              </VideoMeetingDataProvider>
+                                                            </WaitingRoomProvider>
                                                           ) : $config.PRECALL ? (
                                                             <PreCallProvider
                                                               value={{
