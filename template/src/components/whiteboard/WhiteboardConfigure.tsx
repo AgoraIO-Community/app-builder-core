@@ -107,10 +107,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   useEffect(() => {
     if (!whiteWebSdkClient.current.joinRoom && whiteboardActive) {
-      const appIdentifier = 'EEJBQPVbEe2Bao8ZShuoHQ/hgB5eo0qcDbVig';
+      const appIdentifier = $config.WHITEBOARD_APPIDENTIFIER;
       whiteWebSdkClient.current = new WhiteWebSdk({
         appIdentifier: appIdentifier,
-        region: 'us-sv',
+        region: $config.WHITEBOARD_REGION,
       });
       join();
     } else if (whiteboardActive) {
