@@ -363,7 +363,8 @@ const VideoCall: React.FC = () => {
                                                                   <DisableChatProvider>
                                                                     <CaptionProvider>
                                                                       {$config.ENABLE_WHITEBOARD &&
-                                                                      isWeb() ? (
+                                                                      (isWeb() ||
+                                                                        isSDK()) ? (
                                                                         <WhiteboardConfigure>
                                                                           <VideoCallScreen />
                                                                         </WhiteboardConfigure>

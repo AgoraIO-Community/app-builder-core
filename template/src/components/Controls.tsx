@@ -23,6 +23,7 @@ import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
   CustomToolbarSort,
+  isWeb,
   isWebInternal,
   useIsDesktop,
 } from '../utils/common';
@@ -64,6 +65,7 @@ import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
+import isSDK from '../utils/isSDK';
 
 const MoreButton = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -221,7 +223,7 @@ const MoreButton = () => {
 
   //whiteboard ends
 
-  if (isHost && $config.ENABLE_WHITEBOARD) {
+  if (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
     actionMenuitems.push({
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
