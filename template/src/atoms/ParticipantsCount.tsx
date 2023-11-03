@@ -12,6 +12,9 @@ const ParticipantsCount = () => {
   const {onlineUsersCount} = useContext(ChatContext);
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {attendeeUids, hostUids: hostUidsVM} = useVideoMeetingData();
+  const count = $config.EVENT_MODE
+    ? hostUids.length + audienceUids.length
+    : onlineUsersCount;
   return (
     <IconButton
       placement="right"
@@ -38,7 +41,7 @@ const ParticipantsCount = () => {
         tintColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
       }}
       btnTextProps={{
-        text: numFormatter(onlineUsersCount),
+        text: numFormatter(count),
         textColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
         textStyle: {
           fontFamily: 'Source Sans Pro',

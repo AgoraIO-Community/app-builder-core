@@ -65,6 +65,7 @@ import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -118,7 +119,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     useContext(LiveStreamContext);
   //commented for v1 release
   //const participantsLabel = useString('participantsLabel')();
-  const {onlineUsersCount} = useContext(ChatContext);
+  const {waitingRoomUids} = useWaitingRoomContext();
   //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const participantsLabel = `People`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
@@ -177,22 +178,25 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           <View>
             <IconButton {...iconButtonProps} />
           </View>
-          {$config.EVENT_MODE &&
+          {waitingRoomUids.length > 0 ||
+          ($config.EVENT_MODE &&
             $config.RAISE_HAND &&
-            isPendingRequestToReview && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: liveStreamingRequestAlertIconPosition.top,
-                  bottom: liveStreamingRequestAlertIconPosition.bottom,
-                  right: liveStreamingRequestAlertIconPosition.right,
-                  left: liveStreamingRequestAlertIconPosition.left,
-                  backgroundColor: $config.SEMANTIC_ERROR,
-                  width: 12,
-                  height: 12,
-                  borderRadius: 10,
-                }}></View>
-            )}
+            isPendingRequestToReview) ? (
+            <View
+              style={{
+                position: 'absolute',
+                top: liveStreamingRequestAlertIconPosition.top,
+                bottom: liveStreamingRequestAlertIconPosition.bottom,
+                right: liveStreamingRequestAlertIconPosition.right,
+                left: liveStreamingRequestAlertIconPosition.left,
+                backgroundColor: $config.SEMANTIC_ERROR,
+                width: 12,
+                height: 12,
+                borderRadius: 10,
+              }}></View>
+          ) : (
+            <></>
+          )}
         </>
       )}
     </>

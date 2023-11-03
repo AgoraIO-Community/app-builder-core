@@ -23,7 +23,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb, isWebInternal} from '../utils/common';
-import {useContent} from 'customization-api';
+import {useContent, useIsAttendee, useUserName} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -31,14 +31,14 @@ import {
   getMessageTime,
   get32BitUid,
 } from '../rtm/utils';
-import {EventUtils, EventsQueue} from '../rtm-events';
-import {PersistanceLevel} from '../rtm-events-api';
+import {EventUtils, EventsQueue, EventNames} from '../rtm-events';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
-
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -52,6 +52,7 @@ const RtmConfigure = (props: any) => {
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
+  const {isInWaitingRoom} = useRoomInfo();
 
   /**
    * inside event callback state won't have latest value.
@@ -86,7 +87,10 @@ const RtmConfigure = (props: any) => {
       Object.keys(
         filterObject(
           defaultContent,
-          ([k, v]) => v?.type === 'rtc' && !v.offline,
+          ([k, v]) =>
+            v?.type === 'rtc' &&
+            !v.offline &&
+            activeUids.indexOf(v?.uid) !== -1,
         ),
       ).length,
     );
@@ -421,7 +425,46 @@ const RtmConfigure = (props: any) => {
     ts: number,
   ) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
-    const {evt, value} = data;
+    let evt = '',
+      value = {};
+
+    if (data.feat === 'WAITING_ROOM') {
+      if (data.etyp === 'REQUEST') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            attendee_uid: data.data.data.attendee_uid,
+            attendee_screenshare_uid: data.data.data.attendee_screenshare_uid,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp; //rename if client side RTM meessage is to be sent for approval
+        value = formattedData;
+      }
+      if (data.etyp === 'RESPONSE') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            approved: data.data.data.approved,
+            channelName: data.data.data.channel_name,
+            mainUser: data.data.data.mainUser,
+            screenShare: data.data.data.screenShare,
+            whiteboard: data.data.data.whiteboard,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp;
+        value = formattedData;
+      }
+    } else {
+      evt = data.evt;
+      value = data.value;
+    }
+
     // Step 1: Set local attributes
     if (value?.persistLevel === PersistanceLevel.Session) {
       const rtmAttribute = {key: evt, value: value};
@@ -462,14 +505,13 @@ const RtmConfigure = (props: any) => {
     if (!callActive) {
       console.log('waiting to init RTM');
       setLogin(true);
-    } else {
-      await init();
     }
+    await init();
     return async () => {
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId, callActive]);
+  }, [rtcProps.channel, rtcProps.appId]);
 
   return (
     <ChatContext.Provider

@@ -36,7 +36,7 @@ interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const {defaultContent} = useContent();
+  const {defaultContent, activeUids} = useContent();
   const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [audienceUids, setAudienceUids] = useState<UidType[]>([]);
@@ -51,7 +51,8 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
           (raiseHandList[k]
             ? raiseHandList[k]?.role == ClientRole.Broadcaster
             : true) &&
-          !v?.offline,
+          !v?.offline &&
+          activeUids.indexOf(v?.uid) !== -1,
       );
       const audienceList = filterObject(
         defaultContent,
@@ -60,8 +61,8 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
           raiseHandList[k]?.role == ClientRole.Audience &&
           !v.offline,
       );
-      const hUids = Object.keys(hostList).map((uid) => parseInt(uid));
-      const aUids = Object.keys(audienceList).map((uid) => parseInt(uid));
+      const hUids = Object.keys(hostList).map(uid => parseInt(uid));
+      const aUids = Object.keys(audienceList).map(uid => parseInt(uid));
 
       setHostUids(hUids);
       setAudienceUids(aUids);
