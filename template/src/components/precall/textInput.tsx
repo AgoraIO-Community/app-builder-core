@@ -34,7 +34,7 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   const fetchingNamePlaceholder = 'Getting name...';
   const username = useGetName();
   const setUsername = useSetName();
-  const {isJoinDataFetched} = useRoomInfo();
+  const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
   const {isDesktop = false} = props;
 
   return (
@@ -54,7 +54,7 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
       }
       value={username}
       autoFocus
-      onChangeText={(text) => setUsername(text ? text : '')}
+      onChangeText={text => setUsername(text ? text : '')}
       onSubmitEditing={() => {}}
       placeholder={
         isJoinDataFetched
@@ -63,7 +63,7 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
             : userNamePlaceholder
           : fetchingNamePlaceholder
       }
-      editable={isJoinDataFetched}
+      editable={!isInWaitingRoom && isJoinDataFetched}
     />
   );
 };
