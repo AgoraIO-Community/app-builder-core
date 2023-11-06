@@ -8,10 +8,11 @@ import {Platform} from 'react-native';
 import useSTTAPI from './caption/useSTTAPI';
 import {useCaption} from './caption/useCaption';
 import {useScreenshare} from './screenshare/useScreenshare';
-import {DispatchContext} from '../../agora-rn-uikit';
+import {DispatchContext, PropsContext} from '../../agora-rn-uikit';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import RTMEngine from '../rtm/RTMEngine';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -41,6 +42,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     setEndcallVisible(true);
   };
   const [endCallState, setEndCallState] = useState(false);
+  const {rtcProps} = useContext(PropsContext);
 
   const executeEndCall = () => {
     setTimeout(() => {
@@ -56,6 +58,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       item => item[1].type === 'rtc',
     );
     usersInCall.length === 1 && isSTTActive && stop();
+    RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
   };
 
   useEffect(() => {
