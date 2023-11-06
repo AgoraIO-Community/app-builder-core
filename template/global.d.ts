@@ -107,6 +107,9 @@ interface ConfigInterface {
   ENABLE_VIRTUAL_BACKGROUND: boolean;
   ENABLE_WHITEBOARD: boolean;
   ENABLE_CHAT_NOTIFICATION: boolean;
+  WAITING_ROOM: boolean;
+  WHITEBOARD_APPIDENTIFIER: string;
+  WHITEBOARD_REGION: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

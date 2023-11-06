@@ -33,7 +33,7 @@ export {default as NetworkQualityPill} from '../src/subComponents/NetworkQuality
 //videocall screen
 export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScreen';
 export {default as PrecallScreen} from '../src/components/Precall';
-export {default as VBPanel} from '../src/components/virtual-background/VBPanel';
+//export {default as VBPanel} from '../src/components/virtual-background/VBPanel';
 
 // commented for v1 release
 //Settings screen
@@ -50,6 +50,7 @@ export {
   MaxVideoView as UiKitMaxVideoView,
   ClientRole as UikitClientRole,
   ChannelProfile as UikitChannelProfile,
+  PropsContext as UikitPropsContext,
 } from '../agora-rn-uikit';
 export {default as Toolbar} from '../src/atoms/Toolbar';
 export {default as ToolbarItem} from '../src/atoms/ToolbarItem';

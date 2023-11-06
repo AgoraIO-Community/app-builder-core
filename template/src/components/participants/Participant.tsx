@@ -13,7 +13,7 @@ import React, {useContext, useRef, useState} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {ClientRole, ContentInterface} from '../../../agora-rn-uikit';
+import {ClientRole, ContentInterface, UidType} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
@@ -46,6 +46,8 @@ import {
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
+
+import WaitingRoomButton from '../../subComponents/waiting-rooms/WaitingRoomControls';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -54,8 +56,11 @@ interface ParticipantInterface {
   isHostUser: boolean;
   isAudienceUser: boolean;
   isMobile?: boolean;
+  waitingRoomUser?: boolean;
   handleClose: () => {};
   updateActionSheet: (screenName: 'chat' | 'participants' | 'settings') => {};
+  uid?: UidType;
+  screenUid?: UidType;
 }
 
 const Participant = (props: ParticipantInterface) => {
@@ -74,14 +79,18 @@ const Participant = (props: ParticipantInterface) => {
     isMobile = false,
     handleClose,
     updateActionSheet,
+    waitingRoomUser = false,
+    uid,
+    screenUid,
   } = props;
   const {
     data: {isHost},
   } = useRoomInfo();
 
   const showModal = () => {
-    setActionMenuVisible((state) => !state);
+    setActionMenuVisible(state => !state);
   };
+
   return (
     <>
       <UserActionMenuOptionsOptions
@@ -114,7 +123,8 @@ const Participant = (props: ParticipantInterface) => {
             )}
           </View>
           <View style={styles.iconContainer}>
-            {isHovered || actionMenuVisible || isMobileUA() ? (
+            {(isHovered || actionMenuVisible || isMobileUA()) &&
+            !waitingRoomUser ? (
               <View
                 ref={moreIconRef}
                 collapsable={false}
@@ -148,6 +158,24 @@ const Participant = (props: ParticipantInterface) => {
               </View>
             ) : (
               <Spacer size={24} horizontal={true} />
+            )}
+            {waitingRoomUser ? (
+              <>
+                <WaitingRoomButton
+                  uid={uid}
+                  screenUid={screenUid}
+                  isAccept={false}
+                />
+                <Spacer horizontal={true} size={8} />
+                <WaitingRoomButton
+                  uid={uid}
+                  screenUid={screenUid}
+                  isAccept={true}
+                />
+                ;
+              </>
+            ) : (
+              <></>
             )}
             {showControls ? (
               <>

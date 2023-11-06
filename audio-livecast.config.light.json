@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "a569f8fb0309417780b793786b534a86",
   "PROJECT_ID": "49c705c1c9efb71000d7",
-  "FRONTEND_ENDPOINT": "https://livecast.agora.io",
+  "FRONTEND_ENDPOINT": "",
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
@@ -62,5 +62,8 @@
   "ENABLE_VIRTUAL_BACKGROUND": true,
   "ENABLE_WHITEBOARD": true,
   "ENABLE_CHAT_NOTIFICATION": true,
-  "DISABLE_CHAT_OPTION": false
+  "DISABLE_CHAT_OPTION": false,
+  "WAITING_ROOM": true,
+  "WHITEBOARD_APPIDENTIFIER": "EEJBQPVbEe2Bao8ZShuoHQ/hgB5eo0qcDbVig",
+  "WHITEBOARD_REGION": "us-sv"
 }

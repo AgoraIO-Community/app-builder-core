@@ -31,6 +31,7 @@ import {
   PreCallVideoPreview,
   PreCallJoinCallBtnProps,
   PreCallLocalMute,
+  JoinWaitingRoomBtn,
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
@@ -48,11 +49,13 @@ const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
   const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
+      WaitingRoomButton: React.ComponentType<PreCallJoinCallBtnProps>;
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
     } = {
       Textbox: PreCallTextInput,
       JoinButton: PreCallJoinBtn,
+      WaitingRoomButton: JoinWaitingRoomBtn,
     };
     // commented for v1 release
     // if (
@@ -111,7 +114,11 @@ const JoinRoomInputView = ({isDesktop}) => {
               ? style.btnContainerStyle
               : {width: '100%'}
           }>
-          <JoinButton />
+          {$config.WAITING_ROOM && rtcProps.role === ClientRole.Audience ? (
+            <JoinWaitingRoomBtn />
+          ) : (
+            <JoinButton />
+          )}
         </View>
       </View>
     </View>
@@ -156,11 +163,18 @@ const JoinRoomName = ({isDesktop}) => {
 };
 
 const JoinRoomButton = () => {
-  const {JoinButton, Textbox} = useCustomization(data => {
+  const {rtcProps} = useContext(PropsContext);
+  const {JoinButton, Textbox, WaitingRoomButton} = useCustomization(data => {
     let components: {
+      WaitingRoomButton: React.ComponentType<PreCallJoinCallBtnProps>;
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
-    } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
+    } = {
+      Textbox: PreCallTextInput,
+      JoinButton: PreCallJoinBtn,
+      WaitingRoomButton: JoinWaitingRoomBtn,
+    };
+
     // commented for v1 release
     // if (
     //   data?.components?.precall &&
@@ -186,7 +200,12 @@ const JoinRoomButton = () => {
     // }
     return components;
   });
-  return <JoinButton />;
+
+  return $config.WAITING_ROOM && rtcProps.role === ClientRole.Audience ? (
+    <JoinWaitingRoomBtn />
+  ) : (
+    <JoinButton />
+  );
 };
 
 const Precall = () => {

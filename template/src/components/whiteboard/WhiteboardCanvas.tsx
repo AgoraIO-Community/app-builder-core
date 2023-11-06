@@ -26,7 +26,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
   const {whiteboardRoom} = useContext(whiteboardContext);
 
   useEffect(function () {
-    wbSurfaceRef.current.appendChild(whiteboardPaper);
+    if (whiteboardPaper) {
+      wbSurfaceRef.current.appendChild(whiteboardPaper);
+    }
+
     return () => {
       // unBindRoom();
     };

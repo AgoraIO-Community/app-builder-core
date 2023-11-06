@@ -23,6 +23,7 @@ import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
   CustomToolbarSort,
+  isWeb,
   isWebInternal,
   useIsDesktop,
 } from '../utils/common';
@@ -64,6 +65,7 @@ import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
+import isSDK from '../utils/isSDK';
 
 const MoreButton = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -95,6 +97,7 @@ const MoreButton = () => {
   const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
+    isWhiteBoardOn,
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
@@ -175,14 +178,27 @@ const MoreButton = () => {
 
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-    events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
 
-    return () => {
-      events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
-      events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
-    };
+    // if (!$config.WAITING_ROOM) {
+    //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
+    // }
+
+    // return () => {
+    //   if (!$config.WAITING_ROOM) {
+    //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
+    //   }
+    // };
   }, []);
+
+  React.useEffect(() => {
+    if (isWhiteBoardOn) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  }, [isWhiteBoardOn]);
 
   const toggleWhiteboard = (
     whiteboardActive: boolean,
@@ -221,7 +237,7 @@ const MoreButton = () => {
 
   //whiteboard ends
 
-  if (isHost && $config.ENABLE_WHITEBOARD) {
+  if (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
     actionMenuitems.push({
       disabled: WhiteboardDisabled,
       isBase64Icon: true,

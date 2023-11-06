@@ -2,11 +2,14 @@ import {UidType, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
+import {isWeb} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
 
-export const whiteboardPaper = document.createElement('div');
-whiteboardPaper.className = 'whiteboardPaper';
-whiteboardPaper.setAttribute('style', 'height:100%');
+export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
+if (whiteboardPaper) {
+  whiteboardPaper.className = 'whiteboardPaper';
+  whiteboardPaper.setAttribute('style', 'height:100%');
+}
 
 export const whiteboardContext = createContext(
   {} as whiteboardContextInterface,
@@ -104,10 +107,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   useEffect(() => {
     if (!whiteWebSdkClient.current.joinRoom && whiteboardActive) {
-      const appIdentifier = 'EEJBQPVbEe2Bao8ZShuoHQ/hgB5eo0qcDbVig';
+      const appIdentifier = $config.WHITEBOARD_APPIDENTIFIER;
       whiteWebSdkClient.current = new WhiteWebSdk({
         appIdentifier: appIdentifier,
-        region: 'us-sv',
+        region: $config.WHITEBOARD_REGION,
       });
       join();
     } else if (whiteboardActive) {
