@@ -70,12 +70,16 @@ const useSTTAPI = (): IuseSTTAPI => {
       const res = await apiCall('start', lang);
       console.log('response aftet start api call', res);
       // null means stt startred successfully
-      if (res === null) {
+      const isSTTAlreadyActive =
+        res?.error?.message
+          ?.toLowerCase()
+          .indexOf('current status is started') !== -1 || false;
+      if (res === null || isSTTAlreadyActive) {
         // once STT is active in the channel , notify others so that they dont' trigger start again
         events.send(
           EventNames.STT_ACTIVE,
           JSON.stringify({active: true}),
-          PersistanceLevel.Session,
+          PersistanceLevel.Sender,
         );
         setIsSTTActive(true);
         console.log(`stt lang update from: ${language} to ${lang}`);
@@ -88,7 +92,7 @@ const useSTTAPI = (): IuseSTTAPI => {
             prevLang: language,
             newLang: lang,
           }),
-          PersistanceLevel.Session,
+          PersistanceLevel.Sender,
         );
         setLanguage(lang);
 

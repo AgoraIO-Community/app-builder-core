@@ -27,6 +27,8 @@ import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
+import {EventNames} from '../rtm-events';
+import {useCaption} from '../../src/subComponents/caption/useCaption';
 
 interface Props {
   children: React.ReactNode;
@@ -57,6 +59,8 @@ const EventsConfigure: React.FC<Props> = props => {
   useEffect(() => {
     activeUidsRef.current.activeUids = activeUids;
   }, [activeUids]);
+
+  const {setIsSTTActive} = useCaption();
 
   useEffect(() => {
     //user joined event listener
@@ -211,6 +215,11 @@ const EventsConfigure: React.FC<Props> = props => {
           isWhiteBoardOn: false,
         };
       });
+    });
+
+    events.on(EventNames.STT_ACTIVE, data => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
     });
 
     // events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
