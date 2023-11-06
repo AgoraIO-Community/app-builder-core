@@ -11,7 +11,12 @@
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {DispatchContext, PropsContext, ToggleState} from '../../agora-rn-uikit';
+import {
+  DispatchContext,
+  PropsContext,
+  ToggleState,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -66,6 +71,9 @@ import {useNoiseSupression} from '../app-state/useNoiseSupression';
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
 import isSDK from '../utils/isSDK';
+import PrimaryButton from '../atoms/PrimaryButton';
+import TertiaryButton from '../atoms/TertiaryButton';
+import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 
 const MoreButton = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -725,6 +733,12 @@ const Controls = (props: ControlsProps) => {
   const {defaultContent} = useContent();
   const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
+  const {dispatch} = useContext(DispatchContext);
+  const localUid = useLocalUid();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const {approval} = useWaitingRoomAPI();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -743,6 +757,102 @@ const Controls = (props: ControlsProps) => {
       setIsSTTActive(payload.active);
     });
   }, []);
+
+  events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
+    if (!isHost) return;
+    const {attendee_uid} = JSON.parse(data?.payload);
+    // update waiting room status in other host's panel
+    dispatch({
+      type: 'UpdateRenderList',
+      value: [attendee_uid, {isInWaitingRoom: false}],
+    });
+    // hide toast in other host's screen
+    if (Toast.getToastId() === attendee_uid) {
+      Toast.hide();
+    }
+  });
+
+  events.on(EventNames.WAITING_ROOM_REQUEST, data => {
+    if (!isHost) return;
+
+    const {attendee_uid, attendee_screenshare_uid} = JSON.parse(data?.payload);
+    const userName = defaultContentRef.current[attendee_uid]?.name || 'OO';
+    // put the attendee in waitingroom in renderlist
+    dispatch({
+      type: 'UpdateRenderList',
+      value: [attendee_uid, {isInWaitingRoom: true}],
+    });
+    // check if any other host has approved then dont show permission to join the room
+
+    let btns: any = {};
+    btns.toastId = attendee_uid;
+    btns.primaryBtn = (
+      <PrimaryButton
+        containerStyle={style.primaryBtn}
+        textStyle={style.primaryBtnText}
+        text="Admit"
+        onPress={() => {
+          // user approving waiting room request
+          const res = approval({
+            host_uid: localUid,
+            attendee_uid: attendee_uid,
+            attendee_screenshare_uid: attendee_screenshare_uid,
+            approved: true,
+          });
+          console.log('waiting-room:approval', res);
+          dispatch({
+            type: 'UpdateRenderList',
+            value: [attendee_uid, {isInWaitingRoom: false}],
+          });
+          // inform other that hosts as well
+          events.send(
+            EventNames.WAITING_ROOM_STATUS_UPDATE,
+            JSON.stringify({attendee_uid, approved: true}),
+            PersistanceLevel.None,
+          );
+          // server will send the RTM message with approved status and RTC token to the approved attendee.
+          Toast.hide();
+        }}
+      />
+    );
+    btns.secondaryBtn = (
+      <TertiaryButton
+        containerStyle={style.secondaryBtn}
+        textStyle={style.primaryBtnText}
+        text="Deny"
+        onPress={() => {
+          // user rejecting waiting room request
+          const res = approval({
+            host_uid: localUid,
+            attendee_uid: attendee_uid,
+            attendee_screenshare_uid: attendee_screenshare_uid,
+            approved: false,
+          });
+          dispatch({
+            type: 'UpdateRenderList',
+            value: [attendee_uid, {isInWaitingRoom: false}],
+          });
+          // inform other that hosts as well
+          events.send(
+            'WAITING_ROOM_STATUS_UPDATE',
+            JSON.stringify({attendee_uid, approved: false}),
+            PersistanceLevel.None,
+          );
+          console.log('waiting-room:reject', res);
+          // server will send the RTM message with rejected status and RTC token to the approved attendee.
+          Toast.hide();
+        }}
+      />
+    );
+
+    Toast.show({
+      type: 'info',
+      text1: 'Approval Required',
+      text2: `${userName} is waiting for approval to join the call`,
+      visibilityTime: 30000,
+      ...btns,
+    });
+  });
 
   React.useEffect(() => {
     // for native events are set in ActionSheetContent as this action is action sheet
@@ -863,6 +973,20 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  primaryBtn: {
+    maxWidth: 109,
+    minWidth: 109,
+    height: 40,
+    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+  },
+  primaryBtnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    paddingLeft: 0,
   },
 });
 

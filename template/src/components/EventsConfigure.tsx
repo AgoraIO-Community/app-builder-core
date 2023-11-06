@@ -12,7 +12,12 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {RtcContext, DispatchContext, useLocalUid} from '../../agora-rn-uikit';
+import {
+  RtcContext,
+  DispatchContext,
+  useLocalUid,
+  PropsContext,
+} from '../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
@@ -20,9 +25,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import {useContent} from 'customization-api';
 import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
-import {EventNames} from '../../src/rtm-events';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
-import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 
 interface Props {
@@ -50,8 +53,6 @@ const EventsConfigure: React.FC<Props> = props => {
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
 
-  const {approval} = useWaitingRoomAPI();
-  const localUid = useLocalUid();
   const activeUidsRef = React.useRef({activeUids: activeUids});
   useEffect(() => {
     activeUidsRef.current.activeUids = activeUids;
@@ -212,104 +213,105 @@ const EventsConfigure: React.FC<Props> = props => {
       });
     });
 
-    events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
-      if (!isHost) return;
-      const {attendee_uid} = JSON.parse(data?.payload);
-      // update waiting room status in other host's panel
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [attendee_uid, {isInWaitingRoom: false}],
-      });
-      // hide toast in other host's screen
-      if (Toast.getToastId() === attendee_uid) {
-        Toast.hide();
-      }
-    });
+    // events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
+    //   if (!isHost) return;
+    //   const {attendee_uid} = JSON.parse(data?.payload);
+    //   // update waiting room status in other host's panel
+    //   dispatch({
+    //     type: 'UpdateRenderList',
+    //     value: [attendee_uid, {isInWaitingRoom: false}],
+    //   });
+    //   // hide toast in other host's screen
+    //   if (Toast.getToastId() === attendee_uid) {
+    //     Toast.hide();
+    //   }
+    // });
 
-    events.on(EventNames.WAITING_ROOM_REQUEST, data => {
-      if (!isHost) return;
+    // events.on(EventNames.WAITING_ROOM_REQUEST, data => {
+    //   if (!isHost) return;
 
-      const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
-        data?.payload,
-      );
-      const userName =
-        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
-      // put the attendee in waitingroom in renderlist
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [attendee_uid, {isInWaitingRoom: true}],
-      });
-      // check if any other host has approved then dont show permission to join the room
-      console.log(activeUidsRef);
-      let btns: any = {};
-      btns.toastId = attendee_uid;
-      btns.primaryBtn = (
-        <PrimaryButton
-          containerStyle={style.primaryBtn}
-          textStyle={style.primaryBtnText}
-          text="Admit"
-          onPress={() => {
-            // user approving waiting room request
-            const res = approval({
-              host_uid: localUid,
-              attendee_uid: attendee_uid,
-              attendee_screenshare_uid: attendee_screenshare_uid,
-              approved: true,
-            });
-            console.log('waiting-room:approval', res);
-            dispatch({
-              type: 'UpdateRenderList',
-              value: [attendee_uid, {isInWaitingRoom: false}],
-            });
-            // inform other that hosts as well
-            events.send(
-              EventNames.WAITING_ROOM_STATUS_UPDATE,
-              JSON.stringify({attendee_uid, approved: true}),
-              PersistanceLevel.None,
-            );
-            // server will send the RTM message with approved status and RTC token to the approved attendee.
-            Toast.hide();
-          }}
-        />
-      );
-      btns.secondaryBtn = (
-        <TertiaryButton
-          containerStyle={style.secondaryBtn}
-          textStyle={style.primaryBtnText}
-          text="Deny"
-          onPress={() => {
-            // user rejecting waiting room request
-            const res = approval({
-              host_uid: localUid,
-              attendee_uid: attendee_uid,
-              attendee_screenshare_uid: attendee_screenshare_uid,
-              approved: false,
-            });
-            dispatch({
-              type: 'UpdateRenderList',
-              value: [attendee_uid, {isInWaitingRoom: false}],
-            });
-            // inform other that hosts as well
-            events.send(
-              'WAITING_ROOM_STATUS_UPDATE',
-              JSON.stringify({attendee_uid, approved: false}),
-              PersistanceLevel.None,
-            );
-            console.log('waiting-room:reject', res);
-            // server will send the RTM message with rejected status and RTC token to the approved attendee.
-            Toast.hide();
-          }}
-        />
-      );
+    //   const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
+    //     data?.payload,
+    //   );
+    //   const userName =
+    //     defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+    //   // put the attendee in waitingroom in renderlist
+    //   dispatch({
+    //     type: 'UpdateRenderList',
+    //     value: [attendee_uid, {isInWaitingRoom: true}],
+    //   });
+    //   // check if any other host has approved then dont show permission to join the room
+    //   console.log(activeUidsRef);
+    //   let btns: any = {};
+    //   btns.toastId = attendee_uid;
+    //   btns.primaryBtn = (
+    //     <PrimaryButton
+    //       containerStyle={style.primaryBtn}
+    //       textStyle={style.primaryBtnText}
+    //       text="Admit"
+    //       onPress={() => {
+    //         // user approving waiting room request
+    //         const res = approval({
+    //           host_uid: localUid,
+    //           attendee_uid: attendee_uid,
+    //           attendee_screenshare_uid: attendee_screenshare_uid,
+    //           approved: true,
+    //         });
+    //         console.log('waiting-room:approval', res);
+    //         dispatch({
+    //           type: 'UpdateRenderList',
+    //           value: [attendee_uid, {isInWaitingRoom: false}],
+    //         });
+    //         // inform other that hosts as well
+    //         events.send(
+    //           EventNames.WAITING_ROOM_STATUS_UPDATE,
+    //           JSON.stringify({attendee_uid, approved: true}),
+    //           PersistanceLevel.None,
+    //         );
+    //         // server will send the RTM message with approved status and RTC token to the approved attendee.
+    //         Toast.hide();
+    //       }}
+    //     />
+    //   );
+    //   btns.secondaryBtn = (
+    //     <TertiaryButton
+    //       containerStyle={style.secondaryBtn}
+    //       textStyle={style.primaryBtnText}
+    //       text="Deny"
+    //       onPress={() => {
+    //         // user rejecting waiting room request
+    //         const res = approval({
+    //           host_uid: localUid,
+    //           attendee_uid: attendee_uid,
+    //           attendee_screenshare_uid: attendee_screenshare_uid,
+    //           approved: false,
+    //         });
+    //         dispatch({
+    //           type: 'UpdateRenderList',
+    //           value: [attendee_uid, {isInWaitingRoom: false}],
+    //         });
+    //         // inform other that hosts as well
+    //         events.send(
+    //           'WAITING_ROOM_STATUS_UPDATE',
+    //           JSON.stringify({attendee_uid, approved: false}),
+    //           PersistanceLevel.None,
+    //         );
+    //         console.log('waiting-room:reject', res);
+    //         // server will send the RTM message with rejected status and RTC token to the approved attendee.
+    //         Toast.hide();
+    //       }}
+    //     />
+    //   );
 
-      Toast.show({
-        type: 'info',
-        text1: 'Approval Required',
-        text2: `${userName} is waiting for approval to join the call`,
-        visibilityTime: 30000,
-        ...btns,
-      });
-    });
+    //   callActive &&
+    //     Toast.show({
+    //       type: 'info',
+    //       text1: 'Approval Required',
+    //       text2: `${userName} is waiting for approval to join the call`,
+    //       visibilityTime: 30000,
+    //       ...btns,
+    //     });
+    // });
 
     const updateVideoStream = async (enabled: boolean) => {
       if ((isAndroid() || isIOS()) && isLiveStream) {
