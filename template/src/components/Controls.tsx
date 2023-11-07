@@ -74,6 +74,7 @@ import isSDK from '../utils/isSDK';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
+import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 
 const MoreButton = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -743,10 +744,16 @@ const Controls = (props: ControlsProps) => {
   const defaultContentRef = React.useRef(defaultContent);
   const {dispatch} = useContext(DispatchContext);
   const localUid = useLocalUid();
+  const {waitingRoomUids} = useWaitingRoomContext();
+  const waitingRoomUidsRef = React.useRef(waitingRoomUids);
   const {
     data: {isHost},
   } = useRoomInfo();
   const {approval} = useWaitingRoomAPI();
+
+  React.useEffect(() => {
+    waitingRoomUidsRef.current = waitingRoomUids;
+  }, [waitingRoomUids]);
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -773,6 +780,9 @@ const Controls = (props: ControlsProps) => {
       const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
         data?.payload,
       );
+
+      if (waitingRoomUidsRef.current.indexOf(attendee_uid) !== -1) return;
+
       const userName = defaultContentRef.current[attendee_uid]?.name || 'OO';
       // put the attendee in waitingroom in renderlist
       dispatch({

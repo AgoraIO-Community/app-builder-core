@@ -50,6 +50,7 @@ export interface PreCallJoinWaitingRoomBtnProps {
 }
 
 const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
+  let pollingTimeout = null;
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();
@@ -71,6 +72,17 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const {dispatch} = useContext(DispatchContext);
   const localUid = useLocalUid();
+
+  const {
+    data: {token, isHost},
+  } = useRoomInfo();
+
+  useEffect(() => {
+    if ($config.WAITING_ROOM && !isHost && token) {
+      setCallActive(true);
+    }
+  }, [token]);
+
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
       const {approved, mainUser, screenShare, whiteboard} = JSON.parse(
@@ -78,6 +90,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       );
       // stop polling if user has responsed with yes / no
       shouldPollRef.current = false;
+      pollingTimeout && clearTimeout(pollingTimeout);
       // on approve/reject response from host, waiting room permission is reset
       // update waitinng room status on uid
       dispatch({
@@ -101,7 +114,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         });
 
         // entering in call screen
-        window.setTimeout(() => setCallActive(true), 0);
+        //window.setTimeout(() => setCallActive(true), 0);
         // setCallActive(true);
       } else {
         setRoomInfo(prev => {
@@ -124,17 +137,19 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   }, []);
 
   const requestServerToJoinRoom = async () => {
-    let pollingInterval = null;
     // polling for every 30 seconds
     const pollFunction = async () => {
       if (shouldPollRef.current) {
         const res = await requestToJoin({send_event: true});
         console.log('in join btn', res);
+        pollingTimeout = setTimeout(() => {
+          pollFunction();
+        }, 3000);
       }
 
       if (!shouldPollRef.current) {
         // If the request is approved/rejected stop polling
-        clearInterval(pollingInterval);
+        clearTimeout(pollingTimeout);
       }
     };
 
@@ -142,7 +157,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     pollFunction();
 
     // Set up a polling interval
-    pollingInterval = setInterval(pollFunction, 30000); // Poll every 30 seconds (30,000 milliseconds)
+    //pollingInterval = setInterval(pollFunction, 3000); // Poll every 30 seconds (30,000 milliseconds)
   };
 
   const onSubmit = () => {
