@@ -29,6 +29,8 @@ import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {EventNames} from '../rtm-events';
 import {useCaption} from '../../src/subComponents/caption/useCaption';
+import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
+import useWaitingRoomAPI from '../../src/subComponents/waiting-rooms/useWaitingRoomAPI';
 
 interface Props {
   children: React.ReactNode;
@@ -55,12 +57,17 @@ const EventsConfigure: React.FC<Props> = props => {
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
 
-  const activeUidsRef = React.useRef({activeUids: activeUids});
-  useEffect(() => {
-    activeUidsRef.current.activeUids = activeUids;
+  const {setIsSTTActive} = useCaption();
+  const {waitingRoomUids} = useWaitingRoomContext();
+  const waitingRoomUidsRef = React.useRef(waitingRoomUids);
+  const {approval} = useWaitingRoomAPI();
+  const localUid = useLocalUid();
+  const activeUidsRef = React.useRef(activeUids);
+  React.useEffect(() => {
+    activeUidsRef.current = activeUids;
   }, [activeUids]);
 
-  const {setIsSTTActive} = useCaption();
+  const waitingRoomRef = React.useRef({});
 
   useEffect(() => {
     //user joined event listener
@@ -220,6 +227,140 @@ const EventsConfigure: React.FC<Props> = props => {
     events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
+    });
+
+    events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
+      if (!isHost) return;
+      const {attendee_uid} = JSON.parse(data?.payload);
+      // update waiting room status in other host's panel
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [attendee_uid, {isInWaitingRoom: false}],
+      });
+      // hide toast in other host's screen
+      if (Toast.getToastId() === attendee_uid) {
+        Toast.hide();
+      }
+    });
+
+    events.on(EventNames.WAITING_ROOM_REQUEST, data => {
+      if (!isHost) return;
+
+      console.log(
+        'waitingRoomRef on WAITING_ROOM_REQUEST',
+        waitingRoomRef.current,
+      );
+
+      const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
+        data?.payload,
+      );
+
+      //condition1 -if user request already approved(in the call)
+      if (activeUidsRef.current.indexOf(attendee_uid) !== -1) {
+        console.log('debugging in active uids');
+        return;
+      }
+      //condition2 -if user request already pending(in the waiting room)
+      if (waitingRoomUidsRef.current.indexOf(attendee_uid) !== -1) {
+        console.log('debugging in waitingRoomUidsRef');
+        return;
+      }
+      if (
+        waitingRoomRef.current[attendee_uid] &&
+        (waitingRoomRef.current[attendee_uid] === 'PENDING' ||
+          waitingRoomRef.current[attendee_uid] === 'APPROVED')
+      ) {
+        return;
+      }
+
+      const userName =
+        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+      // put the attendee in waitingroom in renderlist
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [attendee_uid, {isInWaitingRoom: true}],
+      });
+
+      waitingRoomRef.current[attendee_uid] = 'PENDING';
+      // check if any other host has approved then dont show permission to join the room
+
+      let btns: any = {};
+      btns.toastId = attendee_uid;
+      btns.primaryBtn = (
+        <PrimaryButton
+          containerStyle={style.primaryBtn}
+          textStyle={style.primaryBtnText}
+          text="Admit"
+          onPress={() => {
+            // user approving waiting room request
+            const res = approval({
+              host_uid: localUid,
+              attendee_uid: attendee_uid,
+              attendee_screenshare_uid: attendee_screenshare_uid,
+              approved: true,
+            });
+            console.log('waiting-room:approval', res);
+            dispatch({
+              type: 'UpdateRenderList',
+              value: [attendee_uid, {isInWaitingRoom: false}],
+            });
+
+            waitingRoomRef.current[attendee_uid] = 'APPROVED';
+
+            console.log('waitingRoomRef on APPROVAL', waitingRoomRef.current);
+            // inform other that hosts as well
+            events.send(
+              EventNames.WAITING_ROOM_STATUS_UPDATE,
+              JSON.stringify({attendee_uid, approved: true}),
+              PersistanceLevel.None,
+            );
+            // server will send the RTM message with approved status and RTC token to the approved attendee.
+            Toast.hide();
+          }}
+        />
+      );
+      btns.secondaryBtn = (
+        <TertiaryButton
+          containerStyle={style.secondaryBtn}
+          textStyle={style.primaryBtnText}
+          text="Deny"
+          onPress={() => {
+            // user rejecting waiting room request
+            const res = approval({
+              host_uid: localUid,
+              attendee_uid: attendee_uid,
+              attendee_screenshare_uid: attendee_screenshare_uid,
+              approved: false,
+            });
+            dispatch({
+              type: 'UpdateRenderList',
+              value: [attendee_uid, {isInWaitingRoom: false}],
+            });
+
+            waitingRoomRef.current[attendee_uid] = 'REJECTED';
+
+            console.log('waitingRoomRef on REJECTION', waitingRoomRef.current);
+            // inform other that hosts as well
+            events.send(
+              'WAITING_ROOM_STATUS_UPDATE',
+              JSON.stringify({attendee_uid, approved: false}),
+              PersistanceLevel.None,
+            );
+            console.log('waiting-room:reject', res);
+            // server will send the RTM message with rejected status and RTC token to the approved attendee.
+            Toast.hide();
+          }}
+        />
+      );
+
+      Toast.show({
+        leadingIcon: null,
+        type: 'info',
+        text1: 'Approval Required',
+        text2: `${userName} is waiting for approval to join the call`,
+        visibilityTime: 30000,
+        ...btns,
+      });
     });
 
     // events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {

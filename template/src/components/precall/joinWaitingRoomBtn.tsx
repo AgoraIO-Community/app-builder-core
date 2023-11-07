@@ -36,6 +36,7 @@ import Toast from '../../../react-native-toast-message';
 import events from '../../rtm-events-api';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {UserType} from '../RTMConfigure';
+import {useContent} from 'customization-api';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -52,7 +53,7 @@ export interface PreCallJoinWaitingRoomBtnProps {
 const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   let pollingTimeout = null;
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive} = usePreCall();
+  const {setCallActive, callActive} = usePreCall();
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
@@ -63,6 +64,12 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const {setRoomInfo} = useSetRoomInfo();
   const {request: requestToJoin} = useWaitingRoomAPI();
   const shouldPollRef = React.useRef(false);
+  const {activeUids} = useContent();
+  const activeUidsRef = React.useRef(activeUids);
+
+  React.useEffect(() => {
+    activeUidsRef.current = activeUids;
+  }, [activeUids]);
 
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
@@ -91,6 +98,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       // stop polling if user has responsed with yes / no
       shouldPollRef.current = false;
       pollingTimeout && clearTimeout(pollingTimeout);
+
+      // if (activeUidsRef.current?.indexOf(localUid) !== -1) return;
+      if (callActive) return;
       // on approve/reject response from host, waiting room permission is reset
       // update waitinng room status on uid
       dispatch({
@@ -144,7 +154,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         console.log('in join btn', res);
         pollingTimeout = setTimeout(() => {
           pollFunction();
-        }, 3000);
+        }, 15000);
       }
 
       if (!shouldPollRef.current) {
@@ -155,9 +165,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
     // Call the polling function immediately
     pollFunction();
-
-    // Set up a polling interval
-    //pollingInterval = setInterval(pollFunction, 3000); // Poll every 30 seconds (30,000 milliseconds)
   };
 
   const onSubmit = () => {

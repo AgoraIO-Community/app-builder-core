@@ -37,6 +37,7 @@ import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
 import {CustomToolbarSort} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
+import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -296,6 +297,7 @@ const ActionSheetContent = props => {
   const {totalUnreadCount} = useChatNotification();
   const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
   const {defaultContent} = useContent();
+  const {waitingRoomUids} = useWaitingRoomContext();
 
   //STT events on mount
 
@@ -371,6 +373,8 @@ const ActionSheetContent = props => {
   const isVideoDisabled = native
     ? localUser.video === ToggleState.disabled || isScreenshareActive
     : localUser.video === ToggleState.disabled;
+
+  const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const defaultItems = [
     {
@@ -559,7 +563,8 @@ const ActionSheetContent = props => {
               isExpanded={isExpanded}
               showNotification={
                 (!isExpanded && totalUnreadCount !== 0) ||
-                ($config.EVENT_MODE && isPendingRequestToReview)
+                ($config.EVENT_MODE && isPendingRequestToReview) ||
+                isPendingWaitingRoomApproval
               }
               onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
             />

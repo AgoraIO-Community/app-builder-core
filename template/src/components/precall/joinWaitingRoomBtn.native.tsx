@@ -14,7 +14,12 @@ import React, {useContext, useEffect} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
 import {useString} from '../../utils/useString';
-import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
+import {
+  ChannelProfile,
+  DispatchContext,
+  PropsContext,
+  useLocalUid,
+} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
@@ -24,6 +29,8 @@ import Toast from '../../../react-native-toast-message';
 import events from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
+import {useContent} from 'customization-api';
+import EventsConfigure from '../EventsConfigure';
 
 export interface PreCallJoinWaitingRoomBtnProps {
   render?: (
@@ -34,8 +41,9 @@ export interface PreCallJoinWaitingRoomBtnProps {
 }
 
 const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
+  let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive} = usePreCall();
+  const {setCallActive, callActive} = usePreCall();
   const username = useGetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
@@ -50,24 +58,127 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   );
   const {request: requestToJoin} = useWaitingRoomAPI();
   const shouldPollRef = React.useRef(false);
+  const {dispatch} = useContext(DispatchContext);
+  const localUid = useLocalUid();
+  const {activeUids} = useContent();
+  const activeUidsRef = React.useRef(activeUids);
+
+  React.useEffect(() => {
+    activeUidsRef.current = activeUids;
+  }, [activeUids]);
+
+  const {
+    data: {token, isHost},
+  } = useRoomInfo();
+
+  useEffect(() => {
+    if ($config.WAITING_ROOM && !isHost && token) {
+      setCallActive(true);
+    }
+  }, [token]);
 
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
-      const {approved, rtc} = JSON.parse(data?.payload);
+      const {approved, mainUser, screenShare, whiteboard} = JSON.parse(
+        data?.payload,
+      );
       // stop polling if user has responsed with yes / no
       shouldPollRef.current = false;
+      pollingTimeout.current && clearTimeout(pollingTimeout.current);
+      // if (activeUidsRef.current?.indexOf(localUid) !== -1) return;
+      if (callActive) return;
       // on approve/reject response from host, waiting room permission is reset
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isInWaitingRoom: false,
-          data: {...prev.data, token: rtc.token},
-        };
+      // update waitinng room status on uid
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [localUid, {isInWaitingRoom: false}],
       });
+
       if (approved) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isInWaitingRoom: false,
+            data: {
+              ...prev.data,
+              token: mainUser.rtc,
+              screenShareToken: screenShare.rtc,
+              screenShareUid: screenShare.uid,
+              whiteboard,
+            },
+          };
+        });
+
         // entering in call screen
-        setCallActive(true);
+        //window.setTimeout(() => setCallActive(true), 0);
+        // setCallActive(true);
       } else {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isInWaitingRoom: false,
+          };
+        });
+        // inform user that entry was denied by the host
+        Toast.show({
+          text1: `Approval Required`,
+          text2: 'Permission to enter the meeting was denied by the host',
+          visibilityTime: 15000,
+          type: 'error',
+          primaryBtn: null,
+          secondaryBtn: null,
+        });
+      }
+    });
+  }, []);
+  useEffect(() => {
+    setButtonText(
+      waitingRoomButton({
+        ready: !isInWaitingRoom,
+      }),
+    );
+  }, [isInWaitingRoom]);
+
+  useEffect(() => {
+    events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
+      const {approved, mainUser, screenShare, whiteboard} = JSON.parse(
+        data?.payload,
+      );
+      // stop polling if user has responsed with yes / no
+      shouldPollRef.current = false;
+      pollingTimeout.current && clearTimeout(pollingTimeout.current);
+      // on approve/reject response from host, waiting room permission is reset
+      // update waitinng room status on uid
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [localUid, {isInWaitingRoom: false}],
+      });
+
+      if (approved) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isInWaitingRoom: false,
+            data: {
+              ...prev.data,
+              token: mainUser.rtc,
+              screenShareToken: screenShare.rtc,
+              screenShareUid: screenShare.uid,
+              whiteboard,
+            },
+          };
+        });
+
+        // entering in call screen
+        //window.setTimeout(() => setCallActive(true), 0);
+        // setCallActive(true);
+      } else {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isInWaitingRoom: false,
+          };
+        });
         // inform user that entry was denied by the host
         Toast.show({
           text1: `Approval Required`,
@@ -81,35 +192,27 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     });
   }, []);
 
-  useEffect(() => {
-    setButtonText(
-      waitingRoomButton({
-        ready: !isInWaitingRoom,
-      }),
-    );
-  }, [isInWaitingRoom]);
-
   const requestServerToJoinRoom = async () => {
-    let pollingInterval = null;
-    // polling for every 30 second
+    // polling for every 30 seconds
     const pollFunction = async () => {
       if (shouldPollRef.current) {
         const res = await requestToJoin({send_event: true});
         console.log('in join btn', res);
+        pollingTimeout.current = setTimeout(() => {
+          pollFunction();
+        }, 15000);
       }
 
       if (!shouldPollRef.current) {
         // If the request is approved/rejected stop polling
-        clearInterval(pollingInterval);
+        clearTimeout(pollingTimeout.current);
       }
     };
 
     // Call the polling function immediately
     pollFunction();
-
-    // Set up a polling interval
-    pollingInterval = setInterval(pollFunction, 30000);
   };
+
   const onSubmit = () => {
     shouldPollRef.current = true;
     saveName(username?.trim());
@@ -117,6 +220,12 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     // Enter waiting rooom;
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};
+    });
+
+    // add the waitingRoomStatus to the uid
+    dispatch({
+      type: 'UpdateRenderList',
+      value: [localUid, {isInWaitingRoom: true}],
     });
 
     // join request API to server, server will send RTM message to all hosts regarding request from this user,

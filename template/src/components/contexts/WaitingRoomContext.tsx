@@ -25,6 +25,7 @@ const WaitingRoomProvider = ({children}) => {
           v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
       ),
     ).map(Number);
+    console.log('in waiting - de', uids, defaultContent);
 
     setwaitingRoomUids(uids);
   }, [defaultContent]);
