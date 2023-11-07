@@ -4,6 +4,9 @@ import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
 import {isWeb} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
 if (whiteboardPaper) {
@@ -43,6 +46,53 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
   } = useRoomInfo();
+
+  const randomString = (
+    length = 5,
+    chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  ) => {
+    var result = '';
+    for (var i = length; i > 0; --i)
+      result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  };
+
+  const fileUploadCallBack = images => {
+    console.log('debugging images', images);
+    let prevImageWidth = 0;
+    for (const key in images) {
+      if (Object.prototype.hasOwnProperty.call(images, key)) {
+        const element = images[key];
+        console.log('debugging element', element, key);
+        const uuid = key + ' ' + randomString();
+        whiteboardRoom.current?.insertImage({
+          centerX: 0 + prevImageWidth + 100,
+          centerY: 0,
+          height: element.height,
+          width: element.width,
+          uuid: uuid,
+          locked: false,
+        });
+        setTimeout(() => {
+          whiteboardRoom.current?.completeImageUpload(uuid, element.url);
+        }, 1000);
+        prevImageWidth = prevImageWidth + 100 + element.width;
+      }
+    }
+  };
+
+  useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBAORD_FILE_UPLOAD,
+      fileUploadCallBack,
+    );
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBAORD_FILE_UPLOAD,
+        fileUploadCallBack,
+      );
+    };
+  }, []);
 
   const join = () => {
     console.log(

@@ -16,6 +16,16 @@ import {isMobileUA, isWeb} from '../../utils/common';
 import {ApplianceNames} from 'white-web-sdk';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../room-info/useRoomInfo';
+import Toast from '../../../react-native-toast-message';
+
+const supportedDocTypes = [
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/pdf',
+];
+const supportedImageType = ['image/png', 'image/jpeg'];
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
@@ -41,56 +51,159 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     whiteboardRoom.current?.cleanCurrentScene();
   };
 
+  // const IMAGE_DATA = {
+  //   feat: 'WHITEBOARD',
+  //   etyp: 'RESPONSE',
+  //   sts: 1699251316959,
+  //   rqid: '',
+  //   data: {
+  //     data: {
+  //       prefix_url: '',
+  //       page_count: 3,
+  //       note: '',
+  //       images: {
+  //         '1': {
+  //           width: 200,
+  //           height: 200,
+  //           url: 'https://picsum.photos/id/1/200',
+  //         },
+  //         '2': {
+  //           width: 200,
+  //           height: 200,
+  //           url: 'https://picsum.photos/id/2/200',
+  //         },
+  //         '3': {
+  //           width: 200,
+  //           height: 200,
+  //           url: 'https://picsum.photos/id/3/200',
+  //         },
+  //       },
+  //     },
+  //     act: 'FILECONVERT_NOTIFY',
+  //     chname: '126c93eb-4a5d-4234-8eb8-f64b97624b5b',
+  //     pid: '503364e6f3afd40b3d8f',
+  //   },
+  // };
+
+  // const insertImageInWhiteboard = ({images}: any) => {
+  //   let prevImageWidth = 0;
+
+  //   for (const key in images) {
+  //     if (Object.prototype.hasOwnProperty.call(images, key)) {
+  //       const element = images[key];
+  //       console.log('debugging element', element, key);
+  //       whiteboardRoom.current?.insertImage({
+  //         centerX: 0 + prevImageWidth + 100,
+  //         centerY: 0,
+  //         height: element.height,
+  //         width: element.width,
+  //         uuid: key,
+  //         locked: false,
+  //       });
+  //       setTimeout(() => {
+  //         whiteboardRoom.current?.completeImageUpload(key, element.url);
+  //       }, 1000);
+  //       prevImageWidth = prevImageWidth + 100 + element.width;
+  //     }
+  //   }
+  // };
+
   const onFileChange = event => {
     try {
       const selectedFile = event.target.files[0];
-      fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/upload`, {
-        method: 'GET',
-        headers: {
-          authorization: store?.token ? `Bearer ${store?.token}` : '',
-        },
-      })
-        .then(async res => {
-          const data = await res.json();
-          if (data?.url) {
-            const url = data?.url?.replaceAll('\u0026', '&');
-            const myHeaders = new Headers();
-            myHeaders.append('Content-Type', selectedFile?.type);
-            const requestOptions = {
-              method: 'PUT',
-              headers: myHeaders,
-              body: selectedFile,
-            };
-            fetch(url, requestOptions)
-              .then(() => {
-                const myHeaders2 = new Headers();
-                myHeaders2.append('Content-Type', 'application/json');
-                myHeaders2.append('Authorization', `Bearer ${store?.token}`);
-                const body = JSON.stringify({
-                  resource_url: url,
-                  passphrase: roomId?.host,
-                  conversion_type: 'static',
-                  conversion_scale: 3,
-                });
-                fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/fileconvert`, {
-                  method: 'POST',
-                  headers: myHeaders2,
-                  body: body,
-                })
-                  .then(res2 => {
-                    console.log('debugging file convert success', res2);
-                  })
-                  .catch(error2 => {
-                    console.log('debugging file convert error', error2);
-                  });
-              })
-              .catch(error => console.log('error', error));
-          }
+      if (
+        supportedDocTypes.indexOf(selectedFile?.type) !== -1 ||
+        supportedImageType?.indexOf(selectedFile?.type) !== -1
+      ) {
+        fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/upload`, {
+          method: 'GET',
+          headers: {
+            authorization: store?.token ? `Bearer ${store?.token}` : '',
+          },
         })
-        .catch(err => {
-          console.log('debugging err', err);
+          .then(async res => {
+            const data = await res.json();
+            if (data?.url) {
+              const url = data?.url?.replaceAll('\u0026', '&');
+              const myHeaders = new Headers();
+              myHeaders.append('Content-Type', selectedFile?.type);
+              const requestOptions = {
+                method: 'PUT',
+                headers: myHeaders,
+                body: selectedFile,
+              };
+              fetch(url, requestOptions)
+                .then(() => {
+                  const myHeaders2 = new Headers();
+                  myHeaders2.append('Content-Type', 'application/json');
+                  myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+                  const body = JSON.stringify({
+                    resource_url: url,
+                    passphrase: roomId?.host,
+                    conversion_type: 'static',
+                    conversion_scale: 3,
+                  });
+                  fetch(
+                    `${$config.BACKEND_ENDPOINT}/v1/whiteboard/fileconvert`,
+                    {
+                      method: 'POST',
+                      headers: myHeaders2,
+                      body: body,
+                    },
+                  )
+                    .then(res2 => {
+                      console.log('debugging file convert success', res2);
+                    })
+                    .catch(err2 => {
+                      console.log('debugging file convert failed', err2);
+                      Toast.show({
+                        type: 'error',
+                        text1: 'Error on uploading file, please try again.',
+                        visibilityTime: 10000,
+                      });
+                    });
+                })
+                .catch(() => {
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Error on uploading file, please try again.',
+                    visibilityTime: 10000,
+                  });
+                });
+            } else {
+              console.log('debugging upload url is empty');
+              Toast.show({
+                type: 'error',
+                text1: 'Error on uploading file, please try again.',
+                visibilityTime: 10000,
+              });
+            }
+          })
+          .catch(err => {
+            console.log('debugging upload api failed', err);
+            Toast.show({
+              type: 'error',
+              text1: 'Error on uploading file, please try again.',
+              visibilityTime: 10000,
+            });
+          });
+      } else {
+        console.log('debugging unsupported file');
+        Toast.show({
+          type: 'error',
+          text1: 'Unsupported file',
+          text2:
+            'Please select file format with pdf, doc, docx, ppt, pptx, png, jpg, jpeg',
+          visibilityTime: 10000,
         });
-    } catch (error) {}
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error on uploading file, please try again.',
+        visibilityTime: 10000,
+      });
+    }
   };
 
   return (
@@ -660,7 +773,13 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         </Pressable>
         {isWeb() ? (
           <>
-            <input type="file" id="docpicker" hidden onChange={onFileChange} />
+            <input
+              type="file"
+              id="docpicker"
+              //accept="application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/pdf,image/png,image/jpeg"
+              hidden
+              onInput={onFileChange}
+            />
             <Pressable
               style={style.tool}
               onPress={() => {

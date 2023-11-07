@@ -39,6 +39,9 @@ import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -383,22 +386,35 @@ const RtmConfigure = (props: any) => {
       console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
 
       const {uid, channelId, text, ts} = evt;
-      const [err, msg] = safeJsonParse(text);
-      if (err) {
-        console.log(
-          'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
-        );
-      }
 
-      const timestamp = getMessageTime(ts);
+      console.log('debugging check uid', uid);
+      //whiteboard upload
+      if (uid == 1010101) {
+        console.log('debugginging evt', evt);
+        if (evt?.data?.data?.images) {
+          LocalEventEmitter.emit(
+            LocalEventsEnum.WHITEBAORD_FILE_UPLOAD,
+            evt?.data?.data?.images,
+          );
+        }
+      } else {
+        const [err, msg] = safeJsonParse(text);
+        if (err) {
+          console.log(
+            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          );
+        }
 
-      const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
+        const timestamp = getMessageTime(ts);
 
-      if (channelId === rtcProps.channel) {
-        try {
-          eventDispatcher(msg, sender, timestamp);
-        } catch (error) {
-          console.log('error while dispacthing', error);
+        const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
+
+        if (channelId === rtcProps.channel) {
+          try {
+            eventDispatcher(msg, sender, timestamp);
+          } catch (error) {
+            console.log('error while dispacthing', error);
+          }
         }
       }
     });
