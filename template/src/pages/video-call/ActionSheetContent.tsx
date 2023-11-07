@@ -489,6 +489,17 @@ const ActionSheetContent = props => {
       align: 'start',
       component: <ShareIcon />,
     },
+    {
+      default: true,
+      order: 12,
+      hide: 'no',
+      align: 'start',
+      component: (
+        <CaptionIconBtn
+          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+        />
+      ),
+    },
   ];
 
   //todo: hari refactor STT button and Native screenshare button
