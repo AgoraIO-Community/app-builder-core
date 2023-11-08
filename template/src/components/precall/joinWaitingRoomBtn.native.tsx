@@ -149,6 +149,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       pollingTimeout.current && clearTimeout(pollingTimeout.current);
       // on approve/reject response from host, waiting room permission is reset
       // update waitinng room status on uid
+
+      if (callActive) return;
       dispatch({
         type: 'UpdateRenderList',
         value: [localUid, {isInWaitingRoom: false}],
@@ -190,6 +192,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         });
       }
     });
+
+    return () => {
+      clearTimeout(pollingTimeout.current);
+      shouldPollRef.current = false;
+    };
   }, []);
 
   const requestServerToJoinRoom = async () => {

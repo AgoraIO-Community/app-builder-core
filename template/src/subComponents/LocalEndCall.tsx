@@ -13,6 +13,8 @@ import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import RTMEngine from '../rtm/RTMEngine';
+import {useAuth} from '../../src/auth/AuthProvider';
+import {ENABLE_AUTH} from '../../src/auth/config';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -43,8 +45,9 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   };
   const [endCallState, setEndCallState] = useState(false);
   const {rtcProps} = useContext(PropsContext);
+  const {authLogout, authLogin} = useAuth();
 
-  const executeEndCall = () => {
+  const executeEndCall = async () => {
     setTimeout(() => {
       dispatch({
         type: 'EndCall',
@@ -59,6 +62,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     );
     usersInCall.length === 1 && isSTTActive && stop();
     RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
+    if (!ENABLE_AUTH) {
+      // await authLogout();
+      await authLogin();
+    }
   };
 
   useEffect(() => {
