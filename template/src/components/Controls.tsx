@@ -71,10 +71,6 @@ import {useNoiseSupression} from '../app-state/useNoiseSupression';
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
 import isSDK from '../utils/isSDK';
-import PrimaryButton from '../atoms/PrimaryButton';
-import TertiaryButton from '../atoms/TertiaryButton';
-import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
-import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 
 const MoreButton = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -262,13 +258,6 @@ const MoreButton = () => {
       },
     });
   }
-
-  React.useEffect(() => {
-    events.on(EventNames.STT_ACTIVE, data => {
-      const payload = JSON.parse(data?.payload);
-      setIsSTTActive(payload.active);
-    });
-  }, []);
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 
@@ -740,171 +729,68 @@ const Controls = (props: ControlsProps) => {
   const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
   const {defaultContent} = useContent();
-  const {setLanguage, setMeetingTranscript} = useCaption();
+  const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
-  const {dispatch} = useContext(DispatchContext);
-  const localUid = useLocalUid();
-  const {waitingRoomUids} = useWaitingRoomContext();
-  const waitingRoomUidsRef = React.useRef(waitingRoomUids);
+
   const {
     data: {isHost},
+    sttLanguage,
+    isSTTActive,
   } = useRoomInfo();
-  const {approval} = useWaitingRoomAPI();
-
-  React.useEffect(() => {
-    waitingRoomUidsRef.current = waitingRoomUids;
-  }, [waitingRoomUids]);
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
   React.useEffect(() => {
-    events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
-      if (!isHost) return;
-      const {attendee_uid} = JSON.parse(data?.payload);
-      // update waiting room status in other host's panel
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [attendee_uid, {isInWaitingRoom: false}],
-      });
-      // hide toast in other host's screen
-      if (Toast.getToastId() === attendee_uid) {
-        Toast.hide();
-      }
+    // for mobile events are set in ActionSheetContent
+    if (!sttLanguage) return;
+    const {
+      username,
+      prevLang,
+      newLang,
+      uid,
+    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    const actionText =
+      prevLang.indexOf('') !== -1
+        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+        : `changed the spoken language from "${getLanguageLabel(
+            prevLang,
+          )}" to "${getLanguageLabel(newLang)}" `;
+    const msg = `${
+      defaultContentRef.current[uid]?.name || username
+    } ${actionText} `;
+
+    Toast.show({
+      type: 'info',
+      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+      text1: `Spoken Language ${
+        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+      }`,
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      text2: msg,
     });
-
-    events.on(EventNames.WAITING_ROOM_REQUEST, data => {
-      if (!isHost) return;
-
-      const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
-        data?.payload,
-      );
-
-      if (waitingRoomUidsRef.current.indexOf(attendee_uid) !== -1) return;
-
-      const userName = defaultContentRef.current[attendee_uid]?.name || 'OO';
-      // put the attendee in waitingroom in renderlist
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [attendee_uid, {isInWaitingRoom: true}],
-      });
-      // check if any other host has approved then dont show permission to join the room
-
-      let btns: any = {};
-      btns.toastId = attendee_uid;
-      btns.primaryBtn = (
-        <PrimaryButton
-          containerStyle={style.primaryBtn}
-          textStyle={style.primaryBtnText}
-          text="Admit"
-          onPress={() => {
-            // user approving waiting room request
-            const res = approval({
-              host_uid: localUid,
-              attendee_uid: attendee_uid,
-              attendee_screenshare_uid: attendee_screenshare_uid,
-              approved: true,
-            });
-            console.log('waiting-room:approval', res);
-            dispatch({
-              type: 'UpdateRenderList',
-              value: [attendee_uid, {isInWaitingRoom: false}],
-            });
-            // inform other that hosts as well
-            events.send(
-              EventNames.WAITING_ROOM_STATUS_UPDATE,
-              JSON.stringify({attendee_uid, approved: true}),
-              PersistanceLevel.None,
-            );
-            // server will send the RTM message with approved status and RTC token to the approved attendee.
-            Toast.hide();
-          }}
-        />
-      );
-      btns.secondaryBtn = (
-        <TertiaryButton
-          containerStyle={style.secondaryBtn}
-          textStyle={style.primaryBtnText}
-          text="Deny"
-          onPress={() => {
-            // user rejecting waiting room request
-            const res = approval({
-              host_uid: localUid,
-              attendee_uid: attendee_uid,
-              attendee_screenshare_uid: attendee_screenshare_uid,
-              approved: false,
-            });
-            dispatch({
-              type: 'UpdateRenderList',
-              value: [attendee_uid, {isInWaitingRoom: false}],
-            });
-            // inform other that hosts as well
-            events.send(
-              'WAITING_ROOM_STATUS_UPDATE',
-              JSON.stringify({attendee_uid, approved: false}),
-              PersistanceLevel.None,
-            );
-            console.log('waiting-room:reject', res);
-            // server will send the RTM message with rejected status and RTC token to the approved attendee.
-            Toast.hide();
-          }}
-        />
-      );
-
-      Toast.show({
-        type: 'info',
-        text1: 'Approval Required',
-        text2: `${userName} is waiting for approval to join the call`,
-        visibilityTime: 30000,
-        ...btns,
-      });
+    // syncing local set language
+    newLang && setLanguage(newLang);
+    // add spoken lang msg to transcript
+    setMeetingTranscript(prev => {
+      return [
+        ...prev,
+        {
+          name: 'langUpdate',
+          time: new Date().getTime(),
+          uid: `langUpdate-${uid}`,
+          text: actionText,
+        },
+      ];
     });
-  }, []);
+  }, [sttLanguage]);
 
   React.useEffect(() => {
-    // for native events are set in ActionSheetContent as this action is action sheet
-    if (isWebInternal()) {
-      events.on(EventNames.STT_LANGUAGE, data => {
-        const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
-        const actionText =
-          prevLang.indexOf('') !== -1
-            ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
-            : `changed the spoken language from "${getLanguageLabel(
-                prevLang,
-              )}" to "${getLanguageLabel(newLang)}" `;
-        const msg = `${
-          defaultContentRef.current[uid]?.name || username
-        } ${actionText} `;
-
-        Toast.show({
-          type: 'info',
-          leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-          text1: `Spoken Language ${
-            prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-          }`,
-          visibilityTime: 3000,
-          primaryBtn: null,
-          secondaryBtn: null,
-          text2: msg,
-        });
-        // syncing local set language
-        newLang && setLanguage(newLang);
-        // add spoken lang msg to transcript
-        setMeetingTranscript(prev => {
-          return [
-            ...prev,
-            {
-              name: 'langUpdate',
-              time: new Date().getTime(),
-              uid: `langUpdate-${uid}`,
-              text: actionText,
-            },
-          ];
-        });
-      });
-    }
-  }, []);
+    setIsSTTActive(isSTTActive);
+  }, [isSTTActive]);
 
   const ToastIcon = ({color}) => (
     <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>

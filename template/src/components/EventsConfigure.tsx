@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import {
   RtcContext,
@@ -25,10 +25,12 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import {useContent} from 'customization-api';
 import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
-import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import {
+  RoomInfoContextInterface,
+  useRoomInfo,
+} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {EventNames} from '../rtm-events';
-import {useCaption} from '../../src/subComponents/caption/useCaption';
 import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 import useWaitingRoomAPI from '../../src/subComponents/waiting-rooms/useWaitingRoomAPI';
 
@@ -57,7 +59,6 @@ const EventsConfigure: React.FC<Props> = props => {
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
 
-  const {setIsSTTActive} = useCaption();
   const {waitingRoomUids} = useWaitingRoomContext();
   const waitingRoomUidsRef = React.useRef(waitingRoomUids);
   const {approval} = useWaitingRoomAPI();
@@ -226,7 +227,34 @@ const EventsConfigure: React.FC<Props> = props => {
 
     events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
-      setIsSTTActive(payload.active);
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          isSTTActive: payload.active,
+        };
+      });
+    });
+
+    events.on(EventNames.STT_LANGUAGE, data => {
+      const {
+        username,
+        prevLang,
+        newLang,
+        uid,
+      }: RoomInfoContextInterface['sttLanguage'] = JSON.parse(data?.payload);
+      // set this on roominfo then use it in Controls
+      const sttLangObj = {
+        username,
+        prevLang,
+        newLang,
+        uid,
+      };
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          sttLanguage: sttLangObj,
+        };
+      });
     });
 
     events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
