@@ -58,6 +58,7 @@ const EventsConfigure: React.FC<Props> = props => {
     data: {isHost},
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
+  const isHostRef = React.useRef(isHost);
 
   const {waitingRoomUids} = useWaitingRoomContext();
   const waitingRoomUidsRef = React.useRef(waitingRoomUids);
@@ -69,6 +70,10 @@ const EventsConfigure: React.FC<Props> = props => {
   }, [activeUids]);
 
   const waitingRoomRef = React.useRef({});
+
+  useEffect(() => {
+    isHostRef.current = isHost;
+  }, [isHost]);
 
   useEffect(() => {
     //user joined event listener
@@ -258,7 +263,7 @@ const EventsConfigure: React.FC<Props> = props => {
     });
 
     events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
-      if (!isHost) return;
+      if (!isHostRef.current) return;
       const {attendee_uid} = JSON.parse(data?.payload);
       // update waiting room status in other host's panel
       dispatch({
@@ -272,7 +277,7 @@ const EventsConfigure: React.FC<Props> = props => {
     });
 
     events.on(EventNames.WAITING_ROOM_REQUEST, data => {
-      if (!isHost) return;
+      if (!isHostRef.current) return;
 
       console.log(
         'waitingRoomRef on WAITING_ROOM_REQUEST',
@@ -504,6 +509,12 @@ const EventsConfigure: React.FC<Props> = props => {
       events.off(controlMessageEnum.muteVideo);
       events.off(controlMessageEnum.muteAudio);
       events.off(controlMessageEnum.kickUser);
+      events.off(EventNames.WAITING_ROOM_REQUEST);
+      events.off(EventNames.WAITING_ROOM_STATUS_UPDATE);
+      events.off('WhiteBoardStarted');
+      events.off('WhiteBoardStopped');
+      events.off(EventNames.STT_ACTIVE);
+      events.off(EventNames.STT_LANGUAGE);
     };
   }, []);
 
