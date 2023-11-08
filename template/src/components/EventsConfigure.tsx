@@ -60,7 +60,7 @@ const EventsConfigure: React.FC<Props> = props => {
   const {setRoomInfo} = useSetRoomInfo();
   const isHostRef = React.useRef(isHost);
 
-  const {waitingRoomUids} = useWaitingRoomContext();
+  const {waitingRoomUids, waitingRoomRef} = useWaitingRoomContext();
   const waitingRoomUidsRef = React.useRef(waitingRoomUids);
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
@@ -68,8 +68,6 @@ const EventsConfigure: React.FC<Props> = props => {
   React.useEffect(() => {
     activeUidsRef.current = activeUids;
   }, [activeUids]);
-
-  const waitingRoomRef = React.useRef({});
 
   useEffect(() => {
     isHostRef.current = isHost;
@@ -264,12 +262,14 @@ const EventsConfigure: React.FC<Props> = props => {
 
     events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
       if (!isHostRef.current) return;
-      const {attendee_uid} = JSON.parse(data?.payload);
+      const {attendee_uid, approved} = JSON.parse(data?.payload);
       // update waiting room status in other host's panel
       dispatch({
         type: 'UpdateRenderList',
         value: [attendee_uid, {isInWaitingRoom: false}],
       });
+
+      waitingRoomRef.current[attendee_uid] = approved ? 'APPROVED' : 'REJECTED';
       // hide toast in other host's screen
       if (Toast.getToastId() === attendee_uid) {
         Toast.hide();

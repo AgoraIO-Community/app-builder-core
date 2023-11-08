@@ -8,12 +8,14 @@ import {DispatchContext, useLocalUid} from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import Toast from '../../../react-native-toast-message';
+import {useWaitingRoomContext} from '../../../src/components/contexts/WaitingRoomContext';
 
 const WaitingRoomButton = props => {
   const {uid, screenUid, isAccept} = props;
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
   const {dispatch} = useContext(DispatchContext);
+  const {waitingRoomRef} = useWaitingRoomContext();
 
   const buttonText = isAccept ? 'Admit' : 'Deny';
 
@@ -36,6 +38,11 @@ const WaitingRoomButton = props => {
       type: 'UpdateRenderList',
       value: [uid, {isInWaitingRoom: false}],
     });
+
+    if (waitingRoomRef.current) {
+      waitingRoomRef.current[uid] = approved ? 'APPROVED' : 'REJECTED';
+    }
+
     events.send(
       EventNames.WAITING_ROOM_STATUS_UPDATE,
       JSON.stringify({attendee_uid: uid, approved: isAccept}),
