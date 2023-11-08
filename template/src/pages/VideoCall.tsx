@@ -328,7 +328,7 @@ const VideoCall: React.FC = () => {
                                   sidePanel,
                                   setSidePanel,
                                 }}>
-                                <ChatMessagesProvider>
+                                <ChatMessagesProvider callActive={callActive}>
                                   <ScreenShareProvider>
                                     <RtmConfigure
                                       setRecordingActive={setRecordingActive}
@@ -341,6 +341,7 @@ const VideoCall: React.FC = () => {
                                                 value={{
                                                   setRecordingActive,
                                                   isRecordingActive,
+                                                  callActive,
                                                 }}>
                                                 <ScreenshareConfigure>
                                                   <LiveStreamContextProvider

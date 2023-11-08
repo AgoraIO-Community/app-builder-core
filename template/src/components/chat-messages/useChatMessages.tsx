@@ -11,7 +11,7 @@
 */
 import {createHook} from 'customization-implementation';
 import React, {useState, useEffect, useRef, useContext} from 'react';
-import {useContent} from 'customization-api';
+import {useContent, useRoomInfo} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {
   useLocalUid,
@@ -37,6 +37,7 @@ enum ChatMessageActionEnum {
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
+  callActive: boolean;
 }
 export interface messageInterface {
   createdTimestamp: number;
@@ -68,6 +69,10 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
+  const {callActive} = props;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent} = useContent();
   const localUid = useLocalUid();
@@ -87,6 +92,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }>({});
 
   const defaultContentRef = useRef({defaultContent: defaultContent});
+
+  const isHostRef = useRef({isHost: isHost});
+  const callActiveRef = useRef({callActive: callActive});
+
   const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
@@ -94,6 +103,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   //const fromText = useString('messageSenderNotificationLabel');
   const fromText = (name: string) => `${name} commented in the public chat`;
   const privateMessageLabel = 'You’ve received a private message';
+
+  useEffect(() => {
+    callActiveRef.current.callActive = callActive;
+  }, [callActive]);
+  useEffect(() => {
+    isHostRef.current.isHost = isHost;
+  }, [isHost]);
+
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
@@ -137,6 +154,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       msg: string,
       uid: string,
       isPrivateMessage: boolean = false,
+      forceStop: boolean = false,
     ) => {
       if (!$config.ENABLE_CHAT_NOTIFICATION) {
         return;
@@ -148,6 +166,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       const uidAsNumber = parseInt(uid);
       //don't show private message notification if private chat is open
       if (isPrivateMessage && uidAsNumber === individualActiveRef.current) {
+        return;
+      }
+      if (forceStop) {
         return;
       }
       Toast.show({
@@ -187,12 +208,21 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     const unsubPublicChatMessage = events.on(
       EventNames.PUBLIC_CHAT_MESSAGE,
       data => {
+        const forceStop =
+          $config.WAITING_ROOM &&
+          !isHostRef.current.isHost &&
+          !callActiveRef.current.callActive;
         const payload = JSON.parse(data.payload);
         const messageAction = payload.action;
         const messageData = payload.value;
         switch (messageAction) {
           case ChatMessageActionEnum.Create:
-            showMessageNotification(messageData.msg, `${data.sender}`);
+            showMessageNotification(
+              messageData.msg,
+              `${data.sender}`,
+              false,
+              forceStop,
+            );
             addMessageToStore(data.sender, {
               msg: messageData.msg,
               createdTimestamp: messageData.createdTimestamp,
