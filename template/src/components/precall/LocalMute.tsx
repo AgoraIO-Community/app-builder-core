@@ -141,7 +141,7 @@ const PreCallLocalMute = (props: PreCallProps) => {
           <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
         </>
       )}
-      {!isMobileView && !isNative && (
+      {$config.ENABLE_VIRTUAL_BACKGROUND && !isMobileView && !isNative && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
           <SettingsButton
