@@ -300,15 +300,16 @@ const Precall = (props: any) => {
 
   const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
-    // if (
-    //   data?.components?.precall &&
-    //   typeof data?.components?.precall !== 'object'
-    // ) {
-    //   if (isValidReactComponent(data?.components?.precall)) {
-    //     return data?.components?.precall;
-    //   }
-    //   return undefined;
-    // }
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall !== 'object' &&
+      isSDK
+    ) {
+      if (isValidReactComponent(data?.components?.precall)) {
+        return data?.components?.precall;
+      }
+      return undefined;
+    }
     return undefined;
   });
 
