@@ -37,6 +37,7 @@ interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
+  label?: string;
 }
 
 const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
@@ -57,7 +58,7 @@ const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
   });
 };
 
-const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
+const VBCard: React.FC<VBCardProps> = ({type, icon, path, label}) => {
   const {
     setVBmode,
     setSelectedImage,
@@ -163,6 +164,20 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
               name={icon}
               tintColor={$config.SECONDARY_ACTION_COLOR}
             />
+            {label ? (
+              <Text
+                style={{
+                  fontSize: ThemeConfig.FontSize.tiny,
+                  fontWeight: '400',
+                  fontFamily: ThemeConfig.FontFamily.sansPro,
+                  color: $config.SECONDARY_ACTION_COLOR,
+                  paddingVertical: 4,
+                }}>
+                {label}
+              </Text>
+            ) : (
+              <></>
+            )}
           </>
         </div>
       )}
@@ -246,6 +261,7 @@ const VBPanel: React.FC = () => {
               type={item.type}
               icon={item.icon}
               path={item.path}
+              label={item?.label}
             />
           ))}
         </View>
@@ -302,7 +318,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   active: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   img: {

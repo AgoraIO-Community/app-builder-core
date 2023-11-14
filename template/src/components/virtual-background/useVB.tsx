@@ -17,6 +17,7 @@ export type Option = {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
+  label?: string;
 };
 
 // processors for the main view and preview view
@@ -165,9 +166,9 @@ const VBProvider: React.FC = ({children}) => {
     React.useState<ILocalVideoTrack | null>(null);
   const {sidePanel} = useSidePanel();
   const [options, setOptions] = React.useState<Option[]>(() => [
-    {type: 'none', icon: 'remove'},
-    {type: 'blur', icon: 'blur'},
-    {type: 'custom', icon: 'add'},
+    {type: 'none', icon: 'remove', label: 'None'},
+    {type: 'blur', icon: 'blur', label: 'Blur'},
+    {type: 'custom', icon: 'add', label: 'Custom'},
     {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
