@@ -549,11 +549,12 @@ const style = StyleSheet.create({
   },
   meetingTitleStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
+    fontWeight: '400',
     fontSize: ThemeConfig.FontSize.large,
     lineHeight: 28,
     color: $config.FONT_COLOR,
     paddingLeft: 0,
+    textAlign: 'center',
   },
 });
 
