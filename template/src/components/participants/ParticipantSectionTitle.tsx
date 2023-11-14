@@ -12,6 +12,9 @@ interface PropsInterface {
 
 export default function ParticipantSectionTitle(props: PropsInterface) {
   const {title, count = 0} = props;
+  if (!count) {
+    return null;
+  }
   return (
     <TouchableOpacity
       style={style.container}
