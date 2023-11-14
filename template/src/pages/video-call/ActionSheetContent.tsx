@@ -11,7 +11,10 @@ import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {ClientRole} from '../../../agora-rn-uikit';
-import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+import {
+  RoomInfoContextInterface,
+  useRoomInfo,
+} from '../../components/room-info/useRoomInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {
@@ -37,6 +40,7 @@ import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
 import {CustomToolbarSort} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
+import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -290,62 +294,72 @@ const ActionSheetContent = props => {
   const {setSidePanel} = useSidePanel();
   const {
     data: {isHost},
+    sttLanguage,
+    isSTTActive,
   } = useRoomInfo();
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
   const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
   const {defaultContent} = useContent();
+  const {waitingRoomUids} = useWaitingRoomContext();
+  const defaultContentRef = React.useRef(defaultContent);
+
+  React.useEffect(() => {
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
 
   //STT events on mount
 
   React.useEffect(() => {
-    if (native) return;
-    events.on(EventNames.STT_ACTIVE, data => {
-      const payload = JSON.parse(data?.payload);
-      setIsSTTActive(payload.active);
-    });
-  }, []);
-  React.useEffect(() => {
-    if (native) return;
-    events.on(EventNames.STT_LANGUAGE, data => {
-      const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
-      const actionText =
-        prevLang.indexOf('') !== -1
-          ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
-          : `changed the spoken language from "${getLanguageLabel(
-              prevLang,
-            )}" to "${getLanguageLabel(newLang)}" `;
-      const msg = `${defaultContent[uid]?.name || username} ${actionText} `;
+    setIsSTTActive(isSTTActive);
+  }, [isSTTActive]);
 
-      Toast.show({
-        type: 'info',
-        leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-        text1: `Spoken Language ${
-          prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-        }`,
-        visibilityTime: 3000,
-        text2: msg,
-        primaryBtn: null,
-        secondaryBtn: null,
-      });
-      // syncing local set language
-      newLang && setLanguage(newLang);
-      // add spoken lang msg to transcript
-      setMeetingTranscript(prev => {
-        return [
-          ...prev,
-          {
-            name: 'langUpdate',
-            time: new Date().getTime(),
-            uid: `langUpdate-${uid}`,
-            text: actionText,
-          },
-        ];
-      });
+  React.useEffect(() => {
+    // for mobile events are set in ActionSheetContent
+    if (!sttLanguage) return;
+    const {
+      username,
+      prevLang,
+      newLang,
+      uid,
+    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    const actionText =
+      prevLang.indexOf('') !== -1
+        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+        : `changed the spoken language from "${getLanguageLabel(
+            prevLang,
+          )}" to "${getLanguageLabel(newLang)}" `;
+    const msg = `${
+      defaultContentRef.current[uid]?.name || username
+    } ${actionText} `;
+
+    Toast.show({
+      type: 'info',
+      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+      text1: `Spoken Language ${
+        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+      }`,
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      text2: msg,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // syncing local set language
+    newLang && setLanguage(newLang);
+    // add spoken lang msg to transcript
+    setMeetingTranscript(prev => {
+      return [
+        ...prev,
+        {
+          name: 'langUpdate',
+          time: new Date().getTime(),
+          uid: `langUpdate-${uid}`,
+          text: actionText,
+        },
+      ];
+    });
+  }, [sttLanguage]);
 
   const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
   const isAudience = rtcProps?.role === ClientRole.Audience;
@@ -371,6 +385,8 @@ const ActionSheetContent = props => {
   const isVideoDisabled = native
     ? localUser.video === ToggleState.disabled || isScreenshareActive
     : localUser.video === ToggleState.disabled;
+
+  const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const defaultItems = [
     {
@@ -489,6 +505,17 @@ const ActionSheetContent = props => {
       align: 'start',
       component: <ShareIcon />,
     },
+    {
+      default: true,
+      order: 12,
+      hide: 'no',
+      align: 'start',
+      component: (
+        <CaptionIconBtn
+          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+        />
+      ),
+    },
   ];
 
   //todo: hari refactor STT button and Native screenshare button
@@ -548,7 +575,8 @@ const ActionSheetContent = props => {
               isExpanded={isExpanded}
               showNotification={
                 (!isExpanded && totalUnreadCount !== 0) ||
-                ($config.EVENT_MODE && isPendingRequestToReview)
+                ($config.EVENT_MODE && isPendingRequestToReview) ||
+                isPendingWaitingRoomApproval
               }
               onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
             />
@@ -600,7 +628,7 @@ const CarouselWrapper = ({isPaginationRequired, children, native}) => {
     </View>
   ) : (
     <View style={styles.row}>
-      {$config.ENABLE_STT && !native ? (
+      {$config.ENABLE_STT ? (
         <>
           {children}
           <TranscriptIconBtn />

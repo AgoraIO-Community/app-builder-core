@@ -35,10 +35,10 @@ import IconButton from '../../atoms/IconButton';
 
 interface PreCallProps {
   isMobileView?: boolean;
-  isSettingsOpen: boolean;
-  setIsSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isVBOpen: boolean;
-  setIsVBOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isSettingsOpen?: boolean;
+  setIsSettingsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  isVBOpen?: boolean;
+  setIsVBOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PreCallLocalMute = (props: PreCallProps) => {
@@ -93,6 +93,7 @@ const PreCallLocalMute = (props: PreCallProps) => {
   // refactor later to set mic/camera availablity oustside settings panel <selectDevice>
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable} = usePreCall();
+
   const audioDevices = deviceList.filter(device => {
     if (device.kind === 'audioinput') {
       return true;
@@ -134,13 +135,13 @@ const PreCallLocalMute = (props: PreCallProps) => {
           <PreCallSettings />
         </>
       )}
-      {$config.ENABLE_VIRTUAL_BACKGROUND && (
+      {$config.ENABLE_VIRTUAL_BACKGROUND && !isMobileUA() && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
           <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
         </>
       )}
-      {!isMobileView && (
+      {$config.ENABLE_VIRTUAL_BACKGROUND && !isMobileView && !isNative && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
           <SettingsButton

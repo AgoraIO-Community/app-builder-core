@@ -55,7 +55,10 @@ const RtmConfigure = (props: any) => {
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
-  const {isInWaitingRoom} = useRoomInfo();
+  const {
+    isInWaitingRoom,
+    data: {isHost},
+  } = useRoomInfo();
 
   /**
    * inside event callback state won't have latest value.
@@ -68,8 +71,6 @@ const RtmConfigure = (props: any) => {
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
-
-  const [login, setLogin] = useState<boolean>(false);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
@@ -271,7 +272,7 @@ const RtmConfigure = (props: any) => {
               }
             }),
           );
-          setLogin(true);
+
           console.log('RTM init done');
         });
       timerValueRef.current = 5;
@@ -513,21 +514,32 @@ const RtmConfigure = (props: any) => {
     }
     await RTMEngine.getInstance().destroy();
     setHasUserJoinedRTM(false);
-    // setLogin(false),
     console.log('RTM cleanup done');
   };
 
   useAsyncEffect(async () => {
-    if (!callActive) {
-      console.log('waiting to init RTM');
-      setLogin(true);
+    //waiting room attendee -> rtm login will happen on page load
+    if ($config.WAITING_ROOM) {
+      //attendee
+      if (!isHost && !callActive) {
+        await init();
+      }
+      //host
+      if (isHost && callActive) {
+        await init();
+      }
     }
-    await init();
+    if (!$config.WAITING_ROOM) {
+      //host and attendee
+      if (callActive) {
+        await init();
+      }
+    }
     return async () => {
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId]);
+  }, [rtcProps.channel, rtcProps.appId, callActive]);
 
   return (
     <ChatContext.Provider
@@ -538,7 +550,7 @@ const RtmConfigure = (props: any) => {
         localUid: localUid,
         onlineUsersCount,
       }}>
-      {login ? props.children : <></>}
+      {props.children}
     </ChatContext.Provider>
   );
 };

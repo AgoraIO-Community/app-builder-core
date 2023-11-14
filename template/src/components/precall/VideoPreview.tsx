@@ -126,14 +126,19 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
     child => React.isValidElement(child) && child.type === VideoPreview.JoinBtn,
   );
   return (
-    <View style={styles.container}>
+    <View
+      style={
+        isMobileUA() ? styles.mobileRootcontainer : styles.desktopRootcontainer
+      }>
       <View style={styles.heading}>{headingChildren}</View>
-      <View style={styles.container1}>
+      <View
+        style={isMobileUA() ? styles.mobileContainer : styles.desktopContainer}>
         <View
-          style={{
-            width: 404,
-            height: 256,
-          }}>
+          style={
+            isMobileUA()
+              ? styles.mobileContentContainer
+              : styles.desktopContentContainer
+          }>
           <MaxVideoView
             user={defaultContent[maxUid]}
             key={maxUid}
@@ -146,11 +151,18 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
             }}
           />
         </View>
-        {/* <PreCallLocalMute isMobileView={isMobileUA() ? true : false} /> */}
-        {controlChildren}
+        {isMobileUA() ? (
+          <PreCallLocalMute isMobileView={true} />
+        ) : (
+          controlChildren
+        )}
       </View>
-      <Spacer size={4} />
-      <View style={styles.container2}>{joinBtnChildren}</View>
+      {!isMobileUA() && (
+        <>
+          <Spacer size={4} />
+          <View style={styles.container2}>{joinBtnChildren}</View>{' '}
+        </>
+      )}
     </View>
   );
 };
@@ -213,18 +225,37 @@ const useStyles = () => {
       color: $config.PRIMARY_ACTION_BRAND_COLOR,
       alignSelf: 'center',
     },
-    container: {
+    desktopRootcontainer: {
       position: 'relative',
       overflow: 'hidden',
       margin: 'auto',
       maxWidth: 440,
     },
-    container1: {
+    mobileRootcontainer: {
+      flex: 1,
+      position: 'relative',
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+    },
+    mobileContainer: {
+      flex: 1,
+      position: 'relative',
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+    },
+    desktopContainer: {
       padding: 20,
       paddingBottom: 8,
       borderTopLeftRadius: 16,
       borderTopRightRadius: 16,
       backgroundColor: $config.CARD_LAYER_1_COLOR,
+    },
+    mobileContentContainer: {
+      flex: 1,
+    },
+    desktopContentContainer: {
+      width: 404,
+      height: 256,
     },
     container2: {
       padding: 20,

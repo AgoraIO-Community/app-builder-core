@@ -7,13 +7,16 @@ import {filterObject} from '../../utils';
 
 export interface WaitingRoomContextInterface {
   waitingRoomUids: UidType[];
+  waitingRoomRef: React.MutableRefObject<{}>;
 }
 const WaitingRoomContext = createContext<WaitingRoomContextInterface>({
   waitingRoomUids: [],
+  waitingRoomRef: {current: {}},
 });
 
 const WaitingRoomProvider = ({children}) => {
   const [waitingRoomUids, setwaitingRoomUids] = useState<UidType[]>([]);
+  const waitingRoomRef = React.useRef<{}>({});
 
   const {defaultContent} = useContent();
 
@@ -25,12 +28,17 @@ const WaitingRoomProvider = ({children}) => {
           v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
       ),
     ).map(Number);
+    console.log('in waiting - de', uids, defaultContent);
 
     setwaitingRoomUids(uids);
   }, [defaultContent]);
 
   return (
-    <WaitingRoomContext.Provider value={{waitingRoomUids: waitingRoomUids}}>
+    <WaitingRoomContext.Provider
+      value={{
+        waitingRoomUids: waitingRoomUids,
+        waitingRoomRef,
+      }}>
       {children}
     </WaitingRoomContext.Provider>
   );

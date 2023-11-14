@@ -12,6 +12,7 @@
 import React, {createContext} from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
+import {LanguageType} from '../../subComponents/caption/utils';
 export interface RoomInfoContextInterface {
   isJoinDataFetched?: boolean;
   data?: {
@@ -40,6 +41,13 @@ export interface RoomInfoContextInterface {
   };
   isInWaitingRoom?: boolean;
   isWhiteBoardOn?: boolean;
+  sttLanguage?: {
+    username?: string;
+    prevLang?: LanguageType[];
+    newLang?: LanguageType[];
+    uid?: UidType;
+  };
+  isSTTActive?: boolean;
 }
 
 export const validateMeetingInfoData = (
@@ -70,6 +78,8 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   isJoinDataFetched: false,
   isInWaitingRoom: false,
   isWhiteBoardOn: false,
+  sttLanguage: null,
+  isSTTActive: false,
   data: {
     isHost: false,
     meetingTitle: '',

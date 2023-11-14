@@ -123,6 +123,11 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const participantsLabel = `People`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
+  const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const onPress = () => {
     isPanelActive
@@ -178,7 +183,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           <View>
             <IconButton {...iconButtonProps} />
           </View>
-          {waitingRoomUids.length > 0 ||
+          {isPendingWaitingRoomApproval ||
           ($config.EVENT_MODE &&
             $config.RAISE_HAND &&
             isPendingRequestToReview) ? (

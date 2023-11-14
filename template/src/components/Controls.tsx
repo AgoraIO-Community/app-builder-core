@@ -11,7 +11,12 @@
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {DispatchContext, PropsContext, ToggleState} from '../../agora-rn-uikit';
+import {
+  DispatchContext,
+  PropsContext,
+  ToggleState,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -85,6 +90,7 @@ const MoreButton = () => {
     setIsCaptionON,
     language: prevLang,
     isSTTActive,
+    setIsSTTActive,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -723,70 +729,68 @@ const Controls = (props: ControlsProps) => {
   const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
   const {defaultContent} = useContent();
-  const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
+  const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
+
+  const {
+    data: {isHost},
+    sttLanguage,
+    isSTTActive,
+  } = useRoomInfo();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
   React.useEffect(() => {
-    events.on(EventNames.STT_ACTIVE, data => {
-      const payload = JSON.parse(data?.payload);
-      setIsSTTActive(payload.active);
+    // for mobile events are set in ActionSheetContent
+    if (!sttLanguage) return;
+    const {
+      username,
+      prevLang,
+      newLang,
+      uid,
+    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    const actionText =
+      prevLang.indexOf('') !== -1
+        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+        : `changed the spoken language from "${getLanguageLabel(
+            prevLang,
+          )}" to "${getLanguageLabel(newLang)}" `;
+    const msg = `${
+      defaultContentRef.current[uid]?.name || username
+    } ${actionText} `;
+
+    Toast.show({
+      type: 'info',
+      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+      text1: `Spoken Language ${
+        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+      }`,
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      text2: msg,
     });
-  }, []);
+    // syncing local set language
+    newLang && setLanguage(newLang);
+    // add spoken lang msg to transcript
+    setMeetingTranscript(prev => {
+      return [
+        ...prev,
+        {
+          name: 'langUpdate',
+          time: new Date().getTime(),
+          uid: `langUpdate-${uid}`,
+          text: actionText,
+        },
+      ];
+    });
+  }, [sttLanguage]);
 
   React.useEffect(() => {
-    events.on(EventNames.STT_ACTIVE, data => {
-      const payload = JSON.parse(data?.payload);
-      setIsSTTActive(payload.active);
-    });
-  }, []);
-
-  React.useEffect(() => {
-    // for native events are set in ActionSheetContent as this action is action sheet
-    if (isWebInternal()) {
-      events.on(EventNames.STT_LANGUAGE, data => {
-        const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
-        const actionText =
-          prevLang.indexOf('') !== -1
-            ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
-            : `changed the spoken language from "${getLanguageLabel(
-                prevLang,
-              )}" to "${getLanguageLabel(newLang)}" `;
-        const msg = `${
-          defaultContentRef.current[uid]?.name || username
-        } ${actionText} `;
-
-        Toast.show({
-          type: 'info',
-          leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-          text1: `Spoken Language ${
-            prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-          }`,
-          visibilityTime: 3000,
-          primaryBtn: null,
-          secondaryBtn: null,
-          text2: msg,
-        });
-        // syncing local set language
-        newLang && setLanguage(newLang);
-        // add spoken lang msg to transcript
-        setMeetingTranscript(prev => {
-          return [
-            ...prev,
-            {
-              name: 'langUpdate',
-              time: new Date().getTime(),
-              uid: `langUpdate-${uid}`,
-              text: actionText,
-            },
-          ];
-        });
-      });
-    }
-  }, []);
+    setIsSTTActive(isSTTActive);
+  }, [isSTTActive]);
 
   const ToastIcon = ({color}) => (
     <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
@@ -863,6 +867,20 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  primaryBtn: {
+    maxWidth: 109,
+    minWidth: 109,
+    height: 40,
+    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+  },
+  primaryBtnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    paddingLeft: 0,
   },
 });
 
