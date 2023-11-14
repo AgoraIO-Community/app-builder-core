@@ -113,7 +113,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel ? audioLabel : '',
+      text: showLabel && callActive ? audioLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,
