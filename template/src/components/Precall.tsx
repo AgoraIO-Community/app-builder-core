@@ -11,7 +11,13 @@
 */
 import PrecallNative from './Precall.native';
 import React, {useContext, useEffect} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {
   isMobileUA,
@@ -44,6 +50,8 @@ import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import {VideoPreviewComponent} from './precall/VideoPreview';
 import VBPanel from './virtual-background/VBPanel';
+import Logo from '../components/common/Logo';
+import ImageIcon from '../atoms/ImageIcon';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -210,7 +218,7 @@ const JoinRoomButton = () => {
 
 const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
-
+  const {height} = useWindowDimensions();
   // const {isVBActive, setIsVBActive} = useVB();
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
   const [isVBOpen, setIsVBOpen] = React.useState(false);
@@ -358,29 +366,24 @@ const Precall = () => {
           <ScrollView
             contentContainerStyle={[
               style.main,
-              {padding: 32, flexDirection: 'column'},
+              {
+                padding: isDesktop() ? 0 : 32,
+                flexDirection: isDesktop() ? 'row' : 'column',
+              },
             ]}
             testID="precall-screen">
-            <>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                {/* <MeetingName
-                  textStyle={style.meetingTitleStyle}
-                  prefix="You are joining"
-                /> */}
+            <View
+              style={[{flexDirection: 'column'}, isDesktop() ? {flex: 1} : {}]}>
+              <View style={{padding: isDesktop() ? 32 : 0}}>
+                <Logo />
                 {!isMobileUA() ? (
                   <IDPLogoutComponent
-                    containerStyle={{marginRight: 0, marginTop: 0}}
+                    containerStyle={{marginRight: 0, marginTop: -26}}
                   />
                 ) : (
                   <></>
                 )}
               </View>
-              <Spacer size={32} />
               <View
                 style={{
                   flex: 1,
@@ -394,8 +397,6 @@ const Precall = () => {
                       ? style.leftContentVertical
                       : style.leftContentHorizontal
                   }>
-                  {/* <VideoPreview />
-                  <JoinRoomButton /> */}
                   <VideoPreview>
                     <VideoPreview.Heading>
                       <MeetingName
@@ -412,43 +413,51 @@ const Precall = () => {
                       />
                     </VideoPreview.Controls>
                     <VideoPreview.JoinBtn>
+                      <JoinRoomName isDesktop={true} />
+                      <Spacer size={20} />
                       <JoinRoomButton />
                     </VideoPreview.JoinBtn>
                   </VideoPreview>
                 </View>
-                <Spacer size={24} horizontal={!isDesktop() ? false : true} />
-                <Card
-                  style={
-                    !isDesktop()
-                      ? style.rightContentVertical
-                      : style.rightContentHorizontal
-                  }>
-                  {/* <View style={style.rightInputContent}>
-                    <JoinRoomName isDesktop={true} />
-                    <DeviceSelect />
-                  </View> */}
-                  {isVBOpen ? (
-                    <VBPanel />
-                  ) : isSettingsOpen ? (
-                    <View style={style.rightInputContent}>
-                      <JoinRoomName isDesktop={true} />
-                      <DeviceSelect />
-                    </View>
-                  ) : (
-                    <></>
-                  )}
-
-                  <View
-                    style={{
-                      width: '100%',
-                      padding: 32,
-                    }}>
-                    {/* <JoinRoomButton /> */}
-                  </View>
-                </Card>
-                {/* {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>} */}
               </View>
-            </>
+            </View>
+            <Spacer size={isDesktop() ? 0 : 24} horizontal={false} />
+            <Card
+              style={
+                !isDesktop()
+                  ? style.rightContentVertical
+                  : {
+                      flex: 0.4,
+                      borderRadius: 0,
+                      paddingHorizontal: 0,
+                      paddingVertical: 0,
+                      height: height,
+                      minWidth: 350,
+                      justifyContent: 'flex-start',
+                      marginHorizontal: 0,
+                      marginVertical: 0,
+                    }
+              }>
+              <ScrollView>
+                <View style={style.settingHeaderContainer}>
+                  <View style={style.settingIconContainer}>
+                    <ImageIcon
+                      name="settings"
+                      iconSize={24}
+                      tintColor={$config.SECONDARY_ACTION_COLOR}
+                      iconType="plain"
+                    />
+                  </View>
+                  <Text style={style.settingTextStyle}>Settings</Text>
+                </View>
+                <View style={style.deviceSelectContainer}>
+                  <DeviceSelect />
+                </View>
+                <View style={style.vbPanelContainer}>
+                  <VBPanel />
+                </View>
+              </ScrollView>
+            </Card>
           </ScrollView>
         </View>
       )}
@@ -458,6 +467,34 @@ const Precall = () => {
 };
 
 const style = StyleSheet.create({
+  settingIconContainer: {
+    width: 24,
+    height: 24,
+  },
+  settingHeaderContainer: {
+    padding: 24,
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: $config.CARD_LAYER_3_COLOR,
+  },
+  settingTextStyle: {
+    color: $config.SECONDARY_ACTION_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 20,
+    fontWeight: '700',
+    paddingLeft: 8,
+  },
+  deviceSelectContainer: {
+    paddingHorizontal: 24,
+  },
+  vbPanelContainer: {
+    margin: 24,
+    marginTop: 0,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+  },
   labelStyle: {
     paddingLeft: 8,
   },
@@ -506,7 +543,7 @@ const style = StyleSheet.create({
   },
   rightContentHorizontal: {
     flex: 1,
-    borderRadius: ThemeConfig.BorderRadius.large,
+    borderRadius: 0,
     paddingHorizontal: 0,
     paddingVertical: 0,
     height: '100%',
@@ -525,9 +562,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: 0,
   },
-  rightInputContent: {
-    padding: 32,
-  },
+  rightInputContent: {},
   titleFont: {
     textAlign: 'center',
     fontSize: 20,
