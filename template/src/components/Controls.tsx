@@ -211,30 +211,32 @@ const MoreButton = () => {
     whiteboardActive: boolean,
     triggerEvent: boolean,
   ) => {
-    if (whiteboardActive) {
-      leaveWhiteboardRoom();
-      setCustomContent(whiteboardUid, false);
-      setLayout('grid');
-      triggerEvent &&
-        events.send(
-          'WhiteBoardStopped',
-          JSON.stringify({}),
-          PersistanceLevel.Session,
-        );
-    } else {
-      joinWhiteboardRoom();
-      setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
-      dispatch({
-        type: 'UserPin',
-        value: [whiteboardUid],
-      });
-      setLayout('pinned');
-      triggerEvent &&
-        events.send(
-          'WhiteBoardStarted',
-          JSON.stringify({}),
-          PersistanceLevel.Session,
-        );
+    if ($config.ENABLE_WHITEBOARD) {
+      if (whiteboardActive) {
+        leaveWhiteboardRoom();
+        setCustomContent(whiteboardUid, false);
+        setLayout('grid');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStopped',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      } else {
+        joinWhiteboardRoom();
+        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        dispatch({
+          type: 'UserPin',
+          value: [whiteboardUid],
+        });
+        setLayout('pinned');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStarted',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      }
     }
   };
   const WhiteboardDisabled =
@@ -263,44 +265,46 @@ const MoreButton = () => {
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 
-  actionMenuitems.push({
-    icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-    title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
-    callback: () => {
-      setActionMenuVisible(false);
-      STT_clicked.current = !isCaptionON ? 'caption' : null;
-      if (isSTTActive) {
-        setIsCaptionON(prev => !prev);
-        // is lang popup has been shown once for any user in meeting
-      } else {
-        isFirstTimePopupOpen.current = true;
-        setLanguagePopup(true);
-      }
-    },
-  });
+  if ($config.ENABLE_STT) {
+    actionMenuitems.push({
+      icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
+      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isCaptionON ? 'caption' : null;
+        if (isSTTActive) {
+          setIsCaptionON(prev => !prev);
+          // is lang popup has been shown once for any user in meeting
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
 
-  actionMenuitems.push({
-    icon: 'transcript',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-    title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
-    callback: () => {
-      setActionMenuVisible(false);
-      STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-      if (isSTTActive) {
-        !isTranscriptON
-          ? setSidePanel(SidePanelType.Transcript)
-          : setSidePanel(SidePanelType.None);
-      } else {
-        isFirstTimePopupOpen.current = true;
-        setLanguagePopup(true);
-      }
-    },
-  });
+    actionMenuitems.push({
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
+      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+        if (isSTTActive) {
+          !isTranscriptON
+            ? setSidePanel(SidePanelType.Transcript)
+            : setSidePanel(SidePanelType.None);
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
+  }
 
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
@@ -655,7 +659,11 @@ export const RecordingToolbarItem = () => {
 export const MoreButtonToolbarItem = () => {
   const {width} = useWindowDimensions();
   return (
-    (width < BREAKPOINTS.md || $config.ENABLE_STT) && (
+    (width < BREAKPOINTS.md ||
+      $config.ENABLE_STT ||
+      $config.ENABLE_AINS ||
+      $config.ENABLE_VIRTUAL_BACKGROUND ||
+      $config.ENABLE_WHITEBOARD) && (
       <ToolbarItem testID="more-btn">
         <MoreButton />
       </ToolbarItem>
