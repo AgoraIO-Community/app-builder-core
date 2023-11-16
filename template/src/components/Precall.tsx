@@ -434,6 +434,7 @@ const Precall = () => {
                       paddingHorizontal: 0,
                       paddingVertical: 0,
                       height: height,
+                      minHeight: '100%',
                       minWidth: 350,
                       maxWidth: 428,
                       justifyContent: 'flex-start',
@@ -455,9 +456,24 @@ const Precall = () => {
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect />
               </View>
-              <ScrollView style={style.vbPanelContainer}>
-                <VBPanel isOnPrecall={true} />
-              </ScrollView>
+              {$config.ENABLE_VIRTUAL_BACKGROUND && (
+                <>
+                  <Text
+                    style={{
+                      paddingHorizontal: 24,
+                      fontWeight: '400',
+                      fontSize: ThemeConfig.FontSize.small,
+                      color: $config.FONT_COLOR,
+                      fontFamily: ThemeConfig.FontFamily.sansPro,
+                      marginBottom: 12,
+                    }}>
+                    Virtual Background
+                  </Text>
+                  <ScrollView style={style.vbPanelContainer}>
+                    <VBPanel isOnPrecall={true} />
+                  </ScrollView>
+                </>
+              )}
             </Card>
           </ScrollView>
         </View>

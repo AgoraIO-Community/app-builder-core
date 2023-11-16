@@ -232,7 +232,7 @@ const VBPanel: React.FC = props => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
-      <VBHeader />
+      {isOnPrecall ? <></> : <VBHeader />}
 
       {!callActive && !isLocalVideoON ? (
         <View style={styles.textContainer}>

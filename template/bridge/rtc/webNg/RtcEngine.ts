@@ -336,6 +336,7 @@ export default class RtcEngine {
                   );
                   break;
                 } catch (e) {
+                  videoError = e;
                   console.log(
                     '[RTCEngineBridge]:',
                     'Camera not available with deviceId' + device,
