@@ -85,7 +85,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
 
   const data = useMemo(() => {
     return deviceList
-      .filter((device) => {
+      .filter(device => {
         if (device.kind === 'videoinput') {
           return true;
         }
@@ -102,7 +102,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
 
   useEffect(() => {
     const selectedDeviceExists = Boolean(
-      data.find((device) => device.value === selectedCam),
+      data.find(device => device.value === selectedCam),
     );
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
@@ -172,7 +172,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
 
   const data = useMemo(() => {
     return deviceList
-      .filter((device) => {
+      .filter(device => {
         if (device.kind === 'audioinput') {
           return true;
         }
@@ -189,7 +189,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
 
   useEffect(() => {
     const selectedDeviceExists = Boolean(
-      data.find((device) => device.value === selectedMic),
+      data.find(device => device.value === selectedMic),
     );
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
@@ -251,7 +251,7 @@ interface SelectSpeakerDeviceProps {
 }
 
 const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
-  const {selectedSpeaker, setSelectedSpeaker, deviceList} =
+  const {selectedSpeaker, setSelectedSpeaker, deviceList, isChrome} =
     useContext(DeviceContext);
   const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
@@ -261,12 +261,12 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
 
   const data = useMemo(() => {
     return deviceList
-      .filter((device) => {
+      .filter(device => {
         if (device.kind === 'audiooutput') {
           return true;
         }
       })
-      ?.map((device) => {
+      ?.map(device => {
         if (device.kind === 'audiooutput') {
           return {
             label: applyDefaultPrefixConditionally(device),
@@ -278,7 +278,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
 
   useEffect(() => {
     const selectedDeviceExists = Boolean(
-      data.find((device) => device.value === selectedSpeaker),
+      data.find(device => device.value === selectedSpeaker),
     );
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
@@ -299,7 +299,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
       <Text style={style.label}>Speaker</Text>
       {(local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
         local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
-      (!data || data.length === 0) ? (
+      (!isChrome || !data || data.length === 0) ? (
         <Dropdown
           icon={props?.isIconDropdown ? 'speaker' : undefined}
           enabled={!isPickerDisabled}
