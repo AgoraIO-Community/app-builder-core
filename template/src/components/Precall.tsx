@@ -412,6 +412,8 @@ const Precall = () => {
                         setIsVBOpen={setIsVBOpen}
                       />
                     </VideoPreview.Controls>
+                    {/* <VideoPreview.NameInput>             
+                    </VideoPreview.NameInput> */}
                     <VideoPreview.JoinBtn>
                       <JoinRoomName isDesktop={true} />
                       <Spacer size={20} />
@@ -421,7 +423,7 @@ const Precall = () => {
                 </View>
               </View>
             </View>
-            <Spacer size={isDesktop() ? 0 : 24} horizontal={false} />
+            {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>}
             <Card
               style={
                 !isDesktop()
@@ -433,6 +435,7 @@ const Precall = () => {
                       paddingVertical: 0,
                       height: height,
                       minWidth: 350,
+                      maxWidth: 428,
                       justifyContent: 'flex-start',
                       marginHorizontal: 0,
                       marginVertical: 0,

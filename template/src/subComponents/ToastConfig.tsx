@@ -42,6 +42,13 @@ const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
     </View>
   );
 };
+const warnIcon = () => {
+  return (
+    <View style={{marginRight: 4, alignSelf: 'center', width: 26, height: 26}}>
+      <ImageIcon base64={true} iconType="plain" name={'warning'} />
+    </View>
+  );
+};
 
 const ToastConfig = {
   /* 
@@ -78,12 +85,37 @@ const ToastConfig = {
       leadingIcon={leadingIcon('alert', $config.SEMANTIC_ERROR)}
       trailingIcon={trailingIcon}
       style={{
+        height: 'auto',
         borderRadius: 4,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         //width: !isMobileOrTablet() ? '40%' : '95%',
         width: '100%',
         borderTopColor: $config.SEMANTIC_ERROR,
+      }}
+      contentContainerStyle={styles.contentContainerStyle}
+      text1Style={styles.text1Style}
+      text2Style={styles.text2Style}
+      text1={text1}
+      text2={text2}
+      primaryBtn={null}
+      secondaryBtn={null}
+    />
+  ),
+  warn: ({text1, text2, props, ...rest}) => (
+    <BaseToast
+      {...rest}
+      //BaseToast is modified to have zIndex: 100
+      leadingIcon={warnIcon()}
+      trailingIcon={trailingIcon}
+      style={{
+        height: 'auto',
+        borderRadius: 4,
+        borderTopWidth: 6,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
+        //width: !isMobileOrTablet() ? '40%' : '95%',
+        width: '100%',
+        borderTopColor: '#FFAB00',
       }}
       contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}

@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -33,9 +33,11 @@ import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import {isMobileUA, isWebInternal, useResponsive} from '../../utils/common';
 import {useVB} from '../virtual-background/useVB';
+import Toast from '../../../react-native-toast-message';
 
 const Fallback = () => {
   const {isCameraAvailable, isMicAvailable} = usePreCall();
+  const toastRef = useRef({isShown: false});
   const local = useContext(LocalContext);
   const requestCameraAndAudioPermission = () => {
     try {
@@ -51,47 +53,75 @@ const Fallback = () => {
     }
   };
   const styles = useStyles();
+
+  useEffect(() => {
+    if (
+      !(
+        isCameraAvailable ||
+        ($config.AUDIO_ROOM && isMicAvailable) ||
+        local.permissionStatus === PermissionState.NOT_REQUESTED ||
+        local.permissionStatus === PermissionState.REQUESTED
+      ) &&
+      toastRef.current.isShown === false
+    ) {
+      toastRef.current.isShown = true;
+      Toast.show({
+        type: 'warn',
+        text1: `Can't find your ${
+          $config.AUDIO_ROOM ? ' Microphone' : ' Camera'
+        }`,
+        text2: `Check your system settings to make sure that a ${
+          $config.AUDIO_ROOM ? 'microphone' : 'camera'
+        } is available. If not, plug one in and restart your browser`,
+        visibilityTime: 10000,
+      });
+    }
+  }, [local, isCameraAvailable, isMicAvailable]);
+
   return (
     <View style={styles.fallbackRootContainer}>
-      {isCameraAvailable ||
-      ($config.AUDIO_ROOM && isMicAvailable) ||
-      local.permissionStatus === PermissionState.NOT_REQUESTED ||
-      local.permissionStatus === PermissionState.REQUESTED ? (
-        <View style={styles.avatar}>
-          <UiKitImageIcon name={'profile'} />
-        </View>
-      ) : (
-        <View style={styles.fallbackContainer}>
-          <Text style={styles.infoText1}>
-            Can’t Find Your{$config.AUDIO_ROOM ? ' Microphone' : ' Camera'}
-          </Text>
-          <Text style={styles.infoText2}>
-            Check your system settings to make sure that a
-            {$config.AUDIO_ROOM ? ' microphone' : ' camera'} is available. If
-            not, plug one in and restart your browser.
-          </Text>
-          <Spacer size={33} />
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'center',
-            }}
-            onPress={() => {
-              requestCameraAndAudioPermission();
-            }}>
-            <Text style={styles.retryBtn}>Learn More</Text>
-            <Spacer horizontal={true} size={4} />
-            <View style={{alignSelf: 'center'}}>
-              <ImageIcon
-                iconType="plain"
-                name={'link-share'}
-                tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-              />
-            </View>
-          </TouchableOpacity>
-          <Spacer size={23} />
-        </View>
-      )}
+      {
+        // isCameraAvailable ||
+        // ($config.AUDIO_ROOM && isMicAvailable) ||
+        // local.permissionStatus === PermissionState.NOT_REQUESTED ||
+        // local.permissionStatus === PermissionState.REQUESTED
+        true ? (
+          <View style={styles.avatar}>
+            <UiKitImageIcon name={'profile'} />
+          </View>
+        ) : (
+          <View style={styles.fallbackContainer}>
+            <Text style={styles.infoText1}>
+              Can’t Find Your{$config.AUDIO_ROOM ? ' Microphone' : ' Camera'}
+            </Text>
+            <Text style={styles.infoText2}>
+              Check your system settings to make sure that a
+              {$config.AUDIO_ROOM ? ' microphone' : ' camera'} is available. If
+              not, plug one in and restart your browser.
+            </Text>
+            <Spacer size={33} />
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignSelf: 'center',
+              }}
+              onPress={() => {
+                requestCameraAndAudioPermission();
+              }}>
+              <Text style={styles.retryBtn}>Learn More</Text>
+              <Spacer horizontal={true} size={4} />
+              <View style={{alignSelf: 'center'}}>
+                <ImageIcon
+                  iconType="plain"
+                  name={'link-share'}
+                  tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+                />
+              </View>
+            </TouchableOpacity>
+            <Spacer size={23} />
+          </View>
+        )
+      }
     </View>
   );
 };
@@ -100,6 +130,7 @@ type VideoPreviewProps = {
 };
 export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
   Controls: React.FC;
+  NameInput: React.FC;
   JoinBtn: React.FC;
   Heading: React.FC;
 };
@@ -120,6 +151,11 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
   const controlChildren = React.Children.toArray(children).filter(
     child =>
       React.isValidElement(child) && child.type === VideoPreview.Controls,
+  );
+
+  const nameInputChildren = React.Children.toArray(children).filter(
+    child =>
+      React.isValidElement(child) && child.type === VideoPreview.NameInput,
   );
 
   const joinBtnChildren = React.Children.toArray(children).filter(
@@ -159,6 +195,7 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
       </View>
       {!isMobileUA() && (
         <>
+          {nameInputChildren}
           <Spacer size={4} />
           <View style={styles.container2}>{joinBtnChildren}</View>{' '}
         </>
@@ -172,6 +209,10 @@ VideoPreview.Controls = ({children}) => {
 };
 
 VideoPreview.JoinBtn = ({children}) => {
+  return <>{children}</>;
+};
+
+VideoPreview.NameInput = ({children}) => {
   return <>{children}</>;
 };
 

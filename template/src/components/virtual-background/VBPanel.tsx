@@ -237,15 +237,15 @@ const VBPanel: React.FC = () => {
         <View style={styles.textContainer}>
           <View style={styles.iconStyleView}>
             <ImageIcon
+              base64={true}
               iconSize={20}
               iconType="plain"
-              name={'done-fill'}
-              base64={true}
-              base64TintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+              name={'warning'}
             />
           </View>
           <Text style={styles.text}>
-            Selected effects will be applied once the camera is turned ON.
+            Camera is currently off. Selected background will be applied as soon
+            as your camera turns on.
           </Text>
         </View>
       ) : (
@@ -379,16 +379,16 @@ const styles = StyleSheet.create({
   textContainer: {
     padding: 12,
     borderRadius: 4,
-    borderLeftColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    borderLeftWidth: 4,
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    backgroundColor: 'rgba(255, 171, 0, 0.15)',
     margin: 20,
     marginBottom: 0,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
   iconStyleView: {
     marginRight: 4,
+    width: 20,
+    height: 20,
   },
 });
