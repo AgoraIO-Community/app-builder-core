@@ -155,7 +155,8 @@ const MoreButton = () => {
       icon: 'vb',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
+      //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
+      title: 'Virtual Background',
       callback: () => {
         setActionMenuVisible(false);
         toggleVB();
@@ -251,7 +252,8 @@ const MoreButton = () => {
       icon: 'white-board',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive ? 'Turn off Whiteboard' : 'Turn on Whiteboard',
+      //title: whiteboardActive ? 'Turn off Whiteboard' : 'Turn on Whiteboard',
+      title: 'Whiteboard',
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
@@ -487,7 +489,7 @@ const MoreButton = () => {
         isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
       <ActionMenu
-        containerStyle={{width: 180}}
+        containerStyle={{width: 260}}
         hoverMode={true}
         onHover={isVisible => setIsHoveredOnModal(isVisible)}
         from={'control-bar'}
