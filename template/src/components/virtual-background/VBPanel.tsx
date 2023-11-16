@@ -200,7 +200,8 @@ const TickIcon: React.FC = () => {
   );
 };
 
-const VBPanel: React.FC = () => {
+const VBPanel: React.FC = props => {
+  const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 
   const {currentLayout} = useLayout();
@@ -208,7 +209,7 @@ const VBPanel: React.FC = () => {
   const {setIsVBActive, setSaveVB, options} = useVB();
   const {setSidePanel} = useSidePanel();
   const {video: localVideoStatus} = useLocalUserInfo();
-  const maxPanelHeight = screenHeight * 0.8;
+  const maxPanelHeight = isOnPrecall ? '100%' : screenHeight * 0.8;
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 

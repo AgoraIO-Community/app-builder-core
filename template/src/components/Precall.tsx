@@ -441,24 +441,22 @@ const Precall = () => {
                       marginVertical: 0,
                     }
               }>
-              <ScrollView>
-                <View style={style.settingHeaderContainer}>
-                  <View style={style.settingIconContainer}>
-                    <ImageIcon
-                      name="settings"
-                      iconSize={24}
-                      tintColor={$config.SECONDARY_ACTION_COLOR}
-                      iconType="plain"
-                    />
-                  </View>
-                  <Text style={style.settingTextStyle}>Settings</Text>
+              <View style={style.settingHeaderContainer}>
+                <View style={style.settingIconContainer}>
+                  <ImageIcon
+                    name="settings"
+                    iconSize={24}
+                    tintColor={$config.SECONDARY_ACTION_COLOR}
+                    iconType="plain"
+                  />
                 </View>
-                <View style={style.deviceSelectContainer}>
-                  <DeviceSelect />
-                </View>
-                <View style={style.vbPanelContainer}>
-                  <VBPanel />
-                </View>
+                <Text style={style.settingTextStyle}>Settings</Text>
+              </View>
+              <View style={style.deviceSelectContainer}>
+                <DeviceSelect />
+              </View>
+              <ScrollView style={style.vbPanelContainer}>
+                <VBPanel isOnPrecall={true} />
               </ScrollView>
             </Card>
           </ScrollView>
