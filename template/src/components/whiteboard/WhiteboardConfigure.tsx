@@ -36,7 +36,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     RoomPhase.Disconnected,
   );
   const whiteboardUidRef = useRef(Date.now());
-  console.log('debugging whiteboardUid', whiteboardUidRef.current);
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
 
