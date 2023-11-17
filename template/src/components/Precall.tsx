@@ -114,7 +114,8 @@ const JoinRoomInputView = ({isDesktop}) => {
               ? style.btnContainerStyle
               : {width: '100%'}
           }>
-          {$config.WAITING_ROOM && rtcProps.role === ClientRole.Audience ? (
+          {$config.ENABLE_WAITING_ROOM &&
+          rtcProps.role === ClientRole.Audience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -201,7 +202,8 @@ const JoinRoomButton = () => {
     return components;
   });
 
-  return $config.WAITING_ROOM && rtcProps.role === ClientRole.Audience ? (
+  return $config.ENABLE_WAITING_ROOM &&
+    rtcProps.role === ClientRole.Audience ? (
     <JoinWaitingRoomBtn />
   ) : (
     <JoinButton />

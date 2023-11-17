@@ -33,7 +33,7 @@ export function NoiseSupressionProvider(props) {
   let processor = useRef(null);
 
   useEffect(() => {
-    if ($config.ENABLE_AINS) {
+    if ($config.ENABLE_NOISE_CANCELLATION) {
       const denoiserExtension = new AIDenoiserExtension({assetsPath: 'wasm'});
       AgoraRTC.registerExtensions([denoiserExtension]);
       processor.current = denoiserExtension.createProcessor();
@@ -42,7 +42,7 @@ export function NoiseSupressionProvider(props) {
   }, []);
 
   const enableNoiseSuppression = async () => {
-    if (!$config.ENABLE_AINS) {
+    if (!$config.ENABLE_NOISE_CANCELLATION) {
       throw new Error('AINS disabled in config');
     }
     //@ts-ignore
