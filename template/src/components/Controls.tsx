@@ -148,7 +148,7 @@ const MoreButton = () => {
     }
     setIsVBActive(prev => !prev);
   };
-  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+  if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
     actionMenuitems.push({
       isBase64Icon: true,
       //@ts-ignore
