@@ -156,9 +156,6 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       isPrivateMessage: boolean = false,
       forceStop: boolean = false,
     ) => {
-      // if (!$config.ENABLE_CHAT_NOTIFICATION) {
-      //   return;
-      // }
       //don't show group message notification if group chat is open
       if (!isPrivateMessage && groupActiveRef.current) {
         return;
