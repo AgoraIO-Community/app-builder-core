@@ -9,7 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect, useRef} from 'react';
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useReducer,
+} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import {
   DispatchContext,
@@ -72,6 +78,77 @@ import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
 import isSDK from '../utils/isSDK';
 
+const WhiteboardListener = () => {
+  const {dispatch} = useContext(DispatchContext);
+  const {setCustomContent} = useContent();
+  const {currentLayout, setLayout} = useLayout();
+
+  const {isWhiteBoardOn} = useRoomInfo();
+
+  //whiteboard start
+
+  const {
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+    whiteboardUid,
+  } = useContext(whiteboardContext);
+
+  const WhiteboardStoppedCallBack = () => {
+    toggleWhiteboard(true, false);
+  };
+
+  const WhiteboardStartedCallBack = () => {
+    toggleWhiteboard(false, false);
+  };
+
+  useEffect(() => {
+    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
+  }, []);
+
+  React.useEffect(() => {
+    if (isWhiteBoardOn) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  }, [isWhiteBoardOn]);
+
+  const toggleWhiteboard = (
+    whiteboardActive: boolean,
+    triggerEvent: boolean,
+  ) => {
+    if ($config.ENABLE_WHITEBOARD) {
+      if (whiteboardActive) {
+        leaveWhiteboardRoom();
+        setCustomContent(whiteboardUid, false);
+        setLayout('grid');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStopped',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      } else {
+        joinWhiteboardRoom();
+        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        dispatch({
+          type: 'UserPin',
+          value: [whiteboardUid],
+        });
+        setLayout('pinned');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStarted',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      }
+    }
+  };
+  return null;
+};
+
 const MoreButton = () => {
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
@@ -116,7 +193,7 @@ const MoreButton = () => {
   const {isNoiseSupressionEnabled, setNoiseSupression} = useNoiseSupression();
 
   //AINS
-  if ($config.ENABLE_AINS) {
+  if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
       toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
@@ -148,7 +225,7 @@ const MoreButton = () => {
     }
     setIsVBActive(prev => !prev);
   };
-  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+  if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
     actionMenuitems.push({
       isBase64Icon: true,
       //@ts-ignore
@@ -186,13 +263,13 @@ const MoreButton = () => {
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
 
-    // if (!$config.WAITING_ROOM) {
+    // if (!$config.ENABLE_WAITING_ROOM) {
     //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
     //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
     // }
 
     // return () => {
-    //   if (!$config.WAITING_ROOM) {
+    //   if (!$config.ENABLE_WAITING_ROOM) {
     //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
     //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
     //   }
@@ -658,16 +735,26 @@ export const RecordingToolbarItem = () => {
 
 export const MoreButtonToolbarItem = () => {
   const {width} = useWindowDimensions();
-  return (
-    (width < BREAKPOINTS.md ||
-      $config.ENABLE_STT ||
-      $config.ENABLE_AINS ||
-      $config.ENABLE_VIRTUAL_BACKGROUND ||
-      $config.ENABLE_WHITEBOARD) && (
-      <ToolbarItem testID="more-btn">
-        <MoreButton />
-      </ToolbarItem>
-    )
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const {isSTTActive} = useCaption();
+  const [_, forceUpdate] = useReducer(x => x + 1, 0);
+
+  useEffect(() => {
+    forceUpdate();
+  }, [isHost]);
+
+  return width < BREAKPOINTS.md ||
+    ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
+    $config.ENABLE_NOISE_CANCELLATION ||
+    ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
+    (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) ? (
+    <ToolbarItem testID="more-btn">
+      <MoreButton />
+    </ToolbarItem>
+  ) : (
+    <WhiteboardListener />
   );
 };
 export const LocalEndcallToolbarItem = () => {

@@ -117,7 +117,11 @@ const ParticipantView = props => {
                    */
                   <>
                     {/* c) Waiting Room View */}
-                    {$config.WAITING_ROOM ? <WaitingRoomParticipants /> : <></>}
+                    {$config.ENABLE_WAITING_ROOM ? (
+                      <WaitingRoomParticipants />
+                    ) : (
+                      <></>
+                    )}
                     {/* a) Live streaming view */}
 
                     <CurrentLiveStreamRequestsView userList={liveStreamData} />
@@ -218,7 +222,7 @@ const ParticipantView = props => {
           </>
         ) : (
           <>
-            {$config.WAITING_ROOM && isHost ? (
+            {$config.ENABLE_WAITING_ROOM && isHost ? (
               <WaitingRoomParticipants />
             ) : (
               <></>

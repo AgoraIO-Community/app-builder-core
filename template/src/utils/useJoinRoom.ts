@@ -70,7 +70,7 @@ export default function useJoinRoom() {
   const {client} = useContext(GraphQLContext);
   const username = useGetName();
   const {request: requestToJoin} = useWaitingRoomAPI();
-  const isWaitingRoomEnabled = $config.WAITING_ROOM;
+  const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
 
   return async (phrase: string) => {
     setRoomInfo(prevState => {

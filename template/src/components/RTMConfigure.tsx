@@ -503,7 +503,7 @@ const RtmConfigure = (props: any) => {
 
   useAsyncEffect(async () => {
     //waiting room attendee -> rtm login will happen on page load
-    if ($config.WAITING_ROOM) {
+    if ($config.ENABLE_WAITING_ROOM) {
       //attendee
       if (!isHost && !callActive) {
         await init();
@@ -513,7 +513,7 @@ const RtmConfigure = (props: any) => {
         await init();
       }
     }
-    if (!$config.WAITING_ROOM) {
+    if (!$config.ENABLE_WAITING_ROOM) {
       //host and attendee
       if (callActive) {
         await init();

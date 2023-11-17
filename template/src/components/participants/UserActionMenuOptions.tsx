@@ -187,46 +187,6 @@ export default function UserActionMenuOptionsOptions(
           },
         });
       }
-
-      if ($config.DISABLE_CHAT_OPTION) {
-        console.log('disable chat uids', disableChatUids);
-        const isDisableChat = disableChatUids[user.uid]?.disableChat || false;
-        items.push({
-          icon: 'chat-outlined',
-          onHoverIcon: 'chat-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: `${isDisableChat ? 'Enable' : 'Disable'} Chat`,
-          callback: () => {
-            // send l2 custom events
-            console.warn('sending1 custom events for disable-chat');
-            //    setDisableChat(prev => !prev); // for local user
-
-            setDisableChatUids(prevState => {
-              // upate disable uids
-              const isDisabled = prevState[user.uid]
-                ? prevState[user.uid].disableChat
-                : false;
-              return {
-                ...prevState,
-                [user.uid]: {
-                  disableChat: !isDisableChat,
-                },
-              };
-            });
-            setActionMenuVisible(false);
-            customEvents.send(
-              'DisableChat',
-              JSON.stringify({
-                disableChatUid: user.uid,
-                disableChat: !isDisableChat,
-              }), // uid for chat disabled user
-              PersistanceLevel.Session,
-            );
-          },
-        });
-      }
-
       /**
        * Only host can see this menu item - request/mute - video/audio, promote to co host,demote to audience,remove form meeting
        */

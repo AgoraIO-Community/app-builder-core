@@ -85,7 +85,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   } = useRoomInfo();
 
   useEffect(() => {
-    if ($config.WAITING_ROOM && !isHost && token) {
+    if ($config.ENABLE_WAITING_ROOM && !isHost && token) {
       setCallActive(true);
     }
   }, [token]);
