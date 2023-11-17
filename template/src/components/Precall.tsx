@@ -458,7 +458,7 @@ const Precall = () => {
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect />
               </View>
-              {$config.ENABLE_VIRTUAL_BACKGROUND && (
+              {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
                 <>
                   <Text
                     style={{
