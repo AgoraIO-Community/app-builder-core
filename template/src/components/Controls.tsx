@@ -116,7 +116,7 @@ const MoreButton = () => {
   const {isNoiseSupressionEnabled, setNoiseSupression} = useNoiseSupression();
 
   //AINS
-  if ($config.ENABLE_AINS) {
+  if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
       toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
@@ -185,13 +185,13 @@ const MoreButton = () => {
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
 
-    // if (!$config.WAITING_ROOM) {
+    // if (!$config.ENABLE_WAITING_ROOM) {
     //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
     //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
     // }
 
     // return () => {
-    //   if (!$config.WAITING_ROOM) {
+    //   if (!$config.ENABLE_WAITING_ROOM) {
     //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
     //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
     //   }
@@ -659,7 +659,7 @@ export const MoreButtonToolbarItem = () => {
   return (
     (width < BREAKPOINTS.md ||
       $config.ENABLE_STT ||
-      $config.ENABLE_AINS ||
+      $config.ENABLE_NOISE_CANCELLATION ||
       $config.ENABLE_VIRTUAL_BACKGROUND ||
       $config.ENABLE_WHITEBOARD) && (
       <ToolbarItem testID="more-btn">

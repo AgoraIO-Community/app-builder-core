@@ -152,7 +152,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (prevRecordingState) {
       if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
 
-      if ($config.WAITING_ROOM && !isHost && !callActive) {
+      if ($config.ENABLE_WAITING_ROOM && !isHost && !callActive) {
         return;
       }
 

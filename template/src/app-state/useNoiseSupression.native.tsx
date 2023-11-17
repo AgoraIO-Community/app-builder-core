@@ -21,7 +21,7 @@ export function NoiseSupressionProvider(props) {
   );
 
   useEffect(() => {
-    if ($config.ENABLE_AINS) {
+    if ($config.ENABLE_NOISE_CANCELLATION) {
     }
   }, []);
 

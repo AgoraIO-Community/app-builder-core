@@ -156,9 +156,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       isPrivateMessage: boolean = false,
       forceStop: boolean = false,
     ) => {
-      if (!$config.ENABLE_CHAT_NOTIFICATION) {
-        return;
-      }
+      // if (!$config.ENABLE_CHAT_NOTIFICATION) {
+      //   return;
+      // }
       //don't show group message notification if group chat is open
       if (!isPrivateMessage && groupActiveRef.current) {
         return;
@@ -209,7 +209,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       EventNames.PUBLIC_CHAT_MESSAGE,
       data => {
         const forceStop =
-          $config.WAITING_ROOM &&
+          $config.ENABLE_WAITING_ROOM &&
           !isHostRef.current.isHost &&
           !callActiveRef.current.callActive;
         const payload = JSON.parse(data.payload);
