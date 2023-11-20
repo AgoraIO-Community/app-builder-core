@@ -201,7 +201,7 @@ const MoreButton = () => {
         isNoiseSupressionEnabled === ToggleState.enabling,
       isBase64Icon: true,
       //@ts-ignore
-      icon: 'ains',
+      icon: 'noise-cancellation',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: 'Noise Cancellation',
@@ -328,7 +328,7 @@ const MoreButton = () => {
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
       //@ts-ignore
-      icon: 'white-board',
+      icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       //title: whiteboardActive ? 'Turn off Whiteboard' : 'Turn on Whiteboard',
