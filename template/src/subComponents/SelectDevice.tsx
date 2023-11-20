@@ -446,7 +446,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
           {!$config.AUDIO_ROOM && (
             <>
               <SelectVideoDevice {...props} />
-              <Spacer size={24} />
+              <Spacer size={8} />
             </>
           )}
         </>
