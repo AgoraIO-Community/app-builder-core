@@ -354,6 +354,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
 
 interface SelectDeviceProps {
   isIconDropdown?: boolean;
+  isOnPrecall?: boolean;
 }
 
 const SelectDevice = (props: SelectDeviceProps) => {
@@ -361,7 +362,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable, setSpeakerAvailable} =
     usePreCall();
-
+  const {isOnPrecall} = props;
   const [audioDevices, videoDevices, speakerDevices] = useMemo(
     () =>
       deviceList.reduce(
@@ -425,6 +426,33 @@ const SelectDevice = (props: SelectDeviceProps) => {
   //   : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
   const settingScreenInfoMessage =
     'Attendees need to raise their hand to access the devices.';
+  if (isOnPrecall) {
+    return (
+      <>
+        <>
+          {$config.EVENT_MODE && isPickerDisabled && (
+            <>
+              <Spacer size={24} />
+              <View style={style.infoTxtContainer}>
+                <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
+              </View>
+            </>
+          )}
+          <Spacer size={24} />
+          <SelectAudioDevice {...props} />
+          <Spacer size={24} />
+          <SelectSpeakerDevice {...props} />
+          <Spacer size={24} />
+          {!$config.AUDIO_ROOM && (
+            <>
+              <SelectVideoDevice {...props} />
+              <Spacer size={24} />
+            </>
+          )}
+        </>
+      </>
+    );
+  }
   return (
     <>
       <>

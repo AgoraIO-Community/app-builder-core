@@ -190,13 +190,24 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
         {isMobileUA() ? (
           <PreCallLocalMute isMobileView={true} />
         ) : (
-          controlChildren
+          <>
+            <Spacer size={8} />
+            {controlChildren}
+            <Spacer size={8} />
+            <View
+              style={{
+                padding: 20,
+                borderTopColor: $config.INPUT_FIELD_BORDER_COLOR,
+                borderTopWidth: 1.26,
+              }}>
+              {nameInputChildren}
+            </View>
+          </>
         )}
       </View>
       {!isMobileUA() && (
         <>
-          {nameInputChildren}
-          <Spacer size={4} />
+          <Spacer size={52} />
           <View style={styles.container2}>{joinBtnChildren}</View>{' '}
         </>
       )}
@@ -285,10 +296,9 @@ const useStyles = () => {
       overflow: 'hidden',
     },
     desktopContainer: {
-      padding: 20,
+      paddingTop: 20,
       paddingBottom: 8,
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
+      borderRadius: 16,
       backgroundColor: $config.CARD_LAYER_1_COLOR,
     },
     mobileContentContainer: {
@@ -297,12 +307,13 @@ const useStyles = () => {
     desktopContentContainer: {
       width: 404,
       height: 256,
+      paddingHorizontal: 20,
     },
     container2: {
-      padding: 20,
-      borderBottomLeftRadius: 16,
-      borderBottomRightRadius: 16,
-      backgroundColor: $config.CARD_LAYER_1_COLOR,
+      //padding: 20,
+      // borderBottomLeftRadius: 16,
+      // borderBottomRightRadius: 16,
+      //backgroundColor: $config.CARD_LAYER_1_COLOR,
     },
     heading: {
       marginBottom: 20,

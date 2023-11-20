@@ -134,7 +134,7 @@ const JoinRoomInputView = ({isDesktop}) => {
   );
 };
 
-const JoinRoomName = ({isDesktop}) => {
+const JoinRoomName = ({isDesktop, isOnPrecall}) => {
   const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
@@ -168,7 +168,7 @@ const JoinRoomName = ({isDesktop}) => {
     // }
     return components;
   });
-  return <Textbox isDesktop={isDesktop} />;
+  return <Textbox isDesktop={isDesktop} isOnPrecall={isOnPrecall} />;
 };
 
 const JoinRoomButton = () => {
@@ -376,7 +376,7 @@ const Precall = () => {
             testID="precall-screen">
             <View
               style={[{flexDirection: 'column'}, isDesktop() ? {flex: 1} : {}]}>
-              <View style={{padding: isDesktop() ? 32 : 0}}>
+              <View style={isDesktop() ? {padding: 32, paddingBottom: 0} : {}}>
                 <Logo />
                 {!isMobileUA() ? (
                   <IDPLogoutComponent
@@ -414,10 +414,10 @@ const Precall = () => {
                         setIsVBOpen={setIsVBOpen}
                       />
                     </VideoPreview.Controls>
-                    {/* <VideoPreview.NameInput>             
-                    </VideoPreview.NameInput> */}
+                    <VideoPreview.NameInput>
+                      <JoinRoomName isDesktop={true} isOnPrecall={true} />
+                    </VideoPreview.NameInput>
                     <VideoPreview.JoinBtn>
-                      <JoinRoomName isDesktop={true} />
                       <Spacer size={20} />
                       <JoinRoomButton />
                     </VideoPreview.JoinBtn>
@@ -456,11 +456,11 @@ const Precall = () => {
                 <Text style={style.settingTextStyle}>Settings</Text>
               </View>
               <View style={style.deviceSelectContainer}>
-                <DeviceSelect />
+                <DeviceSelect isOnPrecall={true} />
               </View>
               {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
                 <>
-                  <Text
+                  {/* <Text
                     style={{
                       paddingHorizontal: 24,
                       fontWeight: '400',
@@ -470,7 +470,7 @@ const Precall = () => {
                       marginBottom: 12,
                     }}>
                     Virtual Background
-                  </Text>
+                  </Text> */}
                   <ScrollView style={style.vbPanelContainer}>
                     <VBPanel isOnPrecall={true} />
                   </ScrollView>

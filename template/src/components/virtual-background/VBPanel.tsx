@@ -232,7 +232,23 @@ const VBPanel: React.FC = props => {
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
-      {isOnPrecall ? <></> : <VBHeader />}
+      {isOnPrecall ? (
+        <Text
+          style={{
+            paddingHorizontal: 24,
+            fontWeight: '400',
+            fontSize: ThemeConfig.FontSize.small,
+            color: $config.FONT_COLOR,
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+            paddingVertical: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
+          }}>
+          Virtual Background
+        </Text>
+      ) : (
+        <VBHeader />
+      )}
 
       {!callActive && !isLocalVideoON ? (
         <View style={styles.textContainer}>

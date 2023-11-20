@@ -25,6 +25,7 @@ export interface PreCallTextInputProps {
   labelStyle?: TextStyle;
   textInputStyle?: TextStyle;
   isDesktop?: boolean;
+  isOnPrecall?: boolean;
 }
 const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   //commented for v1 release
@@ -35,12 +36,20 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
-  const {isDesktop = false} = props;
+  const {isDesktop = false, isOnPrecall = false} = props;
 
   return (
     <Input
       maxLength={maxInputLimit}
-      label={isDesktop ? ($config.EVENT_MODE ? 'Your Name' : 'Joining as') : ''}
+      label={
+        isOnPrecall
+          ? ''
+          : isDesktop
+          ? $config.EVENT_MODE
+            ? 'Your Name'
+            : 'Joining as'
+          : ''
+      }
       labelStyle={
         props?.labelStyle
           ? props.labelStyle
