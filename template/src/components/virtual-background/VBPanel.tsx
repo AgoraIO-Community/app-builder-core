@@ -238,7 +238,7 @@ const VBPanel: React.FC = props => {
             paddingHorizontal: 24,
             fontWeight: '400',
             fontSize: ThemeConfig.FontSize.small,
-            color: $config.FONT_COLOR,
+            color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
             fontFamily: ThemeConfig.FontFamily.sansPro,
             paddingVertical: 20,
             borderBottomWidth: 1,

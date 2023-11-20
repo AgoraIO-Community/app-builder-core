@@ -431,14 +431,14 @@ const Precall = () => {
                 !isDesktop()
                   ? style.rightContentVertical
                   : {
-                      flex: 0.4,
+                      flex: 0.5,
                       borderRadius: 0,
                       paddingHorizontal: 0,
                       paddingVertical: 0,
                       height: height,
                       minHeight: '100%',
                       minWidth: 350,
-                      maxWidth: 428,
+                      maxWidth: 476,
                       justifyContent: 'flex-start',
                       marginHorizontal: 0,
                       marginVertical: 0,
