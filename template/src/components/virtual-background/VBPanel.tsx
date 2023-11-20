@@ -38,6 +38,8 @@ interface VBCardProps {
   icon: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
+  position?: number;
+  isOnPrecall?: boolean;
 }
 
 const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
@@ -58,7 +60,14 @@ const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
   });
 };
 
-const VBCard: React.FC<VBCardProps> = ({type, icon, path, label}) => {
+const VBCard: React.FC<VBCardProps> = ({
+  type,
+  icon,
+  path,
+  label,
+  position,
+  isOnPrecall,
+}) => {
   const {
     setVBmode,
     setSelectedImage,
@@ -135,7 +144,12 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path, label}) => {
 
   return (
     <Pressable
-      style={[styles.card, isSelected && styles.active]}
+      style={[
+        styles.card,
+        isSelected && styles.active,
+        isOnPrecall && position % 3 !== 0 ? {marginRight: 8} : {},
+        isOnPrecall ? {marginBottom: 8, width: '31.8%'} : {},
+      ]}
       onPress={handleClick}>
       {isSelected && type !== 'custom' && <TickIcon />}
       {path ? (
@@ -271,7 +285,11 @@ const VBPanel: React.FC = props => {
 
       {callActive ? <VideoPreview /> : <></>}
       <ScrollView>
-        <View style={styles.container}>
+        <View
+          style={[
+            styles.container,
+            isOnPrecall ? {justifyContent: 'flex-start'} : {},
+          ]}>
           {options.map((item, index) => (
             <VBCard
               key={index}
@@ -279,6 +297,8 @@ const VBPanel: React.FC = props => {
               icon={item.icon}
               path={item.path}
               label={item?.label}
+              position={index + 1}
+              isOnPrecall={isOnPrecall}
             />
           ))}
         </View>

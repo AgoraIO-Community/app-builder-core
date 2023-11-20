@@ -369,14 +369,20 @@ const Precall = () => {
             contentContainerStyle={[
               style.main,
               {
-                padding: isDesktop() ? 0 : 32,
-                flexDirection: isDesktop() ? 'row' : 'column',
+                padding: isDesktop('large') ? 0 : 32,
+                flexDirection: isDesktop('large') ? 'row' : 'column',
               },
             ]}
             testID="precall-screen">
             <View
-              style={[{flexDirection: 'column'}, isDesktop() ? {flex: 1} : {}]}>
-              <View style={isDesktop() ? {padding: 32, paddingBottom: 0} : {}}>
+              style={[
+                {flexDirection: 'column'},
+                isDesktop('large') ? {flex: 1} : {},
+              ]}>
+              <View
+                style={
+                  isDesktop('large') ? {padding: 32, paddingBottom: 0} : {}
+                }>
                 <Logo />
                 {!isMobileUA() ? (
                   <IDPLogoutComponent
@@ -389,13 +395,13 @@ const Precall = () => {
               <View
                 style={{
                   flex: 1,
-                  flexDirection: !isDesktop() ? 'column' : 'row',
+                  flexDirection: !isDesktop('large') ? 'column' : 'row',
                   justifyContent: 'space-between',
                 }}>
                 <View
                   testID="precall-preview"
                   style={
-                    !isDesktop()
+                    !isDesktop('large')
                       ? style.leftContentVertical
                       : style.leftContentHorizontal
                   }>
@@ -425,20 +431,23 @@ const Precall = () => {
                 </View>
               </View>
             </View>
-            {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>}
+            {!isDesktop('large') ? (
+              <Spacer size={24} horizontal={false} />
+            ) : (
+              <></>
+            )}
             <Card
               style={
-                !isDesktop()
+                !isDesktop('large')
                   ? style.rightContentVertical
                   : {
-                      flex: 0.5,
                       borderRadius: 0,
                       paddingHorizontal: 0,
                       paddingVertical: 0,
                       height: height,
                       minHeight: '100%',
-                      minWidth: 350,
                       maxWidth: 476,
+                      minWidth: 476,
                       justifyContent: 'flex-start',
                       marginHorizontal: 0,
                       marginVertical: 0,
