@@ -45,6 +45,7 @@ export const IDPAuth = () => {
     } else {
       setIsAuthenticated(false);
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: 'Error occured on Login, Please login again.',
         visibilityTime: 3000,

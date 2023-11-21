@@ -438,6 +438,7 @@ export default function UserActionMenuOptionsOptions(
           username={user.name}
           removeUserFromMeeting={() => {
             Toast.show({
+              leadingIconName: 'info',
               type: 'info',
               text1: `The system will remove ${trimText(
                 user.name,

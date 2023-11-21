@@ -10,8 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
-import PrimaryButton from '../atoms/PrimaryButton';
+import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {
   RtcContext,
   DispatchContext,
@@ -38,6 +37,7 @@ import LocalEventEmitter, {
 } from '../../src/rtm-events-api/LocalEvents';
 import {ENABLE_AUTH} from '../auth/config';
 import {useAuth} from '../auth/AuthProvider';
+import ThemeConfig from '../theme';
 
 interface Props {
   children: React.ReactNode;
@@ -95,6 +95,7 @@ const EventsConfigure: React.FC<Props> = props => {
     // });
     events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
+        leadingIconName: 'video-off',
         type: 'info',
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
@@ -124,6 +125,7 @@ const EventsConfigure: React.FC<Props> = props => {
     });
     events.on(controlMessageEnum.muteAudio, ({sender}) => {
       Toast.show({
+        leadingIconName: 'mic-off',
         type: 'info',
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
@@ -156,6 +158,7 @@ const EventsConfigure: React.FC<Props> = props => {
         await authLogin();
       }
       Toast.show({
+        leadingIconName: 'info',
         type: 'info',
         text1: 'The host has removed you from the room.',
         visibilityTime: 5000,
@@ -171,6 +174,7 @@ const EventsConfigure: React.FC<Props> = props => {
     });
     events.on(controlMessageEnum.requestAudio, () => {
       Toast.show({
+        leadingIconName: 'mic-on',
         type: 'info',
         text1: 'The host has requested you to speak',
         visibilityTime: 3000,
@@ -178,7 +182,7 @@ const EventsConfigure: React.FC<Props> = props => {
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
-            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
+            textStyle={style.textStyle}
             text="UNMUTE"
             onPress={() => {
               RtcEngineUnsafe.muteLocalAudioStream(false);
@@ -195,6 +199,7 @@ const EventsConfigure: React.FC<Props> = props => {
     });
     events.on(controlMessageEnum.requestVideo, () => {
       Toast.show({
+        leadingIconName: 'video-on',
         type: 'info',
         text1: 'The host has asked you to start your video.',
         visibilityTime: 3000,
@@ -202,7 +207,7 @@ const EventsConfigure: React.FC<Props> = props => {
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
-            textStyle={style.primaryBtnText}
+            textStyle={style.textStyle}
             text="UNMUTE"
             onPress={async () => {
               isWebInternal()
@@ -322,7 +327,7 @@ const EventsConfigure: React.FC<Props> = props => {
       btns.primaryBtn = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
-          textStyle={style.primaryBtnText}
+          textStyle={style.textStyle}
           text="Admit"
           onPress={() => {
             // user approving waiting room request
@@ -355,7 +360,7 @@ const EventsConfigure: React.FC<Props> = props => {
       btns.secondaryBtn = (
         <TertiaryButton
           containerStyle={style.secondaryBtn}
-          textStyle={style.primaryBtnText}
+          textStyle={style.textStyle}
           text="Deny"
           onPress={() => {
             // user rejecting waiting room request
@@ -387,6 +392,7 @@ const EventsConfigure: React.FC<Props> = props => {
       );
 
       Toast.show({
+        leadingIconName: 'info',
         leadingIcon: null,
         type: 'info',
         text1: 'Approval Required',
@@ -524,27 +530,36 @@ const EventsConfigure: React.FC<Props> = props => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  secondaryBtn: {marginLeft: 12, paddingVertical: 9, paddingHorizontal: 20},
   primaryBtn: {
-    maxWidth: 109,
-    minWidth: 109,
-    height: 40,
     borderRadius: 4,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    paddingHorizontal: 20,
+    paddingVertical: 9,
   },
-  primaryBtnText: {
+  textStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 16,
-    paddingLeft: 0,
+    fontSize: 14,
+    lineHeight: 14,
+    color: $config.FONT_COLOR,
   },
 });
 const SecondaryBtn = (
   <TertiaryButton
     containerStyle={style.secondaryBtn}
+    textStyle={style.textStyle}
     text="LATER"
     onPress={() => {
       Toast.hide();
     }}
   />
 );
+const PrimaryButton = props => {
+  const {text, containerStyle, textStyle, onPress} = props;
+  return (
+    <TouchableOpacity style={containerStyle} onPress={onPress}>
+      <Text style={textStyle}>{text}</Text>
+    </TouchableOpacity>
+  );
+};

@@ -157,6 +157,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
 
       Toast.show({
+        leadingIconName: 'info',
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive

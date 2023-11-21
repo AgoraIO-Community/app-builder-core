@@ -80,7 +80,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const [name] = useUserName();
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
-      ? `Private Message to ${defaultContent[privateChatUser].name}`
+      ? `Private Message to ${defaultContent[privateChatUser]?.name}`
       : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
