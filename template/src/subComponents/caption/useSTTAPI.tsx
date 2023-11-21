@@ -76,7 +76,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           ?.toLowerCase()
           .indexOf('current status is started') !== -1 || false;
 
-      if (res.error.message) {
+      if (res?.error?.message) {
         setIsSTTError(true);
       } else {
         setIsSTTError(false);
@@ -143,7 +143,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       //   PersistanceLevel.Session,
       // );
       setIsSTTActive(false);
-      if (res.error.message) {
+      if (res?.error?.message) {
         setIsSTTError(true);
       } else {
         setIsSTTError(false);
