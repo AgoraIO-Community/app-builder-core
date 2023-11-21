@@ -8,6 +8,7 @@ import {RtcLocalView} from 'react-native-agora';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
 import ThemeConfig from '../../../src/theme';
+import ImageIcon from '../../atoms/ImageIcon';
 
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
@@ -101,9 +102,17 @@ const VideoPreview = () => {
         <View ref={vContainerRef} style={{width: 300, height: 166}}></View>
       ) : (
         <View style={styles.msgContainer}>
-          <Text style={styles.text}>Camera is off.</Text>
+          <View style={styles.iconStyleView}>
+            <ImageIcon
+              base64={true}
+              iconSize={20}
+              iconType="plain"
+              name={'warning'}
+            />
+          </View>
           <Text style={styles.text}>
-            Saved changes are applied as soon as camera turns ON.
+            Camera is currently off. Selected background will be applied as soon
+            as your camera turns on.
           </Text>
         </View>
       )}
@@ -132,8 +141,14 @@ const styles = StyleSheet.create({
   msgContainer: {
     padding: 12,
     borderRadius: 4,
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(255, 171, 0, 0.15)',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+  },
+  iconStyleView: {
+    marginRight: 4,
+    width: 20,
+    height: 20,
   },
 });

@@ -522,6 +522,7 @@ const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: 8,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
   },
   labelStyle: {
     paddingLeft: 8,

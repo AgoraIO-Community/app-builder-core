@@ -104,4 +104,5 @@ export interface IconsInterface {
   'done-fill': string;
   blur: string;
   add: string;
+  'upload-new': string;
 }
