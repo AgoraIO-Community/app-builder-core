@@ -36,6 +36,8 @@ import useWaitingRoomAPI from '../../src/subComponents/waiting-rooms/useWaitingR
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../src/rtm-events-api/LocalEvents';
+import {ENABLE_AUTH} from '../auth/config';
+import {useAuth} from '../auth/AuthProvider';
 
 interface Props {
   children: React.ReactNode;
@@ -68,6 +70,7 @@ const EventsConfigure: React.FC<Props> = props => {
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
   const activeUidsRef = React.useRef(activeUids);
+  const {authLogin} = useAuth();
   React.useEffect(() => {
     activeUidsRef.current = activeUids;
   }, [activeUids]);
@@ -137,7 +140,7 @@ const EventsConfigure: React.FC<Props> = props => {
         value: [0],
       });
     });
-    events.on(controlMessageEnum.kickUser, () => {
+    events.on(controlMessageEnum.kickUser, async () => {
       //before kickoff the user we have check whether screenshare on/off
       //if its on then stop screenshare and emit event for screensharing is stopped
       try {
@@ -148,6 +151,10 @@ const EventsConfigure: React.FC<Props> = props => {
         console.log('error on stop the screeshare', error);
       }
 
+      if (!ENABLE_AUTH) {
+        // await authLogout();
+        await authLogin();
+      }
       Toast.show({
         type: 'info',
         text1: 'The host has removed you from the room.',

@@ -172,7 +172,6 @@ const Participant = (props: ParticipantInterface) => {
                   screenUid={screenUid}
                   isAccept={true}
                 />
-                ;
               </>
             ) : (
               <></>

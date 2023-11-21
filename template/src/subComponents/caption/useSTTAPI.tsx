@@ -28,6 +28,7 @@ const useSTTAPI = (): IuseSTTAPI => {
     setIsLangChangeInProgress,
     setLanguage,
     setMeetingTranscript,
+    setIsSTTError,
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
@@ -74,6 +75,12 @@ const useSTTAPI = (): IuseSTTAPI => {
         res?.error?.message
           ?.toLowerCase()
           .indexOf('current status is started') !== -1 || false;
+
+      if (res?.error?.message) {
+        setIsSTTError(true);
+      } else {
+        setIsSTTError(false);
+      }
       if (res === null || isSTTAlreadyActive) {
         // once STT is active in the channel , notify others so that they dont' trigger start again
         events.send(
@@ -82,6 +89,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           PersistanceLevel.Sender,
         );
         setIsSTTActive(true);
+
         console.log(`stt lang update from: ${language} to ${lang}`);
         // inform about the language set for stt
         events.send(
@@ -135,6 +143,11 @@ const useSTTAPI = (): IuseSTTAPI => {
       //   PersistanceLevel.Session,
       // );
       setIsSTTActive(false);
+      if (res?.error?.message) {
+        setIsSTTError(true);
+      } else {
+        setIsSTTError(false);
+      }
       return res;
     } catch (error) {
       throw error;
