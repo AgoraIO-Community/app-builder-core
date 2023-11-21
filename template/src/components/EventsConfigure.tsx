@@ -33,6 +33,9 @@ import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {EventNames} from '../rtm-events';
 import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 import useWaitingRoomAPI from '../../src/subComponents/waiting-rooms/useWaitingRoomAPI';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../src/rtm-events-api/LocalEvents';
 
 interface Props {
   children: React.ReactNode;
@@ -212,20 +215,10 @@ const EventsConfigure: React.FC<Props> = props => {
     });
 
     events.on('WhiteBoardStarted', () => {
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isWhiteBoardOn: true,
-        };
-      });
+      LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ON);
     });
     events.on('WhiteBoardStopped', () => {
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isWhiteBoardOn: false,
-        };
-      });
+      LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_OFF);
     });
 
     events.on(EventNames.STT_ACTIVE, data => {

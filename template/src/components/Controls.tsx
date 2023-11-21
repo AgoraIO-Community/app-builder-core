@@ -77,13 +77,36 @@ import {useNoiseSupression} from '../app-state/useNoiseSupression';
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
 import isSDK from '../utils/isSDK';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 const WhiteboardListener = () => {
   const {dispatch} = useContext(DispatchContext);
   const {setCustomContent} = useContent();
   const {currentLayout, setLayout} = useLayout();
 
-  const {isWhiteBoardOn} = useRoomInfo();
+  useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_ON,
+      WhiteboardStartedCallBack,
+    );
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_OFF,
+      WhiteboardStoppedCallBack,
+    );
+
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_ON,
+        WhiteboardStartedCallBack,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_OFF,
+        WhiteboardStoppedCallBack,
+      );
+    };
+  }, []);
 
   //whiteboard start
 
@@ -105,14 +128,6 @@ const WhiteboardListener = () => {
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
   }, []);
-
-  React.useEffect(() => {
-    if (isWhiteBoardOn) {
-      WhiteboardStartedCallBack();
-    } else {
-      WhiteboardStoppedCallBack();
-    }
-  }, [isWhiteBoardOn]);
 
   const toggleWhiteboard = (
     whiteboardActive: boolean,
@@ -180,7 +195,6 @@ const MoreButton = () => {
   const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
-    isWhiteBoardOn,
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
@@ -276,13 +290,27 @@ const MoreButton = () => {
     // };
   }, []);
 
-  React.useEffect(() => {
-    if (isWhiteBoardOn) {
-      WhiteboardStartedCallBack();
-    } else {
-      WhiteboardStoppedCallBack();
-    }
-  }, [isWhiteBoardOn]);
+  useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_ON,
+      WhiteboardStartedCallBack,
+    );
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_OFF,
+      WhiteboardStoppedCallBack,
+    );
+
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_ON,
+        WhiteboardStartedCallBack,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_OFF,
+        WhiteboardStoppedCallBack,
+      );
+    };
+  }, []);
 
   const toggleWhiteboard = (
     whiteboardActive: boolean,
@@ -331,8 +359,7 @@ const MoreButton = () => {
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      //title: whiteboardActive ? 'Turn off Whiteboard' : 'Turn on Whiteboard',
-      title: 'Whiteboard',
+      title: whiteboardActive ? 'Hide Whiteboard' : 'Show Whiteboard',
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
