@@ -58,6 +58,7 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const regEvent = useRef(true);
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
   const {setStore, store} = useContext(StorageContext);
@@ -81,6 +82,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     ? 240600
     : 3540600;
 
+  //not needed since cookies authentication removed
   const tokenRefreshWeb = () => {
     //cookie token expiry in staging - 5min and production - 1hr
     //since we can't read the cookies and its expiry details in the frontend
@@ -88,39 +90,39 @@ const AuthProvider = (props: AuthProviderProps) => {
     //NOTE - IMP - if we call the refresh before or after 59 sec it won't work
     //staging - 4min 1 sec
     //production - 59min 1 sec
-    if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
-      refreshTimeoutWeb.current = setTimeout(() => {
-        console.log('debugging calling refresh');
-        fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'X-Platform-ID': getPlatformId(),
-          },
-        })
-          .then((data) => {
-            clearTimeout(refreshTimeoutWeb.current);
-            tokenRefreshWeb();
-            console.log('debugging cookie set');
-          })
-          .catch((error) => {
-            console.log('debugging error', error);
-          });
-      }, timeout);
-    } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
-      //not authenticated
-      if (refreshTimeoutWeb.current) {
-        console.log('debugging clearing the interval');
-        clearTimeout(refreshTimeoutWeb.current);
-      } else {
-        console.log('debugging no interval to clear');
-      }
-    }
+    // if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
+    //   refreshTimeoutWeb.current = setTimeout(() => {
+    //     console.log('debugging calling refresh');
+    //     fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
+    //       method: 'POST',
+    //       credentials: 'include',
+    //       headers: {
+    //         'X-Platform-ID': getPlatformId(),
+    //       },
+    //     })
+    //       .then((data) => {
+    //         clearTimeout(refreshTimeoutWeb.current);
+    //         tokenRefreshWeb();
+    //         console.log('debugging cookie set');
+    //       })
+    //       .catch((error) => {
+    //         console.log('debugging error', error);
+    //       });
+    //   }, timeout);
+    // } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
+    //   //not authenticated
+    //   if (refreshTimeoutWeb.current) {
+    //     console.log('debugging clearing the interval');
+    //     clearTimeout(refreshTimeoutWeb.current);
+    //   } else {
+    //     console.log('debugging no interval to clear');
+    //   }
+    // }
   };
 
-  useEffect(() => {
-    tokenRefreshWeb();
-  }, [authenticated]);
+  // useEffect(() => {
+  //   tokenRefreshWeb();
+  // }, [authenticated]);
 
   useEffect(() => {
     if (!ENABLE_AUTH && !authenticated && store.token) {
@@ -146,6 +148,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           if (url?.indexOf('msg') !== -1) {
             //adding time delay to open in app browser
             Toast.show({
+              leadingIconName: 'alert',
               type: 'error',
               text1: 'Your session has timed out, Retrying...',
               visibilityTime: 3000,
@@ -199,7 +202,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       const deepLink = async () => {
         const initialUrl = await Linking.getInitialURL();
         console.log('debugging getting initialUrl', initialUrl);
-        Linking.addEventListener('url', (e) => {
+        Linking.addEventListener('url', e => {
           console.log('debugging url from listener', e.url);
           deepLinkUrl(e.url);
         });
@@ -210,10 +213,11 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, [history]);
 
   useEffect(() => {
-    if (isSDK()) {
+    if (isSDK() && regEvent.current) {
+      regEvent.current = false;
       SDKMethodEventsManager.on('login', async (res, rej, token) => {
         try {
-          setStore((prevState) => {
+          setStore(prevState => {
             return {...prevState, token};
           });
           setTimeout(async () => {
@@ -221,7 +225,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               .then(() => {
                 res();
               })
-              .catch((error) => {
+              .catch(error => {
                 rej('SDK Login failed' + JSON.stringify(error));
               });
           });
@@ -241,6 +245,7 @@ const AuthProvider = (props: AuthProviderProps) => {
 
     if (!isSDK() && $config.ENABLE_TOKEN_AUTH) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: 'Token Server Authentication only supports SDK integration',
         text2: 'Please use Auth0 Authentication.',
@@ -249,6 +254,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
     if (isSDK() && $config.ENABLE_IDP_AUTH) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: 'Auth0 Authentication does not support SDK integration',
         text2: 'Please use Token Server Authentication.',
@@ -260,6 +266,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   useEffect(() => {
     if (!authenticated && authError) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: authError,
         visibilityTime: 3000,
@@ -281,6 +288,13 @@ const AuthProvider = (props: AuthProviderProps) => {
   }
 
   useEffect(() => {
+    // Ignore if on sdk since IDP flow is not supported
+    // For unauthenticated flow authLogin should be called to get the token
+    if (isSDK() && ENABLE_AUTH) {
+      setIsAuthenticated(true);
+      setLoading(false);
+      return () => {};
+    }
     //if application in authorization state then don't call authlogin
     if (
       //to check authoriztion
@@ -291,18 +305,16 @@ const AuthProvider = (props: AuthProviderProps) => {
     ) {
       //fetch user details
       getUserDetails()
-        .then((_) => {
+        .then(_ => {
           //Each time user refresh the page we have to redirect the user to IDP login.then only we can able to refresh the token
           //because we can't read the cookie so we don't know expirytime.
           //so each time page refresh will get new token
           //then only
           if (isWeb() && $config.ENABLE_IDP_AUTH) {
-            authLogin();
+            //authLogin();this is for cookie based authentication
+            setIsAuthenticated(true);
           } else {
             setIsAuthenticated(true);
-            if (isSDK()) {
-              history.push(location.pathname);
-            }
           }
         })
         .catch(() => {
@@ -312,6 +324,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     } else {
       if (location?.search?.indexOf('msg') !== -1) {
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text1: 'Your session has timed out, Retrying...',
           visibilityTime: 3000,
@@ -356,11 +369,11 @@ const AuthProvider = (props: AuthProviderProps) => {
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
         enableTokenAuth()
-          .then((res) => {
+          .then(res => {
             setIsAuthenticated(true);
             history.push('/create');
           })
-          .catch((error) => {
+          .catch(error => {
             //don't show token expire/not found toast in the sdk
             //we have event emitter to inform the customer application
             //they have to listen for those events
@@ -382,8 +395,8 @@ const AuthProvider = (props: AuthProviderProps) => {
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
       })
-        .then((response) => response.json())
-        .then((response) => {
+        .then(response => response.json())
+        .then(response => {
           // unauthenticated flow all platform we will have to handle the token manually
           // we need to store token manually
           if (!response.token) {
@@ -394,7 +407,7 @@ const AuthProvider = (props: AuthProviderProps) => {
                 console.log('debugging token auth enabled');
                 //set auth enabled on useEffect
               })
-              .catch((error) => {
+              .catch(error => {
                 //we don't need to show token expire/not found toast in the sdk
                 //we have event emitter to inform the customer application
                 //they have to listen for those events
@@ -409,7 +422,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               });
           }
         })
-        .catch((error) => {
+        .catch(error => {
           if (error instanceof Error) {
             setAuthError(error.message);
           } else {
@@ -423,7 +436,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const authLogout = () => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
       idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
-        .then((res) => {
+        .then(res => {
           console.log('user successfully logged out');
           setIsAuthenticated(false);
         })
@@ -443,7 +456,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         history.push('/create');
       } else {
         tokenLogout()
-          .then((res) => {
+          .then(res => {
             console.log('user successfully logged out');
           })
           .catch(() => {

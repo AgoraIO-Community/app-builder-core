@@ -15,22 +15,26 @@ import {isMobileUA} from '../../utils/common';
 import {useToast} from '../../components/useToast';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
+import Transcript from '../../subComponents/caption/Transcript';
 import {ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 
-const ActionSheet = (props) => {
+const ActionSheet = props => {
   const {snapPointsMinMax = [100, 350]} = props;
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const [isParticipantsOpen, setIsParticipantsOpen] = React.useState(false);
+  const [isTranscriptOpen, setIsTranscriptOpen] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheetRef>(null);
   const chatSheetRef = useRef<BottomSheetRef>(null);
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
+  const transcriptSheetRef = useRef<BottomSheetRef>(null);
   const ToastComponentRender =
-    isMobileUA() && (isChatOpen || isSettingsOpen || isParticipantsOpen) ? (
+    isMobileUA() &&
+    (isChatOpen || isSettingsOpen || isParticipantsOpen || isTranscriptOpen) ? (
       <ToastComponent />
     ) : (
       <></>
@@ -50,12 +54,17 @@ const ActionSheet = (props) => {
   }, []);
 
   useEffect(() => {
-    if (isChatOpen || isSettingsOpen || isParticipantsOpen) {
+    if (
+      isChatOpen ||
+      isSettingsOpen ||
+      isParticipantsOpen ||
+      isTranscriptOpen
+    ) {
       setActionSheetVisible(true);
     } else {
       setActionSheetVisible(false);
     }
-  }, [isChatOpen, isSettingsOpen, isParticipantsOpen]);
+  }, [isChatOpen, isSettingsOpen, isParticipantsOpen, isTranscriptOpen]);
 
   // updating on sidepanel changes
   useEffect(() => {
@@ -72,10 +81,15 @@ const ActionSheet = (props) => {
         setIsSettingsOpen(true);
         break;
       }
+      case SidePanelType.Transcript: {
+        setIsTranscriptOpen(true);
+        break;
+      }
       case SidePanelType.None: {
         setIsChatOpen(false);
         setIsParticipantsOpen(false);
         setIsSettingsOpen(false);
+        setIsTranscriptOpen(false);
         handleSheetChanges(0);
       }
       default:
@@ -157,6 +171,7 @@ const ActionSheet = (props) => {
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
+            native={false}
             {...props}
           />
         </BottomSheet>
@@ -195,7 +210,6 @@ const ActionSheet = (props) => {
             </BottomSheet>
           </ActionSheetProvider>
         </ToolbarProvider>
-
         {/* Settings  Action Sheet */}
         <BottomSheet
           sibling={ToastComponentRender}
@@ -208,6 +222,20 @@ const ActionSheet = (props) => {
           header={<ActionSheetHandle sidePanel={SidePanelType.Settings} />}
           blocking={false}>
           <SettingsView showHeader={false} />
+        </BottomSheet>
+        {/* Transcript  Action Sheet */}
+        <BottomSheet
+          sibling={ToastComponentRender}
+          ref={transcriptSheetRef}
+          onDismiss={onDismiss}
+          open={isTranscriptOpen}
+          expandOnContentDrag={false}
+          snapPoints={({maxHeight}) => [1 * maxHeight]}
+          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+          header={<ActionSheetHandle sidePanel={SidePanelType.Transcript} />}
+          scrollLocking={false}
+          blocking={false}>
+          <Transcript showHeader={false} />
         </BottomSheet>
       </View>
     </>

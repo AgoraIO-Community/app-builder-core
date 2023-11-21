@@ -9,7 +9,6 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContent} from 'customization-api';
 import {useEffect, useState} from 'react';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -21,9 +20,8 @@ import LocalEventEmitter, {
  */
 function useActiveSpeaker() {
   const [activeSpeaker, setActiveSpeaker] = useState(undefined);
-  const {defaultContent} = useContent();
   useEffect(() => {
-    const listenActiveSpeaker = (data) => {
+    const listenActiveSpeaker = data => {
       setActiveSpeaker(data);
     };
     LocalEventEmitter.on(LocalEventsEnum.ACTIVE_SPEAKER, listenActiveSpeaker);
@@ -34,9 +32,7 @@ function useActiveSpeaker() {
       );
     };
   }, []);
-  return activeSpeaker && defaultContent[activeSpeaker].audio
-    ? activeSpeaker
-    : undefined;
+  return activeSpeaker;
 }
 
 export default useActiveSpeaker;

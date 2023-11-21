@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
-    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-    marginLeft: 8,
+    color: $config.FONT_COLOR + hexadecimalTransparency['50%'],
+    marginLeft: 4,
   },
   recordingStatus: {
     width: 12,

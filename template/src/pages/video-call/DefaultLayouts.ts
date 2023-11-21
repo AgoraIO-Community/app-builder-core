@@ -5,7 +5,7 @@ import useLayoutsData from './useLayoutsData';
 import {useLayout} from '../../utils/useLayout';
 import {isMobileUA} from '../../utils/common';
 const isMobileView = isMobileUA();
-export const DefaultLayouts: LayoutItem[] = [
+const DefaultLayouts: LayoutItem[] = [
   {
     name: 'grid',
     label: 'Grid',
@@ -15,7 +15,7 @@ export const DefaultLayouts: LayoutItem[] = [
   },
   {
     name: 'pinned',
-    label: 'Pinned',
+    label: 'Sidebar',
     //iconName: 'pinned',
     //for mobile view top pinned icon and desktop left pinned icon
     icon: isMobileView
@@ -24,7 +24,7 @@ export const DefaultLayouts: LayoutItem[] = [
     component: PinnedVideo,
   },
 ];
-
+export {DefaultLayouts};
 export const getPinnedLayoutName = () => DefaultLayouts[1].name;
 export const getGridLayoutName = () => DefaultLayouts[0].name;
 
@@ -34,7 +34,7 @@ export const useSetPinnedLayout = () => {
   const pinnedLayoutName = getPinnedLayoutName();
   let checkPinnedLayoutExist = false;
   if (layouts && Array.isArray(layouts) && layouts.length) {
-    let data = layouts.filter((item) => item.name === pinnedLayoutName);
+    let data = layouts.filter(item => item.name === pinnedLayoutName);
     if (data && data.length) {
       checkPinnedLayoutExist = true;
     }

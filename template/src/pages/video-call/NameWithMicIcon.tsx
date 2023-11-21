@@ -16,11 +16,12 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
   const {activeUids, customContent} = useContent();
   const {videoTileWidth} = useVideoContainer();
   const {currentLayout} = useLayout();
-  const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
+  const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
   const reduceSpace =
-    isMobileUA() && activeUidsLen > 4 && currentLayout === getGridLayoutName();
+    isMobileUA() &&
+    activeUids.length > 4 &&
+    currentLayout === getGridLayoutName();
   const {name, muted} = props;
-  //const isSpeaking = isActiveSpeaker(user.uid);
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';

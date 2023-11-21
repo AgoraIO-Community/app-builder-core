@@ -25,6 +25,7 @@ import AgoraRTC, {
   ClientRoleOptions,
   CameraVideoTrackInitConfig,
   MicrophoneAudioTrackInitConfig,
+  IMicrophoneAudioTrack,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
@@ -185,6 +186,7 @@ export default class RtcEngine {
     ['RemoteVideoStateChanged', () => null],
     ['NetworkQuality', () => null],
     ['ActiveSpeaker', () => null],
+    ['StreamMessage', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -202,6 +204,7 @@ export default class RtcEngine {
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
   private speakerDeviceId = '';
+  private usersVolumeLevel = [];
   // Create channel profile and set it here
 
   // Create channel profile and set it here
@@ -217,8 +220,19 @@ export default class RtcEngine {
     return engine;
   }
 
+  getRemoteVideoStats(id: string) {
+    try {
+      const data = this.client.getRemoteVideoStats();
+      return data && data[id] ? data[id] : null;
+    } catch (error) {
+      console.log(`ERROR: on getRemoteVideoStats - ` + error?.message);
+      return null;
+    }
+  }
+
   async setVideoProfile(profile: VideoProfile): Promise<void> {
     this.videoProfile = profile;
+    this.localStream?.video?.setEncoderConfiguration(profile);
   }
 
   async enableAudio(): Promise<void> {
@@ -240,7 +254,10 @@ export default class RtcEngine {
     }
   }
 
-  async enableVideo(): Promise<void> {
+  async enableVideo(
+    preferredCameraId?: string,
+    preferredMicrophoneId?: string,
+  ): Promise<void> {
     /**
      * Issue: Backgrounding the browser or app causes the audio streaming to be cut off.
      * Impact: All browsers and apps that use WKWebView on iOS 15.x, such as Safari and Chrome.
@@ -252,14 +269,16 @@ export default class RtcEngine {
 
     const audioConfig: MicrophoneAudioTrackInitConfig = {
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
-      // microphoneId: this.audioDeviceId,
+      microphoneId: preferredMicrophoneId,
     };
     const videoConfig: CameraVideoTrackInitConfig = {
       encoderConfig: this.videoProfile,
-      // cameraId: this.videoDeviceId,
+      cameraId: preferredCameraId,
     };
     try {
       let [localAudio, localVideo] =
+        // If preferred devices are not present, the createTrack call will fallover to
+        // the catch block below.
         await AgoraRTC.createMicrophoneAndCameraTracks(
           audioConfig,
           videoConfig,
@@ -277,9 +296,15 @@ export default class RtcEngine {
     } catch (e) {
       let audioError = false;
       let videoError = false;
-      try {
-        let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
 
+      try {
+        let localAudio: IMicrophoneAudioTrack;
+        try {
+          localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
+        } catch (e) {
+          videoConfig.microphoneId = '';
+          localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
+        }
         this.localStream.audio = localAudio;
         this.audioDeviceId = localAudio
           ?.getMediaStreamTrack()
@@ -288,8 +313,41 @@ export default class RtcEngine {
       } catch (error) {
         audioError = error;
       }
+
       try {
-        let localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+        let localVideo: ICameraVideoTrack;
+        try {
+          localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+        } catch (e) {
+          videoConfig.cameraId = '';
+          try {
+            localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+          } catch (e) {
+            console.log(
+              '[RTCEngineBridge]: Provided cameraId and default camera failed, trying other available devices',
+            );
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            for (let device of devices) {
+              if (device.kind === 'videoinput') {
+                videoConfig.cameraId = device.deviceId;
+                try {
+                  localVideo = await AgoraRTC.createCameraVideoTrack(
+                    videoConfig,
+                  );
+                  break;
+                } catch (e) {
+                  videoError = e;
+                  console.log(
+                    '[RTCEngineBridge]:',
+                    'Camera not available with deviceId' + device,
+                    'Reason: ',
+                    e,
+                  );
+                }
+              }
+            }
+          }
+        }
         this.localStream.video = localVideo;
         this.videoDeviceId = localVideo
           ?.getMediaStreamTrack()
@@ -298,6 +356,7 @@ export default class RtcEngine {
       } catch (error) {
         videoError = error;
       }
+
       e.status = {audioError, videoError};
       throw e;
       // if (audioError && videoError) throw e;
@@ -357,7 +416,7 @@ export default class RtcEngine {
     optionalUid: number,
   ): Promise<void> {
     // TODO create agora client here
-    this.client.on('user-joined', (user) => {
+    this.client.on('user-joined', user => {
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
         user.uid,
@@ -373,7 +432,7 @@ export default class RtcEngine {
       );
     });
 
-    this.client.on('user-left', (user) => {
+    this.client.on('user-left', user => {
       const uid = user.uid;
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
@@ -452,7 +511,10 @@ export default class RtcEngine {
       }
     });
 
-    this.client.on('volume-indicator', (volumes) => {
+    this.client.on('volume-indicator', volumes => {
+      this.usersVolumeLevel = volumes;
+      /**
+       * old active speaker logic
       const highestvolumeObj = volumes.reduce(
         (highestVolume, volume, index) => {
           if (highestVolume === null) {
@@ -463,7 +525,7 @@ export default class RtcEngine {
             }
             return highestVolume;
           }
-          // console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
+          //console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
         },
         null,
       );
@@ -480,6 +542,7 @@ export default class RtcEngine {
         activeSpeakerCallBack(activeSpeakerUid);
         this.activeSpeakerUid = activeSpeakerUid;
       }
+       */
     });
 
     // this.client.on('stream-fallback', (evt))
@@ -503,7 +566,7 @@ export default class RtcEngine {
         const remoteUserNetworkQualities =
           this.client.getRemoteNetworkQuality();
 
-        Object.keys(remoteUserNetworkQualities).forEach((uid) => {
+        Object.keys(remoteUserNetworkQualities).forEach(uid => {
           networkQualityIndicatorCallback(
             uid,
             remoteUserNetworkQualities[uid].downlinkNetworkQuality,
@@ -512,6 +575,14 @@ export default class RtcEngine {
         });
       },
     );
+
+    /* Recieve Captions  */
+    this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
+      console.log(
+        `stt-web: onStreamMessageCallback uid:${uid} , payload:${payload}`,
+      );
+      (this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
+    });
 
     await this.client.join(
       this.appId,
@@ -523,6 +594,10 @@ export default class RtcEngine {
 
     await this.publish();
     console.log('enabling screen sleep');
+  }
+
+  getUsersVolumeLevel() {
+    return this.usersVolumeLevel;
   }
 
   async leaveChannel(): Promise<void> {
@@ -547,10 +622,12 @@ export default class RtcEngine {
       event === 'RemoteAudioStateChanged' ||
       event === 'RemoteVideoStateChanged' ||
       event === 'NetworkQuality' ||
-      event === 'ActiveSpeaker'
+      event === 'ActiveSpeaker' ||
+      event === 'StreamMessage'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }
+
     return {
       remove: () => {
         console.log(
@@ -730,11 +807,11 @@ export default class RtcEngine {
 
   async changeSpeaker(speakerId, callback, error) {
     try {
-      this.speakerDeviceId = speakerId;
       // setting sepeaker for all remote stream (previously joined users)
       this.remoteStreams?.forEach((stream, uid, map) => {
         stream?.audio?.setPlaybackDevice(speakerId);
       });
+      this.speakerDeviceId = speakerId;
       callback(speakerId);
     } catch (e) {
       error(e);
@@ -762,7 +839,7 @@ export default class RtcEngine {
 
   // Bug in implementation !!!
   async setRemoteSubscribeFallbackOption(option: 0 | 1 | 2) {
-    this.streams.forEach((stream) => {
+    this.streams.forEach(stream => {
       this.client.setStreamFallbackOption(stream, option);
     });
     Promise.resolve();

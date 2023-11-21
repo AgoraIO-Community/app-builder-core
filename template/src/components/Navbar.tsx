@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -65,6 +65,7 @@ import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -118,10 +119,15 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     useContext(LiveStreamContext);
   //commented for v1 release
   //const participantsLabel = useString('participantsLabel')();
-  const {onlineUsersCount} = useContext(ChatContext);
+  const {waitingRoomUids} = useWaitingRoomContext();
   //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const participantsLabel = `People`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
+  const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const onPress = () => {
     isPanelActive
@@ -177,22 +183,25 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           <View>
             <IconButton {...iconButtonProps} />
           </View>
-          {$config.EVENT_MODE &&
+          {isPendingWaitingRoomApproval ||
+          ($config.EVENT_MODE &&
             $config.RAISE_HAND &&
-            isPendingRequestToReview && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: liveStreamingRequestAlertIconPosition.top,
-                  bottom: liveStreamingRequestAlertIconPosition.bottom,
-                  right: liveStreamingRequestAlertIconPosition.right,
-                  left: liveStreamingRequestAlertIconPosition.left,
-                  backgroundColor: $config.SEMANTIC_ERROR,
-                  width: 12,
-                  height: 12,
-                  borderRadius: 10,
-                }}></View>
-            )}
+            isPendingRequestToReview) ? (
+            <View
+              style={{
+                position: 'absolute',
+                top: liveStreamingRequestAlertIconPosition.top,
+                bottom: liveStreamingRequestAlertIconPosition.bottom,
+                right: liveStreamingRequestAlertIconPosition.right,
+                left: liveStreamingRequestAlertIconPosition.left,
+                backgroundColor: $config.SEMANTIC_ERROR,
+                width: 12,
+                height: 12,
+                borderRadius: 10,
+              }}></View>
+          ) : (
+            <></>
+          )}
         </>
       )}
     </>
@@ -239,6 +248,16 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   //const chatLabel = useString('chatLabel')();
   const chatLabel = 'Chat';
   const isPanelActive = sidePanel === SidePanelType.Chat;
+
+  //when chat panel is close then we need to show the toast notification. for that
+  //we are resetting flag which used when chat panel is active
+  useEffect(() => {
+    if (sidePanel !== SidePanelType.Chat) {
+      setChatType(ChatType.Group);
+      setPrivateChatUser(0);
+    }
+  }, [sidePanel]);
+
   const onPress = () => {
     {
       if (isPanelActive) {
@@ -493,22 +512,22 @@ const Navbar = (props: NavbarProps) => {
   const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
 
-  const isHidden = (i) => {
+  const isHidden = i => {
     return i?.hide === 'yes';
   };
 
   const customStartItems = customItems
-    ?.filter((i) => i.align === 'start' && !isHidden(i))
+    ?.filter(i => i.align === 'start' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
-    ?.filter((i) => i.align === 'center' && !isHidden(i))
+    ?.filter(i => i.align === 'center' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
-    ?.filter((i) => i.align === 'end' && !isHidden(i))
+    ?.filter(i => i.align === 'end' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort(CustomToolbarSort);
 

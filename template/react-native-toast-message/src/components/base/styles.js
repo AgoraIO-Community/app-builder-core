@@ -1,40 +1,37 @@
 import { StyleSheet } from 'react-native';
-import colors from '../../colors';
-
-export const HEIGHT = 105;
 
 export default StyleSheet.create({
   base: {
     flexDirection: 'row',
-    height: HEIGHT,
-    borderRadius: 6,
-    backgroundColor: colors.white,
+    borderRadius: 4,
+    borderTopWidth: 4,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    width: '100%',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    height: 'auto',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 2
   },
-  borderTop: {
-    borderTopWidth: 5,
-    borderTopColor: colors.alto
-  },
   contentContainer: {
-    paddingLeft: 20,
     flex: 1,
-    flexDirection: 'row',
+    overflow: 'hidden',
+    flexDirection: 'column',
     justifyContent: 'flex-start'
   },
   text1: {
-    fontSize: 15,
+    fontSize: 14,
+    lineHeight: 22,
     fontFamily: 'Source Sans Pro',
-    width: '100%',
-    fontWeight: '600',
-    marginRight: 2
+    fontWeight: '700'
   },
   text2: {
-    fontSize: 15,
-    fontFamily: 'Source Sans Pro',
-    width: '100%',
-    fontWeight: '400'
+    marginTop: 4,
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '400',
+    fontFamily: 'Source Sans Pro'
   }
 });

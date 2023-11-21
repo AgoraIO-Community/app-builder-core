@@ -4,7 +4,7 @@
   // "files":["./customization-api/index.ts","./global.d.ts","./bridge/rtm/web/index.ts","./bridge/rtc/webNg/index.ts"],
   // --------------------------------------------------------
   // Use with typescript tsc command
-  "files": ["./src/SDKAppWrapper.tsx", "./index.wsdk.tsx", "./global.d.ts"],
+  "files": ["./index.wsdk.tsx", "./global.d.ts"],
   // --------------------------------------------------------
   "compilerOptions": {
     /* Basic Options */

@@ -25,7 +25,7 @@ const ScreenshareParticipants = (props: {user: ContentInterface}) => {
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
 
   const showModal = () => {
-    setActionMenuVisible((state) => !state);
+    setActionMenuVisible(state => !state);
   };
   return (
     <>
@@ -39,17 +39,17 @@ const ScreenshareParticipants = (props: {user: ContentInterface}) => {
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container}>
-          <View style={styles.userInfoContainer}>
-            <View style={styles.bgContainerStyle}>
-              <UserAvatar
-                name={props.user.name}
-                containerStyle={styles.containerStyle}
-                textStyle={styles.textStyle}
-              />
-            </View>
-            <View style={{alignSelf: 'center'}}>
-              <Text style={styles.participantNameText}>{props.user.name}</Text>
-            </View>
+          <View style={styles.bgContainerStyle}>
+            <UserAvatar
+              name={props.user.name}
+              containerStyle={styles.containerStyle}
+              textStyle={styles.textStyle}
+            />
+          </View>
+          <View style={{flex: 1, marginHorizontal: 8, alignSelf: 'center'}}>
+            <Text style={styles.participantNameText} numberOfLines={1}>
+              {props.user.name}
+            </Text>
           </View>
           {true ? (
             <View
@@ -88,11 +88,11 @@ const ScreenshareParticipants = (props: {user: ContentInterface}) => {
                   />
                 </View>
               ) : (
-                <></>
+                <View style={{width: 24, height: 24, opacity: 0}} />
               )}
             </View>
           ) : (
-            <></>
+            <View style={{width: 24, height: 24, opacity: 0}} />
           )}
         </View>
       </PlatformWrapper>
@@ -123,7 +123,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    marginRight: 8,
   },
   containerStyle: {
     width: 36,
@@ -132,14 +131,13 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 10,
+    lineHeight: 12,
     fontWeight: '400',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantNameText: {
     fontWeight: '400',
     fontSize: 12,
-    lineHeight: 15,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexDirection: 'row',
     color: $config.FONT_COLOR,

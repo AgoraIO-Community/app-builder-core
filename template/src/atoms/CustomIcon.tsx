@@ -86,4 +86,24 @@ export interface IconsInterface {
   'video-off-filled': string;
   'video-off-outlined': string;
   celebration: string;
+  'down-arrow': string;
+  'closed-caption': string;
+  globe: string;
+  'lang-select': string;
+  search: string;
+  captions: string;
+  'captions-off': string;
+  download: string;
+  'transcript-stop': string;
+  transcript: string;
+  'view-last': string;
+  'transcript-mode': string;
+  vb: string;
+  'vb-blur': string;
+  '': string;
+  done: string;
+  'done-fill': string;
+  blur: string;
+  add: string;
+  'upload-new': string;
 }

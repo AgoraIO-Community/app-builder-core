@@ -18,6 +18,7 @@ import {
   isValidReactComponent,
   isWebInternal,
   useIsDesktop,
+  useIsSmall,
 } from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
@@ -32,10 +33,17 @@ import {
 } from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import Transcript from '../../subComponents/caption/Transcript';
+
+import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
+import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
+import VBPanel from '../../components/virtual-background/VBPanel';
 
 const VideoCallScreen = () => {
+  useFindActiveSpeaker();
   const {sidePanel} = useSidePanel();
   const [name] = useUserName();
   const {
@@ -57,7 +65,7 @@ const VideoCallScreen = () => {
     LeftbarProps,
     RightbarProps,
     VideocallWrapper,
-  } = useCustomization((data) => {
+  } = useCustomization(data => {
     let components: {
       VideocallWrapper: React.ComponentType;
       VideocallComponent?: React.ComponentType;
@@ -221,6 +229,7 @@ const VideoCallScreen = () => {
   });
 
   const isDesktop = useIsDesktop();
+  const isSmall = useIsSmall();
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -280,6 +289,12 @@ const VideoCallScreen = () => {
               ) : (
                 <></>
               )}
+              {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+              {sidePanel === SidePanelType.VirtualBackground ? (
+                <VBPanel />
+              ) : (
+                <></>
+              )}
             </View>
             {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>
@@ -291,7 +306,11 @@ const VideoCallScreen = () => {
                     includeDefaultItems={false}
                   />
                 ) : (
-                  <BottombarComponent />
+                  <>
+                    <CaptionContainer />
+                    <Spacer size={10} />
+                    <BottombarComponent />
+                  </>
                 )}
               </ToolbarProvider>
             )}

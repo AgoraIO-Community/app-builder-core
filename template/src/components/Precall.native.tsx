@@ -40,10 +40,11 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {VideoPreviewProps} from './precall/VideoPreview';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import JoinWaitingRoomBtn from './precall/joinWaitingRoomBtn.native';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
@@ -108,7 +109,12 @@ const JoinRoomInputView = ({isDesktop}) => {
               ? style.btnContainerStyle
               : {width: '100%'}
           }>
-          <JoinButton />
+          {$config.ENABLE_WAITING_ROOM &&
+          rtcProps.role === ClientRole.Audience ? (
+            <JoinWaitingRoomBtn />
+          ) : (
+            <JoinButton />
+          )}
         </View>
       </View>
     </View>
@@ -116,7 +122,7 @@ const JoinRoomInputView = ({isDesktop}) => {
 };
 
 const JoinRoomName = ({isDesktop}) => {
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
@@ -153,7 +159,7 @@ const JoinRoomName = ({isDesktop}) => {
 };
 
 const JoinRoomButton = () => {
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
@@ -195,7 +201,7 @@ const Precall = (props: any) => {
     DeviceSelect,
     PrecallAfterView,
     PrecallBeforeView,
-  } = useCustomization((data) => {
+  } = useCustomization(data => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
@@ -277,7 +283,7 @@ const Precall = (props: any) => {
 
   useEffect(() => {
     if (isJoinDataFetched) {
-      new Promise((res) =>
+      new Promise(res =>
         // @ts-ignore
         rtc.RtcEngineUnsafe.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
@@ -299,7 +305,7 @@ const Precall = (props: any) => {
     }
   }, []);
 
-  const FpePrecallComponent = useCustomization((data) => {
+  const FpePrecallComponent = useCustomization(data => {
     // commented for v1 release
     // if (
     //   data?.components?.precall &&

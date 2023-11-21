@@ -38,6 +38,7 @@ import CommonStyles from './CommonStyles';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -69,6 +70,7 @@ const Chat = (props?: ChatProps) => {
   } = useChatNotification();
 
   const {primaryColor} = useContext(ColorContext);
+  const {transcriptHeight} = useCaptionWidth();
 
   React.useEffect(() => {
     return () => {
@@ -94,7 +96,7 @@ const Chat = (props?: ChatProps) => {
   };
 
   const {ChatAfterView, ChatBeforeView, ChatInputComponent} = useCustomization(
-    (data) => {
+    data => {
       let components: {
         ChatAfterView: React.ComponentType;
         ChatBeforeView: React.ComponentType;
@@ -163,6 +165,7 @@ const Chat = (props?: ChatProps) => {
           isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
+          transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view

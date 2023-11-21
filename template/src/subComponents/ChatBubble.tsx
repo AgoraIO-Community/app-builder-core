@@ -15,7 +15,7 @@ import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
-import {isWebInternal} from '../utils/common';
+import {isWebInternal, trimText} from '../utils/common';
 import {useChatUIControls, useContent} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -36,8 +36,30 @@ const ChatBubble = (props: ChatBubbleProps) => {
     isDeleted,
     msgId,
     updatedTimestamp,
+    previousMessageCreatedTimestamp,
   } = props;
+
   let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+
+  let forceShowUserNameandTimeStamp = false;
+  //calculate time difference between current message and last message
+  //if difference over 2 minutes passed from previous message
+  //then show the user and timestamp again even if same user
+  if (previousMessageCreatedTimestamp && createdTimestamp) {
+    try {
+      const startTime = new Date(parseInt(previousMessageCreatedTimestamp));
+      const endTime = new Date(parseInt(createdTimestamp));
+      let resultInMinutes = 0;
+      if (startTime && endTime) {
+        const difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
+        resultInMinutes = Math.round(difference / 60000);
+      }
+      forceShowUserNameandTimeStamp =
+        resultInMinutes && !isNaN(resultInMinutes) && resultInMinutes >= 2
+          ? true
+          : false;
+    } catch (e) {}
+  }
 
   const handleUrl = (url: string) => {
     if (isWebInternal()) {
@@ -60,20 +82,29 @@ const ChatBubble = (props: ChatBubbleProps) => {
       isDeleted,
       updatedTimestamp,
       isSameUser,
+      previousMessageCreatedTimestamp,
     )
   ) : (
     <>
-      {!isSameUser && !(chatType === ChatType.Private && privateChatUser) ? (
-        <Text
-          style={
-            isLocal ? style.localUsernameStyle : style.remoteUsernameStyle
-          }>
-          {isLocal
-            ? 'You'
-            : defaultContent[uid]
-            ? defaultContent[uid].name
-            : remoteUserDefaultLabel}
-        </Text>
+      {(!isSameUser || forceShowUserNameandTimeStamp) &&
+      !(chatType === ChatType.Private && privateChatUser) ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: isLocal ? 'flex-end' : 'flex-start',
+            marginBottom: 8,
+            marginTop: 14,
+            marginHorizontal: 20,
+          }}>
+          <Text style={style.userNameStyle}>
+            {isLocal
+              ? 'You'
+              : defaultContent[uid]?.name
+              ? trimText(defaultContent[uid].name)
+              : remoteUserDefaultLabel}
+          </Text>
+          <Text style={style.timestampStyle}>{time}</Text>
+        </View>
       ) : (
         <></>
       )}
@@ -97,8 +128,6 @@ const ChatBubble = (props: ChatBubbleProps) => {
               {message}
             </Text>
           </Hyperlink>
-          {/* <Spacer size={5} /> */}
-          <Text style={style.timestampStyle}>{time}</Text>
         </View>
       </View>
     </>
@@ -106,51 +135,28 @@ const ChatBubble = (props: ChatBubbleProps) => {
 };
 
 const style = StyleSheet.create({
-  remoteUsernameStyle: {
+  userNameStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: ThemeConfig.FontSize.small,
-    textAlign: 'left',
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    alignSelf: 'flex-start',
-    marginTop: 20,
-    marginBottom: 8,
-    marginHorizontal: 20,
-  },
-  localUsernameStyle: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    fontSize: ThemeConfig.FontSize.small,
-    textAlign: 'left',
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    alignSelf: 'flex-end',
-    marginTop: 20,
-    marginBottom: 8,
-    marginHorizontal: 20,
+    fontSize: ThemeConfig.FontSize.tiny,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
   },
   timestampStyle: {
-    // position: 'absolute',
-    // bottom: 0,
-    // right: 12,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.tiny,
-    textAlign: 'right',
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
-    marginTop: 4,
-    marginBottom: 6,
+    color: $config.FONT_COLOR + hexadecimalTransparency['30%'],
+    marginLeft: 4,
   },
   chatBubbleRemoteView: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
-    minWidth: '30%',
-    maxWidth: '80%',
     alignSelf: 'flex-start',
     marginVertical: 2,
     marginHorizontal: 20,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
     borderTopLeftRadius: 0,
-    borderTopRightRadius: 12,
+    borderTopRightRadius: 8,
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
@@ -158,9 +164,9 @@ const style = StyleSheet.create({
     // height: '100%',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 8,
     borderTopRightRadius: 0,
   },
   chatBubbleLocalViewLayer2: {
@@ -168,9 +174,9 @@ const style = StyleSheet.create({
     //height: '100%',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 8,
     borderTopRightRadius: 0,
     backgroundColor:
       $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
@@ -178,21 +184,19 @@ const style = StyleSheet.create({
   chatBubbleLocalView: {
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-    minWidth: '30%',
-    maxWidth: '80%',
     alignSelf: 'flex-end',
     marginVertical: 2,
     marginHorizontal: 20,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 8,
     borderTopRightRadius: 0,
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small * 1.4,
+    lineHeight: ThemeConfig.FontSize.small * 1.45,
     color: $config.FONT_COLOR,
   },
 });

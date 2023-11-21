@@ -9,9 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect, useRef} from 'react';
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useReducer,
+} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {PropsContext} from '../../agora-rn-uikit';
+import {
+  DispatchContext,
+  PropsContext,
+  ToggleState,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -20,7 +31,13 @@ import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {BREAKPOINTS, CustomToolbarSort, useIsDesktop} from '../utils/common';
+import {
+  BREAKPOINTS,
+  CustomToolbarSort,
+  isWeb,
+  isWebInternal,
+  useIsDesktop,
+} from '../utils/common';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
@@ -32,6 +49,7 @@ import {
   ChatType,
   SidePanelType,
   useChatUIControls,
+  useContent,
   useLayout,
   useRecording,
   useSidePanel,
@@ -39,35 +57,369 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
+import {useCaption} from '../../src/subComponents/caption/useCaption';
+import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
+import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
+import {EventNames} from '../rtm-events';
+import events, {PersistanceLevel} from '../rtm-events-api';
+import Toast from '../../react-native-toast-message';
+import {getLanguageLabel} from '../../src/subComponents/caption/utils';
+import ImageIcon from '../atoms/ImageIcon';
+import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 
+import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import {RoomPhase} from 'white-web-sdk';
+import {useNoiseSupression} from '../app-state/useNoiseSupression';
+
+import {useVB} from './virtual-background/useVB';
+import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
+import isSDK from '../utils/isSDK';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
+
+const WhiteboardListener = () => {
+  const {dispatch} = useContext(DispatchContext);
+  const {setCustomContent} = useContent();
+  const {currentLayout, setLayout} = useLayout();
+
+  useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_ON,
+      WhiteboardStartedCallBack,
+    );
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_OFF,
+      WhiteboardStoppedCallBack,
+    );
+
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_ON,
+        WhiteboardStartedCallBack,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_OFF,
+        WhiteboardStoppedCallBack,
+      );
+    };
+  }, []);
+
+  //whiteboard start
+
+  const {
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+    whiteboardUid,
+  } = useContext(whiteboardContext);
+
+  const WhiteboardStoppedCallBack = () => {
+    toggleWhiteboard(true, false);
+  };
+
+  const WhiteboardStartedCallBack = () => {
+    toggleWhiteboard(false, false);
+  };
+
+  useEffect(() => {
+    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
+  }, []);
+
+  const toggleWhiteboard = (
+    whiteboardActive: boolean,
+    triggerEvent: boolean,
+  ) => {
+    if ($config.ENABLE_WHITEBOARD) {
+      if (whiteboardActive) {
+        leaveWhiteboardRoom();
+        setCustomContent(whiteboardUid, false);
+        setLayout('grid');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStopped',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      } else {
+        joinWhiteboardRoom();
+        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        dispatch({
+          type: 'UserPin',
+          value: [whiteboardUid],
+        });
+        setLayout('pinned');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStarted',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      }
+    }
+  };
+  return null;
+};
+
 const MoreButton = () => {
+  const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
+  const {setCustomContent} = useContent();
+  const [_, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const layouts = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
-  const layout = layouts.findIndex((item) => item.name === currentLayout);
+  const layout = layouts.findIndex(item => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
+  const {
+    isCaptionON,
+    setIsCaptionON,
+    language: prevLang,
+    isSTTActive,
+    setIsSTTActive,
+    isSTTError,
+  } = useCaption();
+
+  const isTranscriptON = sidePanel === SidePanelType.Transcript;
+
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+  const isFirstTimePopupOpen = React.useRef(false);
+  const STT_clicked = React.useRef(null);
+
+  const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useRoomInfo();
-  const {
-    showLayoutOption,
-    setShowInvitePopup,
-    setShowStopRecordingPopup,
-    setShowLayoutOption,
-  } = useVideoCall();
+  const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
+    useVideoCall();
   const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
     useScreenshare();
   const {isRecordingActive, startRecording, inProgress} = useRecording();
   const {setChatType} = useChatUIControls();
   const actionMenuitems: ActionMenuItem[] = [];
+
+  const {isNoiseSupressionEnabled, setNoiseSupression} = useNoiseSupression();
+
+  //AINS
+  if ($config.ENABLE_NOISE_CANCELLATION) {
+    actionMenuitems.push({
+      toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
+      disabled:
+        isNoiseSupressionEnabled === ToggleState.disabling ||
+        isNoiseSupressionEnabled === ToggleState.enabling,
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'noise-cancellation',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Noise Cancellation',
+      //isNoiseSupressionEnabled === ToggleState.enabled
+      callback: () => {
+        setActionMenuVisible(false);
+        setNoiseSupression(p => !p);
+      },
+    });
+  }
+  //AINS
+
+  //virtual background
+  const {isVBActive, setIsVBActive} = useVB();
+
+  const toggleVB = () => {
+    if (isVBActive) {
+      setSidePanel(SidePanelType.None);
+    } else {
+      setSidePanel(SidePanelType.VirtualBackground);
+    }
+    setIsVBActive(prev => !prev);
+  };
+  if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
+    actionMenuitems.push({
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'vb',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
+      title: 'Virtual Background',
+      callback: () => {
+        setActionMenuVisible(false);
+        toggleVB();
+      },
+    });
+  }
+  //virtual background
+
+  //whiteboard start
+
+  const {
+    whiteboardRoomState,
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+    whiteboardUid,
+  } = useContext(whiteboardContext);
+
+  const WhiteboardStoppedCallBack = () => {
+    toggleWhiteboard(true, false);
+  };
+
+  const WhiteboardStartedCallBack = () => {
+    toggleWhiteboard(false, false);
+  };
+
+  useEffect(() => {
+    whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
+
+    // if (!$config.ENABLE_WAITING_ROOM) {
+    //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
+    // }
+
+    // return () => {
+    //   if (!$config.ENABLE_WAITING_ROOM) {
+    //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
+    //   }
+    // };
+  }, []);
+
+  useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_ON,
+      WhiteboardStartedCallBack,
+    );
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_OFF,
+      WhiteboardStoppedCallBack,
+    );
+
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_ON,
+        WhiteboardStartedCallBack,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_OFF,
+        WhiteboardStoppedCallBack,
+      );
+    };
+  }, []);
+
+  const toggleWhiteboard = (
+    whiteboardActive: boolean,
+    triggerEvent: boolean,
+  ) => {
+    if ($config.ENABLE_WHITEBOARD) {
+      if (whiteboardActive) {
+        leaveWhiteboardRoom();
+        setCustomContent(whiteboardUid, false);
+        setLayout('grid');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStopped',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      } else {
+        joinWhiteboardRoom();
+        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        dispatch({
+          type: 'UserPin',
+          value: [whiteboardUid],
+        });
+        setLayout('pinned');
+        triggerEvent &&
+          events.send(
+            'WhiteBoardStarted',
+            JSON.stringify({}),
+            PersistanceLevel.Session,
+          );
+      }
+    }
+  };
+  const WhiteboardDisabled =
+    !isHost ||
+    whiteboardRoomState === RoomPhase.Connecting ||
+    whiteboardRoomState === RoomPhase.Disconnecting;
+
+  //whiteboard ends
+
+  if (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
+    actionMenuitems.push({
+      disabled: WhiteboardDisabled,
+      isBase64Icon: true,
+      //@ts-ignore
+      icon: 'whiteboard-new',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: whiteboardActive ? 'Hide Whiteboard' : 'Show Whiteboard',
+      callback: () => {
+        setActionMenuVisible(false);
+        toggleWhiteboard(whiteboardActive, true);
+      },
+    });
+  }
+
+  // host can see stt options and attendee can view only when stt is enabled by a host in the channel
+
+  if ($config.ENABLE_STT) {
+    actionMenuitems.push({
+      icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
+      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isCaptionON ? 'caption' : null;
+        if (isSTTError) {
+          setIsCaptionON(prev => !prev);
+          return;
+        }
+        if (isSTTActive) {
+          setIsCaptionON(prev => !prev);
+          // is lang popup has been shown once for any user in meeting
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
+
+    actionMenuitems.push({
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
+      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+        if (isSTTError) {
+          !isTranscriptON
+            ? setSidePanel(SidePanelType.Transcript)
+            : setSidePanel(SidePanelType.None);
+          return;
+        }
+        if (isSTTActive) {
+          !isTranscriptON
+            ? setSidePanel(SidePanelType.Transcript)
+            : setSidePanel(SidePanelType.None);
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
+  }
 
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
@@ -148,14 +500,17 @@ const MoreButton = () => {
 
   if (globalWidth <= BREAKPOINTS.md) {
     actionMenuitems.push({
-      icon: layouts[layout]?.iconName,
+      //below icon key is dummy value
+      icon: 'grid',
+      externalIconString: layouts[layout]?.icon,
+      isExternalIcon: true,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: 'Layout',
       callback: () => {
         //setShowLayoutOption(true);
       },
-      onHoverCallback: (isHovered) => {
+      onHoverCallback: isHovered => {
         setShowLayoutOption(isHovered);
       },
       onHoverContent: (
@@ -200,7 +555,7 @@ const MoreButton = () => {
   useEffect(() => {
     if (isHovered) {
       setActionMenuVisible(true);
-    }
+    } else setActionMenuVisible(false);
   }, [isHovered]);
 
   useEffect(() => {
@@ -208,14 +563,56 @@ const MoreButton = () => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
+  const onConfirm = async (langChanged, language) => {
+    const isCaptionClicked = STT_clicked.current === 'caption';
+    const isTranscriptClicked = STT_clicked.current === 'transcript';
+    setLanguagePopup(false);
+    isFirstTimePopupOpen.current = false;
+    const method = isCaptionClicked
+      ? isCaptionON
+      : isTranscriptON
+      ? 'stop'
+      : 'start';
+    if (isTranscriptClicked) {
+      if (!isTranscriptON) {
+        setSidePanel(SidePanelType.Transcript);
+      } else {
+        setSidePanel(SidePanelType.None);
+      }
+    }
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+
+    if (isCaptionClicked) {
+      setIsCaptionON(prev => !prev);
+    } else {
+    }
+
+    try {
+      const res = await start(language);
+      if (res?.message.includes('STARTED')) {
+        // channel is already started now restart
+        await restart(language);
+      }
+    } catch (error) {
+      console.log('eror in starting stt', error);
+    }
+  };
+
   return (
     <>
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onConfirm}
+        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
+      />
       <ActionMenu
-        containerStyle={{width: 180}}
+        containerStyle={{width: 260}}
         hoverMode={true}
-        onHover={(isVisible) => setIsHoveredOnModal(isVisible)}
+        onHover={isVisible => setIsHoveredOnModal(isVisible)}
         from={'control-bar'}
-        actionMenuVisible={(isHovered || isHoveredOnModal) && actionMenuVisible}
+        actionMenuVisible={isHovered || isHoveredOnModal}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={{
           bottom: 8,
@@ -242,7 +639,7 @@ const MoreButton = () => {
           }}
         />
         <IconButton
-          setRef={(ref) => {
+          setRef={ref => {
             moreBtnRef.current = ref;
           }}
           onPress={() => {
@@ -295,7 +692,7 @@ const defaultStartItems: Array<ToolbarCustomItem> = [
 
 export const RaiseHandToolbarItem = () => {
   const {rtcProps} = useContext(PropsContext);
-  const isDesktop = useIsDesktop();
+  // attendee can view option if any host has started STT
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -376,12 +773,26 @@ export const RecordingToolbarItem = () => {
 
 export const MoreButtonToolbarItem = () => {
   const {width} = useWindowDimensions();
-  return (
-    width < BREAKPOINTS.md && (
-      <ToolbarItem testID="more-btn">
-        <MoreButton />
-      </ToolbarItem>
-    )
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const {isSTTActive} = useCaption();
+  const [_, forceUpdate] = useReducer(x => x + 1, 0);
+
+  useEffect(() => {
+    forceUpdate();
+  }, [isHost]);
+
+  return width < BREAKPOINTS.md ||
+    ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
+    $config.ENABLE_NOISE_CANCELLATION ||
+    ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
+    (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) ? (
+    <ToolbarItem testID="more-btn">
+      <MoreButton />
+    </ToolbarItem>
+  ) : (
+    <WhiteboardListener />
   );
 };
 export const LocalEndcallToolbarItem = () => {
@@ -452,22 +863,92 @@ export interface ControlsProps {
 const Controls = (props: ControlsProps) => {
   const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
+  const {defaultContent} = useContent();
+  const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
+  const defaultContentRef = React.useRef(defaultContent);
 
-  const isHidden = (i) => {
+  const {
+    data: {isHost},
+    sttLanguage,
+    isSTTActive,
+  } = useRoomInfo();
+
+  React.useEffect(() => {
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
+
+  React.useEffect(() => {
+    // for mobile events are set in ActionSheetContent
+    if (!sttLanguage) return;
+    const {
+      username,
+      prevLang,
+      newLang,
+      uid,
+    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    const actionText =
+      prevLang.indexOf('') !== -1
+        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+        : `changed the spoken language from "${getLanguageLabel(
+            prevLang,
+          )}" to "${getLanguageLabel(newLang)}" `;
+    const msg = `${
+      defaultContentRef.current[uid]?.name || username
+    } ${actionText} `;
+
+    Toast.show({
+      leadingIconName: 'info',
+      type: 'info',
+      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+      text1: `Spoken Language ${
+        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+      }`,
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      text2: msg,
+    });
+    // syncing local set language
+    newLang && setLanguage(newLang);
+    // add spoken lang msg to transcript
+    setMeetingTranscript(prev => {
+      return [
+        ...prev,
+        {
+          name: 'langUpdate',
+          time: new Date().getTime(),
+          uid: `langUpdate-${uid}`,
+          text: actionText,
+        },
+      ];
+    });
+  }, [sttLanguage]);
+
+  React.useEffect(() => {
+    setIsSTTActive(isSTTActive);
+  }, [isSTTActive]);
+
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
+
+  const isHidden = i => {
     return i?.hide === 'yes';
   };
   const customStartItems = customItems
-    ?.filter((i) => i?.align === 'start' && !isHidden(i))
+    ?.filter(i => i?.align === 'start' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
-    ?.filter((i) => i?.align === 'center' && !isHidden(i))
+    ?.filter(i => i?.align === 'center' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
-    ?.filter((i) => i?.align === 'end' && !isHidden(i))
+    ?.filter(i => i?.align === 'end' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort(CustomToolbarSort);
 
@@ -522,6 +1003,20 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  primaryBtn: {
+    maxWidth: 109,
+    minWidth: 109,
+    height: 40,
+    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+  },
+  primaryBtnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    paddingLeft: 0,
   },
 });
 

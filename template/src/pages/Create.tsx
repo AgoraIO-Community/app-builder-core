@@ -42,9 +42,10 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import isSDK from '../utils/isSDK';
 
 const Create = () => {
-  const {CreateComponent} = useCustomization((data) => {
+  const {CreateComponent} = useCustomization(data => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
@@ -117,7 +118,7 @@ const Create = () => {
     //   )}-${randomNameGenerator(3)}`,
     // );
 
-    if (isWebInternal()) {
+    if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
@@ -142,12 +143,14 @@ const Create = () => {
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({
+          leadingIconName: 'tick-fill',
           type: 'success',
           text1: trimText(roomTitle) + createdText,
           text2: 'Your New room is now live',
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
+          leadingIcon: null,
         });
         showShareScreen();
       } catch (error) {
@@ -208,12 +211,14 @@ const Create = () => {
 
   const showError = () => {
     Toast.show({
+      leadingIconName: 'alert',
       type: 'error',
       text1: 'Backend endpoint not configured',
       text2: 'Please configure backend endpoint config.json',
       visibilityTime: 1000 * 10,
       primaryBtn: null,
       secondaryBtn: null,
+      leadingIcon: null,
     });
   };
 
@@ -259,7 +264,7 @@ const Create = () => {
                     label={getInputLabel()}
                     value={roomTitle}
                     placeholder={meetingNameInputPlaceholder}
-                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    onChangeText={text => onChangeRoomTitle(text)}
                     onSubmitEditing={() => {
                       if (!roomTitle?.trim()) {
                         return;

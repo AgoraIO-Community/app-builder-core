@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {View} from 'react-native';
 import useLayoutsData from './useLayoutsData';
 import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
@@ -19,21 +19,24 @@ const VideoComponent = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
 
+  const currentLayoutRef = useRef(currentLayout);
+  const gridLayoutName = getGridLayoutName();
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
+        dispatch({type: 'UserSecondaryPin', value: [0]});
       }
-      const gridLayoutName = getGridLayoutName();
-      if (currentLayout !== gridLayoutName && layoutsData?.length <= 2) {
+      if (currentLayoutRef.current != gridLayoutName) {
         setLayout(gridLayoutName);
       }
     }
   }, [activeUids]);
 
   useEffect(() => {
+    currentLayoutRef.current = currentLayout;
     if (isArray(layoutsData)) {
-      let index = layoutsData.findIndex((item) => item.name === currentLayout);
+      let index = layoutsData.findIndex(item => item.name === currentLayout);
       if (index >= 0) {
         setLayoutIndex(index);
       }

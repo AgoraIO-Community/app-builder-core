@@ -12,6 +12,9 @@ interface PropsInterface {
 
 export default function ParticipantSectionTitle(props: PropsInterface) {
   const {title, count = 0} = props;
+  if (!count) {
+    return null;
+  }
   return (
     <TouchableOpacity
       style={style.container}
@@ -43,8 +46,8 @@ const style = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Source Sans Pro',
     fontWeight: '700',
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    paddingVertical: 12,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
+    paddingVertical: 8,
     alignSelf: 'center',
   },
   iconView: {

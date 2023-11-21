@@ -16,14 +16,18 @@ import {IconsInterface} from '../atoms/CustomIcon';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Toggle from './Toggle';
 
 export interface ActionMenuItem {
+  isExternalIcon?: boolean;
+  externalIconString?: string;
   isBase64Icon?: boolean;
   icon: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
   iconColor: string;
   textColor: string;
   title: string;
+  toggleStatus?: boolean;
   callback: () => void;
   onHoverCallback?: (isHovered: boolean) => void;
   onHoverContent?: JSX.Element;
@@ -58,10 +62,13 @@ const ActionMenu = (props: ActionMenuProps) => {
     return items?.map(
       (
         {
-          icon,
+          icon = '',
           onHoverIcon,
           isBase64Icon = false,
+          isExternalIcon = false,
+          externalIconString = '',
           title,
+          toggleStatus,
           callback,
           iconColor,
           textColor,
@@ -98,20 +105,45 @@ const ActionMenu = (props: ActionMenuProps) => {
                 onPress={callback}
                 key={icon + index}>
                 <View style={styles.iconContainer}>
-                  <ImageIcon
-                    base64={isBase64Icon}
-                    iconType="plain"
-                    iconSize={20}
-                    name={
-                      isHovered && onHoverIcon && !disabled ? onHoverIcon : icon
-                    }
-                    tintColor={iconColor}
-                  />
+                  {isExternalIcon ? (
+                    <ImageIcon
+                      base64={isBase64Icon}
+                      base64TintColor={iconColor}
+                      iconType="plain"
+                      iconSize={20}
+                      icon={externalIconString}
+                      tintColor={iconColor}
+                    />
+                  ) : (
+                    <ImageIcon
+                      base64={isBase64Icon}
+                      base64TintColor={iconColor}
+                      iconType="plain"
+                      iconSize={20}
+                      name={
+                        isHovered && onHoverIcon && !disabled
+                          ? onHoverIcon
+                          : icon
+                      }
+                      tintColor={iconColor}
+                    />
+                  )}
                 </View>
                 <Text
                   style={[styles.text, textColor ? {color: textColor} : {}]}>
                   {title}
                 </Text>
+                {toggleStatus !== undefined && toggleStatus !== null ? (
+                  <View style={styles.toggleContainer}>
+                    <Toggle
+                      disabled={disabled}
+                      isEnabled={toggleStatus}
+                      toggleSwitch={callback}
+                    />
+                  </View>
+                ) : (
+                  <></>
+                )}
               </TouchableOpacity>
             </>
           )}
@@ -178,7 +210,7 @@ const styles = StyleSheet.create({
   modalView: {
     //don't added overflow: hidden, bottombar minimized version layout popup will be shown in the overflow
     position: 'absolute',
-    width: 230,
+    // width: 230,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     shadowColor: '#000',
@@ -219,12 +251,19 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginLeft: 12,
   },
+  toggleContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    marginLeft: 'auto',
+  },
   text: {
     paddingVertical: 14,
     color: $config.SECONDARY_ACTION_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    marginRight: 8,
   },
   backDrop: {
     position: 'absolute',

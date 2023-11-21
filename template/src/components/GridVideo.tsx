@@ -39,7 +39,8 @@ const layout = (len: number, isDesktop: boolean = true) => {
 const GridVideo: LayoutComponent = ({renderData}) => {
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const {activeUids, customContent} = useContent();
+  const {activeUids, customContent, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
@@ -53,7 +54,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
   if (
     $config.EVENT_MODE &&
     rtcProps?.role === ClientRole.Audience &&
-    activeUids.filter((i) => !customContent[i]).length === 0
+    activeUids.filter(i => !customContent[i]).length === 0
   ) {
     return <LiveStreamAttendeeLandingTile />;
   }
@@ -61,17 +62,28 @@ const GridVideo: LayoutComponent = ({renderData}) => {
   return (
     <View style={[style.full]}>
       {matrix.map((r, ridx) => (
-        <View style={style.gridRow} key={ridx}>
+        <View
+          style={[
+            style.gridRow,
+            {paddingBottom: ridx === matrix.length - 1 ? 0 : 4},
+          ]}
+          key={ridx}>
           {r.map((c, cidx) => (
             <Pressable
               disabled={renderData.length === 1}
               onPress={() => {
-                if (!(ridx === 0 && cidx === 0)) {
+                //if (!(ridx === 0 && cidx === 0)) {
+                const currentUid = renderData[ridx * dims.c + cidx];
+                if (
+                  currentUid !== pinnedUid &&
+                  currentUid !== secondaryPinnedUid
+                ) {
                   dispatch({
-                    type: 'SwapVideo',
+                    type: 'ActiveSpeaker',
                     value: [renderData[ridx * dims.c + cidx]],
                   });
                 }
+                //}
                 setPinnedLayout();
               }}
               style={{
@@ -116,7 +128,7 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-    paddingVertical: 4,
+    paddingTop: 4,
   },
   gridVideoContainerInner: {
     //borderRadius: 12,

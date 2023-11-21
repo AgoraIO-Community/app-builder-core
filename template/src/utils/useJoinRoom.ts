@@ -5,6 +5,7 @@ import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {GraphQLContext} from '../components/GraphQLProvider';
 import useGetName from './useGetName';
+import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -65,67 +66,98 @@ const JOIN_CHANNEL_PHRASE = gql`
 export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
   const {setRoomInfo} = useSetRoomInfo();
+
   const {client} = useContext(GraphQLContext);
   const username = useGetName();
+  const {request: requestToJoin} = useWaitingRoomAPI();
+  const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
 
   return async (phrase: string) => {
-    setRoomInfo((prevState) => {
+    setRoomInfo(prevState => {
       return {
         ...prevState,
         isJoinDataFetched: false,
       };
     });
     try {
-      const response = await client.query({
-        query:
-          store.token === null
-            ? JOIN_CHANNEL_PHRASE
-            : JOIN_CHANNEL_PHRASE_AND_GET_USER,
-        variables: {
-          passphrase: phrase,
-          //userName: username,
-        },
-      });
-      if (response.error) {
+      let response = null;
+      if (isWaitingRoomEnabled) {
+        response = await requestToJoin({
+          meetingPhrase: phrase,
+          send_event: false,
+        });
+        console.log('in use join', response);
+      } else {
+        response = await client.query({
+          query:
+            store.token === null
+              ? JOIN_CHANNEL_PHRASE
+              : JOIN_CHANNEL_PHRASE_AND_GET_USER,
+          variables: {
+            passphrase: phrase,
+            //userName: username,
+          },
+        });
+      }
+      if (response?.error) {
         throw response.error;
       } else {
-        if (response && response.data) {
-          let data = response.data;
+        if ((response && response.data) || isWaitingRoomEnabled) {
+          let data = isWaitingRoomEnabled ? response : response.data;
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
-          if (data?.joinChannel?.channel) {
-            roomInfo.channel = data.joinChannel.channel;
+
+          if (data?.joinChannel?.channel || data?.channel) {
+            roomInfo.channel = isWaitingRoomEnabled
+              ? data.channel
+              : data.joinChannel.channel;
           }
-          if (data?.joinChannel?.mainUser?.uid) {
-            roomInfo.uid = data.joinChannel.mainUser.uid;
+          if (data?.joinChannel?.mainUser?.uid || data?.mainUser?.uid) {
+            roomInfo.uid = isWaitingRoomEnabled
+              ? data.mainUser.uid
+              : data.joinChannel.mainUser.uid;
           }
-          if (data?.joinChannel?.mainUser?.rtc) {
-            roomInfo.token = data.joinChannel.mainUser.rtc;
+          if (data?.joinChannel?.mainUser?.rtc || data?.mainUser?.rtc) {
+            roomInfo.token = isWaitingRoomEnabled
+              ? data.mainUser.rtc
+              : data.joinChannel.mainUser.rtc;
           }
-          if (data?.joinChannel?.mainUser?.rtm) {
-            roomInfo.rtmToken = data.joinChannel.mainUser.rtm;
+          if (data?.joinChannel?.mainUser?.rtm || data?.mainUser?.rtm) {
+            roomInfo.rtmToken = isWaitingRoomEnabled
+              ? data.mainUser.rtm
+              : data.joinChannel.mainUser.rtm;
           }
-          if (data?.joinChannel?.secret) {
-            roomInfo.encryptionSecret = data.joinChannel.secret;
+          if (data?.joinChannel?.secret || data?.secret) {
+            roomInfo.encryptionSecret = isWaitingRoomEnabled
+              ? data.secret
+              : data.joinChannel.secret;
           }
-          if (data?.joinChannel?.screenShare?.uid) {
-            roomInfo.screenShareUid = data.joinChannel.screenShare.uid;
+          if (data?.joinChannel?.screenShare?.uid || data?.screenShare?.uid) {
+            roomInfo.screenShareUid = isWaitingRoomEnabled
+              ? data.screenShare.uid
+              : data.joinChannel.screenShare.uid;
           }
-          if (data?.joinChannel?.screenShare?.rtc) {
-            roomInfo.screenShareToken = data.joinChannel.screenShare.rtc;
+          if (data?.joinChannel?.screenShare?.rtc || data?.screenShare?.rtc) {
+            roomInfo.screenShareToken = isWaitingRoomEnabled
+              ? data.screenShare.rtc
+              : data.joinChannel.screenShare.rtc;
           }
-          if (data?.joinChannel?.isHost) {
-            roomInfo.isHost = data.joinChannel.isHost;
+          roomInfo.isHost = isWaitingRoomEnabled
+            ? data.isHost
+            : data.joinChannel.isHost;
+
+          if (data?.joinChannel?.title || data?.title) {
+            roomInfo.meetingTitle = isWaitingRoomEnabled
+              ? data.title
+              : data.joinChannel.title;
           }
-          if (data?.joinChannel?.title) {
-            roomInfo.meetingTitle = data.joinChannel.title;
-          }
-          if (data?.joinChannel?.title) {
-            roomInfo.meetingTitle = data.joinChannel.title;
-          }
-          if (data?.joinChannel?.whiteboard) {
+          if (data?.joinChannel?.whiteboard || data?.whiteboard) {
             const whiteboard: RoomInfoContextInterface['data']['whiteboard'] = {
-              room_token: data?.joinChannel?.whiteboard?.room_token,
-              room_uuid: data?.joinChannel?.whiteboard?.room_uuid,
+              room_token: isWaitingRoomEnabled
+                ? data.whiteboard.room_token
+                : data?.joinChannel?.whiteboard?.room_token,
+              room_uuid: isWaitingRoomEnabled
+                ? data.whiteboard.room_uuid
+                : data?.joinChannel?.whiteboard?.room_uuid,
             };
             if (whiteboard?.room_token && whiteboard?.room_uuid) {
               roomInfo.whiteboard = whiteboard;
@@ -137,9 +169,9 @@ export default function useJoinRoom() {
           // }
           console.log('!!!!!Meetinginfo', {
             roomInfo,
-            response: response.data,
+            response: response,
           });
-          setRoomInfo((prevState) => {
+          setRoomInfo(prevState => {
             let compiledMeetingInfo = {
               ...prevState.data,
               ...roomInfo,

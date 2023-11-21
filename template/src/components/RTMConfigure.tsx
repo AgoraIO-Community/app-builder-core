@@ -23,7 +23,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb, isWebInternal} from '../utils/common';
-import {useContent} from 'customization-api';
+import {useContent, useIsAttendee, useUserName} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -31,11 +31,14 @@ import {
   getMessageTime,
   get32BitUid,
 } from '../rtm/utils';
-import {EventUtils, EventsQueue} from '../rtm-events';
-import {PersistanceLevel} from '../rtm-events-api';
+import {EventUtils, EventsQueue, EventNames} from '../rtm-events';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
-
+import SDKEvents from '../utils/SdkEvents';
+import isSDK from '../utils/isSDK';
+import {useAsyncEffect} from '../utils/useAsyncEffect';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -49,6 +52,10 @@ const RtmConfigure = (props: any) => {
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
+  const {
+    isInWaitingRoom,
+    data: {isHost},
+  } = useRoomInfo();
 
   /**
    * inside event callback state won't have latest value.
@@ -61,8 +68,6 @@ const RtmConfigure = (props: any) => {
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
-
-  const [login, setLogin] = useState<boolean>(false);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
@@ -83,14 +88,17 @@ const RtmConfigure = (props: any) => {
       Object.keys(
         filterObject(
           defaultContent,
-          ([k, v]) => v?.type === 'rtc' && !v.offline,
+          ([k, v]) =>
+            v?.type === 'rtc' &&
+            !v.offline &&
+            activeUids.indexOf(v?.uid) !== -1,
         ),
       ).length,
     );
   }, [defaultContent]);
 
   React.useEffect(() => {
-    const handBrowserClose = (ev) => {
+    const handBrowserClose = ev => {
       ev.preventDefault();
       return (ev.returnValue = 'Are you sure you want to exit?');
     };
@@ -101,7 +109,7 @@ const RtmConfigure = (props: any) => {
     if (!isWebInternal()) return;
     window.addEventListener(
       'beforeunload',
-      isWeb() ? handBrowserClose : () => {},
+      isWeb() && !isSDK() ? handBrowserClose : () => {},
     );
 
     window.addEventListener('pagehide', logoutRtm);
@@ -109,7 +117,7 @@ const RtmConfigure = (props: any) => {
     return () => {
       window.removeEventListener(
         'beforeunload',
-        isWeb() ? handBrowserClose : () => {},
+        isWeb() && !isSDK() ? handBrowserClose : () => {},
       );
       window.removeEventListener('pagehide', logoutRtm);
     };
@@ -123,7 +131,7 @@ const RtmConfigure = (props: any) => {
       });
       RTMEngine.getInstance().setLocalUID(localUid.toString());
       timerValueRef.current = 5;
-      setAttribute();
+      await setAttribute();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -155,6 +163,8 @@ const RtmConfigure = (props: any) => {
       if (RTMEngine.getInstance().channelUid !== rtcProps.channel) {
         await engine.current.joinChannel(rtcProps.channel);
         RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        console.log('Emitting rtm joined');
+        SDKEvents.emit('_rtm-joined', rtcProps.channel);
       } else {
         console.log('RTM already joined channel skipping');
       }
@@ -179,7 +189,7 @@ const RtmConfigure = (props: any) => {
     try {
       await engine.current
         .getChannelMembersBychannelId(rtcProps.channel)
-        .then(async (data) => {
+        .then(async data => {
           await Promise.all(
             data.members.map(async (member: any) => {
               const backoffAttributes = backOff(
@@ -259,7 +269,7 @@ const RtmConfigure = (props: any) => {
               }
             }),
           );
-          setLogin(true);
+
           console.log('RTM init done');
         });
       timerValueRef.current = 5;
@@ -370,7 +380,7 @@ const RtmConfigure = (props: any) => {
       }
     });
 
-    engine.current.on('channelMessageReceived', (evt) => {
+    engine.current.on('channelMessageReceived', evt => {
       console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
 
       const {uid, channelId, text, ts} = evt;
@@ -393,7 +403,7 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
-    doLoginAndSetupRTM();
+    await doLoginAndSetupRTM();
   };
 
   const runQueuedEvents = async () => {
@@ -416,7 +426,46 @@ const RtmConfigure = (props: any) => {
     ts: number,
   ) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
-    const {evt, value} = data;
+    let evt = '',
+      value = {};
+
+    if (data.feat === 'WAITING_ROOM') {
+      if (data.etyp === 'REQUEST') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            attendee_uid: data.data.data.attendee_uid,
+            attendee_screenshare_uid: data.data.data.attendee_screenshare_uid,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp; //rename if client side RTM meessage is to be sent for approval
+        value = formattedData;
+      }
+      if (data.etyp === 'RESPONSE') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            approved: data.data.data.approved,
+            channelName: data.data.data.channel_name,
+            mainUser: data.data.data.mainUser,
+            screenShare: data.data.data.screenShare,
+            whiteboard: data.data.data.whiteboard,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp;
+        value = formattedData;
+      }
+    } else {
+      evt = data.evt;
+      value = data.value;
+    }
+
     // Step 1: Set local attributes
     if (value?.persistLevel === PersistanceLevel.Session) {
       const rtmAttribute = {key: evt, value: value};
@@ -444,19 +493,34 @@ const RtmConfigure = (props: any) => {
   };
 
   const end = async () => {
-    callActive
-      ? (RTMEngine.getInstance().destroy(),
-        EventUtils.clear(),
-        setHasUserJoinedRTM(false),
-        // setLogin(false),
-        console.log('RTM cleanup done'))
-      : {};
+    if (!callActive) {
+      return;
+    }
+    await RTMEngine.getInstance().destroy();
+    setHasUserJoinedRTM(false);
+    console.log('RTM cleanup done');
   };
 
-  useEffect(() => {
-    callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
-    return () => {
-      end();
+  useAsyncEffect(async () => {
+    //waiting room attendee -> rtm login will happen on page load
+    if ($config.ENABLE_WAITING_ROOM) {
+      //attendee
+      if (!isHost && !callActive) {
+        await init();
+      }
+      //host
+      if (isHost && callActive) {
+        await init();
+      }
+    }
+    if (!$config.ENABLE_WAITING_ROOM) {
+      //host and attendee
+      if (callActive) {
+        await init();
+      }
+    }
+    return async () => {
+      await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rtcProps.channel, rtcProps.appId, callActive]);
@@ -470,7 +534,7 @@ const RtmConfigure = (props: any) => {
         localUid: localUid,
         onlineUsersCount,
       }}>
-      {login ? props.children : <></>}
+      {props.children}
     </ChatContext.Provider>
   );
 };

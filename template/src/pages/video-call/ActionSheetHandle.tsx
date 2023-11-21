@@ -3,7 +3,12 @@ import React from 'react';
 
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 
-import {ChatHeader, PeopleHeader, SettingsHeader} from './SidePanelHeader';
+import {
+  ChatHeader,
+  PeopleHeader,
+  SettingsHeader,
+  TranscriptHeader,
+} from './SidePanelHeader';
 
 const ActionSheetHandle = (props: {sidePanel: SidePanelType}) => {
   const Header = null;
@@ -17,6 +22,7 @@ const ActionSheetHandle = (props: {sidePanel: SidePanelType}) => {
       {sidePanel === SidePanelType.Participants && <PeopleHeader />}
       {sidePanel === SidePanelType.Chat && <ChatHeader />}
       {sidePanel === SidePanelType.Settings && <SettingsHeader />}
+      {sidePanel === SidePanelType.Transcript && <TranscriptHeader />}
     </View>
   );
 };

@@ -10,77 +10,76 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {StyleSheet} from 'react-native';
-import PrimaryButton from '../atoms/PrimaryButton';
+import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {
   RtcContext,
-  UidType,
-  useLocalUid,
   DispatchContext,
+  useLocalUid,
+  PropsContext,
 } from '../../agora-rn-uikit';
-import events from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
 import {useContent} from 'customization-api';
-import {useParams} from '../components/Router';
-import StorageContext from './StorageContext';
-import {isWebInternal} from '../utils/common';
+import {isAndroid, isIOS, isWebInternal} from '../utils/common';
+import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
+import {
+  RoomInfoContextInterface,
+  useRoomInfo,
+} from '../components/room-info/useRoomInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
+import {EventNames} from '../rtm-events';
+import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
+import useWaitingRoomAPI from '../../src/subComponents/waiting-rooms/useWaitingRoomAPI';
 import LocalEventEmitter, {
   LocalEventsEnum,
-} from '../rtm-events-api/LocalEvents';
+} from '../../src/rtm-events-api/LocalEvents';
+import {ENABLE_AUTH} from '../auth/config';
+import {useAuth} from '../auth/AuthProvider';
+import ThemeConfig from '../theme';
 
 interface Props {
   children: React.ReactNode;
 }
 
-const EventsConfigure: React.FC<Props> = (props) => {
-  const {setStore} = useContext(StorageContext);
-  const {RtcEngineUnsafe} = useContext(RtcContext);
+const EventsConfigure: React.FC<Props> = props => {
+  //@ts-ignore
+  const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
+    useScreenshare();
+  const isLiveStream = $config.EVENT_MODE;
   const {dispatch} = useContext(DispatchContext);
-  const {defaultContent} = useContent();
+  const {RtcEngineUnsafe} = useContext(RtcContext);
+  const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent});
-  const {phrase} = useParams<{phrase: string}>();
-  const localUid = useLocalUid();
-  const activeSpeakerUid = useRef(undefined);
+  const isScreenshareActiveRef = useRef({isScreenshareActive});
+  useEffect(() => {
+    isScreenshareActiveRef.current.isScreenshareActive = isScreenshareActive;
+  }, [isScreenshareActive]);
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const {setRoomInfo} = useSetRoomInfo();
+  const isHostRef = React.useRef(isHost);
 
-  const emitActiveSpeaker = (uid: UidType) => {
-    if (uid !== activeSpeakerUid.current) {
-      activeSpeakerUid.current = uid;
-      LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
-    }
-  };
+  const {waitingRoomUids, waitingRoomRef} = useWaitingRoomContext();
+  const waitingRoomUidsRef = React.useRef(waitingRoomUids);
+  const {approval} = useWaitingRoomAPI();
+  const localUid = useLocalUid();
+  const activeUidsRef = React.useRef(activeUids);
+  const {authLogin} = useAuth();
+  React.useEffect(() => {
+    activeUidsRef.current = activeUids;
+  }, [activeUids]);
 
   useEffect(() => {
-    RtcEngineUnsafe.addListener('AudioVolumeIndication', (...args) => {
-      // console.log('-- AudioVolumeCallback', args);
-      const [speakers, totalVolume] = args;
-      if (speakers[0]?.uid === 0) {
-        //callback for local user
-        const isLocalUserSpeaking = speakers[0].vad; //1-speaking ,  0-not speaking
-        const localUserVolumeLevel = speakers[0].volume;
-        // vad value is not consistent while speaking so using volume level
-        if (localUserVolumeLevel > 0) {
-          emitActiveSpeaker(localUid);
-        } else {
-          //undefined
-          emitActiveSpeaker(undefined);
-        }
-      } else {
-        // remote users callback, this will be handeled in ActiveSpeaker callback(367)
-        // const highestvolumeObj = speakers.reduce(function (prev, current) {
-        //   return prev.volume > current.volume ? prev : current;
-        // }, null);
-      }
-    });
+    isHostRef.current = isHost;
+  }, [isHost]);
 
-    RtcEngineUnsafe.addListener('ActiveSpeaker', (...args) => {
-      // used as a callback from the web bridge as well remote users
-      emitActiveSpeaker(args[0]);
-    });
+  useEffect(() => {
     //user joined event listener
     // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
     //   const data = JSON.parse(payload);
@@ -96,6 +95,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     // });
     events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
+        leadingIconName: 'video-off',
         type: 'info',
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
@@ -104,17 +104,28 @@ const EventsConfigure: React.FC<Props> = (props) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
-      isWebInternal()
-        ? await RtcEngineUnsafe.muteLocalVideoStream(true)
-        : await RtcEngineUnsafe.enableLocalVideo(false);
-      dispatch({
-        type: 'LocalMuteVideo',
-        value: [0],
-      });
+      if (
+        (isAndroid() || isIOS()) &&
+        isScreenshareActiveRef.current.isScreenshareActive
+      ) {
+        //@ts-ignore
+        stopUserScreenShare(false, true);
+      } else {
+        isWebInternal()
+          ? await RtcEngineUnsafe.muteLocalVideoStream(true)
+          : await RtcEngineUnsafe.enableLocalVideo(false);
+        await updateVideoStream(true);
+        dispatch({
+          type: 'LocalMuteVideo',
+          value: [0],
+        });
+      }
     });
     events.on(controlMessageEnum.muteAudio, ({sender}) => {
       Toast.show({
+        leadingIconName: 'mic-off',
         type: 'info',
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
@@ -123,6 +134,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
       RtcEngineUnsafe.muteLocalAudioStream(true);
       dispatch({
@@ -130,8 +142,23 @@ const EventsConfigure: React.FC<Props> = (props) => {
         value: [0],
       });
     });
-    events.on(controlMessageEnum.kickUser, () => {
+    events.on(controlMessageEnum.kickUser, async () => {
+      //before kickoff the user we have check whether screenshare on/off
+      //if its on then stop screenshare and emit event for screensharing is stopped
+      try {
+        if (isScreenshareActiveRef?.current?.isScreenshareActive) {
+          ScreenshareStoppedCallback && ScreenshareStoppedCallback();
+        }
+      } catch (error) {
+        console.log('error on stop the screeshare', error);
+      }
+
+      if (!ENABLE_AUTH) {
+        // await authLogout();
+        await authLogin();
+      }
       Toast.show({
+        leadingIconName: 'info',
         type: 'info',
         text1: 'The host has removed you from the room.',
         visibilityTime: 5000,
@@ -147,13 +174,15 @@ const EventsConfigure: React.FC<Props> = (props) => {
     });
     events.on(controlMessageEnum.requestAudio, () => {
       Toast.show({
+        leadingIconName: 'mic-on',
         type: 'info',
         text1: 'The host has requested you to speak',
         visibilityTime: 3000,
+        leadingIcon: null,
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
-            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
+            textStyle={style.textStyle}
             text="UNMUTE"
             onPress={() => {
               RtcEngineUnsafe.muteLocalAudioStream(false);
@@ -170,18 +199,21 @@ const EventsConfigure: React.FC<Props> = (props) => {
     });
     events.on(controlMessageEnum.requestVideo, () => {
       Toast.show({
+        leadingIconName: 'video-on',
         type: 'info',
         text1: 'The host has asked you to start your video.',
         visibilityTime: 3000,
+        leadingIcon: null,
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
-            textStyle={style.primaryBtnText}
+            textStyle={style.textStyle}
             text="UNMUTE"
             onPress={async () => {
               isWebInternal()
                 ? await RtcEngineUnsafe.muteLocalVideoStream(false)
                 : await RtcEngineUnsafe.enableLocalVideo(true);
+              await updateVideoStream(false);
               dispatch({
                 type: 'LocalMuteVideo',
                 value: [1],
@@ -194,6 +226,288 @@ const EventsConfigure: React.FC<Props> = (props) => {
       });
     });
 
+    events.on('WhiteBoardStarted', () => {
+      LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ON);
+    });
+    events.on('WhiteBoardStopped', () => {
+      LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_OFF);
+    });
+
+    events.on(EventNames.STT_ACTIVE, data => {
+      const payload = JSON.parse(data?.payload);
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          isSTTActive: payload.active,
+        };
+      });
+    });
+
+    events.on(EventNames.STT_LANGUAGE, data => {
+      const {
+        username,
+        prevLang,
+        newLang,
+        uid,
+      }: RoomInfoContextInterface['sttLanguage'] = JSON.parse(data?.payload);
+      // set this on roominfo then use it in Controls
+      const sttLangObj = {
+        username,
+        prevLang,
+        newLang,
+        uid,
+      };
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          sttLanguage: sttLangObj,
+        };
+      });
+    });
+
+    events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
+      if (!isHostRef.current) return;
+      const {attendee_uid, approved} = JSON.parse(data?.payload);
+      // update waiting room status in other host's panel
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [attendee_uid, {isInWaitingRoom: false}],
+      });
+
+      waitingRoomRef.current[attendee_uid] = approved ? 'APPROVED' : 'REJECTED';
+      // hide toast in other host's screen
+      if (Toast.getToastId() === attendee_uid) {
+        Toast.hide();
+      }
+    });
+
+    events.on(EventNames.WAITING_ROOM_REQUEST, data => {
+      if (!isHostRef.current) return;
+
+      console.log(
+        'waitingRoomRef on WAITING_ROOM_REQUEST',
+        waitingRoomRef.current,
+      );
+
+      const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
+        data?.payload,
+      );
+
+      //condition1 -if user request already approved(in the call)
+      if (activeUidsRef.current.indexOf(attendee_uid) !== -1) {
+        console.log('debugging in active uids');
+        return;
+      }
+      //condition2 -if user request already pending(in the waiting room)
+      if (waitingRoomUidsRef.current.indexOf(attendee_uid) !== -1) {
+        console.log('debugging in waitingRoomUidsRef');
+        return;
+      }
+      if (
+        waitingRoomRef.current[attendee_uid] &&
+        (waitingRoomRef.current[attendee_uid] === 'PENDING' ||
+          waitingRoomRef.current[attendee_uid] === 'APPROVED')
+      ) {
+        return;
+      }
+
+      const userName =
+        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+      // put the attendee in waitingroom in renderlist
+      dispatch({
+        type: 'UpdateRenderList',
+        value: [attendee_uid, {isInWaitingRoom: true}],
+      });
+
+      waitingRoomRef.current[attendee_uid] = 'PENDING';
+      // check if any other host has approved then dont show permission to join the room
+
+      let btns: any = {};
+      btns.toastId = attendee_uid;
+      btns.primaryBtn = (
+        <PrimaryButton
+          containerStyle={style.primaryBtn}
+          textStyle={style.textStyle}
+          text="Admit"
+          onPress={() => {
+            // user approving waiting room request
+            const res = approval({
+              host_uid: localUid,
+              attendee_uid: attendee_uid,
+              attendee_screenshare_uid: attendee_screenshare_uid,
+              approved: true,
+            });
+            console.log('waiting-room:approval', res);
+            dispatch({
+              type: 'UpdateRenderList',
+              value: [attendee_uid, {isInWaitingRoom: false}],
+            });
+
+            waitingRoomRef.current[attendee_uid] = 'APPROVED';
+
+            console.log('waitingRoomRef on APPROVAL', waitingRoomRef.current);
+            // inform other that hosts as well
+            events.send(
+              EventNames.WAITING_ROOM_STATUS_UPDATE,
+              JSON.stringify({attendee_uid, approved: true}),
+              PersistanceLevel.None,
+            );
+            // server will send the RTM message with approved status and RTC token to the approved attendee.
+            Toast.hide();
+          }}
+        />
+      );
+      btns.secondaryBtn = (
+        <TertiaryButton
+          containerStyle={style.secondaryBtn}
+          textStyle={style.textStyle}
+          text="Deny"
+          onPress={() => {
+            // user rejecting waiting room request
+            const res = approval({
+              host_uid: localUid,
+              attendee_uid: attendee_uid,
+              attendee_screenshare_uid: attendee_screenshare_uid,
+              approved: false,
+            });
+            dispatch({
+              type: 'UpdateRenderList',
+              value: [attendee_uid, {isInWaitingRoom: false}],
+            });
+
+            waitingRoomRef.current[attendee_uid] = 'REJECTED';
+
+            console.log('waitingRoomRef on REJECTION', waitingRoomRef.current);
+            // inform other that hosts as well
+            events.send(
+              'WAITING_ROOM_STATUS_UPDATE',
+              JSON.stringify({attendee_uid, approved: false}),
+              PersistanceLevel.None,
+            );
+            console.log('waiting-room:reject', res);
+            // server will send the RTM message with rejected status and RTC token to the approved attendee.
+            Toast.hide();
+          }}
+        />
+      );
+
+      Toast.show({
+        leadingIconName: 'info',
+        leadingIcon: null,
+        type: 'info',
+        text1: 'Approval Required',
+        text2: `${userName} is waiting for approval to join the call`,
+        visibilityTime: 30000,
+        ...btns,
+      });
+    });
+
+    // events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
+    //   if (!isHost) return;
+    //   const {attendee_uid} = JSON.parse(data?.payload);
+    //   // update waiting room status in other host's panel
+    //   dispatch({
+    //     type: 'UpdateRenderList',
+    //     value: [attendee_uid, {isInWaitingRoom: false}],
+    //   });
+    //   // hide toast in other host's screen
+    //   if (Toast.getToastId() === attendee_uid) {
+    //     Toast.hide();
+    //   }
+    // });
+
+    // events.on(EventNames.WAITING_ROOM_REQUEST, data => {
+    //   if (!isHost) return;
+
+    //   const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
+    //     data?.payload,
+    //   );
+    //   const userName =
+    //     defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+    //   // put the attendee in waitingroom in renderlist
+    //   dispatch({
+    //     type: 'UpdateRenderList',
+    //     value: [attendee_uid, {isInWaitingRoom: true}],
+    //   });
+    //   // check if any other host has approved then dont show permission to join the room
+    //   console.log(activeUidsRef);
+    //   let btns: any = {};
+    //   btns.toastId = attendee_uid;
+    //   btns.primaryBtn = (
+    //     <PrimaryButton
+    //       containerStyle={style.primaryBtn}
+    //       textStyle={style.primaryBtnText}
+    //       text="Admit"
+    //       onPress={() => {
+    //         // user approving waiting room request
+    //         const res = approval({
+    //           host_uid: localUid,
+    //           attendee_uid: attendee_uid,
+    //           attendee_screenshare_uid: attendee_screenshare_uid,
+    //           approved: true,
+    //         });
+    //         console.log('waiting-room:approval', res);
+    //         dispatch({
+    //           type: 'UpdateRenderList',
+    //           value: [attendee_uid, {isInWaitingRoom: false}],
+    //         });
+    //         // inform other that hosts as well
+    //         events.send(
+    //           EventNames.WAITING_ROOM_STATUS_UPDATE,
+    //           JSON.stringify({attendee_uid, approved: true}),
+    //           PersistanceLevel.None,
+    //         );
+    //         // server will send the RTM message with approved status and RTC token to the approved attendee.
+    //         Toast.hide();
+    //       }}
+    //     />
+    //   );
+    //   btns.secondaryBtn = (
+    //     <TertiaryButton
+    //       containerStyle={style.secondaryBtn}
+    //       textStyle={style.primaryBtnText}
+    //       text="Deny"
+    //       onPress={() => {
+    //         // user rejecting waiting room request
+    //         const res = approval({
+    //           host_uid: localUid,
+    //           attendee_uid: attendee_uid,
+    //           attendee_screenshare_uid: attendee_screenshare_uid,
+    //           approved: false,
+    //         });
+    //         dispatch({
+    //           type: 'UpdateRenderList',
+    //           value: [attendee_uid, {isInWaitingRoom: false}],
+    //         });
+    //         // inform other that hosts as well
+    //         events.send(
+    //           'WAITING_ROOM_STATUS_UPDATE',
+    //           JSON.stringify({attendee_uid, approved: false}),
+    //           PersistanceLevel.None,
+    //         );
+    //         console.log('waiting-room:reject', res);
+    //         // server will send the RTM message with rejected status and RTC token to the approved attendee.
+    //         Toast.hide();
+    //       }}
+    //     />
+    //   );
+
+    //   callActive &&
+    //     Toast.show({
+    //       type: 'info',
+    //       text1: 'Approval Required',
+    //       text2: `${userName} is waiting for approval to join the call`,
+    //       visibilityTime: 30000,
+    //       ...btns,
+    //     });
+    // });
+
+    const updateVideoStream = async (enabled: boolean) => {
+      if ((isAndroid() || isIOS()) && isLiveStream) {
+        await RtcEngineUnsafe.muteLocalVideoStream(enabled);
+      }
+    };
+
     return () => {
       //events.off(controlMessageEnum.newUserJoined);
       events.off(controlMessageEnum.requestAudio);
@@ -201,6 +515,12 @@ const EventsConfigure: React.FC<Props> = (props) => {
       events.off(controlMessageEnum.muteVideo);
       events.off(controlMessageEnum.muteAudio);
       events.off(controlMessageEnum.kickUser);
+      events.off(EventNames.WAITING_ROOM_REQUEST);
+      events.off(EventNames.WAITING_ROOM_STATUS_UPDATE);
+      events.off('WhiteBoardStarted');
+      events.off('WhiteBoardStopped');
+      events.off(EventNames.STT_ACTIVE);
+      events.off(EventNames.STT_LANGUAGE);
     };
   }, []);
 
@@ -210,27 +530,36 @@ const EventsConfigure: React.FC<Props> = (props) => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  secondaryBtn: {marginLeft: 12, paddingVertical: 9, paddingHorizontal: 20},
   primaryBtn: {
-    maxWidth: 109,
-    minWidth: 109,
-    height: 40,
     borderRadius: 4,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    paddingHorizontal: 20,
+    paddingVertical: 9,
   },
-  primaryBtnText: {
+  textStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 16,
-    paddingLeft: 0,
+    fontSize: 14,
+    lineHeight: 14,
+    color: $config.FONT_COLOR,
   },
 });
 const SecondaryBtn = (
   <TertiaryButton
     containerStyle={style.secondaryBtn}
+    textStyle={style.textStyle}
     text="LATER"
     onPress={() => {
       Toast.hide();
     }}
   />
 );
+const PrimaryButton = props => {
+  const {text, containerStyle, textStyle, onPress} = props;
+  return (
+    <TouchableOpacity style={containerStyle} onPress={onPress}>
+      <Text style={textStyle}>{text}</Text>
+    </TouchableOpacity>
+  );
+};

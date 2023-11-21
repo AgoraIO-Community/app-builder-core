@@ -1,47 +1,46 @@
+/* eslint-disable react-native/no-inline-styles */
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useContext} from 'react';
 import ImageIcon from '../../atoms/ImageIcon';
-import LocalAudioMute, {
-  LocalAudioMuteProps,
-} from '../../subComponents/LocalAudioMute';
-import LocalVideoMute, {
-  LocalVideoMuteProps,
-} from '../../subComponents/LocalVideoMute';
-import LocalEndcall, {
-  LocalEndcallProps,
-} from '../../subComponents/LocalEndCall';
+import LocalAudioMute from '../../subComponents/LocalAudioMute';
+import LocalVideoMute from '../../subComponents/LocalVideoMute';
+import LocalEndcall from '../../subComponents/LocalEndCall';
 import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
-import {numFormatter} from '../../utils';
-import IconButton from '../../atoms/IconButton';
-import {useLayout} from '../../utils/useLayout';
-import useLayoutsData from '../../pages/video-call/useLayoutsData';
-import {useChangeDefaultLayout} from '../../pages/video-call/DefaultLayouts';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {ClientRole} from '../../../agora-rn-uikit';
-import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+import {
+  RoomInfoContextInterface,
+  useRoomInfo,
+} from '../../components/room-info/useRoomInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {
   ChatIconButton,
-  ParticipantsCountView,
   ParticipantsIconButton,
 } from '../../../src/components/Navbar';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
-import Settings from '../../components/Settings';
-import {
-  ToolbarCustomItem,
-  ToolbarItem,
-  useLocalUserInfo,
-} from 'customization-api';
+import {useContent, useLocalUserInfo, ToolbarItem} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
-import {ActionSheetProvider} from '../../utils/useActionSheet';
+import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
+import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
+import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
+import Carousel from '../../atoms/Carousel';
+import {useCaption} from '../../subComponents/caption/useCaption';
+import Settings from '../../components/Settings';
+import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
+import {EventNames} from '../../rtm-events';
+import events from '../../rtm-events-api';
+import {getLanguageLabel} from '../../subComponents/caption/utils';
+import Toast from '../../../react-native-toast-message';
 import {CustomToolbarSort} from '../../utils/common';
-
+import {ActionSheetProvider} from '../../utils/useActionSheet';
+import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -122,6 +121,16 @@ const ShareIcon = () => {
     </ToolbarItem>
   );
 };
+const ScreenshareIcon = () => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <ScreenshareButton showLabel={false} isOnActionSheet={true} />
+      </View>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Screen Share</Text>}
+    </View>
+  );
+};
 
 const AudioIcon = () => {
   return (
@@ -155,7 +164,120 @@ const LayoutIcon = () => {
   );
 };
 
-const ActionSheetContent = (props) => {
+interface CaptionIconBtnProps {
+  showLabel?: boolean;
+  onPress?: () => void;
+}
+
+const CaptionIconBtn = (props: CaptionIconBtnProps) => {
+  const {showLabel = $config.ICON_TEXT, onPress} = props;
+  const {isCaptionON, isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const isDisabled = !(
+    $config.ENABLE_STT &&
+    (isHost || (!isHost && isSTTActive))
+  );
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <CaptionIcon
+          isOnActionSheet={true}
+          showLabel={false}
+          closeActionSheet={onPress}
+        />
+      </View>
+      {showLabel && (
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+              },
+            ]}>
+            {isCaptionON ? 'Hide' : 'Show'}
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Caption
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+interface TranscriptIconProps {
+  showLabel?: boolean;
+}
+
+const TranscriptIconBtn = (props: TranscriptIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  const {sidePanel} = useSidePanel();
+  const isTranscriptON = sidePanel === SidePanelType.Transcript;
+  const {isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const isDisabled = !(
+    $config.ENABLE_STT &&
+    (isHost || (!isHost && isSTTActive))
+  );
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
+      </View>
+      {showLabel && (
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+              },
+            ]}>
+            {isTranscriptON ? 'Hide' : 'Show'}
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Transcript
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+const ToastIcon = ({color}) => (
+  <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+    <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+  </View>
+);
+
+const ActionSheetContent = props => {
   const {
     handleSheetChanges,
     isExpanded,
@@ -163,33 +285,87 @@ const ActionSheetContent = (props) => {
     includeDefaultItems = true,
     displayCustomBottomSheetContent = false,
     customBottomSheetContent,
+    native = false,
   } = props;
 
-  if (displayCustomBottomSheetContent) {
-    return <View>{customBottomSheetContent}</View>;
-  }
-
-  const {onlineUsersCount, localUid} = useContext(ChatContext);
-  const layouts = useLayoutsData();
-  const {currentLayout} = useLayout();
-  const changeLayout = useChangeDefaultLayout();
+  const {localUid} = useContext(ChatContext);
+  const {isScreenshareActive} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
-  const {sidePanel, setSidePanel} = useSidePanel();
+  const {setSidePanel} = useSidePanel();
   const {
     data: {isHost},
+    sttLanguage,
+    isSTTActive,
   } = useRoomInfo();
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
-  const layout = layouts.findIndex((item) => item.name === currentLayout);
-  const isLiveStream = $config.EVENT_MODE;
-  const isAudience = rtcProps?.role == ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
-  const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
+  const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
+  const {defaultContent} = useContent();
+  const {waitingRoomUids} = useWaitingRoomContext();
+  const defaultContentRef = React.useRef(defaultContent);
 
-  const handleLayoutChange = () => {
-    changeLayout();
-  };
+  React.useEffect(() => {
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
+
+  //STT events on mount
+
+  React.useEffect(() => {
+    setIsSTTActive(isSTTActive);
+  }, [isSTTActive]);
+
+  React.useEffect(() => {
+    // for mobile events are set in ActionSheetContent
+    if (!sttLanguage) return;
+    const {
+      username,
+      prevLang,
+      newLang,
+      uid,
+    }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    const actionText =
+      prevLang.indexOf('') !== -1
+        ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+        : `changed the spoken language from "${getLanguageLabel(
+            prevLang,
+          )}" to "${getLanguageLabel(newLang)}" `;
+    const msg = `${
+      defaultContentRef.current[uid]?.name || username
+    } ${actionText} `;
+
+    Toast.show({
+      leadingIconName: 'info',
+      type: 'info',
+      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+      text1: `Spoken Language ${
+        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+      }`,
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      text2: msg,
+    });
+    // syncing local set language
+    newLang && setLanguage(newLang);
+    // add spoken lang msg to transcript
+    setMeetingTranscript(prev => {
+      return [
+        ...prev,
+        {
+          name: 'langUpdate',
+          time: new Date().getTime(),
+          uid: `langUpdate-${uid}`,
+          text: actionText,
+        },
+      ];
+    });
+  }, [sttLanguage]);
+
+  const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
+  const isAudience = rtcProps?.role === ClientRole.Audience;
+  const isBroadCasting = rtcProps?.role === ClientRole.Broadcaster;
+  const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
 
   const isAudioRoom = $config.AUDIO_ROOM;
   const isVoiceChatHost = !$config.EVENT_MODE && $config.AUDIO_ROOM && isHost;
@@ -201,7 +377,17 @@ const ActionSheetContent = (props) => {
 
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
-  const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+
+  const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
+
+  const isPaginationRequired = isLiveStream || (isConferencing && isHost);
+  const localUser = useLocalUserInfo();
+
+  const isVideoDisabled = native
+    ? localUser.video === ToggleState.disabled || isScreenshareActive
+    : localUser.video === ToggleState.disabled;
+
+  const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const defaultItems = [
     {
@@ -217,8 +403,8 @@ const ActionSheetContent = (props) => {
       hide: 'no',
       align: 'start',
       /*For AudioCast Host:Chat ,Attendee:Raise Hand 
-          For VoiceChat Host:Chat, Attendee:Chat
-         */
+            For VoiceChat Host:Chat, Attendee:Chat
+           */
       component: (isAudioCastHost ||
         isVoiceChatHost ||
         isVoiceChatAudience) && <ChatIcon />,
@@ -320,18 +506,50 @@ const ActionSheetContent = (props) => {
       align: 'start',
       component: <ShareIcon />,
     },
+    {
+      default: true,
+      order: 12,
+      hide: 'no',
+      align: 'start',
+      component: (
+        <CaptionIconBtn
+          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+        />
+      ),
+    },
   ];
 
-  const isHidden = (i) => {
+  //todo: hari refactor STT button and Native screenshare button
+  //and add into above array
+  //todo: hari - update CarouselWrapper pagination logic based on array length
+  /**
+     {$config.ENABLE_STT ? (
+      <CaptionIconBtn
+        onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+      />
+    ) : (
+      <></>
+    )}
+    {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
+      <ScreenshareIcon />
+    ) : (
+      <></>
+    )}
+  */
+
+  const isHidden = i => {
     return i?.hide === 'yes';
   };
   const combinedItems = customItems
-    ?.filter((i) => !isHidden(i))
+    ?.filter(i => !isHidden(i))
     ?.concat(includeDefaultItems ? defaultItems : [])
     //to filter empty component because of some condition array will have empty component
-    ?.filter((i) => i?.component)
+    ?.filter(i => i?.component)
     ?.sort(CustomToolbarSort);
 
+  if (displayCustomBottomSheetContent) {
+    return <View>{customBottomSheetContent}</View>;
+  }
   return (
     <View>
       {/* Row Always Visible */}
@@ -345,7 +563,7 @@ const ActionSheetContent = (props) => {
           {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
           {combinedItems
             ?.slice(0, combinedItems?.length > 4 ? 3 : 4)
-            ?.map((i) => {
+            ?.map(i => {
               const Component = i?.component;
               if (Component) {
                 return i?.default ? Component : <Component />;
@@ -358,7 +576,8 @@ const ActionSheetContent = (props) => {
               isExpanded={isExpanded}
               showNotification={
                 (!isExpanded && totalUnreadCount !== 0) ||
-                ($config.EVENT_MODE && isPendingRequestToReview)
+                ($config.EVENT_MODE && isPendingRequestToReview) ||
+                isPendingWaitingRoomApproval
               }
               onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
             />
@@ -367,18 +586,57 @@ const ActionSheetContent = (props) => {
           )}
         </View>
       </ActionSheetProvider>
-      {/* Rest Of Controls */}
-      <View style={styles.row}>
-        {combinedItems?.length > 4 &&
-          combinedItems?.slice(3, combinedItems?.length)?.map((i) => {
-            const Component = i?.component;
-            if (Component) {
-              return i?.default ? Component : <Component />;
-            } else {
-              return null;
-            }
-          })}
-      </View>
+      <CarouselWrapper
+        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
+        native={native}>
+        <>
+          {combinedItems?.length > 4 &&
+            combinedItems?.slice(3, combinedItems?.length)?.map(i => {
+              const Component = i?.component;
+              if (Component) {
+                return i?.default ? Component : <Component />;
+              } else {
+                return null;
+              }
+            })}
+        </>
+      </CarouselWrapper>
+    </View>
+  );
+};
+
+const CarouselWrapper = ({isPaginationRequired, children, native}) => {
+  return isPaginationRequired ? (
+    <View style={{flexDirection: 'row'}}>
+      <Carousel
+        data={[
+          {
+            id: 'slide_1',
+            component: <View style={styles.row}>{children}</View>,
+          },
+          {
+            id: 'slide_2',
+            component: (
+              <View style={styles.row}>
+                {/* Transcript */}
+                <TranscriptIconBtn />
+                {/* {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>} */}
+              </View>
+            ),
+          },
+        ]}
+      />
+    </View>
+  ) : (
+    <View style={styles.row}>
+      {$config.ENABLE_STT ? (
+        <>
+          {children}
+          <TranscriptIconBtn />
+        </>
+      ) : (
+        children
+      )}
     </View>
   );
 };

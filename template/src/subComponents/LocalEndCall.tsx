@@ -1,16 +1,20 @@
-import React, {useContext, useState} from 'react';
-import {useRtc} from 'customization-api';
-
+import React, {useContext, useEffect, useState} from 'react';
+import {isAndroid, isIOS, useContent} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
-import StorageContext from '../components/StorageContext';
-import {Prompt, useParams} from '../components/Router';
+import {Prompt} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {Platform} from 'react-native';
-import {DispatchContext} from '../../agora-rn-uikit';
+import useSTTAPI from './caption/useSTTAPI';
+import {useCaption} from './caption/useCaption';
+import {useScreenshare} from './screenshare/useScreenshare';
+import {DispatchContext, PropsContext} from '../../agora-rn-uikit';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import RTMEngine from '../rtm/RTMEngine';
+import {useAuth} from '../../src/auth/AuthProvider';
+import {ENABLE_AUTH} from '../../src/auth/config';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -25,20 +29,25 @@ const stopForegroundService = () => {
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
+  const {isScreenshareActive, stopUserScreenShare} = useScreenshare();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {dispatch} = useContext(DispatchContext);
-  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {isOnActionSheet, showLabel} = useActionSheet();
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
+  const {defaultContent} = useContent();
   const endCallLabel = 'Leave';
-  const {setStore} = useContext(StorageContext);
   const [endcallVisible, setEndcallVisible] = useState(false);
-  const {phrase} = useParams<{phrase: string}>();
+  const {stop} = useSTTAPI();
+  const {isSTTActive} = useCaption();
   const onPress = () => {
     setEndcallVisible(true);
   };
+  const [endCallState, setEndCallState] = useState(false);
+  const {rtcProps} = useContext(PropsContext);
+  const {authLogout, authLogin} = useAuth();
 
-  const endCall = async () => {
+  const executeEndCall = async () => {
     setTimeout(() => {
       dispatch({
         type: 'EndCall',
@@ -47,6 +56,32 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     });
     // stopping foreground servie on end call
     stopForegroundService();
+    // stopping STT on call end,if only last user is remaining in call
+    const usersInCall = Object.entries(defaultContent).filter(
+      item => item[1].type === 'rtc',
+    );
+    usersInCall.length === 1 && isSTTActive && stop();
+    RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
+    if (!ENABLE_AUTH) {
+      // await authLogout();
+      await authLogin();
+    }
+  };
+
+  useEffect(() => {
+    if (!isScreenshareActive && endCallState) {
+      executeEndCall();
+      setEndCallState(false);
+    }
+  }, [isScreenshareActive, endCallState]);
+
+  const endCall = async () => {
+    if ((isAndroid() || isIOS()) && isScreenshareActive) {
+      stopUserScreenShare();
+      setEndCallState(true);
+    } else {
+      executeEndCall();
+    }
   };
 
   let iconButtonProps: IconButtonProps = {

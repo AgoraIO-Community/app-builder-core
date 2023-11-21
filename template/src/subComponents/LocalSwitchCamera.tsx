@@ -3,8 +3,9 @@ import {Text} from 'react-native';
 import {useString} from '../utils/useString';
 import {ClientRole, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
-import {useLocalUserInfo, useRtc} from 'customization-api';
+import {isAndroid, isIOS, useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import {useScreenshare} from './screenshare/useScreenshare';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
@@ -16,6 +17,7 @@ export interface LocalSwitchCameraProps {
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {isToolbarMenuItem} = useToolbarMenu();
   const {callbacks} = useContext(PropsContext);
+  const {isScreenshareActive} = useScreenshare();
   const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
   const {isOnActionSheet, showLabel} = useActionSheet();
@@ -31,11 +33,14 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     RtcEngineUnsafe.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
   };
-  const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+  const isNativeScreenShareActive =
+    (isAndroid() || isIOS()) && isScreenshareActive;
+  const isVideoEnabled = isNativeScreenShareActive
+    ? false
+    : local.video === ToggleState.enabled;
   const disabled =
-    (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled;
+    (isLiveStream && isAudience && !isBroadCasting) || !isVideoEnabled;
 
-  const isVideoEnabled = local.video === ToggleState.enabled;
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: 'switch-camera',

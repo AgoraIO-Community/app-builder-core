@@ -30,6 +30,7 @@ import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
+import {useRoomInfo} from 'customization-api';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -83,6 +84,7 @@ interface RecordingProviderProps {
   value: {
     setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
     isRecordingActive: boolean;
+    callActive: boolean;
   };
 }
 
@@ -94,7 +96,10 @@ interface RecordingProviderProps {
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
-  const {setRecordingActive, isRecordingActive} = props?.value;
+  const {setRecordingActive, isRecordingActive, callActive} = props?.value;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
   const {defaultContent, activeUids} = useContent();
@@ -113,7 +118,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {screenShareData} = useScreenContext();
 
   React.useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
+    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
@@ -132,7 +137,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
-    () => {
+    return () => {
       events.off(EventNames.RECORDING_ATTRIBUTE);
     };
   }, []);
@@ -146,7 +151,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      */
     if (prevRecordingState) {
       if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
+
+      if ($config.ENABLE_WAITING_ROOM && !isHost && !callActive) {
+        return;
+      }
+
       Toast.show({
+        leadingIconName: 'info',
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
@@ -157,9 +168,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
     }
-  }, [isRecordingActive]);
+  }, [isRecordingActive, callActive, isHost]);
 
   const startRecording = () => {
     setInProgress(true);
@@ -177,7 +189,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         },
       },
     })
-      .then((res) => {
+      .then(res => {
         console.log(res.data);
         setInProgress(false);
         if (res.data.startRecordingSession === 'success') {
@@ -199,7 +211,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 3. set the presenter mode if screen share is active
           // 3.a Get the most recent screenshare uid
           const sorted = Object.entries(screenShareData)
-            .filter((el) => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
+            .filter(el => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
             .sort((a, b) => b[1].ts - a[1].ts);
 
           const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
@@ -214,7 +226,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           }
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setInProgress(false);
         console.log(err);
       });
@@ -240,7 +252,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       setInProgress(true);
       // If recording is already going on, stop the recording by executing the graphql query.
       stopRecordingQuery({variables: {passphrase: phrase}})
-        .then((res) => {
+        .then(res => {
           console.log(res.data);
           setInProgress(false);
           if (res.data.stopRecordingSession === 'success') {
@@ -260,7 +272,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             setRecordingActive(false);
           }
         })
-        .catch((err) => {
+        .catch(err => {
           setInProgress(false);
           console.log(err);
         });

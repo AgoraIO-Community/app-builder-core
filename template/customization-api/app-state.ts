@@ -26,8 +26,8 @@ export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
  * UI contexts
  */
 // commented for v1 release
-//export {usePreCall} from '../src/components/precall/usePreCall';
-//export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
+export {usePreCall} from '../src/components/precall/usePreCall';
+export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
 export {useLayout} from '../src/utils/useLayout';
 export type {LayoutContextInterface} from '../src/utils/useLayout';
 // commented for v1 release
@@ -46,6 +46,9 @@ export {useMessages} from '../src/app-state/useMessages';
 export type {messageInterface} from '../src/app-state/useMessages';
 export {SidePanelType} from '../src/subComponents/SidePanelEnum';
 export {useSidePanel} from '../src/utils/useSidePanel';
+
+export {useNoiseSupression} from '../src/app-state/useNoiseSupression';
+export {useVideoQuality} from '../src/app-state/useVideoQuality';
 
 //hook used to get/set username
 export {default as useUserName} from '../src/utils/useUserName';
