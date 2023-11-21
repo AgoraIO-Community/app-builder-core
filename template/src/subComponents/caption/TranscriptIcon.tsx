@@ -26,7 +26,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   } = props;
 
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
-  const {isSTTActive, language: prevLang} = useCaption();
+  const {isSTTActive, language: prevLang, isSTTError} = useCaption();
   const isDisabled = !isAuthorizedSTTUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -34,6 +34,12 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
+    if (isSTTError) {
+      setSidePanel(
+        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
+      );
+      return;
+    }
     if (isSTTActive) {
       setSidePanel(
         isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
