@@ -204,7 +204,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                         pinnedUid &&
                         pinnedUid == user.uid &&
                         !isScreenShareOnFullView
-                          ? 100
+                          ? 160
                           : 8,
                       zIndex: 999,
                       elevation: 999,
