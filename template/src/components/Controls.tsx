@@ -168,6 +168,7 @@ const MoreButton = () => {
     language: prevLang,
     isSTTActive,
     setIsSTTActive,
+    isSTTError,
   } = useCaption();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -350,6 +351,10 @@ const MoreButton = () => {
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
+        if (isSTTError) {
+          setIsCaptionON(prev => !prev);
+          return;
+        }
         if (isSTTActive) {
           setIsCaptionON(prev => !prev);
           // is lang popup has been shown once for any user in meeting
@@ -369,6 +374,12 @@ const MoreButton = () => {
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+        if (isSTTError) {
+          !isTranscriptON
+            ? setSidePanel(SidePanelType.Transcript)
+            : setSidePanel(SidePanelType.None);
+          return;
+        }
         if (isSTTActive) {
           !isTranscriptON
             ? setSidePanel(SidePanelType.Transcript)

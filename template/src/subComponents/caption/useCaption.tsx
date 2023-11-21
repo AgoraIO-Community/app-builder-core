@@ -20,6 +20,10 @@ export const CaptionContext = React.createContext<{
   isCaptionON: boolean;
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
 
+  // for error state
+  isSTTError: boolean;
+  setIsSTTError: React.Dispatch<React.SetStateAction<boolean>>;
+
   // to check if stt is active in the call
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,7 +53,8 @@ export const CaptionContext = React.createContext<{
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
-
+  isSTTError: false,
+  setIsSTTError: () => {},
   isSTTActive: false,
   setIsSTTActive: () => {},
   language: ['en-US'],
@@ -67,6 +72,7 @@ export const CaptionContext = React.createContext<{
 });
 
 const CaptionProvider = ({children}) => {
+  const [isSTTError, setIsSTTError] = React.useState<boolean>(false);
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['']);
@@ -90,6 +96,8 @@ const CaptionProvider = ({children}) => {
       value={{
         isCaptionON,
         setIsCaptionON,
+        isSTTError,
+        setIsSTTError,
         isSTTActive,
         setIsSTTActive,
         language,
@@ -104,8 +112,7 @@ const CaptionProvider = ({children}) => {
         setIsSTTListenerAdded,
         activeSpeakerRef,
         prevSpeakerRef,
-      }}
-    >
+      }}>
       {children}
     </CaptionContext.Provider>
   );
