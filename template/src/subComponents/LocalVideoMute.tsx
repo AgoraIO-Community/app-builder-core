@@ -126,7 +126,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel && callActive ? videoLabel : '',
+      text: showLabel && callActive && !isMobileUA() ? videoLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,
