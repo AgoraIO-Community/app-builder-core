@@ -256,6 +256,7 @@ const EventsConfigure: React.FC<Props> = props => {
         prevLang,
         newLang,
         uid,
+        langChanged: true,
       };
       setRoomInfo(prev => {
         return {

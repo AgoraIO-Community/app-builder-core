@@ -38,7 +38,7 @@ import {
   isWebInternal,
   useIsDesktop,
 } from '../utils/common';
-import {useRoomInfo} from './room-info/useRoomInfo';
+import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
@@ -80,6 +80,7 @@ import isSDK from '../utils/isSDK';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 
 const WhiteboardListener = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -866,6 +867,7 @@ const Controls = (props: ControlsProps) => {
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
+  const {setRoomInfo} = useSetRoomInfo();
 
   const {
     data: {isHost},
@@ -885,7 +887,9 @@ const Controls = (props: ControlsProps) => {
       prevLang,
       newLang,
       uid,
+      langChanged,
     }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    if (!langChanged) return;
     const actionText =
       prevLang.indexOf('') !== -1
         ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
@@ -907,6 +911,12 @@ const Controls = (props: ControlsProps) => {
       primaryBtn: null,
       secondaryBtn: null,
       text2: msg,
+    });
+    setRoomInfo(prev => {
+      return {
+        ...prev,
+        sttLanguage: {...sttLanguage, langChanged: false},
+      };
     });
     // syncing local set language
     newLang && setLanguage(newLang);
