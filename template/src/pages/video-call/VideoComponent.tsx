@@ -9,6 +9,7 @@ import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
 import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
 import Spacer from '../../atoms/Spacer';
+import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -18,6 +19,7 @@ const VideoComponent = () => {
   const {activeUids, pinnedUid} = useContent();
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
+  const {audienceUids, hostUids} = useLiveStreamDataContext();
 
   const currentLayoutRef = useRef(currentLayout);
   const gridLayoutName = getGridLayoutName();
@@ -66,11 +68,15 @@ const VideoComponent = () => {
             justifyContent: 'space-between',
           }}>
           <CurrentLayout renderData={activeUids} />
-          {activeUids.length === 1 && (
+          {(!$config.EVENT_MODE && activeUids.length === 1) ||
+          ($config.EVENT_MODE &&
+            hostUids.concat(audienceUids)?.length === 1) ? (
             <>
               <Spacer size={24} horizontal={isDesktop() ? true : false} />
               <MeetingInfoGridTile />
             </>
+          ) : (
+            <></>
           )}
         </View>
       );
