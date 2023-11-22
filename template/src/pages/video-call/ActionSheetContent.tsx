@@ -41,6 +41,7 @@ import Toast from '../../../react-native-toast-message';
 import {CustomToolbarSort} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
+import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -292,6 +293,7 @@ const ActionSheetContent = props => {
   const {isScreenshareActive} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
   const {setSidePanel} = useSidePanel();
+  const {setRoomInfo} = useSetRoomInfo();
   const {
     data: {isHost},
     sttLanguage,
@@ -323,7 +325,9 @@ const ActionSheetContent = props => {
       prevLang,
       newLang,
       uid,
+      langChanged,
     }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    if (!langChanged) return;
     const actionText =
       prevLang.indexOf('') !== -1
         ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
@@ -345,6 +349,12 @@ const ActionSheetContent = props => {
       primaryBtn: null,
       secondaryBtn: null,
       text2: msg,
+    });
+    setRoomInfo(prev => {
+      return {
+        ...prev,
+        sttLanguage: {...sttLanguage, langChanged: false},
+      };
     });
     // syncing local set language
     newLang && setLanguage(newLang);
