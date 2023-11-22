@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-celebration:before {
+  content: '\e962';
+  color: #ff414d;
+}
 .icon-upload-new:before {
   content: '\e961';
   color: #fff;
