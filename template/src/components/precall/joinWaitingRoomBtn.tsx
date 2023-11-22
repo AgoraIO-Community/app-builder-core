@@ -50,6 +50,7 @@ export interface PreCallJoinWaitingRoomBtnProps {
   ) => JSX.Element;
 }
 
+let shouldWaitingRoomPoll = null;
 const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
@@ -63,7 +64,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     useString<JoinRoomButtonTextInterface>('waitingRoomButton');
   const {setRoomInfo} = useSetRoomInfo();
   const {request: requestToJoin} = useWaitingRoomAPI();
-  const shouldPollRef = React.useRef(false);
+
   const {activeUids} = useContent();
   const activeUidsRef = React.useRef(activeUids);
 
@@ -96,10 +97,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         data?.payload,
       );
       // stop polling if user has responsed with yes / no
-      shouldPollRef.current = false;
-      pollingTimeout.current && clearTimeout(pollingTimeout.current);
 
-      // if (activeUidsRef.current?.indexOf(localUid) !== -1) return;
+      pollingTimeout.current && clearTimeout(pollingTimeout.current);
+      shouldWaitingRoomPoll = false;
+
       if (callActive) return;
       // on approve/reject response from host, waiting room permission is reset
       // update waitinng room status on uid
@@ -122,10 +123,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
             },
           };
         });
-
-        // entering in call screen
-        //window.setTimeout(() => setCallActive(true), 0);
-        // setCallActive(true);
       } else {
         setRoomInfo(prev => {
           return {
@@ -146,14 +143,14 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     });
     return () => {
       clearTimeout(pollingTimeout.current);
-      shouldPollRef.current = false;
+      shouldWaitingRoomPoll = false;
     };
   }, []);
 
   const requestServerToJoinRoom = async () => {
     // polling for every 30 seconds
     const pollFunction = async () => {
-      if (shouldPollRef.current) {
+      if (shouldWaitingRoomPoll) {
         const res = await requestToJoin({send_event: true});
         console.log('in join btn', res);
         pollingTimeout.current = setTimeout(() => {
@@ -162,7 +159,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         }, 15000);
       }
 
-      if (!shouldPollRef.current) {
+      if (!shouldWaitingRoomPoll) {
         // If the request is approved/rejected stop polling
         clearTimeout(pollingTimeout.current);
       }
@@ -173,7 +170,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   };
 
   const onSubmit = () => {
-    shouldPollRef.current = true;
+    shouldWaitingRoomPoll = true;
     setUsername(username.trim());
     //updating name in the backend
     saveName(username.trim());
