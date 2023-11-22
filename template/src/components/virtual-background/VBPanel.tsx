@@ -110,6 +110,7 @@ const VBCard: React.FC<VBCardProps> = ({
             });
         } else {
           Toast.show({
+            leadingIconName: 'alert',
             type: 'error',
             text2: 'Please select a JPG or PNG file',
             text1: 'Upload Failed',
@@ -118,6 +119,7 @@ const VBCard: React.FC<VBCardProps> = ({
         }
       } else {
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text2: 'File size must be less than 1MB.',
           text1: 'Upload Failed',

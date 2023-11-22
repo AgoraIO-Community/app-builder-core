@@ -135,6 +135,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         });
         // inform user that entry was denied by the host
         Toast.show({
+          leadingIconName: 'info',
           text1: `Approval Required`,
           text2: 'Permission to enter the meeting was denied by the host',
           visibilityTime: 3000,

@@ -5,12 +5,20 @@ import ThemeConfig from '../theme';
 
 interface CardProps {
   style?: ViewStyle;
+  margin?: 'dense' | 'normal';
+  padding?: 'dense' | 'normal';
   children?: React.ReactNode;
 }
 
 const Card = (props: CardProps) => {
-  const {style, children, ...rest} = props;
-  const styles = useStyles();
+  const {
+    style,
+    margin = 'normal',
+    padding = 'normal',
+    children,
+    ...rest
+  } = props;
+  const styles = useStyles(margin, padding);
   return (
     <View
       style={[
@@ -26,7 +34,7 @@ const Card = (props: CardProps) => {
 
 export default Card;
 
-const useStyles = () => {
+const useStyles = (margin: 'dense' | 'normal', padding: 'dense' | 'normal') => {
   const getResponsiveValue = useResponsive();
   return StyleSheet.create({
     root: {
@@ -39,23 +47,25 @@ const useStyles = () => {
     },
     mobile: {
       paddingHorizontal: 16,
-      paddingTop: 20,
-      paddingBottom: 40,
+      paddingVertical: 20,
       justifyContent: 'space-between',
     },
     desktop: {
       justifyContent: 'center',
       alignSelf: 'center',
       borderWidth: 1,
-      paddingHorizontal: getResponsiveValue(60),
-      paddingVertical: getResponsiveValue(60),
+      paddingHorizontal:
+        padding === 'dense' ? getResponsiveValue(30) : getResponsiveValue(60),
+      paddingVertical:
+        padding === 'dense' ? getResponsiveValue(30) : getResponsiveValue(60),
+      margin:
+        margin === 'dense' ? getResponsiveValue(20) : getResponsiveValue(40),
       borderRadius: ThemeConfig.BorderRadius.extraLarge,
       borderColor: $config.CARD_LAYER_3_COLOR,
       shadowColor: $config.HARD_CODED_BLACK_COLOR,
       shadowOffset: {width: 0, height: 4},
       shadowOpacity: 0.1,
       shadowRadius: 20,
-      margin: getResponsiveValue(40),
     },
   });
 };
