@@ -901,9 +901,8 @@ const Controls = (props: ControlsProps) => {
     } ${actionText} `;
 
     Toast.show({
-      leadingIconName: 'info',
+      leadingIconName: 'lang-select',
       type: 'info',
-      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
       text1: `Spoken Language ${
         prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
       }`,
