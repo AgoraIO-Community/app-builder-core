@@ -94,8 +94,13 @@ export const formatTranscriptContent = (
     .join('\n\n');
 
   const startTime = formatDateWithTimeZone(new Date(meetingTranscript[0].time));
+
   const attendees = Object.entries(defaultContent)
-    .filter(arr => arr[1].type === 'rtc')
+    .filter(
+      arr =>
+        arr[1].type === 'rtc' &&
+        (arr[1]?.isInWaitingRoom === true ? false : true),
+    )
     .map(arr => arr[1].name)
     .join(',');
 
