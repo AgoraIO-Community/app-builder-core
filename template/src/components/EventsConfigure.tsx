@@ -293,6 +293,7 @@ const EventsConfigure: React.FC<Props> = props => {
       const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
         data?.payload,
       );
+      if (attendee_uid == '') return;
 
       //condition1 -if user request already approved(in the call)
       if (activeUidsRef.current.indexOf(attendee_uid) !== -1) {
@@ -313,7 +314,8 @@ const EventsConfigure: React.FC<Props> = props => {
       }
 
       const userName =
-        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+        defaultContentRef.current.defaultContent[attendee_uid]?.name ||
+        'Attendee';
       // put the attendee in waitingroom in renderlist
       dispatch({
         type: 'UpdateRenderList',
