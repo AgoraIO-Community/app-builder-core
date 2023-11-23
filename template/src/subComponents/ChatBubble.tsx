@@ -105,6 +105,19 @@ const ChatBubble = (props: ChatBubbleProps) => {
           </Text>
           <Text style={style.timestampStyle}>{time}</Text>
         </View>
+      ) : (!isSameUser || forceShowUserNameandTimeStamp) &&
+        chatType === ChatType.Private &&
+        privateChatUser ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: isLocal ? 'flex-end' : 'flex-start',
+            marginBottom: 8,
+            marginTop: 14,
+            marginHorizontal: 20,
+          }}>
+          <Text style={style.timestampStyle}>{time}</Text>
+        </View>
       ) : (
         <></>
       )}
