@@ -20,7 +20,7 @@ import {useChatUIControls, useContent} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
-import {formatAMPM} from '../utils';
+import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
 
 const ChatBubble = (props: ChatBubbleProps) => {
@@ -122,9 +122,10 @@ const ChatBubble = (props: ChatBubbleProps) => {
         <></>
       )}
       <View
-        style={
-          isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView
-        }>
+        style={[
+          isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView,
+          isURL(message) ? {maxWidth: '88%'} : {},
+        ]}>
         <View
           style={
             isLocal
