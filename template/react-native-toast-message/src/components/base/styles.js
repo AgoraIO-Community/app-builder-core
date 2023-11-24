@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 export default StyleSheet.create({
   base: {
@@ -7,7 +7,7 @@ export default StyleSheet.create({
     borderTopWidth: 4,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     width: '100%',
-    paddingHorizontal: 24,
+    paddingHorizontal: Platform.OS === 'android' ? 16 : 24,
     paddingVertical: 16,
     height: 'auto',
     shadowOffset: { width: 0, height: 0 },
