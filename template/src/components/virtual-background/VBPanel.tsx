@@ -355,6 +355,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
   },
   active: {
     borderWidth: 2,
@@ -364,6 +366,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: 4,
   },
   triangle: {
     width: 0,
