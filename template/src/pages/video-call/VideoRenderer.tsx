@@ -371,7 +371,9 @@ const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
           iconProps={{
             iconContainerStyle: {
               padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
-              backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+              backgroundColor:
+                $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR +
+                hexadecimalTransparency['25%'],
             },
             name: 'more-menu',
             iconSize: 20,

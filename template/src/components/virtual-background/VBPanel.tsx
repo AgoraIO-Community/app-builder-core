@@ -30,6 +30,7 @@ import PropsContext, {
   ToggleState,
 } from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import {IconsInterface} from '../../atoms/CustomIcon';
+import InlineNotification from '../../atoms/InlineNotification';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -267,19 +268,11 @@ const VBPanel: React.FC = props => {
       )}
 
       {!callActive && !isLocalVideoON ? (
-        <View style={styles.textContainer}>
-          <View style={styles.iconStyleView}>
-            <ImageIcon
-              base64={true}
-              iconSize={20}
-              iconType="plain"
-              name={'warning'}
-            />
-          </View>
-          <Text style={styles.text}>
-            Camera is currently off. Selected background will be applied as soon
-            as your camera turns on.
-          </Text>
+        <View style={{padding: 20, paddingBottom: 0}}>
+          <InlineNotification
+            text="  Camera is currently off. Selected background will be applied as soon
+        as your camera turns on."
+          />
         </View>
       ) : (
         <></>
@@ -326,7 +319,7 @@ const VBPanel: React.FC = props => {
               onPress={() => {
                 setSaveVB(true);
               }}
-              text={'Save'}
+              text={'Apply'}
             />
           </View>
         </View>
@@ -355,6 +348,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
   },
   active: {
     borderWidth: 2,
@@ -364,6 +359,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: 4,
   },
   triangle: {
     width: 0,

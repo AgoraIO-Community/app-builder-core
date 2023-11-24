@@ -79,7 +79,7 @@ const VideoComponent = () => {
           ($config.EVENT_MODE &&
             hostUids.concat(audienceUids)?.length === 1) ? (
             <>
-              <Spacer size={24} horizontal={isDesktop() ? true : false} />
+              <Spacer size={8} horizontal={isDesktop() ? true : false} />
               <MeetingInfoGridTile />
             </>
           ) : (

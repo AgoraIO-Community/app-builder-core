@@ -27,6 +27,7 @@ import {usePreCall} from '../components/precall/usePreCall';
 import ThemeConfig from '../theme';
 import {randomNameGenerator} from '../utils';
 import pendingStateUpdateHelper from '../utils/pendingStateUpdateHelper';
+import InlineNotification from '../atoms/InlineNotification';
 // import {dropdown} from '../../theme.json';
 
 /*
@@ -433,9 +434,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
           {$config.EVENT_MODE && isPickerDisabled && (
             <>
               <Spacer size={24} />
-              <View style={style.infoTxtContainer}>
-                <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
-              </View>
+              <InlineNotification text={settingScreenInfoMessage} />
             </>
           )}
           <Spacer size={24} />
@@ -459,9 +458,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
         {$config.EVENT_MODE && isPickerDisabled && (
           <>
             <Spacer size={24} />
-            <View style={style.infoTxtContainer}>
-              <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
-            </View>
+            <InlineNotification text={settingScreenInfoMessage} />
           </>
         )}
         <Spacer size={24} />

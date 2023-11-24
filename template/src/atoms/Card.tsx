@@ -8,6 +8,7 @@ interface CardProps {
   margin?: 'dense' | 'normal';
   padding?: 'dense' | 'normal';
   children?: React.ReactNode;
+  cardContainerStyle?: ViewStyle;
 }
 
 const Card = (props: CardProps) => {
@@ -16,6 +17,7 @@ const Card = (props: CardProps) => {
     margin = 'normal',
     padding = 'normal',
     children,
+    cardContainerStyle = {},
     ...rest
   } = props;
   const styles = useStyles(margin, padding);
@@ -25,6 +27,7 @@ const Card = (props: CardProps) => {
         styles.root,
         isMobileUA() ? styles.mobile : styles.desktop,
         style,
+        cardContainerStyle,
       ]}
       {...rest}>
       {children}
