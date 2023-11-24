@@ -537,7 +537,12 @@ const style = StyleSheet.create({
     color: $config.SEMANTIC_NEUTRAL,
     textAlign: 'left',
   },
-  btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
+  btnContainerStyle: {
+    maxWidth: 337,
+    alignSelf: 'center',
+    marginTop: 50,
+    minWidth: 250,
+  },
   root: {
     flex: 1,
   },
