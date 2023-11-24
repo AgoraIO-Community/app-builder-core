@@ -326,7 +326,7 @@ const VBPanel: React.FC = props => {
               onPress={() => {
                 setSaveVB(true);
               }}
-              text={'Save'}
+              text={'Apply'}
             />
           </View>
         </View>
