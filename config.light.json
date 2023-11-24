@@ -10,7 +10,7 @@
   "ICON": "logoSquare.png",
   "FRONTEND_ENDPOINT": "https://conferencing.agora.io",
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
-  "PSTN": false,
+  "PSTN": true,
   "PRECALL": true,
   "CHAT": true,
   "CLOUD_RECORDING": true,
