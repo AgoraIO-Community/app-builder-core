@@ -22,10 +22,14 @@ export default function MeetingInfoGridTile() {
 
   return (
     <View style={style.root}>
-      <ScrollView contentContainerStyle={style.scroll}>
+      <ScrollView
+        contentContainerStyle={[style.scroll, !isMobile && {paddingLeft: 0}]}>
         <View style={style.inviteContainerTile}>
           <View style={style.inviteTile}>
-            <MeetingInfo padding="dense" margin="dense">
+            <MeetingInfo
+              padding="dense"
+              margin="dense"
+              cardContainerStyle={{maxWidth: 420}}>
               <MeetingInfoCardHeader
                 avatar={
                   isMobile ? null : (
@@ -125,8 +129,6 @@ const style = StyleSheet.create({
     height: '100%',
     paddingHorizontal: isMobileUA() ? 0 : 35,
     borderRadius: 2,
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
   },
   flexRow: {
     display: 'flex',

@@ -10,7 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {View, ScrollView, StyleSheet} from 'react-native';
+import {View, ScrollView, StyleSheet, ViewStyle} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import {isMobileUA} from '../../utils/common';
 import Card from '../../atoms/Card';
@@ -21,11 +21,12 @@ interface MeetingInfoProps {
   margin?: 'dense' | 'normal';
   padding?: 'dense' | 'normal';
   children: React.ReactNode;
+  cardContainerStyle?: ViewStyle;
 }
 
 const MeetingInfo = (props: MeetingInfoProps) => {
-  const {margin, padding, children} = props;
-  const {FpeShareComponent} = useCustomization((data) => {
+  const {margin, padding, children, cardContainerStyle} = props;
+  const {FpeShareComponent} = useCustomization(data => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};
@@ -54,7 +55,10 @@ const MeetingInfo = (props: MeetingInfoProps) => {
         <></>
       )}
       <ScrollView contentContainerStyle={style.scrollMain}>
-        <Card margin={margin} padding={padding}>
+        <Card
+          margin={margin}
+          padding={padding}
+          cardContainerStyle={cardContainerStyle}>
           <View
             style={{display: 'flex', flex: 1, justifyContent: 'space-between'}}>
             {children}

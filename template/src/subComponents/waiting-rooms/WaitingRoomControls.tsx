@@ -54,8 +54,8 @@ const WaitingRoomButton = props => {
   const buttonStyles = {
     minWidth: 'auto',
     borderRadius: ThemeConfig.BorderRadius.small,
-    paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingHorizontal: 13,
+    paddingVertical: isAccept ? 8 : 7,
   };
 
   return (

@@ -575,12 +575,12 @@ const EventsConfigure: React.FC<Props> = props => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 12, paddingVertical: 9, paddingHorizontal: 20},
+  secondaryBtn: {marginLeft: 12, paddingVertical: 6, paddingHorizontal: 10},
   primaryBtn: {
     borderRadius: 4,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    paddingHorizontal: 20,
-    paddingVertical: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
   },
   textStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
