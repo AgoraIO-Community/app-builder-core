@@ -497,7 +497,7 @@ const RtmConfigure = (props: any) => {
       return;
     }
     await RTMEngine.getInstance().destroy();
-    if (isIOS()) {
+    if (isIOS() || isAndroid()) {
       EventUtils.clear();
     }
     setHasUserJoinedRTM(false);
