@@ -6,6 +6,7 @@ import {useLayout, useContent} from 'customization-api';
 import {isMobileUA, isWeb, useIsSmall} from '../../utils/common';
 import {getGridLayoutName} from './DefaultLayouts';
 import {useVideoContainer} from './VideoRenderer';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export interface NameWithMicIconProps {
   name: string;
@@ -88,7 +89,8 @@ const PlatformWrapper = ({children}) => {
 
 const style = StyleSheet.create({
   container: {
-    backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+    backgroundColor:
+      $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR + hexadecimalTransparency['25%'],
     position: 'absolute',
     alignItems: 'center',
     padding: 8,
