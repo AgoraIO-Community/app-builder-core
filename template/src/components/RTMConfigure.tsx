@@ -22,7 +22,7 @@ import ChatContext from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {isAndroid, isWeb, isWebInternal} from '../utils/common';
+import {isAndroid, isIOS, isWeb, isWebInternal} from '../utils/common';
 import {useContent, useIsAttendee, useUserName} from 'customization-api';
 import {
   safeJsonParse,
@@ -497,6 +497,9 @@ const RtmConfigure = (props: any) => {
       return;
     }
     await RTMEngine.getInstance().destroy();
+    if (isIOS()) {
+      EventUtils.clear();
+    }
     setHasUserJoinedRTM(false);
     console.log('RTM cleanup done');
   };

@@ -11,6 +11,7 @@
 */
 
 import RtmEngine from 'agora-react-native-rtm';
+import {isIOS} from '../utils/common';
 
 class RTMEngine {
   engine!: RtmEngine;
@@ -32,7 +33,9 @@ class RTMEngine {
 
   private async destroyClientInstance() {
     await this.engine.logout();
-    // await this.engine.destroyClient();
+    if (isIOS()) {
+      await this.engine.destroyClient();
+    }
   }
 
   private constructor() {
@@ -67,7 +70,9 @@ class RTMEngine {
   async destroy() {
     try {
       await this.destroyClientInstance();
-      // RTMEngine._instance = null;
+      if (isIOS()) {
+        RTMEngine._instance = null;
+      }
       this.localUID = '';
       this.channelId = '';
     } catch (error) {
