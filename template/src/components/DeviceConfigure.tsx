@@ -332,17 +332,17 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       });
   };
 
-  useEffect(() => {
-    // Notify updated state every 20s
-    let count = 0;
-    const interval = setInterval(() => {
-      count = count + 1;
-      refreshDeviceList(count % 10 !== 0);
-    }, 2000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  // useEffect(() => {
+  //   // Notify updated state every 20s
+  //   let count = 0;
+  //   const interval = setInterval(() => {
+  //     count = count + 1;
+  //     refreshDeviceList(count % 10 !== 0);
+  //   }, 2000);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (sdkMicrophoneDevice?.deviceId && uiSelectedMic) {
