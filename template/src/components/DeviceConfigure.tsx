@@ -337,7 +337,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     let count = 0;
     const interval = setInterval(() => {
       count = count + 1;
-      navigator.mediaDevices.enumerateDevices();
+      //navigator.mediaDevices.enumerateDevices();
       // refreshDeviceList(count % 10 !== 0);
     }, 2000);
     return () => {
