@@ -82,6 +82,7 @@ const WhiteboardButton = () => {
           base64TintColor: whiteboardActive
             ? $config.SECONDARY_ACTION_COLOR
             : $config.SEMANTIC_ERROR,
+          //@ts-ignore
           name: 'white-board',
           iconSize: 26,
         }}

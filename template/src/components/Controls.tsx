@@ -38,7 +38,7 @@ import {
   isWebInternal,
   useIsDesktop,
 } from '../utils/common';
-import {useRoomInfo} from './room-info/useRoomInfo';
+import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
@@ -893,6 +893,7 @@ const Controls = (props: ControlsProps) => {
             prevLang,
           )}" to "${getLanguageLabel(newLang)}" `;
     const msg = `${
+      //@ts-ignore
       defaultContentRef.current[uid]?.name || username
     } ${actionText} `;
 

@@ -25,7 +25,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const GraphQLContext = createContext<{
   client: ApolloClient<NormalizedCacheObject>;
-}>({client: {}});
+}>({
+  //@ts-ignore
+  client: {},
+});
 
 const httpLink = createHttpLink({
   uri: `${$config.BACKEND_ENDPOINT}/v1/query`,

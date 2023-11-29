@@ -85,7 +85,8 @@ const VideoCallMobileView = () => {
           if (isCamON.current) {
             isWebInternal()
               ? RtcEngineUnsafe.muteLocalVideoStream(true)
-              : RtcEngineUnsafe.enableLocalVideo(false);
+              : //@ts-ignore
+                RtcEngineUnsafe.enableLocalVideo(false);
             dispatch({
               type: 'LocalMuteVideo',
               value: [0],
@@ -95,7 +96,8 @@ const VideoCallMobileView = () => {
         if (appStateVisible === 'active' && isCamON.current) {
           isWebInternal()
             ? RtcEngineUnsafe.muteLocalVideoStream(false)
-            : RtcEngineUnsafe.enableLocalVideo(true);
+            : //@ts-ignore
+              RtcEngineUnsafe.enableLocalVideo(true);
           dispatch({
             type: 'LocalMuteVideo',
             value: [1],
@@ -127,6 +129,7 @@ const VideoCallView = React.memo(() => {
       } = {
         BottombarComponent: ActionSheet,
         BottombarProps: [],
+        //@ts-ignore
         TopbarComponent: NavbarMobile,
         TopbarProps: [],
       };
@@ -175,6 +178,7 @@ const VideoCallView = React.memo(() => {
       <ToolbarProvider value={{position: ToolbarPosition.top}}>
         {TopbarProps?.length ? (
           <TopbarComponent
+            //@ts-ignore
             customItems={TopbarProps}
             includeDefaultItems={false}
           />
@@ -190,6 +194,7 @@ const VideoCallView = React.memo(() => {
         <ActionSheetProvider>
           {BottombarProps?.length ? (
             <BottombarComponent
+              //@ts-ignore
               customItems={BottombarProps}
               includeDefaultItems={false}
             />

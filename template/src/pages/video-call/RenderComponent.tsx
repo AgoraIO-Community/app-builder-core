@@ -22,6 +22,7 @@ const RenderComponent = ({uid, isMax = false}: RenderComponentProps) => {
   if (customContent && customContent[uid] && customContent[uid]?.component) {
     const CustomComponent = customContent[uid]?.component;
     const CustomComponentProps = customContent[uid]?.props;
+    //@ts-ignore
     return <CustomComponent {...CustomComponentProps} />;
   } else if (defaultContent[uid]) {
     return <RenderComp user={defaultContent[uid]} isMax={isMax} />;

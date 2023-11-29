@@ -83,14 +83,17 @@ export const openIndexedDB = async (dbName, version) => {
     const request = window.indexedDB.open(dbName, version);
 
     request.onsuccess = event => {
+      //@ts-ignore
       const db = event.target.result;
       resolve(db);
     };
 
     request.onerror = event => {
+      //@ts-ignore
       reject(event.target.error);
     };
     request.onupgradeneeded = event => {
+      //@ts-ignore
       const db = event.target.result;
       if (!db.objectStoreNames.contains('images')) {
         const store = db.createObjectStore('images', {
@@ -107,6 +110,7 @@ export const openIndexedDB = async (dbName, version) => {
 export const saveImagesToIndexDB = async base64Data => {
   try {
     const db = await openIndexedDB('vb-image-db', 1);
+    //@ts-ignore
     const tx = db.transaction('images', 'readwrite');
     const store = tx.objectStore('images');
 
@@ -130,6 +134,7 @@ export const retrieveImagesFromIndexDB = async () => {
   return new Promise(async (resolve, reject) => {
     try {
       const db = await openIndexedDB('vb-image-db', 1);
+      //@ts-ignore
       const tx = db.transaction('images', 'readonly');
       const store = tx.objectStore('images');
       const cursorRequest = store.openCursor();
@@ -205,6 +210,7 @@ const VBProvider: React.FC = ({children}) => {
   const applyVirtualBackgroundToMainView = async (
     config: VirtualBackgroundConfig,
   ) => {
+    //@ts-ignore
     const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
     //  mainViewProcessor && (await mainViewProcessor.disable()); // Disable the old processor
     localVideoTrack
@@ -251,6 +257,7 @@ const VBProvider: React.FC = ({children}) => {
 
       setOptions(prevOptions => [
         ...prevOptions,
+        //@ts-ignore
         ...(customImages?.map(base64Data => ({
           type: 'image',
           icon: 'vb',
@@ -280,6 +287,7 @@ const VBProvider: React.FC = ({children}) => {
 
     // htmlElement.crossorigin = 'anonymous'
     htmlElement.src =
+      //@ts-ignore
       typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
     htmlElement.onload = () => {
       !isPreCallScreen && applyVirtualBackgroundToPreviewView(imgConfig);

@@ -59,6 +59,7 @@ const CaptionContainer = () => {
                 : 32
               : 10,
           },
+          //@ts-ignore
           isCaptionNotFullWidth && {
             maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
             width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,

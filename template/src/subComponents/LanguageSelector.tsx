@@ -10,6 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
+//@ts-ignore
 import {Picker, StyleSheet, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {useLanguage} from '../language/useLanguage';
@@ -20,7 +21,7 @@ import {DEFAULT_I18_DATA} from '../language';
 const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage();
-  const languageData = useCustomization((data) => data?.i18n);
+  const languageData = useCustomization(data => data?.i18n);
   //commented for v1 release
   //const languageText = useString('language')();
   const languageText = 'Language';
@@ -41,8 +42,8 @@ const LanguageSelector = () => {
       <Picker
         selectedValue={languageCode}
         style={[{borderColor: primaryColor}, style.popupPicker]}
-        onValueChange={(itemValue) => setLanguageCode(itemValue)}>
-        {languageData.map((item) => {
+        onValueChange={itemValue => setLanguageCode(itemValue)}>
+        {languageData.map(item => {
           return (
             <Picker.Item
               label={item.label || item.locale}
@@ -51,7 +52,7 @@ const LanguageSelector = () => {
             />
           );
         })}
-        {!languageData.filter((i) => i.locale === DEFAULT_I18_DATA.locale)
+        {!languageData.filter(i => i.locale === DEFAULT_I18_DATA.locale)
           .length ? (
           <Picker.Item
             label={DEFAULT_I18_DATA.label || DEFAULT_I18_DATA.locale}

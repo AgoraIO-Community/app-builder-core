@@ -52,6 +52,7 @@ import {VideoPreviewComponent} from './precall/VideoPreview';
 import VBPanel from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
+import {DeviceSelectProps} from './precall/selectDevice';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -177,7 +178,7 @@ const JoinRoomButton = () => {
     let components: {
       WaitingRoomButton: React.ComponentType<PreCallJoinCallBtnProps>;
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
-      Textbox: React.ComponentType;
+      Textbox: React.ComponentType<PreCallTextInputProps>;
     } = {
       Textbox: PreCallTextInput,
       JoinButton: PreCallJoinBtn,
@@ -240,7 +241,7 @@ const Precall = () => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
-      DeviceSelect: React.ComponentType;
+      DeviceSelect: React.ComponentType<DeviceSelectProps>;
       VideoPreview: VideoPreviewComponent;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {

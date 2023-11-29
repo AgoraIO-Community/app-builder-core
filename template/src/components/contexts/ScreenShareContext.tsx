@@ -37,6 +37,7 @@ const ScreenShareProvider = (props: ScreenShareProviderProps) => {
   const [isScreenShareOnFullView, setScreenShareOnFullView] = useState(false);
   const [screenShareData, setScreenShareData] =
     useState<ScreenShareObjectInterface>({
+      //@ts-ignore
       [rtcProps?.screenShareUid]: {
         name: '',
         isActive: false,

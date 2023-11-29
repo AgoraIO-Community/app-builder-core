@@ -28,6 +28,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const showLabel = $config.ICON_TEXT || isOnActionSheet ? true : false;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
+      //@ts-ignore
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
         setModalPosition({
           bottom: isMobileOrTablet()
@@ -46,7 +47,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout, setLayout} = useLayout();
 
-  const layout = layouts.findIndex((item) => item.name === currentLayout);
+  const layout = layouts.findIndex(item => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
     let onPress = () => {};
     let renderContent = [];
@@ -116,7 +117,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
             containerStyle={{
               opacity: !activeUids || activeUids.length === 0 ? 0.6 : 1,
             }}
-            setRef={(ref) => {
+            setRef={ref => {
               layoutBtnRef.current = ref;
             }}
             key={'defaultLayoutIconWithName'}

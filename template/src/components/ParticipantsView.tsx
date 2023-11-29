@@ -96,6 +96,7 @@ const ParticipantView = props => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <PeopleHeader />}

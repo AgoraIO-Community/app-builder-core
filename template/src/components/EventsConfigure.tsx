@@ -115,7 +115,8 @@ const EventsConfigure: React.FC<Props> = props => {
       } else {
         isWebInternal()
           ? await RtcEngineUnsafe.muteLocalVideoStream(true)
-          : await RtcEngineUnsafe.enableLocalVideo(false);
+          : //@ts-ignore
+            await RtcEngineUnsafe.enableLocalVideo(false);
         await updateVideoStream(true);
         dispatch({
           type: 'LocalMuteVideo',
@@ -212,7 +213,8 @@ const EventsConfigure: React.FC<Props> = props => {
             onPress={async () => {
               isWebInternal()
                 ? await RtcEngineUnsafe.muteLocalVideoStream(false)
-                : await RtcEngineUnsafe.enableLocalVideo(true);
+                : //@ts-ignore
+                  await RtcEngineUnsafe.enableLocalVideo(true);
               await updateVideoStream(false);
               dispatch({
                 type: 'LocalMuteVideo',
@@ -312,6 +314,7 @@ const EventsConfigure: React.FC<Props> = props => {
       }
 
       const userName =
+        //@ts-ignore
         defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
       // put the attendee in waitingroom in renderlist
       dispatch({

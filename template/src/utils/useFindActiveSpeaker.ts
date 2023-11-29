@@ -3,6 +3,7 @@ import {
   useLocalUserInfo,
   useContent,
   useRtc,
+  UidType,
 } from 'customization-api';
 import {useContext, useEffect, useRef} from 'react';
 import events, {PersistanceLevel} from '../rtm-events-api';

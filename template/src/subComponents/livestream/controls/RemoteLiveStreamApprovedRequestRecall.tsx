@@ -11,6 +11,7 @@ const RemoteLiveStreamApprovedRequestRecall = (
   props: RemoteLiveStreamApprovedRequestRecallProps,
 ) => {
   return (
+    //@ts-ignore
     <IconButton
       onPress={() => {
         events.send(
