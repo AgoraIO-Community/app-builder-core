@@ -17,6 +17,7 @@ export type Option = {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
+  label?: string;
 };
 
 // processors for the main view and preview view
@@ -82,14 +83,17 @@ export const openIndexedDB = async (dbName, version) => {
     const request = window.indexedDB.open(dbName, version);
 
     request.onsuccess = event => {
+      //@ts-ignore
       const db = event.target.result;
       resolve(db);
     };
 
     request.onerror = event => {
+      //@ts-ignore
       reject(event.target.error);
     };
     request.onupgradeneeded = event => {
+      //@ts-ignore
       const db = event.target.result;
       if (!db.objectStoreNames.contains('images')) {
         const store = db.createObjectStore('images', {
@@ -106,6 +110,7 @@ export const openIndexedDB = async (dbName, version) => {
 export const saveImagesToIndexDB = async base64Data => {
   try {
     const db = await openIndexedDB('vb-image-db', 1);
+    //@ts-ignore
     const tx = db.transaction('images', 'readwrite');
     const store = tx.objectStore('images');
 
@@ -129,6 +134,7 @@ export const retrieveImagesFromIndexDB = async () => {
   return new Promise(async (resolve, reject) => {
     try {
       const db = await openIndexedDB('vb-image-db', 1);
+      //@ts-ignore
       const tx = db.transaction('images', 'readonly');
       const store = tx.objectStore('images');
       const cursorRequest = store.openCursor();
@@ -165,20 +171,18 @@ const VBProvider: React.FC = ({children}) => {
     React.useState<ILocalVideoTrack | null>(null);
   const {sidePanel} = useSidePanel();
   const [options, setOptions] = React.useState<Option[]>(() => [
-    {type: 'none', icon: 'remove'},
-    {type: 'blur', icon: 'blur'},
-    {type: 'custom', icon: 'add'},
+    {type: 'none', icon: 'remove', label: 'None'},
+    {type: 'blur', icon: 'blur', label: 'Blur'},
+    {type: 'custom', icon: 'upload-new', label: 'Custom'},
     {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
   const {
@@ -206,6 +210,7 @@ const VBProvider: React.FC = ({children}) => {
   const applyVirtualBackgroundToMainView = async (
     config: VirtualBackgroundConfig,
   ) => {
+    //@ts-ignore
     const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
     //  mainViewProcessor && (await mainViewProcessor.disable()); // Disable the old processor
     localVideoTrack
@@ -252,6 +257,7 @@ const VBProvider: React.FC = ({children}) => {
 
       setOptions(prevOptions => [
         ...prevOptions,
+        //@ts-ignore
         ...(customImages?.map(base64Data => ({
           type: 'image',
           icon: 'vb',
@@ -281,6 +287,7 @@ const VBProvider: React.FC = ({children}) => {
 
     // htmlElement.crossorigin = 'anonymous'
     htmlElement.src =
+      //@ts-ignore
       typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
     htmlElement.onload = () => {
       !isPreCallScreen && applyVirtualBackgroundToPreviewView(imgConfig);

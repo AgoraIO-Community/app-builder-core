@@ -35,7 +35,6 @@ export interface PrimaryButtonProps extends TouchableOpacityProps {
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
   const {
-    children,
     iconName,
     textStyle,
     containerStyle,
@@ -75,7 +74,9 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
 }
 
 const styles = StyleSheet.create({
+  //@ts-ignore
   primaryButton,
+  //@ts-ignore
   primaryButtonText,
   container: {
     flexDirection: 'row',

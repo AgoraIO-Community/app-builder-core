@@ -64,6 +64,8 @@ export default function SecondaryButton(props: SecondaryButtonProps) {
 }
 
 const styles = StyleSheet.create({
+  //@ts-ignore
   secondaryBtn,
+  //@ts-ignore
   secondaryButtonText,
 });

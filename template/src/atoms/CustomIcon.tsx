@@ -85,6 +85,7 @@ export interface IconsInterface {
   'video-on-outlined': string;
   'video-off-filled': string;
   'video-off-outlined': string;
+  celebration: string;
   'down-arrow': string;
   'closed-caption': string;
   globe: string;
@@ -104,4 +105,5 @@ export interface IconsInterface {
   'done-fill': string;
   blur: string;
   add: string;
+  'upload-new': string;
 }

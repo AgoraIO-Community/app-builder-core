@@ -21,7 +21,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isOnActionSheet = false,
     closeActionSheet,
   } = props;
-  const {isCaptionON, setIsCaptionON, isSTTActive} = useCaption();
+  const {isCaptionON, setIsCaptionON, isSTTActive, isSTTError} = useCaption();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -32,6 +32,11 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
+      if (isSTTError) {
+        setIsCaptionON(prev => !prev);
+        closeActionSheet();
+        return;
+      }
       if (isSTTActive) {
         // is lang popup has been shown once for any user in meeting
         setIsCaptionON(prev => !prev);

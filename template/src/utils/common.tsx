@@ -172,13 +172,15 @@ const BREAKPOINTS = {
 
 const useIsDesktop = () => {
   const {width, height} = useWindowDimensions();
-  return (from: 'default' | 'toolbar' | 'popup' = 'default') => {
+  return (from: 'default' | 'toolbar' | 'popup' | 'large' = 'default') => {
     if (from === 'default') {
       return width > height ? true : false;
     } else if (from === 'toolbar') {
       return width > BREAKPOINTS.xl;
     } else if (from === 'popup') {
       return width > BREAKPOINTS.md;
+    } else if (from === 'large') {
+      return width > BREAKPOINTS.lg;
     }
     return width >= BREAKPOINTS.xl;
   };

@@ -320,7 +320,33 @@ export default class RtcEngine {
           localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
         } catch (e) {
           videoConfig.cameraId = '';
-          localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+          try {
+            localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+          } catch (e) {
+            console.log(
+              '[RTCEngineBridge]: Provided cameraId and default camera failed, trying other available devices',
+            );
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            for (let device of devices) {
+              if (device.kind === 'videoinput') {
+                videoConfig.cameraId = device.deviceId;
+                try {
+                  localVideo = await AgoraRTC.createCameraVideoTrack(
+                    videoConfig,
+                  );
+                  break;
+                } catch (e) {
+                  videoError = e;
+                  console.log(
+                    '[RTCEngineBridge]:',
+                    'Camera not available with deviceId' + device,
+                    'Reason: ',
+                    e,
+                  );
+                }
+              }
+            }
+          }
         }
         this.localStream.video = localVideo;
         this.videoDeviceId = localVideo

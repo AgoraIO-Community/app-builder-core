@@ -18,18 +18,20 @@ const RemoteLiveStreamRequestApprove = (
   const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
 
   return (
-    <View style={{flex: 1}}>
+    <View>
       <PrimaryButton
         containerStyle={{
           minWidth: 'auto',
-          borderRadius: ThemeConfig.BorderRadius.small,
-          height: 38,
-          paddingHorizontal: 8,
+          paddingHorizontal: 13,
           paddingVertical: 8,
+          borderRadius: 4,
         }}
         textStyle={{
           fontWeight: '600',
           fontSize: 12,
+          lineHeight: 12,
+          fontFamily: ThemeConfig.FontFamily.sansPro,
+          textTransform: 'capitalize',
         }}
         disabled={!uid}
         text={'Accept'}

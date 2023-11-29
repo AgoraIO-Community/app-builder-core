@@ -176,8 +176,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     const mutedState =
       //@ts-ignore
       type === 'audio'
-        ? !RtcEngineUnsafe.isAudioEnabled
-        : !RtcEngineUnsafe.isVideoEnabled;
+        ? //@ts-ignore
+          !RtcEngineUnsafe.isAudioEnabled
+        : //@ts-ignore
+          !RtcEngineUnsafe.isVideoEnabled;
 
     let currentDevice: string;
 
@@ -185,8 +187,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       currentDevice =
         //@ts-ignore
         type === 'audio'
-          ? RtcEngineUnsafe.audioDeviceId
-          : RtcEngineUnsafe.videoDeviceId;
+          ? //@ts-ignore
+            RtcEngineUnsafe.audioDeviceId
+          : //@ts-ignore
+            RtcEngineUnsafe.videoDeviceId;
       log(`Agora ${type} Engine is using`, currentDevice);
     } else {
       currentDevice = localStream[type]
@@ -379,6 +383,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             uiSelectedState: uiSelectedSpeaker,
           },
         }[kind];
+
+        // non chrome, ignore speaker
+        if (!isChrome && kind === 'audiooutput') {
+          setUiSelectedSpeaker('');
+          return;
+        }
 
         if (uiSelectedState && uiSelectedState.trim().length != 0) {
           return;
@@ -692,7 +702,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     Toast.show({
       type: 'checked',
-      leadingIcon: null,
+      leadingIconName: 'mic-on',
       // leadingIcon: <CustomIcon name={'mic-on'} />,
       text1: `New ${name} detected`,
       // @ts-ignore
@@ -738,6 +748,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         setSelectedSpeaker,
         deviceList,
         setDeviceList,
+        isChrome,
       }}>
       {props.children}
     </DeviceContext.Provider>

@@ -26,9 +26,9 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
-export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
-  props,
-) => {
+export const LiveStreamContextProvider: React.FC<
+  liveStreamPropsInterface
+> = props => {
   const screenshareContextInstance = useScreenshare();
   const screenshareContextInstanceRef = useRef<any>();
   screenshareContextInstanceRef.current = screenshareContextInstance;
@@ -76,6 +76,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     const data = Object.keys(
       filterObject(
         defaultContent,
+        //@ts-ignore
         ([k, v]) => v?.type === 'rtc' && v.offline === true,
       ),
     );
@@ -149,6 +150,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     }
 
     Toast.show({
+      leadingIconName: 'info',
       type: 'info',
       text1: text,
       text2: text2 ? text2 : null,
@@ -179,7 +181,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   ) => {
     if (userUID && !isEmptyObject(payload)) {
       const userId = `${userUID}`;
-      setRaiseHandList((oldRaisedHandList) => ({
+      setRaiseHandList(oldRaisedHandList => ({
         ...oldRaisedHandList,
         [userId]: {
           raised: payload?.raised || RaiseHandValue.FALSE,
@@ -218,9 +220,9 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           PersistanceLevel.Sender,
         );
         //update local cohost state
-        setCoHostUids((prevState) => {
+        setCoHostUids(prevState => {
           return [
-            ...prevState.filter((i) => i !== parseInt(localUidRef.current)),
+            ...prevState.filter(i => i !== parseInt(localUidRef.current)),
           ];
         });
         // Audience notfies all users that co-host permission removed
@@ -249,7 +251,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           PersistanceLevel.Sender,
         );
         //update local cohost state
-        setCoHostUids((prevState) => {
+        setCoHostUids(prevState => {
           return [...prevState, localUidRef.current];
         });
         // Audience notfies all users that co-host has joined
@@ -299,8 +301,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   /** ******* SETTING UP ROLES BEGINS ******* */
   React.useEffect(() => {
-    const unsubRoleAttribute = events.on(EventNames.ROLE_ATTRIBUTE, (data) => {
-      setRaiseHandList((prevState) => {
+    const unsubRoleAttribute = events.on(EventNames.ROLE_ATTRIBUTE, data => {
+      setRaiseHandList(prevState => {
         return {
           ...prevState,
           [data.sender]: {
@@ -328,7 +330,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       ),
       PersistanceLevel.Sender,
     );
-    setRaiseHandList((prevState) => {
+    setRaiseHandList(prevState => {
       return {
         ...prevState,
         [localUid]: {
@@ -348,7 +350,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     /** ********************** HOST EVENTS SECTION BEGINS ********************** */
     const unsubRaisedAttribute = events.on(
       EventNames.RAISED_ATTRIBUTE,
-      (data) => {
+      data => {
         if (!isHost) return;
         const payload = JSON.parse(data.payload);
         const action = payload.action;
@@ -441,7 +443,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     // 1. Audience receives this when the request is accepted by host
     const unsubRaiseHandReqAcpt = events.on(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      (data) => {
+      data => {
         if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
           return;
         showToast(
@@ -460,7 +462,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
      */
     const unsubRaiseHandReqRej = events.on(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
-      (data) => {
+      data => {
         /** 2.a */
         if (
           raiseHandListRef.current[localUidRef.current].role ==
@@ -489,14 +491,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       },
     );
     // 3. Audience when receives kickUser notifies all host when is kicked out
-    const unsubKickUser = events.on(controlMessageEnum.kickUser, (data) => {
+    const unsubKickUser = events.on(controlMessageEnum.kickUser, data => {
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
       UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
     });
     // 4. Host promote audience as co-host
     const unsubPromoteAsCoHost = events.on(
       LiveStreamControlMessageEnum.promoteAsCoHost,
-      (data) => {
+      data => {
         showToast(
           LSNotificationObject.PROMOTE_AS_CO_HOST.text1,
           LSNotificationObject.PROMOTE_AS_CO_HOST.text2,
@@ -514,7 +516,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         try {
           const data = JSON.parse(payload);
           if (data?.uid) {
-            setCoHostUids((prevState) => {
+            setCoHostUids(prevState => {
               return [...prevState, parseInt(data.uid)];
             });
           }
@@ -528,8 +530,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         try {
           const data = JSON.parse(payload);
           if (data?.uid) {
-            setCoHostUids((prevState) => {
-              return [...prevState.filter((i) => i !== parseInt(data.uid))];
+            setCoHostUids(prevState => {
+              return [...prevState.filter(i => i !== parseInt(data.uid))];
             });
           }
         } catch (error) {}

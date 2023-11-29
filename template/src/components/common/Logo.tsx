@@ -31,7 +31,7 @@ const Logo: React.FC = () => {
 export default Logo;
 const style = StyleSheet.create({
   logo: {
-    width: 54,
-    height: 19,
+    width: 78,
+    height: 26,
   },
 });

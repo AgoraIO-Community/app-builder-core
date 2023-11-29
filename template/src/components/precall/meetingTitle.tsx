@@ -17,7 +17,8 @@ const MeetingTitle = (props?: MeetingTitleProps) => {
       numberOfLines={1}
       ellipsizeMode="tail"
       style={[style.titleHeading, props?.textStyle ? props.textStyle : {}]}>
-      {props.prefix} {trimText(meetingTitle)}
+      {props.prefix}{' '}
+      <Text style={{fontWeight: '600'}}>{trimText(meetingTitle)}</Text>
     </Text>
   );
 };
@@ -28,8 +29,9 @@ const style = StyleSheet.create({
   titleHeading: {
     fontSize: ThemeConfig.FontSize.large,
     lineHeight: 28,
-    fontWeight: '600',
+    fontWeight: '400',
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    textAlign: 'center',
   },
 });

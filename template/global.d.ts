@@ -103,11 +103,10 @@ interface ConfigInterface {
   ENABLE_IDP_AUTH: boolean;
   PROJECT_ID: string;
   ENABLE_STT: boolean;
-  ENABLE_AINS: boolean;
+  ENABLE_NOISE_CANCELLATION: boolean;
   ENABLE_VIRTUAL_BACKGROUND: boolean;
   ENABLE_WHITEBOARD: boolean;
-  ENABLE_CHAT_NOTIFICATION: boolean;
-  WAITING_ROOM: boolean;
+  ENABLE_WAITING_ROOM: boolean;
   WHITEBOARD_APPIDENTIFIER: string;
   WHITEBOARD_REGION: string;
 }

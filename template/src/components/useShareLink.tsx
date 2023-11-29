@@ -79,7 +79,10 @@ export enum SHARE_LINK_CONTENT_TYPE {
 }
 
 export interface ShareLinkContextInterface {
-  copyShareLinkToClipboard: (type: SHARE_LINK_CONTENT_TYPE) => void;
+  copyShareLinkToClipboard: (
+    type: SHARE_LINK_CONTENT_TYPE,
+    callbackFn?: () => void,
+  ) => void;
   getShareLink: (type: SHARE_LINK_CONTENT_TYPE) => string;
 }
 const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
@@ -178,8 +181,9 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getBaseURL = () => {
     let baseURL = !isSDK
-      ? $config.FRONTEND_ENDPOINT ||
-        (platform === 'web' && window.location.origin)
+      ? platform === 'web'
+        ? window.location.origin
+        : $config.FRONTEND_ENDPOINT
       : undefined;
     return baseURL;
   };

@@ -30,6 +30,7 @@ import PropsContext, {
   ToggleState,
 } from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import {IconsInterface} from '../../atoms/CustomIcon';
+import InlineNotification from '../../atoms/InlineNotification';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -37,6 +38,9 @@ interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
+  label?: string;
+  position?: number;
+  isOnPrecall?: boolean;
 }
 
 const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
@@ -57,7 +61,14 @@ const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
   });
 };
 
-const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
+const VBCard: React.FC<VBCardProps> = ({
+  type,
+  icon,
+  path,
+  label,
+  position,
+  isOnPrecall,
+}) => {
   const {
     setVBmode,
     setSelectedImage,
@@ -100,6 +111,7 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
             });
         } else {
           Toast.show({
+            leadingIconName: 'alert',
             type: 'error',
             text2: 'Please select a JPG or PNG file',
             text1: 'Upload Failed',
@@ -108,6 +120,7 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
         }
       } else {
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text2: 'File size must be less than 1MB.',
           text1: 'Upload Failed',
@@ -134,7 +147,12 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
 
   return (
     <Pressable
-      style={[styles.card, isSelected && styles.active]}
+      style={[
+        styles.card,
+        isSelected && styles.active,
+        isOnPrecall && position % 3 !== 0 ? {marginRight: 8} : {},
+        isOnPrecall ? {marginBottom: 8, width: '31.8%'} : {},
+      ]}
       onPress={handleClick}>
       {isSelected && type !== 'custom' && <TickIcon />}
       {path ? (
@@ -163,6 +181,20 @@ const VBCard: React.FC<VBCardProps> = ({type, icon, path}) => {
               name={icon}
               tintColor={$config.SECONDARY_ACTION_COLOR}
             />
+            {label ? (
+              <Text
+                style={{
+                  fontSize: ThemeConfig.FontSize.tiny,
+                  fontWeight: '400',
+                  fontFamily: ThemeConfig.FontFamily.sansPro,
+                  color: $config.SECONDARY_ACTION_COLOR,
+                  paddingVertical: 4,
+                }}>
+                {label}
+              </Text>
+            ) : (
+              <></>
+            )}
           </>
         </div>
       )}
@@ -185,7 +217,8 @@ const TickIcon: React.FC = () => {
   );
 };
 
-const VBPanel: React.FC = () => {
+const VBPanel = (props?: {isOnPrecall?: boolean}) => {
+  const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 
   const {currentLayout} = useLayout();
@@ -193,7 +226,7 @@ const VBPanel: React.FC = () => {
   const {setIsVBActive, setSaveVB, options} = useVB();
   const {setSidePanel} = useSidePanel();
   const {video: localVideoStatus} = useLocalUserInfo();
-  const maxPanelHeight = screenHeight * 0.8;
+  const maxPanelHeight = isOnPrecall ? '100%' : screenHeight * 0.8;
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
@@ -214,24 +247,33 @@ const VBPanel: React.FC = () => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
-      <VBHeader />
+      {isOnPrecall ? (
+        <Text
+          style={{
+            paddingHorizontal: 24,
+            fontWeight: '400',
+            fontSize: ThemeConfig.FontSize.small,
+            color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+            paddingVertical: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
+          }}>
+          Virtual Background
+        </Text>
+      ) : (
+        <VBHeader />
+      )}
 
       {!callActive && !isLocalVideoON ? (
-        <View style={styles.textContainer}>
-          <View style={styles.iconStyleView}>
-            <ImageIcon
-              iconSize={20}
-              iconType="plain"
-              name={'done-fill'}
-              base64={true}
-              base64TintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-            />
-          </View>
-          <Text style={styles.text}>
-            Selected effects will be applied once the camera is turned ON.
-          </Text>
+        <View style={{padding: 20, paddingBottom: 0}}>
+          <InlineNotification
+            text="  Camera is currently off. Selected background will be applied as soon
+        as your camera turns on."
+          />
         </View>
       ) : (
         <></>
@@ -239,13 +281,20 @@ const VBPanel: React.FC = () => {
 
       {callActive ? <VideoPreview /> : <></>}
       <ScrollView>
-        <View style={styles.container}>
+        <View
+          style={[
+            styles.container,
+            isOnPrecall ? {justifyContent: 'flex-start'} : {},
+          ]}>
           {options.map((item, index) => (
             <VBCard
               key={index}
               type={item.type}
               icon={item.icon}
               path={item.path}
+              label={item?.label}
+              position={index + 1}
+              isOnPrecall={isOnPrecall}
             />
           ))}
         </View>
@@ -271,7 +320,7 @@ const VBPanel: React.FC = () => {
               onPress={() => {
                 setSaveVB(true);
               }}
-              text={'Save'}
+              text={'Apply'}
             />
           </View>
         </View>
@@ -300,15 +349,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
   },
   active: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   img: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: 4,
   },
   triangle: {
     width: 0,
@@ -363,16 +415,16 @@ const styles = StyleSheet.create({
   textContainer: {
     padding: 12,
     borderRadius: 4,
-    borderLeftColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    borderLeftWidth: 4,
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    backgroundColor: 'rgba(255, 171, 0, 0.15)',
     margin: 20,
     marginBottom: 0,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
   iconStyleView: {
     marginRight: 4,
+    width: 20,
+    height: 20,
   },
 });

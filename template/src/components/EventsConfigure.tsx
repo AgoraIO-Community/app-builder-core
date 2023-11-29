@@ -10,19 +10,19 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
-import PrimaryButton from '../atoms/PrimaryButton';
+import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {
   RtcContext,
   DispatchContext,
   useLocalUid,
   PropsContext,
+  PermissionState,
 } from '../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
-import {useContent} from 'customization-api';
+import {useContent, useLocalUserInfo} from 'customization-api';
 import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import {
@@ -33,6 +33,12 @@ import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {EventNames} from '../rtm-events';
 import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 import useWaitingRoomAPI from '../../src/subComponents/waiting-rooms/useWaitingRoomAPI';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../src/rtm-events-api/LocalEvents';
+import {ENABLE_AUTH} from '../auth/config';
+import {useAuth} from '../auth/AuthProvider';
+import ThemeConfig from '../theme';
 
 interface Props {
   children: React.ReactNode;
@@ -59,12 +65,14 @@ const EventsConfigure: React.FC<Props> = props => {
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
   const isHostRef = React.useRef(isHost);
-
+  const {permissionStatus} = useLocalUserInfo();
+  const permissionStatusRef = React.useRef(permissionStatus);
   const {waitingRoomUids, waitingRoomRef} = useWaitingRoomContext();
   const waitingRoomUidsRef = React.useRef(waitingRoomUids);
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
   const activeUidsRef = React.useRef(activeUids);
+  const {authLogin} = useAuth();
   React.useEffect(() => {
     activeUidsRef.current = activeUids;
   }, [activeUids]);
@@ -72,6 +80,10 @@ const EventsConfigure: React.FC<Props> = props => {
   useEffect(() => {
     isHostRef.current = isHost;
   }, [isHost]);
+
+  useEffect(() => {
+    permissionStatusRef.current = permissionStatus;
+  }, [permissionStatus]);
 
   useEffect(() => {
     //user joined event listener
@@ -89,6 +101,7 @@ const EventsConfigure: React.FC<Props> = props => {
     // });
     events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
+        leadingIconName: 'video-off',
         type: 'info',
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
@@ -108,7 +121,8 @@ const EventsConfigure: React.FC<Props> = props => {
       } else {
         isWebInternal()
           ? await RtcEngineUnsafe.muteLocalVideoStream(true)
-          : await RtcEngineUnsafe.enableLocalVideo(false);
+          : //@ts-ignore
+            await RtcEngineUnsafe.enableLocalVideo(false);
         await updateVideoStream(true);
         dispatch({
           type: 'LocalMuteVideo',
@@ -118,6 +132,7 @@ const EventsConfigure: React.FC<Props> = props => {
     });
     events.on(controlMessageEnum.muteAudio, ({sender}) => {
       Toast.show({
+        leadingIconName: 'mic-off',
         type: 'info',
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
@@ -134,7 +149,7 @@ const EventsConfigure: React.FC<Props> = props => {
         value: [0],
       });
     });
-    events.on(controlMessageEnum.kickUser, () => {
+    events.on(controlMessageEnum.kickUser, async () => {
       //before kickoff the user we have check whether screenshare on/off
       //if its on then stop screenshare and emit event for screensharing is stopped
       try {
@@ -145,7 +160,12 @@ const EventsConfigure: React.FC<Props> = props => {
         console.log('error on stop the screeshare', error);
       }
 
+      if (!ENABLE_AUTH) {
+        // await authLogout();
+        await authLogin();
+      }
       Toast.show({
+        leadingIconName: 'info',
         type: 'info',
         text1: 'The host has removed you from the room.',
         visibilityTime: 5000,
@@ -161,71 +181,100 @@ const EventsConfigure: React.FC<Props> = props => {
     });
     events.on(controlMessageEnum.requestAudio, () => {
       Toast.show({
+        leadingIconName: 'mic-on',
         type: 'info',
         text1: 'The host has requested you to speak',
         visibilityTime: 3000,
         leadingIcon: null,
-        primaryBtn: (
-          <PrimaryButton
-            containerStyle={style.primaryBtn}
-            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
-            text="UNMUTE"
-            onPress={() => {
-              RtcEngineUnsafe.muteLocalAudioStream(false);
-              dispatch({
-                type: 'LocalMuteAudio',
-                value: [1],
-              });
-              Toast.hide();
-            }}
-          />
-        ),
-        secondaryBtn: SecondaryBtn,
+        primaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_MIC_ONLY ? (
+            <PrimaryButton
+              containerStyle={style.primaryBtn}
+              textStyle={style.textStyle}
+              text="UNMUTE"
+              onPress={() => {
+                RtcEngineUnsafe.muteLocalAudioStream(false);
+                dispatch({
+                  type: 'LocalMuteAudio',
+                  value: [1],
+                });
+                Toast.hide();
+              }}
+            />
+          ) : null,
+        secondaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current === PermissionState.GRANTED_FOR_MIC_ONLY
+            ? SecondaryBtn
+            : null,
       });
     });
     events.on(controlMessageEnum.requestVideo, () => {
       Toast.show({
+        leadingIconName: 'video-on',
         type: 'info',
         text1: 'The host has asked you to start your video.',
         visibilityTime: 3000,
         leadingIcon: null,
-        primaryBtn: (
-          <PrimaryButton
-            containerStyle={style.primaryBtn}
-            textStyle={style.primaryBtnText}
-            text="UNMUTE"
-            onPress={async () => {
-              isWebInternal()
-                ? await RtcEngineUnsafe.muteLocalVideoStream(false)
-                : await RtcEngineUnsafe.enableLocalVideo(true);
-              await updateVideoStream(false);
-              dispatch({
-                type: 'LocalMuteVideo',
-                value: [1],
-              });
-              Toast.hide();
-            }}
-          />
-        ),
-        secondaryBtn: SecondaryBtn,
+        primaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_ONLY ? (
+            <PrimaryButton
+              containerStyle={style.primaryBtn}
+              textStyle={style.textStyle}
+              text="UNMUTE"
+              onPress={async () => {
+                isWebInternal()
+                  ? await RtcEngineUnsafe.muteLocalVideoStream(false)
+                  : //@ts-ignore
+                    await RtcEngineUnsafe.enableLocalVideo(true);
+                await updateVideoStream(false);
+                dispatch({
+                  type: 'LocalMuteVideo',
+                  value: [1],
+                });
+                Toast.hide();
+              }}
+            />
+          ) : null,
+        secondaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current === PermissionState.GRANTED_FOR_CAM_ONLY
+            ? SecondaryBtn
+            : null,
       });
     });
 
     events.on('WhiteBoardStarted', () => {
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isWhiteBoardOn: true,
-        };
-      });
+      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isWhiteBoardOn: true,
+          };
+        });
+      } else {
+        LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ON);
+      }
     });
     events.on('WhiteBoardStopped', () => {
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          isWhiteBoardOn: false,
-        };
-      });
+      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isWhiteBoardOn: false,
+          };
+        });
+      } else {
+        LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_OFF);
+      }
     });
 
     events.on(EventNames.STT_ACTIVE, data => {
@@ -251,6 +300,7 @@ const EventsConfigure: React.FC<Props> = props => {
         prevLang,
         newLang,
         uid,
+        langChanged: true,
       };
       setRoomInfo(prev => {
         return {
@@ -287,6 +337,7 @@ const EventsConfigure: React.FC<Props> = props => {
       const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
         data?.payload,
       );
+      if (attendee_uid == '') return;
 
       //condition1 -if user request already approved(in the call)
       if (activeUidsRef.current.indexOf(attendee_uid) !== -1) {
@@ -307,7 +358,9 @@ const EventsConfigure: React.FC<Props> = props => {
       }
 
       const userName =
-        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+        //@ts-ignore
+        defaultContentRef.current.defaultContent[attendee_uid]?.name ||
+        'Attendee';
       // put the attendee in waitingroom in renderlist
       dispatch({
         type: 'UpdateRenderList',
@@ -322,7 +375,7 @@ const EventsConfigure: React.FC<Props> = props => {
       btns.primaryBtn = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
-          textStyle={style.primaryBtnText}
+          textStyle={style.textStyle}
           text="Admit"
           onPress={() => {
             // user approving waiting room request
@@ -355,7 +408,7 @@ const EventsConfigure: React.FC<Props> = props => {
       btns.secondaryBtn = (
         <TertiaryButton
           containerStyle={style.secondaryBtn}
-          textStyle={style.primaryBtnText}
+          textStyle={style.textStyle}
           text="Deny"
           onPress={() => {
             // user rejecting waiting room request
@@ -387,6 +440,7 @@ const EventsConfigure: React.FC<Props> = props => {
       );
 
       Toast.show({
+        leadingIconName: 'info',
         leadingIcon: null,
         type: 'info',
         text1: 'Approval Required',
@@ -524,27 +578,36 @@ const EventsConfigure: React.FC<Props> = props => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  secondaryBtn: {marginLeft: 12, paddingVertical: 6, paddingHorizontal: 10},
   primaryBtn: {
-    maxWidth: 109,
-    minWidth: 109,
-    height: 40,
     borderRadius: 4,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
   },
-  primaryBtnText: {
+  textStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 16,
-    paddingLeft: 0,
+    fontSize: 14,
+    lineHeight: 14,
+    color: $config.FONT_COLOR,
   },
 });
 const SecondaryBtn = (
   <TertiaryButton
     containerStyle={style.secondaryBtn}
+    textStyle={style.textStyle}
     text="LATER"
     onPress={() => {
       Toast.hide();
     }}
   />
 );
+const PrimaryButton = props => {
+  const {text, containerStyle, textStyle, onPress} = props;
+  return (
+    <TouchableOpacity style={containerStyle} onPress={onPress}>
+      <Text style={textStyle}>{text}</Text>
+    </TouchableOpacity>
+  );
+};

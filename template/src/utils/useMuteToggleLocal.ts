@@ -131,7 +131,8 @@ function useMuteToggleLocal() {
                 ? await RtcEngineUnsafe.muteLocalVideoStream(
                     localVideoState === ToggleState.enabled ? true : false,
                   )
-                : await RtcEngineUnsafe.enableLocalVideo(
+                : //@ts-ignore
+                  await RtcEngineUnsafe.enableLocalVideo(
                     localVideoState === ToggleState.enabled ? false : true,
                   );
               /**

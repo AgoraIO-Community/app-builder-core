@@ -16,6 +16,8 @@ import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import {ClientRole, DispatchContext, PropsContext} from '../../agora-rn-uikit';
+import LiveStreamAttendeeLandingTile from './livestream/views/LiveStreamAttendeeLandingTile';
+
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -54,11 +56,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
     rtcProps?.role === ClientRole.Audience &&
     activeUids.filter(i => !customContent[i]).length === 0
   ) {
-    return (
-      <View style={style.infoTextContainer}>
-        <Text style={style.infoTextStyle}>Waiting for the host to join...</Text>
-      </View>
-    );
+    return <LiveStreamAttendeeLandingTile />;
   }
 
   return (

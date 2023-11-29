@@ -75,10 +75,11 @@ const Join = () => {
         history.push(phrase);
       })
 
-      .catch((error) => {
+      .catch(error => {
         const isInvalidUrl =
-          error?.message.toLowerCase().trim() === 'invalid url' || false;
+          error?.message.toLowerCase().trim() === 'invalid passphrase' || false;
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text1: isInvalidUrl ? 'Room ID Invalid.' : 'Some Error Occured.',
           text2: isInvalidUrl
@@ -91,7 +92,7 @@ const Join = () => {
         });
       });
   };
-  const {JoinComponent} = useCustomization((data) => {
+  const {JoinComponent} = useCustomization(data => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};
@@ -150,7 +151,7 @@ const Join = () => {
                   : 'Enter the room ID here for the room you’d like to join'
               }
               placeholder={meetingIdInputPlaceholder}
-              onChangeText={(text) => setPhrase(text)}
+              onChangeText={text => setPhrase(text)}
               onSubmitEditing={() => startCall()}
             />
             <Spacer size={60} />

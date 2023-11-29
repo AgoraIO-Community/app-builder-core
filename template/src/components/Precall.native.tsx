@@ -41,6 +41,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {VideoPreviewProps} from './precall/VideoPreview';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import JoinWaitingRoomBtn from './precall/joinWaitingRoomBtn.native';
+import {DeviceSelectProps} from './precall/selectDevice';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -109,7 +110,8 @@ const JoinRoomInputView = ({isDesktop}) => {
               ? style.btnContainerStyle
               : {width: '100%'}
           }>
-          {$config.WAITING_ROOM && rtcProps.role === ClientRole.Audience ? (
+          {$config.ENABLE_WAITING_ROOM &&
+          rtcProps.role === ClientRole.Audience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -161,7 +163,7 @@ const JoinRoomButton = () => {
   const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
-      Textbox: React.ComponentType;
+      Textbox: React.ComponentType<PreCallTextInputProps>;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
     // commented for v1 release
     // if (
@@ -204,7 +206,7 @@ const Precall = (props: any) => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
-      DeviceSelect: React.ComponentType;
+      DeviceSelect: React.ComponentType<DeviceSelectProps>;
       VideoPreview: React.ComponentType<VideoPreviewProps>;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
@@ -268,8 +270,6 @@ const Precall = (props: any) => {
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 
-  //permission helper modal show/hide
-  const [isVisible, setIsVisible] = useState(false);
   const {store} = useContext(StorageContext);
 
   useEffect(() => {
@@ -288,21 +288,11 @@ const Precall = (props: any) => {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {
+        //@ts-ignore
         SDKEvents.emit('preJoin', meetingTitle, devices);
       });
     }
   }, [isJoinDataFetched]);
-
-  useEffect(() => {
-    if (store?.permissionPopupSeen) {
-      const flag = JSON.parse(store?.permissionPopupSeen);
-      if (flag === false) {
-        setIsVisible(true);
-      }
-    } else {
-      setIsVisible(true);
-    }
-  }, []);
 
   const FpePrecallComponent = useCustomization(data => {
     // commented for v1 release
@@ -370,7 +360,10 @@ const Precall = (props: any) => {
                     flex: 1,
                   }}
                   testID="precall-mobile-preview">
-                  <VideoPreview isMobileView={true} />
+                  <VideoPreview
+                    //@ts-ignore
+                    isMobileView={true}
+                  />
                 </View>
                 <Spacer size={40} />
                 <View

@@ -79,6 +79,7 @@ const ImageIcon = (props: ImageIconProps) => {
         {base64 ? (
           <UIKitImageIcon
             tintColor={base64TintColor}
+            //@ts-ignore
             name={name}
             style={{width: iconSize, height: iconSize}}
           />

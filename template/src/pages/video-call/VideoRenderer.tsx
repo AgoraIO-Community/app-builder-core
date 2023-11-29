@@ -204,7 +204,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                         pinnedUid &&
                         pinnedUid == user.uid &&
                         !isScreenShareOnFullView
-                          ? 100
+                          ? 160 + (isAndroid() ? 15 : 0)
                           : 8,
                       zIndex: 999,
                       elevation: 999,
@@ -371,7 +371,9 @@ const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
           iconProps={{
             iconContainerStyle: {
               padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
-              backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+              backgroundColor:
+                $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR +
+                hexadecimalTransparency['25%'],
             },
             name: 'more-menu',
             iconSize: 20,

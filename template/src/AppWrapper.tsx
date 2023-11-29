@@ -66,7 +66,7 @@ const ImageBackgroundComp = (props: {
 };
 
 const AppWrapper = (props: AppWrapperProps) => {
-  const AppRoot = useCustomization((data) => {
+  const AppRoot = useCustomization(data => {
     if (
       data?.components?.appRoot &&
       isValidReactComponent(data?.components?.appRoot)
@@ -96,8 +96,10 @@ const AppWrapper = (props: AppWrapperProps) => {
                 <Router
                   /*@ts-ignore Router will be memory Router in sdk*/
                   initialEntries={[
+                    //@ts-ignore
                     isSDK && SdkJoinState.phrase
-                      ? `/${SdkJoinState.phrase}`
+                      ? //@ts-ignore
+                        `/${SdkJoinState.phrase}`
                       : '',
                   ]}>
                   <AuthProvider>

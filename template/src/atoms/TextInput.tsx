@@ -23,7 +23,7 @@ const TextInputCustom = (props: TextInputCustomProps) => {
   const {style, setRef, ...otherProps} = props;
   return (
     <TextInput
-      ref={(ref) => props?.setRef && props.setRef(ref)}
+      ref={ref => props?.setRef && props.setRef(ref)}
       style={[styles.textInput, styles.textWrapFix, styles.noOutline, style]}
       placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
       autoCorrect={false}
@@ -35,6 +35,7 @@ const TextInputCustom = (props: TextInputCustomProps) => {
 export default TextInputCustom;
 
 const styles = StyleSheet.create({
+  // @ts-ignore
   textInput,
   // @ts-ignore
   noOutline: isWebInternal() ? {outlineStyle: 'none'} : {},

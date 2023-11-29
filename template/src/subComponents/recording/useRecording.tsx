@@ -152,11 +152,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (prevRecordingState) {
       if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
 
-      if ($config.WAITING_ROOM && !isHost && !callActive) {
+      if ($config.ENABLE_WAITING_ROOM && !isHost && !callActive) {
         return;
       }
 
       Toast.show({
+        leadingIconName: 'recording',
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive

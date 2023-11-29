@@ -69,6 +69,9 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
+  const isToastVisibleRef = useRef(false);
+  const previousNotificationRef = useRef([]);
+  const timeoutRef = useRef<any>();
   const {callActive} = props;
   const {
     data: {isHost},
@@ -124,6 +127,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     individualActiveRef.current = privateChatUser;
   }, [privateChatUser]);
 
+  const allEqual = arr => arr.every(val => val === arr[0]);
   const openPrivateChat = uidAsNumber => {
     //move this logic into ChatContainer
     // setUnreadPrivateMessageCount(
@@ -156,9 +160,6 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       isPrivateMessage: boolean = false,
       forceStop: boolean = false,
     ) => {
-      if (!$config.ENABLE_CHAT_NOTIFICATION) {
-        return;
-      }
       //don't show group message notification if group chat is open
       if (!isPrivateMessage && groupActiveRef.current) {
         return;
@@ -171,45 +172,160 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       if (forceStop) {
         return;
       }
-      Toast.show({
-        primaryBtn: null,
-        secondaryBtn: null,
-        leadingIcon: null,
-        type: 'info',
-        text1: isPrivateMessage
-          ? privateMessageLabel
-          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
-          ? fromText(
-              trimText(
-                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
-              ),
-            )
-          : '',
-        text2: isPrivateMessage
-          ? ''
-          : msg.length > 30
-          ? msg.slice(0, 30) + '...'
-          : msg,
-        visibilityTime: 3000,
-        onPress: () => {
-          if (isPrivateMessage) {
-            openPrivateChat(uidAsNumber);
-          } else {
-            //move this logic into ChatContainer
-            // setUnreadGroupMessageCount(0);
-            setPrivateChatUser(0);
-            setChatType(ChatType.Group);
-            setSidePanel(SidePanelType.Chat);
-          }
-        },
-      });
-    };
+      clearTimeout(timeoutRef.current);
+      isToastVisibleRef.current = true;
+      timeoutRef.current = setTimeout(() => {
+        isToastVisibleRef.current = false;
+        previousNotificationRef.current = [];
+      }, 3000);
 
+      previousNotificationRef.current.push({
+        isPrivateMessage: isPrivateMessage,
+        fromUid: isPrivateMessage ? uidAsNumber : 0,
+        from:
+          !isPrivateMessage &&
+          //@ts-ignore
+          defaultContentRef.current.defaultContent[uidAsNumber]?.name
+            ? trimText(
+                //@ts-ignore
+                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+              )
+            : '',
+      });
+
+      const privateMessages = previousNotificationRef.current.filter(
+        i => i.isPrivateMessage,
+      );
+      const publicMessages = previousNotificationRef.current.filter(
+        i => !i.isPrivateMessage,
+      );
+
+      //if 1 or more public and private messages
+      if (publicMessages && publicMessages.length > 1) {
+        const fromNamesArray = publicMessages
+          .filter(i => i.from !== undefined && i.from !== null && i.from !== '')
+          .map(i => i.from);
+        //removing the duplicate names
+        const fromNamesArrayUnique = [...new Set(fromNamesArray)];
+        //public chat with two name will seperated by "and"
+        //public chat with two or more name will have "and more" at the end
+        const fromNamesArrayUpdated =
+          fromNamesArrayUnique.length > 2
+            ? fromNamesArrayUnique
+                .slice(0, 2)
+                .map((i, index) => (index === 0 ? i + ', ' : i))
+                .concat(privateMessages?.length ? ', more' : ' and more')
+            : fromNamesArrayUnique.length == 2
+            ? fromNamesArrayUnique.map((i, index) =>
+                index === 0 ? i + ' and ' : i,
+              )
+            : fromNamesArrayUnique;
+        //converting the names array to string
+        const fromNames = fromNamesArrayUpdated.join('');
+        Toast.show({
+          //@ts-ignore
+          update: isToastVisibleRef.current ? true : false,
+          primaryBtn: null,
+          secondaryBtn: null,
+          type: 'info',
+          leadingIconName: 'chat-nav',
+          text1:
+            privateMessages && privateMessages.length
+              ? 'New comments in Public & Private Chat'
+              : 'New comments in Public Chat',
+          text2:
+            privateMessages && privateMessages.length
+              ? `You have ${publicMessages.length} new messages from ${fromNames} and ${privateMessages.length} Private chat`
+              : `You have ${publicMessages.length} new messages from ${fromNames}`,
+          visibilityTime: 3000,
+          onPress: () => {
+            if (isPrivateMessage) {
+              openPrivateChat(uidAsNumber);
+            } else {
+              //move this logic into ChatContainer
+              // setUnreadGroupMessageCount(0);
+              setPrivateChatUser(0);
+              setChatType(ChatType.Group);
+              setSidePanel(SidePanelType.Chat);
+            }
+          },
+        });
+      }
+      //if one or more private message and no public messages
+      else if (privateMessages && privateMessages.length > 1) {
+        Toast.show({
+          //@ts-ignore
+          update: isToastVisibleRef.current ? true : false,
+          primaryBtn: null,
+          secondaryBtn: null,
+          type: 'info',
+          leadingIconName: 'chat-nav',
+          text1: `You’ve received ${privateMessages.length} private messages`,
+          text2: ``,
+          visibilityTime: 3000,
+          onPress: () => {
+            const openPrivateChatDetails = allEqual(
+              privateMessages.map(i => i.fromUid),
+            );
+            //if all private message comes from the single user then open details private chat
+            if (openPrivateChatDetails) {
+              openPrivateChat(privateMessages[0].fromUid);
+            }
+            //if private message comes from different user then open private tab not the private chatting window
+            else {
+              //open private tab (not the detail of private chat user)
+              setPrivateChatUser(0);
+              setChatType(ChatType.Group);
+              setSidePanel(SidePanelType.Chat);
+            }
+          },
+        });
+      }
+      //either 1 public or 1 private message
+      else {
+        Toast.show({
+          //@ts-ignore
+          update: isToastVisibleRef.current ? true : false,
+          primaryBtn: null,
+          secondaryBtn: null,
+          type: 'info',
+          leadingIconName: 'chat-nav',
+          text1: isPrivateMessage
+            ? privateMessageLabel
+            : //@ts-ignore
+            defaultContentRef.current.defaultContent[uidAsNumber]?.name
+            ? fromText(
+                trimText(
+                  //@ts-ignore
+                  defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+                ),
+              )
+            : '',
+          text2: isPrivateMessage
+            ? ''
+            : msg.length > 30
+            ? msg.slice(0, 30) + '...'
+            : msg,
+          visibilityTime: 3000,
+          onPress: () => {
+            if (isPrivateMessage) {
+              openPrivateChat(uidAsNumber);
+            } else {
+              //move this logic into ChatContainer
+              // setUnreadGroupMessageCount(0);
+              setPrivateChatUser(0);
+              setChatType(ChatType.Group);
+              setSidePanel(SidePanelType.Chat);
+            }
+          },
+        });
+      }
+    };
     const unsubPublicChatMessage = events.on(
       EventNames.PUBLIC_CHAT_MESSAGE,
       data => {
         const forceStop =
-          $config.WAITING_ROOM &&
+          $config.ENABLE_WAITING_ROOM &&
           !isHostRef.current.isHost &&
           !callActiveRef.current.callActive;
         const payload = JSON.parse(data.payload);

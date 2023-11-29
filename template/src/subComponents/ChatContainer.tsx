@@ -92,7 +92,7 @@ const ChatContainer = (props?: {
   useEffect(() => {
     if (privateChatUser) {
       setPrivateUnreadCount(unreadIndividualMessageCount[privateChatUser]);
-      setUnreadIndividualMessageCount((prevState) => {
+      setUnreadIndividualMessageCount(prevState => {
         return {
           ...prevState,
           [privateChatUser]: 0,
@@ -111,7 +111,7 @@ const ChatContainer = (props?: {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
 
-  const {ChatBubbleComponent} = useCustomization((data) => {
+  const {ChatBubbleComponent} = useCustomization(data => {
     let components: {
       ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
     } = {
@@ -228,6 +228,12 @@ const ChatContainer = (props?: {
                     index !== 0 && messageStore[index - 1].uid === message.uid
                       ? true
                       : false
+                  }
+                  previousMessageCreatedTimestamp={
+                    index !== 0
+                      ? (messageStore[index - 1]
+                          .createdTimestamp as unknown as string)
+                      : ''
                   }
                   message={message.msg}
                   createdTimestamp={message.createdTimestamp}
