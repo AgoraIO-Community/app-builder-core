@@ -82,7 +82,6 @@ const toolBarStyles = StyleSheet.create({
   },
   topBarNativeStyle: {
     width: '100%',
-    zIndex: 999,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

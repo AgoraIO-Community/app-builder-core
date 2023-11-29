@@ -183,6 +183,7 @@ const VideoPreview: VideoPreviewComponent = ({children}) => {
               height: '100%',
               borderRadius: 8,
             }}
+            isPrecallScreen={true}
           />
         </View>
         {isMobileUA() ? (

@@ -57,8 +57,8 @@ const ParticipantView = props => {
   // const hostLabel = useString('hostLabel')();
   // const audienceLabel = useString('audienceLabel')();
   // const participantsLabel = useString('participantsLabel')();
-  const hostLabel = 'Host';
-  const audienceLabel = 'Audience';
+  const hostLabel = 'HOST';
+  const audienceLabel = 'AUDIENCE';
   const attendeeLabel = 'Attendee';
   const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
   const meetingParticpantsLabel = `IN THIS MEETING`;

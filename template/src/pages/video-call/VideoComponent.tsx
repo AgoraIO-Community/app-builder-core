@@ -20,6 +20,13 @@ const VideoComponent = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
+  const [showNoUserInfo, setShowNoUserInfo] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowNoUserInfo(true);
+    }, 2500);
+  }, []);
 
   const currentLayoutRef = useRef(currentLayout);
   const gridLayoutName = getGridLayoutName();
@@ -59,7 +66,7 @@ const VideoComponent = () => {
     isValidReactComponent(layoutsData[layout].component)
   ) {
     const CurrentLayout = layoutsData[layout].component;
-    if (showInviteTile()) {
+    if (showInviteTile() && showNoUserInfo) {
       return (
         <View
           style={{
@@ -72,7 +79,7 @@ const VideoComponent = () => {
           ($config.EVENT_MODE &&
             hostUids.concat(audienceUids)?.length === 1) ? (
             <>
-              <Spacer size={24} horizontal={isDesktop() ? true : false} />
+              <Spacer size={8} horizontal={isDesktop() ? true : false} />
               <MeetingInfoGridTile />
             </>
           ) : (

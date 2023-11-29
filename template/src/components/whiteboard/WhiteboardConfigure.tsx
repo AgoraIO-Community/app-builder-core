@@ -1,4 +1,4 @@
-import {UidType, useRoomInfo} from 'customization-api';
+import {UidType, useContent, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
@@ -38,6 +38,22 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const whiteboardUidRef = useRef(Date.now());
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
+  const {pinnedUid} = useContent();
+
+  useEffect(() => {
+    if (
+      whiteboardRoomState === RoomPhase.Connected &&
+      pinnedUid &&
+      pinnedUid == whiteboardUidRef.current
+    ) {
+      whiteboardRoom?.current?.moveCamera &&
+        whiteboardRoom?.current?.moveCamera({
+          centerX: 0,
+          centerY: 0,
+          scale: 1,
+        });
+    }
+  }, [pinnedUid, whiteboardRoomState]);
 
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
@@ -115,7 +131,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     } else if (whiteboardActive) {
       join();
     } else {
-      if (whiteboardRoom.current) {
+      if (whiteboardRoom.current && whiteboardActive) {
         leave();
       }
     }

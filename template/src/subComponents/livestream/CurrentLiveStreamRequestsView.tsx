@@ -22,7 +22,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const noLiveStreamingRequestsLabel = 'No streaming request(s)';
   const remoteUserDefaultLabel = 'User';
   const noUserFoundLabel = 'User not found';
-  const raisedHandsListTitleLabel = 'Streaming Request';
+  const raisedHandsListTitleLabel = 'STREAMING REQUEST';
   const {defaultContent} = useContent();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
@@ -89,6 +89,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                         </Text>
                       </View>
                     </View>
+                    <Spacer size={24} horizontal={true} />
                     <View style={styles.btnContainer}>
                       <RemoteLiveStreamRequestReject
                         uid={userUID}
@@ -117,9 +118,9 @@ const CurrentLiveStreamRequestsView = (props: any) => {
 };
 const styles = StyleSheet.create({
   btnContainer: {
-    flex: 1,
+    //  flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
+    //  justifyContent: 'center',
     alignItems: 'center',
   },
   container: {

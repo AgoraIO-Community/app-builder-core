@@ -25,7 +25,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
   const isMobileView = isMobileUA();
   const {isOnActionSheet} = useActionSheet();
-  const showLabel = $config.ICON_TEXT || isOnActionSheet ? true : false;
+  const showLabel = $config.ICON_TEXT ? true : false;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
       //@ts-ignore

@@ -16,12 +16,13 @@ import {
   DispatchContext,
   useLocalUid,
   PropsContext,
+  PermissionState,
 } from '../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
-import {useContent} from 'customization-api';
+import {useContent, useLocalUserInfo} from 'customization-api';
 import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import {
@@ -64,7 +65,8 @@ const EventsConfigure: React.FC<Props> = props => {
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
   const isHostRef = React.useRef(isHost);
-
+  const {permissionStatus} = useLocalUserInfo();
+  const permissionStatusRef = React.useRef(permissionStatus);
   const {waitingRoomUids, waitingRoomRef} = useWaitingRoomContext();
   const waitingRoomUidsRef = React.useRef(waitingRoomUids);
   const {approval} = useWaitingRoomAPI();
@@ -78,6 +80,10 @@ const EventsConfigure: React.FC<Props> = props => {
   useEffect(() => {
     isHostRef.current = isHost;
   }, [isHost]);
+
+  useEffect(() => {
+    permissionStatusRef.current = permissionStatus;
+  }, [permissionStatus]);
 
   useEffect(() => {
     //user joined event listener
@@ -180,22 +186,31 @@ const EventsConfigure: React.FC<Props> = props => {
         text1: 'The host has requested you to speak',
         visibilityTime: 3000,
         leadingIcon: null,
-        primaryBtn: (
-          <PrimaryButton
-            containerStyle={style.primaryBtn}
-            textStyle={style.textStyle}
-            text="UNMUTE"
-            onPress={() => {
-              RtcEngineUnsafe.muteLocalAudioStream(false);
-              dispatch({
-                type: 'LocalMuteAudio',
-                value: [1],
-              });
-              Toast.hide();
-            }}
-          />
-        ),
-        secondaryBtn: SecondaryBtn,
+        primaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_MIC_ONLY ? (
+            <PrimaryButton
+              containerStyle={style.primaryBtn}
+              textStyle={style.textStyle}
+              text="UNMUTE"
+              onPress={() => {
+                RtcEngineUnsafe.muteLocalAudioStream(false);
+                dispatch({
+                  type: 'LocalMuteAudio',
+                  value: [1],
+                });
+                Toast.hide();
+              }}
+            />
+          ) : null,
+        secondaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current === PermissionState.GRANTED_FOR_MIC_ONLY
+            ? SecondaryBtn
+            : null,
       });
     });
     events.on(controlMessageEnum.requestVideo, () => {
@@ -205,34 +220,61 @@ const EventsConfigure: React.FC<Props> = props => {
         text1: 'The host has asked you to start your video.',
         visibilityTime: 3000,
         leadingIcon: null,
-        primaryBtn: (
-          <PrimaryButton
-            containerStyle={style.primaryBtn}
-            textStyle={style.textStyle}
-            text="UNMUTE"
-            onPress={async () => {
-              isWebInternal()
-                ? await RtcEngineUnsafe.muteLocalVideoStream(false)
-                : //@ts-ignore
-                  await RtcEngineUnsafe.enableLocalVideo(true);
-              await updateVideoStream(false);
-              dispatch({
-                type: 'LocalMuteVideo',
-                value: [1],
-              });
-              Toast.hide();
-            }}
-          />
-        ),
-        secondaryBtn: SecondaryBtn,
+        primaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_ONLY ? (
+            <PrimaryButton
+              containerStyle={style.primaryBtn}
+              textStyle={style.textStyle}
+              text="UNMUTE"
+              onPress={async () => {
+                isWebInternal()
+                  ? await RtcEngineUnsafe.muteLocalVideoStream(false)
+                  : //@ts-ignore
+                    await RtcEngineUnsafe.enableLocalVideo(true);
+                await updateVideoStream(false);
+                dispatch({
+                  type: 'LocalMuteVideo',
+                  value: [1],
+                });
+                Toast.hide();
+              }}
+            />
+          ) : null,
+        secondaryBtn:
+          permissionStatusRef.current ===
+            PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+          permissionStatusRef.current === PermissionState.GRANTED_FOR_CAM_ONLY
+            ? SecondaryBtn
+            : null,
       });
     });
 
     events.on('WhiteBoardStarted', () => {
-      LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ON);
+      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isWhiteBoardOn: true,
+          };
+        });
+      } else {
+        LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ON);
+      }
     });
     events.on('WhiteBoardStopped', () => {
-      LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_OFF);
+      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            isWhiteBoardOn: false,
+          };
+        });
+      } else {
+        LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_OFF);
+      }
     });
 
     events.on(EventNames.STT_ACTIVE, data => {
@@ -258,6 +300,7 @@ const EventsConfigure: React.FC<Props> = props => {
         prevLang,
         newLang,
         uid,
+        langChanged: true,
       };
       setRoomInfo(prev => {
         return {
@@ -294,6 +337,7 @@ const EventsConfigure: React.FC<Props> = props => {
       const {attendee_uid, attendee_screenshare_uid} = JSON.parse(
         data?.payload,
       );
+      if (attendee_uid == '') return;
 
       //condition1 -if user request already approved(in the call)
       if (activeUidsRef.current.indexOf(attendee_uid) !== -1) {
@@ -315,7 +359,8 @@ const EventsConfigure: React.FC<Props> = props => {
 
       const userName =
         //@ts-ignore
-        defaultContentRef.current.defaultContent[attendee_uid]?.name || 'OO';
+        defaultContentRef.current.defaultContent[attendee_uid]?.name ||
+        'Attendee';
       // put the attendee in waitingroom in renderlist
       dispatch({
         type: 'UpdateRenderList',
@@ -533,12 +578,12 @@ const EventsConfigure: React.FC<Props> = props => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 12, paddingVertical: 9, paddingHorizontal: 20},
+  secondaryBtn: {marginLeft: 12, paddingVertical: 6, paddingHorizontal: 10},
   primaryBtn: {
     borderRadius: 4,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    paddingHorizontal: 20,
-    paddingVertical: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
   },
   textStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

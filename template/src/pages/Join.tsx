@@ -77,7 +77,7 @@ const Join = () => {
 
       .catch(error => {
         const isInvalidUrl =
-          error?.message.toLowerCase().trim() === 'invalid url' || false;
+          error?.message.toLowerCase().trim() === 'invalid passphrase' || false;
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',

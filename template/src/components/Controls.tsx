@@ -80,33 +80,52 @@ import isSDK from '../utils/isSDK';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 
 const WhiteboardListener = () => {
   const {dispatch} = useContext(DispatchContext);
   const {setCustomContent} = useContent();
   const {currentLayout, setLayout} = useLayout();
+  const {
+    data: {isHost},
+    isWhiteBoardOn,
+  } = useRoomInfo();
+
+  React.useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+      if (isWhiteBoardOn) {
+        WhiteboardStartedCallBack();
+      } else {
+        WhiteboardStoppedCallBack();
+      }
+    }
+  }, [isWhiteBoardOn, isHost]);
 
   useEffect(() => {
-    LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBOARD_ON,
-      WhiteboardStartedCallBack,
-    );
-    LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBOARD_OFF,
-      WhiteboardStoppedCallBack,
-    );
-
-    return () => {
-      LocalEventEmitter.off(
+    if (
+      !$config.ENABLE_WAITING_ROOM ||
+      ($config.ENABLE_WAITING_ROOM && isHost)
+    ) {
+      LocalEventEmitter.on(
         LocalEventsEnum.WHITEBOARD_ON,
         WhiteboardStartedCallBack,
       );
-      LocalEventEmitter.off(
+      LocalEventEmitter.on(
         LocalEventsEnum.WHITEBOARD_OFF,
         WhiteboardStoppedCallBack,
       );
-    };
-  }, []);
+      return () => {
+        LocalEventEmitter.off(
+          LocalEventsEnum.WHITEBOARD_ON,
+          WhiteboardStartedCallBack,
+        );
+        LocalEventEmitter.off(
+          LocalEventsEnum.WHITEBOARD_OFF,
+          WhiteboardStoppedCallBack,
+        );
+      };
+    }
+  }, [isHost]);
 
   //whiteboard start
 
@@ -608,7 +627,7 @@ const MoreButton = () => {
         isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
       <ActionMenu
-        containerStyle={{width: 260}}
+        containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}
         hoverMode={true}
         onHover={isVisible => setIsHoveredOnModal(isVisible)}
         from={'control-bar'}
@@ -789,6 +808,11 @@ export const MoreButtonToolbarItem = () => {
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
     (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) ? (
     <ToolbarItem testID="more-btn">
+      {!isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK()) ? (
+        <WhiteboardListener />
+      ) : (
+        <></>
+      )}
       <MoreButton />
     </ToolbarItem>
   ) : (
@@ -866,6 +890,7 @@ const Controls = (props: ControlsProps) => {
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
+  const {setRoomInfo} = useSetRoomInfo();
 
   const {
     data: {isHost},
@@ -885,7 +910,9 @@ const Controls = (props: ControlsProps) => {
       prevLang,
       newLang,
       uid,
+      langChanged,
     }: RoomInfoContextInterface['sttLanguage'] = sttLanguage;
+    if (!langChanged) return;
     const actionText =
       prevLang.indexOf('') !== -1
         ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
@@ -898,9 +925,8 @@ const Controls = (props: ControlsProps) => {
     } ${actionText} `;
 
     Toast.show({
-      leadingIconName: 'info',
+      leadingIconName: 'lang-select',
       type: 'info',
-      leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
       text1: `Spoken Language ${
         prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
       }`,
@@ -908,6 +934,12 @@ const Controls = (props: ControlsProps) => {
       primaryBtn: null,
       secondaryBtn: null,
       text2: msg,
+    });
+    setRoomInfo(prev => {
+      return {
+        ...prev,
+        sttLanguage: {...sttLanguage, langChanged: false},
+      };
     });
     // syncing local set language
     newLang && setLanguage(newLang);
