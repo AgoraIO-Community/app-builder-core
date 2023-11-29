@@ -184,8 +184,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         fromUid: isPrivateMessage ? uidAsNumber : 0,
         from:
           !isPrivateMessage &&
+          //@ts-ignore
           defaultContentRef.current.defaultContent[uidAsNumber]?.name
             ? trimText(
+                //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               )
             : '',
@@ -290,9 +292,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           leadingIconName: 'chat-nav',
           text1: isPrivateMessage
             ? privateMessageLabel
-            : defaultContentRef.current.defaultContent[uidAsNumber]?.name
+            : //@ts-ignore
+            defaultContentRef.current.defaultContent[uidAsNumber]?.name
             ? fromText(
                 trimText(
+                  //@ts-ignore
                   defaultContentRef.current.defaultContent[uidAsNumber]?.name,
                 ),
               )

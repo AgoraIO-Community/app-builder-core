@@ -25,6 +25,7 @@ const WaitingRoomProvider = ({children}) => {
       filterObject(
         defaultContent,
         ([k, v]) =>
+          //@ts-ignore
           v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
       ),
     ).map(Number);

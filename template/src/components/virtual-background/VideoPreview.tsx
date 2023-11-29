@@ -107,6 +107,7 @@ const VideoPreview = () => {
               base64={true}
               iconSize={20}
               iconType="plain"
+              //@ts-ignore
               name={'warning'}
             />
           </View>

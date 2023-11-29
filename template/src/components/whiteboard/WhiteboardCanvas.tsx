@@ -27,6 +27,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
 
   useEffect(function () {
     if (whiteboardPaper) {
+      //@ts-ignore
       wbSurfaceRef.current.appendChild(whiteboardPaper);
     }
 
@@ -37,7 +38,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
 
   return (
     <>
-      {showToolbox && whiteboardRoom.current.isWritable ? (
+      {showToolbox &&
+      //@ts-ignore
+      whiteboardRoom.current.isWritable ? (
         <WhiteboardToolBox whiteboardRoom={whiteboardRoom} />
       ) : (
         <div

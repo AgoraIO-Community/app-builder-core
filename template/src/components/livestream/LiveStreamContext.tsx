@@ -76,6 +76,7 @@ export const LiveStreamContextProvider: React.FC<
     const data = Object.keys(
       filterObject(
         defaultContent,
+        //@ts-ignore
         ([k, v]) => v?.type === 'rtc' && v.offline === true,
       ),
     );

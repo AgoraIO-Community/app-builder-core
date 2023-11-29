@@ -28,6 +28,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const showLabel = $config.ICON_TEXT ? true : false;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
+      //@ts-ignore
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
         setModalPosition({
           bottom: isMobileOrTablet()

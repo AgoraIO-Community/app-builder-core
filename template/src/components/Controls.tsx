@@ -920,6 +920,7 @@ const Controls = (props: ControlsProps) => {
             prevLang,
           )}" to "${getLanguageLabel(newLang)}" `;
     const msg = `${
+      //@ts-ignore
       defaultContentRef.current[uid]?.name || username
     } ${actionText} `;
 

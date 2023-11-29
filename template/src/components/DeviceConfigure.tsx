@@ -176,8 +176,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     const mutedState =
       //@ts-ignore
       type === 'audio'
-        ? !RtcEngineUnsafe.isAudioEnabled
-        : !RtcEngineUnsafe.isVideoEnabled;
+        ? //@ts-ignore
+          !RtcEngineUnsafe.isAudioEnabled
+        : //@ts-ignore
+          !RtcEngineUnsafe.isVideoEnabled;
 
     let currentDevice: string;
 
@@ -185,8 +187,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       currentDevice =
         //@ts-ignore
         type === 'audio'
-          ? RtcEngineUnsafe.audioDeviceId
-          : RtcEngineUnsafe.videoDeviceId;
+          ? //@ts-ignore
+            RtcEngineUnsafe.audioDeviceId
+          : //@ts-ignore
+            RtcEngineUnsafe.videoDeviceId;
       log(`Agora ${type} Engine is using`, currentDevice);
     } else {
       currentDevice = localStream[type]

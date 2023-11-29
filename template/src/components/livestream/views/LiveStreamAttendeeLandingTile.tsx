@@ -103,7 +103,7 @@ export default function LiveStreamAttendeeLandingTile() {
                 </Text>
               </View>
               <View style={style.tileSectionGrid}>
-                {features.map((feature) => (
+                {features.map(feature => (
                   <FeatureTile key={feature.id} feature={feature} />
                 ))}
               </View>
@@ -230,6 +230,7 @@ const style = StyleSheet.create({
     flexBasis: '50%',
   },
   cardMobile: {
+    //@ts-ignore
     flexBasis: '100%%',
   },
   cardHeader: {

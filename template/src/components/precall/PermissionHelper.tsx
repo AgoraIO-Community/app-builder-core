@@ -27,8 +27,14 @@ const PermissionHelper = () => {
   };
   useEffect(() => {
     Promise.all([
-      navigator.permissions.query({name: 'camera'}),
-      navigator.permissions.query({name: 'microphone'}),
+      navigator.permissions.query(
+        //@ts-ignore
+        {name: 'camera'},
+      ),
+      navigator.permissions.query(
+        //@ts-ignore
+        {name: 'microphone'},
+      ),
     ])
       .then(([cameraResult, micResult]) => {
         // Chrome
@@ -45,7 +51,7 @@ const PermissionHelper = () => {
           cameraResult.onchange = onChangeFunc;
         }
       })
-      .catch((e) => {
+      .catch(e => {
         // Firefox
         setTimeout(() => {
           setShowPopup(true);

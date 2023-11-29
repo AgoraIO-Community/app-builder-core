@@ -165,6 +165,7 @@ const Chat = (props?: ChatProps) => {
           isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
+          // @ts-ignore
           transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         ]}>
         {/**

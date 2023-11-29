@@ -251,12 +251,12 @@ const reactSdk = {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
-      'npx -p typescript tsc --project tsconfig_rsdk_index.json --noResolve --outFile ../Builds/reactSdk.d.ts',
+      'npx -p typescript tsc --project tsconfig_rsdk_index.json --outFile ../Builds/reactSdk.d.ts',
       () => cb(),
     );
   },
   bundleSdkTypedefs: () => {
-    return src(['../Builds/customization-api.d.ts', './static.d.ts'])
+    return src(['../Builds/customization-api.d.ts', '../Builds/reactSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
@@ -358,7 +358,7 @@ module.exports.reactSdk = series(
   reactSdk.webpack,
   general.generateApiTypedefs,
   general.bundleApiTypedefs,
-  // reactSdk.generateSdkTypedefs,
+  reactSdk.generateSdkTypedefs,
   reactSdk.bundleSdkTypedefs,
   general.cleanTempFiles,
   general.generateNpmPackage,

@@ -217,7 +217,7 @@ const TickIcon: React.FC = () => {
   );
 };
 
-const VBPanel: React.FC = props => {
+const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 
@@ -247,6 +247,7 @@ const VBPanel: React.FC = props => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {isOnPrecall ? (

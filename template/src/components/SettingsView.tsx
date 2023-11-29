@@ -100,7 +100,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
       setEditable(true);
       setTimeout(() => {
         inputRef.current.focus();
-        setFocus((prevState) => {
+        setFocus(prevState => {
           return {
             ...prevState,
             editName: false,
@@ -139,7 +139,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             placeholder={username}
             value={newName}
             editable={true}
-            onChangeText={(text) => setNewName(text)}
+            onChangeText={text => setNewName(text)}
             onSubmitEditing={onPress}
             placeholderTextColor={
               $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
@@ -244,7 +244,7 @@ const editNameStyle = StyleSheet.create({
     color: $config.FONT_COLOR,
   },
 });
-const SettingsView = (props) => {
+const SettingsView = props => {
   const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
   const settingsLabel = 'Settings';
@@ -266,6 +266,7 @@ const SettingsView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <SettingsHeader {...props} />}

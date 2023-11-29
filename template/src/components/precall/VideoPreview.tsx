@@ -125,7 +125,7 @@ const Fallback = () => {
     </View>
   );
 };
-type VideoPreviewProps = {
+export type VideoPreviewProps = {
   children: React.ReactNode;
 };
 export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
@@ -137,13 +137,11 @@ export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
 
 const VideoPreview: VideoPreviewComponent = ({children}) => {
   const {defaultContent, activeUids} = useContent();
-
   const [maxUid] = activeUids;
-
+  const styles = useStyles();
   if (!maxUid) {
     return null;
   }
-  const styles = useStyles();
 
   const headingChildren = React.Children.toArray(children).filter(
     child => React.isValidElement(child) && child.type === VideoPreview.Heading,

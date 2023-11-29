@@ -65,7 +65,7 @@ const ButtonWrapper = ({children, ...props}) => {
   const isMobileView = isMobileUA();
   return isMobileView ? (
     <TouchableOpacity
-      ref={(ref) => props?.setRef && props.setRef(ref)}
+      ref={ref => props?.setRef && props.setRef(ref)}
       style={
         !props.isOnActionSheet && [
           styles.containerStyle,
@@ -81,7 +81,7 @@ const ButtonWrapper = ({children, ...props}) => {
     </TouchableOpacity>
   ) : (
     <Pressable
-      ref={(ref) => props?.setRef && props.setRef(ref)}
+      ref={ref => props?.setRef && props.setRef(ref)}
       style={
         !props.isOnActionSheet && [
           styles.containerStyle,
@@ -122,6 +122,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
       <ToolTip
         isClickable={isClickable}
         toolTipMessage={props.toolTipMessage}
+        //@ts-ignore
         placement={placement}
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
@@ -131,7 +132,8 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
               setToolTipVisible={setToolTipVisible}
             />
           );
-        }}></ToolTip>
+        }}
+      />
     );
   }
   return (
