@@ -1,4 +1,3 @@
-import {ChatSendButton, ChatSendButtonProps} from './ChatInput';
 import {
   RemoteLiveStreamApprovedRequestRecall,
   RemoteLiveStreamRequestApprove,
@@ -23,7 +22,6 @@ type SidePanelButtonsArrayProps = [
   (props: RemoteLiveStreamApprovedRequestRecallProps) => JSX.Element,
   (props: RemoteLiveStreamControlProps) => JSX.Element,
   (props: RemoteLiveStreamControlProps) => JSX.Element,
-  (props: ChatSendButtonProps) => JSX.Element,
   (props: MuteAllAudioButtonProps) => JSX.Element,
   (props: MuteAllVideoButtonProps) => JSX.Element,
 ];
@@ -34,7 +32,6 @@ export const SidePanelButtonsArray: SidePanelButtonsArrayProps = [
   RemoteLiveStreamApprovedRequestRecall,
   RemoteLiveStreamRequestApprove,
   RemoteLiveStreamRequestReject,
-  ChatSendButton,
   MuteAllAudioButton,
   MuteAllVideoButton,
 ];

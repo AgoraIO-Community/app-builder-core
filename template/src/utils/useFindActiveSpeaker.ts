@@ -1,14 +1,17 @@
 import {
   useLocalUid,
   useLocalUserInfo,
-  useRender,
+  useContent,
   useRtc,
 } from 'customization-api';
-import {useContext, useEffect, useRef, useState} from 'react';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import {useContext, useEffect, useRef} from 'react';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import useIsLocalUserSpeaking from './useIsLocalUserSpeaking';
 import {filterObject} from '../utils/index';
 import ChatContext from '../components/ChatContext';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -19,18 +22,25 @@ const useFindActiveSpeaker = () => {
   const localUid = useLocalUid();
   const isLocalUserSpeaking = useIsLocalUserSpeaking();
   const {hasUserJoinedRTM} = useContext(ChatContext);
-  const {RtcEngine} = useRtc();
-  const {renderList} = useRender();
+  const {RtcEngineUnsafe} = useRtc();
+  const {defaultContent} = useContent();
   const {uid} = useLocalUserInfo();
-  const renderListRef = useRef(renderList);
+  const defaultContentRef = useRef(defaultContent);
   const maxSpeakingVolumeRef = useRef(0);
   const minNonSpeakingVolumeRef = useRef(100);
   const usersVolume = useRef({});
-  const [activeSpeaker, setActiveSpeaker] = useState(0);
+  const activeSpeakerUid = useRef(undefined);
+
+  const emitActiveSpeaker = (uid: UidType) => {
+    if (uid !== activeSpeakerUid.current) {
+      activeSpeakerUid.current = uid;
+      LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
+    }
+  };
 
   useEffect(() => {
-    renderListRef.current = renderList;
-  }, [renderList]);
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
 
   const normalize = (value, min, max) => {
     return (value - min) / (max - min);
@@ -49,9 +59,9 @@ const useFindActiveSpeaker = () => {
       //sending local user speaking and non speaking volume to remote users
       let volume = 0;
       //@ts-ignore
-      const volumes = RtcEngine?.getUsersVolumeLevel();
+      const volumes = RtcEngineUnsafe?.getUsersVolumeLevel();
 
-      const localUserData = volumes.find((i) => i.uid == uid);
+      const localUserData = volumes.find(i => i.uid == uid);
       if (localUserData && localUserData.level) {
         volume = Math.round(localUserData.level * 100) / 100;
       }
@@ -63,7 +73,7 @@ const useFindActiveSpeaker = () => {
             events.send(
               volumeEnum.SPEAKING_VOLUME,
               volume.toString(),
-              EventPersistLevel.LEVEL2,
+              PersistanceLevel.Sender,
             );
           //for local user
           speakingVolumeEventCallBack({
@@ -80,7 +90,7 @@ const useFindActiveSpeaker = () => {
             events.send(
               volumeEnum.NON_SPEAKING_VOLUME,
               volume.toString(),
-              EventPersistLevel.LEVEL2,
+              PersistanceLevel.Sender,
             );
           //for local user
           nonSpeakingVolumeEventCallback({
@@ -94,17 +104,13 @@ const useFindActiveSpeaker = () => {
       if (isLocalUserSpeaking) {
         //inform remote users
         hasUserJoinedRTM &&
-          events.send(volumeEnum.IS_SPEAKING, 'true', EventPersistLevel.LEVEL2);
+          events.send(volumeEnum.IS_SPEAKING, 'true', PersistanceLevel.Sender);
         //for local usage
         isSpeakingEventCallback({payload: 'true', sender: uid});
       } else {
         //inform remote users
         hasUserJoinedRTM &&
-          events.send(
-            volumeEnum.IS_SPEAKING,
-            'false',
-            EventPersistLevel.LEVEL2,
-          );
+          events.send(volumeEnum.IS_SPEAKING, 'false', PersistanceLevel.Sender);
         //for local usage
         isSpeakingEventCallback({payload: 'false', sender: uid});
       }
@@ -118,36 +124,36 @@ const useFindActiveSpeaker = () => {
       //@ts-ignore
       filterObject(usersVolume.current, ([k, v]) => {
         //@ts-ignore
-        return v?.isSpeaking && renderListRef.current[k]?.audio;
+        return v?.isSpeaking && defaultContentRef.current[k]?.audio;
       }),
     );
     if (!speakingUids || speakingUids?.length == 0) {
       log(' %cFinal No Active speaker', 'color:red');
-      setActiveSpeaker(0);
+      emitActiveSpeaker(0);
     } else {
       if (speakingUids?.length === 1) {
         log(
           ' %cFinal Active Speaker - Only one user is speaking',
           'color:green',
-          renderListRef.current[speakingUids[0]]?.name,
+          defaultContentRef.current[speakingUids[0]]?.name,
         );
-        setActiveSpeaker(parseInt(speakingUids[0]));
+        emitActiveSpeaker(parseInt(speakingUids[0]));
       } else {
         //for logging
         let speakerNames = '';
 
         //get current volume levels for users
         //@ts-ignore
-        const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
+        const currentUsersVolume = RtcEngineUnsafe?.getUsersVolumeLevel();
 
         const normalizedValues = {};
-        speakingUids?.forEach((speakerUid) => {
+        speakingUids?.forEach(speakerUid => {
           //for logging
           speakerNames =
-            speakerNames + ' ' + renderListRef.current[speakerUid]?.name;
+            speakerNames + ' ' + defaultContentRef.current[speakerUid]?.name;
 
           const uuid = parseInt(speakerUid);
-          const data = currentUsersVolume?.find((i) => i.uid === uuid);
+          const data = currentUsersVolume?.find(i => i.uid === uuid);
           const returnVal = normalize(
             data?.level || usersVolume.current[uuid]?.speakingVolume, //current level
             usersVolume.current[uuid]?.nonSpeakingVolume || 0,
@@ -169,21 +175,22 @@ const useFindActiveSpeaker = () => {
         log(
           ' %cFinal Active Speaker',
           'color:green',
-          renderListRef.current[sorted[0]]?.name,
+          defaultContentRef.current[sorted[0]]?.name,
         );
-        setActiveSpeaker(parseInt(sorted[0]));
+
+        emitActiveSpeaker(parseInt(sorted[0]));
 
         //for logging purpose
         let obj = {};
-        sorted.map((i) => {
+        sorted.map(i => {
           let id = parseInt(i);
-          const curtdata = currentUsersVolume.find((i) => i.uid === id);
+          const curtdata = currentUsersVolume.find(i => i.uid === id);
           const cl =
             curtdata && curtdata?.level
               ? Math.round(curtdata?.level * 100) / 100
               : 0;
           obj[id] = {
-            name: renderListRef.current[id]?.name,
+            name: defaultContentRef.current[id]?.name,
             normalizedVolume: normalizedValues[id],
             currentVolume: cl || usersVolume.current[id]?.speakingVolume,
             minNonSpeakingVolume: usersVolume.current[id]?.nonSpeakingVolume,
@@ -199,14 +206,14 @@ const useFindActiveSpeaker = () => {
     /*
     //get current volume levels for users
     //@ts-ignore
-    const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
+    const currentUsersVolume = RtcEngineUnsafe?.getUsersVolumeLevel();
 
     const normalizedValues = {};
 
     currentUsersVolume.forEach((i) => {
       //validation
       if (
-        renderListRef.current[i.uid]?.audio &&
+        defaultContentRef.current[i.uid]?.audio &&
         usersVolume.current[i.uid]?.isSpeaking
       ) {
         const returnVal = normalize(
@@ -242,7 +249,7 @@ const useFindActiveSpeaker = () => {
             ? Math.round(curtdata?.level * 100) / 100
             : 'no vol';
         obj[id] = {
-          name: renderListRef.current[id]?.name,
+          name: defaultContentRef.current[id]?.name,
           normalizedVolume: normalizedValues[id],
           currentVolume: cl,
           minNonSpeakingVolume: usersVolume.current[id]?.nonSpeakingVolume,
@@ -322,6 +329,6 @@ const useFindActiveSpeaker = () => {
     };
   }, []);
 
-  return activeSpeaker;
+  return null;
 };
 export default useFindActiveSpeaker;

@@ -9,13 +9,23 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+
 import React from 'react';
+import {createHook} from 'customization-implementation';
 
-const Settings: React.FC = () => {
-  return <></>;
-};
-export const SettingsWithViewWrapper = () => {
-  return <></>;
+const ToolbarMenuContext = React.createContext({isToolbarMenuItem: false});
+
+export interface ToolbarMenuProviderProps {
+  children: React.ReactNode;
+}
+const ToolbarMenuProvider = (props: ToolbarMenuProviderProps) => {
+  return (
+    <ToolbarMenuContext.Provider value={{isToolbarMenuItem: true}}>
+      {props.children}
+    </ToolbarMenuContext.Provider>
+  );
 };
 
-export default Settings;
+const useToolbarMenu = createHook(ToolbarMenuContext);
+
+export {ToolbarMenuProvider, useToolbarMenu};

@@ -16,7 +16,7 @@ import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
 import isMobileOrTablet from '../../utils/isMobileOrTablet';
@@ -41,7 +41,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {setCallActive} = usePreCall();
   const username = useGetName();
   const setUsername = useSetName();
-  const {isJoinDataFetched} = useMeetingInfo();
+  const {isJoinDataFetched} = useRoomInfo();
   const {awake, request} = useWakeLock();
   const {saveName} = useUserPreference();
   const joinRoomButton =

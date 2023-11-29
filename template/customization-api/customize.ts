@@ -46,7 +46,7 @@ function isComponent(data: any) {
 }
 
 //These keys value are not react component. so doing indexOf and checking whether its function or not
-const ignoreTheseKeys = ['customLayout', 'useUserContext'];
+const ignoreTheseKeys = ['customLayout'];
 
 function validateComponents(components: any) {
   for (const key in components) {

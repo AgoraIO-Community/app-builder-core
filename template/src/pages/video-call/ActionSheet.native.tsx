@@ -27,7 +27,8 @@ import Transcript from '../../subComponents/caption/Transcript';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
-const ActionSheet = () => {
+const ActionSheet = props => {
+  const {snapPointsMinMax = [100, 350]} = props;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {sidePanel, setSidePanel} = useSidePanel();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -115,7 +116,7 @@ const ActionSheet = () => {
       )}
       {/* Controls  Action Sheet*/}
       <BottomSheetModal
-        snapPoints={[100, 350]}
+        snapPoints={snapPointsMinMax}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         enablePanDownToClose={false}
@@ -128,13 +129,13 @@ const ActionSheet = () => {
             <Spacer size={12} />
           </>
         )}
-        handleIndicatorStyle={styles.handleIndicatorStyle}
-      >
+        handleIndicatorStyle={styles.handleIndicatorStyle}>
         <BottomSheetView>
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
             native={true}
+            {...props}
           />
         </BottomSheetView>
       </BottomSheetModal>
@@ -154,8 +155,7 @@ const ActionSheet = () => {
         )}
         android_keyboardInputMode="adjustResize"
         keyboardBehavior="extend"
-        stackBehavior="push"
-      >
+        stackBehavior="push">
         <BottomSheetView>
           <Chat showHeader={false} />
         </BottomSheetView>
@@ -174,8 +174,7 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Participants} />
         )}
-        stackBehavior="push"
-      >
+        stackBehavior="push">
         <BottomSheetView>
           <ParticipantView showHeader={false} />
         </BottomSheetView>
@@ -194,8 +193,7 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Settings} />
         )}
-        stackBehavior="push"
-      >
+        stackBehavior="push">
         <BottomSheetView>
           <SettingsView showHeader={false} />
         </BottomSheetView>
@@ -214,8 +212,7 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Transcript} />
         )}
-        stackBehavior="push"
-      >
+        stackBehavior="push">
         <BottomSheetView>
           <Transcript showHeader={false} />
         </BottomSheetView>

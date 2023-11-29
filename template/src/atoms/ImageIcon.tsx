@@ -17,7 +17,8 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ImageIconProps {
   tintColor?: string;
-  name: keyof IconsInterface;
+  name?: keyof IconsInterface;
+  icon?: string;
   iconSize?: number;
   iconContainerStyle?: ViewStyle;
   iconBackgroundColor?: string;
@@ -33,6 +34,7 @@ export interface ImageIconProps {
 const ImageIcon = (props: ImageIconProps) => {
   const {
     name,
+    icon = undefined,
     iconSize = 26,
     tintColor,
     base64 = false,
@@ -80,8 +82,16 @@ const ImageIcon = (props: ImageIconProps) => {
             name={name}
             style={{width: iconSize, height: iconSize}}
           />
-        ) : (
+        ) : icon ? (
+          <UIKitImageIcon
+            tintColor={tintColor}
+            icon={icon}
+            style={{width: iconSize, height: iconSize}}
+          />
+        ) : name ? (
           <CustomIcon name={name} color={tintColor} size={iconSize} />
+        ) : (
+          <></>
         )}
       </View>
     </View>

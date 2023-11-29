@@ -12,7 +12,7 @@ import LiveStreamContext, {
 } from '../../components/livestream';
 import {ClientRole, useLocalUid} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 
 export interface LiveStreamDataObjectInterface {
   [key: number]: {
@@ -36,37 +36,38 @@ interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const {renderList} = useRender();
+  const {defaultContent, activeUids} = useContent();
   const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [audienceUids, setAudienceUids] = useState<UidType[]>([]);
 
   React.useEffect(() => {
-    if (Object.keys(renderList).length !== 0) {
+    if (Object.keys(defaultContent).length !== 0) {
       const hostList = filterObject(
-        renderList,
+        defaultContent,
         ([k, v]) =>
           (v?.type === 'rtc' || v?.type === 'live') && //||
           //(v?.type === 'screenshare' && v?.video == 1)
           (raiseHandList[k]
             ? raiseHandList[k]?.role == ClientRole.Broadcaster
             : true) &&
-          !v?.offline,
+          !v?.offline &&
+          activeUids.indexOf(v?.uid) !== -1,
       );
       const audienceList = filterObject(
-        renderList,
+        defaultContent,
         ([k, v]) =>
           (v?.type === 'rtc' || v?.type === 'live') &&
           raiseHandList[k]?.role == ClientRole.Audience &&
           !v.offline,
       );
-      const hUids = Object.keys(hostList).map((uid) => parseInt(uid));
-      const aUids = Object.keys(audienceList).map((uid) => parseInt(uid));
+      const hUids = Object.keys(hostList).map(uid => parseInt(uid));
+      const aUids = Object.keys(audienceList).map(uid => parseInt(uid));
 
       setHostUids(hUids);
       setAudienceUids(aUids);
     }
-  }, [renderList, raiseHandList]);
+  }, [defaultContent, raiseHandList]);
 
   return (
     <LiveStreamDataContext.Provider

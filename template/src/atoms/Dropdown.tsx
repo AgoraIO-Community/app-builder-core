@@ -43,7 +43,7 @@ const Dropdown: FC<Props> = ({
   const [dropdownPos, setDropdownPos] = useState({top: 0, left: 0, width: 0});
   const [isHovered, setIsHovered] = React.useState(false);
   const selected = useMemo(() => {
-    return data.find((dataItem) => dataItem.value === selectedValue);
+    return data.find(dataItem => dataItem.value === selectedValue);
   }, [selectedValue, data]);
 
   useEffect(() => {
@@ -208,7 +208,7 @@ const PlatformWrapper = ({children, onPress}) => {
       onMouseLeave={() => {
         setIsHovered(false);
       }}
-      onClick={(e) => {
+      onClick={e => {
         e.preventDefault();
         onPress && onPress();
       }}>
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
     paddingLeft: 8,
     paddingVertical: 20,
   },

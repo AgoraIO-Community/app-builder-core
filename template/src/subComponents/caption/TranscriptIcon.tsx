@@ -1,14 +1,10 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
 import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import {useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import useGetName from '../../utils/useGetName';
-import events, {EventPersistLevel} from '../../rtm-events-api';
-import {EventNames} from '../../rtm-events';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -30,7 +26,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   } = props;
 
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
-  const {isSTTActive, language: prevLang} = useCaption();
+  const {isSTTActive, language: prevLang, isSTTError} = useCaption();
   const isDisabled = !isAuthorizedSTTUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -38,6 +34,12 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
+    if (isSTTError) {
+      setSidePanel(
+        isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,
+      );
+      return;
+    }
     if (isSTTActive) {
       setSidePanel(
         isTranscriptON ? SidePanelType.None : SidePanelType.Transcript,

@@ -1,6 +1,6 @@
 import {gql, useMutation} from '@apollo/client';
-import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from './isSDK';
 
@@ -23,12 +23,17 @@ const CREATE_CHANNEL = gql`
 /**
  * Returns an asynchronous function to create a meeting with the given options.
  */
-export default function useCreateMeeting() {
+export type createRoomFun = (
+  roomTitle: string,
+  enablePSTN?: boolean,
+) => Promise<void>;
+export default function useCreateRoom(): createRoomFun {
   const [createChannel, {error}] = useMutation(CREATE_CHANNEL);
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const {setRoomInfo} = useSetRoomInfo();
   return async (
     roomTitle: string,
     enablePSTN?: boolean,
+    //isSeparateHostLink will be for internal usage since backend integration is not there
     isSeparateHostLink?: boolean,
   ) => {
     const res = await createChannel({
@@ -45,37 +50,37 @@ export default function useCreateMeeting() {
       throw error;
     }
     if (res && res?.data && res?.data?.createChannel) {
-      let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {
+      let roomInfo: Partial<RoomInfoContextInterface['data']> = {
         roomId: {
           attendee: '',
         },
       };
       if (res?.data?.createChannel?.passphrase?.view) {
-        meetingInfo.roomId.attendee = res.data.createChannel.passphrase.view;
+        roomInfo.roomId.attendee = res.data.createChannel.passphrase.view;
       }
       if (res?.data?.createChannel?.passphrase?.host) {
-        meetingInfo.roomId.host = res.data.createChannel.passphrase.host;
+        roomInfo.roomId.host = res.data.createChannel.passphrase.host;
       }
       if (enablePSTN === true && res?.data?.createChannel?.pstn) {
-        meetingInfo.pstn = {
+        roomInfo.pstn = {
           number: res.data.createChannel.pstn.number,
           pin: res.data.createChannel.pstn.dtmf,
         };
       }
-      setMeetingInfo({
+      setRoomInfo({
         data: {
           isHost: true,
           isSeparateHostLink: isSeparateHostLink ? true : false,
           meetingTitle: roomTitle,
-          roomId: meetingInfo?.roomId,
-          pstn: meetingInfo?.pstn,
+          roomId: roomInfo?.roomId,
+          pstn: roomInfo?.pstn,
         },
       });
       SDKEvents.emit(
         'create',
-        meetingInfo.roomId.host,
-        meetingInfo.roomId.attendee,
-        meetingInfo?.pstn,
+        roomInfo.roomId.host,
+        roomInfo.roomId.attendee,
+        roomInfo?.pstn,
       );
     } else {
       throw new Error(`An error occurred in parsing the channel data.`);

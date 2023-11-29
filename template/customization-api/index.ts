@@ -24,3 +24,7 @@ export * from './customEvents';
 export * from './sub-components';
 export * from './typeDefinition';
 export * from './utils';
+export * from './types';
+
+//TODO: hari remove later - used for simple-practice demo
+export * from './temp';

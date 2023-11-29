@@ -1,7 +1,7 @@
 import {useContext} from 'react';
 import {gql} from '@apollo/client';
-import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {GraphQLContext} from '../components/GraphQLProvider';
 
 const SHARE = gql`
@@ -22,7 +22,7 @@ const SHARE = gql`
 `;
 
 export default function useGetMeetingPhrase() {
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const {setRoomInfo} = useSetRoomInfo();
   const {client} = useContext(GraphQLContext);
   return async (phrase: string) => {
     const response = await client.query({
@@ -37,28 +37,28 @@ export default function useGetMeetingPhrase() {
       try {
         if (response && response.data) {
           let data = response.data;
-          let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {
+          let roomInfo: Partial<RoomInfoContextInterface['data']> = {
             roomId: {attendee: ''},
           };
           if (data?.share?.passphrase?.view) {
-            meetingInfo.roomId.attendee = data.share.passphrase.view;
+            roomInfo.roomId.attendee = data.share.passphrase.view;
           }
           if (data?.share?.passphrase?.host) {
-            meetingInfo.roomId.host = data.share.passphrase.host;
+            roomInfo.roomId.host = data.share.passphrase.host;
           }
           if (data?.share?.pstn) {
-            meetingInfo.pstn = {
+            roomInfo.pstn = {
               number: data.share.pstn.number,
               pin: data.share.pstn.dtmf,
             };
           }
-          setMeetingInfo((prevState) => {
+          setRoomInfo((prevState) => {
             return {
               ...prevState,
               data: {
                 ...prevState.data,
-                roomId: meetingInfo.roomId,
-                pstn: meetingInfo?.pstn,
+                roomId: roomInfo.roomId,
+                pstn: roomInfo?.pstn,
               },
             };
           });

@@ -13,6 +13,7 @@ export interface I18nPrecallScreenLabelsInterface {
   // fetchingNamePlaceholder?: I18nBaseType; //
   // loadingWithDots?: I18nBaseType;
   joinRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
+  waitingRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
 }
 
 export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
@@ -25,9 +26,11 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   joinRoomButton: ({ready, role}) =>
     ready
       ? !role
-        ? 'JOIN MEETING'
-        : `JOIN MEETING AS ${
+        ? 'JOIN ROOM'
+        : `JOIN ROOM AS ${
             role === ClientRole.Broadcaster ? 'HOST' : 'AUDIENCE'
           }`
       : `Loading...`,
+  waitingRoomButton: ({ready}) =>
+    ready ? 'Ask To Join' : `Waiting for approval...`,
 };

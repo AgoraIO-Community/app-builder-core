@@ -108,7 +108,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   // joiningLoaderLabel: 'Starting Call. Just a second.',
   // oauthLoginLabel: 'Login using OAuth',
   // oauthProviderLabel: 'Please select an OAuth provider to login.',
-  // copyMeetingInviteButton: 'Copy Meeting Invite',
+  // copyMeetingInviteButton: 'Copy Room Invite',
   // pin: 'Pin',
   // language: 'Language',
   // hostControlsLabel: 'Host Controls',
@@ -166,20 +166,20 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   //   if (url) {
   //     // if host data is present generate links for both host and attendee
   //     if (url?.host) {
-  //       inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
+  //       inviteContent += `Room - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
   //     }
   //     // if host data is not present then generate link for attendee alone
   //     else {
-  //       inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.attendee}`;
+  //       inviteContent += `Room - ${meetingName}\nMeeting URL: ${url?.attendee}`;
   //     }
   //   } else {
   //     // if host data is present generate meeting ID for both host and attendee
   //     if (id?.host) {
-  //       inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
+  //       inviteContent += `Room - ${meetingName}\nAttendee Room ID: ${id?.attendee}\nHost Room ID: ${id?.host}`;
   //     }
   //     // if host data is not present then generate meeting ID for attendee alone
   //     else {
-  //       inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.attendee}`;
+  //       inviteContent += `Room - ${meetingName}\nMeeting ID: ${id?.attendee}`;
   //     }
   //   }
   //   // Adding pstn data into meeting data if present

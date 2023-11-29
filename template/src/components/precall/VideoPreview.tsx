@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -26,15 +26,18 @@ import {
   PermissionState,
   ImageIcon as UiKitImageIcon,
 } from '../../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import {isMobileUA, isWebInternal, useResponsive} from '../../utils/common';
+import {useVB} from '../virtual-background/useVB';
+import Toast from '../../../react-native-toast-message';
 
 const Fallback = () => {
   const {isCameraAvailable, isMicAvailable} = usePreCall();
+  const toastRef = useRef({isShown: false});
   const local = useContext(LocalContext);
   const requestCameraAndAudioPermission = () => {
     try {
@@ -50,53 +53,90 @@ const Fallback = () => {
     }
   };
   const styles = useStyles();
+
+  useEffect(() => {
+    if (
+      !(
+        isCameraAvailable ||
+        ($config.AUDIO_ROOM && isMicAvailable) ||
+        local.permissionStatus === PermissionState.NOT_REQUESTED ||
+        local.permissionStatus === PermissionState.REQUESTED
+      ) &&
+      toastRef.current.isShown === false
+    ) {
+      toastRef.current.isShown = true;
+      Toast.show({
+        type: 'warn',
+        text1: `Can't find your ${
+          $config.AUDIO_ROOM ? ' Microphone' : ' Camera'
+        }`,
+        text2: `Check your system settings to make sure that a ${
+          $config.AUDIO_ROOM ? 'microphone' : 'camera'
+        } is available. If not, plug one in and restart your browser`,
+        visibilityTime: 10000,
+      });
+    }
+  }, [local, isCameraAvailable, isMicAvailable]);
+
   return (
     <View style={styles.fallbackRootContainer}>
-      {isCameraAvailable ||
-      ($config.AUDIO_ROOM && isMicAvailable) ||
-      local.permissionStatus === PermissionState.NOT_REQUESTED ||
-      local.permissionStatus === PermissionState.REQUESTED ? (
-        <View style={styles.avatar}>
-          <UiKitImageIcon name={'profile'} />
-        </View>
-      ) : (
-        <View style={styles.fallbackContainer}>
-          <Text style={styles.infoText1}>
-            Can’t Find Your{$config.AUDIO_ROOM ? ' Microphone' : ' Camera'}
-          </Text>
-          <Text style={styles.infoText2}>
-            Check your system settings to make sure that a
-            {$config.AUDIO_ROOM ? ' microphone' : ' camera'} is available. If
-            not, plug one in and restart your browser.
-          </Text>
-          <Spacer size={33} />
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'center',
-            }}
-            onPress={() => {
-              requestCameraAndAudioPermission();
-            }}>
-            <Text style={styles.retryBtn}>Learn More</Text>
-            <Spacer horizontal={true} size={4} />
-            <View style={{alignSelf: 'center'}}>
-              <ImageIcon
-                iconType="plain"
-                name={'link-share'}
-                tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-              />
-            </View>
-          </TouchableOpacity>
-          <Spacer size={23} />
-        </View>
-      )}
+      {
+        // isCameraAvailable ||
+        // ($config.AUDIO_ROOM && isMicAvailable) ||
+        // local.permissionStatus === PermissionState.NOT_REQUESTED ||
+        // local.permissionStatus === PermissionState.REQUESTED
+        true ? (
+          <View style={styles.avatar}>
+            <UiKitImageIcon name={'profile'} />
+          </View>
+        ) : (
+          <View style={styles.fallbackContainer}>
+            <Text style={styles.infoText1}>
+              Can’t Find Your{$config.AUDIO_ROOM ? ' Microphone' : ' Camera'}
+            </Text>
+            <Text style={styles.infoText2}>
+              Check your system settings to make sure that a
+              {$config.AUDIO_ROOM ? ' microphone' : ' camera'} is available. If
+              not, plug one in and restart your browser.
+            </Text>
+            <Spacer size={33} />
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignSelf: 'center',
+              }}
+              onPress={() => {
+                requestCameraAndAudioPermission();
+              }}>
+              <Text style={styles.retryBtn}>Learn More</Text>
+              <Spacer horizontal={true} size={4} />
+              <View style={{alignSelf: 'center'}}>
+                <ImageIcon
+                  iconType="plain"
+                  name={'link-share'}
+                  tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+                />
+              </View>
+            </TouchableOpacity>
+            <Spacer size={23} />
+          </View>
+        )
+      }
     </View>
   );
 };
+type VideoPreviewProps = {
+  children: React.ReactNode;
+};
+export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
+  Controls: React.FC;
+  NameInput: React.FC;
+  JoinBtn: React.FC;
+  Heading: React.FC;
+};
 
-const VideoPreview = () => {
-  const {renderList, activeUids} = useRender();
+const VideoPreview: VideoPreviewComponent = ({children}) => {
+  const {defaultContent, activeUids} = useContent();
 
   const [maxUid] = activeUids;
 
@@ -104,29 +144,94 @@ const VideoPreview = () => {
     return null;
   }
   const styles = useStyles();
+
+  const headingChildren = React.Children.toArray(children).filter(
+    child => React.isValidElement(child) && child.type === VideoPreview.Heading,
+  );
+  const controlChildren = React.Children.toArray(children).filter(
+    child =>
+      React.isValidElement(child) && child.type === VideoPreview.Controls,
+  );
+
+  const nameInputChildren = React.Children.toArray(children).filter(
+    child =>
+      React.isValidElement(child) && child.type === VideoPreview.NameInput,
+  );
+
+  const joinBtnChildren = React.Children.toArray(children).filter(
+    child => React.isValidElement(child) && child.type === VideoPreview.JoinBtn,
+  );
   return (
-    <View style={[styles.container]}>
+    <View
+      style={
+        isMobileUA() ? styles.mobileRootcontainer : styles.desktopRootcontainer
+      }>
+      <View style={styles.heading}>{headingChildren}</View>
       <View
-        style={{
-          flex: 1,
-        }}>
-        <MaxVideoView
-          user={renderList[maxUid]}
-          key={maxUid}
-          fallback={Fallback}
-          containerStyle={{
-            minHeight: 200,
-            width: '100%',
-            height: '100%',
-            // borderTopLeftRadius: 4,
-            // borderTopRightRadius: 4,
-          }}
-        />
+        style={isMobileUA() ? styles.mobileContainer : styles.desktopContainer}>
+        <View
+          style={
+            isMobileUA()
+              ? styles.mobileContentContainer
+              : styles.desktopContentContainer
+          }>
+          <MaxVideoView
+            user={defaultContent[maxUid]}
+            key={maxUid}
+            fallback={Fallback}
+            containerStyle={{
+              minHeight: 200,
+              width: '100%',
+              height: '100%',
+              borderRadius: 8,
+            }}
+            isPrecallScreen={true}
+          />
+        </View>
+        {isMobileUA() ? (
+          <PreCallLocalMute isMobileView={true} />
+        ) : (
+          <>
+            <Spacer size={8} />
+            {controlChildren}
+            <Spacer size={8} />
+            <View
+              style={{
+                padding: 20,
+                borderTopColor: $config.INPUT_FIELD_BORDER_COLOR,
+                borderTopWidth: 1.26,
+              }}>
+              {nameInputChildren}
+            </View>
+          </>
+        )}
       </View>
-      <PreCallLocalMute isMobileView={isMobileUA() ? true : false} />
+      {!isMobileUA() && (
+        <>
+          <Spacer size={52} />
+          <View style={styles.container2}>{joinBtnChildren}</View>{' '}
+        </>
+      )}
     </View>
   );
 };
+
+VideoPreview.Controls = ({children}) => {
+  return <>{children}</>;
+};
+
+VideoPreview.JoinBtn = ({children}) => {
+  return <>{children}</>;
+};
+
+VideoPreview.NameInput = ({children}) => {
+  return <>{children}</>;
+};
+
+VideoPreview.Heading = ({children}) => {
+  return <>{children}</>;
+};
+
 export default VideoPreview;
 
 const useStyles = () => {
@@ -155,8 +260,7 @@ const useStyles = () => {
       backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
       justifyContent: 'center',
       alignItems: 'center',
-      // borderTopLeftRadius: 4,
-      // borderTopRightRadius: 4,
+      borderRadius: 8,
     },
     fallbackContainer: {
       minHeight: 200,
@@ -174,11 +278,46 @@ const useStyles = () => {
       color: $config.PRIMARY_ACTION_BRAND_COLOR,
       alignSelf: 'center',
     },
-    container: {
+    desktopRootcontainer: {
+      position: 'relative',
+      overflow: 'hidden',
+      margin: 'auto',
+      maxWidth: 440,
+    },
+    mobileRootcontainer: {
       flex: 1,
       position: 'relative',
       justifyContent: 'space-between',
       overflow: 'hidden',
+    },
+    mobileContainer: {
+      flex: 1,
+      position: 'relative',
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+    },
+    desktopContainer: {
+      paddingTop: 20,
+      paddingBottom: 8,
+      borderRadius: 16,
+      backgroundColor: $config.CARD_LAYER_1_COLOR,
+    },
+    mobileContentContainer: {
+      flex: 1,
+    },
+    desktopContentContainer: {
+      width: 404,
+      height: 256,
+      paddingHorizontal: 20,
+    },
+    container2: {
+      //padding: 20,
+      // borderBottomLeftRadius: 16,
+      // borderBottomRightRadius: 16,
+      //backgroundColor: $config.CARD_LAYER_1_COLOR,
+    },
+    heading: {
+      marginBottom: 20,
     },
     avatar: {
       width: 100,

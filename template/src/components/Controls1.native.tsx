@@ -22,7 +22,7 @@ import Recording, {RecordingButtonProps} from '../subComponents/Recording';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import ScreenshareButton, {
   ScreenshareButtonProps,
 } from '../subComponents/screenshare/ScreenshareButton';
@@ -35,7 +35,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 const Controls = () => {
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {rtcProps} = useContext(PropsContext);
 
   return (

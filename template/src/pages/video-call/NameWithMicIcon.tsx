@@ -1,38 +1,28 @@
-import React, {useContext, useEffect} from 'react';
-import {View, StyleSheet, useWindowDimensions, Text} from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
+import React from 'react';
+import {View, StyleSheet, Text} from 'react-native';
 import ThemeConfig from '../../theme';
-import {RenderInterface} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
-import TextWithTooltip from '../../subComponents/TextWithTooltip';
-import {useString} from '../../utils/useString';
-import {useLayout, useRender} from 'customization-api';
-//import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {isMobileUA, isWeb, isWebInternal, useIsSmall} from '../../utils/common';
-import AnimatedActiveSpeaker from '../../atoms/AnimatedActiveSpeaker';
-import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
-//import useIsSpeaking from '../../utils/useIsSpeaking';
+import {useLayout, useContent} from 'customization-api';
+import {isMobileUA, isWeb, useIsSmall} from '../../utils/common';
+import {getGridLayoutName} from './DefaultLayouts';
+import {useVideoContainer} from './VideoRenderer';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
-interface NameWithMicIconProps {
-  user: RenderInterface;
-  isMax: boolean;
-  videoTileWidth: number;
+export interface NameWithMicIconProps {
+  name: string;
+  muted?: boolean;
 }
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
-  const {activeUids} = useRender();
+  const {activeUids, customContent} = useContent();
+  const {videoTileWidth} = useVideoContainer();
   const {currentLayout} = useLayout();
+  const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
   const reduceSpace =
     isMobileUA() &&
     activeUids.length > 4 &&
     currentLayout === getGridLayoutName();
-  const {user} = props;
-  const {height, width} = useWindowDimensions();
-  //const activeSpeakerUid = useIsSpeaking();
-  // const isActiveSpeaker = useIsActiveSpeaker();
-  // const isSpeaking = isActiveSpeaker(user.uid);
-  //const isSpeaking = activeSpeakerUid == user.uid;
-  const isSpeaking = false;
+  const {name, muted} = props;
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
@@ -42,51 +32,26 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
       style={[
         style.container,
         {
-          maxWidth:
-            props.videoTileWidth * 0.6 > 180 ? 180 : props.videoTileWidth * 0.6,
+          maxWidth: videoTileWidth * 0.6 > 180 ? 180 : videoTileWidth * 0.6,
         },
         reduceSpace ? {left: 2, bottom: 2} : {},
-        reduceSpace && activeUids.length > 12 ? {padding: 2} : {},
+        reduceSpace && activeUidsLen > 12 ? {padding: 2} : {},
       ]}>
-      {/* {user.audio ? (
-          <AnimatedActiveSpeaker isSpeaking={isSpeaking} />
-        ) : ( */}
-      <ImageIcon
-        iconType="plain"
-        name={
-          user.audio && isSpeaking
-            ? 'active-speaker'
-            : user.audio
-            ? 'mic-on'
-            : 'mic-off'
-        }
-        tintColor={
-          user.audio
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_ERROR
-        }
-        iconSize={20}
-      />
-      {/* )} */}
-      {/* <ImageIcon
-          name={
-            isSpeaking ? 'active-speaker' : user.audio ? 'mic-on' : 'mic-off'
-          }
+      {muted !== undefined ? (
+        <ImageIcon
+          iconType="plain"
+          name={!muted ? 'mic-on' : 'mic-off'}
           tintColor={
-            isSpeaking
-              ? $config.PRIMARY_ACTION_BRAND_COLOR
-              : user.audio
-              ? $config.PRIMARY_ACTION_BRAND_COLOR
-              : $config.SEMANTIC_ERROR
+            !muted ? $config.PRIMARY_ACTION_BRAND_COLOR : $config.SEMANTIC_ERROR
           }
-          iconSize={'small'}
-        /> */}
+          iconSize={20}
+        />
+      ) : (
+        <></>
+      )}
       {(isMobileUA() || (!isMobileUA() && isSmall())) &&
       currentLayout === getGridLayoutName() &&
-      activeUids.length > 6 ? (
-        //  ||  (isMobileUA() &&
-        //     currentLayout !== getPinnedLayoutName() &&
-        //     !props?.isMax)
+      activeUidsLen > 6 ? (
         <></>
       ) : (
         <PlatformWrapper>
@@ -95,7 +60,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
             textBreakStrategy="simple"
             ellipsizeMode="tail"
             style={style.name}>
-            {user.name || remoteUserDefaultLabel}
+            {name || remoteUserDefaultLabel}
           </Text>
         </PlatformWrapper>
       )}
@@ -124,7 +89,8 @@ const PlatformWrapper = ({children}) => {
 
 const style = StyleSheet.create({
   container: {
-    backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+    backgroundColor:
+      $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR + hexadecimalTransparency['25%'],
     position: 'absolute',
     alignItems: 'center',
     padding: 8,

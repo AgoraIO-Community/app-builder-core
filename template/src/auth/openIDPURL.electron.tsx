@@ -8,7 +8,7 @@ export const getIDPAuthLoginURL = () => {
   }&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
 };
 
-export const addEventListenerForToken = (history) => {
+export const addEventListenerForToken = history => {
   window.addEventListener(
     'message',
     ({data, origin}: {data: {token: string; msg: string}; origin: string}) => {
@@ -16,6 +16,7 @@ export const addEventListenerForToken = (history) => {
         history.push(`/authorize/${data.token}`);
       } else if (data?.msg && data?.msg === 'login_link_expired') {
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text1: 'Your session has timed out, Retrying...',
           visibilityTime: 3000,
@@ -30,7 +31,7 @@ export const addEventListenerForToken = (history) => {
   );
 };
 
-export const enableIDPAuth = async (history) => {
+export const enableIDPAuth = async history => {
   addEventListenerForToken(history);
   //open the auth login in the popup
   window.open(getIDPAuthLoginURL(), 'modal');

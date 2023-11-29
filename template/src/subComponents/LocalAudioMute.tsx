@@ -21,47 +21,51 @@ import {
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
-import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
+import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
+import {useActionSheet} from '../utils/useActionSheet';
+import {isMobileUA} from '../utils/common';
+
 /**
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
   plainIconHoverEffect?: boolean;
   showToolTip?: boolean;
-  showLabel?: boolean;
   iconProps?: (
     isAudioEnabled: boolean,
     isPermissionDenied: boolean,
   ) => Partial<ImageIconProps>;
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
   disabled?: boolean;
-  isOnActionSheet?: boolean;
   showWarningIcon?: boolean;
-  isMobileView?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
+  const {position} = useToolbar();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
-  const {
-    showToolTip = false,
-    showLabel = $config.ICON_TEXT,
-    disabled = false,
-    isOnActionSheet = false,
-    showWarningIcon = true,
-    isMobileView = false,
-  } = props;
+  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
+
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
+
+  const {
+    rtcProps: {callActive},
+  } = useContext(PropsContext);
 
   const onPress = () => {
     localMute(MUTE_LOCAL_TYPE.audio);
@@ -109,15 +113,41 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel ? audioLabel : '',
+      text: showLabel && callActive && !isMobileUA() ? audioLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    const isAudience = rtcProps?.role == ClientRole.Audience;
+    const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+
+    iconButtonProps.disabled =
+      permissionDenied || ($config.EVENT_MODE && isAudience && !isBroadCasting)
+        ? true
+        : false;
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
+
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  if (!isMobileView) {
+  if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
         ? 'Give Permissions'
@@ -125,6 +155,14 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
         ? 'Disable Mic'
         : 'Enable Mic'
       : '';
+    if (
+      //precall mobile/mobile web UI - mute button should not show the label
+      (!callActive && isMobileUA()) ||
+      //desktop web -sidepanel mute button should not show the label
+      (callActive && !position)
+    ) {
+      iconButtonProps.btnTextProps.text = '';
+    }
   }
 
   if (
@@ -156,6 +194,8 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)
+  ) : isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
   ) : (
     <IconButton {...iconButtonProps} />
   );

@@ -13,7 +13,7 @@ import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import SDKEvents from '../../utils/SdkEvents';
 import DeviceContext from '../DeviceContext';
 import useSetName from '../../utils/useSetName';
@@ -52,7 +52,7 @@ interface PreCallProviderProps {
 
 const PreCallProvider = (props: PreCallProviderProps) => {
   const {join, enterRoom} = useContext(SdkApiContext);
-  const meetingInfo = useMeetingInfo();
+  const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
 
@@ -64,7 +64,7 @@ const PreCallProvider = (props: PreCallProviderProps) => {
 
       //@ts-ignore
       join?.promise?.res([
-        meetingInfo.data,
+        roomInfo.data,
         (userName: string) => {
           return new Promise((res, rej) => {
             setUsername(userName);
@@ -75,7 +75,7 @@ const PreCallProvider = (props: PreCallProviderProps) => {
       ]);
     }
 
-    SDKEvents.emit('ready-to-join', meetingInfo.data.meetingTitle, deviceList);
+    SDKEvents.emit('ready-to-join', roomInfo.data.meetingTitle, deviceList);
   }, []);
 
   return (

@@ -12,7 +12,8 @@
 import React, {createContext} from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
-export interface MeetingInfoContextInterface {
+import {LanguageType} from '../../subComponents/caption/utils';
+export interface RoomInfoContextInterface {
   isJoinDataFetched?: boolean;
   data?: {
     isHost: boolean;
@@ -25,6 +26,10 @@ export interface MeetingInfoContextInterface {
       number: string;
       pin: string;
     };
+    whiteboard?: {
+      room_uuid: string;
+      room_token: string;
+    };
     isSeparateHostLink: boolean;
     channel?: string;
     uid?: UidType;
@@ -34,10 +39,20 @@ export interface MeetingInfoContextInterface {
     screenShareUid?: string;
     screenShareToken?: string;
   };
+  isInWaitingRoom?: boolean;
+  isWhiteBoardOn?: boolean;
+  sttLanguage?: {
+    username?: string;
+    prevLang?: LanguageType[];
+    newLang?: LanguageType[];
+    uid?: UidType;
+    langChanged?: Boolean;
+  };
+  isSTTActive?: boolean;
 }
 
 export const validateMeetingInfoData = (
-  meetingInfo: Partial<MeetingInfoContextInterface['data']>,
+  roomInfo: Partial<RoomInfoContextInterface['data']>,
 ) => {
   const {
     channel,
@@ -47,7 +62,7 @@ export const validateMeetingInfoData = (
     screenShareUid,
     token,
     uid,
-  } = meetingInfo;
+  } = roomInfo;
   if ($config.ENCRYPTION_ENABLED && !encryptionSecret) {
     return false;
   }
@@ -60,8 +75,12 @@ export const validateMeetingInfoData = (
   return true;
 };
 
-export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
+export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   isJoinDataFetched: false,
+  isInWaitingRoom: false,
+  isWhiteBoardOn: false,
+  sttLanguage: null,
+  isSTTActive: false,
   data: {
     isHost: false,
     meetingTitle: '',
@@ -72,23 +91,23 @@ export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
   },
 };
 
-const MeetingInfoContext = createContext(MeetingInfoDefaultValue);
+const RoomInfoContext = createContext(RoomInfoDefaultValue);
 
-interface MeetingInfoProviderProps {
+interface RoomInfoProviderProps {
   children: React.ReactNode;
-  value: MeetingInfoContextInterface;
+  value: RoomInfoContextInterface;
 }
 
-const MeetingInfoProvider = (props: MeetingInfoProviderProps) => {
+const RoomInfoProvider = (props: RoomInfoProviderProps) => {
   return (
-    <MeetingInfoContext.Provider value={{...props.value}}>
+    <RoomInfoContext.Provider value={{...props.value}}>
       {props.children}
-    </MeetingInfoContext.Provider>
+    </RoomInfoContext.Provider>
   );
 };
 /**
  * The MeetingInfo app state contains information about the active meeting.
  */
-const useMeetingInfo = createHook(MeetingInfoContext);
+const useRoomInfo = createHook(RoomInfoContext);
 
-export {MeetingInfoProvider, useMeetingInfo};
+export {RoomInfoProvider, useRoomInfo};

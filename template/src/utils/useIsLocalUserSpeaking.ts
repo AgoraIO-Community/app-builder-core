@@ -3,6 +3,9 @@ import hark from 'hark';
 import {useEffect, useRef, useState} from 'react';
 
 const useIsLocalUserSpeaking = () => {
+  const log: (arg1: string, ...args: any[]) => void = (arg1, ...args) => {
+    console.log('[ActiveSpeaker]' + arg1, ...args);
+  };
   const [isSpeaking, setIsSpeaking] = useState(false);
   const {audio} = useLocalUserInfo();
   const speechRef = useRef(null);
@@ -37,7 +40,7 @@ const useIsLocalUserSpeaking = () => {
         speechRef.current?.stop && speechRef.current?.stop();
       }
     } catch (error) {
-      console.log('error on stopping the hark', error);
+      log(' Error on stopping the hark', error);
     }
 
     try {
@@ -46,7 +49,7 @@ const useIsLocalUserSpeaking = () => {
         .getUserMedia({
           audio: true,
         })
-        .then((audioStream) => {
+        .then(audioStream => {
           audioTrackRef.current = audioStream.getAudioTracks();
           speechRef.current = null;
           speechRef.current = hark(audioStream, {
@@ -56,26 +59,25 @@ const useIsLocalUserSpeaking = () => {
           speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
         });
     } catch (error) {
-      console.log('error on starting the hark', error);
+      log(' Error on starting the hark', error);
     }
   };
 
   useEffect(() => {
     if ($config.ACTIVE_SPEAKER) {
       navigator.mediaDevices.ondevicechange = () => {
+        log(' ondevicechange called');
         listenForSpeaker();
       };
       listenForSpeaker();
-    }
-    return () => {
-      if ($config.ACTIVE_SPEAKER) {
+      return () => {
         speechRef.current && speechRef.current.stop();
         audioTrackRef.current &&
           audioTrackRef.current?.length &&
           audioTrackRef.current[0].stop();
         navigator.mediaDevices.ondevicechange = () => {};
-      }
-    };
+      };
+    }
   }, []);
 
   return isSpeaking;

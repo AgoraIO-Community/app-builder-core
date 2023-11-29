@@ -1,10 +1,6 @@
 import {
   StyleSheet,
   View,
-  ScrollView,
-  Button,
-  FlatList,
-  Dimensions,
   TextInput,
   TouchableOpacity,
   Text,
@@ -25,7 +21,7 @@ import {
   useIsSmall,
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
-import {useRtc, useRender} from 'customization-api';
+import {useRtc, useContent} from 'customization-api';
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
@@ -37,7 +33,6 @@ import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
-import useTranscriptDownload from './useTranscriptDownload';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 
 interface TranscriptProps {
@@ -59,14 +54,13 @@ const Transcript = (props: TranscriptProps) => {
   const [showButton, setShowButton] = React.useState(false);
 
   const contentHeightRef = React.useRef(0);
-  const flatListHeightRef = React.useRef(0);
   const flatListRef = React.useRef(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
-  const {RtcEngine} = useRtc();
-  const {renderList} = useRender();
+  const {RtcEngineUnsafe} = useRtc();
+  const {defaultContent} = useContent();
   const {streamMessageCallback} = useStreamMessageUtils();
-  const {downloadTranscript} = useTranscriptDownload();
+
   const [isFocused, setIsFocused] = React.useState(false);
 
   const {transcriptHeight} = useCaptionWidth();
@@ -80,7 +74,7 @@ const Transcript = (props: TranscriptProps) => {
     setIsFocused(false);
   };
 
-  const handleLayout = event => {
+  const handleLayout = () => {
     if (flatListRef.current && !isWebInternal()) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
@@ -102,12 +96,12 @@ const Transcript = (props: TranscriptProps) => {
         />
 
         <Text style={styles.langChange}>
-          {renderList[item?.uid?.split('-')[1]].name + ' ' + item.text}
+          {defaultContent[item?.uid?.split('-')[1]].name + ' ' + item.text}
         </Text>
       </View>
     ) : (
       <TranscriptText
-        user={renderList[item.uid].name}
+        user={defaultContent[item.uid].name}
         time={item.time}
         value={item.text}
         searchQuery={searchQuery}
@@ -121,8 +115,8 @@ const Transcript = (props: TranscriptProps) => {
     //   animated: false,
     // });
     if (flatListRef.current) {
-      setShowButton(false);
       flatListRef.current.scrollToEnd({animated: false});
+      setShowButton(false);
       isScrolledToEnd.current = true;
     }
   };
@@ -184,7 +178,7 @@ const Transcript = (props: TranscriptProps) => {
 
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
-      RtcEngine.addListener(
+      RtcEngineUnsafe.addListener(
         'StreamMessage',
         handleStreamMessageCallback as unknown as StreamMessageCallback,
       );
@@ -266,11 +260,7 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={item => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={
-                isWebInternal()
-                  ? debounceFn(handleScroll, isMobileUA() ? 500 : 300)
-                  : handleScroll
-              }
+              onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}

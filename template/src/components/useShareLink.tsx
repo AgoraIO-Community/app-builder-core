@@ -14,7 +14,7 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import platform from '../subComponents/Platform';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import Clipboard from '../subComponents/Clipboard';
@@ -94,7 +94,7 @@ interface ShareLinkProvideProps {
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const {
     data: {meetingTitle, roomId, pstn, isSeparateHostLink, isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   //commmented for v1 release
   // const copiedToClipboardText = useString(
@@ -106,7 +106,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   // const meetingInviteText =
   //   useString<MeetingInviteInterface>('meetingInviteText');
   const copiedToClipboardText = 'Copied to Clipboard';
-  const meetingIdText = 'Meeting ID';
+  const meetingIdText = 'Room ID';
   const PSTNNumberText = 'PSTN Number';
   const PSTNPinText = 'PSTN Pin';
   const meetingInviteText = ({
@@ -123,26 +123,26 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (isHost) {
         if (isSeparateHostLink) {
           //seperate link for host and attendee
-          inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
         } else {
           //single link for everyone
-          inviteContent += `Meeting: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
         }
       }
       //for attendee
       else {
-        inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
+        inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
       }
     } else {
       if (isHost) {
         if (isSeparateHostLink) {
-          inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}\n\nHost Meeting ID:\n${id?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}\n\nHost Room ID:\n${id?.host}`;
         } else {
-          inviteContent += `Meeting: ${meetingName}\n\nMeeting ID:\n${id?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nRoom ID:\n${id?.host}`;
         }
       } else {
         //copy this label on videocall screen
-        inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}`;
+        inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}`;
       }
     }
     // Adding pstn data into meeting data if present
@@ -178,8 +178,9 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getBaseURL = () => {
     let baseURL = !isSDK
-      ? $config.FRONTEND_ENDPOINT ||
-        (platform === 'web' && window.location.origin)
+      ? platform === 'web'
+        ? window.location.origin
+        : $config.FRONTEND_ENDPOINT
       : undefined;
     return baseURL;
   };

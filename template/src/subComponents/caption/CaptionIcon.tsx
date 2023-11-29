@@ -1,14 +1,9 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
-import StorageContext from '../../components/StorageContext';
 import {useCaption} from './useCaption';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import events, {EventPersistLevel} from '../../rtm-events-api';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
-import {EventNames} from '../../rtm-events';
-import useGetName from '../../utils/useGetName';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -22,35 +17,26 @@ interface CaptionIconProps {
 
 const CaptionIcon = (props: CaptionIconProps) => {
   const {
-    showToolTip = false,
     showLabel = $config.ICON_TEXT,
-    disabled = false,
     isOnActionSheet = false,
-    isMobileView = false,
     closeActionSheet,
   } = props;
-  const {
-    isCaptionON,
-    setIsCaptionON,
-    isSTTActive,
-    setIsSTTActive,
-    language: prevLang,
-    setLanguage,
-  } = useCaption();
-  const {store} = React.useContext(StorageContext);
-  const {
-    data: {roomId, isHost},
-  } = useMeetingInfo();
+  const {isCaptionON, setIsCaptionON, isSTTActive, isSTTError} = useCaption();
+
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
 
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
-  const username = useGetName();
   const isDisabled = !isAuthorizedSTTUser();
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
+      if (isSTTError) {
+        setIsCaptionON(prev => !prev);
+        closeActionSheet();
+        return;
+      }
       if (isSTTActive) {
         // is lang popup has been shown once for any user in meeting
         setIsCaptionON(prev => !prev);
@@ -115,5 +101,3 @@ const CaptionIcon = (props: CaptionIconProps) => {
 };
 
 export default CaptionIcon;
-
-const styles = StyleSheet.create({});

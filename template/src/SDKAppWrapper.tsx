@@ -2,7 +2,7 @@ import React from 'react';
 import {
   CustomizationApiInterface,
   customize,
-  MeetingInfoContextInterface,
+  RoomInfoContextInterface,
   customEvents,
 } from 'customization-api';
 import {CustomizationProvider} from 'customization-implementation';
@@ -58,7 +58,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   logout: async () => {
     return await SDKMethodEventsManager.emit('logout');
   },
-  customize: async (customization) => {
+  customize: async customization => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
   customEvents: customEvents,
@@ -84,19 +84,19 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
       (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
     ];
   },
-  setMicrophone: async (deviceId) => {
+  setMicrophone: async deviceId => {
     return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
   },
-  setSpeaker: async (deviceId) => {
+  setSpeaker: async deviceId => {
     return await SDKMethodEventsManager.emit('speakerDevice', deviceId);
   },
-  setCamera: async (deviceId) => {
+  setCamera: async deviceId => {
     return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
   },
-  muteAudio: async (state) => {
+  muteAudio: async state => {
     return await SDKMethodEventsManager.emit('muteAudio', state);
   },
-  muteVideo: async (state) => {
+  muteVideo: async state => {
     return await SDKMethodEventsManager.emit('muteVideo', state);
   },
   createCustomization: customize,

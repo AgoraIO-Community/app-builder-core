@@ -232,6 +232,7 @@ export default class RtcEngine {
 
   async setVideoProfile(profile: VideoProfile): Promise<void> {
     this.videoProfile = profile;
+    this.localStream?.video?.setEncoderConfiguration(profile);
   }
 
   async enableAudio(): Promise<void> {
@@ -319,7 +320,33 @@ export default class RtcEngine {
           localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
         } catch (e) {
           videoConfig.cameraId = '';
-          localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+          try {
+            localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
+          } catch (e) {
+            console.log(
+              '[RTCEngineBridge]: Provided cameraId and default camera failed, trying other available devices',
+            );
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            for (let device of devices) {
+              if (device.kind === 'videoinput') {
+                videoConfig.cameraId = device.deviceId;
+                try {
+                  localVideo = await AgoraRTC.createCameraVideoTrack(
+                    videoConfig,
+                  );
+                  break;
+                } catch (e) {
+                  videoError = e;
+                  console.log(
+                    '[RTCEngineBridge]:',
+                    'Camera not available with deviceId' + device,
+                    'Reason: ',
+                    e,
+                  );
+                }
+              }
+            }
+          }
         }
         this.localStream.video = localVideo;
         this.videoDeviceId = localVideo
@@ -389,7 +416,7 @@ export default class RtcEngine {
     optionalUid: number,
   ): Promise<void> {
     // TODO create agora client here
-    this.client.on('user-joined', (user) => {
+    this.client.on('user-joined', user => {
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
         user.uid,
@@ -405,7 +432,7 @@ export default class RtcEngine {
       );
     });
 
-    this.client.on('user-left', (user) => {
+    this.client.on('user-left', user => {
       const uid = user.uid;
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
@@ -484,7 +511,7 @@ export default class RtcEngine {
       }
     });
 
-    this.client.on('volume-indicator', (volumes) => {
+    this.client.on('volume-indicator', volumes => {
       this.usersVolumeLevel = volumes;
       /**
        * old active speaker logic
@@ -539,7 +566,7 @@ export default class RtcEngine {
         const remoteUserNetworkQualities =
           this.client.getRemoteNetworkQuality();
 
-        Object.keys(remoteUserNetworkQualities).forEach((uid) => {
+        Object.keys(remoteUserNetworkQualities).forEach(uid => {
           networkQualityIndicatorCallback(
             uid,
             remoteUserNetworkQualities[uid].downlinkNetworkQuality,
@@ -812,7 +839,7 @@ export default class RtcEngine {
 
   // Bug in implementation !!!
   async setRemoteSubscribeFallbackOption(option: 0 | 1 | 2) {
-    this.streams.forEach((stream) => {
+    this.streams.forEach(stream => {
       this.client.setStreamFallbackOption(stream, option);
     });
     Promise.resolve();

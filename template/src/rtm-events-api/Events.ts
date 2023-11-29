@@ -18,7 +18,7 @@ import {
   ReceiverUid,
   EventCallback,
   EventSource,
-  EventPersistLevel,
+  PersistanceLevel,
 } from './types';
 import {adjustUID} from '../rtm/utils';
 
@@ -219,7 +219,7 @@ class Events {
   send = async (
     eventName: string = '',
     payload: string = '',
-    persistLevel: EventPersistLevel = EventPersistLevel.LEVEL1,
+    persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
   ) => {
     if (!this._validateEvt(eventName)) return;
@@ -236,8 +236,8 @@ class Events {
     };
 
     if (
-      persistLevel === EventPersistLevel.LEVEL2 ||
-      persistLevel === EventPersistLevel.LEVEL3
+      persistLevel === PersistanceLevel.Sender ||
+      persistLevel === PersistanceLevel.Session
     ) {
       try {
         await this._persist(eventName, persistValue);

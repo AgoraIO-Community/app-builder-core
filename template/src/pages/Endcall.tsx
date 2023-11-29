@@ -20,9 +20,9 @@ const StopForegroundService = () => {
 };
 
 const Endcall = () => {
-  const leftMeetingLabel = 'You have left the meeting.';
+  const leftMeetingLabel = 'You have left the room.';
   const rejoinBtnLabel = 'REJOIN';
-  const createMeetingLabel = 'START NEW MEETING';
+  const createMeetingLabel = 'START NEW ROOM';
   const returnToHomeLabel = 'Returning to the home screen';
   const {store} = useContext(StorageContext);
   const history = useHistory();

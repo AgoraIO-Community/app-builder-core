@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,13 @@ import {isIOS, isMobileUA, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
+import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
+import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 
 const ChatIcon = () => (
   <View style={{alignSelf: 'center', marginRight: 20}}>
@@ -35,30 +37,62 @@ const ChatParticipants = (props: any) => {
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids, customContent} = useContent();
+  const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isMobile = isMobileUA();
+  const {audienceUids, hostUids} = useLiveStreamDataContext();
+  const {waitingRoomUids} = useWaitingRoomContext();
+  const [_, forceUpdate] = useReducer(x => x + 1, 0);
+
+  useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM) {
+      forceUpdate();
+    }
+  }, [waitingRoomUids, activeUids]);
+
   return (
     <ScrollView>
-      {activeUids && activeUids.length === 1 ? (
-        <View style={style.defaultMessageContainer}>
-          <Text style={style.defaultMessageText}>
-            No one else has joined yet.
-          </Text>
-        </View>
-      ) : (
-        <></>
-      )}
-      {Object.keys(renderList)
-        .map((i) => parseInt(i))
-        .filter((i) => {
+      {
+        //video meeting vertical
+        (!$config.EVENT_MODE && activeUids && activeUidsLen === 1) ||
+        //livestreaming vertical
+        ($config.EVENT_MODE && hostUids.length + audienceUids.length === 1) ? (
+          <View style={style.defaultMessageContainer}>
+            <Text style={style.defaultMessageText}>
+              No one else has joined yet.
+            </Text>
+          </View>
+        ) : (
+          <></>
+        )
+      }
+      {Object.keys(defaultContent)
+        .map(i => parseInt(i))
+        .filter(i => {
           try {
             if (isNaN(i)) {
               return false;
             } else {
               const userId = i;
-              const userInfo = renderList[userId];
+              const userInfo = defaultContent[userId];
+              //video meeting with waiting room
+              if (
+                $config.ENABLE_WAITING_ROOM &&
+                !$config.EVENT_MODE &&
+                activeUids?.indexOf(userId) === -1
+              ) {
+                return false;
+              }
+              //livestreaming with waiting room
+              if (
+                $config.ENABLE_WAITING_ROOM &&
+                $config.EVENT_MODE &&
+                hostUids?.concat(audienceUids)?.indexOf(userId) === -1
+              ) {
+                return false;
+              }
               return (
                 userId !== localUid && //user can't chat with own user
                 // @ts-ignore
@@ -73,14 +107,14 @@ const ChatParticipants = (props: any) => {
         })
         .sort((a, b) => {
           return (
-            renderList[b]?.lastMessageTimeStamp -
-            renderList[a]?.lastMessageTimeStamp
+            defaultContent[b]?.lastMessageTimeStamp -
+            defaultContent[a]?.lastMessageTimeStamp
           );
         })
-        .map((uid) => {
+        .map(uid => {
           const uidAsNumber = uid;
-          const name = renderList[uidAsNumber]
-            ? renderList[uidAsNumber].name + ''
+          const name = defaultContent[uidAsNumber]
+            ? defaultContent[uidAsNumber].name + ''
             : remoteUserDefaultLabel;
           return (
             <PlatformWrapper key={'chat-participant' + uid}>

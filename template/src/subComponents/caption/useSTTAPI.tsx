@@ -1,8 +1,8 @@
 import React from 'react';
 import StorageContext from '../../components/StorageContext';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useCaption} from './useCaption';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
@@ -20,7 +20,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const {store} = React.useContext(StorageContext);
   const {
     data: {roomId, isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {
     language,
     isSTTActive,
@@ -28,6 +28,7 @@ const useSTTAPI = (): IuseSTTAPI => {
     setIsLangChangeInProgress,
     setLanguage,
     setMeetingTranscript,
+    setIsSTTError,
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
@@ -57,7 +58,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   };
 
   const startWithDelay = (lang: LanguageType[]): Promise<string> =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setTimeout(async () => {
         const res = await start(lang);
         resolve(res);
@@ -70,14 +71,25 @@ const useSTTAPI = (): IuseSTTAPI => {
       const res = await apiCall('start', lang);
       console.log('response aftet start api call', res);
       // null means stt startred successfully
-      if (res === null) {
+      const isSTTAlreadyActive =
+        res?.error?.message
+          ?.toLowerCase()
+          .indexOf('current status is started') !== -1 || false;
+
+      if (res?.error?.message) {
+        setIsSTTError(true);
+      } else {
+        setIsSTTError(false);
+      }
+      if (res === null || isSTTAlreadyActive) {
         // once STT is active in the channel , notify others so that they dont' trigger start again
         events.send(
           EventNames.STT_ACTIVE,
           JSON.stringify({active: true}),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
         setIsSTTActive(true);
+
         console.log(`stt lang update from: ${language} to ${lang}`);
         // inform about the language set for stt
         events.send(
@@ -88,7 +100,7 @@ const useSTTAPI = (): IuseSTTAPI => {
             prevLang: language,
             newLang: lang,
           }),
-          EventPersistLevel.LEVEL3,
+          PersistanceLevel.Sender,
         );
         setLanguage(lang);
 
@@ -99,8 +111,8 @@ const useSTTAPI = (): IuseSTTAPI => {
             : `changed the spoken language from "${getLanguageLabel(
                 language,
               )}" to "${getLanguageLabel(lang)}" `;
-        const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
-        setMeetingTranscript((prev) => {
+        //const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
+        setMeetingTranscript(prev => {
           return [
             ...prev,
             {
@@ -128,9 +140,14 @@ const useSTTAPI = (): IuseSTTAPI => {
       // events.send(
       //   EventNames.STT_ACTIVE,
       //   JSON.stringify({active: false}),
-      //   EventPersistLevel.LEVEL3,
+      //   PersistanceLevel.Session,
       // );
       setIsSTTActive(false);
+      if (res?.error?.message) {
+        setIsSTTError(true);
+      } else {
+        setIsSTTError(false);
+      }
       return res;
     } catch (error) {
       throw error;

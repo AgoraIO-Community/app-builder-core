@@ -9,7 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   ScrollView,
@@ -22,13 +28,20 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import {ChatBubbleProps} from '../components/ChatContext';
-import {RenderInterface, useLocalUid} from '../../agora-rn-uikit';
+import {
+  DispatchContext,
+  ContentInterface,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent, isWebInternal} from '../utils/common';
 import {useString} from '../utils/useString';
-import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
-import {useRender, useRtc} from 'customization-api';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../components/chat-ui/useChatUIControls';
+import {useContent} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
@@ -45,22 +58,17 @@ const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
   const [scrollToEnd, setScrollToEnd] = useState(false);
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {messageStore, privateMessageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
-  const {
-    groupActive,
-    privateActive,
-    selectedChatUserId: selectedUserID,
-    setPrivateActive,
-    inputActive,
-  } = useChatUIControl();
+  const {chatType, setChatType, privateChatUser, inputActive} =
+    useChatUIControls();
   const privateMessageStoreRef = useRef(
-    privateMessageStore[selectedUserID]?.length,
+    privateMessageStore[privateChatUser]?.length,
   );
   const {
     setUnreadGroupMessageCount,
@@ -75,35 +83,35 @@ const ChatContainer = (props?: {
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    if (groupActive) {
+    if (chatType === ChatType.Group) {
       setGrpUnreadCount(unreadGroupMessageCount);
       setUnreadGroupMessageCount(0);
     }
-  }, [groupActive]);
+  }, [chatType]);
 
   useEffect(() => {
-    if (selectedUserID) {
-      setPrivateUnreadCount(unreadIndividualMessageCount[selectedUserID]);
-      setUnreadIndividualMessageCount((prevState) => {
+    if (privateChatUser) {
+      setPrivateUnreadCount(unreadIndividualMessageCount[privateChatUser]);
+      setUnreadIndividualMessageCount(prevState => {
         return {
           ...prevState,
-          [selectedUserID]: 0,
+          [privateChatUser]: 0,
         };
       });
       //Once message is seen, reset lastMessageTimeStamp.
       //so whoever has unread count will show in the top of participant list
-      updateRenderListState(selectedUserID, {lastMessageTimeStamp: 0});
+      updateRenderListState(privateChatUser, {lastMessageTimeStamp: 0});
     }
-  }, [selectedUserID]);
+  }, [privateChatUser]);
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
 
-  const {ChatBubbleComponent} = useCustomization((data) => {
+  const {ChatBubbleComponent} = useCustomization(data => {
     let components: {
       ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
     } = {
@@ -140,12 +148,13 @@ const ChatContainer = (props?: {
 
   //if we don't have unread count then enable scroll to end
   useEffect(() => {
-    if (!privateActive && !grpUnreadCount) {
+    const isPrivateActive = chatType === ChatType.Private;
+    if (!isPrivateActive && !grpUnreadCount) {
       setScrollToEnd(true);
-    } else if (privateActive && !privateUnreadCount) {
+    } else if (isPrivateActive && !privateUnreadCount) {
       setScrollToEnd(true);
     }
-  }, [privateActive, grpUnreadCount, privateUnreadCount]);
+  }, [chatType, grpUnreadCount, privateUnreadCount]);
 
   const onContentSizeChange = useCallback(() => {
     if (scrollToEnd) {
@@ -167,19 +176,19 @@ const ChatContainer = (props?: {
 
   return (
     <View style={style.containerView}>
-      {privateActive && selectedUserID ? (
+      {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
             <View style={style.bgContainerStyle}>
               <UserAvatar
-                name={renderList[selectedUserID].name}
+                name={defaultContent[privateChatUser].name}
                 containerStyle={style.userAvatarContainer}
                 textStyle={style.userAvatarText}
               />
             </View>
             <View style={style.participantTextContainer}>
               <Text style={[style.participantText]} numberOfLines={1}>
-                {renderList[selectedUserID].name}
+                {defaultContent[privateChatUser].name}
               </Text>
             </View>
           </View>
@@ -189,7 +198,7 @@ const ChatContainer = (props?: {
         <></>
       )}
       <ScrollView ref={scrollViewRef} onContentSizeChange={onContentSizeChange}>
-        {!privateActive ? (
+        {chatType === ChatType.Group ? (
           <>
             <View style={style.defaultMessageContainer}>
               <Text style={style.defaultMessageText}>
@@ -220,6 +229,9 @@ const ChatContainer = (props?: {
                       ? true
                       : false
                   }
+                  previousMessageCreatedTimestamp={
+                    index !== 0 ? messageStore[index - 1].createdTimestamp : ''
+                  }
                   message={message.msg}
                   createdTimestamp={message.createdTimestamp}
                   updatedTimestamp={message.updatedTimestamp}
@@ -236,14 +248,19 @@ const ChatContainer = (props?: {
               </>
             ))}
           </>
-        ) : privateMessageStore[selectedUserID] ? (
+        ) : (
+          <></>
+        )}
+        {chatType === ChatType.Private &&
+        privateChatUser &&
+        privateMessageStore[privateChatUser] ? (
           <>
-            {privateMessageStore[selectedUserID].map((message: any, index) => (
+            {privateMessageStore[privateChatUser].map((message: any, index) => (
               <>
                 {privateMessageStoreRef.current ===
-                  privateMessageStore[selectedUserID]?.length &&
+                  privateMessageStore[privateChatUser]?.length &&
                 privateUnreadCount &&
-                privateMessageStore[selectedUserID]?.length -
+                privateMessageStore[privateChatUser]?.length -
                   privateUnreadCount ===
                   index ? (
                   <View
@@ -260,7 +277,7 @@ const ChatContainer = (props?: {
                   isLocal={localUid === message.uid}
                   isSameUser={
                     index !== 0 &&
-                    privateMessageStore[selectedUserID][index - 1].uid ===
+                    privateMessageStore[privateChatUser][index - 1].uid ===
                       message.uid
                       ? true
                       : false
@@ -273,7 +290,7 @@ const ChatContainer = (props?: {
                   msgId={message.msgId}
                   isDeleted={message.isDeleted}
                 />
-                {privateMessageStore[selectedUserID]?.length - 1 === index ? (
+                {privateMessageStore[privateChatUser]?.length - 1 === index ? (
                   <Spacer size={10} />
                 ) : (
                   <></>
@@ -284,7 +301,7 @@ const ChatContainer = (props?: {
         ) : (
           <></>
         )}
-        {renderList[selectedUserID]?.offline && (
+        {defaultContent[privateChatUser]?.offline && (
           <View style={style.infoTextView}>
             <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>

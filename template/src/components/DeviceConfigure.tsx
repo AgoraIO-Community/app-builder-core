@@ -17,7 +17,7 @@ import React, {
   useRef,
   useContext,
 } from 'react';
-import {ClientRole} from '../../agora-rn-uikit';
+import {ClientRole, RtcContext} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
 import {useRtc} from 'customization-api';
@@ -44,7 +44,7 @@ export type deviceId = deviceInfo['deviceId'];
 export type deviceKind = deviceInfo['kind'];
 
 const DeviceConfigure: React.FC<Props> = (props: any) => {
-  const rtc = useRtc();
+  const rtc = useContext(RtcContext);
   const [uiSelectedCam, setUiSelectedCam] = useState('');
   const [uiSelectedMic, setUiSelectedMic] = useState('');
   const [uiSelectedSpeaker, setUiSelectedSpeaker] = useState('');
@@ -82,7 +82,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   const isChrome = useMemo(() => {
     return (
-      deviceList.filter((device) => device.deviceId === 'default').length > 0
+      deviceList.filter(device => device.deviceId === 'default').length > 0
     );
   }, [deviceList]);
 
@@ -100,7 +100,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   ) => {
     // const {kind, deviceId} = device;
 
-    setStore((prevState) => ({
+    setStore(prevState => ({
       ...prevState,
       activeDeviceId: {
         ...activeDeviceId,
@@ -119,7 +119,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     //   'rememberedDevicesList',
     //   JSON.stringify(rememberedDevicesList.current),
     // );
-    setStore((prevState) => ({
+    setStore(prevState => ({
       ...prevState,
       rememberedDevicesList: {
         ...prevState.rememberedDevicesList,
@@ -133,12 +133,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }));
   };
 
-  const {RtcEngine} = rtc as unknown as {RtcEngine: WebRtcEngineInstance};
-  const {localStream} = RtcEngine;
+  const {RtcEngineUnsafe} = rtc as unknown as {
+    RtcEngineUnsafe: WebRtcEngineInstance;
+  };
+  const {localStream} = RtcEngineUnsafe;
 
   const refreshDeviceList = useCallback(async (noEmitLog?: boolean) => {
     let updatedDeviceList: MediaDeviceInfo[];
-    await RtcEngine.getDevices(function (devices: deviceInfo[]) {
+    await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
       !noEmitLog && log('Fetching all devices: ', devices);
       /**
        * Some browsers list the same microphone twice with different Id's,
@@ -173,14 +175,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const getAgoraTrackDeviceId = (type: 'audio' | 'video') => {
     const mutedState =
       //@ts-ignore
-      type === 'audio' ? !RtcEngine.isAudioEnabled : !RtcEngine.isVideoEnabled;
+      type === 'audio'
+        ? !RtcEngineUnsafe.isAudioEnabled
+        : !RtcEngineUnsafe.isVideoEnabled;
 
     let currentDevice: string;
 
     if (mutedState) {
       currentDevice =
         //@ts-ignore
-        type === 'audio' ? RtcEngine.audioDeviceId : RtcEngine.videoDeviceId;
+        type === 'audio'
+          ? RtcEngineUnsafe.audioDeviceId
+          : RtcEngineUnsafe.videoDeviceId;
       log(`Agora ${type} Engine is using`, currentDevice);
     } else {
       currentDevice = localStream[type]
@@ -212,7 +218,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         break;
       case 'audiooutput':
         //@ts-ignore
-        let speakerId = RtcEngine.speakerDeviceId;
+        let speakerId = RtcEngineUnsafe.speakerDeviceId;
         speakerId &&
           SDKEvents.emit('devices-selected-speaker-changed', speakerId);
         setUiSelectedSpeaker(speakerId);
@@ -221,7 +227,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         micId = getAgoraTrackDeviceId('audio');
         camId = getAgoraTrackDeviceId('video');
         //@ts-ignore
-        speakerId = RtcEngine.speakerDeviceId;
+        speakerId = RtcEngineUnsafe.speakerDeviceId;
 
         micId && SDKEvents.emit('devices-selected-microphone-changed', micId);
         setUiSelectedMic(micId);
@@ -249,7 +255,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     switch (kind) {
       case 'audioinput':
         const audioInputFallbackDeviceId = deviceListLocal.find(
-          (device) =>
+          device =>
             device.kind === 'audioinput' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
@@ -257,13 +263,13 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         break;
       case 'videoinput':
         const videoInputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'videoinput',
+          device => device.kind === 'videoinput',
         )?.deviceId;
         setSelectedCam(videoInputFallbackDeviceId);
         break;
       case 'audiooutput':
         const audioOutputFallbackDeviceId = deviceListLocal.find(
-          (device) =>
+          device =>
             device.kind === 'audiooutput' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
@@ -277,7 +283,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     deviceId: deviceId,
     deviceList: MediaDeviceInfo[],
   ) => {
-    return deviceList.find((device) => device.deviceId === deviceId)
+    return deviceList.find(device => device.deviceId === deviceId)
       ? true
       : false;
   };
@@ -318,7 +324,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       .then(() => {
         promise.res();
       })
-      .catch((e) => {
+      .catch(e => {
         promise.rej(e);
       })
       .finally(() => {
@@ -374,12 +380,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           },
         }[kind];
 
+        // non chrome, ignore speaker
+        if (!isChrome && kind === 'audiooutput') {
+          setUiSelectedSpeaker('');
+          return;
+        }
+
         if (uiSelectedState && uiSelectedState.trim().length != 0) {
           return;
         }
 
         const defaultSpeaker = deviceList.find(
-          (device) =>
+          device =>
             device.deviceId === 'default' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
@@ -440,7 +452,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           checkDeviceExists(storedDevice, deviceList)
         ) {
           log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
-          setDevice(storedDevice).catch((e:Error) => {
+          setDevice(storedDevice).catch((e: Error) => {
             log(
               logTag,
               deviceLogTag,
@@ -525,7 +537,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }
 
     const didChangeDeviceExistBefore = previousDeviceList.find(
-      (device) => device.deviceId === changedDevice.deviceId,
+      device => device.deviceId === changedDevice.deviceId,
     )
       ? true
       : false;
@@ -626,7 +638,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           .then(() => {
             queueItem.resolveQueued();
           })
-          .catch((e) => queueItem.rejectQueued(e));
+          .catch(e => queueItem.rejectQueued(e));
       }
     };
     return new Promise<void>((res, rej) => {
@@ -637,7 +649,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         return;
       }
       mutexRef.current = true;
-      RtcEngine[setMethod](
+      RtcEngineUnsafe[setMethod](
         deviceId,
         () => {
           syncSelectedDeviceUi(kind);
@@ -686,7 +698,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     Toast.show({
       type: 'checked',
-      leadingIcon: null,
+      leadingIconName: 'mic-on',
       // leadingIcon: <CustomIcon name={'mic-on'} />,
       text1: `New ${name} detected`,
       // @ts-ignore
@@ -732,6 +744,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         setSelectedSpeaker,
         deviceList,
         setDeviceList,
+        isChrome,
       }}>
       {props.children}
     </DeviceContext.Provider>

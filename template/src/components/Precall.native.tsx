@@ -14,7 +14,7 @@ import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import PreCallLogo from './common/Logo';
 import {useCustomization} from 'customization-implementation';
 import PreCallLocalMute from './precall/LocalMute';
@@ -40,10 +40,11 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {VideoPreviewProps} from './precall/VideoPreview';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import JoinWaitingRoomBtn from './precall/joinWaitingRoomBtn.native';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
@@ -108,7 +109,12 @@ const JoinRoomInputView = ({isDesktop}) => {
               ? style.btnContainerStyle
               : {width: '100%'}
           }>
-          <JoinButton />
+          {$config.ENABLE_WAITING_ROOM &&
+          rtcProps.role === ClientRole.Audience ? (
+            <JoinWaitingRoomBtn />
+          ) : (
+            <JoinButton />
+          )}
         </View>
       </View>
     </View>
@@ -116,7 +122,7 @@ const JoinRoomInputView = ({isDesktop}) => {
 };
 
 const JoinRoomName = ({isDesktop}) => {
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType<PreCallTextInputProps>;
@@ -153,7 +159,7 @@ const JoinRoomName = ({isDesktop}) => {
 };
 
 const JoinRoomButton = () => {
-  const {JoinButton, Textbox} = useCustomization((data) => {
+  const {JoinButton, Textbox} = useCustomization(data => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
@@ -195,7 +201,7 @@ const Precall = (props: any) => {
     DeviceSelect,
     PrecallAfterView,
     PrecallBeforeView,
-  } = useCustomization((data) => {
+  } = useCustomization(data => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
@@ -259,7 +265,7 @@ const Precall = (props: any) => {
   const {
     isJoinDataFetched,
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 
@@ -277,9 +283,9 @@ const Precall = (props: any) => {
 
   useEffect(() => {
     if (isJoinDataFetched) {
-      new Promise((res) =>
+      new Promise(res =>
         // @ts-ignore
-        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+        rtc.RtcEngineUnsafe.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {
@@ -299,7 +305,7 @@ const Precall = (props: any) => {
     }
   }, []);
 
-  const FpePrecallComponent = useCustomization((data) => {
+  const FpePrecallComponent = useCustomization(data => {
     // commented for v1 release
     // if (
     //   data?.components?.precall &&

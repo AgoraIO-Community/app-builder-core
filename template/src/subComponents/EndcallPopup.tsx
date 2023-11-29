@@ -41,7 +41,7 @@ const DownloadTranscript = () => {
 
 const EndcallPopup = (props: EndcallPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const leaveMeetingLabelHeading = 'Leave Meeting?';
+  const leaveMeetingLabelHeading = 'Leave Room?';
   const leaveMeetingLabelSubHeading =
     'Are you sure you want to leave this meeting?';
   const leaveMeetingSubHeading1 = `Sure you want to leave? You haven't downloaded your transcripts yet.`;

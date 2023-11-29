@@ -16,8 +16,11 @@ import {useToast} from '../../components/useToast';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
 import Transcript from '../../subComponents/caption/Transcript';
+import {ToolbarProvider} from '../../utils/useToolbar';
+import {ActionSheetProvider} from '../../utils/useActionSheet';
 
-const ActionSheet = () => {
+const ActionSheet = props => {
+  const {snapPointsMinMax = [100, 350]} = props;
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -139,8 +142,7 @@ const ActionSheet = () => {
         <TouchableWithoutFeedback
           onPress={() => {
             handleSheetChanges(0);
-          }}
-        >
+          }}>
           <View style={[styles.backDrop]} />
         </TouchableWithoutFeedback>
       )}
@@ -155,7 +157,7 @@ const ActionSheet = () => {
           onSpringEnd={handleSpringEnd}
           // skipInitialTransition={true}
           expandOnContentDrag={true}
-          snapPoints={({maxHeight}) => [100, 350]}
+          snapPoints={({maxHeight}) => snapPointsMinMax}
           defaultSnap={({lastSnap, snapPoints}) =>
             lastSnap ?? Math.min(...snapPoints)
           }
@@ -165,12 +167,12 @@ const ActionSheet = () => {
               <Spacer size={12} />
             </>
           }
-          blocking={false}
-        >
+          blocking={false}>
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
             native={false}
+            {...props}
           />
         </BottomSheet>
         {/* Chat  Action Sheet */}
@@ -184,25 +186,30 @@ const ActionSheet = () => {
           expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           header={<ActionSheetHandle sidePanel={SidePanelType.Chat} />}
-          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-        >
+          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
           <Chat showHeader={false} />
         </BottomSheet>
         {/* Participants Action Sheet */}
-        <BottomSheet
-          sibling={ToastComponentRender}
-          ref={participantsSheetRef}
-          onDismiss={onDismiss}
-          open={isParticipantsOpen}
-          expandOnContentDrag={false}
-          snapPoints={({maxHeight}) => [1 * maxHeight]}
-          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-          scrollLocking={false}
-          header={<ActionSheetHandle sidePanel={SidePanelType.Participants} />}
-          blocking={false}
-        >
-          <ParticipantView showHeader={false} />
-        </BottomSheet>
+        {/** Toolbar and actionsheet wrapper added to hide the local mute button label*/}
+        <ToolbarProvider value={{position: undefined}}>
+          <ActionSheetProvider>
+            <BottomSheet
+              sibling={ToastComponentRender}
+              ref={participantsSheetRef}
+              onDismiss={onDismiss}
+              open={isParticipantsOpen}
+              expandOnContentDrag={false}
+              snapPoints={({maxHeight}) => [1 * maxHeight]}
+              defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+              scrollLocking={false}
+              header={
+                <ActionSheetHandle sidePanel={SidePanelType.Participants} />
+              }
+              blocking={false}>
+              <ParticipantView showHeader={false} />
+            </BottomSheet>
+          </ActionSheetProvider>
+        </ToolbarProvider>
         {/* Settings  Action Sheet */}
         <BottomSheet
           sibling={ToastComponentRender}
@@ -213,8 +220,7 @@ const ActionSheet = () => {
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           header={<ActionSheetHandle sidePanel={SidePanelType.Settings} />}
-          blocking={false}
-        >
+          blocking={false}>
           <SettingsView showHeader={false} />
         </BottomSheet>
         {/* Transcript  Action Sheet */}
@@ -228,8 +234,7 @@ const ActionSheet = () => {
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           header={<ActionSheetHandle sidePanel={SidePanelType.Transcript} />}
           scrollLocking={false}
-          blocking={false}
-        >
+          blocking={false}>
           <Transcript showHeader={false} />
         </BottomSheet>
       </View>

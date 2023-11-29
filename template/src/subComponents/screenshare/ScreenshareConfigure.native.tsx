@@ -9,10 +9,10 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Platform} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
-import {UidType} from '../../../agora-rn-uikit';
+import {DispatchContext, UidType} from '../../../agora-rn-uikit';
 import {
   getGridLayoutName,
   getPinnedLayoutName,
@@ -20,10 +20,9 @@ import {
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useLayout, useRender, useRtc} from 'customization-api';
+import {useLayout, useContent, useRtc} from 'customization-api';
 import {filterObject} from '../../utils';
 import {ScreenshareContext} from './useScreenshare';
 import useMuteToggleLocal, {
@@ -41,22 +40,27 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const appState = useAppState();
   const processRef = useRef(false);
   const enableVideoRef = useRef(false);
-  const {dispatch, RtcEngine} = useRtc();
-  const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
+  const {RtcEngineUnsafe} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
+  const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isPinned = useRef(0);
   const {setScreenShareData, screenShareData, setScreenShareOnFullView} =
     useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
   // const userText = useString('remoteUserDefaultLabel')();
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
-  const userText = 'User';
+  // const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  // const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
-  const renderListRef = useRef({renderList: renderList});
+  const defaultContentRef = useRef({defaultContent: defaultContent});
   const currentLayoutRef = useRef({currentLayout: currentLayout});
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
+  const secondaryPinnedUidRef = useRef({
+    secondaryPinnedUid: secondaryPinnedUid,
+  });
   const screenShareDataRef = useRef({screenShareData: screenShareData});
   const localMute = useMuteToggleLocal();
   const {video} = useLocalUserInfo();
@@ -65,12 +69,16 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, [pinnedUid]);
 
   useEffect(() => {
+    secondaryPinnedUidRef.current.secondaryPinnedUid = secondaryPinnedUid;
+  }, [secondaryPinnedUid]);
+
+  useEffect(() => {
     screenShareDataRef.current.screenShareData = screenShareData;
   }, [screenShareData]);
 
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   useEffect(() => {
     currentLayoutRef.current.currentLayout = currentLayout;
@@ -90,21 +98,44 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           isPinned.current !== recentScreenshare[0] &&
           activeUids.indexOf(recentScreenshare[0]) !== -1
         ) {
-          triggerChangeLayout(true, recentScreenshare[0]);
+          triggerChangeLayout(
+            true,
+            recentScreenshare[0],
+            defaultContentRef.current.defaultContent[recentScreenshare[0]]
+              ?.parentUid,
+          );
         }
       }
     }
   }, [activeUids, screenShareData]);
 
-  const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+  const triggerChangeLayout = (
+    pinned: boolean,
+    screenShareUid?: UidType,
+    parentUid?: UidType,
+  ) => {
     let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
       isPinned.current = screenShareUid;
       dispatch({
-        type: 'SwapVideo',
+        type: 'UserPin',
         value: [screenShareUid],
       });
+      if (parentUid && !secondaryPinnedUidRef.current.secondaryPinnedUid) {
+        dispatch({
+          type: 'UserSecondaryPin',
+          value: [parentUid],
+        });
+      } else if (
+        parentUid &&
+        secondaryPinnedUidRef.current.secondaryPinnedUid
+      ) {
+        dispatch({
+          type: 'ActiveSpeaker',
+          value: [parentUid],
+        });
+      }
       layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
       isPinned.current = 0;
@@ -114,7 +145,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    RtcEngine?.addListener(
+    RtcEngineUnsafe?.addListener(
       'LocalVideoStateChanged',
       (localVideoState, error) => {
         if (Platform.OS === 'android') {
@@ -149,7 +180,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         const value = payload.value;
 
         const screenUidOfUser =
-          renderListRef.current.renderList[data.sender].screenUid;
+          defaultContentRef.current.defaultContent[data.sender].screenUid;
         switch (action) {
           case EventActions.SCREENSHARE_STARTED:
             setScreenShareData(prevState => {
@@ -157,7 +188,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
                 ...prevState,
                 [screenUidOfUser]: {
                   ...prevState[screenUidOfUser],
-                  name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                  name: defaultContentRef.current.defaultContent[
+                    screenUidOfUser
+                  ]?.name,
                   isActive: true,
                   ts: value || 0,
                 },
@@ -180,7 +213,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
                 [screenUidOfUser]: {
                   ...prevState[screenUidOfUser],
                   isExpanded: false,
-                  name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                  name: defaultContentRef.current.defaultContent[
+                    screenUidOfUser
+                  ]?.name,
                   isActive: false,
                   ts: value || 0,
                 },
@@ -190,6 +225,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             //if user pinned somebody then don't triggerlayout change
             if (!pinnedUidRef.current.pinnedUid) {
               triggerChangeLayout(false);
+            }
+            if (screenUidOfUser === pinnedUidRef.current.pinnedUid) {
+              triggerChangeLayout(false);
+              dispatch({
+                type: 'UserPin',
+                value: [0],
+              });
             }
             break;
           default:
@@ -207,7 +249,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (!isScreenshareActive) {
       // either user can publish local video or screenshare stream
       // so if user video is turned on then we are turning off video before screenshare
-      await RtcEngine?.startScreenCapture({
+      await RtcEngineUnsafe?.startScreenCapture({
         captureVideo: true,
         captureAudio,
       });
@@ -244,7 +286,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   ) => {
     if (isScreenshareActive || forceStop) {
       enableVideoRef.current = enableVideo;
-      await RtcEngine?.stopScreenCapture();
+      await RtcEngineUnsafe?.stopScreenCapture();
       if (Platform.OS === 'android') {
         processRef.current = true;
         setScreenshareActive(false);
@@ -260,7 +302,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       //native screenshare is started
       if (isScreenshareActive) {
         //to increase the performance - stop incoming video stream
-        RtcEngine.muteAllRemoteVideoStreams(true);
+        RtcEngineUnsafe.muteAllRemoteVideoStreams(true);
 
         //since native screenshare uses local user video
         //we need to turn on video if its off.
@@ -272,7 +314,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       //native screenshare is stopped
       else {
         //resume the incoming video stream
-        RtcEngine.muteAllRemoteVideoStreams(false);
+        RtcEngineUnsafe.muteAllRemoteVideoStreams(false);
 
         //edge case - if screenshare is going on and user want to enable the video
         //then we will inform the user to stop screenshare and start camera

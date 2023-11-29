@@ -9,19 +9,30 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRender} from 'customization-api';
-import {UidType} from '../../agora-rn-uikit';
+import {useEffect, useState} from 'react';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 /**
- * Returns a function that checks whether the given uid is a active speaker and returns true/false
+ * Returns active speaker uid or undefined if nobody speaking
  * @returns function
  */
-function useIsActiveSpeaker() {
-  const {activeSpeaker, renderList} = useRender();
-  const isActiveSpeaker = (uid: UidType) => {
-    return renderList[uid].audio && activeSpeaker === uid;
-  };
-  return isActiveSpeaker;
+function useActiveSpeaker() {
+  const [activeSpeaker, setActiveSpeaker] = useState(undefined);
+  useEffect(() => {
+    const listenActiveSpeaker = data => {
+      setActiveSpeaker(data);
+    };
+    LocalEventEmitter.on(LocalEventsEnum.ACTIVE_SPEAKER, listenActiveSpeaker);
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.ACTIVE_SPEAKER,
+        listenActiveSpeaker,
+      );
+    };
+  }, []);
+  return activeSpeaker;
 }
 
-export default useIsActiveSpeaker;
+export default useActiveSpeaker;

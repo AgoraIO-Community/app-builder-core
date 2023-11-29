@@ -24,14 +24,10 @@ import {
   isWebInternal,
   useIsSmall,
 } from '../utils/common';
-import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
-import {
-  ChatTextInputProps,
-  ChatSendButtonProps,
-} from '../subComponents/ChatInput';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';
@@ -46,8 +42,7 @@ import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+  chatInput?: React.ComponentType;
   showHeader?: boolean;
 }
 
@@ -63,13 +58,7 @@ const Chat = (props?: ChatProps) => {
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
 
-  const {
-    groupActive,
-    setGroupActive,
-    privateActive,
-    setPrivateActive,
-    setSelectedChatUserId: setSelectedUser,
-  } = useChatUIControl();
+  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
   const {
     unreadGroupMessageCount,
@@ -83,19 +72,17 @@ const Chat = (props?: ChatProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {transcriptHeight} = useCaptionWidth();
 
-  //not need since state are controlled by chatUIControl
-  // React.useEffect(() => {
-  //   return () => {
-  //     // reset both the active tabs
-  //     setGroupActive(false);
-  //     setPrivateActive(false);
-  //     setSelectedUser(0);
-  //   };
-  // }, []);
+  React.useEffect(() => {
+    return () => {
+      // reset both the active tabs
+      setChatType(ChatType.Group);
+      setPrivateChatUser(0);
+    };
+  }, []);
 
   const selectUser = (userUID: UidType) => {
-    setSelectedUser(userUID);
-    setPrivateActive(true);
+    setPrivateChatUser(userUID);
+    setChatType(ChatType.Private);
     //move this logic into ChatContainer
     // setUnreadIndividualMessageCount((prevState) => {
     //   return {
@@ -108,39 +95,60 @@ const Chat = (props?: ChatProps) => {
     // );
   };
 
-  const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
-    let components: {
-      ChatAfterView: React.ComponentType;
-      ChatBeforeView: React.ComponentType;
-    } = {
-      ChatAfterView: React.Fragment,
-      ChatBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.videoCall &&
-      typeof data?.components?.videoCall === 'object'
-    ) {
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall?.chat &&
-      //   typeof data?.components?.videoCall?.chat === 'object'
-      // ) {
-      //   if (
-      //     data?.components?.videoCall?.chat?.after &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
-      //   ) {
-      //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
-      //   }
-      //   if (
-      //     data?.components?.videoCall?.chat?.before &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
-      //   ) {
-      //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
-      //   }
-      // }
-    }
-    return components;
-  });
+  const {ChatAfterView, ChatBeforeView, ChatInputComponent} = useCustomization(
+    data => {
+      let components: {
+        ChatAfterView: React.ComponentType;
+        ChatBeforeView: React.ComponentType;
+        ChatInputComponent: React.ComponentType;
+      } = {
+        ChatAfterView: React.Fragment,
+        ChatBeforeView: React.Fragment,
+        ChatInputComponent: ChatInput,
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat &&
+          typeof data?.components?.videoCall?.chat === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatInput &&
+            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+          ) {
+            components.ChatInputComponent =
+              data?.components?.videoCall?.chat?.chatInput;
+          }
+        }
+        // commented for v1 release
+        // if (
+        //   data?.components?.videoCall?.chat &&
+        //   typeof data?.components?.videoCall?.chat === 'object'
+        // ) {
+        //   if (
+        //     data?.components?.videoCall?.chat?.after &&
+        //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
+        //   ) {
+        //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
+        //   }
+        //   if (
+        //     data?.components?.videoCall?.chat?.before &&
+        //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
+        //   ) {
+        //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
+        //   }
+        // }
+      } else {
+        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
+          components.ChatInputComponent = props.chatInput;
+        }
+      }
+      return components;
+    },
+  );
   const {currentLayout} = useLayout();
   return (
     <>
@@ -164,28 +172,32 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         {showHeader && <ChatHeader />}
-        {groupActive ? (
+        {chatType === ChatType.Group ? (
           <>
             <ChatContainer {...props} />
             <View style={style.chatInputContainer}>
-              <ChatInput {...props} />
+              <ChatInputComponent />
             </View>
           </>
         ) : (
+          <></>
+        )}
+        {chatType === ChatType.MemberList ? (
+          <ChatParticipants selectUser={selectUser} />
+        ) : (
+          <></>
+        )}
+        {chatType === ChatType.Private ? (
           <>
-            {!privateActive ? (
-              <ChatParticipants selectUser={selectUser} />
-            ) : (
-              <>
-                <ChatContainer {...props} />
-                <View>
-                  <View style={style.chatInputContainer}>
-                    <ChatInput {...props} />
-                  </View>
-                </View>
-              </>
-            )}
+            <ChatContainer {...props} />
+            <View>
+              <View style={style.chatInputContainer}>
+                <ChatInputComponent />
+              </View>
+            </View>
           </>
+        ) : (
+          <></>
         )}
         <ChatAfterView />
       </View>

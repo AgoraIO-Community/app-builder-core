@@ -24,12 +24,13 @@ import Toast from '../../../react-native-toast-message';
 import {createHook} from 'customization-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
+import {useRoomInfo} from 'customization-api';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -83,6 +84,7 @@ interface RecordingProviderProps {
   value: {
     setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
     isRecordingActive: boolean;
+    callActive: boolean;
   };
 }
 
@@ -94,10 +96,13 @@ interface RecordingProviderProps {
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
-  const {setRecordingActive, isRecordingActive} = props?.value;
+  const {setRecordingActive, isRecordingActive, callActive} = props?.value;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids} = useContent();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -113,7 +118,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {screenShareData} = useScreenContext();
 
   React.useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
+    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
@@ -146,12 +151,18 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      */
     if (prevRecordingState) {
       if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
+
+      if ($config.ENABLE_WAITING_ROOM && !isHost && !callActive) {
+        return;
+      }
+
       Toast.show({
+        leadingIconName: 'recording',
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
-          ? `This meeting is being recorded by ${
-              trimText(renderList[uidWhoStarted]?.name) || 'user'
+          ? `This room is being recorded by ${
+              trimText(defaultContent[uidWhoStarted]?.name) || 'user'
             }`
           : '',
         visibilityTime: 3000,
@@ -160,7 +171,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         leadingIcon: null,
       });
     }
-  }, [isRecordingActive]);
+  }, [isRecordingActive, callActive, isHost]);
 
   const startRecording = () => {
     setInProgress(true);
@@ -178,7 +189,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         },
       },
     })
-      .then((res) => {
+      .then(res => {
         console.log(res.data);
         setInProgress(false);
         if (res.data.startRecordingSession === 'success') {
@@ -192,7 +203,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
               action: EventActions.RECORDING_STARTED,
               value: `${localUid}`,
             }),
-            EventPersistLevel.LEVEL3,
+            PersistanceLevel.Session,
           );
           // 2. set the local recording state to true to update the UI
           setUidWhoStarted(localUid);
@@ -200,7 +211,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 3. set the presenter mode if screen share is active
           // 3.a Get the most recent screenshare uid
           const sorted = Object.entries(screenShareData)
-            .filter((el) => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
+            .filter(el => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
             .sort((a, b) => b[1].ts - a[1].ts);
 
           const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
@@ -215,7 +226,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           }
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setInProgress(false);
         console.log(err);
       });
@@ -241,7 +252,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       setInProgress(true);
       // If recording is already going on, stop the recording by executing the graphql query.
       stopRecordingQuery({variables: {passphrase: phrase}})
-        .then((res) => {
+        .then(res => {
           console.log(res.data);
           setInProgress(false);
           if (res.data.stopRecordingSession === 'success') {
@@ -255,13 +266,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
                 action: EventActions.RECORDING_STOPPED,
                 value: '',
               }),
-              EventPersistLevel.LEVEL3,
+              PersistanceLevel.Session,
             );
             // 2. set the local recording state to false to update the UI
             setRecordingActive(false);
           }
         })
-        .catch((err) => {
+        .catch(err => {
           setInProgress(false);
           console.log(err);
         });
@@ -272,7 +283,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           action: EventActions.RECORDING_STOP_REQUEST,
           value: '',
         }),
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
       );
     }
   };

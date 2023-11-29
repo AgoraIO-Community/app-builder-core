@@ -1,17 +1,18 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 import {
-  MUTE_REMOTE_TYPE,
-  RenderInterface,
+  ContentInterface,
   SidePanelType,
   useLayout,
   useLocalUid,
-  useMeetingInfo,
-  useRemoteMute,
-  useRender,
-  useRtc,
+  useRoomInfo,
+  useContent,
   useSidePanel,
 } from 'customization-api';
-import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
+import {
+  DefaultLayouts,
+  getPinnedLayoutName,
+} from '../../pages/video-call/DefaultLayouts';
 import useRemoteRequest, {
   REQUEST_REMOTE_TYPE,
 } from '../../utils/useRemoteRequest';
@@ -20,13 +21,13 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
-import {ClientRole, UidType} from '../../../agora-rn-uikit';
+import {ClientRole, DispatchContext, UidType} from '../../../agora-rn-uikit';
 import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
   RaiseHandValue,
 } from '../livestream/Types';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
@@ -35,9 +36,12 @@ import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 import {calculatePosition, trimText} from '../../utils/common';
+import {useVideoCall} from '../useVideoCall';
+import {customEvents} from 'customization-api';
+import {useDisableChat} from '../disable-chat/useDisableChat';
 
 interface UserActionMenuOptionsOptionsProps {
-  user: RenderInterface;
+  user: ContentInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
@@ -57,15 +61,17 @@ export default function UserActionMenuOptionsOptions(
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
-  const {pinnedUid, activeUids} = useRender();
-  const {dispatch} = useRtc();
+  const {currentLayout} = useLayout();
+  const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
+    useContent();
+  const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
   const {openPrivateChat} = useChatMessages();
   const {hostUids, audienceUids} = useLiveStreamDataContext();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const remoteRequest = useRemoteRequest();
   const remoteMute = useRemoteMute();
   const endRemoteCall = useRemoteEndCall();
@@ -73,6 +79,24 @@ export default function UserActionMenuOptionsOptions(
     useContext(LiveStreamContext);
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
+  const {enablePinForMe} = useVideoCall();
+  const {setDisableChatUids, disableChatUids} = useDisableChat();
+
+  useEffect(() => {
+    customEvents.on('DisableChat', data => {
+      // for other users
+      const {disableChatUid, disableChat} = JSON.parse(data?.payload);
+      setDisableChatUids(prevState => {
+        // upate disable uids
+        return {
+          ...prevState,
+          [disableChatUid]: {
+            disableChat,
+          },
+        };
+      });
+    });
+  }, []);
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
@@ -89,26 +113,58 @@ export default function UserActionMenuOptionsOptions(
         audienceUids.indexOf(user.uid) !== -1
       )
     ) {
-      items.push({
-        disabled: activeUids.length === 1,
-        icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-        onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: pinnedUid
-          ? user.uid === pinnedUid
-            ? 'Unpin'
-            : 'Replace Pin'
-          : 'Pin for me',
-        callback: () => {
-          setActionMenuVisible(false);
-          dispatch({
-            type: 'UserPin',
-            value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+      if (enablePinForMe) {
+        //if (pinnedUid !== user.uid) {
+        items.push({
+          //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+          disabled: activeUids?.length === 1,
+          icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+          onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: pinnedUid
+            ? user.uid === pinnedUid
+              ? 'Remove from large'
+              : 'View in large'
+            : 'View in large',
+          callback: () => {
+            setActionMenuVisible(false);
+            dispatch({
+              type: 'UserPin',
+              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+            });
+            setLayout(getPinnedLayoutName());
+          },
+        });
+        if (currentLayout === DefaultLayouts[1].name) {
+          items.push({
+            // disabled:
+            //   activeUids?.filter(i => !customContent[i])?.length === 1,
+            disabled: activeUids?.length === 1,
+            icon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-outlined',
+            onHoverIcon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: secondaryPinnedUid
+              ? user.uid === secondaryPinnedUid
+                ? 'Remove from top'
+                : 'Pin to top'
+              : 'Pin to top',
+            callback: () => {
+              setActionMenuVisible(false);
+              dispatch({
+                type: 'UserSecondaryPin',
+                value: [
+                  secondaryPinnedUid && user.uid === secondaryPinnedUid
+                    ? 0
+                    : user.uid,
+                ],
+              });
+            },
           });
-          setLayout(getPinnedLayoutName());
-        },
-      });
+        }
+        //}
+      }
     }
 
     /**
@@ -118,18 +174,19 @@ export default function UserActionMenuOptionsOptions(
       /**
        * Chat menu
        */
-      items.push({
-        icon: 'chat-outlined',
-        onHoverIcon: 'chat-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Message Privately',
-        callback: () => {
-          setActionMenuVisible(false);
-          openPrivateChat(user.uid);
-        },
-      });
-
+      if ($config.CHAT) {
+        items.push({
+          icon: 'chat-outlined',
+          onHoverIcon: 'chat-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: 'Message Privately',
+          callback: () => {
+            setActionMenuVisible(false);
+            openPrivateChat(user.uid);
+          },
+        });
+      }
       /**
        * Only host can see this menu item - request/mute - video/audio, promote to co host,demote to audience,remove form meeting
        */
@@ -216,7 +273,7 @@ export default function UserActionMenuOptionsOptions(
                 events.send(
                   LiveStreamControlMessageEnum.raiseHandRequestRejected,
                   '',
-                  EventPersistLevel.LEVEL1,
+                  PersistanceLevel.None,
                   user.uid,
                 );
               },
@@ -228,7 +285,7 @@ export default function UserActionMenuOptionsOptions(
           icon: 'remove-meeting',
           iconColor: $config.SEMANTIC_ERROR,
           textColor: $config.SEMANTIC_ERROR,
-          title: 'Remove From Meeting',
+          title: 'Remove From Room',
           callback: () => {
             setActionMenuVisible(false);
             setRemoveMeetingPopupVisible(true);
@@ -248,7 +305,7 @@ export default function UserActionMenuOptionsOptions(
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Change Name',
         callback: () => {
-          setFocus((prevState) => {
+          setFocus(prevState => {
             return {
               ...prevState,
               editName: true,
@@ -287,7 +344,16 @@ export default function UserActionMenuOptionsOptions(
       });
     }
     setActionMenuitems(items);
-  }, [pinnedUid, isHost, raiseHandList, hostUids, user]);
+  }, [
+    pinnedUid,
+    isHost,
+    raiseHandList,
+    hostUids,
+    user,
+    disableChatUids,
+    secondaryPinnedUid,
+    currentLayout,
+  ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState({});
@@ -372,6 +438,7 @@ export default function UserActionMenuOptionsOptions(
           username={user.name}
           removeUserFromMeeting={() => {
             Toast.show({
+              leadingIconName: 'info',
               type: 'info',
               text1: `The system will remove ${trimText(
                 user.name,

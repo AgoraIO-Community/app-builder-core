@@ -43,7 +43,7 @@ const InvitePopup = () => {
     <Popup
       modalVisible={showInvitePopup}
       setModalVisible={setShowInvitePopup}
-      title="Invite others to join this meeting"
+      title="Invite others to join this room"
       showCloseIcon={true}
       containerStyle={{alignItems: isDesktop('popup') ? 'center' : 'stretch'}}
       contentContainerStyle={style.contentContainer}>

@@ -32,6 +32,7 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   BREAKPOINTS,
+  CustomToolbarSort,
   isAndroid,
   isIOS,
   isMobileUA,
@@ -44,14 +45,11 @@ import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import {useString} from '../utils/useString';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
-import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
+import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
@@ -61,6 +59,13 @@ import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import ParticipantsCount from '../atoms/ParticipantsCount';
 import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
+import Toolbar from '../atoms/Toolbar';
+import ToolbarItem from '../atoms/ToolbarItem';
+import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
+import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -89,17 +94,17 @@ export const ParticipantsCountView = ({
   );
 };
 
-interface ParticipantsIconButtonProps {
+export interface ParticipantsIconButtonProps {
   liveStreamingRequestAlertIconPosition?: {
     top?: number;
     right?: number;
     left?: number;
     bottom?: number;
   };
-  isOnActionSheet?: boolean;
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     liveStreamingRequestAlertIconPosition = {
       top: 0,
@@ -107,17 +112,22 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       left: undefined,
       bottom: undefined,
     },
-    isOnActionSheet = false,
   } = props;
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   //commented for v1 release
   //const participantsLabel = useString('participantsLabel')();
-  const {onlineUsersCount} = useContext(ChatContext);
+  const {waitingRoomUids} = useWaitingRoomContext();
   //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const participantsLabel = `People`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
+  const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const onPress = () => {
     isPanelActive
@@ -138,38 +148,67 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: isOnActionSheet || !$config.ICON_TEXT ? '' : participantsLabel,
+      text: showLabel ? participantsLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   return props?.render ? (
     props.render(onPress, isPanelActive)
   ) : (
     <>
-      <View>
-        <IconButton {...iconButtonProps} />
-      </View>
-      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
-        <View
-          style={{
-            position: 'absolute',
-            top: liveStreamingRequestAlertIconPosition.top,
-            bottom: liveStreamingRequestAlertIconPosition.bottom,
-            right: liveStreamingRequestAlertIconPosition.right,
-            left: liveStreamingRequestAlertIconPosition.left,
-            backgroundColor: $config.SEMANTIC_ERROR,
-            width: 12,
-            height: 12,
-            borderRadius: 10,
-          }}></View>
+      {isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
+      ) : (
+        <>
+          <View>
+            <IconButton {...iconButtonProps} />
+          </View>
+          {isPendingWaitingRoomApproval ||
+          ($config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            isPendingRequestToReview) ? (
+            <View
+              style={{
+                position: 'absolute',
+                top: liveStreamingRequestAlertIconPosition.top,
+                bottom: liveStreamingRequestAlertIconPosition.bottom,
+                right: liveStreamingRequestAlertIconPosition.right,
+                left: liveStreamingRequestAlertIconPosition.left,
+                backgroundColor: $config.SEMANTIC_ERROR,
+                width: 12,
+                height: 12,
+                borderRadius: 10,
+              }}></View>
+          ) : (
+            <></>
+          )}
+        </>
       )}
     </>
   );
 };
 
-interface ChatIconButtonProps {
+export interface ChatIconButtonProps {
   badgeContainerPosition?: {
     top?: number;
     right?: number;
@@ -183,11 +222,11 @@ interface ChatIconButtonProps {
     totalUnreadCount: number,
   ) => JSX.Element;
   isMobileView?: boolean;
-  isOnActionSheet?: boolean;
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     badgeContainerPosition = {
       top: 0,
@@ -201,11 +240,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       fontSize: 12,
       textAlign: 'center',
     },
-    isOnActionSheet = false,
   } = props;
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
-  const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
-    useChatUIControl();
+  const {setChatType, setPrivateChatUser} = useChatUIControls();
 
   //commented for v1 release
   //const chatLabel = useString('chatLabel')();
@@ -216,9 +253,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   //we are resetting flag which used when chat panel is active
   useEffect(() => {
     if (sidePanel !== SidePanelType.Chat) {
-      setGroupActive(false);
-      setPrivateActive(false);
-      setSelectedChatUserId(0);
+      setChatType(ChatType.Group);
+      setPrivateChatUser(0);
     }
   }, [sidePanel]);
 
@@ -226,17 +262,17 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
-        setGroupActive(false);
-        setPrivateActive(false);
-        setSelectedChatUserId(0);
+        setChatType(ChatType.Group);
+        setPrivateChatUser(0);
       } else {
         //move this logic into ChatContainer
         //setUnreadGroupMessageCount(0);
-        setGroupActive(true);
+        setChatType(ChatType.Group);
         setSidePanel(SidePanelType.Chat);
       }
     }
   };
+  const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
@@ -249,11 +285,29 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: isOnActionSheet || !$config.ICON_TEXT ? '' : chatLabel,
+      text: showLabel ? chatLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   // const renderBadgeOld = (badgeCount: any) => {
@@ -301,8 +355,14 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   ) : (
     <>
       <View>
-        <IconButton {...iconButtonProps} />
-        {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
+        {isToolbarMenuItem ? (
+          <ToolbarMenuItem {...iconButtonProps} />
+        ) : (
+          <>
+            <IconButton {...iconButtonProps} />
+            {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
+          </>
+        )}
       </View>
     </>
   );
@@ -319,94 +379,211 @@ interface LayoutIconButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
-const SettingsIconButton = (props: SettingsIconButtonProps) => {
+export const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
 };
 const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
   return <SettingsWithViewWrapper {...props} />;
 };
 
-const Navbar = () => {
-  //commented for v1 release
-  //const recordingLabel = useString('recordingLabel')();
-  const recordingLabel = 'Recording';
-  const isDesktop = useIsDesktop();
-  const {audienceUids, hostUids} = useLiveStreamDataContext();
+export const MeetingTitleToolbarItem = () => {
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
-
-  const {isRecordingActive} = useRecording();
-  const {onlineUsersCount} = useContext(ChatContext);
-  const {width} = useWindowDimensions();
+  } = useRoomInfo();
   return (
-    <View
-      testID="videocall-topbar"
-      style={[
-        isWebInternal() ? style.navHolder : style.navHolderNative,
-        {
-          paddingHorizontal: isDesktop('toolbar') ? 32 : 10,
-          zIndex: 999,
-        },
-      ]}>
-      <View style={style.titleContainer}>
-        <Text
-          style={style.roomNameText}
-          testID="videocall-meetingName"
-          numberOfLines={1}
-          ellipsizeMode="tail">
-          {trimText(meetingTitle)}
-        </Text>
-        <Spacer size={8} horizontal={true} />
-        <View style={style.countContainer}>
+    <ToolbarItem>
+      <Text
+        style={style.roomNameText}
+        testID="videocall-meetingName"
+        numberOfLines={1}
+        ellipsizeMode="tail">
+        {trimText(meetingTitle)}
+      </Text>
+    </ToolbarItem>
+  );
+};
+export const ParticipantCountToolbarItem = () => {
+  return (
+    <ToolbarItem>
+      <View>
+        <View
+          style={{
+            width: 45,
+            height: 35,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            zIndex: isWebInternal() ? 3 : 0,
+          }}>
           <ParticipantsCount />
-          {isRecordingActive ? (
-            <RecordingInfo recordingLabel={recordingLabel} />
-          ) : (
-            <></>
-          )}
         </View>
       </View>
+    </ToolbarItem>
+  );
+};
+export const RecordingStatusToolbarItem = () => {
+  const recordingLabel = 'Recording';
+  const {isRecordingActive} = useRecording();
+  return isRecordingActive ? (
+    <ToolbarItem>
+      <RecordingInfo recordingLabel={recordingLabel} />
+    </ToolbarItem>
+  ) : (
+    <></>
+  );
+};
+const defaultStartItems: ToolbarCustomItem[] = [
+  {
+    align: 'start',
+    component: MeetingTitleToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: ParticipantCountToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: RecordingStatusToolbarItem,
+    order: 2,
+    hide: 'no',
+  },
+];
+const defaultCenterItems: ToolbarCustomItem[] = [];
+
+export const ParticipantToolbarItem = () => {
+  return (
+    <ToolbarItem testID="videocall-participantsicon">
+      <ParticipantsIconButton />
+    </ToolbarItem>
+  );
+};
+
+export const ChatToolbarItem = () => {
+  return (
+    $config.CHAT && (
+      <>
+        <ToolbarItem testID="videocall-chaticon">
+          <ChatIconButton />
+        </ToolbarItem>
+      </>
+    )
+  );
+};
+export const SettingsToobarItem = () => {
+  return (
+    <ToolbarItem testID="videocall-settingsicon">
+      <SettingsIconButtonWithWrapper />
+    </ToolbarItem>
+  );
+};
+
+const defaultEndItems: ToolbarCustomItem[] = [
+  {
+    align: 'start',
+    component: ParticipantToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: ChatToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: SettingsToobarItem,
+    order: 2,
+    hide: 'no',
+  },
+];
+
+export interface NavbarProps {
+  customItems?: ToolbarCustomItem[];
+  includeDefaultItems?: boolean;
+}
+const Navbar = (props: NavbarProps) => {
+  //commented for v1 release
+  //const recordingLabel = useString('recordingLabel')();
+  const {customItems = [], includeDefaultItems = true} = props;
+  const {width} = useWindowDimensions();
+
+  const isHidden = i => {
+    return i?.hide === 'yes';
+  };
+
+  const customStartItems = customItems
+    ?.filter(i => i.align === 'start' && !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultStartItems : [])
+    ?.sort(CustomToolbarSort);
+
+  const customCenterItems = customItems
+    ?.filter(i => i.align === 'center' && !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultCenterItems : [])
+    ?.sort(CustomToolbarSort);
+
+  const customEndItems = customItems
+    ?.filter(i => i.align === 'end' && !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultEndItems : [])
+    ?.sort(CustomToolbarSort);
+
+  const renderContent = (
+    items: ToolbarCustomItem[],
+    type: 'start' | 'center' | 'end',
+  ) => {
+    return items?.map((item, index) => {
+      const ToolbarItem = item?.component;
+      if (ToolbarItem) {
+        return <ToolbarItem key={`top-toolbar-${type}` + index} />;
+      } else {
+        return null;
+      }
+    });
+  };
+  return (
+    <Toolbar>
+      <View style={style.startContent}>
+        {renderContent(customStartItems, 'start')}
+      </View>
+      <View style={style.centerContent}>
+        {renderContent(customCenterItems, 'center')}
+      </View>
       {width > BREAKPOINTS.sm || isMobileUA() ? (
-        <View style={style.navControlBar} testID="videocall-navcontrols">
-          <View testID="videocall-participantsicon" style={{marginRight: 10}}>
-            <ParticipantsIconButton />
-          </View>
-          {$config.CHAT && (
-            <>
-              <View testID="videocall-chaticon" style={{marginHorizontal: 10}}>
-                <ChatIconButton />
-              </View>
-            </>
-          )}
-          <View testID="videocall-settingsicon" style={{marginLeft: 10}}>
-            <SettingsIconButtonWithWrapper />
-          </View>
+        <View style={style.endContent}>
+          {renderContent(customEndItems, 'end')}
         </View>
       ) : (
         <></>
       )}
-    </View>
+    </Toolbar>
   );
 };
-type NavBarComponentsArrayProps = [
-  (props: CopyJoinInfoProps) => JSX.Element,
-  () => JSX.Element,
-  (props: ParticipantsIconButtonProps) => JSX.Element,
-  (props: ChatIconButtonProps) => JSX.Element,
-  (props: LayoutIconButtonProps) => JSX.Element,
-  (props: SettingsIconButtonProps) => JSX.Element,
-];
-export const NavBarComponentsArray: NavBarComponentsArrayProps = [
-  CopyJoinInfo,
-  ParticipantsCountView,
-  ParticipantsIconButton,
-  ChatIconButton,
-  LayoutIconButton,
-  SettingsIconButton,
-];
 
 const style = StyleSheet.create({
+  startContent: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  centerContent: {
+    zIndex: 2,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  endContent: {
+    flex: 1,
+    zIndex: 9,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   participantCountView: {
     flexDirection: 'row',
     padding: 12,
@@ -418,29 +595,6 @@ const style = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 20,
-  },
-  countContainer: {
-    flexDirection: 'row',
-  },
-  navHolder: {
-    backgroundColor: $config.TOOLBAR_COLOR,
-    width: '100%',
-    paddingTop: 8,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  navHolderNative: {
-    position: 'relative',
-    width: '100%',
-    height: '8%',
-    backgroundColor:
-      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    justifyContent: 'space-between',
   },
   btnHolder: {
     marginHorizontal: isMobileOrTablet() ? 2 : 0,
@@ -459,9 +613,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  titleContainer: {
-    flexDirection: 'row',
-  },
+
   roomNameText: {
     alignSelf: 'center',
     fontSize: ThemeConfig.FontSize.normal,
@@ -484,12 +636,6 @@ const style = StyleSheet.create({
     fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_ACTION_COLOR,
-  },
-  navControlBar: {
-    width: '50%',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    zIndex: 9,
   },
   navSmItem: {
     flexGrow: 0,

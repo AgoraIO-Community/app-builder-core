@@ -29,13 +29,13 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
 import {useCustomization} from 'customization-implementation';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
-import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
+import {RoomInfoDefaultValue} from '../components/room-info/useRoomInfo';
 import Card from '../atoms/Card';
 import Input from '../atoms/Input';
 import LinkButton from '../atoms/LinkButton';
 import Toast from '../../react-native-toast-message';
-import useJoinMeeting from '../utils/useJoinMeeting';
+import useJoinRoom from '../utils/useJoinRoom';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
@@ -51,19 +51,19 @@ const Join = () => {
   // const createMeetingButton = useString('createMeetingButton')();
   const meetingIdInputPlaceholder = isLiveStream
     ? 'Enter Stream ID'
-    : 'Enter Meeting ID';
-  const enterMeetingButton = isLiveStream ? 'Join Stream' : 'Join Meeting';
+    : 'Enter Room ID';
+  const enterMeetingButton = isLiveStream ? 'Join Stream' : 'Join Room';
   const createMeetingButton = isLiveStream
     ? 'Create a Stream'
-    : 'Create a meeting';
+    : 'Create a Room';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
 
-  const useJoin = useJoinMeeting();
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const useJoin = useJoinRoom();
+  const {setRoomInfo} = useSetRoomInfo();
   const createMeeting = () => {
     history.push('/create');
   };
@@ -71,18 +71,19 @@ const Join = () => {
   const startCall = async () => {
     useJoin(phrase)
       .then(() => {
-        setMeetingInfo(MeetingInfoDefaultValue);
+        setRoomInfo(RoomInfoDefaultValue);
         history.push(phrase);
       })
 
-      .catch((error) => {
+      .catch(error => {
         const isInvalidUrl =
-          error?.message.toLowerCase().trim() === 'invalid url' || false;
+          error?.message.toLowerCase().trim() === 'invalid passphrase' || false;
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
-          text1: isInvalidUrl ? 'Meeting ID Invalid.' : 'Some Error Occured.',
+          text1: isInvalidUrl ? 'Room ID Invalid.' : 'Some Error Occured.',
           text2: isInvalidUrl
-            ? 'Please enter a valid Meeting ID'
+            ? 'Please enter a valid Room ID'
             : 'Please try again',
           visibilityTime: 3000,
           primaryBtn: null,
@@ -91,7 +92,7 @@ const Join = () => {
         });
       });
   };
-  const {JoinComponent} = useCustomization((data) => {
+  const {JoinComponent} = useCustomization(data => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};
@@ -136,21 +137,21 @@ const Join = () => {
             </View>
             <Spacer size={20} />
             <Text style={style.heading}>
-              {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
+              {isLiveStream ? 'Join a Stream' : 'Join a Room'}
             </Text>
             <Spacer size={40} />
             <Input
               labelStyle={style.labelStyle}
-              label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
+              label={isLiveStream ? 'Stream ID' : 'Room ID'}
               autoFocus
               value={phrase}
               helpText={
                 isLiveStream
-                  ? 'Enter the stream ID here for the meeting you’d like to join'
-                  : 'Enter the meeting ID here for the meeting you’d like to join'
+                  ? 'Enter the stream ID here for the room you’d like to join'
+                  : 'Enter the room ID here for the room you’d like to join'
               }
               placeholder={meetingIdInputPlaceholder}
-              onChangeText={(text) => setPhrase(text)}
+              onChangeText={text => setPhrase(text)}
               onSubmitEditing={() => startCall()}
             />
             <Spacer size={60} />

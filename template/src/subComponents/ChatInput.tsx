@@ -17,8 +17,11 @@ import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent, isWebInternal} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
-import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
-import {useRender, useUserName} from 'customization-api';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../components/chat-ui/useChatUIControls';
+import {useContent, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 
@@ -28,11 +31,11 @@ export interface ChatSendButtonProps {
 
 export const ChatSendButton = (props: ChatSendButtonProps) => {
   const {
-    selectedChatUserId: selectedUserId,
+    privateChatUser: selectedUserId,
     message,
     setMessage,
     inputActive,
-  } = useChatUIControl();
+  } = useChatUIControls();
   const {sendChatMessage} = useChatMessages();
   const onPress = () => {
     if (!selectedUserId) {
@@ -69,34 +72,30 @@ export interface ChatTextInputProps {
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
   let chatInputRef = useRef(null);
-  const {
-    selectedChatUserId: selectedUserId,
-    message,
-    setMessage,
-    inputActive,
-    privateActive,
-  } = useChatUIControl();
+  const {privateChatUser, message, setMessage, inputActive, chatType} =
+    useChatUIControls();
   const {sendChatMessage} = useChatMessages();
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
-  const chatMessageInputPlaceholder = privateActive
-    ? `Private Message to ${renderList[selectedUserId].name}`
-    : `Chat publicly as ${name}...`;
+  const chatMessageInputPlaceholder =
+    chatType === ChatType.Private
+      ? `Private Message to ${defaultContent[privateChatUser]?.name}`
+      : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
-    if (!selectedUserId) {
+    if (!privateChatUser) {
       sendChatMessage(message);
       setMessage('');
     } else {
-      sendChatMessage(message, selectedUserId);
+      sendChatMessage(message, privateChatUser);
       setMessage('');
     }
   };
-  const {setInputActive} = useChatUIControl();
+  const {setInputActive} = useChatUIControls();
 
   useEffect(() => {
     setTimeout(() => {
@@ -115,7 +114,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     )
   ) : (
     <TextInput
-      setRef={(ref) => (chatInputRef.current = ref)}
+      setRef={ref => (chatInputRef.current = ref)}
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}
@@ -148,69 +147,12 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 /**
  * Input component for the Chat interface
  */
-const ChatInput = (props: {
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
-}) => {
-  const {primaryColor} = useContext(ColorContext);
-  const {ChatInputComponent, ChatSendButtonComponent} = useCustomization(
-    (data) => {
-      let components: {
-        ChatInputComponent: React.ComponentType<ChatTextInputProps>;
-        ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
-      } = {
-        ChatInputComponent: ChatTextInput,
-        ChatSendButtonComponent: ChatSendButton,
-      };
-      if (
-        data?.components?.videoCall &&
-        typeof data?.components?.videoCall === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.chat &&
-          typeof data?.components?.videoCall?.chat === 'object'
-        ) {
-          if (
-            data?.components?.videoCall?.chat?.chatInput &&
-            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
-            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
-          ) {
-            components.ChatInputComponent =
-              data?.components?.videoCall?.chat?.chatInput;
-          }
-          if (
-            data?.components?.videoCall?.chat?.chatSendButton &&
-            typeof data?.components?.videoCall?.chat?.chatSendButton !==
-              'object' &&
-            isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatSendButton,
-            )
-          ) {
-            components.ChatSendButtonComponent =
-              data?.components?.videoCall?.chat?.chatSendButton;
-          }
-        }
-      } else {
-        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
-          components.ChatInputComponent = props.chatInput;
-        }
-        if (
-          props?.chatSendButton &&
-          isValidReactComponent(props.chatSendButton)
-        ) {
-          components.ChatSendButtonComponent = props.chatSendButton;
-        }
-      }
-      return components;
-    },
-  );
-
-  const {inputActive} = useChatUIControl();
-
+export const ChatInput = () => {
+  const {inputActive} = useChatUIControls();
   return (
     <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
-      <ChatInputComponent />
-      <ChatSendButtonComponent />
+      <ChatTextInput />
+      <ChatSendButton />
     </View>
   );
 };
