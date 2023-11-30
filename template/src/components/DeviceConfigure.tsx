@@ -29,6 +29,7 @@ import type RtcEngine from '../../bridge/rtc/webNg/';
 import ColorContext from './ColorContext';
 import {SdkApiContext} from './SdkApiContext';
 import SDKEvents from '../utils/SdkEvents';
+import {getOS} from '../utils/common';
 
 const log = (...args: any[]) => {
   console.log('[DeviceConfigure] ', ...args);
@@ -334,15 +335,16 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     // Notify updated state every 20s
-    let count = 0;
-    const interval = setInterval(() => {
-      count = count + 1;
-      //navigator.mediaDevices.enumerateDevices();
-      // refreshDeviceList(count % 10 !== 0);
-    }, 2000);
-    return () => {
-      clearInterval(interval);
-    };
+    if (getOS() !== 'macos') {
+      let count = 0;
+      const interval = setInterval(() => {
+        count = count + 1;
+        refreshDeviceList(count % 10 !== 0);
+      }, 2000);
+      return () => {
+        clearInterval(interval);
+      };
+    }
   }, []);
 
   useEffect(() => {
