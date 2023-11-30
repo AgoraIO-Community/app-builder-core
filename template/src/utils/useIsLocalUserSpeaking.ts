@@ -1,6 +1,10 @@
 import {useLocalUserInfo} from 'customization-api';
 import hark from 'hark';
 import {useEffect, useRef, useState} from 'react';
+import {useAsyncEffect} from './useAsyncEffect';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 const useIsLocalUserSpeaking = () => {
   const log: (arg1: string, ...args: any[]) => void = (arg1, ...args) => {
@@ -34,48 +38,48 @@ const useIsLocalUserSpeaking = () => {
     }
   };
 
-  const listenForSpeaker = () => {
+  useEffect(() => {
+    LocalEventEmitter.on(LocalEventsEnum.MIC_CHANGED, () => {
+      listenForSpeaker();
+    });
+  }, []);
+
+  const listenForSpeaker = async () => {
     try {
       if (speechRef.current) {
         speechRef.current?.stop && speechRef.current?.stop();
       }
+      if (audioTrackRef?.current) {
+        audioTrackRef.current?.length && audioTrackRef.current[0].stop();
+      }
     } catch (error) {
       log(' Error on stopping the hark', error);
     }
-
     try {
       //detect local user speaking or not
-      navigator.mediaDevices
-        .getUserMedia({
-          audio: true,
-        })
-        .then(audioStream => {
-          audioTrackRef.current = audioStream.getAudioTracks();
-          speechRef.current = null;
-          speechRef.current = hark(audioStream, {
-            interval: 100,
-          });
-          speechRef.current.on('speaking', speakingCallBack);
-          speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
-        });
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      audioTrackRef.current = audioStream.getAudioTracks();
+      speechRef.current = null;
+      speechRef.current = hark(audioStream, {
+        interval: 100,
+      });
+      speechRef.current.on('speaking', speakingCallBack);
+      speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
     } catch (error) {
       log(' Error on starting the hark', error);
     }
   };
 
-  useEffect(() => {
+  useAsyncEffect(async () => {
     if ($config.ACTIVE_SPEAKER) {
-      navigator.mediaDevices.ondevicechange = () => {
-        log(' ondevicechange called');
-        listenForSpeaker();
-      };
-      listenForSpeaker();
+      await listenForSpeaker();
       return () => {
         speechRef.current && speechRef.current.stop();
         audioTrackRef.current &&
           audioTrackRef.current?.length &&
           audioTrackRef.current[0].stop();
-        navigator.mediaDevices.ondevicechange = () => {};
       };
     }
   }, []);
