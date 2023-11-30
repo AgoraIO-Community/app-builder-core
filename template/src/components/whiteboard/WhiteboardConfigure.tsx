@@ -2,7 +2,7 @@ import {UidType, useContent, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
-import {isWeb} from '../../utils/common';
+import {isWeb, randomString} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -17,7 +17,10 @@ if (whiteboardPaper) {
 export const whiteboardContext = createContext(
   {} as whiteboardContextInterface,
 );
-
+export enum BoardColor {
+  Black,
+  White,
+}
 export interface whiteboardContextInterface {
   whiteboardUid: UidType;
   whiteboardActive: boolean;
@@ -25,6 +28,8 @@ export interface whiteboardContextInterface {
   joinWhiteboardRoom: () => void;
   leaveWhiteboardRoom: () => void;
   whiteboardRoom: React.Ref<Room>;
+  boardColor: BoardColor;
+  setBoardColor: React.Dispatch<React.SetStateAction<BoardColor>>;
 }
 
 export interface WhiteboardPropsInterface {
@@ -34,6 +39,7 @@ export interface WhiteboardPropsInterface {
 const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
   const [whiteboardActive, setWhiteboardActive] = useState(false);
+  const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState(
     RoomPhase.Disconnected,
@@ -61,16 +67,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
   } = useRoomInfo();
-
-  const randomString = (
-    length = 5,
-    chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  ) => {
-    var result = '';
-    for (var i = length; i > 0; --i)
-      result += chars[Math.floor(Math.random() * chars.length)];
-    return result;
-  };
 
   const fileUploadCallBack = images => {
     console.log('debugging images', images);
@@ -130,6 +126,11 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           whiteboardRoom.current = room;
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
+          if (isHost) {
+            whiteboardRoom.current?.setMemberState({
+              strokeColor: [0, 0, 0],
+            });
+          }
           setWhiteboardRoomState(RoomPhase.Connected);
         })
         .catch(err => {
@@ -196,6 +197,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         leaveWhiteboardRoom,
         whiteboardRoom,
         whiteboardUid: whiteboardUidRef.current,
+        boardColor,
+        setBoardColor,
       }}>
       {props.children}
     </whiteboardContext.Provider>

@@ -106,4 +106,24 @@ export interface IconsInterface {
   blur: string;
   add: string;
   'upload-new': string;
+  'zoom-in': string;
+  'zoom-out': string;
+  undo: string;
+  redo: string;
+  light: string;
+  dark: string;
+  line: string;
+  square: string;
+  circle: string;
+  arrow: string;
+  gradient: string;
+  'area-selection': string;
+  'clear-all': string;
+  erasor: string;
+  highlight: string;
+  move: string;
+  pen: string;
+  selector: string;
+  shapes: string;
+  text: string;
 }

@@ -260,6 +260,15 @@ const CustomToolbarSort = (a, b) =>
   (a.hasOwnProperty('order') ? a.order : 999999) -
   (b.hasOwnProperty('order') ? b.order : 999999);
 
+const randomString = (
+  length = 5,
+  chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+) => {
+  var result = '';
+  for (var i = length; i > 0; --i)
+    result += chars[Math.floor(Math.random() * chars.length)];
+  return result;
+};
 export {
   useIsDesktop,
   useIsSmall,
@@ -284,4 +293,5 @@ export {
   debounceFn,
   capitalizeFirstLetter,
   CustomToolbarSort,
+  randomString,
 };

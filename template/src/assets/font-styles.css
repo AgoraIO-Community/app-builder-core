@@ -24,6 +24,86 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-zoom-in:before {
+  content: '\e963';
+  color: #fff;
+}
+.icon-zoom-out:before {
+  content: '\e964';
+  color: #fff;
+}
+.icon-undo:before {
+  content: '\e965';
+  color: #fff;
+}
+.icon-redo:before {
+  content: '\e966';
+  color: #fff;
+}
+.icon-light:before {
+  content: '\e967';
+  color: #fff;
+}
+.icon-dark:before {
+  content: '\e968';
+  color: #fff;
+}
+.icon-line:before {
+  content: '\e969';
+  color: #fff;
+}
+.icon-square:before {
+  content: '\e96a';
+  color: #fff;
+}
+.icon-circle:before {
+  content: '\e96b';
+  color: #fff;
+}
+.icon-arrow:before {
+  content: '\e96c';
+  color: #fff;
+}
+.icon-gradient:before {
+  content: '\e96d';
+  color: #eac443;
+}
+.icon-area-selection:before {
+  content: '\e96e';
+  color: #fff;
+}
+.icon-clear-all:before {
+  content: '\e96f';
+  color: #fff;
+}
+.icon-erasor:before {
+  content: '\e970';
+  color: #fff;
+}
+.icon-highlight:before {
+  content: '\e971';
+  color: #fff;
+}
+.icon-move:before {
+  content: '\e972';
+  color: #fff;
+}
+.icon-pen:before {
+  content: '\e973';
+  color: #fff;
+}
+.icon-selector:before {
+  content: '\e974';
+  color: #fff;
+}
+.icon-shapes:before {
+  content: '\e975';
+  color: #fff;
+}
+.icon-text:before {
+  content: '\e976';
+  color: #fff;
+}
 .icon-celebration:before {
   content: '\e962';
   color: #ff414d;
