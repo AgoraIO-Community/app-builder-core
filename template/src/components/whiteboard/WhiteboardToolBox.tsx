@@ -93,7 +93,10 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
-
+  const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
+  const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
+  const [isColorBtnHovered, setColorBtnHovered] = useState(false);
+  const [isColorContainerHovered, setColorContainerHovered] = useState(false);
   const handleSelect = (applicanceName: ApplianceNames) => {
     setSelectedTool(applicanceName);
     whiteboardRoom.current?.setMemberState({
@@ -111,62 +114,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     });
   };
 
-  // const IMAGE_DATA = {
-  //   feat: 'WHITEBOARD',
-  //   etyp: 'RESPONSE',
-  //   sts: 1699251316959,
-  //   rqid: '',
-  //   data: {
-  //     data: {
-  //       prefix_url: '',
-  //       page_count: 3,
-  //       note: '',
-  //       images: {
-  //         '1': {
-  //           width: 200,
-  //           height: 200,
-  //           url: 'https://picsum.photos/id/1/200',
-  //         },
-  //         '2': {
-  //           width: 200,
-  //           height: 200,
-  //           url: 'https://picsum.photos/id/2/200',
-  //         },
-  //         '3': {
-  //           width: 200,
-  //           height: 200,
-  //           url: 'https://picsum.photos/id/3/200',
-  //         },
-  //       },
-  //     },
-  //     act: 'FILECONVERT_NOTIFY',
-  //     chname: '126c93eb-4a5d-4234-8eb8-f64b97624b5b',
-  //     pid: '503364e6f3afd40b3d8f',
-  //   },
-  // };
-
-  // const insertImageInWhiteboard = ({images}: any) => {
-  //   let prevImageWidth = 0;
-
-  //   for (const key in images) {
-  //     if (Object.prototype.hasOwnProperty.call(images, key)) {
-  //       const element = images[key];
-  //       console.log('debugging element', element, key);
-  //       whiteboardRoom.current?.insertImage({
-  //         centerX: 0 + prevImageWidth + 100,
-  //         centerY: 0,
-  //         height: element.height,
-  //         width: element.width,
-  //         uuid: key,
-  //         locked: false,
-  //       });
-  //       setTimeout(() => {
-  //         whiteboardRoom.current?.completeImageUpload(key, element.url);
-  //       }, 1000);
-  //       prevImageWidth = prevImageWidth + 100 + element.width;
-  //     }
-  //   }
-  // };
   /**
    * After file upload and conversation, we will get list of image via RTM message
    * @param data
@@ -361,89 +308,107 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   const renderShapesMenu = () => {
     return (
       <>
-        {showShapes ? (
-          <View style={style.toolboxShapesContainer}>
-            <View style={style.toolboxNew}>
-              <IconButton
-                onPress={() => {
-                  handleSelect(ApplianceNames.rectangle);
-                  setShowShapes(false);
-                }}
-                hoverEffect={true}
-                hoverEffectStyle={style.itemHoverStyle}
-                containerStyle={
-                  selectedTool === ApplianceNames.rectangle
-                    ? style.itemSelectedStyle
-                    : style.itemDefaultStyle
-                }
-                iconProps={{
-                  name: 'square',
-                  iconSize: 24,
-                  iconType: 'plain',
-                  tintColor: $config.FONT_COLOR,
-                }}
-              />
-              <IconButton
-                onPress={() => {
-                  handleSelect(ApplianceNames.ellipse);
-                  setShowShapes(false);
-                }}
-                hoverEffect={true}
-                hoverEffectStyle={style.itemHoverStyle}
-                containerStyle={
-                  selectedTool === ApplianceNames.ellipse
-                    ? style.itemSelectedStyle
-                    : style.itemDefaultStyle
-                }
-                iconProps={{
-                  name: 'circle',
-                  iconSize: 24,
-                  iconType: 'plain',
-                  tintColor: $config.FONT_COLOR,
-                }}
-              />
+        {isShapeBtnHovered || isShapeContainerHovered ? (
+          <div
+            onMouseEnter={() => {
+              setShapeContainerHovered(true);
+            }}
+            onMouseLeave={() => {
+              setTimeout(() => {
+                setShapeContainerHovered(false);
+              }, 250);
+            }}>
+            <View style={style.toolboxShapesContainer}>
+              <View style={style.toolboxNew}>
+                <IconButton
+                  onPress={() => {
+                    handleSelect(ApplianceNames.rectangle);
+                    setShowShapes(false);
+                    setShapeContainerHovered(false);
+                    setShapeBtnHovered(false);
+                  }}
+                  hoverEffect={true}
+                  hoverEffectStyle={style.itemHoverStyle}
+                  containerStyle={
+                    selectedTool === ApplianceNames.rectangle
+                      ? style.itemSelectedStyle
+                      : style.itemDefaultStyle
+                  }
+                  iconProps={{
+                    name: 'square',
+                    iconSize: 24,
+                    iconType: 'plain',
+                    tintColor: $config.FONT_COLOR,
+                  }}
+                />
+                <IconButton
+                  onPress={() => {
+                    handleSelect(ApplianceNames.ellipse);
+                    setShowShapes(false);
+                    setShapeContainerHovered(false);
+                    setShapeBtnHovered(false);
+                  }}
+                  hoverEffect={true}
+                  hoverEffectStyle={style.itemHoverStyle}
+                  containerStyle={
+                    selectedTool === ApplianceNames.ellipse
+                      ? style.itemSelectedStyle
+                      : style.itemDefaultStyle
+                  }
+                  iconProps={{
+                    name: 'circle',
+                    iconSize: 24,
+                    iconType: 'plain',
+                    tintColor: $config.FONT_COLOR,
+                  }}
+                />
 
-              <IconButton
-                onPress={() => {
-                  handleSelect(ApplianceNames.straight);
-                  setShowShapes(false);
-                }}
-                hoverEffect={true}
-                hoverEffectStyle={style.itemHoverStyle}
-                containerStyle={
-                  selectedTool === ApplianceNames.straight
-                    ? style.itemSelectedStyle
-                    : style.itemDefaultStyle
-                }
-                iconProps={{
-                  name: 'line',
-                  iconSize: 24,
-                  iconType: 'plain',
-                  tintColor: $config.FONT_COLOR,
-                }}
-              />
+                <IconButton
+                  onPress={() => {
+                    handleSelect(ApplianceNames.straight);
+                    setShowShapes(false);
+                    setShapeContainerHovered(false);
+                    setShapeBtnHovered(false);
+                  }}
+                  hoverEffect={true}
+                  hoverEffectStyle={style.itemHoverStyle}
+                  containerStyle={
+                    selectedTool === ApplianceNames.straight
+                      ? style.itemSelectedStyle
+                      : style.itemDefaultStyle
+                  }
+                  iconProps={{
+                    name: 'line',
+                    iconSize: 24,
+                    iconType: 'plain',
+                    tintColor: $config.FONT_COLOR,
+                  }}
+                />
 
-              <IconButton
-                onPress={() => {
-                  handleSelect(ApplianceNames.arrow);
-                  setShowShapes(false);
-                }}
-                hoverEffect={true}
-                hoverEffectStyle={style.itemHoverStyle}
-                containerStyle={
-                  selectedTool === ApplianceNames.arrow
-                    ? style.itemSelectedStyle
-                    : style.itemDefaultStyle
-                }
-                iconProps={{
-                  name: 'arrow',
-                  iconSize: 24,
-                  iconType: 'plain',
-                  tintColor: $config.FONT_COLOR,
-                }}
-              />
+                <IconButton
+                  onPress={() => {
+                    handleSelect(ApplianceNames.arrow);
+                    setShowShapes(false);
+                    setShapeContainerHovered(false);
+                    setShapeBtnHovered(false);
+                  }}
+                  hoverEffect={true}
+                  hoverEffectStyle={style.itemHoverStyle}
+                  containerStyle={
+                    selectedTool === ApplianceNames.arrow
+                      ? style.itemSelectedStyle
+                      : style.itemDefaultStyle
+                  }
+                  iconProps={{
+                    name: 'arrow',
+                    iconSize: 24,
+                    iconType: 'plain',
+                    tintColor: $config.FONT_COLOR,
+                  }}
+                />
+              </View>
             </View>
-          </View>
+          </div>
         ) : (
           <></>
         )}
@@ -452,43 +417,58 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   };
 
   const renderColorMenu = () => {
-    if (!showColorPicker) {
-      return null;
-    }
+    // if (!showColorPicker) {
+    //   return null;
+    // }
 
-    const renderItems = [];
-    for (const key in ColorPickerValues) {
-      if (Object.prototype.hasOwnProperty.call(ColorPickerValues, key)) {
-        const element = ColorPickerValues[key];
-        renderItems.push(
-          <IconButton
-            onPress={() => {
-              setCursorColor(element.rgb);
-              setSelectedColor(key);
-              setShowColorPicker(false);
-            }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={
-              selectedColor === key
-                ? style.itemSelectedStyle
-                : style.itemDefaultStyle
-            }
-            iconProps={{
-              name: 'gradient',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: element.hex,
-            }}
-          />,
-        );
+    if (isColorBtnHovered || isColorContainerHovered) {
+      const renderItems = [];
+      for (const key in ColorPickerValues) {
+        if (Object.prototype.hasOwnProperty.call(ColorPickerValues, key)) {
+          const element = ColorPickerValues[key];
+          renderItems.push(
+            <IconButton
+              onPress={() => {
+                setCursorColor(element.rgb);
+                setSelectedColor(key);
+                setShowColorPicker(false);
+                setColorBtnHovered(false);
+                setColorContainerHovered(false);
+              }}
+              hoverEffect={true}
+              hoverEffectStyle={style.itemHoverStyle}
+              containerStyle={
+                selectedColor === key
+                  ? style.itemSelectedStyle
+                  : style.itemDefaultStyle
+              }
+              iconProps={{
+                name: 'gradient',
+                iconSize: 24,
+                iconType: 'plain',
+                tintColor: element.hex,
+              }}
+            />,
+          );
+        }
       }
+      return (
+        <div
+          onMouseEnter={() => {
+            setColorContainerHovered(true);
+          }}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setColorContainerHovered(false);
+            }, 250);
+          }}>
+          <View style={style.toolboxColorsContainer}>
+            <View style={style.toolboxNew}>{renderItems}</View>
+          </View>
+        </div>
+      );
     }
-    return (
-      <View style={style.toolboxColorsContainer}>
-        <View style={style.toolboxNew}>{renderItems}</View>
-      </View>
-    );
+    return null;
   };
 
   return (
@@ -584,51 +564,71 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
-          <IconButton
-            toolTipMessage={showShapes ? '' : 'Shapes'}
-            placement={'right'}
-            showTooltipArrow={false}
-            onPress={() => {
-              //open submenu
-              setShowColorPicker(false);
-              setShowShapes(!showShapes);
+          <div
+            onMouseEnter={() => {
+              setShapeBtnHovered(true);
             }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={
-              selectedTool === ApplianceNames.rectangle ||
-              selectedTool === ApplianceNames.arrow ||
-              selectedTool === ApplianceNames.ellipse ||
-              selectedTool === ApplianceNames.straight
-                ? style.itemSelectedStyle
-                : style.itemDefaultStyle
-            }
-            iconProps={{
-              name: 'shapes',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: $config.FONT_COLOR,
+            onMouseLeave={() => {
+              setTimeout(() => {
+                setShapeBtnHovered(false);
+              }, 250);
+            }}>
+            <IconButton
+              //toolTipMessage={showShapes ? '' : 'Shapes'}
+              placement={'right'}
+              showTooltipArrow={false}
+              onPress={() => {
+                // //open submenu
+                // setShowColorPicker(false);
+                // setShowShapes(!showShapes);
+              }}
+              hoverEffect={true}
+              hoverEffectStyle={style.itemHoverStyle}
+              containerStyle={
+                selectedTool === ApplianceNames.rectangle ||
+                selectedTool === ApplianceNames.arrow ||
+                selectedTool === ApplianceNames.ellipse ||
+                selectedTool === ApplianceNames.straight
+                  ? style.itemSelectedStyle
+                  : style.itemDefaultStyle
+              }
+              iconProps={{
+                name: 'shapes',
+                iconSize: 24,
+                iconType: 'plain',
+                tintColor: $config.FONT_COLOR,
+              }}
+            />
+          </div>
+          <div
+            onMouseEnter={() => {
+              setColorBtnHovered(true);
             }}
-          />
-          <IconButton
-            toolTipMessage={showColorPicker ? '' : 'Colors'}
-            placement={'right'}
-            showTooltipArrow={false}
-            onPress={() => {
-              //opensubmenu
-              setShowShapes(false);
-              setShowColorPicker(!showColorPicker);
-            }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={style.itemDefaultStyle}
-            iconProps={{
-              name: 'gradient',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: '#EAC443',
-            }}
-          />
+            onMouseLeave={() => {
+              setTimeout(() => {
+                setColorBtnHovered(false);
+              }, 250);
+            }}>
+            <IconButton
+              //toolTipMessage={showColorPicker ? '' : 'Colors'}
+              placement={'right'}
+              showTooltipArrow={false}
+              onPress={() => {
+                //opensubmenu
+                // setShowShapes(false);
+                // setShowColorPicker(!showColorPicker);
+              }}
+              hoverEffect={true}
+              hoverEffectStyle={style.itemHoverStyle}
+              containerStyle={style.itemDefaultStyle}
+              iconProps={{
+                name: 'gradient',
+                iconSize: 24,
+                iconType: 'plain',
+                tintColor: '#EAC443',
+              }}
+            />
+          </div>
           <IconButton
             toolTipMessage="Move"
             placement={'right'}
