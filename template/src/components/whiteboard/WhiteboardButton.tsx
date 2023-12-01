@@ -9,6 +9,7 @@ import {
 import {whiteboardContext} from './WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
 import IconButton from '../../atoms/IconButton';
+import {EventNames} from '../../rtm-events';
 
 const WhiteboardButton = () => {
   const {
@@ -33,13 +34,6 @@ const WhiteboardButton = () => {
 
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-    customEvents.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    customEvents.on('WhiteBoardStarted', WhiteboardStartedCallBack);
-
-    return () => {
-      customEvents.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
-      customEvents.off('WhiteBoardStarted', WhiteboardStartedCallBack);
-    };
   }, []);
 
   const toggleWhiteboard = (
@@ -51,8 +45,8 @@ const WhiteboardButton = () => {
       setLayout('grid');
       triggerEvent &&
         customEvents.send(
-          'WhiteBoardStopped',
-          JSON.stringify({}),
+          EventNames.WHITEBOARD_ACTIVE,
+          JSON.stringify({status: false}),
           PersistanceLevel.Session,
         );
     } else {
@@ -60,8 +54,8 @@ const WhiteboardButton = () => {
       setLayout('pinned');
       triggerEvent &&
         customEvents.send(
-          'WhiteBoardStarted',
-          JSON.stringify({}),
+          EventNames.WHITEBOARD_ACTIVE,
+          JSON.stringify({status: true}),
           PersistanceLevel.Session,
         );
     }

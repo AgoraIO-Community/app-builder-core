@@ -18,8 +18,8 @@ export const whiteboardContext = createContext(
   {} as whiteboardContextInterface,
 );
 export enum BoardColor {
-  Black,
-  White,
+  Black = 1,
+  White = 2,
 }
 export interface whiteboardContextInterface {
   whiteboardUid: UidType;
@@ -66,7 +66,30 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
+    boardColor: boardColorRemote,
   } = useRoomInfo();
+
+  const BoardColorChangedCallBack = ({boardColor}) => {
+    setBoardColor(boardColor);
+  };
+  React.useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+      BoardColorChangedCallBack({boardColor: boardColorRemote});
+    }
+  }, [boardColorRemote, isHost]);
+
+  React.useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
+      BoardColorChangedCallBack,
+    );
+    return () => {
+      LocalEventEmitter.on(
+        LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
+        BoardColorChangedCallBack,
+      );
+    };
+  }, []);
 
   const fileUploadCallBack = images => {
     console.log('debugging images', images);

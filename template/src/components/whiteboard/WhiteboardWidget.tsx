@@ -16,6 +16,8 @@ import {Room, RoomState} from 'white-web-sdk';
 import {IconButton} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
+import events, {PersistanceLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
   const {setBoardColor, boardColor} = useContext(whiteboardContext);
@@ -33,10 +35,15 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                 placement={'bottom'}
                 showTooltipArrow={false}
                 onPress={() => {
-                  setBoardColor(
+                  const color =
                     boardColor === BoardColor.Black
                       ? BoardColor.White
-                      : BoardColor.Black,
+                      : BoardColor.Black;
+                  setBoardColor(color);
+                  events.send(
+                    EventNames.BOARD_COLOR_CHANGED,
+                    JSON.stringify({boardColor: color}),
+                    PersistanceLevel.Session,
                   );
                 }}
                 hoverEffect={true}
