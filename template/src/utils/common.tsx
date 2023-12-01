@@ -269,6 +269,12 @@ const randomString = (
     result += chars[Math.floor(Math.random() * chars.length)];
   return result;
 };
+
+function randomIntFromInterval(min, max) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -294,4 +300,5 @@ export {
   capitalizeFirstLetter,
   CustomToolbarSort,
   randomString,
+  randomIntFromInterval,
 };

@@ -2,17 +2,62 @@ import {UidType, useContent, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
-import {isWeb, randomString} from '../../utils/common';
+import {isWeb, randomIntFromInterval, randomString} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {CursorTool} from './WhiteboardCursor';
+import useUserName from '../../utils/useUserName';
 
 export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
 if (whiteboardPaper) {
   whiteboardPaper.className = 'whiteboardPaper';
   whiteboardPaper.setAttribute('style', 'height:100%');
 }
+
+export const CursorColor = [
+  {
+    cursorColor: '#EAC443',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#EB42B9',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#FF5733',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#C70039',
+    textColor: '#FFFFFF',
+  },
+  {
+    cursorColor: '#196F3D',
+    textColor: '#FFFFFF',
+  },
+  {
+    cursorColor: '#2E86C1',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#A569BD',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#AED6F1',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#581845',
+    textColor: '#FFFFFF',
+  },
+  {
+    cursorColor: '#1B4F72',
+    textColor: '#FFFFFF',
+  },
+];
 
 export const whiteboardContext = createContext(
   {} as whiteboardContextInterface,
@@ -64,6 +109,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     }
   }, [pinnedUid, whiteboardRoomState]);
 
+  const [name] = useUserName();
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
     boardColor: boardColorRemote,
@@ -136,17 +182,26 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
     const InitState = whiteboardRoomState;
     try {
+      const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
+      const cursorAdapter = new CursorTool();
       whiteWebSdkClient.current
         .joinRoom({
+          cursorAdapter: cursorAdapter,
           uid: `${whiteboardUidRef.current}`,
           uuid: room_uuid,
           roomToken: room_token,
           floatBar: true,
           isWritable: isHost,
+          userPayload: {
+            cursorName: name,
+            cursorColor: CursorColor[index].cursorColor,
+            textColor: CursorColor[index].textColor,
+          },
         })
         .then(room => {
           whiteboardRoom.current = room;
+          cursorAdapter.setRoom(room);
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
           if (isHost) {
