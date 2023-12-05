@@ -16,6 +16,9 @@ if (whiteboardPaper) {
   whiteboardPaper.setAttribute('style', 'height:100%');
 }
 
+const dummyHeight = 409;
+const dummyWidth = 317;
+
 export const CursorColor = [
   {
     cursorColor: '#EAC443',
@@ -76,6 +79,7 @@ export interface whiteboardContextInterface {
   boardColor: BoardColor;
   setBoardColor: React.Dispatch<React.SetStateAction<BoardColor>>;
   setUploadRef: () => void;
+  insertImageIntoWhiteboard: (url: string) => void;
 }
 
 export interface WhiteboardPropsInterface {
@@ -143,33 +147,41 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   const fileUploadCallBack = images => {
     if (uploadPendingRef.current) {
-      console.log('debugging images', images);
       let prevImageWidth = 0;
-      let prevImageHeight = 0;
+      let prevImageHeight = prevImageUploadHeightRef.current;
       let count = 0;
+      let focus = {
+        x: 0,
+        y: 0,
+      };
       for (const key in images) {
         if (Object.prototype.hasOwnProperty.call(images, key)) {
           const element = images[key];
-          console.log('debugging element', element, key);
           const uuid = key + ' ' + randomString();
+          const x = 0 + prevImageWidth + 50;
+          const y = 0 + prevImageUploadHeightRef?.current + 50;
           whiteboardRoom.current?.insertImage({
-            centerX: 0 + prevImageWidth + 50,
-            centerY: 0 + prevImageUploadHeightRef?.current + 50,
-            height: element.height,
-            width: element.width,
+            centerX: x,
+            centerY: y,
+            height: dummyHeight,
+            width: dummyWidth,
             uuid: uuid,
             locked: false,
           });
+          if (count === 0) {
+            focus.x = x;
+            focus.y = y;
+          }
           setTimeout(() => {
             whiteboardRoom.current?.completeImageUpload(uuid, element.url);
           }, 1000);
-          prevImageWidth = prevImageWidth + 50 + element.width;
+          prevImageWidth = prevImageWidth + 50 + dummyWidth;
           if ((count + 1) % 4 === 0) {
             prevImageUploadHeightRef.current =
-              prevImageUploadHeightRef.current + 50 + element.height;
+              prevImageUploadHeightRef.current + 50 + dummyHeight;
             prevImageWidth = 0;
           } else {
-            prevImageHeight = element.height;
+            prevImageHeight = dummyHeight;
           }
           count = count + 1;
         }
@@ -181,11 +193,42 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           prevImageUploadHeightRef.current + 50 + prevImageHeight;
       }
       uploadPendingRef.current = false;
+
+      //focus the uploaded doc/image
+      whiteboardRoom.current?.moveCamera({
+        centerX: focus.x,
+        centerY: focus.y,
+      });
     }
   };
 
   const setUploadRef = () => {
     uploadPendingRef.current = true;
+  };
+
+  const insertImageIntoWhiteboard = url => {
+    if (!url) {
+      return;
+    }
+    const uuid = randomString();
+    const y = 0 + prevImageUploadHeightRef?.current + 50;
+    whiteboardRoom.current?.insertImage({
+      centerX: 0,
+      centerY: y,
+      height: 300,
+      width: 300,
+      uuid: uuid,
+      locked: false,
+    });
+    setTimeout(() => {
+      whiteboardRoom.current?.completeImageUpload(uuid, url);
+    }, 1000);
+    whiteboardRoom.current?.moveCamera({
+      centerX: 0,
+      centerY: y,
+    });
+    prevImageUploadHeightRef.current =
+      prevImageUploadHeightRef.current + 50 + 300 + 100;
   };
 
   useEffect(() => {
@@ -304,6 +347,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         boardColor,
         setBoardColor,
         setUploadRef,
+        insertImageIntoWhiteboard,
       }}>
       {props.children}
     </whiteboardContext.Provider>

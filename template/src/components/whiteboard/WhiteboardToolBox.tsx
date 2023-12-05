@@ -184,7 +184,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
-  const {setUploadRef} = useContext(whiteboardContext);
+  const {setUploadRef, insertImageIntoWhiteboard} =
+    useContext(whiteboardContext);
   const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
   const [isColorBtnHovered, setColorBtnHovered] = useState(false);
@@ -267,24 +268,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         visibilityTime: 10000,
       });
     }
-  };
-
-  const insertImageIntoWhiteboard = url => {
-    if (!url) {
-      return;
-    }
-    const uuid = randomString();
-    whiteboardRoom.current?.insertImage({
-      centerX: 0,
-      centerY: 0,
-      height: 300,
-      width: 300,
-      uuid: uuid,
-      locked: false,
-    });
-    setTimeout(() => {
-      whiteboardRoom.current?.completeImageUpload(uuid, url);
-    }, 1000);
   };
 
   /**
@@ -567,6 +550,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   };
 
   const testImageUpload = () => {
+    setUploadRef();
     LocalEventEmitter.emit(
       LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
       TEST_IMAGE_DATA,
