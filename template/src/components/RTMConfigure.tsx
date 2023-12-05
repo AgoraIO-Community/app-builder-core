@@ -387,15 +387,18 @@ const RtmConfigure = (props: any) => {
       console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
 
       const {uid, channelId, text, ts} = evt;
-
-      console.log('debugging check uid', uid);
       //whiteboard upload
       if (uid == 1010101) {
-        console.log('debugginging evt', evt);
-        if (evt?.data?.data?.images) {
+        const [err, res] = safeJsonParse(text);
+        if (err) {
+          console.log(
+            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          );
+        }
+        if (res?.data?.data?.images) {
           LocalEventEmitter.emit(
-            LocalEventsEnum.WHITEBAORD_FILE_UPLOAD,
-            evt?.data?.data?.images,
+            LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+            res?.data?.data?.images,
           );
         }
       } else {

@@ -75,6 +75,7 @@ export interface whiteboardContextInterface {
   whiteboardRoom: React.Ref<Room>;
   boardColor: BoardColor;
   setBoardColor: React.Dispatch<React.SetStateAction<BoardColor>>;
+  setUploadRef: () => void;
 }
 
 export interface WhiteboardPropsInterface {
@@ -93,6 +94,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
   const {pinnedUid} = useContent();
+  const prevImageUploadHeightRef = useRef(0);
+  const cursorAdapter = new CursorTool();
+  const uploadPendingRef = useRef(false);
 
   useEffect(() => {
     if (
@@ -138,37 +142,60 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   }, []);
 
   const fileUploadCallBack = images => {
-    console.log('debugging images', images);
-    let prevImageWidth = 0;
-    for (const key in images) {
-      if (Object.prototype.hasOwnProperty.call(images, key)) {
-        const element = images[key];
-        console.log('debugging element', element, key);
-        const uuid = key + ' ' + randomString();
-        whiteboardRoom.current?.insertImage({
-          centerX: 0 + prevImageWidth + 100,
-          centerY: 0,
-          height: element.height,
-          width: element.width,
-          uuid: uuid,
-          locked: false,
-        });
-        setTimeout(() => {
-          whiteboardRoom.current?.completeImageUpload(uuid, element.url);
-        }, 1000);
-        prevImageWidth = prevImageWidth + 100 + element.width;
+    if (uploadPendingRef.current) {
+      console.log('debugging images', images);
+      let prevImageWidth = 0;
+      let prevImageHeight = 0;
+      let count = 0;
+      for (const key in images) {
+        if (Object.prototype.hasOwnProperty.call(images, key)) {
+          const element = images[key];
+          console.log('debugging element', element, key);
+          const uuid = key + ' ' + randomString();
+          whiteboardRoom.current?.insertImage({
+            centerX: 0 + prevImageWidth + 50,
+            centerY: 0 + prevImageUploadHeightRef?.current + 50,
+            height: element.height,
+            width: element.width,
+            uuid: uuid,
+            locked: false,
+          });
+          setTimeout(() => {
+            whiteboardRoom.current?.completeImageUpload(uuid, element.url);
+          }, 1000);
+          prevImageWidth = prevImageWidth + 50 + element.width;
+          if ((count + 1) % 4 === 0) {
+            prevImageUploadHeightRef.current =
+              prevImageUploadHeightRef.current + 50 + element.height;
+            prevImageWidth = 0;
+          } else {
+            prevImageHeight = element.height;
+          }
+          count = count + 1;
+        }
       }
+
+      //for next image upload
+      if ((count + 1) % 4 !== 0) {
+        prevImageUploadHeightRef.current =
+          prevImageUploadHeightRef.current + 50 + prevImageHeight;
+      }
+      uploadPendingRef.current = false;
     }
+  };
+
+  const setUploadRef = () => {
+    uploadPendingRef.current = true;
   };
 
   useEffect(() => {
     LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBAORD_FILE_UPLOAD,
+      LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
       fileUploadCallBack,
     );
     return () => {
       LocalEventEmitter.off(
-        LocalEventsEnum.WHITEBAORD_FILE_UPLOAD,
+        LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
         fileUploadCallBack,
       );
     };
@@ -184,7 +211,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     try {
       const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
-      const cursorAdapter = new CursorTool();
       whiteWebSdkClient.current
         .joinRoom({
           cursorAdapter: cursorAdapter,
@@ -277,6 +303,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         whiteboardUid: whiteboardUidRef.current,
         boardColor,
         setBoardColor,
+        setUploadRef,
       }}>
       {props.children}
     </whiteboardContext.Provider>

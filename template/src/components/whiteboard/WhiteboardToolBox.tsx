@@ -17,7 +17,10 @@ import {ApplianceNames} from 'white-web-sdk';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import Toast from '../../../react-native-toast-message';
-import {IconButton} from 'customization-api';
+import {IconButton, whiteboardContext} from 'customization-api';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 const supportedDocTypes = [
   'application/msword',
@@ -83,6 +86,94 @@ const ColorPickerValues: ColorPickerValues = {
     rgb: [132, 59, 238],
   },
 };
+//test image upload
+const TEST_IMAGE_DATA = {
+  '1': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/1/200/300',
+  },
+  '2': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/2/200/300',
+  },
+  '3': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/3/200/300',
+  },
+  '4': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/4/200/300',
+  },
+  '5': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/5/200/300',
+  },
+  '6': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/6/200/300',
+  },
+  '7': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/7/200/300',
+  },
+  '8': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/8/200/300',
+  },
+  '9': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/9/200/300',
+  },
+  '10': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/10/200/300',
+  },
+  '11': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/11/200/300',
+  },
+  '12': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/12/200/300',
+  },
+  '13': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/13/200/300',
+  },
+  '14': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/14/200/300',
+  },
+  '15': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/15/200/300',
+  },
+  '16': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/16/200/300',
+  },
+  '17': {
+    width: 200,
+    height: 300,
+    url: 'https://picsum.photos/seed/17/200/300',
+  },
+};
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
@@ -93,6 +184,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
+  const {setUploadRef} = useContext(whiteboardContext);
   const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
   const [isColorBtnHovered, setColorBtnHovered] = useState(false);
@@ -147,6 +239,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           })
             .then(res2 => {
               console.log('debugging file convert success', res2);
+              //updating upload flag as true
+              //once we got RTM message we will proceed to insert image into whiteboard
+              setUploadRef();
             })
             .catch(err2 => {
               console.log('debugging file convert failed', err2);
@@ -471,6 +566,13 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     return null;
   };
 
+  const testImageUpload = () => {
+    LocalEventEmitter.emit(
+      LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+      TEST_IMAGE_DATA,
+    );
+  };
+
   return (
     <>
       {renderShapesMenu()}
@@ -739,6 +841,23 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           ) : (
             <></>
           )}
+          <IconButton
+            onPress={() => {
+              testImageUpload();
+            }}
+            toolTipMessage="Test upload"
+            placement={'right'}
+            showTooltipArrow={false}
+            hoverEffect={true}
+            hoverEffectStyle={style.itemHoverStyle}
+            containerStyle={style.itemDefaultStyle}
+            iconProps={{
+              name: 'upload-new',
+              iconSize: 24,
+              iconType: 'plain',
+              tintColor: $config.FONT_COLOR,
+            }}
+          />
         </View>
       </View>
     </>
