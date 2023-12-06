@@ -297,6 +297,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
       whiteboardRoom.current
         ?.disconnect()
         .then(() => {
+          whiteboardUidRef.current = Date.now();
           whiteboardRoom.current?.bindHtmlElement(null);
           setWhiteboardRoomState(RoomPhase.Disconnected);
         })
@@ -329,7 +330,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     } else if (whiteboardActive) {
       join();
     } else {
-      if (whiteboardRoom.current && whiteboardActive) {
+      if (whiteboardRoom.current) {
         leave();
       }
     }
