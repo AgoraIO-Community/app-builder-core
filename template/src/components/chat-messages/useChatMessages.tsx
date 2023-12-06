@@ -328,6 +328,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           $config.ENABLE_WAITING_ROOM &&
           !isHostRef.current.isHost &&
           !callActiveRef.current.callActive;
+        if (forceStop) {
+          return;
+        }
         const payload = JSON.parse(data.payload);
         const messageAction = payload.action;
         const messageData = payload.value;
