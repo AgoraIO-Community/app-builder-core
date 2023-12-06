@@ -328,6 +328,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           $config.ENABLE_WAITING_ROOM &&
           !isHostRef.current.isHost &&
           !callActiveRef.current.callActive;
+        //if call is not active don't store the message in the state
         if (forceStop) {
           return;
         }
