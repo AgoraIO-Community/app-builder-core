@@ -116,7 +116,14 @@ const PreCallLocalMute = (props: PreCallProps) => {
   }, [videoDevices]);
   return (
     <View
-      style={[style.precallControls, isMobileView && {paddingVertical: 10}]}
+      style={[
+        style.precallControls,
+        isMobileView && {
+          paddingVertical: 10,
+          borderBottomLeftRadius: 8,
+          borderBottomRightRadius: 8,
+        },
+      ]}
       testID="precall-controls">
       <AudioMute showToolTip={true} />
 

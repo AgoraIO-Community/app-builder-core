@@ -375,14 +375,13 @@ const Precall = (props: any) => {
                     {isWebInternal() ? <PreCallSettings /> : <></>}
                   </View>
                   <View style={style.preview}>
-                    <View style={{flex: 1, borderRadius: 8}}>
-                      <VideoPreview />
-                    </View>
                     <View
                       style={{
-                        borderBottomLeftRadius: 8,
-                        borderBottomRightRadius: 8,
+                        flex: 1,
                       }}>
+                      <VideoPreview />
+                    </View>
+                    <View>
                       <PreCallLocalMute
                         isMobileView={true}
                         isSettingsOpen={isSettingsOpen}
