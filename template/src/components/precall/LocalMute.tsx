@@ -24,8 +24,7 @@ import LocalVideoMute, {
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import PreCallSettings from './PreCallSettings';
+
 import Spacer from '../../atoms/Spacer';
 import {usePreCall} from './usePreCall';
 import DeviceContext from '../DeviceContext';
@@ -129,32 +128,20 @@ const PreCallLocalMute = (props: PreCallProps) => {
       )}
 
       {/* Settings View in Mobile */}
-      {isMobileView && !isNative && (
+      {/* {isMobileView && !isNative && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
           <PreCallSettings />
         </>
-      )}
-      {/* {$config.ENABLE_VIRTUAL_BACKGROUND &&
-        !isMobileUA() &&
-        !$config.AUDIO_ROOM && (
+      )} */}
+      {$config.ENABLE_VIRTUAL_BACKGROUND &&
+        !$config.AUDIO_ROOM &&
+        isMobileView && (
           <>
-            <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
+            <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
             <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
           </>
         )}
-      {$config.ENABLE_VIRTUAL_BACKGROUND &&
-        !$config.AUDIO_ROOM &&
-        !isMobileView &&
-        !isNative && (
-          <>
-            <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
-            <SettingsButton
-              isSettingsOpen={isSettingsOpen}
-              setIsSettingsOpen={setIsSettingsOpen}
-            />
-          </>
-        )} */}
     </View>
   );
 };

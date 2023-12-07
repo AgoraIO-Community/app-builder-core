@@ -4,7 +4,7 @@ import {ToolbarItem} from 'customization-api';
 import IconButton from '../../atoms/IconButton';
 
 const VBButton = props => {
-  const {isVBOpen, setIsVBOpen} = props;
+  const {isVBOpen, setIsVBOpen, showLabel = false} = props;
   return (
     <ToolbarItem>
       <IconButton
@@ -19,7 +19,7 @@ const VBButton = props => {
         }}
         btnTextProps={{
           textColor: $config.FONT_COLOR,
-          text: isVBOpen ? 'VB On' : 'VB Off',
+          text: showLabel ? (isVBOpen ? 'VB On' : 'VB Off') : '',
         }}
         onPress={() => {
           setIsVBOpen(prev => !prev);
