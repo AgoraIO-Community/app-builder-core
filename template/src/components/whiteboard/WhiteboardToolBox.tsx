@@ -12,15 +12,16 @@
 
 import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
-import {isMobileUA, isWeb, randomString} from '../../utils/common';
+import {hexToRgb, isMobileUA, isWeb, randomString} from '../../utils/common';
 import {ApplianceNames} from 'white-web-sdk';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import Toast from '../../../react-native-toast-message';
-import {IconButton, whiteboardContext} from 'customization-api';
+import {IconButton, whiteboardContext, useContent} from 'customization-api';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {BoardColor} from './WhiteboardConfigure';
 
 const supportedDocTypes = [
   'application/msword',
@@ -184,18 +185,31 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
-  const {setUploadRef, insertImageIntoWhiteboard} =
+  const {setUploadRef, insertImageIntoWhiteboard, boardColor, whiteboardUid} =
     useContext(whiteboardContext);
   const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
   const [isColorBtnHovered, setColorBtnHovered] = useState(false);
   const [isColorContainerHovered, setColorContainerHovered] = useState(false);
   const handleSelect = (applicanceName: ApplianceNames) => {
+    if (applicanceName !== ApplianceNames.selector) {
+      setCursorColor(ColorPickerValues[selectedColor].rgb);
+    }
     setSelectedTool(applicanceName);
     whiteboardRoom.current?.setMemberState({
       currentApplianceName: applicanceName,
     });
   };
+
+  useEffect(() => {
+    if (boardColor === BoardColor.Black) {
+      setCursorColor(ColorPickerValues['white'].rgb);
+      setSelectedColor('white');
+    } else {
+      setCursorColor(ColorPickerValues['black'].rgb);
+      setSelectedColor('black');
+    }
+  }, [boardColor]);
 
   const handleClear = () => {
     whiteboardRoom.current?.cleanCurrentScene();
@@ -557,6 +571,12 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     );
   };
 
+  const {activeUids} = useContent();
+
+  if (activeUids && activeUids[0] !== whiteboardUid) {
+    return null;
+  }
+
   return (
     <>
       {renderShapesMenu()}
@@ -571,7 +591,11 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
-              handleSelect(ApplianceNames.clicker);
+              const arr = hexToRgb($config.PRIMARY_ACTION_BRAND_COLOR);
+              if (arr && arr?.length) {
+                setCursorColor(arr);
+              }
+              handleSelect(ApplianceNames.selector);
             }}
             hoverEffect={true}
             hoverEffectStyle={style.itemHoverStyle}
@@ -582,27 +606,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }
             iconProps={{
               name: 'selector',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: $config.FONT_COLOR,
-            }}
-          />
-          <IconButton
-            toolTipMessage="Selection Area"
-            placement={'right'}
-            showTooltipArrow={false}
-            onPress={() => {
-              handleSelect(ApplianceNames.selector);
-            }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={
-              selectedTool === ApplianceNames.selector
-                ? style.itemSelectedStyle
-                : style.itemDefaultStyle
-            }
-            iconProps={{
-              name: 'area-selection',
               iconSize: 24,
               iconType: 'plain',
               tintColor: $config.FONT_COLOR,
@@ -711,7 +714,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 name: 'gradient',
                 iconSize: 24,
                 iconType: 'plain',
-                tintColor: '#EAC443',
+                tintColor: ColorPickerValues[selectedColor]?.hex,
               }}
             />
           </div>

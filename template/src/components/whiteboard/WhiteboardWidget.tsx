@@ -13,14 +13,21 @@
 import React, {useContext, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Room, RoomState} from 'white-web-sdk';
-import {IconButton} from 'customization-api';
+import {IconButton, useContent} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
-  const {setBoardColor, boardColor} = useContext(whiteboardContext);
+  const {setBoardColor, boardColor, whiteboardUid} =
+    useContext(whiteboardContext);
+
+  const {activeUids} = useContent();
+
+  if (activeUids && activeUids?.length && activeUids[0] !== whiteboardUid) {
+    return null;
+  }
 
   return (
     <>
@@ -216,6 +223,24 @@ class ScaleController extends React.Component<
           containerStyle={style.itemDefaultStyle}
           iconProps={{
             name: 'zoom-out',
+            iconSize: 24,
+            iconType: 'plain',
+            tintColor: $config.FONT_COLOR,
+          }}
+        />
+        <IconButton
+          toolTipMessage={'Recenter'}
+          placement={'bottom'}
+          showTooltipArrow={false}
+          onPress={() => {
+            //open submenu
+            this.zoomChange(1);
+          }}
+          hoverEffect={true}
+          hoverEffectStyle={style.itemHoverStyle}
+          containerStyle={style.itemDefaultStyle}
+          iconProps={{
+            name: 'circle',
             iconSize: 24,
             iconType: 'plain',
             tintColor: $config.FONT_COLOR,
