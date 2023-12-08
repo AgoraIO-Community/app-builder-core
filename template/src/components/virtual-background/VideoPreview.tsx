@@ -123,8 +123,6 @@ const styles = StyleSheet.create({
   previewContainer: {
     padding: 20,
     paddingBottom: 8,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     flex: 1,
   },

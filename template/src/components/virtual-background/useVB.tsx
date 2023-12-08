@@ -9,6 +9,7 @@ import VirtualBackgroundExtension from 'agora-extension-virtual-background';
 import wasm1 from '../../../node_modules/agora-extension-virtual-background/wasms/agora-wasm.wasm';
 import {IconsInterface} from '../../atoms/CustomIcon';
 import {PropsContext} from '../../../agora-rn-uikit';
+import {isMobileUA} from '../../utils/common';
 //@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
@@ -190,6 +191,7 @@ const VBProvider: React.FC = ({children}) => {
   } = useContext(PropsContext);
 
   const isPreCallScreen = !callActive;
+  const isMobile = isMobileUA();
 
   let processor =
     useRef<ReturnType<VirtualBackgroundExtension['_createProcessor']>>(null);
@@ -271,7 +273,8 @@ const VBProvider: React.FC = ({children}) => {
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
-    !isPreCallScreen && applyVirtualBackgroundToPreviewView(blurConfig);
+    (!isPreCallScreen || isMobile) &&
+      applyVirtualBackgroundToPreviewView(blurConfig);
     if (saveVB || isPreCallScreen) {
       applyVirtualBackgroundToMainView(blurConfig);
     }
@@ -290,7 +293,8 @@ const VBProvider: React.FC = ({children}) => {
       //@ts-ignore
       typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
     htmlElement.onload = () => {
-      !isPreCallScreen && applyVirtualBackgroundToPreviewView(imgConfig);
+      (!isPreCallScreen || isMobile) &&
+        applyVirtualBackgroundToPreviewView(imgConfig);
       if (saveVB || isPreCallScreen) {
         applyVirtualBackgroundToMainView(imgConfig);
       }
