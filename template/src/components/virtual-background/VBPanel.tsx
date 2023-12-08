@@ -9,7 +9,13 @@ import {
   Dimensions,
 } from 'react-native';
 
-import {useIsSmall, isMobileUA, isWebInternal} from '../../../src/utils/common';
+import {
+  useIsSmall,
+  isMobileUA,
+  isWebInternal,
+  isAndroid,
+  isIOS,
+} from '../../../src/utils/common';
 
 import CommonStyles from '../CommonStyles';
 import {useLayout} from '../../../src/utils/useLayout';
@@ -41,6 +47,7 @@ interface VBCardProps {
   label?: string;
   position?: number;
   isOnPrecall?: boolean;
+  isMobile?: boolean;
 }
 
 const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
@@ -68,6 +75,7 @@ const VBCard: React.FC<VBCardProps> = ({
   label,
   position,
   isOnPrecall,
+  isMobile,
 }) => {
   const {
     setVBmode,
@@ -149,9 +157,10 @@ const VBCard: React.FC<VBCardProps> = ({
     <Pressable
       style={[
         styles.card,
+        isMobile ? styles.mobileCard : styles.desktopCard,
         isSelected && styles.active,
-        isOnPrecall && position % 3 !== 0 ? {marginRight: 8} : {},
-        isOnPrecall ? {marginBottom: 8, width: '31.8%'} : {},
+        isOnPrecall && !isMobile && position % 3 !== 0 ? {marginRight: 8} : {},
+        isOnPrecall && !isMobile ? {marginBottom: 8, width: '31.8%'} : {},
       ]}
       onPress={handleClick}>
       {isSelected && type !== 'custom' && <TickIcon />}
@@ -221,6 +230,11 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 
+  //TODO: native devices todo vb
+  if (isAndroid() || isIOS()) {
+    return null;
+  }
+
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
   const {setIsVBActive, setSaveVB, options} = useVB();
@@ -229,17 +243,34 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const maxPanelHeight = isOnPrecall ? '100%' : screenHeight * 0.8;
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
+  const isMobile = isMobileUA();
 
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
+
+  const PreCallVBHeader = () => (
+    <Text
+      style={{
+        paddingHorizontal: 24,
+        fontWeight: '400',
+        fontSize: ThemeConfig.FontSize.small,
+        color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+        fontFamily: ThemeConfig.FontFamily.sansPro,
+        paddingVertical: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
+      }}>
+      Virtual Background
+    </Text>
+  );
 
   return (
     <View
       style={[
         !callActive
           ? {height: maxPanelHeight}
-          : isMobileUA()
+          : isMobile
           ? CommonStyles.sidePanelContainerNative
           : isSmall()
           ? CommonStyles.sidePanelContainerWebMinimzed
@@ -248,27 +279,19 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           ? {marginVertical: 4}
           : {},
         //@ts-ignore
-        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
+        transcriptHeight && !isMobile && {height: transcriptHeight},
       ]}>
-      {isOnPrecall ? (
-        <Text
-          style={{
-            paddingHorizontal: 24,
-            fontWeight: '400',
-            fontSize: ThemeConfig.FontSize.small,
-            color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
-            fontFamily: ThemeConfig.FontFamily.sansPro,
-            paddingVertical: 20,
-            borderBottomWidth: 1,
-            borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
-          }}>
-          Virtual Background
-        </Text>
+      {/* VB Header */}
+      {isMobile ? (
+        <VBHeader />
+      ) : isOnPrecall ? (
+        <PreCallVBHeader />
       ) : (
         <VBHeader />
       )}
 
-      {!callActive && !isLocalVideoON ? (
+      {/* VB Notification */}
+      {!callActive && !isLocalVideoON && !isMobile ? (
         <View style={{padding: 20, paddingBottom: 0}}>
           <InlineNotification
             text="  Camera is currently off. Selected background will be applied as soon
@@ -279,13 +302,26 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
         <></>
       )}
 
-      {callActive ? <VideoPreview /> : <></>}
-      <ScrollView>
-        <View
-          style={[
-            styles.container,
-            isOnPrecall ? {justifyContent: 'flex-start'} : {},
-          ]}>
+      {/* VB Preview */}
+
+      <View style={{justifyContent: 'space-between', flex: 1}}>
+        {callActive || isMobile ? (
+          <View style={isMobile ? {flex: 5} : {}}>
+            <VideoPreview />
+          </View>
+        ) : (
+          <></>
+        )}
+
+        {/* Image List */}
+        <ScrollView
+          horizontal={isMobile}
+          showsHorizontalScrollIndicator={isMobile ? false : true}
+          style={{flex: 1, height: 300}}
+          contentContainerStyle={
+            isMobile ? styles.mobileListContainer : styles.desktopListContainer
+          }
+          decelerationRate={0}>
           {options.map((item, index) => (
             <VBCard
               key={index}
@@ -295,10 +331,13 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
               label={item?.label}
               position={index + 1}
               isOnPrecall={isOnPrecall}
+              isMobile={isMobile}
             />
           ))}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
+
+      {/* Save VB Btns */}
       {callActive ? (
         <View style={styles.btnContainer}>
           <View style={{flex: 1}}>
@@ -334,23 +373,35 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
 export default VBPanel;
 
 const styles = StyleSheet.create({
-  container: {
+  desktopListContainer: {
     padding: 20,
-    display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
+  mobileListContainer: {
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   card: {
-    width: '48%',
-    aspectRatio: 2 / 1,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+
     borderWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+  },
+  desktopCard: {
+    width: '48%',
+    aspectRatio: 2 / 1,
+    marginBottom: 12,
+  },
+  mobileCard: {
+    width: 72,
+    height: 72,
+    marginRight: 6,
   },
   active: {
     borderWidth: 2,

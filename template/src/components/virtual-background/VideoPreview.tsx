@@ -9,6 +9,8 @@ import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
 import ThemeConfig from '../../../src/theme';
 import ImageIcon from '../../atoms/ImageIcon';
+import {isMobileUA} from '../../utils/common';
+import InlineNotification from '../../atoms/InlineNotification';
 
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
@@ -44,6 +46,7 @@ const VideoPreview = () => {
 
       const clonedMediaStream = new MediaStream([clonedMediaStreamTrack]);
       const videoEle = document.createElement('video');
+      videoEle.style.borderRadius = '8px';
       vContainerRef.current.appendChild(videoEle);
       videoEle.srcObject = clonedMediaStream;
       vContainerRef?.current?.appendChild(videoEle);
@@ -97,25 +100,18 @@ const VideoPreview = () => {
   }, [isLocalVideoON]);
 
   return (
-    <View style={styles.container1}>
+    <View style={styles.previewContainer}>
       {isLocalVideoON ? (
-        <View ref={vContainerRef} style={{width: 300, height: 166}}></View>
+        <View
+          ref={vContainerRef}
+          style={
+            isMobileUA() ? styles.mobilePreview : styles.desktopPreview
+          }></View>
       ) : (
-        <View style={styles.msgContainer}>
-          <View style={styles.iconStyleView}>
-            <ImageIcon
-              base64={true}
-              iconSize={20}
-              iconType="plain"
-              //@ts-ignore
-              name={'warning'}
-            />
-          </View>
-          <Text style={styles.text}>
-            Camera is currently off. Selected background will be applied as soon
-            as your camera turns on.
-          </Text>
-        </View>
+        <InlineNotification
+          text="  Camera is currently off. Selected background will be applied as soon
+        as your camera turns on."
+        />
       )}
     </View>
   );
@@ -124,12 +120,20 @@ const VideoPreview = () => {
 export default VideoPreview;
 
 const styles = StyleSheet.create({
-  container1: {
+  previewContainer: {
     padding: 20,
     paddingBottom: 8,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+    flex: 1,
+  },
+
+  desktopPreview: {width: 300, height: 166},
+  mobilePreview: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 24,
   },
 
   text: {

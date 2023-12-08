@@ -160,7 +160,7 @@ export const VBHeader = () => {
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
-  const trailingIconName = callActive ? 'close' : undefined;
+  const trailingIconName = 'close';
   return (
     <SidePanelHeader
       centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}

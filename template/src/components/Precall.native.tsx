@@ -42,6 +42,8 @@ import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import JoinWaitingRoomBtn from './precall/joinWaitingRoomBtn.native';
 import {DeviceSelectProps} from './precall/selectDevice';
 import PreCallSettings from './precall/PreCallSettings';
+import VBPanel from './virtual-background/VBPanel';
+import {useVB} from './virtual-background/useVB';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -209,6 +211,9 @@ const Precall = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(true);
   const [isVBOpen, setIsVBOpen] = React.useState(false);
+  const {isVBActive, setIsVBActive} = useVB();
+  const isVBAvaialble =
+    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
   const {
     VideoPreview,
     MeetingName,
@@ -386,8 +391,8 @@ const Precall = (props: any) => {
                         isMobileView={true}
                         isSettingsOpen={isSettingsOpen}
                         setIsSettingsOpen={setIsSettingsOpen}
-                        isVBOpen={isVBOpen}
-                        setIsVBOpen={setIsVBOpen}
+                        isVBOpen={isVBActive}
+                        setIsVBOpen={setIsVBActive}
                       />
                     </View>
                   </View>
@@ -401,6 +406,7 @@ const Precall = (props: any) => {
             </View>
           )}
         </ScrollView>
+        {isVBAvaialble ? <VBPanel isOnPrecall={true} /> : <></>}
       </View>
       <PrecallAfterView />
     </>
