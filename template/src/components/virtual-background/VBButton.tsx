@@ -6,26 +6,30 @@ import IconButton from '../../atoms/IconButton';
 const VBButton = props => {
   const {isVBOpen, setIsVBOpen, showLabel = false} = props;
   return (
-    <ToolbarItem>
-      <IconButton
-        hoverEffect={true}
-        iconProps={{
-          iconBackgroundColor: isVBOpen
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : '',
-          tintColor: $config.SECONDARY_ACTION_COLOR,
-          name: 'vb',
-          iconSize: 26,
-        }}
-        btnTextProps={{
-          textColor: $config.FONT_COLOR,
-          text: showLabel ? (isVBOpen ? 'VB On' : 'VB Off') : '',
-        }}
-        onPress={() => {
-          setIsVBOpen(prev => !prev);
-        }}
-      />
-    </ToolbarItem>
+    <IconButton
+      hoverEffect={true}
+      iconProps={{
+        iconBackgroundColor: isVBOpen ? $config.PRIMARY_ACTION_BRAND_COLOR : '',
+        tintColor: $config.SECONDARY_ACTION_COLOR,
+        name: 'vb',
+        iconSize: 26,
+      }}
+      btnTextProps={{
+        text: showLabel ? `Virtual\nBackground` : '',
+        numberOfLines: 2,
+        textStyle: {
+          marginTop: 8,
+          fontSize: 12,
+          fontWeight: '400',
+          fontFamily: 'Source Sans Pro',
+          textAlign: 'center',
+          color: $config.FONT_COLOR,
+        },
+      }}
+      onPress={() => {
+        setIsVBOpen(prev => !prev);
+      }}
+    />
   );
 };
 

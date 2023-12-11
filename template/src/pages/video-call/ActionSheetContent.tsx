@@ -42,6 +42,8 @@ import {CustomToolbarSort} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
+import VBButton from '../../components/virtual-background/VBButton';
+import {useVB} from '../../components/virtual-background/useVB';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -95,6 +97,19 @@ const RecordingIcon = () => {
   return (
     <ToolbarItem>
       <Recording />
+    </ToolbarItem>
+  );
+};
+
+const VBIcon = () => {
+  const {isVBActive, setIsVBActive} = useVB();
+  return (
+    <ToolbarItem>
+      <VBButton
+        isVBOpen={isVBActive}
+        setIsVBOpen={setIsVBActive}
+        showLabel={true}
+      />
     </ToolbarItem>
   );
 };
@@ -460,16 +475,10 @@ const ActionSheetContent = props => {
           ) : null
         ) : null,
     },
+
     {
       default: true,
       order: 5,
-      hide: 'no',
-      align: 'start',
-      component: <LayoutIcon />,
-    },
-    {
-      default: true,
-      order: 6,
       hide: 'no',
       align: 'start',
       component: !(
@@ -480,17 +489,34 @@ const ActionSheetContent = props => {
     },
     {
       default: true,
-      order: 7,
+      order: 6,
       hide: 'no',
       align: 'start',
       component: <ParticipantsIcon />,
     },
     {
       default: true,
-      order: 8,
+      order: 7,
       hide: 'no',
       align: 'start',
       component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
+    },
+    {
+      default: true,
+      order: 7,
+      hide: 'no',
+      align: 'start',
+      component:
+        $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM ? (
+          <VBIcon />
+        ) : null,
+    },
+    {
+      default: true,
+      order: 8,
+      hide: 'no',
+      align: 'start',
+      component: <LayoutIcon />,
     },
     {
       default: true,

@@ -338,9 +338,9 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       </View>
 
       {/* Save VB Btns */}
-      {callActive ? (
+      {callActive || isMobile ? (
         <View style={styles.btnContainer}>
-          <View style={{flex: 1}}>
+          {/* <View style={{flex: 1}}>
             <TertiaryButton
               text={'Cancel'}
               textStyle={styles.btnText}
@@ -351,7 +351,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
               }}
             />
           </View>
-          <Spacer size={12} horizontal />
+          <Spacer size={12} horizontal /> */}
           <View style={{flex: 1}}>
             <PrimaryButton
               textStyle={styles.btnText}
