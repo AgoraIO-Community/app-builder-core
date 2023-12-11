@@ -23,7 +23,8 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {VBHeader} from '../../../src/pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
 import ImageIcon from '../../atoms/ImageIcon';
-import {Option, saveImagesToIndexDB, useVB, VBMode} from './useVB';
+import {Option, useVB, VBMode} from './useVB';
+
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
 import {SidePanelType, useLocalUserInfo, useSidePanel} from 'customization-api';
@@ -37,6 +38,7 @@ import PropsContext, {
 } from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import {IconsInterface} from '../../atoms/CustomIcon';
 import InlineNotification from '../../atoms/InlineNotification';
+import {saveImagesToIndexDB} from './VButils';
 
 const screenHeight = Dimensions.get('window').height;
 
