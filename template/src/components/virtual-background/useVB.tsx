@@ -59,6 +59,7 @@ type VBContextValue = {
   setSelectedImage: React.Dispatch<React.SetStateAction<string | null>>;
   previewVideoTrack: ILocalVideoTrack | null;
   setPreviewVideoTrack: React.Dispatch<React.SetStateAction<ILocalVideoTrack> | null>;
+  saveVB: boolean;
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
@@ -73,6 +74,7 @@ export const VBContext = React.createContext<VBContextValue>({
   setSelectedImage: () => {},
   previewVideoTrack: null,
   setPreviewVideoTrack: () => {},
+  saveVB: false,
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
@@ -320,6 +322,7 @@ const VBProvider: React.FC = ({children}) => {
         setSelectedImage,
         previewVideoTrack,
         setPreviewVideoTrack,
+        saveVB,
         setSaveVB,
         options,
         setOptions,

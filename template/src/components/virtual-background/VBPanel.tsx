@@ -237,7 +237,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
 
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
-  const {setIsVBActive, setSaveVB, options} = useVB();
+  const {setIsVBActive, saveVB, setSaveVB, options} = useVB();
   const {setSidePanel} = useSidePanel();
   const {video: localVideoStatus} = useLocalUserInfo();
   const maxPanelHeight = isOnPrecall ? '100%' : screenHeight * 0.8;
@@ -355,11 +355,19 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           <View style={{flex: 1}}>
             <PrimaryButton
               textStyle={styles.btnText}
-              containerStyle={styles.btn}
+              disabled={saveVB}
+              containerStyle={[
+                styles.btn,
+                {
+                  backgroundColor: saveVB
+                    ? $config.SEMANTIC_SUCCESS
+                    : $config.PRIMARY_ACTION_BRAND_COLOR,
+                },
+              ]}
               onPress={() => {
                 setSaveVB(true);
               }}
-              text={'Apply'}
+              text={saveVB ? 'Applied' : 'Apply'}
             />
           </View>
         </View>
