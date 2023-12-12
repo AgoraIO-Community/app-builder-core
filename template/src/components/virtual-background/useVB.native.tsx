@@ -3,6 +3,7 @@ import React, {useContext} from 'react';
 import {useEffect, useRef} from 'react';
 
 import {IconsInterface} from '../../atoms/CustomIcon';
+import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -25,7 +26,9 @@ type VBContextValue = {
   setVBmode: React.Dispatch<React.SetStateAction<VBMode>>;
   selectedImage: string | null;
   setSelectedImage: React.Dispatch<React.SetStateAction<string | null>>;
+  previewVideoTrack: ILocalVideoTrack | null;
   setPreviewVideoTrack: React.Dispatch<React.SetStateAction<ILocalVideoTrack> | null>;
+  saveVB: boolean;
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
@@ -38,13 +41,13 @@ export const VBContext = React.createContext<VBContextValue>({
   setVBmode: () => {},
   selectedImage: null,
   setSelectedImage: () => {},
+  previewVideoTrack: null,
   setPreviewVideoTrack: () => {},
+  saveVB: false,
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
 });
-
-//TODO: export methods as utils
 
 const VBProvider: React.FC = ({children}) => {
   const [isVBActive, setIsVBActive] = React.useState<boolean>(false);
@@ -70,8 +73,10 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
-  useEffect(() => {}, []);
+  /* Fetch Saved Images from Storage */
+  React.useEffect(() => {}, []);
 
+  /* VB Change modes */
   React.useEffect(() => {
     switch (vbMode) {
       case 'blur':
@@ -105,7 +110,9 @@ const VBProvider: React.FC = ({children}) => {
         setVBmode,
         selectedImage,
         setSelectedImage,
+        previewVideoTrack,
         setPreviewVideoTrack,
+        saveVB,
         setSaveVB,
         options,
         setOptions,

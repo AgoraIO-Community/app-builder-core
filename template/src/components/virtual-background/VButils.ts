@@ -84,3 +84,21 @@ export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
     }
   });
 };
+
+export const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.onerror = reject;
+    xhr.open('GET', blobURL);
+    xhr.send();
+  });
+};

@@ -156,6 +156,7 @@ const VBProvider: React.FC = ({children}) => {
     await previewViewProcessor.enable();
   };
 
+  /* VB Change modes */
   React.useEffect(() => {
     switch (vbMode) {
       case 'blur':
@@ -170,6 +171,7 @@ const VBProvider: React.FC = ({children}) => {
     }
   }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
 
+  /* Fetch Saved Images from IndexDB to show in VBPanel */
   React.useEffect(() => {
     const fetchData = async () => {
       try {
