@@ -57,20 +57,24 @@ const VBProvider: React.FC = ({children}) => {
   // can be original video track/clone track
   const [previewVideoTrack, setPreviewVideoTrack] = React.useState<null>(null);
   const [options, setOptions] = React.useState<Option[]>(() => [
-    {type: 'none', icon: 'remove'},
-    {type: 'blur', icon: 'blur'},
-    {type: 'custom', icon: 'add'},
-    {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
+    {type: 'none', icon: 'remove', label: 'None'},
+    {type: 'blur', icon: 'blur', label: 'Blur'},
+    {type: 'custom', icon: 'add', label: 'Custom'},
+    {type: 'image', icon: 'vb', path: String(require('./images/book.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/beach.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/office.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/bedroom.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/office1.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/earth.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/lamp.jpg'))},
+    {
+      type: 'image',
+      icon: 'vb',
+      path: String(require('./images/mountains.jpg')),
+    },
+    {type: 'image', icon: 'vb', path: String(require('./images/plants.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/wall.jpg'))},
+    {type: 'image', icon: 'vb', path: String(require('./images/sky.jpg'))},
   ]);
 
   /* Fetch Saved Images from Storage */

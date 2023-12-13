@@ -134,42 +134,40 @@ const VBCard: React.FC<VBCardProps> = ({
           source={{uri: path?.default ? path.default : path}}
         />
       ) : (
-        <div>
-          <>
-            {type === 'custom' ? (
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                style={{display: 'none'}}
-                id={`file-input-${type}`}
-                ref={fileInputRef}
-              />
-            ) : (
-              <></>
-            )}
-            <ImageIcon
-              iconType="plain"
-              iconSize={24}
-              name={icon}
-              tintColor={$config.SECONDARY_ACTION_COLOR}
+        <View>
+          {type === 'custom' ? (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              style={{display: 'none'}}
+              id={`file-input-${type}`}
+              ref={fileInputRef}
             />
-            {label ? (
-              <Text
-                style={{
-                  fontSize: ThemeConfig.FontSize.tiny,
-                  fontWeight: '400',
-                  fontFamily: ThemeConfig.FontFamily.sansPro,
-                  color: $config.SECONDARY_ACTION_COLOR,
-                  paddingVertical: 4,
-                }}>
-                {label}
-              </Text>
-            ) : (
-              <></>
-            )}
-          </>
-        </div>
+          ) : (
+            <></>
+          )}
+          <ImageIcon
+            iconType="plain"
+            iconSize={24}
+            name={icon}
+            tintColor={$config.SECONDARY_ACTION_COLOR}
+          />
+          {label ? (
+            <Text
+              style={{
+                fontSize: ThemeConfig.FontSize.tiny,
+                fontWeight: '400',
+                fontFamily: ThemeConfig.FontFamily.sansPro,
+                color: $config.SECONDARY_ACTION_COLOR,
+                paddingVertical: 4,
+              }}>
+              {label}
+            </Text>
+          ) : (
+            <></>
+          )}
+        </View>
       )}
     </Pressable>
   );
