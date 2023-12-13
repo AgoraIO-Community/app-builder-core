@@ -9,8 +9,11 @@ import {
 import React from 'react';
 import ThemeConfig from '../../theme';
 import {IconsInterface} from '../../atoms/CustomIcon';
-import {Option, VBMode, useVB} from './useVB';
+import {VBMode, useVB} from './useVB';
 import ImageIcon from '../../atoms/ImageIcon';
+import DocumentPicker from 'react-native-document-picker';
+import Toast from '../../../react-native-toast-message';
+import RNFS from 'react-native-fs';
 
 interface VBCardProps {
   type: VBMode;
@@ -55,8 +58,64 @@ const VBCard: React.FC<VBCardProps> = ({
     setOptions,
   } = useVB();
 
-  const isSelected = path ? path === selectedImage : vbMode === type;
-  const handleClick = () => {
+  const isSelected = path ? path == selectedImage : vbMode === type;
+
+  const readFile = async uri => {
+    try {
+      const base64Data = await RNFS.readFile(uri, 'base64');
+      console.log('hi', base64Data);
+      return base64Data;
+    } catch (error) {
+      console.error('Error reading file:', error);
+      throw error;
+    }
+  };
+
+  const handleFileUpload = async () => {
+    try {
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.images],
+      });
+
+      if (result[0].size <= 1024 * 1024 * 3) {
+        const base64Data = `data:${result[0].type};base64,${await readFile(
+          result[0].uri,
+        )}`;
+
+        console.log('base64Data', base64Data);
+
+        const newCard = {
+          type: 'image' as VBMode,
+          icon: 'vb' as keyof IconsInterface,
+          path: base64Data,
+        };
+
+        setOptions(prevOptions => {
+          const updatedOptions = [...prevOptions];
+          updatedOptions.splice(3, 0, newCard);
+          return updatedOptions;
+        });
+        // save to async storage
+        // saveImagesToIndexDB(base64Data);
+      } else {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text2: 'File size must be less than 3MB.',
+          text1: 'Upload Failed',
+          visibilityTime: 3000,
+        });
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleClick = async () => {
     setSaveVB(false);
     setVBmode(type);
     if (path) {
@@ -64,8 +123,11 @@ const VBCard: React.FC<VBCardProps> = ({
     } else {
       setSelectedImage(null);
     }
+    if (type === 'custom') {
+      await handleFileUpload();
+    }
   };
-
+  console.log('after upload');
   return (
     <Pressable
       style={[
@@ -78,10 +140,12 @@ const VBCard: React.FC<VBCardProps> = ({
       onPress={handleClick}>
       {isSelected && type !== 'custom' && <TickIcon />}
       {path ? (
-        <Image style={styles.img} source={path ? path : null} />
+        <Image
+          style={styles.img}
+          source={typeof path === 'string' ? {uri: path} : path}
+        />
       ) : (
         <View>
-          {type === 'custom' ? <></> : <></>}
           <ImageIcon
             iconType="plain"
             iconSize={24}

@@ -1,9 +1,8 @@
 import {createHook} from 'customization-implementation';
-import React, {useContext} from 'react';
-import {useEffect, useRef} from 'react';
+import React from 'react';
 
 import {IconsInterface} from '../../atoms/CustomIcon';
-import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
+import {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -60,21 +59,21 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'none', icon: 'remove', label: 'None'},
     {type: 'blur', icon: 'blur', label: 'Blur'},
     {type: 'custom', icon: 'add', label: 'Custom'},
-    {type: 'image', icon: 'vb', path: String(require('./images/book.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/beach.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/office.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/bedroom.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/office1.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/earth.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/lamp.jpg'))},
+    {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/lamp.jpg')},
     {
       type: 'image',
       icon: 'vb',
-      path: String(require('./images/mountains.jpg')),
+      path: require('./images/mountains.jpg'),
     },
-    {type: 'image', icon: 'vb', path: String(require('./images/plants.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/wall.jpg'))},
-    {type: 'image', icon: 'vb', path: String(require('./images/sky.jpg'))},
+    {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
+    {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
   /* Fetch Saved Images from Storage */
