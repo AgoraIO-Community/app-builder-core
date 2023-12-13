@@ -55,7 +55,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
           {props?.centerComponent ? props.centerComponent : null}
           <View style={props?.trailingIconName2 && SidePanelStyles.row}>
             {props?.trailingIconName ? (
-              <View ref={ref} collapsable={false}>
+              <View ref={ref} collapsable={false} style={{flex: 1}}>
                 <IconButton
                   hoverEffect={true}
                   hoverEffectStyle={{

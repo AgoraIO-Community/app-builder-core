@@ -3,6 +3,7 @@ import React from 'react';
 
 import {IconsInterface} from '../../atoms/CustomIcon';
 import {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
+import {retrieveImagesFromAsyncStorage} from './VButils.native';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -76,8 +77,31 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
 
-  /* Fetch Saved Images from Storage */
-  React.useEffect(() => {}, []);
+  /* Fetch Saved Images from AsyncStorage to show in VBPanel */
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const customImages = await retrieveImagesFromAsyncStorage();
+        console.log('retrived from async storage', customImages);
+        setOptions((prevOptions: Option[]) => [
+          ...prevOptions,
+          ...(customImages?.map(
+            base64Data =>
+              ({
+                type: 'image',
+                icon: 'vb',
+                path: base64Data,
+              } as Option),
+          ) || []),
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle the error as needed
+      }
+    };
+
+    fetchData();
+  }, []);
 
   /* VB Change modes */
   React.useEffect(() => {

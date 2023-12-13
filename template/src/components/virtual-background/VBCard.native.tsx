@@ -14,6 +14,7 @@ import ImageIcon from '../../atoms/ImageIcon';
 import DocumentPicker from 'react-native-document-picker';
 import Toast from '../../../react-native-toast-message';
 import RNFS from 'react-native-fs';
+import {saveImagesToAsyncStorage} from './VButils.native';
 
 interface VBCardProps {
   type: VBMode;
@@ -63,7 +64,6 @@ const VBCard: React.FC<VBCardProps> = ({
   const readFile = async uri => {
     try {
       const base64Data = await RNFS.readFile(uri, 'base64');
-      console.log('hi', base64Data);
       return base64Data;
     } catch (error) {
       console.error('Error reading file:', error);
@@ -95,8 +95,8 @@ const VBCard: React.FC<VBCardProps> = ({
           updatedOptions.splice(3, 0, newCard);
           return updatedOptions;
         });
-        // save to async storage
-        // saveImagesToIndexDB(base64Data);
+
+        saveImagesToAsyncStorage(base64Data);
       } else {
         Toast.show({
           leadingIconName: 'alert',
@@ -127,7 +127,7 @@ const VBCard: React.FC<VBCardProps> = ({
       await handleFileUpload();
     }
   };
-  console.log('after upload');
+
   return (
     <Pressable
       style={[
