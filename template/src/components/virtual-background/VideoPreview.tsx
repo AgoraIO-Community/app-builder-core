@@ -1,75 +1,21 @@
-import {StyleSheet, Text, View, Linking} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React, {useContext} from 'react';
-import {useContent, useLocalUserInfo, useRtc} from 'customization-api';
-import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
-import type RtcEngine from '../../../bridge/rtc/webNg/';
+import {useLocalUserInfo} from 'customization-api';
+import {RtcContext} from '../../../agora-rn-uikit';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
-import {RtcLocalView} from 'react-native-agora';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
 import ThemeConfig from '../../../src/theme';
-import ImageIcon from '../../atoms/ImageIcon';
 import {isMobileUA} from '../../utils/common';
 import InlineNotification from '../../atoms/InlineNotification';
 
-type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
-
 const VideoPreview = () => {
-  const {defaultContent, activeUids} = useContent();
   const {setPreviewVideoTrack, setSaveVB, previewVideoTrack} = useVB();
-  const [maxUid] = activeUids;
   const rtc = useContext(RtcContext);
-  const {RtcEngineUnsafe} = rtc as unknown as {
-    RtcEngineUnsafe: WebRtcEngineInstance;
-  };
-
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
-
-  const updateVideoTrack = async clonedMediaStreamTrack => {
-    const clonedVideoTrack = await AgoraRTC?.createCustomVideoTrack({
-      mediaStreamTrack: clonedMediaStreamTrack,
-    });
-    setPreviewVideoTrack(clonedVideoTrack);
-  };
-
-  const destroyCameraTrack = () => {};
-
-  const cloneCameraTrack = () => {
-    if (isLocalVideoON) {
-      const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
-      const clonedMediaStreamTrack = localVideoTrack
-        ?.getMediaStreamTrack()
-        .clone();
-
-      const clonedMediaStream = new MediaStream([clonedMediaStreamTrack]);
-      const videoEle = document.createElement('video');
-      videoEle.style.borderRadius = '8px';
-      vContainerRef.current.appendChild(videoEle);
-      videoEle.srcObject = clonedMediaStream;
-      vContainerRef?.current?.appendChild(videoEle);
-      videoEle.play();
-      updateVideoTrack(clonedMediaStreamTrack);
-    } else {
-      const videoEle = vContainerRef.current.querySelector('video');
-      if (videoEle) {
-        videoEle.srcObject = null;
-        vContainerRef.current.removeChild(videoEle);
-      }
-    }
-  };
-
-  const destroyClonedCameraTrack = () => {
-    if (vContainerRef.current) {
-      const videoEle = vContainerRef.current.querySelector('video');
-      if (videoEle) {
-        videoEle.srcObject = null;
-        vContainerRef.current.removeChild(videoEle);
-      }
-    }
-  };
 
   const createCameraTrack = async () => {
     if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {

@@ -77,7 +77,7 @@ const VBCard: React.FC<VBCardProps> = ({
         type: [DocumentPicker.types.images],
       });
 
-      if (result[0].size <= 1024 * 1024 * 3) {
+      if (result[0].size <= 1024 * 1024 * 1) {
         const base64Data = `data:${result[0].type};base64,${await readFile(
           result[0].uri,
         )}`;
@@ -101,7 +101,7 @@ const VBCard: React.FC<VBCardProps> = ({
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text2: 'File size must be less than 3MB.',
+          text2: 'File size must be less than 1MB.',
           text1: 'Upload Failed',
           visibilityTime: 3000,
         });

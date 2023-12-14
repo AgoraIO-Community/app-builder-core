@@ -56,8 +56,8 @@ const VBCard: React.FC<VBCardProps> = ({
     const selectedFile = e.target.files && e.target.files[0];
 
     if (selectedFile) {
-      // check if file size (less than 3MB)
-      if (selectedFile.size <= 1024 * 1024 * 3) {
+      // check if file size (less than 1MB)
+      if (selectedFile.size <= 1024 * 1024 * 1) {
         // check image format
         if (
           selectedFile.type === 'image/jpeg' ||
@@ -94,7 +94,7 @@ const VBCard: React.FC<VBCardProps> = ({
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text2: 'File size must be less than 3MB.',
+          text2: 'File size must be less than 1MB.',
           text1: 'Upload Failed',
           visibilityTime: 3000,
         });
