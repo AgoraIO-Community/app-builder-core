@@ -4,6 +4,17 @@ import React from 'react';
 import {IconsInterface} from '../../atoms/CustomIcon';
 import {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import {retrieveImagesFromAsyncStorage} from './VButils.native';
+import RtcEngine, {
+  Color,
+  RtcLocalView,
+  RtcRemoteView,
+  VideoRenderMode,
+  VirtualBackgroundBlurDegree,
+  VirtualBackgroundSource,
+  VirtualBackgroundSourceStateReason,
+  VirtualBackgroundSourceType,
+} from 'react-native-agora';
+import {useRtc} from 'customization-api';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -32,6 +43,8 @@ type VBContextValue = {
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
+  previewVideoEngine: RtcEngine;
+  setPreviewVideoEngine: React.Dispatch<React.SetStateAction<RtcEngine>>;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -47,7 +60,23 @@ export const VBContext = React.createContext<VBContextValue>({
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
+  previewVideoEngine: null,
+  setPreviewVideoEngine: () => {},
 });
+
+// fn to initialize processors
+const initializeProcessors = () => {
+  // const mainViewExtension = new VirtualBackgroundExtension();
+  // AgoraRTC.registerExtensions([mainViewExtension]);
+  // mainViewProcessor = mainViewExtension.createProcessor();
+  // mainViewProcessor.init(wasm1).then(() => {
+  //   mainViewProcessor.disable();
+  // });
+  // previewViewProcessor = mainViewExtension.createProcessor();
+  // previewViewProcessor.init(wasm1).then(() => {
+  //   previewViewProcessor.disable();
+  // });
+};
 
 const VBProvider: React.FC = ({children}) => {
   const [isVBActive, setIsVBActive] = React.useState<boolean>(false);
@@ -56,6 +85,8 @@ const VBProvider: React.FC = ({children}) => {
   const [saveVB, setSaveVB] = React.useState(false);
   // can be original video track/clone track
   const [previewVideoTrack, setPreviewVideoTrack] = React.useState<null>(null);
+  const [previewVideoEngine, setPreviewVideoEngine] =
+    React.useState<RtcEngine>(null);
   const [options, setOptions] = React.useState<Option[]>(() => [
     {type: 'none', icon: 'remove', label: 'None'},
     {type: 'blur', icon: 'blur', label: 'Blur'},
@@ -76,6 +107,12 @@ const VBProvider: React.FC = ({children}) => {
     {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
     {type: 'image', icon: 'vb', path: require('./images/sky.jpg')},
   ]);
+
+  const rtc = useRtc();
+
+  React.useEffect(() => {
+    initializeProcessors();
+  }, []);
 
   /* Fetch Saved Images from AsyncStorage to show in VBPanel */
   React.useEffect(() => {
@@ -103,6 +140,41 @@ const VBProvider: React.FC = ({children}) => {
     fetchData();
   }, []);
 
+  const applyVirtualBackgroundToMainView = async (
+    config: VirtualBackgroundSource,
+    disable = false,
+  ) => {
+    if (disable) {
+      //  await rtc?.RtcEngineUnsafe.disableVideo();
+      await rtc?.RtcEngineUnsafe.enableVirtualBackground(false, config);
+      // await rtc?.RtcEngineUnsafe.enableVideo();
+      // await rtc?.RtcEngineUnsafe.startPreview();
+    } else {
+      //  await rtc?.RtcEngineUnsafe.disableVideo();
+      await rtc?.RtcEngineUnsafe.enableVirtualBackground(true, config);
+      // await rtc?.RtcEngineUnsafe.enableVideo();
+      // await rtc?.RtcEngineUnsafe.startPreview();
+    }
+  };
+
+  // Function to apply virtual background to the preview view
+  const applyVirtualBackgroundToPreviewView = async (
+    config: VirtualBackgroundSource,
+    disable = false,
+  ) => {
+    /*TODO for preview track */
+    if (disable) {
+      // await rtc?.RtcEngineUnsafe.disableVideo();
+      // await previewVideoEngine.enableVirtualBackground(false, config);
+      // await previewVideoEngine.enableVideo();
+      // await previewVideoEngine.startPreview();
+    } else {
+      // await previewVideoEngine.enableVirtualBackground(true, config);
+      // await previewVideoEngine.enableVideo();
+      // await previewVideoEngine.startPreview();
+    }
+  };
+
   /* VB Change modes */
   React.useEffect(() => {
     switch (vbMode) {
@@ -122,11 +194,56 @@ const VBProvider: React.FC = ({children}) => {
 
   React.useEffect(() => {}, []);
 
-  const blurVB = async () => {};
+  const blurVB = async () => {
+    const blurConfig: VirtualBackgroundSource = new VirtualBackgroundSource({
+      backgroundSourceType: VirtualBackgroundSourceType.Blur,
+      blur_degree: VirtualBackgroundBlurDegree.Medium,
+    });
+    if (saveVB) {
+      await applyVirtualBackgroundToMainView(blurConfig);
+    } else {
+      await applyVirtualBackgroundToMainView(blurConfig);
+    }
+  };
 
-  const imageVB = async () => {};
+  const imageVB = async () => {
+    const imgConfig: VirtualBackgroundSource = new VirtualBackgroundSource({
+      backgroundSourceType: VirtualBackgroundSourceType.Img,
+      source: selectedImage,
+    });
+    // const imagePath = selectedImage;
+    // let htmlElement = document.createElement('img');
+    // const imgConfig: VirtualBackgroundConfig = {
+    //   source: htmlElement,
+    //   type: 'img',
+    // };
+    // // htmlElement.crossorigin = 'anonymous'
+    // htmlElement.src =
+    //   //@ts-ignore
+    //   typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
+    // htmlElement.onload = async () => {
 
-  const disableVB = async () => {};
+    // this.virtualSource = new VirtualBackgroundSource({
+    //   backgroundSourceType: VirtualBackgroundSourceType.Img,
+    //   source: RNFS.DocumentDirectoryPath + '/img.png',
+    // })
+    if (saveVB) {
+      await applyVirtualBackgroundToMainView(imgConfig);
+    } else {
+      await applyVirtualBackgroundToPreviewView(imgConfig);
+    }
+  };
+
+  const disableVB = async () => {
+    const disableConfig: VirtualBackgroundSource = new VirtualBackgroundSource(
+      {},
+    );
+    if (saveVB) {
+      await applyVirtualBackgroundToMainView(disableConfig, true);
+    } else {
+      await applyVirtualBackgroundToMainView(disableConfig, true);
+    }
+  };
 
   return (
     <VBContext.Provider
@@ -143,6 +260,8 @@ const VBProvider: React.FC = ({children}) => {
         setSaveVB,
         options,
         setOptions,
+        previewVideoEngine,
+        setPreviewVideoEngine,
       }}>
       {children}
     </VBContext.Provider>

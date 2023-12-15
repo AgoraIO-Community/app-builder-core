@@ -198,11 +198,16 @@ const VBProvider: React.FC = ({children}) => {
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
-    if (saveVB || (isPreCallScreen && !isMobile)) {
+    if (isMobile) {
       await applyVirtualBackgroundToMainView(blurConfig);
+      await applyVirtualBackgroundToPreviewView(blurConfig);
     } else {
-      previewVideoTrack &&
-        (await applyVirtualBackgroundToPreviewView(blurConfig));
+      if (saveVB || isPreCallScreen) {
+        await applyVirtualBackgroundToMainView(blurConfig);
+      } else {
+        previewVideoTrack &&
+          (await applyVirtualBackgroundToPreviewView(blurConfig));
+      }
     }
   };
 
@@ -219,20 +224,30 @@ const VBProvider: React.FC = ({children}) => {
       //@ts-ignore
       typeof imagePath === 'string' ? imagePath : imagePath?.default || '';
     htmlElement.onload = async () => {
-      if (saveVB || (isPreCallScreen && !isMobile)) {
+      if (isMobile) {
         await applyVirtualBackgroundToMainView(imgConfig);
+        await applyVirtualBackgroundToPreviewView(imgConfig);
       } else {
-        previewVideoTrack &&
-          (await applyVirtualBackgroundToPreviewView(imgConfig));
+        if (saveVB || isPreCallScreen) {
+          await applyVirtualBackgroundToMainView(imgConfig);
+        } else {
+          previewVideoTrack &&
+            (await applyVirtualBackgroundToPreviewView(imgConfig));
+        }
       }
     };
   };
 
   const disableVB = async () => {
-    if (saveVB || (isPreCallScreen && !isMobile)) {
+    if (isMobile) {
       await mainViewProcessor.disable();
+      await previewViewProcessor.disable();
     } else {
-      previewVideoTrack && (await previewViewProcessor.disable());
+      if (saveVB || isPreCallScreen) {
+        await mainViewProcessor.disable();
+      } else {
+        previewVideoTrack && (await previewViewProcessor.disable());
+      }
     }
   };
 

@@ -109,7 +109,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Preview */}
       <View style={{justifyContent: 'space-between', flex: 1}}>
         {callActive || isMobile ? (
-          <View style={isMobile ? {flex: 5} : {}}>
+          <View style={isMobile ? {flex: 1} : {}}>
             <VideoPreview />
           </View>
         ) : (
@@ -120,7 +120,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
         <ScrollView
           horizontal={isMobile}
           showsHorizontalScrollIndicator={isMobile ? false : true}
-          style={{flex: 1, height: 300}}
+          style={isMobile ? {maxHeight: 104} : {flex: 1}}
           contentContainerStyle={
             isMobile ? styles.mobileListContainer : styles.desktopListContainer
           }
@@ -141,7 +141,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       </View>
 
       {/* Save VB Btns */}
-      {callActive || isMobile ? (
+      {callActive && !isMobile ? (
         <View style={styles.btnContainer}>
           <View style={{flex: 1}}>
             <PrimaryButton
@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
     padding: 20,
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   mobileListContainer: {
     padding: 16,
