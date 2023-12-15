@@ -127,7 +127,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           decelerationRate={0}>
           {options.map((item, index) => (
             <VBCard
-              key={index}
+              key={item.id}
               type={item.type}
               icon={item.icon}
               path={item.path}

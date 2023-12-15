@@ -9,12 +9,13 @@ import {
 import React from 'react';
 import ThemeConfig from '../../theme';
 import {IconsInterface} from '../../atoms/CustomIcon';
-import {VBMode, useVB} from './useVB';
+import {VBMode, useVB} from './useVB.native';
 import ImageIcon from '../../atoms/ImageIcon';
 import DocumentPicker from 'react-native-document-picker';
 import Toast from '../../../react-native-toast-message';
 import RNFS from 'react-native-fs';
 import {saveImagesToAsyncStorage} from './VButils.native';
+import getUniqueID from '../../../src/utils/getUniqueID';
 
 interface VBCardProps {
   type: VBMode;
@@ -88,6 +89,7 @@ const VBCard: React.FC<VBCardProps> = ({
           type: 'image' as VBMode,
           icon: 'vb' as keyof IconsInterface,
           path: base64Data,
+          id: getUniqueID(),
         };
 
         setOptions(prevOptions => {
@@ -119,7 +121,7 @@ const VBCard: React.FC<VBCardProps> = ({
     setSaveVB(false);
     setVBmode(type);
     if (path) {
-      setSelectedImage(String(path));
+      setSelectedImage(path);
     } else {
       setSelectedImage(null);
     }

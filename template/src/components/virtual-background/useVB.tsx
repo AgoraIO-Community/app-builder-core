@@ -11,6 +11,8 @@ import {IconsInterface} from '../../atoms/CustomIcon';
 import {PropsContext} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
 import {retrieveImagesFromIndexDB} from './VButils';
+import imagePathsArray from './imagePaths';
+import {nanoid} from 'nanoid';
 //@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
@@ -20,6 +22,7 @@ export type Option = {
   icon: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
+  id?: string;
 };
 
 // processors for the main view and preview view
@@ -91,20 +94,7 @@ const VBProvider: React.FC = ({children}) => {
   const [previewVideoTrack, setPreviewVideoTrack] =
     React.useState<ILocalVideoTrack | null>(null);
   const {sidePanel} = useSidePanel();
-  const [options, setOptions] = React.useState<Option[]>(() => [
-    {type: 'none', icon: 'remove', label: 'None'},
-    {type: 'blur', icon: 'blur', label: 'Blur'},
-    {type: 'custom', icon: 'upload-new', label: 'Custom'},
-    {type: 'image', icon: 'vb', path: require('./images/book.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/beach.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/bedroom.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/office1.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/earth.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/mountains.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/plants.jpg')},
-    {type: 'image', icon: 'vb', path: require('./images/wall.jpg')},
-  ]);
+  const [options, setOptions] = React.useState<Option[]>(imagePathsArray);
 
   const {
     rtcProps: {callActive},
@@ -184,6 +174,7 @@ const VBProvider: React.FC = ({children}) => {
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
+                id: nanoid(),
               } as Option),
           ) || []),
         ]);

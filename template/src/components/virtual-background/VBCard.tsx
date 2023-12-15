@@ -6,6 +6,7 @@ import {IconsInterface} from '../../atoms/CustomIcon';
 import Toast from '../../../react-native-toast-message';
 import {saveImagesToIndexDB, convertBlobToBase64} from './VButils';
 import ImageIcon from '../../atoms/ImageIcon';
+import getUniqueID from '../../../src/utils/getUniqueID';
 
 interface VBCardProps {
   type: VBMode;
@@ -70,6 +71,7 @@ const VBCard: React.FC<VBCardProps> = ({
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
+                id: getUniqueID(),
               };
               setOptions(prevOptions => {
                 const updatedOptions = [...prevOptions];
