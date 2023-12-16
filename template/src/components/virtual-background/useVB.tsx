@@ -12,7 +12,7 @@ import {PropsContext} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
 import {retrieveImagesFromIndexDB} from './VButils';
 import imagePathsArray from './imagePaths';
-import {nanoid} from 'nanoid';
+import getUniqueID from '../../../src/utils/getUniqueID';
 //@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
@@ -174,7 +174,7 @@ const VBProvider: React.FC = ({children}) => {
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
-                id: nanoid(),
+                id: getUniqueID(),
               } as Option),
           ) || []),
         ]);

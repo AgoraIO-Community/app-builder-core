@@ -7,6 +7,7 @@ import {
   Pressable,
   PressableProps,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import {isMobileUA, isWebInternal} from '../utils/common';
@@ -25,6 +26,7 @@ export interface IconButtonProps {
   onPress?: PressableProps['onPress'];
   disabled?: boolean;
   containerStyle?: ViewStyle;
+  rootContainerStyle?: ViewStyle;
   btnTextProps?: BtnTextProps;
   iconProps: ImageIconProps;
   toolTipMessage?: string;
@@ -39,8 +41,10 @@ export interface IconButtonProps {
 
 const IconButton = (props: IconButtonProps) => {
   return (
-    <ButtonWrapper {...props}>
-      <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+    <View style={[styles.rootContainerStyle, props.rootContainerStyle]}>
+      <ButtonWrapper {...props}>
+        <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+      </ButtonWrapper>
       {props?.btnTextProps?.text ? (
         <Text
           numberOfLines={props?.btnTextProps?.numberOfLines || 1}
@@ -57,7 +61,7 @@ const IconButton = (props: IconButtonProps) => {
       ) : (
         <></>
       )}
-    </ButtonWrapper>
+    </View>
   );
 };
 
@@ -66,15 +70,13 @@ const ButtonWrapper = ({children, ...props}) => {
   return isMobileView ? (
     <TouchableOpacity
       ref={ref => props?.setRef && props.setRef(ref)}
-      style={
-        !props.isOnActionSheet && [
-          styles.containerStyle,
-          props?.containerStyle,
-          props?.hoverEffect && props?.isToolTipVisible
-            ? props?.hoverEffectStyle
-            : {},
-        ]
-      }
+      style={[
+        !props.isOnActionSheet && styles.containerStyle,
+        props?.containerStyle,
+        !props.isOnActionSheet && props?.hoverEffect && props?.isToolTipVisible
+          ? props?.hoverEffectStyle
+          : {},
+      ]}
       onPress={props.onPress}
       disabled={props.disabled}>
       {children}
@@ -150,6 +152,9 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
 export default IconButtonWithToolTip;
 
 const styles = StyleSheet.create({
+  rootContainerStyle: {
+    alignItems: 'center',
+  },
   containerStyle: {
     flex: 1,
     flexDirection: 'column',

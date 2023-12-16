@@ -1,35 +1,58 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {ToolbarItem} from 'customization-api';
-import IconButton from '../../atoms/IconButton';
+import ToolbarMenuItem from '../../atoms/ToolbarMenuItem';
+import {useToolbarMenu} from '../../utils/useMenu';
+import IconButton, {IconButtonProps} from '../../atoms/IconButton';
+import {useActionSheet} from '../../utils/useActionSheet';
 
-const VBButton = props => {
+interface VBButtonProps {
+  isVBOpen: boolean;
+  setIsVBOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  showLabel: boolean;
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+const VBButton = (props: VBButtonProps) => {
   const {isVBOpen, setIsVBOpen, showLabel = false} = props;
-  return (
-    <IconButton
-      hoverEffect={true}
-      iconProps={{
-        iconBackgroundColor: isVBOpen ? $config.PRIMARY_ACTION_BRAND_COLOR : '',
-        tintColor: $config.SECONDARY_ACTION_COLOR,
-        name: 'vb',
-        iconSize: 26,
-      }}
-      btnTextProps={{
-        text: showLabel ? `Virtual\nBackground` : '',
-        numberOfLines: 2,
-        textStyle: {
-          marginTop: 8,
-          fontSize: 12,
-          fontWeight: '400',
-          fontFamily: 'Source Sans Pro',
-          textAlign: 'center',
-          color: $config.FONT_COLOR,
-        },
-      }}
-      onPress={() => {
-        setIsVBOpen(prev => !prev);
-      }}
-    />
+  const {isToolbarMenuItem} = useToolbarMenu();
+  const {isOnActionSheet} = useActionSheet();
+
+  const onPress = () => {
+    setIsVBOpen(prev => !prev);
+  };
+
+  let iconButtonProps: IconButtonProps = {
+    onPress: onPress,
+    iconProps: {
+      tintColor: $config.SECONDARY_ACTION_COLOR,
+      name: 'vb',
+    },
+
+    btnTextProps: {
+      text: showLabel ? `Virtual\nBackground` : '',
+      numberOfLines: 2,
+      textStyle: {
+        marginTop: 8,
+        fontSize: 12,
+        fontWeight: '400',
+        fontFamily: 'Source Sans Pro',
+        textAlign: 'center',
+        color: $config.FONT_COLOR,
+      },
+    },
+  };
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <>
+      {isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
+      ) : (
+        <IconButton {...iconButtonProps} />
+      )}
+    </>
   );
 };
 
