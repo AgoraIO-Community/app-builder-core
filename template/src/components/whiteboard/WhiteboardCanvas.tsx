@@ -67,6 +67,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
           borderRadius: 10,
         }}
         ref={wbSurfaceRef}
+        id="whiteboard-div-ref"
       />
     </>
   );

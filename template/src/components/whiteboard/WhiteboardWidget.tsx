@@ -11,13 +11,29 @@
 */
 
 import React, {useContext, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {Room, RoomState} from 'white-web-sdk';
 import {IconButton, useContent} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {randomString} from '../../utils/common';
+import Toast from '../../../react-native-toast-message';
+import ThemeConfig from '../../theme';
+
+const Seperator = () => {
+  return (
+    <View
+      style={{
+        marginHorizontal: 4,
+        width: 2,
+        height: 24,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
+      }}
+    />
+  );
+};
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
   const {setBoardColor, boardColor, whiteboardUid} =
@@ -28,6 +44,45 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
   if (activeUids && activeUids?.length && activeUids[0] !== whiteboardUid) {
     return null;
   }
+
+  const exportWhiteboard = () => {
+    try {
+      var srcCanvas = document.querySelector(
+        '#whiteboard-div-ref > div > div > canvas:nth-child(2)',
+      );
+      var destinationCanvas = document.createElement('canvas');
+      //@ts-ignore
+      destinationCanvas.width = srcCanvas.width;
+      //@ts-ignore
+      destinationCanvas.height = srcCanvas.height;
+
+      var destCtx = destinationCanvas.getContext('2d');
+
+      //create a rectangle with the desired color
+      destCtx.fillStyle =
+        boardColor === BoardColor.Black ? '#000000' : '#FFFFFF';
+      //@ts-ignore
+      destCtx.fillRect(0, 0, srcCanvas.width, srcCanvas.height);
+
+      //draw the original canvas onto the destination canvas
+      //@ts-ignore
+      destCtx.drawImage(srcCanvas, 0, 0);
+
+      //finally use the destinationCanvas.toDataURL() method to get the desired output;
+      var link = document.createElement('a');
+      link.download = 'whiteboard_' + randomString() + '.png';
+      link.href = destinationCanvas.toDataURL();
+      link.click();
+    } catch (error) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'Sorry, Failed to export the whiteboard',
+        visibilityTime: 3000,
+      });
+      console.log('debugging error on export whiteboard', error);
+    }
+  };
 
   return (
     <>
@@ -63,28 +118,33 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                   tintColor: $config.FONT_COLOR,
                 }}
               />
-              <View
-                style={{
-                  marginHorizontal: 4,
-                  width: 2,
-                  height: 24,
-                  backgroundColor: $config.CARD_LAYER_4_COLOR,
-                }}
-              />
+              <Seperator />
               <RedoUndo room={whiteboardRoom.current} />
-              <View
-                style={{
-                  marginHorizontal: 4,
-                  width: 2,
-                  height: 24,
-                  backgroundColor: $config.CARD_LAYER_4_COLOR,
-                }}
-              />
+              <Seperator />
             </>
           ) : (
             <></>
           )}
           <ScaleController room={whiteboardRoom.current} />
+          <Seperator />
+          <TouchableOpacity
+            style={{
+              borderRadius: 4,
+              backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+            }}
+            onPress={exportWhiteboard}>
+            <Text
+              style={{
+                fontFamily: ThemeConfig.FontFamily.sansPro,
+                fontWeight: '600',
+                fontSize: 14,
+                color: $config.FONT_COLOR,
+              }}>
+              {'Export'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </>
@@ -243,14 +303,7 @@ class ScaleController extends React.Component<
             tintColor: $config.FONT_COLOR,
           }}
         />
-        <View
-          style={{
-            marginHorizontal: 4,
-            width: 2,
-            height: 24,
-            backgroundColor: $config.CARD_LAYER_4_COLOR,
-          }}
-        />
+        <Seperator />
         <IconButton
           toolTipMessage="Zoom Out"
           placement={'bottom'}
