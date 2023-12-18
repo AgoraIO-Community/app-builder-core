@@ -144,8 +144,6 @@ const VBProvider: React.FC = ({children}) => {
     }
   }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
 
-  React.useEffect(() => {}, []);
-
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundSource = new VirtualBackgroundSource({
       backgroundSourceType: VirtualBackgroundSourceType.Blur,

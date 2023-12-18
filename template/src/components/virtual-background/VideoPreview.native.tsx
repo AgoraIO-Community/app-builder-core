@@ -1,8 +1,8 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {useContext} from 'react';
-import {RtcContext} from '../../../agora-rn-uikit';
+import {RtcContext, MaxVideoView} from '../../../agora-rn-uikit';
 import ThemeConfig from '../../../src/theme';
-import {useLocalUserInfo} from 'customization-api';
+import {useContent, useLocalUserInfo, useRtc} from 'customization-api';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import InlineNotification from '../../atoms/InlineNotification';
 import {RtcLocalView, VideoRenderMode} from 'react-native-agora';
@@ -10,20 +10,42 @@ import {RtcLocalView, VideoRenderMode} from 'react-native-agora';
 const LocalView = RtcLocalView.SurfaceView;
 
 const VideoPreview = () => {
-  const rtc = useContext(RtcContext);
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
-
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
+  const {defaultContent, activeUids} = useContent();
+  const [maxUid] = activeUids;
+  const rtc = useRtc();
+  rtc?.RtcEngineUnsafe?.startPreview();
+
+  const Preview2 = () => (
+    <MaxVideoView
+      fallback={() => {
+        return <></>;
+      }}
+      user={defaultContent[maxUid]}
+      containerStyle={{
+        width: '100%',
+        height: '100%',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+      }}
+      isPrecallScreen={true}
+    />
+  );
+
+  const Preview = () => (
+    <LocalView
+      ref={vContainerRef}
+      style={{flex: 1}}
+      renderMode={VideoRenderMode.Fit}
+    />
+  );
 
   return (
     <View style={styles.previewContainer}>
       {isLocalVideoON ? (
-        <LocalView
-          ref={vContainerRef}
-          style={{flex: 1}}
-          renderMode={VideoRenderMode.Fit}
-        />
+        <Preview />
       ) : (
         <InlineNotification
           text="  Camera is currently off. Selected background will be applied as soon
