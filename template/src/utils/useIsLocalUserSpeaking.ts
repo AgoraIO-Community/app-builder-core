@@ -50,7 +50,9 @@ const useIsLocalUserSpeaking = () => {
         speechRef.current?.stop && speechRef.current?.stop();
       }
       if (audioTrackRef?.current) {
-        audioTrackRef.current?.length && audioTrackRef.current[0].stop();
+        audioTrackRef.current?.length &&
+          audioTrackRef.current[0]?.stop &&
+          audioTrackRef.current[0]?.stop();
       }
     } catch (error) {
       log(' Error on stopping the hark', error);
@@ -76,10 +78,11 @@ const useIsLocalUserSpeaking = () => {
     if ($config.ACTIVE_SPEAKER) {
       await listenForSpeaker();
       return () => {
-        speechRef.current && speechRef.current.stop();
+        speechRef.current && speechRef.current.stop && speechRef.current.stop();
         audioTrackRef.current &&
           audioTrackRef.current?.length &&
-          audioTrackRef.current[0].stop();
+          audioTrackRef.current[0]?.stop &&
+          audioTrackRef.current[0]?.stop();
       };
     }
   }, []);
