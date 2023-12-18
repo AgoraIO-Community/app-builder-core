@@ -41,10 +41,8 @@ export interface IconButtonProps {
 
 const IconButton = (props: IconButtonProps) => {
   return (
-    <View style={[styles.rootContainerStyle, props.rootContainerStyle]}>
-      <ButtonWrapper {...props}>
-        <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
-      </ButtonWrapper>
+    <IconButtonWrapper {...props}>
+      <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
           numberOfLines={props?.btnTextProps?.numberOfLines || 1}
@@ -61,6 +59,20 @@ const IconButton = (props: IconButtonProps) => {
       ) : (
         <></>
       )}
+    </IconButtonWrapper>
+  );
+};
+
+const IconButtonWrapper = props => {
+  const {isOnActionSheet = false, children, rootContainerStyle} = props;
+  if (!isOnActionSheet) {
+    return <ButtonWrapper {...props}>{children}</ButtonWrapper>;
+  }
+  const [child1, ...restChildren] = React.Children.toArray(children);
+  return (
+    <View style={[styles.rootContainerStyle, rootContainerStyle]}>
+      <ButtonWrapper {...props}>{child1}</ButtonWrapper>
+      {restChildren}
     </View>
   );
 };
@@ -70,13 +82,15 @@ const ButtonWrapper = ({children, ...props}) => {
   return isMobileView ? (
     <TouchableOpacity
       ref={ref => props?.setRef && props.setRef(ref)}
-      style={[
-        !props.isOnActionSheet && styles.containerStyle,
-        props?.containerStyle,
-        !props.isOnActionSheet && props?.hoverEffect && props?.isToolTipVisible
-          ? props?.hoverEffectStyle
-          : {},
-      ]}
+      style={
+        !props.isOnActionSheet && [
+          styles.containerStyle,
+          props?.containerStyle,
+          props?.hoverEffect && props?.isToolTipVisible
+            ? props?.hoverEffectStyle
+            : {},
+        ]
+      }
       onPress={props.onPress}
       disabled={props.disabled}>
       {children}
