@@ -575,10 +575,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   // Port this to useEffectEvent(https://beta.reactjs.org/reference/react/useEffectEvent) when
   // released
   useEffect(() => {
-    AgoraRTC.onMicrophoneChanged = data => {
-      LocalEventEmitter.emit(LocalEventsEnum.MIC_CHANGED);
-      commonOnChangedEvent(data);
-    };
+    // AgoraRTC.onMicrophoneChanged = data => {
+    //   LocalEventEmitter.emit(LocalEventsEnum.MIC_CHANGED);
+    //   commonOnChangedEvent(data);
+    // };
+    AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
     return () => {
       AgoraRTC.onMicrophoneChanged = null;
     };
