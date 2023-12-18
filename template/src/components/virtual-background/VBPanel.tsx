@@ -98,7 +98,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {!callActive && !isLocalVideoON && !isMobile ? (
         <View style={{padding: 20, paddingBottom: 0}}>
           <InlineNotification
-            text="  Camera is currently off. Selected background will be applied as soon
+            text="Camera is currently off. Selected background will be applied as soon
         as your camera turns on."
           />
         </View>
