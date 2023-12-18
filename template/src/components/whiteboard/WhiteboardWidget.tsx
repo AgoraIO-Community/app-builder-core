@@ -10,11 +10,10 @@
 *********************************************
 */
 
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {Room, RoomState} from 'white-web-sdk';
 import {IconButton, useContent} from 'customization-api';
-import Spacer from '../../atoms/Spacer';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
@@ -126,25 +125,18 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
             <></>
           )}
           <ScaleController room={whiteboardRoom.current} />
-          <Seperator />
-          <TouchableOpacity
-            style={{
-              borderRadius: 4,
-              backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-            }}
-            onPress={exportWhiteboard}>
-            <Text
-              style={{
-                fontFamily: ThemeConfig.FontFamily.sansPro,
-                fontWeight: '600',
-                fontSize: 14,
-                color: $config.FONT_COLOR,
-              }}>
-              {'Export'}
-            </Text>
-          </TouchableOpacity>
+          {whiteboardRoom.current?.isWritable ? (
+            <>
+              <Seperator />
+              <TouchableOpacity
+                style={style.btnContainerStyle}
+                onPress={exportWhiteboard}>
+                <Text style={style.btnTextStyle}>{'Export'}</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <></>
+          )}
         </View>
       </View>
     </>
@@ -485,6 +477,20 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     elevation: 10,
     zIndex: 10,
+  },
+  btnContainerStyle: {
+    borderRadius: 4,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginLeft: 4,
+  },
+  btnTextStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 14,
+    color: $config.FONT_COLOR,
   },
 });
 

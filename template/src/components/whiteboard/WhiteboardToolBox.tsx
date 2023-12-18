@@ -671,7 +671,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             hoverEffect={true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
-              selectedTool === ApplianceNames.clicker
+              selectedTool === ApplianceNames.selector
                 ? style.itemSelectedStyle
                 : style.itemDefaultStyle
             }
@@ -833,6 +833,27 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
+          {/* <IconButton
+            toolTipMessage="Pencil Eraser"
+            placement={'right'}
+            showTooltipArrow={false}
+            onPress={() => {
+              handleSelect(ApplianceNames.pencilEraser);
+            }}
+            hoverEffect={true}
+            hoverEffectStyle={style.itemHoverStyle}
+            containerStyle={
+              selectedTool === ApplianceNames.pencilEraser
+                ? style.itemSelectedStyle
+                : style.itemDefaultStyle
+            }
+            iconProps={{
+              name: 'erasor',
+              iconSize: 24,
+              iconType: 'plain',
+              tintColor: $config.FONT_COLOR,
+            }}
+          /> */}
           <IconButton
             toolTipMessage="Erase"
             placement={'right'}
@@ -871,7 +892,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
-          {isWeb() ? (
+          {$config.ENABLE_WHITEBOARD_FILE_UPLOAD && isWeb() ? (
             <>
               <input
                 type="file"
@@ -901,7 +922,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           ) : (
             <></>
           )}
-          <IconButton
+          {/* <IconButton
             onPress={() => {
               testImageUpload();
             }}
@@ -917,7 +938,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               iconType: 'plain',
               tintColor: $config.FONT_COLOR,
             }}
-          />
+          /> */}
         </View>
       </View>
     </>
