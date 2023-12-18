@@ -46,14 +46,14 @@ const useIsLocalUserSpeaking = () => {
 
   const listenForSpeaker = async () => {
     try {
-      if (speechRef.current) {
-        speechRef.current?.stop && speechRef.current?.stop();
-      }
-      if (audioTrackRef?.current) {
-        audioTrackRef.current?.length &&
-          audioTrackRef.current[0]?.stop &&
-          audioTrackRef.current[0]?.stop();
-      }
+      // if (speechRef.current) {
+      //   speechRef.current?.stop && speechRef.current?.stop();
+      // }
+      // if (audioTrackRef?.current) {
+      //   audioTrackRef.current?.length &&
+      //     audioTrackRef.current[0]?.stop &&
+      //     audioTrackRef.current[0]?.stop();
+      // }
     } catch (error) {
       log(' Error on stopping the hark', error);
     }
@@ -79,13 +79,13 @@ const useIsLocalUserSpeaking = () => {
       await listenForSpeaker();
       return () => {
         try {
-          speechRef.current &&
-            speechRef.current.stop &&
-            speechRef.current.stop();
-          audioTrackRef.current &&
-            audioTrackRef.current?.length &&
-            audioTrackRef.current[0]?.stop &&
-            audioTrackRef.current[0]?.stop();
+          // speechRef.current &&
+          //   speechRef.current.stop &&
+          //   speechRef.current.stop();
+          // audioTrackRef.current &&
+          //   audioTrackRef.current?.length &&
+          //   audioTrackRef.current[0]?.stop &&
+          //   audioTrackRef.current[0]?.stop();
         } catch (error) {
           console.log('error couldnt stop the track');
         }
