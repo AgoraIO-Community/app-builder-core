@@ -28,7 +28,7 @@ import Transcript from '../../subComponents/caption/Transcript';
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
 const ActionSheet = props => {
-  const {snapPointsMinMax = [100, 350]} = props;
+  const {snapPointsMinMax = [100, 360]} = props;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {sidePanel, setSidePanel} = useSidePanel();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
