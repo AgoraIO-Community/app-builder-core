@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -45,10 +45,13 @@ import {useFocus} from '../utils/useFocus';
 import {SettingsHeader} from '../pages/video-call/SidePanelHeader';
 import {useUserPreference} from './useUserPreference';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
+import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import InlineNotification from '../../src/atoms/InlineNotification';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
   const {saveName} = useUserPreference();
+  const {whiteboardActive} = useContext(whiteboardContext);
   const [saved, setSaved] = useState(false);
   const username = useGetName();
   const [newName, setNewName] = useState(username);
@@ -114,6 +117,14 @@ const EditName: React.FC = (props?: EditNameProps) => {
     <>
       <Text style={editNameStyle.yournameText}>Your name</Text>
       <Spacer size={12} />
+      {whiteboardActive ? (
+        <>
+          <InlineNotification text="Name can't be changed while whiteboard is active" />
+          <Spacer size={12} />
+        </>
+      ) : (
+        <></>
+      )}
       <View style={editNameStyle.container}>
         <View style={editNameStyle.nameContainer}>
           <ImageIcon
@@ -128,7 +139,8 @@ const EditName: React.FC = (props?: EditNameProps) => {
             style={[
               editNameStyle.inputStyle,
               //true -> previously editable variable
-              !true
+              //!true
+              whiteboardActive
                 ? {
                     color:
                       $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
@@ -138,7 +150,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             onBlur={onPress}
             placeholder={username}
             value={newName}
-            editable={true}
+            editable={whiteboardActive ? false : true}
             onChangeText={text => setNewName(text)}
             onSubmitEditing={onPress}
             placeholderTextColor={

@@ -13,6 +13,7 @@ import React, {createContext} from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
 import {LanguageType} from '../../subComponents/caption/utils';
+import {BoardColor} from '../whiteboard/WhiteboardConfigure';
 export interface RoomInfoContextInterface {
   isJoinDataFetched?: boolean;
   data?: {
@@ -41,6 +42,7 @@ export interface RoomInfoContextInterface {
   };
   isInWaitingRoom?: boolean;
   isWhiteBoardOn?: boolean;
+  boardColor?: BoardColor;
   sttLanguage?: {
     username?: string;
     prevLang?: LanguageType[];

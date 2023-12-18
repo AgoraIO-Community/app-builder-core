@@ -252,28 +252,52 @@ const EventsConfigure: React.FC<Props> = props => {
       });
     });
 
-    events.on('WhiteBoardStarted', () => {
-      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
-        setRoomInfo(prev => {
-          return {
-            ...prev,
-            isWhiteBoardOn: true,
-          };
-        });
+    events.on(EventNames.WHITEBOARD_ACTIVE, ({payload}) => {
+      const data = JSON.parse(payload);
+      if (data && data?.status) {
+        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+          setRoomInfo(prev => {
+            return {
+              ...prev,
+              isWhiteBoardOn: true,
+            };
+          });
+        } else {
+          LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL, {
+            status: data?.status,
+          });
+        }
       } else {
-        LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ON);
+        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+          setRoomInfo(prev => {
+            return {
+              ...prev,
+              isWhiteBoardOn: false,
+            };
+          });
+        } else {
+          LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL, {
+            status: data?.status,
+          });
+        }
       }
     });
-    events.on('WhiteBoardStopped', () => {
-      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
-        setRoomInfo(prev => {
-          return {
-            ...prev,
-            isWhiteBoardOn: false,
-          };
-        });
-      } else {
-        LocalEventEmitter.emit(LocalEventsEnum.WHITEBOARD_OFF);
+
+    events.on(EventNames.BOARD_COLOR_CHANGED, ({payload}) => {
+      const data = JSON.parse(payload);
+      if (data?.boardColor) {
+        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+          setRoomInfo(prev => {
+            return {
+              ...prev,
+              boardColor: data?.boardColor,
+            };
+          });
+        } else {
+          LocalEventEmitter.emit(LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL, {
+            boardColor: data?.boardColor,
+          });
+        }
       }
     });
 
@@ -565,8 +589,8 @@ const EventsConfigure: React.FC<Props> = props => {
       events.off(controlMessageEnum.kickUser);
       events.off(EventNames.WAITING_ROOM_REQUEST);
       events.off(EventNames.WAITING_ROOM_STATUS_UPDATE);
-      events.off('WhiteBoardStarted');
-      events.off('WhiteBoardStopped');
+      events.off(EventNames.WHITEBOARD_ACTIVE);
+      events.off(EventNames.BOARD_COLOR_CHANGED);
       events.off(EventNames.STT_ACTIVE);
       events.off(EventNames.STT_LANGUAGE);
     };

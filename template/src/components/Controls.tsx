@@ -70,7 +70,7 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 
-import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
 import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
@@ -101,27 +101,28 @@ const WhiteboardListener = () => {
     }
   }, [isWhiteBoardOn, isHost]);
 
+  const WhiteboardCallBack = ({status}) => {
+    if (status) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  };
+
   useEffect(() => {
     if (
       !$config.ENABLE_WAITING_ROOM ||
       ($config.ENABLE_WAITING_ROOM && isHost)
     ) {
       LocalEventEmitter.on(
-        LocalEventsEnum.WHITEBOARD_ON,
-        WhiteboardStartedCallBack,
+        LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+        WhiteboardCallBack,
       );
-      LocalEventEmitter.on(
-        LocalEventsEnum.WHITEBOARD_OFF,
-        WhiteboardStoppedCallBack,
-      );
+
       return () => {
-        LocalEventEmitter.off(
-          LocalEventsEnum.WHITEBOARD_ON,
-          WhiteboardStartedCallBack,
-        );
-        LocalEventEmitter.off(
-          LocalEventsEnum.WHITEBOARD_OFF,
-          WhiteboardStoppedCallBack,
+        LocalEventEmitter.on(
+          LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+          WhiteboardCallBack,
         );
       };
     }
@@ -159,8 +160,8 @@ const WhiteboardListener = () => {
         setLayout('grid');
         triggerEvent &&
           events.send(
-            'WhiteBoardStopped',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: false}),
             PersistanceLevel.Session,
           );
       } else {
@@ -173,8 +174,8 @@ const WhiteboardListener = () => {
         setLayout('pinned');
         triggerEvent &&
           events.send(
-            'WhiteBoardStarted',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: true}),
             PersistanceLevel.Session,
           );
       }
@@ -296,38 +297,25 @@ const MoreButton = () => {
 
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-
-    // if (!$config.ENABLE_WAITING_ROOM) {
-    //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
-    // }
-
-    // return () => {
-    //   if (!$config.ENABLE_WAITING_ROOM) {
-    //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
-    //   }
-    // };
   }, []);
+
+  const WhiteboardCallBack = ({status}) => {
+    if (status) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  };
 
   useEffect(() => {
     LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBOARD_ON,
-      WhiteboardStartedCallBack,
+      LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+      WhiteboardCallBack,
     );
-    LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBOARD_OFF,
-      WhiteboardStoppedCallBack,
-    );
-
     return () => {
       LocalEventEmitter.off(
-        LocalEventsEnum.WHITEBOARD_ON,
-        WhiteboardStartedCallBack,
-      );
-      LocalEventEmitter.off(
-        LocalEventsEnum.WHITEBOARD_OFF,
-        WhiteboardStoppedCallBack,
+        LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+        WhiteboardCallBack,
       );
     };
   }, []);
@@ -343,8 +331,8 @@ const MoreButton = () => {
         setLayout('grid');
         triggerEvent &&
           events.send(
-            'WhiteBoardStopped',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: false}),
             PersistanceLevel.Session,
           );
       } else {
@@ -357,8 +345,8 @@ const MoreButton = () => {
         setLayout('pinned');
         triggerEvent &&
           events.send(
-            'WhiteBoardStarted',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: true}),
             PersistanceLevel.Session,
           );
       }
