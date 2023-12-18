@@ -326,6 +326,10 @@ const Precall = (props: any) => {
     return undefined;
   });
 
+  if (isVBAvaialble) {
+    return <VBPanel isOnPrecall={true} />;
+  }
+
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
   return FpePrecallComponent ? (
     <FpePrecallComponent />
@@ -406,7 +410,6 @@ const Precall = (props: any) => {
             </View>
           )}
         </ScrollView>
-        {isVBAvaialble ? <VBPanel isOnPrecall={true} /> : <></>}
       </View>
       <PrecallAfterView />
     </>
