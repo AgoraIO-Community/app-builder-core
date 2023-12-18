@@ -126,4 +126,6 @@ export interface IconsInterface {
   selector: string;
   shapes: string;
   text: string;
+  'color-picker': string;
+  'fit-to-screen': string;
 }

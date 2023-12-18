@@ -7,6 +7,7 @@ export enum LocalEventsEnum {
   WHITEBOARD_ON = 'WHITEBOARD_ON',
   WHITEBOARD_OFF = 'WHITEBOARD_OFF',
   MIC_CHANGED = 'MIC_CHANGED',
+  CLEAR_WHITEBOARD = 'CLEAR_WHITEBOARD',
 }
 const LocalEventEmitter = new EventEmitter();
 export default LocalEventEmitter;

@@ -63,9 +63,23 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                   tintColor: $config.FONT_COLOR,
                 }}
               />
-              <Spacer size={8} horizontal={true} />
+              <View
+                style={{
+                  marginHorizontal: 4,
+                  width: 2,
+                  height: 24,
+                  backgroundColor: $config.CARD_LAYER_4_COLOR,
+                }}
+              />
               <RedoUndo room={whiteboardRoom.current} />
-              <Spacer size={8} horizontal={true} />
+              <View
+                style={{
+                  marginHorizontal: 4,
+                  width: 2,
+                  height: 24,
+                  backgroundColor: $config.CARD_LAYER_4_COLOR,
+                }}
+              />
             </>
           ) : (
             <></>
@@ -212,6 +226,32 @@ class ScaleController extends React.Component<
     return (
       <>
         <IconButton
+          toolTipMessage={'Fit to screen'}
+          placement={'bottom'}
+          showTooltipArrow={false}
+          onPress={() => {
+            //open submenu
+            this.zoomChange(1);
+          }}
+          hoverEffect={true}
+          hoverEffectStyle={style.itemHoverStyle}
+          containerStyle={style.itemDefaultStyle}
+          iconProps={{
+            name: 'fit-to-screen',
+            iconSize: 24,
+            iconType: 'plain',
+            tintColor: $config.FONT_COLOR,
+          }}
+        />
+        <View
+          style={{
+            marginHorizontal: 4,
+            width: 2,
+            height: 24,
+            backgroundColor: $config.CARD_LAYER_4_COLOR,
+          }}
+        />
+        <IconButton
           toolTipMessage="Zoom Out"
           placement={'bottom'}
           showTooltipArrow={false}
@@ -228,24 +268,7 @@ class ScaleController extends React.Component<
             tintColor: $config.FONT_COLOR,
           }}
         />
-        <IconButton
-          toolTipMessage={'Recenter'}
-          placement={'bottom'}
-          showTooltipArrow={false}
-          onPress={() => {
-            //open submenu
-            this.zoomChange(1);
-          }}
-          hoverEffect={true}
-          hoverEffectStyle={style.itemHoverStyle}
-          containerStyle={style.itemDefaultStyle}
-          iconProps={{
-            name: 'circle',
-            iconSize: 24,
-            iconType: 'plain',
-            tintColor: $config.FONT_COLOR,
-          }}
-        />
+
         <IconButton
           toolTipMessage={'Zoom In'}
           placement={'bottom'}
@@ -398,7 +421,7 @@ const style = StyleSheet.create({
     zIndex: 10,
   },
   toolboxNew: {
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
     borderRadius: 4,
     marginRight: 'auto',
     padding: 4,

@@ -7,7 +7,6 @@
   font-style: normal;
   font-display: block;
 }
-
 [class^='icon-'],
 [class*=' icon-'] {
   /* use !important to prevent issues with browser extensions that change fonts */
@@ -24,6 +23,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-mask:before {
+  content: '\e977';
+  color: #fff;
+}
+.icon-color-picker:before {
+  content: '\e978';
+  color: #fff;
+}
+.icon-fit-to-screen:before {
+  content: '\e979';
+  color: #fff;
+}
 .icon-zoom-in:before {
   content: '\e963';
   color: #fff;
