@@ -7,6 +7,7 @@ import {
   Pressable,
   PressableProps,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import {isMobileUA, isWebInternal} from '../utils/common';
@@ -25,6 +26,7 @@ export interface IconButtonProps {
   onPress?: PressableProps['onPress'];
   disabled?: boolean;
   containerStyle?: ViewStyle;
+  rootContainerStyle?: ViewStyle;
   btnTextProps?: BtnTextProps;
   iconProps: ImageIconProps;
   toolTipMessage?: string;
@@ -39,7 +41,7 @@ export interface IconButtonProps {
 
 const IconButton = (props: IconButtonProps) => {
   return (
-    <ButtonWrapper {...props}>
+    <IconButtonWrapper {...props}>
       <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
@@ -57,7 +59,21 @@ const IconButton = (props: IconButtonProps) => {
       ) : (
         <></>
       )}
-    </ButtonWrapper>
+    </IconButtonWrapper>
+  );
+};
+
+const IconButtonWrapper = props => {
+  const {isOnActionSheet = false, children, rootContainerStyle} = props;
+  if (!isOnActionSheet) {
+    return <ButtonWrapper {...props}>{children}</ButtonWrapper>;
+  }
+  const [child1, ...restChildren] = React.Children.toArray(children);
+  return (
+    <View style={[styles.rootContainerStyle, rootContainerStyle]}>
+      <ButtonWrapper {...props}>{child1}</ButtonWrapper>
+      {restChildren}
+    </View>
   );
 };
 
@@ -150,6 +166,9 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
 export default IconButtonWithToolTip;
 
 const styles = StyleSheet.create({
+  rootContainerStyle: {
+    alignItems: 'center',
+  },
   containerStyle: {
     flex: 1,
     flexDirection: 'column',

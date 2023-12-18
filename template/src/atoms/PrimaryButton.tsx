@@ -27,7 +27,7 @@ import ImageIcon from '../atoms/ImageIcon';
 export interface PrimaryButtonProps extends TouchableOpacityProps {
   text?: string;
   iconName?: keyof IconsInterface;
-  containerStyle?: ViewStyle;
+  containerStyle?: ViewStyle | ViewStyle[];
   textStyle?: TextStyle;
   iconSize?: number;
   iconColor?: string;

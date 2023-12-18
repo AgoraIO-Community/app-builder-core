@@ -1,58 +1,51 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import React, {useContext} from 'react';
-import {useLocalUserInfo} from 'customization-api';
-import {RtcContext} from '../../../agora-rn-uikit';
-import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
-import AgoraRTC from 'agora-rtc-sdk-ng';
-import {useVB} from './useVB';
+import {RtcContext, MaxVideoView} from '../../../agora-rn-uikit';
 import ThemeConfig from '../../../src/theme';
-import {isMobileUA} from '../../utils/common';
+import {useContent, useLocalUserInfo, useRtc} from 'customization-api';
+import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import InlineNotification from '../../atoms/InlineNotification';
+import {RtcLocalView, VideoRenderMode} from 'react-native-agora';
+
+const LocalView = RtcLocalView.SurfaceView;
 
 const VideoPreview = () => {
-  const {setPreviewVideoTrack, setSaveVB, previewVideoTrack} = useVB();
-  const rtc = useContext(RtcContext);
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
-
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
+  const {defaultContent, activeUids} = useContent();
+  const [maxUid] = activeUids;
+  const rtc = useRtc();
+  rtc?.RtcEngineUnsafe?.startPreview();
 
-  const createCameraTrack = async () => {
-    if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {
-      const localVideo = await AgoraRTC.createCameraVideoTrack();
-      localVideo.play(vContainerRef.current);
-      setPreviewVideoTrack(localVideo);
-      return localVideo;
-    }
-    return null;
-  };
+  const Preview2 = () => (
+    <MaxVideoView
+      fallback={() => {
+        return <></>;
+      }}
+      user={defaultContent[maxUid]}
+      containerStyle={{
+        width: '100%',
+        height: '100%',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+      }}
+      isPrecallScreen={true}
+    />
+  );
 
-  React.useEffect(() => {
-    let localVideo = null;
-    const initialize = async () => {
-      localVideo = await createCameraTrack();
-    };
-
-    initialize();
-    return () => {
-      console.log('cleanup local preview');
-      if (localVideo) {
-        localVideo.stop();
-        localVideo.close();
-        setPreviewVideoTrack(null);
-        setSaveVB(false);
-      }
-    };
-  }, [isLocalVideoON]);
+  const Preview = () => (
+    <LocalView
+      ref={vContainerRef}
+      style={{flex: 1}}
+      renderMode={VideoRenderMode.Fit}
+    />
+  );
 
   return (
     <View style={styles.previewContainer}>
       {isLocalVideoON ? (
-        <View
-          ref={vContainerRef}
-          style={
-            isMobileUA() ? styles.mobilePreview : styles.desktopPreview
-          }></View>
+        <Preview />
       ) : (
         <InlineNotification
           text="  Camera is currently off. Selected background will be applied as soon

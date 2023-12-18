@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
+    flex: 1,
   },
   textContainer: {
     padding: 12,

@@ -42,6 +42,8 @@ import {CustomToolbarSort} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
+import VBButton from '../../components/virtual-background/VBButton';
+import {useVB} from '../../components/virtual-background/useVB';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -95,6 +97,19 @@ const RecordingIcon = () => {
   return (
     <ToolbarItem>
       <Recording />
+    </ToolbarItem>
+  );
+};
+
+const VBIcon = () => {
+  const {isVBActive, setIsVBActive} = useVB();
+  return (
+    <ToolbarItem>
+      <VBButton
+        isVBOpen={isVBActive}
+        setIsVBOpen={setIsVBActive}
+        showLabel={true}
+      />
     </ToolbarItem>
   );
 };
@@ -389,7 +404,6 @@ const ActionSheetContent = props => {
 
   const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
 
-  const isPaginationRequired = isLiveStream || (isConferencing && isHost);
   const localUser = useLocalUserInfo();
 
   const isVideoDisabled = native
@@ -460,16 +474,10 @@ const ActionSheetContent = props => {
           ) : null
         ) : null,
     },
+
     {
       default: true,
       order: 5,
-      hide: 'no',
-      align: 'start',
-      component: <LayoutIcon />,
-    },
-    {
-      default: true,
-      order: 6,
       hide: 'no',
       align: 'start',
       component: !(
@@ -480,17 +488,34 @@ const ActionSheetContent = props => {
     },
     {
       default: true,
-      order: 7,
+      order: 6,
       hide: 'no',
       align: 'start',
       component: <ParticipantsIcon />,
     },
     {
       default: true,
-      order: 8,
+      order: 7,
       hide: 'no',
       align: 'start',
       component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
+    },
+    {
+      default: true,
+      order: 7,
+      hide: 'no',
+      align: 'start',
+      component:
+        $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM ? (
+          <VBIcon />
+        ) : null,
+    },
+    {
+      default: true,
+      order: 8,
+      hide: 'no',
+      align: 'start',
+      component: <LayoutIcon />,
     },
     {
       default: true,
@@ -526,25 +551,14 @@ const ActionSheetContent = props => {
         />
       ),
     },
+    {
+      default: true,
+      order: 13,
+      hide: 'no',
+      align: 'start',
+      component: <TranscriptIconBtn />,
+    },
   ];
-
-  //todo: hari refactor STT button and Native screenshare button
-  //and add into above array
-  //todo: hari - update CarouselWrapper pagination logic based on array length
-  /**
-     {$config.ENABLE_STT ? (
-      <CaptionIconBtn
-        onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
-      />
-    ) : (
-      <></>
-    )}
-    {native && !$config.ENABLE_STT && $config.SCREEN_SHARING ? (
-      <ScreenshareIcon />
-    ) : (
-      <></>
-    )}
-  */
 
   const isHidden = i => {
     return i?.hide === 'yes';
@@ -595,59 +609,48 @@ const ActionSheetContent = props => {
           )}
         </View>
       </ActionSheetProvider>
-      <CarouselWrapper
-        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
-        native={native}>
-        <>
-          {combinedItems?.length > 4 &&
-            combinedItems?.slice(3, combinedItems?.length)?.map(i => {
-              const Component = i?.component;
-              if (Component) {
-                return i?.default ? Component : <Component />;
-              } else {
-                return null;
-              }
-            })}
-        </>
-      </CarouselWrapper>
+
+      <CarouselWrapper data={combinedItems?.slice(3, combinedItems?.length)} />
     </View>
   );
 };
+const CarouselWrapper = ({data}) => {
+  const createSlides = () => {
+    const slides = [];
+    const items = data || [];
+    // one slide can contain max of 8 icons
+    for (let i = 0; i < items.length; i += 8) {
+      const slideItems = items.slice(i, i + 8).map(item => {
+        const Component = item?.component;
+        return Component ? (
+          item.default ? (
+            Component
+          ) : (
+            <Component key={item.id} />
+          )
+        ) : null;
+      });
 
-const CarouselWrapper = ({isPaginationRequired, children, native}) => {
-  return isPaginationRequired ? (
-    <View style={{flexDirection: 'row'}}>
-      <Carousel
-        data={[
-          {
-            id: 'slide_1',
-            component: <View style={styles.row}>{children}</View>,
-          },
-          {
-            id: 'slide_2',
-            component: (
-              <View style={styles.row}>
-                {/* Transcript */}
-                <TranscriptIconBtn />
-                {/* {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>} */}
-              </View>
-            ),
-          },
-        ]}
-      />
-    </View>
-  ) : (
-    <View style={styles.row}>
-      {$config.ENABLE_STT ? (
-        <>
-          {children}
-          <TranscriptIconBtn />
-        </>
-      ) : (
-        children
-      )}
-    </View>
-  );
+      slides.push({
+        id: `slide_${Math.floor(i / 8) + 1}`,
+        component: <View style={styles.row}>{slideItems}</View>,
+      });
+    }
+
+    return slides;
+  };
+
+  const slides = createSlides();
+
+  const isPaginationRequired = slides.length > 1;
+
+  if (isPaginationRequired)
+    return (
+      <View style={{flexDirection: 'row'}}>
+        <Carousel data={slides} />
+      </View>
+    );
+  return <View style={styles.row}>{slides[0].component}</View>;
 };
 
 export default ActionSheetContent;

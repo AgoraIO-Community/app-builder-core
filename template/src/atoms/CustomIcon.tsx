@@ -106,4 +106,5 @@ export interface IconsInterface {
   blur: string;
   add: string;
   'upload-new': string;
+  warning: string;
 }

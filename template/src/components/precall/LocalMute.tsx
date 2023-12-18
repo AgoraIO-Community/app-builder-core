@@ -24,9 +24,7 @@ import LocalVideoMute, {
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import PreCallSettings from './PreCallSettings';
-import Spacer from '../../atoms/Spacer';
+
 import {usePreCall} from './usePreCall';
 import DeviceContext from '../DeviceContext';
 import VBButton from '../virtual-background/VBButton';
@@ -117,44 +115,31 @@ const PreCallLocalMute = (props: PreCallProps) => {
   }, [videoDevices]);
   return (
     <View
-      style={[style.precallControls, isMobileView && {paddingVertical: 10}]}
+      style={[
+        style.precallControls,
+        isMobileView && {
+          paddingVertical: 10,
+          borderBottomLeftRadius: 8,
+          borderBottomRightRadius: 8,
+          flex: 1,
+        },
+      ]}
       testID="precall-controls">
       <AudioMute showToolTip={true} />
 
       {!$config.AUDIO_ROOM && (
-        <>
-          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
+        <View style={{marginLeft: isMobileView ? 24 : 16}}>
           <VideoMute showToolTip={true} />
-        </>
+        </View>
       )}
 
-      {/* Settings View in Mobile */}
-      {isMobileView && !isNative && (
-        <>
-          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <PreCallSettings />
-        </>
-      )}
-      {/* {$config.ENABLE_VIRTUAL_BACKGROUND &&
-        !isMobileUA() &&
-        !$config.AUDIO_ROOM && (
-          <>
-            <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
-            <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
-          </>
-        )}
       {$config.ENABLE_VIRTUAL_BACKGROUND &&
         !$config.AUDIO_ROOM &&
-        !isMobileView &&
-        !isNative && (
-          <>
-            <Spacer size={isMobileView ? 24 : 16} horizontal={true} />{' '}
-            <SettingsButton
-              isSettingsOpen={isSettingsOpen}
-              setIsSettingsOpen={setIsSettingsOpen}
-            />
-          </>
-        )} */}
+        isMobileView && (
+          <View style={{marginLeft: isMobileView ? 24 : 16}}>
+            <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
+          </View>
+        )}
     </View>
   );
 };
@@ -197,7 +182,5 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    // borderBottomLeftRadius: 4,
-    // borderBottomRightRadius: 4,
   },
 });
