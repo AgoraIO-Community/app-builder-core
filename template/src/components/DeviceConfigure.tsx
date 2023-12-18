@@ -715,13 +715,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       // leadingIcon: <CustomIcon name={'mic-on'} />,
       text1: `New ${name} detected`,
       // @ts-ignore
-      text2: (
-        <Text>
-          <Text>New {name} named </Text>
-          <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
-          <Text> detected. Do you want to switch?</Text>
-        </Text>
-      ),
+      // its causing issue on rendering text inside the text
+      // text2: (
+      //   <Text>
+      //     <Text>New {name} named </Text>
+      //     <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
+      //     <Text> detected. Do you want to switch?</Text>
+      //   </Text>
+      // ),
+      text2: `New ${name} name ${device.label} detected. Do you want to switch?`,
       visibilityTime: 6000,
       checkbox: {
         disabled: false,
