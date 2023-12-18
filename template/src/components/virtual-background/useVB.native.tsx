@@ -41,8 +41,6 @@ type VBContextValue = {
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
-  previewVideoEngine: RtcEngine;
-  setPreviewVideoEngine: React.Dispatch<React.SetStateAction<RtcEngine>>;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -58,8 +56,6 @@ export const VBContext = React.createContext<VBContextValue>({
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
-  previewVideoEngine: null,
-  setPreviewVideoEngine: () => {},
 });
 
 const downloadBase64Image = async (base64Data, filename) => {
@@ -83,8 +79,6 @@ const VBProvider: React.FC = ({children}) => {
   const [saveVB, setSaveVB] = React.useState(false);
   // can be original video track/clone track
   const [previewVideoTrack, setPreviewVideoTrack] = React.useState<null>(null);
-  const [previewVideoEngine, setPreviewVideoEngine] =
-    React.useState<RtcEngine>(null);
   const [options, setOptions] = React.useState<Option[]>(imagePathsArray);
 
   const rtc = useRtc();
@@ -109,7 +103,6 @@ const VBProvider: React.FC = ({children}) => {
         ]);
       } catch (error) {
         console.error('Error fetching data:', error);
-        // Handle the error as needed
       }
     };
 
@@ -211,8 +204,6 @@ const VBProvider: React.FC = ({children}) => {
         setSaveVB,
         options,
         setOptions,
-        previewVideoEngine,
-        setPreviewVideoEngine,
       }}>
       {children}
     </VBContext.Provider>
