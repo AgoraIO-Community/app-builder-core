@@ -190,8 +190,12 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
-  const {setUploadRef, insertImageIntoWhiteboard, boardColor, whiteboardUid} =
-    useContext(whiteboardContext);
+  const {
+    setUploadRef,
+    insertImageIntoWhiteboard,
+    boardColor,
+    getWhiteboardUid,
+  } = useContext(whiteboardContext);
   const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
   const [isColorBtnHovered, setColorBtnHovered] = useState(false);
@@ -644,7 +648,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 
   const {activeUids} = useContent();
 
-  if (activeUids && activeUids[0] !== whiteboardUid) {
+  if (activeUids && activeUids[0] !== getWhiteboardUid()) {
     return null;
   }
 

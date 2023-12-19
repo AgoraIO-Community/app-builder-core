@@ -5,22 +5,32 @@ import {useContent} from 'customization-api';
 import WhiteboardView from './WhiteboardView';
 
 const WhiteboardWrapper = () => {
-  const {whiteboardUid} = useContext(whiteboardContext);
+  const {getWhiteboardUid} = useContext(whiteboardContext);
   const {customContent, pinnedUid, activeUids} = useContent();
 
-  return (
-    <VideoRenderer
-      isMax={whiteboardUid === pinnedUid || whiteboardUid === activeUids[0]}
-      user={{
-        uid: customContent[whiteboardUid].uid,
-        type: 'whiteboard',
-        video: 0,
-        audio: 0,
-        parentUid: undefined,
-      }}
-      CustomChild={WhiteboardView}
-    />
-  );
+  if (
+    customContent &&
+    getWhiteboardUid() &&
+    customContent[getWhiteboardUid()]?.uid
+  ) {
+    return (
+      <VideoRenderer
+        isMax={
+          getWhiteboardUid() === pinnedUid ||
+          getWhiteboardUid() === activeUids[0]
+        }
+        user={{
+          uid: customContent[getWhiteboardUid()]?.uid,
+          type: 'whiteboard',
+          video: 0,
+          audio: 0,
+          parentUid: undefined,
+        }}
+        CustomChild={WhiteboardView}
+      />
+    );
+  }
+  return null;
 };
 
 export default WhiteboardWrapper;

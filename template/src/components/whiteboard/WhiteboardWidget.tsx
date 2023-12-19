@@ -35,12 +35,16 @@ const Seperator = () => {
 };
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
-  const {setBoardColor, boardColor, whiteboardUid} =
+  const {setBoardColor, boardColor, getWhiteboardUid} =
     useContext(whiteboardContext);
 
   const {activeUids} = useContent();
 
-  if (activeUids && activeUids?.length && activeUids[0] !== whiteboardUid) {
+  if (
+    activeUids &&
+    activeUids?.length &&
+    activeUids[0] !== getWhiteboardUid()
+  ) {
     return null;
   }
 

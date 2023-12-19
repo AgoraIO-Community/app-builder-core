@@ -80,6 +80,7 @@ export interface whiteboardContextInterface {
   setBoardColor: React.Dispatch<React.SetStateAction<BoardColor>>;
   setUploadRef: () => void;
   insertImageIntoWhiteboard: (url: string) => void;
+  getWhiteboardUid: () => number;
 }
 
 export interface WhiteboardPropsInterface {
@@ -336,6 +337,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     }
   }, [whiteboardActive]);
 
+  const getWhiteboardUid = () => {
+    return whiteboardUidRef?.current;
+  };
+
   return (
     <whiteboardContext.Provider
       value={{
@@ -345,6 +350,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         leaveWhiteboardRoom,
         whiteboardRoom,
         whiteboardUid: whiteboardUidRef.current,
+        getWhiteboardUid,
         boardColor,
         setBoardColor,
         setUploadRef,
