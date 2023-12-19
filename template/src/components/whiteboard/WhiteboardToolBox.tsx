@@ -970,19 +970,19 @@ const style = StyleSheet.create({
   },
   toolboxContainer: {
     position: 'absolute',
-    top: 180,
+    top: '25%',
     left: 12,
     zIndex: 10,
   },
   toolboxShapesContainer: {
     position: 'absolute',
-    top: 280,
+    top: '38%',
     left: 65,
     zIndex: 10,
   },
   toolboxColorsContainer: {
     position: 'absolute',
-    top: 300,
+    top: '42%',
     left: 65,
     zIndex: 10,
   },
