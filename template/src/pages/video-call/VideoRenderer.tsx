@@ -295,10 +295,20 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               )}
             </VisibilitySensor>
           </ZoomableWrapper>
-          {!isScreenShareOnFullView && !CustomChild && (
+          {(!isScreenShareOnFullView && !CustomChild) ||
+          (CustomChild &&
+            (pinnedUid !== getWhiteboardUid() || currentLayout === 'grid')) ? (
             <VideoContainerProvider value={{videoTileWidth}}>
-              <NameWithMicIcon name={user.name} muted={!user.audio} />
+              <NameWithMicIcon
+                name={user.name}
+                muted={CustomChild ? undefined : !user.audio}
+                customBgColor={
+                  CustomChild ? $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR : null
+                }
+              />
             </VideoContainerProvider>
+          ) : (
+            <></>
           )}
           {!isScreenShareOnFullView &&
           // user.uid !== rtcProps?.screenShareUid &&

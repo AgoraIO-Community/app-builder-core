@@ -25,6 +25,8 @@ const WhiteboardWrapper = () => {
           video: 0,
           audio: 0,
           parentUid: undefined,
+          name: 'Whiteboard',
+          muted: undefined,
         }}
         CustomChild={WhiteboardView}
       />
