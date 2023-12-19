@@ -2,11 +2,13 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
+import {isMobileUA} from '../../src/utils/common';
 
 const InlineNotification = (props: {text: string}) => {
   const {text} = props;
+  const isMobile = isMobileUA();
   return (
-    <View style={styles.textContainer}>
+    <View style={[styles.container, isMobile && styles.mobileContainer]}>
       <View style={styles.iconStyleView}>
         <ImageIcon
           base64={true}
@@ -31,7 +33,15 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     flex: 1,
   },
-  textContainer: {
+  mobileContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    marginHorizontal: 20,
+  },
+  container: {
     padding: 12,
     borderRadius: 4,
     backgroundColor: 'rgba(255, 171, 0, 0.15)',
