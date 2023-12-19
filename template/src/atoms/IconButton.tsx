@@ -43,7 +43,11 @@ export interface IconButtonProps {
 const IconButton = (props: IconButtonProps) => {
   return (
     <IconButtonWrapper {...props}>
-      <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+      {props?.iconProps ? (
+        <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+      ) : (
+        <></>
+      )}
       {props?.btnTextProps?.text ? (
         <Text
           numberOfLines={props?.btnTextProps?.numberOfLines || 1}

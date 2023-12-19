@@ -31,6 +31,7 @@ import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useVideoCall} from '../../components/useVideoCall';
 import VisibilitySensor from './VisibilitySensor';
 import ImageIcon from '../../atoms/ImageIcon';
+import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -62,7 +63,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const {setVideoTileInViewPortState} = useVideoCall();
-
+  const {getWhiteboardUid} = useWhiteboard();
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
   );
@@ -319,7 +320,10 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               containerStyle={maxStyle.replacePinContainer}
               btnTextProps={{
                 //text: showReplacePin ? 'Replace Pin' : 'View in large',
-                text: 'View in large',
+                text:
+                  user.uid === getWhiteboardUid()
+                    ? 'View Whiteboard'
+                    : 'View in large',
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {
                   marginTop: 0,
@@ -327,12 +331,16 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                   marginLeft: 6,
                 },
               }}
-              iconProps={{
-                name: 'pin-filled',
-                iconSize: 20,
-                iconType: 'plain',
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-              }}
+              iconProps={
+                user.uid === getWhiteboardUid()
+                  ? null
+                  : {
+                      name: 'pin-filled',
+                      iconSize: 20,
+                      iconType: 'plain',
+                      tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                    }
+              }
             />
           ) : (
             <></>
