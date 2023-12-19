@@ -13,13 +13,14 @@
 import React, {useContext} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {Room, RoomState} from 'white-web-sdk';
-import {IconButton, useContent} from 'customization-api';
+import {IconButton, useContent, useLayout} from 'customization-api';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {randomString} from '../../utils/common';
 import Toast from '../../../react-native-toast-message';
 import ThemeConfig from '../../theme';
+import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 
 const Seperator = () => {
   return (
@@ -38,12 +39,16 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
   const {setBoardColor, boardColor, getWhiteboardUid} =
     useContext(whiteboardContext);
 
-  const {activeUids} = useContent();
+  const {activeUids, pinnedUid} = useContent();
+  const {currentLayout} = useLayout();
 
   if (
-    activeUids &&
-    activeUids?.length &&
-    activeUids[0] !== getWhiteboardUid()
+    !(
+      currentLayout === DefaultLayouts[1].name &&
+      activeUids &&
+      activeUids?.length &&
+      (activeUids[0] === getWhiteboardUid() || pinnedUid === getWhiteboardUid())
+    )
   ) {
     return null;
   }

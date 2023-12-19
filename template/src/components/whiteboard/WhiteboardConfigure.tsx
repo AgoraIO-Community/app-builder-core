@@ -1,4 +1,4 @@
-import {UidType, useContent, useRoomInfo} from 'customization-api';
+import {UidType, useContent, useLayout, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
@@ -9,6 +9,7 @@ import LocalEventEmitter, {
 } from '../../rtm-events-api/LocalEvents';
 import {CursorTool} from './WhiteboardCursor';
 import useUserName from '../../utils/useUserName';
+import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 
 export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
 if (whiteboardPaper) {
@@ -98,7 +99,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const whiteboardUidRef = useRef(Date.now());
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
-  const {pinnedUid} = useContent();
+  const {pinnedUid, activeUids} = useContent();
   const prevImageUploadHeightRef = useRef(0);
   const cursorAdapter = new CursorTool();
   const uploadPendingRef = useRef(false);
@@ -123,6 +124,27 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
     boardColor: boardColorRemote,
   } = useRoomInfo();
+  const {currentLayout} = useLayout();
+
+  useEffect(() => {
+    try {
+      if (whiteboardRoomState === RoomPhase.Connected && isHost) {
+        if (
+          currentLayout === DefaultLayouts[1].name &&
+          activeUids &&
+          activeUids?.length &&
+          (activeUids[0] === getWhiteboardUid() ||
+            pinnedUid === getWhiteboardUid())
+        ) {
+          whiteboardRoom?.current?.setWritable(true);
+        } else {
+          whiteboardRoom?.current?.setWritable(false);
+        }
+      }
+    } catch (error) {
+      console.log('debugging error on whiteboard setWritable ', error);
+    }
+  }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
 
   const BoardColorChangedCallBack = ({boardColor}) => {
     setBoardColor(boardColor);
