@@ -405,7 +405,6 @@ const Precall = () => {
                   }>
                   <View style={style.desktopRootcontainer}>
                     <View>
-                      {' '}
                       <MeetingName prefix="You are joining" />
                     </View>
                     <View style={style.desktopContainer}>
