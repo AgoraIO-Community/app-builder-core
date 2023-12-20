@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRole, ToggleState} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useRoomInfo} from './room-info/useRoomInfo';
@@ -31,7 +31,7 @@ import isSDKCheck from '../utils/isSDK';
 import Logo from './common/Logo';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
-import {useRtc} from 'customization-api';
+import {useLocalUserInfo, useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 
@@ -44,6 +44,8 @@ import {DeviceSelectProps} from './precall/selectDevice';
 import PreCallSettings from './precall/PreCallSettings';
 import VBPanel from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
+import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
+import styles from 'react-native-toast-message/src/styles';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -289,6 +291,8 @@ const Precall = (props: any) => {
   const isSDK = isSDKCheck();
 
   const {store} = useContext(StorageContext);
+  const local = useLocalUserInfo();
+  const isLocalVideoON = local.video === ToggleState.enabled;
 
   useEffect(() => {
     if (isWebInternal() && !isSDK) {
@@ -387,7 +391,18 @@ const Precall = (props: any) => {
                     <View
                       style={{
                         flex: 1,
+                        position: 'relative',
                       }}>
+                      {isLocalVideoON ? (
+                        <View style={style.switchCamera}>
+                          <LocalSwitchCamera
+                            showText={false}
+                            iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                          />
+                        </View>
+                      ) : (
+                        <></>
+                      )}
                       <VideoPreview />
                     </View>
                     <View>
@@ -418,6 +433,13 @@ const Precall = (props: any) => {
 
 const style = StyleSheet.create({
   full: {flex: 1},
+  switchCamera: {
+    position: 'absolute',
+    zIndex: 1,
+    elevation: 1,
+    top: 8,
+    right: 8,
+  },
   labelStyle: {
     paddingLeft: 8,
   },

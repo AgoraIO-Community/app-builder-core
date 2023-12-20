@@ -23,6 +23,7 @@ import PropsContext, {
 import {IconsInterface} from '../../atoms/CustomIcon';
 import InlineNotification from '../../atoms/InlineNotification';
 import VBCard from './VBCard';
+import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -110,6 +111,17 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       <View style={{justifyContent: 'space-between', flex: 1}}>
         {callActive || isMobile ? (
           <View style={isMobile ? {flex: 1} : {}}>
+            {isMobile && isLocalVideoON ? (
+              <View style={styles.switchCamera}>
+                <LocalSwitchCamera
+                  showText={false}
+                  iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                />
+              </View>
+            ) : (
+              <></>
+            )}
+
             <VideoPreview />
           </View>
         ) : (
@@ -223,5 +235,12 @@ const styles = StyleSheet.create({
     marginRight: 4,
     width: 20,
     height: 20,
+  },
+  switchCamera: {
+    position: 'absolute',
+    zIndex: 1,
+    elevation: 1,
+    top: 30,
+    right: 30,
   },
 });

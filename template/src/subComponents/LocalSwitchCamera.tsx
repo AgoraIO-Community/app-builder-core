@@ -12,6 +12,8 @@ import {useActionSheet} from '../utils/useActionSheet';
 
 export interface LocalSwitchCameraProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
+  showText?: boolean;
+  iconBackgroundColor?: string;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
@@ -21,6 +23,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
   const {isOnActionSheet, showLabel} = useActionSheet();
+  const {showText = true, iconBackgroundColor} = props;
 
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
@@ -29,6 +32,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
   const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const showTitle = showText ? showLabel : false;
   const onPress = () => {
     RtcEngineUnsafe.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
@@ -48,11 +52,13 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
         isVideoEnabled || !disabled
           ? $config.SECONDARY_ACTION_COLOR
           : $config.SEMANTIC_NEUTRAL,
+      ...(iconBackgroundColor && {iconBackgroundColor}),
     },
     disabled: disabled,
     onPress: onPress,
+
     btnTextProps: {
-      text: showLabel ? `Switch\nCamera` : '',
+      text: showTitle ? `Switch\nCamera` : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,
