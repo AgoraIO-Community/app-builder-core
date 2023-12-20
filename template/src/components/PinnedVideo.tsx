@@ -92,6 +92,8 @@ const PinnedVideo = ({renderData}) => {
                 ? {
                     width: '20%',
                     paddingRight: 8,
+                    borderWidth: 2,
+                    borderColor: 'transparent',
                   }
                 : {
                     flex: 1,
