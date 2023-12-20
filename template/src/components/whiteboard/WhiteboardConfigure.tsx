@@ -10,6 +10,8 @@ import LocalEventEmitter, {
 import {CursorTool} from './WhiteboardCursor';
 import useUserName from '../../utils/useUserName';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
+import events, {PersistanceLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
 if (whiteboardPaper) {
@@ -123,6 +125,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
     boardColor: boardColorRemote,
+    whiteboardLastImageUploadPosition: whiteboardLastImageUploadPositionRemote,
   } = useRoomInfo();
   const {currentLayout} = useLayout();
 
@@ -149,6 +152,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const BoardColorChangedCallBack = ({boardColor}) => {
     setBoardColor(boardColor);
   };
+  const SetLastImageUploadHeightCallBack = ({height}) => {
+    prevImageUploadHeightRef.current = height;
+  };
   React.useEffect(() => {
     if ($config.ENABLE_WAITING_ROOM && !isHost) {
       BoardColorChangedCallBack({boardColor: boardColorRemote});
@@ -156,14 +162,30 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   }, [boardColorRemote, isHost]);
 
   React.useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+      SetLastImageUploadHeightCallBack({
+        height: whiteboardLastImageUploadPositionRemote?.height,
+      });
+    }
+  }, [whiteboardLastImageUploadPositionRemote, isHost]);
+
+  React.useEffect(() => {
     LocalEventEmitter.on(
       LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
       BoardColorChangedCallBack,
     );
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
+      SetLastImageUploadHeightCallBack,
+    );
     return () => {
-      LocalEventEmitter.on(
+      LocalEventEmitter.off(
         LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
         BoardColorChangedCallBack,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
+        SetLastImageUploadHeightCallBack,
       );
     };
   }, []);
@@ -222,6 +244,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         centerX: focus.x,
         centerY: focus.y,
       });
+      sendLastImageUploadPositionToRemoteUsers(
+        prevImageUploadHeightRef.current,
+      );
     }
   };
 
@@ -252,8 +277,19 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     });
     prevImageUploadHeightRef.current =
       prevImageUploadHeightRef.current + 50 + 300 + 100;
+    sendLastImageUploadPositionToRemoteUsers(prevImageUploadHeightRef.current);
   };
 
+  const sendLastImageUploadPositionToRemoteUsers = (height: number) => {
+    /**
+     * Sending last image upload postion to remote user
+     */
+    events.send(
+      EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION,
+      JSON.stringify({height: height}),
+      PersistanceLevel.Session,
+    );
+  };
   useEffect(() => {
     LocalEventEmitter.on(
       LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,

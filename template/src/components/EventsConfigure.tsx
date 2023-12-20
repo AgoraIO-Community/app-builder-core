@@ -301,6 +301,27 @@ const EventsConfigure: React.FC<Props> = props => {
       }
     });
 
+    events.on(EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION, ({payload}) => {
+      const data = JSON.parse(payload);
+      if (data?.height) {
+        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+          setRoomInfo(prev => {
+            return {
+              ...prev,
+              whiteboardLastImageUploadPosition: {height: data?.height},
+            };
+          });
+        } else {
+          LocalEventEmitter.emit(
+            LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
+            {
+              height: data?.height,
+            },
+          );
+        }
+      }
+    });
+
     events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
       setRoomInfo(prev => {
@@ -590,6 +611,7 @@ const EventsConfigure: React.FC<Props> = props => {
       events.off(EventNames.WAITING_ROOM_REQUEST);
       events.off(EventNames.WAITING_ROOM_STATUS_UPDATE);
       events.off(EventNames.WHITEBOARD_ACTIVE);
+      events.off(EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION);
       events.off(EventNames.BOARD_COLOR_CHANGED);
       events.off(EventNames.STT_ACTIVE);
       events.off(EventNames.STT_LANGUAGE);
