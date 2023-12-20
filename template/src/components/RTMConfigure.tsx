@@ -485,14 +485,14 @@ const RtmConfigure = (props: any) => {
       value = data.value;
     }
 
-    // Step 1: Set local attributes
-    if (value?.persistLevel === PersistanceLevel.Session) {
-      const rtmAttribute = {key: evt, value: value};
-      await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
-    }
-    // Step 2: Emit the event
     try {
       const {payload, persistLevel, source} = JSON.parse(value);
+      // Step 1: Set local attributes
+      if (persistLevel === PersistanceLevel.Session) {
+        const rtmAttribute = {key: evt, value: value};
+        await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      }
+      // Step 2: Emit the event
       console.log('CUSTOM_EVENT_API:  emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
