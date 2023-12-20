@@ -40,7 +40,9 @@ const ImageIcon = (props: ImageIconProps) => {
     base64 = false,
     base64TintColor = '',
     iconType = 'round',
+    iconContainerStyle,
   } = props;
+  console.log('icoon', iconContainerStyle);
   return (
     <View
       style={[
@@ -63,7 +65,7 @@ const ImageIcon = (props: ImageIconProps) => {
                   $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
               }
             : {},
-          props?.iconContainerStyle,
+          iconContainerStyle,
         ]}>
         {props?.showWarningIcon ? (
           <View style={{position: 'absolute', top: -2.5, right: -2}}>

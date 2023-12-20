@@ -122,6 +122,8 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
                 <LocalSwitchCamera
                   showText={false}
                   iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                  iconSize={20}
+                  iconContainerStyle={{padding: 6}}
                 />
               </View>
             ) : (

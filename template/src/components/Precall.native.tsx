@@ -45,7 +45,6 @@ import PreCallSettings from './precall/PreCallSettings';
 import VBPanel from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
 import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
-import styles from 'react-native-toast-message/src/styles';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -398,6 +397,8 @@ const Precall = (props: any) => {
                           <LocalSwitchCamera
                             showText={false}
                             iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                            iconSize={20}
+                            iconContainerStyle={{padding: 6}}
                           />
                         </View>
                       ) : (

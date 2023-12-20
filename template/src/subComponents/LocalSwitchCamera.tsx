@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Text} from 'react-native';
+import {Text, ViewStyle} from 'react-native';
 import {useString} from '../utils/useString';
 import {ClientRole, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
@@ -14,6 +14,8 @@ export interface LocalSwitchCameraProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   showText?: boolean;
   iconBackgroundColor?: string;
+  iconSize?: number;
+  iconContainerStyle?: ViewStyle;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
@@ -23,7 +25,12 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
   const {isOnActionSheet, showLabel} = useActionSheet();
-  const {showText = true, iconBackgroundColor} = props;
+  const {
+    showText = true,
+    iconBackgroundColor,
+    iconSize,
+    iconContainerStyle = {},
+  } = props;
 
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
@@ -53,10 +60,11 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
           ? $config.SECONDARY_ACTION_COLOR
           : $config.SEMANTIC_NEUTRAL,
       ...(iconBackgroundColor && {iconBackgroundColor}),
+      ...(iconSize && {iconSize}),
+      iconContainerStyle: iconContainerStyle,
     },
     disabled: disabled,
     onPress: onPress,
-
     btnTextProps: {
       text: showTitle ? `Switch\nCamera` : '',
       numberOfLines: 2,
