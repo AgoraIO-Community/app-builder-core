@@ -1,7 +1,7 @@
 import {StyleSheet, View} from 'react-native';
 import React, {useContext} from 'react';
-import {useLocalUserInfo} from 'customization-api';
-import {RtcContext} from '../../../agora-rn-uikit';
+import {useContent, useLocalUserInfo} from 'customization-api';
+import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
@@ -16,6 +16,9 @@ const VideoPreview = () => {
   const {video: localVideoStatus} = useLocalUserInfo();
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
+  const isMobileWeb = isMobileUA();
+  const {defaultContent, activeUids} = useContent();
+  const [maxUid] = activeUids;
 
   const createCameraTrack = async () => {
     if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {
@@ -28,6 +31,7 @@ const VideoPreview = () => {
   };
 
   React.useEffect(() => {
+    if (isMobileWeb) return;
     let localVideo = null;
     const initialize = async () => {
       localVideo = await createCameraTrack();
@@ -48,11 +52,23 @@ const VideoPreview = () => {
   return (
     <View style={styles.previewContainer}>
       {isLocalVideoON ? (
-        <View
-          ref={vContainerRef}
-          style={
-            isMobileUA() ? styles.mobilePreview : styles.desktopPreview
-          }></View>
+        isMobileWeb ? (
+          <View style={styles.mobilePreview}>
+            <MaxVideoView
+              user={defaultContent[maxUid]}
+              key={maxUid}
+              fallback={() => <></>}
+              isPrecallScreen={true}
+              containerStyle={{
+                width: '100%',
+                height: '100%',
+                borderRadius: 8,
+              }}
+            />
+          </View>
+        ) : (
+          <View ref={vContainerRef} style={styles.desktopPreview}></View>
+        )
       ) : (
         <InlineNotification
           text="  Camera is currently off. Selected background will be applied as soon

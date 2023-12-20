@@ -439,6 +439,7 @@ const style = StyleSheet.create({
     elevation: 1,
     top: 8,
     right: 8,
+    opacity: 0.7,
   },
   labelStyle: {
     paddingLeft: 8,

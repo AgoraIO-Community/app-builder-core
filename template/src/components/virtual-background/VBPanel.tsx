@@ -1,7 +1,13 @@
 import React, {useContext} from 'react';
 import {StyleSheet, Text, View, ScrollView, Dimensions} from 'react-native';
 
-import {useIsSmall, isMobileUA, isWebInternal} from '../../../src/utils/common';
+import {
+  useIsSmall,
+  isMobileUA,
+  isWebInternal,
+  isAndroid,
+  isIOS,
+} from '../../../src/utils/common';
 
 import CommonStyles from '../CommonStyles';
 import {useLayout} from '../../../src/utils/useLayout';
@@ -37,6 +43,7 @@ interface VBCardProps {
   isMobile?: boolean;
 }
 
+const isNative = isAndroid() || isIOS();
 const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
@@ -49,7 +56,6 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
   const isMobile = isMobileUA();
-
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
@@ -240,7 +246,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 1,
     elevation: 1,
-    top: 30,
-    right: 30,
+    top: isNative ? 30 : 50,
+    right: isNative ? 30 : 50,
+    opacity: 0.7,
   },
 });
