@@ -186,6 +186,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [showShapes, setShowShapes] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedColor, setSelectedColor] = useState('black');
+  const [strokeWidth, setStrokeWidth] = useState(4);
   const {
     data: {roomId},
   } = useRoomInfo();
@@ -200,6 +201,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
   const [isColorBtnHovered, setColorBtnHovered] = useState(false);
   const [isColorContainerHovered, setColorContainerHovered] = useState(false);
+  const [isPencilBtnHovered, setPencilBtnHovered] = useState(false);
+  const [isPencilContainerHovered, setPencilContainerHovered] = useState(false);
   const handleSelect = (applicanceName: ApplianceNames) => {
     if (applicanceName !== ApplianceNames.selector) {
       setCursorColor(ColorPickerValues[selectedColor].rgb);
@@ -441,6 +444,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -462,6 +466,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -484,6 +489,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -506,6 +512,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -614,12 +621,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           }}>
           <View style={style.toolboxColorsContainer}>
             <View style={style.toolboxNewColor}>
-              <View style={{marginVertical: 8}}>
-                <StrokeWidthTool
-                  room={whiteboardRoom?.current}
-                  roomState={roomState}
-                />
-              </View>
               <View style={[style.toolboxRow, {paddingBottom: 2}]}>
                 {renderItemsRow1}
               </View>
@@ -646,6 +647,35 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     );
   };
 
+  const renderPencilSize = () => {
+    if (isPencilBtnHovered || isPencilContainerHovered) {
+      return (
+        <div
+          onMouseEnter={() => {
+            setPencilContainerHovered(true);
+          }}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setPencilContainerHovered(false);
+            }, 250);
+          }}>
+          <View style={style.toolboxPencilContainer}>
+            <View style={style.toolboxPencilColor}>
+              <StrokeWidthTool
+                room={whiteboardRoom?.current}
+                roomState={roomState}
+                setPrevValue={value => {
+                  handleSelect(ApplianceNames.pencil);
+                  setStrokeWidth(value);
+                }}
+              />
+            </View>
+          </View>
+        </div>
+      );
+    }
+  };
+
   const {activeUids} = useContent();
 
   if (activeUids && activeUids[0] !== getWhiteboardUid()) {
@@ -656,6 +686,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     <>
       {renderShapesMenu()}
       {renderColorMenu()}
+      {renderPencilSize()}
       <View
         style={
           isMobileUA() ? style.toolboxContainerMobile : style.toolboxContainer
@@ -672,7 +703,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               }
               handleSelect(ApplianceNames.selector);
             }}
-            hoverEffect={true}
+            hoverEffect={
+              selectedTool === ApplianceNames.selector ? false : true
+            }
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.selector
@@ -693,7 +726,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.text);
             }}
-            hoverEffect={true}
+            hoverEffect={selectedTool === ApplianceNames.text ? false : true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.text
@@ -707,27 +740,46 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
-          <IconButton
-            toolTipMessage="Pencil"
-            placement={'right'}
-            showTooltipArrow={false}
-            onPress={() => {
-              handleSelect(ApplianceNames.pencil);
+          <div
+            onMouseEnter={() => {
+              setPencilBtnHovered(true);
             }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={
-              selectedTool === ApplianceNames.pencil
-                ? style.itemSelectedStyle
-                : style.itemDefaultStyle
-            }
-            iconProps={{
-              name: 'pen',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: $config.FONT_COLOR,
-            }}
-          />
+            onMouseLeave={() => {
+              setTimeout(() => {
+                setPencilBtnHovered(false);
+              }, 250);
+            }}>
+            <IconButton
+              // toolTipMessage="Pencil"
+              // placement={'right'}
+              // showTooltipArrow={false}
+              onHoverCallBack={isHovered => {
+                if (isHovered) {
+                  whiteboardRoom?.current?.setMemberState({
+                    strokeWidth: strokeWidth,
+                  });
+                }
+              }}
+              onPress={() => {
+                handleSelect(ApplianceNames.pencil);
+              }}
+              hoverEffect={
+                selectedTool === ApplianceNames.pencil ? false : true
+              }
+              hoverEffectStyle={style.itemHoverStyle}
+              containerStyle={
+                selectedTool === ApplianceNames.pencil
+                  ? style.itemSelectedStyle
+                  : style.itemDefaultStyle
+              }
+              iconProps={{
+                name: 'pen',
+                iconSize: 24,
+                iconType: 'plain',
+                tintColor: $config.FONT_COLOR,
+              }}
+            />
+          </div>
           <div
             onMouseEnter={() => {
               setShapeBtnHovered(true);
@@ -739,8 +791,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}>
             <IconButton
               //toolTipMessage={showShapes ? '' : 'Shapes'}
-              placement={'right'}
-              showTooltipArrow={false}
+              //placement={'right'}
+              //showTooltipArrow={false}
               onPress={() => {
                 // //open submenu
                 // setShowColorPicker(false);
@@ -802,7 +854,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.hand);
             }}
-            hoverEffect={true}
+            hoverEffect={selectedTool === ApplianceNames.hand ? false : true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.hand
@@ -823,7 +875,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.laserPointer);
             }}
-            hoverEffect={true}
+            hoverEffect={
+              selectedTool === ApplianceNames.laserPointer ? false : true
+            }
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.laserPointer
@@ -865,7 +919,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.eraser);
             }}
-            hoverEffect={true}
+            hoverEffect={selectedTool === ApplianceNames.eraser ? false : true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.eraser
@@ -986,6 +1040,12 @@ const style = StyleSheet.create({
     left: 65,
     zIndex: 10,
   },
+  toolboxPencilContainer: {
+    position: 'absolute',
+    top: '36%',
+    left: 65,
+    zIndex: 10,
+  },
   toolboxContainerMobile: {
     position: 'absolute',
     top: 10,
@@ -1037,6 +1097,18 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 10,
+    zIndex: 10,
+  },
+  toolboxPencilColor: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 4,
+    padding: 8,
+    height: 'auto',
+    maxWidth: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
     elevation: 10,
     zIndex: 10,
   },

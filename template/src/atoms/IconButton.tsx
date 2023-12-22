@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ViewStyle,
   TextStyle,
@@ -38,6 +38,7 @@ export interface IconButtonProps {
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
   showTooltipArrow?: boolean;
   isClickable?: boolean;
+  onHoverCallBack?: (isHovered: boolean) => void;
 }
 
 const IconButton = (props: IconButtonProps) => {
@@ -137,6 +138,15 @@ const PlatformWrapper = ({children, ...props}) => {
 
 const IconButtonWithToolTip = (props: IconButtonProps) => {
   const [isHovered, setIsHovered] = React.useState(false);
+
+  useEffect(() => {
+    if (isHovered) {
+      props?.onHoverCallBack && props?.onHoverCallBack(true);
+    } else {
+      props?.onHoverCallBack && props?.onHoverCallBack(false);
+    }
+  }, [isHovered]);
+
   const {
     placement = 'top',
     isClickable = false,
