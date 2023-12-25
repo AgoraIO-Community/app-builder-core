@@ -100,5 +100,10 @@ const styles = StyleSheet.create({
   mobilePreviewContainer: {
     flex: 1,
   },
-  desktopPreview: {width: 300, height: 166},
+  desktopPreview: {
+    width: 300,
+    height: 166,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
 });

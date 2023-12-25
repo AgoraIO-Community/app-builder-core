@@ -57,6 +57,7 @@ const VBCard: React.FC<VBCardProps> = ({
     selectedImage,
     vbMode,
     setSaveVB,
+    options,
     setOptions,
   } = useVB();
 
@@ -78,12 +79,34 @@ const VBCard: React.FC<VBCardProps> = ({
         type: [DocumentPicker.types.images],
       });
 
+      if (
+        !(result[0].type === 'image/jpeg' || result[0].type === 'image/jpeg')
+      ) {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text2: 'Please select a JPG or PNG file',
+          text1: 'Upload Failed',
+          visibilityTime: 3000,
+        });
+        return;
+      }
+
       if (result[0].size <= 1024 * 1024 * 1) {
         const base64Data = `data:${result[0].type};base64,${await readFile(
           result[0].uri,
         )}`;
 
-        console.log('base64Data', base64Data);
+        if (options.filter(option => option.path === base64Data).length > 0) {
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text2: 'Selected image is already uploaded',
+            text1: 'Upload Failed',
+            visibilityTime: 3000,
+          });
+          return;
+        }
 
         const newCard = {
           type: 'image' as VBMode,

@@ -96,6 +96,9 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           : {},
         //@ts-ignore
         transcriptHeight && !isMobile && {height: transcriptHeight},
+        (!isOnPrecall || isMobile) && {
+          backgroundColor: $config.CARD_LAYER_1_COLOR,
+        },
       ]}>
       {/* VB Header */}
       {isMobile ? (
