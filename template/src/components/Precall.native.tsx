@@ -386,40 +386,45 @@ const Precall = (props: any) => {
                     <MeetingName prefix="You are joining" />
                     {isWebInternal() ? <PreCallSettings /> : <></>}
                   </View>
-                  <View style={style.preview}>
-                    <View
-                      style={{
-                        flex: 1,
-                        position: 'relative',
-                      }}>
-                      {isLocalVideoON ? (
-                        <View style={style.switchCamera}>
-                          <LocalSwitchCamera
-                            showText={false}
-                            iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
-                            iconSize={20}
-                            iconContainerStyle={{padding: 6}}
-                          />
-                        </View>
-                      ) : (
-                        <></>
-                      )}
-                      <VideoPreview />
+                  <View style={style.content}>
+                    <View style={style.preview}>
+                      <View
+                        style={{
+                          flex: 1,
+                          position: 'relative',
+                          overflow: 'hidden',
+                          borderTopLeftRadius: 12,
+                          borderTopRightRadius: 12,
+                        }}>
+                        {isLocalVideoON ? (
+                          <View style={style.switchCamera}>
+                            <LocalSwitchCamera
+                              showText={false}
+                              iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                              iconSize={20}
+                              iconContainerStyle={{padding: 6}}
+                            />
+                          </View>
+                        ) : (
+                          <></>
+                        )}
+                        <VideoPreview />
+                      </View>
+                      <View>
+                        <PreCallLocalMute
+                          isMobileView={true}
+                          isSettingsOpen={isSettingsOpen}
+                          setIsSettingsOpen={setIsSettingsOpen}
+                          isVBOpen={isVBActive}
+                          setIsVBOpen={setIsVBActive}
+                        />
+                      </View>
                     </View>
-                    <View>
-                      <PreCallLocalMute
-                        isMobileView={true}
-                        isSettingsOpen={isSettingsOpen}
-                        setIsSettingsOpen={setIsSettingsOpen}
-                        isVBOpen={isVBActive}
-                        setIsVBOpen={setIsVBActive}
-                      />
+                    <View style={style.footer}>
+                      <JoinRoomName isDesktop={false} isOnPrecall={true} />
+                      <Spacer size={8} horizontal={false} />
+                      <JoinRoomButton />
                     </View>
-                  </View>
-                  <View style={style.footer}>
-                    <JoinRoomName isDesktop={false} isOnPrecall={true} />
-                    <Spacer size={8} horizontal={false} />
-                    <JoinRoomButton />
                   </View>
                 </View>
               </View>
@@ -447,13 +452,19 @@ const style = StyleSheet.create({
   },
   preCallContainer: {
     flex: 1,
+    justifyContent: 'center',
+  },
+  content: {
+    flex: 1,
   },
   preview: {
-    paddingHorizontal: 20,
-    paddingBottom: 8,
-    paddingTop: 24,
+    // paddingHorizontal: 20,
+    // paddingBottom: 8,
+    //  paddingTop: 24,
     flex: 1,
-    borderRadius: 8,
+
+    width: 250,
+    alignSelf: 'center',
   },
   header: {
     paddingVertical: 12,
@@ -461,7 +472,9 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   footer: {
-    paddingVertical: 20,
+    marginVertical: 20,
+
+    flexGrow: 0,
   },
   subTextStyle: {
     marginTop: 8,

@@ -19,7 +19,7 @@ import {useVB, VBMode} from './useVB';
 
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
-import {useLocalUserInfo} from 'customization-api';
+import {useLocalUserInfo, usePreCall} from 'customization-api';
 import ThemeConfig from '../../theme';
 import PrimaryButton from '../../atoms/PrimaryButton';
 
@@ -30,6 +30,7 @@ import {IconsInterface} from '../../atoms/CustomIcon';
 import InlineNotification from '../../atoms/InlineNotification';
 import VBCard from './VBCard';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
+import Spacer from '../../atoms/Spacer';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -56,9 +57,13 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
   const isMobile = isMobileUA();
+  const {isCameraAvailable} = usePreCall();
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
+  const fallbackText = isCameraAvailable
+    ? `Camera is currently off. Selected background will be applied as soon as your camera turns on.`
+    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
 
   const PreCallVBHeader = () => (
     <Text
@@ -104,10 +109,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Notification */}
       {!callActive && !isLocalVideoON && !isMobile ? (
         <View style={{padding: 20, paddingBottom: 0}}>
-          <InlineNotification
-            text="Camera is currently off. Selected background will be applied as soon
-        as your camera turns on."
-          />
+          <InlineNotification text={fallbackText} />
         </View>
       ) : (
         <></>
@@ -116,7 +118,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Preview */}
       <View style={{justifyContent: 'space-between', flex: 1}}>
         {callActive || isMobile ? (
-          <View style={isMobile ? {flex: 1} : {}}>
+          <View style={isMobile ? styles.mobilePreviewContainer : {}}>
             {isMobile && isLocalVideoON ? (
               <View style={styles.switchCamera}>
                 <LocalSwitchCamera
@@ -158,6 +160,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
             />
           ))}
         </ScrollView>
+        {isMobile && <Spacer size={20} />}
       </View>
 
       {/* Save VB Btns */}
@@ -248,8 +251,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 1,
     elevation: 1,
-    top: isNative ? 30 : 50,
-    right: isNative ? 30 : 50,
+    top: isNative ? 8 : 8,
+    right: isNative ? 8 : 8,
     opacity: 0.7,
+  },
+  mobilePreviewContainer: {
+    width: 250,
+    alignSelf: 'center',
+    flex: 1,
+    marginVertical: 24,
   },
 });

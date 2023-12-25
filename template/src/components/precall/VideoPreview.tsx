@@ -46,7 +46,7 @@ const VideoPreview = () => {
         borderRadius: 8,
         ...(isMobileView ? mobileContainerStyle : {}),
       }}
-      isPrecallScreen={true}
+      isFullView={true}
     />
   );
 };

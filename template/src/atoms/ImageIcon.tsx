@@ -42,7 +42,6 @@ const ImageIcon = (props: ImageIconProps) => {
     iconType = 'round',
     iconContainerStyle,
   } = props;
-  console.log('icoon', iconContainerStyle);
   return (
     <View
       style={[
