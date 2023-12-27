@@ -49,43 +49,59 @@ const ColorPickerValues: ColorPickerValues = {
     hex: '#666666',
     rgb: [102, 102, 102],
   },
-  darkGrey: {
-    hex: '#333333',
-    rgb: [51, 51, 51],
+  lightBlue: {
+    hex: '#86B7F9',
+    rgb: [134, 183, 249],
+  },
+  lightGreen: {
+    hex: '#A7DBB0',
+    rgb: [167, 219, 176],
+  },
+  lightYellow: {
+    hex: '#F7D686',
+    rgb: [247, 214, 134],
+  },
+  lightOrange: {
+    hex: '#F8C07C',
+    rgb: [248, 192, 124],
+  },
+  pink: {
+    hex: '#F7736E',
+    rgb: [247, 115, 110],
+  },
+  lightPurple: {
+    hex: '#B586F9',
+    rgb: [181, 134, 249],
   },
   black: {
     hex: '#000000',
     rgb: [0, 0, 0],
   },
-  lightBlue: {
+  darkGrey: {
+    hex: '#333333',
+    rgb: [51, 51, 51],
+  },
+  darkBlue: {
     hex: '#4689E3',
     rgb: [70, 137, 227],
   },
-  green: {
+  darkGreen: {
     hex: '#428D57',
     rgb: [66, 141, 87],
   },
-  lightYellow: {
+  darkYellow: {
     hex: '#EAC443',
     rgb: [234, 196, 67],
   },
-  darkYellow: {
+  darkOrange: {
     hex: '#E99D3D',
     rgb: [233, 157, 61],
-  },
-  orange: {
-    hex: '#CE4E29',
-    rgb: [206, 78, 41],
   },
   red: {
     hex: '#CF130C',
     rgb: [207, 19, 12],
   },
-  rose: {
-    hex: '#EE3BDC',
-    rgb: [238, 59, 220],
-  },
-  purple: {
+  darkPurple: {
     hex: '#843BEE',
     rgb: [132, 59, 238],
   },
@@ -546,8 +562,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     if (isColorBtnHovered || isColorContainerHovered) {
       const renderItemsRow1 = [];
       const renderItemsRow2 = [];
-      const renderItemsRow3 = [];
-      const renderItemsRow4 = [];
       let count = 0;
       for (const key in ColorPickerValues) {
         if (Object.prototype.hasOwnProperty.call(ColorPickerValues, key)) {
@@ -596,21 +610,20 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                   backgroundColor: element.hex,
                   padding: 2,
                   justifyContent: 'center',
-                  marginRight: 2,
+                  marginRight: 8,
                 }}>
                 {iconButtonColor}
               </View>
             ) : (
               <View
                 style={{
-                  paddingRight: 2,
+                  paddingRight: 8,
                 }}>
                 {iconButtonColor}
               </View>
             );
-          if (count >= 0 && count <= 3) renderItemsRow1.push(iconButtonColor);
-          if (count >= 4 && count <= 7) renderItemsRow2.push(iconButtonColor);
-          if (count >= 8 && count <= 12) renderItemsRow3.push(iconButtonColor);
+          if (count >= 0 && count <= 7) renderItemsRow1.push(iconButtonColor);
+          if (count >= 8 && count <= 15) renderItemsRow2.push(iconButtonColor);
 
           count = count + 1;
         }
@@ -627,13 +640,10 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           }}>
           <View style={style.toolboxColorsContainer}>
             <View style={style.toolboxNewColor}>
-              <View style={[style.toolboxRow, {paddingBottom: 2}]}>
+              <View style={[style.toolboxRow, {paddingBottom: 8}]}>
                 {renderItemsRow1}
               </View>
-              <View style={[style.toolboxRow, {paddingBottom: 2}]}>
-                {renderItemsRow2}
-              </View>
-              <View style={[style.toolboxRow]}>{renderItemsRow3}</View>
+              <View style={[style.toolboxRow]}>{renderItemsRow2}</View>
             </View>
           </View>
         </div>
@@ -1036,7 +1046,7 @@ const style = StyleSheet.create({
   },
   toolboxColorsContainer: {
     position: 'absolute',
-    top: '41%',
+    top: '42%',
     left: 58,
     zIndex: 10,
   },
@@ -1099,11 +1109,11 @@ const style = StyleSheet.create({
   toolboxNewColor: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 4,
-    paddingVertical: 4,
-    paddingLeft: 4,
-    paddingRight: 2,
+    paddingVertical: 8,
+    paddingLeft: 8,
+    paddingRight: 0,
     height: 'auto',
-    width: 94,
+    width: 'auto',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
