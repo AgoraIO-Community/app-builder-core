@@ -563,25 +563,25 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               }}
               hoverEffect={selectedColor === key ? false : true}
               hoverEffectStyle={{
-                backgroundColor: element.hex + hexadecimalTransparency['50%'],
+                backgroundColor: $config.CARD_LAYER_4_COLOR,
                 borderRadius: 50,
               }}
               containerStyle={
                 selectedColor === key
                   ? style.colorSelectedStyle
-                  : style.itemDefaultStyle
+                  : style.itemDefaultStyleColor
               }
               iconProps={
                 selectedColor === key
                   ? {
                       name: 'gradient',
-                      iconSize: 24,
+                      iconSize: 12,
                       iconType: 'plain',
                       tintColor: element.hex,
                     }
                   : {
                       name: 'gradient',
-                      iconSize: 24,
+                      iconSize: 16,
                       iconType: 'plain',
                       tintColor: element.hex,
                     }
@@ -594,13 +594,19 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 style={{
                   borderRadius: 50,
                   backgroundColor: element.hex,
-                  padding: 4,
-                  margin: 2,
+                  padding: 2,
+                  justifyContent: 'center',
+                  marginRight: 2,
                 }}>
                 {iconButtonColor}
               </View>
             ) : (
-              <View style={{margin: 2}}>{iconButtonColor}</View>
+              <View
+                style={{
+                  paddingRight: 2,
+                }}>
+                {iconButtonColor}
+              </View>
             );
           if (count >= 0 && count <= 3) renderItemsRow1.push(iconButtonColor);
           if (count >= 4 && count <= 7) renderItemsRow2.push(iconButtonColor);
@@ -627,10 +633,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               <View style={[style.toolboxRow, {paddingBottom: 2}]}>
                 {renderItemsRow2}
               </View>
-              <View style={[style.toolboxRow, {paddingBottom: 2}]}>
-                {renderItemsRow3}
-              </View>
-              <View style={style.toolboxRow}>{renderItemsRow4}</View>
+              <View style={[style.toolboxRow]}>{renderItemsRow3}</View>
             </View>
           </View>
         </div>
@@ -684,9 +687,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 
   return (
     <>
+      {renderPencilSize()}
       {renderShapesMenu()}
       {renderColorMenu()}
-      {renderPencilSize()}
       <View
         style={
           isMobileUA() ? style.toolboxContainerMobile : style.toolboxContainer
@@ -1006,16 +1009,12 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 const style = StyleSheet.create({
   itemSelectedStyle: {
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
-  colorSelectedStyle: {
-    padding: 4,
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
-    borderRadius: 50,
-  },
+
   itemDefaultStyle: {
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
   itemHoverStyle: {
@@ -1030,20 +1029,29 @@ const style = StyleSheet.create({
   },
   toolboxShapesContainer: {
     position: 'absolute',
-    top: '38%',
-    left: 65,
+    top: '35%',
+    left: 58,
     zIndex: 10,
   },
   toolboxColorsContainer: {
     position: 'absolute',
-    top: '42%',
-    left: 65,
+    top: '41%',
+    left: 58,
     zIndex: 10,
+  },
+  colorSelectedStyle: {
+    padding: 2,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 50,
+  },
+  itemDefaultStyleColor: {
+    padding: 2,
+    borderRadius: 4,
   },
   toolboxPencilContainer: {
     position: 'absolute',
-    top: '36%',
-    left: 65,
+    top: '33%',
+    left: 58,
     zIndex: 10,
   },
   toolboxContainerMobile: {
@@ -1080,7 +1088,7 @@ const style = StyleSheet.create({
     marginRight: 'auto',
     padding: 4,
     height: 'auto',
-    width: 'auto',
+    width: 40,
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
@@ -1090,9 +1098,11 @@ const style = StyleSheet.create({
   toolboxNewColor: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 4,
-    padding: 4,
+    paddingVertical: 4,
+    paddingLeft: 4,
+    paddingRight: 2,
     height: 'auto',
-    maxWidth: 'auto',
+    width: 94,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',

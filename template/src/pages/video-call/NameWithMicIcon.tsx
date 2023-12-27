@@ -12,6 +12,7 @@ export interface NameWithMicIconProps {
   name: string;
   muted?: boolean;
   customBgColor?: string;
+  customTextColor?: string;
 }
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
@@ -61,7 +62,10 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
             numberOfLines={1}
             textBreakStrategy="simple"
             ellipsizeMode="tail"
-            style={style.name}>
+            style={[
+              style.name,
+              props?.customTextColor ? {color: props?.customTextColor} : {},
+            ]}>
             {name || remoteUserDefaultLabel}
           </Text>
         </PlatformWrapper>

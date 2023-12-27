@@ -470,15 +470,15 @@ class RedoUndo extends React.Component<RedoUndoProps, RedoUndoStates> {
 const style = StyleSheet.create({
   itemSelectedStyle: {
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
   itemDefaultStyle: {
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
   itemDefaultStyleDisabled: {
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
     opacity: 0.6,
   },
@@ -494,7 +494,7 @@ const style = StyleSheet.create({
   },
   toolboxNew: {
     marginRight: 'auto',
-    height: 'auto',
+    height: 40,
     width: 'auto',
     display: 'flex',
     alignItems: 'center',
@@ -507,7 +507,6 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    marginRight: 8,
     marginLeft: 4,
   },
   btnTextStyle: {
@@ -535,8 +534,10 @@ const style = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: $config.CARD_LAYER_3_COLOR,
     marginLeft: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     flexDirection: 'row',
-    height: 'auto',
+    height: 40,
     width: 'auto',
     display: 'flex',
     alignItems: 'center',

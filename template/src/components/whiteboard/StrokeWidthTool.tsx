@@ -26,8 +26,8 @@ const css2 = `
 }
 .range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: ${$config.CARD_LAYER_4_COLOR};
   cursor: pointer;
@@ -35,8 +35,8 @@ const css2 = `
   box-shadow: -407px 0 0 400px ${$config.CARD_LAYER_4_COLOR};
 }
 .range-slider::-moz-range-thumb {
-  width: 15px;
-  height: 25px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: ${$config.CARD_LAYER_4_COLOR};
   cursor: pointer;
@@ -91,7 +91,7 @@ export default class StrokeWidthTool extends React.PureComponent<
             flex: 1,
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingBottom: 8,
+            paddingBottom: 12,
           }}>
           <Text
             style={{

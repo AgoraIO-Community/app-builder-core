@@ -1,14 +1,19 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, ViewStyle} from 'react-native';
 import React from 'react';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 import {isMobileUA} from '../../src/utils/common';
 
-const InlineNotification = (props: {text: string}) => {
-  const {text} = props;
+const InlineNotification = (props: {text: string; customStyle?: ViewStyle}) => {
+  const {text, customStyle} = props;
   const isMobile = isMobileUA();
   return (
-    <View style={[styles.container, isMobile && styles.mobileContainer]}>
+    <View
+      style={[
+        styles.container,
+        isMobile && styles.mobileContainer,
+        customStyle ? customStyle : {},
+      ]}>
       <View style={styles.iconStyleView}>
         <ImageIcon
           base64={true}

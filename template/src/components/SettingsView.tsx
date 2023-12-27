@@ -119,7 +119,10 @@ const EditName: React.FC = (props?: EditNameProps) => {
       <Spacer size={12} />
       {whiteboardActive ? (
         <>
-          <InlineNotification text="Name can't be changed while whiteboard is active" />
+          <InlineNotification
+            text="Name can't be changed while whiteboard is active"
+            customStyle={{alignItems: 'center'}}
+          />
           <Spacer size={12} />
         </>
       ) : (

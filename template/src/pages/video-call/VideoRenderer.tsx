@@ -305,6 +305,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 customBgColor={
                   CustomChild ? $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR : null
                 }
+                customTextColor={
+                  CustomChild
+                    ? $config.FONT_COLOR + hexadecimalTransparency['25%']
+                    : null
+                }
               />
             </VideoContainerProvider>
           ) : (
@@ -327,7 +332,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               onPress={() => {
                 dispatch({type: 'UserPin', value: [user.uid]});
               }}
-              containerStyle={maxStyle.replacePinContainer}
+              containerStyle={
+                user.uid === getWhiteboardUid()
+                  ? maxStyle.replacePinContainer2
+                  : maxStyle.replacePinContainer
+              }
               btnTextProps={{
                 //text: showReplacePin ? 'Replace Pin' : 'View in large',
                 text:
@@ -338,7 +347,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 textStyle: {
                   marginTop: 0,
                   fontWeight: '700',
-                  marginLeft: 6,
+                  marginLeft: user.uid === getWhiteboardUid() ? 0 : 6,
                 },
               }}
               iconProps={
@@ -431,6 +440,23 @@ const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
 
 const maxStyle = StyleSheet.create({
   replacePinContainer: {
+    zIndex: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+    borderRadius: 8,
+    flexDirection: 'row',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    margin: 'auto',
+    maxWidth: 120,
+    maxHeight: 32,
+  },
+  replacePinContainer2: {
+    justifyContent: 'center',
     zIndex: 999,
     paddingHorizontal: 12,
     paddingVertical: 10,
