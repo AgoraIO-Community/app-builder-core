@@ -936,23 +936,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
-          <IconButton
-            toolTipMessage="Clear All"
-            placement={'right'}
-            showTooltipArrow={false}
-            onPress={() => {
-              handleClear();
-            }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={style.itemDefaultStyle}
-            iconProps={{
-              name: 'clear-all',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: $config.FONT_COLOR,
-            }}
-          />
+
           {$config.ENABLE_WHITEBOARD_FILE_UPLOAD && isWeb() ? (
             <>
               <input
@@ -983,6 +967,23 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           ) : (
             <></>
           )}
+          <IconButton
+            toolTipMessage="Clear All"
+            placement={'right'}
+            showTooltipArrow={false}
+            onPress={() => {
+              handleClear();
+            }}
+            hoverEffect={true}
+            hoverEffectStyle={style.itemHoverStyle}
+            containerStyle={style.itemDefaultStyle}
+            iconProps={{
+              name: 'clear-all',
+              iconSize: 24,
+              iconType: 'plain',
+              tintColor: $config.FONT_COLOR,
+            }}
+          />
           {/* <IconButton
             onPress={() => {
               testImageUpload();
