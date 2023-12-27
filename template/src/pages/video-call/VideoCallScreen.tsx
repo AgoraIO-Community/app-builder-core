@@ -242,7 +242,8 @@ const VideoCallScreen = () => {
     <>
       <VideocallWrapper>
         <VideocallBeforeView />
-        <View style={style.fullRow}>
+        <View
+          style={$config.ICON_TEXT ? style.fullRow : style.fullRowWithoutIcon}>
           <ToolbarProvider value={{position: ToolbarPosition.left}}>
             {LeftbarProps?.length ? (
               <LeftbarComponent
@@ -267,11 +268,13 @@ const VideoCallScreen = () => {
             <View
               style={[
                 style.videoView,
-                {
-                  paddingHorizontal: isDesktop() ? 32 : 10,
-                  paddingVertical: 10,
-                  paddingBottom: 0,
-                },
+                $config.ICON_TEXT
+                  ? {
+                      paddingHorizontal: isDesktop() ? 32 : 10,
+                      paddingVertical: 10,
+                      paddingBottom: 0,
+                    }
+                  : {marginVertical: 20},
               ]}>
               <VideoComponent />
               {sidePanel === SidePanelType.Participants ? (
@@ -347,6 +350,13 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     overflow: 'hidden',
+  },
+  fullRowWithoutIcon: {
+    flex: 1,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    paddingHorizontal: 32,
+    paddingVertical: 20,
   },
   videoView: {
     flex: 12,
