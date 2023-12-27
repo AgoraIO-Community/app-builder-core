@@ -32,10 +32,11 @@ export interface ImageIconProps {
 }
 
 const ImageIcon = (props: ImageIconProps) => {
+  let defaultSize = $config.ICON_TEXT ? 26 : 24;
   const {
     name,
     icon = undefined,
-    iconSize = $config?.ICON_TEXT ? 26 : 24,
+    iconSize = defaultSize,
     tintColor,
     base64 = false,
     base64TintColor = '',
@@ -55,7 +56,7 @@ const ImageIcon = (props: ImageIconProps) => {
         style={[
           {alignItems: 'center'},
           iconType === 'round'
-            ? {padding: $config?.ICON_TEXT ? 13 : 12, borderRadius: 50}
+            ? {padding: $config.ICON_TEXT ? 13 : 12, borderRadius: 50}
             : {padding: 0, borderRadius: 0},
           iconType === 'round' && props?.isHovered
             ? {
