@@ -1,6 +1,6 @@
 {
   "name": "agora-appbuilder-core",
-  "version": "3.0.9",
+  "version": "3.0.12",
   "description": "React Native template for RTE app builder",
   "main": "index.js",
   "files": [
