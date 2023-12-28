@@ -62,7 +62,6 @@ interface ConfigInterface {
   PROFILE: VideoProfile;
   PRIMARY_FONT_COLOR: string;
   SECONDARY_FONT_COLOR: string;
-  SENTRY_DSN: string;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;
   ENABLE_MICROSOFT_OAUTH: boolean;
