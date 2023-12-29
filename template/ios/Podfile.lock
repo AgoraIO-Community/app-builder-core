@@ -568,18 +568,12 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSentry (5.9.0):
-    - React-Core
-    - Sentry/HybridSDK (= 8.9.4)
   - RNShare (7.9.0):
     - React-Core
   - RNSVG (13.6.0):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
-  - Sentry/HybridSDK (8.9.4):
-    - SentryPrivate (= 8.9.4)
-  - SentryPrivate (8.9.4)
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -661,7 +655,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
-  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -686,8 +679,6 @@ SPEC REPOS:
     - IQKeyboardManagerSwift
     - libevent
     - OpenSSL-Universal
-    - Sentry
-    - SentryPrivate
     - SocketRocket
     - YogaKit
 
@@ -793,8 +784,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
-  RNSentry:
-    :path: "../node_modules/@sentry/react-native"
   RNShare:
     :path: "../node_modules/react-native-share"
   RNSVG:
@@ -872,12 +861,9 @@ SPEC CHECKSUMS:
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
-  RNSentry: c167b3da6aa7f3cf85d909caae905d043a062b6c
   RNShare: be91a5c149585affb02c25b351bd07ba927c7006
   RNSVG: 3a79c0c4992213e4f06c08e62730c5e7b9e4dc17
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  Sentry: 56c76eed917f7dffd46db50906afbf5c9aa2673a
-  SentryPrivate: f3be34b5deb9fe676fdfb1f1ad5cdb1b740c5688
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a

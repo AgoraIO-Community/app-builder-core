@@ -58,7 +58,6 @@ interface ConfigInterface {
   LANDING_SUB_HEADING: string;
   ENCRYPTION_ENABLED: boolean;
   PROFILE: VideoProfile;
-  SENTRY_DSN: string;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;
   ENABLE_MICROSOFT_OAUTH: boolean;
