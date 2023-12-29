@@ -30,10 +30,6 @@ export const useIDPAuth = () => {
                 `&returnTo=${encodeURIComponent(
                   getIDPAuthLoginURL(location.pathname),
                 )}`;
-              console.log(
-                'debugging non native IDPAuthLogoutURL',
-                IDPAuthLogoutURL,
-              );
               //manage backend logout
               //it will invalid the user session from the manage backend
               //cookie logout -> true

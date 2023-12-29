@@ -90,7 +90,6 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           setStore(storeFromStorage);
           setReady(true);
         }
-        console.log('store hydrated', storeString);
         setReady(true);
       } catch (e) {
         console.error('problem hydrating store', e);
@@ -113,7 +112,6 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           tempStore['token'] = null;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
-        console.log('store synced with value', tempStore);
       } catch (e) {
         console.log('problem syncing the store', e);
       }
