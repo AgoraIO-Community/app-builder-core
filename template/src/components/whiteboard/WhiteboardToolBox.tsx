@@ -406,9 +406,22 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         })
           .then(async res => {
             const data = await res.json();
+
             if (supportedImageType?.indexOf(selectedFile?.type) !== -1) {
+              Toast.show({
+                type: 'info',
+                text1:
+                  'Image Upload will take few seconds to appear in whiteboard',
+                visibilityTime: 5000,
+              });
               imageUpload(data, selectedFile);
             } else {
+              Toast.show({
+                type: 'info',
+                text1:
+                  'Document Upload will take few seconds to appear in whiteboard',
+                visibilityTime: 5000,
+              });
               fileUploadAndConvert(data, selectedFile);
             }
           })
