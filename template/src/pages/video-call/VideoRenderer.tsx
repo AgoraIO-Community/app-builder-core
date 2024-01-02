@@ -307,7 +307,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 }
                 customTextColor={
                   CustomChild
-                    ? $config.FONT_COLOR + hexadecimalTransparency['25%']
+                    ? $config.FONT_COLOR + hexadecimalTransparency['80%']
                     : null
                 }
               />
