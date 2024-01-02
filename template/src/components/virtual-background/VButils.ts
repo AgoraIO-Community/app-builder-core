@@ -74,7 +74,7 @@ export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
           retrievedImages.push(cursor.value.data);
           cursor.continue();
         } else {
-          console.log('Retrieved images from IndexedDB:', retrievedImages);
+          console.log('Successfully Retrieved images from IndexedDB:');
           resolve(retrievedImages);
         }
       };

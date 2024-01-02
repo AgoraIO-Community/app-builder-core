@@ -9,14 +9,17 @@ const InlineNotification = (props: {text: string}) => {
   const isMobile = isMobileUA();
   return (
     <View style={[styles.container, isMobile && styles.mobileContainer]}>
-      <View style={styles.iconStyleView}>
-        <ImageIcon
-          base64={true}
-          iconSize={20}
-          iconType="plain"
-          name={'warning'}
-        />
-      </View>
+      {!isMobile && (
+        <View style={styles.iconStyleView}>
+          <ImageIcon
+            base64={false}
+            iconSize={20}
+            iconType="plain"
+            name={'video-off'}
+            tintColor={$config.SEMANTIC_NEUTRAL}
+          />
+        </View>
+      )}
       <Text style={styles.text}>{text}</Text>
     </View>
   );
@@ -38,20 +41,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    borderRadius: 12,
     backgroundColor: $config.CARD_LAYER_2_COLOR,
-    marginHorizontal: 20,
   },
   container: {
     padding: 12,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 171, 0, 0.15)',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
     marginBottom: 0,
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
   iconStyleView: {
-    marginRight: 4,
+    marginRight: 8,
     width: 20,
     height: 20,
   },

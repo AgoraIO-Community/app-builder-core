@@ -34,10 +34,11 @@ const VideoPreview = () => {
       containerStyle={{
         width: '100%',
         height: '100%',
-        borderTopLeftRadius: 8,
-        borderTopRightRadius: 8,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+        overflow: 'hidden',
       }}
-      isPrecallScreen={true}
+      isFullView={true}
     />
   );
 };

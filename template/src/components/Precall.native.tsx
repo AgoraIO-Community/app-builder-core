@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRole, ToggleState} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useRoomInfo} from './room-info/useRoomInfo';
@@ -31,7 +31,7 @@ import isSDKCheck from '../utils/isSDK';
 import Logo from './common/Logo';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
-import {useRtc} from 'customization-api';
+import {useLocalUserInfo, useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 
@@ -44,6 +44,7 @@ import {DeviceSelectProps} from './precall/selectDevice';
 import PreCallSettings from './precall/PreCallSettings';
 import VBPanel from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
+import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -289,6 +290,8 @@ const Precall = (props: any) => {
   const isSDK = isSDKCheck();
 
   const {store} = useContext(StorageContext);
+  const local = useLocalUserInfo();
+  const isLocalVideoON = local.video === ToggleState.enabled;
 
   useEffect(() => {
     if (isWebInternal() && !isSDK) {
@@ -383,27 +386,45 @@ const Precall = (props: any) => {
                     <MeetingName prefix="You are joining" />
                     {isWebInternal() ? <PreCallSettings /> : <></>}
                   </View>
-                  <View style={style.preview}>
-                    <View
-                      style={{
-                        flex: 1,
-                      }}>
-                      <VideoPreview />
+                  <View style={style.content}>
+                    <View style={style.preview}>
+                      <View
+                        style={{
+                          flex: 1,
+                          position: 'relative',
+                          overflow: 'hidden',
+                          borderTopLeftRadius: 12,
+                          borderTopRightRadius: 12,
+                        }}>
+                        {isLocalVideoON ? (
+                          <View style={style.switchCamera}>
+                            <LocalSwitchCamera
+                              showText={false}
+                              iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                              iconSize={20}
+                              iconContainerStyle={{padding: 6}}
+                            />
+                          </View>
+                        ) : (
+                          <></>
+                        )}
+                        <VideoPreview />
+                      </View>
+                      <View>
+                        <PreCallLocalMute
+                          isMobileView={true}
+                          isSettingsOpen={isSettingsOpen}
+                          setIsSettingsOpen={setIsSettingsOpen}
+                          isVBOpen={isVBActive}
+                          setIsVBOpen={setIsVBActive}
+                        />
+                      </View>
                     </View>
-                    <View>
-                      <PreCallLocalMute
-                        isMobileView={true}
-                        isSettingsOpen={isSettingsOpen}
-                        setIsSettingsOpen={setIsSettingsOpen}
-                        isVBOpen={isVBActive}
-                        setIsVBOpen={setIsVBActive}
-                      />
+                    <View style={style.footer}>
+                      <JoinRoomName isDesktop={false} isOnPrecall={true} />
+                      <Spacer size={8} horizontal={false} />
+                      <JoinRoomButton />
                     </View>
-                  </View>
-                  <View style={style.footer}>
-                    <JoinRoomName isDesktop={false} isOnPrecall={true} />
-                    <Spacer size={8} horizontal={false} />
-                    <JoinRoomButton />
                   </View>
                 </View>
               </View>
@@ -418,18 +439,32 @@ const Precall = (props: any) => {
 
 const style = StyleSheet.create({
   full: {flex: 1},
+  switchCamera: {
+    position: 'absolute',
+    zIndex: 1,
+    elevation: 1,
+    top: 8,
+    right: 8,
+    opacity: 0.7,
+  },
   labelStyle: {
     paddingLeft: 8,
   },
   preCallContainer: {
     flex: 1,
+    justifyContent: 'center',
+  },
+  content: {
+    flex: 1,
   },
   preview: {
-    paddingHorizontal: 20,
-    paddingBottom: 8,
-    paddingTop: 24,
+    // paddingHorizontal: 20,
+    // paddingBottom: 8,
+    //  paddingTop: 24,
     flex: 1,
-    borderRadius: 8,
+
+    width: 250,
+    alignSelf: 'center',
   },
   header: {
     paddingVertical: 12,
@@ -437,7 +472,9 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   footer: {
-    paddingVertical: 20,
+    marginVertical: 20,
+
+    flexGrow: 0,
   },
   subTextStyle: {
     marginTop: 8,

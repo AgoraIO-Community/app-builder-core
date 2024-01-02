@@ -191,7 +191,6 @@ const VBProvider: React.FC = ({children}) => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
     if (isMobile) {
       await applyVirtualBackgroundToMainView(blurConfig);
-      await applyVirtualBackgroundToPreviewView(blurConfig);
     } else {
       if (saveVB || isPreCallScreen) {
         await applyVirtualBackgroundToMainView(blurConfig);
@@ -217,7 +216,6 @@ const VBProvider: React.FC = ({children}) => {
     htmlElement.onload = async () => {
       if (isMobile) {
         await applyVirtualBackgroundToMainView(imgConfig);
-        await applyVirtualBackgroundToPreviewView(imgConfig);
       } else {
         if (saveVB || isPreCallScreen) {
           await applyVirtualBackgroundToMainView(imgConfig);
@@ -232,7 +230,6 @@ const VBProvider: React.FC = ({children}) => {
   const disableVB = async () => {
     if (isMobile) {
       await mainViewProcessor.disable();
-      await previewViewProcessor.disable();
     } else {
       if (saveVB || isPreCallScreen) {
         await mainViewProcessor.disable();

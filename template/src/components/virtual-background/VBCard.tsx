@@ -48,6 +48,7 @@ const VBCard: React.FC<VBCardProps> = ({
     selectedImage,
     vbMode,
     setSaveVB,
+    options,
     setOptions,
   } = useVB();
 
@@ -66,6 +67,19 @@ const VBCard: React.FC<VBCardProps> = ({
         ) {
           convertBlobToBase64(URL.createObjectURL(selectedFile))
             .then((base64Data: string) => {
+              if (
+                options.filter(option => option.path === base64Data).length > 0
+              ) {
+                Toast.show({
+                  leadingIconName: 'alert',
+                  type: 'error',
+                  text2: 'Selected image is already uploaded',
+                  text1: 'Upload Failed',
+                  visibilityTime: 3000,
+                });
+                return;
+              }
+
               //base64Data as the source for the Image component
               const newCard: Option = {
                 type: 'image',

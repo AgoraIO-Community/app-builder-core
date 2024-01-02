@@ -27,6 +27,7 @@ export interface IconButtonProps {
   disabled?: boolean;
   containerStyle?: ViewStyle;
   rootContainerStyle?: ViewStyle;
+  iconContainerStyle?: ViewStyle;
   btnTextProps?: BtnTextProps;
   iconProps: ImageIconProps;
   toolTipMessage?: string;

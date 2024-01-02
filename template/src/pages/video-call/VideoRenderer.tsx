@@ -285,6 +285,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                       landscapeMode && isScreenShareOnFullView ? width : '100%',
                     // width: '100%',
                     // height: '100%',
+                    borderRadius: 4,
+                    overflow: 'hidden',
                   }}
                   key={user.uid}
                   landscapeMode={
@@ -388,7 +390,7 @@ const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
 const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
   return isWebInternal() && !isMobileUA() ? (
     <div
-      style={{width: '100%', height: '100%'}}
+      style={{width: '100%', height: '100%', borderRadius: 4}}
       /**
        * why onMouseOver is used instead of onMouseEnter
        * when user clicks close icon the participant then video tile will expand and
@@ -435,6 +437,7 @@ const maxStyle = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: ThemeConfig.BorderRadius.small,
     borderWidth: 2,
+    borderColor: 'red',
   },
   activeContainerStyle: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,

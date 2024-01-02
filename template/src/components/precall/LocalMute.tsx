@@ -119,8 +119,8 @@ const PreCallLocalMute = (props: PreCallProps) => {
         style.precallControls,
         isMobileView && {
           paddingVertical: 10,
-          borderBottomLeftRadius: 8,
-          borderBottomRightRadius: 8,
+          borderBottomLeftRadius: 12,
+          borderBottomRightRadius: 12,
           flex: 1,
         },
       ]}
