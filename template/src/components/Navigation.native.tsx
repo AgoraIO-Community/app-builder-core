@@ -24,7 +24,6 @@ const Navigation = () => {
   const history = useHistory();
   useEffect(() => {
     const deepLinkUrl = (link: string | null) => {
-      console.log('Deep-linking url: ', link);
       if (link !== null) {
         history.push(processUrl(link));
       }

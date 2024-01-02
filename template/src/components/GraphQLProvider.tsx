@@ -39,7 +39,6 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
     if (storeString) {
       token = JSON.parse(storeString).token;
     }
-    console.log('link module token', storeString);
     if (token) {
       return {
         headers: {
@@ -66,7 +65,6 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   //     cache: new InMemoryCache(),
   //   });
   // }, [authLink, httpLink, store]);
-  console.log('GraphQL render triggered', store);
 
   return (
     <GraphQLContext.Provider value={{client: client.current}}>

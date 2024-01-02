@@ -57,7 +57,6 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           setStore(JSON.parse(storeString));
           setReady(true);
         }
-        console.log('store hydrated', storeString);
         setReady(true);
       } catch (e) {
         console.error('problem hydrating store', e);

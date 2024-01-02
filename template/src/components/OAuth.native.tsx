@@ -36,9 +36,7 @@ const Oauth = () => {
       const oAuthUrl = url({platform: 'mobile'})[`${oAuthSystem}Url`];
       if (await InAppBrowser.isAvailable()) {
         const result = await InAppBrowser.openAuth(oAuthUrl, oAuthUrl);
-        console.log(JSON.stringify(result));
         if (result.type === 'success') {
-          console.log('success', Linking.canOpenURL(result.url));
           history.push(processUrl(result.url));
         }
       } else {

@@ -28,7 +28,6 @@ const Oauth = () => {
       'message',
       ({data, origin}: {data: {token: string}; origin: string}) => {
         if (data.token) {
-          console.log(data, origin);
           history.push(`/auth-token/${data.token}`);
         }
       },

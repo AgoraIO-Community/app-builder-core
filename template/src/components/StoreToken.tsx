@@ -27,7 +27,6 @@ const StoreToken = () => {
   const [ready, setReady] = useState(false);
   const {token}: {token: string} = useParams();
   const {setStore} = useContext(StorageContext);
-  console.log('store token api', token);
 
   useMount(() => {
     setStore && setStore((store) => ({...store, token}));
