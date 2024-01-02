@@ -47,9 +47,13 @@ import {useUserPreference} from './useUserPreference';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import InlineNotification from '../../src/atoms/InlineNotification';
+import {useRoomInfo} from './room-info/useRoomInfo';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const {
+    data: {isHost},
+  } = useRoomInfo();
   const {saveName} = useUserPreference();
   const {whiteboardActive} = useContext(whiteboardContext);
   const [saved, setSaved] = useState(false);
@@ -117,7 +121,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
     <>
       <Text style={editNameStyle.yournameText}>Your name</Text>
       <Spacer size={12} />
-      {whiteboardActive ? (
+      {whiteboardActive && isHost ? (
         <>
           <InlineNotification
             text="Name can't be changed while whiteboard is active"
@@ -143,7 +147,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
               editNameStyle.inputStyle,
               //true -> previously editable variable
               //!true
-              whiteboardActive
+              whiteboardActive && isHost
                 ? {
                     color:
                       $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
@@ -153,7 +157,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             onBlur={onPress}
             placeholder={username}
             value={newName}
-            editable={whiteboardActive ? false : true}
+            editable={whiteboardActive && isHost ? false : true}
             onChangeText={text => setNewName(text)}
             onSubmitEditing={onPress}
             placeholderTextColor={
