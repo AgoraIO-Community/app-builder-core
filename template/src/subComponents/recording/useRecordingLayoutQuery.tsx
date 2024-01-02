@@ -47,7 +47,6 @@ function useRecordingLayoutQuery() {
   const executeNormalQuery = () => {
     setNormalQuery({variables: {passphrase: phrase}})
       .then((res) => {
-        console.log(res.data);
         if (res.data.stopRecordingSession === 'success') {
           // Once the backend sucessfuly stops recording,
           // send a control message to everbody in the channel indicating that cloud recording is now inactive.

@@ -86,7 +86,6 @@ export default function useJoinRoom() {
           meetingPhrase: phrase,
           send_event: false,
         });
-        console.log('in use join', response);
       } else {
         response = await client.query({
           query:
@@ -167,10 +166,6 @@ export default function useJoinRoom() {
           // if (data?.getUser?.name) {
           //   roomInfo.username = data.getUser.name;
           // }
-          console.log('!!!!!Meetinginfo', {
-            roomInfo,
-            response: response,
-          });
           setRoomInfo(prevState => {
             let compiledMeetingInfo = {
               ...prevState.data,
