@@ -382,7 +382,6 @@ const EventsConfigure: React.FC<Props> = props => {
               attendee_screenshare_uid: attendee_screenshare_uid,
               approved: true,
             });
-            console.log('waiting-room:approval', res);
             dispatch({
               type: 'UpdateRenderList',
               value: [attendee_uid, {isInWaitingRoom: false}],

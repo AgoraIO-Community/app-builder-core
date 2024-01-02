@@ -153,7 +153,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     const pollFunction = async () => {
       if (shouldWaitingRoomPoll) {
         const res = await requestToJoin({send_event: true});
-        console.log('in join btn', res);
         pollingTimeout.current = setTimeout(() => {
           clearTimeout(pollingTimeout.current);
           pollFunction();
