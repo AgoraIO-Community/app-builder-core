@@ -285,6 +285,7 @@ const MoreButton = () => {
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
     getWhiteboardUid,
+    whiteboardStartedFirst,
   } = useContext(whiteboardContext);
 
   const WhiteboardStoppedCallBack = () => {
@@ -367,7 +368,11 @@ const MoreButton = () => {
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive ? 'Hide Whiteboard' : 'Show Whiteboard',
+      title: whiteboardActive
+        ? 'Hide Whiteboard'
+        : whiteboardStartedFirst
+        ? 'Show Whiteboard'
+        : 'Start Whiteboard',
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);

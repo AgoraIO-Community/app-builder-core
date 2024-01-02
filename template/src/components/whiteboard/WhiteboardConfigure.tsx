@@ -84,6 +84,7 @@ export interface whiteboardContextInterface {
   setUploadRef: () => void;
   insertImageIntoWhiteboard: (url: string) => void;
   getWhiteboardUid: () => number;
+  whiteboardStartedFirst?: boolean;
 }
 
 export interface WhiteboardPropsInterface {
@@ -93,6 +94,7 @@ export interface WhiteboardPropsInterface {
 const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
   const [whiteboardActive, setWhiteboardActive] = useState(false);
+  const [whiteboardStartedFirst, setWhiteboardStartedFirst] = useState(false);
   const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState(
@@ -304,7 +306,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   }, []);
 
   const join = () => {
-
     const InitState = whiteboardRoomState;
     try {
       const index = randomIntFromInterval(0, 9);
@@ -382,6 +383,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         region: $config.WHITEBOARD_REGION,
       });
       join();
+      setWhiteboardStartedFirst(true);
     } else if (whiteboardActive) {
       join();
     } else {
@@ -409,6 +411,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         setBoardColor,
         setUploadRef,
         insertImageIntoWhiteboard,
+        whiteboardStartedFirst,
       }}>
       {props.children}
     </whiteboardContext.Provider>
