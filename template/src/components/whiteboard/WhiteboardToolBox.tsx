@@ -960,7 +960,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 onPress={() => {
                   document.getElementById('docpicker').click();
                 }}
-                toolTipMessage="Upload Pdf and Images"
+                toolTipMessage="Upload Document or Image"
                 placement={'right'}
                 showTooltipArrow={false}
                 hoverEffect={true}
