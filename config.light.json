@@ -17,7 +17,6 @@
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
   "ENCRYPTION_ENABLED": false,
-  "SENTRY_DSN": "",
   "ENABLE_GOOGLE_OAUTH": false,
   "ENABLE_APPLE_OAUTH": false,
   "ENABLE_SLACK_OAUTH": false,
