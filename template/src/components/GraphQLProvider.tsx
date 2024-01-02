@@ -61,7 +61,6 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   );
 
   useEffect(() => {
-    console.log('debugging GRAPHQL token changed', store.token);
     setClient(
       new ApolloClient({
         link: authLink(store?.token).concat(httpLink),

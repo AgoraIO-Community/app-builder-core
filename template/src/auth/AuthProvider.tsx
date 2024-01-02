@@ -136,13 +136,10 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, [store?.token]);
 
   const deepLinkUrl = (link: string | null) => {
-    console.log('debugging Deep-linking url: ', link);
-
     if (link !== null) {
       //deeplinking handling with authentication enabled
       if ($config.ENABLE_IDP_AUTH) {
         const url = processDeepLinkURI(link);
-        console.log('debugging Deep-linking processed url', url);
         try {
           //login link expiry fix
           if (url?.indexOf('msg') !== -1) {
@@ -159,7 +156,6 @@ const AuthProvider = (props: AuthProviderProps) => {
           } else if (url?.indexOf('authorize') !== -1) {
             const token = getParamFromURL(url, 'token');
             if (token) {
-              console.log('debugging deep-linking got token');
               enableTokenAuth(token)
                 .then(() => {
                   setIsAuthenticated(true);
@@ -189,7 +185,6 @@ const AuthProvider = (props: AuthProviderProps) => {
         }
       } else {
         //deeplinking handling with authentication enabled
-        console.log('debugging path', processDeepLinkURI(link));
         const url = processDeepLinkURI(link);
         setReturnTo(url);
       }
@@ -201,9 +196,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     if (isIOS() || isAndroid()) {
       const deepLink = async () => {
         const initialUrl = await Linking.getInitialURL();
-        console.log('debugging getting initialUrl', initialUrl);
         Linking.addEventListener('url', e => {
-          console.log('debugging url from listener', e.url);
           deepLinkUrl(e.url);
         });
         deepLinkUrl(initialUrl);

@@ -190,7 +190,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
     })
       .then(res => {
-        console.log(res.data);
         setInProgress(false);
         if (res.data.startRecordingSession === 'success') {
           /**
@@ -253,7 +252,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       // If recording is already going on, stop the recording by executing the graphql query.
       stopRecordingQuery({variables: {passphrase: phrase}})
         .then(res => {
-          console.log(res.data);
           setInProgress(false);
           if (res.data.stopRecordingSession === 'success') {
             /**
