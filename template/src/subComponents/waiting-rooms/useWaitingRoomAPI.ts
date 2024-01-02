@@ -49,7 +49,6 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       send_event: send_event,
     });
     const res = await apiCall('request', payload);
-    console.log('waitingRoom: request response', res);
     return res;
   };
 
@@ -67,7 +66,6 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       approved: approved, //approval status,
     });
     const res = await apiCall('approval', payload);
-    console.log('waitingRoom: approval response', res);
     return res;
   };
 

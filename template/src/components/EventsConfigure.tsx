@@ -409,7 +409,6 @@ const EventsConfigure: React.FC<Props> = props => {
               attendee_screenshare_uid: attendee_screenshare_uid,
               approved: true,
             });
-            console.log('waiting-room:approval', res);
             dispatch({
               type: 'UpdateRenderList',
               value: [attendee_uid, {isInWaitingRoom: false}],
@@ -502,7 +501,6 @@ const EventsConfigure: React.FC<Props> = props => {
     //     value: [attendee_uid, {isInWaitingRoom: true}],
     //   });
     //   // check if any other host has approved then dont show permission to join the room
-    //   console.log(activeUidsRef);
     //   let btns: any = {};
     //   btns.toastId = attendee_uid;
     //   btns.primaryBtn = (
@@ -518,7 +516,6 @@ const EventsConfigure: React.FC<Props> = props => {
     //           attendee_screenshare_uid: attendee_screenshare_uid,
     //           approved: true,
     //         });
-    //         console.log('waiting-room:approval', res);
     //         dispatch({
     //           type: 'UpdateRenderList',
     //           value: [attendee_uid, {isInWaitingRoom: false}],
@@ -557,7 +554,6 @@ const EventsConfigure: React.FC<Props> = props => {
     //           JSON.stringify({attendee_uid, approved: false}),
     //           PersistanceLevel.None,
     //         );
-    //         console.log('waiting-room:reject', res);
     //         // server will send the RTM message with rejected status and RTC token to the approved attendee.
     //         Toast.hide();
     //       }}

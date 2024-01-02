@@ -55,7 +55,7 @@ const useTokenAuth = () => {
           }
         });
     } else {
-      console.log('debugging no token to refresh');
+      //'debugging no token to refresh'
     }
   };
 
@@ -106,7 +106,7 @@ const useTokenAuth = () => {
           if (isSDK()) {
             SdkEvents.emit('did-token-expire');
           }
-          console.log('token expired');
+          //token expired
         } else {
           setTokenExpiresAt(expiresAt);
         }

@@ -61,7 +61,6 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   );
 
   useEffect(() => {
-    console.log('debugging GRAPHQL token changed', store.token);
     setClient(
       new ApolloClient({
         link: authLink(store?.token).concat(httpLink),
@@ -72,11 +71,10 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
 
   // const errorLink = onError(
   //   ({graphQLErrors, networkError, operation, forward}) => {
-  //     console.log('supriya graphQLErrors: ', graphQLErrors);
   //     // To retry on network errors, we recommend the RetryLink
   //     // instead of the onError link. This just logs the error.
   //     if (networkError) {
-  //       console.log(`supriya [Network error]: ${networkError}`);
+  
   //       // switch (err.extensions.code) {
   //       //   // Apollo Server sets code to UNAUTHENTICATED
   //       //   // when an AuthenticationError is thrown in a resolver

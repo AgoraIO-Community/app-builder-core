@@ -11,12 +11,10 @@ export const IDPAuth = () => {
   const {token}: {token: string} = useParams();
 
   useEffect(() => {
-    console.log('debugging electron token', token);
     if (token) {
       enableTokenAuth(token)
         .then(() => {
           setIsAuthenticated(true);
-          console.log('debugging electron login success');
           history.push('/');
         })
         .catch(() => {

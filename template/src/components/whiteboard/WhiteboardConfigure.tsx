@@ -245,10 +245,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   }, []);
 
   const join = () => {
-    console.log(
-      '[Whiteboard] join called UID:' + room_uuid + ' Token:',
-      room_token,
-    );
 
     const InitState = whiteboardRoomState;
     try {
