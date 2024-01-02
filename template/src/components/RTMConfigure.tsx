@@ -39,6 +39,9 @@ import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
 import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -384,22 +387,38 @@ const RtmConfigure = (props: any) => {
       console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
 
       const {uid, channelId, text, ts} = evt;
-      const [err, msg] = safeJsonParse(text);
-      if (err) {
-        console.log(
-          'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
-        );
-      }
+      //whiteboard upload
+      if (uid == 1010101) {
+        const [err, res] = safeJsonParse(text);
+        if (err) {
+          console.log(
+            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          );
+        }
+        if (res?.data?.data?.images) {
+          LocalEventEmitter.emit(
+            LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+            res?.data?.data?.images,
+          );
+        }
+      } else {
+        const [err, msg] = safeJsonParse(text);
+        if (err) {
+          console.log(
+            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          );
+        }
 
-      const timestamp = getMessageTime(ts);
+        const timestamp = getMessageTime(ts);
 
-      const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
+        const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
 
-      if (channelId === rtcProps.channel) {
-        try {
-          eventDispatcher(msg, sender, timestamp);
-        } catch (error) {
-          console.log('error while dispacthing', error);
+        if (channelId === rtcProps.channel) {
+          try {
+            eventDispatcher(msg, sender, timestamp);
+          } catch (error) {
+            console.log('error while dispacthing', error);
+          }
         }
       }
     });

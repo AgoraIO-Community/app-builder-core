@@ -260,6 +260,53 @@ const CustomToolbarSort = (a, b) =>
   (a.hasOwnProperty('order') ? a.order : 999999) -
   (b.hasOwnProperty('order') ? b.order : 999999);
 
+const randomString = (
+  length = 5,
+  chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+) => {
+  var result = '';
+  for (var i = length; i > 0; --i)
+    result += chars[Math.floor(Math.random() * chars.length)];
+  return result;
+};
+
+function randomIntFromInterval(min, max) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+function getOS() {
+  let userAgent = window.navigator.userAgent.toLowerCase(),
+    macosPlatforms = /(macintosh|macintel|macppc|mac68k|macos)/i,
+    windowsPlatforms = /(win32|win64|windows|wince)/i,
+    iosPlatforms = /(iphone|ipad|ipod)/i,
+    os = null;
+
+  if (macosPlatforms.test(userAgent)) {
+    os = 'macos';
+  } else if (iosPlatforms.test(userAgent)) {
+    os = 'ios';
+  } else if (windowsPlatforms.test(userAgent)) {
+    os = 'windows';
+  } else if (/android/.test(userAgent)) {
+    os = 'android';
+  } else if (!os && /linux/.test(userAgent)) {
+    os = 'linux';
+  }
+
+  return os;
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16),
+      ]
+    : [0, 0, 0];
+}
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -284,4 +331,8 @@ export {
   debounceFn,
   capitalizeFirstLetter,
   CustomToolbarSort,
+  randomString,
+  randomIntFromInterval,
+  getOS,
+  hexToRgb,
 };

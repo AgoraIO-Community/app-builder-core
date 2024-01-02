@@ -11,10 +11,15 @@
 */
 
 import React, {useRef, useEffect, useContext} from 'react';
-import {whiteboardContext, whiteboardPaper} from './WhiteboardConfigure';
+import {
+  BoardColor,
+  whiteboardContext,
+  whiteboardPaper,
+} from './WhiteboardConfigure';
 import {StyleSheet, View, Text} from 'react-native';
 import {RoomPhase, ApplianceNames} from 'white-web-sdk';
 import WhiteboardToolBox from './WhiteboardToolBox';
+import WhiteboardWidget from './WhiteboardWidget';
 
 interface WhiteboardCanvasInterface {
   showToolbox: boolean | undefined;
@@ -23,7 +28,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
   showToolbox,
 }) => {
   const wbSurfaceRef = useRef();
-  const {whiteboardRoom} = useContext(whiteboardContext);
+  const {whiteboardRoom, boardColor} = useContext(whiteboardContext);
 
   useEffect(function () {
     if (whiteboardPaper) {
@@ -38,28 +43,31 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
 
   return (
     <>
+      <WhiteboardWidget whiteboardRoom={whiteboardRoom} />
       {showToolbox &&
       //@ts-ignore
       whiteboardRoom.current.isWritable ? (
         <WhiteboardToolBox whiteboardRoom={whiteboardRoom} />
       ) : (
-        <div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            zIndex: 10,
-          }}
-        />
+        // <div
+        //   style={{
+        //     position: 'absolute',
+        //     width: '100%',
+        //     height: '100%',
+        //     zIndex: 10,
+        //   }}
+        // />
+        <></>
       )}
       <div
         style={{
           width: '100%',
           height: '100%',
-          backgroundColor: 'white',
+          backgroundColor: boardColor === BoardColor.Black ? 'black' : 'white',
           borderRadius: 10,
         }}
         ref={wbSurfaceRef}
+        id="whiteboard-div-ref"
       />
     </>
   );

@@ -92,7 +92,6 @@ const AuthProvider = (props: AuthProviderProps) => {
     //production - 59min 1 sec
     // if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
     //   refreshTimeoutWeb.current = setTimeout(() => {
-    //     console.log('debugging calling refresh');
     //     fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
     //       method: 'POST',
     //       credentials: 'include',
@@ -103,19 +102,15 @@ const AuthProvider = (props: AuthProviderProps) => {
     //       .then((data) => {
     //         clearTimeout(refreshTimeoutWeb.current);
     //         tokenRefreshWeb();
-    //         console.log('debugging cookie set');
     //       })
     //       .catch((error) => {
-    //         console.log('debugging error', error);
     //       });
     //   }, timeout);
     // } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
     //   //not authenticated
     //   if (refreshTimeoutWeb.current) {
-    //     console.log('debugging clearing the interval');
     //     clearTimeout(refreshTimeoutWeb.current);
     //   } else {
-    //     console.log('debugging no interval to clear');
     //   }
     // }
   };
@@ -136,13 +131,10 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, [store?.token]);
 
   const deepLinkUrl = (link: string | null) => {
-    console.log('debugging Deep-linking url: ', link);
-
     if (link !== null) {
       //deeplinking handling with authentication enabled
       if ($config.ENABLE_IDP_AUTH) {
         const url = processDeepLinkURI(link);
-        console.log('debugging Deep-linking processed url', url);
         try {
           //login link expiry fix
           if (url?.indexOf('msg') !== -1) {
@@ -159,7 +151,6 @@ const AuthProvider = (props: AuthProviderProps) => {
           } else if (url?.indexOf('authorize') !== -1) {
             const token = getParamFromURL(url, 'token');
             if (token) {
-              console.log('debugging deep-linking got token');
               enableTokenAuth(token)
                 .then(() => {
                   setIsAuthenticated(true);
@@ -189,7 +180,6 @@ const AuthProvider = (props: AuthProviderProps) => {
         }
       } else {
         //deeplinking handling with authentication enabled
-        console.log('debugging path', processDeepLinkURI(link));
         const url = processDeepLinkURI(link);
         setReturnTo(url);
       }
@@ -201,9 +191,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     if (isIOS() || isAndroid()) {
       const deepLink = async () => {
         const initialUrl = await Linking.getInitialURL();
-        console.log('debugging getting initialUrl', initialUrl);
         Linking.addEventListener('url', e => {
-          console.log('debugging url from listener', e.url);
           deepLinkUrl(e.url);
         });
         deepLinkUrl(initialUrl);
@@ -404,7 +392,6 @@ const AuthProvider = (props: AuthProviderProps) => {
           } else {
             enableTokenAuth(response.token)
               .then(() => {
-                console.log('debugging token auth enabled');
                 //set auth enabled on useEffect
               })
               .catch(error => {
@@ -437,7 +424,6 @@ const AuthProvider = (props: AuthProviderProps) => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
       idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
         .then(res => {
-          console.log('user successfully logged out');
           setIsAuthenticated(false);
         })
         .catch(() => {
@@ -457,7 +443,6 @@ const AuthProvider = (props: AuthProviderProps) => {
       } else {
         tokenLogout()
           .then(res => {
-            console.log('user successfully logged out');
           })
           .catch(() => {
             console.error('user logout failed');

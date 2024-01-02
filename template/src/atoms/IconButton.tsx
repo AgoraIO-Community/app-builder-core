@@ -37,6 +37,7 @@ export interface IconButtonProps {
   hoverEffect?: boolean;
   hoverEffectStyle?: ViewStyle;
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  showTooltipArrow?: boolean;
   isClickable?: boolean;
 }
 
@@ -133,7 +134,11 @@ const PlatformWrapper = ({children, ...props}) => {
 
 const IconButtonWithToolTip = (props: IconButtonProps) => {
   const [isHovered, setIsHovered] = React.useState(false);
-  const {placement = 'top', isClickable = false} = props;
+  const {
+    placement = 'top',
+    isClickable = false,
+    showTooltipArrow = true,
+  } = props;
   if (props?.toolTipMessage) {
     return (
       <ToolTip
@@ -141,6 +146,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
         toolTipMessage={props.toolTipMessage}
         //@ts-ignore
         placement={placement}
+        showTooltipArrow={showTooltipArrow}
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <IconButton

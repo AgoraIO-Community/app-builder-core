@@ -2,8 +2,13 @@ import {UidType, useContent, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
-import {isWeb} from '../../utils/common';
+import {isWeb, randomIntFromInterval, randomString} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
+import {CursorTool} from './WhiteboardCursor';
+import useUserName from '../../utils/useUserName';
 
 export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
 if (whiteboardPaper) {
@@ -11,10 +16,59 @@ if (whiteboardPaper) {
   whiteboardPaper.setAttribute('style', 'height:100%');
 }
 
+const dummyHeight = 409;
+const dummyWidth = 317;
+
+export const CursorColor = [
+  {
+    cursorColor: '#EAC443',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#EB42B9',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#FF5733',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#C70039',
+    textColor: '#FFFFFF',
+  },
+  {
+    cursorColor: '#196F3D',
+    textColor: '#FFFFFF',
+  },
+  {
+    cursorColor: '#2E86C1',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#A569BD',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#AED6F1',
+    textColor: '#000000',
+  },
+  {
+    cursorColor: '#581845',
+    textColor: '#FFFFFF',
+  },
+  {
+    cursorColor: '#1B4F72',
+    textColor: '#FFFFFF',
+  },
+];
+
 export const whiteboardContext = createContext(
   {} as whiteboardContextInterface,
 );
-
+export enum BoardColor {
+  Black = 1,
+  White = 2,
+}
 export interface whiteboardContextInterface {
   whiteboardUid: UidType;
   whiteboardActive: boolean;
@@ -22,6 +76,10 @@ export interface whiteboardContextInterface {
   joinWhiteboardRoom: () => void;
   leaveWhiteboardRoom: () => void;
   whiteboardRoom: React.Ref<Room>;
+  boardColor: BoardColor;
+  setBoardColor: React.Dispatch<React.SetStateAction<BoardColor>>;
+  setUploadRef: () => void;
+  insertImageIntoWhiteboard: (url: string) => void;
 }
 
 export interface WhiteboardPropsInterface {
@@ -31,6 +89,7 @@ export interface WhiteboardPropsInterface {
 const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
   const [whiteboardActive, setWhiteboardActive] = useState(false);
+  const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState(
     RoomPhase.Disconnected,
@@ -39,6 +98,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
   const {pinnedUid} = useContent();
+  const prevImageUploadHeightRef = useRef(0);
+  const cursorAdapter = new CursorTool();
+  const uploadPendingRef = useRef(false);
 
   useEffect(() => {
     if (
@@ -55,31 +117,163 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     }
   }, [pinnedUid, whiteboardRoomState]);
 
+  const [name] = useUserName();
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
+    boardColor: boardColorRemote,
   } = useRoomInfo();
 
-  const join = () => {
-    console.log(
-      '[Whiteboard] join called UID:' + room_uuid + ' Token:',
-      room_token,
+  const BoardColorChangedCallBack = ({boardColor}) => {
+    setBoardColor(boardColor);
+  };
+  React.useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+      BoardColorChangedCallBack({boardColor: boardColorRemote});
+    }
+  }, [boardColorRemote, isHost]);
+
+  React.useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
+      BoardColorChangedCallBack,
     );
+    return () => {
+      LocalEventEmitter.on(
+        LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
+        BoardColorChangedCallBack,
+      );
+    };
+  }, []);
+
+  const fileUploadCallBack = images => {
+    if (uploadPendingRef.current) {
+      let prevImageWidth = 0;
+      let prevImageHeight = prevImageUploadHeightRef.current;
+      let count = 0;
+      let focus = {
+        x: 0,
+        y: 0,
+      };
+      for (const key in images) {
+        if (Object.prototype.hasOwnProperty.call(images, key)) {
+          const element = images[key];
+          const uuid = key + ' ' + randomString();
+          const x = 0 + prevImageWidth + 50;
+          const y = 0 + prevImageUploadHeightRef?.current + 50;
+          whiteboardRoom.current?.insertImage({
+            centerX: x,
+            centerY: y,
+            height: dummyHeight,
+            width: dummyWidth,
+            uuid: uuid,
+            locked: false,
+          });
+          if (count === 0) {
+            focus.x = x;
+            focus.y = y;
+          }
+          setTimeout(() => {
+            whiteboardRoom.current?.completeImageUpload(uuid, element.url);
+          }, 1000);
+          prevImageWidth = prevImageWidth + 50 + dummyWidth;
+          if ((count + 1) % 4 === 0) {
+            prevImageUploadHeightRef.current =
+              prevImageUploadHeightRef.current + 50 + dummyHeight;
+            prevImageWidth = 0;
+          } else {
+            prevImageHeight = dummyHeight;
+          }
+          count = count + 1;
+        }
+      }
+
+      //for next image upload
+      if ((count + 1) % 4 !== 0) {
+        prevImageUploadHeightRef.current =
+          prevImageUploadHeightRef.current + 50 + prevImageHeight;
+      }
+      uploadPendingRef.current = false;
+
+      //focus the uploaded doc/image
+      whiteboardRoom.current?.moveCamera({
+        centerX: focus.x,
+        centerY: focus.y,
+      });
+    }
+  };
+
+  const setUploadRef = () => {
+    uploadPendingRef.current = true;
+  };
+
+  const insertImageIntoWhiteboard = url => {
+    if (!url) {
+      return;
+    }
+    const uuid = randomString();
+    const y = 0 + prevImageUploadHeightRef?.current + 50;
+    whiteboardRoom.current?.insertImage({
+      centerX: 0,
+      centerY: y,
+      height: 300,
+      width: 300,
+      uuid: uuid,
+      locked: false,
+    });
+    setTimeout(() => {
+      whiteboardRoom.current?.completeImageUpload(uuid, url);
+    }, 1000);
+    whiteboardRoom.current?.moveCamera({
+      centerX: 0,
+      centerY: y,
+    });
+    prevImageUploadHeightRef.current =
+      prevImageUploadHeightRef.current + 50 + 300 + 100;
+  };
+
+  useEffect(() => {
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+      fileUploadCallBack,
+    );
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+        fileUploadCallBack,
+      );
+    };
+  }, []);
+
+  const join = () => {
 
     const InitState = whiteboardRoomState;
     try {
+      const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
       whiteWebSdkClient.current
         .joinRoom({
+          cursorAdapter: cursorAdapter,
           uid: `${whiteboardUidRef.current}`,
           uuid: room_uuid,
           roomToken: room_token,
           floatBar: true,
           isWritable: isHost,
+          userPayload: {
+            cursorName: name,
+            cursorColor: CursorColor[index].cursorColor,
+            textColor: CursorColor[index].textColor,
+          },
         })
         .then(room => {
           whiteboardRoom.current = room;
+          cursorAdapter.setRoom(room);
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
+          if (isHost) {
+            whiteboardRoom.current?.setMemberState({
+              strokeColor: [0, 0, 0],
+            });
+          }
           setWhiteboardRoomState(RoomPhase.Connected);
         })
         .catch(err => {
@@ -99,6 +293,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
       whiteboardRoom.current
         ?.disconnect()
         .then(() => {
+          whiteboardUidRef.current = Date.now();
           whiteboardRoom.current?.bindHtmlElement(null);
           setWhiteboardRoomState(RoomPhase.Disconnected);
         })
@@ -131,7 +326,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     } else if (whiteboardActive) {
       join();
     } else {
-      if (whiteboardRoom.current && whiteboardActive) {
+      if (whiteboardRoom.current) {
         leave();
       }
     }
@@ -146,6 +341,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         leaveWhiteboardRoom,
         whiteboardRoom,
         whiteboardUid: whiteboardUidRef.current,
+        boardColor,
+        setBoardColor,
+        setUploadRef,
+        insertImageIntoWhiteboard,
       }}>
       {props.children}
     </whiteboardContext.Provider>
