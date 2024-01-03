@@ -21,6 +21,7 @@ import {
   StatusBar,
   Platform,
   View,
+  ViewProps,
 } from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import {isValidReactComponent} from './utils/common';
@@ -38,6 +39,21 @@ import isSDK from './utils/isSDK';
 interface AppWrapperProps {
   children: React.ReactNode;
 }
+
+const ConditionalSafeAreaView = ({children, ...props}: ViewProps) => {
+  if (!isSDK) {
+    return (
+      <SafeAreaView
+        // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
+        style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}
+        {...props}>
+        {children}
+      </SafeAreaView>
+    );
+  } else {
+    return <>{children}</>;
+  }
+};
 
 const ImageBackgroundComp = (props: {
   bg?: string;
@@ -80,9 +96,7 @@ const AppWrapper = (props: AppWrapperProps) => {
   return (
     <AppRoot>
       <ImageBackgroundComp bg={$config.BG} color={$config.BACKGROUND_COLOR}>
-        <SafeAreaView
-          // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
-          style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
+        <ConditionalSafeAreaView>
           <StatusBar hidden={true} />
           <ToastProvider>
             <ToastContext.Consumer>
@@ -116,7 +130,7 @@ const AppWrapper = (props: AppWrapperProps) => {
               </GraphQLProvider>
             </StorageProvider>
           </ToastProvider>
-        </SafeAreaView>
+        </ConditionalSafeAreaView>
       </ImageBackgroundComp>
     </AppRoot>
   );
