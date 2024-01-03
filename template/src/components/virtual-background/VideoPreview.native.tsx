@@ -3,7 +3,11 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import {useContent, usePreCall, useRtc} from 'customization-api';
 import InlineNotification from '../../atoms/InlineNotification';
 
-const VideoPreview = () => {
+interface VideoPreviewProps {
+  isLocalVideoON?: boolean;
+}
+
+const VideoPreview = ({isLocalVideoON = false}: VideoPreviewProps) => {
   const {defaultContent, activeUids} = useContent();
   const [maxUid] = activeUids;
   const {isCameraAvailable} = usePreCall();
@@ -14,6 +18,10 @@ const VideoPreview = () => {
 as your camera turns on.`
     : `Your camera is switched off. Save a background to apply once it’s turned on.`;
   rtc?.RtcEngineUnsafe?.startPreview();
+
+  if (!isLocalVideoON) {
+    return <InlineNotification text={fallbackText} />;
+  }
 
   return (
     <MaxVideoView

@@ -135,7 +135,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
               <></>
             )}
 
-            <VideoPreview />
+            <VideoPreview isLocalVideoON={isLocalVideoON} />
           </View>
         ) : (
           <></>

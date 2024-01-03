@@ -63,7 +63,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const {setVideoTileInViewPortState} = useVideoCall();
-  const {getWhiteboardUid} = useWhiteboard();
+  const {getWhiteboardUid = () => 0} = useWhiteboard();
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
   );
