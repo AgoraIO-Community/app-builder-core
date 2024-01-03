@@ -434,7 +434,13 @@ const SelectDevice = (props: SelectDeviceProps) => {
           {$config.EVENT_MODE && isPickerDisabled && (
             <>
               <Spacer size={24} />
-              <InlineNotification text={settingScreenInfoMessage} />
+              <InlineNotification
+                text={settingScreenInfoMessage}
+                warning={true}
+                customStyle={{
+                  backgroundColor: 'rgba(255, 171, 0, 0.15)',
+                }}
+              />
             </>
           )}
           <Spacer size={24} />
@@ -458,7 +464,13 @@ const SelectDevice = (props: SelectDeviceProps) => {
         {$config.EVENT_MODE && isPickerDisabled && (
           <>
             <Spacer size={24} />
-            <InlineNotification text={settingScreenInfoMessage} />
+            <InlineNotification
+              text={settingScreenInfoMessage}
+              warning={true}
+              customStyle={{
+                backgroundColor: 'rgba(255, 171, 0, 0.15)',
+              }}
+            />
           </>
         )}
         <Spacer size={24} />
