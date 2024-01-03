@@ -31,6 +31,7 @@ import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useVideoCall} from '../../components/useVideoCall';
 import VisibilitySensor from './VisibilitySensor';
 import ImageIcon from '../../atoms/ImageIcon';
+import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -62,7 +63,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const {setVideoTileInViewPortState} = useVideoCall();
-
+  const {getWhiteboardUid} = useWhiteboard();
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
   );
@@ -296,10 +297,25 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               )}
             </VisibilitySensor>
           </ZoomableWrapper>
-          {!isScreenShareOnFullView && !CustomChild && (
+          {(!isScreenShareOnFullView && !CustomChild) ||
+          (CustomChild &&
+            (pinnedUid !== getWhiteboardUid() || currentLayout === 'grid')) ? (
             <VideoContainerProvider value={{videoTileWidth}}>
-              <NameWithMicIcon name={user.name} muted={!user.audio} />
+              <NameWithMicIcon
+                name={user.name}
+                muted={CustomChild ? undefined : !user.audio}
+                customBgColor={
+                  CustomChild ? $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR : null
+                }
+                customTextColor={
+                  CustomChild
+                    ? $config.FONT_COLOR + hexadecimalTransparency['80%']
+                    : null
+                }
+              />
             </VideoContainerProvider>
+          ) : (
+            <></>
           )}
           {!isScreenShareOnFullView &&
           // user.uid !== rtcProps?.screenShareUid &&
@@ -318,23 +334,34 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               onPress={() => {
                 dispatch({type: 'UserPin', value: [user.uid]});
               }}
-              containerStyle={maxStyle.replacePinContainer}
+              containerStyle={
+                user.uid === getWhiteboardUid()
+                  ? maxStyle.replacePinContainer2
+                  : maxStyle.replacePinContainer
+              }
               btnTextProps={{
                 //text: showReplacePin ? 'Replace Pin' : 'View in large',
-                text: 'View in large',
+                text:
+                  user.uid === getWhiteboardUid()
+                    ? 'View Whiteboard'
+                    : 'View in large',
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {
                   marginTop: 0,
                   fontWeight: '700',
-                  marginLeft: 6,
+                  marginLeft: user.uid === getWhiteboardUid() ? 0 : 6,
                 },
               }}
-              iconProps={{
-                name: 'pin-filled',
-                iconSize: 20,
-                iconType: 'plain',
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-              }}
+              iconProps={
+                user.uid === getWhiteboardUid()
+                  ? null
+                  : {
+                      name: 'pin-filled',
+                      iconSize: 20,
+                      iconType: 'plain',
+                      tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                    }
+              }
             />
           ) : (
             <></>
@@ -415,6 +442,23 @@ const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
 
 const maxStyle = StyleSheet.create({
   replacePinContainer: {
+    zIndex: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+    borderRadius: 8,
+    flexDirection: 'row',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    margin: 'auto',
+    maxWidth: 120,
+    maxHeight: 32,
+  },
+  replacePinContainer2: {
+    justifyContent: 'center',
     zIndex: 999,
     paddingHorizontal: 12,
     paddingVertical: 10,

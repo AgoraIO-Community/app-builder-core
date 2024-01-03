@@ -30,7 +30,11 @@ const Toolbar = (props: ToolbarProps) => {
   const {position} = useToolbar();
   const {children, bottomSheetOnMobile = false, snapPointsMinMax} = props;
   const isDesktop = useIsDesktop();
-  const paddingHorizontal = isDesktop('toolbar') ? 32 : 10;
+  const paddingHorizontal = $config.ICON_TEXT
+    ? isDesktop('toolbar')
+      ? 32
+      : 10
+    : 0;
 
   if (isMobileUA() && bottomSheetOnMobile) {
     return (

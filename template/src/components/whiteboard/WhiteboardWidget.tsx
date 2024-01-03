@@ -13,13 +13,15 @@
 import React, {useContext} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {Room, RoomState} from 'white-web-sdk';
-import {IconButton, useContent} from 'customization-api';
+import {IconButton, useContent, useLayout} from 'customization-api';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {randomString} from '../../utils/common';
 import Toast from '../../../react-native-toast-message';
 import ThemeConfig from '../../theme';
+import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
+import ImageIcon from '../../atoms/ImageIcon';
 
 const Seperator = () => {
   return (
@@ -35,12 +37,20 @@ const Seperator = () => {
 };
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
-  const {setBoardColor, boardColor, whiteboardUid} =
+  const {setBoardColor, boardColor, getWhiteboardUid} =
     useContext(whiteboardContext);
 
-  const {activeUids} = useContent();
+  const {activeUids, pinnedUid} = useContent();
+  const {currentLayout} = useLayout();
 
-  if (activeUids && activeUids?.length && activeUids[0] !== whiteboardUid) {
+  if (
+    !(
+      currentLayout === DefaultLayouts[1].name &&
+      activeUids &&
+      activeUids?.length &&
+      (activeUids[0] === getWhiteboardUid() || pinnedUid === getWhiteboardUid())
+    )
+  ) {
     return null;
   }
 
@@ -87,56 +97,73 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     <>
       <View style={style.toolboxContainer}>
         <View style={style.toolboxNew} nativeID="toolbox">
-          {whiteboardRoom.current?.isWritable ? (
-            <>
-              <IconButton
-                toolTipMessage={
-                  boardColor === BoardColor.Black ? 'Whiteboard' : 'Blackboard'
-                }
-                placement={'bottom'}
-                showTooltipArrow={false}
-                onPress={() => {
-                  const color =
-                    boardColor === BoardColor.Black
-                      ? BoardColor.White
-                      : BoardColor.Black;
-                  setBoardColor(color);
-                  events.send(
-                    EventNames.BOARD_COLOR_CHANGED,
-                    JSON.stringify({boardColor: color}),
-                    PersistanceLevel.Session,
-                  );
-                }}
-                hoverEffect={true}
-                hoverEffectStyle={style.itemHoverStyle}
-                containerStyle={style.itemDefaultStyle}
-                iconProps={{
-                  name: boardColor === BoardColor.Black ? 'light' : 'dark',
-                  iconSize: 24,
-                  iconType: 'plain',
-                  tintColor: $config.FONT_COLOR,
-                }}
+          {!whiteboardRoom.current?.isWritable ? (
+            <View style={style.viewOnlyContainerStyle}>
+              <ImageIcon
+                name="view-only"
+                iconSize={24}
+                iconType="plain"
+                tintColor={$config.CARD_LAYER_5_COLOR}
               />
-              <Seperator />
-              <RedoUndo room={whiteboardRoom.current} />
-              <Seperator />
-            </>
+              <Text style={style.viewOnlyTextStyle}>View Only</Text>
+            </View>
           ) : (
             <></>
           )}
-          <ScaleController room={whiteboardRoom.current} />
-          {whiteboardRoom.current?.isWritable ? (
-            <>
-              <Seperator />
-              <TouchableOpacity
-                style={style.btnContainerStyle}
-                onPress={exportWhiteboard}>
-                <Text style={style.btnTextStyle}>{'Export'}</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <></>
-          )}
+          <View style={style.widgetContainer}>
+            {whiteboardRoom.current?.isWritable ? (
+              <>
+                <IconButton
+                  toolTipMessage={
+                    boardColor === BoardColor.Black
+                      ? 'Whiteboard'
+                      : 'Blackboard'
+                  }
+                  placement={'bottom'}
+                  showTooltipArrow={false}
+                  onPress={() => {
+                    const color =
+                      boardColor === BoardColor.Black
+                        ? BoardColor.White
+                        : BoardColor.Black;
+                    setBoardColor(color);
+                    events.send(
+                      EventNames.BOARD_COLOR_CHANGED,
+                      JSON.stringify({boardColor: color}),
+                      PersistanceLevel.Session,
+                    );
+                  }}
+                  hoverEffect={true}
+                  hoverEffectStyle={style.itemHoverStyle}
+                  containerStyle={style.itemDefaultStyle}
+                  iconProps={{
+                    name: boardColor === BoardColor.Black ? 'light' : 'dark',
+                    iconSize: 24,
+                    iconType: 'plain',
+                    tintColor: $config.FONT_COLOR,
+                  }}
+                />
+                <Seperator />
+                <RedoUndo room={whiteboardRoom.current} />
+                <Seperator />
+              </>
+            ) : (
+              <></>
+            )}
+            <ScaleController room={whiteboardRoom.current} />
+            {whiteboardRoom.current?.isWritable ? (
+              <>
+                <Seperator />
+                <TouchableOpacity
+                  style={style.btnContainerStyle}
+                  onPress={exportWhiteboard}>
+                  <Text style={style.btnTextStyle}>{'Export'}</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <></>
+            )}
+          </View>
         </View>
       </View>
     </>
@@ -443,15 +470,15 @@ class RedoUndo extends React.Component<RedoUndoProps, RedoUndoStates> {
 const style = StyleSheet.create({
   itemSelectedStyle: {
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
   itemDefaultStyle: {
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
   itemDefaultStyleDisabled: {
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
     opacity: 0.6,
   },
@@ -466,11 +493,8 @@ const style = StyleSheet.create({
     zIndex: 10,
   },
   toolboxNew: {
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
-    borderRadius: 4,
     marginRight: 'auto',
-    padding: 4,
-    height: 'auto',
+    height: 40,
     width: 'auto',
     display: 'flex',
     alignItems: 'center',
@@ -483,7 +507,6 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    marginRight: 8,
     marginLeft: 4,
   },
   btnTextStyle: {
@@ -491,6 +514,35 @@ const style = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     color: $config.FONT_COLOR,
+  },
+  viewOnlyTextStyle: {
+    marginLeft: 4,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 12,
+    lineHeight: 22,
+    color: $config.CARD_LAYER_5_COLOR,
+  },
+  viewOnlyContainerStyle: {
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    flexDirection: 'row',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  widgetContainer: {
+    borderRadius: 4,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    marginLeft: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexDirection: 'row',
+    height: 40,
+    width: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    elevation: 10,
+    zIndex: 10,
   },
 });
 

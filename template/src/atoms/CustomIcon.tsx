@@ -129,4 +129,5 @@ export interface IconsInterface {
   'color-picker': string;
   'fit-to-screen': string;
   warning: string;
+  'view-only': string;
 }

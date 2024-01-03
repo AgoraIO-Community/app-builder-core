@@ -11,6 +11,8 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 export interface NameWithMicIconProps {
   name: string;
   muted?: boolean;
+  customBgColor?: string;
+  customTextColor?: string;
 }
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
@@ -36,6 +38,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
         },
         reduceSpace ? {left: 2, bottom: 2} : {},
         reduceSpace && activeUidsLen > 12 ? {padding: 2} : {},
+        props?.customBgColor ? {backgroundColor: props?.customBgColor} : {},
       ]}>
       {muted !== undefined ? (
         <ImageIcon
@@ -59,7 +62,10 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
             numberOfLines={1}
             textBreakStrategy="simple"
             ellipsizeMode="tail"
-            style={style.name}>
+            style={[
+              style.name,
+              props?.customTextColor ? {color: props?.customTextColor} : {},
+            ]}>
             {name || remoteUserDefaultLabel}
           </Text>
         </PlatformWrapper>

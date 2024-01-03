@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ViewStyle,
   TextStyle,
@@ -39,12 +39,17 @@ export interface IconButtonProps {
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
   showTooltipArrow?: boolean;
   isClickable?: boolean;
+  onHoverCallBack?: (isHovered: boolean) => void;
 }
 
 const IconButton = (props: IconButtonProps) => {
   return (
     <IconButtonWrapper {...props}>
-      <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+      {props?.iconProps ? (
+        <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+      ) : (
+        <></>
+      )}
       {props?.btnTextProps?.text ? (
         <Text
           numberOfLines={props?.btnTextProps?.numberOfLines || 1}
@@ -134,6 +139,15 @@ const PlatformWrapper = ({children, ...props}) => {
 
 const IconButtonWithToolTip = (props: IconButtonProps) => {
   const [isHovered, setIsHovered] = React.useState(false);
+
+  useEffect(() => {
+    if (isHovered) {
+      props?.onHoverCallBack && props?.onHoverCallBack(true);
+    } else {
+      props?.onHoverCallBack && props?.onHoverCallBack(false);
+    }
+  }, [isHovered]);
+
   const {
     placement = 'top',
     isClickable = false,

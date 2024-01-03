@@ -49,43 +49,59 @@ const ColorPickerValues: ColorPickerValues = {
     hex: '#666666',
     rgb: [102, 102, 102],
   },
-  darkGrey: {
-    hex: '#333333',
-    rgb: [51, 51, 51],
+  lightBlue: {
+    hex: '#86B7F9',
+    rgb: [134, 183, 249],
+  },
+  lightGreen: {
+    hex: '#A7DBB0',
+    rgb: [167, 219, 176],
+  },
+  lightYellow: {
+    hex: '#F7D686',
+    rgb: [247, 214, 134],
+  },
+  lightOrange: {
+    hex: '#F8C07C',
+    rgb: [248, 192, 124],
+  },
+  pink: {
+    hex: '#F7736E',
+    rgb: [247, 115, 110],
+  },
+  lightPurple: {
+    hex: '#B586F9',
+    rgb: [181, 134, 249],
   },
   black: {
     hex: '#000000',
     rgb: [0, 0, 0],
   },
-  lightBlue: {
+  darkGrey: {
+    hex: '#333333',
+    rgb: [51, 51, 51],
+  },
+  darkBlue: {
     hex: '#4689E3',
     rgb: [70, 137, 227],
   },
-  green: {
+  darkGreen: {
     hex: '#428D57',
     rgb: [66, 141, 87],
   },
-  lightYellow: {
+  darkYellow: {
     hex: '#EAC443',
     rgb: [234, 196, 67],
   },
-  darkYellow: {
+  darkOrange: {
     hex: '#E99D3D',
     rgb: [233, 157, 61],
-  },
-  orange: {
-    hex: '#CE4E29',
-    rgb: [206, 78, 41],
   },
   red: {
     hex: '#CF130C',
     rgb: [207, 19, 12],
   },
-  rose: {
-    hex: '#EE3BDC',
-    rgb: [238, 59, 220],
-  },
-  purple: {
+  darkPurple: {
     hex: '#843BEE',
     rgb: [132, 59, 238],
   },
@@ -186,16 +202,23 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   const [showShapes, setShowShapes] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedColor, setSelectedColor] = useState('black');
+  const [strokeWidth, setStrokeWidth] = useState(4);
   const {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
-  const {setUploadRef, insertImageIntoWhiteboard, boardColor, whiteboardUid} =
-    useContext(whiteboardContext);
+  const {
+    setUploadRef,
+    insertImageIntoWhiteboard,
+    boardColor,
+    getWhiteboardUid,
+  } = useContext(whiteboardContext);
   const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
   const [isColorBtnHovered, setColorBtnHovered] = useState(false);
   const [isColorContainerHovered, setColorContainerHovered] = useState(false);
+  const [isPencilBtnHovered, setPencilBtnHovered] = useState(false);
+  const [isPencilContainerHovered, setPencilContainerHovered] = useState(false);
   const handleSelect = (applicanceName: ApplianceNames) => {
     if (applicanceName !== ApplianceNames.selector) {
       setCursorColor(ColorPickerValues[selectedColor].rgb);
@@ -383,9 +406,22 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         })
           .then(async res => {
             const data = await res.json();
+
             if (supportedImageType?.indexOf(selectedFile?.type) !== -1) {
+              Toast.show({
+                type: 'info',
+                text1:
+                  'Image Upload will take few seconds to appear in whiteboard',
+                visibilityTime: 5000,
+              });
               imageUpload(data, selectedFile);
             } else {
+              Toast.show({
+                type: 'info',
+                text1:
+                  'Document Upload will take few seconds to appear in whiteboard',
+                visibilityTime: 5000,
+              });
               fileUploadAndConvert(data, selectedFile);
             }
           })
@@ -437,6 +473,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -458,6 +495,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -480,6 +518,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -502,6 +541,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                     setShowShapes(false);
                     setShapeContainerHovered(false);
                     setShapeBtnHovered(false);
+                    whiteboardRoom?.current?.setMemberState({strokeWidth: 4});
                   }}
                   hoverEffect={true}
                   hoverEffectStyle={style.itemHoverStyle}
@@ -535,8 +575,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     if (isColorBtnHovered || isColorContainerHovered) {
       const renderItemsRow1 = [];
       const renderItemsRow2 = [];
-      const renderItemsRow3 = [];
-      const renderItemsRow4 = [];
       let count = 0;
       for (const key in ColorPickerValues) {
         if (Object.prototype.hasOwnProperty.call(ColorPickerValues, key)) {
@@ -552,25 +590,25 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               }}
               hoverEffect={selectedColor === key ? false : true}
               hoverEffectStyle={{
-                backgroundColor: element.hex + hexadecimalTransparency['50%'],
+                backgroundColor: $config.CARD_LAYER_4_COLOR,
                 borderRadius: 50,
               }}
               containerStyle={
                 selectedColor === key
                   ? style.colorSelectedStyle
-                  : style.itemDefaultStyle
+                  : style.itemDefaultStyleColor
               }
               iconProps={
                 selectedColor === key
                   ? {
                       name: 'gradient',
-                      iconSize: 24,
+                      iconSize: 12,
                       iconType: 'plain',
                       tintColor: element.hex,
                     }
                   : {
                       name: 'gradient',
-                      iconSize: 24,
+                      iconSize: 16,
                       iconType: 'plain',
                       tintColor: element.hex,
                     }
@@ -583,17 +621,22 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 style={{
                   borderRadius: 50,
                   backgroundColor: element.hex,
-                  padding: 4,
-                  margin: 2,
+                  padding: 2,
+                  justifyContent: 'center',
+                  marginRight: 8,
                 }}>
                 {iconButtonColor}
               </View>
             ) : (
-              <View style={{margin: 2}}>{iconButtonColor}</View>
+              <View
+                style={{
+                  paddingRight: 8,
+                }}>
+                {iconButtonColor}
+              </View>
             );
-          if (count >= 0 && count <= 3) renderItemsRow1.push(iconButtonColor);
-          if (count >= 4 && count <= 7) renderItemsRow2.push(iconButtonColor);
-          if (count >= 8 && count <= 12) renderItemsRow3.push(iconButtonColor);
+          if (count >= 0 && count <= 7) renderItemsRow1.push(iconButtonColor);
+          if (count >= 8 && count <= 15) renderItemsRow2.push(iconButtonColor);
 
           count = count + 1;
         }
@@ -610,22 +653,10 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           }}>
           <View style={style.toolboxColorsContainer}>
             <View style={style.toolboxNewColor}>
-              <View style={{marginVertical: 8}}>
-                <StrokeWidthTool
-                  room={whiteboardRoom?.current}
-                  roomState={roomState}
-                />
-              </View>
-              <View style={[style.toolboxRow, {paddingBottom: 2}]}>
+              <View style={[style.toolboxRow, {paddingBottom: 8}]}>
                 {renderItemsRow1}
               </View>
-              <View style={[style.toolboxRow, {paddingBottom: 2}]}>
-                {renderItemsRow2}
-              </View>
-              <View style={[style.toolboxRow, {paddingBottom: 2}]}>
-                {renderItemsRow3}
-              </View>
-              <View style={style.toolboxRow}>{renderItemsRow4}</View>
+              <View style={[style.toolboxRow]}>{renderItemsRow2}</View>
             </View>
           </View>
         </div>
@@ -642,14 +673,44 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     );
   };
 
+  const renderPencilSize = () => {
+    if (isPencilBtnHovered || isPencilContainerHovered) {
+      return (
+        <div
+          onMouseEnter={() => {
+            setPencilContainerHovered(true);
+          }}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setPencilContainerHovered(false);
+            }, 250);
+          }}>
+          <View style={style.toolboxPencilContainer}>
+            <View style={style.toolboxPencilColor}>
+              <StrokeWidthTool
+                room={whiteboardRoom?.current}
+                roomState={roomState}
+                setPrevValue={value => {
+                  handleSelect(ApplianceNames.pencil);
+                  setStrokeWidth(value);
+                }}
+              />
+            </View>
+          </View>
+        </div>
+      );
+    }
+  };
+
   const {activeUids} = useContent();
 
-  if (activeUids && activeUids[0] !== whiteboardUid) {
+  if (activeUids && activeUids[0] !== getWhiteboardUid()) {
     return null;
   }
 
   return (
     <>
+      {renderPencilSize()}
       {renderShapesMenu()}
       {renderColorMenu()}
       <View
@@ -668,7 +729,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               }
               handleSelect(ApplianceNames.selector);
             }}
-            hoverEffect={true}
+            hoverEffect={
+              selectedTool === ApplianceNames.selector ? false : true
+            }
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.selector
@@ -689,7 +752,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.text);
             }}
-            hoverEffect={true}
+            hoverEffect={selectedTool === ApplianceNames.text ? false : true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.text
@@ -703,27 +766,46 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
-          <IconButton
-            toolTipMessage="Pencil"
-            placement={'right'}
-            showTooltipArrow={false}
-            onPress={() => {
-              handleSelect(ApplianceNames.pencil);
+          <div
+            onMouseEnter={() => {
+              setPencilBtnHovered(true);
             }}
-            hoverEffect={true}
-            hoverEffectStyle={style.itemHoverStyle}
-            containerStyle={
-              selectedTool === ApplianceNames.pencil
-                ? style.itemSelectedStyle
-                : style.itemDefaultStyle
-            }
-            iconProps={{
-              name: 'pen',
-              iconSize: 24,
-              iconType: 'plain',
-              tintColor: $config.FONT_COLOR,
-            }}
-          />
+            onMouseLeave={() => {
+              setTimeout(() => {
+                setPencilBtnHovered(false);
+              }, 250);
+            }}>
+            <IconButton
+              // toolTipMessage="Pencil"
+              // placement={'right'}
+              // showTooltipArrow={false}
+              onHoverCallBack={isHovered => {
+                if (isHovered) {
+                  whiteboardRoom?.current?.setMemberState({
+                    strokeWidth: strokeWidth,
+                  });
+                }
+              }}
+              onPress={() => {
+                handleSelect(ApplianceNames.pencil);
+              }}
+              hoverEffect={
+                selectedTool === ApplianceNames.pencil ? false : true
+              }
+              hoverEffectStyle={style.itemHoverStyle}
+              containerStyle={
+                selectedTool === ApplianceNames.pencil
+                  ? style.itemSelectedStyle
+                  : style.itemDefaultStyle
+              }
+              iconProps={{
+                name: 'pen',
+                iconSize: 24,
+                iconType: 'plain',
+                tintColor: $config.FONT_COLOR,
+              }}
+            />
+          </div>
           <div
             onMouseEnter={() => {
               setShapeBtnHovered(true);
@@ -735,8 +817,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}>
             <IconButton
               //toolTipMessage={showShapes ? '' : 'Shapes'}
-              placement={'right'}
-              showTooltipArrow={false}
+              //placement={'right'}
+              //showTooltipArrow={false}
               onPress={() => {
                 // //open submenu
                 // setShowColorPicker(false);
@@ -798,7 +880,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.hand);
             }}
-            hoverEffect={true}
+            hoverEffect={selectedTool === ApplianceNames.hand ? false : true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.hand
@@ -819,7 +901,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.laserPointer);
             }}
-            hoverEffect={true}
+            hoverEffect={
+              selectedTool === ApplianceNames.laserPointer ? false : true
+            }
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.laserPointer
@@ -861,7 +945,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             onPress={() => {
               handleSelect(ApplianceNames.eraser);
             }}
-            hoverEffect={true}
+            hoverEffect={selectedTool === ApplianceNames.eraser ? false : true}
             hoverEffectStyle={style.itemHoverStyle}
             containerStyle={
               selectedTool === ApplianceNames.eraser
@@ -875,6 +959,37 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
+
+          {$config.ENABLE_WHITEBOARD_FILE_UPLOAD && isWeb() ? (
+            <>
+              <input
+                type="file"
+                id="docpicker"
+                accept="application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/pdf,image/png,image/jpeg"
+                hidden
+                onInput={onFileChange}
+              />
+              <IconButton
+                onPress={() => {
+                  document.getElementById('docpicker').click();
+                }}
+                toolTipMessage="Upload Document or Image"
+                placement={'right'}
+                showTooltipArrow={false}
+                hoverEffect={true}
+                hoverEffectStyle={style.itemHoverStyle}
+                containerStyle={style.itemDefaultStyle}
+                iconProps={{
+                  name: 'upload-new',
+                  iconSize: 24,
+                  iconType: 'plain',
+                  tintColor: $config.FONT_COLOR,
+                }}
+              />
+            </>
+          ) : (
+            <></>
+          )}
           <IconButton
             toolTipMessage="Clear All"
             placement={'right'}
@@ -892,36 +1007,6 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               tintColor: $config.FONT_COLOR,
             }}
           />
-          {$config.ENABLE_WHITEBOARD_FILE_UPLOAD && isWeb() ? (
-            <>
-              <input
-                type="file"
-                id="docpicker"
-                accept="application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/pdf,image/png,image/jpeg"
-                hidden
-                onInput={onFileChange}
-              />
-              <IconButton
-                onPress={() => {
-                  document.getElementById('docpicker').click();
-                }}
-                toolTipMessage="Upload Pdf and Images"
-                placement={'right'}
-                showTooltipArrow={false}
-                hoverEffect={true}
-                hoverEffectStyle={style.itemHoverStyle}
-                containerStyle={style.itemDefaultStyle}
-                iconProps={{
-                  name: 'upload-new',
-                  iconSize: 24,
-                  iconType: 'plain',
-                  tintColor: $config.FONT_COLOR,
-                }}
-              />
-            </>
-          ) : (
-            <></>
-          )}
           {/* <IconButton
             onPress={() => {
               testImageUpload();
@@ -948,16 +1033,12 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
 const style = StyleSheet.create({
   itemSelectedStyle: {
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
-  colorSelectedStyle: {
-    padding: 4,
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
-    borderRadius: 50,
-  },
+
   itemDefaultStyle: {
-    padding: 8,
+    padding: 4,
     borderRadius: 4,
   },
   itemHoverStyle: {
@@ -966,20 +1047,35 @@ const style = StyleSheet.create({
   },
   toolboxContainer: {
     position: 'absolute',
-    top: 60,
+    top: '25%',
     left: 12,
     zIndex: 10,
   },
   toolboxShapesContainer: {
     position: 'absolute',
-    top: 160,
-    left: 65,
+    top: '35%',
+    left: 58,
     zIndex: 10,
   },
   toolboxColorsContainer: {
     position: 'absolute',
-    top: 180,
-    left: 65,
+    top: '42%',
+    left: 58,
+    zIndex: 10,
+  },
+  colorSelectedStyle: {
+    padding: 2,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 50,
+  },
+  itemDefaultStyleColor: {
+    padding: 2,
+    borderRadius: 4,
+  },
+  toolboxPencilContainer: {
+    position: 'absolute',
+    top: '33%',
+    left: 58,
     zIndex: 10,
   },
   toolboxContainerMobile: {
@@ -1016,7 +1112,7 @@ const style = StyleSheet.create({
     marginRight: 'auto',
     padding: 4,
     height: 'auto',
-    width: 'auto',
+    width: 40,
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
@@ -1026,13 +1122,27 @@ const style = StyleSheet.create({
   toolboxNewColor: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 4,
-    padding: 4,
+    paddingVertical: 8,
+    paddingLeft: 8,
+    paddingRight: 0,
+    height: 'auto',
+    width: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 10,
+    zIndex: 10,
+  },
+  toolboxPencilColor: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 4,
+    padding: 8,
     height: 'auto',
     maxWidth: 'auto',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
     elevation: 10,
     zIndex: 10,
   },

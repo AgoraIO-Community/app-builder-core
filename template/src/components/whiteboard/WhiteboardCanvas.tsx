@@ -64,7 +64,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasInterface> = ({
           width: '100%',
           height: '100%',
           backgroundColor: boardColor === BoardColor.Black ? 'black' : 'white',
-          borderRadius: 10,
+          borderRadius: 4,
         }}
         ref={wbSurfaceRef}
         id="whiteboard-div-ref"

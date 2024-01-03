@@ -134,7 +134,7 @@ const WhiteboardListener = () => {
     whiteboardActive,
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
-    whiteboardUid,
+    getWhiteboardUid,
   } = useContext(whiteboardContext);
 
   const WhiteboardStoppedCallBack = () => {
@@ -156,7 +156,7 @@ const WhiteboardListener = () => {
     if ($config.ENABLE_WHITEBOARD) {
       if (whiteboardActive) {
         leaveWhiteboardRoom();
-        setCustomContent(whiteboardUid, false);
+        setCustomContent(getWhiteboardUid(), false);
         setLayout('grid');
         triggerEvent &&
           events.send(
@@ -166,10 +166,10 @@ const WhiteboardListener = () => {
           );
       } else {
         joinWhiteboardRoom();
-        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        setCustomContent(getWhiteboardUid(), WhiteboardWrapper, {}, true);
         dispatch({
           type: 'UserPin',
-          value: [whiteboardUid],
+          value: [getWhiteboardUid()],
         });
         setLayout('pinned');
         triggerEvent &&
@@ -284,7 +284,8 @@ const MoreButton = () => {
     whiteboardActive,
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
-    whiteboardUid,
+    getWhiteboardUid,
+    whiteboardStartedFirst,
   } = useContext(whiteboardContext);
 
   const WhiteboardStoppedCallBack = () => {
@@ -327,7 +328,7 @@ const MoreButton = () => {
     if ($config.ENABLE_WHITEBOARD) {
       if (whiteboardActive) {
         leaveWhiteboardRoom();
-        setCustomContent(whiteboardUid, false);
+        setCustomContent(getWhiteboardUid(), false);
         setLayout('grid');
         triggerEvent &&
           events.send(
@@ -337,10 +338,10 @@ const MoreButton = () => {
           );
       } else {
         joinWhiteboardRoom();
-        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        setCustomContent(getWhiteboardUid(), WhiteboardWrapper, {}, true);
         dispatch({
           type: 'UserPin',
-          value: [whiteboardUid],
+          value: [getWhiteboardUid()],
         });
         setLayout('pinned');
         triggerEvent &&
@@ -367,7 +368,11 @@ const MoreButton = () => {
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive ? 'Hide Whiteboard' : 'Show Whiteboard',
+      title: whiteboardActive
+        ? 'Hide Whiteboard'
+        : whiteboardStartedFirst
+        ? 'Show Whiteboard'
+        : 'Start Whiteboard',
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);

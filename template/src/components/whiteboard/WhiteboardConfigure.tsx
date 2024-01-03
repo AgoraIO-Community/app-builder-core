@@ -1,4 +1,4 @@
-import {UidType, useContent, useRoomInfo} from 'customization-api';
+import {UidType, useContent, useLayout, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
@@ -9,6 +9,9 @@ import LocalEventEmitter, {
 } from '../../rtm-events-api/LocalEvents';
 import {CursorTool} from './WhiteboardCursor';
 import useUserName from '../../utils/useUserName';
+import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
+import events, {PersistanceLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
 if (whiteboardPaper) {
@@ -80,6 +83,8 @@ export interface whiteboardContextInterface {
   setBoardColor: React.Dispatch<React.SetStateAction<BoardColor>>;
   setUploadRef: () => void;
   insertImageIntoWhiteboard: (url: string) => void;
+  getWhiteboardUid: () => number;
+  whiteboardStartedFirst?: boolean;
 }
 
 export interface WhiteboardPropsInterface {
@@ -89,6 +94,7 @@ export interface WhiteboardPropsInterface {
 const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
   const [whiteboardActive, setWhiteboardActive] = useState(false);
+  const [whiteboardStartedFirst, setWhiteboardStartedFirst] = useState(false);
   const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState(
@@ -97,7 +103,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const whiteboardUidRef = useRef(Date.now());
   const whiteWebSdkClient = useRef({} as WhiteWebSdk);
   const whiteboardRoom = useRef({} as Room);
-  const {pinnedUid} = useContent();
+  const {pinnedUid, activeUids} = useContent();
   const prevImageUploadHeightRef = useRef(0);
   const cursorAdapter = new CursorTool();
   const uploadPendingRef = useRef(false);
@@ -121,10 +127,35 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const {
     data: {isHost, whiteboard: {room_token, room_uuid} = {}},
     boardColor: boardColorRemote,
+    whiteboardLastImageUploadPosition: whiteboardLastImageUploadPositionRemote,
   } = useRoomInfo();
+  const {currentLayout} = useLayout();
+
+  useEffect(() => {
+    try {
+      if (whiteboardRoomState === RoomPhase.Connected && isHost) {
+        if (
+          currentLayout === DefaultLayouts[1].name &&
+          activeUids &&
+          activeUids?.length &&
+          (activeUids[0] === getWhiteboardUid() ||
+            pinnedUid === getWhiteboardUid())
+        ) {
+          whiteboardRoom?.current?.setWritable(true);
+        } else {
+          whiteboardRoom?.current?.setWritable(false);
+        }
+      }
+    } catch (error) {
+      console.log('debugging error on whiteboard setWritable ', error);
+    }
+  }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
 
   const BoardColorChangedCallBack = ({boardColor}) => {
     setBoardColor(boardColor);
+  };
+  const SetLastImageUploadHeightCallBack = ({height}) => {
+    prevImageUploadHeightRef.current = height;
   };
   React.useEffect(() => {
     if ($config.ENABLE_WAITING_ROOM && !isHost) {
@@ -133,14 +164,30 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   }, [boardColorRemote, isHost]);
 
   React.useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+      SetLastImageUploadHeightCallBack({
+        height: whiteboardLastImageUploadPositionRemote?.height,
+      });
+    }
+  }, [whiteboardLastImageUploadPositionRemote, isHost]);
+
+  React.useEffect(() => {
     LocalEventEmitter.on(
       LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
       BoardColorChangedCallBack,
     );
+    LocalEventEmitter.on(
+      LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
+      SetLastImageUploadHeightCallBack,
+    );
     return () => {
-      LocalEventEmitter.on(
+      LocalEventEmitter.off(
         LocalEventsEnum.BOARD_COLOR_CHANGED_LOCAL,
         BoardColorChangedCallBack,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
+        SetLastImageUploadHeightCallBack,
       );
     };
   }, []);
@@ -199,6 +246,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         centerX: focus.x,
         centerY: focus.y,
       });
+      sendLastImageUploadPositionToRemoteUsers(
+        prevImageUploadHeightRef.current,
+      );
     }
   };
 
@@ -229,8 +279,19 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     });
     prevImageUploadHeightRef.current =
       prevImageUploadHeightRef.current + 50 + 300 + 100;
+    sendLastImageUploadPositionToRemoteUsers(prevImageUploadHeightRef.current);
   };
 
+  const sendLastImageUploadPositionToRemoteUsers = (height: number) => {
+    /**
+     * Sending last image upload postion to remote user
+     */
+    events.send(
+      EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION,
+      JSON.stringify({height: height}),
+      PersistanceLevel.Session,
+    );
+  };
   useEffect(() => {
     LocalEventEmitter.on(
       LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
@@ -245,7 +306,6 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   }, []);
 
   const join = () => {
-
     const InitState = whiteboardRoomState;
     try {
       const index = randomIntFromInterval(0, 9);
@@ -323,6 +383,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         region: $config.WHITEBOARD_REGION,
       });
       join();
+      setWhiteboardStartedFirst(true);
     } else if (whiteboardActive) {
       join();
     } else {
@@ -331,6 +392,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
       }
     }
   }, [whiteboardActive]);
+
+  const getWhiteboardUid = () => {
+    return whiteboardUidRef?.current;
+  };
 
   return (
     <whiteboardContext.Provider
@@ -341,10 +406,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         leaveWhiteboardRoom,
         whiteboardRoom,
         whiteboardUid: whiteboardUidRef.current,
+        getWhiteboardUid,
         boardColor,
         setBoardColor,
         setUploadRef,
         insertImageIntoWhiteboard,
+        whiteboardStartedFirst,
       }}>
       {props.children}
     </whiteboardContext.Provider>

@@ -43,6 +43,9 @@ export interface RoomInfoContextInterface {
   isInWaitingRoom?: boolean;
   isWhiteBoardOn?: boolean;
   boardColor?: BoardColor;
+  whiteboardLastImageUploadPosition?: {
+    height: number;
+  };
   sttLanguage?: {
     username?: string;
     prevLang?: LanguageType[];
