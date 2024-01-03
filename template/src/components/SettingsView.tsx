@@ -125,7 +125,11 @@ const EditName: React.FC = (props?: EditNameProps) => {
         <>
           <InlineNotification
             text="Name can't be changed while whiteboard is active"
-            customStyle={{alignItems: 'center'}}
+            customStyle={{
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 171, 0, 0.15)',
+            }}
+            warning={true}
           />
           <Spacer size={12} />
         </>

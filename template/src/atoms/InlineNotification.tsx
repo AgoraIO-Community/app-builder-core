@@ -4,18 +4,38 @@ import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 import {isMobileUA} from '../../src/utils/common';
 
-const InlineNotification = (props: {text: string; customStyle?: ViewStyle}) => {
-  const {text, customStyle} = props;
+const InlineNotification = (props: {
+  text: string;
+  customStyle?: ViewStyle;
+  warning?: boolean;
+}) => {
+  const {text, customStyle, warning = false} = props;
   const isMobile = isMobileUA();
   return (
-    <View style={[styles.container, isMobile && styles.mobileContainer]}>
-      {!isMobile && (
+    <View
+      style={[
+        styles.container,
+        isMobile && styles.mobileContainer,
+        customStyle ? customStyle : {},
+      ]}>
+      {!warning && !isMobile && (
         <View style={styles.iconStyleView}>
           <ImageIcon
             base64={false}
             iconSize={20}
             iconType="plain"
             name={'video-off'}
+            tintColor={$config.SEMANTIC_NEUTRAL}
+          />
+        </View>
+      )}
+      {warning && !isMobile && (
+        <View style={styles.iconStyleView}>
+          <ImageIcon
+            base64={true}
+            iconSize={20}
+            iconType="plain"
+            name={'warning'}
             tintColor={$config.SEMANTIC_NEUTRAL}
           />
         </View>
