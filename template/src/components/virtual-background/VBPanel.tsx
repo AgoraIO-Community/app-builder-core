@@ -1,7 +1,13 @@
 import React, {useContext} from 'react';
 import {StyleSheet, Text, View, ScrollView, Dimensions} from 'react-native';
 
-import {useIsSmall, isMobileUA, isWebInternal} from '../../../src/utils/common';
+import {
+  useIsSmall,
+  isMobileUA,
+  isWebInternal,
+  isAndroid,
+  isIOS,
+} from '../../../src/utils/common';
 
 import CommonStyles from '../CommonStyles';
 import {useLayout} from '../../../src/utils/useLayout';
@@ -13,7 +19,7 @@ import {useVB, VBMode} from './useVB';
 
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import VideoPreview from './VideoPreview';
-import {useLocalUserInfo} from 'customization-api';
+import {useLocalUserInfo, usePreCall} from 'customization-api';
 import ThemeConfig from '../../theme';
 import PrimaryButton from '../../atoms/PrimaryButton';
 
@@ -23,6 +29,8 @@ import PropsContext, {
 import {IconsInterface} from '../../atoms/CustomIcon';
 import InlineNotification from '../../atoms/InlineNotification';
 import VBCard from './VBCard';
+import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
+import Spacer from '../../atoms/Spacer';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -36,6 +44,7 @@ interface VBCardProps {
   isMobile?: boolean;
 }
 
+const isNative = isAndroid() || isIOS();
 const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
@@ -48,10 +57,13 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
   const isMobile = isMobileUA();
-
+  const {isCameraAvailable} = usePreCall();
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
+  const fallbackText = isCameraAvailable
+    ? `Camera is currently off. Selected background will be applied as soon as your camera turns on.`
+    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
 
   const PreCallVBHeader = () => (
     <Text
@@ -84,6 +96,9 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           : {},
         //@ts-ignore
         transcriptHeight && !isMobile && {height: transcriptHeight},
+        (!isOnPrecall || isMobile) && {
+          backgroundColor: $config.CARD_LAYER_1_COLOR,
+        },
       ]}>
       {/* VB Header */}
       {isMobile ? (
@@ -97,10 +112,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Notification */}
       {!callActive && !isLocalVideoON && !isMobile ? (
         <View style={{padding: 20, paddingBottom: 0}}>
-          <InlineNotification
-            text="Camera is currently off. Selected background will be applied as soon
-        as your camera turns on."
-          />
+          <InlineNotification text={fallbackText} />
         </View>
       ) : (
         <></>
@@ -109,7 +121,20 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Preview */}
       <View style={{justifyContent: 'space-between', flex: 1}}>
         {callActive || isMobile ? (
-          <View style={isMobile ? {flex: 1} : {}}>
+          <View style={isMobile ? styles.mobilePreviewContainer : {}}>
+            {isMobile && isLocalVideoON ? (
+              <View style={styles.switchCamera}>
+                <LocalSwitchCamera
+                  showText={false}
+                  iconBackgroundColor={$config.CARD_LAYER_5_COLOR}
+                  iconSize={20}
+                  iconContainerStyle={{padding: 6}}
+                />
+              </View>
+            ) : (
+              <></>
+            )}
+
             <VideoPreview />
           </View>
         ) : (
@@ -138,6 +163,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
             />
           ))}
         </ScrollView>
+        {isMobile && <Spacer size={20} />}
       </View>
 
       {/* Save VB Btns */}
@@ -223,5 +249,19 @@ const styles = StyleSheet.create({
     marginRight: 4,
     width: 20,
     height: 20,
+  },
+  switchCamera: {
+    position: 'absolute',
+    zIndex: 1,
+    elevation: 1,
+    top: isNative ? 8 : 8,
+    right: isNative ? 8 : 8,
+    opacity: 0.7,
+  },
+  mobilePreviewContainer: {
+    width: 250,
+    alignSelf: 'center',
+    flex: 1,
+    marginVertical: 24,
   },
 });

@@ -27,7 +27,6 @@ const CircularProgress = (props: CircleProgressProps) => {
     const maxPercentage = (100 * seconds) / timer;
     const strokeDashoffset =
       circleCircumference - (circleCircumference * maxPercentage) / 100;
-    console.log('seonds', seconds);
     setStrokeDashoffset(strokeDashoffset);
     if (seconds <= 0) {
       clearInterval(timeInterval);

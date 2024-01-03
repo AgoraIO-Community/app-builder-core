@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Text} from 'react-native';
+import {Text, ViewStyle} from 'react-native';
 import {useString} from '../utils/useString';
 import {ClientRole, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
@@ -12,6 +12,10 @@ import {useActionSheet} from '../utils/useActionSheet';
 
 export interface LocalSwitchCameraProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
+  showText?: boolean;
+  iconBackgroundColor?: string;
+  iconSize?: number;
+  iconContainerStyle?: ViewStyle;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
@@ -21,6 +25,12 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
   const {isOnActionSheet, showLabel} = useActionSheet();
+  const {
+    showText = true,
+    iconBackgroundColor,
+    iconSize,
+    iconContainerStyle = {},
+  } = props;
 
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
@@ -29,6 +39,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
   const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const showTitle = showText ? showLabel : false;
   const onPress = () => {
     RtcEngineUnsafe.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
@@ -48,11 +59,14 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
         isVideoEnabled || !disabled
           ? $config.SECONDARY_ACTION_COLOR
           : $config.SEMANTIC_NEUTRAL,
+      ...(iconBackgroundColor && {iconBackgroundColor}),
+      ...(iconSize && {iconSize}),
+      iconContainerStyle: iconContainerStyle,
     },
     disabled: disabled,
     onPress: onPress,
     btnTextProps: {
-      text: showLabel ? `Switch\nCamera` : '',
+      text: showTitle ? `Switch\nCamera` : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,

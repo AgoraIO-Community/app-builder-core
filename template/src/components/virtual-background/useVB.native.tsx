@@ -15,6 +15,8 @@ import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource'
 import {ImageSourcePropType} from 'react-native/types';
 import imagePathsArray from './imagePaths';
 import getUniqueID from '../../../src/utils/getUniqueID';
+import {PermissionsAndroid} from 'react-native';
+import {isAndroid} from '../../utils/common';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -70,6 +72,28 @@ const downloadBase64Image = async (base64Data, filename) => {
   }
 };
 
+async function requestStoragePermission() {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'Storage Permission',
+        message: 'App needs access to your storage to download files.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Storage permission granted');
+    } else {
+      console.log('Storage permission denied');
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
 const VBProvider: React.FC = ({children}) => {
   const [isVBActive, setIsVBActive] = React.useState<boolean>(false);
   const [vbMode, setVBmode] = React.useState<VBMode>('none');
@@ -87,6 +111,7 @@ const VBProvider: React.FC = ({children}) => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
+        isAndroid() && (await requestStoragePermission());
         const customImages = await retrieveImagesFromAsyncStorage();
         console.log('retrived from async storage', customImages);
         setOptions((prevOptions: Option[]) => [

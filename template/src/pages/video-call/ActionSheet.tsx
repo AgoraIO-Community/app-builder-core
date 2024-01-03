@@ -20,7 +20,7 @@ import {ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 
 const ActionSheet = props => {
-  const {snapPointsMinMax = [100, 360]} = props;
+  const {snapPointsMinMax = [100, 400]} = props;
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);

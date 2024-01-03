@@ -14,7 +14,6 @@ import ColorContext from './ColorContext';
 
 const ColorConfigure = (props: {children: React.ReactNode}) => {
   const primaryColor = $config.PRIMARY_ACTION_BRAND_COLOR;
-  console.log(primaryColor);
   return (
     <ColorContext.Provider
       value={{

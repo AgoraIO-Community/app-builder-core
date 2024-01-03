@@ -1,7 +1,7 @@
 import {StyleSheet, View} from 'react-native';
 import React, {useContext} from 'react';
-import {useLocalUserInfo} from 'customization-api';
-import {RtcContext} from '../../../agora-rn-uikit';
+import {useContent, useLocalUserInfo, usePreCall} from 'customization-api';
+import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
@@ -14,8 +14,17 @@ const VideoPreview = () => {
   const rtc = useContext(RtcContext);
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
+  const {isCameraAvailable} = usePreCall();
 
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
+  const isMobileWeb = isMobileUA();
+  const {defaultContent, activeUids} = useContent();
+  const [maxUid] = activeUids;
+
+  const fallbackText = isCameraAvailable
+    ? `Camera is currently off. Selected background will be applied as soon
+  as your camera turns on.`
+    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
 
   const createCameraTrack = async () => {
     if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {
@@ -28,6 +37,7 @@ const VideoPreview = () => {
   };
 
   React.useEffect(() => {
+    if (isMobileWeb) return;
     let localVideo = null;
     const initialize = async () => {
       localVideo = await createCameraTrack();
@@ -46,18 +56,33 @@ const VideoPreview = () => {
   }, [isLocalVideoON]);
 
   return (
-    <View style={styles.previewContainer}>
-      {isLocalVideoON ? (
-        <View
-          ref={vContainerRef}
-          style={
-            isMobileUA() ? styles.mobilePreview : styles.desktopPreview
-          }></View>
-      ) : (
-        <InlineNotification
-          text="  Camera is currently off. Selected background will be applied as soon
+    <View
+      style={
+        isMobileWeb
+          ? styles.mobilePreviewContainer
+          : styles.desktopPreviewContainer
+      }>
+      {isMobileWeb ? (
+        <MaxVideoView
+          user={defaultContent[maxUid]}
+          key={maxUid}
+          fallback={() => (
+            <InlineNotification
+              text="Camera is currently off. Selected background will be applied as soon
         as your camera turns on."
+            />
+          )}
+          isFullView={true}
+          containerStyle={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 12,
+          }}
         />
+      ) : isLocalVideoON ? (
+        <View ref={vContainerRef} style={styles.desktopPreview}></View>
+      ) : (
+        <InlineNotification text={fallbackText} />
       )}
     </View>
   );
@@ -66,38 +91,19 @@ const VideoPreview = () => {
 export default VideoPreview;
 
 const styles = StyleSheet.create({
-  previewContainer: {
+  desktopPreviewContainer: {
     padding: 20,
     paddingBottom: 8,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     flex: 1,
   },
-
-  desktopPreview: {width: 300, height: 166},
-  mobilePreview: {
+  mobilePreviewContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
   },
-
-  text: {
-    color: $config.SECONDARY_ACTION_COLOR,
-    fontSize: 12,
-    lineheight: 16,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-  },
-  msgContainer: {
-    padding: 12,
+  desktopPreview: {
+    width: 300,
+    height: 166,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 171, 0, 0.15)',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  iconStyleView: {
-    marginRight: 4,
-    width: 20,
-    height: 20,
+    overflow: 'hidden',
   },
 });

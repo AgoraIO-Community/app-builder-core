@@ -9,7 +9,7 @@ import {useActionSheet} from '../../utils/useActionSheet';
 interface VBButtonProps {
   isVBOpen: boolean;
   setIsVBOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  showLabel: boolean;
+  showLabel?: boolean;
   render?: (onPress: () => void) => JSX.Element;
 }
 
