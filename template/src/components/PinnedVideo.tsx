@@ -44,7 +44,7 @@ const PinnedVideo = ({renderData}) => {
   const activeSpeaker = useActiveSpeaker();
   const {dispatch} = useContext(DispatchContext);
   const {videoTileInViewPortState} = useVideoCall();
-  const {getWhiteboardUid} = useWhiteboard();
+  const {getWhiteboardUid = () => 0} = useWhiteboard();
   useEffect(() => {
     if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
       dispatch({

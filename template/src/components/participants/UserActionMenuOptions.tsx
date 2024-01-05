@@ -82,7 +82,7 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const {enablePinForMe} = useVideoCall();
   const {setDisableChatUids, disableChatUids} = useDisableChat();
-  const {getWhiteboardUid} = useWhiteboard();
+  const {getWhiteboardUid = () => 0} = useWhiteboard();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {

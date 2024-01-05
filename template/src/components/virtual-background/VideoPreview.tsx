@@ -8,15 +8,17 @@ import {useVB} from './useVB';
 import ThemeConfig from '../../../src/theme';
 import {isMobileUA} from '../../utils/common';
 import InlineNotification from '../../atoms/InlineNotification';
+interface VideoPreviewProps {
+  isLocalVideoON?: boolean;
+}
 
-const VideoPreview = () => {
+const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
   const {setPreviewVideoTrack, setSaveVB, previewVideoTrack} = useVB();
   const rtc = useContext(RtcContext);
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
   const {isCameraAvailable} = usePreCall();
 
-  const isLocalVideoON = localVideoStatus === ToggleState.enabled;
   const isMobileWeb = isMobileUA();
   const {defaultContent, activeUids} = useContent();
   const [maxUid] = activeUids;
