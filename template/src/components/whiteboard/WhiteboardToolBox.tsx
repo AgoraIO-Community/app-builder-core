@@ -971,6 +971,13 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               />
               <IconButton
                 onPress={() => {
+                  try {
+                    //to clear prev selected file
+                    //@ts-ignore
+                    document.getElementById('docpicker').value = null;
+                  } catch (error) {
+                    console.log('debugging error on setting null');
+                  }
                   document.getElementById('docpicker').click();
                 }}
                 toolTipMessage="Upload Document or Image"
