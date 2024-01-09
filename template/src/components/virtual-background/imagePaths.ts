@@ -1,4 +1,5 @@
 import {Option} from './useVB';
+import images from './images';
 
 const imagePathsArray: Option[] = [
   {type: 'none', icon: 'remove', label: 'None', id: 'VBOption_1'},
@@ -7,55 +8,55 @@ const imagePathsArray: Option[] = [
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/book.jpg'),
+    path: images.bookImageBase64,
     id: 'VBOption_4',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/beach.jpg'),
+    path: images.beachImageBase64,
     id: 'VBOption_5',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/office.jpg'),
+    path: images.office1ImageBase64,
     id: 'VBOption_6',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/bedroom.jpg'),
+    path: images.bedroomImageBase64,
     id: 'VBOption_7',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/office1.jpg'),
+    path: images.officeImageBase64,
     id: 'VBOption_8',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/earth.jpg'),
+    path: images.earthImageBase64,
     id: 'VBOption_9',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/mountains.jpg'),
+    path: images.mountainsImageBase64,
     id: 'VBOption_10',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/plants.jpg'),
+    path: images.plantsImageBase64,
     id: 'VBOption_11',
   },
   {
     type: 'image',
     icon: 'vb',
-    path: require('./images/wall.jpg'),
+    path: images.wallImageBase64,
     id: 'VBOption_12',
   },
 ];
