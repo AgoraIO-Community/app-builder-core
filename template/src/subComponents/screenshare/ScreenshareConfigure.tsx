@@ -32,6 +32,7 @@ import {
   useRtc,
 } from 'customization-api';
 import {filterObject} from '../../utils';
+import Toast from '../../../react-native-toast-message';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -339,6 +340,16 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     } catch (e) {
       console.error("can't start the screen share", e);
       executeNormalQuery();
+      //@ts-ignore
+      if (e?.message && e?.message?.indexOf('PERMISSION_DENIED') !== -1) {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text1: 'Permission denied by system',
+          text2: 'Please enable screensharing permission on the settings panel',
+          visibilityTime: 1000 * 10,
+        });
+      }
     }
   };
 
