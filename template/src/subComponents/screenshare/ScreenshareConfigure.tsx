@@ -345,8 +345,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: 'Permission denied by system',
-          text2: 'Please enable screensharing permission on the settings panel',
+          text1: 'Failed to start the screen sharing',
+          text2: 'Please allow the permission to start the screen sharing',
           visibilityTime: 1000 * 10,
         });
       }
