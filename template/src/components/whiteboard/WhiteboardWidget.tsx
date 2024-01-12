@@ -10,10 +10,15 @@
 *********************************************
 */
 
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {Room, RoomState} from 'white-web-sdk';
-import {IconButton, useContent, useLayout} from 'customization-api';
+import {
+  IconButton,
+  useContent,
+  useLayout,
+  useRoomInfo,
+} from 'customization-api';
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
@@ -22,6 +27,9 @@ import Toast from '../../../react-native-toast-message';
 import ThemeConfig from '../../theme';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 import ImageIcon from '../../atoms/ImageIcon';
+import StorageContext from '../StorageContext';
+import Clipboard from '../../subComponents/Clipboard';
+import {opacity} from 'react-native-reanimated';
 
 const Seperator = () => {
   return (
@@ -37,8 +45,13 @@ const Seperator = () => {
 };
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
+  const [isInProgress, setIsInProgress] = useState(false);
   const {setBoardColor, boardColor, getWhiteboardUid} =
     useContext(whiteboardContext);
+  const {
+    data: {whiteboard: {room_uuid} = {}},
+  } = useRoomInfo();
+  const {store} = useContext(StorageContext);
 
   const {activeUids, pinnedUid} = useContent();
   const {currentLayout} = useLayout();
@@ -54,7 +67,67 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     return null;
   }
 
+  const showWhiteboardError = () => {
+    setIsInProgress(false);
+    Toast.show({
+      leadingIconName: 'alert',
+      type: 'error',
+      text1: 'Failed to export the whiteboard',
+      visibilityTime: 3000,
+    });
+  };
+
   const exportWhiteboard = () => {
+    try {
+      setIsInProgress(true);
+      Toast.show({
+        leadingIconName: 'info',
+        type: 'info',
+        text1:
+          'Please wait few seconds to get the screenshot link of the whiteboard',
+        visibilityTime: 3000,
+      });
+      const myHeaders2 = new Headers();
+      myHeaders2.append('Content-Type', 'application/json');
+      myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+      const body = JSON.stringify({
+        room_uuid: room_uuid,
+        path: '/init',
+        width: 3840,
+        height: 2160,
+      });
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/screenshot`, {
+        method: 'POST',
+        headers: myHeaders2,
+        body: body,
+      })
+        .then(async res2 => {
+          const data = await res2.json();
+          const parsedUrl = data?.url?.replaceAll('\u0026', '&');
+          if (parsedUrl) {
+            Toast.show({
+              leadingIconName: 'tick-fill',
+              type: 'success',
+              text1:
+                'Whiteboard exported as an image. Link copied to your clipboard.',
+              visibilityTime: 3000,
+            });
+            Clipboard.setString(parsedUrl);
+            window.open(parsedUrl, '_blank');
+            window.focus();
+            setIsInProgress(false);
+          } else {
+            showWhiteboardError();
+          }
+        })
+        .catch(() => {
+          showWhiteboardError();
+        });
+    } catch (error) {
+      showWhiteboardError();
+    }
+
+    /* local download file
     try {
       var srcCanvas = document.querySelector(
         '#whiteboard-div-ref > div > div > canvas:nth-child(2)',
@@ -91,6 +164,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       });
       console.log('debugging error on export whiteboard', error);
     }
+    */
   };
 
   return (
@@ -155,9 +229,13 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
               <>
                 <Seperator />
                 <TouchableOpacity
-                  style={style.btnContainerStyle}
+                  disabled={isInProgress}
+                  style={[
+                    style.btnContainerStyle,
+                    isInProgress ? {opacity: 0.6} : {},
+                  ]}
                   onPress={exportWhiteboard}>
-                  <Text style={style.btnTextStyle}>{'Export'}</Text>
+                  <Text style={style.btnTextStyle}>{'Export to Cloud'}</Text>
                 </TouchableOpacity>
               </>
             ) : (
