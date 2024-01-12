@@ -340,16 +340,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     } catch (e) {
       console.error("can't start the screen share", e);
       executeNormalQuery();
-      //@ts-ignore
-      if (e?.message && e?.message?.indexOf('PERMISSION_DENIED') !== -1) {
-        Toast.show({
-          leadingIconName: 'alert',
-          type: 'error',
-          text1: 'Failed to start the screen sharing',
-          text2: 'Please allow the permission to start the screen sharing',
-          visibilityTime: 1000 * 10,
-        });
-      }
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'Failed to start the screen sharing',
+        text2: 'Please allow the permission to start the screen sharing',
+        visibilityTime: 1000 * 10,
+      });
     }
   };
 
