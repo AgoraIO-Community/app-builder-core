@@ -113,8 +113,9 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
               visibilityTime: 3000,
             });
             Clipboard.setString(parsedUrl);
-            window.open(parsedUrl, '_blank');
-            window.focus();
+            setTimeout(() => {
+              window.open(parsedUrl, '_blank');
+            });
             setIsInProgress(false);
           } else {
             showWhiteboardError();
