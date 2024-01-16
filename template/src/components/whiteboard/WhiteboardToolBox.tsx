@@ -212,6 +212,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     insertImageIntoWhiteboard,
     boardColor,
     getWhiteboardUid,
+    clearAllCallback,
   } = useContext(whiteboardContext);
   const [isShapeBtnHovered, setShapeBtnHovered] = useState(false);
   const [isShapeContainerHovered, setShapeContainerHovered] = useState(false);
@@ -239,6 +240,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
     LocalEventEmitter.on(LocalEventsEnum.CLEAR_WHITEBOARD, () => {
       whiteboardRoom.current?.cleanCurrentScene();
       setShowWhiteboardClearAllPopup(false);
+      clearAllCallback();
     });
   }, []);
 

@@ -85,6 +85,7 @@ export interface whiteboardContextInterface {
   insertImageIntoWhiteboard: (url: string) => void;
   getWhiteboardUid: () => number;
   whiteboardStartedFirst?: boolean;
+  clearAllCallback?: () => void;
 }
 
 export interface WhiteboardPropsInterface {
@@ -166,7 +167,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   React.useEffect(() => {
     if ($config.ENABLE_WAITING_ROOM && !isHost) {
       SetLastImageUploadHeightCallBack({
-        height: whiteboardLastImageUploadPositionRemote?.height,
+        height: whiteboardLastImageUploadPositionRemote?.height || 0,
       });
     }
   }, [whiteboardLastImageUploadPositionRemote, isHost]);
@@ -288,7 +289,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
      */
     events.send(
       EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION,
-      JSON.stringify({height: height}),
+      JSON.stringify({height: height || 0}),
       PersistanceLevel.Session,
     );
   };
@@ -397,6 +398,11 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     return whiteboardUidRef?.current;
   };
 
+  const clearAllCallback = () => {
+    prevImageUploadHeightRef.current = 0;
+    sendLastImageUploadPositionToRemoteUsers(0);
+  };
+
   return (
     <whiteboardContext.Provider
       value={{
@@ -412,6 +418,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         setUploadRef,
         insertImageIntoWhiteboard,
         whiteboardStartedFirst,
+        clearAllCallback,
       }}>
       {props.children}
     </whiteboardContext.Provider>

@@ -303,22 +303,20 @@ const EventsConfigure: React.FC<Props> = props => {
 
     events.on(EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION, ({payload}) => {
       const data = JSON.parse(payload);
-      if (data?.height) {
-        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
-          setRoomInfo(prev => {
-            return {
-              ...prev,
-              whiteboardLastImageUploadPosition: {height: data?.height},
-            };
-          });
-        } else {
-          LocalEventEmitter.emit(
-            LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
-            {
-              height: data?.height,
-            },
-          );
-        }
+      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            whiteboardLastImageUploadPosition: {height: data?.height || 0},
+          };
+        });
+      } else {
+        LocalEventEmitter.emit(
+          LocalEventsEnum.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION_LOCAL,
+          {
+            height: data?.height || 0,
+          },
+        );
       }
     });
 

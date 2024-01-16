@@ -76,6 +76,7 @@ export interface whiteboardContextInterface {
   insertImageIntoWhiteboard: (url: string) => void;
   getWhiteboardUid: () => number;
   whiteboardStartedFirst?: boolean;
+  clearAllCallback: () => void;
 }
 
 export interface WhiteboardPropsInterface {
@@ -124,6 +125,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     return whiteboardUidRef?.current;
   };
 
+  const clearAllCallback = () => {};
   return (
     <whiteboardContext.Provider
       value={{
@@ -139,6 +141,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         setUploadRef,
         insertImageIntoWhiteboard,
         whiteboardStartedFirst,
+        clearAllCallback,
       }}>
       {props.children}
     </whiteboardContext.Provider>
