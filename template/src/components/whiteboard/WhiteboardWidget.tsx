@@ -187,7 +187,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
           <View style={style.widgetContainer}>
             {whiteboardRoom.current?.isWritable ? (
               <>
-                <IconButton
+                {/** <IconButton
                   toolTipMessage={
                     boardColor === BoardColor.Black
                       ? 'Whiteboard'
@@ -217,7 +217,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                     tintColor: $config.FONT_COLOR,
                   }}
                 />
-                <Seperator />
+                <Seperator /> */}
                 <RedoUndo room={whiteboardRoom.current} />
                 <Seperator />
               </>
