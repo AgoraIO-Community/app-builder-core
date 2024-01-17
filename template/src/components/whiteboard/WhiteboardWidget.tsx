@@ -226,7 +226,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
               <></>
             )}
             <ScaleController room={whiteboardRoom.current} />
-            {whiteboardRoom.current?.isWritable ? (
+            {whiteboardRoom.current?.isWritable &&
+            $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
               <>
                 <Seperator />
                 <TouchableOpacity
