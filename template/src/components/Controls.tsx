@@ -82,6 +82,45 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 
+export const useToggleWhiteboard = () => {
+  const {
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+    getWhiteboardUid,
+  } = useContext(whiteboardContext);
+  const {setCustomContent} = useContent();
+  const {setLayout} = useLayout();
+  const {dispatch} = useContext(DispatchContext);
+  return () => {
+    if ($config.ENABLE_WHITEBOARD) {
+      if (whiteboardActive) {
+        leaveWhiteboardRoom();
+        setCustomContent(getWhiteboardUid(), false);
+        setLayout('grid');
+        events.send(
+          EventNames.WHITEBOARD_ACTIVE,
+          JSON.stringify({status: false}),
+          PersistanceLevel.Session,
+        );
+      } else {
+        joinWhiteboardRoom();
+        setCustomContent(getWhiteboardUid(), WhiteboardWrapper, {}, true);
+        dispatch({
+          type: 'UserPin',
+          value: [getWhiteboardUid()],
+        });
+        setLayout('pinned');
+        events.send(
+          EventNames.WHITEBOARD_ACTIVE,
+          JSON.stringify({status: true}),
+          PersistanceLevel.Session,
+        );
+      }
+    }
+  };
+};
+
 export const WhiteboardListener = () => {
   const {dispatch} = useContext(DispatchContext);
   const {setCustomContent} = useContent();
