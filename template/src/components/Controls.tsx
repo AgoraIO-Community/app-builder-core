@@ -82,7 +82,7 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 
-const WhiteboardListener = () => {
+export const WhiteboardListener = () => {
   const {dispatch} = useContext(DispatchContext);
   const {setCustomContent} = useContent();
   const {currentLayout, setLayout} = useLayout();
