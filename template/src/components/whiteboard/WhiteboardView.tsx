@@ -18,7 +18,9 @@ import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardCanvas from './WhiteboardCanvas';
 import {useContent, useLayout} from 'customization-api';
 
-interface WhiteboardViewInterface {}
+interface WhiteboardViewInterface {
+  showToolbox: boolean;
+}
 
 const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const wbSurfaceRef = useRef();
