@@ -9,8 +9,9 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from '../useShareLink';
 import useGetName from '../../utils/useGetName';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {isMobileUA} from '../../utils/common';
+import {isMobileUA, isValidReactComponent} from '../../utils/common';
 import Avatar from '../../atoms/Avatar';
+import {useCustomization} from 'customization-implementation';
 
 const waveHandEmoji = '👋';
 
@@ -19,6 +20,37 @@ export default function MeetingInfoGridTile() {
   const copyInviteButton = isMobile ? 'INVITE OTHERS' : 'COPY INVITATION';
   const {copyShareLinkToClipboard} = useShareLink();
   const username = useGetName();
+
+  const {InvitePopupContent, InvitePopupTitle} = useCustomization(data => {
+    let components: {
+      InvitePopupContent?: React.ComponentType;
+      InvitePopupTitle?: string;
+    } = {
+      InvitePopupContent: null,
+      InvitePopupTitle: null,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall.invitePopup.renderComponent &&
+        typeof data?.components?.videoCall.invitePopup.renderComponent !==
+          'object' &&
+        isValidReactComponent(
+          data?.components?.videoCall.invitePopup.renderComponent,
+        )
+      ) {
+        components.InvitePopupContent =
+          data?.components?.videoCall.invitePopup.renderComponent;
+      }
+      if (data?.components?.videoCall.invitePopup.title) {
+        components.InvitePopupTitle =
+          data?.components?.videoCall.invitePopup.title;
+      }
+    }
+    return components;
+  });
 
   return (
     <View style={style.root}>
@@ -67,37 +99,47 @@ export default function MeetingInfoGridTile() {
                   </View>
                 </>
               </MeetingInfoCardHeader>
-              {isMobile ? <Spacer size={20} /> : <Spacer size={30} />}
-              {!isMobile && (
-                <MeetingInfoLinks variant="secondary" size="tiny" />
+              {InvitePopupContent ? (
+                <>
+                  <Spacer size={20} />
+                  <InvitePopupContent />
+                  <Spacer size={20} />
+                </>
+              ) : (
+                <>
+                  {isMobile ? <Spacer size={20} /> : <Spacer size={30} />}
+                  {!isMobile && (
+                    <MeetingInfoLinks variant="secondary" size="tiny" />
+                  )}
+                  <View>
+                    <Spacer size={20} />
+                    <TertiaryButton
+                      text={copyInviteButton}
+                      containerStyle={{
+                        width: '100%',
+                        height: 48,
+                        paddingVertical: 12,
+                        paddingHorizontal: 12,
+                        borderRadius: ThemeConfig.BorderRadius.medium,
+                      }}
+                      textStyle={{
+                        fontSize: ThemeConfig.FontSize.normal,
+                        lineHeight: 24,
+                      }}
+                      {...(isMobile && {
+                        iconName: 'share',
+                        iconSize: 20,
+                        iconColor: $config.SECONDARY_ACTION_COLOR,
+                      })}
+                      onPress={() => {
+                        copyShareLinkToClipboard(
+                          SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
+                        );
+                      }}
+                    />
+                  </View>
+                </>
               )}
-              <View>
-                <Spacer size={20} />
-                <TertiaryButton
-                  text={copyInviteButton}
-                  containerStyle={{
-                    width: '100%',
-                    height: 48,
-                    paddingVertical: 12,
-                    paddingHorizontal: 12,
-                    borderRadius: ThemeConfig.BorderRadius.medium,
-                  }}
-                  textStyle={{
-                    fontSize: ThemeConfig.FontSize.normal,
-                    lineHeight: 24,
-                  }}
-                  {...(isMobile && {
-                    iconName: 'share',
-                    iconSize: 20,
-                    iconColor: $config.SECONDARY_ACTION_COLOR,
-                  })}
-                  onPress={() => {
-                    copyShareLinkToClipboard(
-                      SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
-                    );
-                  }}
-                />
-              </View>
             </MeetingInfo>
           </View>
         </View>
