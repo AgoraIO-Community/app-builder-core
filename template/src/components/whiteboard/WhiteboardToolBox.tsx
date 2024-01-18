@@ -415,6 +415,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 text1:
                   'Image Upload will take few seconds to appear in whiteboard',
                 visibilityTime: 5000,
+                primaryBtn: null,
+                secondaryBtn: null,
               });
               imageUpload(data, selectedFile);
             } else {
@@ -423,6 +425,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 text1:
                   'Document Upload will take few seconds to appear in whiteboard',
                 visibilityTime: 5000,
+                primaryBtn: null,
+                secondaryBtn: null,
               });
               fileUploadAndConvert(data, selectedFile);
             }
