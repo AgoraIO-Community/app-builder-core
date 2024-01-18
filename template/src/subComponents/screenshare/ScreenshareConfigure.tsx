@@ -346,6 +346,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         text1: 'Failed to start the screen sharing',
         text2: 'Please allow the permission to start the screen sharing',
         visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null
       });
     }
   };
