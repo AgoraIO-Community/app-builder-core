@@ -37,6 +37,7 @@ import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import Clipboard from '../subComponents/Clipboard';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -251,8 +252,85 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   );
 };
 
+const clipboardIconButtonURL = url => {
+  return (
+    <View style={style.iconContainer}>
+      <Tooltip
+        isClickable
+        onPress={() => {
+          Clipboard.setString(url);
+        }}
+        toolTipIcon={
+          <>
+            <ImageIcon
+              iconType="plain"
+              name="tick-fill"
+              tintColor={$config.SEMANTIC_SUCCESS}
+            />
+            <Spacer size={8} horizontal={true} />
+          </>
+        }
+        toolTipMessage="Copied to clipboard"
+        renderContent={(isToolTipVisible, setToolTipVisible) => {
+          return (
+            <TouchableOpacity
+              onPress={() => {
+                Clipboard.setString(url);
+                setToolTipVisible(true);
+              }}>
+              <ImageIcon
+                iconType="plain"
+                name="clipboard"
+                tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+              />
+            </TouchableOpacity>
+          );
+        }}
+      />
+    </View>
+  );
+};
+export interface ShowInputURLProps {
+  label: string;
+  url: string;
+}
+export const ShowInputURL = (props: ShowInputURLProps) => {
+  const {label, url} = props;
+  if (!url) {
+    return null;
+  }
+  return (
+    <>
+      {label ? (
+        <>
+          <Text style={style.urlTitle}>{label}</Text>
+          <Spacer size={11} />
+        </>
+      ) : (
+        <></>
+      )}
+      <View style={style.container}>
+        <View style={style.urlContainer}>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              style.url,
+              style.urlPadding,
+              //@ts-ignore
+              urlWeb,
+            ]}>
+            {url}
+          </Text>
+        </View>
+        {clipboardIconButtonURL(url)}
+      </View>
+    </>
+  );
+};
+
 const Share = () => {
-  const {FpeShareComponent} = useCustomization((data) => {
+  const {FpeShareComponent} = useCustomization(data => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};
