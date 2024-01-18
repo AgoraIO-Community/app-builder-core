@@ -18,6 +18,7 @@ import {ENABLE_AUTH} from '../../src/auth/config';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
+  customExit?: () => void;
 }
 
 /* For android only, bg audio */
@@ -76,11 +77,15 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   }, [isScreenshareActive, endCallState]);
 
   const endCall = async () => {
-    if ((isAndroid() || isIOS()) && isScreenshareActive) {
-      stopUserScreenShare();
-      setEndCallState(true);
+    if (props?.customExit) {
+      props.customExit();
     } else {
-      executeEndCall();
+      if ((isAndroid() || isIOS()) && isScreenshareActive) {
+        stopUserScreenShare();
+        setEndCallState(true);
+      } else {
+        executeEndCall();
+      }
     }
   };
 

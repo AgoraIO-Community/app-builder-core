@@ -851,10 +851,16 @@ export const MoreButtonToolbarItem = () => {
     <WhiteboardListener />
   );
 };
-export const LocalEndcallToolbarItem = () => {
+export interface LocalEndcallToolbarItemProps {
+  customExit?: () => void;
+}
+export const LocalEndcallToolbarItem = (
+  props?: LocalEndcallToolbarItemProps,
+) => {
   return (
-    <ToolbarItem testID="endCall-btn">
-      <LocalEndcall />
+    <ToolbarItem
+      testID={props?.customExit ? 'endCall-btn-custom' : 'endCall-btn'}>
+      <LocalEndcall {...props} />
     </ToolbarItem>
   );
 };
