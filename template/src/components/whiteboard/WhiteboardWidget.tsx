@@ -74,6 +74,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       type: 'error',
       text1: 'Failed to export the whiteboard',
       visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
     });
   };
 
@@ -86,6 +88,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
         text1:
           'Please wait few seconds to get the screenshot link of the whiteboard',
         visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       const myHeaders2 = new Headers();
       myHeaders2.append('Content-Type', 'application/json');
@@ -111,6 +115,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
               text1:
                 'Whiteboard exported as an image. Link copied to your clipboard.',
               visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
             });
             Clipboard.setString(parsedUrl);
             setTimeout(() => {
