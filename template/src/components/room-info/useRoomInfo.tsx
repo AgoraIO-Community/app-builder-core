@@ -14,6 +14,13 @@ import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
 import {LanguageType} from '../../subComponents/caption/utils';
 import {BoardColor} from '../whiteboard/WhiteboardConfigure';
+
+export enum WaitingRoomStatus {
+  NOT_REQUESTED = 1,
+  REQUESTED = 2,
+  APPROVED = 3,
+  REJECTED = 4,
+}
 export interface RoomInfoContextInterface {
   isJoinDataFetched?: boolean;
   data?: {
@@ -41,6 +48,7 @@ export interface RoomInfoContextInterface {
     screenShareToken?: string;
   };
   isInWaitingRoom?: boolean;
+  waitingRoomStatus?: WaitingRoomStatus;
   isWhiteBoardOn?: boolean;
   boardColor?: BoardColor;
   whiteboardLastImageUploadPosition?: {
@@ -83,6 +91,7 @@ export const validateMeetingInfoData = (
 export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   isJoinDataFetched: false,
   isInWaitingRoom: false,
+  waitingRoomStatus: WaitingRoomStatus.NOT_REQUESTED,
   isWhiteBoardOn: false,
   sttLanguage: null,
   isSTTActive: false,
