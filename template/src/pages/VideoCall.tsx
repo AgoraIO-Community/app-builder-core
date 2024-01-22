@@ -41,6 +41,7 @@ import useJoinRoom from '../utils/useJoinRoom';
 import {
   useRoomInfo,
   RoomInfoDefaultValue,
+  WaitingRoomStatus,
 } from '../components/room-info/useRoomInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
@@ -115,6 +116,8 @@ const VideoCall: React.FC = () => {
 
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
+  const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
+    useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const [currentFocus, setFocus] = useState<currentFocus>({
     editName: false,
@@ -159,7 +162,8 @@ const VideoCall: React.FC = () => {
 
   const useJoin = useJoinRoom();
   const {setRoomInfo} = useSetRoomInfo();
-  const {isJoinDataFetched, data, isInWaitingRoom} = useRoomInfo();
+  const {isJoinDataFetched, data, isInWaitingRoom, waitingRoomStatus} =
+    useRoomInfo();
 
   React.useEffect(() => {
     return () => {
@@ -221,7 +225,25 @@ const VideoCall: React.FC = () => {
   }, [SdkJoinState]);
 
   React.useEffect(() => {
-    if (isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)) {
+    if (
+      //isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)
+
+      //non waiting room - host/attendee
+      (!$config.ENABLE_WAITING_ROOM &&
+        isJoinDataFetched === true &&
+        !queryComplete) ||
+      //waiting room - host
+      ($config.ENABLE_WAITING_ROOM &&
+        isJoinDataFetched === true &&
+        data.isHost &&
+        !queryComplete) ||
+      //waiting room - attendee
+      ($config.ENABLE_WAITING_ROOM &&
+        isJoinDataFetched === true &&
+        !data.isHost &&
+        (!queryComplete || !isInWaitingRoom) &&
+        !waitingRoomAttendeeJoined)
+    ) {
       setRtcProps(prevRtcProps => ({
         ...prevRtcProps,
         channel: data.channel,
@@ -238,8 +260,23 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
+        preventJoin:
+          !$config.ENABLE_WAITING_ROOM ||
+          ($config.ENABLE_WAITING_ROOM && data.isHost) ||
+          ($config.ENABLE_WAITING_ROOM &&
+            !data.isHost &&
+            waitingRoomStatus === WaitingRoomStatus.APPROVED)
+            ? false
+            : true,
       }));
 
+      if (
+        $config.ENABLE_WAITING_ROOM &&
+        !data.isHost &&
+        waitingRoomStatus === WaitingRoomStatus.APPROVED
+      ) {
+        setWaitingRoomAttendeeJoined(true);
+      }
       // 1. Store the display name from API
       // if (data.username) {
       //   setUsername(data.username);

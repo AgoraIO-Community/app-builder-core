@@ -21,7 +21,7 @@ import {
   useLocalUid,
 } from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
-import {useRoomInfo} from '../room-info/useRoomInfo';
+import {WaitingRoomStatus, useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
 import {useUserPreference} from '../useUserPreference';
 import {useSetRoomInfo} from '../room-info/useSetRoomInfo';
@@ -107,6 +107,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           return {
             ...prev,
             isInWaitingRoom: false,
+            waitingRoomStatus: WaitingRoomStatus.APPROVED,
             data: {
               ...prev.data,
               token: mainUser.rtc,
@@ -121,6 +122,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           return {
             ...prev,
             isInWaitingRoom: false,
+            waitingRoomStatus: WaitingRoomStatus.REJECTED,
           };
         });
         // inform user that entry was denied by the host
