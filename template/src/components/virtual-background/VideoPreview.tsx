@@ -1,7 +1,7 @@
 import {StyleSheet, View} from 'react-native';
 import React, {useContext} from 'react';
 import {useContent, useLocalUserInfo, usePreCall} from 'customization-api';
-import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
+import {MaxVideoView, RtcContext, useLocalUid} from '../../../agora-rn-uikit';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
@@ -18,6 +18,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
   const {isCameraAvailable} = usePreCall();
+  const localUid = useLocalUid();
 
   const isMobileWeb = isMobileUA();
   const {defaultContent, activeUids} = useContent();
@@ -66,8 +67,8 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
       }>
       {isMobileWeb ? (
         <MaxVideoView
-          user={defaultContent[maxUid]}
-          key={maxUid}
+          user={defaultContent[localUid]}
+          key={localUid}
           fallback={() => (
             <InlineNotification
               text="Camera is currently off. Selected background will be applied as soon
