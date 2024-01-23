@@ -140,6 +140,19 @@ export default function useJoinRoom() {
               ? data.screenShare.rtc
               : data.joinChannel.screenShare.rtc;
           }
+
+          if (data?.joinChannel?.mainUser?.rtm || data?.mainUser?.rtm) {
+            roomInfo.rtmToken = isWaitingRoomEnabled
+              ? data.mainUser.rtm
+              : data.joinChannel.mainUser.rtm;
+          }
+
+          if (data?.joinChannel?.mainUser?.chat || data?.mainUser?.chat) {
+            roomInfo.chatToken = isWaitingRoomEnabled
+              ? data.mainUser.chat
+              : data.joinChannel.mainUser.chat;
+          }
+
           roomInfo.isHost = isWaitingRoomEnabled
             ? data.isHost
             : data.joinChannel.isHost;
