@@ -48,10 +48,11 @@ import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
-import {VideoPreviewComponent} from './precall/VideoPreview';
+
 import VBPanel from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
+import {DeviceSelectProps} from './precall/selectDevice';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -177,7 +178,7 @@ const JoinRoomButton = () => {
     let components: {
       WaitingRoomButton: React.ComponentType<PreCallJoinCallBtnProps>;
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
-      Textbox: React.ComponentType;
+      Textbox: React.ComponentType<PreCallTextInputProps>;
     } = {
       Textbox: PreCallTextInput,
       JoinButton: PreCallJoinBtn,
@@ -240,8 +241,8 @@ const Precall = () => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
-      DeviceSelect: React.ComponentType;
-      VideoPreview: VideoPreviewComponent;
+      DeviceSelect: React.ComponentType<DeviceSelectProps>;
+      VideoPreview: React.ComponentType;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
       PrecallAfterView: React.Fragment,
@@ -341,7 +342,7 @@ const Precall = () => {
 
   const isDesktop = useIsDesktop();
   const getResponsiveValue = useResponsive();
-  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
+
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
@@ -353,10 +354,7 @@ const Precall = () => {
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
-                <MeetingName
-                  textStyle={style.meetingTitleStyle}
-                  prefix="You are joining"
-                />
+                <MeetingName prefix="You are joining" />
               </View>
               <Spacer size={32} />
               <JoinRoomInputView isDesktop={true} />
@@ -405,29 +403,39 @@ const Precall = () => {
                       ? style.leftContentVertical
                       : style.leftContentHorizontal
                   }>
-                  <VideoPreview>
-                    <VideoPreview.Heading>
-                      <MeetingName
-                        textStyle={style.meetingTitleStyle}
-                        prefix="You are joining"
-                      />
-                    </VideoPreview.Heading>
-                    <VideoPreview.Controls>
+                  <View style={style.desktopRootcontainer}>
+                    <View>
+                      {' '}
+                      <MeetingName prefix="You are joining" />
+                    </View>
+                    <View style={style.desktopContainer}>
+                      <View style={style.desktopContentContainer}>
+                        <VideoPreview />
+                      </View>
+                      <Spacer size={8} />
                       <PreCallLocalMute
                         isSettingsOpen={isSettingsOpen}
                         setIsSettingsOpen={setIsSettingsOpen}
                         isVBOpen={isVBOpen}
                         setIsVBOpen={setIsVBOpen}
                       />
-                    </VideoPreview.Controls>
-                    <VideoPreview.NameInput>
-                      <JoinRoomName isDesktop={true} isOnPrecall={true} />
-                    </VideoPreview.NameInput>
-                    <VideoPreview.JoinBtn>
-                      <Spacer size={20} />
-                      <JoinRoomButton />
-                    </VideoPreview.JoinBtn>
-                  </VideoPreview>
+                      <Spacer size={8} />
+                      <View
+                        style={{
+                          padding: 20,
+                          borderTopColor: $config.INPUT_FIELD_BORDER_COLOR,
+                          borderTopWidth: 1.26,
+                        }}>
+                        <JoinRoomName isDesktop={true} isOnPrecall={true} />
+                      </View>
+                    </View>
+                    <View>
+                      <Spacer size={52} />
+                      <View>
+                        <JoinRoomButton />
+                      </View>
+                    </View>
+                  </View>
                 </View>
               </View>
             </View>
@@ -468,22 +476,9 @@ const Precall = () => {
                 <DeviceSelect isOnPrecall={true} />
               </View>
               {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
-                <>
-                  {/* <Text
-                    style={{
-                      paddingHorizontal: 24,
-                      fontWeight: '400',
-                      fontSize: ThemeConfig.FontSize.small,
-                      color: $config.FONT_COLOR,
-                      fontFamily: ThemeConfig.FontFamily.sansPro,
-                      marginBottom: 12,
-                    }}>
-                    Virtual Background
-                  </Text> */}
-                  <ScrollView style={style.vbPanelContainer}>
-                    <VBPanel isOnPrecall={true} />
-                  </ScrollView>
-                </>
+                <ScrollView style={style.vbPanelContainer}>
+                  <VBPanel isOnPrecall={true} />
+                </ScrollView>
               )}
             </Card>
           </ScrollView>
@@ -616,14 +611,23 @@ const style = StyleSheet.create({
   meetingTitleContainer: {
     marginVertical: 10,
   },
-  meetingTitleStyle: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.large,
-    lineHeight: 28,
-    color: $config.FONT_COLOR,
-    paddingLeft: 0,
-    textAlign: 'center',
+  desktopRootcontainer: {
+    position: 'relative',
+    overflow: 'hidden',
+    margin: 'auto',
+    maxWidth: 440,
+  },
+  desktopContainer: {
+    paddingTop: 20,
+    paddingBottom: 8,
+    borderRadius: 16,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    marginTop: 20,
+  },
+  desktopContentContainer: {
+    width: 404,
+    height: 256,
+    paddingHorizontal: 20,
   },
 });
 

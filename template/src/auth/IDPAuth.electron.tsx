@@ -15,7 +15,6 @@ export const IDPAuth = () => {
       enableTokenAuth(token)
         .then(() => {
           setIsAuthenticated(true);
-          console.log('debugging electron login success');
           history.push('/');
         })
         .catch(() => {

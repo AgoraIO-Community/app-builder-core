@@ -92,7 +92,6 @@ const AuthProvider = (props: AuthProviderProps) => {
     //production - 59min 1 sec
     // if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
     //   refreshTimeoutWeb.current = setTimeout(() => {
-    //     console.log('debugging calling refresh');
     //     fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
     //       method: 'POST',
     //       credentials: 'include',
@@ -103,19 +102,15 @@ const AuthProvider = (props: AuthProviderProps) => {
     //       .then((data) => {
     //         clearTimeout(refreshTimeoutWeb.current);
     //         tokenRefreshWeb();
-    //         console.log('debugging cookie set');
     //       })
     //       .catch((error) => {
-    //         console.log('debugging error', error);
     //       });
     //   }, timeout);
     // } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
     //   //not authenticated
     //   if (refreshTimeoutWeb.current) {
-    //     console.log('debugging clearing the interval');
     //     clearTimeout(refreshTimeoutWeb.current);
     //   } else {
-    //     console.log('debugging no interval to clear');
     //   }
     // }
   };
@@ -397,7 +392,6 @@ const AuthProvider = (props: AuthProviderProps) => {
           } else {
             enableTokenAuth(response.token)
               .then(() => {
-                console.log('debugging token auth enabled');
                 //set auth enabled on useEffect
               })
               .catch(error => {
@@ -430,7 +424,6 @@ const AuthProvider = (props: AuthProviderProps) => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
       idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
         .then(res => {
-          console.log('user successfully logged out');
           setIsAuthenticated(false);
         })
         .catch(() => {
@@ -450,7 +443,6 @@ const AuthProvider = (props: AuthProviderProps) => {
       } else {
         tokenLogout()
           .then(res => {
-            console.log('user successfully logged out');
           })
           .catch(() => {
             console.error('user logout failed');

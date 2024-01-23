@@ -13,7 +13,7 @@ import SdkApiContextProvider from './components/SdkApiContext';
 import {Unsubscribe} from 'nanoevents';
 import {deviceId} from './components/DeviceConfigure';
 
-type meetingData = Partial<MeetingInfoContextInterface['data']>;
+type meetingData = Partial<RoomInfoContextInterface['data']>;
 
 export interface AppBuilderSdkApiInterface {
   customize: (customization: CustomizationApiInterface) => Promise<void>;
@@ -27,7 +27,7 @@ export interface AppBuilderSdkApiInterface {
   ) => Promise<
     [
       meetingData,
-      (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
+      (userName?: string) => Promise<RoomInfoContextInterface['data']>,
     ]
   >;
   setMicrophone: (deviceId: deviceId) => Promise<void>;
@@ -80,8 +80,8 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
       userName,
     );
     return t as unknown as [
-      MeetingInfoContextInterface['data'],
-      (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
+      RoomInfoContextInterface['data'],
+      (userName?: string) => Promise<RoomInfoContextInterface['data']>,
     ];
   },
   setMicrophone: async deviceId => {

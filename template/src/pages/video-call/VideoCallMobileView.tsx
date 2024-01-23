@@ -33,6 +33,8 @@ import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useCustomization} from 'customization-implementation';
 import NavbarMobile from '../../components/NavbarMobile';
+import {useVB} from '../../components/virtual-background/useVB';
+import VBPanel from '../../components/virtual-background/VBPanel';
 
 const VideoCallMobileView = () => {
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
@@ -54,6 +56,9 @@ const VideoCallMobileView = () => {
   const appStateVisible = useAppState();
   const isCamON = useRef(local.video);
   const isScreenShareOn = useRef(isScreenshareActive);
+  const {isVBActive, setIsVBActive} = useVB();
+  const isVBAvaialble =
+    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
 
   useEffect(() => {
     // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
@@ -85,7 +90,8 @@ const VideoCallMobileView = () => {
           if (isCamON.current) {
             isWebInternal()
               ? RtcEngineUnsafe.muteLocalVideoStream(true)
-              : RtcEngineUnsafe.enableLocalVideo(false);
+              : //@ts-ignore
+                RtcEngineUnsafe.enableLocalVideo(false);
             dispatch({
               type: 'LocalMuteVideo',
               value: [0],
@@ -95,7 +101,8 @@ const VideoCallMobileView = () => {
         if (appStateVisible === 'active' && isCamON.current) {
           isWebInternal()
             ? RtcEngineUnsafe.muteLocalVideoStream(false)
-            : RtcEngineUnsafe.enableLocalVideo(true);
+            : //@ts-ignore
+              RtcEngineUnsafe.enableLocalVideo(true);
           dispatch({
             type: 'LocalMuteVideo',
             value: [1],
@@ -104,6 +111,10 @@ const VideoCallMobileView = () => {
       }
     }
   }, [appStateVisible, isScreenshareActive]);
+
+  if (isVBAvaialble) {
+    return <VBPanel />;
+  }
 
   return isScreenShareOnFullView &&
     maxScreenShareUid &&
@@ -127,6 +138,7 @@ const VideoCallView = React.memo(() => {
       } = {
         BottombarComponent: ActionSheet,
         BottombarProps: [],
+        //@ts-ignore
         TopbarComponent: NavbarMobile,
         TopbarProps: [],
       };
@@ -172,32 +184,36 @@ const VideoCallView = React.memo(() => {
 
   return (
     <View style={styles.container}>
-      <ToolbarProvider value={{position: ToolbarPosition.top}}>
-        {TopbarProps?.length ? (
-          <TopbarComponent
-            customItems={TopbarProps}
-            includeDefaultItems={false}
-          />
-        ) : (
-          <TopbarComponent />
-        )}
-      </ToolbarProvider>
-      <View style={styles.videoView}>
-        <VideoComponent />
-        <CaptionContainer />
-      </View>
-      <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-        <ActionSheetProvider>
-          {BottombarProps?.length ? (
-            <BottombarComponent
-              customItems={BottombarProps}
+      <>
+        <ToolbarProvider value={{position: ToolbarPosition.top}}>
+          {TopbarProps?.length ? (
+            <TopbarComponent
+              //@ts-ignore
+              customItems={TopbarProps}
               includeDefaultItems={false}
             />
           ) : (
-            <BottombarComponent />
+            <TopbarComponent />
           )}
-        </ActionSheetProvider>
-      </ToolbarProvider>
+        </ToolbarProvider>
+        <View style={styles.videoView}>
+          <VideoComponent />
+          <CaptionContainer />
+        </View>
+        <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+          <ActionSheetProvider>
+            {BottombarProps?.length ? (
+              <BottombarComponent
+                //@ts-ignore
+                customItems={BottombarProps}
+                includeDefaultItems={false}
+              />
+            ) : (
+              <BottombarComponent />
+            )}
+          </ActionSheetProvider>
+        </ToolbarProvider>
+      </>
     </View>
   );
 });

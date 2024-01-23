@@ -30,7 +30,7 @@ import useSetName from '../../utils/useSetName';
 import {useUserPreference} from '../useUserPreference';
 import {useSetRoomInfo} from '../room-info/useSetRoomInfo';
 import {EventNames} from '../../rtm-events';
-import {useRoomInfo} from '../room-info/useRoomInfo';
+import {WaitingRoomStatus, useRoomInfo} from '../room-info/useRoomInfo';
 import Toast from '../../../react-native-toast-message';
 
 import events from '../../rtm-events-api';
@@ -114,6 +114,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           return {
             ...prev,
             isInWaitingRoom: false,
+            waitingRoomStatus: WaitingRoomStatus.APPROVED,
             data: {
               ...prev.data,
               token: mainUser.rtc,
@@ -128,6 +129,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           return {
             ...prev,
             isInWaitingRoom: false,
+            waitingRoomStatus: WaitingRoomStatus.REJECTED,
           };
         });
         // inform user that entry was denied by the host

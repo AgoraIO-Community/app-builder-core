@@ -12,12 +12,13 @@ const useTokenAuth = () => {
   const [tokenExpiresAt, setTokenExpiresAt] = React.useState(0);
   const timerRef = useRef(null);
   const updateToken = (token: string) => {
-    setStore && setStore((store) => ({...store, token}));
+    setStore && setStore(store => ({...store, token}));
   };
 
   const validateToken = (token: string) => {
     if (token && token.trim() !== '') {
       const decoded = jwt_decode(token);
+      // @ts-ignore
       const expiresAt = decoded?.exp * 1000;
       if (Date.now() >= expiresAt) {
         if (isSDK()) {
@@ -44,8 +45,8 @@ const useTokenAuth = () => {
           'X-Platform-ID': getPlatformId(),
         },
       })
-        .then((response) => response.json())
-        .then((data) => {
+        .then(response => response.json())
+        .then(data => {
           if (data?.token) {
             updateToken(data.token);
             if (isSDK()) {
@@ -54,7 +55,7 @@ const useTokenAuth = () => {
           }
         });
     } else {
-      console.log('debugging no token to refresh');
+      //'debugging no token to refresh'
     }
   };
 
@@ -99,12 +100,13 @@ const useTokenAuth = () => {
         }
       } else {
         const decoded = jwt_decode(store.token);
+        // @ts-ignore
         const expiresAt = decoded?.exp * 1000;
         if (Date.now() >= expiresAt) {
           if (isSDK()) {
             SdkEvents.emit('did-token-expire');
           }
-          console.log('token expired');
+          //token expired
         } else {
           setTokenExpiresAt(expiresAt);
         }
@@ -169,12 +171,12 @@ const useTokenAuth = () => {
                 },
               },
         )
-          .then((response) => response.text())
-          .then((_) => {
+          .then(response => response.text())
+          .then(_ => {
             resolve(true);
             updateToken(null);
           })
-          .catch((_) => {
+          .catch(_ => {
             reject(false);
           });
       } catch (error) {

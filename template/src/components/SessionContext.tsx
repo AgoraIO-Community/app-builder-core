@@ -74,7 +74,6 @@ export const SessionProvider = (props: {children: React.ReactNode}) => {
     useState<joinSessionInterface>(initJoinStoreValue);
   const joinSession = (data: joinSessionInterface) => {
     setJoinStore(data);
-    // console.log({data});
     history.push(`/${data.phrase}`);
   };
   return (

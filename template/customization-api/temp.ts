@@ -19,6 +19,8 @@ import useMuteToggleLocal, {
 import {RoomPhase} from 'white-web-sdk';
 import {useScreenContext} from '../src/components/contexts/ScreenShareContext';
 import {filterObject} from '../src/utils/index';
+import {useToggleWhiteboard} from '../src/components/Controls';
+import {ShowInputURL} from '../src/components/Share';
 export {
   VideoRenderer,
   DispatchContext,
@@ -36,4 +38,6 @@ export {
   RoomPhase,
   useScreenContext,
   filterObject,
+  useToggleWhiteboard,
+  ShowInputURL,
 };

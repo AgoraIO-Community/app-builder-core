@@ -230,7 +230,10 @@ const ChatContainer = (props?: {
                       : false
                   }
                   previousMessageCreatedTimestamp={
-                    index !== 0 ? messageStore[index - 1].createdTimestamp : ''
+                    index !== 0
+                      ? (messageStore[index - 1]
+                          .createdTimestamp as unknown as string)
+                      : ''
                   }
                   message={message.msg}
                   createdTimestamp={message.createdTimestamp}

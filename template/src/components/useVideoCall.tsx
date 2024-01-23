@@ -27,6 +27,7 @@ import {UidType, useRoomInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 import useSetName from '../utils/useSetName';
+import WhiteboardClearAllPopup from './popups/WhiteboardClearAllPopup';
 
 interface InViewPortState {
   [key: number]: boolean;
@@ -46,6 +47,8 @@ export interface VideoCallContextInterface {
   setEnablePinForMe: React.Dispatch<SetStateAction<boolean>>;
   videoTileInViewPortState: InViewPortState;
   setVideoTileInViewPortState: (uid: UidType, visible: boolean) => void;
+  showWhiteboardClearAllPopup: boolean;
+  setShowWhiteboardClearAllPopup: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -63,12 +66,16 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setEnablePinForMe: () => {},
   videoTileInViewPortState: {},
   setVideoTileInViewPortState: () => {},
+  showWhiteboardClearAllPopup: false,
+  setShowWhiteboardClearAllPopup: () => {},
 });
 
 interface VideoCallProviderProps {
   children: React.ReactNode;
 }
 const VideoCallProvider = (props: VideoCallProviderProps) => {
+  const [showWhiteboardClearAllPopup, setShowWhiteboardClearAllPopup] =
+    useState(false);
   const [enablePinForMe, setEnablePinForMe] = useState(true);
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
@@ -129,11 +136,14 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setVideoTileInViewPortState,
         //videoTileInViewPortState: videoTileInViewPortStateRef.current,
         videoTileInViewPortState,
+        showWhiteboardClearAllPopup,
+        setShowWhiteboardClearAllPopup,
       }}>
       <StartScreenSharePopup />
       <StopScreenSharePopup />
       <StopRecordingPopup />
       <InvitePopup />
+      <WhiteboardClearAllPopup />
       {props.children}
     </VideoCallContext.Provider>
   );

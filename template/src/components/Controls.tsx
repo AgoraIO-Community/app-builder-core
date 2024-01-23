@@ -70,7 +70,7 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 
-import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
 import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
@@ -82,7 +82,46 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 
-const WhiteboardListener = () => {
+export const useToggleWhiteboard = () => {
+  const {
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+    getWhiteboardUid,
+  } = useContext(whiteboardContext);
+  const {setCustomContent} = useContent();
+  const {setLayout} = useLayout();
+  const {dispatch} = useContext(DispatchContext);
+  return () => {
+    if ($config.ENABLE_WHITEBOARD) {
+      if (whiteboardActive) {
+        leaveWhiteboardRoom();
+        setCustomContent(getWhiteboardUid(), false);
+        setLayout('grid');
+        events.send(
+          EventNames.WHITEBOARD_ACTIVE,
+          JSON.stringify({status: false}),
+          PersistanceLevel.Session,
+        );
+      } else {
+        joinWhiteboardRoom();
+        setCustomContent(getWhiteboardUid(), WhiteboardWrapper, {}, true);
+        dispatch({
+          type: 'UserPin',
+          value: [getWhiteboardUid()],
+        });
+        setLayout('pinned');
+        events.send(
+          EventNames.WHITEBOARD_ACTIVE,
+          JSON.stringify({status: true}),
+          PersistanceLevel.Session,
+        );
+      }
+    }
+  };
+};
+
+export const WhiteboardListener = () => {
   const {dispatch} = useContext(DispatchContext);
   const {setCustomContent} = useContent();
   const {currentLayout, setLayout} = useLayout();
@@ -101,27 +140,28 @@ const WhiteboardListener = () => {
     }
   }, [isWhiteBoardOn, isHost]);
 
+  const WhiteboardCallBack = ({status}) => {
+    if (status) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  };
+
   useEffect(() => {
     if (
       !$config.ENABLE_WAITING_ROOM ||
       ($config.ENABLE_WAITING_ROOM && isHost)
     ) {
       LocalEventEmitter.on(
-        LocalEventsEnum.WHITEBOARD_ON,
-        WhiteboardStartedCallBack,
+        LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+        WhiteboardCallBack,
       );
-      LocalEventEmitter.on(
-        LocalEventsEnum.WHITEBOARD_OFF,
-        WhiteboardStoppedCallBack,
-      );
+
       return () => {
-        LocalEventEmitter.off(
-          LocalEventsEnum.WHITEBOARD_ON,
-          WhiteboardStartedCallBack,
-        );
-        LocalEventEmitter.off(
-          LocalEventsEnum.WHITEBOARD_OFF,
-          WhiteboardStoppedCallBack,
+        LocalEventEmitter.on(
+          LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+          WhiteboardCallBack,
         );
       };
     }
@@ -133,7 +173,7 @@ const WhiteboardListener = () => {
     whiteboardActive,
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
-    whiteboardUid,
+    getWhiteboardUid,
   } = useContext(whiteboardContext);
 
   const WhiteboardStoppedCallBack = () => {
@@ -155,26 +195,26 @@ const WhiteboardListener = () => {
     if ($config.ENABLE_WHITEBOARD) {
       if (whiteboardActive) {
         leaveWhiteboardRoom();
-        setCustomContent(whiteboardUid, false);
+        setCustomContent(getWhiteboardUid(), false);
         setLayout('grid');
         triggerEvent &&
           events.send(
-            'WhiteBoardStopped',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: false}),
             PersistanceLevel.Session,
           );
       } else {
         joinWhiteboardRoom();
-        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        setCustomContent(getWhiteboardUid(), WhiteboardWrapper, {}, true);
         dispatch({
           type: 'UserPin',
-          value: [whiteboardUid],
+          value: [getWhiteboardUid()],
         });
         setLayout('pinned');
         triggerEvent &&
           events.send(
-            'WhiteBoardStarted',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: true}),
             PersistanceLevel.Session,
           );
       }
@@ -283,7 +323,8 @@ const MoreButton = () => {
     whiteboardActive,
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
-    whiteboardUid,
+    getWhiteboardUid,
+    whiteboardStartedFirst,
   } = useContext(whiteboardContext);
 
   const WhiteboardStoppedCallBack = () => {
@@ -296,38 +337,25 @@ const MoreButton = () => {
 
   useEffect(() => {
     whiteboardActive && currentLayout !== 'pinned' && setLayout('pinned');
-
-    // if (!$config.ENABLE_WAITING_ROOM) {
-    //   events.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    //   events.on('WhiteBoardStarted', WhiteboardStartedCallBack);
-    // }
-
-    // return () => {
-    //   if (!$config.ENABLE_WAITING_ROOM) {
-    //     events.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
-    //     events.off('WhiteBoardStarted', WhiteboardStartedCallBack);
-    //   }
-    // };
   }, []);
+
+  const WhiteboardCallBack = ({status}) => {
+    if (status) {
+      WhiteboardStartedCallBack();
+    } else {
+      WhiteboardStoppedCallBack();
+    }
+  };
 
   useEffect(() => {
     LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBOARD_ON,
-      WhiteboardStartedCallBack,
+      LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+      WhiteboardCallBack,
     );
-    LocalEventEmitter.on(
-      LocalEventsEnum.WHITEBOARD_OFF,
-      WhiteboardStoppedCallBack,
-    );
-
     return () => {
       LocalEventEmitter.off(
-        LocalEventsEnum.WHITEBOARD_ON,
-        WhiteboardStartedCallBack,
-      );
-      LocalEventEmitter.off(
-        LocalEventsEnum.WHITEBOARD_OFF,
-        WhiteboardStoppedCallBack,
+        LocalEventsEnum.WHITEBOARD_ACTIVE_LOCAL,
+        WhiteboardCallBack,
       );
     };
   }, []);
@@ -339,26 +367,26 @@ const MoreButton = () => {
     if ($config.ENABLE_WHITEBOARD) {
       if (whiteboardActive) {
         leaveWhiteboardRoom();
-        setCustomContent(whiteboardUid, false);
+        setCustomContent(getWhiteboardUid(), false);
         setLayout('grid');
         triggerEvent &&
           events.send(
-            'WhiteBoardStopped',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: false}),
             PersistanceLevel.Session,
           );
       } else {
         joinWhiteboardRoom();
-        setCustomContent(whiteboardUid, WhiteboardWrapper, {}, true);
+        setCustomContent(getWhiteboardUid(), WhiteboardWrapper, {}, true);
         dispatch({
           type: 'UserPin',
-          value: [whiteboardUid],
+          value: [getWhiteboardUid()],
         });
         setLayout('pinned');
         triggerEvent &&
           events.send(
-            'WhiteBoardStarted',
-            JSON.stringify({}),
+            EventNames.WHITEBOARD_ACTIVE,
+            JSON.stringify({status: true}),
             PersistanceLevel.Session,
           );
       }
@@ -379,7 +407,11 @@ const MoreButton = () => {
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive ? 'Hide Whiteboard' : 'Show Whiteboard',
+      title: whiteboardActive
+        ? 'Hide Whiteboard'
+        : whiteboardStartedFirst
+        ? 'Show Whiteboard'
+        : 'Start Whiteboard',
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
@@ -819,10 +851,16 @@ export const MoreButtonToolbarItem = () => {
     <WhiteboardListener />
   );
 };
-export const LocalEndcallToolbarItem = () => {
+export interface LocalEndcallToolbarItemProps {
+  customExit?: () => void;
+}
+export const LocalEndcallToolbarItem = (
+  props?: LocalEndcallToolbarItemProps,
+) => {
   return (
-    <ToolbarItem testID="endCall-btn">
-      <LocalEndcall />
+    <ToolbarItem
+      testID={props?.customExit ? 'endCall-btn-custom' : 'endCall-btn'}>
+      <LocalEndcall {...props} />
     </ToolbarItem>
   );
 };
@@ -920,6 +958,7 @@ const Controls = (props: ControlsProps) => {
             prevLang,
           )}" to "${getLanguageLabel(newLang)}" `;
     const msg = `${
+      //@ts-ignore
       defaultContentRef.current[uid]?.name || username
     } ${actionText} `;
 

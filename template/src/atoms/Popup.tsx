@@ -155,6 +155,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 24,
     fontWeight: '600',
+    alignSelf: 'center',
+    marginRight: 5,
   },
   subtitle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

@@ -21,11 +21,16 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import ThemeConfig from '../../theme';
 import {CopyMeetingInfo} from '../../components/Share';
-import {isMobileUA, useIsDesktop} from '../../utils/common';
+import {
+  isMobileUA,
+  isValidReactComponent,
+  useIsDesktop,
+} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {useParams} from '../Router';
 import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
 import {ErrorContext} from '../common';
+import {useCustomization} from 'customization-implementation';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -35,60 +40,109 @@ const InvitePopup = () => {
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const getMeeting = useGetMeetingPhrase();
   useEffect(() => {
-    getMeeting(phrase).catch((error) => {
+    getMeeting(phrase).catch(error => {
       setGlobalErrorMessage(error);
     });
   }, [phrase]);
+
+  const {InvitePopupContent, InvitePopupTitle} = useCustomization(data => {
+    let components: {
+      InvitePopupContent?: React.ComponentType;
+      InvitePopupTitle?: string;
+    } = {
+      InvitePopupContent: null,
+      InvitePopupTitle: null,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall.invitePopup.renderComponent &&
+        typeof data?.components?.videoCall.invitePopup.renderComponent !==
+          'object' &&
+        isValidReactComponent(
+          data?.components?.videoCall.invitePopup.renderComponent,
+        )
+      ) {
+        components.InvitePopupContent =
+          data?.components?.videoCall.invitePopup.renderComponent;
+      }
+      if (data?.components?.videoCall.invitePopup.title) {
+        components.InvitePopupTitle =
+          data?.components?.videoCall.invitePopup.title;
+      }
+    }
+    return components;
+  });
   return (
     <Popup
       modalVisible={showInvitePopup}
       setModalVisible={setShowInvitePopup}
-      title="Invite others to join this room"
+      title={
+        InvitePopupTitle ? InvitePopupTitle : 'Invite others to join this room'
+      }
       showCloseIcon={true}
       containerStyle={{alignItems: isDesktop('popup') ? 'center' : 'stretch'}}
       contentContainerStyle={style.contentContainer}>
-      <CopyMeetingInfo showSubLabel={false} />
-      <View
-        style={
-          isDesktop('popup') ? style.btnContainer : style.btnContainerMobile
-        }>
-        {isDesktop('popup') ? (
-          <View style={{flex: 1}}>
-            <TertiaryButton
-              text={'CANCEL'}
-              textStyle={style.btnText}
-              containerStyle={{
-                width: '100%',
-                height: 48,
-                paddingVertical: 12,
-                paddingHorizontal: 12,
-                borderRadius: ThemeConfig.BorderRadius.medium,
-              }}
-              onPress={() => {
-                setShowInvitePopup(false);
-              }}
-            />
+      {InvitePopupContent ? (
+        <>
+          <Spacer size={10} />
+          <InvitePopupContent />
+          <Spacer size={10} />
+        </>
+      ) : (
+        <>
+          <CopyMeetingInfo showSubLabel={false} />
+          <View
+            style={
+              isDesktop('popup') ? style.btnContainer : style.btnContainerMobile
+            }>
+            {isDesktop('popup') ? (
+              <View style={{flex: 1}}>
+                <TertiaryButton
+                  text={'CANCEL'}
+                  textStyle={style.btnText}
+                  containerStyle={{
+                    width: '100%',
+                    height: 48,
+                    paddingVertical: 12,
+                    paddingHorizontal: 12,
+                    borderRadius: ThemeConfig.BorderRadius.medium,
+                  }}
+                  onPress={() => {
+                    setShowInvitePopup(false);
+                  }}
+                />
+              </View>
+            ) : null}
+            {isDesktop('popup') ? (
+              <Spacer size={10} horizontal={true} />
+            ) : (
+              <></>
+            )}
+            <View style={{flex: 1}}>
+              <PrimaryButton
+                textStyle={style.btnText}
+                containerStyle={{
+                  minWidth: 'auto',
+                  width: '100%',
+                  borderRadius: ThemeConfig.BorderRadius.medium,
+                  height: 48,
+                  paddingVertical: 12,
+                  paddingHorizontal: 12,
+                }}
+                onPress={() => {
+                  copyShareLinkToClipboard(
+                    SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
+                  );
+                }}
+                text={'COPY INVITATION'}
+              />
+            </View>
           </View>
-        ) : null}
-        {isDesktop('popup') ? <Spacer size={10} horizontal={true} /> : <></>}
-        <View style={{flex: 1}}>
-          <PrimaryButton
-            textStyle={style.btnText}
-            containerStyle={{
-              minWidth: 'auto',
-              width: '100%',
-              borderRadius: ThemeConfig.BorderRadius.medium,
-              height: 48,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
-            }}
-            onPress={() => {
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
-            }}
-            text={'COPY INVITATION'}
-          />
-        </View>
-      </View>
+        </>
+      )}
     </Popup>
   );
 };

@@ -184,8 +184,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         fromUid: isPrivateMessage ? uidAsNumber : 0,
         from:
           !isPrivateMessage &&
+          //@ts-ignore
           defaultContentRef.current.defaultContent[uidAsNumber]?.name
             ? trimText(
+                //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               )
             : '',
@@ -290,9 +292,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           leadingIconName: 'chat-nav',
           text1: isPrivateMessage
             ? privateMessageLabel
-            : defaultContentRef.current.defaultContent[uidAsNumber]?.name
+            : //@ts-ignore
+            defaultContentRef.current.defaultContent[uidAsNumber]?.name
             ? fromText(
                 trimText(
+                  //@ts-ignore
                   defaultContentRef.current.defaultContent[uidAsNumber]?.name,
                 ),
               )
@@ -324,6 +328,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           $config.ENABLE_WAITING_ROOM &&
           !isHostRef.current.isHost &&
           !callActiveRef.current.callActive;
+        //if call is not active don't store the message in the state
+        if (forceStop) {
+          return;
+        }
         const payload = JSON.parse(data.payload);
         const messageAction = payload.action;
         const messageData = payload.value;

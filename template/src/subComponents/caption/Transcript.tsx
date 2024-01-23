@@ -200,6 +200,7 @@ const Transcript = (props: TranscriptProps) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         {paddingBottom: 20},
       ]}>

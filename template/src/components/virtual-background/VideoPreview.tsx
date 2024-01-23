@@ -1,72 +1,33 @@
-import {StyleSheet, Text, View, Linking} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React, {useContext} from 'react';
-import {useContent, useLocalUserInfo, useRtc} from 'customization-api';
-import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
-import type RtcEngine from '../../../bridge/rtc/webNg/';
+import {useContent, useLocalUserInfo, usePreCall} from 'customization-api';
+import {MaxVideoView, RtcContext, useLocalUid} from '../../../agora-rn-uikit';
 import {ToggleState} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
-import {RtcLocalView} from 'react-native-agora';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useVB} from './useVB';
 import ThemeConfig from '../../../src/theme';
-import ImageIcon from '../../atoms/ImageIcon';
+import {isMobileUA} from '../../utils/common';
+import InlineNotification from '../../atoms/InlineNotification';
+interface VideoPreviewProps {
+  isLocalVideoON?: boolean;
+}
 
-type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
-
-const VideoPreview = () => {
-  const {defaultContent, activeUids} = useContent();
+const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
   const {setPreviewVideoTrack, setSaveVB, previewVideoTrack} = useVB();
-  const [maxUid] = activeUids;
   const rtc = useContext(RtcContext);
-  const {RtcEngineUnsafe} = rtc as unknown as {
-    RtcEngineUnsafe: WebRtcEngineInstance;
-  };
-
   const vContainerRef = React.useRef(null);
   const {video: localVideoStatus} = useLocalUserInfo();
+  const {isCameraAvailable} = usePreCall();
+  const localUid = useLocalUid();
 
-  const isLocalVideoON = localVideoStatus === ToggleState.enabled;
+  const isMobileWeb = isMobileUA();
+  const {defaultContent, activeUids} = useContent();
+  const [maxUid] = activeUids;
 
-  const updateVideoTrack = async clonedMediaStreamTrack => {
-    const clonedVideoTrack = await AgoraRTC?.createCustomVideoTrack({
-      mediaStreamTrack: clonedMediaStreamTrack,
-    });
-    setPreviewVideoTrack(clonedVideoTrack);
-  };
-
-  const destroyCameraTrack = () => {};
-
-  const cloneCameraTrack = () => {
-    if (isLocalVideoON) {
-      const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
-      const clonedMediaStreamTrack = localVideoTrack
-        ?.getMediaStreamTrack()
-        .clone();
-
-      const clonedMediaStream = new MediaStream([clonedMediaStreamTrack]);
-      const videoEle = document.createElement('video');
-      vContainerRef.current.appendChild(videoEle);
-      videoEle.srcObject = clonedMediaStream;
-      vContainerRef?.current?.appendChild(videoEle);
-      videoEle.play();
-      updateVideoTrack(clonedMediaStreamTrack);
-    } else {
-      const videoEle = vContainerRef.current.querySelector('video');
-      if (videoEle) {
-        videoEle.srcObject = null;
-        vContainerRef.current.removeChild(videoEle);
-      }
-    }
-  };
-
-  const destroyClonedCameraTrack = () => {
-    if (vContainerRef.current) {
-      const videoEle = vContainerRef.current.querySelector('video');
-      if (videoEle) {
-        videoEle.srcObject = null;
-        vContainerRef.current.removeChild(videoEle);
-      }
-    }
-  };
+  const fallbackText = isCameraAvailable
+    ? `Camera is currently off. Selected background will be applied as soon
+  as your camera turns on.`
+    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
 
   const createCameraTrack = async () => {
     if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {
@@ -79,6 +40,7 @@ const VideoPreview = () => {
   };
 
   React.useEffect(() => {
+    if (isMobileWeb) return;
     let localVideo = null;
     const initialize = async () => {
       localVideo = await createCameraTrack();
@@ -97,24 +59,33 @@ const VideoPreview = () => {
   }, [isLocalVideoON]);
 
   return (
-    <View style={styles.container1}>
-      {isLocalVideoON ? (
-        <View ref={vContainerRef} style={{width: 300, height: 166}}></View>
-      ) : (
-        <View style={styles.msgContainer}>
-          <View style={styles.iconStyleView}>
-            <ImageIcon
-              base64={true}
-              iconSize={20}
-              iconType="plain"
-              name={'warning'}
+    <View
+      style={
+        isMobileWeb
+          ? styles.mobilePreviewContainer
+          : styles.desktopPreviewContainer
+      }>
+      {isMobileWeb ? (
+        <MaxVideoView
+          user={defaultContent[localUid]}
+          key={localUid}
+          fallback={() => (
+            <InlineNotification
+              text="Camera is currently off. Selected background will be applied as soon
+        as your camera turns on."
             />
-          </View>
-          <Text style={styles.text}>
-            Camera is currently off. Selected background will be applied as soon
-            as your camera turns on.
-          </Text>
-        </View>
+          )}
+          isFullView={true}
+          containerStyle={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 12,
+          }}
+        />
+      ) : isLocalVideoON ? (
+        <View ref={vContainerRef} style={styles.desktopPreview}></View>
+      ) : (
+        <InlineNotification text={fallbackText} />
       )}
     </View>
   );
@@ -123,32 +94,19 @@ const VideoPreview = () => {
 export default VideoPreview;
 
 const styles = StyleSheet.create({
-  container1: {
+  desktopPreviewContainer: {
     padding: 20,
     paddingBottom: 8,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+    flex: 1,
   },
-
-  text: {
-    color: $config.SECONDARY_ACTION_COLOR,
-    fontSize: 12,
-    lineheight: 16,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
+  mobilePreviewContainer: {
+    flex: 1,
   },
-  msgContainer: {
-    padding: 12,
+  desktopPreview: {
+    width: 300,
+    height: 166,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 171, 0, 0.15)',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  iconStyleView: {
-    marginRight: 4,
-    width: 20,
-    height: 20,
+    overflow: 'hidden',
   },
 });

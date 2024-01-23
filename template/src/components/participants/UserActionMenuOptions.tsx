@@ -39,6 +39,7 @@ import {calculatePosition, trimText} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {customEvents} from 'customization-api';
 import {useDisableChat} from '../disable-chat/useDisableChat';
+import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -81,6 +82,7 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const {enablePinForMe} = useVideoCall();
   const {setDisableChatUids, disableChatUids} = useDisableChat();
+  const {getWhiteboardUid = () => 0} = useWhiteboard();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -125,7 +127,11 @@ export default function UserActionMenuOptionsOptions(
           title: pinnedUid
             ? user.uid === pinnedUid
               ? 'Remove from large'
+              : user.uid === getWhiteboardUid()
+              ? 'View Whiteboard'
               : 'View in large'
+            : user.uid === getWhiteboardUid()
+            ? 'View Whiteboard'
             : 'View in large',
           callback: () => {
             setActionMenuVisible(false);

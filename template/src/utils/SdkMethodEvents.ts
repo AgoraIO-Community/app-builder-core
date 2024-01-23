@@ -1,17 +1,17 @@
 import {createNanoEvents, Emitter} from 'nanoevents';
 import {
   CustomizationApiInterface,
-  MeetingInfoContextInterface,
+  RoomInfoContextInterface,
 } from 'customization-api';
 import {deviceId} from '../components/DeviceConfigure';
 
 export interface SdkMethodEvents {
   customize: (customization: CustomizationApiInterface) => void;
   join(
-    roomid: string | Partial<MeetingInfoContextInterface['data']>,
+    roomid: string | Partial<RoomInfoContextInterface['data']>,
     skipPrecall?: boolean,
     username?: string,
-  ): MeetingInfoContextInterface['data'];
+  ): RoomInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;
   speakerDevice: (deviceId: deviceId) => void;
   cameraDevice: (deviceId: deviceId) => void;
@@ -71,11 +71,11 @@ class SDKMethodEvents {
       this.emitCache[event] = [res, rej, ...params] as any;
       this.emitter.emit(event, res, rej, ...params);
     })
-      .then((res) => {
+      .then(res => {
         delete this.emitCache[event];
         return res;
       })
-      .catch((e) => {
+      .catch(e => {
         delete this.emitCache[event];
         throw e;
       });

@@ -17,7 +17,7 @@ const Carousel: React.FC<CarouselProps> = ({data}) => {
 
   const flatListRef = React.useRef<FlatList | null>(null);
 
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     const {contentOffset} = event.nativeEvent;
     const index = Math.round(contentOffset.x / width);
     setActiveIndex(index);
@@ -82,9 +82,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 10,
     width: '100%',
+    marginBottom: 24,
   },
   dot: {
     width: 8,

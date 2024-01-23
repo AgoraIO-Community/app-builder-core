@@ -30,6 +30,7 @@ import {useVideoCall} from '../components/useVideoCall';
 import useActiveSpeaker from '../utils/useActiveSpeaker';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import {useWhiteboard} from '../components/whiteboard/WhiteboardConfigure';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
@@ -43,7 +44,7 @@ const PinnedVideo = ({renderData}) => {
   const activeSpeaker = useActiveSpeaker();
   const {dispatch} = useContext(DispatchContext);
   const {videoTileInViewPortState} = useVideoCall();
-
+  const {getWhiteboardUid = () => 0} = useWhiteboard();
   useEffect(() => {
     if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
       dispatch({
@@ -91,6 +92,8 @@ const PinnedVideo = ({renderData}) => {
                 ? {
                     width: '20%',
                     paddingRight: 8,
+                    borderWidth: 2,
+                    borderColor: 'transparent',
                   }
                 : {
                     flex: 1,
@@ -238,8 +241,8 @@ const PinnedVideo = ({renderData}) => {
               <IconButton
                 containerStyle={{
                   position: 'absolute',
-                  top: 8,
-                  left: 8,
+                  top: 12,
+                  left: 12,
                   zIndex: 999,
                   elevation: 999,
                 }}
@@ -257,7 +260,7 @@ const PinnedVideo = ({renderData}) => {
                 }}
               />
             )}
-            {pinnedUid ? (
+            {pinnedUid && pinnedUid !== getWhiteboardUid() ? (
               <IconButton
                 containerStyle={{
                   paddingHorizontal: 8,
@@ -266,8 +269,8 @@ const PinnedVideo = ({renderData}) => {
                   borderRadius: 8,
                   flexDirection: 'row',
                   position: 'absolute',
-                  top: 8,
-                  left: 8 + (isSidePinnedlayout ? 32 + 12 + 8 : 0),
+                  top: 12,
+                  left: 12 + (isSidePinnedlayout ? 32 + 12 + 8 : 0),
                   zIndex: 999,
                   elevation: 999,
                 }}

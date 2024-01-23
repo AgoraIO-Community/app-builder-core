@@ -343,9 +343,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'Failed to start the screen sharing',
-        text2: 'Please allow the permission to start the screen sharing',
+        text1: 'Failed to initiate screen sharing',
+        text2: 'Permission denied',
         visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null
       });
     }
   };

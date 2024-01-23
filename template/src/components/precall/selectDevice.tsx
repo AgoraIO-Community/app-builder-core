@@ -16,7 +16,10 @@ import {isWebInternal} from '../../utils/common';
 import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
-const selectDevice = props => {
+export interface DeviceSelectProps {
+  isOnPrecall?: boolean;
+}
+const selectDevice = (props?: DeviceSelectProps) => {
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Select Input Device';

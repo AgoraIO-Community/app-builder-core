@@ -18,11 +18,13 @@ import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardCanvas from './WhiteboardCanvas';
 import {useContent, useLayout} from 'customization-api';
 
-interface WhiteboardViewInterface {}
+interface WhiteboardViewInterface {
+  showToolbox: boolean;
+}
 
 const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const wbSurfaceRef = useRef();
-  const {whiteboardRoomState, whiteboardUid} = useContext(whiteboardContext);
+  const {whiteboardRoomState, getWhiteboardUid} = useContext(whiteboardContext);
   const {currentLayout} = useLayout();
   const [showToolbox, setShowToolbox] = useState(false);
   const {activeUids} = useContent();
@@ -34,7 +36,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
         currentLayout == 'pinned' &&
         activeUids &&
         activeUids?.length &&
-        activeUids[0] == whiteboardUid
+        activeUids[0] == getWhiteboardUid()
       ) {
         setShowToolbox(true);
       }

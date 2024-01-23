@@ -10,319 +10,45 @@
 *********************************************
 */
 
-import React, {useContext, useEffect, useState, useRef} from 'react';
-import {
-  View,
-  StyleSheet,
-  Image,
-  Text,
-  TouchableOpacity,
-  Linking,
-} from 'react-native';
+import React from 'react';
+
 import {MaxVideoView} from '../../../agora-rn-uikit';
-import PreCallLocalMute from './LocalMute';
-import {
-  LocalContext,
-  PermissionState,
-  ImageIcon as UiKitImageIcon,
-} from '../../../agora-rn-uikit';
+
 import {useContent} from 'customization-api';
-import {usePreCall} from './usePreCall';
-import ImageIcon from '../../atoms/ImageIcon';
-import ThemeConfig from '../../theme';
-import Spacer from '../../atoms/Spacer';
-import {isMobileUA, isWebInternal, useResponsive} from '../../utils/common';
-import {useVB} from '../virtual-background/useVB';
-import Toast from '../../../react-native-toast-message';
 
-const Fallback = () => {
-  const {isCameraAvailable, isMicAvailable} = usePreCall();
-  const toastRef = useRef({isShown: false});
-  const local = useContext(LocalContext);
-  const requestCameraAndAudioPermission = () => {
-    try {
-      const URL =
-        'https://support.google.com/chrome/answer/2693767?hl=en&co=GENIE.Platform%3DDesktop';
-      if (isWebInternal()) {
-        window.open(URL, '_blank');
-      } else {
-        Linking.openURL(URL);
-      }
-    } catch (error) {
-      console.error(`Couldn't open the support url`);
-    }
-  };
-  const styles = useStyles();
+import VideoFallback from './VideoFallback';
+import {isMobileUA} from '../../utils/common';
 
-  useEffect(() => {
-    if (
-      !(
-        isCameraAvailable ||
-        ($config.AUDIO_ROOM && isMicAvailable) ||
-        local.permissionStatus === PermissionState.NOT_REQUESTED ||
-        local.permissionStatus === PermissionState.REQUESTED
-      ) &&
-      toastRef.current.isShown === false
-    ) {
-      toastRef.current.isShown = true;
-      Toast.show({
-        type: 'warn',
-        text1: `Can't find your ${
-          $config.AUDIO_ROOM ? ' Microphone' : ' Camera'
-        }`,
-        text2: `Check your system settings to make sure that a ${
-          $config.AUDIO_ROOM ? 'microphone' : 'camera'
-        } is available. If not, plug one in and restart your browser`,
-        visibilityTime: 10000,
-      });
-    }
-  }, [local, isCameraAvailable, isMicAvailable]);
-
-  return (
-    <View style={styles.fallbackRootContainer}>
-      {
-        // isCameraAvailable ||
-        // ($config.AUDIO_ROOM && isMicAvailable) ||
-        // local.permissionStatus === PermissionState.NOT_REQUESTED ||
-        // local.permissionStatus === PermissionState.REQUESTED
-        true ? (
-          <View style={styles.avatar}>
-            <UiKitImageIcon name={'profile'} />
-          </View>
-        ) : (
-          <View style={styles.fallbackContainer}>
-            <Text style={styles.infoText1}>
-              Can’t Find Your{$config.AUDIO_ROOM ? ' Microphone' : ' Camera'}
-            </Text>
-            <Text style={styles.infoText2}>
-              Check your system settings to make sure that a
-              {$config.AUDIO_ROOM ? ' microphone' : ' camera'} is available. If
-              not, plug one in and restart your browser.
-            </Text>
-            <Spacer size={33} />
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignSelf: 'center',
-              }}
-              onPress={() => {
-                requestCameraAndAudioPermission();
-              }}>
-              <Text style={styles.retryBtn}>Learn More</Text>
-              <Spacer horizontal={true} size={4} />
-              <View style={{alignSelf: 'center'}}>
-                <ImageIcon
-                  iconType="plain"
-                  name={'link-share'}
-                  tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-                />
-              </View>
-            </TouchableOpacity>
-            <Spacer size={23} />
-          </View>
-        )
-      }
-    </View>
-  );
-};
-type VideoPreviewProps = {
-  children: React.ReactNode;
-};
-export type VideoPreviewComponent = React.FC<VideoPreviewProps> & {
-  Controls: React.FC;
-  NameInput: React.FC;
-  JoinBtn: React.FC;
-  Heading: React.FC;
-};
-
-const VideoPreview: VideoPreviewComponent = ({children}) => {
+const VideoPreview = () => {
   const {defaultContent, activeUids} = useContent();
-
   const [maxUid] = activeUids;
+  const isMobileView = isMobileUA();
+
+  const mobileContainerStyle = {
+    borderRadius: 0,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  };
 
   if (!maxUid) {
     return null;
   }
-  const styles = useStyles();
 
-  const headingChildren = React.Children.toArray(children).filter(
-    child => React.isValidElement(child) && child.type === VideoPreview.Heading,
-  );
-  const controlChildren = React.Children.toArray(children).filter(
-    child =>
-      React.isValidElement(child) && child.type === VideoPreview.Controls,
-  );
-
-  const nameInputChildren = React.Children.toArray(children).filter(
-    child =>
-      React.isValidElement(child) && child.type === VideoPreview.NameInput,
-  );
-
-  const joinBtnChildren = React.Children.toArray(children).filter(
-    child => React.isValidElement(child) && child.type === VideoPreview.JoinBtn,
-  );
   return (
-    <View
-      style={
-        isMobileUA() ? styles.mobileRootcontainer : styles.desktopRootcontainer
-      }>
-      <View style={styles.heading}>{headingChildren}</View>
-      <View
-        style={isMobileUA() ? styles.mobileContainer : styles.desktopContainer}>
-        <View
-          style={
-            isMobileUA()
-              ? styles.mobileContentContainer
-              : styles.desktopContentContainer
-          }>
-          <MaxVideoView
-            user={defaultContent[maxUid]}
-            key={maxUid}
-            fallback={Fallback}
-            containerStyle={{
-              minHeight: 200,
-              width: '100%',
-              height: '100%',
-              borderRadius: 8,
-            }}
-            isPrecallScreen={true}
-          />
-        </View>
-        {isMobileUA() ? (
-          <PreCallLocalMute isMobileView={true} />
-        ) : (
-          <>
-            <Spacer size={8} />
-            {controlChildren}
-            <Spacer size={8} />
-            <View
-              style={{
-                padding: 20,
-                borderTopColor: $config.INPUT_FIELD_BORDER_COLOR,
-                borderTopWidth: 1.26,
-              }}>
-              {nameInputChildren}
-            </View>
-          </>
-        )}
-      </View>
-      {!isMobileUA() && (
-        <>
-          <Spacer size={52} />
-          <View style={styles.container2}>{joinBtnChildren}</View>{' '}
-        </>
-      )}
-    </View>
+    <MaxVideoView
+      user={defaultContent[maxUid]}
+      key={maxUid}
+      fallback={VideoFallback}
+      containerStyle={{
+        minHeight: 200,
+        width: '100%',
+        height: '100%',
+        borderRadius: 8,
+        ...(isMobileView ? mobileContainerStyle : {}),
+      }}
+      isFullView={true}
+    />
   );
-};
-
-VideoPreview.Controls = ({children}) => {
-  return <>{children}</>;
-};
-
-VideoPreview.JoinBtn = ({children}) => {
-  return <>{children}</>;
-};
-
-VideoPreview.NameInput = ({children}) => {
-  return <>{children}</>;
-};
-
-VideoPreview.Heading = ({children}) => {
-  return <>{children}</>;
 };
 
 export default VideoPreview;
-
-const useStyles = () => {
-  const getResponsiveValue = useResponsive();
-  return StyleSheet.create({
-    infoText1: {
-      fontFamily: ThemeConfig.FontFamily.sansPro,
-      fontWeight: '700',
-      fontSize: 20,
-      textAlign: 'center',
-      color: $config.FONT_COLOR,
-      paddingTop: 24,
-      paddingBottom: 12,
-      paddingHorizontal: 10,
-    },
-    infoText2: {
-      fontFamily: ThemeConfig.FontFamily.sansPro,
-      fontWeight: '400',
-      fontSize: ThemeConfig.FontSize.small,
-      textAlign: 'center',
-      color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
-      paddingHorizontal: getResponsiveValue(48),
-    },
-    fallbackRootContainer: {
-      flex: 1,
-      backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 8,
-    },
-    fallbackContainer: {
-      minHeight: 200,
-      maxWidth: 440,
-      backgroundColor: $config.CARD_LAYER_4_COLOR,
-      borderRadius: ThemeConfig.BorderRadius.large,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 40,
-    },
-    retryBtn: {
-      fontFamily: ThemeConfig.FontFamily.sansPro,
-      fontWeight: '600',
-      fontSize: ThemeConfig.FontSize.normal,
-      color: $config.PRIMARY_ACTION_BRAND_COLOR,
-      alignSelf: 'center',
-    },
-    desktopRootcontainer: {
-      position: 'relative',
-      overflow: 'hidden',
-      margin: 'auto',
-      maxWidth: 440,
-    },
-    mobileRootcontainer: {
-      flex: 1,
-      position: 'relative',
-      justifyContent: 'space-between',
-      overflow: 'hidden',
-    },
-    mobileContainer: {
-      flex: 1,
-      position: 'relative',
-      justifyContent: 'space-between',
-      overflow: 'hidden',
-    },
-    desktopContainer: {
-      paddingTop: 20,
-      paddingBottom: 8,
-      borderRadius: 16,
-      backgroundColor: $config.CARD_LAYER_1_COLOR,
-    },
-    mobileContentContainer: {
-      flex: 1,
-    },
-    desktopContentContainer: {
-      width: 404,
-      height: 256,
-      paddingHorizontal: 20,
-    },
-    container2: {
-      //padding: 20,
-      // borderBottomLeftRadius: 16,
-      // borderBottomRightRadius: 16,
-      //backgroundColor: $config.CARD_LAYER_1_COLOR,
-    },
-    heading: {
-      marginBottom: 20,
-    },
-    avatar: {
-      width: 100,
-      height: 100,
-      margin: 40,
-    },
-  });
-};

@@ -27,7 +27,7 @@ export interface PreCallTextInputProps {
   isDesktop?: boolean;
   isOnPrecall?: boolean;
 }
-const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
+const PreCallTextInput = (props?: PreCallTextInputProps) => {
   //commented for v1 release
   // const userNamePlaceholder = useString('userNamePlaceholder')();
   // const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();

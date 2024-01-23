@@ -167,6 +167,7 @@ class Events {
       EventUtils.addListener(eventName, listener, this.source);
       console.log('CUSTOM_EVENT_API event listener registered', eventName);
       return () => {
+        //@ts-ignore
         EventUtils.removeListener(eventName, listener, this.source);
       };
     } catch (error) {
@@ -188,6 +189,7 @@ class Events {
       if (listener) {
         if (this._validateListener(listener) && this._validateEvt(eventName)) {
           // listen off an event by eventName and listener
+          //@ts-ignore
           EventUtils.removeListener(eventName, listener, this.source);
         }
       } else if (eventName) {

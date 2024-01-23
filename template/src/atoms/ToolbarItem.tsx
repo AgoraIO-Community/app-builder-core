@@ -62,14 +62,14 @@ const toolbarItemStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   topBarItemNonNativeStyle: {
-    marginTop: 8,
-    marginBottom: 10,
+    marginTop: $config.ICON_TEXT ? 8 : 0,
+    marginBottom: $config.ICON_TEXT ? 10 : 0,
     marginHorizontal: 10,
     justifyContent: 'center',
   },
   bottomBarItemStyle: {
-    marginTop: 10,
-    marginBottom: 16,
+    marginTop: $config.ICON_TEXT ? 10 : 0,
+    marginBottom: $config.ICON_TEXT ? 16 : 0,
     marginHorizontal: 10,
   },
   leftBarItemStyle: {
