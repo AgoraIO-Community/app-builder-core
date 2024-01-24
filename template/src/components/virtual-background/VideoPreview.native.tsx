@@ -1,5 +1,5 @@
 import React from 'react';
-import {MaxVideoView} from '../../../agora-rn-uikit';
+import {MaxVideoView, useLocalUid} from '../../../agora-rn-uikit';
 import {useContent, usePreCall, useRtc} from 'customization-api';
 import InlineNotification from '../../atoms/InlineNotification';
 
@@ -8,9 +8,9 @@ interface VideoPreviewProps {
 }
 
 const VideoPreview = ({isLocalVideoON = false}: VideoPreviewProps) => {
-  const {defaultContent, activeUids} = useContent();
-  const [maxUid] = activeUids;
+  const {defaultContent} = useContent();
   const {isCameraAvailable} = usePreCall();
+  const localUid = useLocalUid();
 
   const rtc = useRtc();
   const fallbackText = isCameraAvailable
@@ -25,8 +25,8 @@ as your camera turns on.`
 
   return (
     <MaxVideoView
-      user={defaultContent[maxUid]}
-      key={maxUid}
+      user={defaultContent[localUid]}
+      key={localUid}
       fallback={() => <InlineNotification text={fallbackText} />}
       isFullView={true}
       containerStyle={{
