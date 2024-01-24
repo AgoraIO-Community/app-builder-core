@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
@@ -24,6 +24,8 @@ import {
 import {useContent, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import EmojiPicker from 'emoji-picker-react';
+import ChatEmojiButton from './chat/ChatEmojiButton';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -81,6 +83,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
+
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
       ? `Private Message to ${defaultContent[privateChatUser]?.name}`
@@ -105,6 +108,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     });
   }, []);
 
+  const onEmojiClick = emojiObject => {
+    setMessage(prev => prev + emojiObject.emoji);
+  };
+
   return props?.render ? (
     props.render(
       message,
@@ -113,34 +120,42 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
-    <TextInput
-      setRef={ref => (chatInputRef.current = ref)}
-      onFocus={() => setInputActive(true)}
-      onBlur={() => setInputActive(false)}
-      value={message}
-      onChangeText={onChangeText}
+    <View
       style={{
-        minHeight: 56,
-        borderRadius: 0,
-        borderBottomLeftRadius: 12,
-        borderWidth: 0,
-        color: $config.FONT_COLOR,
-        textAlign: 'left',
-        paddingVertical: 21,
-        paddingLeft: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
         flex: 1,
-        alignSelf: 'center',
-        fontFamily: ThemeConfig.FontFamily.sansPro,
-        fontWeight: '400',
-      }}
-      blurOnSubmit={false}
-      onSubmitEditing={onSubmitEditing}
-      placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={
-        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-      }
-      autoCorrect={false}
-    />
+      }}>
+      <TextInput
+        setRef={ref => (chatInputRef.current = ref)}
+        onFocus={() => setInputActive(true)}
+        onBlur={() => setInputActive(false)}
+        value={message}
+        onChangeText={onChangeText}
+        style={{
+          minHeight: 56,
+          borderRadius: 0,
+          borderBottomLeftRadius: 12,
+          borderWidth: 0,
+          color: $config.FONT_COLOR,
+          textAlign: 'left',
+          paddingVertical: 21,
+          paddingLeft: 20,
+          flex: 1,
+          alignSelf: 'center',
+          fontFamily: ThemeConfig.FontFamily.sansPro,
+          fontWeight: '400',
+        }}
+        blurOnSubmit={false}
+        onSubmitEditing={onSubmitEditing}
+        placeholder={chatMessageInputPlaceholder}
+        placeholderTextColor={
+          $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+        }
+        autoCorrect={false}
+      />
+      <ChatEmojiButton onEmojiClick={onEmojiClick} />
+    </View>
   );
 };
 
@@ -174,6 +189,9 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 12,
     alignSelf: 'center',
     marginRight: 16,
+  },
+  emojiPicker: {
+    width: '100%',
   },
 });
 export default ChatInput;
