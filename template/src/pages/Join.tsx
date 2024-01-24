@@ -45,17 +45,26 @@ const mobileOrTablet = isMobileOrTablet();
 
 const Join = () => {
   const hasBrandLogo = useHasBrandLogo();
-  //commented for v1 release
-  // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
-  // const enterMeetingButton = useString('enterMeetingButton')();
-  // const createMeetingButton = useString('createMeetingButton')();
-  const meetingIdInputPlaceholder = isLiveStream
-    ? 'Enter Stream ID'
-    : 'Enter Room ID';
-  const enterMeetingButton = isLiveStream ? 'Join Stream' : 'Join Room';
-  const createMeetingButton = isLiveStream
-    ? 'Create a Stream'
-    : 'Create a Room';
+
+  const roomId = useString('roomId')();
+  const streamId = useString('streamId')();
+  const enterRoomId = useString('enterRoomId')();
+  const enterStreamId = useString('enterStreamId')();
+  const joinRoom = useString('joinRoom')();
+  const joinStream = useString('joinStream')();
+  const createStream = useString('createStream')();
+  const createRoom = useString('createRoom')();
+
+  //toast
+  const invalidRoomIdToastHeading = useString('invalidRoomIdToastHeading')();
+  const invalidRoomIdToastSubheading = useString(
+    'invalidRoomIdToastSubheading',
+  )();
+
+  const meetingIdInputPlaceholder = isLiveStream ? enterStreamId : enterRoomId;
+  const enterMeetingButton = isLiveStream ? joinStream : joinRoom;
+  const createMeetingButton = isLiveStream ? createStream : createRoom;
+
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
   const [error, setError] = useState<null | {name: string; message: string}>(
@@ -81,9 +90,11 @@ const Join = () => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: isInvalidUrl ? 'Room ID Invalid.' : 'Some Error Occured.',
+          text1: isInvalidUrl
+            ? invalidRoomIdToastHeading
+            : 'Some Error Occured.',
           text2: isInvalidUrl
-            ? 'Please enter a valid Room ID'
+            ? invalidRoomIdToastSubheading
             : 'Please try again',
           visibilityTime: 3000,
           primaryBtn: null,
@@ -120,12 +131,7 @@ const Join = () => {
         {error ? <Error error={error} /> : <></>}
         <Card>
           <View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
+            <View style={style.logoContainerStyle}>
               <Logo />
               {isMobileUA() ? (
                 <IDPLogoutComponent
@@ -137,19 +143,14 @@ const Join = () => {
             </View>
             <Spacer size={20} />
             <Text style={style.heading}>
-              {isLiveStream ? 'Join a Stream' : 'Join a Room'}
+              {isLiveStream ? joinStream : joinRoom}
             </Text>
             <Spacer size={40} />
             <Input
               labelStyle={style.labelStyle}
-              label={isLiveStream ? 'Stream ID' : 'Room ID'}
+              label={isLiveStream ? streamId : roomId}
               autoFocus
               value={phrase}
-              helpText={
-                isLiveStream
-                  ? 'Enter the stream ID here for the room you’d like to join'
-                  : 'Enter the room ID here for the room you’d like to join'
-              }
               placeholder={meetingIdInputPlaceholder}
               onChangeText={text => setPhrase(text)}
               onSubmitEditing={() => startCall()}
@@ -185,6 +186,11 @@ const Join = () => {
 };
 
 const style = StyleSheet.create({
+  logoContainerStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   btnContainer: {
     width: '100%',
     alignItems: 'center',
