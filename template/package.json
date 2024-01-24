@@ -65,6 +65,7 @@
     "electron-log": "4.3.5",
     "electron-squirrel-startup": "1.0.0",
     "electron-updater": "4.3.9",
+    "emoji-picker-react": "^4.7.1",
     "exponential-backoff": "3.1.0",
     "fetch-retry": "^5.0.6",
     "graphql": "15.5.0",
