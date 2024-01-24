@@ -75,39 +75,73 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateRoom();
   const {setRoomInfo} = useSetRoomInfo();
-  //commented for v1 release
-  // const createdText = useString('meetingCreatedNotificationLabel')();
-  // const hostControlsToggle = useString<boolean>('hostControlsToggle');
-  // const pstnToggle = useString<boolean>('pstnToggle');
-  // const loadingWithDots = useString('loadingWithDots')();
-  // const createMeetingButton = useString('createMeetingButton')();
-  // const haveMeetingID = useString('haveMeetingID')();
 
-  const createdText = ' has been created';
-  // const meetingNameInputPlaceholder = useString(
-  //   'meetingNameInputPlaceholder',
-  // )();
-  const meetingNameInputPlaceholder = 'The Annual Galactic Meet';
-  const loadingWithDots = 'Loading...';
+  const loadingWithDots = useString('loadingWithDots')();
+
+  //heading
+  const headingAudioLivecast = useString('headingAudioLivecast')();
+  const headingVoiceChat = useString('headingVoiceChat')();
+  const headingLiveStream = useString('headingLiveStream')();
+  const headingVideoMeeting = useString('headingVideoMeeting')();
+  //heading
+
+  //input label
+  const inputLabelAudioLivecast = useString('inputLabelAudioLivecast')();
+  const inputLabelVoiceChat = useString('inputLabelVoiceChat')();
+  const inputLabelLiveStream = useString('inputLabelLiveStream')();
+  const inputLabelVideoMeeting = useString('inputLabelVideoMeeting')();
+  //input label
+
+  //placeholder
+  const meetingNameInputPlaceholder = useString(
+    'meetingNameInputPlaceholder',
+  )();
+  //placeholder
+
+  //toggle
+  const everyoneCoHost = useString('everyoneCoHost')();
+  const everyoneCoHostTooltip = useString('everyoneCoHostTooltip')();
+  const allowPhoneNumberJoining = useString('allowPhoneNumberJoining')();
+  const allowPhoneNumberJoiningToolTip = useString(
+    'allowPhoneNumberJoiningToolTip',
+  )();
+  //toggle
+
+  //create button
+  const createAudioLivecast = useString('createAudioLivecast')();
+  const createVoiceChat = useString('createVoiceChat')();
+  const createLiveStream = useString('createLiveStream')();
+  const createRoom = useString('createRoom')();
+  //create button
+
+  const joinWithRoomID = useString('joinWithRoomID')();
+
+  //toast
+  const createRoomSuccessToastHeading = useString(
+    'createRoomSuccessToastHeading',
+  );
+  const createRoomSuccessToastSubheading = useString(
+    'createRoomSuccessToastSubHeading',
+  )();
+  //toast
 
   const btnLabel = () => {
     if ($config.AUDIO_ROOM) {
       if ($config.EVENT_MODE) {
-        return 'CREATE A AUDIO LIVECAST';
+        return createAudioLivecast;
       } else {
-        return 'CREATE A VOICE CHAT';
+        return createVoiceChat;
       }
     } else {
       if ($config.EVENT_MODE) {
-        return 'CREATE A STREAM';
+        return createLiveStream;
       } else {
-        return 'CREATE A ROOM';
+        return createRoom;
       }
     }
   };
 
   const createMeetingButton = btnLabel();
-  const haveMeetingID = 'Join with a room ID';
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
@@ -145,8 +179,8 @@ const Create = () => {
         Toast.show({
           leadingIconName: 'tick-fill',
           type: 'success',
-          text1: trimText(roomTitle) + createdText,
-          text2: 'Your New room is now live',
+          text1: createRoomSuccessToastHeading(trimText(roomTitle)),
+          text2: createRoomSuccessToastSubheading,
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
@@ -180,15 +214,15 @@ const Create = () => {
   const getHeading = () => {
     if ($config.AUDIO_ROOM) {
       if ($config.EVENT_MODE) {
-        return 'Create a Audio Livecast';
+        return headingAudioLivecast;
       } else {
-        return 'Create a Voice Chat';
+        return headingVoiceChat;
       }
     } else {
       if ($config.EVENT_MODE) {
-        return 'Create a Livestream';
+        return headingLiveStream;
       } else {
-        return 'Create a Room';
+        return headingVideoMeeting;
       }
     }
   };
@@ -196,15 +230,15 @@ const Create = () => {
   const getInputLabel = () => {
     if ($config.AUDIO_ROOM) {
       if ($config.EVENT_MODE) {
-        return 'Audio Livecast Name';
+        return inputLabelAudioLivecast;
       } else {
-        return 'Voice Chat Name';
+        return inputLabelVoiceChat;
       }
     } else {
       if ($config.EVENT_MODE) {
-        return 'Stream Name';
+        return inputLabelLiveStream;
       } else {
-        return 'Room Name';
+        return inputLabelVideoMeeting;
       }
     }
   };
@@ -240,12 +274,7 @@ const Create = () => {
             <ScrollView contentContainerStyle={style.main}>
               <Card>
                 <View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}>
+                  <View style={style.logoContainerStyle}>
                     <Logo />
                     {isMobileUA() ? (
                       <IDPLogoutComponent
@@ -295,18 +324,19 @@ const Create = () => {
                       ]}>
                       <View style={style.infoContainer}>
                         <Text numberOfLines={1} style={style.toggleLabel}>
-                          Make everyone a Co-Host
+                          {everyoneCoHost}
                         </Text>
                         <Tooltip
                           activeBgStyle={style.tooltipActiveBgStyle}
                           defaultBgStyle={style.tooltipDefaultBgStyle}
-                          toolTipMessage="Turning on will give everyone the control of this room"
+                          toolTipMessage={everyoneCoHostTooltip}
                           renderContent={(
                             isToolTipVisible,
                             setToolTipVisible,
                           ) =>
                             renderInfoIcon(isToolTipVisible, setToolTipVisible)
-                          }></Tooltip>
+                          }
+                        />
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle
@@ -328,12 +358,12 @@ const Create = () => {
                         ]}>
                         <View style={style.infoContainer}>
                           <Text numberOfLines={1} style={style.toggleLabel}>
-                            Allow joining via a phone number
+                            {allowPhoneNumberJoining}
                           </Text>
                           <Tooltip
                             activeBgStyle={style.tooltipActiveBgStyle}
                             defaultBgStyle={style.tooltipDefaultBgStyle}
-                            toolTipMessage="Attendees can dial a number and join via PSTN"
+                            toolTipMessage={allowPhoneNumberJoiningToolTip}
                             renderContent={(
                               isToolTipVisible,
                               setToolTipVisible,
@@ -342,7 +372,8 @@ const Create = () => {
                                 isToolTipVisible,
                                 setToolTipVisible,
                               )
-                            }></Tooltip>
+                            }
+                          />
                         </View>
                         <View style={style.infoToggleContainer}>
                           <Toggle
@@ -379,7 +410,7 @@ const Create = () => {
                   />
                   <Spacer size={16} />
                   <LinkButton
-                    text={haveMeetingID}
+                    text={joinWithRoomID}
                     onPress={() => history.push('/join')}
                   />
                 </View>
@@ -396,6 +427,11 @@ const Create = () => {
 };
 
 const style = StyleSheet.create({
+  logoContainerStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   root: {
     flex: 1,
   },
