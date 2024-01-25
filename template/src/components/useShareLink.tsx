@@ -99,61 +99,13 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     data: {meetingTitle, roomId, pstn, isSeparateHostLink, isHost},
   } = useRoomInfo();
 
-  //commmented for v1 release
-  // const copiedToClipboardText = useString(
-  //   'copiedToClipboardNotificationLabel',
-  // )();
-  // const meetingIdText = useString('meetingIdLabel')();
-  // const PSTNNumberText = useString('PSTNNumber')();
-  // const PSTNPinText = useString('PSTNPin')();
-  // const meetingInviteText =
-  //   useString<MeetingInviteInterface>('meetingInviteText');
-  const copiedToClipboardText = 'Copied to Clipboard';
-  const meetingIdText = 'Room ID';
-  const PSTNNumberText = 'PSTN Number';
-  const PSTNPinText = 'PSTN Pin';
-  const meetingInviteText = ({
-    meetingName,
-    id,
-    url,
-    pstn,
-    isHost,
-    isSeparateHostLink,
-  }: MeetingInviteInterface) => {
-    let inviteContent = '';
-    if (url) {
-      //for host
-      if (isHost) {
-        if (isSeparateHostLink) {
-          //seperate link for host and attendee
-          inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
-        } else {
-          //single link for everyone
-          inviteContent += `Room: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
-        }
-      }
-      //for attendee
-      else {
-        inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
-      }
-    } else {
-      if (isHost) {
-        if (isSeparateHostLink) {
-          inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}\n\nHost Room ID:\n${id?.host}`;
-        } else {
-          inviteContent += `Room: ${meetingName}\n\nRoom ID:\n${id?.host}`;
-        }
-      } else {
-        //copy this label on videocall screen
-        inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}`;
-      }
-    }
-    // Adding pstn data into meeting data if present
-    if (pstn?.number && pstn?.pin) {
-      inviteContent += `\n\nPSTN Number:\n${pstn.number}\n\nPSTN Pin:\n${pstn.pin}`;
-    }
-    return inviteContent;
-  };
+  const pstnLabel = useString('PSTN')();
+  const pstnNumberLabel = useString('number')();
+  const pinLabel = useString('pin')();
+  const meetingInviteText =
+    useString<MeetingInviteInterface>('meetingInviteText');
+  const PSTNNumberText = `${pstnLabel} ${pstnNumberLabel}`;
+  const PSTNPinText = `${pstnLabel} ${pinLabel}`;
 
   const isSDK = isSDKCheck();
 

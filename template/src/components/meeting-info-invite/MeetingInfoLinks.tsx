@@ -29,20 +29,6 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
   } = useRoomInfo();
   const {getShareLink} = useShareLink();
 
-  //commented for v1 release
-  // const meetingUrlText = useString('meetingUrlLabel')();
-  // const meetingIdText = useString('meetingIdLabel')();
-  // const hostIdText = useString('hostIdLabel')();
-  // const attendeeUrlLabel = useString('attendeeUrlLabel')();
-  // const attendeeIdLabel = useString('attendeeIdLabel')();
-  // const hostUrlLabel = useString('hostUrlLabel')();
-  // const pstnLabel = useString('pstnLabel')();
-  // const pstnNumberLabel = useString('pstnNumberLabel')();
-  // const pinLabel = useString('pin')();
-  // const enterMeetingAfterCreateButton = useString(
-  //   'enterMeetingAfterCreateButton',
-  // )();
-  // const copyInviteButton = useString('copyInviteButton')();
   const meetingUrlText = 'Room Link';
   const meetingIdText = 'Room ID';
   const hostIdText = 'Host ID';

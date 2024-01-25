@@ -1,4 +1,4 @@
-import {I18nBaseType, I18nConditionalType, I18nDynamicType} from '../i18nTypes';
+import {I18nBaseType} from '../i18nTypes';
 interface NetworkQualityStatusInterface {
   unknown?: 'Unknown';
   excellent?: 'Excellent';
@@ -59,7 +59,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   // screenshareUserName?: I18nDynamicType; //
   // messageSenderNotificationLabel?: I18nDynamicType; //
   // networkQualityLabel?: I18nBaseType<NetworkQualities>; //
-  // meetingInviteText?: I18nBaseType<MeetingInviteInterface>; //
+  meetingInviteText?: I18nBaseType<MeetingInviteInterface>; //
   // participantListPlaceholder?: I18nBaseType; //
   // raisedHandsListPlaceholder?: I18nBaseType; //
   // raisedHandsListTitleLabel?: I18nBaseType; //
@@ -161,31 +161,46 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   //       return 'Loading';
   //   }
   // },
-  // meetingInviteText: ({meetingName, id, url, pstn}) => {
-  //   let inviteContent = '';
-  //   if (url) {
-  //     // if host data is present generate links for both host and attendee
-  //     if (url?.host) {
-  //       inviteContent += `Room - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
-  //     }
-  //     // if host data is not present then generate link for attendee alone
-  //     else {
-  //       inviteContent += `Room - ${meetingName}\nMeeting URL: ${url?.attendee}`;
-  //     }
-  //   } else {
-  //     // if host data is present generate meeting ID for both host and attendee
-  //     if (id?.host) {
-  //       inviteContent += `Room - ${meetingName}\nAttendee Room ID: ${id?.attendee}\nHost Room ID: ${id?.host}`;
-  //     }
-  //     // if host data is not present then generate meeting ID for attendee alone
-  //     else {
-  //       inviteContent += `Room - ${meetingName}\nMeeting ID: ${id?.attendee}`;
-  //     }
-  //   }
-  //   // Adding pstn data into meeting data if present
-  //   if (pstn?.number && pstn?.pin) {
-  //     inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
-  //   }
-  //   return inviteContent;
-  // },
+  meetingInviteText: ({
+    meetingName,
+    id,
+    url,
+    pstn,
+    isHost,
+    isSeparateHostLink,
+  }) => {
+    let inviteContent = '';
+    if (url) {
+      //for host
+      if (isHost) {
+        if (isSeparateHostLink) {
+          //seperate link for host and attendee
+          inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
+        } else {
+          //single link for everyone
+          inviteContent += `Room: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
+        }
+      }
+      //for attendee
+      else {
+        inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
+      }
+    } else {
+      if (isHost) {
+        if (isSeparateHostLink) {
+          inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}\n\nHost Room ID:\n${id?.host}`;
+        } else {
+          inviteContent += `Room: ${meetingName}\n\nRoom ID:\n${id?.host}`;
+        }
+      } else {
+        //copy this label on videocall screen
+        inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}`;
+      }
+    }
+    // Adding pstn data into meeting data if present
+    if (pstn?.number && pstn?.pin) {
+      inviteContent += `\n\nPSTN Number:\n${pstn.number}\n\nPSTN Pin:\n${pstn.pin}`;
+    }
+    return inviteContent;
+  },
 };
