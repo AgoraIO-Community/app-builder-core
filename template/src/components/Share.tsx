@@ -47,42 +47,23 @@ export interface CopyMeetingInfoProps {
 export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
-    data: {roomId, isHost, pstn, isSeparateHostLink, meetingTitle},
+    data: {roomId, isHost, pstn, isSeparateHostLink},
   } = useRoomInfo();
   const {showSubLabel = true} = props;
-  //commented for v1 release
-  // const meetingUrlText = useString('meetingUrlLabel')();
-  // const meetingIdText = useString('meetingIdLabel')();
-  // const hostIdText = useString('hostIdLabel')();
-  // const attendeeUrlLabel = useString('attendeeUrlLabel')();
-  // const attendeeIdLabel = useString('attendeeIdLabel')();
-  // const hostUrlLabel = useString('hostUrlLabel')();
-  // const pstnLabel = useString('pstnLabel')();
-  // const pstnNumberLabel = useString('pstnNumberLabel')();
-  // const pinLabel = useString('pin')();
-  // const enterMeetingAfterCreateButton = useString(
-  //   'enterMeetingAfterCreateButton',
-  // )();
-  // const copyInviteButton = useString('copyInviteButton')();
-  const meetingUrlText = 'Room Link';
-  const meetingIdText = 'Room ID';
-  const hostIdText = 'Host ID';
-  const attendeeUrlLabel = 'Attendee Link';
-  const attendeeIdLabel = 'Attendee ID';
-  const hostUrlLabel = 'Host Link';
-  const pstnLabel = 'PSTN';
-  const pstnNumberLabel = 'Number';
-  const pinLabel = 'Pin';
-  const enterMeetingAfterCreateButton = isLiveStream
-    ? 'Start Stream (as host)'
-    : 'Start Room (as host)';
-  const copyInviteButton = 'Copy invite to clipboard';
-  const history = useHistory();
-  const enterMeeting = () => {
-    if (roomId?.host) {
-      history.push(roomId.host);
-    }
-  };
+
+  const meetingUrlText = useString('roomLink')();
+  const meetingIdText = useString('roomId')();
+  const hostIdText = useString('hostId')();
+  const attendeeUrlLabel = useString('attendeeLink')();
+  const attendeeIdLabel = useString('attendeeId')();
+  const hostUrlLabel = useString('hostLink')();
+  const pstnLabel = useString('PSTN')();
+  const pstnNumberLabel = useString('number')();
+  const pinLabel = useString('pin')();
+  const copiedToClipboard = useString('copiedToClipboard')();
+  const sharePhoneNumber = useString('sharePhoneNumber')();
+  const shareWithAttendee = useString('shareWithAttendee')();
+  const shareWithCoHost = useString('shareWithCoHost')();
   const isSDK = isSDKCheck();
   const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
@@ -122,7 +103,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
               <Spacer size={8} horizontal={true} />
             </>
           }
-          toolTipMessage="Copied to clipboard"
+          toolTipMessage={copiedToClipboard}
           renderContent={(isToolTipVisible, setToolTipVisible) => {
             return (
               <TouchableOpacity
@@ -170,9 +151,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           {showSubLabel && (
             <>
               <Spacer size={14} />
-              <Text style={style.helpText}>
-                Share this with attendees you want to invite.
-              </Text>
+              <Text style={style.helpText}>{shareWithAttendee}</Text>
             </>
           )}
           <Spacer size={25} />
@@ -204,9 +183,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           {showSubLabel && (
             <>
               <Spacer size={14} />
-              <Text style={style.helpText}>
-                Share this with other co-hosts you want to invite.
-              </Text>
+              <Text style={style.helpText}>{shareWithCoHost}</Text>
             </>
           )}
           <Spacer size={25} />
@@ -238,9 +215,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           {showSubLabel && (
             <>
               <Spacer size={14} />
-              <Text style={style.helpText}>
-                Share this phone number and pin to dial from phone.
-              </Text>
+              <Text style={style.helpText}>{sharePhoneNumber}</Text>
             </>
           )}
           {/* <Spacer size={25} /> */}
@@ -252,7 +227,8 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   );
 };
 
-const clipboardIconButtonURL = url => {
+const ClipboardIconButtonURL = ({url}) => {
+  const copiedToClipboard = useString('copiedToClipboard')();
   return (
     <View style={style.iconContainer}>
       <Tooltip
@@ -270,7 +246,7 @@ const clipboardIconButtonURL = url => {
             <Spacer size={8} horizontal={true} />
           </>
         }
-        toolTipMessage="Copied to clipboard"
+        toolTipMessage={copiedToClipboard}
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <TouchableOpacity
@@ -323,7 +299,7 @@ export const ShowInputURL = (props: ShowInputURLProps) => {
             {url}
           </Text>
         </View>
-        {clipboardIconButtonURL(url)}
+        <ClipboardIconButtonURL url={url} />
       </View>
     </>
   );
@@ -353,19 +329,17 @@ const Share = () => {
     data: {roomId, meetingTitle},
   } = useRoomInfo();
 
-  const enterMeetingAfterCreateButton = isLiveStream
-    ? 'Start Stream (as host)'
-    : 'Start Room (as host)';
-  const copyInviteButton = 'Copy invite to clipboard';
+  const startRoom = useString('startRoom')();
+  const startStream = useString('startStream')();
+
+  const enterMeetingAfterCreateButton = isLiveStream ? startStream : startRoom;
+  const copyInviteButton = useString('copyInviteButton')();
   const history = useHistory();
   const enterMeeting = () => {
     if (roomId?.host) {
       history.push(roomId.host);
     }
   };
-  const isSDK = isSDKCheck();
-  const isWebCheck =
-    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
   return FpeShareComponent ? (
     <FpeShareComponent />
