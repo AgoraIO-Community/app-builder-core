@@ -230,8 +230,7 @@ const style = StyleSheet.create({
     flexBasis: '50%',
   },
   cardMobile: {
-    //@ts-ignore
-    flexBasis: '100%%',
+    flexBasis: '100%',
   },
   cardHeader: {
     display: 'flex',
