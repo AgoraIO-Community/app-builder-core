@@ -25,7 +25,7 @@ import {useContent, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import EmojiPicker from 'emoji-picker-react';
-import ChatEmojiButton from './chat/ChatEmojiButton';
+import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -108,10 +108,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     });
   }, []);
 
-  const onEmojiClick = emojiObject => {
-    setMessage(prev => prev + emojiObject.emoji);
-  };
-
   return props?.render ? (
     props.render(
       message,
@@ -120,42 +116,34 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
-    <View
+    <TextInput
+      setRef={ref => (chatInputRef.current = ref)}
+      onFocus={() => setInputActive(true)}
+      onBlur={() => setInputActive(false)}
+      value={message}
+      onChangeText={onChangeText}
       style={{
-        alignItems: 'center',
-        flexDirection: 'row',
+        minHeight: 56,
+        borderRadius: 0,
+        borderBottomLeftRadius: 12,
+        borderWidth: 0,
+        color: $config.FONT_COLOR,
+        textAlign: 'left',
+        paddingVertical: 21,
+        paddingLeft: 20,
         flex: 1,
-      }}>
-      <TextInput
-        setRef={ref => (chatInputRef.current = ref)}
-        onFocus={() => setInputActive(true)}
-        onBlur={() => setInputActive(false)}
-        value={message}
-        onChangeText={onChangeText}
-        style={{
-          minHeight: 56,
-          borderRadius: 0,
-          borderBottomLeftRadius: 12,
-          borderWidth: 0,
-          color: $config.FONT_COLOR,
-          textAlign: 'left',
-          paddingVertical: 21,
-          paddingLeft: 20,
-          flex: 1,
-          alignSelf: 'center',
-          fontFamily: ThemeConfig.FontFamily.sansPro,
-          fontWeight: '400',
-        }}
-        blurOnSubmit={false}
-        onSubmitEditing={onSubmitEditing}
-        placeholder={chatMessageInputPlaceholder}
-        placeholderTextColor={
-          $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-        }
-        autoCorrect={false}
-      />
-      <ChatEmojiButton onEmojiClick={onEmojiClick} />
-    </View>
+        alignSelf: 'center',
+        fontFamily: ThemeConfig.FontFamily.sansPro,
+        fontWeight: '400',
+      }}
+      blurOnSubmit={false}
+      onSubmitEditing={onSubmitEditing}
+      placeholder={chatMessageInputPlaceholder}
+      placeholderTextColor={
+        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+      }
+      autoCorrect={false}
+    />
   );
 };
 
@@ -163,11 +151,25 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive} = useChatUIControls();
+  const {inputActive, showEmojiPicker} = useChatUIControls();
   return (
-    <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
-      <ChatTextInput />
-      <ChatSendButton />
+    <View
+      style={[
+        style.inputView,
+        showEmojiPicker
+          ? {backgroundColor: 'transparent'}
+          : {backgroundColor: $config.CARD_LAYER_2_COLOR},
+        inputActive ? style.inputActiveView : {},
+      ]}>
+      {showEmojiPicker ? (
+        <ChatEmojiPicker />
+      ) : (
+        <>
+          <ChatTextInput />
+          <ChatEmojiButton />
+          <ChatSendButton />
+        </>
+      )}
     </View>
   );
 };
@@ -180,9 +182,9 @@ const style = StyleSheet.create({
   inputView: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderTopWidth: 1,
     borderTopColor: 'transparent',
+    alignItems: 'center',
   },
   chatInputButton: {
     flex: 0.1,

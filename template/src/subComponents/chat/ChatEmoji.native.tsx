@@ -1,10 +1,12 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
-const ChatEmojiButton = () => {
+export const ChatEmojiButton = () => {
   return null;
 };
 
-export default ChatEmojiButton;
+export const ChatEmojiPicker = () => {
+  return null;
+};
 
 const styles = StyleSheet.create({});

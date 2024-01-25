@@ -29,6 +29,8 @@ export interface ChatUIControlsInterface {
   setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
+  showEmojiPicker: boolean;
+  setShowEmojiPicker: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -40,6 +42,8 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setMessage: () => {},
   inputActive: false,
   setInputActive: () => {},
+  showEmojiPicker: false,
+  setShowEmojiPicker: () => {},
 });
 
 interface ChatUIControlsProviderProps {
@@ -51,6 +55,7 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [inputActive, setInputActive] = useState(false);
   const [privateChatUser, setPrivateChatUser] = useState<UidType>(0);
   const [message, setMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   return (
     <ChatUIControlsContext.Provider
       value={{
@@ -62,6 +67,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setMessage,
         inputActive,
         setInputActive,
+        showEmojiPicker,
+        setShowEmojiPicker,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>
