@@ -270,8 +270,6 @@ const editNameStyle = StyleSheet.create({
 const SettingsView = props => {
   const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
-  const settingsLabel = 'Settings';
-  const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
 

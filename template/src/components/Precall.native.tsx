@@ -45,6 +45,7 @@ import PreCallSettings from './precall/PreCallSettings';
 import VBPanel from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
 import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
+import {useString} from '../../src/utils/useString';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -329,6 +330,8 @@ const Precall = (props: any) => {
     return undefined;
   });
 
+  const youAreJoiningAs = useString('youAreJoiningAs')();
+
   if (isVBAvaialble) {
     return <VBPanel isOnPrecall={true} />;
   }
@@ -354,7 +357,7 @@ const Precall = (props: any) => {
                   alignItems: 'center',
                   paddingVertical: 12,
                 }}>
-                <MeetingName prefix="You are joining" />
+                <MeetingName prefix={youAreJoiningAs} />
                 <IDPLogoutComponent
                   containerStyle={{marginTop: 0, marginRight: 0}}
                 />
@@ -383,7 +386,7 @@ const Precall = (props: any) => {
               <View style={{flex: 1}} testID="precall-mobile-preview">
                 <View style={style.preCallContainer}>
                   <View style={style.header}>
-                    <MeetingName prefix="You are joining" />
+                    <MeetingName prefix={youAreJoiningAs} />
                     {isWebInternal() ? <PreCallSettings /> : <></>}
                   </View>
                   <View style={style.content}>

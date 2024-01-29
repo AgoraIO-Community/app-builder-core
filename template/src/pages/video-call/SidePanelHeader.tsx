@@ -32,10 +32,12 @@ import useTranscriptDownload from '../../subComponents/caption/useTranscriptDown
 import {useVB} from '../../components/virtual-background/useVB';
 import {PropsContext} from '../../../agora-rn-uikit';
 import useLiveStreamingUids from '../../utils/useLiveStreamingUids';
+import {useString} from '../../utils/useString';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
-  const settingsLabel = 'Settings';
+  const settingsLabel = useString('settings')();
+
   return (
     <SidePanelHeader
       centerComponent={
