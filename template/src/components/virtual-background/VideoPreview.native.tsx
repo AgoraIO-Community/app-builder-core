@@ -2,6 +2,7 @@ import React from 'react';
 import {MaxVideoView, useLocalUid} from '../../../agora-rn-uikit';
 import {useContent, usePreCall, useRtc} from 'customization-api';
 import InlineNotification from '../../atoms/InlineNotification';
+import {useString} from '../../utils/useString';
 
 interface VideoPreviewProps {
   isLocalVideoON?: boolean;
@@ -13,21 +14,20 @@ const VideoPreview = ({isLocalVideoON = false}: VideoPreviewProps) => {
   const localUid = useLocalUid();
 
   const rtc = useRtc();
-  const fallbackText = isCameraAvailable
-    ? `Camera is currently off. Selected background will be applied as soon
-as your camera turns on.`
-    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
+  const fallbackText = useString<boolean>('virtualBackgroundCameraInfo');
   rtc?.RtcEngineUnsafe?.startPreview();
 
   if (!isLocalVideoON) {
-    return <InlineNotification text={fallbackText} />;
+    return <InlineNotification text={fallbackText(isCameraAvailable)} />;
   }
 
   return (
     <MaxVideoView
       user={defaultContent[localUid]}
       key={localUid}
-      fallback={() => <InlineNotification text={fallbackText} />}
+      fallback={() => (
+        <InlineNotification text={fallbackText(isCameraAvailable)} />
+      )}
       isFullView={true}
       containerStyle={{
         width: '100%',

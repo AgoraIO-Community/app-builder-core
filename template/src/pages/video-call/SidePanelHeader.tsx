@@ -155,7 +155,7 @@ export const ChatHeader = () => {
 };
 
 export const VBHeader = () => {
-  const label = `Virtual Background`;
+  const label = useString('virtualBackground')();
   const {setSidePanel} = useSidePanel();
   const {setIsVBActive} = useVB();
 
