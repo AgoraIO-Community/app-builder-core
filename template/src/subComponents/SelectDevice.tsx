@@ -115,11 +115,16 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
+
+  const cameraLabel = useString('camera')();
+  const noCameraLabel = useString('noCameraDetected')();
+  const noCameraSelectedLabel = useString('noCameraSelected')();
+  const updateLabel = useString('updating')();
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
     <>
-      <Text style={style.label}>Camera</Text>
+      <Text style={style.label}>{cameraLabel}</Text>
       <Dropdown
         icon={
           isPendingUpdate && isPermissionGranted
@@ -131,10 +136,10 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         enabled={!isPickerDisabled}
         label={
           !isPermissionGranted || !data || !data.length
-            ? 'No Camera Detected'
+            ? noCameraLabel
             : isPendingUpdate
-            ? 'Updating'
-            : 'No Camera Selected'
+            ? updateLabel
+            : noCameraSelectedLabel
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
@@ -202,11 +207,16 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
+
+  const microphoneLabel = useString('microphone')();
+  const noMicrophoneDetectedLabel = useString('noMicrophoneDetected')();
+  const updateLabel = useString('updating')();
+  const noMicrophoneSelectedLabel = useString('noMicrophoneSelected')();
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
     <View>
-      <Text style={style.label}>Microphone</Text>
+      <Text style={style.label}>{microphoneLabel}</Text>
       <Dropdown
         icon={
           isPendingUpdate && isPermissionGranted
@@ -219,10 +229,10 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         selectedValue={selectedMic}
         label={
           !isPermissionGranted || !data || !data.length
-            ? 'No Microphone Detected'
+            ? noMicrophoneDetectedLabel
             : isPendingUpdate
-            ? 'Updating'
-            : 'No Microphone Selected'
+            ? updateLabel
+            : noMicrophoneSelectedLabel
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
@@ -288,6 +298,10 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     }
   }, [selectedSpeaker, data]);
 
+  const speakerLabel = useString('speaker')();
+  const speakerDefaultLabel = useString('speakerDefaultDevice')();
+  const noSpeakerLabel = useString('noSpeakerDetected')();
+  const updateLabel = useString('updating')();
   return props?.render ? (
     props.render(
       selectedSpeaker,
@@ -297,7 +311,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     )
   ) : (
     <View>
-      <Text style={style.label}>Speaker</Text>
+      <Text style={style.label}>{speakerLabel}</Text>
       {(local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
         local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
       (!isChrome || !data || data.length === 0) ? (
@@ -309,7 +323,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           data={[
             {
               value: newRandomDeviceId,
-              label: 'System Default Speaker Device',
+              label: speakerDefaultLabel,
             },
           ]}
           onSelect={({label, value}) => {
@@ -337,9 +351,9 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           selectedValue={selectedSpeaker}
           label={
             !data || !data.length
-              ? 'No Speaker Detected'
+              ? noSpeakerLabel
               : isPendingUpdate
-              ? 'Updating'
+              ? updateLabel
               : ''
           }
           data={data}
@@ -420,13 +434,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
     }
   }, [speakerDevices]);
 
-  //commented for v1 release
-  // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
-  // const settingScreenInfoMessage = $config.AUDIO_ROOM
-  //   ? 'Audio sharing is disabled for attendees. Raise hand to request permission to share.'
-  //   : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
-  const settingScreenInfoMessage =
-    'Attendees need to raise their hand to access the devices.';
+  const settingScreenInfoMessage = useString('livestreamAttendeeSettingInfo')();
   if (isOnPrecall) {
     return (
       <>

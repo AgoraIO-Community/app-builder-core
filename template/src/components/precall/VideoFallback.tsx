@@ -17,8 +17,12 @@ import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import Spacer from '../../atoms/Spacer';
 import Toast from '../../../react-native-toast-message';
+import {useString} from '../../utils/useString';
 
 const VideoFallback = () => {
+  const toastHeading = useString<boolean>('cantFindDeviceToastHeading');
+  const toastSubHeading = useString<boolean>('cantFindDeviceToastSubHeading');
+
   const {isCameraAvailable, isMicAvailable} = usePreCall();
   const toastRef = useRef({isShown: false});
   const local = useContext(LocalContext);
@@ -52,12 +56,8 @@ const VideoFallback = () => {
       toastRef.current.isShown = true;
       Toast.show({
         type: 'warn',
-        text1: `Can't find your ${
-          $config.AUDIO_ROOM ? ' Microphone' : ' Camera'
-        }`,
-        text2: `Check your system settings to make sure that a ${
-          $config.AUDIO_ROOM ? 'microphone' : 'camera'
-        } is available. If not, plug one in and restart your browser`,
+        text1: toastHeading($config.AUDIO_ROOM),
+        text2: toastSubHeading($config.AUDIO_ROOM),
         visibilityTime: 10000,
       });
     }
