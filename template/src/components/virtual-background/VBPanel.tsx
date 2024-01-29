@@ -31,6 +31,7 @@ import InlineNotification from '../../atoms/InlineNotification';
 import VBCard from './VBCard';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Spacer from '../../atoms/Spacer';
+import {useString} from '../../utils/useString';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -61,9 +62,9 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
-  const fallbackText = isCameraAvailable
-    ? `Camera is currently off. Selected background will be applied as soon as your camera turns on.`
-    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
+  const fallbackText = useString<boolean>('virtualBackgroundCameraInfo');
+
+  const vbLabel = useString('virtualBackground')();
 
   const PreCallVBHeader = () => (
     <Text
@@ -77,7 +78,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
         borderBottomWidth: 1,
         borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
       }}>
-      Virtual Background
+      {vbLabel}
     </Text>
   );
 
@@ -112,7 +113,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Notification */}
       {!callActive && !isLocalVideoON && !isMobile ? (
         <View style={{padding: 20, paddingBottom: 0}}>
-          <InlineNotification text={fallbackText} />
+          <InlineNotification text={fallbackText(isCameraAvailable)} />
         </View>
       ) : (
         <></>
@@ -157,6 +158,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
               icon={item.icon}
               path={item.path}
               label={item?.label}
+              translationKey={item?.translationKey}
               position={index + 1}
               isOnPrecall={isOnPrecall}
               isMobile={isMobile}

@@ -28,9 +28,6 @@ export interface PreCallTextInputProps {
   isOnPrecall?: boolean;
 }
 const PreCallTextInput = (props?: PreCallTextInputProps) => {
-  //commented for v1 release
-  // const userNamePlaceholder = useString('userNamePlaceholder')();
-  // const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
   const userNamePlaceholder = 'Enter Your Name';
   const fetchingNamePlaceholder = 'Getting name...';
   const username = useGetName();

@@ -13,8 +13,19 @@ import ThemeConfig from '../../theme';
 //@ts-ignore
 import permissionHelper from '../../assets/permission.png';
 import {DispatchContext, PermissionState} from '../../../agora-rn-uikit';
+import {useString} from '../../utils/useString';
 
 const PermissionHelper = () => {
+  const allowMicPermission = useString('allowMicPermision')();
+  const allowMicAndCameraPermission = useString(
+    'allowMicAndCameraPermission',
+  )();
+  const select = useString('select')();
+  const allow = useString('allow')();
+  const dismiss = useString('dismiss')();
+  const otherToHearYou = useString('otherToHearYou')();
+  const otherToSeeAndHearYou = useString('otherToSeeAndHearYou')();
+
   const {dispatch} = useContext(DispatchContext);
   const {permissionStatus} = useLocalUserInfo();
   const [showPopup, setShowPopup] = useState(false);
@@ -80,21 +91,19 @@ const PermissionHelper = () => {
         <View style={styles.modalContent}>
           <Text style={styles.infoMessage1}>
             {$config.AUDIO_ROOM
-              ? 'Allow access to microphone'
-              : 'Allow access to camera and microphone'}
+              ? allowMicPermission
+              : allowMicAndCameraPermission}
           </Text>
           <Text style={styles.infoMessage2}>
-            Select
-            <Text style={styles.infoMessage2Highlight}>{` “Allow” `}</Text>
-            {$config.AUDIO_ROOM
-              ? 'for others to hear you'
-              : 'for others to see and hear you'}
+            {select}
+            <Text style={styles.infoMessage2Highlight}>{allow}</Text>
+            {$config.AUDIO_ROOM ? otherToHearYou : otherToSeeAndHearYou}
           </Text>
           <TouchableOpacity
             onPress={() => {
               closePopup();
             }}>
-            <Text style={styles.dismissBtn}>Dismiss</Text>
+            <Text style={styles.dismissBtn}>{dismiss}</Text>
           </TouchableOpacity>
         </View>
       </Popup>
