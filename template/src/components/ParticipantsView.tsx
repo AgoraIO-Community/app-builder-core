@@ -60,7 +60,6 @@ const ParticipantView = props => {
   const hostLabel = 'HOST';
   const audienceLabel = 'AUDIENCE';
   const attendeeLabel = 'Attendee';
-  const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
   const meetingParticpantsLabel = `IN THIS MEETING`;
   const WaitingRoomParticipantsLabel = $config.EVENT_MODE
     ? 'WANT TO JOIN'

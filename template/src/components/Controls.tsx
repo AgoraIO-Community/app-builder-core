@@ -81,6 +81,7 @@ import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
+import {useString} from '../utils/useString';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -224,6 +225,10 @@ export const WhiteboardListener = () => {
 };
 
 const MoreButton = () => {
+  const moreButtonLabel = useString('moreButton')();
+  const inviteLabel = useString('invite')();
+  const peopleLabel = useString('people')();
+  const layoutLabel = useString('layout')();
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
   const {setCustomContent} = useContent();
@@ -477,7 +482,7 @@ const MoreButton = () => {
       icon: 'participants',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'People',
+      title: peopleLabel,
       callback: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.Participants);
@@ -557,7 +562,7 @@ const MoreButton = () => {
       isExternalIcon: true,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Layout',
+      title: layoutLabel,
       callback: () => {
         //setShowLayoutOption(true);
       },
@@ -582,7 +587,7 @@ const MoreButton = () => {
       icon: 'share',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Invite',
+      title: inviteLabel,
       callback: () => {
         setActionMenuVisible(false);
         setShowInvitePopup(true);
@@ -701,7 +706,7 @@ const MoreButton = () => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           btnTextProps={{
-            text: $config.ICON_TEXT ? 'More' : '',
+            text: $config.ICON_TEXT ? moreButtonLabel : '',
             textColor: $config.FONT_COLOR,
           }}
         />

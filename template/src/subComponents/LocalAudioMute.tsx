@@ -31,6 +31,7 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
+import {I18nDeviceStatus} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * A component to mute / unmute the local audio
@@ -60,8 +61,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
 
-  //commented for v1 release
-  //const audioLabel = useString('toggleAudioButton')();
+  const micButtonLabel = useString<I18nDeviceStatus>('micButton');
 
   const {
     rtcProps: {callActive},
@@ -77,10 +77,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
   const audioLabel = permissionDenied
-    ? 'Mic'
+    ? micButtonLabel(I18nDeviceStatus.PERMISSION_DENIED)
     : isAudioEnabled
-    ? 'Mic On'
-    : 'Mic Off';
+    ? micButtonLabel(I18nDeviceStatus.ON)
+    : micButtonLabel(I18nDeviceStatus.OFF);
 
   let iconProps: IconButtonProps['iconProps'] = {
     showWarningIcon: permissionDenied && showWarningIcon ? true : false,

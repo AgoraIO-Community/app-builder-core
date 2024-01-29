@@ -73,9 +73,10 @@ export const ParticipantsCountView = ({
   isMobileView?: boolean;
 }) => {
   const {onlineUsersCount} = useContext(ChatContext);
+  const peopleLabel = useString('people')();
   return isMobileView ? (
     <Text>
-      People {'\n'} ({numFormatter(onlineUsersCount)})
+      {peopleLabel} {'\n'} ({numFormatter(onlineUsersCount)})
     </Text>
   ) : (
     <>
@@ -118,10 +119,8 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   //commented for v1 release
-  //const participantsLabel = useString('participantsLabel')();
   const {waitingRoomUids} = useWaitingRoomContext();
-  //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
-  const participantsLabel = `People`;
+  const participantsLabel = useString('people')();
   const isPanelActive = sidePanel === SidePanelType.Participants;
   const {
     data: {isHost},
@@ -245,8 +244,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {setChatType, setPrivateChatUser} = useChatUIControls();
 
   //commented for v1 release
-  //const chatLabel = useString('chatLabel')();
-  const chatLabel = 'Chat';
+  const chatLabel = useString('chat')();
+
   const isPanelActive = sidePanel === SidePanelType.Chat;
 
   //when chat panel is close then we need to show the toast notification. for that

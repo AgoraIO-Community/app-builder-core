@@ -49,7 +49,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     useScreenshare();
   const {setShowStartScreenSharePopup} = useVideoCall();
   //commented for v1 release
-  //const screenShareButton = useString('screenShareButton')();
+  const screenShareButtonLabel = useString<boolean>('screenShareButton');
 
   const onPress = () => {
     if (isScreenshareActive) {
@@ -65,7 +65,6 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     }
   };
 
-  const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Share';
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
@@ -75,7 +74,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     },
     onPress,
     btnTextProps: {
-      text: showLabel ? screenShareButton : '',
+      text: showLabel ? screenShareButtonLabel(isScreenshareActive) : '',
       textColor: $config.FONT_COLOR,
     },
   };

@@ -5,3 +5,4 @@ export type {
   ContentStateInterface,
   UidType,
 } from '../agora-rn-uikit';
+export {I18nDeviceStatus} from '../src/language/default-labels/videoCallScreenLabels';

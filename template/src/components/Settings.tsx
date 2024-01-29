@@ -28,8 +28,8 @@ const Settings = (props: SettingsIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
   //commented for v1 release
-  //const settingsLabel = useString('settingsLabel')();
-  const settingsLabel = 'Settings';
+  const settingsLabel = useString('settings')();
+
   const isPanelActive = sidePanel === SidePanelType.Settings;
   const onPress = () => {
     isPanelActive
