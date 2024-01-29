@@ -1,4 +1,4 @@
-import {I18nBaseType} from '../i18nTypes';
+import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
 interface NetworkQualityStatusInterface {
   unknown?: 'Unknown';
   excellent?: 'Excellent';
@@ -26,13 +26,25 @@ export interface MeetingInviteInterface {
     attendee?: string;
   };
 }
+
+export enum I18nDeviceStatus {
+  PERMISSION_DENIED = -1,
+  OFF = 0,
+  ON = 1,
+}
+
 export interface I18nVideoCallScreenLabelsInterface {
-  //commented for v1 release
-  // toggleVideoButton?: I18nBaseType; //
-  // toggleAudioButton?: I18nBaseType; //
-  // screenShareButton?: I18nBaseType; //
-  // recordingNotificationLabel?: I18nConditionalType;
-  // endCallButton?: I18nBaseType; //
+  people?: I18nBaseType;
+  chat?: I18nBaseType;
+  layout?: I18nBaseType;
+  invite?: I18nBaseType;
+  videoButton?: I18nBaseType<I18nDeviceStatus>;
+  micButton?: I18nBaseType<I18nDeviceStatus>;
+  moreButton?: I18nBaseType;
+  screenShareButton?: I18nConditionalType; //
+  recordingButton?: I18nConditionalType;
+  leaveButton?: I18nBaseType; //
+  //recordingNotificationLabel?: I18nConditionalType;
   // participantsLabel?: I18nBaseType; //
   // groupChatLabel?: I18nBaseType; //
   // privateChatLabel?: I18nBaseType; //
@@ -83,12 +95,42 @@ export interface I18nVideoCallScreenLabelsInterface {
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
+  people: 'People',
+  chat: 'Chat',
+  layout: 'Layout',
+  invite: 'Invite',
+  videoButton: deviceStatus => {
+    switch (deviceStatus) {
+      case I18nDeviceStatus.ON:
+        return 'Video On';
+      case I18nDeviceStatus.OFF:
+        return 'Video Off';
+      case I18nDeviceStatus.PERMISSION_DENIED:
+        return 'Video';
+      default:
+        return 'Video';
+    }
+  },
+  micButton: deviceStatus => {
+    switch (deviceStatus) {
+      case I18nDeviceStatus.ON:
+        return 'Mic On';
+      case I18nDeviceStatus.OFF:
+        return 'Mic Off';
+      case I18nDeviceStatus.PERMISSION_DENIED:
+        return 'Mic';
+      default:
+        return 'Mic';
+    }
+  },
+  moreButton: 'More',
+  screenShareButton: active => (active ? 'Stop Share' : 'Share'),
+  recordingButton: active => (active ? 'Stop Rec' : 'Record'),
+  leaveButton: 'Leave',
+
   //need to check
   //remoteScreenshareDefaultLabel - User's screenshare
   //commented for v1 release
-  // toggleVideoButton: 'Video',
-  // toggleAudioButton: 'Audio',
-  // screenShareButton: 'Share',
   // switchCameraButton: 'Switch',
   // recordingLabel: 'Recording',
   // recordingNotificationLabel: (active) =>

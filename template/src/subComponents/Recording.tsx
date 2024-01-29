@@ -16,6 +16,7 @@ import {useVideoCall} from '../components/useVideoCall';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {useString} from '../utils/useString';
 
 export interface RecordingButtonProps {
   showLabel?: boolean;
@@ -25,10 +26,7 @@ export interface RecordingButtonProps {
 const Recording = (props: RecordingButtonProps) => {
   const {isToolbarMenuItem} = useToolbarMenu();
   const {startRecording, inProgress, isRecordingActive} = useRecording();
-  //commented for v1 release
-  //const recordingButton = useString<boolean>('recordingButton');
-  const recordingButton = (recording: boolean) =>
-    recording ? 'Stop Rec' : 'Record';
+  const recordingButton = useString<boolean>('recordingButton');
   const {isOnActionSheet, showLabel} = useActionSheet();
   const {setShowStopRecordingPopup} = useVideoCall();
   const onPress = () => {

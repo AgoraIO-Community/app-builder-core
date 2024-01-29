@@ -15,6 +15,7 @@ import {useActionSheet} from '../utils/useActionSheet';
 import RTMEngine from '../rtm/RTMEngine';
 import {useAuth} from '../../src/auth/AuthProvider';
 import {ENABLE_AUTH} from '../../src/auth/config';
+import {useString} from '../../src/utils/useString';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -34,10 +35,8 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const {isToolbarMenuItem} = useToolbarMenu();
   const {dispatch} = useContext(DispatchContext);
   const {isOnActionSheet, showLabel} = useActionSheet();
-  //commented for v1 release
-  //const endCallLabel = useString('endCallButton')();
+  const endCallLabel = useString('leaveButton')();
   const {defaultContent} = useContent();
-  const endCallLabel = 'Leave';
   const [endcallVisible, setEndcallVisible] = useState(false);
   const {stop} = useSTTAPI();
   const {isSTTActive} = useCaption();
