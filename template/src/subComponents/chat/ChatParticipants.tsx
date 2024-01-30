@@ -52,6 +52,8 @@ const ChatParticipants = (props: any) => {
     }
   }, [waitingRoomUids, activeUids]);
 
+  const noOneElseJoinedYet = useString('noOneElseJoinedYet')();
+
   return (
     <ScrollView>
       {
@@ -60,9 +62,7 @@ const ChatParticipants = (props: any) => {
         //livestreaming vertical
         ($config.EVENT_MODE && hostUids.length + audienceUids.length === 1) ? (
           <View style={style.defaultMessageContainer}>
-            <Text style={style.defaultMessageText}>
-              No one else has joined yet.
-            </Text>
+            <Text style={style.defaultMessageText}>{noOneElseJoinedYet}</Text>
           </View>
         ) : (
           <></>
