@@ -32,9 +32,8 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     iconContainerStyle = {},
   } = props;
 
-  //commented for v1 release
-  //const switchCameraButtonText = useString('switchCameraButton')();
-  const switchCameraButtonText = 'Switch Camera';
+  const switchCameraText = useString('switchCameraButton')();
+
   const {rtcProps} = useContext(PropsContext);
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
@@ -66,7 +65,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     disabled: disabled,
     onPress: onPress,
     btnTextProps: {
-      text: showTitle ? `Switch\nCamera` : '',
+      text: showTitle ? switchCameraText?.replace(' ', '\n') : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,

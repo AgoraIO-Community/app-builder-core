@@ -36,16 +36,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {activeUids} = useContent();
   const {isOnActionSheet, showLabel} = useActionSheet();
 
-  //commented for v1 release
-  //const handStatusText = useString<boolean>('raiseHandButton');
-  const handStatusText = (toggle: boolean) =>
-    toggle
-      ? isOnActionSheet
-        ? 'Lower\nHand'
-        : 'Lower hand'
-      : isOnActionSheet
-      ? 'Raise\nHand'
-      : 'Raise hand';
+  const handStatusText = useString<boolean>('raiseHandButton');
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   const iconButtonProps: IconButtonProps = {
     iconProps: {
@@ -59,7 +50,12 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
       base64: isMobileUA() ? true : false,
     },
     btnTextProps: {
-      text: showLabel ? handStatusText(isHandRasied) : '',
+      text: showLabel
+        ? handStatusText(isHandRasied)?.replace(
+            ' ',
+            isOnActionSheet ? '\n' : ' ',
+          )
+        : '',
       textColor: $config.FONT_COLOR,
       numberOfLines: 2,
     },

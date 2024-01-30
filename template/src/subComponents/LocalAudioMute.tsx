@@ -62,6 +62,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
 
   const micButtonLabel = useString<I18nDeviceStatus>('micButton');
+  const micButtonTooltip = useString<I18nDeviceStatus>('micButtonTooltip');
 
   const {
     rtcProps: {callActive},
@@ -150,10 +151,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
-        ? 'Give Permissions'
+        ? micButtonTooltip(I18nDeviceStatus.PERMISSION_DENIED)
         : isAudioEnabled
-        ? 'Disable Mic'
-        : 'Enable Mic'
+        ? micButtonTooltip(I18nDeviceStatus.ON)
+        : micButtonTooltip(I18nDeviceStatus.OFF)
       : '';
     if (
       //precall mobile/mobile web UI - mute button should not show the label

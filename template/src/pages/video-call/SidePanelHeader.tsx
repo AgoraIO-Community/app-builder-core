@@ -85,8 +85,8 @@ export const ChatHeader = () => {
   } = useChatNotification();
 
   const {setSidePanel} = useSidePanel();
-  const groupChatLabel = 'Group';
-  const privateChatLabel = 'Private';
+  const groupChatLabel = useString('group')();
+  const privateChatLabel = useString('private')();
 
   const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 

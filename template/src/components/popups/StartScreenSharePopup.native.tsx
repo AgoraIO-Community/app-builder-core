@@ -11,6 +11,7 @@ import {useVideoCall} from '../useVideoCall';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import Toggle from '../../atoms/Toggle';
 import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
+import {useString} from 'src/utils/useString';
 
 const StartScreenSharePopup = () => {
   const {showStartScreenSharePopup, setShowStartScreenSharePopup} =
@@ -18,14 +19,19 @@ const StartScreenSharePopup = () => {
   const {video} = useLocalUserInfo();
   const {startUserScreenshare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
-  const screenshareLabelHeading = 'Screen Share';
-  const screenshareLabelSubHeadingCamOff =
-    'NOTE: All incoming videos will be turned OFF for an optimised performance, do you wish to proceed?';
-  const screenshareLabelSubHeadingCamOn =
-    'NOTE: Camera and all incoming videos will be turned OFF for an optimised performance, do you wish to proceed?';
+  const cancelLabel = useString('cancel')();
+  const proceedLabel = useString('nativeScreensharePopupActionButton')();
+  const includeDeviceAudio = useString('includeDeviceAudio')();
+  const screenshareLabelHeading = useString('nativeScreensharePopupHeading')();
+  const screenshareLabelSubHeadingCamOff = useString(
+    'nativeScreensharePopupSubHeadingLocalCamOff',
+  )();
+  const screenshareLabelSubHeadingCamOn = useString(
+    'nativeScreensharePopupSubHeadingLocalCamOn',
+  )();
 
-  const cancelBtnLabel = 'CANCEL';
-  const startShareShareBtnLabel = 'PROCEED';
+  const cancelBtnLabel = cancelLabel;
+  const startShareShareBtnLabel = proceedLabel;
 
   const doStartScreenShare = () => {
     if (!isScreenshareActive) {
@@ -46,7 +52,7 @@ const StartScreenSharePopup = () => {
       <View style={[styles.toggleContainer, styles.lower, styles.upper]}>
         <View style={styles.infoContainer}>
           <Text numberOfLines={1} style={styles.toggleLabel}>
-            Include device audio
+            {includeDeviceAudio}
           </Text>
         </View>
         <View style={styles.infoToggleContainer}>

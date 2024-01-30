@@ -13,6 +13,7 @@ import Toggle from '../../atoms/Toggle';
 import useMuteToggleLocal, {
   MUTE_LOCAL_TYPE,
 } from '../../utils/useMuteToggleLocal';
+import {useString} from '../../utils/useString';
 
 const StopScreenSharePopup = () => {
   const {showStopScreenSharePopup, setShowStopScreenSharePopup} =
@@ -20,12 +21,13 @@ const StopScreenSharePopup = () => {
   const {stopUserScreenShare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
   const localMute = useMuteToggleLocal();
-  const screenshareLabelHeading = 'Stop Screen Share?';
-  const screenshareLabelSubHeading =
-    'You need to stop sharing your screen in order to turn the camera ON';
+  const screenshareLabelHeading = useString('stopScreenSharePopupHeading')();
+  const screenshareLabelSubHeading = useString(
+    'stopScreenSharePopupSubHeading',
+  )();
 
-  const cancelBtnLabel = 'CANCEL';
-  const startShareShareBtnLabel = 'STOP SHARE & TURN CAMERA ON';
+  const cancelBtnLabel = useString('cancel')();
+  const startShareShareBtnLabel = useString('stopScreenSharingActionButton')();
 
   const doStopScreenShare = () => {
     if (isScreenshareActive) {
