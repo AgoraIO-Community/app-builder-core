@@ -8,17 +8,17 @@ import ThemeConfig from '../../theme';
 import {useIsDesktop} from '../../utils/common';
 import {useRecording} from 'customization-api';
 import {useVideoCall} from '../useVideoCall';
+import {useString} from '../../utils/useString';
 
 const StopRecordingPopup = () => {
   const {showStopRecordingPopup, setShowStopRecordingPopup} = useVideoCall();
   const {stopRecording, isRecordingActive} = useRecording();
   const isDesktop = useIsDesktop()('popup');
-  const recordingLabelHeading = 'Stop Recording?';
-  const recordingLabelSubHeading =
-    'Are you sure you want to stop recording? You can’t undo this action.';
+  const recordingLabelHeading = useString('stopRecordingPopupHeading')();
+  const recordingLabelSubHeading = useString('stopRecordingPopupSubHeading')();
 
-  const cancelBtnLabel = 'CANCEL';
-  const stopRecordingBtnLabel = 'END RECORDING';
+  const cancelBtnLabel = useString('cancel')();
+  const stopRecordingBtnLabel = useString('stopRecordingActionButton')();
 
   const doStopRecording = () => {
     if (isRecordingActive) {

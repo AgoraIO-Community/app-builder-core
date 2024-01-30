@@ -8,9 +8,12 @@ export interface I18nCommonLabelsInterface {
   // microsoftAuthButton?: I18nBaseType; //
   // slackAuthButton?: I18nBaseType; //
   // appleAuthButton?: I18nBaseType; //
+  cancel?: I18nBaseType;
 }
 
 export const CommonLabels: I18nCommonLabelsInterface = {
+  cancel: 'CANCEL',
+
   //commented for v1 release
   // goBackButton: 'Go back',
   // logoutButton: 'Logout',

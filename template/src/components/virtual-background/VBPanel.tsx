@@ -65,6 +65,8 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const fallbackText = useString<boolean>('virtualBackgroundCameraInfo');
 
   const vbLabel = useString('virtualBackground')();
+  const applyLabel = useString('apply')();
+  const appliedLabel = useString('applied')();
 
   const PreCallVBHeader = () => (
     <Text
@@ -186,7 +188,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
               onPress={() => {
                 setSaveVB(true);
               }}
-              text={saveVB ? 'Applied' : 'Apply'}
+              text={saveVB ? appliedLabel : applyLabel}
             />
           </View>
         </View>

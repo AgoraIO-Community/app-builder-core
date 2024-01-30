@@ -20,6 +20,7 @@ import {
 import {I18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../src/atoms/CustomIcon';
 import {ToolbarCustomItem} from './sub-components';
+import {TextDataInterface} from '../src/language/default-labels';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -52,6 +53,7 @@ export type LayoutComponent = React.ComponentType<{
 export interface LayoutItem {
   name: string;
   label: string;
+  translationKey?: keyof TextDataInterface;
   icon: string;
   component: LayoutComponent;
 }

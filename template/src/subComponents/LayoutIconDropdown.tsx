@@ -9,6 +9,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useContent} from 'customization-api';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import {useString} from '../utils/useString';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -40,6 +41,9 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();
   const isMobileView = isMobileUA();
+
+  const gridLabel = useString('grid')();
+  const sidebarLabel = useString('sidebar')();
 
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
@@ -91,7 +95,12 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             marginTop: 0,
           },
           //text: $config.ICON_TEXT ? item.label : '',
-          text: item.label,
+          text:
+            item?.translationKey === 'grid'
+              ? gridLabel
+              : item?.translationKey === 'sidebar'
+              ? sidebarLabel
+              : item.label,
           textColor: $config.FONT_COLOR,
         },
       };

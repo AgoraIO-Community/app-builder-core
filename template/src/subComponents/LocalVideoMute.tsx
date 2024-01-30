@@ -69,6 +69,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   } = useContext(PropsContext);
 
   const videoButtonLabel = useString<I18nDeviceStatus>('videoButton');
+  const videoButtonTooltip = useString<I18nDeviceStatus>('videoButtonTooltip');
 
   const onPress = () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
@@ -162,10 +163,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
-        ? 'Give Permissions'
+        ? videoButtonTooltip(I18nDeviceStatus.PERMISSION_DENIED)
         : isVideoEnabled
-        ? 'Disable Camera'
-        : 'Enable Camera'
+        ? videoButtonTooltip(I18nDeviceStatus.ON)
+        : videoButtonTooltip(I18nDeviceStatus.OFF)
       : '';
     if (
       //precall mobile/mobile web UI - mute button should not show the label

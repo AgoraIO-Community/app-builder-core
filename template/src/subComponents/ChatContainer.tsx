@@ -57,6 +57,8 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const info1 = useString('groupChatWelcomeInfo')();
+  const info2 = useString('groupChatWelcomeSubInfo')();
   const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
@@ -202,9 +204,7 @@ const ChatContainer = (props?: {
           <>
             <View style={style.defaultMessageContainer}>
               <Text style={style.defaultMessageText}>
-                {!messageStore?.length
-                  ? `Welcome to Chat! \nAll messages are deleted when call ends.`
-                  : 'All messages are deleted when call ends.'}
+                {!messageStore?.length ? `${info1}\n${info2}` : info2}
               </Text>
             </View>
             {messageStore.map((message: any, index) => (

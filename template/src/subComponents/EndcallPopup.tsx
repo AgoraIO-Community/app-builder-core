@@ -1,4 +1,4 @@
-import React, {SetStateAction, useContext} from 'react';
+import React, {SetStateAction, useContext, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../atoms/Spacer';
 import Popup from '../atoms/Popup';
@@ -9,6 +9,7 @@ import {useIsDesktop} from '../utils/common';
 import DownloadTranscriptBtn from './caption/DownloadTranscriptBtn';
 import ImageIcon from '../atoms/ImageIcon';
 import {useCaption} from './caption/useCaption';
+import {useString} from '../utils/useString';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -41,15 +42,20 @@ const DownloadTranscript = () => {
 
 const EndcallPopup = (props: EndcallPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const leaveMeetingLabelHeading = 'Leave Room?';
-  const leaveMeetingLabelSubHeading =
-    'Are you sure you want to leave this meeting?';
-  const leaveMeetingSubHeading1 = `Sure you want to leave? You haven't downloaded your transcripts yet.`;
+  const leaveMeetingLabelHeading = useString('leaveMeetingPopupHeading')();
+  const leaveMeetingLabelSubHeading = useString(
+    'leaveMeetingPopupSubHeading',
+  )();
+  const leaveMeetingSubHeading1 = useString('leaveMeetingPopupSubHeading')();
+  const leaveMeetingPopupActionButton = useString(
+    'leaveMeetingPopupActionButton',
+  )();
+  const cancelLabel = useString('cancel')();
   const {isSTTActive} = useCaption();
   const isTranscriptAvailable = $config.ENABLE_STT && isSTTActive;
 
-  const stayBtnLabel = 'CANCEL';
-  const leaveBtnLabel = 'LEAVE';
+  const stayBtnLabel = cancelLabel;
+  const leaveBtnLabel = leaveMeetingPopupActionButton;
   return (
     <Popup
       modalVisible={props.modalVisible}

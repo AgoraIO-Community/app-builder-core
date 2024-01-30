@@ -40,16 +40,29 @@ export interface I18nVideoCallScreenLabelsInterface {
   invite?: I18nBaseType;
   videoButton?: I18nBaseType<I18nDeviceStatus>;
   micButton?: I18nBaseType<I18nDeviceStatus>;
+  videoButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
+  micButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
   moreButton?: I18nBaseType;
+  noiseCancellation?: I18nBaseType;
+  startWhiteboard?: I18nBaseType;
+  hideWhiteboard?: I18nBaseType;
+  showWhiteboard?: I18nBaseType;
+  hideCaption?: I18nBaseType;
+  showCaption?: I18nBaseType;
+  hideTranscript?: I18nBaseType;
+  showTranscript?: I18nBaseType;
   screenShareButton?: I18nConditionalType; //
+  raiseHandButton?: I18nConditionalType; //
   recordingButton?: I18nConditionalType;
   leaveButton?: I18nBaseType; //
+  switchCameraButton?: I18nBaseType;
   nameCantbeChangedInfo?: I18nBaseType;
   noOneElseJoinedYet?: I18nBaseType;
   noOneElseJoinedYetInviteOthers?: I18nBaseType;
   inviteOthersButton?: I18nBaseType;
   copyInvitationButton?: I18nBaseType;
   welcome?: I18nBaseType;
+  invitePopupHeading?: I18nBaseType;
   //recordingNotificationLabel?: I18nConditionalType;
   // participantsLabel?: I18nBaseType; //
   // groupChatLabel?: I18nBaseType; //
@@ -98,6 +111,37 @@ export interface I18nVideoCallScreenLabelsInterface {
   // chatLabel?: I18nBaseType;
   // settingsLabel?: I18nBaseType;
   // layoutLabel?: I18nBaseType;
+
+  apply?: I18nBaseType;
+  applied?: I18nBaseType;
+  grid?: I18nBaseType;
+  sidebar?: I18nBaseType;
+  nativeScreensharePopupActionButton?: I18nBaseType;
+  nativeScreensharePopupHeading?: I18nBaseType;
+  nativeScreensharePopupSubHeadingLocalCamOn?: I18nBaseType;
+  nativeScreensharePopupSubHeadingLocalCamOff?: I18nBaseType;
+  includeDeviceAudio?: I18nBaseType;
+  stopRecordingPopupHeading?: I18nBaseType;
+  stopRecordingPopupSubHeading?: I18nBaseType;
+  stopRecordingActionButton?: I18nBaseType;
+  stopScreenSharePopupHeading?: I18nBaseType;
+  stopScreenSharePopupSubHeading?: I18nBaseType;
+  stopScreenSharingActionButton?: I18nBaseType;
+  clearAllWhiteboardPopupHeading?: I18nBaseType;
+  clearAllWhiteboardPopupSubHeading?: I18nBaseType;
+  clearAllWhiteboardActionButton?: I18nBaseType;
+  leaveMeetingPopupHeading?: I18nBaseType;
+  leaveMeetingPopupSubHeading?: I18nBaseType;
+  leaveMeetingPopupSubHeadingWithTranscript?: I18nBaseType;
+  leaveMeetingPopupActionButton?: I18nBaseType;
+
+  group?: I18nBaseType;
+  private?: I18nBaseType;
+
+  groupChatWelcomeInfo?: I18nBaseType;
+  groupChatWelcomeSubInfo?: I18nBaseType;
+  groupChatInputPlaceHolder?: I18nBaseType;
+  privateChatInputPlaceHolder?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -129,9 +173,46 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
         return 'Mic';
     }
   },
+  videoButtonTooltip: deviceStatus => {
+    switch (deviceStatus) {
+      case I18nDeviceStatus.ON:
+        return 'Disable Camera';
+      case I18nDeviceStatus.OFF:
+        return 'Enable Camera';
+      case I18nDeviceStatus.PERMISSION_DENIED:
+        return 'Give Permissions';
+      default:
+        return 'Video';
+    }
+  },
+  micButtonTooltip: deviceStatus => {
+    switch (deviceStatus) {
+      case I18nDeviceStatus.ON:
+        return 'Disable Mic';
+      case I18nDeviceStatus.OFF:
+        return 'Enable Mic';
+      case I18nDeviceStatus.PERMISSION_DENIED:
+        return 'Give Permissions';
+      default:
+        return 'Mic';
+    }
+  },
   moreButton: 'More',
+
+  noiseCancellation: 'Noise Cancellation',
+  startWhiteboard: 'Start Whiteboard',
+  hideWhiteboard: 'Hide Whiteboard',
+  showWhiteboard: 'Show Whiteboard',
+  hideTranscript: 'Hide Transcript',
+  showTranscript: 'Show Transcript',
+  showCaption: 'Show Caption',
+  hideCaption: 'Hide Caption',
+  switchCameraButton: 'Switch Camera',
+  raiseHandButton: active => (active ? 'Lower Hand' : 'Raise Hand'),
+
   screenShareButton: active => (active ? 'Stop Share' : 'Share'),
   recordingButton: active => (active ? 'Stop Rec' : 'Record'),
+
   leaveButton: 'Leave',
 
   nameCantbeChangedInfo: `Name can't be changed while whiteboard is active`,
@@ -141,6 +222,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   inviteOthersButton: 'INVITE OTHERS',
   copyInvitationButton: 'COPY INVITATION',
   welcome: 'Welcome',
+  invitePopupHeading: 'Invite others to join this room',
   //need to check
   //remoteScreenshareDefaultLabel - User's screenshare
   //commented for v1 release
@@ -258,4 +340,39 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     }
     return inviteContent;
   },
+  applied: 'Applied',
+  apply: 'Apply',
+  grid: 'Grid',
+  sidebar: 'Sidebar',
+  nativeScreensharePopupActionButton: 'PROCEED',
+  nativeScreensharePopupHeading: 'Screen Share',
+  nativeScreensharePopupSubHeadingLocalCamOff:
+    'NOTE: All incoming videos will be turned OFF for an optimised performance, do you wish to proceed?',
+  nativeScreensharePopupSubHeadingLocalCamOn:
+    'NOTE: Camera and all incoming videos will be turned OFF for an optimised performance, do you wish to proceed?',
+  includeDeviceAudio: 'Include device audio',
+  stopRecordingPopupHeading: 'Stop Recording?',
+  stopRecordingPopupSubHeading:
+    'Are you sure you want to stop recording? You can’t undo this action.',
+  stopRecordingActionButton: 'END RECORDING',
+  stopScreenSharePopupHeading: 'Stop Screen Share?',
+  stopScreenSharePopupSubHeading:
+    'You need to stop sharing your screen in order to turn the camera ON',
+  stopScreenSharingActionButton: 'STOP SHARE & TURN CAMERA ON',
+  clearAllWhiteboardPopupHeading: 'Clear Whiteborad?',
+  clearAllWhiteboardPopupSubHeading:
+    'Are you sure you want to clear the whiteboard?',
+  clearAllWhiteboardActionButton: 'CLEAR ALL',
+  leaveMeetingPopupHeading: 'Leave Room?',
+  leaveMeetingPopupSubHeading: 'Are you sure you want to leave this meeting?',
+  leaveMeetingPopupSubHeadingWithTranscript: `Sure you want to leave? You haven't downloaded your transcripts yet.`,
+  leaveMeetingPopupActionButton: 'LEAVE',
+
+  group: 'Group',
+  private: 'Private',
+
+  groupChatWelcomeInfo: 'Welcome to Chat!',
+  groupChatWelcomeSubInfo: 'All messages are deleted when call ends.',
+  groupChatInputPlaceHolder: name => `Chat publicy as ${name}...`,
+  privateChatInputPlaceHolder: name => `Private Message to ${name}`,
 };

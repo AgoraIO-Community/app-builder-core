@@ -9,6 +9,7 @@ const DefaultLayouts: LayoutItem[] = [
   {
     name: 'grid',
     label: 'Grid',
+    translationKey: 'grid',
     //iconName: 'grid',
     icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAACXBIWXMAACE4AAAhOAFFljFgAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFOSURBVHgB7drBTcNAEIXhWVeQEkwJVIDohA6gA2iBigIVhA6cEuhgGGNfd1+kZK1x9H/SyidbT0/ry+6YAQBwt9z9EOs91tFv4xTrZW8ZasHGWJP3Mc3fz56hiHBTPEbr5xzrsZTya0kzDLW3fNmCo/U1xnqzxBmG+nv2att4ssQZqr/Y/IPaRmJ7l6wZBkMTBQkUJFCQQEECBQkUJFCQQEECBQkUJFCQQEECBQkUJFCQ0Croy7bxY4kztAr6tm18WuIMrSPXQzxO1vlGIU46HyxxhuoOWq9Bnm25FunhvH7fMme4yHz94stt5C0cY32su2NXGQAAuDPOAFUzGANUIhwDVLW3nAGqfwxQiQwMUIkMnCgKFCRQkEBBAgUJFCRQkEBBAgUJFCRQkEBBAgUJFCRQkEBBAgNUIgMDVCIDA1QMUF2X4SLOABUAADv0Bxz9l6sMoGOZAAAAAElFTkSuQmCC',
     component: GridVideo,
@@ -16,6 +17,7 @@ const DefaultLayouts: LayoutItem[] = [
   {
     name: 'pinned',
     label: 'Sidebar',
+    translationKey: 'sidebar',
     //iconName: 'pinned',
     //for mobile view top pinned icon and desktop left pinned icon
     icon: isMobileView

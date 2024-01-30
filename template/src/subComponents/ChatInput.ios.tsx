@@ -78,10 +78,13 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
+  const groupChatInputPlaceHolder = useString('groupChatInputPlaceHolder');
+  const privateChatInputPlaceHolder = useString('privateChatInputPlaceHolder');
+
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
-      ? `Private Message to ${defaultContent[privateChatUser]?.name}`
-      : `Chat publicly as ${name}...`;
+      ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
+      : groupChatInputPlaceHolder(name);
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!privateChatUser) {

@@ -225,7 +225,20 @@ export const WhiteboardListener = () => {
 };
 
 const MoreButton = () => {
+  const noiseCancellationLabel = useString('noiseCancellation')();
+  const startWhiteboardLabel = useString('startWhiteboard')();
+  const hideWhiteboardLabel = useString('hideWhiteboard')();
+  const showWhiteboardLabel = useString('showWhiteboard')();
+  const hideCaptionLabel = useString('hideCaption')();
+  const showCaptionLabel = useString('showCaption')();
+  const hideTranscriptLabel = useString('hideTranscript')();
+  const showTranscriptLabel = useString('showTranscript')();
+  const settingsLabel = useString('settings')();
+  const screenShareButton = useString<boolean>('screenShareButton');
+  const recordingButton = useString<boolean>('recordingButton');
   const moreButtonLabel = useString('moreButton')();
+  const virtualBackgroundLabel = useString('virtualBackground')();
+  const chatLabel = useString('chat')();
   const inviteLabel = useString('invite')();
   const peopleLabel = useString('people')();
   const layoutLabel = useString('layout')();
@@ -283,7 +296,7 @@ const MoreButton = () => {
       icon: 'noise-cancellation',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Noise Cancellation',
+      title: noiseCancellationLabel,
       //isNoiseSupressionEnabled === ToggleState.enabled
       callback: () => {
         setActionMenuVisible(false);
@@ -312,7 +325,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
-      title: 'Virtual Background',
+      title: virtualBackgroundLabel,
       callback: () => {
         setActionMenuVisible(false);
         toggleVB();
@@ -413,10 +426,10 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: whiteboardActive
-        ? 'Hide Whiteboard'
+        ? hideWhiteboardLabel
         : whiteboardStartedFirst
-        ? 'Show Whiteboard'
-        : 'Start Whiteboard',
+        ? showWhiteboardLabel
+        : startWhiteboardLabel,
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
@@ -432,7 +445,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+      title: `${isCaptionON ? hideCaptionLabel : showCaptionLabel}`,
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
@@ -455,7 +468,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+      title: `${isTranscriptON ? hideTranscriptLabel : showTranscriptLabel}`,
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isTranscriptON ? 'transcript' : null;
@@ -492,7 +505,7 @@ const MoreButton = () => {
       icon: 'chat-nav',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Chat',
+      title: chatLabel,
       callback: () => {
         setActionMenuVisible(false);
         setChatType(ChatType.Group);
@@ -521,7 +534,7 @@ const MoreButton = () => {
           textColor: isScreenshareActive
             ? $config.SEMANTIC_ERROR
             : $config.FONT_COLOR,
-          title: isScreenshareActive ? 'Stop Share' : 'Share',
+          title: screenShareButton(isScreenshareActive),
           callback: () => {
             setActionMenuVisible(false);
             isScreenshareActive
@@ -541,7 +554,7 @@ const MoreButton = () => {
         textColor: isRecordingActive
           ? $config.SEMANTIC_ERROR
           : $config.FONT_COLOR,
-        title: isRecordingActive ? 'Stop Recording' : 'Record',
+        title: recordingButton(isRecordingActive),
         callback: () => {
           setActionMenuVisible(false);
           if (!isRecordingActive) {
@@ -600,7 +613,7 @@ const MoreButton = () => {
       icon: 'settings',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Settings',
+      title: settingsLabel,
       callback: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.Settings);
