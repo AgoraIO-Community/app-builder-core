@@ -28,8 +28,11 @@ export interface PreCallTextInputProps {
   isOnPrecall?: boolean;
 }
 const PreCallTextInput = (props?: PreCallTextInputProps) => {
-  const userNamePlaceholder = 'Enter Your Name';
-  const fetchingNamePlaceholder = 'Getting name...';
+  const placeHolder = useString('nameInputPlaceholder')();
+  const userNamePlaceholder = useString('enterYourName')();
+  const yourName = useString('yourName')();
+  const joiningAs = useString('joiningAs')();
+  const fetchingNamePlaceholder = useString('gettingName')();
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
@@ -43,8 +46,8 @@ const PreCallTextInput = (props?: PreCallTextInputProps) => {
           ? ''
           : isDesktop
           ? $config.EVENT_MODE
-            ? 'Your Name'
-            : 'Joining as'
+            ? yourName
+            : joiningAs
           : ''
       }
       labelStyle={
@@ -65,7 +68,7 @@ const PreCallTextInput = (props?: PreCallTextInputProps) => {
       placeholder={
         isJoinDataFetched
           ? $config.EVENT_MODE
-            ? 'Luke Skywalker'
+            ? placeHolder
             : userNamePlaceholder
           : fetchingNamePlaceholder
       }
