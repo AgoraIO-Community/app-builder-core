@@ -44,6 +44,12 @@ export interface I18nVideoCallScreenLabelsInterface {
   screenShareButton?: I18nConditionalType; //
   recordingButton?: I18nConditionalType;
   leaveButton?: I18nBaseType; //
+  nameCantbeChangedInfo?: I18nBaseType;
+  noOneElseJoinedYet?: I18nBaseType;
+  noOneElseJoinedYetInviteOthers?: I18nBaseType;
+  inviteOthersButton?: I18nBaseType;
+  copyInvitationButton?: I18nBaseType;
+  welcome?: I18nBaseType;
   //recordingNotificationLabel?: I18nConditionalType;
   // participantsLabel?: I18nBaseType; //
   // groupChatLabel?: I18nBaseType; //
@@ -128,6 +134,13 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   recordingButton: active => (active ? 'Stop Rec' : 'Record'),
   leaveButton: 'Leave',
 
+  nameCantbeChangedInfo: `Name can't be changed while whiteboard is active`,
+  noOneElseJoinedYet: 'No one else has joined yet.',
+  noOneElseJoinedYetInviteOthers: 'No one else has joined yet, invite others?',
+
+  inviteOthersButton: 'INVITE OTHERS',
+  copyInvitationButton: 'COPY INVITATION',
+  welcome: 'Welcome',
   //need to check
   //remoteScreenshareDefaultLabel - User's screenshare
   //commented for v1 release
