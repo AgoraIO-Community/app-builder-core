@@ -35,6 +35,12 @@ export interface I18nPrecallScreenLabelsInterface {
   blur?: I18nBaseType;
   custom?: I18nBaseType;
 
+  enterYourName?: I18nBaseType;
+  yourName?: I18nBaseType;
+  joiningAs?: I18nBaseType;
+  gettingName?: I18nBaseType;
+  nameInputPlaceholder?: I18nBaseType;
+
   joinRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
   waitingRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
 }
@@ -81,6 +87,12 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   none: 'None',
   blur: 'Blur',
   custom: 'Custom',
+
+  enterYourName: 'Enter Your Name',
+  yourName: 'Your Name',
+  joiningAs: 'Joining as',
+  gettingName: 'Getting name...',
+  nameInputPlaceholder: 'Luke Skywalker',
 
   joinRoomButton: ({ready, role}) =>
     ready
