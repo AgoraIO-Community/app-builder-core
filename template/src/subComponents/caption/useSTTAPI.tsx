@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useCaption} from './useCaption';
@@ -7,7 +7,7 @@ import {EventNames} from '../../rtm-events';
 import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
 import {capitalizeFirstLetter} from '../../utils/common';
-import {useLocalUid} from '../../../agora-rn-uikit';
+import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -32,27 +32,42 @@ const useSTTAPI = (): IuseSTTAPI => {
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
-  const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
+  const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/sttv2`;
+  const OLD_STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
   const username = useGetName();
   const localUid = useLocalUid();
+  const {rtcProps} = useContext(PropsContext);
 
   React.useEffect(() => {
     currentLangRef.current = language;
   }, [language]);
 
   const apiCall = async (method: string, lang: LanguageType[] = []) => {
-    const response = await fetch(`${STT_API_URL}/${method}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store.token ? `Bearer ${store.token}` : '',
+    const response = await fetch(
+      `${
+        method === 'stop' || !$config.ENCRYPTION_ENABLED
+          ? OLD_STT_API_URL
+          : STT_API_URL
+      }/${method}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+        },
+        body: JSON.stringify({
+          passphrase: roomId?.host || '',
+          lang:
+            method === 'stop' || !$config.ENCRYPTION_ENABLED
+              ? lang.join(',')
+              : lang,
+          dataStream_uid: 111111, // bot ID
+          encryption_mode: $config.ENCRYPTION_ENABLED
+            ? rtcProps.encryption.mode
+            : null,
+        }),
       },
-      body: JSON.stringify({
-        passphrase: roomId?.host || '',
-        lang: lang.join(','),
-        dataStream_uid: 111111, // bot ID
-      }),
-    });
+    );
     const res = await response.json();
     return res;
   };

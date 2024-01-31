@@ -97,6 +97,18 @@ enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.1.2.
+   */
+  AES256GCM = 6,
+  /**
+   * 8: 256-bit GCM encryption, GCM mode.
+   * @since v3.1.2.
+   * Compared to AES256GCM encryption mode, AES256GCM2 encryption mode is more secure and requires you to set the salt (encryptionKdfSalt).
+   */
+  AES256GCM2 = 8,
 }
 
 const VideoCall: React.FC = () => {
@@ -145,7 +157,7 @@ const VideoCall: React.FC = () => {
     profile: $config.PROFILE,
     dual: true,
     encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
+      ? {key: null, mode: RnEncryptionEnum.AES256GCM, screenKey: null}
       : false,
     role: ClientRole.Broadcaster,
     geoFencing: $config.GEO_FENCING,
@@ -253,7 +265,7 @@ const VideoCall: React.FC = () => {
         encryption: $config.ENCRYPTION_ENABLED
           ? {
               key: data.encryptionSecret,
-              mode: RnEncryptionEnum.AES128XTS,
+              mode: RnEncryptionEnum.AES256GCM,
               screenKey: data.encryptionSecret,
             }
           : false,
