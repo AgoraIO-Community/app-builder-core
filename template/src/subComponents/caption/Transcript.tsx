@@ -34,6 +34,7 @@ import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
+import {useString} from '../../../src/utils/useString';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -185,6 +186,8 @@ const Transcript = (props: TranscriptProps) => {
     }
   }, []);
 
+  const settingSpokenLanguageLabel = useString('settingSpokenLanguage')();
+
   return (
     <View
       // onLayout={handleLayout}
@@ -245,7 +248,7 @@ const Transcript = (props: TranscriptProps) => {
       {isLangChangeInProgress ? (
         <View style={{flex: 1}}>
           <Loading
-            text="Setting Spoken Language"
+            text={settingSpokenLanguageLabel}
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}

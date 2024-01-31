@@ -181,7 +181,7 @@ export const TranscriptHeader = props => {
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
 
-  const label = 'Meeting Transcript';
+  const label = useString('meetingTranscript')();
 
   return (
     <SidePanelHeader
@@ -231,12 +231,16 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     data: {isHost},
   } = useRoomInfo();
 
+  const downloadTranscriptLabel = useString('downloadTranscript')();
+  const changeSpokenLanguage = useString<boolean>(
+    'languageSelectionPopupHeading',
+  )(false);
   isHost &&
     actionMenuitems.push({
       icon: 'lang-select',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Change Spoken Language ',
+      title: changeSpokenLanguage + ' ',
       disabled: isLangChangeInProgress,
       callback: () => {
         setActionMenuVisible(false);
@@ -248,7 +252,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Download Transcript',
+    title: downloadTranscriptLabel,
     disabled: meetingTranscript.length === 0,
     callback: () => {
       downloadTranscript();

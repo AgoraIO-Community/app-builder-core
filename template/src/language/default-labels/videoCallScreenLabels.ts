@@ -152,6 +152,19 @@ export interface I18nVideoCallScreenLabelsInterface {
   noHostJoinedYet?: I18nBaseType;
   noAudienceJoinedYet?: I18nBaseType;
   noUsersJoinedYet?: I18nBaseType;
+
+  languageSelectionPopupHeading?: I18nConditionalType;
+  languageSelectionPopupSubHeading?: I18nBaseType;
+  languageSelectionPopupActionButton?: I18nBaseType;
+  languageSelectionPopupDropdownError?: I18nBaseType;
+  languageSelectionPopupDropdownInfo?: I18nBaseType;
+
+  meetingTranscript?: I18nBaseType;
+  download?: I18nBaseType;
+  downloadTranscript?: I18nBaseType;
+  settingSpokenLanguage?: I18nBaseType;
+  languageChangeInProgress?: I18nBaseType;
+  language?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -395,4 +408,21 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   noHostJoinedYet: 'No Host has joined yet.',
   noAudienceJoinedYet: 'No Audience has joined yet.',
   noUsersJoinedYet: 'No Users has joined yet',
+
+  languageSelectionPopupHeading: isFirstTimeOpened =>
+    isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
+  languageSelectionPopupSubHeading:
+    'What language(s) are being spoken by everyone in this meeting?',
+  languageSelectionPopupActionButton: 'CONFIRM',
+  languageSelectionPopupDropdownError:
+    'Choose at least one language to proceed',
+  languageSelectionPopupDropdownInfo:
+    'You can choose a maximum of two languages',
+
+  meetingTranscript: 'Meeting Transcript',
+  download: 'Download',
+  downloadTranscript: 'Download Transcript',
+  settingSpokenLanguage: 'Setting Spoken Language',
+  languageChangeInProgress: 'Language Change is in progress...',
+  language: 'Language',
 };

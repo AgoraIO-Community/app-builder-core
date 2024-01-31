@@ -11,6 +11,7 @@ import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
 import {LanguageType} from './utils';
+import {useString} from '../../utils/useString';
 
 interface LanguageSelectorPopup {
   modalVisible: boolean;
@@ -23,13 +24,13 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const {isFirstTimePopupOpen = false} = props;
   const [isOpen, setIsOpen] = React.useState(false);
   const isDesktop = useIsDesktop()('popup');
-  const heading = isFirstTimePopupOpen
-    ? 'Set Spoken Language'
-    : 'Change Spoken Language';
-  const subHeading = `What language(s) are being spoken by everyone in this meeting?`;
-  const cancelBtnLabel = 'CANCEL';
-  const ConfirmBtnLabel = 'CONFIRM';
-
+  const heading = useString<boolean>('languageSelectionPopupHeading');
+  const subHeading = useString('languageSelectionPopupSubHeading')();
+  const cancelBtnLabel = useString('cancel')();
+  const ConfirmBtnLabel = useString('languageSelectionPopupActionButton')();
+  const ddError = useString('languageSelectionPopupDropdownError')();
+  const ddInfo = useString('languageSelectionPopupDropdownInfo')();
+  const languageChangeInProgress = useString('languageChangeInProgress')();
   const {language, setLanguage, isLangChangeInProgress, isSTTActive} =
     useCaption();
 
@@ -47,12 +48,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       setModalVisible={props.setModalVisible}
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
-      title={heading}
+      title={heading(isFirstTimePopupOpen)}
       subtitle={subHeading}>
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
           <Loading
-            text="Language Change is in progress..."
+            text={languageChangeInProgress}
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
@@ -75,9 +76,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
           </View>
           <Spacer size={8} />
           <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
-            {selectedValues.length === 0
-              ? 'Choose at least one language to proceed'
-              : 'You can choose a maximum of two languages'}
+            {selectedValues.length === 0 ? ddError : ddInfo}
           </Text>
           <Spacer size={32} />
           <View

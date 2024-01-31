@@ -18,6 +18,8 @@ interface EndcallPopupProps {
 }
 
 const DownloadTranscript = () => {
+  const label = useString('meetingTranscript')();
+  const downloadLabel = useString('download')();
   return (
     <View style={[styles.btnDownloadContainer, styles.row]}>
       <View style={styles.row}>
@@ -28,13 +30,13 @@ const DownloadTranscript = () => {
           iconSize={20}
         />
         <Spacer size={4} horizontal />
-        <Text style={styles.label}>{'Meeting Transcript'}</Text>
+        <Text style={styles.label}>{label}</Text>
       </View>
       <DownloadTranscriptBtn
         textStyle={[styles.label, styles.downloadBtnText] as Object}
         containerStyle={styles.downloadBtn}
         iconName=""
-        text="Download"
+        text={downloadLabel}
       />
     </View>
   );
