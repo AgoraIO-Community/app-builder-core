@@ -26,12 +26,14 @@ import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import EmojiPicker from 'emoji-picker-react';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 export const ChatSendButton = (props: ChatSendButtonProps) => {
+  const {sendChatSDKMessage} = useChatConfigure();
   const {
     privateChatUser: selectedUserId,
     message,
@@ -45,6 +47,8 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
       setMessage && setMessage('');
     } else {
       sendChatMessage(message, selectedUserId);
+      //send to peer chatSDK
+      sendChatSDKMessage(selectedUserId, message);
       setMessage && setMessage('');
     }
   };
@@ -59,6 +63,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
             ? $config.PRIMARY_ACTION_BRAND_COLOR
             : $config.SEMANTIC_NEUTRAL
         }
+        base64={true}
         name={'send'}
       />
     </TouchableOpacity>
@@ -155,21 +160,18 @@ export const ChatInput = () => {
   return (
     <View
       style={[
-        style.inputView,
+        {flex: 1},
         showEmojiPicker
           ? {backgroundColor: 'transparent'}
           : {backgroundColor: $config.CARD_LAYER_2_COLOR},
         inputActive ? style.inputActiveView : {},
       ]}>
-      {showEmojiPicker ? (
-        <ChatEmojiPicker />
-      ) : (
-        <>
-          <ChatTextInput />
-          <ChatEmojiButton />
-          <ChatSendButton />
-        </>
-      )}
+      {showEmojiPicker && <ChatEmojiPicker />}
+      <View style={style.inputView}>
+        <ChatTextInput />
+        <ChatEmojiButton />
+        <ChatSendButton />
+      </View>
     </View>
   );
 };

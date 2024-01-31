@@ -91,7 +91,6 @@ interface ConfigInterface {
   CARD_LAYER_2_COLOR: string;
   CARD_LAYER_3_COLOR: string;
   CARD_LAYER_4_COLOR: string;
-  CARD_LAYER_5_COLOR: string;
   HARD_CODED_BLACK_COLOR: string;
   ICON_TEXT: boolean;
   ICON_BG_COLOR: string;

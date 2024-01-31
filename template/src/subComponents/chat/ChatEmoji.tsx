@@ -25,7 +25,7 @@ export const ChatEmojiPicker: React.FC = () => {
 
   const handleEmojiClick = (emojiObject: {emoji: string; names: string[]}) => {
     setMessage(prev => prev + emojiObject.emoji);
-    setShowEmojiPicker(false);
+    // setShowEmojiPicker(false);
   };
   return (
     <View style={styles.emojiContainer} testID={'emoji-container'}>
@@ -41,6 +41,7 @@ export const ChatEmojiPicker: React.FC = () => {
         suggestedEmojisMode={SuggestionMode.RECENT}
         className="chatEmojiPicker"
         lazyLoadEmojis={true}
+        previewConfig={{showPreview: false}}
       />
       <View
         style={{
