@@ -4,7 +4,8 @@ import {useCaption} from './useCaption';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import useTranscriptDownload from './useTranscriptDownload';
 import ThemeConfig from '../../../src/theme';
-import {IconsInterface} from 'src/atoms/CustomIcon';
+import {IconsInterface} from '../../../src/atoms/CustomIcon';
+import {useString} from '../../../src/utils/useString';
 
 interface DownloadTranscriptBtn {
   textStyle?: TextStyle;
@@ -14,11 +15,12 @@ interface DownloadTranscriptBtn {
 }
 
 const DownloadTranscriptBtn = (props: DownloadTranscriptBtn) => {
+  const downloadTranscriptLabel = useString('downloadTranscript')();
   const {
     textStyle = {},
     containerStyle = {},
     iconName = 'download',
-    text = 'Download Transcript',
+    text = downloadTranscriptLabel,
   } = props;
   const {isSTTActive} = useCaption();
   const {downloadTranscript} = useTranscriptDownload();

@@ -8,6 +8,7 @@ import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {useString} from '../../utils/useString';
 
 const Caption: React.FC = () => {
   const {RtcEngineUnsafe} = useRtc();
@@ -19,7 +20,7 @@ const Caption: React.FC = () => {
     activeSpeakerRef,
     prevSpeakerRef,
   } = useCaption();
-
+  const ssLabel = useString('settingSpokenLanguage')();
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
@@ -50,7 +51,7 @@ const Caption: React.FC = () => {
   if (isLangChangeInProgress)
     return (
       <Loading
-        text="Setting Spoken Language"
+        text={ssLabel}
         background="transparent"
         indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
         textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}

@@ -4,6 +4,7 @@ import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
+import {useString} from '../../utils/useString';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -29,7 +30,9 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const isDisabled = !isAuthorizedSTTUser();
-  const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
+  const hCapLabel = useString('hideCaption')();
+  const sCapLabel = useString('showCaption')();
+  const label = isCaptionON ? hCapLabel : sCapLabel;
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
       if (isSTTError) {
