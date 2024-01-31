@@ -89,7 +89,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   // recordingButton?: I18nConditionalType; //
   // screenshareUserName?: I18nDynamicType; //
   // messageSenderNotificationLabel?: I18nDynamicType; //
-  // networkQualityLabel?: I18nBaseType<NetworkQualities>; //
+  networkQualityLabel?: I18nBaseType<NetworkQualities>; //
   meetingInviteText?: I18nBaseType<MeetingInviteInterface>; //
   // participantListPlaceholder?: I18nBaseType; //
   // raisedHandsListPlaceholder?: I18nBaseType; //
@@ -319,26 +319,26 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   // recordingButton: (recording) => (recording ? 'Recording' : 'Record'),
   // raiseHandButton: (toggle) => (toggle ? 'Lower hand' : 'Raise Hand'),
   // messageSenderNotificationLabel: (name) => `From : ${name}`,
-  // networkQualityLabel: (quality) => {
-  //   switch (quality) {
-  //     case 'unknown':
-  //       return 'Unknown';
-  //     case 'excellent':
-  //       return 'Excellent';
-  //     case 'good':
-  //       return 'Good';
-  //     case 'bad':
-  //       return 'Bad';
-  //     case 'veryBad':
-  //       return 'Very Bad';
-  //     case 'unpublished':
-  //       return 'Unpublished';
-  //     case 'loading':
-  //       return 'Loading';
-  //     default:
-  //       return 'Loading';
-  //   }
-  // },
+  networkQualityLabel: (quality: NetworkQualities) => {
+    switch (quality) {
+      case 'unknown':
+        return 'Network Unsupported';
+      case 'excellent':
+        return 'Excellent Network';
+      case 'good':
+        return 'Good Network';
+      case 'bad':
+        return 'Bad Network';
+      case 'veryBad':
+        return 'Very Bad Network';
+      case 'unpublished':
+        return 'Network Unpublished';
+      case 'loading':
+        return 'Network Loading';
+      default:
+        return 'Loading';
+    }
+  },
   meetingInviteText: ({
     meetingName,
     id,
