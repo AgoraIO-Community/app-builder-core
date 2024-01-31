@@ -165,6 +165,24 @@ export interface I18nVideoCallScreenLabelsInterface {
   settingSpokenLanguage?: I18nBaseType;
   languageChangeInProgress?: I18nBaseType;
   language?: I18nBaseType;
+
+  whiteboardInitializing?: I18nBaseType;
+  viewWhiteboard?: I18nBaseType;
+  removeFromLarge?: I18nBaseType;
+  viewInLarge?: I18nBaseType;
+  pinToTop?: I18nBaseType;
+  removeFromTop?: I18nBaseType;
+  messagePrivately?: I18nBaseType;
+  muteAudio?: I18nBaseType;
+  requestAudio?: I18nBaseType;
+  muteVideo?: I18nBaseType;
+  requestVideo?: I18nBaseType;
+  addAsPresenter?: I18nBaseType;
+  removeAsPresenter?: I18nBaseType;
+  removeFromRoom?: I18nBaseType;
+  changeName?: I18nBaseType;
+  stopScreenShare?: I18nBaseType;
+  removeScreenShare?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -425,4 +443,22 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   settingSpokenLanguage: 'Setting Spoken Language',
   languageChangeInProgress: 'Language Change is in progress...',
   language: 'Language',
+
+  whiteboardInitializing: 'Whiteboard is initializing',
+  viewWhiteboard: 'View Whiteboard',
+  removeFromLarge: 'Remove from large',
+  viewInLarge: 'View in large',
+  pinToTop: 'Pin to top',
+  removeFromTop: 'Remove from top',
+  messagePrivately: 'Message Privately',
+  muteAudio: 'Mute Audio',
+  requestAudio: 'Request Audio',
+  muteVideo: 'Mute Video',
+  requestVideo: 'Request Video',
+  addAsPresenter: 'Add as Presenter',
+  removeAsPresenter: 'Remove as Presenter',
+  removeFromRoom: 'Remove from Room',
+  changeName: 'Change Name',
+  stopScreenShare: 'Stop Screenshare',
+  removeScreenShare: 'Remove Screenshare',
 };
