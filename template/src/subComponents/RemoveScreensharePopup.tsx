@@ -6,6 +6,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
+import {useString} from '../utils/useString';
 
 interface RemoveScreensharePopupProps {
   modalVisible: boolean;
@@ -15,11 +16,17 @@ interface RemoveScreensharePopupProps {
 }
 const RemoveScreensharePopup = (props: RemoveScreensharePopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const removeMeetingLabelHeading = 'Remove Screenshare?';
-  const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to screen share later.`;
+  const removeMeetingLabelHeading = useString(
+    'removeScreenshareFromMeetingPopupHeading',
+  )();
+  const removeMeetingLabelSubHeading = useString(
+    'removeScreenshareFromMeetingPopupSubHeading',
+  );
 
-  const cancelBtnLabel = 'CANCEL';
-  const removeBtnLabel = 'REMOVE';
+  const cancelBtnLabel = useString('cancel')();
+  const removeBtnLabel = useString(
+    'removeScreenshareFromMeetingPopupActionButton',
+  )();
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -28,7 +35,9 @@ const RemoveScreensharePopup = (props: RemoveScreensharePopupProps) => {
       contentContainerStyle={styles.contentContainer}>
       <Text style={styles.heading}>{removeMeetingLabelHeading}</Text>
       <Spacer size={8} />
-      <Text style={styles.subHeading}>{removeMeetingLabelSubHeading}</Text>
+      <Text style={styles.subHeading}>
+        {removeMeetingLabelSubHeading(props?.username)}
+      </Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
         <View style={isDesktop && {flex: 1}}>
