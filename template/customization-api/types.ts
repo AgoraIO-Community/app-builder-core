@@ -5,5 +5,12 @@ export type {
   ContentStateInterface,
   UidType,
 } from '../agora-rn-uikit';
-export {I18nDeviceStatus} from '../src/language/default-labels/videoCallScreenLabels';
-export type {NetworkQualities} from '../src/language/default-labels/videoCallScreenLabels';
+export {
+  I18nDeviceStatus,
+  I18nMuteType,
+} from '../src/language/default-labels/videoCallScreenLabels';
+export type {
+  NetworkQualities,
+  I18nRequestConfirmation,
+  I18nMuteConfirmation,
+} from '../src/language/default-labels/videoCallScreenLabels';
