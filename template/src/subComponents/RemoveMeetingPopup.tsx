@@ -6,6 +6,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
+import {useString} from '../utils/useString';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -15,20 +16,26 @@ interface RemoveMeetingPopupProps {
 }
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const removeMeetingLabelHeading = 'Remove ' + props.username + '?';
-  const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the room later.`;
+  const removeMeetingLabelHeading = useString('removeFromMeetingPopupHeading');
+  const removeMeetingLabelSubHeading = useString(
+    'removeFromMeetingPopupSubHeading',
+  );
 
-  const cancelBtnLabel = 'CANCEL';
-  const removeBtnLabel = 'REMOVE';
+  const cancelBtnLabel = useString('cancel')();
+  const removeBtnLabel = useString('removeFromMeetingPopupActionButton')();
   return (
     <Popup
       modalVisible={props.modalVisible}
       setModalVisible={props.setModalVisible}
       showCloseIcon={false}
       contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.heading}>{removeMeetingLabelHeading}</Text>
+      <Text style={styles.heading}>
+        {removeMeetingLabelHeading(props?.username)}
+      </Text>
       <Spacer size={8} />
-      <Text style={styles.subHeading}>{removeMeetingLabelSubHeading}</Text>
+      <Text style={styles.subHeading}>
+        {removeMeetingLabelSubHeading(props?.username)}
+      </Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
         <View style={isDesktop && {flex: 1}}>

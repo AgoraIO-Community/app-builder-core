@@ -183,6 +183,14 @@ export interface I18nVideoCallScreenLabelsInterface {
   changeName?: I18nBaseType;
   stopScreenShare?: I18nBaseType;
   removeScreenShare?: I18nBaseType;
+
+  removeFromMeetingPopupHeading?: I18nBaseType;
+  removeFromMeetingPopupSubHeading?: I18nBaseType;
+  removeFromMeetingPopupActionButton?: I18nBaseType;
+
+  removeScreenshareFromMeetingPopupHeading?: I18nBaseType;
+  removeScreenshareFromMeetingPopupSubHeading?: I18nBaseType;
+  removeScreenshareFromMeetingPopupActionButton?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -461,4 +469,14 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   changeName: 'Change Name',
   stopScreenShare: 'Stop Screenshare',
   removeScreenShare: 'Remove Screenshare',
+
+  removeFromMeetingPopupHeading: name => `Remove ${name}?`,
+  removeFromMeetingPopupSubHeading: name =>
+    `Once removed, ${name} will still be able to rejoin the room later.`,
+  removeFromMeetingPopupActionButton: 'REMOVE',
+
+  removeScreenshareFromMeetingPopupHeading: 'Remove Screenshare?',
+  removeScreenshareFromMeetingPopupSubHeading: name =>
+    `Once removed, ${name} will still be able to screen share later.`,
+  removeScreenshareFromMeetingPopupActionButton: 'REMOVE',
 };
