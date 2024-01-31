@@ -28,6 +28,7 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
+import {useString} from '../../utils/useString';
 
 enum ChatMessageActionEnum {
   Create = 'Create_Chat_Message',
@@ -82,13 +83,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {setSidePanel, sidePanel} = useSidePanel();
   const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
     useChatUIControls();
-  const {
-    setUnreadGroupMessageCount,
-    setUnreadIndividualMessageCount,
-    unreadPrivateMessageCount,
-    unreadIndividualMessageCount,
-    setUnreadPrivateMessageCount,
-  } = useChatNotification();
+  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
+    useChatNotification();
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [privateMessageStore, setPrivateMessageStore] = useState<{
     [key: string]: messageStoreInterface[];
@@ -102,10 +98,35 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
-  //commented for v1 release
-  //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string) => `${name} commented in the public chat`;
-  const privateMessageLabel = 'You’ve received a private message';
+  //public single
+  const fromText = useString('publicChatToastHeading');
+
+  //public multple
+  const multiplePublicChatToastHeading = useString(
+    'multiplePublicChatToastHeading',
+  )();
+  const multiplePublicChatToastSubHeading = useString<{
+    count: number;
+    from: string;
+  }>('multiplePublicChatToastSubHeading');
+
+  //private single
+  const privateMessageLabel = useString('privateChatToastHeading')();
+
+  //private multiple
+  const multiplePrivateChatToastHeading = useString<{count: number}>(
+    'multiplePrivateChatToastHeading',
+  );
+
+  //multiple private and public toast
+  const multiplePublicAndPrivateChatToastHeading = useString(
+    'multiplePublicAndPrivateChatToastHeading',
+  )();
+  const multiplePublicAndPrivateChatToastSubHeading = useString<{
+    publicChatCount: number;
+    privateChatCount: number;
+    from: string;
+  }>('multiplePublicAndPrivateChatToastSubHeading');
 
   useEffect(() => {
     callActiveRef.current.callActive = callActive;
@@ -231,12 +252,19 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           leadingIconName: 'chat-nav',
           text1:
             privateMessages && privateMessages.length
-              ? 'New comments in Public & Private Chat'
-              : 'New comments in Public Chat',
+              ? multiplePublicAndPrivateChatToastHeading
+              : multiplePublicChatToastHeading,
           text2:
             privateMessages && privateMessages.length
-              ? `You have ${publicMessages.length} new messages from ${fromNames} and ${privateMessages.length} Private chat`
-              : `You have ${publicMessages.length} new messages from ${fromNames}`,
+              ? multiplePublicAndPrivateChatToastSubHeading({
+                  publicChatCount: publicMessages.length,
+                  privateChatCount: privateMessages.length,
+                  from: fromNames,
+                })
+              : multiplePublicChatToastSubHeading({
+                  count: publicMessages.length,
+                  from: fromNames,
+                }),
           visibilityTime: 3000,
           onPress: () => {
             if (isPrivateMessage) {
@@ -260,7 +288,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           secondaryBtn: null,
           type: 'info',
           leadingIconName: 'chat-nav',
-          text1: `You’ve received ${privateMessages.length} private messages`,
+          text1: multiplePrivateChatToastHeading({
+            count: privateMessages.length,
+          }),
           text2: ``,
           visibilityTime: 3000,
           onPress: () => {

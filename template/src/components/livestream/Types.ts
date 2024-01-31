@@ -1,4 +1,5 @@
 // DECLARE ENUMS & CONTANTS
+import {TextDataInterface} from '../../language/default-labels';
 import {ClientRole} from '../../../agora-rn-uikit';
 
 export enum RaiseHandValue {
@@ -47,40 +48,42 @@ export enum LiveStreamControlMessageEnum {
   coHostJoined = 'CO_HOST_JOINED',
   coHostRemoved = 'CO_HOST_REMOVED',
 }
+interface LSNotificationObjectInterface {
+  [key: string]: {
+    //text1: string;
+    //text2: string | null;
 
-export const LSNotificationObject = {
+    text1TranslationKey: keyof TextDataInterface;
+    text2TranslationKey?: keyof TextDataInterface;
+  };
+}
+export const LSNotificationObject: LSNotificationObjectInterface = {
   [LiveStreamControlMessageEnum.raiseHandRequest]: {
-    text1: 'You’ve raised your hand.',
-    text2: 'Waiting for host to approve the request',
+    text1TranslationKey: 'raiseHandRequestToastHeading',
+    text2TranslationKey: 'raiseHandRequestToastSubHeading',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestReceived]: {
-    text1: 'has raised their hand to be a Presenter',
-    text2:
-      'Once approved they will be able to speak, share their video and present during this call.',
+    text1TranslationKey: 'raiseHandRequestReceivedToastHeading',
+    text2TranslationKey: 'raiseHandRequestReceivedToastSubHeading',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestAccepted]: {
-    text1: 'Host has approved your request.',
-    text2: 'You are now a Presenter',
+    text1TranslationKey: 'raiseHandRequestAcceptedToastHeading',
+    text2TranslationKey: 'raiseHandRequestAcceptedToastSubHeading',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRejected]: {
-    text1: 'Your request was rejected by the host',
-    text2: null,
+    text1TranslationKey: 'raiseHandRequestRejectedToastHeading',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRecall]: {
-    text1: 'has lowered their hand',
-    text2: null,
+    text1TranslationKey: 'raiseHandRequestRecallToastHeading',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRecallLocal]: {
-    text1: 'You’ve lowered your hand.',
-    text2: null,
+    text1TranslationKey: 'raiseHandRequestRecallLocalToastHeading',
   },
   [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]: {
-    text1: 'Host has revoked streaming permissions.',
-    text2: null,
+    text1TranslationKey: 'raiseHandApprovedRequestRecallToastHeading',
   },
   [LiveStreamControlMessageEnum.promoteAsCoHost]: {
-    text1: 'Host promoted you as a Presenter',
-    text2: null,
+    text1TranslationKey: 'promoteAsCoHostToastHeading',
   },
 };
 

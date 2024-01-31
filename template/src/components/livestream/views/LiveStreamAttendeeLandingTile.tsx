@@ -11,47 +11,51 @@ import {
 import {isMobileUA, useIsDesktop} from '../../../utils/common';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import ThemeConfig from '../../../theme';
+import {useString} from '../../../utils/useString';
+import {TextDataInterface} from '../../../language/default-labels';
 
 interface Feature {
   id: number;
   icon: keyof IconsInterface;
   tint: string;
-  title: string;
-  description: string;
+  titleTranslationKey: keyof TextDataInterface;
+  descriptionTranslationKey: keyof TextDataInterface;
 }
 const features: Feature[] = [
   {
     id: 1,
     icon: 'raise-hand',
     tint: $config.SEMANTIC_WARNING,
-    title: 'Raise Your hand',
-    description: `Let everyone know that you've something to say`,
+    titleTranslationKey: 'raiseYourHand',
+    descriptionTranslationKey: 'raiseYourHandInfo',
   },
   {
     id: 2,
     icon: 'chat-filled',
-    title: 'Chat with others',
+    titleTranslationKey: 'chatWithOthers',
     tint: $config.SEMANTIC_SUCCESS,
-    description: `Message fellow attendees or the hosts`,
+    descriptionTranslationKey: 'chatWithOthersInfo',
   },
   {
     id: 3,
     icon: 'screen-share',
-    title: 'Present Your screen',
+    titleTranslationKey: 'presentYourScreen',
     tint: $config.PRIMARY_ACTION_BRAND_COLOR,
-    description: `Be a presenter post the host’s approval`,
+    descriptionTranslationKey: 'presentYourScreenInfo',
   },
   {
     id: 4,
     icon: 'celebration',
-    title: 'Join in activities',
+    titleTranslationKey: 'joinWithActivites',
     tint: $config.SEMANTIC_ERROR,
-    description: `Jam with everyone on a whiteboard`,
+    descriptionTranslationKey: 'joinWithActivitesInfo',
   },
 ];
 function FeatureTile({feature}: {feature: Feature}) {
   const isDesktop = useIsDesktop();
   const isMobile = isMobileUA();
+  const title = useString(feature.titleTranslationKey)();
+  const desc = useString(feature.descriptionTranslationKey)();
   return (
     <View
       style={[
@@ -71,10 +75,10 @@ function FeatureTile({feature}: {feature: Feature}) {
         </View>
         <View style={style.cardHeaderContent}>
           <View>
-            <Text style={style.cardTitle}>{feature.title}</Text>
+            <Text style={style.cardTitle}>{title}</Text>
           </View>
           <View style={{flexShrink: 1, paddingTop: 2}}>
-            <Text style={style.cardDesc}>{feature.description}</Text>
+            <Text style={style.cardDesc}>{desc}</Text>
           </View>
         </View>
       </View>
@@ -85,22 +89,20 @@ function FeatureTile({feature}: {feature: Feature}) {
 export default function LiveStreamAttendeeLandingTile() {
   const isMobile = isMobileUA();
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
-
+  const inviteOtherAttendee = useString('inviteOtherAttendee')();
+  const whatYouCanDoHere = useString('whatYouCanDoHere')();
+  const waitingForHostToJoin = useString('waitingForHostToJoin')();
   return (
     <View style={style.tileBackdrop}>
       <ScrollView contentContainerStyle={{flexGrow: 1}}>
         <View style={style.tileContainer}>
           <View style={style.tile}>
             <View style={[style.tileSection, style.tileheader]}>
-              <Text style={style.tileHeading}>
-                Waiting for the host to join
-              </Text>
+              <Text style={style.tileHeading}>{waitingForHostToJoin}</Text>
             </View>
             <View style={[style.tileSection, style.tilebody]}>
               <View>
-                <Text style={style.tileSubheading}>
-                  Here's what you can do here :
-                </Text>
+                <Text style={style.tileSubheading}>{whatYouCanDoHere}</Text>
               </View>
               <View style={style.tileSectionGrid}>
                 {features.map(feature => (
@@ -113,7 +115,7 @@ export default function LiveStreamAttendeeLandingTile() {
                 {isMobile ? (
                   <>
                     <TertiaryButton
-                      text="INVITE OTHER ATTENDEES"
+                      text={inviteOtherAttendee}
                       containerStyle={{
                         width: '100%',
                         height: 48,
@@ -135,7 +137,7 @@ export default function LiveStreamAttendeeLandingTile() {
                   <>
                     <View>
                       <Text style={[style.cardTitle, {paddingBottom: 3}]}>
-                        Invite other attendees
+                        {inviteOtherAttendee?.toLowerCase()}
                       </Text>
                     </View>
                     <MeetingLink
