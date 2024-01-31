@@ -27,6 +27,20 @@ export interface MeetingInviteInterface {
   };
 }
 
+export enum I18nMuteType {
+  audio = 'audio',
+  video = 'video',
+}
+
+export interface I18nRequestConfirmation {
+  name: string;
+  type: I18nMuteType;
+}
+export interface I18nMuteConfirmation {
+  name: string;
+  type: I18nMuteType;
+}
+
 export enum I18nDeviceStatus {
   PERMISSION_DENIED = -1,
   OFF = 0,
@@ -191,6 +205,12 @@ export interface I18nVideoCallScreenLabelsInterface {
   removeScreenshareFromMeetingPopupHeading?: I18nBaseType;
   removeScreenshareFromMeetingPopupSubHeading?: I18nBaseType;
   removeScreenshareFromMeetingPopupActionButton?: I18nBaseType;
+
+  muteAllConfirmation?: I18nBaseType<I18nMuteType>;
+  requestConfirmation?: I18nBaseType<I18nRequestConfirmation>;
+  muteConfirmation?: I18nBaseType<I18nMuteConfirmation>;
+  muteButton?: I18nBaseType;
+  requestButton?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -479,4 +499,16 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   removeScreenshareFromMeetingPopupSubHeading: name =>
     `Once removed, ${name} will still be able to screen share later.`,
   removeScreenshareFromMeetingPopupActionButton: 'REMOVE',
+
+  muteAllConfirmation: (type: I18nMuteType) =>
+    `Mute everyone's ${type} on the call?`,
+  requestConfirmation: ({name, type}: I18nRequestConfirmation) =>
+    `Request ${name} to turn on their ${
+      type === I18nMuteType.audio ? 'microphone' : 'camera'
+    }?`,
+  muteConfirmation: ({name, type}: I18nMuteConfirmation) =>
+    `Mute ${name}'s ${type} for everyone on the call? Only ${name} can unmute themselves.`,
+
+  muteButton: 'Mute',
+  requestButton: 'Request',
 };
