@@ -11,7 +11,6 @@
 */
 import React, {useRef, useState} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import SecondaryButton from '../atoms/SecondaryButton';
 import {useString} from '../utils/useString';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import TertiaryButton from '../atoms/TertiaryButton';
@@ -28,9 +27,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   const audioBtnRef = useRef(null);
   const [modalPosition, setModalPosition] = useState({});
   const muteRemoteAudio = useRemoteMute();
-  //commented for v1 release
-  //const muteAllAudioButton = useString('muteAllAudioButton')();
-  const muteAllAudioButton = 'Mute all';
+  const muteAllAudioButton = useString('muteAllMicrophone')();
   const onPressAction = () => muteRemoteAudio(MUTE_REMOTE_TYPE.audio);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const showAudioModal = () => {
@@ -74,7 +71,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
         }}
       />
       <TertiaryButton
-        setRef={(ref) => (audioBtnRef.current = ref)}
+        setRef={ref => (audioBtnRef.current = ref)}
         onPress={onPress}
         text={muteAllAudioButton}
       />
@@ -91,9 +88,7 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const [modalPosition, setModalPosition] = useState({});
   const muteRemoteVideo = useRemoteMute();
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  //commented for v1 release
-  //const muteAllVideoButton = useString('muteAllVideoButton')();
-  const muteAllVideoButton = 'Turn off all cameras';
+  const muteAllVideoButton = useString('turnoffAllCameras')();
   const onPressAction = () => muteRemoteVideo(MUTE_REMOTE_TYPE.video);
   const showVideoModal = () => {
     videoBtnRef?.current?.measure(
@@ -136,7 +131,7 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
         }}
       />
       <TertiaryButton
-        setRef={(ref) => (videoBtnRef.current = ref)}
+        setRef={ref => (videoBtnRef.current = ref)}
         onPress={onPress}
         text={muteAllVideoButton}
       />
@@ -145,9 +140,6 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
 };
 
 const HostControlView = () => {
-  //commented for v1 release
-  //const hostControlsLabel = useString('hostControlsLabel')();
-
   return (
     <View style={style.container}>
       {!$config.AUDIO_ROOM && <MuteAllVideoButton />}

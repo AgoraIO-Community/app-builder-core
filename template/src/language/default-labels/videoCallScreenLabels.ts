@@ -142,6 +142,16 @@ export interface I18nVideoCallScreenLabelsInterface {
   groupChatWelcomeSubInfo?: I18nBaseType;
   groupChatInputPlaceHolder?: I18nBaseType;
   privateChatInputPlaceHolder?: I18nBaseType;
+
+  turnoffAllCameras?: I18nBaseType;
+  muteAllMicrophone?: I18nBaseType;
+
+  host?: I18nBaseType;
+  audience?: I18nBaseType;
+  inThisMeeting?: I18nBaseType;
+  noHostJoinedYet?: I18nBaseType;
+  noAudienceJoinedYet?: I18nBaseType;
+  noUsersJoinedYet?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -375,4 +385,14 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   groupChatWelcomeSubInfo: 'All messages are deleted when call ends.',
   groupChatInputPlaceHolder: name => `Chat publicy as ${name}...`,
   privateChatInputPlaceHolder: name => `Private Message to ${name}`,
+
+  turnoffAllCameras: 'Turn off all cameras',
+  muteAllMicrophone: 'Mute All',
+
+  host: 'HOST',
+  audience: 'AUDIENCE',
+  inThisMeeting: 'IN THIS MEETING',
+  noHostJoinedYet: 'No Host has joined yet.',
+  noAudienceJoinedYet: 'No Audience has joined yet.',
+  noUsersJoinedYet: 'No Users has joined yet',
 };
