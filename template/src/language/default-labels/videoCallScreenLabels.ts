@@ -211,6 +211,63 @@ export interface I18nVideoCallScreenLabelsInterface {
   muteConfirmation?: I18nBaseType<I18nMuteConfirmation>;
   muteButton?: I18nBaseType;
   requestButton?: I18nBaseType;
+
+  wantToJoin?: I18nBaseType;
+  waiting?: I18nBaseType;
+
+  publicChatToastHeading?: I18nBaseType;
+  multiplePublicChatToastHeading?: I18nBaseType;
+  multiplePublicChatToastSubHeading?: I18nBaseType<{
+    count: number;
+    from: string;
+  }>;
+
+  privateChatToastHeading?: I18nBaseType;
+  multiplePrivateChatToastHeading?: I18nBaseType<{count: number}>;
+
+  multiplePublicAndPrivateChatToastHeading?: I18nBaseType;
+  multiplePublicAndPrivateChatToastSubHeading?: I18nBaseType<{
+    publicChatCount: number;
+    privateChatCount: number;
+    from: string;
+  }>;
+
+  raiseYourHand?: I18nBaseType;
+  raiseYourHandInfo?: I18nBaseType;
+  chatWithOthers?: I18nBaseType;
+  chatWithOthersInfo?: I18nBaseType;
+  presentYourScreen?: I18nBaseType;
+  presentYourScreenInfo?: I18nBaseType;
+  joinWithActivites?: I18nBaseType;
+  joinWithActivitesInfo?: I18nBaseType;
+
+  inviteOtherAttendee?: I18nBaseType;
+  waitingForHostToJoin?: I18nBaseType;
+  whatYouCanDoHere?: I18nBaseType;
+
+  allowToBePresenter?: I18nBaseType;
+  deny?: I18nBaseType;
+
+  raiseHandRequestToastHeading?: I18nBaseType;
+  raiseHandRequestToastSubHeading?: I18nBaseType;
+
+  raiseHandRequestReceivedToastHeading?: I18nBaseType;
+  raiseHandRequestReceivedToastSubHeading?: I18nBaseType;
+
+  raiseHandRequestAcceptedToastHeading?: I18nBaseType;
+  raiseHandRequestAcceptedToastSubHeading?: I18nBaseType;
+
+  raiseHandRequestRejectedToastHeading?: I18nBaseType;
+
+  raiseHandRequestRecallToastHeading?: I18nBaseType;
+
+  raiseHandRequestRecallLocalToastHeading?: I18nBaseType;
+
+  raiseHandApprovedRequestRecallToastHeading?: I18nBaseType;
+
+  promoteAsCoHostToastHeading?: I18nBaseType;
+
+  requestAlreadyProcessed?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -511,4 +568,66 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   muteButton: 'Mute',
   requestButton: 'Request',
+  wantToJoin: 'WANT TO JOIN',
+  waiting: 'WAITING',
+
+  publicChatToastHeading: (name: string) =>
+    `${name} commented in the public chat`,
+
+  multiplePublicChatToastHeading: 'New comments in Public Chat',
+  multiplePublicChatToastSubHeading: ({count, from}) =>
+    `You have ${count} new messages from ${from}`,
+
+  privateChatToastHeading: 'You’ve received a private message',
+
+  multiplePrivateChatToastHeading: ({count}) =>
+    `You’ve received ${count} private messages`,
+
+  multiplePublicAndPrivateChatToastHeading:
+    'New comments in Public & Private Chat',
+  multiplePublicAndPrivateChatToastSubHeading: ({
+    publicChatCount,
+    privateChatCount,
+    from,
+  }) =>
+    `You have ${publicChatCount} new messages from ${from} and ${privateChatCount} Private chat`,
+
+  raiseYourHand: 'Raise Your hand',
+  raiseYourHandInfo: "Let everyone know that you've something to say",
+  chatWithOthers: 'Chat with others',
+  chatWithOthersInfo: 'Message fellow attendees or the hosts',
+  presentYourScreen: 'Present Your screen',
+  presentYourScreenInfo: 'Be a presenter post the host’s approval',
+  joinWithActivites: 'Join in activities',
+  joinWithActivitesInfo: 'Jam with everyone on a whiteboard',
+
+  inviteOtherAttendee: 'INVITE OTHER ATTENDEES',
+  waitingForHostToJoin: 'Waiting for the host to join',
+  whatYouCanDoHere: "Here's what you can do here :",
+
+  allowToBePresenter: 'ALLOW TO BE A PRESENTER',
+  deny: 'DENY',
+
+  raiseHandRequestToastHeading: 'You’ve raised your hand.',
+  raiseHandRequestToastSubHeading: 'Waiting for host to approve the request',
+
+  raiseHandRequestReceivedToastHeading: name =>
+    `${name} has raised their hand to be a Presenter`,
+  raiseHandRequestReceivedToastSubHeading:
+    'Once approved they will be able to speak, share their video and present during this call.',
+
+  raiseHandRequestAcceptedToastHeading: 'Host has approved your request.',
+  raiseHandRequestAcceptedToastSubHeading: 'You are now a Presenter',
+
+  raiseHandRequestRejectedToastHeading: 'Your request was rejected by the host',
+
+  raiseHandRequestRecallToastHeading: name => `${name} has lowered their hand`,
+
+  raiseHandRequestRecallLocalToastHeading: 'You’ve lowered your hand.',
+
+  raiseHandApprovedRequestRecallToastHeading:
+    'Host has revoked streaming permissions.',
+
+  promoteAsCoHostToastHeading: 'Host promoted you as a Presenter',
+  requestAlreadyProcessed: 'Request already processed.',
 };

@@ -5,14 +5,17 @@ import {filterObject} from '../../utils';
 import Participant from './Participant';
 import ParticipantSectionTitle from './ParticipantSectionTitle';
 import {useWaitingRoomContext} from '../contexts/WaitingRoomContext';
+import {useString} from '../../utils/useString';
 
 const WaitingRoomParticipants = props => {
+  const wanttojoinLabel = useString('wantToJoin')();
+  const waitingLabel = useString('waiting')();
   const {defaultContent} = useContent();
   const [showWaitingRoomSection, setShowWaitingRoomSection] = useState(true);
   const {isMobile = false, handleClose, updateActionSheet} = props;
   const WaitingRoomParticipantsLabel = $config.EVENT_MODE
-    ? 'WANT TO JOIN'
-    : 'WAITING';
+    ? wanttojoinLabel
+    : waitingLabel;
 
   const getParticipantName = uid => {
     return defaultContent[uid]?.name || 'WRP';
