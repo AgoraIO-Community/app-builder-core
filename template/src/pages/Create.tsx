@@ -43,6 +43,21 @@ import {randomNameGenerator} from '../utils';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import isSDK from '../utils/isSDK';
+import {
+  createRoomAllowPhoneNumberJoining,
+  createRoomAllowPhoneNumberJoiningTooltipText,
+  createRoomBtnText,
+  createRoomErrorToastHeading,
+  createRoomErrorToastSubHeading,
+  createRoomHeading,
+  createRoomInputLabel,
+  createRoomInputPlaceholderText,
+  createRoomJoinWithID,
+  createRoomMakeEveryOneCoHost,
+  createRoomMakeEveryOneCoHostTooltipText,
+  createRoomSuccessToastHeading,
+  createRoomSuccessToastSubHeading,
+} from '../language/default-labels/createScreenLabels';
 
 const Create = () => {
   const {CreateComponent} = useCustomization(data => {
@@ -76,72 +91,63 @@ const Create = () => {
   const createRoomFun = useCreateRoom();
   const {setRoomInfo} = useSetRoomInfo();
 
-  const loadingWithDots = useString('loadingWithDots')();
+  const loadingText = useString('loadingText')();
 
   //heading
-  const headingAudioLivecast = useString('headingAudioLivecast')();
-  const headingVoiceChat = useString('headingVoiceChat')();
-  const headingLiveStream = useString('headingLiveStream')();
-  const headingVideoMeeting = useString('headingVideoMeeting')();
+  const headingText = useString<any>(createRoomHeading)({
+    audioRoom: $config.AUDIO_ROOM,
+    eventMode: $config.EVENT_MODE,
+  });
   //heading
 
   //input label
-  const inputLabelAudioLivecast = useString('inputLabelAudioLivecast')();
-  const inputLabelVoiceChat = useString('inputLabelVoiceChat')();
-  const inputLabelLiveStream = useString('inputLabelLiveStream')();
-  const inputLabelVideoMeeting = useString('inputLabelVideoMeeting')();
+  const inputLabel = useString<any>(createRoomInputLabel)({
+    audioRoom: $config.AUDIO_ROOM,
+    eventMode: $config.EVENT_MODE,
+  });
   //input label
 
   //placeholder
-  const meetingNameInputPlaceholder = useString(
-    'meetingNameInputPlaceholder',
-  )();
+  const placeHolderText = useString(createRoomInputPlaceholderText)();
   //placeholder
 
   //toggle
-  const everyoneCoHost = useString('everyoneCoHost')();
-  const everyoneCoHostTooltip = useString('everyoneCoHostTooltip')();
-  const allowPhoneNumberJoining = useString('allowPhoneNumberJoining')();
+  const everyoneCoHost = useString(createRoomMakeEveryOneCoHost)();
+  const everyoneCoHostTooltip = useString(
+    createRoomMakeEveryOneCoHostTooltipText,
+  )();
+  const allowPhoneNumberJoining = useString(
+    createRoomAllowPhoneNumberJoining,
+  )();
   const allowPhoneNumberJoiningToolTip = useString(
-    'allowPhoneNumberJoiningToolTip',
+    createRoomAllowPhoneNumberJoiningTooltipText,
   )();
   //toggle
 
   //create button
-  const createAudioLivecast = useString('createAudioLivecast')();
-  const createVoiceChat = useString('createVoiceChat')();
-  const createLiveStream = useString('createLiveStream')();
-  const createRoom = useString('createRoom')();
+  const createBtnText = useString<any>(createRoomBtnText)({
+    audioRoom: $config.AUDIO_ROOM,
+    eventMode: $config.EVENT_MODE,
+  });
   //create button
 
-  const joinWithRoomID = useString('joinWithRoomID')();
+  const joinWithRoomID = useString(createRoomJoinWithID)();
 
   //toast
-  const createRoomSuccessToastHeading = useString(
-    'createRoomSuccessToastHeading',
+  const createRoomSuccessToastHeadingText = useString(
+    createRoomSuccessToastHeading,
   );
-  const createRoomSuccessToastSubheading = useString(
-    'createRoomSuccessToastSubHeading',
+  const createRoomSuccessToastSubHeadingText = useString(
+    createRoomSuccessToastSubHeading,
   )();
   //toast
 
-  const btnLabel = () => {
-    if ($config.AUDIO_ROOM) {
-      if ($config.EVENT_MODE) {
-        return createAudioLivecast;
-      } else {
-        return createVoiceChat;
-      }
-    } else {
-      if ($config.EVENT_MODE) {
-        return createLiveStream;
-      } else {
-        return createRoom;
-      }
-    }
-  };
-
-  const createMeetingButton = btnLabel();
+  const createRoomErrorToastHeadingText = useString(
+    createRoomErrorToastHeading,
+  )();
+  const createRoomErrorToastSubHeadingText = useString(
+    createRoomErrorToastSubHeading,
+  )();
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
@@ -179,8 +185,8 @@ const Create = () => {
         Toast.show({
           leadingIconName: 'tick-fill',
           type: 'success',
-          text1: createRoomSuccessToastHeading(trimText(roomTitle)),
-          text2: createRoomSuccessToastSubheading,
+          text1: createRoomSuccessToastHeadingText(trimText(roomTitle)),
+          text2: createRoomSuccessToastSubHeadingText,
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
@@ -189,7 +195,17 @@ const Create = () => {
         showShareScreen();
       } catch (error) {
         setLoading(false);
-        setGlobalErrorMessage(error);
+        if (
+          createRoomErrorToastHeadingText ||
+          createRoomErrorToastSubHeadingText
+        ) {
+          setGlobalErrorMessage({
+            name: createRoomErrorToastHeadingText,
+            message: createRoomErrorToastSubHeadingText,
+          });
+        } else {
+          setGlobalErrorMessage(error);
+        }
       }
     }
   };
@@ -209,38 +225,6 @@ const Create = () => {
         />
       </Pressable>
     );
-  };
-
-  const getHeading = () => {
-    if ($config.AUDIO_ROOM) {
-      if ($config.EVENT_MODE) {
-        return headingAudioLivecast;
-      } else {
-        return headingVoiceChat;
-      }
-    } else {
-      if ($config.EVENT_MODE) {
-        return headingLiveStream;
-      } else {
-        return headingVideoMeeting;
-      }
-    }
-  };
-
-  const getInputLabel = () => {
-    if ($config.AUDIO_ROOM) {
-      if ($config.EVENT_MODE) {
-        return inputLabelAudioLivecast;
-      } else {
-        return inputLabelVoiceChat;
-      }
-    } else {
-      if ($config.EVENT_MODE) {
-        return inputLabelLiveStream;
-      } else {
-        return inputLabelVideoMeeting;
-      }
-    }
   };
 
   const showError = () => {
@@ -285,14 +269,14 @@ const Create = () => {
                     )}
                   </View>
                   <Spacer size={isDesktop ? 20 : 16} />
-                  <Text style={style.heading}>{getHeading()}</Text>
+                  <Text style={style.heading}>{headingText}</Text>
                   <Spacer size={40} />
                   <Input
                     maxLength={maxInputLimit}
                     labelStyle={style.inputLabelStyle}
-                    label={getInputLabel()}
+                    label={inputLabel}
                     value={roomTitle}
-                    placeholder={meetingNameInputPlaceholder}
+                    placeholder={placeHolderText}
                     onChangeText={text => onChangeRoomTitle(text)}
                     onSubmitEditing={() => {
                       if (!roomTitle?.trim()) {
@@ -406,7 +390,7 @@ const Create = () => {
                         );
                       }
                     }}
-                    text={loading ? loadingWithDots : createMeetingButton}
+                    text={loading ? loadingText : createBtnText}
                   />
                   <Spacer size={16} />
                   <LinkButton

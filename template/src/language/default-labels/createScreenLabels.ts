@@ -1,52 +1,102 @@
 import {I18nBaseType, I18nDynamicType} from '../i18nTypes';
 
-export interface I18nCreateScreenLabelsInterface {
-  headingVideoMeeting?: I18nBaseType; //
-  headingLiveStream?: I18nBaseType; //
-  headingVoiceChat?: I18nBaseType; //
-  headingAudioLivecast?: I18nBaseType; //
-  loadingWithDots?: I18nBaseType; //
-  inputLabelVideoMeeting?: I18nBaseType; //
-  inputLabelLiveStream?: I18nBaseType; //
-  inputLabelVoiceChat?: I18nBaseType; //
-  inputLabelAudioLivecast?: I18nBaseType; //
-  meetingNameInputPlaceholder?: I18nBaseType; //
-  everyoneCoHost?: I18nBaseType; //
-  everyoneCoHostTooltip?: I18nBaseType; //
-  allowPhoneNumberJoining?: I18nBaseType; //
-  allowPhoneNumberJoiningToolTip?: I18nBaseType; //
-  createRoom?: I18nBaseType; //
-  createLiveStream?: I18nBaseType; //
-  createVoiceChat?: I18nBaseType; //
-  createAudioLivecast?: I18nBaseType; //
-  joinWithRoomID?: I18nBaseType; //
-  createRoomSuccessToastHeading?: I18nDynamicType; //
-  createRoomSuccessToastSubHeading?: I18nBaseType; //
-}
+const room = 'Room';
+export const createRoomHeading = `create${room}Heading`;
+export const createRoomInputLabel = `create${room}InputLabel`;
+export const createRoomInputPlaceholderText = `create${room}InputPlaceholderText`;
+export const createRoomMakeEveryOneCoHost = `create${room}MakeEveryOneCoHost`;
+export const createRoomMakeEveryOneCoHostTooltipText = `create${room}MakeEveryOneCoHostTooltipText`;
 
+export const createRoomAllowPhoneNumberJoining = `create${room}AllowPhoneNumberJoining`;
+export const createRoomAllowPhoneNumberJoiningTooltipText = `create${room}AllowPhoneNumberJoiningTooltipText`;
+
+export const createRoomBtnText = `create${room}BtnText`;
+export const createRoomJoinWithID = `create${room}JoinWithID`;
+
+export const createRoomSuccessToastHeading = `create${room}SuccessToastHeading`;
+export const createRoomSuccessToastSubHeading = `create${room}SuccessToastSubHeading`;
+
+export const createRoomErrorToastHeading = `create${room}ErrorToastHeading`;
+export const createRoomErrorToastSubHeading = `create${room}ErrorToastSubHeading`;
+// [screen/[sidepanel/chat/setting/vb]] [room or action] [where is placed/label/text/heading/subheading/tooltiptext/content]
+//label for buttons
+//heading/subheading for toast
+//text inside button text
+//text outside button called label
+//btn use chatPanel
+//chatPanelInputPlaceHolder
+//settingPanelHeading
+
+export interface I18nCreateScreenLabelsInterface {
+  [createRoomHeading]?: I18nBaseType;
+  [createRoomInputLabel]?: I18nBaseType;
+  [createRoomInputPlaceholderText]?: I18nBaseType;
+  [createRoomMakeEveryOneCoHost]?: I18nBaseType; //
+  [createRoomMakeEveryOneCoHostTooltipText]?: I18nBaseType; //
+  [createRoomAllowPhoneNumberJoining]?: I18nBaseType; //
+  [createRoomAllowPhoneNumberJoiningTooltipText]?: I18nBaseType; //
+  [createRoomBtnText]?: I18nBaseType;
+  [createRoomJoinWithID]?: I18nBaseType; //
+  [createRoomSuccessToastHeading]?: I18nDynamicType; //
+  [createRoomSuccessToastSubHeading]?: I18nBaseType; //
+  [createRoomErrorToastHeading]?: I18nBaseType; //
+  [createRoomErrorToastSubHeading]?: I18nBaseType; //
+}
 export const CreateScreenLabels: I18nCreateScreenLabelsInterface = {
-  headingVideoMeeting: 'Create a Room',
-  headingLiveStream: 'Create a Livestream',
-  headingVoiceChat: 'Create a Voice Chat',
-  headingAudioLivecast: 'Create a Audio Livecast',
-  loadingWithDots: 'Loading...',
-  inputLabelVideoMeeting: 'Room Name',
-  inputLabelLiveStream: 'Stream Name',
-  inputLabelVoiceChat: 'Voice Chat Name',
-  inputLabelAudioLivecast: 'Audio Livecast Name',
-  meetingNameInputPlaceholder: 'The Annual Galactic Meet',
-  everyoneCoHost: 'Make everyone a Co-Host',
-  everyoneCoHostTooltip:
+  [createRoomHeading]: ({eventMode, audioRoom}) => {
+    if (audioRoom) {
+      if (eventMode) {
+        return 'Create a Audio Livecast';
+      } else {
+        return 'Create a Voice Chat';
+      }
+    } else {
+      if (eventMode) {
+        return 'Create a Livestream';
+      } else {
+        return 'Create a Room';
+      }
+    }
+  },
+  [createRoomInputLabel]: ({eventMode, audioRoom}) => {
+    if (audioRoom) {
+      if (eventMode) {
+        return 'Audio Livecast Name';
+      } else {
+        return 'Voice Chat Name';
+      }
+    } else {
+      if (eventMode) {
+        return 'Stream Name';
+      } else {
+        return 'Room Name';
+      }
+    }
+  },
+  [createRoomInputPlaceholderText]: 'The Annual Galactic Meet',
+  [createRoomMakeEveryOneCoHost]: 'Make everyone a Co-Host',
+  [createRoomMakeEveryOneCoHostTooltipText]:
     'Turning on will give everyone the control of this room',
-  allowPhoneNumberJoining: 'Allow joining via a phone number',
-  allowPhoneNumberJoiningToolTip:
+  [createRoomAllowPhoneNumberJoining]: 'Allow joining via a phone number',
+  [createRoomAllowPhoneNumberJoiningTooltipText]:
     'Attendees can dial a number and join via PSTN',
-  createRoom: 'CREATE A ROOM',
-  createLiveStream: 'CREATE A STREAM',
-  createVoiceChat: 'CREATE A VOICE CHAT',
-  createAudioLivecast: 'CREATE A AUDIO LIVECAST',
-  joinWithRoomID: 'Join with a room ID',
-  createRoomSuccessToastHeading: (meetingName: string) =>
+  [createRoomBtnText]: ({eventMode, audioRoom}) => {
+    if (audioRoom) {
+      if (eventMode) {
+        return 'CREATE A AUDIO LIVECAST';
+      } else {
+        return 'CREATE A VOICE CHAT';
+      }
+    } else {
+      if (eventMode) {
+        return 'CREATE A STREAM';
+      } else {
+        return 'CREATE A ROOM';
+      }
+    }
+  },
+  [createRoomJoinWithID]: 'Join with a room ID',
+  [createRoomSuccessToastHeading]: (meetingName: string) =>
     `${meetingName}  has been created`,
-  createRoomSuccessToastSubHeading: 'Your New room is now live',
+  [createRoomSuccessToastSubHeading]: 'Your New room is now live',
 };
