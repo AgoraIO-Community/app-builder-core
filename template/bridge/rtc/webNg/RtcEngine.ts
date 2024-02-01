@@ -864,6 +864,10 @@ export default class RtcEngine {
           break;
         case RnEncryptionEnum.SM4128ECB:
           mode = 'sm4-128-ecb';
+          break;
+        case RnEncryptionEnum.AES256GCM:
+          mode = 'aes-256-gcm';
+          break;
         default:
           mode = 'none';
       }
@@ -882,6 +886,7 @@ export default class RtcEngine {
   ): Promise<void> {
     let mode: EncryptionMode;
     mode = this.getEncryptionMode(enabled, config?.encryptionMode);
+    console.log('setting encryption ===>', mode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
