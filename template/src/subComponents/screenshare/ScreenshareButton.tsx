@@ -23,6 +23,7 @@ import {isAndroid, isIOS} from '../../utils/common';
 import {useVideoCall} from '../../components/useVideoCall';
 import {useToolbarMenu} from '../../utils/useMenu';
 import ToolbarMenuItem from '../../atoms/ToolbarMenuItem';
+import {toolbarItemShareText} from '../../language/default-labels/videoCallScreenLabels';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -49,7 +50,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     useScreenshare();
   const {setShowStartScreenSharePopup} = useVideoCall();
   //commented for v1 release
-  const screenShareButtonLabel = useString<boolean>('screenShareButton');
+  const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
 
   const onPress = () => {
     if (isScreenshareActive) {

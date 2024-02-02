@@ -17,6 +17,16 @@ import {useRoomInfo} from '../room-info/useRoomInfo';
 import {FontSizes} from '../../theme';
 import MeetingLink from '../../atoms/MeetingLink';
 import {useString} from '../../utils/useString';
+import {
+  shareRoomAttendeeLinkLabel,
+  shareRoomAttendeeLinkSubText,
+  shareRoomHostLinkLabel,
+  shareRoomHostLinkSubText,
+  shareRoomPSTNLabel,
+  shareRoomPSTNNumberLabel,
+  shareRoomPSTNPinLabel,
+  shareRoomPSTNSubText,
+} from '../../language/default-labels/shareLinkScreenLabels';
 
 export interface MeetingInfoBodyProps {
   showHelperText?: boolean;
@@ -30,39 +40,28 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
   } = useRoomInfo();
   const {getShareLink} = useShareLink();
 
-  const meetingUrlText = useString('roomLink')();
-  const meetingIdText = useString('roomId')();
-  const hostIdText = useString('hostId')();
-  const attendeeUrlLabel = useString('attendeeLink')();
-  const attendeeIdLabel = useString('attendeeId')();
-  const hostUrlLabel = useString('hostLink')();
-  const pstnLabel = useString('PSTN')();
-  const pstnNumberLabel = useString('number')();
-  const pinLabel = useString('pin')();
-  const shareWithAttendeeInfo = useString('shareWithAttendee')();
-  const shareWithCoHostInfo = useString('shareWithCoHost')();
-  const shareWithPhonenumberInfo = useString('sharePhoneNumber')();
-
   const isSDK = isSDKCheck();
   const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
-  const getAttendeeLabel = () =>
-    isWebCheck ? attendeeUrlLabel : attendeeIdLabel;
+  const shareRoomHostLink = useString<any>(shareRoomHostLinkLabel)(isWebCheck);
+  const shareRoomHostLinkSubTextLocal = useString<any>(
+    shareRoomHostLinkSubText,
+  )();
+  const shareRoomAttendeeLink = useString<any>(shareRoomAttendeeLinkLabel)(
+    isWebCheck,
+  );
+  const shareRoomAttendeeLinkSubTextLocal = useString<any>(
+    shareRoomAttendeeLinkSubText,
+  )();
+  const shareRoomPSTN = useString<any>(shareRoomPSTNLabel)();
+  const shareRoomPSTNNumber = useString<any>(shareRoomPSTNNumberLabel)();
+  const shareRoomPSTNPin = useString<any>(shareRoomPSTNPinLabel)();
+  const shareRoomPSTNSubTextLocal = useString<any>(shareRoomPSTNSubText)();
 
-  const getHostLabel = () => {
-    if (isSeparateHostLink) {
-      if (isWebCheck) {
-        return hostUrlLabel;
-      }
-      return hostIdText;
-    } else {
-      if (isWebCheck) {
-        return meetingUrlText;
-      }
-      return meetingIdText;
-    }
-  };
+  const getAttendeeLabel = () => shareRoomAttendeeLink;
+
+  const getHostLabel = () => shareRoomHostLink;
 
   return (
     <>
@@ -76,7 +75,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
             label={getAttendeeLabel()}
             link={getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
-            helperText={showHelperText ? shareWithAttendeeInfo : ''}
+            helperText={showHelperText ? shareRoomAttendeeLinkSubTextLocal : ''}
             gutterBottom
           />
         </>
@@ -93,7 +92,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
             label={getHostLabel()}
             link={getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.HOST}
-            helperText={showHelperText ? shareWithCoHostInfo : ''}
+            helperText={showHelperText ? shareRoomHostLinkSubTextLocal : ''}
             gutterBottom
           />
         </>
@@ -107,10 +106,10 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               size,
               variant,
             }}
-            label={pstnLabel}
-            link={`${pstnNumberLabel} - ${pstn?.number}  |  ${pinLabel} - ${pstn?.pin}`}
+            label={shareRoomPSTN}
+            link={`${shareRoomPSTNNumber} - ${pstn?.number}  |  ${shareRoomPSTNPin} - ${pstn?.pin}`}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.PSTN}
-            helperText={showHelperText ? shareWithPhonenumberInfo : ''}
+            helperText={showHelperText ? shareRoomPSTNSubTextLocal : ''}
             gutterBottom
           />
         </>

@@ -38,8 +38,19 @@ import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import Clipboard from '../subComponents/Clipboard';
-
-const isLiveStream = $config.EVENT_MODE;
+import {
+  shareRoomAttendeeLinkLabel,
+  shareRoomAttendeeLinkSubText,
+  shareRoomCopyBtnText,
+  shareRoomCopyBtnTooltipText,
+  shareRoomHostLinkLabel,
+  shareRoomHostLinkSubText,
+  shareRoomPSTNLabel,
+  shareRoomPSTNNumberLabel,
+  shareRoomPSTNPinLabel,
+  shareRoomPSTNSubText,
+  shareRoomStartBtnText,
+} from '../language/default-labels/shareLinkScreenLabels';
 
 export interface CopyMeetingInfoProps {
   showSubLabel?: boolean;
@@ -51,39 +62,30 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   } = useRoomInfo();
   const {showSubLabel = true} = props;
 
-  const meetingUrlText = useString('roomLink')();
-  const meetingIdText = useString('roomId')();
-  const hostIdText = useString('hostId')();
-  const attendeeUrlLabel = useString('attendeeLink')();
-  const attendeeIdLabel = useString('attendeeId')();
-  const hostUrlLabel = useString('hostLink')();
-  const pstnLabel = useString('PSTN')();
-  const pstnNumberLabel = useString('number')();
-  const pinLabel = useString('pin')();
-  const copiedToClipboard = useString('copiedToClipboard')();
-  const sharePhoneNumber = useString('sharePhoneNumber')();
-  const shareWithAttendee = useString('shareWithAttendee')();
-  const shareWithCoHost = useString('shareWithCoHost')();
   const isSDK = isSDKCheck();
   const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
-  const getAttendeeLabel = () =>
-    isWebCheck ? attendeeUrlLabel : attendeeIdLabel;
+  const shareRoomHostLink = useString<any>(shareRoomHostLinkLabel)(isWebCheck);
+  const shareRoomHostLinkSubTextLocal = useString<any>(
+    shareRoomHostLinkSubText,
+  )();
+  const shareRoomAttendeeLink = useString<any>(shareRoomAttendeeLinkLabel)(
+    isWebCheck,
+  );
+  const shareRoomAttendeeLinkSubTextLocal = useString<any>(
+    shareRoomAttendeeLinkSubText,
+  )();
+  const shareRoomPSTN = useString<any>(shareRoomPSTNLabel)();
+  const shareRoomPSTNNumber = useString<any>(shareRoomPSTNNumberLabel)();
+  const shareRoomPSTNPin = useString<any>(shareRoomPSTNPinLabel)();
+  const shareRoomPSTNSubTextLocal = useString<any>(shareRoomPSTNSubText)();
 
-  const getHostLabel = () => {
-    if (isSeparateHostLink) {
-      if (isWebCheck) {
-        return hostUrlLabel;
-      }
-      return hostIdText;
-    } else {
-      if (isWebCheck) {
-        return meetingUrlText;
-      }
-      return meetingIdText;
-    }
-  };
+  const copiedToClipboard = useString(shareRoomCopyBtnTooltipText)();
+
+  const getAttendeeLabel = () => shareRoomAttendeeLink;
+
+  const getHostLabel = () => shareRoomHostLink;
 
   const clipboardIconButton = (type: SHARE_LINK_CONTENT_TYPE) => {
     return (
@@ -151,7 +153,9 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           {showSubLabel && (
             <>
               <Spacer size={14} />
-              <Text style={style.helpText}>{shareWithAttendee}</Text>
+              <Text style={style.helpText}>
+                {shareRoomAttendeeLinkSubTextLocal}
+              </Text>
             </>
           )}
           <Spacer size={25} />
@@ -183,7 +187,9 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           {showSubLabel && (
             <>
               <Spacer size={14} />
-              <Text style={style.helpText}>{shareWithCoHost}</Text>
+              <Text style={style.helpText}>
+                {shareRoomHostLinkSubTextLocal}
+              </Text>
             </>
           )}
           <Spacer size={25} />
@@ -193,7 +199,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
       )}
       {$config.PSTN && pstn && pstn?.number && pstn?.pin ? (
         <>
-          <Text style={style.urlTitle}>{pstnLabel}</Text>
+          <Text style={style.urlTitle}>{shareRoomPSTN}</Text>
           <Spacer size={11} />
           <View style={style.container}>
             <View style={[style.urlContainer, style.urlPadding]}>
@@ -204,8 +210,8 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                     //@ts-ignore
                     isWebCheck ? urlWeb : {opacity: 1},
                   ]}>
-                  {pstnNumberLabel} - {pstn?.number} {' | '} {pinLabel} -{' '}
-                  {pstn?.pin}
+                  {shareRoomPSTNNumber} - {pstn?.number} {' | '}{' '}
+                  {shareRoomPSTNPin} - {pstn?.pin}
                 </Text>
               </View>
             </View>
@@ -215,7 +221,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           {showSubLabel && (
             <>
               <Spacer size={14} />
-              <Text style={style.helpText}>{sharePhoneNumber}</Text>
+              <Text style={style.helpText}>{shareRoomPSTNSubTextLocal}</Text>
             </>
           )}
           {/* <Spacer size={25} /> */}
@@ -228,7 +234,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
 };
 
 const ClipboardIconButtonURL = ({url}) => {
-  const copiedToClipboard = useString('copiedToClipboard')();
+  const copiedToClipboard = useString(shareRoomCopyBtnTooltipText)();
   return (
     <View style={style.iconContainer}>
       <Tooltip
@@ -329,11 +335,11 @@ const Share = () => {
     data: {roomId, meetingTitle},
   } = useRoomInfo();
 
-  const startRoom = useString('startRoom')();
-  const startStream = useString('startStream')();
+  const shareRoomStartBtnTextLocal = useString<any>(shareRoomStartBtnText)({
+    eventMode: $config.EVENT_MODE,
+  });
 
-  const enterMeetingAfterCreateButton = isLiveStream ? startStream : startRoom;
-  const copyInviteButton = useString('copyInviteButton')();
+  const copyInviteButton = useString(shareRoomCopyBtnText)();
   const history = useHistory();
   const enterMeeting = () => {
     if (roomId?.host) {
@@ -381,7 +387,7 @@ const Share = () => {
               iconName="video-on"
               onPress={() => enterMeeting()}
               containerStyle={isMobileUA() && {width: '100%'}}
-              text={enterMeetingAfterCreateButton.toUpperCase()}
+              text={shareRoomStartBtnTextLocal}
             />
             <Spacer size={16} />
             <LinkButton

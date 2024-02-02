@@ -66,6 +66,10 @@ import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
+import {
+  toolbarItemChatText,
+  toolbarItemPeopleText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -73,7 +77,7 @@ export const ParticipantsCountView = ({
   isMobileView?: boolean;
 }) => {
   const {onlineUsersCount} = useContext(ChatContext);
-  const peopleLabel = useString('people')();
+  const peopleLabel = useString(toolbarItemPeopleText)();
   return isMobileView ? (
     <Text>
       {peopleLabel} {'\n'} ({numFormatter(onlineUsersCount)})
@@ -118,9 +122,9 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-  //commented for v1 release
+
   const {waitingRoomUids} = useWaitingRoomContext();
-  const participantsLabel = useString('people')();
+  const participantsLabel = useString(toolbarItemPeopleText)();
   const isPanelActive = sidePanel === SidePanelType.Participants;
   const {
     data: {isHost},
@@ -243,8 +247,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
   const {setChatType, setPrivateChatUser} = useChatUIControls();
 
-  //commented for v1 release
-  const chatLabel = useString('chat')();
+  const chatLabel = useString(toolbarItemChatText)();
 
   const isPanelActive = sidePanel === SidePanelType.Chat;
 
@@ -506,8 +509,6 @@ export interface NavbarProps {
   includeDefaultItems?: boolean;
 }
 const Navbar = (props: NavbarProps) => {
-  //commented for v1 release
-  //const recordingLabel = useString('recordingLabel')();
   const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
 

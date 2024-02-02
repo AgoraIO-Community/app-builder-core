@@ -54,6 +54,10 @@ import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
 import {DeviceSelectProps} from './precall/selectDevice';
 import {useString} from '../utils/useString';
+import {
+  precallYouAreJoiningAsHeading,
+  settingsPanelHeading,
+} from '../language/default-labels/precallScreenLabels';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -221,8 +225,8 @@ const JoinRoomButton = () => {
 };
 
 const Precall = () => {
-  const settingsLabel = useString('settings')();
-  const youAreJoiningAs = useString('youAreJoiningAs')();
+  const settingsLabel = useString(settingsPanelHeading)();
+  const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
   const {rtcProps} = useContext(PropsContext);
   const {height} = useWindowDimensions();
   // const {isVBActive, setIsVBActive} = useVB();

@@ -18,10 +18,16 @@ import ImageIcon from '../../atoms/ImageIcon';
 import Spacer from '../../atoms/Spacer';
 import Toast from '../../../react-native-toast-message';
 import {useString} from '../../utils/useString';
+import {
+  permissionPopupErrorToastHeading,
+  permissionPopupErrorToastSubHeading,
+} from '../../language/default-labels/precallScreenLabels';
 
 const VideoFallback = () => {
-  const toastHeading = useString<boolean>('cantFindDeviceToastHeading');
-  const toastSubHeading = useString<boolean>('cantFindDeviceToastSubHeading');
+  const toastHeading = useString<boolean>(permissionPopupErrorToastHeading);
+  const toastSubHeading = useString<boolean>(
+    permissionPopupErrorToastSubHeading,
+  );
 
   const {isCameraAvailable, isMicAvailable} = usePreCall();
   const toastRef = useRef({isShown: false});

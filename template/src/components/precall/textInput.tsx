@@ -20,6 +20,11 @@ import useGetName from '../../utils/useGetName';
 import Input from '../../atoms/Input';
 import ThemeConfig from '../../theme';
 import {maxInputLimit} from '../../utils/common';
+import {
+  precallInputGettingName,
+  precallNameInputPlaceholderText,
+  precallYouAreJoiningAsHeading,
+} from '../../language/default-labels/precallScreenLabels';
 
 export interface PreCallTextInputProps {
   labelStyle?: TextStyle;
@@ -28,11 +33,9 @@ export interface PreCallTextInputProps {
   isOnPrecall?: boolean;
 }
 const PreCallTextInput = (props?: PreCallTextInputProps) => {
-  const placeHolder = useString('nameInputPlaceholder')();
-  const userNamePlaceholder = useString('enterYourName')();
-  const yourName = useString('yourName')();
-  const joiningAs = useString('joiningAs')();
-  const fetchingNamePlaceholder = useString('gettingName')();
+  const placeHolder = useString(precallNameInputPlaceholderText)();
+  const joiningAs = useString(precallYouAreJoiningAsHeading)();
+  const fetchingNamePlaceholder = useString(precallInputGettingName)();
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
@@ -41,15 +44,7 @@ const PreCallTextInput = (props?: PreCallTextInputProps) => {
   return (
     <Input
       maxLength={maxInputLimit}
-      label={
-        isOnPrecall
-          ? ''
-          : isDesktop
-          ? $config.EVENT_MODE
-            ? yourName
-            : joiningAs
-          : ''
-      }
+      label={isOnPrecall ? '' : isDesktop ? joiningAs : ''}
       labelStyle={
         props?.labelStyle
           ? props.labelStyle
@@ -65,13 +60,7 @@ const PreCallTextInput = (props?: PreCallTextInputProps) => {
       autoFocus
       onChangeText={text => setUsername(text ? text : '')}
       onSubmitEditing={() => {}}
-      placeholder={
-        isJoinDataFetched
-          ? $config.EVENT_MODE
-            ? placeHolder
-            : userNamePlaceholder
-          : fetchingNamePlaceholder
-      }
+      placeholder={isJoinDataFetched ? placeHolder : fetchingNamePlaceholder}
       editable={!isInWaitingRoom && isJoinDataFetched}
     />
   );

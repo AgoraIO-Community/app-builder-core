@@ -5,6 +5,7 @@ import {useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
+import {toolbarItemCaptionText} from '../../language/default-labels/videoCallScreenLabels';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -30,9 +31,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const isDisabled = !isAuthorizedSTTUser();
-  const hCapLabel = useString('hideCaption')();
-  const sCapLabel = useString('showCaption')();
-  const label = isCaptionON ? hCapLabel : sCapLabel;
+  const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const label = captionLabel(isCaptionON);
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
       if (isSTTError) {

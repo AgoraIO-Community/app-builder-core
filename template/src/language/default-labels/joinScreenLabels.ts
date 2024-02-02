@@ -1,25 +1,45 @@
 import {I18nBaseType} from '../i18nTypes';
+import {room} from './createScreenLabels';
+
+export const joinRoomHeading = `join${room}Heading`;
+export const joinRoomInputLabel = `join${room}InputLabel`;
+export const joinRoomInputPlaceHolderText = `join${room}InputPlaceHolderText`;
+export const joinRoomBtnText = `join${room}BtnText`;
+export const joinRoomCreateBtnText = `join${room}CreateBtnText`;
+
+export const joinRoomErrorToastHeading = `join${room}ErrorToastHeading`;
+export const joinRoomErrorToastSubHeading = `join${room}ErrorToastSubHeading`;
 
 export interface I18nJoinScreenLabelsInterface {
-  roomId?: I18nBaseType;
-  streamId?: I18nBaseType;
-  enterRoomId?: I18nBaseType;
-  enterStreamId?: I18nBaseType;
-  joinRoom?: I18nBaseType;
-  joinStream?: I18nBaseType;
-  createStream?: I18nBaseType;
-  invalidRoomIdToastHeading?: I18nBaseType;
-  invalidRoomIdToastSubheading?: I18nBaseType;
+  [joinRoomHeading]?: I18nBaseType;
+  [joinRoomInputLabel]?: I18nBaseType;
+  [joinRoomInputPlaceHolderText]?: I18nBaseType;
+  [joinRoomBtnText]?: I18nBaseType;
+  [joinRoomCreateBtnText]?: I18nBaseType;
+  [joinRoomErrorToastHeading]?: I18nBaseType;
+  [joinRoomErrorToastSubHeading]?: I18nBaseType;
 }
 
 export const JoinScreenLabels: I18nJoinScreenLabelsInterface = {
-  roomId: 'Room ID',
-  streamId: 'Stream ID',
-  enterRoomId: 'Enter Room ID',
-  enterStreamId: 'Enter Stream ID',
-  joinRoom: 'Join Room',
-  joinStream: 'Join Stream',
-  createStream: 'Create a Stream',
-  invalidRoomIdToastHeading: 'Room ID Invalid.',
-  invalidRoomIdToastSubheading: 'Please enter a valid Room ID',
+  [joinRoomHeading]: ({eventMode}) => {
+    if (eventMode) {
+      return 'Stream ID';
+    } else {
+      return 'Room ID';
+    }
+  },
+  [joinRoomInputLabel]: ({eventMode}) => {
+    if (eventMode) {
+      return 'Enter Stream ID';
+    } else {
+      return 'Enter Room ID';
+    }
+  },
+  [joinRoomBtnText]: ({eventMode}) => (eventMode ? 'Join Stream' : 'Join Room'),
+  [joinRoomCreateBtnText]: ({eventMode}) =>
+    eventMode ? 'Create a Stream' : 'Create a Room',
+  [joinRoomErrorToastHeading]: ({eventMode}) =>
+    `${eventMode ? 'Stream' : 'Room'} ID Invalid.`,
+  [joinRoomErrorToastSubHeading]: ({eventMode}) =>
+    `Please enter a valid ${eventMode ? 'Stream' : 'Room'} ID`,
 };

@@ -18,6 +18,12 @@ import {useRoomInfo} from './room-info/useRoomInfo';
 import platform from '../subComponents/Platform';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import Clipboard from '../subComponents/Clipboard';
+import {
+  shareRoomCopyInviteToClipboardContent,
+  shareRoomPSTNLabel,
+  shareRoomPSTNNumberLabel,
+  shareRoomPSTNPinLabel,
+} from '../language/default-labels/shareLinkScreenLabels';
 
 export const GetMeetingInviteURL = (
   baseUrl: string,
@@ -99,11 +105,12 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     data: {meetingTitle, roomId, pstn, isSeparateHostLink, isHost},
   } = useRoomInfo();
 
-  const pstnLabel = useString('PSTN')();
-  const pstnNumberLabel = useString('number')();
-  const pinLabel = useString('pin')();
-  const meetingInviteText =
-    useString<MeetingInviteInterface>('meetingInviteText');
+  const pstnLabel = useString(shareRoomPSTNLabel)();
+  const pstnNumberLabel = useString(shareRoomPSTNNumberLabel)();
+  const pinLabel = useString(shareRoomPSTNPinLabel)();
+  const meetingInviteText = useString<MeetingInviteInterface>(
+    shareRoomCopyInviteToClipboardContent,
+  );
   const PSTNNumberText = `${pstnLabel} ${pstnNumberLabel}`;
   const PSTNPinText = `${pstnLabel} ${pinLabel}`;
 

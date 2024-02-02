@@ -34,7 +34,11 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
 import {useToolbar} from '../utils/useToolbar';
-import {I18nDeviceStatus} from '../language/default-labels/videoCallScreenLabels';
+import {
+  I18nDeviceStatus,
+  toolbarItemCameraText,
+  toolbarItemCameraTooltipText,
+} from '../language/default-labels/videoCallScreenLabels';
 /**
  * A component to mute / unmute the local video
  */
@@ -68,8 +72,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     rtcProps: {callActive},
   } = useContext(PropsContext);
 
-  const videoButtonLabel = useString<I18nDeviceStatus>('videoButton');
-  const videoButtonTooltip = useString<I18nDeviceStatus>('videoButtonTooltip');
+  const videoButtonLabel = useString<I18nDeviceStatus>(toolbarItemCameraText);
+  const videoButtonTooltip = useString<I18nDeviceStatus>(
+    toolbarItemCameraTooltipText,
+  );
 
   const onPress = () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
