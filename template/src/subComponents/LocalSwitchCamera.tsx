@@ -9,6 +9,7 @@ import {useScreenshare} from './screenshare/useScreenshare';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {toolbarItemSwitchCameraText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface LocalSwitchCameraProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
@@ -32,7 +33,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     iconContainerStyle = {},
   } = props;
 
-  const switchCameraText = useString('switchCameraButton')();
+  const switchCameraText = useString(toolbarItemSwitchCameraText)();
 
   const {rtcProps} = useContext(PropsContext);
   const isLiveStream = $config.EVENT_MODE;

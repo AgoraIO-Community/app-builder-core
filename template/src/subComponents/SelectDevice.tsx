@@ -28,6 +28,19 @@ import ThemeConfig from '../theme';
 import {randomNameGenerator} from '../utils';
 import pendingStateUpdateHelper from '../utils/pendingStateUpdateHelper';
 import InlineNotification from '../atoms/InlineNotification';
+import {
+  settingsPanelCameraLabel,
+  settingsPanelLiveStreamingAttendeeInfo,
+  settingsPanelMicrophoneLabel,
+  settingsPanelNoCameraDetectedText,
+  settingsPanelNoCameraSelectedText,
+  settingsPanelNoMicrophoneDetectedText,
+  settingsPanelNoMicrophoneSelectedText,
+  settingsPanelNoSpeakerDetectedText,
+  settingsPanelSpeakerLabel,
+  settingsPanelSystemDefaultSpeakerText,
+  settingsPanelUpdatingText,
+} from '../language/default-labels/precallScreenLabels';
 // import {dropdown} from '../../theme.json';
 
 /*
@@ -116,10 +129,10 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
-  const cameraLabel = useString('camera')();
-  const noCameraLabel = useString('noCameraDetected')();
-  const noCameraSelectedLabel = useString('noCameraSelected')();
-  const updateLabel = useString('updating')();
+  const cameraLabel = useString(settingsPanelCameraLabel)();
+  const noCameraLabel = useString(settingsPanelNoCameraDetectedText)();
+  const noCameraSelectedLabel = useString(settingsPanelNoCameraSelectedText)();
+  const updateLabel = useString(settingsPanelUpdatingText)();
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
@@ -208,10 +221,14 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
 
-  const microphoneLabel = useString('microphone')();
-  const noMicrophoneDetectedLabel = useString('noMicrophoneDetected')();
-  const updateLabel = useString('updating')();
-  const noMicrophoneSelectedLabel = useString('noMicrophoneSelected')();
+  const microphoneLabel = useString(settingsPanelMicrophoneLabel)();
+  const noMicrophoneDetectedLabel = useString(
+    settingsPanelNoMicrophoneDetectedText,
+  )();
+  const updateLabel = useString(settingsPanelUpdatingText)();
+  const noMicrophoneSelectedLabel = useString(
+    settingsPanelNoMicrophoneSelectedText,
+  )();
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
@@ -298,10 +315,12 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     }
   }, [selectedSpeaker, data]);
 
-  const speakerLabel = useString('speaker')();
-  const speakerDefaultLabel = useString('speakerDefaultDevice')();
-  const noSpeakerLabel = useString('noSpeakerDetected')();
-  const updateLabel = useString('updating')();
+  const speakerLabel = useString(settingsPanelSpeakerLabel)();
+  const speakerDefaultLabel = useString(
+    settingsPanelSystemDefaultSpeakerText,
+  )();
+  const noSpeakerLabel = useString(settingsPanelNoSpeakerDetectedText)();
+  const updateLabel = useString(settingsPanelUpdatingText)();
   return props?.render ? (
     props.render(
       selectedSpeaker,
@@ -434,7 +453,9 @@ const SelectDevice = (props: SelectDeviceProps) => {
     }
   }, [speakerDevices]);
 
-  const settingScreenInfoMessage = useString('livestreamAttendeeSettingInfo')();
+  const settingScreenInfoMessage = useString(
+    settingsPanelLiveStreamingAttendeeInfo,
+  )();
   if (isOnPrecall) {
     return (
       <>

@@ -47,29 +47,84 @@ export enum I18nDeviceStatus {
   ON = 1,
 }
 
+export const toolbarItemPeopleText = 'toolbarItemPeopleText';
+export const toolbarItemChatText = 'toolbarItemChatText';
+export const toolbarItemSettingText = 'toolbarItemSettingText';
+
+export const toolbarItemLayoutText = 'toolbarItemLayoutText';
+export const toolbarItemInviteText = 'toolbarItemInviteText';
+
+export const toolbarItemMicrophoneText = 'toolbarItemMicrophoneText';
+export const toolbarItemMicrophoneTooltipText =
+  'toolbarItemMicrophoneTooltipText';
+export const toolbarItemCameraText = 'toolbarItemCameraText';
+export const toolbarItemCameraTooltipText = 'toolbarItemCameraTooltipText';
+export const toolbarItemSwitchCameraText = 'toolbarItemSwitchCameraText';
+export const toolbarItemShareText = 'toolbarItemShareText';
+export const toolbarItemRecordingText = 'toolbarItemRecordingText';
+export const toolbarItemLeaveText = 'toolbarItemLeaveText';
+
+export const toolbarItemMoreText = 'toolbarItemMoreText';
+export const toolbarItemNoiseCancellationText =
+  'toolbarItemNoiseCancellationText';
+export const toolbarItemWhiteboardText = 'toolbarItemWhiteboardText';
+export const toolbarItemCaptionText = 'toolbarItemCaptionText';
+export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
+export const toolbarItemVitrualBackgroundText =
+  'toolbarItemVitrualBackgroundText';
+
+export const toolbarItemRaiseHandText = 'toolbarItemRaiseHandText';
+
 export interface I18nVideoCallScreenLabelsInterface {
-  people?: I18nBaseType;
-  chat?: I18nBaseType;
-  layout?: I18nBaseType;
-  invite?: I18nBaseType;
-  videoButton?: I18nBaseType<I18nDeviceStatus>;
-  micButton?: I18nBaseType<I18nDeviceStatus>;
-  videoButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
-  micButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
-  moreButton?: I18nBaseType;
-  noiseCancellation?: I18nBaseType;
-  startWhiteboard?: I18nBaseType;
-  hideWhiteboard?: I18nBaseType;
-  showWhiteboard?: I18nBaseType;
-  hideCaption?: I18nBaseType;
-  showCaption?: I18nBaseType;
-  hideTranscript?: I18nBaseType;
-  showTranscript?: I18nBaseType;
-  screenShareButton?: I18nConditionalType; //
-  raiseHandButton?: I18nConditionalType; //
-  recordingButton?: I18nConditionalType;
-  leaveButton?: I18nBaseType; //
-  switchCameraButton?: I18nBaseType;
+  [toolbarItemPeopleText]?: I18nBaseType;
+  [toolbarItemChatText]?: I18nBaseType;
+  [toolbarItemSettingText]?: I18nBaseType;
+
+  [toolbarItemLayoutText]?: I18nBaseType;
+  [toolbarItemInviteText]?: I18nBaseType;
+
+  [toolbarItemMicrophoneText]?: I18nBaseType<I18nDeviceStatus>;
+  [toolbarItemMicrophoneTooltipText]?: I18nBaseType<I18nDeviceStatus>;
+  [toolbarItemCameraText]?: I18nBaseType<I18nDeviceStatus>;
+  [toolbarItemCameraTooltipText]?: I18nBaseType<I18nDeviceStatus>;
+  [toolbarItemSwitchCameraText]?: I18nBaseType;
+
+  [toolbarItemShareText]?: I18nConditionalType;
+  [toolbarItemRecordingText]?: I18nConditionalType;
+  [toolbarItemLeaveText]?: I18nBaseType;
+
+  [toolbarItemMoreText]?: I18nBaseType;
+
+  [toolbarItemNoiseCancellationText]?: I18nBaseType;
+  [toolbarItemWhiteboardText]?: I18nConditionalType;
+  [toolbarItemCaptionText]?: I18nConditionalType;
+  [toolbarItemTranscriptText]?: I18nConditionalType;
+  [toolbarItemVitrualBackgroundText]?: I18nBaseType;
+
+  [toolbarItemRaiseHandText]?: I18nConditionalType;
+
+  // people?: I18nBaseType;
+  // chat?: I18nBaseType;
+  // layout?: I18nBaseType;
+  // invite?: I18nBaseType;
+  // videoButton?: I18nBaseType<I18nDeviceStatus>;
+  // micButton?: I18nBaseType<I18nDeviceStatus>;
+  // videoButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
+  // micButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
+  // moreButton?: I18nBaseType;
+  // noiseCancellation?: I18nBaseType;
+  // startWhiteboard?: I18nBaseType;
+  // hideWhiteboard?: I18nBaseType;
+  // showWhiteboard?: I18nBaseType;
+  // hideCaption?: I18nBaseType;
+  // showCaption?: I18nBaseType;
+  // hideTranscript?: I18nBaseType;
+  // showTranscript?: I18nBaseType;
+  // screenShareButton?: I18nConditionalType; //
+  // raiseHandButton?: I18nConditionalType; //
+  // recordingButton?: I18nConditionalType;
+  // leaveButton?: I18nBaseType; //
+  // switchCameraButton?: I18nBaseType;
   nameCantbeChangedInfo?: I18nBaseType;
   noOneElseJoinedYet?: I18nBaseType;
   noOneElseJoinedYetInviteOthers?: I18nBaseType;
@@ -77,55 +132,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   copyInvitationButton?: I18nBaseType;
   welcome?: I18nBaseType;
   invitePopupHeading?: I18nBaseType;
-  //recordingNotificationLabel?: I18nConditionalType;
-  // participantsLabel?: I18nBaseType; //
-  // groupChatLabel?: I18nBaseType; //
-  // privateChatLabel?: I18nBaseType; //
-  // chatMessageInputPlaceholder?: I18nBaseType; //
-  // hostControlsLabel?: I18nBaseType; //
-  // muteAllVideoButton?: I18nBaseType; //
-  // muteAllAudioButton?: I18nBaseType; //
-  // switchCameraButton?: I18nBaseType; //
-  // localScreenshareDefaultLabel?: I18nBaseType; //
-  // localUserDefaultLabel?: I18nBaseType; //
-  // remoteUserDefaultLabel?: I18nBaseType; //
   pstnUserLabel?: I18nBaseType; //
-  // commented for v1 release
-  // authenticationSuccessLabel?: I18nBaseType; //
-  // meetingCreatedNotificationLabel?: I18nBaseType; //
-  // joiningLoaderLabel?: I18nBaseType; //
-  // oauthLoginLabel?: I18nBaseType; //
-  // oauthProviderLabel?: I18nBaseType; //
-  // copyMeetingInviteButton?: I18nBaseType; //
-  // pin?: I18nBaseType;
-  // language?: I18nBaseType;
-  // screensharingActiveOverlayLabel?: I18nBaseType; //
-  // recordingButton?: I18nConditionalType; //
-  // screenshareUserName?: I18nDynamicType; //
-  // messageSenderNotificationLabel?: I18nDynamicType; //
   networkQualityLabel?: I18nBaseType<NetworkQualities>; //
-  meetingInviteText?: I18nBaseType<MeetingInviteInterface>; //
-  // participantListPlaceholder?: I18nBaseType; //
-  // raisedHandsListPlaceholder?: I18nBaseType; //
-  // raisedHandsListTitleLabel?: I18nBaseType; //
-  // hostLabel?: I18nBaseType; //
-  // audienceLabel?: I18nBaseType; //
-  // raiseHandButton?: I18nConditionalType; //
-  // noUserFoundLabel?: I18nBaseType;
-  // userOfflineLabel?: I18nBaseType;
-  // raiseHandLocalNotification?: I18nBaseType; //
-  // raiseHandRemoteHostNotification?: I18nConditionalType; //
-  // raiseHandApprovedLocalNotification?: I18nBaseType; //
-  // raiseHandRejectedLocalNotification?: I18nBaseType; //
-  // lowerHandRemoteHostNotification?: I18nConditionalType; //
-  // lowerHandsLocalNotification?: I18nBaseType; //
-  // raiseHandRevokedLocalNotification?: I18nBaseType; //
-  // recordingLabel?: I18nBaseType;
-  // settingScreenInfoMessage?: I18nBaseType;
-  // chatLabel?: I18nBaseType;
-  // settingsLabel?: I18nBaseType;
-  // layoutLabel?: I18nBaseType;
-
   apply?: I18nBaseType;
   applied?: I18nBaseType;
   grid?: I18nBaseType;
@@ -271,23 +279,13 @@ export interface I18nVideoCallScreenLabelsInterface {
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
-  people: 'People',
-  chat: 'Chat',
-  layout: 'Layout',
-  invite: 'Invite',
-  videoButton: deviceStatus => {
-    switch (deviceStatus) {
-      case I18nDeviceStatus.ON:
-        return 'Video On';
-      case I18nDeviceStatus.OFF:
-        return 'Video Off';
-      case I18nDeviceStatus.PERMISSION_DENIED:
-        return 'Video';
-      default:
-        return 'Video';
-    }
-  },
-  micButton: deviceStatus => {
+  [toolbarItemPeopleText]: 'People',
+  [toolbarItemChatText]: 'Chat',
+  [toolbarItemSettingText]: 'Settings',
+  [toolbarItemLayoutText]: 'Layout',
+  [toolbarItemInviteText]: 'Invite',
+
+  [toolbarItemMicrophoneText]: deviceStatus => {
     switch (deviceStatus) {
       case I18nDeviceStatus.ON:
         return 'Mic On';
@@ -299,19 +297,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
         return 'Mic';
     }
   },
-  videoButtonTooltip: deviceStatus => {
-    switch (deviceStatus) {
-      case I18nDeviceStatus.ON:
-        return 'Disable Camera';
-      case I18nDeviceStatus.OFF:
-        return 'Enable Camera';
-      case I18nDeviceStatus.PERMISSION_DENIED:
-        return 'Give Permissions';
-      default:
-        return 'Video';
-    }
-  },
-  micButtonTooltip: deviceStatus => {
+  [toolbarItemMicrophoneTooltipText]: deviceStatus => {
     switch (deviceStatus) {
       case I18nDeviceStatus.ON:
         return 'Disable Mic';
@@ -323,23 +309,45 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
         return 'Mic';
     }
   },
-  moreButton: 'More',
+  [toolbarItemCameraText]: deviceStatus => {
+    switch (deviceStatus) {
+      case I18nDeviceStatus.ON:
+        return 'Video On';
+      case I18nDeviceStatus.OFF:
+        return 'Video Off';
+      case I18nDeviceStatus.PERMISSION_DENIED:
+        return 'Video';
+      default:
+        return 'Video';
+    }
+  },
+  [toolbarItemCameraTooltipText]: deviceStatus => {
+    switch (deviceStatus) {
+      case I18nDeviceStatus.ON:
+        return 'Disable Camera';
+      case I18nDeviceStatus.OFF:
+        return 'Enable Camera';
+      case I18nDeviceStatus.PERMISSION_DENIED:
+        return 'Give Permissions';
+      default:
+        return 'Video';
+    }
+  },
+  [toolbarItemShareText]: active => (active ? 'Stop Share' : 'Share'),
+  [toolbarItemRecordingText]: active => (active ? 'Stop Rec' : 'Record'),
+  [toolbarItemLeaveText]: 'Leave',
+  [toolbarItemMoreText]: 'More',
 
-  noiseCancellation: 'Noise Cancellation',
-  startWhiteboard: 'Start Whiteboard',
-  hideWhiteboard: 'Hide Whiteboard',
-  showWhiteboard: 'Show Whiteboard',
-  hideTranscript: 'Hide Transcript',
-  showTranscript: 'Show Transcript',
-  showCaption: 'Show Caption',
-  hideCaption: 'Hide Caption',
-  switchCameraButton: 'Switch Camera',
-  raiseHandButton: active => (active ? 'Lower Hand' : 'Raise Hand'),
+  [toolbarItemNoiseCancellationText]: 'Noise Cancellation',
+  [toolbarItemVitrualBackgroundText]: 'Virtual Background',
+  [toolbarItemWhiteboardText]: active =>
+    active ? 'Hide Whiteboard' : 'Show Whiteboard',
+  [toolbarItemCaptionText]: active =>
+    active ? 'Hide Caption' : 'Show Caption',
+  [toolbarItemTranscriptText]: active =>
+    active ? 'Hide Transcript' : 'Show Transcript',
 
-  screenShareButton: active => (active ? 'Stop Share' : 'Share'),
-  recordingButton: active => (active ? 'Stop Rec' : 'Record'),
-
-  leaveButton: 'Leave',
+  [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
 
   nameCantbeChangedInfo: `Name can't be changed while whiteboard is active`,
   noOneElseJoinedYet: 'No one else has joined yet.',
@@ -349,61 +357,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   copyInvitationButton: 'COPY INVITATION',
   welcome: 'Welcome',
   invitePopupHeading: 'Invite others to join this room',
-  //need to check
-  //remoteScreenshareDefaultLabel - User's screenshare
-  //commented for v1 release
-  // switchCameraButton: 'Switch',
-  // recordingLabel: 'Recording',
-  // recordingNotificationLabel: (active) =>
-  //   active ? 'Recording Started' : 'Recording Stopped',
-  // endCallButton: 'Hang Up',
-  // participantsLabel: 'Participants',
-  // groupChatLabel: 'Group',
-  // privateChatLabel: 'Private',
-  // chatMessageInputPlaceholder: 'Type your message..',
-  // localScreenshareDefaultLabel: 'Your screenshare',
-  // localUserDefaultLabel: 'You',
-  // remoteUserDefaultLabel: 'User',
   pstnUserLabel: 'PSTN User',
-  //commented for v1 release
-  // authenticationSuccessLabel: 'Authenticated Successfully!',
-  // meetingCreatedNotificationLabel: 'Created',
-  // joiningLoaderLabel: 'Starting Call. Just a second.',
-  // oauthLoginLabel: 'Login using OAuth',
-  // oauthProviderLabel: 'Please select an OAuth provider to login.',
-  // copyMeetingInviteButton: 'Copy Room Invite',
-  // pin: 'Pin',
-  // language: 'Language',
-  // hostControlsLabel: 'Host Controls',
-  // muteAllAudioButton: 'Mute all audios',
-  // muteAllVideoButton: 'Mute all videos',
-  // screensharingActiveOverlayLabel: 'Your screen share is active.',
-  // participantListPlaceholder: 'No one has joined yet',
-  // raisedHandsListPlaceholder: 'No streaming request(s)',
-  // raisedHandsListTitleLabel: 'Streaming Request',
-  // hostLabel: 'Host',
-  // audienceLabel: 'Audience',
-  // noUserFoundLabel: 'User not found',
-  // userOfflineLabel: 'User is offline',
-  // chatLabel: 'Chat',
-  // settingsLabel: 'Settings',
-  // layoutLabel: 'Layouts',
-  // raiseHandLocalNotification:
-  //   'You have raised your hand. Request sent to host for approval',
-  // raiseHandRemoteHostNotification: (name) => `${name} has raised their hand`,
-  // raiseHandApprovedLocalNotification:
-  //   'Your request was approved, unmute to start talking',
-  // raiseHandRejectedLocalNotification: 'Your request was rejected by the host',
-  // lowerHandRemoteHostNotification: (name) => `${name} has lowered their hand`,
-  // lowerHandsLocalNotification: 'You have lowered your hand',
-  // raiseHandRevokedLocalNotification:
-  //   'The host has revoked streaming permissions',
-  // settingScreenInfoMessage:
-  //   'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.',
-  // screenshareUserName: (name) => `${name}'s screenshare`, //
-  // recordingButton: (recording) => (recording ? 'Recording' : 'Record'),
-  // raiseHandButton: (toggle) => (toggle ? 'Lower hand' : 'Raise Hand'),
-  // messageSenderNotificationLabel: (name) => `From : ${name}`,
   networkQualityLabel: (quality: NetworkQualities) => {
     switch (quality) {
       case 'unknown':
@@ -424,48 +378,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
         return 'Loading';
     }
   },
-  meetingInviteText: ({
-    meetingName,
-    id,
-    url,
-    pstn,
-    isHost,
-    isSeparateHostLink,
-  }) => {
-    let inviteContent = '';
-    if (url) {
-      //for host
-      if (isHost) {
-        if (isSeparateHostLink) {
-          //seperate link for host and attendee
-          inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
-        } else {
-          //single link for everyone
-          inviteContent += `Room: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
-        }
-      }
-      //for attendee
-      else {
-        inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
-      }
-    } else {
-      if (isHost) {
-        if (isSeparateHostLink) {
-          inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}\n\nHost Room ID:\n${id?.host}`;
-        } else {
-          inviteContent += `Room: ${meetingName}\n\nRoom ID:\n${id?.host}`;
-        }
-      } else {
-        //copy this label on videocall screen
-        inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}`;
-      }
-    }
-    // Adding pstn data into meeting data if present
-    if (pstn?.number && pstn?.pin) {
-      inviteContent += `\n\nPSTN Number:\n${pstn.number}\n\nPSTN Pin:\n${pstn.pin}`;
-    }
-    return inviteContent;
-  },
+
   applied: 'Applied',
   apply: 'Apply',
   grid: 'Grid',

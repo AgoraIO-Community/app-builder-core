@@ -82,6 +82,21 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 import {useString} from '../utils/useString';
+import {
+  toolbarItemCaptionText,
+  toolbarItemChatText,
+  toolbarItemInviteText,
+  toolbarItemLayoutText,
+  toolbarItemMoreText,
+  toolbarItemNoiseCancellationText,
+  toolbarItemPeopleText,
+  toolbarItemRecordingText,
+  toolbarItemSettingText,
+  toolbarItemShareText,
+  toolbarItemTranscriptText,
+  toolbarItemVitrualBackgroundText,
+  toolbarItemWhiteboardText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -225,23 +240,19 @@ export const WhiteboardListener = () => {
 };
 
 const MoreButton = () => {
-  const noiseCancellationLabel = useString('noiseCancellation')();
-  const startWhiteboardLabel = useString('startWhiteboard')();
-  const hideWhiteboardLabel = useString('hideWhiteboard')();
-  const showWhiteboardLabel = useString('showWhiteboard')();
-  const hideCaptionLabel = useString('hideCaption')();
-  const showCaptionLabel = useString('showCaption')();
-  const hideTranscriptLabel = useString('hideTranscript')();
-  const showTranscriptLabel = useString('showTranscript')();
-  const settingsLabel = useString('settings')();
-  const screenShareButton = useString<boolean>('screenShareButton');
-  const recordingButton = useString<boolean>('recordingButton');
-  const moreButtonLabel = useString('moreButton')();
-  const virtualBackgroundLabel = useString('virtualBackground')();
-  const chatLabel = useString('chat')();
-  const inviteLabel = useString('invite')();
-  const peopleLabel = useString('people')();
-  const layoutLabel = useString('layout')();
+  const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
+  const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
+  const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const transcriptLabel = useString<boolean>(toolbarItemTranscriptText);
+  const settingsLabel = useString(toolbarItemSettingText)();
+  const screenShareButton = useString<boolean>(toolbarItemShareText);
+  const recordingButton = useString<boolean>(toolbarItemRecordingText);
+  const moreButtonLabel = useString(toolbarItemMoreText)();
+  const virtualBackgroundLabel = useString(toolbarItemVitrualBackgroundText)();
+  const chatLabel = useString(toolbarItemChatText)();
+  const inviteLabel = useString(toolbarItemInviteText)();
+  const peopleLabel = useString(toolbarItemPeopleText)();
+  const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
   const {setCustomContent} = useContent();
@@ -425,11 +436,7 @@ const MoreButton = () => {
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive
-        ? hideWhiteboardLabel
-        : whiteboardStartedFirst
-        ? showWhiteboardLabel
-        : startWhiteboardLabel,
+      title: whiteboardLabel(whiteboardActive),
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
@@ -445,7 +452,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isCaptionON ? hideCaptionLabel : showCaptionLabel}`,
+      title: captionLabel(isCaptionON),
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
@@ -468,7 +475,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isTranscriptON ? hideTranscriptLabel : showTranscriptLabel}`,
+      title: transcriptLabel(isTranscriptON),
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isTranscriptON ? 'transcript' : null;

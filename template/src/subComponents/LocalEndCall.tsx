@@ -16,6 +16,7 @@ import RTMEngine from '../rtm/RTMEngine';
 import {useAuth} from '../../src/auth/AuthProvider';
 import {ENABLE_AUTH} from '../../src/auth/config';
 import {useString} from '../../src/utils/useString';
+import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -35,7 +36,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const {isToolbarMenuItem} = useToolbarMenu();
   const {dispatch} = useContext(DispatchContext);
   const {isOnActionSheet, showLabel} = useActionSheet();
-  const endCallLabel = useString('leaveButton')();
+  const endCallLabel = useString(toolbarItemLeaveText)();
   const {defaultContent} = useContent();
   const [endcallVisible, setEndcallVisible] = useState(false);
   const {stop} = useSTTAPI();

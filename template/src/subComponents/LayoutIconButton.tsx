@@ -11,6 +11,7 @@ import {useWindowDimensions} from 'react-native';
 import {useContent} from 'customization-api';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useString} from '../utils/useString';
+import {toolbarItemLayoutText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -41,7 +42,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       });
     }
   };
-  const layoutLabel = useString('layout')('');
+  const layoutLabel = useString(toolbarItemLayoutText)('');
   const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout, setLayout} = useLayout();

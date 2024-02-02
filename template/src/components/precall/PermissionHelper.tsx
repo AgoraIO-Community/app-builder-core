@@ -1,30 +1,26 @@
 import {useLocalUserInfo} from 'customization-api';
 import React, {useContext, useEffect, useState} from 'react';
-import {
-  View,
-  Image,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import {View, Image, TouchableOpacity, StyleSheet, Text} from 'react-native';
 import Popup from '../../atoms/Popup';
 import ThemeConfig from '../../theme';
 //@ts-ignore
 import permissionHelper from '../../assets/permission.png';
 import {DispatchContext, PermissionState} from '../../../agora-rn-uikit';
 import {useString} from '../../utils/useString';
+import {
+  permissionPopupDismissBtnText,
+  permissionPopupHeading,
+  permissionPopupSubHeading,
+} from '../../language/default-labels/precallScreenLabels';
 
 const PermissionHelper = () => {
-  const allowMicPermission = useString('allowMicPermision')();
-  const allowMicAndCameraPermission = useString(
-    'allowMicAndCameraPermission',
-  )();
-  const select = useString('select')();
-  const allow = useString('allow')();
-  const dismiss = useString('dismiss')();
-  const otherToHearYou = useString('otherToHearYou')();
-  const otherToSeeAndHearYou = useString('otherToSeeAndHearYou')();
+  const heading = useString<any>(permissionPopupHeading)({
+    audioRoom: $config.AUDIO_ROOM,
+  });
+  const subheading = useString<any>(permissionPopupSubHeading)({
+    audioRoom: $config.AUDIO_ROOM,
+  });
+  const dismiss = useString(permissionPopupDismissBtnText)();
 
   const {dispatch} = useContext(DispatchContext);
   const {permissionStatus} = useLocalUserInfo();
@@ -89,16 +85,8 @@ const PermissionHelper = () => {
           />
         </View>
         <View style={styles.modalContent}>
-          <Text style={styles.infoMessage1}>
-            {$config.AUDIO_ROOM
-              ? allowMicPermission
-              : allowMicAndCameraPermission}
-          </Text>
-          <Text style={styles.infoMessage2}>
-            {select}
-            <Text style={styles.infoMessage2Highlight}>{allow}</Text>
-            {$config.AUDIO_ROOM ? otherToHearYou : otherToSeeAndHearYou}
-          </Text>
+          <Text style={styles.infoMessage1}>{heading}</Text>
+          <Text style={styles.infoMessage2}>{subheading}</Text>
           <TouchableOpacity
             onPress={() => {
               closePopup();

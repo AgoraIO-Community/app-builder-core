@@ -1,107 +1,152 @@
 import {ClientRole} from '../../../agora-rn-uikit';
 import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
 
-export interface JoinRoomButtonTextInterface {
+export interface PrecallJoinBtnTextInterface {
   ready: boolean;
   role?: ClientRole;
+  waitingRoom?: boolean;
 }
+
+export const permissionPopupHeading = `permissionPopupHeading`;
+export const permissionPopupSubHeading = `permissionPopupSubHeading`;
+export const permissionPopupDismissBtnText = `permissionPopupDismissBtnText`;
+export const permissionPopupErrorToastHeading = `permissionPopupErrorToastHeading`;
+export const permissionPopupErrorToastSubHeading = `permissionPopupErrorToastSubHeading`;
+
+export const settingsPanelHeading = `settingsPanelHeading`;
+export const settingsPanelMicrophoneLabel = 'settingsPanelMicrophoneLabel';
+export const settingsPanelNoMicrophoneDetectedText =
+  'settingsPanelNoMicrophoneDetectedText';
+export const settingsPanelNoMicrophoneSelectedText =
+  'settingsPanelNoMicrophoneSelectedText';
+export const settingsPanelCameraLabel = 'settingsPanelCameraLabel';
+export const settingsPanelNoCameraDetectedText =
+  'settingsPanelNoCameraDetectedText';
+export const settingsPanelNoCameraSelectedText =
+  'settingsPanelNoCameraSelectedText';
+export const settingsPanelSpeakerLabel = 'settingsPanelSpeakerLabel';
+export const settingsPanelNoSpeakerDetectedText =
+  'settingsPanelNoSpeakerDetectedText';
+export const settingsPanelNoSpeakerSelectedText =
+  'settingsPanelNoSpeakerSelectedText';
+export const settingsPanelSystemDefaultSpeakerText =
+  'settingsPanelSystemDefaultSpeakerText';
+export const settingsPanelLiveStreamingAttendeeInfo =
+  'settingsPanelLiveStreamingAttendeeInfo';
+export const settingsPanelUpdatingText = 'settingsPanelUpdatingText';
+
+export const settingsPanelLanguageLabel = 'settingsPanelLanguageLabel';
+
+export const precallYouAreJoiningAsHeading = 'precallYouAreJoiningAsHeading';
+export const precallNameInputPlaceholderText =
+  'precallNameInputPlaceholderText';
+export const precallJoinBtnText = 'precallJoinBtnText';
+export const precallInputGettingName = 'precallInputGettingName';
+
+export const vbPanelHeading = 'vbPanelHeading';
+export const vbPanelInfo = 'vbPanelInfo';
+export const vbPanelOptionNoneText = 'vbPanelOptionNoneText';
+export const vbPanelOptionBlurText = 'vbPanelOptionBlurText';
+export const vbPanelOptionCustomText = 'vbPanelOptionCustomText';
+
 export interface I18nPrecallScreenLabelsInterface {
-  allowMicPermision?: I18nBaseType;
-  allowMicAndCameraPermission?: I18nBaseType;
-  select?: I18nBaseType;
-  allow?: I18nBaseType;
-  otherToHearYou?: I18nBaseType;
-  otherToSeeAndHearYou?: I18nBaseType;
-  dismiss?: I18nBaseType;
-  cantFindDeviceToastHeading?: I18nConditionalType;
-  cantFindDeviceToastSubHeading?: I18nConditionalType;
-  settings?: I18nBaseType;
-  youAreJoiningAs?: I18nBaseType;
-  microphone?: I18nBaseType;
-  camera?: I18nBaseType;
-  speaker?: I18nBaseType;
-  noMicrophoneDetected?: I18nBaseType;
-  noCameraDetected?: I18nBaseType;
-  noSpeakerDetected?: I18nBaseType;
-  noMicrophoneSelected?: I18nBaseType;
-  noCameraSelected?: I18nBaseType;
-  noSpeakerSelected?: I18nBaseType;
-  livestreamAttendeeSettingInfo?: I18nBaseType;
-  updating?: I18nBaseType;
-  speakerDefaultDevice?: I18nBaseType;
-  virtualBackground?: I18nBaseType;
-  virtualBackgroundCameraInfo?: I18nConditionalType;
-  none?: I18nBaseType;
-  blur?: I18nBaseType;
-  custom?: I18nBaseType;
+  [permissionPopupHeading]?: I18nBaseType;
+  [permissionPopupSubHeading]?: I18nBaseType;
+  [permissionPopupDismissBtnText]?: I18nBaseType;
+  [permissionPopupErrorToastHeading]?: I18nBaseType;
+  [permissionPopupErrorToastSubHeading]?: I18nBaseType;
 
-  enterYourName?: I18nBaseType;
-  yourName?: I18nBaseType;
-  joiningAs?: I18nBaseType;
-  gettingName?: I18nBaseType;
-  nameInputPlaceholder?: I18nBaseType;
+  [settingsPanelHeading]?: I18nBaseType;
 
-  joinRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
-  waitingRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
+  [settingsPanelCameraLabel]?: I18nBaseType;
+  [settingsPanelNoCameraDetectedText]?: I18nBaseType;
+  [settingsPanelNoCameraSelectedText]?: I18nBaseType;
+
+  [settingsPanelMicrophoneLabel]?: I18nBaseType;
+  [settingsPanelNoMicrophoneDetectedText]?: I18nBaseType;
+  [settingsPanelNoMicrophoneSelectedText]?: I18nBaseType;
+
+  [settingsPanelSpeakerLabel]?: I18nBaseType;
+  [settingsPanelNoSpeakerDetectedText]?: I18nBaseType;
+  [settingsPanelNoSpeakerSelectedText]?: I18nBaseType;
+  [settingsPanelSystemDefaultSpeakerText]?: I18nBaseType;
+
+  [settingsPanelLiveStreamingAttendeeInfo]?: I18nBaseType;
+  [settingsPanelUpdatingText]?: I18nBaseType;
+
+  [precallYouAreJoiningAsHeading]?: I18nBaseType;
+  [precallNameInputPlaceholderText]?: I18nBaseType;
+  [precallJoinBtnText]?: I18nBaseType<PrecallJoinBtnTextInterface>;
+
+  [vbPanelHeading]?: I18nBaseType;
+  [vbPanelInfo]?: I18nConditionalType;
+  [vbPanelOptionNoneText]?: I18nBaseType;
+  [vbPanelOptionBlurText]?: I18nBaseType;
+  [vbPanelOptionCustomText]?: I18nBaseType;
+
+  [precallInputGettingName]?: I18nBaseType;
 }
 
 export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
-  allowMicPermision: 'Allow access to microphone',
-  allowMicAndCameraPermission: 'Allow access to camera and microphone',
-  select: 'Select',
-  allow: ' “Allow” ',
-  otherToHearYou: 'for others to hear you',
-  otherToSeeAndHearYou: 'for others to see and hear you',
-  dismiss: 'Dismiss',
-  cantFindDeviceToastHeading: audioRoom =>
+  //permission popup
+  [permissionPopupHeading]: ({audioRoom}) =>
+    audioRoom
+      ? 'Allow access to microphone'
+      : 'Allow access to camera and microphone',
+  [permissionPopupSubHeading]: ({audioRoom}) =>
+    audioRoom
+      ? 'Select “Allow” for others to hear you'
+      : 'Select “Allow” for others to see and hear you',
+  [permissionPopupDismissBtnText]: 'Dismiss',
+  [permissionPopupErrorToastHeading]: ({audioRoom}) =>
     `Can't find your ${audioRoom ? ' Microphone' : ' Camera'}`,
-  cantFindDeviceToastSubHeading: audioRoom =>
+  [permissionPopupErrorToastSubHeading]: audioRoom =>
     `Check your system settings to make sure that a ${
       audioRoom ? 'microphone' : 'camera'
     } is available. If not, plug one in and restart your browser`,
 
-  settings: 'Settings',
-  youAreJoiningAs: 'You are joining',
+  [settingsPanelHeading]: 'Settings',
 
-  microphone: 'Microphone',
-  speaker: 'Speaker',
-  camera: 'Camera',
-  noCameraDetected: 'No Camera Detected',
-  noMicrophoneDetected: 'No Microphone Detected',
-  noSpeakerDetected: 'No Speaker Detected',
-  noCameraSelected: 'No Camera Selected',
-  noMicrophoneSelected: 'No Microphone Selected',
-  noSpeakerSelected: 'No Speaker Selected',
-  livestreamAttendeeSettingInfo:
+  [settingsPanelCameraLabel]: 'Camera',
+  [settingsPanelNoCameraDetectedText]: 'No Camera Detected',
+  [settingsPanelNoCameraSelectedText]: 'No Camera Selected',
+
+  [settingsPanelMicrophoneLabel]: 'Microphone',
+  [settingsPanelNoMicrophoneDetectedText]: 'No Microphone Detected',
+  [settingsPanelNoMicrophoneSelectedText]: 'No Microphone Selected',
+
+  [settingsPanelSpeakerLabel]: 'Speaker',
+  [settingsPanelNoSpeakerDetectedText]: 'No Speaker Detected',
+  [settingsPanelNoSpeakerSelectedText]: 'No Speaker Selected',
+  [settingsPanelSystemDefaultSpeakerText]: 'System Default Speaker Device',
+
+  [settingsPanelLiveStreamingAttendeeInfo]:
     'Attendees need to raise their hand to access the devices.',
+  [settingsPanelUpdatingText]: 'Updating',
 
-  speakerDefaultDevice: 'System Default Speaker Device',
-  updating: 'Updating',
+  [precallYouAreJoiningAsHeading]: 'You Are Joining as',
+  [precallNameInputPlaceholderText]: 'Enter Your Name',
+  [precallInputGettingName]: 'Getting name...',
+  [precallJoinBtnText]: ({waitingRoom, ready, role}) => {
+    if (waitingRoom) {
+      return ready ? 'Ask To Join' : `Waiting for approval...`;
+    } else {
+      return ready
+        ? !role
+          ? 'JOIN ROOM'
+          : `JOIN ROOM AS ${
+              role === ClientRole.Broadcaster ? 'HOST' : 'AUDIENCE'
+            }`
+        : `Loading...`;
+    }
+  },
 
-  virtualBackground: 'Virtual Background',
-  virtualBackgroundCameraInfo: (isCamOn: boolean) =>
+  [vbPanelHeading]: 'Virtual Background',
+  [vbPanelInfo]: (isCamOn: boolean) =>
     isCamOn
-      ? `Camera is currently off. Selected background will be applied as soon as your camera turns on.`
-      : `Your camera is switched off. Save a background to apply once it’s turned on.`,
-
-  none: 'None',
-  blur: 'Blur',
-  custom: 'Custom',
-
-  enterYourName: 'Enter Your Name',
-  yourName: 'Your Name',
-  joiningAs: 'Joining as',
-  gettingName: 'Getting name...',
-  nameInputPlaceholder: 'Luke Skywalker',
-
-  joinRoomButton: ({ready, role}) =>
-    ready
-      ? !role
-        ? 'JOIN ROOM'
-        : `JOIN ROOM AS ${
-            role === ClientRole.Broadcaster ? 'HOST' : 'AUDIENCE'
-          }`
-      : `Loading...`,
-  waitingRoomButton: ({ready}) =>
-    ready ? 'Ask To Join' : `Waiting for approval...`,
+      ? 'Camera is currently off. Selected background will be applied as soon as your camera turns on.'
+      : 'Your camera is switched off. Save a background to apply once it’s turned on.',
+  [vbPanelOptionNoneText]: 'None',
+  [vbPanelOptionBlurText]: 'Blur',
+  [vbPanelOptionCustomText]: 'Custom',
 };

@@ -25,6 +25,7 @@ import {IconButtonProps} from '../../../atoms/IconButton';
 import {useToolbarMenu} from '../../../utils/useMenu';
 import ToolbarMenuItem from '../../../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../../../utils/useActionSheet';
+import {toolbarItemRaiseHandText} from '../../../language/default-labels/videoCallScreenLabels';
 
 interface LocalRaiseHandProps {}
 const LocalRaiseHand = (props: LocalRaiseHandProps) => {
@@ -36,7 +37,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {activeUids} = useContent();
   const {isOnActionSheet, showLabel} = useActionSheet();
 
-  const handStatusText = useString<boolean>('raiseHandButton');
+  const handStatusText = useString<boolean>(toolbarItemRaiseHandText);
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   const iconButtonProps: IconButtonProps = {
     iconProps: {

@@ -32,6 +32,10 @@ import VBCard from './VBCard';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Spacer from '../../atoms/Spacer';
 import {useString} from '../../utils/useString';
+import {
+  vbPanelHeading,
+  vbPanelInfo,
+} from '../../language/default-labels/precallScreenLabels';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -62,9 +66,9 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
-  const fallbackText = useString<boolean>('virtualBackgroundCameraInfo');
+  const fallbackText = useString<boolean>(vbPanelInfo);
 
-  const vbLabel = useString('virtualBackground')();
+  const vbLabel = useString(vbPanelHeading)();
   const applyLabel = useString('apply')();
   const appliedLabel = useString('applied')();
 

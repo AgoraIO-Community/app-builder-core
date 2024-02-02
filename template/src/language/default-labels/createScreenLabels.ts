@@ -1,6 +1,6 @@
 import {I18nBaseType, I18nDynamicType} from '../i18nTypes';
 
-const room = 'Room';
+export const room = 'Room';
 export const createRoomHeading = `create${room}Heading`;
 export const createRoomInputLabel = `create${room}InputLabel`;
 export const createRoomInputPlaceholderText = `create${room}InputPlaceholderText`;

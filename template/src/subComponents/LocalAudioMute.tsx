@@ -31,7 +31,11 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
-import {I18nDeviceStatus} from '../language/default-labels/videoCallScreenLabels';
+import {
+  I18nDeviceStatus,
+  toolbarItemMicrophoneText,
+  toolbarItemMicrophoneTooltipText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * A component to mute / unmute the local audio
@@ -61,8 +65,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
 
-  const micButtonLabel = useString<I18nDeviceStatus>('micButton');
-  const micButtonTooltip = useString<I18nDeviceStatus>('micButtonTooltip');
+  const micButtonLabel = useString<I18nDeviceStatus>(toolbarItemMicrophoneText);
+  const micButtonTooltip = useString<I18nDeviceStatus>(
+    toolbarItemMicrophoneTooltipText,
+  );
 
   const {
     rtcProps: {callActive},

@@ -33,10 +33,14 @@ import {useVB} from '../../components/virtual-background/useVB';
 import {PropsContext} from '../../../agora-rn-uikit';
 import useLiveStreamingUids from '../../utils/useLiveStreamingUids';
 import {useString} from '../../utils/useString';
+import {
+  settingsPanelHeading,
+  vbPanelHeading,
+} from '../../language/default-labels/precallScreenLabels';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
-  const settingsLabel = useString('settings')();
+  const settingsLabel = useString(settingsPanelHeading)();
 
   return (
     <SidePanelHeader
@@ -155,7 +159,7 @@ export const ChatHeader = () => {
 };
 
 export const VBHeader = () => {
-  const label = useString('virtualBackground')();
+  const label = useString(vbPanelHeading)();
   const {setSidePanel} = useSidePanel();
   const {setIsVBActive} = useVB();
 

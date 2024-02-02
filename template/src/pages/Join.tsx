@@ -39,31 +39,50 @@ import useJoinRoom from '../utils/useJoinRoom';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import {
+  joinRoomBtnText,
+  joinRoomCreateBtnText,
+  joinRoomErrorToastHeading,
+  joinRoomErrorToastSubHeading,
+  joinRoomHeading,
+  joinRoomInputLabel,
+  joinRoomInputPlaceHolderText,
+} from '../language/default-labels/joinScreenLabels';
 
-const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
 
 const Join = () => {
   const hasBrandLogo = useHasBrandLogo();
 
-  const roomId = useString('roomId')();
-  const streamId = useString('streamId')();
-  const enterRoomId = useString('enterRoomId')();
-  const enterStreamId = useString('enterStreamId')();
-  const joinRoom = useString('joinRoom')();
-  const joinStream = useString('joinStream')();
-  const createStream = useString('createStream')();
-  const createRoom = useString('createRoom')();
+  const headingText = useString<any>(joinRoomHeading)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const inputLabel = useString<any>(joinRoomInputLabel)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const placeHolderText = useString<any>(joinRoomInputPlaceHolderText)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const joinBtnText = useString<any>(joinRoomBtnText)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const createBtnText = useString<any>(joinRoomCreateBtnText)({
+    eventMode: $config.EVENT_MODE,
+  });
 
   //toast
-  const invalidRoomIdToastHeading = useString('invalidRoomIdToastHeading')();
-  const invalidRoomIdToastSubheading = useString(
-    'invalidRoomIdToastSubheading',
-  )();
-
-  const meetingIdInputPlaceholder = isLiveStream ? enterStreamId : enterRoomId;
-  const enterMeetingButton = isLiveStream ? joinStream : joinRoom;
-  const createMeetingButton = isLiveStream ? createStream : createRoom;
+  const invalidRoomIdToastHeading = useString<any>(joinRoomErrorToastHeading)({
+    eventMode: $config.EVENT_MODE,
+  });
+  const invalidRoomIdToastSubheading = useString<any>(
+    joinRoomErrorToastSubHeading,
+  )({
+    eventMode: $config.EVENT_MODE,
+  });
 
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
@@ -142,16 +161,14 @@ const Join = () => {
               )}
             </View>
             <Spacer size={20} />
-            <Text style={style.heading}>
-              {isLiveStream ? joinStream : joinRoom}
-            </Text>
+            <Text style={style.heading}>{headingText}</Text>
             <Spacer size={40} />
             <Input
               labelStyle={style.labelStyle}
-              label={isLiveStream ? streamId : roomId}
+              label={inputLabel}
               autoFocus
               value={phrase}
-              placeholder={meetingIdInputPlaceholder}
+              placeholder={placeHolderText}
               onChangeText={text => setPhrase(text)}
               onSubmitEditing={() => startCall()}
             />
@@ -162,14 +179,11 @@ const Join = () => {
               iconName="video-on"
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={enterMeetingButton}
+              text={joinBtnText}
               containerStyle={isMobileUA() && {width: '100%'}}
             />
             <Spacer size={16} />
-            <LinkButton
-              text={createMeetingButton}
-              onPress={() => createMeeting()}
-            />
+            <LinkButton text={createBtnText} onPress={() => createMeeting()} />
             {shouldAuthenticate ? (
               <LogoutButton
                 //@ts-ignore
