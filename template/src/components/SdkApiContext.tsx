@@ -47,6 +47,13 @@ type SdkApiContextInterface = {
     deviceId?: string;
     promise?: extractPromises<_InternalSDKMethodEventsMap['cameraDevice']>;
   };
+  muteAllParticipants: {
+    state: boolean;
+    promise?: extractPromises<
+      _InternalSDKMethodEventsMap['muteAllParticipants']
+    >;
+  };
+  setMuteAllParticipantsListenerReady: (init: boolean) => void;
   onMuteAudio: (callback: _InternalSDKMethodEventsMap['muteAudio']) => void;
   onMuteVideo: (callback: _InternalSDKMethodEventsMap['muteVideo']) => void;
   clearState: (
@@ -63,6 +70,16 @@ const defaultMuteListener = ((_, rej) => {
   );
 }) as _InternalSDKMethodEventsMap['muteVideo'];
 
+const defaultMuteAllParticipantsListener = ((res, _, param) => {
+  const muteStateToBeSet =
+    typeof param === 'function'
+      ? param(SdkApiInitState.muteAllParticipants.state)
+      : param;
+
+  SdkApiInitState.muteAllParticipants.state = muteStateToBeSet;
+  res();
+}) as _InternalSDKMethodEventsMap['muteAllParticipants'];
+
 const SdkApiInitState: SdkApiContextInterface = {
   enterRoom: {
     set: () => {},
@@ -75,10 +92,16 @@ const SdkApiInitState: SdkApiContextInterface = {
   microphoneDevice: {},
   speakerDevice: {},
   cameraDevice: {},
+  muteAllParticipants: {
+    state: false,
+  },
+  setMuteAllParticipantsListenerReady: () => {},
   onMuteVideo: (_) => {},
   onMuteAudio: (_) => {},
   clearState: () => {},
 };
+
+export const READ_ONLY_SdkApiInitState = SdkApiInitState;
 
 export const SDK_MEETING_TAG = 'sdk-initiated-meeting';
 
@@ -180,6 +203,10 @@ const registerListener = () => {
     commonEventHandlers.cameraDevice((state) => {
       SdkApiInitState.cameraDevice = state;
     }),
+    SDKMethodEventsManager.on(
+      'muteAllParticipants',
+      defaultMuteAllParticipantsListener,
+    ),
     SDKMethodEventsManager.on('muteVideo', defaultMuteListener),
     SDKMethodEventsManager.on('muteAudio', defaultMuteListener),
   ];
@@ -207,9 +234,20 @@ const SdkApiContextProvider: React.FC = (props) => {
   const [cameraDeviceState, setCameraDeviceState] = useState(
     SdkApiInitState.cameraDevice,
   );
+  const [muteAllParticipantsState, setMuteAllParticipantsState] = useState(
+    SdkApiInitState.muteAllParticipants,
+  );
+  const [
+    muteAllParticipantsListenerReady,
+    setMuteAllParticipantsListenerReady,
+  ] = useState(false);
 
   const muteVideoListener = useRef(defaultMuteListener);
   const muteAudioListener = useRef(defaultMuteListener);
+
+  const muteAllParticipantsListener = useRef(
+    defaultMuteAllParticipantsListener,
+  );
 
   const setMuteVideoListener = (
     value: _InternalSDKMethodEventsMap['muteVideo'],
@@ -243,6 +281,13 @@ const SdkApiContextProvider: React.FC = (props) => {
       case 'cameraDevice':
         setCameraDeviceState({});
         break;
+      case 'muteAllParticipants':
+        setMuteAllParticipantsState((current) => {
+          return {
+            state: current.state,
+            promise: undefined,
+          };
+        });
       case 'muteVideo':
         setMuteVideoListener(defaultMuteListener);
         break;
@@ -251,6 +296,34 @@ const SdkApiContextProvider: React.FC = (props) => {
         break;
     }
   };
+
+  useEffect(() => {
+    muteAllParticipantsListener.current = (res, rej, param) => {
+      const muteStateToBeSet =
+        typeof param === 'function'
+          ? param(muteAllParticipantsState.state)
+          : param;
+      // To check if meeting is joined and the listener is set up
+      if (muteAllParticipantsListenerReady) {
+        setMuteAllParticipantsState({
+          state: muteStateToBeSet,
+          promise: {
+            res,
+            rej,
+          },
+        });
+      } else {
+        // Modifying the init state as well since this condition means
+        // engine hasn't been initialized yet, hence initState will determine
+        // the participant audio state with which engine is initialized with.
+        SdkApiInitState.muteAllParticipants.state = muteStateToBeSet;
+        setMuteAllParticipantsState({
+          state: muteStateToBeSet,
+        });
+        res();
+      }
+    };
+  }, [muteAllParticipantsState, muteAllParticipantsListenerReady]);
 
   useEffect(() => {
     deRegisterListener();
@@ -270,6 +343,9 @@ const SdkApiContextProvider: React.FC = (props) => {
       }),
       commonEventHandlers.cameraDevice((state) => {
         setCameraDeviceState(state);
+      }),
+      SDKMethodEventsManager.on('muteAllParticipants', (...args) => {
+        muteAllParticipantsListener.current(...args);
       }),
       SDKMethodEventsManager.on('muteVideo', (...args) => {
         muteVideoListener.current(...args);
@@ -297,6 +373,8 @@ const SdkApiContextProvider: React.FC = (props) => {
         microphoneDevice: microphoneDeviceState,
         speakerDevice: speakerDeviceState,
         cameraDevice: cameraDeviceState,
+        muteAllParticipants: muteAllParticipantsState,
+        setMuteAllParticipantsListenerReady,
         onMuteAudio: setMuteAudioListener,
         onMuteVideo: setMuteVideoListener,
         clearState,

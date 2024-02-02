@@ -25,7 +25,7 @@ import Toast from '../../react-native-toast-message';
 import {Text} from 'react-native';
 import StorageContext from './StorageContext';
 
-import type RtcEngine from '../../bridge/rtc/webNg/';
+import type {WebRtcEngineInstance} from '../../bridge/rtc/webNg/RtcEngine';
 import ColorContext from './ColorContext';
 import {SdkApiContext} from './SdkApiContext';
 import SDKEvents from '../utils/SdkEvents';
@@ -33,8 +33,6 @@ import SDKEvents from '../utils/SdkEvents';
 const log = (...args: any[]) => {
   console.log('[DeviceConfigure] ', ...args);
 };
-
-type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 interface Props {
   userRole: ClientRole;

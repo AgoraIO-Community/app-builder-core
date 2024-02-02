@@ -1,28 +1,68 @@
-import React, { useContext, useEffect, createContext, useRef } from 'react';
-import { SdkApiContext } from './SdkApiContext';
+import React, {useContext, useEffect, createContext, useRef} from 'react';
+import {SdkApiContext} from './SdkApiContext';
 import {
   useMuteToggleLocal,
   useLocalUserInfo,
   ToggleState,
   MUTE_LOCAL_TYPE,
+  useRtc,
 } from 'customization-api';
+import isSDK from '../utils/isSDK';
+import {WebRtcEngineInstance} from '../../bridge/rtc/webNg/RtcEngine';
 
 export const SdkMuteQueueContext = createContext({
-  videoMuteQueue: { current: [] },
-  audioMuteQueue: { current: [] },
+  videoMuteQueue: {current: []},
+  audioMuteQueue: {current: []},
 });
 
 const SdkMuteToggleListener = (props) => {
   const videoMuteQueue = useRef([]);
   const audioMuteQueue = useRef([]);
+  const {RtcEngine} = useRtc();
 
   const {
     onMuteVideo: onSdkMuteVideo,
     onMuteAudio: onSdkMuteAudio,
+    muteAllParticipants,
+    setMuteAllParticipantsListenerReady,
     clearState,
   } = useContext(SdkApiContext);
   const local = useLocalUserInfo();
   const toggleMute = useMuteToggleLocal();
+
+  useEffect(() => {
+    if (isSDK()) {
+      // Casting to web only engine object
+      const RtcBridgeEngine = RtcEngine as unknown as WebRtcEngineInstance;
+      setMuteAllParticipantsListenerReady(true);
+      if (
+        RtcBridgeEngine.muteParticipantStreams !== muteAllParticipants.state
+      ) {
+        RtcBridgeEngine.muteParticipantStreams = muteAllParticipants.state;
+        try {
+          RtcBridgeEngine.remoteStreams.forEach((stream) => {
+            if (muteAllParticipants.state) {
+              if (stream?.audio?.isPlaying) {
+                stream?.audio?.stop();
+              }
+            } else {
+              if (!stream?.audio?.isPlaying) {
+                stream?.audio?.play();
+              }
+            }
+          });
+          muteAllParticipants.promise?.res();
+        } catch (error) {
+          muteAllParticipants.promise?.rej(error);
+        } finally {
+          clearState('muteAllParticipants');
+        }
+      }
+    }
+    return () => {
+      isSDK() && setMuteAllParticipantsListenerReady(false);
+    };
+  }, [muteAllParticipants]);
 
   const queuedToggleMute = (type, status) => {
     const localstatus =
@@ -83,7 +123,7 @@ const SdkMuteToggleListener = (props) => {
   }, [local]);
 
   return (
-    <SdkMuteQueueContext.Provider value={{ videoMuteQueue, audioMuteQueue }}>
+    <SdkMuteQueueContext.Provider value={{videoMuteQueue, audioMuteQueue}}>
       {props.children}
     </SdkMuteQueueContext.Provider>
   );

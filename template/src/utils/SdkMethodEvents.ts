@@ -14,6 +14,7 @@ export interface SdkMethodEvents {
   microphoneDevice: (deviceId: deviceId) => void;
   speakerDevice: (deviceId: deviceId) => void;
   cameraDevice: (deviceId: deviceId) => void;
+  muteAllParticipants: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
   muteAudio: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
   muteVideo: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
 }

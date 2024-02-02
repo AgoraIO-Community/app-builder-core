@@ -37,6 +37,7 @@ import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
 import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
+import {READ_ONLY_SdkApiInitState} from '../../../src/components/SdkApiContext';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -180,6 +181,7 @@ if ($config.LOG_ENABLED) {
   AgoraRTC.disableLogUpload();
 }
 
+export type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 export default class RtcEngine {
   private activeSpeakerUid: number;
   public appId: string;
@@ -199,6 +201,7 @@ export default class RtcEngine {
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
+  public muteParticipantStreams = false;
   private inScreenshare: Boolean = false;
   private videoProfile: VideoProfile = '480p_9';
   private isPublished = false;
@@ -218,6 +221,8 @@ export default class RtcEngine {
 
   constructor(appId: string) {
     this.appId = appId;
+    this.muteParticipantStreams =
+      READ_ONLY_SdkApiInitState.muteAllParticipants.state;
     // this.AgoraRTC = AgoraRTC;
   }
 
@@ -457,7 +462,9 @@ export default class RtcEngine {
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
         // Play the audio
-        audioTrack?.play();
+        if (!this.muteParticipantStreams) {
+          audioTrack?.play();
+        }
         this.remoteStreams.set(user.uid, {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,
