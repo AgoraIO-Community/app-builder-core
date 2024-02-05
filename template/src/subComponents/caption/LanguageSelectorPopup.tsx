@@ -20,6 +20,7 @@ import {
   sttChangeLanguagePopupSubHeading,
   sttLanguageChangeInProgress,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 interface LanguageSelectorPopup {
   modalVisible: boolean;
@@ -34,7 +35,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const isDesktop = useIsDesktop()('popup');
   const heading = useString<boolean>(sttChangeLanguagePopupHeading);
   const subHeading = useString(sttChangeLanguagePopupSubHeading)();
-  const cancelBtnLabel = useString('cancel')();
+  const cancelBtnLabel = useString(cancelText)();
   const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
   const ddError = useString(sttChangeLanguagePopupDropdownError)();
   const ddInfo = useString(sttChangeLanguagePopupDropdownInfo)();

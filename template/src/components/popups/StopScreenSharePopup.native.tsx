@@ -19,6 +19,7 @@ import {
   nativeStopScreensharePopupPrimaryBtnText,
   nativeStopScreensharePopupSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const StopScreenSharePopup = () => {
   const {showStopScreenSharePopup, setShowStopScreenSharePopup} =
@@ -33,7 +34,7 @@ const StopScreenSharePopup = () => {
     nativeStopScreensharePopupSubHeading,
   )();
 
-  const cancelBtnLabel = useString('cancel')();
+  const cancelBtnLabel = useString(cancelText)();
   const startShareShareBtnLabel = useString(
     nativeStopScreensharePopupPrimaryBtnText,
   )();

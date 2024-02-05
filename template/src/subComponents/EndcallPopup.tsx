@@ -17,6 +17,7 @@ import {
   sttDownloadBtnText,
   sttTranscriptPanelHeaderText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -54,7 +55,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
   const leaveMeetingLabelHeading = useString(leavePopupHeading)();
   const leaveMeetingLabelSubHeading = useString<boolean>(leavePopupSubHeading);
   const leaveMeetingPopupActionButton = useString(leavePopupPrimaryBtnText)();
-  const cancelLabel = useString('cancel')();
+  const cancelLabel = useString(cancelText)();
   const {isSTTActive} = useCaption();
   const isTranscriptAvailable = $config.ENABLE_STT && isSTTActive;
 

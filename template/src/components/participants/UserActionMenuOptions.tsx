@@ -57,6 +57,7 @@ import {
   moreBtnVideo,
   moreBtnViewInLarge,
   moreBtnViewWhiteboard,
+  userRemovedFromTheRoomToastHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 interface UserActionMenuOptionsOptionsProps {
@@ -396,7 +397,7 @@ export default function UserActionMenuOptionsOptions(
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState({});
-
+  const toastlabel = useString(userRemovedFromTheRoomToastHeading);
   useEffect(() => {
     if (actionMenuVisible) {
       //getting btnRef x,y
@@ -479,9 +480,7 @@ export default function UserActionMenuOptionsOptions(
             Toast.show({
               leadingIconName: 'info',
               type: 'info',
-              text1: `The system will remove ${trimText(
-                user.name,
-              )} from this call after 5 secs.`,
+              text1: toastlabel(trimText(user.name)),
               visibilityTime: 5000,
               primaryBtn: null,
               secondaryBtn: null,

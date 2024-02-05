@@ -297,6 +297,11 @@ export const livestreamRequestAlreadyProcessed =
 
 export const videoRoomUserFallbackText = `video${room}UserFallbackText`;
 
+export const peoplePanelMeText = 'peoplePanelMeText';
+export const peoplePanelPresenterText = 'peoplePanelPresenterText';
+
+export const userRemovedFromTheRoomToastHeading = `userRemovedFromThe${room}ToastHeading`;
+
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
@@ -366,12 +371,12 @@ export interface I18nVideoCallScreenLabelsInterface {
   [leavePopupSubHeading]?: I18nConditionalType;
   [leavePopupPrimaryBtnText]?: I18nBaseType;
 
-  [removeFromRoomPopupHeading]?: I18nBaseType;
-  [removeFromRoomPopupSubHeading]?: I18nBaseType;
+  [removeFromRoomPopupHeading]?: I18nBaseType<string>;
+  [removeFromRoomPopupSubHeading]?: I18nBaseType<string>;
   [removeFromRoomPopupPrimaryBtnText]?: I18nBaseType;
 
   [removeScreenshareFromRoomPopupHeading]?: I18nBaseType;
-  [removeScreenshareFromRoomPopupSubHeading]?: I18nBaseType;
+  [removeScreenshareFromRoomPopupSubHeading]?: I18nBaseType<string>;
   [removeScreenshareFromRoomPopupPrimaryBtnText]?: I18nBaseType;
 
   [sttChangeLanguagePopupHeading]?: I18nConditionalType;
@@ -489,6 +494,10 @@ export interface I18nVideoCallScreenLabelsInterface {
   [livestreamRequestAlreadyProcessed]?: I18nBaseType;
   [videoRoomUserFallbackText]?: I18nBaseType;
   whiteboardInitializing?: I18nBaseType;
+
+  [peoplePanelMeText]?: I18nBaseType;
+  [peoplePanelPresenterText]?: I18nBaseType;
+  [userRemovedFromTheRoomToastHeading]?: I18nBaseType<string>;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -785,5 +794,11 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [livestreamRequestAlreadyProcessed]: 'Request already processed.',
 
   [videoRoomUserFallbackText]: 'User',
+  [peoplePanelMeText]: 'Me',
+  [peoplePanelPresenterText]: 'Presenter',
+
+  [userRemovedFromTheRoomToastHeading]: name =>
+    `The system will remove ${name} from this call after 5 secs.`,
+
   whiteboardInitializing: 'Whiteboard is initializing',
 };

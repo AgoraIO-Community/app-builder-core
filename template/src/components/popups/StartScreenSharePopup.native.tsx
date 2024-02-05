@@ -18,6 +18,7 @@ import {
   nativeScreensharePopupPrimaryBtnText,
   nativeScreensharePopupSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const StartScreenSharePopup = () => {
   const {showStartScreenSharePopup, setShowStartScreenSharePopup} =
@@ -25,7 +26,7 @@ const StartScreenSharePopup = () => {
   const {video} = useLocalUserInfo();
   const {startUserScreenshare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
-  const cancelLabel = useString('cancel')();
+  const cancelLabel = useString(cancelText)();
   const proceedLabel = useString(nativeScreensharePopupPrimaryBtnText)();
   const includeDeviceAudio = useString(
     nativeScreensharePopupIncludeDeviceAudioText,

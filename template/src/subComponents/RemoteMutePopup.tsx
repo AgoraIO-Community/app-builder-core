@@ -25,6 +25,7 @@ import {
   requestConfirmationPopoverContent,
   requestConfirmationPopoverPrimaryBtnText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 export interface RemoteMutePopupProps {
   actionMenuVisible: boolean;
@@ -42,7 +43,7 @@ export interface RemoteMutePopupProps {
 }
 
 const RemoteMutePopup = (props: RemoteMutePopupProps) => {
-  const cancelLabel = useString('cancel')();
+  const cancelLabel = useString(cancelText)();
   const muteLabel = useString(muteConfirmationPopoverPrimaryBtnText)();
   const muteAllLabel = useString(muteAllConfirmationPopoverPrimaryBtnText)();
   const requestLabel = useString(requestConfirmationPopoverPrimaryBtnText)();

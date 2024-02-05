@@ -36,6 +36,7 @@ import {
   invitePopupPrimaryBtnText,
   invitePopupHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -82,7 +83,7 @@ const InvitePopup = () => {
   });
   const inviteOtherToJoinRoomInfo = useString(invitePopupHeading)();
   const copyInvitationButton = useString(invitePopupPrimaryBtnText)();
-  const cancelLabel = useString('cancel')();
+  const cancelLabel = useString(cancelText)();
   return (
     <Popup
       modalVisible={showInvitePopup}
