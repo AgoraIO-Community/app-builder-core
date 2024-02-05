@@ -295,6 +295,8 @@ export const livestreamPromoteAsCoHostToastHeading =
 export const livestreamRequestAlreadyProcessed =
   'livestreamRequestAlreadyProcessed';
 
+export const videoRoomUserFallbackText = `video${room}UserFallbackText`;
+
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
@@ -485,6 +487,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [livestreamPromoteAsCoHostToastHeading]?: I18nBaseType;
 
   [livestreamRequestAlreadyProcessed]?: I18nBaseType;
+  [videoRoomUserFallbackText]?: I18nBaseType;
   whiteboardInitializing?: I18nBaseType;
 }
 
@@ -781,5 +784,6 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [livestreamPromoteAsCoHostToastHeading]: 'Host promoted you as a Presenter',
   [livestreamRequestAlreadyProcessed]: 'Request already processed.',
 
+  [videoRoomUserFallbackText]: 'User',
   whiteboardInitializing: 'Whiteboard is initializing',
 };

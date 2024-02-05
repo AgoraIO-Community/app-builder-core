@@ -79,9 +79,6 @@ const ChatContainer = (props?: {
     setUnreadIndividualMessageCount,
   } = useChatNotification();
   const localUid = useLocalUid();
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -144,8 +141,7 @@ const ChatContainer = (props?: {
     }
     return components;
   });
-  //commented for v1 release
-  //const userOfflineLabel = useString('userOfflineLabel')();
+
   const userOfflineLabel = 'User is offline';
 
   //if we don't have unread count then enable scroll to end

@@ -12,15 +12,6 @@ import UserAvatar from '../../atoms/UserAvatar';
 import Spacer from '../../atoms/Spacer';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
-  //commented for v1 release
-  // const noLiveStreamingRequestsLabel = useString(
-  //   'raisedHandsListPlaceholder',
-  // )();
-  // const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  // const noUserFoundLabel = useString('noUserFoundLabel')();
-  // const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
-  const noLiveStreamingRequestsLabel = 'No streaming request(s)';
-  const remoteUserDefaultLabel = 'User';
   const noUserFoundLabel = 'User not found';
   const raisedHandsListTitleLabel = 'STREAMING REQUEST';
   const {defaultContent} = useContent();

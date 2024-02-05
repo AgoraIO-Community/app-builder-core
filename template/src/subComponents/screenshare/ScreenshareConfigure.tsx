@@ -46,11 +46,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
-  // commented for v1 release
-  // const getScreenShareName = useString('screenshareUserName');
-  // const userText = useString('remoteUserDefaultLabel')();
-  // const getScreenShareName = (name: string) => `${name}'s screenshare`;
-  // const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
@@ -347,7 +342,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         text2: 'Permission denied',
         visibilityTime: 1000 * 10,
         primaryBtn: null,
-        secondaryBtn: null
+        secondaryBtn: null,
       });
     }
   };
