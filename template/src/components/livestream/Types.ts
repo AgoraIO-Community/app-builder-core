@@ -33,7 +33,7 @@ import {
   livestreamRaiseHandRequestRejectedToastHeading,
   livestreamRaiseHandRequestToastHeading,
   livestreamRaiseHandRequestToastSubHeading,
-} from 'src/language/default-labels/videoCallScreenLabels';
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export enum requestStatus {
   AwaitingAction = 'AWAITING_ACTION',
