@@ -1,4 +1,5 @@
 import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
+import {room} from './createScreenLabels';
 interface NetworkQualityStatusInterface {
   unknown?: 'Unknown';
   excellent?: 'Excellent';
@@ -52,6 +53,10 @@ export const toolbarItemChatText = 'toolbarItemChatText';
 export const toolbarItemSettingText = 'toolbarItemSettingText';
 
 export const toolbarItemLayoutText = 'toolbarItemLayoutText';
+export const toolbarItemLayoutOptionGridText =
+  'toolbarItemLayoutOptionGridText';
+export const toolbarItemLayoutOptionSidebarText =
+  'toolbarItemLayoutOptionSidebarText';
 export const toolbarItemInviteText = 'toolbarItemInviteText';
 
 export const toolbarItemMicrophoneText = 'toolbarItemMicrophoneText';
@@ -74,6 +79,168 @@ export const toolbarItemVitrualBackgroundText =
   'toolbarItemVitrualBackgroundText';
 
 export const toolbarItemRaiseHandText = 'toolbarItemRaiseHandText';
+
+export const inviteTileWelcomeText = 'inviteTileWelcomeText';
+export const inviteTileNoElseJoinedYetText = 'inviteTileNoElseJoinedYetText';
+export const inviteTileCopyInviteBtnText = 'inviteTileCopyInviteBtnText';
+
+export const settingPanelNameCantbeChangedInfo =
+  'settingPanelNameCantbeChangedInfo';
+export const settingPanelNameInputLabel = 'settingPanelNameInputLabel';
+
+export const invitePopupHeading = 'invitePopupHeading';
+export const invitePopupPrimaryBtnText = 'invitePopupPrimaryBtnText';
+
+export const PSTNUserLabel = 'pstnUserLabel';
+
+export const vbPanelApplyBtnText = 'vbPanelApplyBtnText';
+export const vbPanelAppliedBtnText = 'vbPanelAppliedBtnText';
+
+export const videoTileNetworkQuailtyLabel = 'videoTileNetworkQuailtyLabel';
+
+export const nativeScreensharePopupHeading = 'nativeScreensharePopupHeading';
+export const nativeScreensharePopupSubHeading =
+  'nativeScreensharePopupSubHeading';
+export const nativeScreensharePopupPrimaryBtnText =
+  'nativeScreensharePopupPrimaryBtnText';
+export const nativeScreensharePopupIncludeDeviceAudioText =
+  'nativeScreensharePopupIncludeDeviceAudioText';
+
+export const nativeStopScreensharePopupHeading =
+  'nativeStopScreensharePopupHeading';
+export const nativeStopScreensharePopupSubHeading =
+  'nativeStopScreensharePopupSubHeading';
+export const nativeStopScreensharePopupPrimaryBtnText =
+  'nativeStopScreensharePopupPrimaryBtnText';
+
+export const stopRecordingPopupHeading = 'stopRecordingPopupHeading';
+export const stopRecordingPopupSubHeading = 'stopRecordingPopupSubHeading';
+export const stopRecordingPopupPrimaryBtnText =
+  'stopRecordingPopupPrimaryBtnText';
+
+export const clearAllWhiteboardPopupHeading = 'clearAllWhiteboardPopupHeading';
+export const clearAllWhiteboardPopupSubHeading =
+  'clearAllWhiteboardPopupSubHeading';
+export const clearAllWhiteboardPopupPrimaryBtnText =
+  'clearAllWhiteboardPopupPrimaryBtnText';
+
+export const leavePopupHeading = `leave${room}PopupHeading`;
+export const leavePopupSubHeading = `leave${room}PopupSubHeading`;
+export const leavePopupPrimaryBtnText = `leave${room}PopupPrimaryBtnText`;
+
+export const removeFromRoomPopupHeading = `removeFrom${room}PopupHeading`;
+export const removeFromRoomPopupSubHeading = `removeFrom${room}PopupSubHeading`;
+export const removeFromRoomPopupPrimaryBtnText = `removeFrom${room}PopupPrimaryBtnText`;
+
+export const removeScreenshareFromRoomPopupHeading = `removeScreenshareFrom${room}PopupHeading`;
+export const removeScreenshareFromRoomPopupSubHeading = `removeScreenshareFrom${room}PopupSubHeading`;
+export const removeScreenshareFromRoomPopupPrimaryBtnText = `removeScreenshareFrom${room}PopupPrimaryBtnText`;
+
+export const stt = 'stt';
+
+export const sttChangeLanguagePopupHeading = `${stt}ChangeSpokenLanguagePopupHeading`;
+export const sttChangeLanguagePopupSubHeading = `${stt}ChangeSpokenLanguagePopupSubHeading`;
+export const sttChangeLanguagePopupDropdownError = `${stt}ChangeSpokenLanguagePopupDropdownError`;
+export const sttChangeLanguagePopupDropdownInfo = `${stt}ChangeSpokenLanguagePopupDropdownInfo`;
+export const sttChangeLanguagePopupPrimaryBtnText = `${stt}ChangeSpokenLanguagePopupPrimaryBtnText`;
+
+export const sttChangeSpokenLanguageText = `${stt}ChangeSpokenLanguageText`;
+export const sttSettingSpokenLanguageText = `${stt}SettingSpokenLanguageText`;
+export const sttTranscriptPanelHeaderText = `${stt}TranscriptPanelHeaderText`;
+export const sttDownloadBtnText = `${stt}DownloadBtnText`;
+export const sttDownloadTranscriptBtnText = `${stt}DownloadTranscriptBtnText`;
+export const sttLanguageChangeInProgress = `${stt}LanguageChangeInProgress`;
+
+export const chatPanelGroupTabText = 'chatPanelGroupTabText';
+export const chatPanelPrivateTabText = 'chatPanelPrivateTabText';
+
+export const groupChatWelcomeContent = 'groupChatWelcomeContent';
+
+export const peoplePanelHeaderText = 'peoplePanelHeaderText';
+
+export const groupChatInputPlaceHolderText = 'groupChatInputPlaceHolderText';
+export const privateChatInputPlaceHolderText =
+  'privateChatInputPlaceHolderText';
+
+export const peoplePanelTurnoffAllCameraBtnText =
+  'peoplePanelTurnoffAllCameraBtnText';
+export const peoplePanelMuteAllMicBtnText = 'peoplePanelMuteAllMicBtnText';
+
+export const peoplePanelHostSectionHeaderText =
+  'peoplePanelHostSectionHeaderText';
+export const peoplePanelAudienceSectionHeaderText =
+  'peoplePanelAudienceSectionHeaderText';
+
+export const peoplePanelInThisMeetingLabel = 'peoplePanelInThisMeetingLabel';
+export const peoplePanelNoHostJoinedContent = 'peoplePanelNoHostJoinedContent';
+export const peoplePanelNoUsersJoinedContent =
+  'peoplePanelNoUsersJoinedContent';
+export const peoplePanelNoAudienceJoinedContent =
+  'peoplePanelNoAudienceJoinedContent';
+
+export const moreBtnViewWhiteboard = 'moreBtnViewWhiteboard';
+export const moreBtnViewInLarge = 'moreBtnViewInLarge';
+export const moreBtnRemoveFromLarge = 'moreBtnRemoveFromLarge';
+export const moreBtnPinToTop = 'moreBtnPinToTop';
+export const moreBtnRemoveFromTop = 'moreBtnRemoveFromTop';
+export const moreBtnMessagePrivately = 'moreBtnMessagePrivately';
+
+export const moreBtnAudio = 'moreBtnAudio';
+export const moreBtnVideo = 'moreBtnVideo';
+
+export const moreBtnAddAsPresenter = 'moreBtnAddAsPresenter';
+export const moreBtnRemoveAsPresenter = 'moreBtnRemoveAsPresenter';
+
+export const moreBtnRemoveFromRoom = 'moreBtnRemoveFromRoom';
+export const moreBtnChangeName = 'moreBtnChangeName';
+export const moreBtnStopScreenShare = 'moreBtnStopScreenShare';
+export const moreBtnRemoveScreenShare = 'moreBtnRemoveScreenShare';
+
+export const muteAllConfirmationPopoverContent =
+  'muteAllConfirmationPopoverContent';
+export const muteAllConfirmationPopoverPrimaryBtnText =
+  'muteAllConfirmationPopoverPrimaryBtnText';
+
+export const muteConfirmationPopoverContent = 'muteConfirmationPopoverContent';
+export const muteConfirmationPopoverPrimaryBtnText =
+  'muteConfirmationPopoverPrimaryBtnText';
+
+export const requestConfirmationPopoverContent =
+  'requestConfirmationPopoverContent';
+export const requestConfirmationPopoverPrimaryBtnText =
+  'requestConfirmationPopoverPrimaryBtnText';
+
+export const peoplePanelWantToJoinText = 'peoplePanelWantToJoinText';
+export const peoplePanelWaitingText = 'peoplePanelWaitingText';
+
+export const livestreamingAttendeeRaiseHandInfoHeading =
+  'livestreamingAttendeeRaiseHandInfoHeading';
+export const livestreamingAttendeeRaiseHandInfoSubHeading =
+  'livestreamingAttendeeRaiseHandInfoSubHeading';
+
+export const livestreamingAttendeeChatWithOthersInfoHeading =
+  'livestreamingAttendeeChatWithOthersInfoHeading';
+export const livestreamingAttendeeChatWithOthersInfoSubHeading =
+  'livestreamingAttendeeChatWithOthersInfoSubHeading';
+
+export const livestreamingAttendeePresentYourScreenInfoHeading =
+  'livestreamingAttendeePresentYourScreenInfoHeading';
+export const livestreamingAttendeePresentYourScreenInfoSubHeading =
+  'livestreamingAttendeePresentYourScreenInfoSubHeading';
+
+export const livestreamingAttendeeJoinWithActivitiesInfoHeading =
+  'livestreamingAttendeeJoinWithActivitiesInfoHeading';
+export const livestreamingAttendeeJoinWithActivitiesInfoSubHeading =
+  'livestreamingAttendeeJoinWithActivitiesInfoSubHeading';
+
+export const livestreamingAttendeeInviteOthersText =
+  'livestreamingAttendeeInviteOthersText';
+
+export const livestreamingAttendeeWhatYouCanDoText =
+  'livestreamingAttendeeWhatYouCanDoText';
+
+export const livestreamingAttendeeWaitingForHostToJoinText =
+  'livestreamingAttendeeWaitingForHostToJoinText';
 
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
@@ -103,125 +270,127 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [toolbarItemRaiseHandText]?: I18nConditionalType;
 
-  // people?: I18nBaseType;
-  // chat?: I18nBaseType;
-  // layout?: I18nBaseType;
-  // invite?: I18nBaseType;
-  // videoButton?: I18nBaseType<I18nDeviceStatus>;
-  // micButton?: I18nBaseType<I18nDeviceStatus>;
-  // videoButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
-  // micButtonTooltip?: I18nBaseType<I18nDeviceStatus>;
-  // moreButton?: I18nBaseType;
-  // noiseCancellation?: I18nBaseType;
-  // startWhiteboard?: I18nBaseType;
-  // hideWhiteboard?: I18nBaseType;
-  // showWhiteboard?: I18nBaseType;
-  // hideCaption?: I18nBaseType;
-  // showCaption?: I18nBaseType;
-  // hideTranscript?: I18nBaseType;
-  // showTranscript?: I18nBaseType;
-  // screenShareButton?: I18nConditionalType; //
-  // raiseHandButton?: I18nConditionalType; //
-  // recordingButton?: I18nConditionalType;
-  // leaveButton?: I18nBaseType; //
-  // switchCameraButton?: I18nBaseType;
-  nameCantbeChangedInfo?: I18nBaseType;
-  noOneElseJoinedYet?: I18nBaseType;
-  noOneElseJoinedYetInviteOthers?: I18nBaseType;
-  inviteOthersButton?: I18nBaseType;
-  copyInvitationButton?: I18nBaseType;
-  welcome?: I18nBaseType;
-  invitePopupHeading?: I18nBaseType;
-  pstnUserLabel?: I18nBaseType; //
-  networkQualityLabel?: I18nBaseType<NetworkQualities>; //
-  apply?: I18nBaseType;
-  applied?: I18nBaseType;
-  grid?: I18nBaseType;
-  sidebar?: I18nBaseType;
-  nativeScreensharePopupActionButton?: I18nBaseType;
-  nativeScreensharePopupHeading?: I18nBaseType;
-  nativeScreensharePopupSubHeadingLocalCamOn?: I18nBaseType;
-  nativeScreensharePopupSubHeadingLocalCamOff?: I18nBaseType;
-  includeDeviceAudio?: I18nBaseType;
-  stopRecordingPopupHeading?: I18nBaseType;
-  stopRecordingPopupSubHeading?: I18nBaseType;
-  stopRecordingActionButton?: I18nBaseType;
-  stopScreenSharePopupHeading?: I18nBaseType;
-  stopScreenSharePopupSubHeading?: I18nBaseType;
-  stopScreenSharingActionButton?: I18nBaseType;
-  clearAllWhiteboardPopupHeading?: I18nBaseType;
-  clearAllWhiteboardPopupSubHeading?: I18nBaseType;
-  clearAllWhiteboardActionButton?: I18nBaseType;
-  leaveMeetingPopupHeading?: I18nBaseType;
-  leaveMeetingPopupSubHeading?: I18nBaseType;
-  leaveMeetingPopupSubHeadingWithTranscript?: I18nBaseType;
-  leaveMeetingPopupActionButton?: I18nBaseType;
+  [inviteTileWelcomeText]?: I18nBaseType;
+  [inviteTileNoElseJoinedYetText]?: I18nBaseType;
+  [inviteTileCopyInviteBtnText]?: I18nBaseType;
 
-  group?: I18nBaseType;
-  private?: I18nBaseType;
+  [settingPanelNameCantbeChangedInfo]?: I18nBaseType;
+  [settingPanelNameInputLabel]?: I18nBaseType;
 
-  groupChatWelcomeInfo?: I18nBaseType;
-  groupChatWelcomeSubInfo?: I18nBaseType;
-  groupChatInputPlaceHolder?: I18nBaseType;
-  privateChatInputPlaceHolder?: I18nBaseType;
+  [invitePopupHeading]?: I18nBaseType;
+  [invitePopupPrimaryBtnText]?: I18nBaseType;
 
-  turnoffAllCameras?: I18nBaseType;
-  muteAllMicrophone?: I18nBaseType;
+  [PSTNUserLabel]?: I18nBaseType; //
 
-  host?: I18nBaseType;
-  audience?: I18nBaseType;
-  inThisMeeting?: I18nBaseType;
-  noHostJoinedYet?: I18nBaseType;
-  noAudienceJoinedYet?: I18nBaseType;
-  noUsersJoinedYet?: I18nBaseType;
+  [vbPanelApplyBtnText]?: I18nBaseType;
+  [vbPanelAppliedBtnText]?: I18nBaseType;
 
-  languageSelectionPopupHeading?: I18nConditionalType;
-  languageSelectionPopupSubHeading?: I18nBaseType;
-  languageSelectionPopupActionButton?: I18nBaseType;
-  languageSelectionPopupDropdownError?: I18nBaseType;
-  languageSelectionPopupDropdownInfo?: I18nBaseType;
+  [videoTileNetworkQuailtyLabel]?: I18nBaseType<NetworkQualities>; //
 
-  meetingTranscript?: I18nBaseType;
-  download?: I18nBaseType;
-  downloadTranscript?: I18nBaseType;
-  settingSpokenLanguage?: I18nBaseType;
-  languageChangeInProgress?: I18nBaseType;
-  language?: I18nBaseType;
+  [toolbarItemLayoutOptionGridText]?: I18nBaseType;
+  [toolbarItemLayoutOptionSidebarText]?: I18nBaseType;
 
-  whiteboardInitializing?: I18nBaseType;
-  viewWhiteboard?: I18nBaseType;
-  removeFromLarge?: I18nBaseType;
-  viewInLarge?: I18nBaseType;
-  pinToTop?: I18nBaseType;
-  removeFromTop?: I18nBaseType;
-  messagePrivately?: I18nBaseType;
-  muteAudio?: I18nBaseType;
-  requestAudio?: I18nBaseType;
-  muteVideo?: I18nBaseType;
-  requestVideo?: I18nBaseType;
-  addAsPresenter?: I18nBaseType;
-  removeAsPresenter?: I18nBaseType;
-  removeFromRoom?: I18nBaseType;
-  changeName?: I18nBaseType;
-  stopScreenShare?: I18nBaseType;
-  removeScreenShare?: I18nBaseType;
+  [nativeScreensharePopupHeading]?: I18nBaseType;
+  [nativeScreensharePopupSubHeading]?: I18nConditionalType;
+  [nativeScreensharePopupPrimaryBtnText]?: I18nBaseType;
+  [nativeScreensharePopupIncludeDeviceAudioText]?: I18nBaseType;
 
-  removeFromMeetingPopupHeading?: I18nBaseType;
-  removeFromMeetingPopupSubHeading?: I18nBaseType;
-  removeFromMeetingPopupActionButton?: I18nBaseType;
+  [nativeStopScreensharePopupHeading]?: I18nBaseType;
+  [nativeStopScreensharePopupSubHeading]?: I18nBaseType;
+  [nativeStopScreensharePopupPrimaryBtnText]?: I18nBaseType;
 
-  removeScreenshareFromMeetingPopupHeading?: I18nBaseType;
-  removeScreenshareFromMeetingPopupSubHeading?: I18nBaseType;
-  removeScreenshareFromMeetingPopupActionButton?: I18nBaseType;
+  [stopRecordingPopupHeading]?: I18nBaseType;
+  [stopRecordingPopupSubHeading]?: I18nBaseType;
+  [stopRecordingPopupPrimaryBtnText]?: I18nBaseType;
 
-  muteAllConfirmation?: I18nBaseType<I18nMuteType>;
-  requestConfirmation?: I18nBaseType<I18nRequestConfirmation>;
-  muteConfirmation?: I18nBaseType<I18nMuteConfirmation>;
-  muteButton?: I18nBaseType;
-  requestButton?: I18nBaseType;
+  [clearAllWhiteboardPopupHeading]?: I18nBaseType;
+  [clearAllWhiteboardPopupSubHeading]?: I18nBaseType;
+  [clearAllWhiteboardPopupPrimaryBtnText]?: I18nBaseType;
 
-  wantToJoin?: I18nBaseType;
-  waiting?: I18nBaseType;
+  [leavePopupHeading]?: I18nBaseType;
+  [leavePopupSubHeading]?: I18nConditionalType;
+  [leavePopupPrimaryBtnText]?: I18nBaseType;
+
+  [removeFromRoomPopupHeading]?: I18nBaseType;
+  [removeFromRoomPopupSubHeading]?: I18nBaseType;
+  [removeFromRoomPopupPrimaryBtnText]?: I18nBaseType;
+
+  [removeScreenshareFromRoomPopupHeading]?: I18nBaseType;
+  [removeScreenshareFromRoomPopupSubHeading]?: I18nBaseType;
+  [removeScreenshareFromRoomPopupPrimaryBtnText]?: I18nBaseType;
+
+  [sttChangeLanguagePopupHeading]?: I18nConditionalType;
+  [sttChangeLanguagePopupSubHeading]?: I18nBaseType;
+  [sttChangeLanguagePopupDropdownError]?: I18nBaseType;
+  [sttChangeLanguagePopupDropdownInfo]?: I18nBaseType;
+  [sttChangeLanguagePopupPrimaryBtnText]?: I18nBaseType;
+
+  [sttChangeSpokenLanguageText]?: I18nBaseType;
+  [sttSettingSpokenLanguageText]?: I18nBaseType;
+  [sttTranscriptPanelHeaderText]?: I18nBaseType;
+  [sttDownloadBtnText]?: I18nBaseType;
+  [sttDownloadTranscriptBtnText]?: I18nBaseType;
+  [sttLanguageChangeInProgress]?: I18nBaseType;
+
+  [peoplePanelHeaderText]?: I18nBaseType;
+
+  [chatPanelGroupTabText]?: I18nBaseType;
+  [chatPanelPrivateTabText]?: I18nBaseType;
+
+  [groupChatWelcomeContent]?: I18nConditionalType;
+
+  [groupChatInputPlaceHolderText]?: I18nBaseType;
+  [privateChatInputPlaceHolderText]?: I18nBaseType;
+
+  [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
+  [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
+
+  [peoplePanelHostSectionHeaderText]?: I18nBaseType;
+  [peoplePanelAudienceSectionHeaderText]?: I18nBaseType;
+  [peoplePanelInThisMeetingLabel]?: I18nBaseType;
+  [peoplePanelNoHostJoinedContent]?: I18nBaseType;
+  [peoplePanelNoUsersJoinedContent]?: I18nBaseType;
+  [peoplePanelNoAudienceJoinedContent]?: I18nBaseType;
+
+  [moreBtnViewWhiteboard]?: I18nBaseType;
+  [moreBtnViewInLarge]?: I18nBaseType;
+  [moreBtnRemoveFromLarge]?: I18nBaseType;
+  [moreBtnPinToTop]?: I18nBaseType;
+  [moreBtnRemoveFromTop]?: I18nBaseType;
+  [moreBtnMessagePrivately]?: I18nBaseType;
+  [moreBtnAudio]?: I18nConditionalType;
+  [moreBtnVideo]?: I18nConditionalType;
+  [moreBtnAddAsPresenter]?: I18nBaseType;
+  [moreBtnRemoveAsPresenter]?: I18nBaseType;
+  [moreBtnRemoveFromRoom]?: I18nBaseType;
+  [moreBtnChangeName]?: I18nBaseType;
+  [moreBtnStopScreenShare]?: I18nBaseType;
+  [moreBtnRemoveScreenShare]?: I18nBaseType;
+
+  [muteAllConfirmationPopoverContent]: I18nBaseType<I18nMuteType>;
+  [muteAllConfirmationPopoverPrimaryBtnText]?: I18nBaseType;
+
+  [requestConfirmationPopoverContent]?: I18nBaseType<I18nRequestConfirmation>;
+  [requestConfirmationPopoverPrimaryBtnText]?: I18nBaseType;
+
+  [muteConfirmationPopoverContent]?: I18nBaseType<I18nMuteConfirmation>;
+  [muteConfirmationPopoverPrimaryBtnText]?: I18nBaseType;
+
+  [peoplePanelWantToJoinText]?: I18nBaseType;
+  [peoplePanelWaitingText]?: I18nBaseType;
+
+  [livestreamingAttendeeRaiseHandInfoHeading]?: I18nBaseType;
+  [livestreamingAttendeeRaiseHandInfoSubHeading]?: I18nBaseType;
+  [livestreamingAttendeeChatWithOthersInfoHeading]?: I18nBaseType;
+  [livestreamingAttendeeChatWithOthersInfoSubHeading]?: I18nBaseType;
+  [livestreamingAttendeePresentYourScreenInfoHeading]?: I18nBaseType;
+  [livestreamingAttendeePresentYourScreenInfoSubHeading]?: I18nBaseType;
+  [livestreamingAttendeeJoinWithActivitiesInfoHeading]?: I18nBaseType;
+  [livestreamingAttendeeJoinWithActivitiesInfoSubHeading]?: I18nBaseType;
+
+  [livestreamingAttendeeWaitingForHostToJoinText]?: I18nBaseType;
+  [livestreamingAttendeeWhatYouCanDoText]: I18nBaseType;
+  [livestreamingAttendeeInviteOthersText]?: I18nBaseType;
 
   publicChatToastHeading?: I18nBaseType;
   multiplePublicChatToastHeading?: I18nBaseType;
@@ -239,19 +408,6 @@ export interface I18nVideoCallScreenLabelsInterface {
     privateChatCount: number;
     from: string;
   }>;
-
-  raiseYourHand?: I18nBaseType;
-  raiseYourHandInfo?: I18nBaseType;
-  chatWithOthers?: I18nBaseType;
-  chatWithOthersInfo?: I18nBaseType;
-  presentYourScreen?: I18nBaseType;
-  presentYourScreenInfo?: I18nBaseType;
-  joinWithActivites?: I18nBaseType;
-  joinWithActivitesInfo?: I18nBaseType;
-
-  inviteOtherAttendee?: I18nBaseType;
-  waitingForHostToJoin?: I18nBaseType;
-  whatYouCanDoHere?: I18nBaseType;
 
   allowToBePresenter?: I18nBaseType;
   deny?: I18nBaseType;
@@ -276,6 +432,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   promoteAsCoHostToastHeading?: I18nBaseType;
 
   requestAlreadyProcessed?: I18nBaseType;
+  whiteboardInitializing?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -349,16 +506,18 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
 
-  nameCantbeChangedInfo: `Name can't be changed while whiteboard is active`,
-  noOneElseJoinedYet: 'No one else has joined yet.',
-  noOneElseJoinedYetInviteOthers: 'No one else has joined yet, invite others?',
+  [inviteTileWelcomeText]: 'Welcome',
+  [inviteTileNoElseJoinedYetText]: 'No one else has joined yet.',
+  [inviteTileCopyInviteBtnText]: 'COPY INVITATION',
 
-  inviteOthersButton: 'INVITE OTHERS',
-  copyInvitationButton: 'COPY INVITATION',
-  welcome: 'Welcome',
-  invitePopupHeading: 'Invite others to join this room',
-  pstnUserLabel: 'PSTN User',
-  networkQualityLabel: (quality: NetworkQualities) => {
+  [settingPanelNameCantbeChangedInfo]: `Name can't be changed while whiteboard is active`,
+  [settingPanelNameInputLabel]: 'Your Name',
+
+  [invitePopupHeading]: 'Invite others to join this room',
+  [invitePopupPrimaryBtnText]: 'COPY INVITATION',
+
+  [PSTNUserLabel]: 'PSTN User',
+  [videoTileNetworkQuailtyLabel]: (quality: NetworkQualities) => {
     switch (quality) {
       case 'unknown':
         return 'Network Unsupported';
@@ -379,110 +538,142 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     }
   },
 
-  applied: 'Applied',
-  apply: 'Apply',
-  grid: 'Grid',
-  sidebar: 'Sidebar',
-  nativeScreensharePopupActionButton: 'PROCEED',
-  nativeScreensharePopupHeading: 'Screen Share',
-  nativeScreensharePopupSubHeadingLocalCamOff:
-    'NOTE: All incoming videos will be turned OFF for an optimised performance, do you wish to proceed?',
-  nativeScreensharePopupSubHeadingLocalCamOn:
-    'NOTE: Camera and all incoming videos will be turned OFF for an optimised performance, do you wish to proceed?',
-  includeDeviceAudio: 'Include device audio',
-  stopRecordingPopupHeading: 'Stop Recording?',
-  stopRecordingPopupSubHeading:
-    'Are you sure you want to stop recording? You can’t undo this action.',
-  stopRecordingActionButton: 'END RECORDING',
-  stopScreenSharePopupHeading: 'Stop Screen Share?',
-  stopScreenSharePopupSubHeading:
+  [vbPanelAppliedBtnText]: 'Applied',
+  [vbPanelApplyBtnText]: 'Apply',
+  [toolbarItemLayoutOptionGridText]: 'Grid',
+  [toolbarItemLayoutOptionSidebarText]: 'Sidebar',
+
+  [nativeScreensharePopupHeading]: 'Screen Share',
+  [nativeScreensharePopupSubHeading]: camActive =>
+    camActive
+      ? 'NOTE: Camera and all incoming videos will be turned OFF for an optimised performance, do you wish to proceed?'
+      : 'NOTE: All incoming videos will be turned OFF for an optimised performance, do you wish to proceed?',
+  [nativeScreensharePopupPrimaryBtnText]: 'PROCEED',
+  [nativeScreensharePopupIncludeDeviceAudioText]: 'Include device audio',
+
+  [nativeStopScreensharePopupHeading]: 'Stop Screen Share?',
+  [nativeStopScreensharePopupSubHeading]:
     'You need to stop sharing your screen in order to turn the camera ON',
-  stopScreenSharingActionButton: 'STOP SHARE & TURN CAMERA ON',
-  clearAllWhiteboardPopupHeading: 'Clear Whiteborad?',
-  clearAllWhiteboardPopupSubHeading:
+  [nativeStopScreensharePopupPrimaryBtnText]: 'STOP SHARE & TURN CAMERA ON',
+
+  [stopRecordingPopupHeading]: 'Stop Recording?',
+  [stopRecordingPopupSubHeading]:
+    'Are you sure you want to stop recording? You can’t undo this action.',
+  [stopRecordingPopupPrimaryBtnText]: 'END RECORDING',
+
+  [clearAllWhiteboardPopupHeading]: 'Clear Whiteborad?',
+  [clearAllWhiteboardPopupSubHeading]:
     'Are you sure you want to clear the whiteboard?',
-  clearAllWhiteboardActionButton: 'CLEAR ALL',
-  leaveMeetingPopupHeading: 'Leave Room?',
-  leaveMeetingPopupSubHeading: 'Are you sure you want to leave this meeting?',
-  leaveMeetingPopupSubHeadingWithTranscript: `Sure you want to leave? You haven't downloaded your transcripts yet.`,
-  leaveMeetingPopupActionButton: 'LEAVE',
+  [clearAllWhiteboardPopupPrimaryBtnText]: 'CLEAR ALL',
 
-  group: 'Group',
-  private: 'Private',
+  [leavePopupHeading]: 'Leave Room?',
+  [leavePopupSubHeading]: transcriptDownloadAvailable =>
+    transcriptDownloadAvailable
+      ? `Sure you want to leave? You haven't downloaded your transcripts yet.`
+      : 'Are you sure you want to leave this meeting?',
+  [leavePopupPrimaryBtnText]: 'LEAVE',
 
-  groupChatWelcomeInfo: 'Welcome to Chat!',
-  groupChatWelcomeSubInfo: 'All messages are deleted when call ends.',
-  groupChatInputPlaceHolder: name => `Chat publicy as ${name}...`,
-  privateChatInputPlaceHolder: name => `Private Message to ${name}`,
-
-  turnoffAllCameras: 'Turn off all cameras',
-  muteAllMicrophone: 'Mute All',
-
-  host: 'HOST',
-  audience: 'AUDIENCE',
-  inThisMeeting: 'IN THIS MEETING',
-  noHostJoinedYet: 'No Host has joined yet.',
-  noAudienceJoinedYet: 'No Audience has joined yet.',
-  noUsersJoinedYet: 'No Users has joined yet',
-
-  languageSelectionPopupHeading: isFirstTimeOpened =>
-    isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
-  languageSelectionPopupSubHeading:
-    'What language(s) are being spoken by everyone in this meeting?',
-  languageSelectionPopupActionButton: 'CONFIRM',
-  languageSelectionPopupDropdownError:
-    'Choose at least one language to proceed',
-  languageSelectionPopupDropdownInfo:
-    'You can choose a maximum of two languages',
-
-  meetingTranscript: 'Meeting Transcript',
-  download: 'Download',
-  downloadTranscript: 'Download Transcript',
-  settingSpokenLanguage: 'Setting Spoken Language',
-  languageChangeInProgress: 'Language Change is in progress...',
-  language: 'Language',
-
-  whiteboardInitializing: 'Whiteboard is initializing',
-  viewWhiteboard: 'View Whiteboard',
-  removeFromLarge: 'Remove from large',
-  viewInLarge: 'View in large',
-  pinToTop: 'Pin to top',
-  removeFromTop: 'Remove from top',
-  messagePrivately: 'Message Privately',
-  muteAudio: 'Mute Audio',
-  requestAudio: 'Request Audio',
-  muteVideo: 'Mute Video',
-  requestVideo: 'Request Video',
-  addAsPresenter: 'Add as Presenter',
-  removeAsPresenter: 'Remove as Presenter',
-  removeFromRoom: 'Remove from Room',
-  changeName: 'Change Name',
-  stopScreenShare: 'Stop Screenshare',
-  removeScreenShare: 'Remove Screenshare',
-
-  removeFromMeetingPopupHeading: name => `Remove ${name}?`,
-  removeFromMeetingPopupSubHeading: name =>
+  [removeFromRoomPopupHeading]: name => `Remove ${name}?`,
+  [removeFromRoomPopupSubHeading]: name =>
     `Once removed, ${name} will still be able to rejoin the room later.`,
-  removeFromMeetingPopupActionButton: 'REMOVE',
+  [removeFromRoomPopupPrimaryBtnText]: 'REMOVE',
 
-  removeScreenshareFromMeetingPopupHeading: 'Remove Screenshare?',
-  removeScreenshareFromMeetingPopupSubHeading: name =>
+  [removeScreenshareFromRoomPopupHeading]: 'Remove Screenshare?',
+  [removeScreenshareFromRoomPopupSubHeading]: name =>
     `Once removed, ${name} will still be able to screen share later.`,
-  removeScreenshareFromMeetingPopupActionButton: 'REMOVE',
+  [removeScreenshareFromRoomPopupPrimaryBtnText]: 'REMOVE',
 
-  muteAllConfirmation: (type: I18nMuteType) =>
+  [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
+    isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
+  [sttChangeLanguagePopupSubHeading]:
+    'What language(s) are being spoken by everyone in this meeting?',
+  [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
+  [sttChangeLanguagePopupDropdownInfo]:
+    'Choose at least one language to proceed',
+  [sttChangeLanguagePopupDropdownError]:
+    'You can choose a maximum of two languages',
+  [sttChangeSpokenLanguageText]: 'Change Spoken Language',
+
+  [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
+  [sttDownloadBtnText]: 'Download',
+  [sttDownloadTranscriptBtnText]: 'Download Transcript',
+  [sttSettingSpokenLanguageText]: 'Setting Spoken Language',
+  [sttLanguageChangeInProgress]: 'Language Change is in progress...',
+
+  [peoplePanelHeaderText]: 'People',
+
+  [chatPanelGroupTabText]: 'Group',
+  [chatPanelPrivateTabText]: 'Private',
+
+  [groupChatWelcomeContent]: noMessage =>
+    noMessage
+      ? 'Welcome to Chat!\nAll messages are deleted when call ends.'
+      : 'All messages are deleted when call ends.',
+
+  [groupChatInputPlaceHolderText]: name => `Chat publicy as ${name}...`,
+  [privateChatInputPlaceHolderText]: name => `Private Message to ${name}`,
+
+  [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
+  [peoplePanelMuteAllMicBtnText]: 'Mute All',
+
+  [peoplePanelHostSectionHeaderText]: 'HOST',
+  [peoplePanelAudienceSectionHeaderText]: 'AUDIENCE',
+  [peoplePanelInThisMeetingLabel]: 'IN THIS MEETING',
+  [peoplePanelNoHostJoinedContent]: 'No Host has joined yet.',
+  [peoplePanelNoAudienceJoinedContent]: 'No Audience has joined yet.',
+  [peoplePanelNoUsersJoinedContent]: 'No Users has joined yet.',
+
+  [moreBtnViewWhiteboard]: 'View Whiteboard',
+  [moreBtnRemoveFromLarge]: 'Remove from large',
+  [moreBtnViewInLarge]: 'View in large',
+  [moreBtnPinToTop]: 'Pin to top',
+  [moreBtnRemoveFromTop]: 'Remove from top',
+  [moreBtnMessagePrivately]: 'Message Privately',
+  [moreBtnAudio]: audio => (audio ? 'Mute Audio' : 'Request Audio'),
+  [moreBtnVideo]: video => (video ? 'Mute Video' : 'Request Video'),
+  [moreBtnAddAsPresenter]: 'Add as Presenter',
+  [moreBtnRemoveAsPresenter]: 'Remove as Presenter',
+  [moreBtnRemoveFromRoom]: 'Remove from Room',
+  [moreBtnChangeName]: 'Change Name',
+  [moreBtnStopScreenShare]: 'Stop Screenshare',
+  [moreBtnRemoveScreenShare]: 'Remove Screenshare',
+
+  [muteAllConfirmationPopoverContent]: (type: I18nMuteType) =>
     `Mute everyone's ${type} on the call?`,
-  requestConfirmation: ({name, type}: I18nRequestConfirmation) =>
+  [requestConfirmationPopoverContent]: ({
+    name,
+    type,
+  }: I18nRequestConfirmation) =>
     `Request ${name} to turn on their ${
       type === I18nMuteType.audio ? 'microphone' : 'camera'
     }?`,
-  muteConfirmation: ({name, type}: I18nMuteConfirmation) =>
+  [muteConfirmationPopoverContent]: ({name, type}: I18nMuteConfirmation) =>
     `Mute ${name}'s ${type} for everyone on the call? Only ${name} can unmute themselves.`,
 
-  muteButton: 'Mute',
-  requestButton: 'Request',
-  wantToJoin: 'WANT TO JOIN',
-  waiting: 'WAITING',
+  [muteAllConfirmationPopoverPrimaryBtnText]: 'Mute All',
+  [muteConfirmationPopoverPrimaryBtnText]: 'Mute',
+  [requestConfirmationPopoverPrimaryBtnText]: 'Request',
+
+  [peoplePanelWantToJoinText]: 'WANT TO JOIN',
+  [peoplePanelWaitingText]: 'WAITING',
+
+  [livestreamingAttendeeRaiseHandInfoHeading]: 'Raise Your hand',
+  [livestreamingAttendeeRaiseHandInfoSubHeading]:
+    "Let everyone know that you've something to say",
+  [livestreamingAttendeeChatWithOthersInfoHeading]: 'Chat with others',
+  [livestreamingAttendeeChatWithOthersInfoSubHeading]:
+    'Message fellow attendees or the hosts',
+  [livestreamingAttendeePresentYourScreenInfoHeading]: 'Present Your screen',
+  [livestreamingAttendeePresentYourScreenInfoSubHeading]:
+    'Be a presenter post the host’s approval',
+  [livestreamingAttendeeJoinWithActivitiesInfoHeading]: 'Join in activities',
+  [livestreamingAttendeeJoinWithActivitiesInfoSubHeading]:
+    'Jam with everyone on a whiteboard',
+
+  [livestreamingAttendeeInviteOthersText]: 'INVITE OTHER ATTENDEES',
+  [livestreamingAttendeeWaitingForHostToJoinText]:
+    'Waiting for the host to join',
+  [livestreamingAttendeeWhatYouCanDoText]: "Here's what you can do here :",
 
   publicChatToastHeading: (name: string) =>
     `${name} commented in the public chat`,
@@ -504,19 +695,6 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     from,
   }) =>
     `You have ${publicChatCount} new messages from ${from} and ${privateChatCount} Private chat`,
-
-  raiseYourHand: 'Raise Your hand',
-  raiseYourHandInfo: "Let everyone know that you've something to say",
-  chatWithOthers: 'Chat with others',
-  chatWithOthersInfo: 'Message fellow attendees or the hosts',
-  presentYourScreen: 'Present Your screen',
-  presentYourScreenInfo: 'Be a presenter post the host’s approval',
-  joinWithActivites: 'Join in activities',
-  joinWithActivitesInfo: 'Jam with everyone on a whiteboard',
-
-  inviteOtherAttendee: 'INVITE OTHER ATTENDEES',
-  waitingForHostToJoin: 'Waiting for the host to join',
-  whatYouCanDoHere: "Here's what you can do here :",
 
   allowToBePresenter: 'ALLOW TO BE A PRESENTER',
   deny: 'DENY',
@@ -543,4 +721,5 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   promoteAsCoHostToastHeading: 'Host promoted you as a Presenter',
   requestAlreadyProcessed: 'Request already processed.',
+  whiteboardInitializing: 'Whiteboard is initializing',
 };

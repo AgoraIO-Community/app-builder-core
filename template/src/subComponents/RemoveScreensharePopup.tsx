@@ -7,6 +7,11 @@ import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
 import {useString} from '../utils/useString';
+import {
+  removeScreenshareFromRoomPopupHeading,
+  removeScreenshareFromRoomPopupPrimaryBtnText,
+  removeScreenshareFromRoomPopupSubHeading,
+} from '../language/default-labels/videoCallScreenLabels';
 
 interface RemoveScreensharePopupProps {
   modalVisible: boolean;
@@ -17,15 +22,15 @@ interface RemoveScreensharePopupProps {
 const RemoveScreensharePopup = (props: RemoveScreensharePopupProps) => {
   const isDesktop = useIsDesktop()('popup');
   const removeMeetingLabelHeading = useString(
-    'removeScreenshareFromMeetingPopupHeading',
+    removeScreenshareFromRoomPopupHeading,
   )();
   const removeMeetingLabelSubHeading = useString(
-    'removeScreenshareFromMeetingPopupSubHeading',
+    removeScreenshareFromRoomPopupSubHeading,
   );
 
   const cancelBtnLabel = useString('cancel')();
   const removeBtnLabel = useString(
-    'removeScreenshareFromMeetingPopupActionButton',
+    removeScreenshareFromRoomPopupPrimaryBtnText,
   )();
   return (
     <Popup

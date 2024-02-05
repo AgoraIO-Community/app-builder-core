@@ -41,6 +41,23 @@ import {customEvents} from 'customization-api';
 import {useDisableChat} from '../disable-chat/useDisableChat';
 import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
 import {useString} from '../../utils/useString';
+import {
+  I18nMuteType,
+  moreBtnAddAsPresenter,
+  moreBtnAudio,
+  moreBtnChangeName,
+  moreBtnMessagePrivately,
+  moreBtnPinToTop,
+  moreBtnRemoveAsPresenter,
+  moreBtnRemoveFromLarge,
+  moreBtnRemoveFromRoom,
+  moreBtnRemoveFromTop,
+  moreBtnRemoveScreenShare,
+  moreBtnStopScreenShare,
+  moreBtnVideo,
+  moreBtnViewInLarge,
+  moreBtnViewWhiteboard,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -85,22 +102,20 @@ export default function UserActionMenuOptionsOptions(
   const {setDisableChatUids, disableChatUids} = useDisableChat();
   const {getWhiteboardUid = () => 0} = useWhiteboard();
 
-  const viewWhiteboardLabel = useString('viewWhiteboard')();
-  const removeFromLargeLabel = useString('removeFromLarge')();
-  const viewInLargeLabel = useString('viewInLarge')();
-  const pinToTopLabel = useString('pinToTop')();
-  const removeFromTopLabel = useString('removeFromTop')();
-  const messagePrivatelyLabel = useString('messagePrivately')();
-  const muteAudioLabel = useString('muteAudio')();
-  const muteVideoLabel = useString('muteVideo')();
-  const requestVideoLabel = useString('requestVideo')();
-  const requestAudioLabel = useString('requestAudio')();
-  const addAsPresenterLabel = useString('addAsPresenter')();
-  const removeAsPresenterLabel = useString('removeAsPresenter')();
-  const changeNameLabel = useString('changeName')();
-  const stopScreenShareLabel = useString('stopScreenShare')();
-  const removeScreenShareLabel = useString('removeScreenShare')();
-  const removeFromRoomLabel = useString('removeFromRoom')();
+  const viewWhiteboardLabel = useString(moreBtnViewWhiteboard)();
+  const removeFromLargeLabel = useString(moreBtnRemoveFromLarge)();
+  const viewInLargeLabel = useString(moreBtnViewInLarge)();
+  const pinToTopLabel = useString(moreBtnPinToTop)();
+  const removeFromTopLabel = useString(moreBtnRemoveFromTop)();
+  const messagePrivatelyLabel = useString(moreBtnMessagePrivately)();
+  const audioLabel = useString<boolean>(moreBtnAudio);
+  const videoLabel = useString<boolean>(moreBtnVideo);
+  const addAsPresenterLabel = useString(moreBtnAddAsPresenter)();
+  const removeAsPresenterLabel = useString(moreBtnRemoveAsPresenter)();
+  const changeNameLabel = useString(moreBtnChangeName)();
+  const stopScreenShareLabel = useString(moreBtnStopScreenShare)();
+  const removeScreenShareLabel = useString(moreBtnRemoveScreenShare)();
+  const removeFromRoomLabel = useString(moreBtnRemoveFromRoom)();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -235,7 +250,7 @@ export default function UserActionMenuOptionsOptions(
             onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: user.audio ? muteAudioLabel : requestAudioLabel,
+            title: audioLabel(user.audio),
             callback: () => {
               setActionMenuVisible(false);
               user.audio
@@ -249,7 +264,7 @@ export default function UserActionMenuOptionsOptions(
               onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
               iconColor: $config.SECONDARY_ACTION_COLOR,
               textColor: $config.SECONDARY_ACTION_COLOR,
-              title: user.video ? muteVideoLabel : requestVideoLabel,
+              title: videoLabel(user.video),
               callback: () => {
                 setActionMenuVisible(false);
                 user.video
@@ -413,7 +428,7 @@ export default function UserActionMenuOptionsOptions(
     <>
       {isHost ? (
         <RemoteMutePopup
-          type="audio"
+          type={I18nMuteType.audio}
           actionMenuVisible={showAudioMuteModal}
           setActionMenuVisible={setShowAudioMuteModal}
           name={props?.user.name}
@@ -428,7 +443,7 @@ export default function UserActionMenuOptionsOptions(
       )}
       {isHost ? (
         <RemoteMutePopup
-          type="video"
+          type={I18nMuteType.video}
           actionMenuVisible={showVideoMuteModal}
           setActionMenuVisible={setShowVideoMuteModal}
           name={props?.user.name}

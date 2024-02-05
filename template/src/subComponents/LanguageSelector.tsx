@@ -18,11 +18,12 @@ import {useString} from '../utils/useString';
 import {DEFAULT_I18_DATA} from '../language';
 import ThemeConfig from '../theme';
 import Dropdown from '../atoms/Dropdown';
+import {settingsPanelLanguageLabel} from '../language/default-labels/precallScreenLabels';
 
 const LanguageSelector = () => {
   const {languageCode, setLanguageCode} = useLanguage();
   const languageData = useCustomization(data => data?.i18n);
-  const languageText = useString('language')();
+  const languageText = useString(settingsPanelLanguageLabel)();
   if (!languageData || !languageData.length) {
     return <></>;
   }

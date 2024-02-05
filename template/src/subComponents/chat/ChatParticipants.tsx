@@ -21,6 +21,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
+import {inviteTileNoElseJoinedYetText} from '../../language/default-labels/videoCallScreenLabels';
 
 const ChatIcon = () => (
   <View style={{alignSelf: 'center', marginRight: 20}}>
@@ -52,7 +53,7 @@ const ChatParticipants = (props: any) => {
     }
   }, [waitingRoomUids, activeUids]);
 
-  const noOneElseJoinedYet = useString('noOneElseJoinedYet')();
+  const noOneElseJoinedYet = useString(inviteTileNoElseJoinedYetText)();
 
   return (
     <ScrollView>

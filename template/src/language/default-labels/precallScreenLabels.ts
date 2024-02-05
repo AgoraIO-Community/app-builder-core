@@ -73,6 +73,7 @@ export interface I18nPrecallScreenLabelsInterface {
 
   [settingsPanelLiveStreamingAttendeeInfo]?: I18nBaseType;
   [settingsPanelUpdatingText]?: I18nBaseType;
+  [settingsPanelLanguageLabel]?: I18nBaseType;
 
   [precallYouAreJoiningAsHeading]?: I18nBaseType;
   [precallNameInputPlaceholderText]?: I18nBaseType;
@@ -123,6 +124,8 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   [settingsPanelLiveStreamingAttendeeInfo]:
     'Attendees need to raise their hand to access the devices.',
   [settingsPanelUpdatingText]: 'Updating',
+
+  [settingsPanelLanguageLabel]: 'Language',
 
   [precallYouAreJoiningAsHeading]: 'You Are Joining as',
   [precallNameInputPlaceholderText]: 'Enter Your Name',

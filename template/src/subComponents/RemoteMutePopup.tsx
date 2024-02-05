@@ -18,6 +18,12 @@ import {
   I18nMuteConfirmation,
   I18nMuteType,
   I18nRequestConfirmation,
+  muteAllConfirmationPopoverContent,
+  muteAllConfirmationPopoverPrimaryBtnText,
+  muteConfirmationPopoverContent,
+  muteConfirmationPopoverPrimaryBtnText,
+  requestConfirmationPopoverContent,
+  requestConfirmationPopoverPrimaryBtnText,
 } from '../language/default-labels/videoCallScreenLabels';
 
 export interface RemoteMutePopupProps {
@@ -37,14 +43,19 @@ export interface RemoteMutePopupProps {
 
 const RemoteMutePopup = (props: RemoteMutePopupProps) => {
   const cancelLabel = useString('cancel')();
-  const muteLabel = useString('muteButton')();
-  const requestLabel = useString('requestButton')();
+  const muteLabel = useString(muteConfirmationPopoverPrimaryBtnText)();
+  const muteAllLabel = useString(muteAllConfirmationPopoverPrimaryBtnText)();
+  const requestLabel = useString(requestConfirmationPopoverPrimaryBtnText)();
 
-  const muteAllConfirmation = useString<I18nMuteType>('muteAllConfirmation');
-  const requestConfirmation = useString<I18nRequestConfirmation>(
-    'requestConfirmation',
+  const muteAllConfirmation = useString<I18nMuteType>(
+    muteAllConfirmationPopoverContent,
   );
-  const muteConfirmation = useString<I18nMuteConfirmation>('muteConfirmation');
+  const requestConfirmation = useString<I18nRequestConfirmation>(
+    requestConfirmationPopoverContent,
+  );
+  const muteConfirmation = useString<I18nMuteConfirmation>(
+    muteConfirmationPopoverContent,
+  );
 
   const {height} = useWindowDimensions();
   const {
@@ -54,6 +65,7 @@ const RemoteMutePopup = (props: RemoteMutePopupProps) => {
     action = 'mute',
   } = props;
   let message = '';
+  let btnLabel = '';
 
   if (props.name) {
     //mute action
@@ -62,6 +74,7 @@ const RemoteMutePopup = (props: RemoteMutePopupProps) => {
         name: props?.name,
         type: props.type,
       });
+      btnLabel = muteLabel;
       //message = `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`;
     }
     //request action
@@ -70,6 +83,7 @@ const RemoteMutePopup = (props: RemoteMutePopupProps) => {
         name: props?.name,
         type: props?.type,
       });
+      btnLabel = requestLabel;
       // if (props?.type === 'audio') {
       //   //message = `Request ${props.name} to turn on their microphone?`;
       // } else {
@@ -78,6 +92,7 @@ const RemoteMutePopup = (props: RemoteMutePopupProps) => {
     }
   } else {
     message = muteAllConfirmation(props?.type);
+    btnLabel = muteAllLabel;
     //message = `Mute everyone's ${props.type} on the call?`;
   }
 
@@ -134,9 +149,7 @@ const RemoteMutePopup = (props: RemoteMutePopupProps) => {
                     <TouchableOpacity
                       style={isHovered ? styles.onHoverBtnStyle : {}}
                       onPress={() => props.onMutePress()}>
-                      <Text style={styles.btnText}>
-                        {action === 'mute' ? muteLabel : requestLabel}
-                      </Text>
+                      <Text style={styles.btnText}>{btnLabel}</Text>
                     </TouchableOpacity>
                   );
                 }}

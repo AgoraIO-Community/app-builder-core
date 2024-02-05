@@ -6,6 +6,7 @@ import useTranscriptDownload from './useTranscriptDownload';
 import ThemeConfig from '../../../src/theme';
 import {IconsInterface} from '../../../src/atoms/CustomIcon';
 import {useString} from '../../../src/utils/useString';
+import {sttDownloadTranscriptBtnText} from '../../../src/language/default-labels/videoCallScreenLabels';
 
 interface DownloadTranscriptBtn {
   textStyle?: TextStyle;
@@ -15,7 +16,7 @@ interface DownloadTranscriptBtn {
 }
 
 const DownloadTranscriptBtn = (props: DownloadTranscriptBtn) => {
-  const downloadTranscriptLabel = useString('downloadTranscript')();
+  const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
   const {
     textStyle = {},
     containerStyle = {},

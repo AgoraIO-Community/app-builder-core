@@ -6,10 +6,14 @@ import Participant from './Participant';
 import ParticipantSectionTitle from './ParticipantSectionTitle';
 import {useWaitingRoomContext} from '../contexts/WaitingRoomContext';
 import {useString} from '../../utils/useString';
+import {
+  peoplePanelWaitingText,
+  peoplePanelWantToJoinText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const WaitingRoomParticipants = props => {
-  const wanttojoinLabel = useString('wantToJoin')();
-  const waitingLabel = useString('waiting')();
+  const wanttojoinLabel = useString(peoplePanelWantToJoinText)();
+  const waitingLabel = useString(peoplePanelWaitingText)();
   const {defaultContent} = useContent();
   const [showWaitingRoomSection, setShowWaitingRoomSection] = useState(true);
   const {isMobile = false, handleClose, updateActionSheet} = props;

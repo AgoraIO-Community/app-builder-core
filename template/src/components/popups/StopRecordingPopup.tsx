@@ -9,16 +9,21 @@ import {useIsDesktop} from '../../utils/common';
 import {useRecording} from 'customization-api';
 import {useVideoCall} from '../useVideoCall';
 import {useString} from '../../utils/useString';
+import {
+  stopRecordingPopupHeading,
+  stopRecordingPopupPrimaryBtnText,
+  stopRecordingPopupSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const StopRecordingPopup = () => {
   const {showStopRecordingPopup, setShowStopRecordingPopup} = useVideoCall();
   const {stopRecording, isRecordingActive} = useRecording();
   const isDesktop = useIsDesktop()('popup');
-  const recordingLabelHeading = useString('stopRecordingPopupHeading')();
-  const recordingLabelSubHeading = useString('stopRecordingPopupSubHeading')();
+  const recordingLabelHeading = useString(stopRecordingPopupHeading)();
+  const recordingLabelSubHeading = useString(stopRecordingPopupSubHeading)();
 
   const cancelBtnLabel = useString('cancel')();
-  const stopRecordingBtnLabel = useString('stopRecordingActionButton')();
+  const stopRecordingBtnLabel = useString(stopRecordingPopupPrimaryBtnText)();
 
   const doStopRecording = () => {
     if (isRecordingActive) {

@@ -37,6 +37,14 @@ import {
   settingsPanelHeading,
   vbPanelHeading,
 } from '../../language/default-labels/precallScreenLabels';
+import {
+  chatPanelGroupTabText,
+  chatPanelPrivateTabText,
+  peoplePanelHeaderText,
+  sttChangeSpokenLanguageText,
+  sttDownloadTranscriptBtnText,
+  sttTranscriptPanelHeaderText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -62,7 +70,7 @@ export const PeopleHeader = () => {
   const count = $config.EVENT_MODE
     ? hostUids.length + audienceUids.length
     : onlineUsersCount;
-  const participantsLabel = useString('people')();
+  const participantsLabel = useString(peoplePanelHeaderText)();
 
   const {setSidePanel} = useSidePanel();
   return (
@@ -89,8 +97,8 @@ export const ChatHeader = () => {
   } = useChatNotification();
 
   const {setSidePanel} = useSidePanel();
-  const groupChatLabel = useString('group')();
-  const privateChatLabel = useString('private')();
+  const groupChatLabel = useString(chatPanelGroupTabText)();
+  const privateChatLabel = useString(chatPanelPrivateTabText)();
 
   const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
@@ -185,7 +193,7 @@ export const TranscriptHeader = props => {
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
 
-  const label = useString('meetingTranscript')();
+  const label = useString(sttTranscriptPanelHeaderText)();
 
   return (
     <SidePanelHeader
@@ -235,10 +243,10 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     data: {isHost},
   } = useRoomInfo();
 
-  const downloadTranscriptLabel = useString('downloadTranscript')();
+  const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
   const changeSpokenLanguage = useString<boolean>(
-    'languageSelectionPopupHeading',
-  )(false);
+    sttChangeSpokenLanguageText,
+  )();
   isHost &&
     actionMenuitems.push({
       icon: 'lang-select',

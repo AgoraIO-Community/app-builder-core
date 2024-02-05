@@ -11,7 +11,13 @@ import {useVideoCall} from '../useVideoCall';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import Toggle from '../../atoms/Toggle';
 import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
-import {useString} from 'src/utils/useString';
+import {useString} from '../../utils/useString';
+import {
+  nativeScreensharePopupHeading,
+  nativeScreensharePopupIncludeDeviceAudioText,
+  nativeScreensharePopupPrimaryBtnText,
+  nativeScreensharePopupSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const StartScreenSharePopup = () => {
   const {showStartScreenSharePopup, setShowStartScreenSharePopup} =
@@ -20,15 +26,14 @@ const StartScreenSharePopup = () => {
   const {startUserScreenshare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
   const cancelLabel = useString('cancel')();
-  const proceedLabel = useString('nativeScreensharePopupActionButton')();
-  const includeDeviceAudio = useString('includeDeviceAudio')();
-  const screenshareLabelHeading = useString('nativeScreensharePopupHeading')();
-  const screenshareLabelSubHeadingCamOff = useString(
-    'nativeScreensharePopupSubHeadingLocalCamOff',
+  const proceedLabel = useString(nativeScreensharePopupPrimaryBtnText)();
+  const includeDeviceAudio = useString(
+    nativeScreensharePopupIncludeDeviceAudioText,
   )();
-  const screenshareLabelSubHeadingCamOn = useString(
-    'nativeScreensharePopupSubHeadingLocalCamOn',
-  )();
+  const screenshareLabelHeading = useString(nativeScreensharePopupHeading)();
+  const screenshareLabelSubHeading = useString(
+    nativeScreensharePopupSubHeading,
+  );
 
   const cancelBtnLabel = cancelLabel;
   const startShareShareBtnLabel = proceedLabel;
@@ -59,21 +64,12 @@ const StartScreenSharePopup = () => {
           <Toggle isEnabled={shareAudio} toggleSwitch={setShareAudio} />
         </View>
       </View>
-      {video ? (
-        <>
-          <Spacer size={28} />
-          <Text style={styles.subHeading}>
-            {screenshareLabelSubHeadingCamOn}
-          </Text>
-        </>
-      ) : (
-        <>
-          <Spacer size={28} />
-          <Text style={styles.subHeading}>
-            {screenshareLabelSubHeadingCamOff}
-          </Text>
-        </>
-      )}
+      <>
+        <Spacer size={28} />
+        <Text style={styles.subHeading}>
+          {screenshareLabelSubHeading(video)}
+        </Text>
+      </>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
         <View style={isDesktop && {flex: 1}}>

@@ -36,6 +36,10 @@ import {
   vbPanelHeading,
   vbPanelInfo,
 } from '../../language/default-labels/precallScreenLabels';
+import {
+  vbPanelAppliedBtnText,
+  vbPanelApplyBtnText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -66,11 +70,11 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
-  const fallbackText = useString<boolean>(vbPanelInfo);
+  const fallbackText = useString<boolean>(vbPanelInfo)(isCameraAvailable);
 
   const vbLabel = useString(vbPanelHeading)();
-  const applyLabel = useString('apply')();
-  const appliedLabel = useString('applied')();
+  const applyLabel = useString(vbPanelApplyBtnText)();
+  const appliedLabel = useString(vbPanelAppliedBtnText)();
 
   const PreCallVBHeader = () => (
     <Text
@@ -119,7 +123,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
       {/* VB Notification */}
       {!callActive && !isLocalVideoON && !isMobile ? (
         <View style={{padding: 20, paddingBottom: 0}}>
-          <InlineNotification text={fallbackText(isCameraAvailable)} />
+          <InlineNotification text={fallbackText} />
         </View>
       ) : (
         <></>

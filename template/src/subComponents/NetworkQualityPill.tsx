@@ -20,7 +20,10 @@ import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
-import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
+import {
+  NetworkQualities,
+  videoTileNetworkQuailtyLabel,
+} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  *
@@ -39,7 +42,7 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
   const {uid} = props;
   const {defaultContent} = useContent();
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
-  const getLabel = useString<NetworkQualities>('networkQualityLabel');
+  const getLabel = useString<NetworkQualities>(videoTileNetworkQuailtyLabel);
 
   const networkQualityStat = useContext(NetworkQualityContext);
   const networkStat = networkQualityStat[uid]

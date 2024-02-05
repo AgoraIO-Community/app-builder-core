@@ -13,6 +13,19 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 import ThemeConfig from '../../../theme';
 import {useString} from '../../../utils/useString';
 import {TextDataInterface} from '../../../language/default-labels';
+import {
+  livestreamingAttendeeChatWithOthersInfoHeading,
+  livestreamingAttendeeChatWithOthersInfoSubHeading,
+  livestreamingAttendeeInviteOthersText,
+  livestreamingAttendeeJoinWithActivitiesInfoHeading,
+  livestreamingAttendeeJoinWithActivitiesInfoSubHeading,
+  livestreamingAttendeePresentYourScreenInfoHeading,
+  livestreamingAttendeePresentYourScreenInfoSubHeading,
+  livestreamingAttendeeRaiseHandInfoHeading,
+  livestreamingAttendeeRaiseHandInfoSubHeading,
+  livestreamingAttendeeWaitingForHostToJoinText,
+  livestreamingAttendeeWhatYouCanDoText,
+} from '../../../language/default-labels/videoCallScreenLabels';
 
 interface Feature {
   id: number;
@@ -26,29 +39,32 @@ const features: Feature[] = [
     id: 1,
     icon: 'raise-hand',
     tint: $config.SEMANTIC_WARNING,
-    titleTranslationKey: 'raiseYourHand',
-    descriptionTranslationKey: 'raiseYourHandInfo',
+    titleTranslationKey: livestreamingAttendeeRaiseHandInfoHeading,
+    descriptionTranslationKey: livestreamingAttendeeRaiseHandInfoSubHeading,
   },
   {
     id: 2,
     icon: 'chat-filled',
-    titleTranslationKey: 'chatWithOthers',
+    titleTranslationKey: livestreamingAttendeeChatWithOthersInfoHeading,
     tint: $config.SEMANTIC_SUCCESS,
-    descriptionTranslationKey: 'chatWithOthersInfo',
+    descriptionTranslationKey:
+      livestreamingAttendeeChatWithOthersInfoSubHeading,
   },
   {
     id: 3,
     icon: 'screen-share',
-    titleTranslationKey: 'presentYourScreen',
+    titleTranslationKey: livestreamingAttendeePresentYourScreenInfoHeading,
     tint: $config.PRIMARY_ACTION_BRAND_COLOR,
-    descriptionTranslationKey: 'presentYourScreenInfo',
+    descriptionTranslationKey:
+      livestreamingAttendeePresentYourScreenInfoSubHeading,
   },
   {
     id: 4,
     icon: 'celebration',
-    titleTranslationKey: 'joinWithActivites',
+    titleTranslationKey: livestreamingAttendeeJoinWithActivitiesInfoHeading,
     tint: $config.SEMANTIC_ERROR,
-    descriptionTranslationKey: 'joinWithActivitesInfo',
+    descriptionTranslationKey:
+      livestreamingAttendeeJoinWithActivitiesInfoSubHeading,
   },
 ];
 function FeatureTile({feature}: {feature: Feature}) {
@@ -89,9 +105,13 @@ function FeatureTile({feature}: {feature: Feature}) {
 export default function LiveStreamAttendeeLandingTile() {
   const isMobile = isMobileUA();
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
-  const inviteOtherAttendee = useString('inviteOtherAttendee')();
-  const whatYouCanDoHere = useString('whatYouCanDoHere')();
-  const waitingForHostToJoin = useString('waitingForHostToJoin')();
+  const inviteOtherAttendee = useString(
+    livestreamingAttendeeInviteOthersText,
+  )();
+  const whatYouCanDoHere = useString(livestreamingAttendeeWhatYouCanDoText)();
+  const waitingForHostToJoin = useString(
+    livestreamingAttendeeWaitingForHostToJoinText,
+  )();
   return (
     <View style={style.tileBackdrop}>
       <ScrollView contentContainerStyle={{flexGrow: 1}}>

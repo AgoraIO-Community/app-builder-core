@@ -3,6 +3,7 @@ import {MaxVideoView, useLocalUid} from '../../../agora-rn-uikit';
 import {useContent, usePreCall, useRtc} from 'customization-api';
 import InlineNotification from '../../atoms/InlineNotification';
 import {useString} from '../../utils/useString';
+import {vbPanelInfo} from '../../language/default-labels/precallScreenLabels';
 
 interface VideoPreviewProps {
   isLocalVideoON?: boolean;
@@ -14,7 +15,7 @@ const VideoPreview = ({isLocalVideoON = false}: VideoPreviewProps) => {
   const localUid = useLocalUid();
 
   const rtc = useRtc();
-  const fallbackText = useString<boolean>('virtualBackgroundCameraInfo');
+  const fallbackText = useString<boolean>(vbPanelInfo);
   rtc?.RtcEngineUnsafe?.startPreview();
 
   if (!isLocalVideoON) {

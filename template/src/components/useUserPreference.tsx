@@ -24,6 +24,7 @@ import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
 import {useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
+import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -66,7 +67,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           variables: {
             name,
           },
-        }).catch((error) => {
+        }).catch(error => {
           console.log('ERROR, could not save the name', error);
         });
       } catch (error) {
@@ -77,13 +78,13 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   //commented for v1 release
   // const userText = useString('remoteUserDefaultLabel')();
   const userText = 'User';
-  const pstnUserLabel = useString('pstnUserLabel')();
+  const pstnUserLabel = useString(PSTNUserLabel)();
   //commented for v1 release
   //const getScreenShareName = useString('screenshareUserName');
   const getScreenShareName = (name: string) => `${name}'s screenshare`;
 
   useEffect(() => {
-    events.on(EventNames.NAME_ATTRIBUTE, (data) => {
+    events.on(EventNames.NAME_ATTRIBUTE, data => {
       const value = JSON.parse(data?.payload);
       if (value) {
         if (value?.uid) {
@@ -108,7 +109,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     //Update the store displayName value if the state is changed
-    setStore((prevState) => {
+    setStore(prevState => {
       return {
         ...prevState,
         displayName,
