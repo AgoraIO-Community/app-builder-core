@@ -21,6 +21,19 @@ export interface raiseHandItemInterface {
 }
 
 import {UidType} from '../../../agora-rn-uikit';
+import {
+  livestreamPromoteAsCoHostToastHeading,
+  livestreamRaiseHandApprovedRequestRecallToastHeading,
+  livestreamRaiseHandRequestAcceptedToastHeading,
+  livestreamRaiseHandRequestAcceptedToastSubHeading,
+  livestreamRaiseHandRequestRecallLocalToastHeading,
+  livestreamRaiseHandRequestRecallToastHeading,
+  livestreamRaiseHandRequestReceivedToastHeading,
+  livestreamRaiseHandRequestReceivedToastSubHeading,
+  livestreamRaiseHandRequestRejectedToastHeading,
+  livestreamRaiseHandRequestToastHeading,
+  livestreamRaiseHandRequestToastSubHeading,
+} from 'src/language/default-labels/videoCallScreenLabels';
 
 export enum requestStatus {
   AwaitingAction = 'AWAITING_ACTION',
@@ -59,31 +72,31 @@ interface LSNotificationObjectInterface {
 }
 export const LSNotificationObject: LSNotificationObjectInterface = {
   [LiveStreamControlMessageEnum.raiseHandRequest]: {
-    text1TranslationKey: 'raiseHandRequestToastHeading',
-    text2TranslationKey: 'raiseHandRequestToastSubHeading',
+    text1TranslationKey: livestreamRaiseHandRequestToastHeading,
+    text2TranslationKey: livestreamRaiseHandRequestToastSubHeading,
   },
   [LiveStreamControlMessageEnum.raiseHandRequestReceived]: {
-    text1TranslationKey: 'raiseHandRequestReceivedToastHeading',
-    text2TranslationKey: 'raiseHandRequestReceivedToastSubHeading',
+    text1TranslationKey: livestreamRaiseHandRequestReceivedToastHeading,
+    text2TranslationKey: livestreamRaiseHandRequestReceivedToastSubHeading,
   },
   [LiveStreamControlMessageEnum.raiseHandRequestAccepted]: {
-    text1TranslationKey: 'raiseHandRequestAcceptedToastHeading',
-    text2TranslationKey: 'raiseHandRequestAcceptedToastSubHeading',
+    text1TranslationKey: livestreamRaiseHandRequestAcceptedToastHeading,
+    text2TranslationKey: livestreamRaiseHandRequestAcceptedToastSubHeading,
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRejected]: {
-    text1TranslationKey: 'raiseHandRequestRejectedToastHeading',
+    text1TranslationKey: livestreamRaiseHandRequestRejectedToastHeading,
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRecall]: {
-    text1TranslationKey: 'raiseHandRequestRecallToastHeading',
+    text1TranslationKey: livestreamRaiseHandRequestRecallToastHeading,
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRecallLocal]: {
-    text1TranslationKey: 'raiseHandRequestRecallLocalToastHeading',
+    text1TranslationKey: livestreamRaiseHandRequestRecallLocalToastHeading,
   },
   [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]: {
-    text1TranslationKey: 'raiseHandApprovedRequestRecallToastHeading',
+    text1TranslationKey: livestreamRaiseHandApprovedRequestRecallToastHeading,
   },
   [LiveStreamControlMessageEnum.promoteAsCoHost]: {
-    text1TranslationKey: 'promoteAsCoHostToastHeading',
+    text1TranslationKey: livestreamPromoteAsCoHostToastHeading,
   },
 };
 

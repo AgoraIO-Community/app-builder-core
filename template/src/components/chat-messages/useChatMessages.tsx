@@ -29,6 +29,15 @@ import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
 import {useString} from '../../utils/useString';
+import {
+  publicChatToastHeading,
+  multiplePublicChatToastHeading,
+  multiplePrivateChatToastHeading,
+  privateChatToastHeading,
+  multiplePublicAndPrivateChatToastHeading,
+  multiplePublicAndPrivateChatToastSubHeading,
+  multiplePublicChatToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 enum ChatMessageActionEnum {
   Create = 'Create_Chat_Message',
@@ -99,34 +108,34 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const individualActiveRef = useRef<string | number>();
 
   //public single
-  const fromText = useString('publicChatToastHeading');
+  const fromText = useString(publicChatToastHeading);
 
   //public multple
-  const multiplePublicChatToastHeading = useString(
-    'multiplePublicChatToastHeading',
+  const multiplePublicChatToastHeadingTT = useString(
+    multiplePublicChatToastHeading,
   )();
-  const multiplePublicChatToastSubHeading = useString<{
+  const multiplePublicChatToastSubHeadingTT = useString<{
     count: number;
     from: string;
-  }>('multiplePublicChatToastSubHeading');
+  }>(multiplePublicChatToastSubHeading);
 
   //private single
-  const privateMessageLabel = useString('privateChatToastHeading')();
+  const privateMessageLabel = useString(privateChatToastHeading)();
 
   //private multiple
-  const multiplePrivateChatToastHeading = useString<{count: number}>(
-    'multiplePrivateChatToastHeading',
+  const multiplePrivateChatToastHeadingTT = useString<{count: number}>(
+    multiplePrivateChatToastHeading,
   );
 
   //multiple private and public toast
-  const multiplePublicAndPrivateChatToastHeading = useString(
-    'multiplePublicAndPrivateChatToastHeading',
+  const multiplePublicAndPrivateChatToastHeadingTT = useString(
+    multiplePublicAndPrivateChatToastHeading,
   )();
-  const multiplePublicAndPrivateChatToastSubHeading = useString<{
+  const multiplePublicAndPrivateChatToastSubHeadingTT = useString<{
     publicChatCount: number;
     privateChatCount: number;
     from: string;
-  }>('multiplePublicAndPrivateChatToastSubHeading');
+  }>(multiplePublicAndPrivateChatToastSubHeading);
 
   useEffect(() => {
     callActiveRef.current.callActive = callActive;
@@ -252,16 +261,16 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           leadingIconName: 'chat-nav',
           text1:
             privateMessages && privateMessages.length
-              ? multiplePublicAndPrivateChatToastHeading
-              : multiplePublicChatToastHeading,
+              ? multiplePublicAndPrivateChatToastHeadingTT
+              : multiplePublicChatToastHeadingTT,
           text2:
             privateMessages && privateMessages.length
-              ? multiplePublicAndPrivateChatToastSubHeading({
+              ? multiplePublicAndPrivateChatToastSubHeadingTT({
                   publicChatCount: publicMessages.length,
                   privateChatCount: privateMessages.length,
                   from: fromNames,
                 })
-              : multiplePublicChatToastSubHeading({
+              : multiplePublicChatToastSubHeadingTT({
                   count: publicMessages.length,
                   from: fromNames,
                 }),
@@ -288,7 +297,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           secondaryBtn: null,
           type: 'info',
           leadingIconName: 'chat-nav',
-          text1: multiplePrivateChatToastHeading({
+          text1: multiplePrivateChatToastHeadingTT({
             count: privateMessages.length,
           }),
           text2: ``,
