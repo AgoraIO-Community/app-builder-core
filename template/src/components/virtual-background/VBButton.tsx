@@ -5,6 +5,7 @@ import ToolbarMenuItem from '../../atoms/ToolbarMenuItem';
 import {useToolbarMenu} from '../../utils/useMenu';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useActionSheet} from '../../utils/useActionSheet';
+import {useString} from '../../utils/useString';
 
 interface VBButtonProps {
   isVBOpen: boolean;
@@ -17,6 +18,7 @@ const VBButton = (props: VBButtonProps) => {
   const {isVBOpen, setIsVBOpen, showLabel = false} = props;
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet} = useActionSheet();
+  const vbLabel = useString('toolbarItemVitrualBackgroundText')();
 
   const onPress = () => {
     setIsVBOpen(prev => !prev);
@@ -30,7 +32,7 @@ const VBButton = (props: VBButtonProps) => {
     },
 
     btnTextProps: {
-      text: showLabel ? `Virtual\nBackground` : '',
+      text: showLabel ? vbLabel?.replace(' ', '\n') : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,

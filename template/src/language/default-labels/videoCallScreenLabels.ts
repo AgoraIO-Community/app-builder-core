@@ -302,6 +302,56 @@ export const peoplePanelPresenterText = 'peoplePanelPresenterText';
 
 export const userRemovedFromTheRoomToastHeading = `userRemovedFromThe${room}ToastHeading`;
 
+export const vbPanelImageUploadErrorToastHeading =
+  'vbPanelImageUploadErrorToastHeading';
+export const vbPanelImageUploadErrorToastSubHeading =
+  'vbPanelImageUploadErrorToastSubHeading';
+export const vbPanelImageTypeErrorToastHeading =
+  'vbPanelImageTypeErrorToastHeading';
+export const vbPanelImageTypeErrorToastSubHeading =
+  'vbPanelImageTypeErrorToastSubHeading';
+export const vbPanelImageSizeLimitErrorToastHeading =
+  'vbPanelImageSizeLimitErrorToastHeading';
+export const vbPanelImageSizeLimitErrorToastSubHeading =
+  'vbPanelImageSizeLimitErrorToastSubHeading';
+
+export const whiteboardToolboxWidthLabel = 'whiteboardToolboxWidthLabel';
+export const whiteboardToolboxPxLabel = 'whiteboardToolboxPxLabel';
+export const whiteboardInitializingText = 'whiteboardInitializingText';
+export const whiteboardExportErrorToastHeading =
+  'whiteboardExportErrorToastHeading';
+export const whiteboardExportInfoToastHeading =
+  'whiteboardExportInfoToastHeading';
+export const whiteboardExportSuccessToastHeading =
+  'whiteboardExportSuccessToastHeading';
+export const whiteboardWidgetViewOnlyText = 'whiteboardWidgetViewOnlyText';
+export const whiteboardWidgetExportToCloudText =
+  'whiteboardWidgetExportToCloudText';
+export const whiteboardWidgetZoomInText = 'whiteboardWidgetZoomInText';
+export const whiteboardWidgetZoomOutText = 'whiteboardWidgetZoomOutText';
+export const whiteboardWidgetFitToScreenText =
+  'whiteboardWidgetFitToScreenText';
+export const whiteboardWidgetUndoText = 'whiteboardWidgetUndoText';
+export const whiteboardWidgetRedoText = 'whiteboardWidgetRedoText';
+
+export const whiteboardFileUploadErrorToastHeading =
+  'whiteboardFileUploadErrorToastHeading';
+export const whiteboardFileUploadInfoToastHeading =
+  'whiteboardFileUploadInfoToastHeading';
+export const whiteboardFileUploadTypeErrorToastHeading =
+  'whiteboardFileUploadTypeErrorToastHeading';
+export const whiteboardFileUploadTypeErrorToastSubHeading =
+  'whiteboardFileUploadTypeErrorToastSubHeading';
+
+export const whiteboardToolboxSelectText = 'whiteboardToolboxSelectText';
+export const whiteboardToolboxTextFormatting =
+  'whiteboardToolboxTextFormatting';
+export const whiteboardToolboxMoveText = 'whiteboardToolboxMoveText';
+export const whiteboardToolboxLaserText = 'whiteboardToolboxLaserText';
+export const whiteboardToolboxEraseText = 'whiteboardToolboxEraseText';
+export const whiteboardToolboxUploadText = 'whiteboardToolboxUploadText';
+export const whiteboardToolboxClearAllText = 'whiteboardToolboxClearAllText';
+
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
@@ -493,11 +543,49 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [livestreamRequestAlreadyProcessed]?: I18nBaseType;
   [videoRoomUserFallbackText]?: I18nBaseType;
-  whiteboardInitializing?: I18nBaseType;
 
   [peoplePanelMeText]?: I18nBaseType;
   [peoplePanelPresenterText]?: I18nBaseType;
   [userRemovedFromTheRoomToastHeading]?: I18nBaseType<string>;
+
+  [vbPanelImageUploadErrorToastHeading]?: I18nBaseType;
+  [vbPanelImageUploadErrorToastSubHeading]?: I18nBaseType;
+  [vbPanelImageSizeLimitErrorToastHeading]?: I18nBaseType;
+  [vbPanelImageSizeLimitErrorToastSubHeading]?: I18nBaseType;
+  [vbPanelImageTypeErrorToastHeading]?: I18nBaseType;
+  [vbPanelImageTypeErrorToastSubHeading]?: I18nBaseType;
+
+  [whiteboardToolboxWidthLabel]?: I18nBaseType;
+  [whiteboardToolboxPxLabel]?: I18nBaseType;
+
+  [whiteboardInitializingText]?: I18nBaseType;
+
+  [whiteboardWidgetViewOnlyText]?: I18nBaseType;
+  [whiteboardWidgetZoomInText]?: I18nBaseType;
+  [whiteboardWidgetZoomOutText]?: I18nBaseType;
+  [whiteboardWidgetFitToScreenText]?: I18nBaseType;
+  [whiteboardWidgetRedoText]?: I18nBaseType;
+  [whiteboardWidgetUndoText]?: I18nBaseType;
+  [whiteboardWidgetExportToCloudText]?: I18nBaseType;
+
+  [whiteboardExportErrorToastHeading]?: I18nBaseType;
+  [whiteboardExportInfoToastHeading]?: I18nBaseType;
+  [whiteboardExportSuccessToastHeading]?: I18nBaseType;
+
+  [whiteboardToolboxSelectText]?: I18nBaseType;
+  [whiteboardToolboxTextFormatting]?: I18nBaseType;
+  [whiteboardToolboxMoveText]?: I18nBaseType;
+  [whiteboardToolboxLaserText]?: I18nBaseType;
+  [whiteboardToolboxEraseText]?: I18nBaseType;
+  [whiteboardToolboxUploadText]?: I18nBaseType;
+  [whiteboardToolboxClearAllText]?: I18nBaseType;
+
+  [whiteboardFileUploadErrorToastHeading]?: I18nBaseType<'File' | 'Image'>;
+  [whiteboardFileUploadInfoToastHeading]?: I18nBaseType<'File' | 'Image'>;
+  [whiteboardFileUploadTypeErrorToastHeading]?: I18nBaseType<'File' | 'Image'>;
+  [whiteboardFileUploadTypeErrorToastSubHeading]?: I18nBaseType<
+    'File' | 'Image'
+  >;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -800,5 +888,47 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [userRemovedFromTheRoomToastHeading]: name =>
     `The system will remove ${name} from this call after 5 secs.`,
 
-  whiteboardInitializing: 'Whiteboard is initializing',
+  [vbPanelImageUploadErrorToastHeading]: 'Upload Failed',
+  [vbPanelImageUploadErrorToastSubHeading]:
+    'Selected image is already uploaded',
+  [vbPanelImageTypeErrorToastHeading]: 'Upload Failed',
+  [vbPanelImageTypeErrorToastSubHeading]: 'Please select a JPG or PNG file',
+  [vbPanelImageSizeLimitErrorToastHeading]: 'Upload Failed',
+  [vbPanelImageSizeLimitErrorToastSubHeading]:
+    'File size must be less than 1MB.',
+
+  [whiteboardToolboxWidthLabel]: 'Width',
+  [whiteboardToolboxPxLabel]: ' px',
+  [whiteboardInitializingText]: 'Whiteboard is initializing',
+
+  [whiteboardWidgetViewOnlyText]: 'View Only',
+  [whiteboardWidgetZoomInText]: 'Zoom In',
+  [whiteboardWidgetZoomOutText]: 'Zoom Out',
+  [whiteboardWidgetFitToScreenText]: 'Fit To Screen',
+  [whiteboardWidgetRedoText]: 'Redo',
+  [whiteboardWidgetUndoText]: 'Undo',
+  [whiteboardWidgetExportToCloudText]: 'Export To Cloud',
+
+  [whiteboardExportErrorToastHeading]: 'Failed to export the whiteboard',
+  [whiteboardExportInfoToastHeading]:
+    'Please wait few seconds to get the screenshot link of the whiteboard',
+  [whiteboardExportSuccessToastHeading]:
+    'Whiteboard exported as an image. Link copied to your clipboard.',
+
+  [whiteboardToolboxSelectText]: 'Select',
+  [whiteboardToolboxTextFormatting]: 'Text',
+  [whiteboardToolboxMoveText]: 'Move',
+  [whiteboardToolboxLaserText]: 'Laser',
+  [whiteboardToolboxEraseText]: 'Eraser',
+  [whiteboardToolboxUploadText]: 'Upload Document or Image',
+
+  [whiteboardToolboxClearAllText]: 'Clear All',
+
+  [whiteboardFileUploadErrorToastHeading]: type =>
+    `Error on uploading ${type}, please try again.`,
+  [whiteboardFileUploadInfoToastHeading]: type =>
+    `${type} Upload will take few seconds to appear in whiteboard`,
+  [whiteboardFileUploadTypeErrorToastHeading]: () => 'Unsupported file',
+  [whiteboardFileUploadTypeErrorToastSubHeading]: () =>
+    'Please select file format with pdf, doc, docx, ppt, pptx, png, jpg, jpeg',
 };
