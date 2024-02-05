@@ -18,6 +18,7 @@ import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardCanvas from './WhiteboardCanvas';
 import {useContent, useLayout} from 'customization-api';
 import {useString} from '../../utils/useString';
+import {whiteboardInitializingText} from '../../language/default-labels/videoCallScreenLabels';
 
 interface WhiteboardViewInterface {
   showToolbox: boolean;
@@ -44,7 +45,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     }
   }, [currentLayout, activeUids]);
 
-  const whiteboardInitializing = useString('whiteboardInitializing')();
+  const whiteboardInitializing = useString(whiteboardInitializingText)();
 
   return (
     <View style={style.flex1}>
