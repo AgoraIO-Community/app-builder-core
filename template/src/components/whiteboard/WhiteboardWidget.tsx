@@ -248,9 +248,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                 <Seperator /> */}
                 <RedoUndo
                   room={whiteboardRoom.current}
-                  //@ts-ignore
-                  undoText={undolabel}
-                  redoText={redolabel}
+                  undoLabel={undolabel}
+                  redoLabel={redolabel}
                 />
                 <Seperator />
               </>
