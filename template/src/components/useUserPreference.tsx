@@ -24,7 +24,10 @@ import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
 import {useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
-import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
+import {
+  PSTNUserLabel,
+  videoRoomUserFallbackText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -75,12 +78,8 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
       }
     }
   };
-  //commented for v1 release
-  // const userText = useString('remoteUserDefaultLabel')();
-  const userText = 'User';
+  const userText = useString(videoRoomUserFallbackText)();
   const pstnUserLabel = useString(PSTNUserLabel)();
-  //commented for v1 release
-  //const getScreenShareName = useString('screenshareUserName');
   const getScreenShareName = (name: string) => `${name}'s screenshare`;
 
   useEffect(() => {

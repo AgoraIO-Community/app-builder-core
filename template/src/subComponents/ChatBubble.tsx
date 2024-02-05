@@ -22,6 +22,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
+import {videoRoomUserFallbackText} from '../language/default-labels/videoCallScreenLabels';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -68,9 +69,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
       Linking.openURL(url);
     }
   };
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
 
   return props?.render ? (
     props.render(
