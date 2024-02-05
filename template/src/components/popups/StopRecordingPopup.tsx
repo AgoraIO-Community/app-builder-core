@@ -14,6 +14,7 @@ import {
   stopRecordingPopupPrimaryBtnText,
   stopRecordingPopupSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const StopRecordingPopup = () => {
   const {showStopRecordingPopup, setShowStopRecordingPopup} = useVideoCall();
@@ -22,7 +23,7 @@ const StopRecordingPopup = () => {
   const recordingLabelHeading = useString(stopRecordingPopupHeading)();
   const recordingLabelSubHeading = useString(stopRecordingPopupSubHeading)();
 
-  const cancelBtnLabel = useString('cancel')();
+  const cancelBtnLabel = useString(cancelText)();
   const stopRecordingBtnLabel = useString(stopRecordingPopupPrimaryBtnText)();
 
   const doStopRecording = () => {

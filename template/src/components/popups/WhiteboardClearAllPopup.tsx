@@ -16,6 +16,7 @@ import {
   clearAllWhiteboardPopupPrimaryBtnText,
   clearAllWhiteboardPopupSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const WhiteboardClearAllPopup = () => {
   const {showWhiteboardClearAllPopup, setShowWhiteboardClearAllPopup} =
@@ -26,7 +27,7 @@ const WhiteboardClearAllPopup = () => {
     clearAllWhiteboardPopupSubHeading,
   )();
 
-  const cancelBtnLabel = useString('cancel')();
+  const cancelBtnLabel = useString(cancelText)();
   const whiteboardClearAllLabel = useString(
     clearAllWhiteboardPopupPrimaryBtnText,
   )();

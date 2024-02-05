@@ -1,11 +1,12 @@
 import {I18nBaseType} from '../i18nTypes';
 
+export const cancelText = 'cancelText';
 export interface I18nCommonLabelsInterface {
-  cancel?: I18nBaseType;
+  [cancelText]?: I18nBaseType;
   loadingText?: I18nBaseType;
 }
 
 export const CommonLabels: I18nCommonLabelsInterface = {
-  cancel: 'CANCEL',
+  [cancelText]: 'CANCEL',
   loadingText: 'Loading...',
 };

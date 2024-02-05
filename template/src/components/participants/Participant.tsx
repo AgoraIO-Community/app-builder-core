@@ -48,6 +48,11 @@ import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
 import WaitingRoomButton from '../../subComponents/waiting-rooms/WaitingRoomControls';
+import {useString} from '../../utils/useString';
+import {
+  peoplePanelMeText,
+  peoplePanelPresenterText,
+} from '../../language/default-labels/videoCallScreenLabels';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -64,6 +69,8 @@ interface ParticipantInterface {
 }
 
 const Participant = (props: ParticipantInterface) => {
+  const metext = useString(peoplePanelMeText)();
+  const presentertext = useString(peoplePanelPresenterText)();
   const {coHostUids} = useContext(LiveStreamContext);
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
@@ -113,11 +120,11 @@ const Participant = (props: ParticipantInterface) => {
             <Text style={styles.participantNameText} numberOfLines={1}>
               {name}
             </Text>
-            {isLocal && <Text style={styles.subText}>{'Me'}</Text>}
+            {isLocal && <Text style={styles.subText}>{metext}</Text>}
             {!isLocal &&
             $config.EVENT_MODE &&
             coHostUids.indexOf(user.uid) !== -1 ? (
-              <Text style={styles.subText}>{'Presenter'}</Text>
+              <Text style={styles.subText}>{presentertext}</Text>
             ) : (
               <></>
             )}

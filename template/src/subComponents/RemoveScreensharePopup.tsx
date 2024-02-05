@@ -12,6 +12,7 @@ import {
   removeScreenshareFromRoomPopupPrimaryBtnText,
   removeScreenshareFromRoomPopupSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 interface RemoveScreensharePopupProps {
   modalVisible: boolean;
@@ -28,7 +29,7 @@ const RemoveScreensharePopup = (props: RemoveScreensharePopupProps) => {
     removeScreenshareFromRoomPopupSubHeading,
   );
 
-  const cancelBtnLabel = useString('cancel')();
+  const cancelBtnLabel = useString(cancelText)();
   const removeBtnLabel = useString(
     removeScreenshareFromRoomPopupPrimaryBtnText,
   )();

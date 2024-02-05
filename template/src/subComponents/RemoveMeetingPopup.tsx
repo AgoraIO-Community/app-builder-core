@@ -12,6 +12,7 @@ import {
   removeFromRoomPopupPrimaryBtnText,
   removeFromRoomPopupSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -24,7 +25,7 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
   const removeMeetingLabelHeading = useString(removeFromRoomPopupHeading);
   const removeMeetingLabelSubHeading = useString(removeFromRoomPopupSubHeading);
 
-  const cancelBtnLabel = useString('cancel')();
+  const cancelBtnLabel = useString(cancelText)();
   const removeBtnLabel = useString(removeFromRoomPopupPrimaryBtnText)();
   return (
     <Popup

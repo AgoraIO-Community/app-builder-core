@@ -9,6 +9,7 @@ import {useString} from '../../utils/useString';
 import {
   peoplePanelWaitingText,
   peoplePanelWantToJoinText,
+  videoRoomUserFallbackText,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 const WaitingRoomParticipants = props => {
@@ -21,8 +22,10 @@ const WaitingRoomParticipants = props => {
     ? wanttojoinLabel
     : waitingLabel;
 
+  const videoRoomUserFallbackTextLabel = useString(videoRoomUserFallbackText)();
+
   const getParticipantName = uid => {
-    return defaultContent[uid]?.name || 'WRP';
+    return defaultContent[uid]?.name || videoRoomUserFallbackTextLabel;
   };
 
   const getScreenShareUid = uid => {
