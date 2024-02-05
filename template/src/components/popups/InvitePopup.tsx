@@ -32,6 +32,10 @@ import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
 import {ErrorContext} from '../common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../../utils/useString';
+import {
+  invitePopupPrimaryBtnText,
+  invitePopupHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -76,8 +80,8 @@ const InvitePopup = () => {
     }
     return components;
   });
-  const inviteOtherToJoinRoomInfo = useString('invitePopupHeading')();
-  const copyInvitationButton = useString('copyInvitationButton')();
+  const inviteOtherToJoinRoomInfo = useString(invitePopupHeading)();
+  const copyInvitationButton = useString(invitePopupPrimaryBtnText)();
   const cancelLabel = useString('cancel')();
   return (
     <Popup

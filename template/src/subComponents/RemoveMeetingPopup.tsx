@@ -7,6 +7,11 @@ import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
 import {useString} from '../utils/useString';
+import {
+  removeFromRoomPopupHeading,
+  removeFromRoomPopupPrimaryBtnText,
+  removeFromRoomPopupSubHeading,
+} from '../language/default-labels/videoCallScreenLabels';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -16,13 +21,11 @@ interface RemoveMeetingPopupProps {
 }
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const removeMeetingLabelHeading = useString('removeFromMeetingPopupHeading');
-  const removeMeetingLabelSubHeading = useString(
-    'removeFromMeetingPopupSubHeading',
-  );
+  const removeMeetingLabelHeading = useString(removeFromRoomPopupHeading);
+  const removeMeetingLabelSubHeading = useString(removeFromRoomPopupSubHeading);
 
   const cancelBtnLabel = useString('cancel')();
-  const removeBtnLabel = useString('removeFromMeetingPopupActionButton')();
+  const removeBtnLabel = useString(removeFromRoomPopupPrimaryBtnText)();
   return (
     <Popup
       modalVisible={props.modalVisible}

@@ -9,6 +9,7 @@ import ThemeConfig from '../../../src/theme';
 import {isMobileUA} from '../../utils/common';
 import InlineNotification from '../../atoms/InlineNotification';
 import {useString} from '../../utils/useString';
+import {vbPanelInfo} from '../../language/default-labels/precallScreenLabels';
 interface VideoPreviewProps {
   isLocalVideoON?: boolean;
 }
@@ -25,7 +26,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
   const {defaultContent, activeUids} = useContent();
   const [maxUid] = activeUids;
 
-  const fallbackText = useString<boolean>('virtualBackgroundCameraInfo');
+  const fallbackText = useString<boolean>(vbPanelInfo);
 
   const createCameraTrack = async () => {
     if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {

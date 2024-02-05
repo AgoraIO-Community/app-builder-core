@@ -13,23 +13,22 @@ import {isMobileUA, isValidReactComponent} from '../../utils/common';
 import Avatar from '../../atoms/Avatar';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../../utils/useString';
+import {
+  inviteTileCopyInviteBtnText,
+  inviteTileNoElseJoinedYetText,
+  inviteTileWelcomeText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const waveHandEmoji = '👋';
 
 export default function MeetingInfoGridTile() {
   const isMobile = isMobileUA();
-  const welcomeLabel = useString('welcome')();
-  const inviteOthersButtonLabel = useString('inviteOthersButton')();
-  const copyInviteButtonLabel = useString('copyInvitationButton')();
-  const copyInviteButton = isMobile
-    ? inviteOthersButtonLabel
-    : copyInviteButtonLabel;
+  const welcomeLabel = useString(inviteTileWelcomeText)();
+  const copyInviteButtonLabel = useString(inviteTileCopyInviteBtnText)();
+  const copyInviteButton = copyInviteButtonLabel;
   const {copyShareLinkToClipboard} = useShareLink();
   const username = useGetName();
-  const noOneElseJoinedYet = useString('noOneElseJoinedYet')();
-  const noOneElseJoinedYetInviteOthers = useString(
-    'noOneElseJoinedYetInviteOthers',
-  )();
+  const noOneElseJoinedYet = useString(inviteTileNoElseJoinedYetText)();
   const {InvitePopupContent, InvitePopupTitle} = useCustomization(data => {
     let components: {
       InvitePopupContent?: React.ComponentType;
@@ -101,9 +100,7 @@ export default function MeetingInfoGridTile() {
                   {isMobile && <Spacer size={10} />}
                   <View style={{flexDirection: 'row'}}>
                     <Text style={[style.subheading, {flexShrink: 1}]}>
-                      {isMobile
-                        ? noOneElseJoinedYetInviteOthers
-                        : noOneElseJoinedYet}
+                      {noOneElseJoinedYet}
                     </Text>
                   </View>
                 </>

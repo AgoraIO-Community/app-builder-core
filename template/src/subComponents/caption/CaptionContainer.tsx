@@ -31,6 +31,10 @@ import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
+import {
+  sttChangeSpokenLanguageText,
+  toolbarItemCaptionText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const CaptionContainer = () => {
   const moreIconRef = React.useRef<View>(null);
@@ -186,10 +190,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   } = useRoomInfo();
 
   const changeSpokenLangLabel = useString<boolean>(
-    'languageSelectionPopupHeading',
-  )(false);
+    sttChangeSpokenLanguageText,
+  )();
 
-  const hideCaptionLabel = useString('hideCaption')();
+  const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
 
   // only Host is authorized to start/stop stt
   isHost &&

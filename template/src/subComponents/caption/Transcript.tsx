@@ -35,6 +35,7 @@ import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/Rt
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
+import {sttSettingSpokenLanguageText} from '../../../src/language/default-labels/videoCallScreenLabels';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -186,7 +187,7 @@ const Transcript = (props: TranscriptProps) => {
     }
   }, []);
 
-  const settingSpokenLanguageLabel = useString('settingSpokenLanguage')();
+  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
 
   return (
     <View

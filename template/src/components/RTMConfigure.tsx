@@ -42,6 +42,7 @@ import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -78,7 +79,7 @@ const RtmConfigure = (props: any) => {
   //commented for v1 release
   // const userText = useString('remoteUserDefaultLabel')();
   const userText = 'User';
-  const pstnUserLabel = useString('pstnUserLabel')();
+  const pstnUserLabel = useString(PSTNUserLabel)();
   //commented for v1 release
   //const getScreenShareName = useString('screenshareUserName');
   const getScreenShareName = (name: string) => `${name}'s screenshare`;

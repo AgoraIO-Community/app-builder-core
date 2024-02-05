@@ -48,6 +48,7 @@ import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
+import {groupChatWelcomeContent} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -57,8 +58,7 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
-  const info1 = useString('groupChatWelcomeInfo')();
-  const info2 = useString('groupChatWelcomeSubInfo')();
+  const info1 = useString<boolean>(groupChatWelcomeContent);
   const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
@@ -204,7 +204,7 @@ const ChatContainer = (props?: {
           <>
             <View style={style.defaultMessageContainer}>
               <Text style={style.defaultMessageText}>
-                {!messageStore?.length ? `${info1}\n${info2}` : info2}
+                {info1(messageStore?.length ? true : false)}
               </Text>
             </View>
             {messageStore.map((message: any, index) => (

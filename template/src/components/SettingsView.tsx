@@ -49,11 +49,15 @@ import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import InlineNotification from '../../src/atoms/InlineNotification';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import {useString} from '../../src/utils/useString';
+import {
+  settingPanelNameCantbeChangedInfo,
+  settingPanelNameInputLabel,
+} from '../../src/language/default-labels/videoCallScreenLabels';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
-  const yournameLabel = useString('yourName')();
-  const nameCantbeChangedInfo = useString('nameCantbeChangedInfo')();
+  const yournameLabel = useString(settingPanelNameInputLabel)();
+  const nameCantbeChangedInfo = useString(settingPanelNameCantbeChangedInfo)();
   const {
     data: {isHost},
   } = useRoomInfo();

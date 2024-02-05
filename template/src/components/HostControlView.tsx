@@ -17,6 +17,11 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
 import RemoteMutePopup from '../subComponents/RemoteMutePopup';
 import {calculatePosition} from '../utils/common';
+import {
+  I18nMuteType,
+  peoplePanelMuteAllMicBtnText,
+  peoplePanelTurnoffAllCameraBtnText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -27,7 +32,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   const audioBtnRef = useRef(null);
   const [modalPosition, setModalPosition] = useState({});
   const muteRemoteAudio = useRemoteMute();
-  const muteAllAudioButton = useString('muteAllMicrophone')();
+  const muteAllAudioButton = useString(peoplePanelMuteAllMicBtnText)();
   const onPressAction = () => muteRemoteAudio(MUTE_REMOTE_TYPE.audio);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const showAudioModal = () => {
@@ -60,7 +65,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   ) : (
     <>
       <RemoteMutePopup
-        type="audio"
+        type={I18nMuteType.audio}
         actionMenuVisible={showAudioMuteModal}
         setActionMenuVisible={setShowAudioMuteModal}
         name={null}
@@ -88,7 +93,7 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const [modalPosition, setModalPosition] = useState({});
   const muteRemoteVideo = useRemoteMute();
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const muteAllVideoButton = useString('turnoffAllCameras')();
+  const muteAllVideoButton = useString(peoplePanelTurnoffAllCameraBtnText)();
   const onPressAction = () => muteRemoteVideo(MUTE_REMOTE_TYPE.video);
   const showVideoModal = () => {
     videoBtnRef?.current?.measure(
@@ -120,7 +125,7 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   ) : (
     <>
       <RemoteMutePopup
-        type="video"
+        type={I18nMuteType.video}
         actionMenuVisible={showVideoMuteModal}
         setActionMenuVisible={setShowVideoMuteModal}
         name={null}

@@ -9,6 +9,7 @@ import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
+import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
 
 const Caption: React.FC = () => {
   const {RtcEngineUnsafe} = useRtc();
@@ -20,7 +21,7 @@ const Caption: React.FC = () => {
     activeSpeakerRef,
     prevSpeakerRef,
   } = useCaption();
-  const ssLabel = useString('settingSpokenLanguage')();
+  const ssLabel = useString(sttSettingSpokenLanguageText)();
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 

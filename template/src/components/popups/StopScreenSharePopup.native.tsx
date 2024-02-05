@@ -14,6 +14,11 @@ import useMuteToggleLocal, {
   MUTE_LOCAL_TYPE,
 } from '../../utils/useMuteToggleLocal';
 import {useString} from '../../utils/useString';
+import {
+  nativeStopScreensharePopupHeading,
+  nativeStopScreensharePopupPrimaryBtnText,
+  nativeStopScreensharePopupSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const StopScreenSharePopup = () => {
   const {showStopScreenSharePopup, setShowStopScreenSharePopup} =
@@ -21,13 +26,17 @@ const StopScreenSharePopup = () => {
   const {stopUserScreenShare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
   const localMute = useMuteToggleLocal();
-  const screenshareLabelHeading = useString('stopScreenSharePopupHeading')();
+  const screenshareLabelHeading = useString(
+    nativeStopScreensharePopupHeading,
+  )();
   const screenshareLabelSubHeading = useString(
-    'stopScreenSharePopupSubHeading',
+    nativeStopScreensharePopupSubHeading,
   )();
 
   const cancelBtnLabel = useString('cancel')();
-  const startShareShareBtnLabel = useString('stopScreenSharingActionButton')();
+  const startShareShareBtnLabel = useString(
+    nativeStopScreensharePopupPrimaryBtnText,
+  )();
 
   const doStopScreenShare = () => {
     if (isScreenshareActive) {

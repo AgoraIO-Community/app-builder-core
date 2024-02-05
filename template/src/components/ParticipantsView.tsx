@@ -41,6 +41,14 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 import WaitingRoomParticipants from './participants/WaitingRoomParticipants';
+import {
+  peoplePanelAudienceSectionHeaderText,
+  peoplePanelHostSectionHeaderText,
+  peoplePanelInThisMeetingLabel,
+  peoplePanelNoAudienceJoinedContent,
+  peoplePanelNoHostJoinedContent,
+  peoplePanelNoUsersJoinedContent,
+} from '../../src/language/default-labels/videoCallScreenLabels';
 
 const ParticipantView = props => {
   const {activeUids, customContent, defaultContent} = useContent();
@@ -53,12 +61,12 @@ const ParticipantView = props => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
   const {showHeader = true} = props;
-  const hostLabel = useString('host')();
-  const audienceLabel = useString('audience')();
-  const meetingParticpantsLabel = useString('inThisMeeting')();
-  const noHostJoinedYet = useString('noHostJoinedYet')();
-  const noAudienceJoinedYet = useString('noAudienceJoinedYet')();
-  const noUsersJoinedYet = useString('noUsersJoinedYet')();
+  const hostLabel = useString(peoplePanelHostSectionHeaderText)();
+  const audienceLabel = useString(peoplePanelAudienceSectionHeaderText)();
+  const meetingParticpantsLabel = useString(peoplePanelInThisMeetingLabel)();
+  const noHostJoinedYet = useString(peoplePanelNoHostJoinedContent)();
+  const noAudienceJoinedYet = useString(peoplePanelNoAudienceJoinedContent)();
+  const noUsersJoinedYet = useString(peoplePanelNoUsersJoinedContent)();
   const {
     data: {isHost},
   } = useRoomInfo();

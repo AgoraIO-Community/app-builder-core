@@ -10,6 +10,13 @@ import DownloadTranscriptBtn from './caption/DownloadTranscriptBtn';
 import ImageIcon from '../atoms/ImageIcon';
 import {useCaption} from './caption/useCaption';
 import {useString} from '../utils/useString';
+import {
+  leavePopupHeading,
+  leavePopupPrimaryBtnText,
+  leavePopupSubHeading,
+  sttDownloadBtnText,
+  sttTranscriptPanelHeaderText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -18,8 +25,8 @@ interface EndcallPopupProps {
 }
 
 const DownloadTranscript = () => {
-  const label = useString('meetingTranscript')();
-  const downloadLabel = useString('download')();
+  const label = useString(sttTranscriptPanelHeaderText)();
+  const downloadLabel = useString(sttDownloadBtnText)();
   return (
     <View style={[styles.btnDownloadContainer, styles.row]}>
       <View style={styles.row}>
@@ -44,14 +51,9 @@ const DownloadTranscript = () => {
 
 const EndcallPopup = (props: EndcallPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const leaveMeetingLabelHeading = useString('leaveMeetingPopupHeading')();
-  const leaveMeetingLabelSubHeading = useString(
-    'leaveMeetingPopupSubHeading',
-  )();
-  const leaveMeetingSubHeading1 = useString('leaveMeetingPopupSubHeading')();
-  const leaveMeetingPopupActionButton = useString(
-    'leaveMeetingPopupActionButton',
-  )();
+  const leaveMeetingLabelHeading = useString(leavePopupHeading)();
+  const leaveMeetingLabelSubHeading = useString<boolean>(leavePopupSubHeading);
+  const leaveMeetingPopupActionButton = useString(leavePopupPrimaryBtnText)();
   const cancelLabel = useString('cancel')();
   const {isSTTActive} = useCaption();
   const isTranscriptAvailable = $config.ENABLE_STT && isSTTActive;
@@ -67,9 +69,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
       <Text style={styles.heading}>{leaveMeetingLabelHeading}</Text>
       <Spacer size={8} />
       <Text style={styles.subHeading}>
-        {isTranscriptAvailable
-          ? leaveMeetingSubHeading1
-          : leaveMeetingLabelSubHeading}
+        {leaveMeetingLabelSubHeading(isTranscriptAvailable)}
       </Text>
       {isTranscriptAvailable ? <DownloadTranscript /> : <></>}
       <Spacer size={40} />

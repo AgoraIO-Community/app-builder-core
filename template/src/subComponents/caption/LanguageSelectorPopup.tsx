@@ -12,6 +12,14 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
 import {LanguageType} from './utils';
 import {useString} from '../../utils/useString';
+import {
+  sttChangeLanguagePopupDropdownError,
+  sttChangeLanguagePopupDropdownInfo,
+  sttChangeLanguagePopupHeading,
+  sttChangeLanguagePopupPrimaryBtnText,
+  sttChangeLanguagePopupSubHeading,
+  sttLanguageChangeInProgress,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 interface LanguageSelectorPopup {
   modalVisible: boolean;
@@ -24,13 +32,13 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const {isFirstTimePopupOpen = false} = props;
   const [isOpen, setIsOpen] = React.useState(false);
   const isDesktop = useIsDesktop()('popup');
-  const heading = useString<boolean>('languageSelectionPopupHeading');
-  const subHeading = useString('languageSelectionPopupSubHeading')();
+  const heading = useString<boolean>(sttChangeLanguagePopupHeading);
+  const subHeading = useString(sttChangeLanguagePopupSubHeading)();
   const cancelBtnLabel = useString('cancel')();
-  const ConfirmBtnLabel = useString('languageSelectionPopupActionButton')();
-  const ddError = useString('languageSelectionPopupDropdownError')();
-  const ddInfo = useString('languageSelectionPopupDropdownInfo')();
-  const languageChangeInProgress = useString('languageChangeInProgress')();
+  const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
+  const ddError = useString(sttChangeLanguagePopupDropdownError)();
+  const ddInfo = useString(sttChangeLanguagePopupDropdownInfo)();
+  const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
   const {language, setLanguage, isLangChangeInProgress, isSTTActive} =
     useCaption();
 

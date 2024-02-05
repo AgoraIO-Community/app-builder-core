@@ -24,6 +24,10 @@ import {
 import {useContent, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import {
+  groupChatInputPlaceHolderText,
+  privateChatInputPlaceHolderText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -81,8 +85,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
-  const groupChatInputPlaceHolder = useString('groupChatInputPlaceHolder');
-  const privateChatInputPlaceHolder = useString('privateChatInputPlaceHolder');
+  const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
+  const privateChatInputPlaceHolder = useString(
+    privateChatInputPlaceHolderText,
+  );
 
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
