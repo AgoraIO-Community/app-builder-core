@@ -22,6 +22,11 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {trimText} from '../../utils/common';
 import {useString} from '../../utils/useString';
+import {
+  livestreamRequestAlreadyProcessed,
+  livestreamToastApprovalBtnText,
+  livestreamToastDenyBtnText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -30,7 +35,9 @@ export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 export const LiveStreamContextProvider: React.FC<
   liveStreamPropsInterface
 > = props => {
-  const requestAlreadyProcessed = useString('requestAlreadyProcessed')();
+  const requestAlreadyProcessed = useString(
+    livestreamRequestAlreadyProcessed,
+  )();
 
   const raiseHandRequestReceivedToastHeading = useString(
     LSNotificationObject.RAISE_HAND_RECEIVED.text1TranslationKey,
@@ -157,8 +164,8 @@ export const LiveStreamContextProvider: React.FC<
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
-  const allowToBePresenter = useString('allowToBePresenter')();
-  const deny = useString('deny')();
+  const allowToBePresenter = useString(livestreamToastApprovalBtnText)();
+  const deny = useString(livestreamToastDenyBtnText)();
   const showToast = (
     text: string,
     text2: string,

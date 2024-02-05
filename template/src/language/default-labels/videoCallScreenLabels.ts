@@ -242,6 +242,59 @@ export const livestreamingAttendeeWhatYouCanDoText =
 export const livestreamingAttendeeWaitingForHostToJoinText =
   'livestreamingAttendeeWaitingForHostToJoinText';
 
+export const publicChatToastHeading = 'publicChatToastHeading';
+
+export const multiplePublicChatToastHeading = 'multiplePublicChatToastHeading';
+export const multiplePublicChatToastSubHeading =
+  'multiplePublicChatToastSubHeading';
+
+export const privateChatToastHeading = 'privateChatToastHeading';
+export const multiplePrivateChatToastHeading =
+  'multiplePrivateChatToastHeading';
+
+export const multiplePublicAndPrivateChatToastHeading =
+  'multiplePublicAndPrivateChatToastHeading';
+export const multiplePublicAndPrivateChatToastSubHeading =
+  'multiplePublicAndPrivateChatToastSubHeading';
+
+export const livestreamToastApprovalBtnText = 'livestreamApprovalBtnText';
+export const livestreamToastDenyBtnText = 'livestreamToastDenyBtnText';
+
+export const livestreamRaiseHandRequestToastHeading =
+  'livestreamRaiseHandRequestToastHeading';
+
+export const livestreamRaiseHandRequestToastSubHeading =
+  'livestreamRaiseHandRequestToastSubHeading';
+
+export const livestreamRaiseHandRequestReceivedToastHeading =
+  'livestreamRaiseHandRequestReceivedToastHeading';
+
+export const livestreamRaiseHandRequestReceivedToastSubHeading =
+  'livestreamRaiseHandRequestReceivedToastSubHeading';
+
+export const livestreamRaiseHandRequestAcceptedToastHeading =
+  'livestreamRaiseHandRequestAcceptedToastHeading';
+export const livestreamRaiseHandRequestAcceptedToastSubHeading =
+  'livestreamRaiseHandRequestAcceptedToastSubHeading';
+
+export const livestreamRaiseHandRequestRejectedToastHeading =
+  'livestreamRaiseHandRequestRejectedToastHeading';
+
+export const livestreamRaiseHandRequestRecallToastHeading =
+  'livestreamRaiseHandRequestRecallToastHeading';
+
+export const livestreamRaiseHandRequestRecallLocalToastHeading =
+  'livestreamRaiseHandRequestRecallLocalToastHeading';
+
+export const livestreamRaiseHandApprovedRequestRecallToastHeading =
+  'livestreamRaiseHandApprovedRequestRecallToastHeading';
+
+export const livestreamPromoteAsCoHostToastHeading =
+  'livestreamPromoteAsCoHostToastHeading';
+
+export const livestreamRequestAlreadyProcessed =
+  'livestreamRequestAlreadyProcessed';
+
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
@@ -392,46 +445,46 @@ export interface I18nVideoCallScreenLabelsInterface {
   [livestreamingAttendeeWhatYouCanDoText]: I18nBaseType;
   [livestreamingAttendeeInviteOthersText]?: I18nBaseType;
 
-  publicChatToastHeading?: I18nBaseType;
-  multiplePublicChatToastHeading?: I18nBaseType;
-  multiplePublicChatToastSubHeading?: I18nBaseType<{
+  [publicChatToastHeading]?: I18nBaseType;
+  [multiplePublicChatToastHeading]?: I18nBaseType;
+  [multiplePublicChatToastSubHeading]?: I18nBaseType<{
     count: number;
     from: string;
   }>;
 
-  privateChatToastHeading?: I18nBaseType;
-  multiplePrivateChatToastHeading?: I18nBaseType<{count: number}>;
+  [privateChatToastHeading]?: I18nBaseType;
+  [multiplePrivateChatToastHeading]?: I18nBaseType<{count: number}>;
 
-  multiplePublicAndPrivateChatToastHeading?: I18nBaseType;
-  multiplePublicAndPrivateChatToastSubHeading?: I18nBaseType<{
+  [multiplePublicAndPrivateChatToastHeading]?: I18nBaseType;
+  [multiplePublicAndPrivateChatToastSubHeading]?: I18nBaseType<{
     publicChatCount: number;
     privateChatCount: number;
     from: string;
   }>;
 
-  allowToBePresenter?: I18nBaseType;
-  deny?: I18nBaseType;
+  [livestreamToastApprovalBtnText]?: I18nBaseType;
+  [livestreamToastDenyBtnText]?: I18nBaseType;
 
-  raiseHandRequestToastHeading?: I18nBaseType;
-  raiseHandRequestToastSubHeading?: I18nBaseType;
+  [livestreamRaiseHandRequestToastHeading]?: I18nBaseType;
+  [livestreamRaiseHandRequestToastSubHeading]?: I18nBaseType;
 
-  raiseHandRequestReceivedToastHeading?: I18nBaseType;
-  raiseHandRequestReceivedToastSubHeading?: I18nBaseType;
+  [livestreamRaiseHandRequestReceivedToastHeading]?: I18nBaseType;
+  [livestreamRaiseHandRequestReceivedToastSubHeading]?: I18nBaseType;
 
-  raiseHandRequestAcceptedToastHeading?: I18nBaseType;
-  raiseHandRequestAcceptedToastSubHeading?: I18nBaseType;
+  [livestreamRaiseHandRequestAcceptedToastHeading]?: I18nBaseType;
+  [livestreamRaiseHandRequestAcceptedToastSubHeading]?: I18nBaseType;
 
-  raiseHandRequestRejectedToastHeading?: I18nBaseType;
+  [livestreamRaiseHandRequestRejectedToastHeading]?: I18nBaseType;
 
-  raiseHandRequestRecallToastHeading?: I18nBaseType;
+  [livestreamRaiseHandRequestRecallToastHeading]?: I18nBaseType;
 
-  raiseHandRequestRecallLocalToastHeading?: I18nBaseType;
+  [livestreamRaiseHandRequestRecallLocalToastHeading]?: I18nBaseType;
 
-  raiseHandApprovedRequestRecallToastHeading?: I18nBaseType;
+  [livestreamRaiseHandApprovedRequestRecallToastHeading]?: I18nBaseType;
 
-  promoteAsCoHostToastHeading?: I18nBaseType;
+  [livestreamPromoteAsCoHostToastHeading]?: I18nBaseType;
 
-  requestAlreadyProcessed?: I18nBaseType;
+  [livestreamRequestAlreadyProcessed]?: I18nBaseType;
   whiteboardInitializing?: I18nBaseType;
 }
 
@@ -675,51 +728,58 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'Waiting for the host to join',
   [livestreamingAttendeeWhatYouCanDoText]: "Here's what you can do here :",
 
-  publicChatToastHeading: (name: string) =>
+  [publicChatToastHeading]: (name: string) =>
     `${name} commented in the public chat`,
 
-  multiplePublicChatToastHeading: 'New comments in Public Chat',
-  multiplePublicChatToastSubHeading: ({count, from}) =>
+  [multiplePublicChatToastHeading]: 'New comments in Public Chat',
+  [multiplePublicChatToastSubHeading]: ({count, from}) =>
     `You have ${count} new messages from ${from}`,
 
-  privateChatToastHeading: 'You’ve received a private message',
+  [privateChatToastHeading]: 'You’ve received a private message',
 
-  multiplePrivateChatToastHeading: ({count}) =>
+  [multiplePrivateChatToastHeading]: ({count}) =>
     `You’ve received ${count} private messages`,
 
-  multiplePublicAndPrivateChatToastHeading:
+  [multiplePublicAndPrivateChatToastHeading]:
     'New comments in Public & Private Chat',
-  multiplePublicAndPrivateChatToastSubHeading: ({
+  [multiplePublicAndPrivateChatToastSubHeading]: ({
     publicChatCount,
     privateChatCount,
     from,
   }) =>
     `You have ${publicChatCount} new messages from ${from} and ${privateChatCount} Private chat`,
 
-  allowToBePresenter: 'ALLOW TO BE A PRESENTER',
-  deny: 'DENY',
+  [livestreamToastApprovalBtnText]: 'ALLOW TO BE A PRESENTER',
+  [livestreamToastDenyBtnText]: 'DENY',
 
-  raiseHandRequestToastHeading: 'You’ve raised your hand.',
-  raiseHandRequestToastSubHeading: 'Waiting for host to approve the request',
+  [livestreamRaiseHandRequestToastHeading]: 'You’ve raised your hand.',
+  [livestreamRaiseHandRequestToastSubHeading]:
+    'Waiting for host to approve the request',
 
-  raiseHandRequestReceivedToastHeading: name =>
+  [livestreamRaiseHandRequestReceivedToastHeading]: name =>
     `${name} has raised their hand to be a Presenter`,
-  raiseHandRequestReceivedToastSubHeading:
+  [livestreamRaiseHandRequestReceivedToastSubHeading]:
     'Once approved they will be able to speak, share their video and present during this call.',
 
-  raiseHandRequestAcceptedToastHeading: 'Host has approved your request.',
-  raiseHandRequestAcceptedToastSubHeading: 'You are now a Presenter',
+  [livestreamRaiseHandRequestAcceptedToastHeading]:
+    'Host has approved your request.',
+  [livestreamRaiseHandRequestAcceptedToastSubHeading]:
+    'You are now a Presenter',
 
-  raiseHandRequestRejectedToastHeading: 'Your request was rejected by the host',
+  [livestreamRaiseHandRequestRejectedToastHeading]:
+    'Your request was rejected by the host',
 
-  raiseHandRequestRecallToastHeading: name => `${name} has lowered their hand`,
+  [livestreamRaiseHandRequestRecallToastHeading]: name =>
+    `${name} has lowered their hand`,
 
-  raiseHandRequestRecallLocalToastHeading: 'You’ve lowered your hand.',
+  [livestreamRaiseHandRequestRecallLocalToastHeading]:
+    'You’ve lowered your hand.',
 
-  raiseHandApprovedRequestRecallToastHeading:
+  [livestreamRaiseHandApprovedRequestRecallToastHeading]:
     'Host has revoked streaming permissions.',
 
-  promoteAsCoHostToastHeading: 'Host promoted you as a Presenter',
-  requestAlreadyProcessed: 'Request already processed.',
+  [livestreamPromoteAsCoHostToastHeading]: 'Host promoted you as a Presenter',
+  [livestreamRequestAlreadyProcessed]: 'Request already processed.',
+
   whiteboardInitializing: 'Whiteboard is initializing',
 };
