@@ -257,7 +257,7 @@ export const multiplePublicAndPrivateChatToastHeading =
 export const multiplePublicAndPrivateChatToastSubHeading =
   'multiplePublicAndPrivateChatToastSubHeading';
 
-export const livestreamToastApprovalBtnText = 'livestreamApprovalBtnText';
+export const livestreamToastApprovalBtnText = 'livestreamToastApprovalBtnText';
 export const livestreamToastDenyBtnText = 'livestreamToastDenyBtnText';
 
 export const livestreamRaiseHandRequestToastHeading =
@@ -477,7 +477,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [moreBtnStopScreenShare]?: I18nBaseType;
   [moreBtnRemoveScreenShare]?: I18nBaseType;
 
-  [muteAllConfirmationPopoverContent]: I18nBaseType<I18nMuteType>;
+  [muteAllConfirmationPopoverContent]?: I18nBaseType<I18nMuteType>;
   [muteAllConfirmationPopoverPrimaryBtnText]?: I18nBaseType;
 
   [requestConfirmationPopoverContent]?: I18nBaseType<I18nRequestConfirmation>;
@@ -499,7 +499,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [livestreamingAttendeeJoinWithActivitiesInfoSubHeading]?: I18nBaseType;
 
   [livestreamingAttendeeWaitingForHostToJoinText]?: I18nBaseType;
-  [livestreamingAttendeeWhatYouCanDoText]: I18nBaseType;
+  [livestreamingAttendeeWhatYouCanDoText]?: I18nBaseType;
   [livestreamingAttendeeInviteOthersText]?: I18nBaseType;
 
   [publicChatToastHeading]?: I18nBaseType;
