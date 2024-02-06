@@ -18,6 +18,8 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         rtc
         rtm
         uid
+        chat_user_token
+        chat_user_pwd
       }
       whiteboard {
         room_uuid
@@ -47,6 +49,8 @@ const JOIN_CHANNEL_PHRASE = gql`
         rtc
         rtm
         uid
+        chat_user_token
+        chat_user_pwd
       }
       whiteboard {
         room_uuid
