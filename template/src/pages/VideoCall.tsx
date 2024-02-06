@@ -103,6 +103,13 @@ enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   AES256GCM = 6,
+
+  /**
+   * 7:  128-bit GCM encryption, GCM mode.
+   *
+   * @since v3.4.5
+   */
+  AES128GCM2 = 7,
   /**
    * 8: 256-bit GCM encryption, GCM mode.
    * @since v3.1.2.
