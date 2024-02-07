@@ -46,7 +46,8 @@ export interface RoomInfoContextInterface {
     encryptionSecret?: string;
     screenShareUid?: string;
     screenShareToken?: string;
-    chatToken?: string;
+    chatUserPwd?: string;
+    chatUserToken?: string;
   };
   isInWaitingRoom?: boolean;
   waitingRoomStatus?: WaitingRoomStatus;

@@ -2,7 +2,20 @@ import {createHook} from 'customization-implementation';
 import React, {createContext, useState, useEffect} from 'react';
 import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
-import {useLocalUid} from '../../../agora-rn-uikit';
+
+import {useContent} from 'customization-api';
+
+// AppKey:
+// 41754367#1042822
+// OrgName:
+// 41754367
+// AppName:
+// 1042822
+// API request url
+// WebSocket Address:
+// msync-api-41.chat.agora.io
+// REST API:
+// a41.chat.agora.io
 
 interface chatConfigureContextInterface {
   open: boolean;
@@ -20,56 +33,33 @@ export const chatConfigureContext =
 const ChatConfigure = ({children}) => {
   const [open, setOpen] = useState(false);
   const {data} = useRoomInfo();
-  const localUid = useLocalUid();
   const connRef = React.useRef(null);
+  const {defaultContent} = useContent();
+  const defaultContentRef = React.useRef(defaultContent);
+
+  React.useEffect(() => {
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
 
   useEffect(() => {
     const initializeChatSDK = async () => {
       try {
+        // Initializes the Web client.
         const newConn = new AgoraChat.connection({
-          appKey: '61464502#1154282', // $config.CHAT_APP_KEY,
+          appKey: $config.CHAT_APP_KEY,
         });
-
-        if (data.isHost) {
-          // logs in user
-          newConn.open({
-            user: 'bhupendra',
-            pwd: '123',
-            // accessToken:
-            //   '007eJxTYLjj7DLpzfnlP0KyjI+5nBIqX9GS2Gfyz+Rg/OL98f7uz6wVGNIMU5LNzS2SUlKSzUzMElMs0ozMDCzNzZITjVIMDE2ThW/tTG0IZGT4q+FygJGBlYERCEF8FQZjixSjVANDA92ktDRLXUPD1FTdRKPERF1LS/OUxGSzVNNU02QATokqUQ==',
-            success: e => {
-              debugger;
-              console.log('b-success', e);
-            },
-            error: e => {
-              debugger;
-              console.log('b-error', e);
-            },
-          });
-        } else {
-          // logs in user
-          newConn.open({
-            user: 'girish',
-            pwd: '123',
-            // accessToken:
-            //   '007eJxTYLjj7DLpzfnlP0KyjI+5nBIqX9GS2Gfyz+Rg/OL98f7uz6wVGNIMU5LNzS2SUlKSzUzMElMs0ozMDCzNzZITjVIMDE2ThW/tTG0IZGT4q+FygJGBlYERCEF8FQZjixSjVANDA92ktDRLXUPD1FTdRKPERF1LS/OUxGSzVNNU02QATokqUQ==',
-            success: e => {
-              debugger;
-              console.log('g -success', e);
-            },
-            error: e => {
-              debugger;
-              console.log('g-error', e);
-            },
-          });
-        }
-
-        // Check login state
-        if (newConn.isOpened()) {
-          console.log('%cChatSDK: User is logged in', 'color: blue');
-        } else {
-          console.log('%cChatSDK: User is not logged in', 'color: blue');
-        }
+        // Logs into Agora Chat.
+        newConn.open({
+          user: data.uid.toString(),
+          // pwd: data.chatUserPwd,
+          agoraToken: data.chatUserToken,
+          success: e => {
+            console.log('%cChatSDK: User is logged in', 'color: blue');
+          },
+          error: e => {
+            console.log('%cChatSDK: User login failed', 'color: red');
+          },
+        });
 
         //  event listener for messages
         newConn.addEventHandler('connection&message', {
@@ -79,18 +69,21 @@ const ChatConfigure = ({children}) => {
           },
           // text message is recieved
           onTextMessage: message => {
+            debugger;
             console.log(
               '%cChatSDK: received msg: %s. from: %s',
               'color: blue',
-              message.msg,
-              message.from,
+              JSON.stringify(message, null, 2),
+              defaultContentRef.current[message.from]?.name,
             );
           },
           // on token expired
           onTokenExpired: () => {
+            debugger;
             console.log('%cChatSDK: token has expired', 'color: blue');
           },
           onError: error => {
+            debugger;
             console.log('on error', error);
           },
         });
@@ -114,8 +107,8 @@ const ChatConfigure = ({children}) => {
       const option = {
         chatType: 'singleChat',
         type: 'txt',
-        to: 'girish',
-        from: 'bhupendra',
+        from: data.uid.toString(),
+        to: toUid.toString(),
         msg: message,
       };
 
@@ -128,7 +121,7 @@ const ChatConfigure = ({children}) => {
           console.log(
             '%cChatSDK: Send private msg success: %s',
             'color: blue',
-            res,
+            JSON.stringify(res, null, 2),
           );
         })
         .catch(error => {

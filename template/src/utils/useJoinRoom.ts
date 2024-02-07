@@ -151,10 +151,22 @@ export default function useJoinRoom() {
               : data.joinChannel.mainUser.rtm;
           }
 
-          if (data?.joinChannel?.mainUser?.chat || data?.mainUser?.chat) {
-            roomInfo.chatToken = isWaitingRoomEnabled
-              ? data.mainUser.chat
-              : data.joinChannel.mainUser.chat;
+          if (
+            data?.joinChannel?.mainUser?.chat_user_pwd ||
+            data?.mainUser?.chat_user_pwd
+          ) {
+            roomInfo.chatUserPwd = isWaitingRoomEnabled
+              ? data.mainUser.chat_user_pwd
+              : data.joinChannel.mainUser.chat_user_pwd;
+          }
+
+          if (
+            data?.joinChannel?.mainUser?.chat_user_token ||
+            data?.mainUser?.chat_user_token
+          ) {
+            roomInfo.chatUserToken = isWaitingRoomEnabled
+              ? data.mainUser.chat_user_token
+              : data.joinChannel.mainUser.chat_user_token;
           }
 
           roomInfo.isHost = isWaitingRoomEnabled
