@@ -83,6 +83,8 @@ import LocalEventEmitter, {
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
 import {useString} from '../utils/useString';
 import {
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
   toolbarItemCaptionText,
   toolbarItemChatText,
   toolbarItemInviteText,
@@ -954,6 +956,13 @@ const Controls = (props: ControlsProps) => {
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
   const {setRoomInfo} = useSetRoomInfo();
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
+  const subheading = useString<{
+    action: 'Set' | 'Changed';
+    newLanguage: string;
+    oldLanguage: string;
+    username: string;
+  }>(sttSpokenLanguageToastSubHeading);
 
   const {
     data: {isHost},
@@ -982,21 +991,34 @@ const Controls = (props: ControlsProps) => {
         : `changed the spoken language from "${getLanguageLabel(
             prevLang,
           )}" to "${getLanguageLabel(newLang)}" `;
-    const msg = `${
-      //@ts-ignore
-      defaultContentRef.current[uid]?.name || username
-    } ${actionText} `;
+    // const msg = `${
+    //   //@ts-ignore
+    //   defaultContentRef.current[uid]?.name || username
+    // } ${actionText} `;
+    let subheadingObj: any = {};
+    if (prevLang.indexOf('') !== -1) {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+      };
+    } else {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+        oldLanguage: getLanguageLabel(prevLang),
+      };
+    }
 
     Toast.show({
       leadingIconName: 'lang-select',
       type: 'info',
-      text1: `Spoken Language ${
-        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-      }`,
+      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
-      text2: msg,
+      text2: subheading(subheadingObj),
     });
     setRoomInfo(prev => {
       return {

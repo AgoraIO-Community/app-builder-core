@@ -48,7 +48,11 @@ import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import {groupChatWelcomeContent} from '../language/default-labels/videoCallScreenLabels';
+import {
+  chatPanelUnreadMessageText,
+  chatPanelUserOfflineText,
+  groupChatWelcomeContent,
+} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -142,7 +146,8 @@ const ChatContainer = (props?: {
     return components;
   });
 
-  const userOfflineLabel = 'User is offline';
+  const userOfflineLabel = useString(chatPanelUserOfflineText)();
+  const unreadMessageLabel = useString(chatPanelUnreadMessageText)();
 
   //if we don't have unread count then enable scroll to end
   useEffect(() => {
@@ -200,7 +205,7 @@ const ChatContainer = (props?: {
           <>
             <View style={style.defaultMessageContainer}>
               <Text style={style.defaultMessageText}>
-                {info1(messageStore?.length ? true : false)}
+                {info1(messageStore?.length ? false : true)}
               </Text>
             </View>
             {messageStore.map((message: any, index) => (
@@ -212,7 +217,7 @@ const ChatContainer = (props?: {
                     style={style.unreadMessageContainer}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
-                      {grpUnreadCount} Unread Message
+                      {grpUnreadCount} {unreadMessageLabel}
                     </Text>
                   </View>
                 ) : (
@@ -266,7 +271,7 @@ const ChatContainer = (props?: {
                     style={style.unreadMessageContainer}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
-                      {privateUnreadCount} Unread Message
+                      {privateUnreadCount} {unreadMessageLabel}
                     </Text>
                   </View>
                 ) : (

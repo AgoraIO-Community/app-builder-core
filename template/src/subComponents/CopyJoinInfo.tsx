@@ -74,7 +74,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   ) : (
     <>
       {showTeritaryButton ? (
-        <TertiaryButton text="Invite" onPress={onPress} />
+        <TertiaryButton text={copyMeetingInviteButton} onPress={onPress} />
       ) : isToolbarMenuItem ? (
         <ToolbarMenuItem {...iconButtonProps} />
       ) : (

@@ -26,6 +26,7 @@ import {useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
 import {
   PSTNUserLabel,
+  videoRoomScreenshareText,
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
 
@@ -80,7 +81,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   };
   const userText = useString(videoRoomUserFallbackText)();
   const pstnUserLabel = useString(PSTNUserLabel)();
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  const getScreenShareName = useString(videoRoomScreenshareText);
 
   useEffect(() => {
     events.on(EventNames.NAME_ATTRIBUTE, data => {

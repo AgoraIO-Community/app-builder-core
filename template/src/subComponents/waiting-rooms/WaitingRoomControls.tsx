@@ -9,6 +9,11 @@ import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import Toast from '../../../react-native-toast-message';
 import {useWaitingRoomContext} from '../../../src/components/contexts/WaitingRoomContext';
+import {useString} from '../../../src/utils/useString';
+import {
+  peoplePanelWaitingRoomRequestApprovalBtnTxt,
+  peoplePanelWaitingRoomRequestDenyBtnTxt,
+} from '../../../src/language/default-labels/videoCallScreenLabels';
 
 const WaitingRoomButton = props => {
   const {uid, screenUid, isAccept} = props;
@@ -16,8 +21,9 @@ const WaitingRoomButton = props => {
   const localUid = useLocalUid();
   const {dispatch} = useContext(DispatchContext);
   const {waitingRoomRef} = useWaitingRoomContext();
-
-  const buttonText = isAccept ? 'Admit' : 'Deny';
+  const admintext = useString(peoplePanelWaitingRoomRequestApprovalBtnTxt)();
+  const denytext = useString(peoplePanelWaitingRoomRequestDenyBtnTxt)();
+  const buttonText = isAccept ? admintext : denytext;
 
   const handleButtonClick = () => {
     const approved = isAccept ? true : false;

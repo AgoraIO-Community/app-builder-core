@@ -36,6 +36,7 @@ import {isMobileUA} from '../utils/common';
 import {useToolbar} from '../utils/useToolbar';
 import {
   I18nDeviceStatus,
+  livestreamingCameraTooltipText,
   toolbarItemCameraText,
   toolbarItemCameraTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
@@ -77,6 +78,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     toolbarItemCameraTooltipText,
   );
 
+  const lstooltip = useString<boolean>(livestreamingCameraTooltipText);
   const onPress = () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
     //show confirm popup to stop the screenshare
@@ -204,9 +206,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = showToolTip
-      ? isHandRaised(local.uid)
-        ? 'Waiting for host to appove the request'
-        : 'Raise Hand in order to turn video on'
+      ? lstooltip(isHandRaised(local.uid))
       : '';
     iconButtonProps.disabled = true;
   }

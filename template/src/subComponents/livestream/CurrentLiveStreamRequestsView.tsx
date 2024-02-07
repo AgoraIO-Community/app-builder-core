@@ -10,10 +10,16 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import Spacer from '../../atoms/Spacer';
+import {
+  peoplePanelStreamingRequestSectionHeader,
+  peoplePanelUserNotFoundLabel,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
-  const noUserFoundLabel = 'User not found';
-  const raisedHandsListTitleLabel = 'STREAMING REQUEST';
+  const noUserFoundLabel = useString(peoplePanelUserNotFoundLabel)();
+  const raisedHandsListTitleLabel = useString(
+    peoplePanelStreamingRequestSectionHeader,
+  )();
   const {defaultContent} = useContent();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);

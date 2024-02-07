@@ -18,6 +18,11 @@ import isSDK from '../utils/isSDK';
 import Loading from '../subComponents/Loading';
 import Login from '../pages/Login';
 import {isAndroid, isIOS} from '../utils/common';
+import {useString} from '../utils/useString';
+import {
+  authAuthenticationFailedText,
+  loadingText,
+} from '../language/default-labels/commonLabels';
 
 interface PrivateRouteProps extends RouteProps {
   children: React.ReactNode;
@@ -26,6 +31,8 @@ interface PrivateRouteProps extends RouteProps {
 const AuthRoute: React.FC<PrivateRouteProps> = props => {
   const didMountRef = useRef(false);
   const {authenticated} = useAuth();
+  const loadingLabel = useString(loadingText)();
+  const failedtext = useString(authAuthenticationFailedText)();
 
   useEffect(() => {
     if (!didMountRef.current) return;
@@ -33,7 +40,7 @@ const AuthRoute: React.FC<PrivateRouteProps> = props => {
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'Authentication failed',
+        text1: failedtext,
         visibilityTime: 1000,
       });
     }
@@ -56,7 +63,7 @@ const AuthRoute: React.FC<PrivateRouteProps> = props => {
     //if user closes inapp browser then show login/signup button
     //  <Login />
     //)
-    <Loading text={'Loading...'} />
+    <Loading text={loadingLabel} />
   );
   // <Redirect
   //   to={{

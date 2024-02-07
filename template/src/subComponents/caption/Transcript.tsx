@@ -35,12 +35,22 @@ import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/Rt
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
-import {sttSettingSpokenLanguageText} from '../../../src/language/default-labels/videoCallScreenLabels';
+import {
+  sttSettingSpokenLanguageText,
+  sttTranscriptPanelNoSearchResultsFoundText,
+  sttTranscriptPanelSearchText,
+  sttTranscriptPanelViewLatestText,
+} from '../../../src/language/default-labels/videoCallScreenLabels';
 
 interface TranscriptProps {
   showHeader?: boolean;
 }
 const Transcript = (props: TranscriptProps) => {
+  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
+  const searchText = useString(sttTranscriptPanelSearchText)();
+  const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
+  const viewlatest = useString(sttTranscriptPanelViewLatestText)();
+
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
@@ -162,7 +172,7 @@ const Transcript = (props: TranscriptProps) => {
   const renderedData = searchQuery ? searchResults : data;
 
   const NoResultsMsg = () => {
-    return <Text style={styles.emptyMsg}>No search results found</Text>;
+    return <Text style={styles.emptyMsg}>{noresults}</Text>;
   };
 
   const handleStreamMessageCallback = (
@@ -186,8 +196,6 @@ const Transcript = (props: TranscriptProps) => {
       );
     }
   }, []);
-
-  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
 
   return (
     <View
@@ -223,7 +231,7 @@ const Transcript = (props: TranscriptProps) => {
         )}
         <TextInput
           style={styles.searchInput}
-          placeholder="Search"
+          placeholder={searchText}
           value={searchQuery}
           onChangeText={handleSearch}
           placeholderTextColor={
@@ -309,7 +317,7 @@ const Transcript = (props: TranscriptProps) => {
                   textStyle={styles.textStyleBtn}
                   onPress={handleViewLatest}
                   iconSize={20}
-                  text={'View Latest'}
+                  text={viewlatest}
                 />
               </View>
             ) : null}
