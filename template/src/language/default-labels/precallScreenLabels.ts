@@ -127,7 +127,7 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
 
   [settingsPanelLanguageLabel]: 'Language',
 
-  [precallYouAreJoiningAsHeading]: 'You Are Joining as',
+  [precallYouAreJoiningAsHeading]: 'You are joining',
   [precallNameInputPlaceholderText]: 'Enter Your Name',
   [precallInputGettingName]: 'Getting name...',
   [precallJoinBtnText]: ({waitingRoom, ready, role}) => {

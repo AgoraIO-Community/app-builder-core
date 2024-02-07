@@ -5,6 +5,8 @@ import LiveStreamContext from '../../../components/livestream';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import Toast from '../../../../react-native-toast-message';
 import ThemeConfig from '../../../theme';
+import {useString} from '../../../utils/useString';
+import {peoplePanelLivestreamingDenyBtnText} from '../../../language/default-labels/videoCallScreenLabels';
 
 interface RemoteLiveStreamControlProps {
   uid: UidType;
@@ -14,7 +16,7 @@ interface RemoteLiveStreamControlProps {
 const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
   const {uid, toastId} = props;
   const {hostRejectsRequestOfUID} = useContext(LiveStreamContext);
-
+  const denyBtntext = useString(peoplePanelLivestreamingDenyBtnText)();
   return (
     <TertiaryButton
       containerStyle={{
@@ -38,7 +40,7 @@ const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
         }
         hostRejectsRequestOfUID(uid);
       }}
-      text={'Deny'}
+      text={denyBtntext}
     />
   );
 };

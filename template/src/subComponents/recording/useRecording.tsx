@@ -31,6 +31,11 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
 import {useRoomInfo} from 'customization-api';
+import {
+  videoRoomRecordingToastHeading,
+  videoRoomRecordingToastSubHeading,
+  videoRoomUserFallbackText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -109,10 +114,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
-  //commented for v1 release
-  //const recordingStartedText = useString<boolean>('recordingNotificationLabel');
-  const recordingStartedText = (active: boolean) =>
-    active ? 'Recording Started' : 'Recording Stopped';
+  const recordingStartedText = useString<boolean>(
+    videoRoomRecordingToastHeading,
+  );
+  const subheading = useString(videoRoomRecordingToastSubHeading);
+  const userlabel = useString(videoRoomUserFallbackText)();
+
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {localUid} = useContext(ChatContext);
   const {screenShareData} = useScreenContext();
@@ -161,9 +168,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
-          ? `This room is being recorded by ${
-              trimText(defaultContent[uidWhoStarted]?.name) || 'user'
-            }`
+          ? subheading(
+              trimText(defaultContent[uidWhoStarted]?.name) || userlabel,
+            )
           : '',
         visibilityTime: 3000,
         primaryBtn: null,

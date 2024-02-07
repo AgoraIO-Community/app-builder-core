@@ -72,6 +72,8 @@ import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import {isWeb} from '../utils/common';
+import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
+import {useString} from '../utils/useString';
 
 enum RnEncryptionEnum {
   /**
@@ -120,9 +122,8 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
-  //commented for v1 release
-  //const joiningLoaderLabel = useString('joiningLoaderLabel')();
-  const joiningLoaderLabel = 'Starting Call. Just a second.';
+  const joiningLoaderLabel = useString(videoRoomStartingCallText)();
+
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);

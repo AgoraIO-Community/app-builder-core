@@ -46,6 +46,8 @@ import VBPanel from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
 import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
 import {useString} from '../../src/utils/useString';
+import {precallYouAreJoiningAsHeading} from '../../src/language/default-labels/precallScreenLabels';
+import {loadingText} from '../../src/language/default-labels/commonLabels';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -330,13 +332,14 @@ const Precall = (props: any) => {
     return undefined;
   });
 
-  const youAreJoiningAs = useString('youAreJoiningAs')();
+  const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
+  const loading = useString(loadingText)();
 
   if (isVBAvaialble) {
     return <VBPanel isOnPrecall={true} />;
   }
 
-  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
+  if (!isJoinDataFetched) return <Text style={style.titleFont}>{loading}</Text>;
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (

@@ -1,4 +1,4 @@
-import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
+import {I18nBaseType, I18nConditionalType, I18nDynamicType} from '../i18nTypes';
 import {room} from './createScreenLabels';
 interface NetworkQualityStatusInterface {
   unknown?: 'Unknown';
@@ -352,6 +352,70 @@ export const whiteboardToolboxEraseText = 'whiteboardToolboxEraseText';
 export const whiteboardToolboxUploadText = 'whiteboardToolboxUploadText';
 export const whiteboardToolboxClearAllText = 'whiteboardToolboxClearAllText';
 
+export const sttSpokenLanguageToastHeading = `${stt}SpokenLanguageToastHeading`;
+export const sttSpokenLanguageToastSubHeading = `${stt}SpokenLanguageToastSubHeading`;
+
+export const deviceDetectionToastHeading = 'deviceDetectionToastHeading';
+export const deviceDetectionToastSubHeading = 'deviceDetectionToastSubHeading';
+export const deviceDetectionPrimaryBtnText = 'deviceDetectionPrimaryBtnText';
+export const deviceDetectionCancelBtnText = 'deviceDetectionCancelBtnText';
+export const deviceDetectionCheckboxText = 'deviceDetectionCheckboxText';
+
+export const hostMutedUserToastHeading = 'hostMutedUserToastHeading';
+export const hostRequestedUserToastHeading = 'hostRequestedUserToastHeading';
+export const hostRequestedUserToastPrimaryBtnText =
+  'hostRequestedUserToastPrimaryBtnText';
+export const hostRequestedUserToastSecondaryBtnText =
+  'hostRequestedUserToastSecondaryBtnText';
+
+export const hostRemovedUserToastHeading = 'hostRemovedUserToastHeading';
+
+export const waitingRoomApprovalRequiredToastHeading =
+  'waitingRoomApprovalRequiredToastHeading';
+export const waitingRoomApprovalRequiredToastSubHeading =
+  'waitingRoomApprovalRequiredToastSubHeading';
+export const waitingRoomApprovalRequiredPrimaryBtnText =
+  'waitingRoomApprovalRequiredPrimaryBtnText';
+export const waitingRoomApprovalRequiredSecondaryBtnText =
+  'waitingRoomApprovalRequiredSecondaryBtnText';
+
+export const videoRoomRecordingText = `video${room}RecordingText`;
+export const videoRoomGoToActiveSpeakerText = `video${room}GoToActiveSpeakerText`;
+export const videoRoomScreenshareText = `video${room}ScreenshareText`;
+export const videoRoomStartingCallText = `video${room}StartingCallText`;
+export const videoRoomScreenshareOverlayText = `video${room}ScreenshareOverlayText`;
+export const videoRoomScreenshareStopSharingBtnText = `video${room}ScreenshareStopSharingBtnText`;
+
+export const chatPanelUserOfflineText = 'chatPanelUserOfflineText';
+export const chatPanelUnreadMessageText = 'chatPanelUnreadMessageText';
+
+export const livestreamingMicrophoneTooltipText =
+  'livestreamingMicrophoneTooltipText';
+export const livestreamingCameraTooltipText = 'livestreamingCameraTooltipText';
+export const livestreamingShareTooltipText = 'livestreamingShareTooltipText';
+
+export const peoplePanelWaitingRoomRequestApprovalBtnTxt =
+  'peoplePanelWaitingRoomRequestApprovalBtnTxt';
+export const peoplePanelWaitingRoomRequestDenyBtnTxt =
+  'peoplePanelWaitingRoomRequestDenyBtnTxt';
+
+export const videoRoomScreenShareErrorToastHeading = `video${room}ScreenShareErrorToastHeading`;
+export const videoRoomScreenShareErrorToastSubHeading = `video${room}ScreenShareErrorToastSubHeading`;
+
+export const videoRoomRecordingToastHeading = `video${room}RecordingToastHeading`;
+export const videoRoomRecordingToastSubHeading = `video${room}RecordingToastSubHeading`;
+
+export const peoplePanelUserNotFoundLabel = 'peoplePanelUserNotFoundLabel';
+export const peoplePanelStreamingRequestSectionHeader =
+  'peoplePanelStreamingRequestSectionHeader';
+export const peoplePanelLivestreamingApprovalBtnText =
+  'peoplePanelLivestreamingApprovalBtnText';
+export const peoplePanelLivestreamingDenyBtnText =
+  'peoplePanelLivestreamingDenyBtnText';
+
+export const sttTranscriptPanelSearchText = `${stt}TranscriptPanelSearchText`;
+export const sttTranscriptPanelNoSearchResultsFoundText = `${stt}TranscriptPanelNoSearchResultsFoundText`;
+export const sttTranscriptPanelViewLatestText = `${stt}TranscriptPanelViewLatestText`;
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
@@ -586,6 +650,64 @@ export interface I18nVideoCallScreenLabelsInterface {
   [whiteboardFileUploadTypeErrorToastSubHeading]?: I18nBaseType<
     'File' | 'Image'
   >;
+
+  [sttSpokenLanguageToastHeading]?: I18nBaseType<'Set' | 'Changed'>;
+  [sttSpokenLanguageToastSubHeading]?: I18nBaseType<{
+    action: 'Set' | 'Changed';
+    newLanguage: string;
+    oldLanguage: string;
+    username: string;
+  }>;
+
+  [deviceDetectionToastHeading]?: I18nBaseType<string>;
+  [deviceDetectionToastSubHeading]?: I18nBaseType<{
+    name: string;
+    label: string;
+  }>;
+  [deviceDetectionPrimaryBtnText]?: I18nBaseType;
+  [deviceDetectionCancelBtnText]?: I18nBaseType;
+  [deviceDetectionCheckboxText]?: I18nBaseType;
+
+  [hostMutedUserToastHeading]?: I18nBaseType<I18nMuteType>;
+
+  [hostRequestedUserToastHeading]?: I18nBaseType<I18nMuteType>;
+  [hostRequestedUserToastPrimaryBtnText]?: I18nBaseType<I18nMuteType>;
+  [hostRequestedUserToastSecondaryBtnText]?: I18nBaseType<I18nMuteType>;
+  [hostRemovedUserToastHeading]?: I18nBaseType;
+  [waitingRoomApprovalRequiredToastHeading]?: I18nBaseType;
+  [waitingRoomApprovalRequiredToastSubHeading]?: I18nDynamicType;
+  [waitingRoomApprovalRequiredPrimaryBtnText]?: I18nBaseType;
+  [waitingRoomApprovalRequiredSecondaryBtnText]?: I18nBaseType;
+
+  [videoRoomRecordingText]?: I18nBaseType;
+  [videoRoomGoToActiveSpeakerText]?: I18nBaseType;
+  [videoRoomScreenshareText]?: I18nDynamicType;
+  [videoRoomStartingCallText]?: I18nBaseType;
+
+  [videoRoomScreenshareOverlayText]?: I18nBaseType;
+  [videoRoomScreenshareStopSharingBtnText]?: I18nBaseType;
+
+  [chatPanelUserOfflineText]?: I18nBaseType;
+  [chatPanelUnreadMessageText]?: I18nBaseType;
+
+  [livestreamingMicrophoneTooltipText]?: I18nConditionalType;
+  [livestreamingCameraTooltipText]?: I18nConditionalType;
+  [livestreamingShareTooltipText]?: I18nConditionalType;
+
+  [peoplePanelWaitingRoomRequestApprovalBtnTxt]?: I18nBaseType;
+  [peoplePanelWaitingRoomRequestDenyBtnTxt]?: I18nBaseType;
+
+  [videoRoomScreenShareErrorToastHeading]?: I18nBaseType;
+  [videoRoomScreenShareErrorToastSubHeading]?: I18nBaseType;
+  [videoRoomRecordingToastHeading]?: I18nConditionalType;
+  [videoRoomRecordingToastSubHeading]?: I18nDynamicType;
+  [peoplePanelUserNotFoundLabel]?: I18nBaseType;
+  [peoplePanelStreamingRequestSectionHeader]?: I18nBaseType;
+  [peoplePanelLivestreamingApprovalBtnText]?: I18nBaseType;
+  [peoplePanelLivestreamingDenyBtnText]?: I18nBaseType;
+  [sttTranscriptPanelSearchText]?: I18nBaseType;
+  [sttTranscriptPanelNoSearchResultsFoundText]?: I18nBaseType;
+  [sttTranscriptPanelViewLatestText]?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -660,7 +782,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
 
   [inviteTileWelcomeText]: 'Welcome',
-  [inviteTileNoElseJoinedYetText]: 'No one else has joined yet.',
+  [inviteTileNoElseJoinedYetText]: 'No one else has joined yet',
   [inviteTileCopyInviteBtnText]: 'COPY INVITATION',
 
   [settingPanelNameCantbeChangedInfo]: `Name can't be changed while whiteboard is active`,
@@ -742,9 +864,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'What language(s) are being spoken by everyone in this meeting?',
   [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
   [sttChangeLanguagePopupDropdownInfo]:
-    'Choose at least one language to proceed',
-  [sttChangeLanguagePopupDropdownError]:
     'You can choose a maximum of two languages',
+  [sttChangeLanguagePopupDropdownError]:
+    'Choose at least one language to proceed',
   [sttChangeSpokenLanguageText]: 'Change Spoken Language',
 
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
@@ -931,4 +1053,82 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [whiteboardFileUploadTypeErrorToastHeading]: () => 'Unsupported file',
   [whiteboardFileUploadTypeErrorToastSubHeading]: () =>
     'Please select file format with pdf, doc, docx, ppt, pptx, png, jpg, jpeg',
+
+  [sttSpokenLanguageToastHeading]: action => `Spoken Language ${action}`,
+  [sttSpokenLanguageToastSubHeading]: ({
+    action,
+    newLanguage,
+    oldLanguage,
+    username,
+  }) =>
+    action === 'Set'
+      ? `${username} has set the spoken language to "${newLanguage}"`
+      : `${username} changed the spoken language from "${oldLanguage}" to ${newLanguage}`,
+
+  [deviceDetectionToastHeading]: name => `New ${name} detected`,
+  [deviceDetectionToastSubHeading]: ({name, label}) =>
+    `New ${name} named ${label} detected. Do you want to switch?`,
+  [deviceDetectionPrimaryBtnText]: 'SWITCH DEVICE',
+  [deviceDetectionCancelBtnText]: 'IGNORE',
+  [deviceDetectionCheckboxText]: 'Remember my choice',
+
+  [hostMutedUserToastHeading]: type =>
+    type === 'audio'
+      ? 'The host has muted your audio.'
+      : 'The host has muted your video.',
+  [hostRequestedUserToastHeading]: type =>
+    type === 'audio'
+      ? 'The host has requested you to speak'
+      : 'The host has asked you to start your video.',
+  [hostRequestedUserToastPrimaryBtnText]: () => 'UNMUTE',
+  [hostRequestedUserToastSecondaryBtnText]: () => 'LATER',
+  [hostRemovedUserToastHeading]: 'The host has removed you from the room.',
+
+  [waitingRoomApprovalRequiredToastHeading]: 'Approval Required',
+  [waitingRoomApprovalRequiredToastSubHeading]: username =>
+    `${username} is waiting for approval to join the call`,
+  [waitingRoomApprovalRequiredPrimaryBtnText]: 'Admit',
+  [waitingRoomApprovalRequiredSecondaryBtnText]: 'Deny',
+
+  [videoRoomRecordingText]: 'Recording',
+  [videoRoomGoToActiveSpeakerText]: 'Go To Active Speaker',
+  [videoRoomScreenshareText]: username => `${username}'s screenshare`,
+  [videoRoomStartingCallText]: 'Starting Call. Just a second.',
+
+  [videoRoomScreenshareOverlayText]: 'You are sharing your screen',
+  [videoRoomScreenshareStopSharingBtnText]: 'Stop Sharing',
+
+  [chatPanelUserOfflineText]: 'User is offline',
+  [chatPanelUnreadMessageText]: 'Unread message',
+
+  [livestreamingMicrophoneTooltipText]: isHandRaised =>
+    isHandRaised
+      ? 'Waiting for host to appove the request'
+      : 'Raise Hand in order to turn mic on',
+  [livestreamingCameraTooltipText]: isHandRaised =>
+    isHandRaised
+      ? 'Waiting for host to appove the request'
+      : 'Raise Hand in order to turn video on',
+  [livestreamingShareTooltipText]: isHandRaised =>
+    isHandRaised
+      ? 'Waiting for host to appove the request'
+      : 'Raise Hand in order to present',
+
+  [peoplePanelWaitingRoomRequestApprovalBtnTxt]: 'Admit',
+  [peoplePanelWaitingRoomRequestDenyBtnTxt]: 'Deny',
+  [videoRoomScreenShareErrorToastHeading]: 'Failed to initiate screen sharing',
+  [videoRoomScreenShareErrorToastSubHeading]: 'Permission denied',
+
+  [videoRoomRecordingToastHeading]: active =>
+    active ? 'Recording Started' : 'Recording Stopped',
+  [videoRoomRecordingToastSubHeading]: name =>
+    `This room is being recorded by ${name}`,
+  [peoplePanelUserNotFoundLabel]: 'User not found',
+  [peoplePanelStreamingRequestSectionHeader]: 'STREAMING REQUEST',
+  [peoplePanelLivestreamingApprovalBtnText]: 'Accept',
+  [peoplePanelLivestreamingDenyBtnText]: 'Deny',
+
+  [sttTranscriptPanelSearchText]: 'Search',
+  [sttTranscriptPanelNoSearchResultsFoundText]: 'No search results found',
+  [sttTranscriptPanelViewLatestText]: 'View Latest',
 };

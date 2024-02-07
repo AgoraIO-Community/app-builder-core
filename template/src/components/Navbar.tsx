@@ -69,6 +69,7 @@ import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 import {
   toolbarItemChatText,
   toolbarItemPeopleText,
+  videoRoomRecordingText,
 } from '../language/default-labels/videoCallScreenLabels';
 
 export const ParticipantsCountView = ({
@@ -424,7 +425,7 @@ export const ParticipantCountToolbarItem = () => {
   );
 };
 export const RecordingStatusToolbarItem = () => {
-  const recordingLabel = 'Recording';
+  const recordingLabel = useString(videoRoomRecordingText)();
   const {isRecordingActive} = useRecording();
   return isRecordingActive ? (
     <ToolbarItem>

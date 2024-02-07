@@ -6,8 +6,15 @@ import {useApolloClient} from '@apollo/client';
 import Toast from '../../react-native-toast-message';
 import {getParamFromURL} from '../utils/common';
 import useTokenAuth from './useTokenAuth';
+import {useString} from '../utils/useString';
+import {
+  authAuthorizingApplicationText,
+  authErrorOnLoginToastHeading,
+} from '../language/default-labels/commonLabels';
 
 export const IDPAuth = () => {
+  const toastheading = useString(authErrorOnLoginToastHeading)();
+  const text = useString(authAuthorizingApplicationText)();
   const {setIsAuthenticated, authLogin} = useAuth();
   const history = useHistory();
   const {token: returnTo}: {token: string} = useParams();
@@ -47,7 +54,7 @@ export const IDPAuth = () => {
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'Error occured on Login, Please login again.',
+        text1: toastheading,
         visibilityTime: 3000,
       });
       setTimeout(() => {
@@ -56,5 +63,5 @@ export const IDPAuth = () => {
     }
   }, []);
 
-  return <Loading text={'Authorizing app...'} />;
+  return <Loading text={text} />;
 };

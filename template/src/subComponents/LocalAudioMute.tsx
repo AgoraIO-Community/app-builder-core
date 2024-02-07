@@ -33,6 +33,7 @@ import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
 import {
   I18nDeviceStatus,
+  livestreamingMicrophoneTooltipText,
   toolbarItemMicrophoneText,
   toolbarItemMicrophoneTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
@@ -69,6 +70,8 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const micButtonTooltip = useString<I18nDeviceStatus>(
     toolbarItemMicrophoneTooltipText,
   );
+
+  const lstooltip = useString<boolean>(livestreamingMicrophoneTooltipText);
 
   const {
     rtcProps: {callActive},
@@ -192,9 +195,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = showToolTip
-      ? isHandRaised(local.uid)
-        ? 'Waiting for host to appove the request'
-        : 'Raise Hand in order to turn mic on'
+      ? lstooltip(isHandRaised(local.uid))
       : '';
     iconButtonProps.disabled = true;
   }
