@@ -23,12 +23,19 @@ export interface I18nJoinScreenLabelsInterface {
 export const JoinScreenLabels: I18nJoinScreenLabelsInterface = {
   [joinRoomHeading]: ({eventMode}) => {
     if (eventMode) {
+      return 'Join a Room';
+    } else {
+      return 'Join a Stream';
+    }
+  },
+  [joinRoomInputLabel]: ({eventMode}) => {
+    if (eventMode) {
       return 'Stream ID';
     } else {
       return 'Room ID';
     }
   },
-  [joinRoomInputLabel]: ({eventMode}) => {
+  [joinRoomInputPlaceHolderText]: ({eventMode}) => {
     if (eventMode) {
       return 'Enter Stream ID';
     } else {
