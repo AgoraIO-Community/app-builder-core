@@ -21,7 +21,6 @@ export interface I18nShareLinkScreenLabelsInterface {
   [shareRoomHostLinkSubText]?: I18nBaseType;
   [shareRoomPSTNLabel]?: I18nBaseType;
   [shareRoomPSTNNumberLabel]?: I18nBaseType;
-  [shareRoomPSTNNumberLabel]?: I18nBaseType;
   [shareRoomPSTNPinLabel]?: I18nBaseType;
   [shareRoomPSTNSubText]?: I18nBaseType;
   [shareRoomCopyBtnText]?: I18nBaseType; // need to discuss

@@ -58,35 +58,167 @@ interface Props {
 }
 
 const EventsConfigure: React.FC<Props> = props => {
-  const hostMutedUserToastHeadingTT = useString<I18nMuteType>(
+  // mute user audio
+  const hostMutedUserAudioToastHeadingTT = useString<I18nMuteType>(
     hostMutedUserToastHeading,
-  );
-  const hostRequestedUserToastHeadingTT = useString<I18nMuteType>(
+  )(I18nMuteType.audio);
+
+  const audioMuteToastRef = useRef(hostMutedUserAudioToastHeadingTT);
+  useEffect(() => {
+    audioMuteToastRef.current = hostMutedUserAudioToastHeadingTT;
+  }, [hostMutedUserAudioToastHeadingTT]);
+
+  // mute user video
+  const hostMutedUserVideoToastHeadingTT = useString<I18nMuteType>(
+    hostMutedUserToastHeading,
+  )(I18nMuteType.video);
+
+  const videoMuteToastRef = useRef(hostMutedUserVideoToastHeadingTT);
+  useEffect(() => {
+    videoMuteToastRef.current = hostMutedUserVideoToastHeadingTT;
+  }, [hostMutedUserVideoToastHeadingTT]);
+
+  //request user video
+  const hostRequestedUserVideoToastHeadingTT = useString<I18nMuteType>(
     hostRequestedUserToastHeading,
-  );
-  const hostRequestedUserToastPrimaryBtnTextTT = useString<I18nMuteType>(
+  )(I18nMuteType.video);
+
+  const videoRequestToastRef = useRef(hostRequestedUserVideoToastHeadingTT);
+  useEffect(() => {
+    videoRequestToastRef.current = hostRequestedUserVideoToastHeadingTT;
+  }, [hostRequestedUserVideoToastHeadingTT]);
+
+  //request user audio
+  const hostRequestedUserAudioToastHeadingTT = useString<I18nMuteType>(
+    hostRequestedUserToastHeading,
+  )(I18nMuteType.audio);
+
+  const audioRequestToastRef = useRef(hostRequestedUserAudioToastHeadingTT);
+  useEffect(() => {
+    audioRequestToastRef.current = hostRequestedUserAudioToastHeadingTT;
+  }, [hostRequestedUserAudioToastHeadingTT]);
+
+  //request user video primary btn
+  const hostRequestedUserVideoToastPrimaryBtnTextTT = useString<I18nMuteType>(
     hostRequestedUserToastPrimaryBtnText,
-  );
-  const hostRequestedUserToastSecondaryBtnTextTT = useString<I18nMuteType>(
-    hostRequestedUserToastSecondaryBtnText,
+  )(I18nMuteType.video);
+
+  const requestUserVideoPrimaryBtnRef = useRef(
+    hostRequestedUserVideoToastPrimaryBtnTextTT,
   );
 
+  useEffect(() => {
+    requestUserVideoPrimaryBtnRef.current =
+      hostRequestedUserVideoToastPrimaryBtnTextTT;
+  }, [hostRequestedUserVideoToastPrimaryBtnTextTT]);
+
+  //request user audio primary btn
+  const hostRequestedUserAudioToastPrimaryBtnTextTT = useString<I18nMuteType>(
+    hostRequestedUserToastPrimaryBtnText,
+  )(I18nMuteType.audio);
+
+  const requestUserAudioPrimaryBtnRef = useRef(
+    hostRequestedUserAudioToastPrimaryBtnTextTT,
+  );
+
+  useEffect(() => {
+    requestUserAudioPrimaryBtnRef.current =
+      hostRequestedUserAudioToastPrimaryBtnTextTT;
+  }, [hostRequestedUserAudioToastPrimaryBtnTextTT]);
+
+  //request user video secondary btn
+  const hostRequestedUserVideoToastSecondaryBtnTextTT = useString<I18nMuteType>(
+    hostRequestedUserToastSecondaryBtnText,
+  )(I18nMuteType.video);
+
+  const requestUserVideoSecondaryBtnRef = useRef(
+    hostRequestedUserVideoToastSecondaryBtnTextTT,
+  );
+  useEffect(() => {
+    requestUserVideoSecondaryBtnRef.current =
+      hostRequestedUserVideoToastSecondaryBtnTextTT;
+  }, [hostRequestedUserVideoToastSecondaryBtnTextTT]);
+
+  //request user audio secondary btn
+  const hostRequestedUserAudioToastSecondaryBtnTextTT = useString<I18nMuteType>(
+    hostRequestedUserToastSecondaryBtnText,
+  )(I18nMuteType.audio);
+
+  const requestUserAudioSecondaryBtnRef = useRef(
+    hostRequestedUserAudioToastSecondaryBtnTextTT,
+  );
+  useEffect(() => {
+    requestUserAudioSecondaryBtnRef.current =
+      hostRequestedUserAudioToastSecondaryBtnTextTT;
+  }, [hostRequestedUserAudioToastSecondaryBtnTextTT]);
+
+  //host removed
   const hostRemovedUserToastHeadingTT = useString(
     hostRemovedUserToastHeading,
   )();
 
+  const removedUserToastRef = useRef(hostRemovedUserToastHeadingTT);
+
+  useEffect(() => {
+    removedUserToastRef.current = hostRemovedUserToastHeadingTT;
+  }, [hostRemovedUserToastHeadingTT]);
+
+  //waiting room heading
   const waitingRoomApprovalRequiredToastHeadingTT = useString(
     waitingRoomApprovalRequiredToastHeading,
   )();
+
+  const waitingRoomAppovalHeadingRef = useRef(
+    waitingRoomApprovalRequiredToastHeadingTT,
+  );
+
+  useEffect(() => {
+    waitingRoomAppovalHeadingRef.current =
+      waitingRoomApprovalRequiredToastHeadingTT;
+  }, [waitingRoomApprovalRequiredToastHeadingTT]);
+
+  //waiting room subheading
   const waitingRoomApprovalRequiredToastSubHeadingTT = useString(
     waitingRoomApprovalRequiredToastSubHeading,
   );
+
+  const waitingRoomApprovalSubHeadingRef = useRef(
+    waitingRoomApprovalRequiredToastSubHeadingTT,
+  );
+
+  useEffect(() => {
+    waitingRoomApprovalSubHeadingRef.current =
+      waitingRoomApprovalRequiredToastSubHeadingTT;
+  }, [waitingRoomApprovalRequiredToastSubHeadingTT]);
+
+  //waiting room primary btn
   const waitingRoomApprovalRequiredPrimaryBtnTextTT = useString(
     waitingRoomApprovalRequiredPrimaryBtnText,
   )();
+
+  const waitingRoomApprovalPrimaryBtnRef = useRef(
+    waitingRoomApprovalRequiredPrimaryBtnTextTT,
+  );
+
+  useEffect(() => {
+    waitingRoomApprovalPrimaryBtnRef.current =
+      waitingRoomApprovalRequiredPrimaryBtnTextTT;
+  }, [waitingRoomApprovalRequiredPrimaryBtnTextTT]);
+
+  //waiting room secondary btn
   const waitingRoomApprovalRequiredSecondaryBtnTextTT = useString(
     waitingRoomApprovalRequiredSecondaryBtnText,
   )();
+
+  const waitingRoomApprovalSecondaryBtnRef = useRef(
+    waitingRoomApprovalRequiredSecondaryBtnTextTT,
+  );
+
+  useEffect(() => {
+    waitingRoomApprovalSecondaryBtnRef.current =
+      waitingRoomApprovalRequiredSecondaryBtnTextTT;
+  }, [waitingRoomApprovalRequiredSecondaryBtnTextTT]);
+
   //@ts-ignore
   const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
     useScreenshare();
@@ -148,7 +280,7 @@ const EventsConfigure: React.FC<Props> = props => {
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
         // } muted you.`,
-        text1: hostMutedUserToastHeadingTT(I18nMuteType.video),
+        text1: videoMuteToastRef.current,
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
@@ -179,7 +311,7 @@ const EventsConfigure: React.FC<Props> = props => {
         // text1: `${
         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
         // } muted you.`,
-        text1: hostMutedUserToastHeadingTT(I18nMuteType.audio),
+        text1: audioMuteToastRef.current,
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
@@ -209,7 +341,7 @@ const EventsConfigure: React.FC<Props> = props => {
       Toast.show({
         leadingIconName: 'info',
         type: 'info',
-        text1: hostRemovedUserToastHeadingTT,
+        text1: removedUserToastRef.current,
         visibilityTime: 5000,
         primaryBtn: null,
         secondaryBtn: null,
@@ -225,7 +357,7 @@ const EventsConfigure: React.FC<Props> = props => {
       Toast.show({
         leadingIconName: 'mic-on',
         type: 'info',
-        text1: hostRequestedUserToastHeadingTT(I18nMuteType.audio),
+        text1: audioRequestToastRef.current,
         visibilityTime: 3000,
         leadingIcon: null,
         primaryBtn:
@@ -236,7 +368,7 @@ const EventsConfigure: React.FC<Props> = props => {
             <PrimaryButton
               containerStyle={style.primaryBtn}
               textStyle={style.textStyle}
-              text={hostRequestedUserToastPrimaryBtnTextTT(I18nMuteType.audio)}
+              text={requestUserAudioPrimaryBtnRef.current}
               onPress={() => {
                 RtcEngineUnsafe.muteLocalAudioStream(false);
                 dispatch({
@@ -252,11 +384,7 @@ const EventsConfigure: React.FC<Props> = props => {
             PermissionState.GRANTED_FOR_CAM_AND_MIC ||
           permissionStatusRef.current ===
             PermissionState.GRANTED_FOR_MIC_ONLY ? (
-            <SecondaryBtn
-              text={hostRequestedUserToastSecondaryBtnTextTT(
-                I18nMuteType.audio,
-              )}
-            />
+            <SecondaryBtn text={requestUserAudioSecondaryBtnRef.current} />
           ) : null,
       });
     });
@@ -264,7 +392,7 @@ const EventsConfigure: React.FC<Props> = props => {
       Toast.show({
         leadingIconName: 'video-on',
         type: 'info',
-        text1: hostRequestedUserToastHeadingTT(I18nMuteType.video),
+        text1: videoRequestToastRef.current,
         visibilityTime: 3000,
         leadingIcon: null,
         primaryBtn:
@@ -275,7 +403,7 @@ const EventsConfigure: React.FC<Props> = props => {
             <PrimaryButton
               containerStyle={style.primaryBtn}
               textStyle={style.textStyle}
-              text={hostRequestedUserToastPrimaryBtnTextTT(I18nMuteType.video)}
+              text={requestUserVideoPrimaryBtnRef.current}
               onPress={async () => {
                 isWebInternal()
                   ? await RtcEngineUnsafe.muteLocalVideoStream(false)
@@ -295,11 +423,7 @@ const EventsConfigure: React.FC<Props> = props => {
             PermissionState.GRANTED_FOR_CAM_AND_MIC ||
           permissionStatusRef.current ===
             PermissionState.GRANTED_FOR_CAM_ONLY ? (
-            <SecondaryBtn
-              text={hostRequestedUserToastSecondaryBtnTextTT(
-                I18nMuteType.video,
-              )}
-            />
+            <SecondaryBtn text={requestUserVideoSecondaryBtnRef.current} />
           ) : null,
       });
     });
@@ -471,7 +595,7 @@ const EventsConfigure: React.FC<Props> = props => {
         <PrimaryButton
           containerStyle={style.primaryBtn}
           textStyle={style.textStyle}
-          text={waitingRoomApprovalRequiredPrimaryBtnTextTT}
+          text={waitingRoomApprovalPrimaryBtnRef.current}
           onPress={() => {
             // user approving waiting room request
             const res = approval({
@@ -503,7 +627,7 @@ const EventsConfigure: React.FC<Props> = props => {
         <TertiaryButton
           containerStyle={style.secondaryBtn}
           textStyle={style.textStyle}
-          text={waitingRoomApprovalRequiredSecondaryBtnTextTT}
+          text={waitingRoomApprovalSecondaryBtnRef.current}
           onPress={() => {
             // user rejecting waiting room request
             const res = approval({
@@ -537,8 +661,8 @@ const EventsConfigure: React.FC<Props> = props => {
         leadingIconName: 'info',
         leadingIcon: null,
         type: 'info',
-        text1: waitingRoomApprovalRequiredToastHeadingTT,
-        text2: waitingRoomApprovalRequiredToastSubHeadingTT(userName),
+        text1: waitingRoomAppovalHeadingRef.current,
+        text2: waitingRoomApprovalSubHeadingRef.current(userName),
         visibilityTime: 30000,
         ...btns,
       });
