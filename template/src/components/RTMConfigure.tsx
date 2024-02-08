@@ -38,7 +38,10 @@ import {filterObject} from '../utils';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
-import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import {
+  WaitingRoomStatus,
+  useRoomInfo,
+} from '../components/room-info/useRoomInfo';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
@@ -56,10 +59,22 @@ const RtmConfigure = (props: any) => {
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
+
   const {
-    isInWaitingRoom,
+    waitingRoomStatus,
     data: {isHost},
   } = useRoomInfo();
+  const waitingRoomStatusRef = useRef({waitingRoomStatus: waitingRoomStatus});
+
+  const isHostRef = useRef({isHost: isHost});
+
+  useEffect(() => {
+    isHostRef.current.isHost = isHost;
+  }, [isHost]);
+
+  useEffect(() => {
+    waitingRoomStatusRef.current.waitingRoomStatus = waitingRoomStatus;
+  }, [waitingRoomStatus]);
 
   /**
    * inside event callback state won't have latest value.
@@ -474,8 +489,17 @@ const RtmConfigure = (props: any) => {
         value = formattedData;
       }
     } else {
-      evt = data.evt;
-      value = data.value;
+      if (
+        $config.ENABLE_WAITING_ROOM &&
+        !isHostRef.current?.isHost &&
+        waitingRoomStatusRef.current?.waitingRoomStatus !==
+          WaitingRoomStatus.APPROVED
+      ) {
+        return;
+      } else {
+        evt = data.evt;
+        value = data.value;
+      }
     }
 
     try {
