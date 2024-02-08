@@ -4,6 +4,8 @@ import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 
 import {useContent} from 'customization-api';
+import {useSDKChatMessages} from './useSDKChatMessages';
+import {timeNow} from '../../rtm/utils';
 
 // AppKey:
 // 41754367#1042822
@@ -36,6 +38,8 @@ const ChatConfigure = ({children}) => {
   const connRef = React.useRef(null);
   const {defaultContent} = useContent();
   const defaultContentRef = React.useRef(defaultContent);
+  const {addMessageToPrivateStore, showMessageNotification} =
+    useSDKChatMessages();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -76,6 +80,19 @@ const ChatConfigure = ({children}) => {
               JSON.stringify(message, null, 2),
               defaultContentRef.current[message.from]?.name,
             );
+            // show to notifcation- privat msg received
+            showMessageNotification(message.msg, message.from, true);
+            // this is remote user messages
+            addMessageToPrivateStore(
+              Number(message.from),
+              {
+                msg: message.msg,
+                createdTimestamp: message.time,
+                msgId: message.id,
+                isDeleted: false,
+              },
+              false,
+            );
           },
           // on token expired
           onTokenExpired: () => {
@@ -114,7 +131,6 @@ const ChatConfigure = ({children}) => {
 
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
-
       connRef.current
         .send(msg)
         .then(res => {
@@ -123,6 +139,16 @@ const ChatConfigure = ({children}) => {
             'color: blue',
             JSON.stringify(res, null, 2),
           );
+          // update local messagre store
+          debugger;
+          const messageData = {
+            msg: message,
+            createdTimestamp: timeNow(),
+            msgId: msg.id,
+            isDeleted: false,
+          };
+          // this is local user messages
+          addMessageToPrivateStore(toUid, messageData, true);
         })
         .catch(error => {
           console.log(

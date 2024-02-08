@@ -48,6 +48,7 @@ import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
+import {useSDKChatMessages} from '../components/chat/useSDKChatMessages';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -62,7 +63,8 @@ const ChatContainer = (props?: {
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {defaultContent} = useContent();
-  const {messageStore, privateMessageStore} = useChatMessages();
+  const {messageStore} = useChatMessages();
+  const {privateMessageStore} = useSDKChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
   const {chatType, setChatType, privateChatUser, inputActive} =

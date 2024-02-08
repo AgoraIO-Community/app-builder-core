@@ -43,11 +43,12 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   const {sendChatMessage} = useChatMessages();
   const onPress = () => {
     if (!selectedUserId) {
+      //TODO send chatSDK group chat msg
       sendChatMessage(message);
       setMessage && setMessage('');
     } else {
-      sendChatMessage(message, selectedUserId);
-      //send to peer chatSDK
+      //  sendChatMessage(message, selectedUserId);
+      //send chatSDK peer msg
       sendChatSDKMessage(selectedUserId, message);
       setMessage && setMessage('');
     }
@@ -63,7 +64,6 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
             ? $config.PRIMARY_ACTION_BRAND_COLOR
             : $config.SEMANTIC_NEUTRAL
         }
-        base64={true}
         name={'send'}
       />
     </TouchableOpacity>
@@ -83,6 +83,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     useChatUIControls();
   const {sendChatMessage} = useChatMessages();
   const {defaultContent} = useContent();
+  const {sendChatSDKMessage} = useChatConfigure();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
@@ -96,10 +97,14 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!privateChatUser) {
+      // group msg
+      //TODO send chatSdk group msg
       sendChatMessage(message);
       setMessage('');
     } else {
-      sendChatMessage(message, privateChatUser);
+      //  sendChatMessage(message, privateChatUser);
+      //send chatSDK peer msg
+      sendChatSDKMessage(privateChatUser, message);
       setMessage('');
     }
   };
