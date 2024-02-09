@@ -13,6 +13,7 @@ import {useCustomization} from 'customization-implementation';
 import {useLanguage} from '../language/useLanguage';
 import {DEFAULT_I18_DATA} from '../language';
 import {TextDataInterface} from '../language/default-labels/index';
+import {useEffect, useRef} from 'react';
 
 export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
@@ -59,3 +60,12 @@ export function useString<T = string>(
   };
   return getString;
 }
+
+export const useStringRef = (key: keyof TextDataInterface) => {
+  const fn = useString(key);
+  const refFn = useRef(fn);
+  useEffect(() => {
+    refFn.current = fn;
+  }, [fn]);
+  return refFn;
+};
