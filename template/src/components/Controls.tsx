@@ -96,7 +96,7 @@ import {
   toolbarItemSettingText,
   toolbarItemShareText,
   toolbarItemTranscriptText,
-  toolbarItemVitrualBackgroundText,
+  toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
 } from '../language/default-labels/videoCallScreenLabels';
 
@@ -250,7 +250,7 @@ const MoreButton = () => {
   const screenShareButton = useString<boolean>(toolbarItemShareText);
   const recordingButton = useString<boolean>(toolbarItemRecordingText);
   const moreButtonLabel = useString(toolbarItemMoreText)();
-  const virtualBackgroundLabel = useString(toolbarItemVitrualBackgroundText)();
+  const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
   const inviteLabel = useString(toolbarItemInviteText)();
   const peopleLabel = useString(toolbarItemPeopleText)();

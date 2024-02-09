@@ -28,7 +28,7 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
-import {useString} from '../../utils/useString';
+import {useStringRef} from '../../utils/useString';
 import {
   publicChatToastHeading,
   multiplePublicChatToastHeading,
@@ -108,30 +108,33 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const individualActiveRef = useRef<string | number>();
 
   //public single
-  const fromText = useString(publicChatToastHeading);
+  const fromText = useStringRef(publicChatToastHeading);
 
   //public multple
-  const multiplePublicChatToastHeadingTT = useString(
+  const multiplePublicChatToastHeadingTT = useStringRef(
     multiplePublicChatToastHeading,
-  )();
-  const multiplePublicChatToastSubHeadingTT = useString<{
+  );
+  //@ts-ignore
+  const multiplePublicChatToastSubHeadingTT = useStringRef<{
     count: number;
     from: string;
   }>(multiplePublicChatToastSubHeading);
 
   //private single
-  const privateMessageLabel = useString(privateChatToastHeading)();
+  const privateMessageLabel = useStringRef(privateChatToastHeading);
 
   //private multiple
-  const multiplePrivateChatToastHeadingTT = useString<{count: number}>(
+  //@ts-ignore
+  const multiplePrivateChatToastHeadingTT = useStringRef<{count: number}>(
     multiplePrivateChatToastHeading,
   );
 
   //multiple private and public toast
-  const multiplePublicAndPrivateChatToastHeadingTT = useString(
+  const multiplePublicAndPrivateChatToastHeadingTT = useStringRef(
     multiplePublicAndPrivateChatToastHeading,
-  )();
-  const multiplePublicAndPrivateChatToastSubHeadingTT = useString<{
+  );
+  //@ts-ignore
+  const multiplePublicAndPrivateChatToastSubHeadingTT = useStringRef<{
     publicChatCount: number;
     privateChatCount: number;
     from: string;
@@ -261,16 +264,18 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           leadingIconName: 'chat-nav',
           text1:
             privateMessages && privateMessages.length
-              ? multiplePublicAndPrivateChatToastHeadingTT
-              : multiplePublicChatToastHeadingTT,
+              ? multiplePublicAndPrivateChatToastHeadingTT?.current()
+              : multiplePublicChatToastHeadingTT?.current(),
           text2:
             privateMessages && privateMessages.length
-              ? multiplePublicAndPrivateChatToastSubHeadingTT({
+              ? //@ts-ignore
+                multiplePublicAndPrivateChatToastSubHeadingTT?.current({
                   publicChatCount: publicMessages.length,
                   privateChatCount: privateMessages.length,
                   from: fromNames,
                 })
-              : multiplePublicChatToastSubHeadingTT({
+              : //@ts-ignore
+                multiplePublicChatToastSubHeadingTT?.current({
                   count: publicMessages.length,
                   from: fromNames,
                 }),
@@ -297,9 +302,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           secondaryBtn: null,
           type: 'info',
           leadingIconName: 'chat-nav',
-          text1: multiplePrivateChatToastHeadingTT({
-            count: privateMessages.length,
-          }),
+          text1:
+            //@ts-ignore
+            multiplePrivateChatToastHeadingTT?.current({
+              count: privateMessages.length,
+            }),
           text2: ``,
           visibilityTime: 3000,
           onPress: () => {
@@ -330,10 +337,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           type: 'info',
           leadingIconName: 'chat-nav',
           text1: isPrivateMessage
-            ? privateMessageLabel
+            ? privateMessageLabel?.current()
             : //@ts-ignore
             defaultContentRef.current.defaultContent[uidAsNumber]?.name
-            ? fromText(
+            ? fromText?.current(
                 trimText(
                   //@ts-ignore
                   defaultContentRef.current.defaultContent[uidAsNumber]?.name,

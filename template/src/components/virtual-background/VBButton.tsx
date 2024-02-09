@@ -18,7 +18,7 @@ const VBButton = (props: VBButtonProps) => {
   const {isVBOpen, setIsVBOpen, showLabel = false} = props;
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet} = useActionSheet();
-  const vbLabel = useString('toolbarItemVitrualBackgroundText')();
+  const vbLabel = useString('toolbarItemVirtualBackgroundText')();
 
   const onPress = () => {
     setIsVBOpen(prev => !prev);

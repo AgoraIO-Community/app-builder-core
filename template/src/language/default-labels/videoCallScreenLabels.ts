@@ -75,8 +75,8 @@ export const toolbarItemNoiseCancellationText =
 export const toolbarItemWhiteboardText = 'toolbarItemWhiteboardText';
 export const toolbarItemCaptionText = 'toolbarItemCaptionText';
 export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
-export const toolbarItemVitrualBackgroundText =
-  'toolbarItemVitrualBackgroundText';
+export const toolbarItemVirtualBackgroundText =
+  'toolbarItemVirtualBackgroundText';
 
 export const toolbarItemRaiseHandText = 'toolbarItemRaiseHandText';
 
@@ -379,6 +379,11 @@ export const waitingRoomApprovalRequiredPrimaryBtnText =
 export const waitingRoomApprovalRequiredSecondaryBtnText =
   'waitingRoomApprovalRequiredSecondaryBtnText';
 
+export const waitingRoomApprovalRejectionToastHeading =
+  'waitingRoomApprovalRejectionToastHeading';
+export const waitingRoomApprovalRejectionToastSubHeading =
+  'waitingRoomApprovalRejectionToastSubHeading';
+
 export const videoRoomRecordingText = `video${room}RecordingText`;
 export const videoRoomGoToActiveSpeakerText = `video${room}GoToActiveSpeakerText`;
 export const videoRoomScreenshareText = `video${room}ScreenshareText`;
@@ -416,6 +421,10 @@ export const peoplePanelLivestreamingDenyBtnText =
 export const sttTranscriptPanelSearchText = `${stt}TranscriptPanelSearchText`;
 export const sttTranscriptPanelNoSearchResultsFoundText = `${stt}TranscriptPanelNoSearchResultsFoundText`;
 export const sttTranscriptPanelViewLatestText = `${stt}TranscriptPanelViewLatestText`;
+
+export const videoRoomPeopleCountTooltipHostText = `video${room}PeopleCountTooltipHostText`;
+export const videoRoomPeopleCountTooltipAttendeeText = `video${room}PeopleCountTooltipAttendeeText`;
+
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
@@ -440,7 +449,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemWhiteboardText]?: I18nConditionalType;
   [toolbarItemCaptionText]?: I18nConditionalType;
   [toolbarItemTranscriptText]?: I18nConditionalType;
-  [toolbarItemVitrualBackgroundText]?: I18nBaseType;
+  [toolbarItemVirtualBackgroundText]?: I18nBaseType;
 
   [toolbarItemRaiseHandText]?: I18nConditionalType;
 
@@ -485,12 +494,12 @@ export interface I18nVideoCallScreenLabelsInterface {
   [leavePopupSubHeading]?: I18nConditionalType;
   [leavePopupPrimaryBtnText]?: I18nBaseType;
 
-  [removeFromRoomPopupHeading]?: I18nBaseType<string>;
-  [removeFromRoomPopupSubHeading]?: I18nBaseType<string>;
+  [removeFromRoomPopupHeading]?: I18nDynamicType;
+  [removeFromRoomPopupSubHeading]?: I18nDynamicType;
   [removeFromRoomPopupPrimaryBtnText]?: I18nBaseType;
 
   [removeScreenshareFromRoomPopupHeading]?: I18nBaseType;
-  [removeScreenshareFromRoomPopupSubHeading]?: I18nBaseType<string>;
+  [removeScreenshareFromRoomPopupSubHeading]?: I18nDynamicType;
   [removeScreenshareFromRoomPopupPrimaryBtnText]?: I18nBaseType;
 
   [sttChangeLanguagePopupHeading]?: I18nConditionalType;
@@ -610,7 +619,7 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [peoplePanelMeText]?: I18nBaseType;
   [peoplePanelPresenterText]?: I18nBaseType;
-  [userRemovedFromTheRoomToastHeading]?: I18nBaseType<string>;
+  [userRemovedFromTheRoomToastHeading]?: I18nDynamicType;
 
   [vbPanelImageUploadErrorToastHeading]?: I18nBaseType;
   [vbPanelImageUploadErrorToastSubHeading]?: I18nBaseType;
@@ -659,7 +668,7 @@ export interface I18nVideoCallScreenLabelsInterface {
     username: string;
   }>;
 
-  [deviceDetectionToastHeading]?: I18nBaseType<string>;
+  [deviceDetectionToastHeading]?: I18nDynamicType;
   [deviceDetectionToastSubHeading]?: I18nBaseType<{
     name: string;
     label: string;
@@ -678,6 +687,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [waitingRoomApprovalRequiredToastSubHeading]?: I18nDynamicType;
   [waitingRoomApprovalRequiredPrimaryBtnText]?: I18nBaseType;
   [waitingRoomApprovalRequiredSecondaryBtnText]?: I18nBaseType;
+
+  [waitingRoomApprovalRejectionToastHeading]?: I18nBaseType;
+  [waitingRoomApprovalRejectionToastSubHeading]?: I18nBaseType;
 
   [videoRoomRecordingText]?: I18nBaseType;
   [videoRoomGoToActiveSpeakerText]?: I18nBaseType;
@@ -708,6 +720,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [sttTranscriptPanelSearchText]?: I18nBaseType;
   [sttTranscriptPanelNoSearchResultsFoundText]?: I18nBaseType;
   [sttTranscriptPanelViewLatestText]?: I18nBaseType;
+
+  [videoRoomPeopleCountTooltipHostText]?: I18nBaseType;
+  [videoRoomPeopleCountTooltipAttendeeText]?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -771,7 +786,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemMoreText]: 'More',
 
   [toolbarItemNoiseCancellationText]: 'Noise Cancellation',
-  [toolbarItemVitrualBackgroundText]: 'Virtual Background',
+  [toolbarItemVirtualBackgroundText]: 'Virtual Background',
   [toolbarItemWhiteboardText]: active =>
     active ? 'Hide Whiteboard' : 'Show Whiteboard',
   [toolbarItemCaptionText]: active =>
@@ -1090,6 +1105,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [waitingRoomApprovalRequiredPrimaryBtnText]: 'Admit',
   [waitingRoomApprovalRequiredSecondaryBtnText]: 'Deny',
 
+  [waitingRoomApprovalRejectionToastHeading]: 'Approval Required',
+  [waitingRoomApprovalRejectionToastSubHeading]:
+    'Permission to enter the meeting was denied by the host',
+
   [videoRoomRecordingText]: 'Recording',
   [videoRoomGoToActiveSpeakerText]: 'Go To Active Speaker',
   [videoRoomScreenshareText]: username => `${username}'s screenshare`,
@@ -1131,4 +1150,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [sttTranscriptPanelSearchText]: 'Search',
   [sttTranscriptPanelNoSearchResultsFoundText]: 'No search results found',
   [sttTranscriptPanelViewLatestText]: 'View Latest',
+
+  [videoRoomPeopleCountTooltipHostText]: 'Host',
+  [videoRoomPeopleCountTooltipAttendeeText]: ({eventMode}) =>
+    eventMode ? 'Audience' : 'Attendee',
 };

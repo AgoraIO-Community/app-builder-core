@@ -13,7 +13,7 @@
 import React, {useContext, useEffect} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
-import {useString} from '../../utils/useString';
+import {useString, useStringRef} from '../../utils/useString';
 import {
   ChannelProfile,
   DispatchContext,
@@ -34,6 +34,10 @@ import {EventNames} from '../../rtm-events';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {useContent} from 'customization-api';
 import EventsConfigure from '../EventsConfigure';
+import {
+  waitingRoomApprovalRejectionToastHeading,
+  waitingRoomApprovalRejectionToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export interface PreCallJoinWaitingRoomBtnProps {
   render?: (
@@ -45,6 +49,10 @@ export interface PreCallJoinWaitingRoomBtnProps {
 
 let shouldWaitingRoomPoll = null;
 const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
+  const headinglabel = useStringRef(waitingRoomApprovalRejectionToastHeading);
+  const subheadinglabel = useStringRef(
+    waitingRoomApprovalRejectionToastSubHeading,
+  );
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive, callActive} = usePreCall();
@@ -132,9 +140,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         });
         // inform user that entry was denied by the host
         Toast.show({
-          text1: `Approval Required`,
           leadingIconName: 'info',
-          text2: 'Permission to enter the meeting was denied by the host',
+          text1: headinglabel?.current(),
+          text2: subheadinglabel?.current(),
           visibilityTime: 3000,
           type: 'error',
           primaryBtn: null,

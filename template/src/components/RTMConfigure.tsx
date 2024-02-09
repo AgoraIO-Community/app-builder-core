@@ -495,7 +495,9 @@ const RtmConfigure = (props: any) => {
         waitingRoomStatusRef.current?.waitingRoomStatus !==
           WaitingRoomStatus.APPROVED
       ) {
-        return;
+        //todo: hari/bhupen added important rtm message in the queue and run it later when user join the call
+        evt = data.evt;
+        value = data.value;
       } else {
         evt = data.evt;
         value = data.value;
