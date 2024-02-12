@@ -16,4 +16,11 @@ export type {
   NetworkQualities,
   I18nRequestConfirmation,
   I18nMuteConfirmation,
+  deviceDetectionToastSubHeadingDataInterface,
+  sttSpokenLanguageToastHeadingDataType,
+  whiteboardFileUploadToastDataType,
+  publicChatToastSubHeadingDataInterface,
+  privateChatToastHeadingDataInterface,
+  publicAndPrivateChatToastSubHeadingDataInterface,
 } from '../src/language/default-labels/videoCallScreenLabels';
+export type {TextDataInterface} from '../src/language/default-labels';
