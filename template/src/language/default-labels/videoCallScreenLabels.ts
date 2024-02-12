@@ -1,5 +1,33 @@
 import {I18nBaseType, I18nConditionalType, I18nDynamicType} from '../i18nTypes';
 import {room} from './createScreenLabels';
+
+export interface deviceDetectionToastSubHeadingDataInterface {
+  name: string;
+  label: string;
+}
+
+export type sttSpokenLanguageToastHeadingDataType = 'Set' | 'Changed';
+export interface sttSpokenLanguageToastSubHeadingDataInterface {
+  action: sttSpokenLanguageToastHeadingDataType;
+  newLanguage: string;
+  oldLanguage: string;
+  username: string;
+}
+
+export type whiteboardFileUploadToastDataType = 'File' | 'Image';
+export interface publicChatToastSubHeadingDataInterface {
+  count: number;
+  from: string;
+}
+export interface privateChatToastHeadingDataInterface {
+  count: number;
+}
+
+export interface publicAndPrivateChatToastSubHeadingDataInterface {
+  publicChatCount: number;
+  privateChatCount: number;
+  from: string;
+}
 interface NetworkQualityStatusInterface {
   unknown?: 'Unknown';
   excellent?: 'Excellent';
@@ -128,9 +156,9 @@ export const leavePopupHeading = `leave${room}PopupHeading`;
 export const leavePopupSubHeading = `leave${room}PopupSubHeading`;
 export const leavePopupPrimaryBtnText = `leave${room}PopupPrimaryBtnText`;
 
-export const removeFromRoomPopupHeading = `removeFrom${room}PopupHeading`;
-export const removeFromRoomPopupSubHeading = `removeFrom${room}PopupSubHeading`;
-export const removeFromRoomPopupPrimaryBtnText = `removeFrom${room}PopupPrimaryBtnText`;
+export const removeUserFromRoomPopupHeading = `removeUserFrom${room}PopupHeading`;
+export const removeUserFromRoomPopupSubHeading = `removeUserFrom${room}PopupSubHeading`;
+export const removeUserFromRoomPopupPrimaryBtnText = `removeUserFrom${room}PopupPrimaryBtnText`;
 
 export const removeScreenshareFromRoomPopupHeading = `removeScreenshareFrom${room}PopupHeading`;
 export const removeScreenshareFromRoomPopupSubHeading = `removeScreenshareFrom${room}PopupSubHeading`;
@@ -358,7 +386,8 @@ export const sttSpokenLanguageToastSubHeading = `${stt}SpokenLanguageToastSubHea
 export const deviceDetectionToastHeading = 'deviceDetectionToastHeading';
 export const deviceDetectionToastSubHeading = 'deviceDetectionToastSubHeading';
 export const deviceDetectionPrimaryBtnText = 'deviceDetectionPrimaryBtnText';
-export const deviceDetectionCancelBtnText = 'deviceDetectionCancelBtnText';
+export const deviceDetectionSecondaryBtnText =
+  'deviceDetectionSecondaryBtnText';
 export const deviceDetectionCheckboxText = 'deviceDetectionCheckboxText';
 
 export const hostMutedUserToastHeading = 'hostMutedUserToastHeading';
@@ -494,9 +523,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [leavePopupSubHeading]?: I18nConditionalType;
   [leavePopupPrimaryBtnText]?: I18nBaseType;
 
-  [removeFromRoomPopupHeading]?: I18nDynamicType;
-  [removeFromRoomPopupSubHeading]?: I18nDynamicType;
-  [removeFromRoomPopupPrimaryBtnText]?: I18nBaseType;
+  [removeUserFromRoomPopupHeading]?: I18nDynamicType;
+  [removeUserFromRoomPopupSubHeading]?: I18nDynamicType;
+  [removeUserFromRoomPopupPrimaryBtnText]?: I18nBaseType;
 
   [removeScreenshareFromRoomPopupHeading]?: I18nBaseType;
   [removeScreenshareFromRoomPopupSubHeading]?: I18nDynamicType;
@@ -577,20 +606,13 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [publicChatToastHeading]?: I18nBaseType;
   [multiplePublicChatToastHeading]?: I18nBaseType;
-  [multiplePublicChatToastSubHeading]?: I18nBaseType<{
-    count: number;
-    from: string;
-  }>;
+  [multiplePublicChatToastSubHeading]?: I18nBaseType<publicChatToastSubHeadingDataInterface>;
 
   [privateChatToastHeading]?: I18nBaseType;
-  [multiplePrivateChatToastHeading]?: I18nBaseType<{count: number}>;
+  [multiplePrivateChatToastHeading]?: I18nBaseType<privateChatToastHeadingDataInterface>;
 
   [multiplePublicAndPrivateChatToastHeading]?: I18nBaseType;
-  [multiplePublicAndPrivateChatToastSubHeading]?: I18nBaseType<{
-    publicChatCount: number;
-    privateChatCount: number;
-    from: string;
-  }>;
+  [multiplePublicAndPrivateChatToastSubHeading]?: I18nBaseType<publicAndPrivateChatToastSubHeadingDataInterface>;
 
   [livestreamToastApprovalBtnText]?: I18nBaseType;
   [livestreamToastDenyBtnText]?: I18nBaseType;
@@ -653,28 +675,18 @@ export interface I18nVideoCallScreenLabelsInterface {
   [whiteboardToolboxUploadText]?: I18nBaseType;
   [whiteboardToolboxClearAllText]?: I18nBaseType;
 
-  [whiteboardFileUploadErrorToastHeading]?: I18nBaseType<'File' | 'Image'>;
-  [whiteboardFileUploadInfoToastHeading]?: I18nBaseType<'File' | 'Image'>;
-  [whiteboardFileUploadTypeErrorToastHeading]?: I18nBaseType<'File' | 'Image'>;
-  [whiteboardFileUploadTypeErrorToastSubHeading]?: I18nBaseType<
-    'File' | 'Image'
-  >;
+  [whiteboardFileUploadErrorToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
+  [whiteboardFileUploadInfoToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
+  [whiteboardFileUploadTypeErrorToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
+  [whiteboardFileUploadTypeErrorToastSubHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
 
-  [sttSpokenLanguageToastHeading]?: I18nBaseType<'Set' | 'Changed'>;
-  [sttSpokenLanguageToastSubHeading]?: I18nBaseType<{
-    action: 'Set' | 'Changed';
-    newLanguage: string;
-    oldLanguage: string;
-    username: string;
-  }>;
+  [sttSpokenLanguageToastHeading]?: I18nBaseType<sttSpokenLanguageToastHeadingDataType>;
+  [sttSpokenLanguageToastSubHeading]?: I18nBaseType<sttSpokenLanguageToastSubHeadingDataInterface>;
 
   [deviceDetectionToastHeading]?: I18nDynamicType;
-  [deviceDetectionToastSubHeading]?: I18nBaseType<{
-    name: string;
-    label: string;
-  }>;
+  [deviceDetectionToastSubHeading]?: I18nBaseType<deviceDetectionToastSubHeadingDataInterface>;
   [deviceDetectionPrimaryBtnText]?: I18nBaseType;
-  [deviceDetectionCancelBtnText]?: I18nBaseType;
+  [deviceDetectionSecondaryBtnText]?: I18nBaseType;
   [deviceDetectionCheckboxText]?: I18nBaseType;
 
   [hostMutedUserToastHeading]?: I18nBaseType<I18nMuteType>;
@@ -863,10 +875,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
       : 'Are you sure you want to leave this meeting?',
   [leavePopupPrimaryBtnText]: 'LEAVE',
 
-  [removeFromRoomPopupHeading]: name => `Remove ${name}?`,
-  [removeFromRoomPopupSubHeading]: name =>
+  [removeUserFromRoomPopupHeading]: name => `Remove ${name}?`,
+  [removeUserFromRoomPopupSubHeading]: name =>
     `Once removed, ${name} will still be able to rejoin the room later.`,
-  [removeFromRoomPopupPrimaryBtnText]: 'REMOVE',
+  [removeUserFromRoomPopupPrimaryBtnText]: 'REMOVE',
 
   [removeScreenshareFromRoomPopupHeading]: 'Remove Screenshare?',
   [removeScreenshareFromRoomPopupSubHeading]: name =>
@@ -1084,7 +1096,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [deviceDetectionToastSubHeading]: ({name, label}) =>
     `New ${name} named ${label} detected. Do you want to switch?`,
   [deviceDetectionPrimaryBtnText]: 'SWITCH DEVICE',
-  [deviceDetectionCancelBtnText]: 'IGNORE',
+  [deviceDetectionSecondaryBtnText]: 'IGNORE',
   [deviceDetectionCheckboxText]: 'Remember my choice',
 
   [hostMutedUserToastHeading]: type =>

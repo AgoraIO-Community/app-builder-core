@@ -8,9 +8,9 @@ import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
 import {useString} from '../utils/useString';
 import {
-  removeFromRoomPopupHeading,
-  removeFromRoomPopupPrimaryBtnText,
-  removeFromRoomPopupSubHeading,
+  removeUserFromRoomPopupHeading,
+  removeUserFromRoomPopupPrimaryBtnText,
+  removeUserFromRoomPopupSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../language/default-labels/commonLabels';
 
@@ -22,11 +22,13 @@ interface RemoveMeetingPopupProps {
 }
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const removeMeetingLabelHeading = useString(removeFromRoomPopupHeading);
-  const removeMeetingLabelSubHeading = useString(removeFromRoomPopupSubHeading);
+  const removeMeetingLabelHeading = useString(removeUserFromRoomPopupHeading);
+  const removeMeetingLabelSubHeading = useString(
+    removeUserFromRoomPopupSubHeading,
+  );
 
   const cancelBtnLabel = useString(cancelText)();
-  const removeBtnLabel = useString(removeFromRoomPopupPrimaryBtnText)();
+  const removeBtnLabel = useString(removeUserFromRoomPopupPrimaryBtnText)();
   return (
     <Popup
       modalVisible={props.modalVisible}

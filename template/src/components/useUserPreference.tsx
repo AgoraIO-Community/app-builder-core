@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
   DispatchContext,
   ContentInterface,
@@ -22,13 +22,15 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
-import {useRtc} from 'customization-api';
+import {filterObject, useContent, useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
 import {
   PSTNUserLabel,
   videoRoomScreenshareText,
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {useLanguage} from '../language/useLanguage';
+import {useScreenContext} from '../components/contexts/ScreenShareContext';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -63,6 +65,36 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
   const [updateUserName] = useMutation(UPDATE_USER_NAME_MUTATION);
+
+  const {languageCode} = useLanguage();
+  const {screenShareData} = useScreenContext();
+  const {defaultContent} = useContent();
+  const screenShareDataRef = useRef({screenShareData});
+  useEffect(() => {
+    screenShareDataRef.current.screenShareData = screenShareData;
+  }, [screenShareData]);
+
+  useEffect(() => {
+    try {
+      if (languageCode) {
+        Object.keys(screenShareDataRef.current.screenShareData).map(i => {
+          let screenShareUidToUpdate = parseInt(i);
+          const users = filterObject(
+            defaultContent,
+            ([k, v]) => v?.screenUid === screenShareUidToUpdate,
+          );
+          const keys = Object.keys(users);
+          if (users && keys && keys?.length) {
+            updateRenderListState(screenShareUidToUpdate, {
+              name: getScreenShareName(
+                users[parseInt(keys[0])]?.name || userText,
+              ),
+            });
+          }
+        });
+      }
+    } catch (error) {}
+  }, [languageCode, screenShareData]);
 
   const saveName = (name: string) => {
     if (name && name?.trim() !== '') {

@@ -35,7 +35,7 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {useString} from '../utils/useString';
 import {
-  deviceDetectionCancelBtnText,
+  deviceDetectionSecondaryBtnText,
   deviceDetectionCheckboxText,
   deviceDetectionPrimaryBtnText,
   deviceDetectionToastHeading,
@@ -67,7 +67,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     deviceDetectionToastSubHeading,
   );
   const toastPrimaryBtnText = useString(deviceDetectionPrimaryBtnText)();
-  const toastCancelBtnText = useString(deviceDetectionCancelBtnText)();
+  const toastCancelBtnText = useString(deviceDetectionSecondaryBtnText)();
   const toastCheckboxBtnText = useString(deviceDetectionCheckboxText)();
 
   const micSelectInProgress = useRef(false);
