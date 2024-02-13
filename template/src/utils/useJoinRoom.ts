@@ -14,12 +14,14 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
       title
       isHost
       secret
+      chat {
+        chat_group_id
+        chat_user_token
+      }
       mainUser {
         rtc
         rtm
         uid
-        chat_user_token
-        chat_user_pwd
       }
       whiteboard {
         room_uuid
@@ -45,12 +47,14 @@ const JOIN_CHANNEL_PHRASE = gql`
       title
       isHost
       secret
+      chat {
+        chat_group_id
+        chat_user_token
+      }
       mainUser {
         rtc
         rtm
         uid
-        chat_user_token
-        chat_user_pwd
       }
       whiteboard {
         room_uuid
@@ -161,12 +165,20 @@ export default function useJoinRoom() {
           }
 
           if (
-            data?.joinChannel?.mainUser?.chat_user_token ||
-            data?.mainUser?.chat_user_token
+            data?.joinChannel?.chat?.chat_user_token ||
+            data?.chat.chat_user_token
           ) {
             roomInfo.chatUserToken = isWaitingRoomEnabled
-              ? data.mainUser.chat_user_token
-              : data.joinChannel.mainUser.chat_user_token;
+              ? data?.chat?.chat_user_token
+              : data.joinChannel.chat.chat_user_token;
+          }
+          if (
+            data?.joinChannel?.chat?.chat_group_id ||
+            data?.chat.chat_group_id
+          ) {
+            roomInfo.chatGroupID = isWaitingRoomEnabled
+              ? data?.chat?.chat_group_id
+              : data.joinChannel.chat.chat_group_id;
           }
 
           roomInfo.isHost = isWaitingRoomEnabled

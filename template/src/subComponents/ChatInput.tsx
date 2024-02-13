@@ -27,13 +27,14 @@ import ThemeConfig from '../theme';
 import EmojiPicker from 'emoji-picker-react';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 import {useChatConfigure} from '../components/chat/chatConfigure';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 export const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {sendChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
   const {
     privateChatUser: selectedUserId,
     message,
@@ -44,7 +45,8 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   const onPress = () => {
     if (!selectedUserId) {
       //TODO send chatSDK group chat msg
-      sendChatMessage(message);
+      // sendChatMessage(message);
+      sendGroupChatSDKMessage(message);
       setMessage && setMessage('');
     } else {
       //  sendChatMessage(message, selectedUserId);
@@ -64,9 +66,20 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
             ? $config.PRIMARY_ACTION_BRAND_COLOR
             : $config.SEMANTIC_NEUTRAL
         }
-        name={'send'}
+        name={'chat_send'}
       />
     </TouchableOpacity>
+  );
+};
+
+const ChatPanel = () => {
+  return (
+    <View style={style.chatPanelContainer}>
+      <View style={style.chatPanel}>
+        <ChatEmojiButton />
+      </View>
+      <ChatSendButton />
+    </View>
   );
 };
 export interface ChatTextInputProps {
@@ -83,23 +96,25 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     useChatUIControls();
   const {sendChatMessage} = useChatMessages();
   const {defaultContent} = useContent();
-  const {sendChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
 
-  const chatMessageInputPlaceholder =
-    chatType === ChatType.Private
-      ? `Private Message to ${defaultContent[privateChatUser]?.name}`
-      : `Chat publicly as ${name}...`;
+  // const chatMessageInputPlaceholder =
+  //   chatType === ChatType.Private
+  //     ? `Private Message to ${defaultContent[privateChatUser]?.name}`
+  //     : `Chat publicly as ${name}...`;
+  const chatMessageInputPlaceholder = 'Type Message Here';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!privateChatUser) {
       // group msg
       //TODO send chatSdk group msg
-      sendChatMessage(message);
+      //sendChatMessage(message);
+      sendGroupChatSDKMessage(message);
       setMessage('');
     } else {
       //  sendChatMessage(message, privateChatUser);
@@ -131,27 +146,30 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}
+      numberOfLines={3}
       onChangeText={onChangeText}
       style={{
-        minHeight: 56,
-        borderRadius: 0,
-        borderBottomLeftRadius: 12,
-        borderWidth: 0,
+        minHeight: 48,
+        maxHeight: 92,
+        width: 318,
+        borderRadius: 8,
+        borderWidth: 1,
         color: $config.FONT_COLOR,
         textAlign: 'left',
-        paddingVertical: 21,
-        paddingLeft: 20,
-        flex: 1,
+        padding: 12,
+        paddingRight: 0,
+        fontSize: ThemeConfig.FontSize.small,
+        lineHeight: 17,
         alignSelf: 'center',
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
+        borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
+        backgroundColor: $config.CARD_LAYER_2_COLOR,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
       placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={
-        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-      }
+      placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
       autoCorrect={false}
     />
   );
@@ -168,14 +186,13 @@ export const ChatInput = () => {
         {flex: 1},
         showEmojiPicker
           ? {backgroundColor: 'transparent'}
-          : {backgroundColor: $config.CARD_LAYER_2_COLOR},
-        inputActive ? style.inputActiveView : {},
+          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
+        // inputActive ? style.inputActiveView : {},
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
         <ChatTextInput />
-        <ChatEmojiButton />
-        <ChatSendButton />
+        <ChatPanel />
       </View>
     </View>
   );
@@ -188,10 +205,10 @@ const style = StyleSheet.create({
   },
   inputView: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     borderTopWidth: 1,
     borderTopColor: 'transparent',
-    alignItems: 'center',
+    paddingHorizontal: 12,
   },
   chatInputButton: {
     flex: 0.1,
@@ -201,6 +218,16 @@ const style = StyleSheet.create({
   },
   emojiPicker: {
     width: '100%',
+  },
+  chatPanelContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+  },
+  chatPanel: {
+    flexDirection: 'row',
   },
 });
 export default ChatInput;

@@ -52,6 +52,7 @@ interface ChatMessagesInterface {
     body: messageInterface,
     local: boolean,
   ) => void;
+  addMessageToStore: (uid: UidType, body: messageInterface) => void;
   showMessageNotification: (
     msg: string,
     uid: string,
@@ -63,6 +64,7 @@ interface ChatMessagesInterface {
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   messageStore: [],
   privateMessageStore: {},
+  addMessageToStore: () => {},
   addMessageToPrivateStore: () => {},
   showMessageNotification: () => {},
   openPrivateChat: () => {},
@@ -195,15 +197,23 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
     isPrivateMessage: boolean = false,
     forceStop: boolean = false,
   ) => {
-    // update notification count
-    if (!(individualActiveRef.current === Number(uid))) {
-      setUnreadIndividualMessageCount(prevState => {
-        const prevCount = prevState && prevState[uid] ? prevState[uid] : 0;
-        return {
-          ...prevState,
-          [uid]: prevCount + 1,
-        };
-      });
+    if (isPrivateMessage) {
+      // update notification count
+      if (!(individualActiveRef.current === Number(uid))) {
+        setUnreadIndividualMessageCount(prevState => {
+          const prevCount = prevState && prevState[uid] ? prevState[uid] : 0;
+          return {
+            ...prevState,
+            [uid]: prevCount + 1,
+          };
+        });
+      }
+    } else {
+      if (!groupActiveRef.current) {
+        setUnreadGroupMessageCount(prevState => {
+          return prevState + 1;
+        });
+      }
     }
 
     //don't show group message notification if group chat is open
@@ -371,6 +381,7 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
       value={{
         messageStore,
         privateMessageStore,
+        addMessageToStore,
         addMessageToPrivateStore,
         showMessageNotification,
         openPrivateChat,
