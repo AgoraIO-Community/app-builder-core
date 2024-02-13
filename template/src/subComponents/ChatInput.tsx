@@ -123,6 +123,14 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       setMessage('');
     }
   };
+
+  // with multiline textinput enter prints /n
+  const handleKeyPress = ({nativeEvent}) => {
+    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
+      onSubmitEditing();
+      nativeEvent.preventDefault();
+    }
+  };
   const {setInputActive} = useChatUIControls();
 
   useEffect(() => {
@@ -146,10 +154,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}
-      numberOfLines={3}
+      multiline={true}
       onChangeText={onChangeText}
       style={{
-        minHeight: 48,
+        height: 48,
         maxHeight: 92,
         width: 318,
         borderRadius: 8,
@@ -171,6 +179,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       placeholder={chatMessageInputPlaceholder}
       placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
       autoCorrect={false}
+      onKeyPress={handleKeyPress}
     />
   );
 };

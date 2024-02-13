@@ -109,7 +109,9 @@ interface ConfigInterface {
   ENABLE_WAITING_ROOM: boolean;
   WHITEBOARD_APPIDENTIFIER: string;
   WHITEBOARD_REGION: string;
-  CHAT_APP_KEY: string;
+  CHAT_ORG_NAME: string;
+  CHAT_APP_NAME: string;
+  CHAT_URL: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

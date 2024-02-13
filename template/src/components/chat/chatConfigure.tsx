@@ -50,9 +50,10 @@ const ChatConfigure = ({children}) => {
   useEffect(() => {
     const initializeChatSDK = async () => {
       try {
+        const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
         // Initializes the Web client.
         const newConn = new AgoraChat.connection({
-          appKey: $config.CHAT_APP_KEY,
+          appKey: CHAT_APP_KEY,
         });
 
         const createGroup = () => {
