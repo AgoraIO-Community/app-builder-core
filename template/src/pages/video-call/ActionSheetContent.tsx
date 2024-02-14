@@ -541,16 +541,16 @@ const ActionSheetContent = props => {
       order: 8,
       hide: 'no',
       align: 'start',
-      component: <LayoutIcon />,
+      component:
+        !isAudioRoom &&
+        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
     },
     {
       default: true,
       order: 9,
       hide: 'no',
       align: 'start',
-      component:
-        !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
+      component: <LayoutIcon />,
     },
     {
       default: true,
