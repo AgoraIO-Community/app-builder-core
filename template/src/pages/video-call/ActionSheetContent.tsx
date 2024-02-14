@@ -45,7 +45,10 @@ import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
 import VBButton from '../../components/virtual-background/VBButton';
 import {useVB} from '../../components/virtual-background/useVB';
 import {useString} from '../../utils/useString';
-import {sttSpokenLanguageToastSubHeading} from '../../language/default-labels/videoCallScreenLabels';
+import {
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -296,9 +299,7 @@ const ToastIcon = ({color}) => (
 );
 
 const ActionSheetContent = props => {
-  const heading = useString<'Set' | 'Changed'>(
-    sttSpokenLanguageToastSubHeading,
-  );
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
   const subheading = useString<{
     action: 'Set' | 'Changed';
     newLanguage: string;
