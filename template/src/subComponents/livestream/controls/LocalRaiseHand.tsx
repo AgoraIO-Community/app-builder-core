@@ -68,6 +68,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
       }
     },
   };
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (isOnActionSheet) {
     // iconButtonProps.containerStyle = {
     //   backgroundColor: $config.CARD_LAYER_2_COLOR,

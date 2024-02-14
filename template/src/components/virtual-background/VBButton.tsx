@@ -6,6 +6,7 @@ import {useToolbarMenu} from '../../utils/useMenu';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useActionSheet} from '../../utils/useActionSheet';
 import {useString} from '../../utils/useString';
+import {toolbarItemVirtualBackgroundText} from '../../language/default-labels/videoCallScreenLabels';
 
 interface VBButtonProps {
   isVBOpen: boolean;
@@ -18,7 +19,7 @@ const VBButton = (props: VBButtonProps) => {
   const {isVBOpen, setIsVBOpen, showLabel = false} = props;
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet} = useActionSheet();
-  const vbLabel = useString('toolbarItemVirtualBackgroundText')();
+  const vbLabel = useString(toolbarItemVirtualBackgroundText)();
 
   const onPress = () => {
     setIsVBOpen(prev => !prev);
