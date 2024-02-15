@@ -28,54 +28,56 @@ import EmojiPicker from 'emoji-picker-react';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 import {useChatConfigure} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {ChatAttachmentButton} from './chat/ChatAttachment';
+import ChatSendButton from './chat/ChatSendButton';
 
-export interface ChatSendButtonProps {
-  render?: (onPress: () => void) => JSX.Element;
-}
+// export interface ChatSendButtonProps {
+//   render?: (onPress: () => void) => JSX.Element;
+// }
 
-export const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
-  const {
-    privateChatUser: selectedUserId,
-    message,
-    setMessage,
-    inputActive,
-  } = useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
-  const onPress = () => {
-    if (!selectedUserId) {
-      //TODO send chatSDK group chat msg
-      // sendChatMessage(message);
-      sendGroupChatSDKMessage(message);
-      setMessage && setMessage('');
-    } else {
-      //  sendChatMessage(message, selectedUserId);
-      //send chatSDK peer msg
-      sendChatSDKMessage(selectedUserId, message);
-      setMessage && setMessage('');
-    }
-  };
-  return props?.render ? (
-    props.render(onPress)
-  ) : (
-    <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
-      <ImageIcon
-        iconType="plain"
-        tintColor={
-          inputActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NEUTRAL
-        }
-        name={'chat_send'}
-      />
-    </TouchableOpacity>
-  );
-};
+// export const ChatSendButton = (props: ChatSendButtonProps) => {
+//   const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+//   const {
+//     privateChatUser: selectedUserId,
+//     message,
+//     setMessage,
+//     inputActive,
+//   } = useChatUIControls();
+//   const {sendChatMessage} = useChatMessages();
+//   const onPress = () => {
+//     if (!selectedUserId) {
+//       // sendChatMessage(message);
+//       sendGroupChatSDKMessage(message);
+//       setMessage && setMessage('');
+//     } else {
+//       //  sendChatMessage(message, selectedUserId);
+//       //send chatSDK peer msg
+//       sendChatSDKMessage(selectedUserId, message);
+//       setMessage && setMessage('');
+//     }
+//   };
+//   return props?.render ? (
+//     props.render(onPress)
+//   ) : (
+//     <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
+//       <ImageIcon
+//         iconType="plain"
+//         tintColor={
+//           inputActive
+//             ? $config.PRIMARY_ACTION_BRAND_COLOR
+//             : $config.SEMANTIC_NEUTRAL
+//         }
+//         name={'chat_send'}
+//       />
+//     </TouchableOpacity>
+//   );
+// };
 
 const ChatPanel = () => {
   return (
     <View style={style.chatPanelContainer}>
       <View style={style.chatPanel}>
+        <ChatAttachmentButton />
         <ChatEmojiButton />
       </View>
       <ChatSendButton />

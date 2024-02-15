@@ -75,15 +75,35 @@ export const ChatEmojiPicker: React.FC = () => {
   );
 };
 
-export const ChatEmojiButton: React.FC = () => {
-  const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
-  const handleEmojiButtonClick = () => {
+export interface ChatEmojiButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
+  const {setShowEmojiPicker} = useChatUIControls();
+  const onPress = () => {
     setShowEmojiPicker(true);
   };
-  return (
-    <TouchableOpacity onPress={handleEmojiButtonClick}>
-      <Text style={{fontSize: 20}}>😀</Text>
-    </TouchableOpacity>
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <IconButton
+      hoverEffect={true}
+      hoverEffectStyle={{
+        backgroundColor: $config.ICON_BG_COLOR,
+        borderRadius: 24,
+      }}
+      iconProps={{
+        iconType: 'plain',
+        iconContainerStyle: {
+          padding: 4,
+        },
+        iconSize: 24,
+        name: 'chat_emoji',
+        tintColor: $config.SECONDARY_ACTION_COLOR,
+      }}
+      onPress={onPress}
+    />
   );
 };
 
