@@ -62,8 +62,13 @@ const CaptionIcon = (props: CaptionIconProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
-      text: showLabel ? label : '',
+      text: showLabel
+        ? isOnActionSheet
+          ? label?.replace(' ', '\n')
+          : label
+        : '',
       textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;

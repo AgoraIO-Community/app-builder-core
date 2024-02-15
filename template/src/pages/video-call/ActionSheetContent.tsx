@@ -201,42 +201,13 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
     (isHost || (!isHost && isSTTActive))
   );
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <CaptionIcon
-          isOnActionSheet={true}
-          showLabel={false}
-          closeActionSheet={onPress}
-        />
-      </View>
-      {showLabel && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-              },
-            ]}>
-            {isCaptionON ? 'Hide' : 'Show'}
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Caption
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem>
+      <CaptionIcon
+        isOnActionSheet={true}
+        showLabel={true}
+        closeActionSheet={onPress}
+      />
+    </ToolbarItem>
   );
 };
 
@@ -257,38 +228,9 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
     (isHost || (!isHost && isSTTActive))
   );
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
-      </View>
-      {showLabel && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-              },
-            ]}>
-            {isTranscriptON ? 'Hide' : 'Show'}
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Transcript
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem>
+      <TranscriptIcon isOnActionSheet={true} showLabel={true} />
+    </ToolbarItem>
   );
 };
 

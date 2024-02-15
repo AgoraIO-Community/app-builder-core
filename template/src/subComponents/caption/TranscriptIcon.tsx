@@ -68,8 +68,13 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     },
     disabled: isDisabled,
     btnTextProps: {
-      text: showLabel ? label(isTranscriptON) : '',
+      text: showLabel
+        ? isOnActionSheet
+          ? label(isTranscriptON)?.replace(' ', '\n')
+          : label(isTranscriptON)
+        : '',
       textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
