@@ -464,7 +464,7 @@ export const ParticipantToolbarItem = () => {
 
 export const ChatToolbarItem = () => {
   return (
-    $config.CHAT && (
+    $config.ENABLE_CHAT && (
       <>
         <ToolbarItem testID="videocall-chaticon">
           <ChatIconButton />

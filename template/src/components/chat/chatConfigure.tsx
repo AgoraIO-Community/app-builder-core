@@ -6,6 +6,7 @@ import {useRoomInfo} from '../room-info/useRoomInfo';
 import {useContent} from 'customization-api';
 import {useSDKChatMessages} from './useSDKChatMessages';
 import {timeNow} from '../../rtm/utils';
+import StorageContext from '../StorageContext';
 
 // AppKey:
 // 41754367#1042822
@@ -24,6 +25,7 @@ interface chatConfigureContextInterface {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   sendChatSDKMessage: (toUid: number, message: string) => void;
   sendGroupChatSDKMessage: (message: string) => void;
+  deleteChatUser: () => void;
 }
 
 export const chatConfigureContext =
@@ -32,6 +34,7 @@ export const chatConfigureContext =
     setOpen: () => {},
     sendChatSDKMessage: () => {},
     sendGroupChatSDKMessage: () => {},
+    deleteChatUser: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -42,6 +45,7 @@ const ChatConfigure = ({children}) => {
   const defaultContentRef = React.useRef(defaultContent);
   const {addMessageToPrivateStore, showMessageNotification, addMessageToStore} =
     useSDKChatMessages();
+  const {store} = React.useContext(StorageContext);
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -256,11 +260,33 @@ const ChatConfigure = ({children}) => {
     }
   };
 
-  const deleteChatUser = () => {};
+  const deleteChatUser = async () => {
+    const groupID = data.chat.group_id;
+    const userID = data.uid;
+    const isChatGroupOwner = data.chat.is_group_owner;
+    const response = await fetch(
+      `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+        },
+      },
+    );
+    const res = await response.json();
+    return res;
+  };
 
   return (
     <chatConfigureContext.Provider
-      value={{open, setOpen, sendChatSDKMessage, sendGroupChatSDKMessage}}>
+      value={{
+        open,
+        setOpen,
+        sendChatSDKMessage,
+        sendGroupChatSDKMessage,
+        deleteChatUser,
+      }}>
       {children}
     </chatConfigureContext.Provider>
   );

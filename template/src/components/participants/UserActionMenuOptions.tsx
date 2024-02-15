@@ -180,7 +180,7 @@ export default function UserActionMenuOptionsOptions(
       /**
        * Chat menu
        */
-      if ($config.CHAT) {
+      if ($config.ENABLE_CHAT) {
         items.push({
           icon: 'chat-outlined',
           onHoverIcon: 'chat-filled',
