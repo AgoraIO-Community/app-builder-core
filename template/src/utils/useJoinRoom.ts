@@ -15,8 +15,9 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
       isHost
       secret
       chat {
-        chat_group_id
-        chat_user_token
+        groupId
+        userToken
+        isGroupOwner
       }
       mainUser {
         rtc
@@ -48,8 +49,9 @@ const JOIN_CHANNEL_PHRASE = gql`
       isHost
       secret
       chat {
-        chat_group_id
-        chat_user_token
+        groupId
+        userToken
+        isGroupOwner
       }
       mainUser {
         rtc
@@ -154,31 +156,20 @@ export default function useJoinRoom() {
               ? data.mainUser.rtm
               : data.joinChannel.mainUser.rtm;
           }
+          if (data?.joinChannel?.chat || data?.chat) {
+            const chat: RoomInfoContextInterface['data']['chat'] = {
+              user_token: isWaitingRoomEnabled
+                ? data.chat.userToken
+                : data?.joinChannel?.chat?.userToken,
+              group_id: isWaitingRoomEnabled
+                ? data.chat.groupId
+                : data?.joinChannel?.chat?.groupId,
+              is_group_owner: isWaitingRoomEnabled
+                ? data.chat.isGroupOwner
+                : data?.joinChannel?.chat?.isGroupOwner,
+            };
 
-          if (
-            data?.joinChannel?.mainUser?.chat_user_pwd ||
-            data?.mainUser?.chat_user_pwd
-          ) {
-            roomInfo.chatUserPwd = isWaitingRoomEnabled
-              ? data.mainUser.chat_user_pwd
-              : data.joinChannel.mainUser.chat_user_pwd;
-          }
-
-          if (
-            data?.joinChannel?.chat?.chat_user_token ||
-            data?.chat.chat_user_token
-          ) {
-            roomInfo.chatUserToken = isWaitingRoomEnabled
-              ? data?.chat?.chat_user_token
-              : data.joinChannel.chat.chat_user_token;
-          }
-          if (
-            data?.joinChannel?.chat?.chat_group_id ||
-            data?.chat.chat_group_id
-          ) {
-            roomInfo.chatGroupID = isWaitingRoomEnabled
-              ? data?.chat?.chat_group_id
-              : data.joinChannel.chat.chat_group_id;
+            roomInfo.chat = chat;
           }
 
           roomInfo.isHost = isWaitingRoomEnabled

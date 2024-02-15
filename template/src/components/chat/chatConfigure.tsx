@@ -89,7 +89,7 @@ const ChatConfigure = ({children}) => {
         newConn.open({
           user: data.uid.toString(),
           // pwd: data.chatUserPwd,
-          agoraToken: data.chatUserToken,
+          agoraToken: data.chat.user_token,
           success: e => {
             console.log('%cChatSDK: User is logged in', 'color: blue');
           },
@@ -214,7 +214,7 @@ const ChatConfigure = ({children}) => {
   };
 
   const sendGroupChatSDKMessage = (message: string) => {
-    const groupID = data.chatGroupID;
+    const groupID = data.chat.group_id;
     if (message.length === 0) return;
     if (connRef.current) {
       const option = {
@@ -255,6 +255,8 @@ const ChatConfigure = ({children}) => {
         });
     }
   };
+
+  const deleteChatUser = () => {};
 
   return (
     <chatConfigureContext.Provider

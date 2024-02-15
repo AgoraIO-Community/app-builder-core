@@ -38,6 +38,11 @@ export interface RoomInfoContextInterface {
       room_uuid: string;
       room_token: string;
     };
+    chat?: {
+      user_token: string;
+      group_id: string;
+      is_group_owner: boolean;
+    };
     isSeparateHostLink: boolean;
     channel?: string;
     uid?: UidType;
@@ -46,9 +51,6 @@ export interface RoomInfoContextInterface {
     encryptionSecret?: string;
     screenShareUid?: string;
     screenShareToken?: string;
-    chatUserPwd?: string;
-    chatUserToken?: string;
-    chatGroupID?: string;
   };
   isInWaitingRoom?: boolean;
   waitingRoomStatus?: WaitingRoomStatus;
