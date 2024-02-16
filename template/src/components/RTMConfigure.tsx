@@ -46,6 +46,7 @@ import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
 import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
+import {controlMessageEnum} from '../components/ChatContext';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -495,9 +496,15 @@ const RtmConfigure = (props: any) => {
         waitingRoomStatusRef.current?.waitingRoomStatus !==
           WaitingRoomStatus.APPROVED
       ) {
-        //todo: hari/bhupen added important rtm message in the queue and run it later when user join the call
-        evt = data.evt;
-        value = data.value;
+        if (
+          data.evt === controlMessageEnum.muteAudio ||
+          data.evt === controlMessageEnum.muteVideo
+        ) {
+          return;
+        } else {
+          evt = data.evt;
+          value = data.value;
+        }
       } else {
         evt = data.evt;
         value = data.value;
