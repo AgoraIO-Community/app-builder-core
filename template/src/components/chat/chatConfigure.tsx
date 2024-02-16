@@ -20,11 +20,35 @@ import StorageContext from '../StorageContext';
 // REST API:
 // a41.chat.agora.io
 
+export interface FileObj {
+  url: string;
+  filename: string;
+  filetype: string;
+  data: File;
+}
+export enum ChatMessageType {
+  Img = 'img',
+  Txt = 'txt',
+  File = 'file',
+}
+
+interface ChatOption {
+  chatType: string;
+  type: ChatMessageType;
+  from: string;
+  to: string;
+  msg?: string;
+  file?: object;
+  ext?: {file_length: number};
+  onFileUploadError?: () => void;
+  onFileUploadProgress?: (e: ProgressEvent) => void;
+  onFileUploadComplete?: () => void;
+}
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  sendChatSDKMessage: (toUid: number, message: string) => void;
-  sendGroupChatSDKMessage: (message: string) => void;
+  sendChatSDKMessage: (option: ChatOption) => void;
+  sendGroupChatSDKMessage: (option: ChatOption) => void;
   deleteChatUser: () => void;
 }
 
@@ -112,9 +136,52 @@ const ChatConfigure = ({children}) => {
             // group will be created at server for a channel
             //createGroup();
           },
+
+          onFileMessage: message => {
+            debugger;
+          },
+          onImageMessage: message => {
+            if (message.chatType === 'groupChat') {
+              showMessageNotification(
+                'You got group image msg',
+                message.from,
+                false,
+              );
+              addMessageToStore(Number(message.from), {
+                msg: '',
+                createdTimestamp: message.time,
+                msgId: message.id,
+                isDeleted: false,
+                type: ChatMessageType.Img,
+                thumb: message.thumb,
+                url: message.url,
+              });
+            }
+            if (message.chatType === 'singleChat') {
+              // show to notifcation- privat msg received
+              showMessageNotification(
+                'You got private image msg',
+                message.from,
+                true,
+              );
+              // this is remote user messages
+              addMessageToPrivateStore(
+                Number(message.from),
+                {
+                  msg: '',
+                  createdTimestamp: message.time,
+                  msgId: message.id,
+                  isDeleted: false,
+                  type: ChatMessageType.Img,
+                  thumb: message.thumb,
+                  url: message.url,
+                },
+                false,
+              );
+            }
+          },
           // text message is recieved
           onTextMessage: message => {
-            //  debugger;
             console.log(
               '%cChatSDK: received msg: %s. from: %s',
               'color: blue',
@@ -130,6 +197,7 @@ const ChatConfigure = ({children}) => {
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
+                type: ChatMessageType.Txt,
               });
             }
 
@@ -144,6 +212,7 @@ const ChatConfigure = ({children}) => {
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
+                  type: ChatMessageType.Txt,
                 },
                 false,
               );
@@ -174,17 +243,8 @@ const ChatConfigure = ({children}) => {
     initializeChatSDK();
   }, []);
 
-  const sendChatSDKMessage = (toUid: number, message: string) => {
-    if (message.length === 0) return;
+  const sendChatSDKMessage = (option: ChatOption) => {
     if (connRef.current) {
-      const option = {
-        chatType: 'singleChat',
-        type: 'txt',
-        from: data.uid.toString(),
-        to: toUid.toString(),
-        msg: message,
-      };
-
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
@@ -198,14 +258,14 @@ const ChatConfigure = ({children}) => {
           // update local messagre store
           // debugger;
           const messageData = {
-            msg: message,
+            msg: option.msg,
             createdTimestamp: timeNow(),
             msgId: msg.id,
             isDeleted: false,
+            type: ChatMessageType.Txt,
           };
-
           // this is local user messages
-          addMessageToPrivateStore(toUid, messageData, true);
+          addMessageToPrivateStore(Number(option.to), messageData, true);
         })
         .catch(error => {
           console.log(
@@ -217,18 +277,8 @@ const ChatConfigure = ({children}) => {
     }
   };
 
-  const sendGroupChatSDKMessage = (message: string) => {
-    const groupID = data.chat.group_id;
-    if (message.length === 0) return;
+  const sendGroupChatSDKMessage = (option: ChatOption) => {
     if (connRef.current) {
-      const option = {
-        chatType: 'groupChat',
-        type: 'txt',
-        from: data.uid.toString(),
-        to: groupID,
-        msg: message,
-      };
-
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
@@ -241,14 +291,14 @@ const ChatConfigure = ({children}) => {
           );
           // update local messagre store
           const messageData = {
-            msg: message,
+            msg: option.msg,
             createdTimestamp: timeNow(),
             msgId: msg.id,
             isDeleted: false,
+            type: ChatMessageType.Txt,
           };
           // this is group msg
-          //  addMessageToPrivateStore(toUid, messageData, true);
-          addMessageToStore(Number(msg.from), messageData);
+          addMessageToStore(Number(option.from), messageData);
         })
         .catch(error => {
           console.log(
@@ -264,6 +314,10 @@ const ChatConfigure = ({children}) => {
     const groupID = data.chat.group_id;
     const userID = data.uid;
     const isChatGroupOwner = data.chat.is_group_owner;
+    // owner exit user > 1 , dont call delete
+    // ower exit user = 1, delete ,
+    // member exit user > 1 delete ,
+    // member exit user = 1 , owner needs to be deleted
     const response = await fetch(
       `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
       {

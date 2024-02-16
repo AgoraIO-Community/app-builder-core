@@ -7,6 +7,7 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {useChatMessages} from '../../components/chat-messages/useChatMessages';
+import {useRoomInfo} from 'customization-api';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -21,16 +22,35 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     inputActive,
   } = useChatUIControls();
   const {sendChatMessage} = useChatMessages();
+
+  const {data} = useRoomInfo();
+
   const onPress = () => {
+    if (message.length === 0) return;
+    const groupID = data.chat.group_id;
     if (!selectedUserId) {
       // sendChatMessage(message); for native
       //  send group msg
-      sendGroupChatSDKMessage(message);
+      const option = {
+        chatType: 'groupChat',
+        type: 'txt',
+        from: data.uid.toString(),
+        to: groupID,
+        msg: message,
+      };
+      sendGroupChatSDKMessage(option);
       setMessage && setMessage('');
     } else {
       //  sendChatMessage(message, selectedUserId); for native
       //send  peer msg
-      sendChatSDKMessage(selectedUserId, message);
+      const option = {
+        chatType: 'singleChat',
+        type: 'txt',
+        from: data.uid.toString(),
+        to: selectedUserId.toString(),
+        msg: message,
+      };
+      sendChatSDKMessage(option);
       setMessage && setMessage('');
     }
   };

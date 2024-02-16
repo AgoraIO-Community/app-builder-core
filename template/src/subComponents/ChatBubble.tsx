@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Linking} from 'react-native';
+import {View, Text, StyleSheet, Linking, Image} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
@@ -22,6 +22,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
+import {ChatMessageType} from '../components/chat/chatConfigure';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -37,6 +38,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
     msgId,
     updatedTimestamp,
     previousMessageCreatedTimestamp,
+    type,
+    url,
+    thumb,
   } = props;
 
   let time = formatAMPM(new Date(parseInt(createdTimestamp)));
@@ -82,6 +86,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
       isDeleted,
       updatedTimestamp,
       isSameUser,
+      type,
+      thumb,
+      url,
       previousMessageCreatedTimestamp,
     )
   ) : (
@@ -138,9 +145,16 @@ const ChatBubble = (props: ChatBubbleProps) => {
               color: $config.FONT_COLOR,
               textDecorationLine: 'underline',
             }}>
-            <Text style={style.messageStyle} selectable={true}>
-              {message}
-            </Text>
+            {type === ChatMessageType.Txt && (
+              <Text style={style.messageStyle} selectable={true}>
+                {message}
+              </Text>
+            )}
+            {type === ChatMessageType.Img && (
+              <View>
+                <Image source={{uri: thumb}} style={style.previewImg} />
+              </View>
+            )}
           </Hyperlink>
         </View>
       </View>
@@ -212,6 +226,12 @@ const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: ThemeConfig.FontSize.small * 1.45,
     color: $config.FONT_COLOR,
+  },
+  previewImg: {
+    width: 150,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 8,
   },
 });
 

@@ -244,6 +244,9 @@ const ChatContainer = (props?: {
                   key={message.ts}
                   msgId={message.msgId}
                   isDeleted={message.isDeleted}
+                  type={message.type}
+                  url={message?.url}
+                  thumb={message?.thumb}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -294,6 +297,9 @@ const ChatContainer = (props?: {
                   key={message.ts}
                   msgId={message.msgId}
                   isDeleted={message.isDeleted}
+                  type={message.type}
+                  url={message?.url}
+                  thumb={message?.thumb}
                 />
                 {privateMessageStore[privateChatUser]?.length - 1 === index ? (
                   <Spacer size={10} />

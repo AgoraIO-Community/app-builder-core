@@ -21,12 +21,15 @@ import {
   ChatType,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
-import {useContent, useUserName} from 'customization-api';
+import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import EmojiPicker from 'emoji-picker-react';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
-import {useChatConfigure} from '../components/chat/chatConfigure';
+import {
+  ChatMessageType,
+  useChatConfigure,
+} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import ChatSendButton from './chat/ChatSendButton';
@@ -99,6 +102,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const {sendChatMessage} = useChatMessages();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+
+  const {data} = useRoomInfo();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
@@ -112,16 +117,31 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const chatMessageInputPlaceholder = 'Type Message Here';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
+    if (message.length === 0) return;
+    const groupID = data.chat.group_id;
     if (!privateChatUser) {
       // group msg
-      //TODO send chatSdk group msg
+      const option = {
+        chatType: 'groupChat',
+        type: ChatMessageType.Txt,
+        from: data.uid.toString(),
+        to: groupID,
+        msg: message,
+      };
       //sendChatMessage(message);
-      sendGroupChatSDKMessage(message);
+      sendGroupChatSDKMessage(option);
       setMessage('');
     } else {
       //  sendChatMessage(message, privateChatUser);
       //send chatSDK peer msg
-      sendChatSDKMessage(privateChatUser, message);
+      const option = {
+        chatType: 'singleChat',
+        type: ChatMessageType.Txt,
+        from: data.uid.toString(),
+        to: privateChatUser.toString(),
+        msg: message,
+      };
+      sendChatSDKMessage(option);
       setMessage('');
     }
   };

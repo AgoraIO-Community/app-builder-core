@@ -28,17 +28,22 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
+import {ChatMessageType} from './chatConfigure';
 
 interface SDKChatMessagesProviderProps {
   children: React.ReactNode;
   callActive: boolean;
 }
+
 export interface messageInterface {
   createdTimestamp: number;
   updatedTimestamp?: number;
   msg: string;
   msgId: string;
   isDeleted: boolean;
+  type: ChatMessageType;
+  thumb?: string; // preview
+  url?: string; // full content
 }
 export interface messageStoreInterface extends messageInterface {
   uid: UidType;
@@ -152,6 +157,9 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
           msg: body.msg,
           msgId: body.msgId,
           isDeleted: body.isDeleted,
+          type: body.type,
+          thumb: body.thumb,
+          url: body.url,
         },
       ];
     });
@@ -173,6 +181,9 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
               msg: body.msg,
               msgId: body.msgId,
               isDeleted: body.isDeleted,
+              type: body.type,
+              thumb: body.thumb,
+              url: body.url,
             },
           ])
         : (newState = {
@@ -184,6 +195,9 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
                 msg: body.msg,
                 msgId: body.msgId,
                 isDeleted: body.isDeleted,
+                type: body.type,
+                thumb: body.thumb,
+                url: body.url,
               },
             ],
           });
