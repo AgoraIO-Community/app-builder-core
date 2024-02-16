@@ -114,7 +114,7 @@ const Transcript = (props: TranscriptProps) => {
     ) : (
       <TranscriptText
         user={defaultContent[item.uid].name}
-        time={item.time}
+        time={item?.time}
         value={item.text}
         searchQuery={searchQuery}
       />
@@ -285,7 +285,7 @@ const Transcript = (props: TranscriptProps) => {
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
-              keyExtractor={item => item.uid + '-' + item.time}
+              keyExtractor={item => item.uid + '-' + item?.time}
               onContentSizeChange={handleContentSizeChange}
               onScroll={
                 isWebInternal()
