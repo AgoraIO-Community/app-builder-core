@@ -50,6 +50,7 @@
   "dependencies": {
     "@apollo/client": "3.8.1",
     "@gorhom/bottom-sheet": "4.4.7",
+    "@netless/react-native-whiteboard": "^0.0.14",
     "@openspacelabs/react-native-zoomable-view": "^2.1.1",
     "@react-native-async-storage/async-storage": "1.19.2",
     "@react-native-community/checkbox": "0.5.16",
@@ -95,6 +96,7 @@
     "react-native-vector-icons": "9.2.0",
     "react-native-walkthrough-tooltip": "1.4.0",
     "react-native-web": "0.19.7",
+    "react-native-webview": "^11.22.2",
     "react-router-dom": "5.2.0",
     "react-router-native": "5.2.0",
     "react-spring-bottom-sheet": "3.4.1",

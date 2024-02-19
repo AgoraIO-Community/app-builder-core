@@ -403,9 +403,7 @@ const VideoCall: React.FC = () => {
                                                                 <VideoMeetingDataProvider>
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
-                                                                      {$config.ENABLE_WHITEBOARD &&
-                                                                      (isWeb() ||
-                                                                        isSDK()) ? (
+                                                                      {$config.ENABLE_WHITEBOARD ? (
                                                                         <WhiteboardConfigure>
                                                                           <VideoCallScreen />
                                                                         </WhiteboardConfigure>
