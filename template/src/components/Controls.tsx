@@ -430,7 +430,7 @@ const MoreButton = () => {
 
   //whiteboard ends
 
-  if (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
+  if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
@@ -865,9 +865,9 @@ export const MoreButtonToolbarItem = () => {
     ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
-    (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) ? (
+    (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
     <ToolbarItem testID="more-btn">
-      {!isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK()) ? (
+      {!isHost && $config.ENABLE_WHITEBOARD && isWebInternal() ? (
         <WhiteboardListener />
       ) : (
         <></>
