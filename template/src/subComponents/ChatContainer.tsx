@@ -247,6 +247,8 @@ const ChatContainer = (props?: {
                   type={message.type}
                   url={message?.url}
                   thumb={message?.thumb}
+                  fileName={message?.fileName}
+                  ext={message?.ext}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -300,6 +302,8 @@ const ChatContainer = (props?: {
                   type={message.type}
                   url={message?.url}
                   thumb={message?.thumb}
+                  fileName={message?.fileName}
+                  ext={message?.ext}
                 />
                 {privateMessageStore[privateChatUser]?.length - 1 === index ? (
                   <Spacer size={10} />

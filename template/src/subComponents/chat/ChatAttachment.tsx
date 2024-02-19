@@ -54,6 +54,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         chatType: privateChatUser ? 'singleChat' : 'groupChat',
         ext: {
           file_length: file.data.size,
+          file_ext: uploadedFileType,
         },
         // Occurs when the image file fails to be uploaded.
         onFileUploadError: function () {

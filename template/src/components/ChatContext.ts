@@ -26,6 +26,8 @@ export interface ChatBubbleProps {
   type: ChatMessageType;
   thumb?: string;
   url?: string;
+  fileName?: string;
+  ext?: string;
   previousMessageCreatedTimestamp?: string;
 
   render?: (
@@ -40,6 +42,8 @@ export interface ChatBubbleProps {
     type: ChatMessageType,
     thumb?: string,
     url?: string,
+    fileName?: string,
+    ext?: string,
     previousMessageCreatedTimestamp?: string,
   ) => JSX.Element;
 }

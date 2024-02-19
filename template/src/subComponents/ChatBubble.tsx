@@ -23,6 +23,7 @@ import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
 import {ChatMessageType} from '../components/chat/chatConfigure';
+import ImageIcon from '../atoms/ImageIcon';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -41,6 +42,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
     type,
     url,
     thumb,
+    fileName,
+    ext,
   } = props;
 
   let time = formatAMPM(new Date(parseInt(createdTimestamp)));
@@ -89,6 +92,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
       type,
       thumb,
       url,
+      fileName,
+      ext,
       previousMessageCreatedTimestamp,
     )
   ) : (
@@ -154,6 +159,24 @@ const ChatBubble = (props: ChatBubbleProps) => {
             {type === ChatMessageType.Img && (
               <View>
                 <Image source={{uri: thumb}} style={style.previewImg} />
+              </View>
+            )}
+            {type === ChatMessageType.File && (
+              <View style={style.fileContainer}>
+                <ImageIcon
+                  base64={true}
+                  iconSize={24}
+                  iconType="plain"
+                  name={
+                    ext === 'pdf'
+                      ? 'chat_attachment_pdf'
+                      : ext === 'doc'
+                      ? 'chat_attachment_doc'
+                      : 'chat_attachment_unknown'
+                  }
+                  tintColor={$config.SEMANTIC_NEUTRAL}
+                />
+                <Text style={style.fileName}>{fileName}</Text>
               </View>
             )}
           </Hyperlink>
@@ -237,6 +260,16 @@ const style = StyleSheet.create({
   chatBubbleViewImg: {
     paddingHorizontal: 6,
     paddingVertical: 6,
+  },
+  fileName: {
+    color: $config.FONT_COLOR,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  fileContainer: {
+    flexDirection: 'row',
+    gap: 10,
   },
 });
 

@@ -42,8 +42,10 @@ export interface messageInterface {
   msgId: string;
   isDeleted: boolean;
   type: ChatMessageType;
-  thumb?: string; // preview
-  url?: string; // full content
+  thumb?: string;
+  url?: string;
+  fileName?: string;
+  ext?: string;
 }
 export interface messageStoreInterface extends messageInterface {
   uid: UidType;
@@ -158,8 +160,10 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
           msgId: body.msgId,
           isDeleted: body.isDeleted,
           type: body.type,
-          thumb: body.thumb,
-          url: body.url,
+          thumb: body?.thumb,
+          url: body?.url,
+          ext: body?.ext,
+          fileName: body?.fileName,
         },
       ];
     });
@@ -182,8 +186,10 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
               msgId: body.msgId,
               isDeleted: body.isDeleted,
               type: body.type,
-              thumb: body.thumb,
-              url: body.url,
+              thumb: body?.thumb,
+              url: body?.url,
+              ext: body?.ext,
+              fileName: body?.fileName,
             },
           ])
         : (newState = {
@@ -198,6 +204,8 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
                 type: body.type,
                 thumb: body.thumb,
                 url: body.url,
+                ext: body?.ext,
+                fileName: body?.fileName,
               },
             ],
           });

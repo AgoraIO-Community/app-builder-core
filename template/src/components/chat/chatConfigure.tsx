@@ -138,7 +138,44 @@ const ChatConfigure = ({children}) => {
           },
 
           onFileMessage: message => {
-            debugger;
+            if (message.chatType === 'groupChat') {
+              showMessageNotification(
+                'You got group file msg',
+                message.from,
+                false,
+              );
+              addMessageToStore(Number(message.from), {
+                msg: '',
+                createdTimestamp: message.time,
+                msgId: message.id,
+                isDeleted: false,
+                type: ChatMessageType.File,
+                url: message.url,
+                ext: message.ext.file_ext,
+                fileName: message.filename,
+              });
+            }
+            if (message.chatType === 'singleChat') {
+              showMessageNotification(
+                'You got private file msg',
+                message.from,
+                true,
+              );
+              addMessageToPrivateStore(
+                Number(message.from),
+                {
+                  msg: '',
+                  createdTimestamp: message.time,
+                  msgId: message.id,
+                  isDeleted: false,
+                  type: ChatMessageType.File,
+                  url: message.url,
+                  ext: message.ext.file_ext,
+                  fileName: message.filename,
+                },
+                false,
+              );
+            }
           },
           onImageMessage: message => {
             if (message.chatType === 'groupChat') {
@@ -267,6 +304,8 @@ const ChatConfigure = ({children}) => {
             type: option.type,
             thumb: localFileUrl,
             url: localFileUrl,
+            ext: option?.file?.filetype,
+            fileName: option?.file?.filename,
           };
           // this is local user messages
           addMessageToPrivateStore(Number(option.to), messageData, true);
@@ -304,6 +343,8 @@ const ChatConfigure = ({children}) => {
             type: option.type,
             thumb: localFileUrl,
             url: localFileUrl,
+            ext: option?.file?.filetype,
+            fileName: option?.file?.filename,
           };
           // this is group msg
           addMessageToStore(Number(option.from), messageData);
