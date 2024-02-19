@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
@@ -75,6 +75,14 @@ import ChatSendButton from './chat/ChatSendButton';
 //     </TouchableOpacity>
 //   );
 // };
+
+const ChatUploadStatus = () => {
+  return (
+    <View style={style.chatStatusContainer}>
+      <Text style={style.chatStatusText}>{'Uploading... Please wait'}</Text>
+    </View>
+  );
+};
 
 const ChatPanel = () => {
   return (
@@ -259,6 +267,20 @@ const style = StyleSheet.create({
   },
   chatPanel: {
     flexDirection: 'row',
+  },
+  chatStatusContainer: {
+    flex: 1,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderColor: 'yellow',
+  },
+  chatStatusText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 12,
+    lineHeight: 14.5,
+    fontStyle: 'italic',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisOpacity.medium,
   },
 });
 export default ChatInput;
