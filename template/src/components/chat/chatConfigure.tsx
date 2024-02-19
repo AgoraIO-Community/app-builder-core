@@ -42,7 +42,7 @@ interface ChatOption {
   ext?: {file_length: number};
   onFileUploadError?: () => void;
   onFileUploadProgress?: (e: ProgressEvent) => void;
-  onFileUploadComplete?: () => void;
+  onFileUploadComplete?: (e: any) => void;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -245,6 +245,8 @@ const ChatConfigure = ({children}) => {
 
   const sendChatSDKMessage = (option: ChatOption) => {
     if (connRef.current) {
+      //TODO thumb and url of actual image uploaded available in file upload complete
+      const localFileUrl = option?.file?.url || '';
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
@@ -262,7 +264,9 @@ const ChatConfigure = ({children}) => {
             createdTimestamp: timeNow(),
             msgId: msg.id,
             isDeleted: false,
-            type: ChatMessageType.Txt,
+            type: option.type,
+            thumb: localFileUrl,
+            url: localFileUrl,
           };
           // this is local user messages
           addMessageToPrivateStore(Number(option.to), messageData, true);
@@ -279,6 +283,8 @@ const ChatConfigure = ({children}) => {
 
   const sendGroupChatSDKMessage = (option: ChatOption) => {
     if (connRef.current) {
+      //TODO thumb and url of actual image uploaded available in file upload complete
+      const localFileUrl = option?.file?.url || '';
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
@@ -295,7 +301,9 @@ const ChatConfigure = ({children}) => {
             createdTimestamp: timeNow(),
             msgId: msg.id,
             isDeleted: false,
-            type: ChatMessageType.Txt,
+            type: option.type,
+            thumb: localFileUrl,
+            url: localFileUrl,
           };
           // this is group msg
           addMessageToStore(Number(option.from), messageData);

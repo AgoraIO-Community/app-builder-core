@@ -17,7 +17,7 @@ export interface ChatAttachmentButtonProps {
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const {data} = useRoomInfo();
-  const {sendGroupChatSDKMessage} = useChatConfigure();
+  const {sendGroupChatSDKMessage, sendChatSDKMessage} = useChatConfigure();
   const {privateChatUser} = useChatUIControls();
 
   const fileAllowedTypes = {
@@ -64,11 +64,14 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           console.log(e);
         },
         // Occurs when the image file is successfully uploaded.
-        onFileUploadComplete: function () {
+        onFileUploadComplete: function (e) {
           console.log('onFileUploadComplete');
+          // update local store
         },
       };
-      sendGroupChatSDKMessage(option);
+      privateChatUser
+        ? sendChatSDKMessage(option)
+        : sendGroupChatSDKMessage(option);
     } else {
       Toast.show({
         leadingIconName: 'chat_attachment_unknown',

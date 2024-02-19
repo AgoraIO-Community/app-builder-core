@@ -134,11 +134,12 @@ const ChatBubble = (props: ChatBubbleProps) => {
           isURL(message) ? {maxWidth: '88%'} : {},
         ]}>
         <View
-          style={
+          style={[
             isLocal
               ? style.chatBubbleLocalViewLayer2
-              : style.chatBubbleRemoteViewLayer2
-          }>
+              : style.chatBubbleRemoteViewLayer2,
+            type === ChatMessageType.Img && style.chatBubbleViewImg,
+          ]}>
           <Hyperlink
             onPress={handleUrl}
             linkStyle={{
@@ -232,6 +233,10 @@ const style = StyleSheet.create({
     height: 100,
     resizeMode: 'cover',
     borderRadius: 8,
+  },
+  chatBubbleViewImg: {
+    paddingHorizontal: 6,
+    paddingVertical: 6,
   },
 });
 

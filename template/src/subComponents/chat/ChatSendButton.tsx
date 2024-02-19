@@ -1,11 +1,11 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {useChatConfigure} from '../../components/chat/chatConfigure';
-import IconButton from '../../../src/atoms/IconButton';
 import {
-  ChatType,
-  useChatUIControls,
-} from '../../components/chat-ui/useChatUIControls';
+  ChatMessageType,
+  useChatConfigure,
+} from '../../components/chat/chatConfigure';
+import IconButton from '../../../src/atoms/IconButton';
+import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import {useChatMessages} from '../../components/chat-messages/useChatMessages';
 import {useRoomInfo} from 'customization-api';
 
@@ -33,7 +33,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       //  send group msg
       const option = {
         chatType: 'groupChat',
-        type: 'txt',
+        type: ChatMessageType.Txt,
         from: data.uid.toString(),
         to: groupID,
         msg: message,
@@ -45,7 +45,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       //send  peer msg
       const option = {
         chatType: 'singleChat',
-        type: 'txt',
+        type: ChatMessageType.Txt,
         from: data.uid.toString(),
         to: selectedUserId.toString(),
         msg: message,
