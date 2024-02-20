@@ -138,6 +138,19 @@ export enum RnEncryptionEnum {
    * @since v3.3.1
    */
   AES256GCM = 6,
+  /**
+   * 7: 128-bit GCM encryption, GCM mode.
+   *
+   * @since v3.4.5
+   */
+
+  AES128GCM2 = 7,
+  /**
+   * 8: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.4.5
+   */
+  AES256GCM2 = 8,
 }
 
 export enum VideoStreamType {
@@ -864,6 +877,17 @@ export default class RtcEngine {
           break;
         case RnEncryptionEnum.SM4128ECB:
           mode = 'sm4-128-ecb';
+          break;
+        case RnEncryptionEnum.AES256GCM:
+          mode = 'aes-256-gcm';
+          break;
+        case RnEncryptionEnum.AES128GCM2:
+          mode = 'aes-128-gcm2';
+          break;
+        case RnEncryptionEnum.AES256GCM2:
+          mode = 'aes-256-gcm2';
+          break;
+
         default:
           mode = 'none';
       }
@@ -882,6 +906,7 @@ export default class RtcEngine {
   ): Promise<void> {
     let mode: EncryptionMode;
     mode = this.getEncryptionMode(enabled, config?.encryptionMode);
+    console.log('setting encryption ===>', mode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
