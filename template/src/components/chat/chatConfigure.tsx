@@ -50,6 +50,7 @@ interface chatConfigureContextInterface {
   sendChatSDKMessage: (option: ChatOption) => void;
   sendGroupChatSDKMessage: (option: ChatOption) => void;
   deleteChatUser: () => void;
+  downloadAttachment: (fileName: string, fileUrl: string) => void;
 }
 
 export const chatConfigureContext =
@@ -59,6 +60,7 @@ export const chatConfigureContext =
     sendChatSDKMessage: () => {},
     sendGroupChatSDKMessage: () => {},
     deleteChatUser: () => {},
+    downloadAttachment: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -381,6 +383,14 @@ const ChatConfigure = ({children}) => {
     return res;
   };
 
+  const downloadAttachment = (fileName: string, fileUrl: string) => {
+    const anchor = document.createElement('a');
+    anchor.href = fileUrl;
+    anchor.download = fileName;
+    anchor.click();
+    anchor.remove();
+  };
+
   return (
     <chatConfigureContext.Provider
       value={{
@@ -389,6 +399,7 @@ const ChatConfigure = ({children}) => {
         sendChatSDKMessage,
         sendGroupChatSDKMessage,
         deleteChatUser,
+        downloadAttachment,
       }}>
       {children}
     </chatConfigureContext.Provider>

@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Linking, Image} from 'react-native';
+import {View, Text, StyleSheet, Linking, Image, Pressable} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
@@ -22,13 +22,22 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
-import {ChatMessageType} from '../components/chat/chatConfigure';
+import {
+  ChatMessageType,
+  useChatConfigure,
+} from '../components/chat/chatConfigure';
 import ImageIcon from '../atoms/ImageIcon';
+import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
   const {primaryColor} = useContext(ColorContext);
   const {chatType, privateChatUser} = useChatUIControls();
+  const {downloadAttachment} = useChatConfigure();
+  const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+  const moreIconRef = React.useRef<View>(null);
+
   let {
     isLocal,
     isSameUser,
@@ -162,6 +171,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
               </View>
             )}
             {type === ChatMessageType.File && (
+              // <Pressable onPress={() => downloadAttachment(fileName, url)}>
               <View style={style.fileContainer}>
                 <ImageIcon
                   base64={true}
@@ -177,7 +187,19 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   tintColor={$config.SEMANTIC_NEUTRAL}
                 />
                 <Text style={style.fileName}>{fileName}</Text>
+                <MoreMenu
+                  ref={moreIconRef}
+                  setActionMenuVisible={setActionMenuVisible}
+                />
+                <ChatActionMenu
+                  actionMenuVisible={actionMenuVisible}
+                  setActionMenuVisible={setActionMenuVisible}
+                  btnRef={moreIconRef}
+                  fileName={fileName}
+                  fileUrl={url}
+                />
               </View>
+              // </Pressable>
             )}
           </Hyperlink>
         </View>
@@ -270,6 +292,8 @@ const style = StyleSheet.create({
   fileContainer: {
     flexDirection: 'row',
     gap: 10,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
 });
 
