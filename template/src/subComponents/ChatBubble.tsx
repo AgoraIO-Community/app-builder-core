@@ -10,7 +10,16 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Linking, Image, Pressable} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Linking,
+  Image,
+  Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
@@ -28,6 +37,8 @@ import {
 } from '../components/chat/chatConfigure';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
+import ImagePopup from './chat/ImagePopup';
+import {JumpingTransition} from 'react-native-reanimated';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -36,6 +47,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
   const {downloadAttachment} = useChatConfigure();
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
+  const [lightboxVisible, setLightboxVisible] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
   const moreIconRef = React.useRef<View>(null);
 
   let {
@@ -83,6 +96,10 @@ const ChatBubble = (props: ChatBubbleProps) => {
     } else {
       Linking.openURL(url);
     }
+  };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
   };
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
@@ -167,7 +184,32 @@ const ChatBubble = (props: ChatBubbleProps) => {
             )}
             {type === ChatMessageType.Img && (
               <View>
-                <Image source={{uri: thumb}} style={style.previewImg} />
+                <TouchableOpacity
+                  style={{justifyContent: 'center', alignItems: 'center'}}
+                  onPress={() => {
+                    !isLoading && setLightboxVisible(true);
+                  }}>
+                  {isLoading ? (
+                    <View style={style.spinnerContainer}>
+                      <ActivityIndicator
+                        size="small"
+                        color={$config.PRIMARY_ACTION_BRAND_COLOR}
+                      />
+                    </View>
+                  ) : null}
+                  <Image
+                    source={{uri: thumb}}
+                    style={style.previewImg}
+                    onLoad={handleImageLoad}
+                  />
+                </TouchableOpacity>
+                {lightboxVisible ? (
+                  <ImagePopup
+                    modalVisible={lightboxVisible}
+                    setModalVisible={setLightboxVisible}
+                    imageUrl={url}
+                  />
+                ) : null}
               </View>
             )}
             {type === ChatMessageType.File && (
@@ -282,6 +324,8 @@ const style = StyleSheet.create({
   chatBubbleViewImg: {
     paddingHorizontal: 6,
     paddingVertical: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   fileName: {
     color: $config.FONT_COLOR,
@@ -294,6 +338,12 @@ const style = StyleSheet.create({
     gap: 10,
     alignItems: 'center',
     justifyContent: 'flex-start',
+  },
+  spinnerContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
 });
 
