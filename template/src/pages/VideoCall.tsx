@@ -99,14 +99,34 @@ enum RnEncryptionEnum {
   SM4128ECB = 4,
 }
 
-const VideoCall: React.FC = () => {
+interface VideoCallProps {
+  recordingBot?: boolean;
+}
+
+const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
+  console.log('supriya  videocall prop - isrecordingBot: ', recordingBot);
   const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   //const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const joiningLoaderLabel = 'Starting Call. Just a second.';
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
-  const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
+  /**
+   *  Should we set the callscreen to active ??
+   *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means the
+   *     the recording bot is accessing the screen - then YES we should set
+   *     the callActive as true and we need not check for whether
+   *     $config.PRECALL is enabled or not.
+   *  b) If Recording bot( i.e prop: recordingBot) is FALSE then we should set
+   *     the callActive depending upon the magic variable - $config.PRECALL
+   *     i.e if $config.PRECALL is true then callActive is false else true
+   */
+  const shouldCallBeSetToActive = recordingBot
+    ? true
+    : $config.PRECALL
+    ? false
+    : true;
+  const [callActive, setCallActive] = useState(shouldCallBeSetToActive);
 
   //layouts
   const layouts = useLayoutsData();
@@ -177,6 +197,7 @@ const VideoCall: React.FC = () => {
 
   useEffect(() => {
     if (!SdkJoinState.phrase) {
+      console.log('supriya i am joining here 1');
       useJoin(phrase)
         .then(() => {})
         .catch(error => {
@@ -215,6 +236,7 @@ const VideoCall: React.FC = () => {
     } else if (sdkMeetingPhrase) {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
+      console.log('supriya i am joining here 2');
       useJoin(sdkMeetingPhrase).catch(error => {
         setGlobalErrorMessage(error);
         history.push('/');

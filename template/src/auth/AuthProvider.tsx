@@ -32,6 +32,7 @@ import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import StorageContext from '../components/StorageContext';
 import UserCancelPopup from './UserCancelPopup';
 import {exitApp} from './openIDPURL';
+import {isRecordingBotRoute} from '../utils/isRecordingBotRoute';
 
 export const GET_USER = gql`
   query getUser {
@@ -276,6 +277,15 @@ const AuthProvider = (props: AuthProviderProps) => {
   }
 
   useEffect(() => {
+    /**
+     * The below condition makes sure we bypass the login when recording bot accessing the screen
+     */
+    if (isRecordingBotRoute(history)) {
+      setIsAuthenticated(true);
+      setLoading(false);
+      return () => {};
+    }
+
     // Ignore if on sdk since IDP flow is not supported
     // For unauthenticated flow authLogin should be called to get the token
     if (isSDK() && ENABLE_AUTH) {
@@ -442,8 +452,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         history.push('/create');
       } else {
         tokenLogout()
-          .then(res => {
-          })
+          .then(res => {})
           .catch(() => {
             console.error('user logout failed');
             setAuthError('Error occured on Logout, please try again.');
