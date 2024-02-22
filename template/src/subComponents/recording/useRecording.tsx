@@ -187,7 +187,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        url: `http://localhost:9000/${passphrase}`,
+        url: `https://app-builder-core-git-feature-recording-web-agoraio.vercel.app/${passphrase}`,
       }),
     }).then((res: any) => {
       setInProgress(false);
