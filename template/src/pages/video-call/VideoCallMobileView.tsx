@@ -37,7 +37,8 @@ import {useVB} from '../../components/virtual-background/useVB';
 import VBPanel from '../../components/virtual-background/VBPanel';
 import {WhiteboardListener} from '../../components/Controls';
 
-const VideoCallMobileView = () => {
+const VideoCallMobileView = props => {
+  const {native = true} = props;
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
 
   const {RtcEngineUnsafe} = useContext(RtcContext);
@@ -122,12 +123,12 @@ const VideoCallMobileView = () => {
     defaultContent[maxScreenShareUid] &&
     defaultContent[maxScreenShareUid]?.video ? (
     <>
-      <WhiteboardListener />
+      {!native ? <WhiteboardListener /> : <></>}
       <VideoRenderer user={defaultContent[maxScreenShareUid]} />
     </>
   ) : (
     <>
-      <WhiteboardListener />
+      {!native ? <WhiteboardListener /> : <></>}
       <VideoCallView />
     </>
   );
