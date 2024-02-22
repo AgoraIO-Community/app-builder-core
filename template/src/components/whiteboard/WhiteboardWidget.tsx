@@ -22,7 +22,7 @@ import {
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {randomString} from '../../utils/common';
+import {isMobileUA, isWebInternal, randomString} from '../../utils/common';
 import Toast from '../../../react-native-toast-message';
 import ThemeConfig from '../../theme';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
@@ -212,10 +212,11 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
           ) : (
             <></>
           )}
-          <View style={style.widgetContainer}>
-            {whiteboardRoom.current?.isWritable ? (
-              <>
-                {/** <IconButton
+          {isWebInternal() && !isMobileUA() ? (
+            <View style={style.widgetContainer}>
+              {whiteboardRoom.current?.isWritable ? (
+                <>
+                  {/** <IconButton
                   toolTipMessage={
                     boardColor === BoardColor.Black
                       ? 'Whiteboard'
@@ -246,40 +247,43 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                   }}
                 />
                 <Seperator /> */}
-                <RedoUndo
-                  room={whiteboardRoom.current}
-                  undoLabel={undolabel}
-                  redoLabel={redolabel}
-                />
-                <Seperator />
-              </>
-            ) : (
-              <></>
-            )}
-            <ScaleController
-              room={whiteboardRoom.current}
-              zoomInLabel={zoominlabel}
-              zoomOutLabel={zoomoutlabel}
-              fitToScreenLabel={fittoscreenlabel}
-            />
-            {whiteboardRoom.current?.isWritable &&
-            $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
-              <>
-                <Seperator />
-                <TouchableOpacity
-                  disabled={isInProgress}
-                  style={[
-                    style.btnContainerStyle,
-                    isInProgress ? {opacity: 0.6} : {},
-                  ]}
-                  onPress={exportWhiteboard}>
-                  <Text style={style.btnTextStyle}>{exportlabel}</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <></>
-            )}
-          </View>
+                  <RedoUndo
+                    room={whiteboardRoom.current}
+                    undoLabel={undolabel}
+                    redoLabel={redolabel}
+                  />
+                  <Seperator />
+                </>
+              ) : (
+                <></>
+              )}
+              <ScaleController
+                room={whiteboardRoom.current}
+                zoomInLabel={zoominlabel}
+                zoomOutLabel={zoomoutlabel}
+                fitToScreenLabel={fittoscreenlabel}
+              />
+              {whiteboardRoom.current?.isWritable &&
+              $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
+                <>
+                  <Seperator />
+                  <TouchableOpacity
+                    disabled={isInProgress}
+                    style={[
+                      style.btnContainerStyle,
+                      isInProgress ? {opacity: 0.6} : {},
+                    ]}
+                    onPress={exportWhiteboard}>
+                    <Text style={style.btnTextStyle}>{exportlabel}</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <></>
+              )}
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
       </View>
     </>

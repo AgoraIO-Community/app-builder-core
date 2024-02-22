@@ -2,7 +2,12 @@ import {UidType, useContent, useLayout, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
-import {isWeb, randomIntFromInterval, randomString} from '../../utils/common';
+import {
+  isMobileUA,
+  isWebInternal,
+  randomIntFromInterval,
+  randomString,
+} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -13,7 +18,9 @@ import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 
-export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
+export const whiteboardPaper = isWebInternal()
+  ? document.createElement('div')
+  : null;
 if (whiteboardPaper) {
   whiteboardPaper.className = 'whiteboardPaper';
   whiteboardPaper.setAttribute('style', 'height:100%');
@@ -134,7 +141,11 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   useEffect(() => {
     try {
-      if (whiteboardRoomState === RoomPhase.Connected && isHost) {
+      if (
+        whiteboardRoomState === RoomPhase.Connected &&
+        isHost &&
+        !isMobileUA()
+      ) {
         if (
           currentLayout === DefaultLayouts[1].name &&
           activeUids &&
@@ -318,7 +329,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           uuid: room_uuid,
           roomToken: room_token,
           floatBar: true,
-          isWritable: isHost,
+          isWritable: isHost && !isMobileUA(),
           userPayload: {
             cursorName: name,
             cursorColor: CursorColor[index].cursorColor,
@@ -330,7 +341,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           cursorAdapter.setRoom(room);
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
-          if (isHost) {
+          if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
               strokeColor: [0, 0, 0],
             });
