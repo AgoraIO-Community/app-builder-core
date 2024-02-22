@@ -370,7 +370,7 @@ const VideoCall: React.FC = () => {
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
-                  <NoiseSupressionProvider>
+                  <NoiseSupressionProvider callActive={callActive}>
                     <VideoQualityContextProvider>
                       <ChatUIControlsProvider>
                         <ChatNotificationProvider>

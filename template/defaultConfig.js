@@ -66,6 +66,7 @@ const DefaultConfig = {
   ENABLE_WAITING_ROOM: false,
   WHITEBOARD_APPIDENTIFIER: '',
   WHITEBOARD_REGION: '',
+  ENABLE_NOISE_CANCELLATION_BY_DEFAULT: false,
 };
 
 module.exports = DefaultConfig;

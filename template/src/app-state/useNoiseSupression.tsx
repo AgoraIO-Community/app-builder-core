@@ -25,12 +25,19 @@ export const NoiseSupressionContext =
   });
 
 export function NoiseSupressionProvider(props) {
+  const {callActive} = props;
   const [isNoiseSupressionEnabled, setIsNoiseSupressionEnabled] = useState(
     ToggleState.disabled,
   );
 
   const {RtcEngineUnsafe} = useRtc();
   let processor = useRef(null);
+
+  useEffect(() => {
+    if (callActive && $config.ENABLE_NOISE_CANCELLATION_BY_DEFAULT) {
+      setNoiseSupression(p => !p);
+    }
+  }, [callActive]);
 
   useEffect(() => {
     if ($config.ENABLE_NOISE_CANCELLATION) {
