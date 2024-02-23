@@ -16,7 +16,7 @@
   "CLOUD_RECORDING": true,
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
-  "ENCRYPTION_ENABLED": false,
+  "ENCRYPTION_ENABLED": true,
   "ENABLE_GOOGLE_OAUTH": false,
   "ENABLE_APPLE_OAUTH": false,
   "ENABLE_SLACK_OAUTH": false,

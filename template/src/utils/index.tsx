@@ -83,3 +83,19 @@ export function isURL(str) {
   var url = new RegExp(urlRegex, 'i');
   return str.length < 2083 && url.test(str);
 }
+
+export const base64ToUint8Array = (base64Str: string) => {
+  let decodedData;
+  if (typeof window !== 'undefined') {
+    // for web
+    decodedData = window.atob(base64Str);
+  } else {
+    // for native
+    decodedData = Buffer.from(base64Str, 'base64').toString('binary');
+  }
+  const result = new Uint8Array(new ArrayBuffer(decodedData.length));
+  for (let i = 0; i < decodedData.length; i += 1) {
+    result[i] = decodedData.charCodeAt(i);
+  }
+  return result;
+};
