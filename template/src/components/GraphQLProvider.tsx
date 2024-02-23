@@ -18,8 +18,7 @@ import {
   // from,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
-// import useMount from './useMount';
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import React, {createContext, useContext, useEffect, useRef} from 'react';
 import StorageContext from './StorageContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -35,68 +34,41 @@ const httpLink = createHttpLink({
   credentials: 'include',
 });
 
-const authLink = (token: string) =>
-  setContext(async (_, {headers}) => {
+const GraphQLProvider = (props: {children: React.ReactNode}) => {
+  const authLink = setContext(async (_, {headers}) => {
     // get the authentication token from local storage if it exists
     // return the headers to the context so httpLink can read them
-    return {
-      headers: {
-        ...headers,
-        'X-Project-ID': $config.PROJECT_ID,
-        'X-Platform-ID': 'turnkey_web',
-        ...(token && {
-          authorization: token ? `Bearer ${token}` : '',
-        }),
-      },
-    };
+    const storeString = await AsyncStorage.getItem('store');
+    let token;
+    if (storeString) {
+      token = JSON.parse(storeString).token;
+    }
+    if (token) {
+      return {
+        headers: {
+          ...headers,
+          'X-Project-ID': $config.PROJECT_ID,
+          'X-Platform-ID': 'turnkey_web',
+          ...(token && {
+            authorization: token ? `Bearer ${token}` : '',
+          }),
+        },
+      };
+    } else {
+      return headers;
+    }
   });
 
-const GraphQLProvider = (props: {children: React.ReactNode}) => {
-  const {store} = useContext(StorageContext);
-  const [client, setClient] = useState(
+  const client = useRef(
     new ApolloClient({
-      link: authLink(store?.token).concat(httpLink),
+      link: authLink.concat(httpLink),
       cache: new InMemoryCache(),
     }),
   );
 
-  useEffect(() => {
-    setClient(
-      new ApolloClient({
-        link: authLink(store?.token).concat(httpLink),
-        cache: new InMemoryCache(),
-      }),
-    );
-  }, [store?.token]);
-
-  // const errorLink = onError(
-  //   ({graphQLErrors, networkError, operation, forward}) => {
-  //     // To retry on network errors, we recommend the RetryLink
-  //     // instead of the onError link. This just logs the error.
-  //     if (networkError) {
-  
-  //       // switch (err.extensions.code) {
-  //       //   // Apollo Server sets code to UNAUTHENTICATED
-  //       //   // when an AuthenticationError is thrown in a resolver
-  //       //   case 'UNAUTHENTICATED':
-  //       //     // Modify the operation context with a new token
-  //       //     const oldHeaders = operation.getContext().headers;
-  //       //     operation.setContext({
-  //       //       headers: {
-  //       //         ...oldHeaders,
-  //       //         authorization: getNewToken(),
-  //       //       },
-  //       //     });
-  //       //     // Retry the request, returning the new observable
-  //       //     return forward(operation);
-  //       // }
-  //     }
-  //   },
-  // );
-
   return (
-    <GraphQLContext.Provider value={{client: client}}>
-      <ApolloProvider client={client}>{props.children}</ApolloProvider>
+    <GraphQLContext.Provider value={{client: client.current}}>
+      <ApolloProvider client={client.current}>{props.children}</ApolloProvider>
     </GraphQLContext.Provider>
   );
 };
