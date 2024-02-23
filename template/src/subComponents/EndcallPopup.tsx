@@ -1,4 +1,4 @@
-import React, {SetStateAction, useContext} from 'react';
+import React, {SetStateAction, useContext, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../atoms/Spacer';
 import Popup from '../atoms/Popup';
@@ -9,6 +9,15 @@ import {useIsDesktop} from '../utils/common';
 import DownloadTranscriptBtn from './caption/DownloadTranscriptBtn';
 import ImageIcon from '../atoms/ImageIcon';
 import {useCaption} from './caption/useCaption';
+import {useString} from '../utils/useString';
+import {
+  leavePopupHeading,
+  leavePopupPrimaryBtnText,
+  leavePopupSubHeading,
+  sttDownloadBtnText,
+  sttTranscriptPanelHeaderText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -17,6 +26,8 @@ interface EndcallPopupProps {
 }
 
 const DownloadTranscript = () => {
+  const label = useString(sttTranscriptPanelHeaderText)();
+  const downloadLabel = useString(sttDownloadBtnText)();
   return (
     <View style={[styles.btnDownloadContainer, styles.row]}>
       <View style={styles.row}>
@@ -27,13 +38,13 @@ const DownloadTranscript = () => {
           iconSize={20}
         />
         <Spacer size={4} horizontal />
-        <Text style={styles.label}>{'Meeting Transcript'}</Text>
+        <Text style={styles.label}>{label}</Text>
       </View>
       <DownloadTranscriptBtn
         textStyle={[styles.label, styles.downloadBtnText] as Object}
         containerStyle={styles.downloadBtn}
         iconName=""
-        text="Download"
+        text={downloadLabel}
       />
     </View>
   );
@@ -41,15 +52,15 @@ const DownloadTranscript = () => {
 
 const EndcallPopup = (props: EndcallPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const leaveMeetingLabelHeading = 'Leave Room?';
-  const leaveMeetingLabelSubHeading =
-    'Are you sure you want to leave this meeting?';
-  const leaveMeetingSubHeading1 = `Sure you want to leave? You haven't downloaded your transcripts yet.`;
+  const leaveMeetingLabelHeading = useString(leavePopupHeading)();
+  const leaveMeetingLabelSubHeading = useString<boolean>(leavePopupSubHeading);
+  const leaveMeetingPopupActionButton = useString(leavePopupPrimaryBtnText)();
+  const cancelLabel = useString(cancelText)();
   const {isSTTActive} = useCaption();
   const isTranscriptAvailable = $config.ENABLE_STT && isSTTActive;
 
-  const stayBtnLabel = 'CANCEL';
-  const leaveBtnLabel = 'LEAVE';
+  const stayBtnLabel = cancelLabel;
+  const leaveBtnLabel = leaveMeetingPopupActionButton;
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -59,9 +70,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
       <Text style={styles.heading}>{leaveMeetingLabelHeading}</Text>
       <Spacer size={8} />
       <Text style={styles.subHeading}>
-        {isTranscriptAvailable
-          ? leaveMeetingSubHeading1
-          : leaveMeetingLabelSubHeading}
+        {leaveMeetingLabelSubHeading(isTranscriptAvailable)}
       </Text>
       {isTranscriptAvailable ? <DownloadTranscript /> : <></>}
       <Spacer size={40} />

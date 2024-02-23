@@ -13,6 +13,7 @@ import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import {useScreenContext} from '../contexts/ScreenShareContext';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {videoRoomUserFallbackText} from '../../language/default-labels/videoCallScreenLabels';
 
 const AllAudienceParticipants = (props: any) => {
   const {screenShareData} = useScreenContext();
@@ -25,9 +26,7 @@ const AllAudienceParticipants = (props: any) => {
   } = props;
   const {defaultContent} = useContent();
   const {localUid} = useContext(chatContext);
-  //commented for v1 release
-  //const participantListPlaceholder = useString('participantListPlaceholder')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const getParticipantName = (uid: UidType) => {
     return defaultContent[uid]?.name || remoteUserDefaultLabel;
   };
@@ -70,7 +69,7 @@ const AllAudienceParticipants = (props: any) => {
       ) : (
         <>
           {/**Audience should see his name first */}
-          {uids.filter((i) => i === localUid).length ? (
+          {uids.filter(i => i === localUid).length ? (
             <>
               <Participant
                 isLocal={true}
@@ -102,7 +101,7 @@ const AllAudienceParticipants = (props: any) => {
           )}
           {/* Others Audience in the call */}
           {uids
-            .filter((i) => i !== localUid)
+            .filter(i => i !== localUid)
             .map((uid: any, index: number) => (
               <>
                 <Participant

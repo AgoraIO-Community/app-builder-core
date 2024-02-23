@@ -24,6 +24,10 @@ import {
 import {useContent, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import {
+  groupChatInputPlaceHolderText,
+  privateChatInputPlaceHolderText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -81,10 +85,15 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
+  const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
+  const privateChatInputPlaceHolder = useString(
+    privateChatInputPlaceHolderText,
+  );
+
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
-      ? `Private Message to ${defaultContent[privateChatUser]?.name}`
-      : `Chat publicly as ${name}...`;
+      ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
+      : groupChatInputPlaceHolder(name);
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!privateChatUser) {

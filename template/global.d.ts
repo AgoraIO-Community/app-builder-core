@@ -109,6 +109,7 @@ interface ConfigInterface {
   ENABLE_WAITING_ROOM: boolean;
   WHITEBOARD_APPIDENTIFIER: string;
   WHITEBOARD_REGION: string;
+  ENABLE_NOISE_CANCELLATION_BY_DEFAULT: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

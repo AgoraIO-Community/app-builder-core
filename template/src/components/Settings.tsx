@@ -19,6 +19,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {toolbarItemSettingText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
@@ -28,8 +29,8 @@ const Settings = (props: SettingsIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
   //commented for v1 release
-  //const settingsLabel = useString('settingsLabel')();
-  const settingsLabel = 'Settings';
+  const settingsLabel = useString(toolbarItemSettingText)();
+
   const isPanelActive = sidePanel === SidePanelType.Settings;
   const onPress = () => {
     isPanelActive

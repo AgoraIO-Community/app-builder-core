@@ -18,6 +18,8 @@ import {useVideoCall} from '../components/useVideoCall';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {useString} from '../utils/useString';
+import {toolbarItemInviteText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface CopyJoinInfoProps {
   showTeritaryButton?: boolean;
@@ -29,9 +31,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {isToolbarMenuItem} = useToolbarMenu();
 
   const {showTeritaryButton = false} = props;
-  //commented for v1 release
-  //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
-  const copyMeetingInviteButton = 'Invite';
+  const copyMeetingInviteButton = useString(toolbarItemInviteText)();
   const {setShowInvitePopup} = useVideoCall();
 
   const onPress = () => {
@@ -74,7 +74,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   ) : (
     <>
       {showTeritaryButton ? (
-        <TertiaryButton text="Invite" onPress={onPress} />
+        <TertiaryButton text={copyMeetingInviteButton} onPress={onPress} />
       ) : isToolbarMenuItem ? (
         <ToolbarMenuItem {...iconButtonProps} />
       ) : (

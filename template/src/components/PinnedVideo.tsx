@@ -31,9 +31,16 @@ import useActiveSpeaker from '../utils/useActiveSpeaker';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import {useWhiteboard} from '../components/whiteboard/WhiteboardConfigure';
+import {useString} from '../utils/useString';
+import {
+  moreBtnRemoveFromLarge,
+  videoRoomGoToActiveSpeakerText,
+} from '../language/default-labels/videoCallScreenLabels';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
+  const removeFromLargeText = useString(moreBtnRemoveFromLarge)();
+  const goToASText = useString(videoRoomGoToActiveSpeakerText)();
   const [isOnTop, setIsOnTop] = useState(true);
   const {pinnedUid, secondaryPinnedUid} = useContent();
   const [collapse, setCollapse] = useState(false);
@@ -220,7 +227,7 @@ const PinnedVideo = ({renderData}) => {
                     fontFamily: ThemeConfig.FontFamily.sansPro,
                     alignSelf: 'center',
                   }}>
-                  Go to Active Speaker
+                  {goToASText}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -287,7 +294,7 @@ const PinnedVideo = ({renderData}) => {
                   dispatch({type: 'UserPin', value: [0]});
                 }}
                 btnTextProps={{
-                  text: 'Remove from large',
+                  text: removeFromLargeText,
                   textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                   textStyle: {
                     marginTop: 0,

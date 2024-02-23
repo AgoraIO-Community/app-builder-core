@@ -13,11 +13,12 @@ import {useCustomization} from 'customization-implementation';
 import {useLanguage} from '../language/useLanguage';
 import {DEFAULT_I18_DATA} from '../language';
 import {TextDataInterface} from '../language/default-labels/index';
+import {useEffect, useRef} from 'react';
 
 export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
 ) {
-  const languageData = useCustomization((data) => data?.i18n);
+  const languageData = useCustomization(data => data?.i18n);
   if (
     !selectedLanguageCode ||
     !languageData ||
@@ -27,7 +28,7 @@ export function usei18nData(
     return DEFAULT_I18_DATA.data;
   } else {
     let selectedLanguageData = languageData.find(
-      (item) => item.locale === selectedLanguageCode,
+      item => item.locale === selectedLanguageCode,
     );
     if (selectedLanguageData && selectedLanguageData.data) {
       return {
@@ -43,7 +44,7 @@ export function usei18nData(
 export function useString<T = string>(
   keyName: keyof TextDataInterface,
 ): (input?: T) => string {
-  const lanCode = useLanguage((data) => data.languageCode);
+  const lanCode = useLanguage(data => data.languageCode);
   const textData = usei18nData(lanCode);
   const getString = (input?: T) => {
     let keyValue = textData ? textData[keyName] : undefined;
@@ -59,3 +60,12 @@ export function useString<T = string>(
   };
   return getString;
 }
+
+export const useStringRef = (key: keyof TextDataInterface) => {
+  const fn = useString(key);
+  const refFn = useRef(fn);
+  useEffect(() => {
+    refFn.current = fn;
+  }, [fn]);
+  return refFn;
+};

@@ -10,19 +10,16 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import Spacer from '../../atoms/Spacer';
+import {
+  peoplePanelStreamingRequestSectionHeader,
+  peoplePanelUserNotFoundLabel,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
-  //commented for v1 release
-  // const noLiveStreamingRequestsLabel = useString(
-  //   'raisedHandsListPlaceholder',
-  // )();
-  // const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  // const noUserFoundLabel = useString('noUserFoundLabel')();
-  // const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
-  const noLiveStreamingRequestsLabel = 'No streaming request(s)';
-  const remoteUserDefaultLabel = 'User';
-  const noUserFoundLabel = 'User not found';
-  const raisedHandsListTitleLabel = 'STREAMING REQUEST';
+  const noUserFoundLabel = useString(peoplePanelUserNotFoundLabel)();
+  const raisedHandsListTitleLabel = useString(
+    peoplePanelStreamingRequestSectionHeader,
+  )();
   const {defaultContent} = useContent();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);

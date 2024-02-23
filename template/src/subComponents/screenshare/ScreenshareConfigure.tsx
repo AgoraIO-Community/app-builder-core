@@ -33,10 +33,17 @@ import {
 } from 'customization-api';
 import {filterObject} from '../../utils';
 import Toast from '../../../react-native-toast-message';
+import {useString} from '../../utils/useString';
+import {
+  videoRoomScreenShareErrorToastHeading,
+  videoRoomScreenShareErrorToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+  const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
+  const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
@@ -46,11 +53,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
-  // commented for v1 release
-  // const getScreenShareName = useString('screenshareUserName');
-  // const userText = useString('remoteUserDefaultLabel')();
-  // const getScreenShareName = (name: string) => `${name}'s screenshare`;
-  // const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
@@ -343,11 +345,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'Failed to initiate screen sharing',
-        text2: 'Permission denied',
+        text1: toastHeading,
+        text2: toastSubHeading,
         visibilityTime: 1000 * 10,
         primaryBtn: null,
-        secondaryBtn: null
+        secondaryBtn: null,
       });
     }
   };

@@ -26,7 +26,12 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {useHasBrandLogo, isArray, isMobileUA} from '../utils/common';
+import {
+  useHasBrandLogo,
+  isArray,
+  isMobileUA,
+  isWebInternal,
+} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -72,6 +77,8 @@ import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import {isWeb} from '../utils/common';
+import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
+import {useString} from '../utils/useString';
 
 enum RnEncryptionEnum {
   /**
@@ -97,13 +104,31 @@ enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.1.2.
+   */
+  AES256GCM = 6,
+
+  /**
+   * 7:  128-bit GCM encryption, GCM mode.
+   *
+   * @since v3.4.5
+   */
+  AES128GCM2 = 7,
+  /**
+   * 8: 256-bit GCM encryption, GCM mode.
+   * @since v3.1.2.
+   * Compared to AES256GCM encryption mode, AES256GCM2 encryption mode is more secure and requires you to set the salt (encryptionKdfSalt).
+   */
+  AES256GCM2 = 8,
 }
 
 const VideoCall: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
-  //commented for v1 release
-  //const joiningLoaderLabel = useString('joiningLoaderLabel')();
-  const joiningLoaderLabel = 'Starting Call. Just a second.';
+  const joiningLoaderLabel = useString(videoRoomStartingCallText)();
+
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
@@ -145,7 +170,7 @@ const VideoCall: React.FC = () => {
     profile: $config.PROFILE,
     dual: true,
     encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
+      ? {key: null, mode: RnEncryptionEnum.AES256GCM, screenKey: null}
       : false,
     role: ClientRole.Broadcaster,
     geoFencing: $config.GEO_FENCING,
@@ -253,7 +278,7 @@ const VideoCall: React.FC = () => {
         encryption: $config.ENCRYPTION_ENABLED
           ? {
               key: data.encryptionSecret,
-              mode: RnEncryptionEnum.AES128XTS,
+              mode: RnEncryptionEnum.AES256GCM,
               screenKey: data.encryptionSecret,
             }
           : false,
@@ -350,7 +375,7 @@ const VideoCall: React.FC = () => {
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
-                  <NoiseSupressionProvider>
+                  <NoiseSupressionProvider callActive={callActive}>
                     <VideoQualityContextProvider>
                       <ChatUIControlsProvider>
                         <ChatNotificationProvider>
@@ -403,8 +428,7 @@ const VideoCall: React.FC = () => {
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
                                                                       {$config.ENABLE_WHITEBOARD &&
-                                                                      (isWeb() ||
-                                                                        isSDK()) ? (
+                                                                      isWebInternal() ? (
                                                                         <WhiteboardConfigure>
                                                                           <VideoCallScreen />
                                                                         </WhiteboardConfigure>

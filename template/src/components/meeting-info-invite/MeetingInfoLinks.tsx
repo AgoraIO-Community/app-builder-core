@@ -16,6 +16,17 @@ import isSDKCheck from '../../utils/isSDK';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {FontSizes} from '../../theme';
 import MeetingLink from '../../atoms/MeetingLink';
+import {useString} from '../../utils/useString';
+import {
+  shareRoomAttendeeLinkLabel,
+  shareRoomAttendeeLinkSubText,
+  shareRoomHostLinkLabel,
+  shareRoomHostLinkSubText,
+  shareRoomPSTNLabel,
+  shareRoomPSTNNumberLabel,
+  shareRoomPSTNPinLabel,
+  shareRoomPSTNSubText,
+} from '../../language/default-labels/shareLinkScreenLabels';
 
 export interface MeetingInfoBodyProps {
   showHelperText?: boolean;
@@ -29,50 +40,28 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
   } = useRoomInfo();
   const {getShareLink} = useShareLink();
 
-  //commented for v1 release
-  // const meetingUrlText = useString('meetingUrlLabel')();
-  // const meetingIdText = useString('meetingIdLabel')();
-  // const hostIdText = useString('hostIdLabel')();
-  // const attendeeUrlLabel = useString('attendeeUrlLabel')();
-  // const attendeeIdLabel = useString('attendeeIdLabel')();
-  // const hostUrlLabel = useString('hostUrlLabel')();
-  // const pstnLabel = useString('pstnLabel')();
-  // const pstnNumberLabel = useString('pstnNumberLabel')();
-  // const pinLabel = useString('pin')();
-  // const enterMeetingAfterCreateButton = useString(
-  //   'enterMeetingAfterCreateButton',
-  // )();
-  // const copyInviteButton = useString('copyInviteButton')();
-  const meetingUrlText = 'Room Link';
-  const meetingIdText = 'Room ID';
-  const hostIdText = 'Host ID';
-  const attendeeUrlLabel = 'Attendee Link';
-  const attendeeIdLabel = 'Attendee ID';
-  const hostUrlLabel = 'Host Link';
-  const pstnLabel = 'PSTN';
-  const pstnNumberLabel = 'Number';
-  const pinLabel = 'Pin';
-
   const isSDK = isSDKCheck();
   const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
-  const getAttendeeLabel = () =>
-    isWebCheck ? attendeeUrlLabel : attendeeIdLabel;
+  const shareRoomHostLink = useString<any>(shareRoomHostLinkLabel)(isWebCheck);
+  const shareRoomHostLinkSubTextLocal = useString<any>(
+    shareRoomHostLinkSubText,
+  )();
+  const shareRoomAttendeeLink = useString<any>(shareRoomAttendeeLinkLabel)(
+    isWebCheck,
+  );
+  const shareRoomAttendeeLinkSubTextLocal = useString<any>(
+    shareRoomAttendeeLinkSubText,
+  )();
+  const shareRoomPSTN = useString<any>(shareRoomPSTNLabel)();
+  const shareRoomPSTNNumber = useString<any>(shareRoomPSTNNumberLabel)();
+  const shareRoomPSTNPin = useString<any>(shareRoomPSTNPinLabel)();
+  const shareRoomPSTNSubTextLocal = useString<any>(shareRoomPSTNSubText)();
 
-  const getHostLabel = () => {
-    if (isSeparateHostLink) {
-      if (isWebCheck) {
-        return hostUrlLabel;
-      }
-      return hostIdText;
-    } else {
-      if (isWebCheck) {
-        return meetingUrlText;
-      }
-      return meetingIdText;
-    }
-  };
+  const getAttendeeLabel = () => shareRoomAttendeeLink;
+
+  const getHostLabel = () => shareRoomHostLink;
 
   return (
     <>
@@ -86,9 +75,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
             label={getAttendeeLabel()}
             link={getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
-            helperText={
-              showHelperText && 'Share this with attendees you want to invite.'
-            }
+            helperText={showHelperText ? shareRoomAttendeeLinkSubTextLocal : ''}
             gutterBottom
           />
         </>
@@ -105,10 +92,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
             label={getHostLabel()}
             link={getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.HOST}
-            helperText={
-              showHelperText &&
-              'Share this with other co-hosts you want to invite'
-            }
+            helperText={showHelperText ? shareRoomHostLinkSubTextLocal : ''}
             gutterBottom
           />
         </>
@@ -122,13 +106,10 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               size,
               variant,
             }}
-            label={pstnLabel}
-            link={`${pstnNumberLabel} - ${pstn?.number}  |  ${pinLabel} - ${pstn?.pin}`}
+            label={shareRoomPSTN}
+            link={`${shareRoomPSTNNumber} - ${pstn?.number}  |  ${shareRoomPSTNPin} - ${pstn?.pin}`}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.PSTN}
-            helperText={
-              showHelperText &&
-              'Share this phone number and pin to dial from phone.'
-            }
+            helperText={showHelperText ? shareRoomPSTNSubTextLocal : ''}
             gutterBottom
           />
         </>

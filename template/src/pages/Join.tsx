@@ -39,23 +39,51 @@ import useJoinRoom from '../utils/useJoinRoom';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import {
+  joinRoomBtnText,
+  joinRoomCreateBtnText,
+  joinRoomErrorToastHeading,
+  joinRoomErrorToastSubHeading,
+  joinRoomHeading,
+  joinRoomInputLabel,
+  joinRoomInputPlaceHolderText,
+} from '../language/default-labels/joinScreenLabels';
 
-const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
 
 const Join = () => {
   const hasBrandLogo = useHasBrandLogo();
-  //commented for v1 release
-  // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
-  // const enterMeetingButton = useString('enterMeetingButton')();
-  // const createMeetingButton = useString('createMeetingButton')();
-  const meetingIdInputPlaceholder = isLiveStream
-    ? 'Enter Stream ID'
-    : 'Enter Room ID';
-  const enterMeetingButton = isLiveStream ? 'Join Stream' : 'Join Room';
-  const createMeetingButton = isLiveStream
-    ? 'Create a Stream'
-    : 'Create a Room';
+
+  const headingText = useString<any>(joinRoomHeading)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const inputLabel = useString<any>(joinRoomInputLabel)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const placeHolderText = useString<any>(joinRoomInputPlaceHolderText)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const joinBtnText = useString<any>(joinRoomBtnText)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  const createBtnText = useString<any>(joinRoomCreateBtnText)({
+    eventMode: $config.EVENT_MODE,
+  });
+
+  //toast
+  const invalidRoomIdToastHeading = useString<any>(joinRoomErrorToastHeading)({
+    eventMode: $config.EVENT_MODE,
+  });
+  const invalidRoomIdToastSubheading = useString<any>(
+    joinRoomErrorToastSubHeading,
+  )({
+    eventMode: $config.EVENT_MODE,
+  });
+
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
   const [error, setError] = useState<null | {name: string; message: string}>(
@@ -81,9 +109,11 @@ const Join = () => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: isInvalidUrl ? 'Room ID Invalid.' : 'Some Error Occured.',
+          text1: isInvalidUrl
+            ? invalidRoomIdToastHeading
+            : 'Some Error Occured.',
           text2: isInvalidUrl
-            ? 'Please enter a valid Room ID'
+            ? invalidRoomIdToastSubheading
             : 'Please try again',
           visibilityTime: 3000,
           primaryBtn: null,
@@ -120,12 +150,7 @@ const Join = () => {
         {error ? <Error error={error} /> : <></>}
         <Card>
           <View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
+            <View style={style.logoContainerStyle}>
               <Logo />
               {isMobileUA() ? (
                 <IDPLogoutComponent
@@ -136,21 +161,14 @@ const Join = () => {
               )}
             </View>
             <Spacer size={20} />
-            <Text style={style.heading}>
-              {isLiveStream ? 'Join a Stream' : 'Join a Room'}
-            </Text>
+            <Text style={style.heading}>{headingText}</Text>
             <Spacer size={40} />
             <Input
               labelStyle={style.labelStyle}
-              label={isLiveStream ? 'Stream ID' : 'Room ID'}
+              label={inputLabel}
               autoFocus
               value={phrase}
-              helpText={
-                isLiveStream
-                  ? 'Enter the stream ID here for the room you’d like to join'
-                  : 'Enter the room ID here for the room you’d like to join'
-              }
-              placeholder={meetingIdInputPlaceholder}
+              placeholder={placeHolderText}
               onChangeText={text => setPhrase(text)}
               onSubmitEditing={() => startCall()}
             />
@@ -161,14 +179,11 @@ const Join = () => {
               iconName="video-on"
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={enterMeetingButton}
+              text={joinBtnText}
               containerStyle={isMobileUA() && {width: '100%'}}
             />
             <Spacer size={16} />
-            <LinkButton
-              text={createMeetingButton}
-              onPress={() => createMeeting()}
-            />
+            <LinkButton text={createBtnText} onPress={() => createMeeting()} />
             {shouldAuthenticate ? (
               <LogoutButton
                 //@ts-ignore
@@ -185,6 +200,11 @@ const Join = () => {
 };
 
 const style = StyleSheet.create({
+  logoContainerStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   btnContainer: {
     width: '100%',
     alignItems: 'center',

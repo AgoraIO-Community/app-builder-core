@@ -31,6 +31,12 @@ import {useParams} from '../Router';
 import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
 import {ErrorContext} from '../common';
 import {useCustomization} from 'customization-implementation';
+import {useString} from '../../utils/useString';
+import {
+  invitePopupPrimaryBtnText,
+  invitePopupHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -75,13 +81,14 @@ const InvitePopup = () => {
     }
     return components;
   });
+  const inviteOtherToJoinRoomInfo = useString(invitePopupHeading)();
+  const copyInvitationButton = useString(invitePopupPrimaryBtnText)();
+  const cancelLabel = useString(cancelText)();
   return (
     <Popup
       modalVisible={showInvitePopup}
       setModalVisible={setShowInvitePopup}
-      title={
-        InvitePopupTitle ? InvitePopupTitle : 'Invite others to join this room'
-      }
+      title={InvitePopupTitle ? InvitePopupTitle : inviteOtherToJoinRoomInfo}
       showCloseIcon={true}
       containerStyle={{alignItems: isDesktop('popup') ? 'center' : 'stretch'}}
       contentContainerStyle={style.contentContainer}>
@@ -101,7 +108,7 @@ const InvitePopup = () => {
             {isDesktop('popup') ? (
               <View style={{flex: 1}}>
                 <TertiaryButton
-                  text={'CANCEL'}
+                  text={cancelLabel}
                   textStyle={style.btnText}
                   containerStyle={{
                     width: '100%',
@@ -137,7 +144,7 @@ const InvitePopup = () => {
                     SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
                   );
                 }}
-                text={'COPY INVITATION'}
+                text={copyInvitationButton}
               />
             </View>
           </View>

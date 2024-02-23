@@ -32,10 +32,24 @@ import useTranscriptDownload from '../../subComponents/caption/useTranscriptDown
 import {useVB} from '../../components/virtual-background/useVB';
 import {PropsContext} from '../../../agora-rn-uikit';
 import useLiveStreamingUids from '../../utils/useLiveStreamingUids';
+import {useString} from '../../utils/useString';
+import {
+  settingsPanelHeading,
+  vbPanelHeading,
+} from '../../language/default-labels/precallScreenLabels';
+import {
+  chatPanelGroupTabText,
+  chatPanelPrivateTabText,
+  peoplePanelHeaderText,
+  sttChangeSpokenLanguageText,
+  sttDownloadTranscriptBtnText,
+  sttTranscriptPanelHeaderText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
-  const settingsLabel = 'Settings';
+  const settingsLabel = useString(settingsPanelHeading)();
+
   return (
     <SidePanelHeader
       centerComponent={
@@ -56,7 +70,7 @@ export const PeopleHeader = () => {
   const count = $config.EVENT_MODE
     ? hostUids.length + audienceUids.length
     : onlineUsersCount;
-  const participantsLabel = `People`;
+  const participantsLabel = useString(peoplePanelHeaderText)();
 
   const {setSidePanel} = useSidePanel();
   return (
@@ -83,8 +97,8 @@ export const ChatHeader = () => {
   } = useChatNotification();
 
   const {setSidePanel} = useSidePanel();
-  const groupChatLabel = 'Group';
-  const privateChatLabel = 'Private';
+  const groupChatLabel = useString(chatPanelGroupTabText)();
+  const privateChatLabel = useString(chatPanelPrivateTabText)();
 
   const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
@@ -153,7 +167,7 @@ export const ChatHeader = () => {
 };
 
 export const VBHeader = () => {
-  const label = `Virtual Background`;
+  const label = useString(vbPanelHeading)();
   const {setSidePanel} = useSidePanel();
   const {setIsVBActive} = useVB();
 
@@ -179,7 +193,7 @@ export const TranscriptHeader = props => {
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
 
-  const label = 'Meeting Transcript';
+  const label = useString(sttTranscriptPanelHeaderText)();
 
   return (
     <SidePanelHeader
@@ -229,12 +243,16 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     data: {isHost},
   } = useRoomInfo();
 
+  const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
+  const changeSpokenLanguage = useString<boolean>(
+    sttChangeSpokenLanguageText,
+  )();
   isHost &&
     actionMenuitems.push({
       icon: 'lang-select',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Change Spoken Language ',
+      title: changeSpokenLanguage + ' ',
       disabled: isLangChangeInProgress,
       callback: () => {
         setActionMenuVisible(false);
@@ -246,7 +264,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Download Transcript',
+    title: downloadTranscriptLabel,
     disabled: meetingTranscript.length === 0,
     callback: () => {
       downloadTranscript();
