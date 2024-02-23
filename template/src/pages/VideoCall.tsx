@@ -406,17 +406,17 @@ const VideoCall: React.FC = () => {
                                                                   <VideoMeetingDataProvider>
                                                                     <VideoCallProvider>
                                                                       <DisableChatProvider>
-                                                                        {$config.ENABLE_WHITEBOARD &&
-                                                                        (isWeb() ||
-                                                                          isSDK()) ? (
-                                                                          <WhiteboardConfigure>
-                                                                            <ChatConfigure>
+                                                                        <ChatConfigure>
+                                                                          {$config.ENABLE_WHITEBOARD &&
+                                                                          (isWeb() ||
+                                                                            isSDK()) ? (
+                                                                            <WhiteboardConfigure>
                                                                               <VideoCallScreen />
-                                                                            </ChatConfigure>
-                                                                          </WhiteboardConfigure>
-                                                                        ) : (
-                                                                          <VideoCallScreen />
-                                                                        )}
+                                                                            </WhiteboardConfigure>
+                                                                          ) : (
+                                                                            <VideoCallScreen />
+                                                                          )}
+                                                                        </ChatConfigure>
                                                                       </DisableChatProvider>
                                                                     </VideoCallProvider>
                                                                   </VideoMeetingDataProvider>

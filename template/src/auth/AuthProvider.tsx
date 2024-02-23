@@ -390,6 +390,11 @@ const AuthProvider = (props: AuthProviderProps) => {
           if (!response.token) {
             throw new Error('Token not received');
           } else {
+            isWeb() &&
+              sessionStorage.setItem(
+                'user_id',
+                JSON.parse(atob(response.token?.split('.')[1]))?.user_id,
+              );
             enableTokenAuth(response.token)
               .then(() => {
                 //set auth enabled on useEffect
@@ -442,8 +447,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         history.push('/create');
       } else {
         tokenLogout()
-          .then(res => {
-          })
+          .then(res => {})
           .catch(() => {
             console.error('user logout failed');
             setAuthError('Error occured on Logout, please try again.');
