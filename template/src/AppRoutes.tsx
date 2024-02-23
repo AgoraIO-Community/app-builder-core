@@ -48,7 +48,6 @@ function AppRoutes() {
         <Create />
       </AuthRoute>
       <Route exact path={'/:phrase'} component={VideoCallWrapper} />
-
       <Route path="*">
         <Text>Page not found</Text>
       </Route>

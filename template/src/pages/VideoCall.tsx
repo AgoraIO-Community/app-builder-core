@@ -290,6 +290,7 @@ const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
             waitingRoomStatus === WaitingRoomStatus.APPROVED)
             ? false
             : true,
+        recordingBot: recordingBot ? true : false,
       }));
 
       if (
