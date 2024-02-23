@@ -208,6 +208,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         // 2. set the local recording state to true to update the UI
         setUidWhoStarted(localUid);
         setRecordingActive(true);
+      } else if (res.status === 404) {
+        console.log('supriya recording failed');
       }
     });
     // await Linking.canOpenURL(url).then(supported => {

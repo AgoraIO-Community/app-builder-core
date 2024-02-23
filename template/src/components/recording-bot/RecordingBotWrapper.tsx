@@ -28,11 +28,9 @@ interface RecordingBotProps extends RouteProps {
 }
 
 const RecordingBotWrapper: React.FC<RecordingBotProps> = props => {
-  console.log('supriya props RecordingBotWrapper: ', props);
   const {setStore} = useContext(StorageContext);
   const [ready, setReady] = useState(false);
-  //   setStore && setStore(items => ({...items, token: recordingBotToken}));
-  //   console.log('supriya store', store);
+
   useEffect(() => {
     const recordingBotToken = getRecordingBotToken(props.history);
     console.log('supriya recordingBotToken: ', recordingBotToken);
