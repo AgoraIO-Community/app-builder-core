@@ -44,7 +44,6 @@ import {
   WaitingRoomStatus,
 } from '../components/room-info/useRoomInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
-import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
 import {ChatUIControlsProvider} from '../components/chat-ui/useChatUIControls';
@@ -65,13 +64,14 @@ import {CaptionProvider} from '../subComponents/caption/useCaption';
 import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 import StorageContext from '../components/StorageContext';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
-import WhiteboardConfigure from '../components/whiteboard/WhiteboardConfigure';
 import {NoiseSupressionProvider} from '../app-state/useNoiseSupression';
 import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
-import {isWeb} from '../utils/common';
+import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
+import {useLocation} from '../components/Router';
+import {getParamFromURL} from '../utils/common';
 
 enum RnEncryptionEnum {
   /**
@@ -99,18 +99,15 @@ enum RnEncryptionEnum {
   SM4128ECB = 4,
 }
 
-interface VideoCallProps {
-  recordingBot?: boolean;
-}
-
-const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
-  console.log('supriya  videocall prop - isrecordingBot: ', recordingBot);
+const VideoCall: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   //const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const joiningLoaderLabel = 'Starting Call. Just a second.';
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
+  const location = useLocation();
+  const isRecordingBot = getParamFromURL(location?.search, 'bot');
   /**
    *  Should we set the callscreen to active ??
    *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means the
@@ -121,7 +118,7 @@ const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
    *     the callActive depending upon the magic variable - $config.PRECALL
    *     i.e if $config.PRECALL is true then callActive is false else true
    */
-  const shouldCallBeSetToActive = recordingBot
+  const shouldCallBeSetToActive = isRecordingBot
     ? true
     : $config.PRECALL
     ? false
@@ -175,6 +172,7 @@ const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
       sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
     preferredMicrophoneId:
       sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
+    recordingBot: isRecordingBot ? true : false,
   });
 
   const history = useHistory();
@@ -290,7 +288,6 @@ const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
             waitingRoomStatus === WaitingRoomStatus.APPROVED)
             ? false
             : true,
-        recordingBot: recordingBot ? true : false,
       }));
 
       if (
@@ -425,15 +422,7 @@ const VideoCall: React.FC<VideoCallProps> = ({recordingBot = false}) => {
                                                                 <VideoMeetingDataProvider>
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
-                                                                      {$config.ENABLE_WHITEBOARD &&
-                                                                      (isWeb() ||
-                                                                        isSDK()) ? (
-                                                                        <WhiteboardConfigure>
-                                                                          <VideoCallScreen />
-                                                                        </WhiteboardConfigure>
-                                                                      ) : (
-                                                                        <VideoCallScreen />
-                                                                      )}
+                                                                      <VideoCallScreenWrapper />
                                                                     </DisableChatProvider>
                                                                   </VideoCallProvider>
                                                                 </VideoMeetingDataProvider>

@@ -23,7 +23,7 @@ import RecordingBotWrapper from './components/recording-bot/RecordingBotWrapper'
 function VideoCallWrapper(props) {
   return isRecordingBotRoute(props.history) ? (
     <RecordingBotWrapper history={props.history}>
-      <VideoCall recordingBot={true} />
+      <VideoCall />
     </RecordingBotWrapper>
   ) : (
     <AuthRoute>
