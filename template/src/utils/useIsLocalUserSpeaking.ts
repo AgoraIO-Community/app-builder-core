@@ -75,7 +75,7 @@ const useIsLocalUserSpeaking = () => {
   };
 
   useAsyncEffect(async () => {
-    if ($config.ACTIVE_SPEAKER && false) {
+    if ($config.ACTIVE_SPEAKER) {
       await listenForSpeaker();
       return () => {
         try {
