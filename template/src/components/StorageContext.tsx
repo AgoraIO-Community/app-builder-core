@@ -83,10 +83,10 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
               storeFromStorage[key] = initStoreValue[key];
             }
           });
-          //unauth flow delete token from the localstoage if any
-          // if (!ENABLE_AUTH) {
-          //   storeFromStorage['token'] = null;
-          // }
+          // unauth flow delete token from the localstoage if any
+          if (!ENABLE_AUTH) {
+            storeFromStorage['token'] = null;
+          }
           setStore(storeFromStorage);
           setReady(true);
         }
@@ -108,9 +108,9 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
          * Fix: if we duplicate browser tab and join the same meeting, we will create new session
          */
         let tempStore = JSON.parse(JSON.stringify(store));
-        // if (!ENABLE_AUTH) {
-        //   tempStore['token'] = null;
-        // }
+        if (!ENABLE_AUTH) {
+          tempStore['token'] = null;
+        }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
       } catch (e) {
         console.log('problem syncing the store', e);
