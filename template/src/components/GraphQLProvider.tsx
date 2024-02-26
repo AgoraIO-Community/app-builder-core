@@ -15,6 +15,7 @@ import {
   InMemoryCache,
   ApolloProvider,
   NormalizedCacheObject,
+  ApolloLink,
   // from,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
@@ -35,38 +36,66 @@ const httpLink = createHttpLink({
   credentials: 'include',
 });
 
-const authLink = (token: string) =>
-  setContext(async (_, {headers}) => {
-    // get the authentication token from local storage if it exists
-    // return the headers to the context so httpLink can read them
-    return {
-      headers: {
-        ...headers,
-        'X-Project-ID': $config.PROJECT_ID,
-        'X-Platform-ID': 'turnkey_web',
-        ...(token && {
-          authorization: token ? `Bearer ${token}` : '',
-        }),
-      },
-    };
+const cache = new InMemoryCache();
+
+const DEFAULT_CLIENT = new ApolloClient({
+  link: httpLink,
+  cache: cache,
+});
+
+const authLink = (token: string, name: string) => {
+  console.log('supriya authLink called', token, name);
+
+  return new ApolloLink((operation, forward) => {
+    console.log('supriya authLink context set', token, name);
+    if (token) {
+      operation.setContext({
+        headers: {
+          'X-Project-ID': $config.PROJECT_ID,
+          'X-Platform-ID': 'turnkey_web',
+          ...(token && {
+            authorization: token ? `Bearer ${token}` : '',
+          }),
+        },
+      });
+    }
+    return forward(operation);
   });
+  // get the authentication token from local storage if it exists
+  // return the headers to the context so httpLink can read them
+  // return {
+  //   headers: {
+  //     ...headers,
+  //     'X-Project-ID': $config.PROJECT_ID,
+  //     'X-Platform-ID': 'turnkey_web',
+  //     ...(token && {
+  //       authorization: token ? `Bearer ${token}` : '',
+  //     }),
+  //   },
+  // };
+};
 
 const GraphQLProvider = (props: {children: React.ReactNode}) => {
   const {store} = useContext(StorageContext);
-  const [client, setClient] = useState(
-    new ApolloClient({
-      link: authLink(store?.token).concat(httpLink),
-      cache: new InMemoryCache(),
-    }),
-  );
+  const [client, setClient] = useState(DEFAULT_CLIENT);
+
+  //  console.log('supriya apollo clients', client);
+  // useEffect(() => {
+  //   setClient(
+  //     new ApolloClient({
+  //       link: authLink(store?.token, 'supriya 2').concat(httpLink),
+  //       cache: new InMemoryCache(),
+  //     }),
+  //   );
+  // }, [store?.token]);
 
   useEffect(() => {
-    setClient(
-      new ApolloClient({
-        link: authLink(store?.token).concat(httpLink),
-        cache: new InMemoryCache(),
-      }),
-    );
+    if (!store?.token) return;
+    console.log('supriya token changed', store.token);
+    (async () => {
+      const link = authLink(store?.token, 'supriya 2').concat(httpLink);
+      setClient(new ApolloClient({link, cache}));
+    })();
   }, [store?.token]);
 
   // const errorLink = onError(
