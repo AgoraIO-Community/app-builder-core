@@ -165,7 +165,7 @@ const VideoCall: React.FC = () => {
     profile: $config.PROFILE,
     dual: true,
     encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: RnEncryptionEnum.AES256GCM, screenKey: null}
+      ? {key: null, mode: RnEncryptionEnum.AES128GCM2, screenKey: null}
       : false,
     role: ClientRole.Broadcaster,
     geoFencing: $config.GEO_FENCING,

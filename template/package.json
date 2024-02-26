@@ -62,6 +62,7 @@
     "agora-react-native-rtm": "1.5.1",
     "agora-rtc-sdk-ng": "4.20.1",
     "agora-rtm-sdk": "1.5.1",
+    "buffer": "^6.0.3",
     "electron-log": "4.3.5",
     "electron-squirrel-startup": "1.0.0",
     "electron-updater": "4.3.9",
