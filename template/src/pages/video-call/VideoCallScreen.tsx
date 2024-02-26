@@ -39,11 +39,9 @@ import Transcript from '../../subComponents/caption/Transcript';
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
-import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
 
 const VideoCallScreen = () => {
-  useFindActiveSpeaker();
   const {sidePanel} = useSidePanel();
   const [name] = useUserName();
   const {
