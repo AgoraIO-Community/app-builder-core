@@ -52,7 +52,7 @@ const useFindActiveSpeaker = () => {
   };
 
   useEffect(() => {
-    if ($config.ACTIVE_SPEAKER) {
+    if ($config.ACTIVE_SPEAKER && false) {
       isLocalUserSpeaking
         ? log(' %cLocal user started speaking', 'color:green')
         : log(' %cLocal user stopped speaking', 'color:red');
@@ -312,14 +312,14 @@ const useFindActiveSpeaker = () => {
     };
   };
   useEffect(() => {
-    if ($config.ACTIVE_SPEAKER) {
+    if ($config.ACTIVE_SPEAKER && false) {
       events.on(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
       events.on(volumeEnum.NON_SPEAKING_VOLUME, nonSpeakingVolumeEventCallback);
       events.on(volumeEnum.IS_SPEAKING, isSpeakingEventCallback);
     }
 
     return () => {
-      if ($config.ACTIVE_SPEAKER) {
+      if ($config.ACTIVE_SPEAKER && false) {
         events.off(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
         events.off(
           volumeEnum.NON_SPEAKING_VOLUME,
