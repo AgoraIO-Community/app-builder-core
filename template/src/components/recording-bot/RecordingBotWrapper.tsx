@@ -28,19 +28,22 @@ interface RecordingBotProps extends RouteProps {
 }
 
 const RecordingBotWrapper: React.FC<RecordingBotProps> = props => {
-  const {setStore} = useContext(StorageContext);
+  const {setStore, store} = useContext(StorageContext);
   const [ready, setReady] = useState(false);
+  const recordingBotToken = getRecordingBotToken(props.history);
 
   useEffect(() => {
-    const recordingBotToken = getRecordingBotToken(props.history);
     console.log('supriya recordingBotToken: ', recordingBotToken);
     setStore &&
-      setStore(items => ({
-        ...items,
+      setStore(prevState => ({
+        ...prevState,
         token: recordingBotToken,
       }));
-    setReady(true);
   }, []);
+
+  useEffect(() => {
+    store?.token === recordingBotToken && setReady(true);
+  }, [store?.token, recordingBotToken]);
 
   return ready ? <>{props.children}</> : <Loading text={'Loading...'} />;
 };

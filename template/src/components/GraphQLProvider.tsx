@@ -45,19 +45,19 @@ const DEFAULT_CLIENT = new ApolloClient({
 
 const authLink = (token: string, name: string) => {
   console.log('supriya authLink called', token, name);
-
   return new ApolloLink((operation, forward) => {
     console.log('supriya authLink context set', token, name);
     if (token) {
-      operation.setContext({
+      operation.setContext(({headers = {}}) => ({
         headers: {
+          ...headers,
           'X-Project-ID': $config.PROJECT_ID,
           'X-Platform-ID': 'turnkey_web',
           ...(token && {
             authorization: token ? `Bearer ${token}` : '',
           }),
         },
-      });
+      }));
     }
     return forward(operation);
   });
@@ -90,8 +90,9 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   // }, [store?.token]);
 
   useEffect(() => {
+    console.log('supriya token changed 1', store?.token);
     if (!store?.token) return;
-    console.log('supriya token changed', store.token);
+    console.log('supriya token changed 2', store.token);
     (async () => {
       const link = authLink(store?.token, 'supriya 2').concat(httpLink);
       setClient(new ApolloClient({link, cache}));
