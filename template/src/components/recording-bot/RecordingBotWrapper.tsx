@@ -19,8 +19,8 @@
 import React, {useContext, useEffect, useState} from 'react';
 import type {RouteProps} from 'react-router';
 import StorageContext from '../StorageContext';
-import {getRecordingBotToken} from '../../utils/isRecordingBotRoute';
 import Loading from '../../subComponents/Loading';
+import {useIsRecordingBot} from '../../utils/useIsRecordingBot';
 
 interface RecordingBotProps extends RouteProps {
   children: React.ReactNode;
@@ -30,8 +30,7 @@ interface RecordingBotProps extends RouteProps {
 const RecordingBotWrapper: React.FC<RecordingBotProps> = props => {
   const {setStore, store} = useContext(StorageContext);
   const [ready, setReady] = useState(false);
-  const recordingBotToken = getRecordingBotToken(props.history);
-
+  const {recordingBotToken} = useIsRecordingBot();
   useEffect(() => {
     console.log('supriya recordingBotToken: ', recordingBotToken);
     setStore &&

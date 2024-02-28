@@ -40,9 +40,15 @@ import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {useIsRecordingBot} from '../../utils/useIsRecordingBot';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../../components/chat-ui/useChatUIControls';
 
 const VideoCallScreen = () => {
-  const {sidePanel} = useSidePanel();
+  const {setChatType} = useChatUIControls();
+  const {sidePanel, setSidePanel} = useSidePanel();
   const [name] = useUserName();
   const {
     data: {meetingTitle, isHost},
@@ -228,6 +234,14 @@ const VideoCallScreen = () => {
 
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
+  const {isRecordingBot} = useIsRecordingBot();
+
+  useEffect(() => {
+    if (isRecordingBot) {
+      setSidePanel(SidePanelType.Chat);
+      setChatType(ChatType.Group);
+    }
+  }, []);
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -253,16 +267,18 @@ const VideoCallScreen = () => {
             )}
           </ToolbarProvider>
           <View style={style.full}>
-            <ToolbarProvider value={{position: ToolbarPosition.top}}>
-              {TopbarProps?.length ? (
-                <TopbarComponent
-                  customItems={TopbarProps}
-                  includeDefaultItems={false}
-                />
-              ) : (
-                <TopbarComponent />
-              )}
-            </ToolbarProvider>
+            {!isRecordingBot && (
+              <ToolbarProvider value={{position: ToolbarPosition.top}}>
+                {TopbarProps?.length ? (
+                  <TopbarComponent
+                    customItems={TopbarProps}
+                    includeDefaultItems={false}
+                  />
+                ) : (
+                  <TopbarComponent />
+                )}
+              </ToolbarProvider>
+            )}
             <View
               style={[
                 style.videoView,
@@ -304,20 +320,22 @@ const VideoCallScreen = () => {
             {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>
             ) : (
-              <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-                {BottombarProps?.length ? (
-                  <BottombarComponent
-                    customItems={BottombarProps}
-                    includeDefaultItems={false}
-                  />
-                ) : (
-                  <>
-                    <CaptionContainer />
-                    <Spacer size={10} />
-                    <BottombarComponent />
-                  </>
-                )}
-              </ToolbarProvider>
+              !isRecordingBot && (
+                <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+                  {BottombarProps?.length ? (
+                    <BottombarComponent
+                      customItems={BottombarProps}
+                      includeDefaultItems={false}
+                    />
+                  ) : (
+                    <>
+                      <CaptionContainer />
+                      <Spacer size={10} />
+                      <BottombarComponent />
+                    </>
+                  )}
+                </ToolbarProvider>
+              )
             )}
           </View>
           <ToolbarProvider value={{position: ToolbarPosition.right}}>

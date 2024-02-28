@@ -70,8 +70,7 @@ import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
-import {useLocation} from '../components/Router';
-import {getParamFromURL} from '../utils/common';
+import {useIsRecordingBot} from '../utils/useIsRecordingBot';
 
 enum RnEncryptionEnum {
   /**
@@ -106,8 +105,7 @@ const VideoCall: React.FC = () => {
   const joiningLoaderLabel = 'Starting Call. Just a second.';
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
-  const location = useLocation();
-  const isRecordingBot = getParamFromURL(location?.search, 'bot');
+  const {isRecordingBot} = useIsRecordingBot();
   /**
    *  Should we set the callscreen to active ??
    *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means the

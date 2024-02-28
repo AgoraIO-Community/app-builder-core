@@ -17,11 +17,12 @@ import {Route, Switch, Redirect} from './components/Router';
 import AuthRoute from './auth/AuthRoute';
 import {IDPAuth} from './auth/IDPAuth';
 import {Text} from 'react-native';
-import {isRecordingBotRoute} from './utils/isRecordingBotRoute';
 import RecordingBotWrapper from './components/recording-bot/RecordingBotWrapper';
+import {useIsRecordingBot} from './utils/useIsRecordingBot';
 
 function VideoCallWrapper(props) {
-  return isRecordingBotRoute(props.history) ? (
+  const {isRecordingBotRoute} = useIsRecordingBot();
+  return isRecordingBotRoute ? (
     <RecordingBotWrapper history={props.history}>
       <VideoCall />
     </RecordingBotWrapper>
