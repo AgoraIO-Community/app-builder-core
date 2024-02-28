@@ -176,6 +176,18 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
   }, [isRecordingActive, callActive, isHost]);
 
+  const showToast = (message: string) => {
+    Toast.show({
+      leadingIconName: 'recording',
+      type: 'error',
+      text1: message,
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      leadingIcon: null,
+    });
+  };
+
   const startRecording = () => {
     console.log('supriya - start recording', roomId.host);
     const passphrase = roomId.host || '';
@@ -189,114 +201,36 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         passphrase: roomId.host,
         url: `https://app-builder-core-git-feature-recording-web-agoraio.vercel.app/${passphrase}`,
       }),
-    }).then((res: any) => {
-      setInProgress(false);
-      console.log('supriya recording/start response received', res);
-      if (res.status === 200) {
-        /**
-         * 1. Once the backend sucessfuly starts recording, send message
-         * in the channel indicating that cloud recording is now active.
-         */
-        events.send(
-          EventNames.RECORDING_ATTRIBUTE,
-          JSON.stringify({
-            action: EventActions.RECORDING_STARTED,
-            value: `${localUid}`,
-          }),
-          PersistanceLevel.Session,
-        );
-        // 2. set the local recording state to true to update the UI
-        setUidWhoStarted(localUid);
-        setRecordingActive(true);
-      } else if (res.status === 404) {
-        console.log('supriya recording failed');
-      }
-    });
-    // await Linking.canOpenURL(url).then(supported => {
-    //   console.log('supported? :', supported);
-    //   if (supported) {
-    //     Linking.openURL(url)
-    //       .then(aa => console.log('openURL resp.:', aa))
-    //       .catch(err => console.log('openURL error:', err));
-    //   } else {
-    //     console.log('url not valid');
-    //   }
-    // });
-    // setInProgress(true);
-    // fetch(`${$config.BACKEND_ENDPOINT}/recording/start`, {
-    //   body: JSON.stringify({
-    //     passphrase: roomId,
-    //     mode: 'web',
-    //     url: '',
-    //     webpage_ready_timeout: 10,
-    //   }),
-    // })
-    //   .then(response => response.json())
-    //   .then((res: any) => {
-    //     if (res && res?.url) {
-    //       console.log('supriya startRecording response received');
-    //       Linking.openURL('');
-    //     } else {
-    //       console.log('supriya startRecording response received without url');
-    //     }
-    //   })
-    //   .catch(_ => {
-    //     console.log('supriya startRecording catch block');
-    //   });
-    // If recording is not going on, start the recording by executing the graphql query
-    // startRecordingQuery({
-    //   variables: {
-    //     passphrase: phrase,
-    //     secret:
-    //       rtcProps.encryption && rtcProps.encryption.key
-    //         ? rtcProps.encryption.key
-    //         : '',
-    //     config: {
-    //       resolution: 'SD360p',
-    //       trigger: 'AUTO',
-    //     },
-    //   },
-    // })
-    //   .then(res => {
-    //     setInProgress(false);
-    //     if (res.data.startRecordingSession === 'success') {
-    //       /**
-    //        * 1. Once the backend sucessfuly starts recording, send message
-    //        * in the channel indicating that cloud recording is now active.
-    //        */
-    //       events.send(
-    //         EventNames.RECORDING_ATTRIBUTE,
-    //         JSON.stringify({
-    //           action: EventActions.RECORDING_STARTED,
-    //           value: `${localUid}`,
-    //         }),
-    //         PersistanceLevel.Session,
-    //       );
-    //       // 2. set the local recording state to true to update the UI
-    //       setUidWhoStarted(localUid);
-    //       setRecordingActive(true);
-    //       // 3. set the presenter mode if screen share is active
-    //       // 3.a Get the most recent screenshare uid
-    //       const sorted = Object.entries(screenShareData)
-    //         .filter(el => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
-    //         .sort((a, b) => b[1].ts - a[1].ts);
-
-    //       const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
-    //       if (activeScreenshareUid) {
-    //         console.log(
-    //           'screenshare: Executing presenter query for screenuid',
-    //           activeScreenshareUid,
-    //         );
-    //         executePresenterQuery(parseInt(activeScreenshareUid));
-    //       } else {
-    //         executeNormalQuery();
-    //       }
-    //     }
-    //   })
-    //   .catch(err => {
-    //     setInProgress(false);
-    //     console.log(err);
-    //   });
+    })
+      .then((res: any) => {
+        setInProgress(false);
+        console.log('supriya recording/start response received', res);
+        if (res.status === 200) {
+          /**
+           * 1. Once the backend sucessfuly starts recording, send message
+           * in the channel indicating that cloud recording is now active.
+           */
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STARTED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
+          // 2. set the local recording state to true to update the UI
+          setUidWhoStarted(localUid);
+          setRecordingActive(true);
+        } else if (res.status === 500) {
+          showToast('The request failed due to an internal error');
+        } else {
+          showToast('Recording failed to start');
+        }
+      })
+      .catch(err => {
+        setInProgress(false);
+        console.log(err);
+      });
   };
 
   const stopRecording = () => {
@@ -317,7 +251,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       activeUids.indexOf(uidWhoStarted) === -1
     ) {
       setInProgress(true);
-      // If recording is already going on, stop the recording by executing the graphql query.
+      // If recording is already going on, stop the recording by executing the below query.
 
       fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
         method: 'POST',
@@ -346,6 +280,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             );
             // 2. set the local recording state to false to update the UI
             setRecordingActive(false);
+          } else if (res.status === 500) {
+            showToast('The request failed due to an internal error');
+          } else {
+            showToast('Recording failed to stop. There was an error');
           }
         })
         .catch(err => {
