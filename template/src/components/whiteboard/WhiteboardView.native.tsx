@@ -10,37 +10,45 @@
 *********************************************
 */
 
-import React, {useContext, useRef} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {whiteboardContext} from './WhiteboardConfigure';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 import {useRoomInfo} from 'customization-api';
 import {
   WhiteboardView as NativeWhiteboardView,
   RoomCallbackHandler,
 } from '@netless/react-native-whiteboard';
 import WhiteboardWidget from './WhiteboardWidget';
+import {whiteboardInitializingText} from '../../language/default-labels/videoCallScreenLabels';
+import {useString} from '../../utils/useString';
 
 interface WhiteboardViewInterface {}
 
 const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const {getWhiteboardUid, whiteboardActive} = useContext(whiteboardContext);
+  const [isLoading, setIsLoading] = useState(false);
   const roomRef = useRef({});
   const sdkRef = useRef({});
   const {
     data: {whiteboard: {room_token, room_uuid} = {}},
   } = useRoomInfo();
+  const whiteboardInitializing = useString(whiteboardInitializingText)();
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
     onPhaseChanged: e => console.log('debugging onPhaseChanged changed: ', e),
     onRoomStateChanged: e =>
       console.log('debugging onRoomStateChanged changed: ', e),
-    onDisconnectWithError: e =>
-      console.log('debugging onDisconnectWithError: ', e),
+    onDisconnectWithError: e => {
+      console.log('debugging onDisconnectWithError: ', e);
+      setIsLoading(false);
+    },
   };
 
   const sdkCallbacks = {
-    onSetupFail: error =>
-      console.log('debugging whiteboard sdk setup fail: ', error),
+    onSetupFail: error => {
+      console.log('debugging whiteboard sdk setup fail: ', error);
+      setIsLoading(false);
+    },
   };
 
   const joinRoomCallback = (aRoom, aSdk, error) => {
@@ -48,7 +56,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     sdkRef.current = aSdk;
 
     console.log('debugging aRoom', aRoom);
-
+    setIsLoading(false);
     if (error) {
       console.log(error);
     } else {
@@ -60,10 +68,21 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     }
   };
 
+  useEffect(() => {
+    setIsLoading(true);
+  }, []);
+
   return (
     <View style={style.whiteboardContainer}>
       {whiteboardActive ? (
         <>
+          {isLoading ? (
+            <View style={style.placeholder}>
+              <Text style={{color: 'black'}}>{whiteboardInitializing}</Text>
+            </View>
+          ) : (
+            <></>
+          )}
           <WhiteboardWidget whiteboardRoom={roomRef} />
           <NativeWhiteboardView
             style={style.whiteboard}
@@ -90,11 +109,19 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
 };
 
 const style = StyleSheet.create({
+  placeholder: {
+    position: 'absolute',
+    top: '30%',
+    alignItems: 'center', //Centered horizontally
+    flex: 1,
+    zIndex: 999,
+  },
   whiteboardContainer: {
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
     backgroundColor: 'black',
+    position: 'relative',
   },
   whiteboard: {
     aspectRatio: 16.0 / 9.0,
