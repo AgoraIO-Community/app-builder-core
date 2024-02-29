@@ -13,7 +13,7 @@ import {useLocalUserInfo, useRtc} from 'customization-api';
 import {useContext} from 'react';
 import {
   PropsContext,
-  ClientRole,
+  ClientRoleType,
   ToggleState,
   DispatchContext,
 } from '../../agora-rn-uikit';
@@ -33,7 +33,7 @@ function useMuteToggleLocal() {
   const local = useLocalUserInfo();
   const isLiveStream = $config.EVENT_MODE;
   const {rtcProps} = useContext(PropsContext);
-  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
 

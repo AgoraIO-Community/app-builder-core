@@ -18,7 +18,7 @@ import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
-import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
+import {PropsContext} from '../../../../agora-rn-uikit';
 import {useContent} from 'customization-api';
 import {isMobileUA} from '../../../utils/common';
 import {IconButtonProps} from '../../../atoms/IconButton';

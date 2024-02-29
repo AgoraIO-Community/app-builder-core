@@ -15,8 +15,8 @@ import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
   PropsProvider,
-  ClientRole,
-  ChannelProfile,
+  ClientRoleType,
+  ChannelProfileType,
   LocalUserContext,
   UidType,
   CallbacksInterface,
@@ -172,7 +172,7 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES256GCM, screenKey: null}
       : false,
-    role: ClientRole.Broadcaster,
+    role: ClientRoleType.ClientRoleBroadcaster,
     geoFencing: $config.GEO_FENCING,
     audioRoom: $config.AUDIO_ROOM,
     activeSpeaker: $config.ACTIVE_SPEAKER,
@@ -284,7 +284,9 @@ const VideoCall: React.FC = () => {
           : false,
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
-        role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
+        role: data.isHost
+          ? ClientRoleType.ClientRoleBroadcaster
+          : ClientRoleType.ClientRoleAudience,
         preventJoin:
           !$config.ENABLE_WAITING_ROOM ||
           ($config.ENABLE_WAITING_ROOM && data.isHost) ||
@@ -370,8 +372,8 @@ const VideoCall: React.FC = () => {
                 callbacks,
                 styleProps,
                 mode: $config.EVENT_MODE
-                  ? ChannelProfile.LiveBroadcasting
-                  : ChannelProfile.Communication,
+                  ? ChannelProfileType.ChannelProfileLiveBroadcasting
+                  : ChannelProfileType.ChannelProfileCommunication,
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
