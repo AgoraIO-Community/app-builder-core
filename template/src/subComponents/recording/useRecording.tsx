@@ -95,6 +95,9 @@ interface RecordingProviderProps {
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
+const videoRoomRecordingStartErrorToastHeading = 'Recording failed to start';
+const videoRoomRecordingStopErrorToastHeading = 'Recording failed to stop';
+const videoRoomRecordingErrorToastSubHeading = 'There was an internal error';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
@@ -176,11 +179,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
   }, [isRecordingActive, callActive, isHost]);
 
-  const showToast = (message: string) => {
+  const showErrorToast = (text1: string, text2?: string) => {
     Toast.show({
-      leadingIconName: 'recording',
+      leadingIconName: 'alert',
       type: 'error',
-      text1: message,
+      text1: text1,
+      text2: text2 ? text2 : '',
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
@@ -222,9 +226,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setUidWhoStarted(localUid);
           setRecordingActive(true);
         } else if (res.status === 500) {
-          showToast('The request failed due to an internal error');
+          showErrorToast(
+            videoRoomRecordingStartErrorToastHeading,
+            videoRoomRecordingErrorToastSubHeading,
+          );
         } else {
-          showToast('Recording failed to start');
+          showErrorToast(videoRoomRecordingStartErrorToastHeading);
         }
       })
       .catch(err => {
@@ -250,6 +257,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       localUid === uidWhoStarted ||
       activeUids.indexOf(uidWhoStarted) === -1
     ) {
+      console.log('supriya - stop recording', roomId.host);
       setInProgress(true);
       // If recording is already going on, stop the recording by executing the below query.
 
@@ -264,6 +272,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }),
       })
         .then(res => {
+          console.log('supriya recording/stop response received', res);
           setInProgress(false);
           if (res.status === 200) {
             /**
@@ -281,9 +290,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             // 2. set the local recording state to false to update the UI
             setRecordingActive(false);
           } else if (res.status === 500) {
-            showToast('The request failed due to an internal error');
+            showErrorToast(
+              videoRoomRecordingStopErrorToastHeading,
+              videoRoomRecordingErrorToastSubHeading,
+            );
           } else {
-            showToast('Recording failed to stop. There was an error');
+            showErrorToast(videoRoomRecordingStopErrorToastHeading);
           }
         })
         .catch(err => {
