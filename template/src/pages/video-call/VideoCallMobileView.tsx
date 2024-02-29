@@ -123,12 +123,12 @@ const VideoCallMobileView = props => {
     defaultContent[maxScreenShareUid] &&
     defaultContent[maxScreenShareUid]?.video ? (
     <>
-      {!native ? <WhiteboardListener /> : <></>}
+      {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
       <VideoRenderer user={defaultContent[maxScreenShareUid]} />
     </>
   ) : (
     <>
-      {!native ? <WhiteboardListener /> : <></>}
+      {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
       <VideoCallView />
     </>
   );
