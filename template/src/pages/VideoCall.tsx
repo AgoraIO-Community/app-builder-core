@@ -193,7 +193,6 @@ const VideoCall: React.FC = () => {
 
   useEffect(() => {
     if (!SdkJoinState.phrase) {
-      console.log('supriya i am joining here 1');
       useJoin(phrase)
         .then(() => {})
         .catch(error => {
@@ -232,7 +231,6 @@ const VideoCall: React.FC = () => {
     } else if (sdkMeetingPhrase) {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
-      console.log('supriya i am joining here 2');
       useJoin(sdkMeetingPhrase).catch(error => {
         setGlobalErrorMessage(error);
         history.push('/');
