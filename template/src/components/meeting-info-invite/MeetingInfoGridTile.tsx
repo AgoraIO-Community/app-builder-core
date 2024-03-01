@@ -113,6 +113,15 @@ export default function MeetingInfoGridTile() {
                   )}
                   <View>
                     <Spacer size={20} />
+                    <View
+                      style={{
+                        backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+                        borderRadius: ThemeConfig.BorderRadius.small,
+                        borderWidth: 5,
+                        borderColor: 'green',
+                      }}>
+                      yes{' '}
+                    </View>
                     <TertiaryButton
                       text={copyInviteButton}
                       containerStyle={{
@@ -164,6 +173,8 @@ const style = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
+    borderWidth: 5,
+    borderColor: 'green',
   },
   inviteTile: {
     flex: 1,

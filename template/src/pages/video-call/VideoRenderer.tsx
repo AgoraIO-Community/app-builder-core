@@ -48,6 +48,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const {pinnedUid, secondaryPinnedUid} = useContent();
   const activeSpeaker = useActiveSpeaker();
   const isActiveSpeaker = activeSpeaker === user.uid;
+  console.log('supriya isActiveSpeaker: ', isActiveSpeaker);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -150,14 +151,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
             setVideoTileWidth(width);
             setAvatarSize(Math.floor(width * 0.35));
           }}
-          style={[
-            maxStyle.container,
-            !CustomChild && isActiveSpeaker
-              ? maxStyle.activeContainerStyle
-              : user.video
-              ? maxStyle.noVideoStyle
-              : maxStyle.nonActiveContainerStyle,
-          ]}>
+          style={[maxStyle.container]}>
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
