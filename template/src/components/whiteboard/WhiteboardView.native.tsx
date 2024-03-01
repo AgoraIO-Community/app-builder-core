@@ -26,7 +26,7 @@ interface WhiteboardViewInterface {}
 
 const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const {getWhiteboardUid, whiteboardActive} = useContext(whiteboardContext);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const roomRef = useRef({});
   const sdkRef = useRef({});
   const {
@@ -35,7 +35,10 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const whiteboardInitializing = useString(whiteboardInitializingText)();
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
-    onPhaseChanged: e => console.log('debugging onPhaseChanged changed: ', e),
+    onPhaseChanged: e => {
+      console.log('debugging onPhaseChanged changed: ', e);
+      setIsLoading(false);
+    },
     onRoomStateChanged: e =>
       console.log('debugging onRoomStateChanged changed: ', e),
     onDisconnectWithError: e => {
@@ -67,10 +70,6 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
       }
     }
   };
-
-  useEffect(() => {
-    setIsLoading(true);
-  }, []);
 
   return (
     <View style={style.whiteboardContainer}>
