@@ -23,15 +23,20 @@ const VideoCallScreenWithRecordingBot: React.FC = () => {
 const VideoCallScreenWrapper: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
 
-  if (rtcProps?.recordingBot) {
-    return <VideoCallScreenWithRecordingBot />;
-  }
   if ($config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
     return (
       <WhiteboardConfigure>
-        <VideoCallScreen />
+        {rtcProps?.recordingBot ? (
+          <WhiteboardConfigure>
+            <VideoCallScreenWithRecordingBot />
+          </WhiteboardConfigure>
+        ) : (
+          <VideoCallScreen />
+        )}
       </WhiteboardConfigure>
     );
+  } else if (rtcProps?.recordingBot) {
+    return <VideoCallScreenWithRecordingBot />;
   }
   return <VideoCallScreen />;
 };
