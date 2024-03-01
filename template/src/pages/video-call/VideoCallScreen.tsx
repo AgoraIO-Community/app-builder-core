@@ -322,22 +322,24 @@ const VideoCallScreen = () => {
             {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>
             ) : (
-              !isRecordingBot && (
-                <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-                  {BottombarProps?.length ? (
-                    <BottombarComponent
-                      customItems={BottombarProps}
-                      includeDefaultItems={false}
-                    />
-                  ) : (
-                    <>
-                      <CaptionContainer />
-                      <Spacer size={10} />
-                      <BottombarComponent />
-                    </>
-                  )}
-                </ToolbarProvider>
-              )
+              <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+                {BottombarProps?.length ? (
+                  <BottombarComponent
+                    customItems={BottombarProps}
+                    includeDefaultItems={false}
+                  />
+                ) : (
+                  <>
+                    {$config.ENABLE_STT && (
+                      <>
+                        <Spacer size={10} />
+                        <CaptionContainer />
+                      </>
+                    )}
+                    {!isRecordingBot && <BottombarComponent />}
+                  </>
+                )}
+              </ToolbarProvider>
             )}
           </View>
           <ToolbarProvider value={{position: ToolbarPosition.right}}>
