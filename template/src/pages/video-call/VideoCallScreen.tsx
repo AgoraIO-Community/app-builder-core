@@ -39,6 +39,7 @@ import Transcript from '../../subComponents/caption/Transcript';
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
+import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
 import {useIsRecordingBot} from '../../utils/useIsRecordingBot';
 import {
@@ -47,6 +48,7 @@ import {
 } from '../../components/chat-ui/useChatUIControls';
 
 const VideoCallScreen = () => {
+  useFindActiveSpeaker();
   const {setChatType} = useChatUIControls();
   const {sidePanel, setSidePanel} = useSidePanel();
   const [name] = useUserName();
