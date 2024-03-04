@@ -27,9 +27,7 @@ const VideoCallScreenWrapper: React.FC = () => {
     return (
       <WhiteboardConfigure>
         {rtcProps?.recordingBot ? (
-          <WhiteboardConfigure>
-            <VideoCallScreenWithRecordingBot />
-          </WhiteboardConfigure>
+          <VideoCallScreenWithRecordingBot />
         ) : (
           <VideoCallScreen />
         )}
