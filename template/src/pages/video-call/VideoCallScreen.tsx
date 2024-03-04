@@ -385,5 +385,6 @@ const style = StyleSheet.create({
   },
   zeroHeight: {
     height: 0,
+    visibility: 'hidden',
   },
 });
