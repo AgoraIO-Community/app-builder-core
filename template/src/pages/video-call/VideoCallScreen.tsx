@@ -330,13 +330,11 @@ const VideoCallScreen = () => {
                   />
                 ) : (
                   <>
-                    {$config.ENABLE_STT && (
-                      <>
-                        <Spacer size={10} />
-                        <CaptionContainer />
-                      </>
-                    )}
-                    {!isRecordingBot && <BottombarComponent />}
+                    <CaptionContainer />
+                    <Spacer size={10} />
+                    <View style={isRecordingBot && style.hideBottom}>
+                      <BottombarComponent />
+                    </View>
                   </>
                 )}
               </ToolbarProvider>
@@ -381,5 +379,8 @@ const style = StyleSheet.create({
   videoView: {
     flex: 12,
     flexDirection: 'row',
+  },
+  hideBottom: {
+    height: 0,
   },
 });
