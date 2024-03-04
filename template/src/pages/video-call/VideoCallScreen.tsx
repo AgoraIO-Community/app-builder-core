@@ -46,11 +46,10 @@ import {
   ChatType,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
+import {useCaption} from '../../subComponents/caption/useCaption';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
-  const {setChatType} = useChatUIControls();
-  const {sidePanel, setSidePanel} = useSidePanel();
   const [name] = useUserName();
   const {
     data: {meetingTitle, isHost},
@@ -237,11 +236,15 @@ const VideoCallScreen = () => {
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
   const {isRecordingBot} = useIsRecordingBot();
+  const {setChatType} = useChatUIControls();
+  const {sidePanel, setSidePanel} = useSidePanel();
+  const {setIsCaptionON} = useCaption();
 
   useEffect(() => {
     if (isRecordingBot) {
       setSidePanel(SidePanelType.Chat);
       setChatType(ChatType.Group);
+      setIsCaptionON(true);
     }
   }, []);
 
@@ -269,7 +272,7 @@ const VideoCallScreen = () => {
             )}
           </ToolbarProvider>
           <View style={style.full}>
-            {!isRecordingBot && (
+            <View style={isRecordingBot && style.zeroHeight}>
               <ToolbarProvider value={{position: ToolbarPosition.top}}>
                 {TopbarProps?.length ? (
                   <TopbarComponent
@@ -280,7 +283,7 @@ const VideoCallScreen = () => {
                   <TopbarComponent />
                 )}
               </ToolbarProvider>
-            )}
+            </View>
             <View
               style={[
                 style.videoView,
@@ -332,7 +335,7 @@ const VideoCallScreen = () => {
                   <>
                     <CaptionContainer />
                     <Spacer size={10} />
-                    <View style={isRecordingBot && style.hideBottom}>
+                    <View style={isRecordingBot && style.zeroHeight}>
                       <BottombarComponent />
                     </View>
                   </>
@@ -380,7 +383,7 @@ const style = StyleSheet.create({
     flex: 12,
     flexDirection: 'row',
   },
-  hideBottom: {
+  zeroHeight: {
     height: 0,
   },
 });
