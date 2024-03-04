@@ -10,22 +10,18 @@
 *********************************************
 */
 import RtcEngine from './RtcEngine';
-import SurfaceView from './SurfaceView';
-import LocalView from './LocalView';
+export {default as RtcSurfaceView} from './RtcSurfaceView';
+
 import * as Types from './Types';
 
-export const RtcLocalView = {
-  SurfaceView: LocalView,
-  TextureView: LocalView,
-};
+export const VideoMirrorMode = {...Types.RenderModeType};
+export const RenderModeType = {...Types.RenderModeType};
 
-export const RtcRemoteView = {
-  SurfaceView: SurfaceView as any,
-  TextureView: SurfaceView as any,
-};
-
-export const VideoRenderMode = {...Types.VideoRenderMode};
-export const VideoMirrorMode = {...Types.VideoRenderMode};
+export function createAgoraRtcEngine(appId: string) {
+  let engine = new RtcEngine(appId);
+  window.engine = engine;
+  return engine;
+}
 
 export {RnEncryptionEnum as EncryptionMode} from './RtcEngine';
 export {AREAS as AreaCode} from './RtcEngine';

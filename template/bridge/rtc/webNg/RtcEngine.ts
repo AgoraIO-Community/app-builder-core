@@ -31,8 +31,10 @@ import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
+
+import {IRtcEngine} from 'react-native-agora';
 import {VideoProfile} from '../quality';
-import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
+import {ChannelProfileType, ClientRoleType} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
@@ -184,6 +186,11 @@ if ($config.LOG_ENABLED) {
   AgoraRTC.disableLogUpload();
 }
 
+// export class WebRtcEngine extends IRtcEngine {
+//   initialize(context: RtcEngineContext): number {
+
+//   }
+// }
 export default class RtcEngine {
   private activeSpeakerUid: number;
   public appId: string;
@@ -225,6 +232,10 @@ export default class RtcEngine {
   constructor(appId: string) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
+  }
+
+  initialize(appId: string) {
+    this.appId = appId;
   }
 
   static async create(appId: string): Promise<RtcEngine> {
@@ -741,17 +752,21 @@ export default class RtcEngine {
     return devices;
   }
 
-  async setChannelProfile(profile: ChannelProfile): Promise<void> {
+  async setChannelProfile(profile: ChannelProfileType): Promise<void> {
     try {
       this.client = AgoraRTC.createClient({
         codec: 'vp8',
         mode:
-          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+          profile === ChannelProfileType.ChannelProfileLiveBroadcasting
+            ? mode.live
+            : mode.rtc,
       });
       this.screenClient = AgoraRTC.createClient({
         codec: 'vp8',
         mode:
-          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+          profile === ChannelProfileType.ChannelProfileLiveBroadcasting
+            ? mode.live
+            : mode.rtc,
       });
     } catch (e) {
       throw e;
@@ -759,11 +774,11 @@ export default class RtcEngine {
   }
 
   async setClientRole(
-    clientRole: ClientRole,
+    clientRole: ClientRoleType,
     options?: ClientRoleOptions,
   ): Promise<void> {
     try {
-      if (clientRole == ClientRole.Audience) {
+      if (clientRole == ClientRoleType.ClientRoleAudience) {
         if (this.isJoined) {
           // Unpublish the streams when role is changed to Audience
           await this.client.unpublish();

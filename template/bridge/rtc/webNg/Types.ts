@@ -9,11 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-export enum VideoRenderMode {
-  Hidden = 1,
-  Fit,
-  Adaptive,
+
+export enum RenderModeType {
+  /**
+   * 1: Hidden mode. Uniformly scale the video until one of its dimension fits the boundary (zoomed to fit). One dimension of the video may have clipped contents.
+   */
+  RenderModeHidden = 1,
+  /**
+   * 2: Fit mode. Uniformly scale the video until one of its dimension fits the boundary (zoomed to fit). Areas that are not filled due to disparity in the aspect ratio are filled with black.
+   */
+  RenderModeFit = 2,
+  /**
+   * @ignore
+   */
+  RenderModeAdaptive = 3,
 }
+
 export enum VideoMirrorMode {
   /**
    * 0: (Default) The SDK determines the mirror mode.
@@ -26,7 +37,7 @@ export enum VideoMirrorMode {
   /**
    * 2: Disables mirror mode.
    */
-  Disabled = 2
+  Disabled = 2,
 }
 /**
  *
