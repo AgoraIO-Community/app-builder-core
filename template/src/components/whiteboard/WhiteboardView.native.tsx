@@ -19,8 +19,14 @@ import {
   RoomCallbackHandler,
 } from '@netless/react-native-whiteboard';
 import WhiteboardWidget from './WhiteboardWidget';
-import {whiteboardInitializingText} from '../../language/default-labels/videoCallScreenLabels';
+import {
+  whiteboardInitializingText,
+  whiteboardNativeInfoToastHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../utils/useString';
+import ThemeConfig from '../../theme';
+import Toast from '../../../react-native-toast-message';
+import {useContent} from 'customization-api';
 
 interface WhiteboardViewInterface {}
 
@@ -33,14 +39,36 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     data: {whiteboard: {room_token, room_uuid} = {}},
   } = useRoomInfo();
   const whiteboardInitializing = useString(whiteboardInitializingText)();
+  const whiteboardNativeInfoToastHeadingText = useString(
+    whiteboardNativeInfoToastHeading,
+  )();
+  const {activeUids} = useContent();
+  useEffect(() => {
+    if (
+      whiteboardActive &&
+      activeUids &&
+      activeUids?.length &&
+      activeUids[0] === getWhiteboardUid()
+    ) {
+      Toast.show({
+        leadingIconName: 'info',
+        type: 'info',
+        text1: whiteboardNativeInfoToastHeadingText,
+        visibilityTime: 5000,
+        primaryBtn: null,
+        secondaryBtn: null,
+        leadingIcon: null,
+      });
+    }
+  }, [whiteboardActive, activeUids]);
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
     onPhaseChanged: e => {
       console.log('debugging onPhaseChanged changed: ', e);
       setIsLoading(false);
     },
-    onRoomStateChanged: e =>
-      console.log('debugging onRoomStateChanged changed: ', e),
+    // onRoomStateChanged: e =>
+    //   console.log('debugging onRoomStateChanged changed: ', e),
     onDisconnectWithError: e => {
       console.log('debugging onDisconnectWithError: ', e);
       setIsLoading(false);
@@ -77,7 +105,9 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
         <>
           {isLoading ? (
             <View style={style.placeholder}>
-              <Text style={{color: 'black'}}>{whiteboardInitializing}</Text>
+              <Text style={style.loadingTextStyle}>
+                {whiteboardInitializing}
+              </Text>
             </View>
           ) : (
             <></>
@@ -129,6 +159,12 @@ const style = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     justifyContent: 'center',
+  },
+  loadingTextStyle: {
+    color: $config.HARD_CODED_BLACK_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.small,
+    fontWeight: '600',
   },
 });
 
