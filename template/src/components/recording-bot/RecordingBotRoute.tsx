@@ -22,12 +22,12 @@ import StorageContext from '../StorageContext';
 import Loading from '../../subComponents/Loading';
 import {useIsRecordingBot} from '../../utils/useIsRecordingBot';
 
-interface RecordingBotProps extends RouteProps {
+interface RecordingBotRouteProps extends RouteProps {
   children: React.ReactNode;
   history: any;
 }
 
-const RecordingBotWrapper: React.FC<RecordingBotProps> = props => {
+const RecordingBotRoute: React.FC<RecordingBotRouteProps> = props => {
   const {setStore, store} = useContext(StorageContext);
   const [ready, setReady] = useState(false);
   const {recordingBotToken} = useIsRecordingBot();
@@ -47,4 +47,4 @@ const RecordingBotWrapper: React.FC<RecordingBotProps> = props => {
   return ready ? <>{props.children}</> : <Loading text={'Loading...'} />;
 };
 
-export default RecordingBotWrapper;
+export default RecordingBotRoute;
