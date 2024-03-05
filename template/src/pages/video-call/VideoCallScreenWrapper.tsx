@@ -1,8 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import {PropsContext} from '../../../agora-rn-uikit';
 import VideoCallScreen from '../video-call/VideoCallScreen';
-import {isWeb} from '../../utils/common';
-import isSDK from '../../utils/isSDK';
+import {isWebInternal} from '../../utils/common';
 import {useLocation} from '../../components/Router';
 import {getParamFromURL} from '../../utils/common';
 import {useUserPreference} from '../../components/useUserPreference';
@@ -23,7 +22,7 @@ const VideoCallScreenWithRecordingBot: React.FC = () => {
 const VideoCallScreenWrapper: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
 
-  if ($config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
+  if ($config.ENABLE_WHITEBOARD && isWebInternal()) {
     return (
       <WhiteboardConfigure>
         {rtcProps?.recordingBot ? (
