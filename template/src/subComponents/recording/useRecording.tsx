@@ -39,6 +39,9 @@ import {
   videoRoomRecordingToastHeading,
   videoRoomRecordingToastSubHeading,
   videoRoomUserFallbackText,
+  videoRoomRecordingStartErrorToastHeading,
+  videoRoomRecordingStopErrorToastHeading,
+  videoRoomRecordingErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 export interface RecordingContextInterface {
@@ -82,9 +85,6 @@ interface RecordingProviderProps {
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
-const videoRoomRecordingStartErrorToastHeading = 'Recording failed to start';
-const videoRoomRecordingStopErrorToastHeading = 'Recording failed to stop';
-const videoRoomRecordingErrorToastSubHeading = 'There was an internal error';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
