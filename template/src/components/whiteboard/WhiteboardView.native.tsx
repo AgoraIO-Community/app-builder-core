@@ -27,11 +27,13 @@ import {useString} from '../../utils/useString';
 import ThemeConfig from '../../theme';
 import Toast from '../../../react-native-toast-message';
 import {useContent} from 'customization-api';
+import StorageContext from '../StorageContext';
 
 interface WhiteboardViewInterface {}
 
 const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const {getWhiteboardUid, whiteboardActive} = useContext(whiteboardContext);
+  const {setStore, store} = useContext(StorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const roomRef = useRef({});
   const sdkRef = useRef({});
@@ -42,14 +44,9 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   const whiteboardNativeInfoToastHeadingText = useString(
     whiteboardNativeInfoToastHeading,
   )();
-  const {activeUids} = useContent();
+
   useEffect(() => {
-    if (
-      whiteboardActive &&
-      activeUids &&
-      activeUids?.length &&
-      activeUids[0] === getWhiteboardUid()
-    ) {
+    if (!store?.whiteboardNativeInfoToast) {
       Toast.show({
         leadingIconName: 'info',
         type: 'info',
@@ -59,8 +56,14 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
         secondaryBtn: null,
         leadingIcon: null,
       });
+      setStore(prevState => {
+        return {
+          ...prevState,
+          whiteboardNativeInfoToast: true,
+        };
+      });
     }
-  }, [whiteboardActive, activeUids]);
+  }, [store]);
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
     onPhaseChanged: e => {
@@ -117,6 +120,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
             style={style.whiteboard}
             sdkConfig={{
               appIdentifier: $config.WHITEBOARD_APPIDENTIFIER,
+              userCursor: true,
             }}
             roomConfig={{
               uid: getWhiteboardUid()?.toString(),

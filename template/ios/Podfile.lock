@@ -408,8 +408,15 @@ PODS:
   - react-native-agora (3.7.2-rc.3):
     - AgoraRtcEngine_Special_iOS (= 3.7.2.4)
     - React-Core
+  - react-native-document-picker (9.1.0):
+    - React-Core
   - react-native-keep-awake (4.0.0):
     - React
+  - react-native-webview (13.8.1):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+  - react-native-whiteboard (0.0.14):
+    - React-Core
   - React-NativeModulesApple (0.72.4):
     - hermes-engine
     - React-callinvoker
@@ -535,6 +542,8 @@ PODS:
     - React-Core
   - RNExitApp (1.1.0):
     - React
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (2.8.0):
     - React-Core
   - RNInAppBrowser (3.5.1):
@@ -628,7 +637,10 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-agora (from `../node_modules/react-native-agora`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-keep-awake (from `../node_modules/react-native-keep-awake`)
+  - react-native-webview (from `../node_modules/react-native-webview`)
+  - "react-native-whiteboard (from `../node_modules/@netless/react-native-whiteboard`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -652,6 +664,7 @@ DEPENDENCIES:
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - RNExitApp (from `../node_modules/react-native-exit-app`)
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -730,8 +743,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-agora:
     :path: "../node_modules/react-native-agora"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-keep-awake:
     :path: "../node_modules/react-native-keep-awake"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
+  react-native-whiteboard:
+    :path: "../node_modules/@netless/react-native-whiteboard"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -778,6 +797,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/clipboard"
   RNExitApp:
     :path: "../node_modules/react-native-exit-app"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNInAppBrowser:
@@ -834,7 +855,10 @@ SPEC CHECKSUMS:
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
   react-native-agora: 16de7d9657b24dcf1ea6edebb30d06fe3e050c68
+  react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
+  react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
+  react-native-whiteboard: d56d2ffa0392b8572bfc613954845e48c6dfd38e
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
   React-RCTActionSheet: 02904b932b50e680f4e26e7a686b33ebf7ef3c00
@@ -858,6 +882,7 @@ SPEC CHECKSUMS:
   RNCCheckbox: 75255b03e604bbcc26411eb31c4cbe3e3865f538
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1

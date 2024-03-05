@@ -96,7 +96,7 @@
     "react-native-vector-icons": "9.2.0",
     "react-native-walkthrough-tooltip": "1.4.0",
     "react-native-web": "0.19.7",
-    "react-native-webview": "^11.22.2",
+    "react-native-webview": "13.8.1",
     "react-router-dom": "5.2.0",
     "react-router-native": "5.2.0",
     "react-spring-bottom-sheet": "3.4.1",
