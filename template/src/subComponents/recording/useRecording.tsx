@@ -192,9 +192,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   };
 
   const startRecording = () => {
-    console.log('supriya - start recording', roomId.host);
     const passphrase = roomId.host || '';
-
+    console.log('web-recording - start recording API called');
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
       headers: {
@@ -208,7 +207,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then((res: any) => {
         setInProgress(false);
-        console.log('supriya recording/start response received', res);
         if (res.status === 200) {
           /**
            * 1. Once the backend sucessfuly starts recording, send message
@@ -257,10 +255,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       localUid === uidWhoStarted ||
       activeUids.indexOf(uidWhoStarted) === -1
     ) {
-      console.log('supriya - stop recording', roomId.host);
       setInProgress(true);
       // If recording is already going on, stop the recording by executing the below query.
-
+      console.log('web-recording - stop recording API called');
       fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
         method: 'POST',
         headers: {
@@ -272,7 +269,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }),
       })
         .then(res => {
-          console.log('supriya recording/stop response received', res);
           setInProgress(false);
           if (res.status === 200) {
             /**

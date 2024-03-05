@@ -25,7 +25,6 @@ const RecordingBotRoute: React.FC<RecordingBotRouteProps> = props => {
   const [ready, setReady] = useState(false);
   const {recordingBotToken} = useIsRecordingBot();
   useEffect(() => {
-    console.log('supriya recordingBotToken: ', recordingBotToken);
     setStore &&
       setStore(prevState => ({
         ...prevState,

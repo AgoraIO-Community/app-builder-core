@@ -73,7 +73,6 @@ export default function useJoinRoom() {
   const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
 
   return async (phrase: string) => {
-    console.log('supriya store token', store.token);
     setRoomInfo(prevState => {
       return {
         ...prevState,
@@ -88,7 +87,6 @@ export default function useJoinRoom() {
           send_event: false,
         });
       } else {
-        console.log('supriya making join call', store.token);
         response = await client.query({
           query:
             store.token === null

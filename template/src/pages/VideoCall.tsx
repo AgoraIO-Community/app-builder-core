@@ -259,7 +259,6 @@ const VideoCall: React.FC = () => {
         (!queryComplete || !isInWaitingRoom) &&
         !waitingRoomAttendeeJoined)
     ) {
-      console.log('supriya data channel id', data.channel);
       setRtcProps(prevRtcProps => ({
         ...prevRtcProps,
         channel: data.channel,
