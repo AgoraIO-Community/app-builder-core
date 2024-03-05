@@ -628,7 +628,7 @@ export default class RtcEngine {
       event === 'onUserJoined' ||
       event === 'onUserOffline' ||
       event === 'onJoinChannelSuccess' ||
-      event === 'ScreenshareStopped' ||
+      event === 'onScreenshareStopped' ||
       event === 'onRemoteAudioStateChanged' ||
       event === 'onRemoteVideoStateChanged' ||
       event === 'onNetworkQuality' ||
