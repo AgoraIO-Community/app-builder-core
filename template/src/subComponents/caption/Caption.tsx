@@ -6,7 +6,6 @@ import CaptionText from './CaptionText';
 import Loading from '../Loading';
 import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
-import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
@@ -44,9 +43,10 @@ const Caption: React.FC = () => {
   React.useEffect(() => {
     !isSTTListenerAdded &&
       RtcEngineUnsafe.addListener(
-        'StreamMessage',
-        handleStreamMessageCallback as unknown as StreamMessageCallback,
+        'onStreamMessage',
+        handleStreamMessageCallback,
       );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLangChangeInProgress)

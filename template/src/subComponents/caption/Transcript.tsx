@@ -31,7 +31,6 @@ import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
-import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
@@ -191,10 +190,11 @@ const Transcript = (props: TranscriptProps) => {
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
       RtcEngineUnsafe.addListener(
-        'StreamMessage',
-        handleStreamMessageCallback as unknown as StreamMessageCallback,
+        'onStreamMessage',
+        handleStreamMessageCallback,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
