@@ -35,18 +35,12 @@ import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript from '../../subComponents/caption/Transcript';
-
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
 import {useIsRecordingBot} from '../../utils/useIsRecordingBot';
-import {
-  ChatType,
-  useChatUIControls,
-} from '../../components/chat-ui/useChatUIControls';
-import {useCaption} from '../../subComponents/caption/useCaption';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -235,17 +229,10 @@ const VideoCallScreen = () => {
 
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
-  const {isRecordingBot} = useIsRecordingBot();
-  const {setChatType} = useChatUIControls();
-  const {sidePanel, setSidePanel} = useSidePanel();
-  const {setIsCaptionON} = useCaption();
+  const {setRecordingBotUI} = useIsRecordingBot();
 
   useEffect(() => {
-    if (isRecordingBot) {
-      setSidePanel(SidePanelType.Chat);
-      setChatType(ChatType.Group);
-      setIsCaptionON(true);
-    }
+    setRecordingBotUI();
   }, []);
 
   return VideocallComponent ? (
