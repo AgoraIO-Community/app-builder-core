@@ -44,6 +44,7 @@ import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
+  const {sidePanel} = useSidePanel();
   const [name] = useUserName();
   const {
     data: {meetingTitle, isHost},
