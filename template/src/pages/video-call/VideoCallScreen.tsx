@@ -40,7 +40,6 @@ import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
-import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -229,11 +228,6 @@ const VideoCallScreen = () => {
 
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
-  const {setRecordingBotUI} = useIsRecordingBot();
-
-  useEffect(() => {
-    setRecordingBotUI();
-  }, []);
 
   return VideocallComponent ? (
     <VideocallComponent />

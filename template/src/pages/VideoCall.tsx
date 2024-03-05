@@ -108,13 +108,12 @@ const VideoCall: React.FC = () => {
   const {isRecordingBot} = useIsRecordingBot();
   /**
    *  Should we set the callscreen to active ??
-   *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means the
-   *     the recording bot is accessing the screen - then YES we should set
+   *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means,
+   *     the recording bot is accessing the screen - so YES we should set
    *     the callActive as true and we need not check for whether
    *     $config.PRECALL is enabled or not.
    *  b) If Recording bot( i.e prop: recordingBot) is FALSE then we should set
-   *     the callActive depending upon the magic variable - $config.PRECALL
-   *     i.e if $config.PRECALL is true then callActive is false else true
+   *     the callActive depending upon the value of magic variable - $config.PRECALL
    */
   const shouldCallBeSetToActive = isRecordingBot
     ? true
