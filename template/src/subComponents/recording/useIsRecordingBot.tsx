@@ -1,12 +1,4 @@
-import {useState} from 'react';
-import {
-  ChatType,
-  useChatUIControls,
-} from '../components/chat-ui/useChatUIControls';
-import {useSearchParams} from './useSearchParams';
-import {useSidePanel} from '../utils/useSidePanel';
-import {useCaption} from '../subComponents/caption/useCaption';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {useSearchParams} from '../../utils/useSearchParams';
 
 interface RecordingBotUIConfig {
   chat: boolean;
@@ -36,28 +28,11 @@ export function useIsRecordingBot() {
     stt: sttParam ? regexPattern.test(sttParam) : true,
   };
 
-  // Creating UI based on URL params
-  // const [recordingBotUI, setRecordingBotUI] = useState(recordingBotUIConfig);
-
-  console.log('supriya recordingBotUIConfig', recordingBotUIConfig);
-  const {setChatType} = useChatUIControls();
-  const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON} = useCaption();
-
-  const setRecordingBotUI = () => {
-    if (isRecordingBot) {
-      setSidePanel(SidePanelType.Chat);
-      setChatType(ChatType.Group);
-      setIsCaptionON(true);
-    }
-  };
-
   return {
     isRecordingBotRoute,
     isRecordingBot,
     recordingBotToken,
     recordingBotName,
     recordingBotUIConfig,
-    setRecordingBotUI,
   };
 }

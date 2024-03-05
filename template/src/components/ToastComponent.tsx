@@ -1,7 +1,7 @@
 import React from 'react';
 import Toast from '../../react-native-toast-message';
 import ToastConfig from '../subComponents/ToastConfig';
-import {useIsRecordingBot} from '../utils/useIsRecordingBot';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 const ToastComponent = () => {
   const {isRecordingBot} = useIsRecordingBot();

@@ -36,7 +36,7 @@
   "LOGO": "https://dl-prod.rteappbuilder.com/tluafed/5TWpUqsdC0BH6lPJ.jpeg",
   "ICON": "",
   "PRIMARY_COLOR": "#00AEFC",
-  "FRONTEND_ENDPOINT": "",
+  "FRONTEND_ENDPOINT": "https://app-builder-core-git-feature-recording-web-agoraio.vercel.app",
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": false,
   "PRECALL": true,

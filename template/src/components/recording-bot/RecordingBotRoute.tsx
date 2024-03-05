@@ -13,7 +13,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import type {RouteProps} from 'react-router';
 import StorageContext from '../StorageContext';
 import Loading from '../../subComponents/Loading';
-import {useIsRecordingBot} from '../../utils/useIsRecordingBot';
+import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
 interface RecordingBotRouteProps extends RouteProps {
   children: React.ReactNode;

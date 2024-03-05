@@ -70,7 +70,7 @@ import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
-import {useIsRecordingBot} from '../utils/useIsRecordingBot';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 enum RnEncryptionEnum {
   /**

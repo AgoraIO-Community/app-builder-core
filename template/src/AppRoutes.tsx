@@ -18,7 +18,7 @@ import AuthRoute from './auth/AuthRoute';
 import {IDPAuth} from './auth/IDPAuth';
 import {Text} from 'react-native';
 import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
-import {useIsRecordingBot} from './utils/useIsRecordingBot';
+import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
 
 function VideoCallWrapper(props) {
   const {isRecordingBotRoute} = useIsRecordingBot();

@@ -17,22 +17,23 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {gql, useMutation} from '@apollo/client';
-import {useParams} from '../../components/Router';
-import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'customization-implementation';
-import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
-import useRecordingLayoutQuery from './useRecordingLayoutQuery';
-import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
 import {useRoomInfo} from 'customization-api';
-import {Linking} from 'react-native';
 import StorageContext from '../../components/StorageContext';
+import {useSidePanel} from '../../utils/useSidePanel';
+import {useCaption} from '../caption/useCaption';
+import {SidePanelType} from '../SidePanelEnum';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../../components/chat-ui/useChatUIControls';
+import {useIsRecordingBot} from './useIsRecordingBot';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -47,26 +48,6 @@ const RecordingContext = createContext<RecordingContextInterface>({
   isRecordingActive: false,
   inProgress: false,
 });
-
-const START_RECORDING = gql`
-  mutation startRecordingSession(
-    $passphrase: String!
-    $secret: String
-    $config: recordingConfig!
-  ) {
-    startRecordingSession(
-      passphrase: $passphrase
-      secret: $secret
-      config: $config
-    )
-  }
-`;
-
-const STOP_RECORDING = gql`
-  mutation stopRecordingSession($passphrase: String!) {
-    stopRecordingSession(passphrase: $passphrase)
-  }
-`;
 
 /**
  * Component to start / stop Agora cloud recording.
@@ -100,7 +81,6 @@ const videoRoomRecordingStopErrorToastHeading = 'Recording failed to stop';
 const videoRoomRecordingErrorToastSubHeading = 'There was an internal error';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
-  const {rtcProps} = useContext(PropsContext);
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
   const {
     data: {isHost, roomId},
@@ -108,9 +88,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
   const {defaultContent, activeUids} = useContent();
-  const {phrase} = useParams<{phrase: string}>();
-  const [startRecordingQuery] = useMutation(START_RECORDING);
-  const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
@@ -118,10 +95,27 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   //const recordingStartedText = useString<boolean>('recordingNotificationLabel');
   const recordingStartedText = (active: boolean) =>
     active ? 'Recording Started' : 'Recording Stopped';
-  const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {localUid} = useContext(ChatContext);
-  const {screenShareData} = useScreenContext();
   const {store} = React.useContext(StorageContext);
+
+  const {setChatType} = useChatUIControls();
+  const {setSidePanel} = useSidePanel();
+  const {setIsCaptionON} = useCaption();
+  const {isRecordingBot} = useIsRecordingBot();
+
+  const setRecordingBotUI = () => {
+    if (isRecordingBot) {
+      setSidePanel(SidePanelType.Chat);
+      setChatType(ChatType.Group);
+      setIsCaptionON(true);
+    }
+  };
+  React.useEffect(() => {
+    if (callActive) {
+      setRecordingBotUI();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callActive]);
 
   React.useEffect(() => {
     events.on(EventNames.RECORDING_ATTRIBUTE, data => {
@@ -195,6 +189,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     console.log('supriya - start recording', roomId.host);
     const passphrase = roomId.host || '';
+
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
       headers: {
@@ -203,7 +198,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        url: `https://app-builder-core-git-feature-recording-web-agoraio.vercel.app/${passphrase}`,
+        url: `${$config.FRONTEND_ENDPOINT}/${passphrase}`,
       }),
     })
       .then((res: any) => {

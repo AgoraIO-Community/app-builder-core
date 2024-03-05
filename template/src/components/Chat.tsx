@@ -39,7 +39,7 @@ import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
-import {useIsRecordingBot} from '../utils/useIsRecordingBot';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
