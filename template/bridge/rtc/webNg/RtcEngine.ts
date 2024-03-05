@@ -566,9 +566,10 @@ export default class RtcEngine {
         ) as callbackType;
 
         networkQualityIndicatorCallback(
+          {},
           0,
-          downlinkNetworkQuality,
           uplinkNetworkQuality,
+          downlinkNetworkQuality,
         );
 
         const remoteUserNetworkQualities =
@@ -576,9 +577,10 @@ export default class RtcEngine {
 
         Object.keys(remoteUserNetworkQualities).forEach(uid => {
           networkQualityIndicatorCallback(
+            {},
             uid,
-            remoteUserNetworkQualities[uid].downlinkNetworkQuality,
             remoteUserNetworkQualities[uid].uplinkNetworkQuality,
+            remoteUserNetworkQualities[uid].downlinkNetworkQuality,
           );
         });
       },
