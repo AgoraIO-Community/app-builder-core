@@ -1,10 +1,3 @@
-// const RecordingBotWrapper = props => {
-//   return (
-//     <div style={{backgroundColor: 'lightgray', padding: 20}}>
-//       {props.children}
-//     </div>
-//   );
-// };
 /*
 ********************************************
  Copyright © 2024 Agora Lab, Inc., all rights reserved.

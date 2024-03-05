@@ -14,11 +14,13 @@ export function useIsRecordingBot() {
   const isRecordingBotRoute = isRecordingBot && recordingBotToken;
 
   const recordingBotUIConfig: RecordingBotUIConfig = {
-    chat: true,
-    topBar: true,
-    bottomBar: true,
-    stt: true,
+    chat: Boolean(useSearchParams().get('chat')) || true,
+    topBar: Boolean(useSearchParams().get('topBar')) || true,
+    bottomBar: Boolean(useSearchParams().get('bottomBar')) || true,
+    stt: Boolean(useSearchParams().get('stt')) || true,
   };
+
+  console.log('supriya recordingBotUIConfig', recordingBotUIConfig);
 
   return {
     isRecordingBotRoute,
