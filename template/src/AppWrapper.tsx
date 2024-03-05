@@ -85,42 +85,43 @@ const AppWrapper = (props: AppWrapperProps) => {
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-
           <StorageProvider>
-            <GraphQLProvider>
-              <Router
-                /*@ts-ignore Router will be memory Router in sdk*/
-                initialEntries={[
-                  //@ts-ignore
-                  isSDK && SdkJoinState.phrase
-                    ? //@ts-ignore
-                      `/${SdkJoinState.phrase}`
-                    : '',
-                ]}>
-                <ToastProvider>
-                  <ToastContext.Consumer>
-                    {({isActionSheetVisible}) => {
-                      return !isActionSheetVisible ? <ToastComponent /> : null;
-                    }}
-                  </ToastContext.Consumer>
-                  <AuthProvider>
-                    <SessionProvider>
-                      <ColorConfigure>
-                        <DimensionProvider>
-                          <LanguageProvider>
+            <LanguageProvider>
+              <GraphQLProvider>
+                <Router
+                  /*@ts-ignore Router will be memory Router in sdk*/
+                  initialEntries={[
+                    //@ts-ignore
+                    isSDK && SdkJoinState.phrase
+                      ? //@ts-ignore
+                        `/${SdkJoinState.phrase}`
+                      : '',
+                  ]}>
+                  <ToastProvider>
+                    <ToastContext.Consumer>
+                      {({isActionSheetVisible}) => {
+                        return !isActionSheetVisible ? (
+                          <ToastComponent />
+                        ) : null;
+                      }}
+                    </ToastContext.Consumer>
+                    <AuthProvider>
+                      <SessionProvider>
+                        <ColorConfigure>
+                          <DimensionProvider>
                             <ErrorProvider>
                               <Error />
                               <Navigation />
                               {props.children}
                             </ErrorProvider>
-                          </LanguageProvider>
-                        </DimensionProvider>
-                      </ColorConfigure>
-                    </SessionProvider>
-                  </AuthProvider>
-                </ToastProvider>
-              </Router>
-            </GraphQLProvider>
+                          </DimensionProvider>
+                        </ColorConfigure>
+                      </SessionProvider>
+                    </AuthProvider>
+                  </ToastProvider>
+                </Router>
+              </GraphQLProvider>
+            </LanguageProvider>
           </StorageProvider>
         </SafeAreaView>
       </ImageBackgroundComp>

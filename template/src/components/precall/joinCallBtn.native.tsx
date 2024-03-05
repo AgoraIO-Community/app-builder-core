@@ -15,7 +15,10 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
-import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
+import {
+  PrecallJoinBtnTextInterface,
+  precallJoinBtnText,
+} from '../../language/default-labels/precallScreenLabels';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
 import {useUserPreference} from '../useUserPreference';
@@ -34,10 +37,11 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const username = useGetName();
   const {isJoinDataFetched} = useRoomInfo();
   const joinRoomButton =
-    useString<JoinRoomButtonTextInterface>('joinRoomButton');
+    useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
   const {saveName} = useUserPreference();
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({
+      waitingRoom: false,
       ready: isJoinDataFetched,
       role: $config.EVENT_MODE ? rtcProps.role : undefined,
     }),
@@ -46,6 +50,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
     if (rtcProps?.role) {
       setButtonText(
         joinRoomButton({
+          waitingRoom: false,
           ready: isJoinDataFetched,
           role: $config.EVENT_MODE ? rtcProps.role : undefined,
         }),

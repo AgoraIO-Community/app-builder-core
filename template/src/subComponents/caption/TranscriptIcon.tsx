@@ -5,6 +5,8 @@ import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import {useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
+import {useString} from '../../utils/useString';
+import {toolbarItemTranscriptText} from '../../language/default-labels/videoCallScreenLabels';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -50,7 +52,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     }
   };
 
-  const label = isTranscriptON ? 'Hide Transcript' : 'Show Transcript';
+  const label = useString<boolean>(toolbarItemTranscriptText);
   const iconButtonProps: IconButtonProps = {
     onPress,
     iconProps: {
@@ -66,13 +68,18 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     },
     disabled: isDisabled,
     btnTextProps: {
-      text: showLabel ? label : '',
+      text: showLabel
+        ? isOnActionSheet
+          ? label(isTranscriptON)?.replace(' ', '\n')
+          : label(isTranscriptON)
+        : '',
       textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (!isOnActionSheet) {
-    iconButtonProps.toolTipMessage = label;
+    iconButtonProps.toolTipMessage = label(isTranscriptON);
   }
 
   const onConfirm = async (langChanged, language) => {

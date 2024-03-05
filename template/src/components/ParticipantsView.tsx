@@ -41,6 +41,14 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 import WaitingRoomParticipants from './participants/WaitingRoomParticipants';
+import {
+  peoplePanelAudienceSectionHeaderText,
+  peoplePanelHostSectionHeaderText,
+  peoplePanelInThisMeetingLabel,
+  peoplePanelNoAudienceJoinedContent,
+  peoplePanelNoHostJoinedContent,
+  peoplePanelNoUsersJoinedContent,
+} from '../../src/language/default-labels/videoCallScreenLabels';
 
 const ParticipantView = props => {
   const {activeUids, customContent, defaultContent} = useContent();
@@ -53,19 +61,12 @@ const ParticipantView = props => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
   const {showHeader = true} = props;
-  //commented for v1 release
-  // const hostLabel = useString('hostLabel')();
-  // const audienceLabel = useString('audienceLabel')();
-  // const participantsLabel = useString('participantsLabel')();
-  const hostLabel = 'HOST';
-  const audienceLabel = 'AUDIENCE';
-  const attendeeLabel = 'Attendee';
-  const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
-  const meetingParticpantsLabel = `IN THIS MEETING`;
-  const WaitingRoomParticipantsLabel = $config.EVENT_MODE
-    ? 'WANT TO JOIN'
-    : 'WAITING';
-
+  const hostLabel = useString(peoplePanelHostSectionHeaderText)();
+  const audienceLabel = useString(peoplePanelAudienceSectionHeaderText)();
+  const meetingParticpantsLabel = useString(peoplePanelInThisMeetingLabel)();
+  const noHostJoinedYet = useString(peoplePanelNoHostJoinedContent)();
+  const noAudienceJoinedYet = useString(peoplePanelNoAudienceJoinedContent)();
+  const noUsersJoinedYet = useString(peoplePanelNoUsersJoinedContent)();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -135,7 +136,7 @@ const ParticipantView = props => {
                     />
                     {showHostSection ? (
                       <AllHostParticipants
-                        emptyMessage={'No Host has joined yet.'}
+                        emptyMessage={noHostJoinedYet}
                         uids={hostUids}
                         isMobile={isSmall()}
                         updateActionSheet={props.updateActionSheet}
@@ -160,7 +161,7 @@ const ParticipantView = props => {
                     />
                     {showTempHostSection ? (
                       <AllAudienceParticipants
-                        emptyMessage={'No Host has joined yet.'}
+                        emptyMessage={noHostJoinedYet}
                         uids={hostUids}
                         isMobile={isSmall()}
                         updateActionSheet={props.updateActionSheet}
@@ -186,7 +187,7 @@ const ParticipantView = props => {
                   />
                   {showHostSection ? (
                     <AllHostParticipants
-                      emptyMessage={'No Host has joined yet.'}
+                      emptyMessage={noHostJoinedYet}
                       uids={hostUids}
                       isMobile={isSmall()}
                       updateActionSheet={props.updateActionSheet}
@@ -209,7 +210,7 @@ const ParticipantView = props => {
                 />
                 {showAudienceSection ? (
                   <AllAudienceParticipants
-                    emptyMessage={'No Audience has joined yet.'}
+                    emptyMessage={noAudienceJoinedYet}
                     uids={audienceUids}
                     isMobile={isSmall()}
                     updateActionSheet={props.updateActionSheet}
@@ -239,7 +240,7 @@ const ParticipantView = props => {
             />
             {showMeetingParticipants ? (
               <AllHostParticipants
-                emptyMessage={'No Users has joined yet'}
+                emptyMessage={noUsersJoinedYet}
                 //custom content shouldn't be shown in the participant list. so filtering the activeuids
                 uids={activeUids.filter(i => !customContent[i])}
                 isMobile={isSmall()}
@@ -249,47 +250,12 @@ const ParticipantView = props => {
             ) : (
               <></>
             )}
-            {/* <ParticipantSectionTitle
-              title={hostLabel}
-              count={hostUidsVideoMeeting.length}
-              isOpen={showHostSection}
-              onPress={() => setShowHostSection(!showHostSection)}
-            /> */}
-            {/* {showHostSection ? (
-              <AllHostParticipants
-                emptyMessage={'No Host has joined yet'}
-                uids={hostUidsVideoMeeting}
-                isMobile={isSmall()}
-                updateActionSheet={props.updateActionSheet}
-                handleClose={props.handleClose}
-              />
-            ) : (
-              <Spacer size={1} />
-            )} */}
-            {/* <ParticipantSectionTitle
-              title={attendeeLabel}
-              count={attendeeUidsVideoMeeting.length}
-              isOpen={showParticipantSection}
-              onPress={() => setShowParticipantSection(!showParticipantSection)}
-            /> */}
-            {/* {showParticipantSection ? (
-              <AllHostParticipants
-                emptyMessage={'No Attendee has joined yet'}
-                uids={attendeeUidsVideoMeeting}
-                isMobile={isSmall()}
-                updateActionSheet={props.updateActionSheet}
-                handleClose={props.handleClose}
-              />
-            ) : (
-              <></>
-            )} */}
           </>
         )}
       </ScrollView>
 
       {isHost && (
         <View style={style.footer}>
-          {/*  <CopyJoinInfo showTeritaryButton /> */}
           <HostControlView />
         </View>
       )}

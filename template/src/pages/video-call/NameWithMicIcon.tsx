@@ -7,6 +7,8 @@ import {isMobileUA, isWeb, useIsSmall} from '../../utils/common';
 import {getGridLayoutName} from './DefaultLayouts';
 import {useVideoContainer} from './VideoRenderer';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {useString} from '../../utils/useString';
+import {videoRoomUserFallbackText} from '../../language/default-labels/videoCallScreenLabels';
 
 export interface NameWithMicIconProps {
   name: string;
@@ -25,9 +27,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
     activeUids.length > 4 &&
     currentLayout === getGridLayoutName();
   const {name, muted} = props;
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const isSmall = useIsSmall();
   return (
     <View

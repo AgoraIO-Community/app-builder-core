@@ -32,6 +32,11 @@ import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import StorageContext from '../components/StorageContext';
 import UserCancelPopup from './UserCancelPopup';
 import {exitApp} from './openIDPURL';
+import {useString} from '../utils/useString';
+import {
+  authSessionTimeoutToastHeading,
+  loadingText,
+} from '../language/default-labels/commonLabels';
 
 export const GET_USER = gql`
   query getUser {
@@ -58,6 +63,8 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const loadingLabel = useString(loadingText)();
+  const timeoutHeading = useString(authSessionTimeoutToastHeading)();
   const regEvent = useRef(true);
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
@@ -142,7 +149,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             Toast.show({
               leadingIconName: 'alert',
               type: 'error',
-              text1: 'Your session has timed out, Retrying...',
+              text1: timeoutHeading,
               visibilityTime: 3000,
             });
             setTimeout(() => {
@@ -314,7 +321,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: 'Your session has timed out, Retrying...',
+          text1: timeoutHeading,
           visibilityTime: 3000,
         });
         setTimeout(() => {
@@ -344,6 +351,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             : isIOS() || isAndroid()
             ? deepLinkUrl
             : '',
+          timeoutHeading,
         )?.then((response: any) => {
           if (isAndroid() || isIOS()) {
             if (response && response?.showNativePopup) {
@@ -480,7 +488,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         <></>
       )}
       {(!authenticated && !ENABLE_AUTH) || (ENABLE_AUTH && loading) ? (
-        <Loading text={'Loading...'} />
+        <Loading text={loadingLabel} />
       ) : (
         props.children
       )}

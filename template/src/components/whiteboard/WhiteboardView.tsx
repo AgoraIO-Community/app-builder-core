@@ -17,6 +17,8 @@ import {RoomPhase, ApplianceNames} from 'white-web-sdk';
 import WhiteboardToolBox from './WhiteboardToolBox';
 import WhiteboardCanvas from './WhiteboardCanvas';
 import {useContent, useLayout} from 'customization-api';
+import {useString} from '../../utils/useString';
+import {whiteboardInitializingText} from '../../language/default-labels/videoCallScreenLabels';
 
 interface WhiteboardViewInterface {
   showToolbox: boolean;
@@ -43,13 +45,15 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     }
   }, [currentLayout, activeUids]);
 
+  const whiteboardInitializing = useString(whiteboardInitializingText)();
+
   return (
     <View style={style.flex1}>
       {whiteboardRoomState == RoomPhase.Connected ? (
         <WhiteboardCanvas showToolbox={showToolbox} />
       ) : (
         <View style={style.placeholder}>
-          <Text style={{color: 'white'}}>Whiteboard is initializing</Text>
+          <Text style={{color: 'white'}}>{whiteboardInitializing}</Text>
         </View>
       )}
     </View>

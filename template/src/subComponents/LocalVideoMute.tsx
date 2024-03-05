@@ -34,6 +34,12 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
 import {useToolbar} from '../utils/useToolbar';
+import {
+  I18nDeviceStatus,
+  livestreamingCameraTooltipText,
+  toolbarItemCameraText,
+  toolbarItemCameraTooltipText,
+} from '../language/default-labels/videoCallScreenLabels';
 /**
  * A component to mute / unmute the local video
  */
@@ -67,9 +73,12 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     rtcProps: {callActive},
   } = useContext(PropsContext);
 
-  //commented for v1 release
-  //const videoLabel = useString('toggleVideoButton')();
+  const videoButtonLabel = useString<I18nDeviceStatus>(toolbarItemCameraText);
+  const videoButtonTooltip = useString<I18nDeviceStatus>(
+    toolbarItemCameraTooltipText,
+  );
 
+  const lstooltip = useString<boolean>(livestreamingCameraTooltipText);
   const onPress = () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
     //show confirm popup to stop the screenshare
@@ -91,10 +100,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
 
   const videoLabel = permissionDenied
-    ? 'Video'
+    ? videoButtonLabel(I18nDeviceStatus.PERMISSION_DENIED)
     : isVideoEnabled
-    ? 'Video On'
-    : 'Video Off';
+    ? videoButtonLabel(I18nDeviceStatus.ON)
+    : videoButtonLabel(I18nDeviceStatus.OFF);
 
   let iconProps: IconButtonProps['iconProps'] = {
     showWarningIcon: permissionDenied && showWarningIcon ? true : false,
@@ -162,10 +171,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
-        ? 'Give Permissions'
+        ? videoButtonTooltip(I18nDeviceStatus.PERMISSION_DENIED)
         : isVideoEnabled
-        ? 'Disable Camera'
-        : 'Enable Camera'
+        ? videoButtonTooltip(I18nDeviceStatus.ON)
+        : videoButtonTooltip(I18nDeviceStatus.OFF)
       : '';
     if (
       //precall mobile/mobile web UI - mute button should not show the label
@@ -197,9 +206,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = showToolTip
-      ? isHandRaised(local.uid)
-        ? 'Waiting for host to appove the request'
-        : 'Raise Hand in order to turn video on'
+      ? lstooltip(isHandRaised(local.uid))
       : '';
     iconButtonProps.disabled = true;
   }

@@ -91,35 +91,19 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState();
   const whiteboardUidRef = useRef(Date.now());
-  const whiteWebSdkClient = useRef({});
   const whiteboardRoom = useRef({});
-  const {pinnedUid, activeUids} = useContent();
-  const prevImageUploadHeightRef = useRef(0);
 
-  const uploadPendingRef = useRef(false);
-
-  const {
-    data: {isHost, whiteboard: {room_token, room_uuid} = {}},
-    boardColor: boardColorRemote,
-    whiteboardLastImageUploadPosition: whiteboardLastImageUploadPositionRemote,
-  } = useRoomInfo();
-  const {currentLayout} = useLayout();
-
-  const setUploadRef = () => {
-    uploadPendingRef.current = true;
-  };
+  const setUploadRef = () => {};
 
   const insertImageIntoWhiteboard = url => {};
 
-  const sendLastImageUploadPositionToRemoteUsers = (height: number) => {};
+  const joinWhiteboardRoom = () => {
+    setWhiteboardActive(true);
+  };
 
-  const join = () => {};
-
-  const leave = () => {};
-
-  const joinWhiteboardRoom = () => {};
-
-  const leaveWhiteboardRoom = () => {};
+  const leaveWhiteboardRoom = () => {
+    setWhiteboardActive(false);
+  };
 
   const getWhiteboardUid = () => {
     return whiteboardUidRef?.current;

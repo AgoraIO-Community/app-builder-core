@@ -48,9 +48,16 @@ import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import InlineNotification from '../../src/atoms/InlineNotification';
 import {useRoomInfo} from './room-info/useRoomInfo';
+import {useString} from '../../src/utils/useString';
+import {
+  settingPanelNameCantbeChangedInfo,
+  settingPanelNameInputLabel,
+} from '../../src/language/default-labels/videoCallScreenLabels';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const yournameLabel = useString(settingPanelNameInputLabel)();
+  const nameCantbeChangedInfo = useString(settingPanelNameCantbeChangedInfo)();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -119,12 +126,12 @@ const EditName: React.FC = (props?: EditNameProps) => {
 
   return (
     <>
-      <Text style={editNameStyle.yournameText}>Your name</Text>
+      <Text style={editNameStyle.yournameText}>{yournameLabel}</Text>
       <Spacer size={12} />
       {whiteboardActive && isHost ? (
         <>
           <InlineNotification
-            text="Name can't be changed while whiteboard is active"
+            text={nameCantbeChangedInfo}
             customStyle={{
               alignItems: 'center',
               backgroundColor: 'rgba(255, 171, 0, 0.15)',
@@ -270,8 +277,6 @@ const editNameStyle = StyleSheet.create({
 const SettingsView = props => {
   const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
-  const settingsLabel = 'Settings';
-  const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
 

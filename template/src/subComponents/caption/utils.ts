@@ -88,12 +88,14 @@ export const formatTranscriptContent = (
         return `${defaultContent[item?.uid?.split('-')[1]]?.name} ${item.text}`;
       }
       return `${defaultContent[item.uid].name} ${formatTime(
-        Number(item.time),
+        Number(item?.time),
       )}:\n${item.text}`;
     })
     .join('\n\n');
 
-  const startTime = formatDateWithTimeZone(new Date(meetingTranscript[0].time));
+  const startTime = formatDateWithTimeZone(
+    new Date(meetingTranscript[0]?.time),
+  );
 
   const attendees = Object.entries(defaultContent)
     .filter(

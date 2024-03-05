@@ -1,4 +1,11 @@
-import React, {createContext, useContext, useState, useRef} from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+} from 'react';
 import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../ChatContext';
 import Toast from '../../../react-native-toast-message';
@@ -21,6 +28,12 @@ import {SidePanelType, useContent, useSidePanel} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {trimText} from '../../utils/common';
+import {useStringRef} from '../../utils/useString';
+import {
+  livestreamRequestAlreadyProcessed,
+  livestreamToastApprovalBtnText,
+  livestreamToastDenyBtnText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -29,6 +42,51 @@ export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 export const LiveStreamContextProvider: React.FC<
   liveStreamPropsInterface
 > = props => {
+  const requestAlreadyProcessed = useStringRef(
+    livestreamRequestAlreadyProcessed,
+  );
+
+  const raiseHandRequestReceivedToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_RECEIVED.text1TranslationKey,
+  );
+  const raiseHandRequestReceivedToastSubHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_RECEIVED.text2TranslationKey,
+  );
+
+  const raiseHandRequestRecallToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1TranslationKey,
+  );
+
+  const raiseHandRequestAcceptedToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_ACCEPTED.text1TranslationKey,
+  );
+  const raiseHandRequestAcceptedToastSubHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_ACCEPTED.text2TranslationKey,
+  );
+
+  const raiseHandRequestRejectedToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_REJECTED.text1TranslationKey,
+  );
+
+  const raiseHandApprovedRequestRecallToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text1TranslationKey,
+  );
+
+  const promoteAsCoHostToastHeading = useStringRef(
+    LSNotificationObject.PROMOTE_AS_CO_HOST.text1TranslationKey,
+  );
+
+  const raiseHandRequestToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_REQUEST.text1TranslationKey,
+  );
+  const raiseHandRequestToastSubHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_REQUEST.text2TranslationKey,
+  );
+
+  const raiseHandRequestRecallLocalToastHeading = useStringRef(
+    LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text1TranslationKey,
+  );
+
   const screenshareContextInstance = useScreenshare();
   const screenshareContextInstanceRef = useRef<any>();
   screenshareContextInstanceRef.current = screenshareContextInstance;
@@ -113,6 +171,8 @@ export const LiveStreamContextProvider: React.FC<
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
+  const allowToBePresenter = useStringRef(livestreamToastApprovalBtnText);
+  const deny = useStringRef(livestreamToastDenyBtnText);
   const showToast = (
     text: string,
     text2: string,
@@ -127,7 +187,7 @@ export const LiveStreamContextProvider: React.FC<
         <PrimaryButton
           containerStyle={style.primaryBtn}
           textStyle={style.primaryBtnText}
-          text="ALLOW TO BE A PRESENTER"
+          text={allowToBePresenter?.current()}
           onPress={() => {
             hostApprovesRequestOfUID(uid);
             Toast.hide();
@@ -137,7 +197,7 @@ export const LiveStreamContextProvider: React.FC<
       btns.secondaryBtn = (
         <TertiaryButton
           containerStyle={style.secondaryBtn}
-          text="DENY"
+          text={deny?.current()}
           onPress={() => {
             hostRejectsRequestOfUID(uid);
             Toast.hide();
@@ -368,10 +428,10 @@ export const LiveStreamContextProvider: React.FC<
                   sidePanelRef.current !== SidePanelType.Participants
                 ) {
                   showToast(
-                    `${trimText(getAttendeeName(data.sender))} ${
-                      LSNotificationObject.RAISE_HAND_RECEIVED.text1
-                    }`,
-                    LSNotificationObject.RAISE_HAND_RECEIVED.text2,
+                    raiseHandRequestReceivedToastHeading?.current(
+                      trimText(getAttendeeName(data.sender)),
+                    ),
+                    raiseHandRequestReceivedToastSubHeading?.current(),
                     data.sender,
                     data.ts,
                   );
@@ -391,10 +451,10 @@ export const LiveStreamContextProvider: React.FC<
                   sidePanelRef.current !== SidePanelType.Participants
                 ) {
                   showToast(
-                    `${trimText(getAttendeeName(data.sender))} ${
-                      LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
-                    }`,
-                    LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,
+                    raiseHandRequestRecallToastHeading?.current(
+                      trimText(getAttendeeName(data.sender)),
+                    ),
+                    null,
                   );
                 }
                 // 2. All Hosts in channel update raised state to "false" when attendee recalls their request
@@ -447,8 +507,8 @@ export const LiveStreamContextProvider: React.FC<
         if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
           return;
         showToast(
-          LSNotificationObject.RAISE_HAND_ACCEPTED.text1,
-          LSNotificationObject.RAISE_HAND_ACCEPTED.text2,
+          raiseHandRequestAcceptedToastHeading?.current(),
+          raiseHandRequestAcceptedToastSubHeading?.current(),
         );
         // Promote user's privileges to host
         changeClientRoleTo(ClientRole.Broadcaster);
@@ -468,18 +528,15 @@ export const LiveStreamContextProvider: React.FC<
           raiseHandListRef.current[localUidRef.current].role ==
           ClientRole.Audience
         ) {
-          showToast(
-            LSNotificationObject.RAISE_HAND_REJECTED.text1,
-            LSNotificationObject.RAISE_HAND_REJECTED.text2,
-          );
+          showToast(raiseHandRequestRejectedToastHeading?.current(), null);
         } else if (
           raiseHandListRef.current[localUidRef.current].role ==
           ClientRole.Broadcaster
         ) {
           /** 2.b */
           showToast(
-            LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text1,
-            LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text2,
+            raiseHandApprovedRequestRecallToastHeading?.current(),
+            null,
           );
           screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
 
@@ -499,10 +556,7 @@ export const LiveStreamContextProvider: React.FC<
     const unsubPromoteAsCoHost = events.on(
       LiveStreamControlMessageEnum.promoteAsCoHost,
       data => {
-        showToast(
-          LSNotificationObject.PROMOTE_AS_CO_HOST.text1,
-          LSNotificationObject.PROMOTE_AS_CO_HOST.text2,
-        );
+        showToast(promoteAsCoHostToastHeading.current(), null);
         // Promote user's privileges to host
         changeClientRoleTo(ClientRole.Broadcaster);
         // Audience updates its local attributes and notfies all host when request is approved
@@ -574,7 +628,7 @@ export const LiveStreamContextProvider: React.FC<
     } else {
       Toast.hide();
       setTimeout(() => {
-        showToast('Request already processed.', null);
+        showToast(requestAlreadyProcessed?.current(), null);
       });
     }
   };
@@ -595,7 +649,7 @@ export const LiveStreamContextProvider: React.FC<
     } else {
       Toast.hide();
       setTimeout(() => {
-        showToast('Request already processed.', null);
+        showToast(requestAlreadyProcessed?.current(), null);
       });
     }
   };
@@ -624,8 +678,8 @@ export const LiveStreamContextProvider: React.FC<
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE)
       return;
     showToast(
-      LSNotificationObject.RAISE_HAND_REQUEST.text1,
-      LSNotificationObject.RAISE_HAND_REQUEST.text2,
+      raiseHandRequestToastHeading?.current(),
+      raiseHandRequestToastSubHeading?.current(),
     );
     events.send(
       EventNames.RAISED_ATTRIBUTE,
@@ -672,10 +726,7 @@ export const LiveStreamContextProvider: React.FC<
       PersistanceLevel.Sender,
     );
     UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
-    showToast(
-      LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text1,
-      LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text2,
-    );
+    showToast(raiseHandRequestRecallLocalToastHeading?.current(), null);
   };
 
   /** ******* AUDIENCE CONTROLS SECTION ENDS ******* */

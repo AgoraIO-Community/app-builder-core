@@ -7,11 +7,22 @@ import Toast from '../../../react-native-toast-message';
 import {saveImagesToIndexDB, convertBlobToBase64} from './VButils';
 import ImageIcon from '../../atoms/ImageIcon';
 import getUniqueID from '../../../src/utils/getUniqueID';
+import {useString} from '../../../src/utils/useString';
+import {TextDataInterface} from '../../../src/language/default-labels';
+import {
+  vbPanelImageSizeLimitErrorToastHeading,
+  vbPanelImageSizeLimitErrorToastSubHeading,
+  vbPanelImageTypeErrorToastHeading,
+  vbPanelImageTypeErrorToastSubHeading,
+  vbPanelImageUploadErrorToastHeading,
+  vbPanelImageUploadErrorToastSubHeading,
+} from '../../../src/language/default-labels/videoCallScreenLabels';
 
 interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
+  translationKey?: keyof TextDataInterface;
   label?: string;
   position?: number;
   isOnPrecall?: boolean;
@@ -41,6 +52,7 @@ const VBCard: React.FC<VBCardProps> = ({
   position,
   isOnPrecall,
   isMobile,
+  translationKey,
 }) => {
   const {
     setVBmode,
@@ -52,6 +64,18 @@ const VBCard: React.FC<VBCardProps> = ({
     setOptions,
   } = useVB();
 
+  const typeErrorHeading = useString(vbPanelImageTypeErrorToastHeading)();
+  const typeErrorSubheading = useString(vbPanelImageTypeErrorToastSubHeading)();
+  const limitErrorHeading = useString(vbPanelImageSizeLimitErrorToastHeading)();
+  const limitErrorSubHeading = useString(
+    vbPanelImageSizeLimitErrorToastSubHeading,
+  )();
+  const uploadErrorHeading = useString(vbPanelImageUploadErrorToastHeading)();
+  const uploadErrorSubHeading = useString(
+    vbPanelImageUploadErrorToastSubHeading,
+  )();
+
+  const translation = useString(translationKey)();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,8 +97,8 @@ const VBCard: React.FC<VBCardProps> = ({
                 Toast.show({
                   leadingIconName: 'alert',
                   type: 'error',
-                  text2: 'Selected image is already uploaded',
-                  text1: 'Upload Failed',
+                  text2: uploadErrorSubHeading,
+                  text1: uploadErrorHeading,
                   visibilityTime: 3000,
                 });
                 return;
@@ -101,8 +125,8 @@ const VBCard: React.FC<VBCardProps> = ({
           Toast.show({
             leadingIconName: 'alert',
             type: 'error',
-            text2: 'Please select a JPG or PNG file',
-            text1: 'Upload Failed',
+            text2: typeErrorSubheading,
+            text1: typeErrorHeading,
             visibilityTime: 3000,
           });
         }
@@ -110,8 +134,8 @@ const VBCard: React.FC<VBCardProps> = ({
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text2: 'File size must be less than 1MB.',
-          text1: 'Upload Failed',
+          text2: limitErrorSubHeading,
+          text1: limitErrorHeading,
           visibilityTime: 3000,
         });
       }
@@ -169,7 +193,7 @@ const VBCard: React.FC<VBCardProps> = ({
             name={icon}
             tintColor={$config.SECONDARY_ACTION_COLOR}
           />
-          {label ? (
+          {label && translation ? (
             <Text
               style={{
                 fontSize: ThemeConfig.FontSize.tiny,
@@ -178,7 +202,7 @@ const VBCard: React.FC<VBCardProps> = ({
                 color: $config.SECONDARY_ACTION_COLOR,
                 paddingVertical: 4,
               }}>
-              {label}
+              {translation}
             </Text>
           ) : (
             <></>

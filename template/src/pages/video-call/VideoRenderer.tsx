@@ -32,6 +32,11 @@ import {useVideoCall} from '../../components/useVideoCall';
 import VisibilitySensor from './VisibilitySensor';
 import ImageIcon from '../../atoms/ImageIcon';
 import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
+import {useString} from '../../utils/useString';
+import {
+  moreBtnViewInLarge,
+  moreBtnViewWhiteboard,
+} from '../../language/default-labels/videoCallScreenLabels';
 interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -124,6 +129,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const enableExpandButton = isNativeScreenShareActive ? false : true;
 
   const {enablePinForMe} = useVideoCall();
+
+  const viewinlargeLabel = useString(moreBtnViewInLarge)();
+  const viewwhiteboardlabel = useString(moreBtnViewWhiteboard)();
 
   return (
     <>
@@ -343,8 +351,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 //text: showReplacePin ? 'Replace Pin' : 'View in large',
                 text:
                   user.uid === getWhiteboardUid()
-                    ? 'View Whiteboard'
-                    : 'View in large',
+                    ? viewwhiteboardlabel
+                    : viewinlargeLabel,
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {
                   marginTop: 0,

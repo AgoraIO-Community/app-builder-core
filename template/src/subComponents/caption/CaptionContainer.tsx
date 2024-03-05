@@ -30,6 +30,11 @@ import {
 import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {useString} from '../../utils/useString';
+import {
+  sttChangeSpokenLanguageText,
+  toolbarItemCaptionText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const CaptionContainer = () => {
   const moreIconRef = React.useRef<View>(null);
@@ -184,13 +189,19 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     data: {isHost},
   } = useRoomInfo();
 
+  const changeSpokenLangLabel = useString<boolean>(
+    sttChangeSpokenLanguageText,
+  )();
+
+  const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
+
   // only Host is authorized to start/stop stt
   isHost &&
     actionMenuitems.push({
       icon: 'lang-select',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Change Spoken Language ',
+      title: changeSpokenLangLabel + ' ',
       disabled: isLangChangeInProgress,
       callback: () => {
         setActionMenuVisible(false);
@@ -202,7 +213,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'captions-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Hide Caption',
+    title: hideCaptionLabel,
     callback: () => {
       setActionMenuVisible(false);
       setIsCaptionON(false);

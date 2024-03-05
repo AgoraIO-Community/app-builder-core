@@ -35,8 +35,10 @@ import {useCustomization} from 'customization-implementation';
 import NavbarMobile from '../../components/NavbarMobile';
 import {useVB} from '../../components/virtual-background/useVB';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {WhiteboardListener} from '../../components/Controls';
 
-const VideoCallMobileView = () => {
+const VideoCallMobileView = props => {
+  const {native = true} = props;
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
 
   const {RtcEngineUnsafe} = useContext(RtcContext);
@@ -120,9 +122,15 @@ const VideoCallMobileView = () => {
     maxScreenShareUid &&
     defaultContent[maxScreenShareUid] &&
     defaultContent[maxScreenShareUid]?.video ? (
-    <VideoRenderer user={defaultContent[maxScreenShareUid]} />
+    <>
+      {!native ? <WhiteboardListener /> : <></>}
+      <VideoRenderer user={defaultContent[maxScreenShareUid]} />
+    </>
   ) : (
-    <VideoCallView />
+    <>
+      {!native ? <WhiteboardListener /> : <></>}
+      <VideoCallView />
+    </>
   );
 };
 

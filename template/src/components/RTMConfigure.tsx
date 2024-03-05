@@ -38,10 +38,15 @@ import {filterObject} from '../utils';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
-import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import {
+  WaitingRoomStatus,
+  useRoomInfo,
+} from '../components/room-info/useRoomInfo';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
+import {controlMessageEnum} from '../components/ChatContext';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -55,10 +60,22 @@ const RtmConfigure = (props: any) => {
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
+
   const {
-    isInWaitingRoom,
+    waitingRoomStatus,
     data: {isHost},
   } = useRoomInfo();
+  const waitingRoomStatusRef = useRef({waitingRoomStatus: waitingRoomStatus});
+
+  const isHostRef = useRef({isHost: isHost});
+
+  useEffect(() => {
+    isHostRef.current.isHost = isHost;
+  }, [isHost]);
+
+  useEffect(() => {
+    waitingRoomStatusRef.current.waitingRoomStatus = waitingRoomStatus;
+  }, [waitingRoomStatus]);
 
   /**
    * inside event callback state won't have latest value.
@@ -74,14 +91,6 @@ const RtmConfigure = (props: any) => {
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
-
-  //commented for v1 release
-  // const userText = useString('remoteUserDefaultLabel')();
-  const userText = 'User';
-  const pstnUserLabel = useString('pstnUserLabel')();
-  //commented for v1 release
-  //const getScreenShareName = useString('screenshareUserName');
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
 
   let engine = useRef<RtmEngine>(null!);
   const timerValueRef: any = useRef(5);
@@ -481,8 +490,25 @@ const RtmConfigure = (props: any) => {
         value = formattedData;
       }
     } else {
-      evt = data.evt;
-      value = data.value;
+      if (
+        $config.ENABLE_WAITING_ROOM &&
+        !isHostRef.current?.isHost &&
+        waitingRoomStatusRef.current?.waitingRoomStatus !==
+          WaitingRoomStatus.APPROVED
+      ) {
+        if (
+          data.evt === controlMessageEnum.muteAudio ||
+          data.evt === controlMessageEnum.muteVideo
+        ) {
+          return;
+        } else {
+          evt = data.evt;
+          value = data.value;
+        }
+      } else {
+        evt = data.evt;
+        value = data.value;
+      }
     }
 
     try {

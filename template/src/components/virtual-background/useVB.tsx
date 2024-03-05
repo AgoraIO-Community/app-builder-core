@@ -13,6 +13,7 @@ import {isMobileUA} from '../../utils/common';
 import {retrieveImagesFromIndexDB} from './VButils';
 import imagePathsArray from './imagePaths';
 import getUniqueID from '../../../src/utils/getUniqueID';
+import {TextDataInterface} from '../../../src/language/default-labels';
 //@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
@@ -23,6 +24,7 @@ export type Option = {
   path?: string & {default?: string};
   label?: string;
   id?: string;
+  translationKey?: keyof TextDataInterface;
 };
 
 // processors for the main view and preview view

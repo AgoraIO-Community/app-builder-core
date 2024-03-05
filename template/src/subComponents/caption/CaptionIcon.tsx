@@ -4,6 +4,8 @@ import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
+import {useString} from '../../utils/useString';
+import {toolbarItemCaptionText} from '../../language/default-labels/videoCallScreenLabels';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -29,7 +31,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const isDisabled = !isAuthorizedSTTUser();
-  const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
+  const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const label = captionLabel(isCaptionON);
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
       if (isSTTError) {
@@ -59,8 +62,13 @@ const CaptionIcon = (props: CaptionIconProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
-      text: showLabel ? label : '',
+      text: showLabel
+        ? isOnActionSheet
+          ? label?.replace(' ', '\n')
+          : label
+        : '',
       textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;

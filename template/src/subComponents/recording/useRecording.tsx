@@ -19,6 +19,7 @@ import React, {
 } from 'react';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'customization-implementation';
+import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
@@ -34,6 +35,11 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {useIsRecordingBot} from './useIsRecordingBot';
+import {
+  videoRoomRecordingToastHeading,
+  videoRoomRecordingToastSubHeading,
+  videoRoomUserFallbackText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -91,10 +97,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
-  //commented for v1 release
-  //const recordingStartedText = useString<boolean>('recordingNotificationLabel');
-  const recordingStartedText = (active: boolean) =>
-    active ? 'Recording Started' : 'Recording Stopped';
+  const recordingStartedText = useString<boolean>(
+    videoRoomRecordingToastHeading,
+  );
+  const subheading = useString(videoRoomRecordingToastSubHeading);
+  const userlabel = useString(videoRoomUserFallbackText)();
+
   const {localUid} = useContext(ChatContext);
   const {store} = React.useContext(StorageContext);
 
@@ -166,9 +174,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
-          ? `This room is being recorded by ${
-              trimText(defaultContent[uidWhoStarted]?.name) || 'user'
-            }`
+          ? subheading(
+              trimText(defaultContent[uidWhoStarted]?.name) || userlabel,
+            )
           : '',
         visibilityTime: 3000,
         primaryBtn: null,

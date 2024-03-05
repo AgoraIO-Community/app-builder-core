@@ -25,6 +25,22 @@ import {BoardColor} from './WhiteboardConfigure';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import StrokeWidthTool from './StrokeWidthTool';
 import {useVideoCall} from '../../components/useVideoCall';
+import {useString} from '../../utils/useString';
+import {
+  whiteboardFileUploadErrorToastHeading,
+  whiteboardFileUploadInfoToastHeading,
+  whiteboardFileUploadTypeErrorToastHeading,
+  whiteboardFileUploadTypeErrorToastSubHeading,
+  whiteboardToolboxClearAllText,
+  whiteboardToolboxEraseText,
+  whiteboardToolboxLaserText,
+  whiteboardToolboxMoveText,
+  whiteboardToolboxPxLabel,
+  whiteboardToolboxSelectText,
+  whiteboardToolboxTextFormatting,
+  whiteboardToolboxUploadText,
+  whiteboardToolboxWidthLabel,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const supportedDocTypes = [
   'application/msword',
@@ -196,6 +212,29 @@ const TEST_IMAGE_DATA = {
 };
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
+  const whiteboardFileUploadErrorToastHeadingTT = useString<'File' | 'Image'>(
+    whiteboardFileUploadErrorToastHeading,
+  );
+  const whiteboardFileUploadInfoToastHeadingTT = useString<'File' | 'Image'>(
+    whiteboardFileUploadInfoToastHeading,
+  );
+  const whiteboardFileUploadTypeErrorToastHeadingTT = useString(
+    whiteboardFileUploadTypeErrorToastHeading,
+  )();
+  const whiteboardFileUploadTypeErrorToastSubHeadingTT = useString(
+    whiteboardFileUploadTypeErrorToastSubHeading,
+  )();
+
+  const selectLabel = useString(whiteboardToolboxSelectText)();
+  const textLabel = useString(whiteboardToolboxTextFormatting)();
+  const moveLabel = useString(whiteboardToolboxMoveText)();
+  const laserLabel = useString(whiteboardToolboxLaserText)();
+  const eraserLabel = useString(whiteboardToolboxEraseText)();
+  const uploadLabel = useString(whiteboardToolboxUploadText)();
+  const clearAllLabel = useString(whiteboardToolboxClearAllText)();
+
+  const toolWidthLabel = useString(whiteboardToolboxWidthLabel)();
+  const toolPxLabel = useString(whiteboardToolboxPxLabel)();
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
   const {setShowWhiteboardClearAllPopup} = useVideoCall();
   const [roomState, setRoomState] = useState(whiteboardRoom?.current?.state);
@@ -306,7 +345,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               console.log('debugging file convert failed', err2);
               Toast.show({
                 type: 'error',
-                text1: 'Error on uploading file, please try again.',
+                text1: whiteboardFileUploadErrorToastHeadingTT('File'),
                 visibilityTime: 10000,
               });
             });
@@ -314,7 +353,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         .catch(() => {
           Toast.show({
             type: 'error',
-            text1: 'Error on uploading file, please try again.',
+            text1: whiteboardFileUploadErrorToastHeadingTT('File'),
             visibilityTime: 10000,
           });
         });
@@ -322,7 +361,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
       console.log('debugging upload url is empty');
       Toast.show({
         type: 'error',
-        text1: 'Error on uploading file, please try again.',
+        text1: whiteboardFileUploadErrorToastHeadingTT('File'),
         visibilityTime: 10000,
       });
     }
@@ -368,7 +407,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               console.log('debugging error get image url', err2);
               Toast.show({
                 type: 'error',
-                text1: 'Error on uploading image, please try again.',
+                text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
                 visibilityTime: 10000,
               });
             });
@@ -376,7 +415,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         .catch(() => {
           Toast.show({
             type: 'error',
-            text1: 'Error on uploading image, please try again.',
+            text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
             visibilityTime: 10000,
           });
         });
@@ -384,7 +423,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
       console.log('debugging image upload url is empty');
       Toast.show({
         type: 'error',
-        text1: 'Error on uploading image, please try again.',
+        text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
         visibilityTime: 10000,
       });
     }
@@ -412,8 +451,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             if (supportedImageType?.indexOf(selectedFile?.type) !== -1) {
               Toast.show({
                 type: 'info',
-                text1:
-                  'Image Upload will take few seconds to appear in whiteboard',
+                text1: whiteboardFileUploadInfoToastHeadingTT('Image'),
                 visibilityTime: 5000,
                 primaryBtn: null,
                 secondaryBtn: null,
@@ -422,8 +460,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             } else {
               Toast.show({
                 type: 'info',
-                text1:
-                  'Document Upload will take few seconds to appear in whiteboard',
+                text1: whiteboardFileUploadInfoToastHeadingTT('File'),
                 visibilityTime: 5000,
                 primaryBtn: null,
                 secondaryBtn: null,
@@ -435,7 +472,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             console.log('debugging upload api failed', err);
             Toast.show({
               type: 'error',
-              text1: 'Error on uploading file, please try again.',
+              text1: whiteboardFileUploadErrorToastHeadingTT('File'),
               visibilityTime: 10000,
             });
           });
@@ -443,16 +480,15 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         console.log('debugging unsupported file');
         Toast.show({
           type: 'error',
-          text1: 'Unsupported file',
-          text2:
-            'Please select file format with pdf, doc, docx, ppt, pptx, png, jpg, jpeg',
+          text1: whiteboardFileUploadTypeErrorToastHeadingTT,
+          text2: whiteboardFileUploadTypeErrorToastSubHeadingTT,
           visibilityTime: 10000,
         });
       }
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Error on uploading file, please try again.',
+        text1: whiteboardFileUploadErrorToastHeadingTT('File'),
         visibilityTime: 10000,
       });
     }
@@ -694,6 +730,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           <View style={style.toolboxPencilContainer}>
             <View style={style.toolboxPencilColor}>
               <StrokeWidthTool
+                widthLabel={toolWidthLabel}
+                pxLabel={toolPxLabel}
                 room={whiteboardRoom?.current}
                 roomState={roomState}
                 setPrevValue={value => {
@@ -725,7 +763,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         }>
         <View style={style.toolboxNew} nativeID="toolbox">
           <IconButton
-            toolTipMessage="Select"
+            toolTipMessage={selectLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -752,7 +790,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}
           />
           <IconButton
-            toolTipMessage="Text"
+            toolTipMessage={textLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -880,7 +918,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             />
           </div>
           <IconButton
-            toolTipMessage="Move"
+            toolTipMessage={moveLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -901,7 +939,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}
           />
           <IconButton
-            toolTipMessage="Laser"
+            toolTipMessage={laserLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -945,7 +983,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}
           /> */}
           <IconButton
-            toolTipMessage="Erase"
+            toolTipMessage={eraserLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -986,7 +1024,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                   }
                   document.getElementById('docpicker').click();
                 }}
-                toolTipMessage="Upload Document or Image"
+                toolTipMessage={uploadLabel}
                 placement={'right'}
                 showTooltipArrow={false}
                 hoverEffect={true}
@@ -1004,7 +1042,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             <></>
           )}
           <IconButton
-            toolTipMessage="Clear All"
+            toolTipMessage={clearAllLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {

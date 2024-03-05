@@ -49,12 +49,6 @@ export interface ChatProps {
 
 const Chat = (props?: ChatProps) => {
   // commented for v1 release
-  // const groupChatLabel = useString('groupChatLabel')();
-  // const privateChatLabel = useString('privateChatLabel')();
-  const chatLabel = 'Chat';
-  const groupChatLabel = 'Group';
-  const privateChatLabel = 'Private';
-
   const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;

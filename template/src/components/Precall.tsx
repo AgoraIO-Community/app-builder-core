@@ -53,6 +53,11 @@ import VBPanel from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
 import {DeviceSelectProps} from './precall/selectDevice';
+import {useString} from '../utils/useString';
+import {
+  precallYouAreJoiningAsHeading,
+  settingsPanelHeading,
+} from '../language/default-labels/precallScreenLabels';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -220,6 +225,8 @@ const JoinRoomButton = () => {
 };
 
 const Precall = () => {
+  const settingsLabel = useString(settingsPanelHeading)();
+  const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
   const {rtcProps} = useContext(PropsContext);
   const {height} = useWindowDimensions();
   // const {isVBActive, setIsVBActive} = useVB();
@@ -354,7 +361,7 @@ const Precall = () => {
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
-                <MeetingName prefix="You are joining" />
+                <MeetingName prefix={youAreJoiningAs} />
               </View>
               <Spacer size={32} />
               <JoinRoomInputView isDesktop={true} />
@@ -405,8 +412,7 @@ const Precall = () => {
                   }>
                   <View style={style.desktopRootcontainer}>
                     <View>
-                      {' '}
-                      <MeetingName prefix="You are joining" />
+                      <MeetingName prefix={youAreJoiningAs} />
                     </View>
                     <View style={style.desktopContainer}>
                       <View style={style.desktopContentContainer}>
@@ -470,7 +476,7 @@ const Precall = () => {
                     iconType="plain"
                   />
                 </View>
-                <Text style={style.settingTextStyle}>Settings</Text>
+                <Text style={style.settingTextStyle}>{settingsLabel}</Text>
               </View>
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect isOnPrecall={true} />
