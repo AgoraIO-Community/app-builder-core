@@ -23,8 +23,8 @@ export function useIsRecordingBot() {
 
   const recordingBotUIConfig: RecordingBotUIConfig = {
     chat: chatParam ? regexPattern.test(chatParam) : true,
-    topBar: topBarParam ? regexPattern.test(topBarParam) : true,
-    bottomBar: bottomBarParam ? regexPattern.test(bottomBarParam) : true,
+    topBar: topBarParam ? regexPattern.test(topBarParam) : false,
+    bottomBar: bottomBarParam ? regexPattern.test(bottomBarParam) : false,
     stt: sttParam ? regexPattern.test(sttParam) : true,
   };
 

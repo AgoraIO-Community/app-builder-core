@@ -101,16 +101,21 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setChatType} = useChatUIControls();
   const {setSidePanel} = useSidePanel();
   const {setIsCaptionON} = useCaption();
-  const {isRecordingBot} = useIsRecordingBot();
+  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   const setRecordingBotUI = () => {
     if (isRecordingBot) {
-      setSidePanel(SidePanelType.Chat);
-      setChatType(ChatType.Group);
-      setIsCaptionON(true);
+      if (recordingBotUIConfig?.chat) {
+        setSidePanel(SidePanelType.Chat);
+        setChatType(ChatType.Group);
+      }
+      if (recordingBotUIConfig.stt) {
+        setIsCaptionON(true);
+      }
     }
   };
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (callActive) {
       setRecordingBotUI();
     }

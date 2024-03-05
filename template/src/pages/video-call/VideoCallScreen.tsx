@@ -40,6 +40,7 @@ import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -229,6 +230,8 @@ const VideoCallScreen = () => {
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
 
+  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
+
   return VideocallComponent ? (
     <VideocallComponent />
   ) : // ) : !isDesktop ? (
@@ -253,7 +256,12 @@ const VideoCallScreen = () => {
             )}
           </ToolbarProvider>
           <View style={style.full}>
-            <View style={isRecordingBot && style.zeroHeight}>
+            <View
+              style={
+                isRecordingBot &&
+                !recordingBotUIConfig.topBar &&
+                style.zeroHeight
+              }>
               <ToolbarProvider value={{position: ToolbarPosition.top}}>
                 {TopbarProps?.length ? (
                   <TopbarComponent
@@ -316,7 +324,12 @@ const VideoCallScreen = () => {
                   <>
                     <CaptionContainer />
                     <Spacer size={10} />
-                    <View style={isRecordingBot && style.zeroHeight}>
+                    <View
+                      style={
+                        isRecordingBot &&
+                        !recordingBotUIConfig.bottomBar &&
+                        style.zeroHeight
+                      }>
                       <BottombarComponent />
                     </View>
                   </>
