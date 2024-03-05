@@ -41,6 +41,11 @@ const DEFAULT_CLIENT = new ApolloClient({
 });
 
 const authLink = (token: string) => {
+  /**
+   * Below we create a new link, whenever a token changes, set
+   * context with headers and forward the link so as to
+   * execute the next link in the chain
+   */
   return new ApolloLink((operation, forward) => {
     if (token) {
       operation.setContext(({headers = {}}) => ({
@@ -72,7 +77,9 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   // }, [store?.token]);
 
   useEffect(() => {
-    if (!store?.token) return;
+    if (!store?.token) {
+      return;
+    }
     (async () => {
       const link = authLink(store?.token).concat(httpLink);
       setClient(new ApolloClient({link, cache}));

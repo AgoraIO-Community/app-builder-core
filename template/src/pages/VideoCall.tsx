@@ -11,6 +11,7 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
+import {useApolloClient} from '@apollo/client';
 import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
@@ -100,6 +101,8 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
+  const client = useApolloClient();
+
   //commented for v1 release
   //const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const joiningLoaderLabel = 'Starting Call. Just a second.';
@@ -313,6 +316,7 @@ const VideoCall: React.FC = () => {
         // TODO: These callbacks are being called twice
         SDKEvents.emit('leave');
         history.push('/');
+        client.resetStore();
       }, 0);
     },
     UserJoined: (uid: UidType) => {
