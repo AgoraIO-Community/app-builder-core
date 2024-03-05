@@ -17,8 +17,8 @@ import * as Types from './Types';
 export const VideoMirrorMode = {...Types.RenderModeType};
 export const RenderModeType = {...Types.RenderModeType};
 
-export function createAgoraRtcEngine(appId: string) {
-  let engine = new RtcEngine(appId);
+export function createAgoraRtcEngine() {
+  let engine = new RtcEngine();
   window.engine = engine;
   return engine;
 }

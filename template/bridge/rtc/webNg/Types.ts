@@ -10,6 +10,10 @@
 *********************************************
 */
 
+export interface RtcEngineContext {
+  appId?: string;
+}
+
 export enum RenderModeType {
   /**
    * 1: Hidden mode. Uniformly scale the video until one of its dimension fits the boundary (zoomed to fit). One dimension of the video may have clipped contents.
