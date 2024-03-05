@@ -868,7 +868,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'Are you sure you want to stop recording? You can’t undo this action.',
   [stopRecordingPopupPrimaryBtnText]: 'END RECORDING',
 
-  [clearAllWhiteboardPopupHeading]: 'Clear Whiteborad?',
+  [clearAllWhiteboardPopupHeading]: 'Clear Whiteboard?',
   [clearAllWhiteboardPopupSubHeading]:
     'Are you sure you want to clear the whiteboard?',
   [clearAllWhiteboardPopupPrimaryBtnText]: 'CLEAR ALL',
@@ -917,7 +917,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
       ? 'Welcome to Chat!\nAll messages are deleted when call ends.'
       : 'All messages are deleted when call ends.',
 
-  [groupChatInputPlaceHolderText]: name => `Chat publicy as ${name}...`,
+  [groupChatInputPlaceHolderText]: name => `Chat publicly as ${name}...`,
   [privateChatInputPlaceHolderText]: name => `Private Message to ${name}`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
