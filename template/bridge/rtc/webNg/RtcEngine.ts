@@ -1004,6 +1004,7 @@ export default class RtcEngine {
     encryption: {
       screenKey: string;
       mode: RnEncryptionEnum;
+      salt: string;
     },
     config: ScreenVideoTrackInitConfig = {},
     audio: 'enable' | 'disable' | 'auto' = 'auto',
@@ -1024,6 +1025,8 @@ export default class RtcEngine {
             await this.screenClient.setEncryptionConfig(
               mode,
               encryption.screenKey,
+              encryption.salt,
+              true, // encryptDataStream
             );
           } catch (e) {
             console.log('e: Encryption for screenshare failed', e);
