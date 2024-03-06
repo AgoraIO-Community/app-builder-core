@@ -236,7 +236,7 @@ const VideoCallScreen = () => {
   ) : // ) : !isDesktop ? (
   isMobileUA() ? (
     // Mobile View
-    <VideoCallMobileView />
+    <VideoCallMobileView native={false} />
   ) : (
     // Desktop View
     <>

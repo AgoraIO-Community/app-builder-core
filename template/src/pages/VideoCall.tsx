@@ -26,7 +26,12 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {useHasBrandLogo, isArray, isMobileUA} from '../utils/common';
+import {
+  useHasBrandLogo,
+  isArray,
+  isMobileUA,
+  isWebInternal,
+} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -371,7 +376,7 @@ const VideoCall: React.FC = () => {
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
-                  <NoiseSupressionProvider>
+                  <NoiseSupressionProvider callActive={callActive}>
                     <VideoQualityContextProvider>
                       <ChatUIControlsProvider>
                         <ChatNotificationProvider>
@@ -423,7 +428,8 @@ const VideoCall: React.FC = () => {
                                                                 <VideoMeetingDataProvider>
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
-                                                                      {$config.ENABLE_WHITEBOARD ? (
+                                                                      {$config.ENABLE_WHITEBOARD &&
+                                                                      isWebInternal() ? (
                                                                         <WhiteboardConfigure>
                                                                           <VideoCallScreen />
                                                                         </WhiteboardConfigure>

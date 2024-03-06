@@ -30,7 +30,7 @@ const VideoCallleScreen = () => {
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <VideoCallMobileView />
+      <VideoCallMobileView native={true} />
     </GestureHandlerRootView>
   );
 };
