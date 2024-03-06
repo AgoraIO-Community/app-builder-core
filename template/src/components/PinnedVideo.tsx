@@ -137,6 +137,8 @@ const PinnedVideo = ({renderData}) => {
             {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
             {minUids?.map((minUid, i) => {
               if (minUid === secondaryPinnedUid) return null;
+              if (minUid === pinnedUid) return null;
+              if (minUid === maxUid) return null;
               //rendering minimized view
               return (
                 <Pressable
