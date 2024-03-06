@@ -101,6 +101,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     videoRoomRecordingToastHeading,
   );
   const subheading = useString(videoRoomRecordingToastSubHeading);
+
+  const headingStartError = useString(
+    videoRoomRecordingStartErrorToastHeading,
+  )();
+  const headingStopError = useString(videoRoomRecordingStopErrorToastHeading)();
+  const subheadingError = useString(videoRoomRecordingErrorToastSubHeading)();
+
   const userlabel = useString(videoRoomUserFallbackText)();
 
   const {localUid} = useContext(ChatContext);
@@ -232,12 +239,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setUidWhoStarted(localUid);
           setRecordingActive(true);
         } else if (res.status === 500) {
-          showErrorToast(
-            videoRoomRecordingStartErrorToastHeading,
-            videoRoomRecordingErrorToastSubHeading,
-          );
+          showErrorToast(headingStartError, subheadingError);
         } else {
-          showErrorToast(videoRoomRecordingStartErrorToastHeading);
+          showErrorToast(headingStartError);
         }
       })
       .catch(err => {
@@ -294,12 +298,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             // 2. set the local recording state to false to update the UI
             setRecordingActive(false);
           } else if (res.status === 500) {
-            showErrorToast(
-              videoRoomRecordingStopErrorToastHeading,
-              videoRoomRecordingErrorToastSubHeading,
-            );
+            showErrorToast(headingStopError, subheadingError);
           } else {
-            showErrorToast(videoRoomRecordingStopErrorToastHeading);
+            showErrorToast(headingStopError);
           }
         })
         .catch(err => {
