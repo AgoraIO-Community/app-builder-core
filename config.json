@@ -25,7 +25,7 @@
   "PSTN_EMAIL": "",
   "PSTN_ACCOUNT": "",
   "PSTN_PASSWORD": "",
-  "RECORDING_REGION": 0,
+  "RECORDING_REGION": 3,
   "GEO_FENCING": true,
   "LOG_ENABLED": true,
   "EVENT_MODE": false,
