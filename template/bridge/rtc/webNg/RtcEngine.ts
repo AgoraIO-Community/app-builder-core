@@ -425,14 +425,16 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', user => {
-      (this.eventsMap.get('onUserJoined') as callbackType)(user.uid);
+      (this.eventsMap.get('onUserJoined') as callbackType)({}, user.uid);
       (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+        {},
         user.uid,
         0,
         0,
         0,
       );
       (this.eventsMap.get('onRemoteAudioStateChanged') as callbackType)(
+        {},
         user.uid,
         0,
         0,
@@ -445,13 +447,14 @@ export default class RtcEngine {
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
       }
-      (this.eventsMap.get('onUserOffline') as callbackType)(uid);
+      (this.eventsMap.get('onUserOffline') as callbackType)({}, uid);
       // (this.eventsMap.get('UserJoined') as callbackType)(uid);
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+          {},
           user.uid,
           2,
           0,
@@ -476,6 +479,7 @@ export default class RtcEngine {
             ?.audio?.setPlaybackDevice(this.speakerDeviceId);
         }
         (this.eventsMap.get('onRemoteAudioStateChanged') as callbackType)(
+          {},
           user.uid,
           2,
           0,
@@ -490,6 +494,7 @@ export default class RtcEngine {
           video: videoTrack,
         });
         (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+          {},
           user.uid,
           2,
           0,
@@ -502,6 +507,7 @@ export default class RtcEngine {
         const {audio, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('onRemoteAudioStateChanged') as callbackType)(
+          {},
           user.uid,
           0,
           0,
@@ -511,6 +517,7 @@ export default class RtcEngine {
         const {video, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
+          {},
           user.uid,
           0,
           0,
@@ -941,6 +948,7 @@ export default class RtcEngine {
   async destroy(): Promise<void> {
     if (this.inScreenshare) {
       (this.eventsMap.get('onUserOffline') as callbackType)(
+        {},
         this.screenClient.uid,
       );
       this.screenClient.leave();
@@ -1052,6 +1060,7 @@ export default class RtcEngine {
 
       this.screenStream.video.on('track-ended', () => {
         (this.eventsMap.get('onUserOffline') as callbackType)(
+          {},
           this.screenClient.uid,
         );
 
@@ -1066,6 +1075,7 @@ export default class RtcEngine {
       });
     } else {
       (this.eventsMap.get('onUserOffline') as callbackType)(
+        {},
         this.screenClient.uid,
       );
       this.screenClient.leave();
