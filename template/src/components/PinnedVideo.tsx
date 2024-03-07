@@ -108,7 +108,9 @@ const PinnedVideo = ({renderData}) => {
                     marginBottom: 8,
                   }
             }>
-            {secondaryPinnedUid ? (
+            {secondaryPinnedUid &&
+            secondaryPinnedUid !== pinnedUid &&
+            secondaryPinnedUid !== maxUid ? (
               <Pressable
                 disabled={true}
                 style={
