@@ -25,7 +25,7 @@ export function useIsRecordingBot() {
     chat: chatParam ? regexPattern.test(chatParam) : true,
     topBar: topBarParam ? regexPattern.test(topBarParam) : false,
     bottomBar: bottomBarParam ? regexPattern.test(bottomBarParam) : false,
-    stt: sttParam ? regexPattern.test(sttParam) : true,
+    stt: sttParam ? regexPattern.test(sttParam) : false,
   };
 
   return {
