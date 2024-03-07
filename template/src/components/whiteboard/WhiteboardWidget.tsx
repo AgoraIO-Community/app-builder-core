@@ -75,8 +75,12 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
   const exportsuccess = useString(whiteboardExportSuccessToastHeading)();
 
   const [isInProgress, setIsInProgress] = useState(false);
-  const {setBoardColor, boardColor, getWhiteboardUid} =
-    useContext(whiteboardContext);
+  const {
+    setBoardColor,
+    boardColor,
+    getWhiteboardUid,
+    isWhiteboardOnFullScreen,
+  } = useContext(whiteboardContext);
   const {
     data: {whiteboard: {room_uuid} = {}},
   } = useRoomInfo();
@@ -205,7 +209,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     <>
       <View style={style.toolboxContainer}>
         <View style={style.toolboxNew} nativeID="toolbox">
-          {!whiteboardRoom.current?.isWritable || isIOS() || isAndroid() ? (
+          {(!whiteboardRoom.current?.isWritable || isIOS() || isAndroid()) &&
+          !isWhiteboardOnFullScreen ? (
             <View style={style.viewOnlyContainerStyle}>
               <ImageIcon
                 name="view-only"

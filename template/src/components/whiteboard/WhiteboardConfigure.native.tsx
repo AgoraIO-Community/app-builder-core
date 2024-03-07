@@ -77,6 +77,8 @@ export interface whiteboardContextInterface {
   getWhiteboardUid: () => number;
   whiteboardStartedFirst?: boolean;
   clearAllCallback: () => void;
+  isWhiteboardOnFullScreen?: boolean;
+  setWhiteboardOnFullScreen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface WhiteboardPropsInterface {
@@ -90,6 +92,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState();
+  const [isWhiteboardOnFullScreen, setWhiteboardOnFullScreen] = useState(false);
   const whiteboardUidRef = useRef(Date.now());
   const whiteboardRoom = useRef({});
 
@@ -109,6 +112,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     return whiteboardUidRef?.current;
   };
 
+  useEffect(() => {
+    if (!whiteboardActive && isWhiteboardOnFullScreen) {
+      setWhiteboardOnFullScreen(false);
+    }
+  }, [whiteboardActive]);
+
   const clearAllCallback = () => {};
   return (
     <whiteboardContext.Provider
@@ -126,6 +135,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         insertImageIntoWhiteboard,
         whiteboardStartedFirst,
         clearAllCallback,
+        isWhiteboardOnFullScreen,
+        setWhiteboardOnFullScreen,
       }}>
       {props.children}
     </whiteboardContext.Provider>

@@ -32,7 +32,8 @@ import StorageContext from '../StorageContext';
 interface WhiteboardViewInterface {}
 
 const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
-  const {getWhiteboardUid, whiteboardActive} = useContext(whiteboardContext);
+  const {getWhiteboardUid, whiteboardActive, isWhiteboardOnFullScreen} =
+    useContext(whiteboardContext);
   const {setStore, store} = useContext(StorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const roomRef = useRef({});
@@ -103,7 +104,12 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   };
 
   return (
-    <View style={style.whiteboardContainer}>
+    <View
+      style={
+        isWhiteboardOnFullScreen
+          ? style.whiteboardContainerLandscape
+          : style.whiteboardContainer
+      }>
       {whiteboardActive ? (
         <>
           {isLoading ? (
@@ -148,6 +154,13 @@ const style = StyleSheet.create({
     alignItems: 'center', //Centered horizontally
     flex: 1,
     zIndex: 999,
+  },
+  whiteboardContainerLandscape: {
+    flex: 1,
+    position: 'relative',
+    alignSelf: 'center',
+    alignItems: 'center',
+    transform: [{rotate: '90deg'}],
   },
   whiteboardContainer: {
     flex: 1,
