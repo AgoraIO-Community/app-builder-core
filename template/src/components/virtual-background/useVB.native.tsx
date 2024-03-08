@@ -5,9 +5,9 @@ import {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import {retrieveImagesFromAsyncStorage} from './VButils.native';
 
 import RtcEngine, {
-  VirtualBackgroundBlurDegree,
+  BackgroundBlurDegree,
   VirtualBackgroundSource,
-  VirtualBackgroundSourceType,
+  BackgroundSourceType,
 } from 'react-native-agora';
 import {useRtc} from 'customization-api';
 import RNFS from 'react-native-fs';
@@ -138,26 +138,24 @@ const VBProvider: React.FC = ({children}) => {
   }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
 
   const blurVB = async () => {
-    const blurConfig: VirtualBackgroundSource = new VirtualBackgroundSource({
-      backgroundSourceType: VirtualBackgroundSourceType.Blur,
-      blur_degree: VirtualBackgroundBlurDegree.Medium,
-    });
+    const blurConfig: VirtualBackgroundSource = new VirtualBackgroundSource();
+    blurConfig.background_source_type = BackgroundSourceType.BackgroundBlur;
+    blurConfig.blur_degree = BackgroundBlurDegree.BlurDegreeMedium;
     await applyVirtualBackgroundToMainView(blurConfig);
   };
 
   const imageVB = async () => {
     const savedImagePath = await downloadBase64Image(selectedImage, 'img.png');
-    const imageConfig = new VirtualBackgroundSource({
-      backgroundSourceType: VirtualBackgroundSourceType.Img,
-      source: savedImagePath,
-    });
+    const imageConfig: VirtualBackgroundSource = new VirtualBackgroundSource();
+    imageConfig.background_source_type = BackgroundSourceType.BackgroundImg;
+    imageConfig.source = savedImagePath;
     await applyVirtualBackgroundToMainView(imageConfig);
   };
 
   const disableVB = async () => {
-    const disableConfig: VirtualBackgroundSource = new VirtualBackgroundSource(
-      {},
-    );
+    const disableConfig: VirtualBackgroundSource =
+      new VirtualBackgroundSource();
+    disableConfig.background_source_type = BackgroundSourceType.BackgroundNone;
 
     await applyVirtualBackgroundToMainView(disableConfig, true);
   };
