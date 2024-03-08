@@ -44,6 +44,7 @@ export interface RoomInfoContextInterface {
     token?: string;
     rtmToken?: string;
     encryptionSecret?: string;
+    encryptionSecretSalt?: Uint8Array;
     screenShareUid?: string;
     screenShareToken?: string;
   };
