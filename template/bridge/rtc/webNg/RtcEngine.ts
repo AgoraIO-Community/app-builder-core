@@ -910,15 +910,25 @@ export default class RtcEngine {
     config: {
       encryptionMode: RnEncryptionEnum;
       encryptionKey: string;
+      encryptionKdfSalt: string;
     },
   ): Promise<void> {
     let mode: EncryptionMode;
     mode = this.getEncryptionMode(enabled, config?.encryptionMode);
-    console.log('setting encryption ===>', mode);
     try {
       await Promise.all([
-        this.client.setEncryptionConfig(mode, config.encryptionKey),
-        this.screenClient.setEncryptionConfig(mode, config.encryptionKey),
+        this.client.setEncryptionConfig(
+          mode,
+          config.encryptionKey,
+          config.encryptionKdfSalt,
+          true, // encryptDataStream
+        ),
+        this.screenClient.setEncryptionConfig(
+          mode,
+          config.encryptionKey,
+          config.encryptionKdfSalt,
+          true, // encryptDataStream
+        ),
       ]);
     } catch (e) {
       throw e;
@@ -1003,6 +1013,7 @@ export default class RtcEngine {
     encryption: {
       screenKey: string;
       mode: RnEncryptionEnum;
+      salt: string;
     },
     config: ScreenVideoTrackInitConfig = {},
     audio: 'enable' | 'disable' | 'auto' = 'auto',
@@ -1023,6 +1034,8 @@ export default class RtcEngine {
             await this.screenClient.setEncryptionConfig(
               mode,
               encryption.screenKey,
+              encryption.salt,
+              true, // encryptDataStream
             );
           } catch (e) {
             console.log('e: Encryption for screenshare failed', e);

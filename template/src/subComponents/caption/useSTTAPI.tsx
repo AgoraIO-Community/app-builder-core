@@ -32,8 +32,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
-  const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/sttv2`;
-  const OLD_STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
+  const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
   const username = useGetName();
   const localUid = useLocalUid();
   const {rtcProps} = useContext(PropsContext);
@@ -43,31 +42,21 @@ const useSTTAPI = (): IuseSTTAPI => {
   }, [language]);
 
   const apiCall = async (method: string, lang: LanguageType[] = []) => {
-    const response = await fetch(
-      `${
-        method === 'stop' || !$config.ENCRYPTION_ENABLED
-          ? OLD_STT_API_URL
-          : STT_API_URL
-      }/${method}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
-        },
-        body: JSON.stringify({
-          passphrase: roomId?.host || '',
-          lang:
-            method === 'stop' || !$config.ENCRYPTION_ENABLED
-              ? lang.join(',')
-              : lang,
-          dataStream_uid: 111111, // bot ID
-          encryption_mode: $config.ENCRYPTION_ENABLED
-            ? rtcProps.encryption.mode
-            : null,
-        }),
+    const response = await fetch(`${STT_API_URL}/${method}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: store.token ? `Bearer ${store.token}` : '',
       },
-    );
+      body: JSON.stringify({
+        passphrase: roomId?.host || '',
+        lang: lang,
+        dataStream_uid: 111111, // bot ID
+        encryption_mode: $config.ENCRYPTION_ENABLED
+          ? rtcProps.encryption.mode
+          : null,
+      }),
+    });
     const res = await response.json();
     return res;
   };
