@@ -330,6 +330,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           </ZoomableWrapper>
           {(!isScreenShareOnFullView && !CustomChild) ||
           (CustomChild &&
+            !isWhiteboardOnFullScreen &&
             (pinnedUid !== getWhiteboardUid() || currentLayout === 'grid')) ? (
             <VideoContainerProvider value={{videoTileWidth}}>
               <NameWithMicIcon
