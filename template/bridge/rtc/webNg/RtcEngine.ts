@@ -955,7 +955,11 @@ export default class RtcEngine {
     console.error('Please use enableEncryption instead');
   }
 
-  async destroy(): Promise<void> {
+  // async removeAllListeners<EventType extends keyof RtcEngineEvents>(event: EventType) {
+  //   this.client.removeAllListeners(eventName);
+  // }
+
+  async release(): Promise<void> {
     if (this.inScreenshare) {
       (this.eventsMap.get('onUserOffline') as callbackType)(
         {},
