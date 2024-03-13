@@ -2,7 +2,7 @@ PODS:
   - agora-react-native-rtm (1.5.1):
     - AgoraRtm_iOS (= 1.5.1)
     - React-Core
-  - AgoraIrisRTC_iOS (4.3.0-build.2)
+  - AgoraIrisRTC_iOS (4.2.6.3-build.1)
   - AgoraRtcEngine_iOS (4.3.0):
     - AgoraRtcEngine_iOS/AIAEC (= 4.3.0)
     - AgoraRtcEngine_iOS/AINS (= 4.3.0)
@@ -34,6 +34,7 @@ PODS:
   - AgoraRtcEngine_iOS/VideoCodecEnc (4.3.0)
   - AgoraRtcEngine_iOS/VirtualBackground (4.3.0)
   - AgoraRtcEngine_iOS/VQA (4.3.0)
+  - AgoraRtcEngine_Special_iOS (4.2.6.3)
   - AgoraRtm_iOS (1.5.1)
   - BEMCheckBox (1.4.1)
   - boost (1.76.0)
@@ -353,9 +354,9 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
-  - react-native-agora (4.3.0):
-    - AgoraIrisRTC_iOS (= 4.3.0-build.2)
-    - AgoraRtcEngine_iOS (= 4.3.0)
+  - react-native-agora (4.2.6-build.3-rc.1):
+    - AgoraIrisRTC_iOS (= 4.2.6.3-build.1)
+    - AgoraRtcEngine_Special_iOS (= 4.2.6.3)
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-document-picker (9.1.1):
@@ -602,6 +603,7 @@ SPEC REPOS:
   trunk:
     - AgoraIrisRTC_iOS
     - AgoraRtcEngine_iOS
+    - AgoraRtcEngine_Special_iOS
     - AgoraRtm_iOS
     - BEMCheckBox
     - fmt
@@ -730,8 +732,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   agora-react-native-rtm: 20cd594088d33caa46c75f2d079efbac62848cec
-  AgoraIrisRTC_iOS: 2caf892fa827777fe43b6ac7d12e9b42579eb865
+  AgoraIrisRTC_iOS: ee4eab41999febb67bc21539741b95d9577725a9
   AgoraRtcEngine_iOS: 267c0980c1fb97e056d05b850f8629b05b6e467a
+  AgoraRtcEngine_Special_iOS: 3b515beaee084fc27a8cac8415fc346d609af269
   AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
@@ -758,7 +761,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: fc8a4088f6fa1496033a0a54f53b753fd304d2e9
+  react-native-agora: 0d623411f75a126e6d5f6a41761df9ef74da87e6
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
