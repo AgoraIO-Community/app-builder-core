@@ -268,7 +268,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     // @ts-ignore
     rtc.RtcEngineUnsafe.addListener(
-      'ScreenshareStopped',
+      'onScreenshareStopped',
       ScreenshareStoppedCallback,
     );
   }, []);
