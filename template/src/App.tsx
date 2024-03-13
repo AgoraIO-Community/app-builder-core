@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {Platform} from 'react-native';
+import React, {useState, useContext, useLayoutEffect} from 'react';
+import {Platform, Text} from 'react-native';
 import KeyboardManager from 'react-native-keyboard-manager';
 import AppWrapper from './AppWrapper';
 import {
@@ -44,6 +44,12 @@ declare module 'agora-rn-uikit' {
   // }
 }
 
+declare global {
+  interface Navigator {
+    notifyReady?: () => boolean;
+  }
+}
+
 const App: React.FC = () => {
   //commented for v1 release
   //const CustomRoutes = useCustomization((data) => data?.customRoutes);
@@ -74,6 +80,26 @@ const App: React.FC = () => {
   //     return null;
   //   }
   // };
+
+  const notifyReady = () => {
+    console.log('recording-bot: checking if notifyReady is available');
+    if (typeof window.navigator.notifyReady === 'function') {
+      console.log('recording-bot: notifyReady is available');
+      setAvailable(true);
+      window.navigator.notifyReady();
+    } else {
+      console.log('recording-bot: notifyReady is un-available');
+    }
+  };
+  const [isAvailable, setAvailable] = useState(false);
+
+  useLayoutEffect(() => {
+    window.addEventListener('load', notifyReady);
+    return () => {
+      window.removeEventListener('load', notifyReady);
+    };
+  }, []);
+
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 
@@ -82,6 +108,9 @@ const App: React.FC = () => {
       <SetRoomInfoProvider value={{setRoomInfo}}>
         <RoomInfoProvider value={{...roomInfo}}>
           <ShareLinkProvider>
+            <Text style={{color: '#fff'}}>
+              Hi notifyReady is {JSON.stringify(isAvailable)}
+            </Text>
             <AppRoutes />
           </ShareLinkProvider>
         </RoomInfoProvider>
