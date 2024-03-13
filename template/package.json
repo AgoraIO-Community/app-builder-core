@@ -82,6 +82,7 @@
     "react-is": "18.0.0",
     "react-native": "0.72.4",
     "react-native-agora": "3.7.2-rc.3",
+    "react-native-agora-chat": "1.2.1",
     "react-native-document-picker": "^9.1.0",
     "react-native-exit-app": "1.1.0",
     "react-native-fs": "^2.20.0",
