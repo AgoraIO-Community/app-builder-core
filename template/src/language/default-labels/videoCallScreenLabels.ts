@@ -467,6 +467,12 @@ export const videoRoomRecordingToastHeading =
   `video${room}RecordingToastHeading` as const;
 export const videoRoomRecordingToastSubHeading =
   `video${room}RecordingToastSubHeading` as const;
+export const videoRoomRecordingStartErrorToastHeading =
+  'videoRoomRecordingStartErrorToastHeading';
+export const videoRoomRecordingStopErrorToastHeading =
+  'videoRoomRecordingStopErrorToastHeading';
+export const videoRoomRecordingErrorToastSubHeading =
+  'videoRoomRecordingErrorToastSubHeading';
 
 export const peoplePanelUserNotFoundLabel = 'peoplePanelUserNotFoundLabel';
 export const peoplePanelStreamingRequestSectionHeader =
@@ -759,6 +765,10 @@ export interface I18nVideoCallScreenLabelsInterface {
   [videoRoomScreenShareErrorToastSubHeading]?: I18nBaseType;
   [videoRoomRecordingToastHeading]?: I18nConditionalType;
   [videoRoomRecordingToastSubHeading]?: I18nDynamicType;
+  [videoRoomRecordingStartErrorToastHeading]?: I18nBaseType;
+  [videoRoomRecordingStopErrorToastHeading]?: I18nBaseType;
+  [videoRoomRecordingErrorToastSubHeading]?: I18nBaseType;
+
   [peoplePanelUserNotFoundLabel]?: I18nBaseType;
   [peoplePanelStreamingRequestSectionHeader]?: I18nBaseType;
   [peoplePanelLivestreamingApprovalBtnText]?: I18nBaseType;
@@ -1189,6 +1199,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Recording Started' : 'Recording Stopped',
   [videoRoomRecordingToastSubHeading]: name =>
     `This room is being recorded by ${name}`,
+  [videoRoomRecordingStartErrorToastHeading]: 'Recording failed to start',
+  [videoRoomRecordingStopErrorToastHeading]: 'Recording failed to stop',
+  [videoRoomRecordingErrorToastSubHeading]: 'There was an internal error.',
+
   [peoplePanelUserNotFoundLabel]: 'User not found',
   [peoplePanelStreamingRequestSectionHeader]: 'STREAMING REQUEST',
   [peoplePanelLivestreamingApprovalBtnText]: 'Accept',

@@ -78,12 +78,12 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           setReady(true);
         } else {
           const storeFromStorage = JSON.parse(storeString);
-          Object.keys(initStoreValue).forEach((key) => {
+          Object.keys(initStoreValue).forEach(key => {
             if (!storeFromStorage[key]) {
               storeFromStorage[key] = initStoreValue[key];
             }
           });
-          //unauth flow delete token from the localstoage if any
+          // unauth flow delete token from the localstoage if any
           if (!ENABLE_AUTH) {
             storeFromStorage['token'] = null;
           }
