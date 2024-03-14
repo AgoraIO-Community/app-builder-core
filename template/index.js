@@ -13,8 +13,17 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import {AppRegistry, Platform} from 'react-native';
 import App from './src/App';
 import {name as appName} from './app.json';
+import Logger from '../logger/AppBuilderLogger';
+import pkg from './package.json';
 
+Logger.init({
+  sdk_version: {
+    rtm: pkg.dependencies['agora-react-native-rtm'],
+    rtc: pkg.dependencies['react-native-agora'],
+  },
+  OS: `${Platform.OS}-${Platform.Version}`,
+});
 AppRegistry.registerComponent(appName, () => App);

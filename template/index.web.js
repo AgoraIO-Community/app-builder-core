@@ -9,9 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { AppRegistry } from 'react-native';
+import {AppRegistry} from 'react-native';
 import Video from './src/App';
-import './src/assets/font-styles.css'
+import './src/assets/font-styles.css';
+import Logger from './src/logger/AppBuilderLogger';
+import pkg from './package.json';
+
+Logger.init({
+  sdk_version: {
+    rtm: pkg.dependencies['agora-rtm-sdk'],
+    rtc: pkg.dependencies['agora-rtc-sdk-ng'],
+  },
+  frontend_url: window.location.toString(),
+  OS: navigator.userAgent,
+});
 
 AppRegistry.registerComponent('App', () => Video);
 
