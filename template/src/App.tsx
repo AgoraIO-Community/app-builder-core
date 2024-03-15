@@ -93,6 +93,7 @@ const App: React.FC = () => {
 
   useLayoutEffect(() => {
     if (isWebInternal()) {
+      // Register only on web
       window.addEventListener('load', notifyReady);
     }
     return () => {
