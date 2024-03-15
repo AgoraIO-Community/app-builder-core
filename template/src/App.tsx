@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useLayoutEffect} from 'react';
-import {Platform, Text} from 'react-native';
+import React, {useState, useLayoutEffect} from 'react';
+import {Platform} from 'react-native';
 import KeyboardManager from 'react-native-keyboard-manager';
 import AppWrapper from './AppWrapper';
 import {
@@ -82,7 +82,6 @@ const App: React.FC = () => {
   // };
 
   const notifyReady = () => {
-    console.log('recording-bot: checking if notifyReady is available');
     if (typeof window.navigator.notifyReady === 'function') {
       console.log('recording-bot: notifyReady is available');
       setAvailable(true);
@@ -108,9 +107,6 @@ const App: React.FC = () => {
       <SetRoomInfoProvider value={{setRoomInfo}}>
         <RoomInfoProvider value={{...roomInfo}}>
           <ShareLinkProvider>
-            <Text style={{color: '#fff'}}>
-              Hi notifyReady is {JSON.stringify(isAvailable)}
-            </Text>
             <AppRoutes />
           </ShareLinkProvider>
         </RoomInfoProvider>
