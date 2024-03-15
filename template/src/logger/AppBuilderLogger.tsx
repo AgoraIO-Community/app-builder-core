@@ -48,26 +48,21 @@ export interface LogFn {
 /** Basic logger interface */
 export interface Logger {
   log: LogFn;
-  warn: LogFn;
-  error: LogFn;
-  info: LogFn;
+  // warn: LogFn;
+  // error: LogFn;
+  // info: LogFn;
   init: (options: MetaInfo) => void;
   setCallInfo: (options: CallInfo) => void;
   // _log: any;
   // specialLog: any;
 }
+
 /** Logger which outputs to the browser console */
 class AppBuilderLogger implements Logger {
-  // readonly log: LogFn;
-  readonly warn: LogFn;
-  readonly error: LogFn;
-  readonly info: LogFn;
-  // this.prefixMsg = `%cAppBuilder-Logger: ${'dummysource'}:[${'dummyType'}] `;
-
+  readonly transport: LogFn;
   metaInfo: Partial<MetaInfo> = {};
   callInfo: Partial<CallInfo> = {};
   heading = '%cAppBuilder-Logger';
-  css = 'color: rgb(9, 157, 253); font-weight: bold';
 
   constructor() {
     // this._log = Function.prototype.bind.call(console.log, console);
@@ -83,8 +78,13 @@ class AppBuilderLogger implements Logger {
     //   `${this.heading}`,
     //   `${this.css} %s %o`,
     // );
-    this.metaInfo = {};
     // this._log = this._log.bind(this.log);
+
+    this.metaInfo = {};
+    // this.transport = (logLevel, message, metadata) => {
+    //   let log = console[logLevel.toLowerCase() as keyof Console];
+    //   log(logLevel, message, metadata);
+    // };
   }
 
   init = (options?: Partial<MetaInfo>) => {
@@ -102,32 +102,13 @@ class AppBuilderLogger implements Logger {
     };
   };
 
-  // _log() {
-  //   return Function.prototype.bind.call(console.log, console);
-  // }
-
-  // log = this._log();
-
-  // specialLog = Function.prototype.bind.call(console.log, console, 'Special: ', {
-  //   metaInfo: this.metaInfo,
-  // });
-
-  // _log(message) {
-  //   this.log(`supriya, ${message}`);
-  // }
-  // log = Function.prototype.bind.call(
-  //   console.log,
-  //   console,
-  //   `${this.heading}`,
-  //   `${this.css} %s`,
-  //   {
-  //     meta: this.metaInfo,
-  //   },
-  // );
   log(message: string, _options?: any) {
-    console.log(`${this.heading}`, `${this.css} %s`, message, {
+    const css = 'color: rgb(9, 157, 253); font-weight: bold';
+    console.log(`${this.heading}`, `${css} %s`, message, {
       metaInfo: this.metaInfo,
+      callInfo: this.callInfo,
     });
+    // this.transport('LOG', message, this.metaInfo);
   }
 
   setCallInfo() {
@@ -135,5 +116,4 @@ class AppBuilderLogger implements Logger {
   }
 }
 
-const logger = new AppBuilderLogger();
-export default logger as Logger;
+export const logger = new AppBuilderLogger();
