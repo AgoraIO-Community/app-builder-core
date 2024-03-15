@@ -21,6 +21,7 @@ import {
 import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
+import {isWebInternal} from './utils/common';
 
 // hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -84,18 +85,20 @@ const App: React.FC = () => {
   const notifyReady = () => {
     if (typeof window.navigator.notifyReady === 'function') {
       console.log('recording-bot: notifyReady is available');
-      setAvailable(true);
       window.navigator.notifyReady();
     } else {
       console.log('recording-bot: notifyReady is un-available');
     }
   };
-  const [isAvailable, setAvailable] = useState(false);
 
   useLayoutEffect(() => {
-    window.addEventListener('load', notifyReady);
+    if (isWebInternal()) {
+      window.addEventListener('load', notifyReady);
+    }
     return () => {
-      window.removeEventListener('load', notifyReady);
+      if (isWebInternal()) {
+        window.removeEventListener('load', notifyReady);
+      }
     };
   }, []);
 
