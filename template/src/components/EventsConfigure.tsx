@@ -349,10 +349,20 @@ const EventsConfigure: React.FC<Props> = props => {
       setTimeout(() => {
         dispatch({
           type: 'EndCall',
-          value: [],
+          value: [isHostRef.current, true],
         });
       }, 5000);
     });
+
+    events.on(controlMessageEnum.endCallForEveryone, async () => {
+      setTimeout(() => {
+        dispatch({
+          type: 'EndCall',
+          value: [isHostRef.current, true],
+        });
+      }, 1000);
+    });
+
     events.on(controlMessageEnum.requestAudio, () => {
       Toast.show({
         leadingIconName: 'mic-on',

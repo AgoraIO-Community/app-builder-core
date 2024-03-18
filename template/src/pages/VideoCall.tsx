@@ -79,6 +79,7 @@ import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import {isWeb} from '../utils/common';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
+import {useCustomization} from 'customization-implementation';
 
 enum RnEncryptionEnum {
   /**
@@ -158,7 +159,10 @@ const VideoCall: React.FC = () => {
   } = useContext(SdkApiContext);
 
   // commented for v1 release
-  //const lifecycle = useCustomization((data) => data.lifecycle);
+  const afterEndCall = useCustomization(data =>
+    data?.lifecycle?.useAfterEndCall(),
+  );
+
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -318,13 +322,25 @@ const VideoCall: React.FC = () => {
     //     SdkJoinState.promise?.res();
     //   }
     // },
-    EndCall: () => {
-      clearState('join');
-      setTimeout(() => {
-        // TODO: These callbacks are being called twice
-        SDKEvents.emit('leave');
-        history.push('/');
-      }, 0);
+    EndCall: (isHost, isTriggeredByHost) => {
+      if (afterEndCall) {
+        clearState('join');
+        setTimeout(() => {
+          // TODO: These callbacks are being called twice
+          SDKEvents.emit('leave');
+          try {
+            afterEndCall(isHost, history, isTriggeredByHost);
+          } catch (error) {
+            console.error('ERROR on useAfterEndCall hook', error);
+          }
+        }, 0);
+      } else {
+        setTimeout(() => {
+          // TODO: These callbacks are being called twice
+          SDKEvents.emit('leave');
+          history.push('/');
+        }, 0);
+      }
     },
     UserJoined: (uid: UidType) => {
       console.log('UIKIT Callback: UserJoined', uid);

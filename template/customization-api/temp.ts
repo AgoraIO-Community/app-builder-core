@@ -22,6 +22,8 @@ import {filterObject} from '../src/utils/index';
 import {useToggleWhiteboard} from '../src/components/Controls';
 import {ShowInputURL} from '../src/components/Share';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../src/utils/useRemoteMute';
+import getCustomRoute from '../src/utils/getCustomRoute';
+import endCallEveryOne from '../src/utils/endCallEveryOne';
 export {
   VideoRenderer,
   DispatchContext,
@@ -43,4 +45,6 @@ export {
   ShowInputURL,
   useRemoteMute,
   MUTE_REMOTE_TYPE,
+  getCustomRoute,
+  endCallEveryOne,
 };

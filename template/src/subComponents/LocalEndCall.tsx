@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {isAndroid, isIOS, useContent} from 'customization-api';
+import {isAndroid, isIOS, useContent, useRoomInfo} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import {Prompt} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
@@ -17,6 +17,7 @@ import {useAuth} from '../../src/auth/AuthProvider';
 import {ENABLE_AUTH} from '../../src/auth/config';
 import {useString} from '../../src/utils/useString';
 import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
+import {useCustomization} from 'customization-implementation';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -33,6 +34,9 @@ const stopForegroundService = () => {
 
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {isScreenshareActive, stopUserScreenShare} = useScreenshare();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {dispatch} = useContext(DispatchContext);
   const {isOnActionSheet, showLabel} = useActionSheet();
@@ -48,11 +52,22 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {authLogout, authLogin} = useAuth();
 
+  const beforeEndCall = useCustomization(data =>
+    data?.lifecycle?.useBeforeEndCall(),
+  );
+
   const executeEndCall = async () => {
+    if (beforeEndCall) {
+      try {
+        beforeEndCall(isHost);
+      } catch (error) {
+        console.error('ERROR on useBeforeEndCall hook', error);
+      }
+    }
     setTimeout(() => {
       dispatch({
         type: 'EndCall',
-        value: [],
+        value: [isHost, false],
       });
     });
     // stopping foreground servie on end call
