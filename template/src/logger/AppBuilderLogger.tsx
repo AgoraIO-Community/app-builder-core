@@ -38,7 +38,9 @@ type LogType = {
     | 'idp_logout'
     | 'token_logout'
     | 'user_details'
-    | 'createChannel';
+    | 'createChannel'
+    | 'joinChannel'
+    | 'channel_join_request';
 };
 
 /** The App environment */
@@ -174,6 +176,13 @@ class AppBuilderLogger implements Logger {
     this.error = logger('error');
   }
 
+  setRoomInfo = (info: Partial<RoomInfo>) => {
+    this.roomInfo = {
+      ...this.roomInfo,
+      ...info,
+    };
+  };
+
   setCallInfo = (info: Partial<CallInfo>) => {
     this.callInfo = {
       passphrase: info.passphrase,
@@ -181,12 +190,6 @@ class AppBuilderLogger implements Logger {
       uid: info.uid,
       screenShareUid: info.screenShareUid,
       role: info.role,
-    };
-  };
-  setRoomInfo = (info: Partial<RoomInfo>) => {
-    this.roomInfo = {
-      ...this.roomInfo,
-      ...info,
     };
   };
 }

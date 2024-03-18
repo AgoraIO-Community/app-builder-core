@@ -40,7 +40,7 @@ export default function useCreateRoom(): createRoomFun {
     logger.log(
       LogSource.NetworkRest,
       'createChannel',
-      'API call createChannel trying to create meeting',
+      'API createChannel. Trying to create room',
       {
         data: {
           roomTitle,
@@ -74,7 +74,7 @@ export default function useCreateRoom(): createRoomFun {
       logger.log(
         LogSource.NetworkRest,
         'createChannel',
-        'API createChannel. Create channel successfully',
+        'API createChannel. Channel created successfully',
         {
           data: res,
         },

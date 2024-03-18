@@ -346,9 +346,14 @@ const Share = () => {
     logger.log(
       LogSource.UserEvent,
       'ENTER_MEETING_ROOM',
-      'user wants to enter into room created',
+      'user clicked on button - Start meeting',
     );
     if (roomId?.host) {
+      logger.log(
+        LogSource.UserEvent,
+        'ENTER_MEETING_ROOM',
+        'user is being navigated to meeting room',
+      );
       history.push(roomId.host);
     }
   };

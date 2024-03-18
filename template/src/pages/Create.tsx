@@ -162,7 +162,7 @@ const Create = () => {
     logger.log(
       LogSource.UserEvent,
       'CREATE_MEETING',
-      'User has landed on create meeting',
+      'User has landed on create room',
     );
     if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
@@ -184,7 +184,7 @@ const Create = () => {
       logger.log(
         LogSource.UserEvent,
         'CREATE_MEETING',
-        'User wants to create meeting',
+        'User wants to create room',
       );
       setLoading(true);
       try {
@@ -419,7 +419,14 @@ const Create = () => {
                   <Spacer size={16} />
                   <LinkButton
                     text={joinWithRoomID}
-                    onPress={() => history.push('/join')}
+                    onPress={() => {
+                      logger.log(
+                        LogSource.UserEvent,
+                        'CREATE_MEETING',
+                        'User is navigated to join-room from create-room with an option to join using meeting id',
+                      );
+                      history.push('/join');
+                    }}
                   />
                 </View>
               </Card>
