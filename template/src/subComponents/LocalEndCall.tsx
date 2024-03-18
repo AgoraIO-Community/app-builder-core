@@ -52,8 +52,9 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {authLogout, authLogin} = useAuth();
 
-  const beforeEndCall = useCustomization(data =>
-    data?.lifecycle?.useBeforeEndCall(),
+  const beforeEndCall = useCustomization(
+    data =>
+      data?.lifecycle?.useBeforeEndCall && data?.lifecycle?.useBeforeEndCall(),
   );
 
   const executeEndCall = async () => {

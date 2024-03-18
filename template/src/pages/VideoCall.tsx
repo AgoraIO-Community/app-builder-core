@@ -159,8 +159,9 @@ const VideoCall: React.FC = () => {
   } = useContext(SdkApiContext);
 
   // commented for v1 release
-  const afterEndCall = useCustomization(data =>
-    data?.lifecycle?.useAfterEndCall(),
+  const afterEndCall = useCustomization(
+    data =>
+      data?.lifecycle?.useAfterEndCall && data?.lifecycle?.useAfterEndCall(),
   );
 
   const [rtcProps, setRtcProps] = React.useState({
