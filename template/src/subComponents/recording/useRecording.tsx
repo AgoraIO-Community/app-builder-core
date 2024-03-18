@@ -16,6 +16,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useCallback,
 } from 'react';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'customization-implementation';
@@ -137,31 +138,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callActive]);
 
-  React.useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-      switch (action) {
-        case EventActions.RECORDING_STARTED:
-          setUidWhoStarted(parseInt(value));
-          setRecordingActive(true);
-          break;
-        case EventActions.RECORDING_STOPPED:
-          setRecordingActive(false);
-          break;
-        case EventActions.RECORDING_STOP_REQUEST:
-          stopRecording();
-          break;
-        default:
-          break;
-      }
-    });
-    return () => {
-      events.off(EventNames.RECORDING_ATTRIBUTE);
-    };
-  }, []);
-
   useEffect(() => {
     /**
      * The below check makes sure the notification is triggered
@@ -252,7 +228,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       });
   };
 
-  const stopRecording = () => {
+  const stopRecording = useCallback(() => {
     /**
      * if condition added for below issue
      *
@@ -319,7 +295,41 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         PersistanceLevel.None,
       );
     }
-  };
+  }, [
+    activeUids,
+    headingStopError,
+    localUid,
+    roomId.host,
+    setRecordingActive,
+    store.token,
+    subheadingError,
+    uidWhoStarted,
+  ]);
+
+  React.useEffect(() => {
+    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+      switch (action) {
+        case EventActions.RECORDING_STARTED:
+          setUidWhoStarted(parseInt(value));
+          setRecordingActive(true);
+          break;
+        case EventActions.RECORDING_STOPPED:
+          setRecordingActive(false);
+          break;
+        case EventActions.RECORDING_STOP_REQUEST:
+          stopRecording();
+          break;
+        default:
+          break;
+      }
+    });
+    return () => {
+      events.off(EventNames.RECORDING_ATTRIBUTE);
+    };
+  }, [roomId.host, setRecordingActive, stopRecording]);
 
   return (
     <RecordingContext.Provider
