@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   ToggleState,
   PermissionState,
@@ -17,6 +17,8 @@ import {
   ClientRole,
   PropsContext,
   useLocalUid,
+  DispatchContext,
+  RtcContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
@@ -37,6 +39,9 @@ import {
   toolbarItemMicrophoneText,
   toolbarItemMicrophoneTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
+import events from '../rtm-events-api';
+import {controlMessageEnum} from '../components/ChatContext';
+import {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 
 /**
  * A component to mute / unmute the local audio
@@ -54,6 +59,33 @@ export interface LocalAudioMuteProps {
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
+  const {dispatch} = useContext(DispatchContext);
+  const {RtcEngineUnsafe} = useContext(RtcContext);
+
+  useEffect(() => {
+    events.on(controlMessageEnum.disableButton, async ({payload}) => {
+      try {
+        const data = JSON.parse(payload);
+        if (data && data?.button === MUTE_REMOTE_TYPE.audio) {
+          if (data?.action === true) {
+            RtcEngineUnsafe.muteLocalAudioStream(true);
+            dispatch({
+              type: 'LocalMuteAudio',
+              value: [0, true],
+            });
+          } else {
+            dispatch({
+              type: 'LocalMuteAudio',
+              value: [0, false],
+            });
+          }
+        }
+      } catch (error) {
+        console.log('debugging error on disableButton');
+      }
+    });
+  }, []);
+
   const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {
@@ -184,19 +216,21 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
-    $config.EVENT_MODE &&
-    $config.RAISE_HAND &&
-    !isHost
+    (rtcProps.role == ClientRole.Audience &&
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      !isHost) ||
+    local.localAudioForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'mic-off',
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
-    iconButtonProps.toolTipMessage = showToolTip
-      ? lstooltip(isHandRaised(local.uid))
-      : '';
+    iconButtonProps.toolTipMessage =
+      showToolTip && !local.localAudioForceDisabled
+        ? lstooltip(isHandRaised(local.uid))
+        : '';
     iconButtonProps.disabled = true;
   }
 

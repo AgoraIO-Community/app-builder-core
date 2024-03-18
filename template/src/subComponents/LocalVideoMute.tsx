@@ -9,13 +9,15 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   ToggleState,
   PermissionState,
   ImageIcon as UIKitImageIcon,
   ClientRole,
   PropsContext,
+  RtcContext,
+  DispatchContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
@@ -26,7 +28,7 @@ import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useScreenshare} from './screenshare/useScreenshare';
-import {isAndroid} from '../utils/common';
+import {isAndroid, isWebInternal} from '../utils/common';
 import {isIOS} from '../utils/common';
 import {useVideoCall} from '../components/useVideoCall';
 import {useToolbarMenu} from '../utils/useMenu';
@@ -40,6 +42,10 @@ import {
   toolbarItemCameraText,
   toolbarItemCameraTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
+import events from '../rtm-events-api';
+import {controlMessageEnum} from '../components/ChatContext';
+import {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
+
 /**
  * A component to mute / unmute the local video
  */
@@ -56,6 +62,36 @@ export interface LocalVideoMuteProps {
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
+  const {dispatch} = useContext(DispatchContext);
+  const {RtcEngineUnsafe} = useContext(RtcContext);
+
+  useEffect(() => {
+    events.on(controlMessageEnum.disableButton, async ({payload}) => {
+      try {
+        const data = JSON.parse(payload);
+        if (data && data?.button === MUTE_REMOTE_TYPE.video) {
+          if (data?.action === true) {
+            isWebInternal()
+              ? await RtcEngineUnsafe.muteLocalVideoStream(true)
+              : //@ts-ignore
+                await RtcEngineUnsafe.enableLocalVideo(false);
+            dispatch({
+              type: 'LocalMuteVideo',
+              value: [0, true],
+            });
+          } else {
+            dispatch({
+              type: 'LocalMuteVideo',
+              value: [0, false],
+            });
+          }
+        }
+      } catch (error) {
+        console.log('debugging error on disableButton');
+      }
+    });
+  }, []);
+
   const {rtcProps} = useContext(PropsContext);
   const {isScreenshareActive} = useScreenshare();
   const {setShowStopScreenSharePopup} = useVideoCall();
@@ -195,19 +231,21 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
-    $config.EVENT_MODE &&
-    $config.RAISE_HAND &&
-    !isHost
+    (rtcProps.role == ClientRole.Audience &&
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      !isHost) ||
+    local.localVideoForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'video-off',
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
-    iconButtonProps.toolTipMessage = showToolTip
-      ? lstooltip(isHandRaised(local.uid))
-      : '';
+    iconButtonProps.toolTipMessage =
+      showToolTip && !local.localVideoForceDisabled
+        ? lstooltip(isHandRaised(local.uid))
+        : '';
     iconButtonProps.disabled = true;
   }
   return props?.render ? (
