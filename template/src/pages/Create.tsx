@@ -58,6 +58,7 @@ import {
   createRoomSuccessToastHeading,
   createRoomSuccessToastSubHeading,
 } from '../language/default-labels/createScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const Create = () => {
   const {CreateComponent} = useCustomization(data => {
@@ -150,6 +151,7 @@ const Create = () => {
   )();
 
   const isDesktop = !isMobileUA();
+
   useEffect(() => {
     //Generating the random room title for placeholder
     // setRandomRoomTitle(
@@ -157,7 +159,11 @@ const Create = () => {
     //     3,
     //   )}-${randomNameGenerator(3)}`,
     // );
-
+    logger.log(
+      LogSource.UserEvent,
+      'CREATE_MEETING',
+      'User has landed on create meeting',
+    );
     if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
@@ -175,12 +181,22 @@ const Create = () => {
     isSeparateHostLink: boolean,
   ) => {
     if (roomTitle !== '') {
+      logger.log(
+        LogSource.UserEvent,
+        'CREATE_MEETING',
+        'User wants to create meeting',
+      );
       setLoading(true);
       try {
         setRoomInfo(RoomInfoDefaultValue);
         //@ts-ignore
         //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
+        logger.log(
+          LogSource.UserEvent,
+          'CREATE_MEETING',
+          'User has created the meeting successfully',
+        );
         setLoading(false);
         Toast.show({
           leadingIconName: 'tick-fill',
@@ -195,6 +211,14 @@ const Create = () => {
         showShareScreen();
       } catch (error) {
         setLoading(false);
+        logger.error(
+          LogSource.UserEvent,
+          'CREATE_MEETING',
+          'There was error while creating meeting',
+          {
+            data: error,
+          },
+        );
         if (
           createRoomErrorToastHeadingText ||
           createRoomErrorToastSubHeadingText

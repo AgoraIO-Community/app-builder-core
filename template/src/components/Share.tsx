@@ -51,6 +51,7 @@ import {
   shareRoomPSTNSubText,
   shareRoomStartBtnText,
 } from '../language/default-labels/shareLinkScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export interface CopyMeetingInfoProps {
   showSubLabel?: boolean;
@@ -342,6 +343,11 @@ const Share = () => {
   const copyInviteButton = useString(shareRoomCopyBtnText)();
   const history = useHistory();
   const enterMeeting = () => {
+    logger.log(
+      LogSource.UserEvent,
+      'ENTER_MEETING_ROOM',
+      'user wants to enter into room created',
+    );
     if (roomId?.host) {
       history.push(roomId.host);
     }
