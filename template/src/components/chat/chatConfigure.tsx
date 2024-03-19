@@ -4,7 +4,7 @@ import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 
 import {useContent} from 'customization-api';
-import {useSDKChatMessages} from './useSDKChatMessages';
+import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
 import {timeNow} from '../../rtm/utils';
 import StorageContext from '../StorageContext';
 
@@ -25,11 +25,6 @@ export interface FileObj {
   filename: string;
   filetype: string;
   data: File;
-}
-export enum ChatMessageType {
-  Img = 'img',
-  Txt = 'txt',
-  File = 'file',
 }
 
 interface ChatOption {
@@ -77,12 +72,14 @@ const ChatConfigure = ({children}) => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
+  let newConn = null;
+
   useEffect(() => {
     const initializeChatSDK = async () => {
       try {
         const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
         // Initializes the Web client.
-        const newConn = new AgoraChat.connection({
+        newConn = new AgoraChat.connection({
           appKey: CHAT_APP_KEY,
         });
 
@@ -151,7 +148,7 @@ const ChatConfigure = ({children}) => {
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
-                type: ChatMessageType.File,
+                type: ChatMessageType.FILE,
                 url: message.url,
                 ext: message.ext.file_ext,
                 fileName: message.filename,
@@ -170,7 +167,7 @@ const ChatConfigure = ({children}) => {
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
-                  type: ChatMessageType.File,
+                  type: ChatMessageType.FILE,
                   url: message.url,
                   ext: message.ext.file_ext,
                   fileName: message.filename,
@@ -191,7 +188,7 @@ const ChatConfigure = ({children}) => {
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
-                type: ChatMessageType.Img,
+                type: ChatMessageType.IMAGE,
                 thumb: message.thumb,
                 url: message.url,
               });
@@ -211,7 +208,7 @@ const ChatConfigure = ({children}) => {
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
-                  type: ChatMessageType.Img,
+                  type: ChatMessageType.IMAGE,
                   thumb: message.thumb,
                   url: message.url,
                 },
@@ -236,7 +233,7 @@ const ChatConfigure = ({children}) => {
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
-                type: ChatMessageType.Txt,
+                type: ChatMessageType.TXT,
               });
             }
 
@@ -251,7 +248,7 @@ const ChatConfigure = ({children}) => {
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
-                  type: ChatMessageType.Txt,
+                  type: ChatMessageType.TXT,
                 },
                 false,
               );
@@ -280,6 +277,10 @@ const ChatConfigure = ({children}) => {
 
     // initializing chat sdk
     initializeChatSDK();
+    return () => {
+      newConn.close();
+      console.log('web:close connection chat sdk');
+    };
   }, []);
 
   const sendChatSDKMessage = (option: ChatOption) => {

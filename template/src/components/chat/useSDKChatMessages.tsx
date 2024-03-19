@@ -28,11 +28,48 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
-import {ChatMessageType} from './chatConfigure';
 
 interface SDKChatMessagesProviderProps {
   children: React.ReactNode;
   callActive: boolean;
+}
+export enum ChatMessageType {
+  /**
+   * Text message.
+   */
+  TXT = 'txt',
+  /**
+   * Image message.
+   */
+  IMAGE = 'img',
+  /**
+   * Video message.
+   */
+  VIDEO = 'video',
+  /**
+   * Location message.
+   */
+  LOCATION = 'loc',
+  /**
+   * Voice message.
+   */
+  VOICE = 'voice',
+  /**
+   * File message.
+   */
+  FILE = 'file',
+  /**
+   * Command message.
+   */
+  CMD = 'cmd',
+  /**
+   * Custom message.
+   */
+  CUSTOM = 'custom',
+  /**
+   * Combined message.
+   */
+  COMBINE = 'combine',
 }
 
 export interface messageInterface {

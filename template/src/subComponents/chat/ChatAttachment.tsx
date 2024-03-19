@@ -3,12 +3,10 @@ import {StyleSheet} from 'react-native';
 import IconButton from '../../../src/atoms/IconButton';
 import AgoraChat from 'agora-chat';
 import {useRoomInfo} from 'customization-api';
-import {
-  ChatMessageType,
-  useChatConfigure,
-} from '../../components/chat/chatConfigure';
+import {useChatConfigure} from '../../components/chat/chatConfigure';
 import Toast from '../../../react-native-toast-message';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
+import {ChatMessageType} from '../../components/chat/useSDKChatMessages';
 
 export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -47,7 +45,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
       // check size    selectedFile.size
       // cehck type    selectedFile.type
       const option = {
-        type: isImageUploaded ? ChatMessageType.Img : ChatMessageType.File,
+        type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
         from: data.uid.toString(),
         to: privateChatUser ? privateChatUser.toString() : groupID,
         file: file,

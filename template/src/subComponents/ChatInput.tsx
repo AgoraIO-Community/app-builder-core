@@ -26,13 +26,11 @@ import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import EmojiPicker from 'emoji-picker-react';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
-import {
-  ChatMessageType,
-  useChatConfigure,
-} from '../components/chat/chatConfigure';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import ChatSendButton from './chat/ChatSendButton';
+import {ChatMessageType} from '../components/chat/useSDKChatMessages';
 
 // export interface ChatSendButtonProps {
 //   render?: (onPress: () => void) => JSX.Element;
@@ -131,7 +129,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       // group msg
       const option = {
         chatType: 'groupChat',
-        type: ChatMessageType.Txt,
+        type: ChatMessageType.TXT,
         from: data.uid.toString(),
         to: groupID,
         msg: message,
@@ -144,7 +142,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       //send chatSDK peer msg
       const option = {
         chatType: 'singleChat',
-        type: ChatMessageType.Txt,
+        type: ChatMessageType.TXT,
         from: data.uid.toString(),
         to: privateChatUser.toString(),
         msg: message,

@@ -31,14 +31,11 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
-import {
-  ChatMessageType,
-  useChatConfigure,
-} from '../components/chat/chatConfigure';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
-import {JumpingTransition} from 'react-native-reanimated';
+import {ChatMessageType} from '../components/chat/useSDKChatMessages';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -169,7 +166,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
             isLocal
               ? style.chatBubbleLocalViewLayer2
               : style.chatBubbleRemoteViewLayer2,
-            type === ChatMessageType.Img && style.chatBubbleViewImg,
+            type === ChatMessageType.IMAGE && style.chatBubbleViewImg,
           ]}>
           <Hyperlink
             onPress={handleUrl}
@@ -177,12 +174,12 @@ const ChatBubble = (props: ChatBubbleProps) => {
               color: $config.FONT_COLOR,
               textDecorationLine: 'underline',
             }}>
-            {type === ChatMessageType.Txt && (
+            {type === ChatMessageType.TXT && (
               <Text style={style.messageStyle} selectable={true}>
                 {message}
               </Text>
             )}
-            {type === ChatMessageType.Img && (
+            {type === ChatMessageType.IMAGE && (
               <View>
                 <TouchableOpacity
                   style={{justifyContent: 'center', alignItems: 'center'}}
@@ -212,7 +209,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 ) : null}
               </View>
             )}
-            {type === ChatMessageType.File && (
+            {type === ChatMessageType.FILE && (
               // <Pressable onPress={() => downloadAttachment(fileName, url)}>
               <View style={style.fileContainer}>
                 <ImageIcon
