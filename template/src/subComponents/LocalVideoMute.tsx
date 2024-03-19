@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {
   ToggleState,
   PermissionState,
@@ -65,11 +65,33 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useContext(RtcContext);
 
+  const {rtcProps} = useContext(PropsContext);
+  const {isScreenshareActive} = useScreenshare();
+  const {setShowStopScreenSharePopup} = useVideoCall();
+  const {isToolbarMenuItem} = useToolbarMenu();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
+  const isHostRef = useRef(isHost);
+  useEffect(() => {
+    isHostRef.current = isHost;
+  }, [isHost]);
+
+  const local = useLocalUserInfo();
+  const isHandRaised = useIsHandRaised();
+  const localMute = useMuteToggleLocal();
+  const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
+
   useEffect(() => {
     events.on(controlMessageEnum.disableButton, async ({payload}) => {
       try {
         const data = JSON.parse(payload);
-        if (data && data?.button === MUTE_REMOTE_TYPE.video) {
+        if (
+          data &&
+          data?.button === MUTE_REMOTE_TYPE.video &&
+          !isHostRef.current
+        ) {
           if (data?.action === true) {
             isWebInternal()
               ? await RtcEngineUnsafe.muteLocalVideoStream(true)
@@ -92,17 +114,6 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     });
   }, []);
 
-  const {rtcProps} = useContext(PropsContext);
-  const {isScreenshareActive} = useScreenshare();
-  const {setShowStopScreenSharePopup} = useVideoCall();
-  const {isToolbarMenuItem} = useToolbarMenu();
-  const {
-    data: {isHost},
-  } = useRoomInfo();
-  const local = useLocalUserInfo();
-  const isHandRaised = useIsHandRaised();
-  const localMute = useMuteToggleLocal();
-  const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
   const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   const {position} = useToolbar();
   const {

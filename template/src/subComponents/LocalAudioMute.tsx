@@ -62,11 +62,33 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useContext(RtcContext);
 
+  const {isToolbarMenuItem} = useToolbarMenu();
+  const {rtcProps} = useContext(PropsContext);
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
+  const isHostRef = useRef(isHost);
+  useEffect(() => {
+    isHostRef.current = isHost;
+  }, [isHost]);
+
+  const {position} = useToolbar();
+  const local = useLocalUserInfo();
+  const isHandRaised = useIsHandRaised();
+  const localMute = useMuteToggleLocal();
+  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
+
   useEffect(() => {
     events.on(controlMessageEnum.disableButton, async ({payload}) => {
       try {
         const data = JSON.parse(payload);
-        if (data && data?.button === MUTE_REMOTE_TYPE.audio) {
+        if (
+          data &&
+          data?.button === MUTE_REMOTE_TYPE.audio &&
+          !isHostRef.current
+        ) {
           if (data?.action === true) {
             RtcEngineUnsafe.muteLocalAudioStream(true);
             dispatch({
@@ -85,18 +107,6 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       }
     });
   }, []);
-
-  const {isToolbarMenuItem} = useToolbarMenu();
-  const {rtcProps} = useContext(PropsContext);
-  const {
-    data: {isHost},
-  } = useRoomInfo();
-  const {position} = useToolbar();
-  const local = useLocalUserInfo();
-  const isHandRaised = useIsHandRaised();
-  const localMute = useMuteToggleLocal();
-  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
-  const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
 
   const micButtonLabel = useString<I18nDeviceStatus>(toolbarItemMicrophoneText);
   const micButtonTooltip = useString<I18nDeviceStatus>(
