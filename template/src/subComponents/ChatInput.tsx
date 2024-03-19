@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
@@ -21,45 +21,76 @@ import {
   ChatType,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
-import {useContent, useUserName} from 'customization-api';
+import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import EmojiPicker from 'emoji-picker-react';
+import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
+import {useChatConfigure} from '../components/chat/chatConfigure';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {ChatAttachmentButton} from './chat/ChatAttachment';
+import ChatSendButton from './chat/ChatSendButton';
+import {ChatMessageType} from '../components/chat/useSDKChatMessages';
 
-export interface ChatSendButtonProps {
-  render?: (onPress: () => void) => JSX.Element;
-}
+// export interface ChatSendButtonProps {
+//   render?: (onPress: () => void) => JSX.Element;
+// }
 
-export const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {
-    privateChatUser: selectedUserId,
-    message,
-    setMessage,
-    inputActive,
-  } = useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
-  const onPress = () => {
-    if (!selectedUserId) {
-      sendChatMessage(message);
-      setMessage && setMessage('');
-    } else {
-      sendChatMessage(message, selectedUserId);
-      setMessage && setMessage('');
-    }
-  };
-  return props?.render ? (
-    props.render(onPress)
-  ) : (
-    <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
-      <ImageIcon
-        iconType="plain"
-        tintColor={
-          inputActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NEUTRAL
-        }
-        name={'send'}
-      />
-    </TouchableOpacity>
+// export const ChatSendButton = (props: ChatSendButtonProps) => {
+//   const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+//   const {
+//     privateChatUser: selectedUserId,
+//     message,
+//     setMessage,
+//     inputActive,
+//   } = useChatUIControls();
+//   const {sendChatMessage} = useChatMessages();
+//   const onPress = () => {
+//     if (!selectedUserId) {
+//       // sendChatMessage(message);
+//       sendGroupChatSDKMessage(message);
+//       setMessage && setMessage('');
+//     } else {
+//       //  sendChatMessage(message, selectedUserId);
+//       //send chatSDK peer msg
+//       sendChatSDKMessage(selectedUserId, message);
+//       setMessage && setMessage('');
+//     }
+//   };
+//   return props?.render ? (
+//     props.render(onPress)
+//   ) : (
+//     <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
+//       <ImageIcon
+//         iconType="plain"
+//         tintColor={
+//           inputActive
+//             ? $config.PRIMARY_ACTION_BRAND_COLOR
+//             : $config.SEMANTIC_NEUTRAL
+//         }
+//         name={'chat_send'}
+//       />
+//     </TouchableOpacity>
+//   );
+// };
+
+const ChatUploadStatus = () => {
+  return (
+    <View style={style.chatStatusContainer}>
+      <Text style={style.chatStatusText}>{'Uploading... Please wait'}</Text>
+    </View>
+  );
+};
+
+const ChatPanel = () => {
+  return (
+    <View style={style.chatPanelContainer}>
+      <View style={style.chatPanel}>
+        <ChatAttachmentButton />
+        <ChatEmojiButton />
+      </View>
+      <ChatSendButton />
+    </View>
   );
 };
 export interface ChatTextInputProps {
@@ -76,23 +107,56 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     useChatUIControls();
   const {sendChatMessage} = useChatMessages();
   const {defaultContent} = useContent();
+  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+
+  const {data} = useRoomInfo();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
-  const chatMessageInputPlaceholder =
-    chatType === ChatType.Private
-      ? `Private Message to ${defaultContent[privateChatUser]?.name}`
-      : `Chat publicly as ${name}...`;
+
+  // const chatMessageInputPlaceholder =
+  //   chatType === ChatType.Private
+  //     ? `Private Message to ${defaultContent[privateChatUser]?.name}`
+  //     : `Chat publicly as ${name}...`;
+  const chatMessageInputPlaceholder = 'Type Message Here';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
+    if (message.length === 0) return;
+    const groupID = data.chat.group_id;
     if (!privateChatUser) {
-      sendChatMessage(message);
+      // group msg
+      const option = {
+        chatType: 'groupChat',
+        type: ChatMessageType.TXT,
+        from: data.uid.toString(),
+        to: groupID,
+        msg: message,
+      };
+      //sendChatMessage(message);
+      sendGroupChatSDKMessage(option);
       setMessage('');
     } else {
-      sendChatMessage(message, privateChatUser);
+      //  sendChatMessage(message, privateChatUser);
+      //send chatSDK peer msg
+      const option = {
+        chatType: 'singleChat',
+        type: ChatMessageType.TXT,
+        from: data.uid.toString(),
+        to: privateChatUser.toString(),
+        msg: message,
+      };
+      sendChatSDKMessage(option);
       setMessage('');
+    }
+  };
+
+  // with multiline textinput enter prints /n
+  const handleKeyPress = ({nativeEvent}) => {
+    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
+      onSubmitEditing();
+      nativeEvent.preventDefault();
     }
   };
   const {setInputActive} = useChatUIControls();
@@ -118,28 +182,32 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}
+      multiline={true}
       onChangeText={onChangeText}
       style={{
-        minHeight: 56,
-        borderRadius: 0,
-        borderBottomLeftRadius: 12,
-        borderWidth: 0,
+        height: 48,
+        maxHeight: 92,
+        width: 318,
+        borderRadius: 8,
+        borderWidth: 1,
         color: $config.FONT_COLOR,
         textAlign: 'left',
-        paddingVertical: 21,
-        paddingLeft: 20,
-        flex: 1,
+        padding: 12,
+        paddingRight: 0,
+        fontSize: ThemeConfig.FontSize.small,
+        lineHeight: 17,
         alignSelf: 'center',
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
+        borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
+        backgroundColor: $config.CARD_LAYER_2_COLOR,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
       placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={
-        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-      }
+      placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
       autoCorrect={false}
+      onKeyPress={handleKeyPress}
     />
   );
 };
@@ -148,11 +216,21 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive} = useChatUIControls();
+  const {inputActive, showEmojiPicker} = useChatUIControls();
   return (
-    <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
-      <ChatTextInput />
-      <ChatSendButton />
+    <View
+      style={[
+        {flex: 1},
+        showEmojiPicker
+          ? {backgroundColor: 'transparent'}
+          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
+        // inputActive ? style.inputActiveView : {},
+      ]}>
+      {showEmojiPicker && <ChatEmojiPicker />}
+      <View style={style.inputView}>
+        <ChatTextInput />
+        <ChatPanel />
+      </View>
     </View>
   );
 };
@@ -164,16 +242,43 @@ const style = StyleSheet.create({
   },
   inputView: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    flexDirection: 'column',
     borderTopWidth: 1,
     borderTopColor: 'transparent',
+    paddingHorizontal: 12,
   },
   chatInputButton: {
     flex: 0.1,
     borderBottomRightRadius: 12,
     alignSelf: 'center',
     marginRight: 16,
+  },
+  emojiPicker: {
+    width: '100%',
+  },
+  chatPanelContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+  },
+  chatPanel: {
+    flexDirection: 'row',
+  },
+  chatStatusContainer: {
+    flex: 1,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderColor: 'yellow',
+  },
+  chatStatusText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 12,
+    lineHeight: 14.5,
+    fontStyle: 'italic',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisOpacity.medium,
   },
 });
 export default ChatInput;

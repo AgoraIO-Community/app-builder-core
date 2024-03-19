@@ -51,7 +51,7 @@ interface ConfigInterface {
   BACKEND_ENDPOINT: string;
   PSTN: boolean;
   PRECALL: boolean;
-  CHAT: boolean;
+  ENABLE_CHAT: boolean;
   CLOUD_RECORDING: boolean;
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;
@@ -109,6 +109,9 @@ interface ConfigInterface {
   ENABLE_WAITING_ROOM: boolean;
   WHITEBOARD_APPIDENTIFIER: string;
   WHITEBOARD_REGION: string;
+  CHAT_ORG_NAME: string;
+  CHAT_APP_NAME: string;
+  CHAT_URL: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

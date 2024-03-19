@@ -15,6 +15,7 @@ import {useActionSheet} from '../utils/useActionSheet';
 import RTMEngine from '../rtm/RTMEngine';
 import {useAuth} from '../../src/auth/AuthProvider';
 import {ENABLE_AUTH} from '../../src/auth/config';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -47,6 +48,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const [endCallState, setEndCallState] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {authLogout, authLogin} = useAuth();
+  const {deleteChatUser} = useChatConfigure();
 
   const executeEndCall = async () => {
     setTimeout(() => {
@@ -61,6 +63,12 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     const usersInCall = Object.entries(defaultContent).filter(
       item => item[1].type === 'rtc',
     );
+
+    // removing user from chat server
+    if ($config.ENABLE_CHAT) {
+      deleteChatUser();
+    }
+
     usersInCall.length === 1 && isSTTActive && stop();
     RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
     if (!ENABLE_AUTH) {

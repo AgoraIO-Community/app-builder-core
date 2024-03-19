@@ -6,7 +6,8 @@ Steps to add/remove icons:
 4. Generate a new Font File
 5. Download Zip folder , replace iconmoon.ttf file in ./src/assets/font/iconmoon.ttf with downloded
 6. Replace selection.json and font-styles.css content 
-7. Run npx react-native link react-native-vector-icons to copy in the android/app/src/main/assets/fonts directory and in Info.plist (for Android and iOS respectively).
+7. [Deprecated RN >.69] Run npx react-native link react-native-vector-icons to copy in the android/app/src/main/assets/fonts directory and in Info.plist (for Android and iOS respectively).
+8. Run npx react-native-asset to add icons to android / ios
 */
 
 import {createIconSetFromIcoMoon} from 'react-native-vector-icons';
@@ -130,4 +131,15 @@ export interface IconsInterface {
   'fit-to-screen': string;
   warning: string;
   'view-only': string;
+  chat_send: string;
+  chat_send_fill: string;
+  chat_emoji: string;
+  chat_emoji_fill: string;
+  chat_attachment_pdf: string;
+  chat_attachment_doc: string;
+  chat_attachment_image: string;
+  chat_attachment_unknown: string;
+  chat_gif: string;
+  chat_gif_fill: string;
+  chat_attachment: string;
 }

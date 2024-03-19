@@ -10,7 +10,16 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Linking} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Linking,
+  Image,
+  Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
@@ -22,11 +31,23 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
+import {useChatConfigure} from '../components/chat/chatConfigure';
+import ImageIcon from '../atoms/ImageIcon';
+import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
+import ImagePopup from './chat/ImagePopup';
+import {ChatMessageType} from '../components/chat/useSDKChatMessages';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
   const {primaryColor} = useContext(ColorContext);
   const {chatType, privateChatUser} = useChatUIControls();
+  const {downloadAttachment} = useChatConfigure();
+  const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+  const [lightboxVisible, setLightboxVisible] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const moreIconRef = React.useRef<View>(null);
+
   let {
     isLocal,
     isSameUser,
@@ -37,6 +58,11 @@ const ChatBubble = (props: ChatBubbleProps) => {
     msgId,
     updatedTimestamp,
     previousMessageCreatedTimestamp,
+    type,
+    url,
+    thumb,
+    fileName,
+    ext,
   } = props;
 
   let time = formatAMPM(new Date(parseInt(createdTimestamp)));
@@ -68,6 +94,10 @@ const ChatBubble = (props: ChatBubbleProps) => {
       Linking.openURL(url);
     }
   };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
@@ -82,6 +112,11 @@ const ChatBubble = (props: ChatBubbleProps) => {
       isDeleted,
       updatedTimestamp,
       isSameUser,
+      type,
+      thumb,
+      url,
+      fileName,
+      ext,
       previousMessageCreatedTimestamp,
     )
   ) : (
@@ -127,20 +162,84 @@ const ChatBubble = (props: ChatBubbleProps) => {
           isURL(message) ? {maxWidth: '88%'} : {},
         ]}>
         <View
-          style={
+          style={[
             isLocal
               ? style.chatBubbleLocalViewLayer2
-              : style.chatBubbleRemoteViewLayer2
-          }>
+              : style.chatBubbleRemoteViewLayer2,
+            type === ChatMessageType.IMAGE && style.chatBubbleViewImg,
+          ]}>
           <Hyperlink
             onPress={handleUrl}
             linkStyle={{
               color: $config.FONT_COLOR,
               textDecorationLine: 'underline',
             }}>
-            <Text style={style.messageStyle} selectable={true}>
-              {message}
-            </Text>
+            {type === ChatMessageType.TXT && (
+              <Text style={style.messageStyle} selectable={true}>
+                {message}
+              </Text>
+            )}
+            {type === ChatMessageType.IMAGE && (
+              <View>
+                <TouchableOpacity
+                  style={{justifyContent: 'center', alignItems: 'center'}}
+                  onPress={() => {
+                    !isLoading && setLightboxVisible(true);
+                  }}>
+                  {isLoading ? (
+                    <View style={style.spinnerContainer}>
+                      <ActivityIndicator
+                        size="small"
+                        color={$config.PRIMARY_ACTION_BRAND_COLOR}
+                      />
+                    </View>
+                  ) : null}
+                  <Image
+                    source={{uri: thumb}}
+                    style={style.previewImg}
+                    onLoad={handleImageLoad}
+                  />
+                </TouchableOpacity>
+                {lightboxVisible ? (
+                  <ImagePopup
+                    modalVisible={lightboxVisible}
+                    setModalVisible={setLightboxVisible}
+                    imageUrl={url}
+                  />
+                ) : null}
+              </View>
+            )}
+            {type === ChatMessageType.FILE && (
+              // <Pressable onPress={() => downloadAttachment(fileName, url)}>
+              <View style={style.fileContainer}>
+                <ImageIcon
+                  base64={true}
+                  iconSize={24}
+                  iconType="plain"
+                  name={
+                    ext === 'pdf'
+                      ? 'chat_attachment_pdf'
+                      : ext === 'doc'
+                      ? 'chat_attachment_doc'
+                      : 'chat_attachment_unknown'
+                  }
+                  tintColor={$config.SEMANTIC_NEUTRAL}
+                />
+                <Text style={style.fileName}>{fileName}</Text>
+                <MoreMenu
+                  ref={moreIconRef}
+                  setActionMenuVisible={setActionMenuVisible}
+                />
+                <ChatActionMenu
+                  actionMenuVisible={actionMenuVisible}
+                  setActionMenuVisible={setActionMenuVisible}
+                  btnRef={moreIconRef}
+                  fileName={fileName}
+                  fileUrl={url}
+                />
+              </View>
+              // </Pressable>
+            )}
           </Hyperlink>
         </View>
       </View>
@@ -212,6 +311,36 @@ const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: ThemeConfig.FontSize.small * 1.45,
     color: $config.FONT_COLOR,
+  },
+  previewImg: {
+    width: 150,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 8,
+  },
+  chatBubbleViewImg: {
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fileName: {
+    color: $config.FONT_COLOR,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  fileContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  spinnerContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
 });
 

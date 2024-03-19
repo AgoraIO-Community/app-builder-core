@@ -283,7 +283,7 @@ const VideoCallScreen = () => {
                 <></>
               )}
               {sidePanel === SidePanelType.Chat ? (
-                $config.CHAT ? (
+                $config.ENABLE_CHAT ? (
                   <ChatComponent />
                 ) : (
                   <></>
