@@ -26,6 +26,7 @@ import isMobileOrTablet from '../../utils/isMobileOrTablet';
 import {isWebInternal} from '../../utils/common';
 import useSetName from '../../utils/useSetName';
 import {useUserPreference} from '../useUserPreference';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -59,6 +60,11 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   );
 
   const onSubmit = () => {
+    logger.log(
+      LogSource.UserEvent,
+      'PRECALL_SCREEN',
+      'User clicked on join call button. setting call active to true',
+    );
     setUsername(username.trim());
     setCallActive(true);
     //updating name in the backend

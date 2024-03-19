@@ -27,10 +27,14 @@ type LogType = {
   [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service';
   [LogSource.Auth]: 'Auth';
   [LogSource.UserEvent]:
-    | 'LANDED_CREATE_SCREEN'
     | 'CREATE_MEETING'
     | 'ENTER_MEETING_ROOM'
-    | 'JOIN_MEETING';
+    | 'JOIN_MEETING'
+    | 'PRECALL_SCREEN'
+    | 'SELECT_DEVICE'
+    | 'DEVICE_CONFIGURE'
+    | 'LOCAL_MUTE';
+
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'

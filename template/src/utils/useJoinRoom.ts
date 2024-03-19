@@ -89,7 +89,7 @@ export default function useJoinRoom() {
         logger.log(
           LogSource.NetworkRest,
           'channel_join_request',
-          'API channel_join_request. Trying to join channel. Waiting room is enabled',
+          'API channel_join_request. Trying request to join channel as waiting room is enabled',
         );
         response = await requestToJoin({
           meetingPhrase: phrase,
@@ -132,7 +132,7 @@ export default function useJoinRoom() {
             `${isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'}`,
             `API to ${
               isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
-            } successful. User has joined the channel`,
+            } successful.`,
             {
               data: phrase,
             },

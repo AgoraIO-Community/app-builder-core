@@ -41,6 +41,7 @@ import {
   settingsPanelSystemDefaultSpeakerText,
   settingsPanelUpdatingText,
 } from '../language/default-labels/precallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 // import {dropdown} from '../../theme.json';
 
 /*
@@ -69,9 +70,19 @@ const useSelectDevice = (): [boolean, string] => {
 
   React.useEffect(() => {
     if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
+      logger.log(
+        LogSource.UserEvent,
+        'SELECT_DEVICE',
+        'User is AUDIENCE and in Live mode - device picker is disabled',
+      );
       setPickerDisabled(true);
       setBtnTheme('rgba(16, 16, 16, 0.3)');
     } else {
+      logger.log(
+        LogSource.UserEvent,
+        'SELECT_DEVICE',
+        'User is HOST - device picker is enabled',
+      );
       setPickerDisabled(false);
       setBtnTheme(primaryColor);
     }
@@ -158,11 +169,25 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         onSelect={({label, value}) => {
           setIsFocussed(true);
           try {
+            logger.log(
+              LogSource.UserEvent,
+              'SELECT_DEVICE',
+              `Trying to set camera - ${value}`,
+            );
             pendingStateUpdateHelper(
               async () => await setSelectedCam(value),
               setIsPendingUpdate,
             );
           } catch (e) {
+            logger.error(
+              LogSource.UserEvent,
+              'SELECT_DEVICE',
+              `There was an error setting camera - ${value}`,
+              {
+                data: value,
+                error: e,
+              },
+            );
             setIsPendingUpdate(false);
           }
         }}
@@ -255,11 +280,25 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         onSelect={({label, value}) => {
           setIsFocussed(true);
           try {
+            logger.log(
+              LogSource.UserEvent,
+              'SELECT_DEVICE',
+              `Trying to set mic - ${value}`,
+            );
             pendingStateUpdateHelper(
               async () => await setSelectedMic(value),
               setIsPendingUpdate,
             );
           } catch (e) {
+            logger.error(
+              LogSource.UserEvent,
+              'SELECT_DEVICE',
+              `There was an error setting mic - ${value}`,
+              {
+                data: value,
+                error: e,
+              },
+            );
             setIsPendingUpdate(false);
           }
         }}
@@ -348,11 +387,25 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           onSelect={({label, value}) => {
             setIsFocussed(true);
             try {
+              logger.log(
+                LogSource.UserEvent,
+                'SELECT_DEVICE',
+                `Trying to set speaker - ${value}`,
+              );
               pendingStateUpdateHelper(
                 async () => await setSelectedSpeaker(value),
                 setIsPendingUpdate,
               );
             } catch (e) {
+              logger.error(
+                LogSource.UserEvent,
+                'SELECT_DEVICE',
+                `There was an error setting speaker - ${value}`,
+                {
+                  data: value,
+                  error: e,
+                },
+              );
               setIsPendingUpdate(false);
             }
           }}
@@ -436,19 +489,51 @@ const SelectDevice = (props: SelectDeviceProps) => {
   // });
 
   useEffect(() => {
-    if (audioDevices && audioDevices.length) {
+    const isDeviceAvailable = audioDevices && audioDevices.length;
+    logger.log(LogSource.UserEvent, 'SELECT_DEVICE', 'audio devices changed', {
+      data: {
+        devices: [...audioDevices],
+        isDeviceAvailable: isDeviceAvailable
+          ? 'Yes, setting mic'
+          : 'No audio devices available',
+      },
+    });
+    if (isDeviceAvailable) {
       setMicAvailable(true);
     }
   }, [audioDevices]);
 
   useEffect(() => {
-    if (videoDevices && videoDevices.length) {
+    const isDeviceAvailable = videoDevices && videoDevices.length;
+    logger.log(LogSource.UserEvent, 'SELECT_DEVICE', 'camera devices changed', {
+      data: {
+        devices: [...videoDevices],
+        isDeviceAvailable: isDeviceAvailable
+          ? 'Yes, setting camera'
+          : 'No video devices available',
+      },
+    });
+    if (isDeviceAvailable) {
       setCameraAvailable(true);
     }
   }, [videoDevices]);
 
   useEffect(() => {
-    if (speakerDevices && speakerDevices.length) {
+    const isDeviceAvailable = speakerDevices && speakerDevices.length;
+    logger.log(
+      LogSource.UserEvent,
+      'SELECT_DEVICE',
+      'speaker devices changed',
+      {
+        data: {
+          devices: [...speakerDevices],
+          isDeviceAvailable: isDeviceAvailable
+            ? 'Yes, setting speaker'
+            : 'No speaker devices available',
+        },
+      },
+    );
+    if (isDeviceAvailable) {
       setSpeakerAvailable(true);
     }
   }, [speakerDevices]);
