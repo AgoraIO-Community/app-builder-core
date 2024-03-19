@@ -90,22 +90,19 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
     //if screenshare is on fullscreen then get the width/height to set landscape mode
     if (isScreenShareOnFullView) {
       if (isAndroid() || isIOS()) {
-        const cb = args => {
+        const cb = (connection, stats) => {
           if (
-            args?.uid == user.uid &&
-            args?.width &&
-            args?.height &&
-            args.height > args.width
+            stats?.uid == user.uid &&
+            stats?.width &&
+            stats?.height &&
+            stats.height > stats.width
           ) {
             landscapeModeRef.current.landscapeMode && setLandscapeMode(false);
           }
         };
-        const subscription = RtcEngineUnsafe.addListener(
-          'RemoteVideoStats',
-          cb,
-        );
+        RtcEngineUnsafe.addListener('onRemoteVideoStats', cb);
         setTimeout(() => {
-          subscription.remove();
+          RtcEngineUnsafe.removeAllListeners('onRemoteVideoStats');
         }, 5000);
       } else {
         if (screenShareData && screenShareData?.[user.uid] && isMobileUA()) {
