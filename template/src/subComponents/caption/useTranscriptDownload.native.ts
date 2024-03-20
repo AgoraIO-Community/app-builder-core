@@ -33,22 +33,17 @@ const useTranscriptDownload = (): {
           .writeFile(filePath, finalContent, 'utf8')
           .then(() => {
             console.warn('Content downloaded successfully on native.');
-            // display preview of the document and option to share
-            if (isIOS()) {
-              RNFetchBlob.ios.previewDocument(filePath);
-            } else if (isAndroid()) {
-              console.warn('android download complete !');
-              // need to show the preview of downloaded file
-              Share.open({url: `file://${filePath}`, type: 'text/plain'})
-                .then(res => {
-                  console.warn('File shared successfully:', res);
-                  resolve(filePath);
-                })
-                .catch(error => {
-                  console.error('Error sharing file:', error);
-                  reject(error);
-                });
-            }
+            // need to show the preview of downloaded file
+            Share.open({url: `file://${filePath}`, type: 'text/plain'})
+              .then(res => {
+                //  console.warn('File shared successfully:', res);
+                resolve(filePath);
+              })
+              .catch(error => {
+                // console.error('Error sharing file:', error);
+                reject(error);
+              });
+
             resolve(filePath);
           })
           .catch(error => {

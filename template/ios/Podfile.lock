@@ -361,8 +361,6 @@ PODS:
     - React-Core
   - react-native-document-picker (9.1.1):
     - React-Core
-  - react-native-document-picker (9.1.0):
-    - React-Core
   - react-native-keep-awake (4.0.0):
     - React
   - react-native-webview (13.8.1):
@@ -530,7 +528,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (7.9.0):
+  - RNShare (10.0.2):
     - React-Core
   - RNSVG (13.6.0):
     - React-Core
@@ -764,8 +762,8 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: 16de7d9657b24dcf1ea6edebb30d06fe3e050c68
-  react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
+  react-native-agora: 0d623411f75a126e6d5f6a41761df9ef74da87e6
+  react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
   react-native-whiteboard: d56d2ffa0392b8572bfc613954845e48c6dfd38e
@@ -796,7 +794,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
-  RNShare: be91a5c149585affb02c25b351bd07ba927c7006
+  RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: 3a79c0c4992213e4f06c08e62730c5e7b9e4dc17
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
@@ -804,4 +802,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: be04179eb7bb6b413f3e785e287b050128ebfee6
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2
