@@ -87,8 +87,6 @@ function usePrevious<T = any>(value: any) {
 interface RecordingProviderProps {
   children: React.ReactNode;
   value: {
-    setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
-    isRecordingActive: boolean;
     callActive: boolean;
   };
 }
@@ -101,7 +99,8 @@ interface RecordingProviderProps {
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
-  const {setRecordingActive, isRecordingActive, callActive} = props?.value;
+  const {callActive} = props?.value;
+  const [setRecordingActive, isRecordingActive] = useState(false);
   const {
     data: {isHost},
   } = useRoomInfo();

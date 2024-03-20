@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useContext, useEffect} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
@@ -22,27 +22,11 @@ export interface PreCallContextInterface {
   callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
   error?: ApolloError;
-  isCameraAvailable?: boolean;
-  setCameraAvailable: React.Dispatch<React.SetStateAction<boolean>>;
-  isMicAvailable?: boolean;
-  setMicAvailable: React.Dispatch<React.SetStateAction<boolean>>;
-  isSpeakerAvailable?: boolean;
-  setSpeakerAvailable: React.Dispatch<React.SetStateAction<boolean>>;
-  isPermissionRequested: boolean;
-  setIsPermissionRequested: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PreCallContext = createContext<PreCallContextInterface>({
   callActive: false,
   setCallActive: () => {},
-  isCameraAvailable: false,
-  isMicAvailable: false,
-  isSpeakerAvailable: false,
-  setCameraAvailable: () => {},
-  setMicAvailable: () => {},
-  setSpeakerAvailable: () => {},
-  isPermissionRequested: false,
-  setIsPermissionRequested: () => {},
 });
 
 interface PreCallProviderProps {
@@ -55,6 +39,22 @@ const PreCallProvider = (props: PreCallProviderProps) => {
   const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
+  const [isCameraAvailable, setCameraAvailable] = useState(false);
+  const [isMicAvailable, setMicAvailable] = useState(false);
+  const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
+  const [isPermissionRequested, setIsPermissionRequested] = useState(false);
+
+  const value = {
+    ...props.value,
+    setCameraAvailable,
+    isCameraAvailable,
+    isMicAvailable,
+    setMicAvailable,
+    isSpeakerAvailable,
+    setSpeakerAvailable,
+    isPermissionRequested,
+    setIsPermissionRequested,
+  };
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
@@ -79,7 +79,7 @@ const PreCallProvider = (props: PreCallProviderProps) => {
   }, []);
 
   return (
-    <PreCallContext.Provider value={{...props.value}}>
+    <PreCallContext.Provider value={value}>
       {props.children}
     </PreCallContext.Provider>
   );

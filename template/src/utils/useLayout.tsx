@@ -10,8 +10,10 @@
 *********************************************
 */
 
-import React, {SetStateAction} from 'react';
+import React, {SetStateAction, useState} from 'react';
 import {createHook} from 'customization-implementation';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
+import {isArray} from './common';
 
 export interface LayoutContextInterface {
   currentLayout: string;
@@ -24,12 +26,16 @@ const LayoutContext = React.createContext<LayoutContextInterface>({
 });
 
 interface LayoutProviderProps {
-  value: LayoutContextInterface;
   children: React.ReactNode;
 }
 const LayoutProvider = (props: LayoutProviderProps) => {
+  const layouts = useLayoutsData();
+  const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
+  const [currentLayout, setLayout] = useState(defaultLayoutName);
+
+  const value = {currentLayout, setLayout};
   return (
-    <LayoutContext.Provider value={{...props.value}}>
+    <LayoutContext.Provider value={value}>
       {props.children}
     </LayoutContext.Provider>
   );

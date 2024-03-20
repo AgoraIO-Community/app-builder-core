@@ -26,13 +26,7 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {
-  useHasBrandLogo,
-  isArray,
-  isMobileUA,
-  isWebInternal,
-} from '../utils/common';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {useHasBrandLogo, isMobileUA, isWebInternal} from '../utils/common';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
@@ -40,7 +34,6 @@ import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {LayoutProvider} from '../utils/useLayout';
 import Precall from '../components/Precall';
-import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinRoom from '../utils/useJoinRoom';
 import {
@@ -62,7 +55,7 @@ import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
-import {currentFocus, FocusProvider} from '../utils/useFocus';
+import {FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
 import {SdkApiContext} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
@@ -76,7 +69,6 @@ import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
-import {isWeb} from '../utils/common';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 
@@ -133,20 +125,10 @@ const VideoCall: React.FC = () => {
   const {awake, release} = useWakeLock();
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
-  //layouts
-  const layouts = useLayoutsData();
-  const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
-  const [currentLayout, setLayout] = useState(defaultLayoutName);
-  //layouts
-
-  const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
-  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
-  const [currentFocus, setFocus] = useState<currentFocus>({
-    editName: false,
-  });
+
   const {phrase} = useParams<{phrase: string}>();
 
   const {store} = useContext(StorageContext);
@@ -252,7 +234,6 @@ const VideoCall: React.FC = () => {
   React.useEffect(() => {
     if (
       //isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)
-
       //non waiting room - host/attendee
       (!$config.ENABLE_WAITING_ROOM &&
         isJoinDataFetched === true &&
@@ -351,10 +332,7 @@ const VideoCall: React.FC = () => {
       }
     },
   };
-  const [isCameraAvailable, setCameraAvailable] = useState(false);
-  const [isMicAvailable, setMicAvailable] = useState(false);
-  const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
-  const [isPermissionRequested, setIsPermissionRequested] = useState(false);
+
   return (
     <>
       {queryComplete ? (
@@ -380,30 +358,18 @@ const VideoCall: React.FC = () => {
                     <VideoQualityContextProvider>
                       <ChatUIControlsProvider>
                         <ChatNotificationProvider>
-                          <LayoutProvider
-                            value={{
-                              currentLayout,
-                              setLayout,
-                            }}>
-                            <FocusProvider value={{currentFocus, setFocus}}>
-                              <SidePanelProvider
-                                value={{
-                                  sidePanel,
-                                  setSidePanel,
-                                }}>
+                          <LayoutProvider>
+                            <FocusProvider>
+                              <SidePanelProvider>
                                 <ChatMessagesProvider callActive={callActive}>
                                   <ScreenShareProvider>
-                                    <RtmConfigure
-                                      setRecordingActive={setRecordingActive}
-                                      callActive={callActive}>
+                                    <RtmConfigure callActive={callActive}>
                                       <UserPreferenceProvider>
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure>
                                               <RecordingProvider
                                                 value={{
-                                                  setRecordingActive,
-                                                  isRecordingActive,
                                                   callActive,
                                                 }}>
                                                 <ScreenshareConfigure>
@@ -444,14 +410,6 @@ const VideoCall: React.FC = () => {
                                                                   value={{
                                                                     callActive,
                                                                     setCallActive,
-                                                                    isCameraAvailable,
-                                                                    isMicAvailable,
-                                                                    setCameraAvailable,
-                                                                    setMicAvailable,
-                                                                    isPermissionRequested,
-                                                                    setIsPermissionRequested,
-                                                                    isSpeakerAvailable,
-                                                                    setSpeakerAvailable,
                                                                   }}>
                                                                   <Precall />
                                                                 </PreCallProvider>
