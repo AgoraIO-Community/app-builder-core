@@ -17,7 +17,7 @@ export type StatusType = (typeof StatusTypes)[keyof typeof StatusTypes];
 
 export enum LogSource {
   AgoraSDK = 'Agora-SDK',
-  UserEvent = 'User-Event',
+  Internals = 'Internals',
   Auth = 'Auth',
   /** Logs related to REST API calls */
   NetworkRest = 'Network-REST',
@@ -25,8 +25,8 @@ export enum LogSource {
 
 type LogType = {
   [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service';
-  [LogSource.Auth]: 'Auth';
-  [LogSource.UserEvent]:
+  [LogSource.Internals]:
+    | 'AUTH'
     | 'CREATE_MEETING'
     | 'ENTER_MEETING_ROOM'
     | 'JOIN_MEETING'
@@ -34,7 +34,8 @@ type LogType = {
     | 'SELECT_DEVICE'
     | 'DEVICE_CONFIGURE'
     | 'LOCAL_MUTE'
-    | 'VIRTUAL_BACKGROUND';
+    | 'VIRTUAL_BACKGROUND'
+    | 'VIDEO_CALL_ROOM';
 
   [LogSource.NetworkRest]:
     | 'idp_login'

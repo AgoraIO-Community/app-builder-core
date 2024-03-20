@@ -86,7 +86,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   const onPress = () => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'LOCAL_MUTE',
       'toggle mute/unmute local audio',
       {

@@ -96,7 +96,7 @@ const Join = () => {
 
   const createMeeting = () => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'JOIN_MEETING',
       'User is navigated to create-room screen',
     );
@@ -105,7 +105,7 @@ const Join = () => {
 
   useEffect(() => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'JOIN_MEETING',
       'user landed on join-meeting screen',
     );
@@ -113,7 +113,7 @@ const Join = () => {
 
   const startCall = async () => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'JOIN_MEETING',
       'User wantes to join meeting',
       {
@@ -124,7 +124,7 @@ const Join = () => {
       .then(() => {
         setRoomInfo(RoomInfoDefaultValue);
         logger.log(
-          LogSource.UserEvent,
+          LogSource.Internals,
           'JOIN_MEETING',
           'Navigating the user to precall screen or video call screen depending upon the project config',
           {

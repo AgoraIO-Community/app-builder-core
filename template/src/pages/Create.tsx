@@ -160,7 +160,7 @@ const Create = () => {
     //   )}-${randomNameGenerator(3)}`,
     // );
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'CREATE_MEETING',
       'User has landed on create room',
     );
@@ -182,7 +182,7 @@ const Create = () => {
   ) => {
     if (roomTitle !== '') {
       logger.log(
-        LogSource.UserEvent,
+        LogSource.Internals,
         'CREATE_MEETING',
         'User wants to create room',
       );
@@ -193,7 +193,7 @@ const Create = () => {
         //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         logger.log(
-          LogSource.UserEvent,
+          LogSource.Internals,
           'CREATE_MEETING',
           'User has created the meeting successfully',
         );
@@ -212,7 +212,7 @@ const Create = () => {
       } catch (error) {
         setLoading(false);
         logger.error(
-          LogSource.UserEvent,
+          LogSource.Internals,
           'CREATE_MEETING',
           'There was error while creating meeting',
           {
@@ -421,7 +421,7 @@ const Create = () => {
                     text={joinWithRoomID}
                     onPress={() => {
                       logger.log(
-                        LogSource.UserEvent,
+                        LogSource.Internals,
                         'CREATE_MEETING',
                         'User is navigated to join-room from create-room with an option to join using meeting id',
                       );

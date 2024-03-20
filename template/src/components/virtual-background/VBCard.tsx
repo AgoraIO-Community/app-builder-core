@@ -81,20 +81,20 @@ const VBCard: React.FC<VBCardProps> = ({
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'User wants to upload custom background',
     );
     const selectedFile = e.target.files && e.target.files[0];
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       `User selected a file ${e?.target?.files[0]?.name || 'none'}`,
     );
     if (selectedFile) {
       // check if file size (less than 1MB)
       logger.log(
-        LogSource.UserEvent,
+        LogSource.Internals,
         'VIRTUAL_BACKGROUND',
         'check if file is less than 1MB amd type is image/jpeg or image/png',
         {
@@ -111,7 +111,7 @@ const VBCard: React.FC<VBCardProps> = ({
           selectedFile.type === 'image/png'
         ) {
           logger.log(
-            LogSource.UserEvent,
+            LogSource.Internals,
             'VIRTUAL_BACKGROUND',
             'file uploaded satisfies the above constraint. Convert the file to base64',
           );
@@ -121,7 +121,7 @@ const VBCard: React.FC<VBCardProps> = ({
                 options.filter(option => option.path === base64Data).length > 0
               ) {
                 logger.log(
-                  LogSource.UserEvent,
+                  LogSource.Internals,
                   'VIRTUAL_BACKGROUND',
                   'file is already uploaded',
                 );
@@ -148,7 +148,7 @@ const VBCard: React.FC<VBCardProps> = ({
                 return updatedOptions;
               });
               logger.log(
-                LogSource.UserEvent,
+                LogSource.Internals,
                 'VIRTUAL_BACKGROUND',
                 'file uploaded successfully and storing to indexDB',
               );
@@ -180,7 +180,7 @@ const VBCard: React.FC<VBCardProps> = ({
 
   const handleClick = () => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       `User selected a virtual background type - ${type}`,
     );

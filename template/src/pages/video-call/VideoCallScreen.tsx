@@ -41,6 +41,7 @@ import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -230,6 +231,14 @@ const VideoCallScreen = () => {
 
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
+
+  useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'VIDEO_CALL_ROOM',
+      'User has landed on video call room',
+    );
+  }, []);
 
   return VideocallComponent ? (
     <VideocallComponent />

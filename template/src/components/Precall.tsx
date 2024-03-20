@@ -323,7 +323,7 @@ const Precall = () => {
 
   useEffect(() => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'PRECALL_SCREEN',
       `User has landed on precall room with role as ${
         rtcProps.role === ClientRole.Audience ? 'AUDIENCE' : 'HOST'
@@ -342,7 +342,7 @@ const Precall = () => {
         }),
       ).then((devices: MediaDeviceInfo[]) => {
         logger.log(
-          LogSource.UserEvent,
+          LogSource.Internals,
           'PRECALL_SCREEN',
           'fetching available devices',
           {

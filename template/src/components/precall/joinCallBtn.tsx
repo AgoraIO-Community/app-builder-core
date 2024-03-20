@@ -61,7 +61,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
 
   const onSubmit = () => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'PRECALL_SCREEN',
       'User clicked on join call button. setting call active to true',
     );

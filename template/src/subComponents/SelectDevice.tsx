@@ -71,7 +71,7 @@ const useSelectDevice = (): [boolean, string] => {
   React.useEffect(() => {
     if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
       logger.log(
-        LogSource.UserEvent,
+        LogSource.Internals,
         'SELECT_DEVICE',
         'User is AUDIENCE and in Live mode - device picker is disabled',
       );
@@ -79,7 +79,7 @@ const useSelectDevice = (): [boolean, string] => {
       setBtnTheme('rgba(16, 16, 16, 0.3)');
     } else {
       logger.log(
-        LogSource.UserEvent,
+        LogSource.Internals,
         'SELECT_DEVICE',
         'User is HOST - device picker is enabled',
       );
@@ -170,7 +170,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
           setIsFocussed(true);
           try {
             logger.log(
-              LogSource.UserEvent,
+              LogSource.Internals,
               'SELECT_DEVICE',
               `Trying to set camera - ${label} - ${value}`,
             );
@@ -179,13 +179,13 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
               setIsPendingUpdate,
             );
             logger.log(
-              LogSource.UserEvent,
+              LogSource.Internals,
               'SELECT_DEVICE',
               `Camera set - ${value}`,
             );
           } catch (e) {
             logger.error(
-              LogSource.UserEvent,
+              LogSource.Internals,
               'SELECT_DEVICE',
               `There was an error setting camera - ${value}`,
               {
@@ -286,7 +286,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
           setIsFocussed(true);
           try {
             logger.log(
-              LogSource.UserEvent,
+              LogSource.Internals,
               'SELECT_DEVICE',
               `Trying to set mic - ${label} - ${value}`,
             );
@@ -295,13 +295,13 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
               setIsPendingUpdate,
             );
             logger.log(
-              LogSource.UserEvent,
+              LogSource.Internals,
               'SELECT_DEVICE',
               `Mic set - ${value}`,
             );
           } catch (e) {
             logger.error(
-              LogSource.UserEvent,
+              LogSource.Internals,
               'SELECT_DEVICE',
               `There was an error setting mic - ${value}`,
               {
@@ -398,7 +398,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
             setIsFocussed(true);
             try {
               logger.log(
-                LogSource.UserEvent,
+                LogSource.Internals,
                 'SELECT_DEVICE',
                 `Trying to set speaker - ${label} - ${value}`,
               );
@@ -407,13 +407,13 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
                 setIsPendingUpdate,
               );
               logger.log(
-                LogSource.UserEvent,
+                LogSource.Internals,
                 'SELECT_DEVICE',
                 `Speaker set - ${value}`,
               );
             } catch (e) {
               logger.error(
-                LogSource.UserEvent,
+                LogSource.Internals,
                 'SELECT_DEVICE',
                 `There was an error setting speaker - ${value}`,
                 {
@@ -505,7 +505,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
 
   useEffect(() => {
     const isDeviceAvailable = audioDevices && audioDevices.length;
-    logger.log(LogSource.UserEvent, 'SELECT_DEVICE', 'audio devices changed', {
+    logger.log(LogSource.Internals, 'SELECT_DEVICE', 'audio devices changed', {
       data: {
         devices: [...audioDevices],
         isDeviceAvailable: isDeviceAvailable
@@ -520,7 +520,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
 
   useEffect(() => {
     const isDeviceAvailable = videoDevices && videoDevices.length;
-    logger.log(LogSource.UserEvent, 'SELECT_DEVICE', 'camera devices changed', {
+    logger.log(LogSource.Internals, 'SELECT_DEVICE', 'camera devices changed', {
       data: {
         devices: [...videoDevices],
         isDeviceAvailable: isDeviceAvailable
@@ -536,7 +536,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
   useEffect(() => {
     const isDeviceAvailable = speakerDevices && speakerDevices.length;
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'SELECT_DEVICE',
       'speaker devices changed',
       {

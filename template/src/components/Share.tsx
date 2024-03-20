@@ -344,13 +344,13 @@ const Share = () => {
   const history = useHistory();
   const enterMeeting = () => {
     logger.log(
-      LogSource.UserEvent,
+      LogSource.Internals,
       'ENTER_MEETING_ROOM',
       'user clicked on button - Start meeting',
     );
     if (roomId?.host) {
       logger.log(
-        LogSource.UserEvent,
+        LogSource.Internals,
         'ENTER_MEETING_ROOM',
         'user is being navigated to meeting room',
       );

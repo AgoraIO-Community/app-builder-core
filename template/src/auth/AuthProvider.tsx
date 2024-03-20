@@ -286,7 +286,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   useEffect(() => {
     // Ignore if on sdk since IDP flow is not supported
     // For unauthenticated flow authLogin should be called to get the token
-    logger.log(LogSource.Auth, 'Auth', 'App loaded');
+    logger.log(LogSource.Internals, 'AUTH', 'App loaded');
     if (isSDK() && ENABLE_AUTH) {
       setIsAuthenticated(true);
       setLoading(false);
@@ -294,8 +294,8 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
     //if application in authorization state then don't call authlogin
     logger.log(
-      LogSource.Auth,
-      'Auth',
+      LogSource.Internals,
+      'AUTH',
       'check if application is in authorized state ?',
     );
     if (
@@ -360,13 +360,13 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogin = () => {
     // Authenticated login flow
-    logger.log(LogSource.Auth, 'Auth', 'Trying to authenticate the user');
+    logger.log(LogSource.Internals, 'AUTH', 'Trying to authenticate the user');
     if (ENABLE_AUTH) {
       //AUTH -> IDP -> NATIVE and WEB and DESKTOP
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
         //it will open external web link and post authentication it will redirect to application
         //@ts-ignore
-        logger.log(LogSource.Auth, 'Auth', 'IDP auth enabled');
+        logger.log(LogSource.Internals, 'AUTH', 'IDP auth enabled');
         logger.log(
           LogSource.NetworkRest,
           'idp_login',
@@ -401,7 +401,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
-        logger.log(LogSource.Auth, 'Auth', 'Token auth enabled');
+        logger.log(LogSource.Internals, 'AUTH', 'Token auth enabled');
         logger.log(
           LogSource.NetworkRest,
           'token_login',
@@ -448,8 +448,8 @@ const AuthProvider = (props: AuthProviderProps) => {
     // Unauthenticated login flow
     else {
       logger.log(
-        LogSource.Auth,
-        'Auth',
+        LogSource.Internals,
+        'AUTH',
         'Project has No auth(token or idp) enabled',
       );
       logger.log(
@@ -523,7 +523,7 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogout = () => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
-      logger.log(LogSource.Auth, 'Auth', 'Request to log out');
+      logger.log(LogSource.Internals, 'AUTH', 'Request to log out');
       logger.log(
         LogSource.NetworkRest,
         'idp_logout',
@@ -562,7 +562,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         //sdk with auth flow will use sdk api for logout
         history.push('/create');
       } else {
-        logger.log(LogSource.Auth, 'Auth', 'Request to log out');
+        logger.log(LogSource.Internals, 'AUTH', 'Request to log out');
         logger.log(
           LogSource.NetworkRest,
           'token_logout',
