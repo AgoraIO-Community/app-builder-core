@@ -23,8 +23,6 @@ const DefaultConfig = {
   SLACK_CLIENT_ID: '',
   APPLE_CLIENT_ID: '',
   GEO_FENCING: true,
-  GEO_FENCING_INCLUDE_AREA: 'GLOBAL',
-  GEO_FENCING_EXCLUDE_AREA: '',
   LOG_ENABLED: true,
   EVENT_MODE: false,
   RAISE_HAND: false,
