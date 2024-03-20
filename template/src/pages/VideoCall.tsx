@@ -323,25 +323,13 @@ const VideoCall: React.FC = () => {
     //     SdkJoinState.promise?.res();
     //   }
     // },
-    EndCall: (isHost, isTriggeredByHost) => {
-      if (afterEndCall) {
-        clearState('join');
-        setTimeout(() => {
-          // TODO: These callbacks are being called twice
-          SDKEvents.emit('leave');
-          try {
-            afterEndCall(isHost, history, isTriggeredByHost);
-          } catch (error) {
-            console.error('ERROR on useAfterEndCall hook', error);
-          }
-        }, 0);
-      } else {
-        setTimeout(() => {
-          // TODO: These callbacks are being called twice
-          SDKEvents.emit('leave');
-          history.push('/');
-        }, 0);
-      }
+    EndCall: () => {
+      clearState('join');
+      setTimeout(() => {
+        // TODO: These callbacks are being called twice
+        SDKEvents.emit('leave');
+        history.push('/');
+      }, 0);
     },
     UserJoined: (uid: UidType) => {
       console.log('UIKIT Callback: UserJoined', uid);

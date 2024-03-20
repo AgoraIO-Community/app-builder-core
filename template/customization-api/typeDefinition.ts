@@ -103,8 +103,7 @@ export interface CustomRoutesInterface {
 export type CustomHookType = () => () => Promise<void>;
 export type EndCallHookType = () => (
   isHost: boolean,
-  history?: any,
-  isTriggeredByHost?: boolean,
+  history: History,
 ) => Promise<void>;
 
 export interface CustomizationApiInterface {

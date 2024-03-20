@@ -42,9 +42,6 @@ import {
   toolbarItemCameraText,
   toolbarItemCameraTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
-import events from '../rtm-events-api';
-import {controlMessageEnum} from '../components/ChatContext';
-import {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 
 /**
  * A component to mute / unmute the local video
@@ -62,9 +59,6 @@ export interface LocalVideoMuteProps {
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
-  const {dispatch} = useContext(DispatchContext);
-  const {RtcEngineUnsafe} = useContext(RtcContext);
-
   const {rtcProps} = useContext(PropsContext);
   const {isScreenshareActive} = useScreenshare();
   const {setShowStopScreenSharePopup} = useVideoCall();
@@ -73,47 +67,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     data: {isHost},
   } = useRoomInfo();
 
-  const isHostRef = useRef(isHost);
-  useEffect(() => {
-    isHostRef.current = isHost;
-  }, [isHost]);
-
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
-
-  useEffect(() => {
-    events.on(controlMessageEnum.disableButton, async ({payload}) => {
-      try {
-        const data = JSON.parse(payload);
-        if (
-          data &&
-          data?.button === MUTE_REMOTE_TYPE.video &&
-          !isHostRef.current
-        ) {
-          if (data?.action === true) {
-            isWebInternal()
-              ? await RtcEngineUnsafe.muteLocalVideoStream(true)
-              : //@ts-ignore
-                await RtcEngineUnsafe.enableLocalVideo(false);
-            dispatch({
-              type: 'LocalMuteVideo',
-              value: [0, true],
-            });
-          } else {
-            dispatch({
-              type: 'LocalMuteVideo',
-              value: [0, false],
-            });
-          }
-        }
-      } catch (error) {
-        console.log('debugging error on disableButton');
-      }
-    });
-  }, []);
-
   const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   const {position} = useToolbar();
   const {
@@ -246,7 +203,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       $config.EVENT_MODE &&
       $config.RAISE_HAND &&
       !isHost) ||
-    local.localVideoForceDisabled
+    local.videoBtnDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
@@ -254,7 +211,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage =
-      showToolTip && !local.localVideoForceDisabled
+      showToolTip && !local.videoBtnDisabled
         ? lstooltip(isHandRaised(local.uid))
         : '';
     iconButtonProps.disabled = true;

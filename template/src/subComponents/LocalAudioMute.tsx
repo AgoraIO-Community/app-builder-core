@@ -39,9 +39,6 @@ import {
   toolbarItemMicrophoneText,
   toolbarItemMicrophoneTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
-import events from '../rtm-events-api';
-import {controlMessageEnum} from '../components/ChatContext';
-import {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 
 /**
  * A component to mute / unmute the local audio
@@ -59,19 +56,11 @@ export interface LocalAudioMuteProps {
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
-  const {dispatch} = useContext(DispatchContext);
-  const {RtcEngineUnsafe} = useContext(RtcContext);
-
   const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {
     data: {isHost},
   } = useRoomInfo();
-
-  const isHostRef = useRef(isHost);
-  useEffect(() => {
-    isHostRef.current = isHost;
-  }, [isHost]);
 
   const {position} = useToolbar();
   const local = useLocalUserInfo();
@@ -79,35 +68,6 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const localMute = useMuteToggleLocal();
   const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
-
-  useEffect(() => {
-    events.on(controlMessageEnum.disableButton, async ({payload}) => {
-      try {
-        const data = JSON.parse(payload);
-        if (
-          data &&
-          data?.button === MUTE_REMOTE_TYPE.audio &&
-          !isHostRef.current
-        ) {
-          if (data?.action === true) {
-            RtcEngineUnsafe.muteLocalAudioStream(true);
-            dispatch({
-              type: 'LocalMuteAudio',
-              value: [0, true],
-            });
-          } else {
-            dispatch({
-              type: 'LocalMuteAudio',
-              value: [0, false],
-            });
-          }
-        }
-      } catch (error) {
-        console.log('debugging error on disableButton');
-      }
-    });
-  }, []);
-
   const micButtonLabel = useString<I18nDeviceStatus>(toolbarItemMicrophoneText);
   const micButtonTooltip = useString<I18nDeviceStatus>(
     toolbarItemMicrophoneTooltipText,
@@ -230,7 +190,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       $config.EVENT_MODE &&
       $config.RAISE_HAND &&
       !isHost) ||
-    local.localAudioForceDisabled
+    local.audioBtnDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
@@ -238,7 +198,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage =
-      showToolTip && !local.localAudioForceDisabled
+      showToolTip && !local.audioBtnDisabled
         ? lstooltip(isHandRaised(local.uid))
         : '';
     iconButtonProps.disabled = true;

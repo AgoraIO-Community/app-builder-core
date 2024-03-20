@@ -52,6 +52,7 @@ import {
   waitingRoomApprovalRequiredToastSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
+import useEndCall from '../utils/useEndCall';
 
 interface Props {
   children: React.ReactNode;
@@ -157,6 +158,7 @@ const EventsConfigure: React.FC<Props> = props => {
     hostRemovedUserToastHeading,
   )();
 
+  const executeEndCall = useEndCall();
   const removedUserToastRef = useRef(hostRemovedUserToastHeadingTT);
 
   useEffect(() => {
@@ -333,11 +335,6 @@ const EventsConfigure: React.FC<Props> = props => {
       } catch (error) {
         console.log('error on stop the screeshare', error);
       }
-
-      if (!ENABLE_AUTH) {
-        // await authLogout();
-        await authLogin();
-      }
       Toast.show({
         leadingIconName: 'info',
         type: 'info',
@@ -347,20 +344,8 @@ const EventsConfigure: React.FC<Props> = props => {
         secondaryBtn: null,
       });
       setTimeout(() => {
-        dispatch({
-          type: 'EndCall',
-          value: [isHostRef.current, true],
-        });
+        executeEndCall();
       }, 5000);
-    });
-
-    events.on(controlMessageEnum.endCallForEveryone, async () => {
-      setTimeout(() => {
-        dispatch({
-          type: 'EndCall',
-          value: [isHostRef.current, true],
-        });
-      }, 1000);
     });
 
     events.on(controlMessageEnum.requestAudio, () => {

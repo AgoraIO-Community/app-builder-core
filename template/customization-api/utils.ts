@@ -31,5 +31,4 @@ export {useHistory, useParams} from '../src/components/Router';
 export {isWeb, isIOS, isAndroid, isDesktop} from '../src/utils/common';
 export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
-
-export {default as useDisableButton} from '../src/utils/useDisableButton';
+export {default as useLocalAudio} from '../src/utils/useLocalAudio';
