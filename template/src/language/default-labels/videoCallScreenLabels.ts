@@ -399,10 +399,11 @@ export const whiteboardToolboxEraseText = 'whiteboardToolboxEraseText';
 export const whiteboardToolboxUploadText = 'whiteboardToolboxUploadText';
 export const whiteboardToolboxClearAllText = 'whiteboardToolboxClearAllText';
 
-export const sttSpokenLanguageToastHeading =
-  `${stt}SpokenLanguageToastHeading` as const;
-export const sttSpokenLanguageToastSubHeading =
-  `${stt}SpokenLanguageToastSubHeading` as const;
+export const whiteboardNativeInfoToastHeading =
+  'whiteboardNativeInfoToastHeading';
+
+export const sttSpokenLanguageToastHeading = `${stt}SpokenLanguageToastHeading`;
+export const sttSpokenLanguageToastSubHeading = `${stt}SpokenLanguageToastSubHeading`;
 
 export const deviceDetectionToastHeading = 'deviceDetectionToastHeading';
 export const deviceDetectionToastSubHeading = 'deviceDetectionToastSubHeading';
@@ -719,6 +720,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [whiteboardFileUploadInfoToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
   [whiteboardFileUploadTypeErrorToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
   [whiteboardFileUploadTypeErrorToastSubHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
+  [whiteboardNativeInfoToastHeading]?: I18nBaseType;
 
   [sttSpokenLanguageToastHeading]?: I18nBaseType<sttSpokenLanguageToastHeadingDataType>;
   [sttSpokenLanguageToastSubHeading]?: I18nBaseType<sttSpokenLanguageToastSubHeadingDataInterface>;
@@ -1215,4 +1217,6 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [videoRoomPeopleCountTooltipHostText]: 'Host',
   [videoRoomPeopleCountTooltipAttendeeText]: ({eventMode}) =>
     eventMode ? 'Audience' : 'Attendee',
+  [whiteboardNativeInfoToastHeading]:
+    'Use two finger to move around the whiteboard',
 };

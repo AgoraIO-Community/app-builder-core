@@ -174,10 +174,27 @@ interface RemoteStream {
 }
 
 if ($config.GEO_FENCING) {
-  AgoraRTC.setArea({
-    areaCode: AREAS.GLOBAL,
-    excludedArea: AREAS.CHINA,
-  });
+  let includeArea = $config.GEO_FENCING_INCLUDE_AREA
+    ? $config.GEO_FENCING_INCLUDE_AREA
+    : AREAS.GLOBAL;
+  let excludeArea = $config.GEO_FENCING_EXCLUDE_AREA
+    ? $config.GEO_FENCING_EXCLUDE_AREA
+    : '';
+
+  try {
+    if (excludeArea) {
+      AgoraRTC.setArea({
+        areaCode: includeArea,
+        excludedArea: excludeArea,
+      });
+    } else {
+      AgoraRTC.setArea({
+        areaCode: includeArea,
+      });
+    }
+  } catch (setAeraError) {
+    console.log('error on setArea', setAeraError);
+  }
 }
 
 if ($config.LOG_ENABLED) {

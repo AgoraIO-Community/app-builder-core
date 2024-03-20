@@ -361,9 +361,12 @@ PODS:
     - React-Core
   - react-native-document-picker (9.1.1):
     - React-Core
+  - react-native-document-picker (9.1.0):
+    - React-Core
   - react-native-keep-awake (4.0.0):
     - React
-  - react-native-webview (11.26.1):
+  - react-native-webview (13.8.1):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-whiteboard (0.0.14):
     - React-Core
@@ -761,10 +764,10 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: 0d623411f75a126e6d5f6a41761df9ef74da87e6
-  react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
+  react-native-agora: 16de7d9657b24dcf1ea6edebb30d06fe3e050c68
+  react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
-  react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
+  react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
   react-native-whiteboard: d56d2ffa0392b8572bfc613954845e48c6dfd38e
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58

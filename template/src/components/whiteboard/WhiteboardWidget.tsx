@@ -22,7 +22,13 @@ import {
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {isMobileUA, isWebInternal, randomString} from '../../utils/common';
+import {
+  isIOS,
+  isMobileUA,
+  isWebInternal,
+  randomString,
+  isAndroid,
+} from '../../utils/common';
 import Toast from '../../../react-native-toast-message';
 import ThemeConfig from '../../theme';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
@@ -69,8 +75,12 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
   const exportsuccess = useString(whiteboardExportSuccessToastHeading)();
 
   const [isInProgress, setIsInProgress] = useState(false);
-  const {setBoardColor, boardColor, getWhiteboardUid} =
-    useContext(whiteboardContext);
+  const {
+    setBoardColor,
+    boardColor,
+    getWhiteboardUid,
+    isWhiteboardOnFullScreen,
+  } = useContext(whiteboardContext);
   const {
     data: {whiteboard: {room_uuid} = {}},
   } = useRoomInfo();
@@ -199,7 +209,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     <>
       <View style={style.toolboxContainer}>
         <View style={style.toolboxNew} nativeID="toolbox">
-          {!whiteboardRoom.current?.isWritable ? (
+          {(!whiteboardRoom.current?.isWritable || isIOS() || isAndroid()) &&
+          !isWhiteboardOnFullScreen ? (
             <View style={style.viewOnlyContainerStyle}>
               <ImageIcon
                 name="view-only"

@@ -24,7 +24,7 @@ import {useContent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {BREAKPOINTS, isMobileUA} from '../utils/common';
+import {BREAKPOINTS, isMobileUA, isWebInternal} from '../utils/common';
 import {DispatchContext} from '../../agora-rn-uikit';
 import {useVideoCall} from '../components/useVideoCall';
 import useActiveSpeaker from '../utils/useActiveSpeaker';
@@ -180,7 +180,7 @@ const PinnedVideo = ({renderData}) => {
               );
             })}
           </ScrollView>
-          {$config.ACTIVE_SPEAKER && !isOnTop && (
+          {$config.ACTIVE_SPEAKER && !isOnTop && isWebInternal() && (
             <View
               style={
                 isSidePinnedlayout
