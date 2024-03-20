@@ -46,34 +46,6 @@ declare module 'agora-rn-uikit' {
 
 const App: React.FC = () => {
   //commented for v1 release
-  //const CustomRoutes = useCustomization((data) => data?.customRoutes);
-  // const RenderCustomRoutes = () => {
-  //   try {
-  //     return (
-  //       CustomRoutes &&
-  //       Array.isArray(CustomRoutes) &&
-  //       CustomRoutes.length &&
-  //       CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
-  //         let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
-  //         return (
-  //           <RouteComponent
-  //             path={CUSTOM_ROUTES_PREFIX + item.path}
-  //             exact={item.exact}
-  //             key={i}
-  //             failureRedirectTo={
-  //               item.failureRedirectTo ? item.failureRedirectTo : '/'
-  //             }
-  //             {...item.routeProps}>
-  //             <item.component {...item.componentProps} />
-  //           </RouteComponent>
-  //         );
-  //       })
-  //     );
-  //   } catch (error) {
-  //     console.error('Error on rendering the custom routes');
-  //     return null;
-  //   }
-  // };
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 

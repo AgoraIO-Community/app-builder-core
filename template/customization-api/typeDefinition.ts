@@ -101,6 +101,10 @@ export interface CustomRoutesInterface {
 }
 
 export type CustomHookType = () => () => Promise<void>;
+export type EndCallHookType = () => (
+  isHost: boolean,
+  history: History,
+) => Promise<void>;
 
 export interface CustomizationApiInterface {
   /**
@@ -111,7 +115,7 @@ export interface CustomizationApiInterface {
    * custom routes used to add new page/routes
    */
   // commented for v1 release
-  //customRoutes?: CustomRoutesInterface[];
+  customRoutes?: CustomRoutesInterface[];
   /**
    * Internationlization
    */
@@ -120,8 +124,10 @@ export interface CustomizationApiInterface {
    * Life cycle events
    */
   // commented for v1 release
-  // lifecycle?: {
-  //   useBeforeJoin?: CustomHookType;
-  //   useBeforeCreate?: CustomHookType;
-  // };
+  lifecycle?: {
+    useAfterEndCall?: EndCallHookType;
+    useBeforeEndCall?: EndCallHookType;
+    // useBeforeJoin?: CustomHookType;
+    // useBeforeCreate?: CustomHookType;
+  };
 }

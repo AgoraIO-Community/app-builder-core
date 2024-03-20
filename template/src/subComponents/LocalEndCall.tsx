@@ -1,22 +1,17 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {isAndroid, isIOS, useContent} from 'customization-api';
+import {isAndroid, isIOS, useContent, useRoomInfo} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import {Prompt} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {Platform} from 'react-native';
-import useSTTAPI from './caption/useSTTAPI';
-import {useCaption} from './caption/useCaption';
 import {useScreenshare} from './screenshare/useScreenshare';
-import {DispatchContext, PropsContext} from '../../agora-rn-uikit';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
-import RTMEngine from '../rtm/RTMEngine';
-import {useAuth} from '../../src/auth/AuthProvider';
-import {ENABLE_AUTH} from '../../src/auth/config';
-import {useString} from '../../src/utils/useString';
-import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
+import {useString} from '../utils/useString';
+import {toolbarItemLeaveText} from '../language/default-labels/videoCallScreenLabels';
+import useEndCall from '../utils/useEndCall';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -24,7 +19,7 @@ export interface LocalEndcallProps {
 }
 
 /* For android only, bg audio */
-const stopForegroundService = () => {
+export const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
     console.log('stopping foreground service');
@@ -34,40 +29,14 @@ const stopForegroundService = () => {
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {isScreenshareActive, stopUserScreenShare} = useScreenshare();
   const {isToolbarMenuItem} = useToolbarMenu();
-  const {dispatch} = useContext(DispatchContext);
   const {isOnActionSheet, showLabel} = useActionSheet();
   const endCallLabel = useString(toolbarItemLeaveText)();
-  const {defaultContent} = useContent();
   const [endcallVisible, setEndcallVisible] = useState(false);
-  const {stop} = useSTTAPI();
-  const {isSTTActive} = useCaption();
   const onPress = () => {
     setEndcallVisible(true);
   };
   const [endCallState, setEndCallState] = useState(false);
-  const {rtcProps} = useContext(PropsContext);
-  const {authLogout, authLogin} = useAuth();
-
-  const executeEndCall = async () => {
-    setTimeout(() => {
-      dispatch({
-        type: 'EndCall',
-        value: [],
-      });
-    });
-    // stopping foreground servie on end call
-    stopForegroundService();
-    // stopping STT on call end,if only last user is remaining in call
-    const usersInCall = Object.entries(defaultContent).filter(
-      item => item[1].type === 'rtc',
-    );
-    usersInCall.length === 1 && isSTTActive && stop();
-    RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
-    if (!ENABLE_AUTH) {
-      // await authLogout();
-      await authLogin();
-    }
-  };
+  const executeEndCall = useEndCall();
 
   useEffect(() => {
     if (!isScreenshareActive && endCallState) {
