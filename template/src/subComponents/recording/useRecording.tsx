@@ -100,7 +100,7 @@ interface RecordingProviderProps {
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {callActive} = props?.value;
-  const [setRecordingActive, isRecordingActive] = useState(false);
+  const [isRecordingActive, setRecordingActive] = useState(false);
   const {
     data: {isHost},
   } = useRoomInfo();
