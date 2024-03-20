@@ -22,11 +22,27 @@ export interface PreCallContextInterface {
   callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
   error?: ApolloError;
+  isCameraAvailable?: boolean;
+  setCameraAvailable: React.Dispatch<React.SetStateAction<boolean>>;
+  isMicAvailable?: boolean;
+  setMicAvailable: React.Dispatch<React.SetStateAction<boolean>>;
+  isSpeakerAvailable?: boolean;
+  setSpeakerAvailable: React.Dispatch<React.SetStateAction<boolean>>;
+  isPermissionRequested: boolean;
+  setIsPermissionRequested: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PreCallContext = createContext<PreCallContextInterface>({
   callActive: false,
   setCallActive: () => {},
+  isCameraAvailable: false,
+  isMicAvailable: false,
+  isSpeakerAvailable: false,
+  setCameraAvailable: () => {},
+  setMicAvailable: () => {},
+  setSpeakerAvailable: () => {},
+  isPermissionRequested: false,
+  setIsPermissionRequested: () => {},
 });
 
 interface PreCallProviderProps {
