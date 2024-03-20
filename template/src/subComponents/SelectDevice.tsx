@@ -172,11 +172,16 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
             logger.log(
               LogSource.UserEvent,
               'SELECT_DEVICE',
-              `Trying to set camera - ${value}`,
+              `Trying to set camera - ${label} - ${value}`,
             );
             pendingStateUpdateHelper(
               async () => await setSelectedCam(value),
               setIsPendingUpdate,
+            );
+            logger.log(
+              LogSource.UserEvent,
+              'SELECT_DEVICE',
+              `Camera set - ${value}`,
             );
           } catch (e) {
             logger.error(
@@ -283,11 +288,16 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
             logger.log(
               LogSource.UserEvent,
               'SELECT_DEVICE',
-              `Trying to set mic - ${value}`,
+              `Trying to set mic - ${label} - ${value}`,
             );
             pendingStateUpdateHelper(
               async () => await setSelectedMic(value),
               setIsPendingUpdate,
+            );
+            logger.log(
+              LogSource.UserEvent,
+              'SELECT_DEVICE',
+              `Mic set - ${value}`,
             );
           } catch (e) {
             logger.error(
@@ -390,11 +400,16 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
               logger.log(
                 LogSource.UserEvent,
                 'SELECT_DEVICE',
-                `Trying to set speaker - ${value}`,
+                `Trying to set speaker - ${label} - ${value}`,
               );
               pendingStateUpdateHelper(
                 async () => await setSelectedSpeaker(value),
                 setIsPendingUpdate,
+              );
+              logger.log(
+                LogSource.UserEvent,
+                'SELECT_DEVICE',
+                `Speaker set - ${value}`,
               );
             } catch (e) {
               logger.error(

@@ -85,10 +85,15 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
   const onPress = () => {
-    logger.log(LogSource.UserEvent, 'LOCAL_MUTE', 'toggle local mute', {
-      isAudioEnabled,
-      permissionDenied,
-    });
+    logger.log(
+      LogSource.UserEvent,
+      'LOCAL_MUTE',
+      'toggle mute/unmute local audio',
+      {
+        isAudioEnabled,
+        permissionDenied,
+      },
+    );
     localMute(MUTE_LOCAL_TYPE.audio);
   };
   const audioLabel = permissionDenied

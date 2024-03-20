@@ -33,7 +33,8 @@ type LogType = {
     | 'PRECALL_SCREEN'
     | 'SELECT_DEVICE'
     | 'DEVICE_CONFIGURE'
-    | 'LOCAL_MUTE';
+    | 'LOCAL_MUTE'
+    | 'VIRTUAL_BACKGROUND';
 
   [LogSource.NetworkRest]:
     | 'idp_login'
