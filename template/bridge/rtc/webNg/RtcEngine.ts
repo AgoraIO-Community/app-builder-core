@@ -1107,4 +1107,31 @@ export default class RtcEngine {
       this.inScreenshare = false;
     }
   }
+
+  async release(): Promise<void> {
+    if (this.inScreenshare) {
+      (this.eventsMap.get('UserOffline') as callbackType)(
+        this.screenClient.uid,
+      );
+      this.screenClient.leave();
+      (this.eventsMap.get('ScreenshareStopped') as callbackType)();
+    }
+    this.eventsMap.forEach((callback, event, map) => {
+      this.client.off(event, callback);
+    });
+    this.eventsMap.clear();
+    if (this.remoteStreams.size !== 0) {
+      this.remoteStreams.forEach((stream, uid, map) => {
+        stream?.video?.isPlaying && stream?.video?.stop();
+        stream?.video?.isPlaying && stream?.audio?.stop();
+      });
+      this.remoteStreams.clear();
+    }
+    this.localStream.audio?.close();
+    this.localStream.video?.close();
+    this.localStream = {};
+    this.screenStream.audio?.close();
+    this.screenStream.video?.close();
+    this.screenStream = {};
+  }
 }
