@@ -185,6 +185,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     const passphrase = roomId.host || '';
     console.log('web-recording - start recording API called');
+    if (inProgress) {
+      console.log('web-recording - start recording API already in progress');
+      return;
+    }
+    setInProgress(true);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
       headers: {
@@ -230,80 +235,61 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const stopRecording = useCallback(() => {
     /**
-     * if condition added for below issue
-     *
-     * user 1 and user 2 in the call
-     * user 1 start the recording
-     * user 2 stops the recording
-     * user 2 join the call getting stop recording notification which is not needed
-     *
-     * solution
-     * case 1 - if recording is not started by the host then we will send level1 message to host who started the recording
-     * case 2 - if person who started the recording no longer available in the call then will stop the recording
+     * Any host in the channel can stop recording.
      */
-    if (
-      localUid === uidWhoStarted ||
-      activeUids.indexOf(uidWhoStarted) === -1
-    ) {
-      setInProgress(true);
-      // If recording is already going on, stop the recording by executing the below query.
-      console.log('web-recording - stop recording API called');
-      fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
-        },
-        body: JSON.stringify({
-          passphrase: roomId.host,
-        }),
-      })
-        .then(res => {
-          setInProgress(false);
-          if (res.status === 200) {
-            /**
-             * 1. Once the backend sucessfuly starts recording, send message
-             * in the channel indicating that cloud recording is now inactive.
-             */
-            events.send(
-              EventNames.RECORDING_ATTRIBUTE,
-              JSON.stringify({
-                action: EventActions.RECORDING_STOPPED,
-                value: '',
-              }),
-              PersistanceLevel.Session,
-            );
-            // 2. set the local recording state to false to update the UI
-            setRecordingActive(false);
-          } else if (res.status === 500) {
-            showErrorToast(headingStopError, subheadingError);
-          } else {
-            showErrorToast(headingStopError);
-          }
-        })
-        .catch(err => {
-          setInProgress(false);
-          console.log(err);
-        });
-    } else {
-      events.send(
-        EventNames.RECORDING_ATTRIBUTE,
-        JSON.stringify({
-          action: EventActions.RECORDING_STOP_REQUEST,
-          value: '',
-        }),
-        PersistanceLevel.None,
+    console.log('web-recording - stop recording API called');
+    if (inProgress) {
+      console.log(
+        'web-recording - stop recording already in progress. Aborting..',
       );
+      return;
     }
+    setInProgress(true);
+    // If recording is already going on, stop the recording by executing the below query.
+    fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: store.token ? `Bearer ${store.token}` : '',
+      },
+      body: JSON.stringify({
+        passphrase: roomId.host,
+      }),
+    })
+      .then(res => {
+        setInProgress(false);
+        if (res.status === 200) {
+          /**
+           * 1. Once the backend sucessfuly stops recording, send message
+           * in the channel indicating that cloud recording is now inactive.
+           */
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STOPPED,
+              value: '',
+            }),
+            PersistanceLevel.Session,
+          );
+          // 2. set the local recording state to false to update the UI
+          setRecordingActive(false);
+        } else if (res.status === 500) {
+          showErrorToast(headingStopError, subheadingError);
+        } else {
+          showErrorToast(headingStopError);
+        }
+      })
+      .catch(err => {
+        setInProgress(false);
+        console.log(err);
+      });
   }, [
-    activeUids,
     headingStopError,
-    localUid,
+    inProgress,
     roomId.host,
     setRecordingActive,
     store.token,
     subheadingError,
-    uidWhoStarted,
   ]);
 
   React.useEffect(() => {
@@ -319,9 +305,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         case EventActions.RECORDING_STOPPED:
           setRecordingActive(false);
           break;
-        case EventActions.RECORDING_STOP_REQUEST:
-          stopRecording();
-          break;
         default:
           break;
       }
@@ -329,7 +312,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     return () => {
       events.off(EventNames.RECORDING_ATTRIBUTE);
     };
-  }, [roomId.host, setRecordingActive, stopRecording]);
+  }, [roomId.host, setRecordingActive]);
 
   return (
     <RecordingContext.Provider
