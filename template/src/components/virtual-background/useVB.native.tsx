@@ -45,7 +45,7 @@ type VBContextValue = {
 export const VBContext = React.createContext<VBContextValue>({
   isVBActive: false,
   setIsVBActive: () => {},
-  vbMode: 'none',
+  vbMode: null,
   setVBmode: () => {},
   selectedImage: null,
   setSelectedImage: () => {},
@@ -72,7 +72,7 @@ const downloadBase64Image = async (base64Data, filename) => {
 
 const VBProvider: React.FC = ({children}) => {
   const [isVBActive, setIsVBActive] = React.useState<boolean>(false);
-  const [vbMode, setVBmode] = React.useState<VBMode>('none');
+  const [vbMode, setVBmode] = React.useState<VBMode>(null);
   const [selectedImage, setSelectedImage] = React.useState<
     ImageSourcePropType | string | null
   >(null);
@@ -114,9 +114,9 @@ const VBProvider: React.FC = ({children}) => {
     disable = false,
   ) => {
     if (disable) {
-      await rtc?.RtcEngineUnsafe.enableVirtualBackground(false, config);
+      await rtc?.RtcEngineUnsafe.enableVirtualBackground(false, config, {});
     } else {
-      await rtc?.RtcEngineUnsafe.enableVirtualBackground(true, config);
+      await rtc?.RtcEngineUnsafe.enableVirtualBackground(true, config, {});
     }
   };
 
@@ -133,7 +133,7 @@ const VBProvider: React.FC = ({children}) => {
         disableVB();
         break;
       default:
-        disableVB();
+        break;
     }
   }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
 
@@ -156,7 +156,6 @@ const VBProvider: React.FC = ({children}) => {
     const disableConfig: VirtualBackgroundSource =
       new VirtualBackgroundSource();
     disableConfig.background_source_type = BackgroundSourceType.BackgroundNone;
-
     await applyVirtualBackgroundToMainView(disableConfig, true);
   };
 
