@@ -40,8 +40,6 @@
   "RECORDING_REGION": 0,
   "GEO_FENCING": true,
   "LOG_ENABLED": true,
-  "GEO_FENCING_INCLUDE_AREA": "GLOBAL",
-  "GEO_FENCING_EXCLUDE_AREA": "CHINA",
   "EVENT_MODE": false,
   "RAISE_HAND": false,
   "AUDIO_ROOM": false,

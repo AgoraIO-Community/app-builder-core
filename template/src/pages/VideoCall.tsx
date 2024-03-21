@@ -80,37 +80,6 @@ import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 
-const NativeAreaCode = {
-  /**
-   * China.
-   */
-  CHINA: 1,
-  /**
-   * Asia, excluding Mainland China.
-   */
-  ASIA: 8,
-  /**
-   * North America.
-   */
-  NORTH_AMERICA: 2,
-  /**
-   * Europe.
-   */
-  EUROPE: 4,
-  /**
-   * Japan.
-   */
-  JAPAN: 16,
-  /**
-   * India.
-   */
-  INDIA: 32,
-  /**
-   * Global.
-   */
-  GLOBAL: -1,
-};
-
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -205,21 +174,6 @@ const VideoCall: React.FC = () => {
     clearState,
   } = useContext(SdkApiContext);
 
-  let geoFencingIncludeArea = -1;
-  let geoFencingExcludeArea = 0;
-
-  try {
-    geoFencingIncludeArea = NativeAreaCode[$config.GEO_FENCING_INCLUDE_AREA];
-  } catch (error) {
-    console.log('error on native geoFencingIncludeArea', error);
-  }
-
-  try {
-    geoFencingExcludeArea = NativeAreaCode[$config.GEO_FENCING_EXCLUDE_AREA];
-  } catch (error) {
-    console.log('error on native geoFencingExcludeArea', error);
-  }
-
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -237,8 +191,6 @@ const VideoCall: React.FC = () => {
       : false,
     role: ClientRoleType.ClientRoleBroadcaster,
     geoFencing: $config.GEO_FENCING,
-    geoFencingIncludeArea: geoFencingIncludeArea,
-    geoFencingExcludeArea: geoFencingExcludeArea,
     audioRoom: $config.AUDIO_ROOM,
     activeSpeaker: $config.ACTIVE_SPEAKER,
     preferredCameraId:
