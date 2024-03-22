@@ -77,9 +77,14 @@ function useMuteToggleLocal() {
             });
 
             try {
-              await RtcEngineUnsafe.muteLocalAudioStream(
-                localAudioState === ToggleState.enabled,
-              );
+              isWebInternal()
+                ? await RtcEngineUnsafe.muteLocalAudioStream(
+                    localAudioState === ToggleState.enabled,
+                  ) //@ts-ignore
+                : await RtcEngineUnsafe.enableLocalAudio(
+                    localAudioState === ToggleState.enabled ? false : true,
+                  );
+
               // Enable UI
               dispatch({
                 type: 'LocalMuteAudio',
