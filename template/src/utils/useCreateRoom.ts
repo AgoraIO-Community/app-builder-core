@@ -96,12 +96,16 @@ export default function useCreateRoom(): createRoomFun {
           pin: res.data.createChannel.pstn.dtmf,
         };
       }
-      logger.setRoomInfo({
-        isHost: true,
-        isSeparateHostLink: isSeparateHostLink ? true : false,
-        meetingTitle: roomTitle,
-        roomId: roomInfo?.roomId,
-        pstn: roomInfo?.pstn,
+      logger.log(LogSource.Internals, 'CREATE_MEETING', 'Room created', {
+        data: {
+          roomInfo: {
+            isHost: true,
+            isSeparateHostLink: isSeparateHostLink ? true : false,
+            meetingTitle: roomTitle,
+            roomId: roomInfo?.roomId,
+            pstn: roomInfo?.pstn,
+          },
+        },
       });
       setRoomInfo({
         data: {

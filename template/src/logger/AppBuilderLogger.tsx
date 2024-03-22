@@ -3,7 +3,6 @@ import {
   version as core_version,
   name as vertical_name,
 } from '../../../package.json';
-import config from '../../../config.json';
 import {RoomData as RoomInfo} from '../components/room-info/useRoomInfo';
 
 export declare const StatusTypes: {
@@ -17,10 +16,16 @@ export type StatusType = (typeof StatusTypes)[keyof typeof StatusTypes];
 
 export enum LogSource {
   AgoraSDK = 'Agora-SDK',
+  /** Logs related to all features */
   Internals = 'Internals',
-  Auth = 'Auth',
   /** Logs related to REST API calls */
   NetworkRest = 'Network-REST',
+  // /** Customization API */
+  // CustomizationAPI = 'Customization API',
+  // /** SDK */
+  // SDK = 'SDK',
+  // /** Events */
+  // CustomEvents = 'CustomEvents',
 }
 
 type LogType = {
@@ -35,8 +40,13 @@ type LogType = {
     | 'DEVICE_CONFIGURE'
     | 'LOCAL_MUTE'
     | 'VIRTUAL_BACKGROUND'
-    | 'VIDEO_CALL_ROOM';
-
+    | 'VIDEO_CALL_ROOM'
+    | 'LANGUAGE'
+    | 'CONTROLS'
+    | 'CHAT'
+    | 'NAME'
+    | 'STT'
+    | 'LAYOUT';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'
@@ -46,7 +56,8 @@ type LogType = {
     | 'user_details'
     | 'createChannel'
     | 'joinChannel'
-    | 'channel_join_request';
+    | 'channel_join_request'
+    | 'stt';
 };
 
 /** The App environment */
@@ -65,8 +76,6 @@ interface AppInfo {
     rtm: string;
     rtc: string;
   };
-  OS: string;
-  config: any;
 }
 /** CallData Info interface */
 /** CallData Info interface */
@@ -116,8 +125,6 @@ class AppBuilderLogger implements Logger {
   warn: LogFn;
   debug: LogFn;
   error: LogFn;
-  callInfo: Partial<CallInfo> = {};
-  roomInfo: Partial<RoomInfo> = {};
 
   constructor(contextInfo?: Partial<ContextInfo>, _customTransport?: any) {
     const logger =
@@ -147,11 +154,8 @@ class AppBuilderLogger implements Logger {
               project_id: $config.PROJECT_ID,
               vertical: vertical_name,
               core_version,
-              config: {...config},
               ...contextInfo,
             },
-            callInfo: this.callInfo,
-            roomInfo: this.roomInfo,
           },
         };
         const consoleHeader =
@@ -181,23 +185,6 @@ class AppBuilderLogger implements Logger {
     this.warn = logger('warn');
     this.error = logger('error');
   }
-
-  setRoomInfo = (info: Partial<RoomInfo>) => {
-    this.roomInfo = {
-      ...this.roomInfo,
-      ...info,
-    };
-  };
-
-  setCallInfo = (info: Partial<CallInfo>) => {
-    this.callInfo = {
-      passphrase: info.passphrase,
-      channelId: info.channelId,
-      uid: info.uid,
-      screenShareUid: info.screenShareUid,
-      role: info.role,
-    };
-  };
 }
 
 export const logger = new AppBuilderLogger();

@@ -192,11 +192,7 @@ const Create = () => {
         //@ts-ignore
         //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
-        logger.log(
-          LogSource.Internals,
-          'CREATE_MEETING',
-          'User has created the meeting successfully',
-        );
+
         setLoading(false);
         Toast.show({
           leadingIconName: 'tick-fill',

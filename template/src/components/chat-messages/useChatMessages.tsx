@@ -38,6 +38,7 @@ import {
   multiplePublicAndPrivateChatToastSubHeading,
   multiplePublicChatToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 enum ChatMessageActionEnum {
   Create = 'Create_Chat_Message',
@@ -605,6 +606,16 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   const sendChatMessage = (msg: string, toUid?: UidType) => {
     if (typeof msg == 'string' && msg.trim() === '') return;
+    logger.log(
+      LogSource.Internals,
+      'CHAT',
+      `sending ${toUid ? 'private' : 'public'} chat message..`,
+      {
+        data: {
+          text: msg,
+        },
+      },
+    );
     if (toUid) {
       const messageData = {
         msg,
@@ -643,6 +654,17 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   const editChatMessage = (msgId: string, msg: string, toUid?: UidType) => {
     if (typeof msg == 'string' && msg.trim() === '') return;
+    logger.log(
+      LogSource.Internals,
+      'CHAT',
+      `editing ${toUid ? 'private' : 'public'} chat message..`,
+      {
+        data: {
+          id: msgId,
+          text: msg,
+        },
+      },
+    );
     if (toUid) {
       const checkData = privateMessageStore[toUid].filter(
         item => item.msgId === msgId && item.uid === localUid,
@@ -671,7 +693,17 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to edit");
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to edit",
+          {
+            data: {
+              id: msgId,
+              text: msg,
+            },
+          },
+        );
       }
     } else {
       //check if user has permission to edit
@@ -699,12 +731,32 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to edit");
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to edit",
+          {
+            data: {
+              id: msgId,
+              text: msg,
+            },
+          },
+        );
       }
     }
   };
 
   const deleteChatMessage = (msgId: string, toUid?: UidType) => {
+    logger.log(
+      LogSource.Internals,
+      'CHAT',
+      `deleting ${toUid ? 'private' : 'public'} chat message..`,
+      {
+        data: {
+          id: msgId,
+        },
+      },
+    );
     if (toUid) {
       const checkData = privateMessageStore[toUid].filter(
         item => item.msgId === msgId && item.uid === localUid,
@@ -733,7 +785,16 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to delete");
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to delete",
+          {
+            data: {
+              id: msgId,
+            },
+          },
+        );
       }
     } else {
       //check if user has permission to delete
@@ -761,7 +822,16 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to delete");
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to delete",
+          {
+            data: {
+              id: msgId,
+            },
+          },
+        );
       }
     }
   };
