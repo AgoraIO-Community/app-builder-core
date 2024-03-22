@@ -101,6 +101,7 @@ export const formatTranscriptContent = (
     .filter(
       arr =>
         arr[1].type === 'rtc' &&
+        arr[0] !== '100000' && // exclude recording bot
         (arr[1]?.isInWaitingRoom === true ? false : true),
     )
     .map(arr => arr[1].name)
