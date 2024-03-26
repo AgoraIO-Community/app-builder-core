@@ -47,6 +47,7 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
 import {controlMessageEnum} from '../components/ChatContext';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -372,12 +373,19 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('messageReceived', (evt: any) => {
-      console.log('CUSTOM_EVENT_API messageReceived: ', evt);
+      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'messageReceived', {
+        data: evt,
+      });
       const {peerId, ts, text} = evt;
       const [err, msg] = safeJsonParse(text);
       if (err) {
-        console.log(
-          'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'JSON payload incorrect, Error while parsing the payload',
+          {
+            error: err,
+          },
         );
       }
 
@@ -393,17 +401,25 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMessageReceived', evt => {
-      console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
+      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'channelMessageReceived', {
+        data: evt,
+      });
 
       const {uid, channelId, text, ts} = evt;
       //whiteboard upload
       if (uid == 1010101) {
         const [err, res] = safeJsonParse(text);
         if (err) {
-          console.log(
-            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          logger.error(
+            LogSource.Events,
+            'CUSTOM_EVENTS',
+            'JSON payload incorrect, Error while parsing the payload',
+            {
+              error: err,
+            },
           );
         }
+
         if (res?.data?.data?.images) {
           LocalEventEmitter.emit(
             LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
@@ -413,8 +429,13 @@ const RtmConfigure = (props: any) => {
       } else {
         const [err, msg] = safeJsonParse(text);
         if (err) {
-          console.log(
-            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          logger.error(
+            LogSource.Events,
+            'CUSTOM_EVENTS',
+            'JSON payload incorrect, Error while parsing the payload',
+            {
+              error: err,
+            },
           );
         }
 
@@ -441,7 +462,14 @@ const RtmConfigure = (props: any) => {
         await eventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
       }
     } catch (error) {
-      console.log('CUSTOM_EVENT_API:  error while running queue events', error);
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'error while running queue events',
+        {
+          error,
+        },
+      );
     }
   };
 
@@ -453,7 +481,10 @@ const RtmConfigure = (props: any) => {
     sender: string,
     ts: number,
   ) => {
-    console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
+    logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'inside eventDispatcher ', {
+      data,
+    });
+
     let evt = '',
       value = {};
 
@@ -519,7 +550,7 @@ const RtmConfigure = (props: any) => {
         await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
       }
       // Step 2: Emit the event
-      console.log('CUSTOM_EVENT_API:  emiting event..: ');
+      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
       if (evt === 'name') {
@@ -533,7 +564,14 @@ const RtmConfigure = (props: any) => {
         }, 200);
       }
     } catch (error) {
-      console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'error while emiting event:',
+        {
+          error,
+        },
+      );
     }
   };
 

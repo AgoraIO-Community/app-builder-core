@@ -20,6 +20,7 @@ export enum LogSource {
   Internals = 'Internals',
   /** Logs related to REST API calls */
   NetworkRest = 'Network-REST',
+  Events = 'Custom-Events',
   // /** Customization API */
   // CustomizationAPI = 'Customization API',
   // /** SDK */
@@ -48,7 +49,9 @@ type LogType = {
     | 'STT'
     | 'SCREENSHARE'
     | 'WHITEBOARD'
-    | 'LAYOUT';
+    | 'LAYOUT'
+    | 'TRANSCRIPT'
+    | 'ACTIVE_SPEAKER';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'
@@ -63,6 +66,7 @@ type LogType = {
     | 'whiteboard_image'
     | 'whiteboard_upload'
     | 'whiteboard_fileconvert';
+  [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
 };
 
 /** The App environment */

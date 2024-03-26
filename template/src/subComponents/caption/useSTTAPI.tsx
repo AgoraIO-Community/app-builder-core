@@ -126,7 +126,6 @@ const useSTTAPI = (): IuseSTTAPI => {
           'stt',
           `stt lang update from: ${language} to ${lang}`,
         );
-        console.log(`stt lang update from: ${language} to ${lang}`);
         // inform about the language set for stt
         events.send(
           EventNames.STT_LANGUAGE,

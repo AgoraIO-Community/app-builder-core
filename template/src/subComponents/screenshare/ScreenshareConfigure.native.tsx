@@ -245,6 +245,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (!isScreenshareActive) {
       // either user can publish local video or screenshare stream
       // so if user video is turned on then we are turning off video before screenshare
+      logger.log(LogSource.Internals, 'SCREENSHARE', 'starting screenshare');
       await RtcEngineUnsafe?.startScreenCapture({
         captureVideo: true,
         captureAudio,
@@ -286,6 +287,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   ) => {
     if (isScreenshareActive || forceStop) {
       enableVideoRef.current = enableVideo;
+      logger.log(LogSource.Internals, 'SCREENSHARE', 'stopping screenshare');
       await RtcEngineUnsafe?.stopScreenCapture();
       if (Platform.OS === 'android') {
         processRef.current = true;
@@ -304,6 +306,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     if (processRef.current) {
       //native screenshare is started
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare is started',
+      );
       if (isScreenshareActive) {
         //to increase the performance - stop incoming video stream
         RtcEngineUnsafe.muteAllRemoteVideoStreams(true);
@@ -317,6 +324,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //native screenshare is stopped
       else {
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'native screenshare is stopped',
+        );
         //resume the incoming video stream
         RtcEngineUnsafe.muteAllRemoteVideoStreams(false);
 

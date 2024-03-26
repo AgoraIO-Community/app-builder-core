@@ -170,20 +170,32 @@ const AuthProvider = (props: AuthProviderProps) => {
                 })
                 .catch(() => {
                   setIsAuthenticated(false);
-                  console.log('debugging error on IDP token setting');
+                  logger.error(
+                    LogSource.Internals,
+                    'AUTH',
+                    'error on IDP token setting',
+                  );
                 });
             } else {
-              console.log('debugging deep-linking token is empty');
+              logger.error(
+                LogSource.Internals,
+                'AUTH',
+                'deep-linking token is empty',
+              );
               history.push('/');
             }
           } else if (url?.indexOf('authorize') === -1) {
-            console.log('debugging deep-linking setting return to');
+            logger.error(
+              LogSource.Internals,
+              'AUTH',
+              `deep-linking setting return to - ${url}`,
+            );
             setReturnTo(url);
           } else {
             history.push(url);
           }
         } catch (error) {
-          console.log('debugging deep-linking error catch');
+          logger.error(LogSource.Internals, 'AUTH', 'deep-linking error catch');
           history.push('/');
         }
       } else {

@@ -19,6 +19,7 @@ import {
   RoomCallbackHandler,
 } from '@netless/react-native-whiteboard';
 import WhiteboardWidget from './WhiteboardWidget';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 interface WhiteboardViewInterface {}
 
@@ -31,31 +32,66 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
   } = useRoomInfo();
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
-    onPhaseChanged: e => console.log('debugging onPhaseChanged changed: ', e),
+    onPhaseChanged: e =>
+      logger.log(LogSource.Internals, 'WHITEBOARD', 'onPhaseChanged changed:', {
+        data: e,
+      }),
     onRoomStateChanged: e =>
-      console.log('debugging onRoomStateChanged changed: ', e),
+      logger.log(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'onRoomStateChanged changed:',
+        {
+          data: e,
+        },
+      ),
     onDisconnectWithError: e =>
-      console.log('debugging onDisconnectWithError: ', e),
+      logger.log(LogSource.Internals, 'WHITEBOARD', 'onDisconnectWithError:', {
+        data: e,
+      }),
   };
 
   const sdkCallbacks = {
     onSetupFail: error =>
-      console.log('debugging whiteboard sdk setup fail: ', error),
+      logger.error(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'whiteboard sdk setup fail:',
+        {
+          error,
+        },
+      ),
   };
 
   const joinRoomCallback = (aRoom, aSdk, error) => {
     roomRef.current = aRoom;
     sdkRef.current = aSdk;
 
-    console.log('debugging aRoom', aRoom);
+    logger.log(LogSource.Internals, 'WHITEBOARD', 'aRoom:', {
+      data: aRoom,
+    });
 
     if (error) {
-      console.log(error);
+      logger.error(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'joinRoomCallback error:',
+        {
+          error,
+        },
+      );
     } else {
       try {
         //aRoom.setMemberState({currentApplianceName: 'hand'});
       } catch (error2) {
-        console.log('debugging error on whiteboard setMemberState');
+        logger.error(
+          LogSource.Internals,
+          'WHITEBOARD',
+          'error on whiteboard setMemberState',
+          {
+            error,
+          },
+        );
       }
     }
   };

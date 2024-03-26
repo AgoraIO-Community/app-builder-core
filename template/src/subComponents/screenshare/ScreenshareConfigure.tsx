@@ -302,7 +302,18 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (isRecordingActive) {
       executeRecordingQuery(isActive);
     }
-    console.log('screenshare query executed');
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${isActive ? 'starting' : 'stopping'}  screenshare`,
+      {
+        data: {
+          channel,
+          screenShareUid,
+          encryption,
+        },
+      },
+    );
     try {
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(
@@ -341,7 +352,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         );
       }
     } catch (e) {
-      console.error("can't start the screen share", e);
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'failed to start screen share',
+        {
+          error: e,
+        },
+      );
       executeNormalQuery();
       Toast.show({
         leadingIconName: 'alert',

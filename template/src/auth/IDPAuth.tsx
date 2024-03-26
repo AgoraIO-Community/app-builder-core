@@ -11,6 +11,7 @@ import {
   authAuthorizingApplicationText,
   authErrorOnLoginToastHeading,
 } from '../language/default-labels/commonLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export const IDPAuth = () => {
   const toastheading = useString(authErrorOnLoginToastHeading)();
@@ -45,9 +46,18 @@ export const IDPAuth = () => {
             history.push('/');
           }
         })
-        .catch(() => {
+        .catch(error => {
           setIsAuthenticated(false);
-          console.log('debugging error on IDP token setting');
+          logger.error(
+            LogSource.Internals,
+            'AUTH',
+            'error on IDP token setting',
+            {
+              data: {
+                error,
+              },
+            },
+          );
         });
     } else {
       setIsAuthenticated(false);

@@ -234,7 +234,6 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
           logger.log(LogSource.Internals, 'STT', 'stt restarted successfully');
         })
         .catch(error => {
-          console.log('Error in restarting', error);
           logger.error(LogSource.Internals, 'STT', 'Error in restarting', {
             data: {
               error,
