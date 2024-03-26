@@ -41,6 +41,7 @@ import {
   whiteboardToolboxUploadText,
   whiteboardToolboxWidthLabel,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const supportedDocTypes = [
   'application/msword',
@@ -336,13 +337,31 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             body: body,
           })
             .then(res2 => {
-              console.log('debugging file convert success', res2);
+              logger.log(
+                LogSource.NetworkRest,
+                'whiteboard_fileconvert',
+                'file convert success',
+                {
+                  data: {
+                    response: res2,
+                  },
+                },
+              );
               //updating upload flag as true
               //once we got RTM message we will proceed to insert image into whiteboard
               setUploadRef();
             })
             .catch(err2 => {
-              console.log('debugging file convert failed', err2);
+              logger.error(
+                LogSource.NetworkRest,
+                'whiteboard_fileconvert',
+                'file convert failed',
+                {
+                  data: {
+                    error: err2,
+                  },
+                },
+              );
               Toast.show({
                 type: 'error',
                 text1: whiteboardFileUploadErrorToastHeadingTT('File'),
@@ -358,7 +377,11 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           });
         });
     } else {
-      console.log('debugging upload url is empty');
+      logger.log(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'debugging upload url is empty',
+      );
       Toast.show({
         type: 'error',
         text1: whiteboardFileUploadErrorToastHeadingTT('File'),
@@ -401,10 +424,28 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 const imageUrl = jsonData?.url?.replaceAll('\u0026', '&');
                 insertImageIntoWhiteboard(imageUrl);
               }
-              console.log('debugging image upload success', res2);
+              logger.log(
+                LogSource.NetworkRest,
+                'whiteboard_image',
+                'image upload success',
+                {
+                  data: {
+                    response: res2,
+                  },
+                },
+              );
             })
             .catch(err2 => {
-              console.log('debugging error get image url', err2);
+              logger.error(
+                LogSource.NetworkRest,
+                'whiteboard_image',
+                'Failed to get image URL',
+                {
+                  data: {
+                    error: err2,
+                  },
+                },
+              );
               Toast.show({
                 type: 'error',
                 text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
@@ -420,7 +461,11 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           });
         });
     } else {
-      console.log('debugging image upload url is empty');
+      logger.error(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'image upload url is empty',
+      );
       Toast.show({
         type: 'error',
         text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
@@ -469,7 +514,16 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }
           })
           .catch(err => {
-            console.log('debugging upload api failed', err);
+            logger.error(
+              LogSource.NetworkRest,
+              'whiteboard_upload',
+              'upload api failed',
+              {
+                data: {
+                  error: err,
+                },
+              },
+            );
             Toast.show({
               type: 'error',
               text1: whiteboardFileUploadErrorToastHeadingTT('File'),
@@ -477,7 +531,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             });
           });
       } else {
-        console.log('debugging unsupported file');
+        logger.error(LogSource.Internals, 'WHITEBOARD', 'unsupported file');
         Toast.show({
           type: 'error',
           text1: whiteboardFileUploadTypeErrorToastHeadingTT,

@@ -46,6 +46,8 @@ type LogType = {
     | 'CHAT'
     | 'NAME'
     | 'STT'
+    | 'SCREENSHARE'
+    | 'WHITEBOARD'
     | 'LAYOUT';
   [LogSource.NetworkRest]:
     | 'idp_login'
@@ -57,7 +59,10 @@ type LogType = {
     | 'createChannel'
     | 'joinChannel'
     | 'channel_join_request'
-    | 'stt';
+    | 'stt'
+    | 'whiteboard_image'
+    | 'whiteboard_upload'
+    | 'whiteboard_fileconvert';
 };
 
 /** The App environment */

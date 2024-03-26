@@ -38,6 +38,7 @@ import {
   videoRoomScreenShareErrorToastHeading,
   videoRoomScreenShareErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -231,7 +232,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
-    console.log('STOPPED SHARING');
+    logger.log(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
     executeNormalQuery();
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,

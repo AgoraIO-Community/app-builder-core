@@ -31,6 +31,7 @@ import useMuteToggleLocal, {
 import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
 import {LocalVideoStreamError} from 'react-native-agora';
 import useAppState from '../../utils/useAppState';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -258,7 +259,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //For ios will update state in the video state changed callback
     } else {
-      console.log('screenshare is already active');
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'screenshare is already active',
+      );
     }
   };
 
@@ -288,7 +293,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //For ios will update state in the video state changed callback
     } else {
-      console.log('no screenshare is active');
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'no screenshare is active',
+      );
     }
   };
 
