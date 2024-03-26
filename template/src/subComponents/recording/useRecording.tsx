@@ -188,7 +188,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     console.log('web-recording - start recording API called');
     const recordinghostURL = getOriginURL();
     if (inProgress) {
-      console.log('web-recording - start recording API already in progress');
+      console.error('web-recording - start recording API already in progress');
       return;
     }
     if (
@@ -197,11 +197,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         recordinghostURL.startsWith('https')
       )
     ) {
-      console.log('Recording url should have valid protocol http or https');
+      console.error('Recording url should have valid protocol http or https');
       return;
     }
     if (recordinghostURL.includes('localhost')) {
-      console.log(
+      console.error(
         'Recording url cannot be localhost. It should be a valid URL',
       );
       return;
@@ -256,7 +256,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      */
     console.log('web-recording - stop recording API called');
     if (inProgress) {
-      console.log(
+      console.error(
         'web-recording - stop recording already in progress. Aborting..',
       );
       return;
