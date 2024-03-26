@@ -44,6 +44,7 @@ import {
   videoRoomRecordingStopErrorToastHeading,
   videoRoomRecordingErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {getOriginURL} from '../../auth/config';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -185,14 +186,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     const passphrase = roomId.host || '';
     console.log('web-recording - start recording API called');
-    if (!passphrase) {
-      console.log('web-recording - passphrase is empty');
-      return;
-    }
-    if (!$config.FRONTEND_ENDPOINT) {
-      console.log('web-recording - endpoint url is empty');
-      return;
-    }
+
     if (inProgress) {
       console.log('web-recording - start recording API already in progress');
       return;
@@ -206,7 +200,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        url: `${$config.FRONTEND_ENDPOINT}/${passphrase}`,
+        url: `${getOriginURL()}/${passphrase}`,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
       }),
