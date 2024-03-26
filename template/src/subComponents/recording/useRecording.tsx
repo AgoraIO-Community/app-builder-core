@@ -186,9 +186,24 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     const passphrase = roomId.host || '';
     console.log('web-recording - start recording API called');
-
+    const recordinghostURL = getOriginURL();
     if (inProgress) {
       console.log('web-recording - start recording API already in progress');
+      return;
+    }
+    if (
+      !(
+        recordinghostURL.startsWith('http') ||
+        recordinghostURL.startsWith('https')
+      )
+    ) {
+      console.log('Recording url should have valid protocol http or https');
+      return;
+    }
+    if (recordinghostURL.includes('localhost')) {
+      console.log(
+        'Recording url cannot be localhost. It should be a valid URL',
+      );
       return;
     }
     setInProgress(true);
@@ -200,7 +215,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        url: `${getOriginURL()}/${passphrase}`,
+        url: `${recordinghostURL}/${passphrase}`,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
       }),
