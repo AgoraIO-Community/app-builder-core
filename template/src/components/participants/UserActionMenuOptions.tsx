@@ -21,7 +21,11 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
-import {ClientRole, DispatchContext, UidType} from '../../../agora-rn-uikit';
+import {
+  ClientRoleType,
+  DispatchContext,
+  UidType,
+} from '../../../agora-rn-uikit';
 import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
@@ -299,7 +303,8 @@ export default function UserActionMenuOptionsOptions(
         if ($config.EVENT_MODE) {
           if (
             raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
-            raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+            raiseHandList[user.uid]?.role ==
+              ClientRoleType.ClientRoleBroadcaster
           ) {
             items.push({
               isBase64Icon: true,

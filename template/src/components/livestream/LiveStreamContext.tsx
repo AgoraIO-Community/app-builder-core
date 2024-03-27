@@ -18,7 +18,7 @@ import {
   RaiseHandValue,
   raiseHandListInterface,
 } from './Types';
-import {ClientRole, useLocalUid, UidType} from '../../../agora-rn-uikit';
+import {ClientRoleType, useLocalUid, UidType} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
@@ -219,13 +219,13 @@ export const LiveStreamContextProvider: React.FC<
     });
   };
 
-  const updateRtcProps = (newClientRole: ClientRole) => {
+  const updateRtcProps = (newClientRole: ClientRoleType) => {
     setRtcProps((prevState: any) => ({
       ...prevState,
       role:
-        newClientRole === ClientRole.Audience
-          ? ClientRole.Audience
-          : ClientRole.Broadcaster,
+        newClientRole === ClientRoleType.ClientRoleAudience
+          ? ClientRoleType.ClientRoleAudience
+          : ClientRoleType.ClientRoleBroadcaster,
     }));
   };
 
@@ -250,23 +250,23 @@ export const LiveStreamContextProvider: React.FC<
           role:
             payload?.role ||
             oldRaisedHandList[userId]?.role ||
-            ClientRole.Audience,
+            ClientRoleType.ClientRoleAudience,
         },
       }));
     }
   };
 
-  const changeClientRoleTo = (newRole: ClientRole) => {
+  const changeClientRoleTo = (newRole: ClientRoleType) => {
     updateRtcProps(newRole);
   };
 
-  const UpdtLocStateAndBCastAttr = (newRole: ClientRole, ts: number) => {
+  const UpdtLocStateAndBCastAttr = (newRole: ClientRoleType, ts: number) => {
     switch (newRole) {
-      case ClientRole.Audience:
+      case ClientRoleType.ClientRoleAudience:
         addOrUpdateLiveStreamRequest(localUidRef.current, {
           raised: RaiseHandValue.FALSE,
           ts: ts,
-          role: ClientRole.Audience,
+          role: ClientRoleType.ClientRoleAudience,
         });
         // Audience notfies all host when request is rejected
         events.send(
@@ -292,12 +292,12 @@ export const LiveStreamContextProvider: React.FC<
           PersistanceLevel.Sender,
         );
         break;
-      case ClientRole.Broadcaster:
+      case ClientRoleType.ClientRoleBroadcaster:
         // Update local state
         addOrUpdateLiveStreamRequest(localUidRef.current, {
           raised: RaiseHandValue.TRUE,
           ts: ts,
-          role: ClientRole.Broadcaster,
+          role: ClientRoleType.ClientRoleBroadcaster,
         });
         // Audience notfies all host when request is approved
         events.send(
@@ -329,7 +329,8 @@ export const LiveStreamContextProvider: React.FC<
   const pendingRequests = filterObject(
     raiseHandList,
     ([k, v]) =>
-      v?.raised === RaiseHandValue.TRUE && v?.role == ClientRole.Audience,
+      v?.raised === RaiseHandValue.TRUE &&
+      v?.role == ClientRoleType.ClientRoleAudience,
   );
 
   React.useEffect(() => {
@@ -368,9 +369,9 @@ export const LiveStreamContextProvider: React.FC<
           [data.sender]: {
             ...prevState[data.sender],
             role:
-              data.payload in ClientRole
+              data.payload in ClientRoleType
                 ? parseInt(data.payload)
-                : ClientRole.Audience,
+                : ClientRoleType.ClientRoleAudience,
           },
         };
       });
@@ -386,7 +387,9 @@ export const LiveStreamContextProvider: React.FC<
     events.send(
       EventNames.ROLE_ATTRIBUTE,
       JSON.stringify(
-        rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
+        rtcProps.role in ClientRoleType
+          ? rtcProps.role
+          : ClientRoleType.ClientRoleAudience,
       ),
       PersistanceLevel.Sender,
     );
@@ -396,7 +399,9 @@ export const LiveStreamContextProvider: React.FC<
         [localUid]: {
           ...prevState[localUid],
           role:
-            rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
+            rtcProps.role in ClientRoleType
+              ? rtcProps.role
+              : ClientRoleType.ClientRoleAudience,
         },
       };
     });
@@ -440,7 +445,7 @@ export const LiveStreamContextProvider: React.FC<
                 addOrUpdateLiveStreamRequest(data.sender, {
                   ts: data.ts,
                   raised: RaiseHandValue.TRUE,
-                  role: ClientRole.Audience,
+                  role: ClientRoleType.ClientRoleAudience,
                   isProcessed: isProcessed,
                 });
                 break;
@@ -461,7 +466,7 @@ export const LiveStreamContextProvider: React.FC<
                 addOrUpdateLiveStreamRequest(data.sender, {
                   ts: data.ts,
                   raised: RaiseHandValue.FALSE,
-                  role: ClientRole.Audience,
+                  role: ClientRoleType.ClientRoleAudience,
                   isProcessed: isProcessed,
                 });
               default:
@@ -476,7 +481,7 @@ export const LiveStreamContextProvider: React.FC<
                 addOrUpdateLiveStreamRequest(data.sender, {
                   ts: data.ts,
                   raised: RaiseHandValue.TRUE,
-                  role: ClientRole.Broadcaster,
+                  role: ClientRoleType.ClientRoleBroadcaster,
                   isProcessed: isProcessed,
                 });
                 break;
@@ -484,7 +489,7 @@ export const LiveStreamContextProvider: React.FC<
                 addOrUpdateLiveStreamRequest(data.sender, {
                   ts: data.ts,
                   raised: RaiseHandValue.FALSE,
-                  role: ClientRole.Audience,
+                  role: ClientRoleType.ClientRoleAudience,
                   isProcessed: isProcessed,
                 });
                 break;
@@ -511,9 +516,9 @@ export const LiveStreamContextProvider: React.FC<
           raiseHandRequestAcceptedToastSubHeading?.current(),
         );
         // Promote user's privileges to host
-        changeClientRoleTo(ClientRole.Broadcaster);
+        changeClientRoleTo(ClientRoleType.ClientRoleBroadcaster);
         // Audience updates its local attributes and notfies all host when request is approved
-        UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+        UpdtLocStateAndBCastAttr(ClientRoleType.ClientRoleBroadcaster, data.ts);
       },
     );
     /** 2. Audience receives this when the request is rejected by host
@@ -526,12 +531,12 @@ export const LiveStreamContextProvider: React.FC<
         /** 2.a */
         if (
           raiseHandListRef.current[localUidRef.current].role ==
-          ClientRole.Audience
+          ClientRoleType.ClientRoleAudience
         ) {
           showToast(raiseHandRequestRejectedToastHeading?.current(), null);
         } else if (
           raiseHandListRef.current[localUidRef.current].role ==
-          ClientRole.Broadcaster
+          ClientRoleType.ClientRoleBroadcaster
         ) {
           /** 2.b */
           showToast(
@@ -541,16 +546,16 @@ export const LiveStreamContextProvider: React.FC<
           screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
 
           // Demote user's privileges to audience
-          changeClientRoleTo(ClientRole.Audience);
+          changeClientRoleTo(ClientRoleType.ClientRoleAudience);
         }
         // Audience updates its local attributes and notfies all host when demoted/request rejected
-        UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
+        UpdtLocStateAndBCastAttr(ClientRoleType.ClientRoleAudience, data.ts);
       },
     );
     // 3. Audience when receives kickUser notifies all host when is kicked out
     const unsubKickUser = events.on(controlMessageEnum.kickUser, data => {
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
-      UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
+      UpdtLocStateAndBCastAttr(ClientRoleType.ClientRoleAudience, data.ts);
     });
     // 4. Host promote audience as co-host
     const unsubPromoteAsCoHost = events.on(
@@ -558,9 +563,9 @@ export const LiveStreamContextProvider: React.FC<
       data => {
         showToast(promoteAsCoHostToastHeading.current(), null);
         // Promote user's privileges to host
-        changeClientRoleTo(ClientRole.Broadcaster);
+        changeClientRoleTo(ClientRoleType.ClientRoleBroadcaster);
         // Audience updates its local attributes and notfies all host when request is approved
-        UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+        UpdtLocStateAndBCastAttr(ClientRoleType.ClientRoleBroadcaster, data.ts);
       },
     );
     // 4. New co-host has joined
@@ -707,12 +712,13 @@ export const LiveStreamContextProvider: React.FC<
      * else: Audience Request was not approved by host, and was pending
      */
     if (
-      raiseHandList[localUidRef.current]?.role == ClientRole.Broadcaster &&
+      raiseHandList[localUidRef.current]?.role ==
+        ClientRoleType.ClientRoleBroadcaster &&
       raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE
     ) {
       screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
       // Change role
-      changeClientRoleTo(ClientRole.Audience);
+      changeClientRoleTo(ClientRoleType.ClientRoleAudience);
     }
     //notify host users
     events.send(
@@ -725,7 +731,10 @@ export const LiveStreamContextProvider: React.FC<
       }),
       PersistanceLevel.Sender,
     );
-    UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
+    UpdtLocStateAndBCastAttr(
+      ClientRoleType.ClientRoleAudience,
+      new Date().getTime(),
+    );
     showToast(raiseHandRequestRecallLocalToastHeading?.current(), null);
   };
 

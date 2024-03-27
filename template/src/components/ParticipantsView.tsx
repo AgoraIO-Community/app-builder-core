@@ -11,7 +11,7 @@
 */
 import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
 import AllHostParticipants from './participants/AllHostParticipants';
@@ -109,7 +109,7 @@ const ParticipantView = props => {
             {
               /*Live streaming is true            
                 Host and New host view */
-              rtcProps?.role == ClientRole.Broadcaster &&
+              rtcProps?.role == ClientRoleType.ClientRoleBroadcaster &&
                 (isHost ? (
                   /**
                    * Original Host
@@ -177,7 +177,7 @@ const ParticipantView = props => {
               /**
                *  Audience views all hosts without remote controls
                */
-              rtcProps?.role == ClientRole.Audience && (
+              rtcProps?.role == ClientRoleType.ClientRoleAudience && (
                 <>
                   <ParticipantSectionTitle
                     title={hostLabel}

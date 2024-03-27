@@ -87,22 +87,24 @@ const AppWrapper = (props: AppWrapperProps) => {
           <StatusBar hidden={true} />
           <StorageProvider>
             <LanguageProvider>
-              <ToastProvider>
-                <ToastContext.Consumer>
-                  {({isActionSheetVisible}) => {
-                    return !isActionSheetVisible ? <ToastComponent /> : null;
-                  }}
-                </ToastContext.Consumer>
-                <GraphQLProvider>
-                  <Router
-                    /*@ts-ignore Router will be memory Router in sdk*/
-                    initialEntries={[
-                      //@ts-ignore
-                      isSDK && SdkJoinState.phrase
-                        ? //@ts-ignore
-                          `/${SdkJoinState.phrase}`
-                        : '',
-                    ]}>
+              <GraphQLProvider>
+                <Router
+                  /*@ts-ignore Router will be memory Router in sdk*/
+                  initialEntries={[
+                    //@ts-ignore
+                    isSDK && SdkJoinState.phrase
+                      ? //@ts-ignore
+                        `/${SdkJoinState.phrase}`
+                      : '',
+                  ]}>
+                  <ToastProvider>
+                    <ToastContext.Consumer>
+                      {({isActionSheetVisible}) => {
+                        return !isActionSheetVisible ? (
+                          <ToastComponent />
+                        ) : null;
+                      }}
+                    </ToastContext.Consumer>
                     <AuthProvider>
                       <SessionProvider>
                         <ColorConfigure>
@@ -116,9 +118,9 @@ const AppWrapper = (props: AppWrapperProps) => {
                         </ColorConfigure>
                       </SessionProvider>
                     </AuthProvider>
-                  </Router>
-                </GraphQLProvider>
-              </ToastProvider>
+                  </ToastProvider>
+                </Router>
+              </GraphQLProvider>
             </LanguageProvider>
           </StorageProvider>
         </SafeAreaView>

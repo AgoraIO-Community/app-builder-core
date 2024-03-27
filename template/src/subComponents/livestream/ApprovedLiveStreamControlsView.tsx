@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {View} from 'react-native';
 import RemoteLiveStreamApprovedRequestRecall from './controls/RemoteLiveStreamApprovedRequestRecall';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 
 const ApprovedLiveStreamControlsView = (props: {
   uid: number;
@@ -13,7 +13,7 @@ const ApprovedLiveStreamControlsView = (props: {
 
   if (
     raiseHandList[uid]?.raised === RaiseHandValue.TRUE &&
-    raiseHandList[uid]?.role == ClientRole.Broadcaster
+    raiseHandList[uid]?.role == ClientRoleType.ClientRoleBroadcaster
   ) {
     return (
       <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>

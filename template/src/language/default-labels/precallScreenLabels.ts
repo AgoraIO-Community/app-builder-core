@@ -1,9 +1,9 @@
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
 
 export interface PrecallJoinBtnTextInterface {
   ready: boolean;
-  role?: ClientRole;
+  role?: ClientRoleType;
   waitingRoom?: boolean;
 }
 
@@ -138,7 +138,9 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
         ? !role
           ? 'JOIN ROOM'
           : `JOIN ROOM AS ${
-              role === ClientRole.Broadcaster ? 'HOST' : 'AUDIENCE'
+              role === ClientRoleType.ClientRoleBroadcaster
+                ? 'HOST'
+                : 'AUDIENCE'
             }`
         : `Loading...`;
     }

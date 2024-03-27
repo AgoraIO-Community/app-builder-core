@@ -18,7 +18,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import {
   isMobileUA,
   isWebInternal,
@@ -108,7 +108,9 @@ const JoinRoomInputView = ({isDesktop}) => {
           {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
           </Text> */}
-          {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
+          {rtcProps.role == ClientRoleType.ClientRoleAudience && (
+            <Spacer size={40} />
+          )}
         </>
       ) : (
         <></>
@@ -116,7 +118,7 @@ const JoinRoomInputView = ({isDesktop}) => {
       <View
         style={
           $config.EVENT_MODE &&
-          rtcProps.role == ClientRole.Audience && {
+          rtcProps.role == ClientRoleType.ClientRoleAudience && {
             justifyContent: 'space-between',
             flex: 1,
           }
@@ -129,7 +131,7 @@ const JoinRoomInputView = ({isDesktop}) => {
               : {width: '100%'}
           }>
           {$config.ENABLE_WAITING_ROOM &&
-          rtcProps.role === ClientRole.Audience ? (
+          rtcProps.role === ClientRoleType.ClientRoleAudience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -217,7 +219,7 @@ const JoinRoomButton = () => {
   });
 
   return $config.ENABLE_WAITING_ROOM &&
-    rtcProps.role === ClientRole.Audience ? (
+    rtcProps.role === ClientRoleType.ClientRoleAudience ? (
     <JoinWaitingRoomBtn />
   ) : (
     <JoinButton />
@@ -355,7 +357,8 @@ const Precall = () => {
   ) : (
     <>
       <PrecallBeforeView />
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+      {$config.EVENT_MODE &&
+      rtcProps.role == ClientRoleType.ClientRoleAudience ? (
         <View style={style.root}>
           {!isMobileUA() ? <IDPLogoutComponent /> : <></>}
           <ScrollView contentContainerStyle={style.main}>

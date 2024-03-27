@@ -10,7 +10,7 @@ import {createHook} from 'customization-implementation';
 import LiveStreamContext, {
   raiseHandListInterface,
 } from '../../components/livestream';
-import {ClientRole, useLocalUid} from '../../../agora-rn-uikit';
+import {ClientRoleType, useLocalUid} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useContent} from 'customization-api';
 
@@ -49,7 +49,7 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
           (v?.type === 'rtc' || v?.type === 'live') && //||
           //(v?.type === 'screenshare' && v?.video == 1)
           (raiseHandList[k]
-            ? raiseHandList[k]?.role == ClientRole.Broadcaster
+            ? raiseHandList[k]?.role == ClientRoleType.ClientRoleBroadcaster
             : true) &&
           !v?.offline &&
           activeUids.indexOf(v?.uid) !== -1,
@@ -58,7 +58,7 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
         defaultContent,
         ([k, v]) =>
           (v?.type === 'rtc' || v?.type === 'live') &&
-          raiseHandList[k]?.role == ClientRole.Audience &&
+          raiseHandList[k]?.role == ClientRoleType.ClientRoleAudience &&
           !v.offline,
       );
       const hUids = Object.keys(hostList).map(uid => parseInt(uid));

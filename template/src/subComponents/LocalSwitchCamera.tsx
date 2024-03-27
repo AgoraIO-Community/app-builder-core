@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {Text, ViewStyle} from 'react-native';
 import {useString} from '../utils/useString';
-import {ClientRole, PropsContext, ToggleState} from '../../agora-rn-uikit';
+import {ClientRoleType, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {isAndroid, isIOS, useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
@@ -37,8 +37,8 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
 
   const {rtcProps} = useContext(PropsContext);
   const isLiveStream = $config.EVENT_MODE;
-  const isAudience = rtcProps?.role == ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
+  const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
   const showTitle = showText ? showLabel : false;
   const onPress = () => {
     RtcEngineUnsafe.switchCamera();

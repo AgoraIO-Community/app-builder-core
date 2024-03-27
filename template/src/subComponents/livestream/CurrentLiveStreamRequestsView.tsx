@@ -6,7 +6,7 @@ import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 import {useString} from '../../utils/useString';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import Spacer from '../../atoms/Spacer';
@@ -31,7 +31,8 @@ const CurrentLiveStreamRequestsView = (props: any) => {
       filterObject(
         raiseHandList,
         ([k, v]) =>
-          v?.raised === RaiseHandValue.TRUE && v?.role == ClientRole.Audience,
+          v?.raised === RaiseHandValue.TRUE &&
+          v?.role == ClientRoleType.ClientRoleAudience,
       ),
     );
   }, [raiseHandList]);

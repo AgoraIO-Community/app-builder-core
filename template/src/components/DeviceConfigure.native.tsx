@@ -11,10 +11,10 @@
 */
 import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
-import {ClientRole} from '../../agora-rn-uikit';
+import {ClientRoleType} from '../../agora-rn-uikit';
 
 interface Props {
-  userRole: ClientRole;
+  userRole: ClientRoleType;
 }
 const DeviceConfigure: React.FC<Props> = (props: any) => {
   return (

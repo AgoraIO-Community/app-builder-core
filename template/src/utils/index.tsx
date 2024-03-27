@@ -1,3 +1,5 @@
+import {isWebInternal} from './common';
+
 const Buffer = require('buffer/').Buffer;
 type Entry<T> = {
   [K in keyof T]: [K, T[K]];
@@ -90,10 +92,19 @@ export const base64ToUint8Array = (base64Str: string) => {
 
   decodedData = Buffer.from(base64Str, 'base64').toString('binary');
 
-  const result = new Uint8Array(new ArrayBuffer(decodedData.length));
-  for (let i = 0; i < decodedData.length; i += 1) {
-    result[i] = decodedData.charCodeAt(i);
+  if (isWebInternal()) {
+    const result: Uint8Array = new Uint8Array(
+      new ArrayBuffer(decodedData.length),
+    );
+    for (let i = 0; i < decodedData.length; i += 1) {
+      result[i] = decodedData.charCodeAt(i);
+    }
+    return result;
+  } else {
+    const result: number[] = [];
+    for (let i = 0; i < decodedData.length; i++) {
+      result.push(decodedData.charCodeAt(i));
+    }
+    return result;
   }
-
-  return result;
 };

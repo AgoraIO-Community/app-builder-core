@@ -10,7 +10,7 @@ import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 import {
   RoomInfoContextInterface,
   useRoomInfo,
@@ -355,8 +355,9 @@ const ActionSheetContent = props => {
   }, [sttLanguage]);
 
   const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
-  const isAudience = rtcProps?.role === ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role === ClientRole.Broadcaster;
+  const isAudience = rtcProps?.role === ClientRoleType.ClientRoleAudience;
+  const isBroadCasting =
+    rtcProps?.role === ClientRoleType.ClientRoleBroadcaster;
   const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
 
   const isAudioRoom = $config.AUDIO_ROOM;

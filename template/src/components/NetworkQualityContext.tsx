@@ -28,6 +28,12 @@ import {useRtc} from 'customization-api';
  * 7 - Unsupported
  * 8 - Loading
  */
+
+interface RtcConnection {
+  channelId?: string;
+  localUid?: number;
+}
+
 export const networkIconsObject: {
   [key: number]: {
     icon: keyof IconsInterface;
@@ -106,13 +112,14 @@ export const NetworkQualityProvider: React.FC = (props: {
 
   useMount(() => {
     function handleNetworkQuality(
+      connection: RtcConnection,
       uid: UidType,
-      downlinkQuality: number,
       // Currently unused , potential use might be to take weighted average
       // of this alongside the downlink quality.
-      uplinkQuality: number,
+      uplinkQuality: keyof typeof networkIconsObject,
+      downlinkQuality: keyof typeof networkIconsObject,
     ) {
-      setNetworkQualityStats((prevNetworkQualityStats) => {
+      setNetworkQualityStats(prevNetworkQualityStats => {
         const updatedNetworkQualityStats = {...prevNetworkQualityStats};
         if (uid === 0) {
           const displayedNetworkQuality =
@@ -130,8 +137,7 @@ export const NetworkQualityProvider: React.FC = (props: {
         return updatedNetworkQualityStats;
       });
     }
-
-    RtcEngineUnsafe.addListener('NetworkQuality', handleNetworkQuality);
+    RtcEngineUnsafe.addListener('onNetworkQuality', handleNetworkQuality);
   });
 
   return (

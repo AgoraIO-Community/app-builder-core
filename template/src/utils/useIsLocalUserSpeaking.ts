@@ -5,6 +5,7 @@ import {useAsyncEffect} from './useAsyncEffect';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 const useIsLocalUserSpeaking = () => {
   const log: (arg1: string, ...args: any[]) => void = (arg1, ...args) => {
@@ -15,6 +16,7 @@ const useIsLocalUserSpeaking = () => {
   const speechRef = useRef(null);
   const audioRef = useRef(audio);
   const audioTrackRef = useRef(null);
+  const {isRecordingBot} = useIsRecordingBot();
 
   useEffect(() => {
     audioRef.current = audio;
@@ -40,6 +42,9 @@ const useIsLocalUserSpeaking = () => {
 
   useEffect(() => {
     LocalEventEmitter.on(LocalEventsEnum.MIC_CHANGED, () => {
+      if (isRecordingBot) {
+        return;
+      }
       listenForSpeaker();
     });
   }, []);
@@ -75,7 +80,7 @@ const useIsLocalUserSpeaking = () => {
   };
 
   useAsyncEffect(async () => {
-    if ($config.ACTIVE_SPEAKER) {
+    if ($config.ACTIVE_SPEAKER && !isRecordingBot) {
       await listenForSpeaker();
       return () => {
         try {

@@ -13,7 +13,7 @@ import React, {useContext, useRef, useState} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {ClientRole, ContentInterface, UidType} from '../../../agora-rn-uikit';
+import {ContentInterface, UidType} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
