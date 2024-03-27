@@ -20,11 +20,12 @@ export enum LogSource {
   Internals = 'Internals',
   /** Logs related to REST API calls */
   NetworkRest = 'Network-REST',
-  Events = 'Custom-Events',
-  // /** Customization API */
-  // CustomizationAPI = 'Customization API',
-  // /** SDK */
-  // SDK = 'SDK',
+  /** Logs related to Events */
+  Events = 'Events',
+  /** Logs related to Customization API */
+  CustomizationAPI = 'Customization',
+  /** Logs related to SDK */
+  SDK = 'SDK',
 }
 
 type LogType = {
@@ -65,6 +66,8 @@ type LogType = {
     | 'whiteboard_upload'
     | 'whiteboard_fileconvert';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
+  [LogSource.CustomizationAPI]: 'Log';
+  [LogSource.SDK]: 'Log' | 'Event';
 };
 
 /** The App environment */
