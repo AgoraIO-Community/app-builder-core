@@ -781,7 +781,7 @@ export default class RtcEngine {
         }
         await this.client.setClientRole(role.audience, options);
         await this.screenClient.setClientRole(role.audience, options);
-      } else if (clientRole == ClientRole.Broadcaster) {
+      } else if (clientRole == ClientRoleType.ClientRoleBroadcaster) {
         await this.client.setClientRole(role.host);
         await this.screenClient.setClientRole(role.host);
       }
