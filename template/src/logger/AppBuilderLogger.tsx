@@ -25,8 +25,6 @@ export enum LogSource {
   // CustomizationAPI = 'Customization API',
   // /** SDK */
   // SDK = 'SDK',
-  // /** Events */
-  // CustomEvents = 'CustomEvents',
 }
 
 type LogType = {

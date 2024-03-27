@@ -138,14 +138,19 @@ const RtmConfigure = (props: any) => {
 
   const doLoginAndSetupRTM = async () => {
     try {
+      logger.log(LogSource.AgoraSDK, 'API', 'RTM login starts');
       await engine.current.login({
         uid: localUid.toString(),
         token: rtcProps.rtm,
       });
+      logger.log(LogSource.AgoraSDK, 'API', 'RTM login done');
       RTMEngine.getInstance().setLocalUID(localUid.toString());
+      logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set');
       timerValueRef.current = 5;
       await setAttribute();
+      logger.log(LogSource.AgoraSDK, 'Log', 'RTM setting attribute done');
     } catch (error) {
+      logger.error(LogSource.AgoraSDK, 'Log', 'RTM login failed..Trying again');
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
         doLoginAndSetupRTM();
@@ -159,11 +164,35 @@ const RtmConfigure = (props: any) => {
     ];
     try {
       await engine.current.setLocalUserAttributes(rtmAttributes);
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTM setting local user attributes',
+        {
+          data: rtmAttributes,
+        },
+      );
       timerValueRef.current = 5;
       await joinChannel();
+      logger.log(LogSource.AgoraSDK, 'Log', 'RTM join channel done', {
+        data: rtmAttributes,
+      });
       setHasUserJoinedRTM(true);
       await runQueuedEvents();
+      logger.log(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM queued events finished running',
+        {
+          data: rtmAttributes,
+        },
+      );
     } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM setAttribute failed..Trying again',
+      );
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
         setAttribute();
@@ -175,15 +204,34 @@ const RtmConfigure = (props: any) => {
     try {
       if (RTMEngine.getInstance().channelUid !== rtcProps.channel) {
         await engine.current.joinChannel(rtcProps.channel);
+        logger.log(LogSource.AgoraSDK, 'API', 'RTM joinChannel', {
+          data: rtcProps.channel,
+        });
         RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        logger.log(LogSource.AgoraSDK, 'API', 'RTM setChannelId', {
+          data: rtcProps.channel,
+        });
         console.log('Emitting rtm joined');
         SDKEvents.emit('_rtm-joined', rtcProps.channel);
       } else {
-        console.log('RTM already joined channel skipping');
+        logger.log(
+          LogSource.AgoraSDK,
+          'Log',
+          'RTM already joined channel skipping',
+          {
+            data: rtcProps.channel,
+          },
+        );
       }
       timerValueRef.current = 5;
       await getMembers();
+      logger.log(LogSource.AgoraSDK, 'Log', 'RTM getMembers done');
     } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM joinChannel failed..Trying again',
+      );
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
         joinChannel();
@@ -200,19 +248,53 @@ const RtmConfigure = (props: any) => {
 
   const getMembers = async () => {
     try {
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTM getChannelMembersByID(getMembers) start',
+      );
       await engine.current
         .getChannelMembersBychannelId(rtcProps.channel)
         .then(async data => {
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            'RTM getChannelMembersByID data received',
+            {
+              data,
+            },
+          );
           await Promise.all(
             data.members.map(async (member: any) => {
               const backoffAttributes = backOff(
                 async () => {
+                  logger.log(
+                    LogSource.AgoraSDK,
+                    'API',
+                    `RTM fetching getUserAttributesByUid for member ${member.uid}`,
+                    {
+                      data: attr,
+                    },
+                  );
                   const attr = await engine.current.getUserAttributesByUid(
                     member.uid,
                   );
                   if (!attr || !attr.attributes) {
+                    logger.log(
+                      LogSource.AgoraSDK,
+                      'API',
+                      'RTM attributes for member not found',
+                    );
                     throw attr;
                   }
+                  logger.log(
+                    LogSource.AgoraSDK,
+                    'API',
+                    `RTM getUserAttributesByUid for member ${member.uid} received`,
+                    {
+                      data: attr,
+                    },
+                  );
                   for (const key in attr.attributes) {
                     if (
                       attr.attributes.hasOwnProperty(key) &&
@@ -226,9 +308,13 @@ const RtmConfigure = (props: any) => {
                 },
                 {
                   retry: (e, idx) => {
-                    console.log(
+                    logger.error(
+                      LogSource.AgoraSDK,
+                      'Log',
                       `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
-                      e,
+                      {
+                        error: e,
+                      },
                     );
                     return true;
                   },
@@ -278,12 +364,22 @@ const RtmConfigure = (props: any) => {
                   }
                 }
               } catch (e) {
-                console.error(`Could not retrieve name of ${member.uid}`, e);
+                logger.error(
+                  LogSource.AgoraSDK,
+                  'Log',
+                  `Could not retrieve name of ${member.uid}`,
+                  {
+                    error: e,
+                  },
+                );
               }
             }),
           );
-
-          console.log('RTM init done');
+          logger.log(
+            LogSource.AgoraSDK,
+            'Log',
+            'RTM fetched all data and user attr...RTM inirt done',
+          );
         });
       timerValueRef.current = 5;
     } catch (error) {
@@ -295,8 +391,10 @@ const RtmConfigure = (props: any) => {
   };
 
   const init = async () => {
+    logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
     engine.current = RTMEngine.getInstance().engine;
     RTMEngine.getInstance();
+    logger.log(LogSource.AgoraSDK, 'Log', 'RTM engine creation done');
 
     engine.current.on('connectionStateChanged', (evt: any) => {
       //console.log(evt);
@@ -305,12 +403,36 @@ const RtmConfigure = (props: any) => {
       // console.log(evt);
     });
     engine.current.on('channelMemberJoined', (data: any) => {
+      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberJoined', {
+        data,
+      });
       const backoffAttributes = backOff(
         async () => {
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            `RTM fetching getUserAttributesByUid for member ${data.uid}`,
+            {
+              data: attr,
+            },
+          );
           const attr = await engine.current.getUserAttributesByUid(data.uid);
           if (!attr || !attr.attributes) {
+            logger.log(
+              LogSource.AgoraSDK,
+              'API',
+              'RTM attributes for member not found',
+            );
             throw attr;
           }
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            `RTM getUserAttributesByUid for member ${data.uid} received`,
+            {
+              data: attr,
+            },
+          );
           for (const key in attr.attributes) {
             if (attr.attributes.hasOwnProperty(key) && attr.attributes[key]) {
               return attr;
@@ -321,9 +443,13 @@ const RtmConfigure = (props: any) => {
         },
         {
           retry: (e, idx) => {
-            console.log(
+            logger.error(
+              LogSource.AgoraSDK,
+              'Log',
               `[retrying] Attempt ${idx}. Fetching ${data.uid}'s name`,
-              e,
+              {
+                error: e,
+              },
             );
             return true;
           },
@@ -355,14 +481,23 @@ const RtmConfigure = (props: any) => {
           updateRenderListState(screenUid, screenShareUser);
           //end - updating screenshare data in rtc
         } catch (e) {
-          console.error(`Could not retrieve name of ${data.uid}`, e);
+          logger.error(
+            LogSource.AgoraSDK,
+            'Event',
+            `Failed to retrive name of ${data.uid}`,
+            {
+              error: e,
+            },
+          );
         }
       }
       getname();
     });
 
     engine.current.on('channelMemberLeft', (data: any) => {
-      console.log('user left', data);
+      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberLeft', {
+        data,
+      });
       // Chat of left user becomes undefined. So don't cleanup
       const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
@@ -396,7 +531,14 @@ const RtmConfigure = (props: any) => {
       try {
         eventDispatcher(msg, sender, timestamp);
       } catch (error) {
-        console.log('error while dispacthing', error);
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'error while dispatching through eventDispatcher',
+          {
+            error: err,
+          },
+        );
       }
     });
 
@@ -447,7 +589,14 @@ const RtmConfigure = (props: any) => {
           try {
             eventDispatcher(msg, sender, timestamp);
           } catch (error) {
-            console.log('error while dispacthing', error);
+            logger.error(
+              LogSource.Events,
+              'CUSTOM_EVENTS',
+              'error while dispatching through eventDispatcher',
+              {
+                error: error,
+              },
+            );
           }
         }
       }
@@ -580,11 +729,12 @@ const RtmConfigure = (props: any) => {
       return;
     }
     await RTMEngine.getInstance().destroy();
+    logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
     if (isIOS() || isAndroid()) {
       EventUtils.clear();
     }
     setHasUserJoinedRTM(false);
-    console.log('RTM cleanup done');
+    logger.log(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
   };
 
   useAsyncEffect(async () => {
