@@ -46,6 +46,14 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {getOriginURL} from '../../auth/config';
 
+const getFrontendUrl = (url: string) => {
+  // check if it doesn't contains the https protocol
+  if (url.indexOf('https://') !== 0) {
+    url = `https://${url}`;
+  }
+  return url;
+};
+
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
@@ -185,27 +193,22 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const startRecording = () => {
     const passphrase = roomId.host || '';
+    let recordinghostURL = getOriginURL();
     console.log('web-recording - start recording API called');
-    const recordinghostURL = getOriginURL();
+
     if (inProgress) {
       console.error('web-recording - start recording API already in progress');
       return;
     }
-    if (
-      !(
-        recordinghostURL.startsWith('http') ||
-        recordinghostURL.startsWith('https')
-      )
-    ) {
-      console.error('Recording url should have valid protocol http or https');
-      return;
-    }
     if (recordinghostURL.includes('localhost')) {
       console.error(
-        'Recording url cannot be localhost. It should be a valid URL',
+        'web-recording - Recording url cannot be localhost. It should be a valid URL',
       );
       return;
     }
+    recordinghostURL = getFrontendUrl(recordinghostURL);
+    console.log('web-recording - recordinghostURL: ', recordinghostURL);
+
     setInProgress(true);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
