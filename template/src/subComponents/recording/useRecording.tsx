@@ -44,6 +44,15 @@ import {
   videoRoomRecordingStopErrorToastHeading,
   videoRoomRecordingErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {getOriginURL} from '../../auth/config';
+
+const getFrontendUrl = (url: string) => {
+  // check if it doesn't contains the https protocol
+  if (url.indexOf('https://') !== 0) {
+    url = `https://${url}`;
+  }
+  return url;
+};
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -184,11 +193,22 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const startRecording = () => {
     const passphrase = roomId.host || '';
+    let recordinghostURL = getOriginURL();
     console.log('web-recording - start recording API called');
+
     if (inProgress) {
-      console.log('web-recording - start recording API already in progress');
+      console.error('web-recording - start recording API already in progress');
       return;
     }
+    if (recordinghostURL.includes('localhost')) {
+      console.error(
+        'web-recording - Recording url cannot be localhost. It should be a valid URL',
+      );
+      return;
+    }
+    recordinghostURL = getFrontendUrl(recordinghostURL);
+    console.log('web-recording - recordinghostURL: ', recordinghostURL);
+
     setInProgress(true);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
@@ -198,7 +218,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        url: `${$config.FRONTEND_ENDPOINT}/${passphrase}`,
+        url: `${recordinghostURL}/${passphrase}`,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
       }),
@@ -239,7 +259,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      */
     console.log('web-recording - stop recording API called');
     if (inProgress) {
-      console.log(
+      console.error(
         'web-recording - stop recording already in progress. Aborting..',
       );
       return;
