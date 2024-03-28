@@ -464,7 +464,12 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 lastMessageTimeStamp: new Date().getTime(),
               });
             } catch (error) {
-              console.log("ERROR : couldn't update the last message timestamp");
+              logger.error(
+                LogSource.Internals,
+                'CHAT',
+                'ERROR : couldnt update the last message timestamp',
+                error,
+              );
             }
             showMessageNotification(messageData.msg, `${data.sender}`, true);
             addMessageToPrivateStore(
@@ -609,8 +614,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     logger.log(
       LogSource.Internals,
       'CHAT',
-      `sending ${toUid ? 'private' : 'public'} chat message..`,
-      msg,
+      `sending ${toUid ? 'private' : 'public'} chat message -> ${msg} ${
+        toUid ? toUid : ''
+      }`,
     );
     if (toUid) {
       const messageData = {

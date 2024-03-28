@@ -313,6 +313,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       );
       if (isScreenshareActive) {
         //to increase the performance - stop incoming video stream
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'muting all remote video streams[muteAllRemoteVideoStreams(true)] to increase the performance',
+        );
         RtcEngineUnsafe.muteAllRemoteVideoStreams(true);
 
         //since native screenshare uses local user video
@@ -330,6 +335,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           'native screenshare is stopped',
         );
         //resume the incoming video stream
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'resume all remote video streams[muteAllRemoteVideoStreams(false)]',
+        );
         RtcEngineUnsafe.muteAllRemoteVideoStreams(false);
 
         //edge case - if screenshare is going on and user want to enable the video

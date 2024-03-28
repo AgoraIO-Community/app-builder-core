@@ -49,7 +49,10 @@ type LogType = {
     | 'WHITEBOARD'
     | 'LAYOUT'
     | 'TRANSCRIPT'
-    | 'ACTIVE_SPEAKER';
+    | 'NOISE_CANCELLATION'
+    | 'ACTIVE_SPEAKER'
+    | 'WAITING_ROOM'
+    | 'STORE';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'
@@ -60,6 +63,7 @@ type LogType = {
     | 'createChannel'
     | 'joinChannel'
     | 'channel_join_request'
+    | 'channel_join_approval'
     | 'stt'
     | 'whiteboard_image'
     | 'whiteboard_upload'
@@ -128,7 +132,6 @@ export interface Logger {
 
 /** Logger which outputs to the browser console */
 class AppBuilderLogger implements Logger {
-  heading = '%cAppBuilder-Logger';
   log: LogFn;
   info: LogFn;
   warn: LogFn;

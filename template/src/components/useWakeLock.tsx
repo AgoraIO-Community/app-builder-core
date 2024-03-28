@@ -21,7 +21,6 @@ const useWakeLock = () => {
           set(noSleep.isEnabled);
         })
         .catch(e => {
-          console.log('error enabling sleep', e);
           logger.error(
             LogSource.Internals,
             'VIDEO_CALL_ROOM',

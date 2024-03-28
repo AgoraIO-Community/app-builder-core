@@ -109,7 +109,11 @@ class Events {
       (typeof to === 'number' && to <= 0) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 1 executed');
+      logger.log(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'case 1 executed - sending in channel',
+      );
       try {
         const channelId = RTMEngine.getInstance().channelUid;
         await rtmEngine.sendMessageByChannelId(channelId, text);
@@ -124,8 +128,12 @@ class Events {
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'number' && to !== 0) {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 2 executed', to);
+    if (typeof to === 'number' && to >= 0) {
+      logger.log(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        `case 2 executed - sending to individual ${to}`,
+      );
       const adjustedUID = adjustUID(to);
       try {
         await rtmEngine.sendMessageToPeer({
@@ -145,7 +153,12 @@ class Events {
     }
     // Case 3: send to multiple individuals
     if (typeof to === 'object' && Array.isArray(to)) {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 3 executed', to);
+      logger.log(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'case 3 executed - sending to multiple individuals',
+        to,
+      );
       try {
         for (const uid of to) {
           const adjustedUID = adjustUID(uid);
@@ -179,14 +192,10 @@ class Events {
    */
   on = (eventName: string, listener: EventCallback): Function => {
     try {
-      if (!this._validateEvt(eventName) || !this._validateListener(listener))
+      if (!this._validateEvt(eventName) || !this._validateListener(listener)) {
         return;
+      }
       EventUtils.addListener(eventName, listener, this.source);
-      logger.log(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        `event registered with name -> ${eventName} `,
-      );
       return () => {
         //@ts-ignore
         EventUtils.removeListener(eventName, listener, this.source);
@@ -255,7 +264,9 @@ class Events {
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
   ) => {
-    if (!this._validateEvt(eventName)) return;
+    if (!this._validateEvt(eventName)) {
+      return;
+    }
 
     const persistValue = JSON.stringify({
       payload,
@@ -279,9 +290,20 @@ class Events {
       }
     }
     try {
+      logger.log(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        `sending event -> ${eventName}`,
+        persistValue,
+      );
       await this._send(rtmPayload, receiver);
     } catch (error) {
-      logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'sending failed', error);
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'sending event failed',
+        error,
+      );
     }
   };
 }
