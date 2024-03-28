@@ -8,18 +8,21 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSString *hostName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"HostName"];
+    NSString *mainPublicKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"MainPublicKey"];
+    NSString *backupPublicKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"BackupPublicKey"];
   // Initialize TrustKit for SSL pinning
      NSDictionary *trustKitConfig =
      @{
          kTSKSwizzleNetworkDelegates: @YES,
          kTSKPinnedDomains: @{
-             @"managedservices-preprod.rteappbuilder.com" : @{
+            hostName : @{
                  kTSKIncludeSubdomains: @YES,
                  kTSKEnforcePinning: @YES,
                  kTSKDisableDefaultReportUri: @YES,
                  kTSKPublicKeyHashes : @[
-                     @"pCL9CdYsDVWtkF3DktsMyfmuSGsnKNzAraubM/2JawQ=",   
-                     @"18tkPyr2nckv4fgo0dhAkaUtJ2hu2831xlO2SKhq8dg=",    
+                     mainPublicKey,   
+                     backupPublicKey,    
                  ],
              },
          }
