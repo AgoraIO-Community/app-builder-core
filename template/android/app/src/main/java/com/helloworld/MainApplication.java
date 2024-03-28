@@ -9,6 +9,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import java.util.List;
+import com.facebook.react.modules.network.OkHttpClientProvider;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -59,5 +60,7 @@ public class MainApplication extends Application implements ReactApplication {
       DefaultNewArchitectureEntryPoint.load();
     }
     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    SSLPinningFactory sslPinningFactory = new SSLPinningFactory(getApplicationContext());
+    OkHttpClientProvider.setOkHttpClientFactory(sslPinningFactory);
   }  
 }
