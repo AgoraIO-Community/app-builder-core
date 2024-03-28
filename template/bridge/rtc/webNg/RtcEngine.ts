@@ -247,9 +247,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [getRemoteVideoStats] got remote video stats successfully',
-        {
-          data,
-        },
+        data,
       );
       return data && data[id] ? data[id] : null;
     } catch (error) {
@@ -257,9 +255,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [getRemoteVideoStats] Error while getting remote video stats',
-        {
-          error,
-        },
+        error,
       );
       return null;
     }
@@ -284,9 +280,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [setEncoderConfiguration] Error while setting video profile',
-        {
-          error,
-        },
+        error,
       );
     }
   }
@@ -301,18 +295,14 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [createMicrophoneAudioTrack] creating audio track',
-        {
-          data: {audioConfig},
-        },
+        audioConfig,
       );
       let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
       logger.log(
         LogSource.AgoraSDK,
         'API',
         'RTC [createMicrophoneAudioTrack] created audio track successfully',
-        {
-          data: {audioConfig},
-        },
+        audioConfig,
       );
       this.localStream.audio = localAudio;
       this.audioDeviceId = localAudio
@@ -324,9 +314,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [createMicrophoneAudioTrack] Error while creating audio track',
-        {
-          error,
-        },
+        error,
       );
       let audioError = e;
       e.status = {audioError};
@@ -361,7 +349,8 @@ export default class RtcEngine {
         'API',
         'RTC [createMicrophoneAndCameraTracks] creating audio and video tracks',
         {
-          data: {audio: audioConfig, video: videoConfig},
+          audioConfig,
+          videoConfig,
         },
       );
       let [localAudio, localVideo] =
@@ -376,7 +365,8 @@ export default class RtcEngine {
         'API',
         'RTC [createMicrophoneAndCameraTracks] audio and video tracks created successfully',
         {
-          data: {audio: localAudio, video: localVideo},
+          audio,
+          video,
         },
       );
       this.localStream.audio = localAudio;
@@ -406,9 +396,7 @@ export default class RtcEngine {
           LogSource.AgoraSDK,
           'API',
           'RTC [createMicrophoneAudioTrack] creating audio track ',
-          {
-            data: {audio: audioConfig},
-          },
+          audioConfig,
         );
         try {
           localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
@@ -416,18 +404,14 @@ export default class RtcEngine {
             LogSource.AgoraSDK,
             'API',
             'RTC [createMicrophoneAudioTrack] audio track created',
-            {
-              data: {audio: localAudio},
-            },
+            localAudio,
           );
         } catch (eAudio) {
           logger.log(
             LogSource.AgoraSDK,
             'API',
             'RTC [createMicrophoneAudioTrack] Error while creating audio tracks',
-            {
-              error: eAudio,
-            },
+            eAudio,
           );
           logger.log(
             LogSource.AgoraSDK,
@@ -440,9 +424,7 @@ export default class RtcEngine {
             LogSource.AgoraSDK,
             'API',
             'RTC [createMicrophoneAudioTrack] audio track created successfully',
-            {
-              data: {audio: localAudio},
-            },
+            localAudio,
           );
         }
         this.localStream.audio = localAudio;
@@ -455,9 +437,7 @@ export default class RtcEngine {
           LogSource.AgoraSDK,
           'API',
           'RTC [createMicrophoneAudioTrack] Error while creating audio track',
-          {
-            error,
-          },
+          error,
         );
         audioError = error;
       }
@@ -469,27 +449,21 @@ export default class RtcEngine {
             LogSource.AgoraSDK,
             'API',
             'RTC [createCameraVideoTrack] creating video track',
-            {
-              data: {video: videoConfig},
-            },
+            videoConfig,
           );
           localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
           logger.log(
             LogSource.AgoraSDK,
             'API',
             'RTC [createCameraVideoTrack] video track created successfully',
-            {
-              data: {video: localVideo},
-            },
+            localVideo,
           );
         } catch (eVideo) {
           logger.log(
             LogSource.AgoraSDK,
             'API',
             'RTC [createCameraVideoTrack] Error while creating video tracks',
-            {
-              error: eVideo,
-            },
+            eVideo,
           );
           logger.log(
             LogSource.AgoraSDK,
@@ -499,17 +473,18 @@ export default class RtcEngine {
           videoConfig.cameraId = '';
           try {
             localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
-            logger.log(LogSource.AgoraSDK, 'API', 'RTC video track created', {
-              data: {audio: localVideo},
-            });
+            logger.log(
+              LogSource.AgoraSDK,
+              'API',
+              'RTC video track created',
+              localVideo,
+            );
           } catch (error) {
             logger.error(
               LogSource.AgoraSDK,
               'API',
               'RTC [createCameraVideoTrack] Error while creating video track',
-              {
-                error,
-              },
+              error,
             );
             logger.log(
               LogSource.AgoraSDK,
@@ -521,9 +496,7 @@ export default class RtcEngine {
               LogSource.AgoraSDK,
               'Log',
               'RTC [enumerateDevices] media devices available',
-              {
-                data: [...devices] || [],
-              },
+              devices,
             );
             for (let device of devices) {
               if (device.kind === 'videoinput') {
@@ -540,10 +513,8 @@ export default class RtcEngine {
                     'Log',
                     'RTC Camera not available with deviceId',
                     {
-                      data: {
-                        device,
-                        reason: eVideoDevice,
-                      },
+                      device,
+                      reason: eVideoDevice,
                     },
                   );
                 }
@@ -561,9 +532,7 @@ export default class RtcEngine {
           LogSource.AgoraSDK,
           'API',
           'RTC [createCameraVideoTrack] Error while creating video track',
-          {
-            error,
-          },
+          error,
         );
         videoError = error;
       }
@@ -608,9 +577,7 @@ export default class RtcEngine {
             LogSource.AgoraSDK,
             'API',
             'RTC [publish] trying to publish tracks',
-            {
-              data: tracks,
-            },
+            tracks,
           );
           await this.client.publish(tracks);
           logger.log(
@@ -659,9 +626,7 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', user => {
-      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-joined]', {
-        data: {user},
-      });
+      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-joined]', user);
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
         user.uid,
@@ -678,9 +643,7 @@ export default class RtcEngine {
     });
 
     this.client.on('user-left', user => {
-      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-left]', {
-        data: {user},
-      });
+      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-left]', user);
       const uid = user.uid;
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
@@ -690,9 +653,13 @@ export default class RtcEngine {
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription
-      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-published]', {
-        data: {user, mediaType},
-      });
+      logger.log(
+        LogSource.AgoraSDK,
+        'Event',
+        'RTC [user-published]',
+        user,
+        mediaType,
+      );
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           user.uid,
@@ -706,9 +673,8 @@ export default class RtcEngine {
           LogSource.AgoraSDK,
           'API',
           'RTC [subscribe] to track successfully done',
-          {
-            data: {user, mediaType},
-          },
+          user,
+          mediaType,
         );
       }
       // If the subscribed track is an audio track
@@ -749,9 +715,13 @@ export default class RtcEngine {
       }
     });
     this.client.on('user-unpublished', async (user, mediaType) => {
-      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-unpublished]', {
-        data: {user, mediaType},
-      });
+      logger.log(
+        LogSource.AgoraSDK,
+        'Event',
+        'RTC [user-unpublished]',
+        user,
+        mediaType,
+      );
       if (mediaType === 'audio') {
         const {audio, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
@@ -809,9 +779,13 @@ export default class RtcEngine {
 
     // this.client.on('stream-fallback', (evt))
     this.client.on('stream-type-changed', function (uid, streamType) {
-      logger.log(LogSource.AgoraSDK, 'Event', 'RTC [stream-type-changed]', {
-        data: {uid, streamType},
-      });
+      logger.log(
+        LogSource.AgoraSDK,
+        'Event',
+        'RTC [stream-type-changed]',
+        uid,
+        streamType,
+      );
     });
 
     this.client.on(
@@ -846,15 +820,17 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'Event',
         'RTC [stream-message](stt-web: onStreamMessageCallback)',
-        {
-          data: {uid, payload},
-        },
+        uid,
+        payload,
       );
       (this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
     });
 
     logger.log(LogSource.AgoraSDK, 'API', 'RTC [join] trying to join channel', {
-      data: {appId: this.appId, channelName, token, optionalUid},
+      appId: this.appId,
+      channelName,
+      token,
+      optionalUid,
     });
     await this.client.join(
       this.appId,
@@ -980,6 +956,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'Log',
         'RTC [setMuted] Error Be sure to invoke the enableVideo method before calling setMuted method.',
+        e,
       );
     }
   }
@@ -1038,6 +1015,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'Log',
         'RTC  [setEnabled] Error Be sure to invoke the enableVideo method before calling setEnabled method.',
+        e,
       );
     }
   }
@@ -1066,9 +1044,7 @@ export default class RtcEngine {
         `RTC [setEnabled] Error: while ${
           muted ? 'muting' : 'unmuting'
         } remote audio stream of user ${uid}`,
-        {
-          error: e,
-        },
+        e,
       );
     }
   }
@@ -1097,9 +1073,7 @@ export default class RtcEngine {
         `RTC [setEnabled] Error while ${
           muted ? 'muting' : 'unmuting'
         } remote video stream of user ${uid}`,
-        {
-          error: e,
-        },
+        e,
       );
       console.error(e);
     }
@@ -1135,10 +1109,8 @@ export default class RtcEngine {
         'API',
         `RTC [createClient] user and screen client with profile ${profile} created successfully`,
         {
-          data: {
-            client: this.client,
-            screenClient: this.screenClient,
-          },
+          client: this.client,
+          screenClient: this.screenClient,
         },
       );
     } catch (e) {
@@ -1146,9 +1118,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         `RTC [createClient] Error while creating user and screen client with profile ${profile}`,
-        {
-          error: e,
-        },
+        e,
       );
       throw e;
     }
@@ -1209,9 +1179,7 @@ export default class RtcEngine {
         `RTC [setClientRole] Error while doing setClientRole for user and screen client with role ${
           clientRole == ClientRole.Audience ? 'audience' : 'broadcaster'
         }`,
-        {
-          data: e,
-        },
+        e,
       );
       throw e;
     }
@@ -1237,9 +1205,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [setDevice] Error setting camera',
-        {
-          error: e,
-        },
+        e,
       );
       error(e);
     }
@@ -1276,6 +1242,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'Log',
         'RTC Error switching camera on mobile web',
+        e,
       );
       throw e;
     }
@@ -1301,9 +1268,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [setDevice]: Error setting microphone',
-        {
-          error: e,
-        },
+        e,
       );
       error(e);
     }
@@ -1555,9 +1520,7 @@ export default class RtcEngine {
               LogSource.AgoraSDK,
               'Log',
               'RTC [setEncryptionConfig] Error setting encryption for screenshare failed',
-              {
-                error: e,
-              },
+              e,
             );
           }
         }
@@ -1567,10 +1530,8 @@ export default class RtcEngine {
           'API',
           'RTC [createScreenVideoTrack] Trying to create screenshare tracks',
           {
-            data: {
-              config,
-              audio,
-            },
+            config,
+            audio,
           },
         );
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
@@ -1582,9 +1543,7 @@ export default class RtcEngine {
           'API',
           'RTC [createScreenVideoTrack] screenshare tracks created successfully',
           {
-            data: {
-              tracks: [...screenTracks],
-            },
+            tracks: screenTracks,
           },
         );
         if (this.isSingleTrack(screenTracks)) {
@@ -1598,9 +1557,7 @@ export default class RtcEngine {
           LogSource.AgoraSDK,
           'API',
           'RTC [createScreenVideoTrack] Error while creating screenshare tracks',
-          {
-            error: e,
-          },
+          e,
         );
         throw e;
       }
@@ -1610,12 +1567,10 @@ export default class RtcEngine {
         'API',
         'RTC [join] joining channel of screenclient',
         {
-          data: {
-            appId: this.appId,
-            channelName,
-            token,
-            optionalUid,
-          },
+          appId: this.appId,
+          channelName,
+          token,
+          optionalUid,
         },
       );
       await this.screenClient.join(
@@ -1634,11 +1589,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [publish] trying to publish tracks',
-        {
-          data: {
-            screenStream: this.screenStream,
-          },
-        },
+        this.screenStream,
       );
       await this.screenClient.publish(
         this.screenStream.audio
@@ -1649,11 +1600,7 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [publish] screenshare tracks published successfully',
-        {
-          data: {
-            screenStream: this.screenStream,
-          },
-        },
+        this.screenStream,
       );
       this.screenStream.video.on('track-ended', () => {
         (this.eventsMap.get('UserOffline') as callbackType)(
