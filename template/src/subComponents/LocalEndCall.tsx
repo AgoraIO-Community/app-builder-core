@@ -17,6 +17,7 @@ import {useAuth} from '../../src/auth/AuthProvider';
 import {ENABLE_AUTH} from '../../src/auth/config';
 import {useString} from '../../src/utils/useString';
 import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -27,7 +28,11 @@ export interface LocalEndcallProps {
 const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
-    console.log('stopping foreground service');
+    logger.log(
+      LogSource.Internals,
+      'CONTROLS',
+      'Local end call - stopping foreground service, bg audio for android only',
+    );
   }
 };
 

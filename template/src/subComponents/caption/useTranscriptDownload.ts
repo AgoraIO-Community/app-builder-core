@@ -1,6 +1,7 @@
 import {formatTranscriptContent} from './utils';
 import {useCaption} from './useCaption';
 import {useRoomInfo, useContent} from 'customization-api';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
@@ -37,10 +38,19 @@ const useTranscriptDownload = (): {
 
         // revoke download url
         URL.revokeObjectURL(downloadUrl);
-        console.log('Content downloaded successfully.');
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          'content donwloaded successfully',
+        );
         resolve(downloadUrl);
       } catch (error) {
-        console.error('Error downloading content:', error);
+        logger.error(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          'failed to download content',
+          error,
+        );
         reject(error);
       }
     });

@@ -99,6 +99,7 @@ import {
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -673,7 +674,7 @@ const MoreButton = () => {
         await restart(language);
       }
     } catch (error) {
-      console.log('eror in starting stt', error);
+      logger.log(LogSource.Internals, 'STT', 'error in starting stt', error);
     }
   };
 

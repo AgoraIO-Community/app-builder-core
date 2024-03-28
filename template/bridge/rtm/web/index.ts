@@ -19,6 +19,7 @@ import {
 import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
 import RtmClient from 'agora-react-native-rtm';
+import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
 // export {RtmAttribute}
 //
 interface RtmAttributePlaceholder {}
@@ -59,7 +60,7 @@ export default class RtmEngine {
   ]);
   constructor() {
     this.appId = '';
-    console.log('Using RTM Bridge');
+    logger.log(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
   }
 
   on(event: any, listener: any) {
@@ -268,8 +269,8 @@ export default class RtmEngine {
 
   async queryPeersOnlineStatus(uid: Array<String>) {
     let peerArray: Array<any> = [];
-    await this.client.queryPeersOnlineStatus(uid).then((list) => {
-      Object.entries(list).forEach((value) => {
+    await this.client.queryPeersOnlineStatus(uid).then(list => {
+      Object.entries(list).forEach(value => {
         peerArray.push({
           online: value[1],
           uid: value[0],
@@ -306,7 +307,7 @@ export default class RtmEngine {
 
   async replaceLocalUserAttributes(attributes: string[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -316,7 +317,7 @@ export default class RtmEngine {
 
   async setLocalUserAttributes(attributes: string[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -327,7 +328,7 @@ export default class RtmEngine {
 
   async addOrUpdateLocalUserAttributes(attributes: RtmAttribute[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;

@@ -13,6 +13,7 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import {createHook, useCustomization} from 'customization-implementation';
 import {DEFAULT_I18_DATA} from './index';
 import StorageContext from '../components/StorageContext';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export interface LanguageContextInterface {
   languageCode: string;
@@ -30,13 +31,13 @@ const LanguageContext = createContext<LanguageContextInterface>({
 
 const LanguageProvider = (props: LanguagePropsInterface) => {
   const {store, setStore} = useContext(StorageContext);
-  const i18nData = useCustomization((data) => data?.i18n);
+  const i18nData = useCustomization(data => data?.i18n);
 
   //If language code is stored in the localstorage no longer available in fpe data
   //then we will update the localstorage value to default value
   let storedCode =
     i18nData && Array.isArray(i18nData) && i18nData.length
-      ? i18nData?.find((item) => item.locale === store.selectedLanguageCode)
+      ? i18nData?.find(item => item.locale === store.selectedLanguageCode)
         ? store.selectedLanguageCode
         : undefined
       : undefined;
@@ -51,7 +52,7 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
 
   useEffect(() => {
     if (setStore) {
-      setStore((prevState) => {
+      setStore(prevState => {
         return {
           ...prevState,
           selectedLanguageCode: languageCode,
@@ -63,7 +64,7 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
   useEffect(() => {
     let storedCode =
       i18nData && Array.isArray(i18nData) && i18nData.length
-        ? i18nData?.find((item) => item.locale === store.selectedLanguageCode)
+        ? i18nData?.find(item => item.locale === store.selectedLanguageCode)
           ? store.selectedLanguageCode
           : undefined
         : undefined;
@@ -77,6 +78,11 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
   }, [i18nData]);
 
   const setLanguageCode = (langCode: string) => {
+    logger.log(
+      LogSource.Internals,
+      'LANGUAGE',
+      `Language selected ${langCode}`,
+    );
     setLanguageCodeLocal(langCode);
   };
 

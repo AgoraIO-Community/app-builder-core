@@ -8,6 +8,7 @@ import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
 import {capitalizeFirstLetter} from '../../utils/common';
 import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -42,23 +43,31 @@ const useSTTAPI = (): IuseSTTAPI => {
   }, [language]);
 
   const apiCall = async (method: string, lang: LanguageType[] = []) => {
-    const response = await fetch(`${STT_API_URL}/${method}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store.token ? `Bearer ${store.token}` : '',
-      },
-      body: JSON.stringify({
-        passphrase: roomId?.host || '',
-        lang: lang,
-        dataStream_uid: 111111, // bot ID
-        encryption_mode: $config.ENCRYPTION_ENABLED
-          ? rtcProps.encryption.mode
-          : null,
-      }),
-    });
-    const res = await response.json();
-    return res;
+    logger.log(
+      LogSource.NetworkRest,
+      'stt',
+      `Trying to ${method} stt for lang ${lang}`,
+    );
+    try {
+      const response = await fetch(`${STT_API_URL}/${method}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+        },
+        body: JSON.stringify({
+          passphrase: roomId?.host || '',
+          lang: lang,
+          dataStream_uid: 111111, // bot ID
+          encryption_mode: $config.ENCRYPTION_ENABLED
+            ? rtcProps.encryption.mode
+            : null,
+        }),
+      });
+      const res = await response.json();
+
+      return res;
+    } catch (error) {}
   };
 
   const startWithDelay = (lang: LanguageType[]): Promise<string> =>
@@ -81,7 +90,19 @@ const useSTTAPI = (): IuseSTTAPI => {
 
       if (res?.error?.message) {
         setIsSTTError(true);
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          `start stt for lang ${lang} failed`,
+          res?.error?.message,
+        );
       } else {
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          `start stt for lang ${lang} succesfull`,
+          res,
+        );
         setIsSTTError(false);
       }
       if (res === null || isSTTAlreadyActive) {
@@ -92,8 +113,11 @@ const useSTTAPI = (): IuseSTTAPI => {
           PersistanceLevel.Sender,
         );
         setIsSTTActive(true);
-
-        console.log(`stt lang update from: ${language} to ${lang}`);
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          `stt lang update from: ${language} to ${lang}`,
+        );
         // inform about the language set for stt
         events.send(
           EventNames.STT_LANGUAGE,
@@ -129,6 +153,12 @@ const useSTTAPI = (): IuseSTTAPI => {
       }
       return res;
     } catch (errorMsg) {
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        'There was error in start stt',
+        errorMsg,
+      );
       throw errorMsg;
     } finally {
       setIsLangChangeInProgress(false);
@@ -148,10 +178,17 @@ const useSTTAPI = (): IuseSTTAPI => {
       if (res?.error?.message) {
         setIsSTTError(true);
       } else {
+        logger.log(LogSource.NetworkRest, 'stt', 'stop stt succesfull', res);
         setIsSTTError(false);
       }
       return res;
     } catch (error) {
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        'There was error in stop stt',
+        error,
+      );
       throw error;
     }
   };
@@ -162,7 +199,12 @@ const useSTTAPI = (): IuseSTTAPI => {
       await startWithDelay(lang);
       return Promise.resolve();
     } catch (error) {
-      console.log('error in re-starting STT', error);
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        'There was error error in re-starting STT',
+        error,
+      );
       return Promise.reject(error);
     } finally {
       setIsLangChangeInProgress(false);

@@ -45,6 +45,7 @@ import {
   sttDownloadTranscriptBtnText,
   sttTranscriptPanelHeaderText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -277,10 +278,15 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     if (langChanged) {
       restart(language)
         .then(() => {
-          console.log('stt restarted successfully');
+          logger.log(LogSource.Internals, 'STT', 'stt restarted successfully');
         })
         .catch(error => {
-          console.log('Error in restarting', error);
+          logger.error(
+            LogSource.Internals,
+            'STT',
+            'Error in restarting',
+            error,
+          );
           // Handle the error case
         });
     }

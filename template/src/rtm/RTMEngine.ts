@@ -50,9 +50,11 @@ class RTMEngine {
 
     return RTMEngine._instance;
   }
+
   setLocalUID(localUID: string) {
     this.localUID = localUID;
   }
+
   setChannelId(channelID: string) {
     this.channelId = channelID;
   }
@@ -61,12 +63,15 @@ class RTMEngine {
     this.localUID = localUID;
     this.channelId = channelID;
   }
+
   get localUid() {
     return this.localUID;
   }
+
   get channelUid() {
     return this.channelId;
   }
+
   async destroy() {
     try {
       await this.destroyClientInstance();

@@ -2,6 +2,7 @@ import {Linking, Platform} from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {getOriginURL, getPlatformId, AUTH_ENDPOINT_URL} from './config';
 import RNExitApp from 'react-native-exit-app';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export const getDeepLinkURI = (path = '') => {
   const scheme = $config.PRODUCT_ID?.toLowerCase();
@@ -20,7 +21,7 @@ export const getIDPAuthLoginURL = () => {
   )}&platform_id=${getPlatformId()}`;
 };
 
-export const enableIDPAuth = async (openDeepLink) => {
+export const enableIDPAuth = async openDeepLink => {
   try {
     const URL = getIDPAuthLoginURL();
     if (await InAppBrowser.isAvailable()) {
@@ -38,7 +39,12 @@ export const enableIDPAuth = async (openDeepLink) => {
       Linking.openURL(URL);
     }
   } catch (error) {
-    console.log(error.message);
+    logger.error(
+      LogSource.Internals,
+      'AUTH',
+      'failed to open IDP URL native',
+      error?.message,
+    );
   }
 };
 
@@ -46,6 +52,11 @@ export const exitApp = () => {
   try {
     RNExitApp.exitApp();
   } catch (error) {
-    console.log('Error on closing the app', error);
+    logger.error(
+      LogSource.Internals,
+      'AUTH',
+      'Error on closing the app',
+      error,
+    );
   }
 };
