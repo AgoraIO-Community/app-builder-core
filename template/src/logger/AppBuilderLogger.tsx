@@ -36,7 +36,6 @@ type LogType = {
     | 'ENTER_MEETING_ROOM'
     | 'JOIN_MEETING'
     | 'PRECALL_SCREEN'
-    | 'SELECT_DEVICE'
     | 'DEVICE_CONFIGURE'
     | 'LOCAL_MUTE'
     | 'VIRTUAL_BACKGROUND'
@@ -136,7 +135,8 @@ class AppBuilderLogger implements Logger {
   debug: LogFn;
   error: LogFn;
 
-  constructor(contextInfo?: Partial<ContextInfo>, _customTransport?: any) {
+  constructor(_customTransport?: any) {
+    const session = nanoid();
     const logger =
       (status: StatusType) =>
       <T extends LogSource>(
@@ -149,34 +149,21 @@ class AppBuilderLogger implements Logger {
           return;
         }
         const context = {
-          session_id: nanoid(),
           timestamp: Date.now(),
           source,
           type,
           data,
           contextInfo: {
-            appInfo: {
-              env: 'development',
-              timestamp: Date.now(),
-              session_id: nanoid(),
-              region: '',
-              app_id: $config.APP_ID,
-              project_id: $config.PROJECT_ID,
-              vertical: vertical_name,
-              core_version,
-              ...contextInfo,
-            },
+            env: 'development',
+            session_id: session,
+            app_id: $config.APP_ID,
+            project_id: $config.PROJECT_ID,
+            core_version,
           },
         };
-        const consoleHeader =
-          source === LogSource.AgoraSDK
-            ? `%c${source}:[${type}] `
-            : `%cApp-Builder: ${source}:[${type}] `;
 
-        const consoleCSS =
-          source === LogSource.AgoraSDK
-            ? 'color: rgb(9, 157, 253); font-weight: bold'
-            : 'color: violet; font-weight: bold';
+        const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
+        const consoleCSS = 'color: violet; font-weight: bold';
 
         _customTransport
           ? _customTransport(logMessage, context, status)

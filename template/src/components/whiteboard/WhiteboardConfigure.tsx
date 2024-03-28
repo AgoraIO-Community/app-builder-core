@@ -164,11 +164,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         LogSource.Internals,
         'WHITEBOARD',
         'error on whiteboard setWritable',
-        {
-          data: {
-            error,
-          },
-        },
+        error,
       );
     }
   }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
@@ -371,19 +367,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
-          logger.error(LogSource.Internals, 'WHITEBOARD', 'Join room error', {
-            data: {
-              error: err,
-            },
-          });
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room error',
+            err,
+          );
         });
     } catch (err) {
       setWhiteboardRoomState(InitState);
-      logger.error(LogSource.Internals, 'WHITEBOARD', 'Join room error', {
-        data: {
-          error: err,
-        },
-      });
+      logger.error(LogSource.Internals, 'WHITEBOARD', 'Join room error', err);
     }
   };
 
@@ -400,19 +393,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
-          logger.error(LogSource.Internals, 'WHITEBOARD', 'leave room error', {
-            data: {
-              error: err,
-            },
-          });
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'leave room error',
+            err,
+          );
         });
     } catch (err) {
       setWhiteboardRoomState(InitState);
-      logger.error(LogSource.Internals, 'WHITEBOARD', 'leave room error', {
-        data: {
-          error: err,
-        },
-      });
+      logger.error(LogSource.Internals, 'WHITEBOARD', 'leave room error', err);
     }
   };
 

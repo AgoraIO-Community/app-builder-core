@@ -341,11 +341,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 LogSource.NetworkRest,
                 'whiteboard_fileconvert',
                 'file convert success',
-                {
-                  data: {
-                    response: res2,
-                  },
-                },
+                res2,
               );
               //updating upload flag as true
               //once we got RTM message we will proceed to insert image into whiteboard
@@ -356,11 +352,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 LogSource.NetworkRest,
                 'whiteboard_fileconvert',
                 'file convert failed',
-                {
-                  data: {
-                    error: err2,
-                  },
-                },
+                err2,
               );
               Toast.show({
                 type: 'error',
@@ -428,11 +420,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 LogSource.NetworkRest,
                 'whiteboard_image',
                 'image upload success',
-                {
-                  data: {
-                    response: res2,
-                  },
-                },
+                res2,
               );
             })
             .catch(err2 => {
@@ -440,11 +428,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 LogSource.NetworkRest,
                 'whiteboard_image',
                 'Failed to get image URL',
-                {
-                  data: {
-                    error: err2,
-                  },
-                },
+                err2,
               );
               Toast.show({
                 type: 'error',
@@ -518,11 +502,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               LogSource.NetworkRest,
               'whiteboard_upload',
               'upload api failed',
-              {
-                data: {
-                  error: err,
-                },
-              },
+              err,
             );
             Toast.show({
               type: 'error',

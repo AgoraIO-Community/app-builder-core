@@ -70,9 +70,7 @@ const downloadBase64Image = async (base64Data, filename) => {
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'Error saving base64 image',
-      {
-        error,
-      },
+      error,
     );
     return null;
   }
@@ -100,9 +98,7 @@ const VBProvider: React.FC = ({children}) => {
           LogSource.Internals,
           'VIRTUAL_BACKGROUND',
           'retrived from async storage',
-          {
-            data: customImages,
-          },
+          customImages,
         );
         setOptions((prevOptions: Option[]) => [
           ...prevOptions,
@@ -121,9 +117,7 @@ const VBProvider: React.FC = ({children}) => {
           LogSource.Internals,
           'VIRTUAL_BACKGROUND',
           'Error fetching data',
-          {
-            error,
-          },
+          error,
         );
       }
     };

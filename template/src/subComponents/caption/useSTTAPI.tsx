@@ -94,22 +94,14 @@ const useSTTAPI = (): IuseSTTAPI => {
           LogSource.NetworkRest,
           'stt',
           `start stt for lang ${lang} failed`,
-          {
-            data: {
-              error: res?.error?.message,
-            },
-          },
+          res?.error?.message,
         );
       } else {
         logger.log(
           LogSource.NetworkRest,
           'stt',
           `start stt for lang ${lang} succesfull`,
-          {
-            data: {
-              response: res,
-            },
-          },
+          res,
         );
         setIsSTTError(false);
       }
@@ -165,11 +157,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         LogSource.NetworkRest,
         'stt',
         'There was error in start stt',
-        {
-          data: {
-            error: errorMsg,
-          },
-        },
+        errorMsg,
       );
       throw errorMsg;
     } finally {
@@ -190,11 +178,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       if (res?.error?.message) {
         setIsSTTError(true);
       } else {
-        logger.log(LogSource.NetworkRest, 'stt', 'stop stt succesfull', {
-          data: {
-            response: res,
-          },
-        });
+        logger.log(LogSource.NetworkRest, 'stt', 'stop stt succesfull', res);
         setIsSTTError(false);
       }
       return res;
@@ -203,11 +187,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         LogSource.NetworkRest,
         'stt',
         'There was error in stop stt',
-        {
-          data: {
-            error: error,
-          },
-        },
+        error,
       );
       throw error;
     }
@@ -223,11 +203,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         LogSource.NetworkRest,
         'stt',
         'There was error error in re-starting STT',
-        {
-          data: {
-            error: error,
-          },
-        },
+        error,
       );
       return Promise.reject(error);
     } finally {

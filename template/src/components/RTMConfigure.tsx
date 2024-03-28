@@ -169,7 +169,7 @@ const RtmConfigure = (props: any) => {
         'API',
         'RTM setting local user attributes',
         {
-          data: rtmAttributes,
+          attr: rtmAttributes,
         },
       );
       timerValueRef.current = 5;
@@ -184,7 +184,7 @@ const RtmConfigure = (props: any) => {
         'Log',
         'RTM queued events finished running',
         {
-          data: rtmAttributes,
+          attr: rtmAttributes,
         },
       );
     } catch (error) {
@@ -208,9 +208,12 @@ const RtmConfigure = (props: any) => {
           data: rtcProps.channel,
         });
         RTMEngine.getInstance().setChannelId(rtcProps.channel);
-        logger.log(LogSource.AgoraSDK, 'API', 'RTM setChannelId', {
-          data: rtcProps.channel,
-        });
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          'RTM setChannelId',
+          rtcProps.channel,
+        );
         console.log('Emitting rtm joined');
         SDKEvents.emit('_rtm-joined', rtcProps.channel);
       } else {
@@ -218,9 +221,7 @@ const RtmConfigure = (props: any) => {
           LogSource.AgoraSDK,
           'Log',
           'RTM already joined channel skipping',
-          {
-            data: rtcProps.channel,
-          },
+          rtcProps.channel,
         );
       }
       timerValueRef.current = 5;
@@ -260,9 +261,7 @@ const RtmConfigure = (props: any) => {
             LogSource.AgoraSDK,
             'API',
             'RTM getChannelMembersByID data received',
-            {
-              data,
-            },
+            data,
           );
           await Promise.all(
             data.members.map(async (member: any) => {
@@ -272,9 +271,6 @@ const RtmConfigure = (props: any) => {
                     LogSource.AgoraSDK,
                     'API',
                     `RTM fetching getUserAttributesByUid for member ${member.uid}`,
-                    {
-                      data: attr,
-                    },
                   );
                   const attr = await engine.current.getUserAttributesByUid(
                     member.uid,
@@ -292,7 +288,7 @@ const RtmConfigure = (props: any) => {
                     'API',
                     `RTM getUserAttributesByUid for member ${member.uid} received`,
                     {
-                      data: attr,
+                      attr,
                     },
                   );
                   for (const key in attr.attributes) {
@@ -312,9 +308,7 @@ const RtmConfigure = (props: any) => {
                       LogSource.AgoraSDK,
                       'Log',
                       `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
-                      {
-                        error: e,
-                      },
+                      e,
                     );
                     return true;
                   },
@@ -368,9 +362,7 @@ const RtmConfigure = (props: any) => {
                   LogSource.AgoraSDK,
                   'Log',
                   `Could not retrieve name of ${member.uid}`,
-                  {
-                    error: e,
-                  },
+                  e,
                 );
               }
             }),
@@ -378,7 +370,7 @@ const RtmConfigure = (props: any) => {
           logger.log(
             LogSource.AgoraSDK,
             'Log',
-            'RTM fetched all data and user attr...RTM inirt done',
+            'RTM fetched all data and user attr...RTM init done',
           );
         });
       timerValueRef.current = 5;
@@ -403,18 +395,13 @@ const RtmConfigure = (props: any) => {
       // console.log(evt);
     });
     engine.current.on('channelMemberJoined', (data: any) => {
-      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberJoined', {
-        data,
-      });
+      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberJoined', data);
       const backoffAttributes = backOff(
         async () => {
           logger.log(
             LogSource.AgoraSDK,
             'API',
             `RTM fetching getUserAttributesByUid for member ${data.uid}`,
-            {
-              data: attr,
-            },
           );
           const attr = await engine.current.getUserAttributesByUid(data.uid);
           if (!attr || !attr.attributes) {
@@ -430,7 +417,7 @@ const RtmConfigure = (props: any) => {
             'API',
             `RTM getUserAttributesByUid for member ${data.uid} received`,
             {
-              data: attr,
+              attr,
             },
           );
           for (const key in attr.attributes) {
@@ -447,9 +434,7 @@ const RtmConfigure = (props: any) => {
               LogSource.AgoraSDK,
               'Log',
               `[retrying] Attempt ${idx}. Fetching ${data.uid}'s name`,
-              {
-                error: e,
-              },
+              e,
             );
             return true;
           },
@@ -485,9 +470,7 @@ const RtmConfigure = (props: any) => {
             LogSource.AgoraSDK,
             'Event',
             `Failed to retrive name of ${data.uid}`,
-            {
-              error: e,
-            },
+            e,
           );
         }
       }
@@ -495,9 +478,7 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMemberLeft', (data: any) => {
-      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberLeft', {
-        data,
-      });
+      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberLeft', data);
       // Chat of left user becomes undefined. So don't cleanup
       const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
@@ -508,9 +489,7 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('messageReceived', (evt: any) => {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'messageReceived', {
-        data: evt,
-      });
+      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'messageReceived', evt);
       const {peerId, ts, text} = evt;
       const [err, msg] = safeJsonParse(text);
       if (err) {
@@ -518,9 +497,7 @@ const RtmConfigure = (props: any) => {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'JSON payload incorrect, Error while parsing the payload',
-          {
-            error: err,
-          },
+          err,
         );
       }
 
@@ -535,17 +512,18 @@ const RtmConfigure = (props: any) => {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'error while dispatching through eventDispatcher',
-          {
-            error: err,
-          },
+          err,
         );
       }
     });
 
     engine.current.on('channelMessageReceived', evt => {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'channelMessageReceived', {
-        data: evt,
-      });
+      logger.log(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'channelMessageReceived',
+        evt,
+      );
 
       const {uid, channelId, text, ts} = evt;
       //whiteboard upload
@@ -556,9 +534,7 @@ const RtmConfigure = (props: any) => {
             LogSource.Events,
             'CUSTOM_EVENTS',
             'JSON payload incorrect, Error while parsing the payload',
-            {
-              error: err,
-            },
+            err,
           );
         }
 
@@ -575,9 +551,7 @@ const RtmConfigure = (props: any) => {
             LogSource.Events,
             'CUSTOM_EVENTS',
             'JSON payload incorrect, Error while parsing the payload',
-            {
-              error: err,
-            },
+            err,
           );
         }
 
@@ -593,9 +567,7 @@ const RtmConfigure = (props: any) => {
               LogSource.Events,
               'CUSTOM_EVENTS',
               'error while dispatching through eventDispatcher',
-              {
-                error: error,
-              },
+              error,
             );
           }
         }
@@ -615,9 +587,7 @@ const RtmConfigure = (props: any) => {
         LogSource.Events,
         'CUSTOM_EVENTS',
         'error while running queue events',
-        {
-          error,
-        },
+        error,
       );
     }
   };
@@ -630,9 +600,12 @@ const RtmConfigure = (props: any) => {
     sender: string,
     ts: number,
   ) => {
-    logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'inside eventDispatcher ', {
+    logger.log(
+      LogSource.Events,
+      'CUSTOM_EVENTS',
+      'inside eventDispatcher ',
       data,
-    });
+    );
 
     let evt = '',
       value = {};
@@ -717,9 +690,7 @@ const RtmConfigure = (props: any) => {
         LogSource.Events,
         'CUSTOM_EVENTS',
         'error while emiting event:',
-        {
-          error,
-        },
+        error,
       );
     }
   };

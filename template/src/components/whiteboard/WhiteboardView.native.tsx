@@ -33,22 +33,26 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
     onPhaseChanged: e =>
-      logger.log(LogSource.Internals, 'WHITEBOARD', 'onPhaseChanged changed:', {
-        data: e,
-      }),
+      logger.log(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'onPhaseChanged changed:',
+        e,
+      ),
     onRoomStateChanged: e =>
       logger.log(
         LogSource.Internals,
         'WHITEBOARD',
         'onRoomStateChanged changed:',
-        {
-          data: e,
-        },
+        e,
       ),
     onDisconnectWithError: e =>
-      logger.log(LogSource.Internals, 'WHITEBOARD', 'onDisconnectWithError:', {
-        data: e,
-      }),
+      logger.log(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'onDisconnectWithError:',
+        e,
+      ),
   };
 
   const sdkCallbacks = {
@@ -57,9 +61,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
         LogSource.Internals,
         'WHITEBOARD',
         'whiteboard sdk setup fail:',
-        {
-          error,
-        },
+        error,
       ),
   };
 
@@ -76,9 +78,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
         LogSource.Internals,
         'WHITEBOARD',
         'joinRoomCallback error:',
-        {
-          error,
-        },
+        error,
       );
     } else {
       try {
@@ -88,9 +88,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
           LogSource.Internals,
           'WHITEBOARD',
           'error on whiteboard setMemberState',
-          {
-            error,
-          },
+          error,
         );
       }
     }

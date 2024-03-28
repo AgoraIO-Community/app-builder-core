@@ -115,10 +115,8 @@ const Join = () => {
     logger.log(
       LogSource.Internals,
       'JOIN_MEETING',
-      'User wantes to join meeting',
-      {
-        data: phrase,
-      },
+      'User wants to join meeting',
+      phrase,
     );
     apiJoinCall(phrase)
       .then(() => {
@@ -127,9 +125,7 @@ const Join = () => {
           LogSource.Internals,
           'JOIN_MEETING',
           'Navigating the user to precall screen or video call screen depending upon the project config',
-          {
-            data: phrase,
-          },
+          phrase,
         );
         history.push(phrase);
       })

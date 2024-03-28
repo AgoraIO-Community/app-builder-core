@@ -68,10 +68,8 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   customEvents: customEvents,
   joinRoom: async (roomDetails, userName) => {
     logger.log(LogSource.SDK, 'Event', 'emiting event for joinRoom - join', {
-      data: {
-        room: roomDetails,
-        userName: userName,
-      },
+      room: roomDetails,
+      userName: userName,
     });
     return await SDKMethodEventsManager.emit(
       'join',
@@ -82,10 +80,8 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   },
   joinPrecall: async (roomDetails, userName) => {
     logger.log(LogSource.SDK, 'Event', 'emiting event for joinPrecall - join', {
-      data: {
-        room: roomDetails,
-        userName: userName,
-      },
+      room: roomDetails,
+      userName: userName,
     });
     if (!$config.PRECALL) {
       logger.error(
@@ -107,23 +103,38 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     ];
   },
   setMicrophone: async deviceId => {
-    logger.log(LogSource.SDK, 'Event', 'emiting event - microphoneDevice');
+    logger.log(
+      LogSource.SDK,
+      'Event',
+      'emiting event - microphoneDevice',
+      deviceId,
+    );
     return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
   },
   setSpeaker: async deviceId => {
-    logger.log(LogSource.SDK, 'Event', 'emiting event - speakerDevice');
+    logger.log(
+      LogSource.SDK,
+      'Event',
+      'emiting event - speakerDevice',
+      deviceId,
+    );
     return await SDKMethodEventsManager.emit('speakerDevice', deviceId);
   },
   setCamera: async deviceId => {
-    logger.log(LogSource.SDK, 'Event', 'emiting event - cameraDevice');
+    logger.log(
+      LogSource.SDK,
+      'Event',
+      'emiting event - cameraDevice',
+      deviceId,
+    );
     return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
   },
   muteAudio: async state => {
-    logger.log(LogSource.SDK, 'Event', 'emiting event - muteAudio');
+    logger.log(LogSource.SDK, 'Event', 'emiting event - muteAudio', state);
     return await SDKMethodEventsManager.emit('muteAudio', state);
   },
   muteVideo: async state => {
-    logger.log(LogSource.SDK, 'Event', 'emiting event - muteVideo');
+    logger.log(LogSource.SDK, 'Event', 'emiting event - muteVideo', state);
     return await SDKMethodEventsManager.emit('muteVideo', state);
   },
   createCustomization: customize,

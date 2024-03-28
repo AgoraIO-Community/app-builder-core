@@ -345,9 +345,7 @@ const Precall = () => {
           LogSource.Internals,
           'PRECALL_SCREEN',
           'fetching available devices',
-          {
-            data: [...devices],
-          },
+          devices,
         );
         SDKEvents.emit('ready-to-join', meetingTitle, devices);
       });

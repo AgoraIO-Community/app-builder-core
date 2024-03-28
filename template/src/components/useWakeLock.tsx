@@ -26,9 +26,7 @@ const useWakeLock = () => {
             LogSource.Internals,
             'VIDEO_CALL_ROOM',
             'error enabling sleep',
-            {
-              error: e,
-            },
+            e,
           );
         });
     }, []);

@@ -49,9 +49,7 @@ const useTranscriptDownload = (): {
           LogSource.Internals,
           'TRANSCRIPT',
           'failed to download content',
-          {
-            error: error,
-          },
+          error,
         );
         reject(error);
       }

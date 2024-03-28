@@ -52,11 +52,7 @@ export const IDPAuth = () => {
             LogSource.Internals,
             'AUTH',
             'error on IDP token setting',
-            {
-              data: {
-                error,
-              },
-            },
+            error,
           );
         });
     } else {

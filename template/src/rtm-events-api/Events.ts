@@ -118,18 +118,14 @@ class Events {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'send event case 1 error',
-          {error},
+          error,
         );
         throw error;
       }
     }
     // Case 2: send to indivdual
     if (typeof to === 'number' && to !== 0) {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 2 executed', {
-        data: {
-          to,
-        },
-      });
+      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 2 executed', to);
       const adjustedUID = adjustUID(to);
       try {
         await rtmEngine.sendMessageToPeer({
@@ -142,18 +138,14 @@ class Events {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'send event case 2 error',
-          {error},
+          error,
         );
         throw error;
       }
     }
     // Case 3: send to multiple individuals
     if (typeof to === 'object' && Array.isArray(to)) {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 3 executed', {
-        data: {
-          to,
-        },
-      });
+      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'case 3 executed', to);
       try {
         for (const uid of to) {
           const adjustedUID = adjustUID(uid);
@@ -168,7 +160,7 @@ class Events {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'send event case 3 error',
-          {error},
+          error,
         );
         throw error;
       }
@@ -193,16 +185,19 @@ class Events {
       logger.log(
         LogSource.Events,
         'CUSTOM_EVENTS',
-        `event listener registered with name -${eventName} `,
+        `event registered with name -> ${eventName} `,
       );
       return () => {
         //@ts-ignore
         EventUtils.removeListener(eventName, listener, this.source);
       };
     } catch (error) {
-      logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'events.on - error', {
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Error: events.on',
         error,
-      });
+      );
     }
   };
 
@@ -233,9 +228,12 @@ class Events {
         EventUtils.removeAll(this.source);
       }
     } catch (error) {
-      logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'events.off error', {
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Error: events.off',
         error,
-      });
+      );
     }
   };
 
@@ -277,17 +275,13 @@ class Events {
       try {
         await this._persist(eventName, persistValue);
       } catch (error) {
-        logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', {
-          error,
-        });
+        logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', error);
       }
     }
     try {
       await this._send(rtmPayload, receiver);
     } catch (error) {
-      logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'sending failed', {
-        error,
-      });
+      logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'sending failed', error);
     }
   };
 }

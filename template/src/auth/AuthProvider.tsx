@@ -195,7 +195,12 @@ const AuthProvider = (props: AuthProviderProps) => {
             history.push(url);
           }
         } catch (error) {
-          logger.error(LogSource.Internals, 'AUTH', 'deep-linking error catch');
+          logger.error(
+            LogSource.Internals,
+            'AUTH',
+            'deep-linking error catch',
+            error,
+          );
           history.push('/');
         }
       } else {
@@ -341,11 +346,12 @@ const AuthProvider = (props: AuthProviderProps) => {
             setIsAuthenticated(true);
           }
         })
-        .catch(() => {
-          logger.log(
+        .catch(error => {
+          logger.error(
             LogSource.NetworkRest,
             'user_details',
             'API user details query failed. User is un-authenticated',
+            error,
           );
           setIsAuthenticated(false);
           authLogin();
@@ -398,9 +404,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             LogSource.NetworkRest,
             'idp_login',
             'API idp_login authentication successful',
-            {
-              data: response,
-            },
+            response,
           );
           if (isAndroid() || isIOS()) {
             if (response && response?.showNativePopup) {
@@ -425,9 +429,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               LogSource.NetworkRest,
               'token_login',
               'API token_login User Authenticated successfully',
-              {
-                data: res,
-              },
+              res,
             );
             setIsAuthenticated(true);
             history.push('/create');
@@ -440,9 +442,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               LogSource.NetworkRest,
               'token_login',
               'API token_login failed. There was an error',
-              {
-                data: error,
-              },
+              error,
             );
             if (!isSDK()) {
               if (error instanceof Error) {
@@ -480,9 +480,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             LogSource.NetworkRest,
             'unauth_login',
             'API unauth_login authentication successful. User is logged in.',
-            {
-              data: response.token || null,
-            },
+            response.token,
           );
           if (!response.token) {
             logger.error(
@@ -519,9 +517,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             LogSource.NetworkRest,
             'unauth_login',
             'API unauth_login failed. There was an error',
-            {
-              data: error,
-            },
+            error,
           );
           if (error instanceof Error) {
             setAuthError(error.message);
@@ -547,9 +543,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             LogSource.NetworkRest,
             'idp_logout',
             'API idp_logout User logged out successfully',
-            {
-              data: res,
-            },
+            res,
           );
           setIsAuthenticated(false);
         })
@@ -559,7 +553,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             LogSource.NetworkRest,
             'idp_logout',
             'API idp_logout failed. There was an error',
-            {data: error},
+            error,
           );
           console.error('user logout failed');
           setAuthError('Error occured on Logout, please try again.');
@@ -594,9 +588,7 @@ const AuthProvider = (props: AuthProviderProps) => {
               LogSource.NetworkRest,
               'token_logout',
               'API token_logout failed. There was an error',
-              {
-                data: error,
-              },
+              error,
             );
             setAuthError('Error occured on Logout, please try again.');
           })

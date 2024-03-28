@@ -19,9 +19,7 @@ export const saveImagesToAsyncStorage = async (
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'Error saving image to AsyncStorage',
-      {
-        error,
-      },
+      error,
     );
   }
 };
@@ -43,9 +41,7 @@ export const retrieveImagesFromAsyncStorage = async (): Promise<string[]> => {
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'Retrieved images from AsyncStorage:',
-      {
-        data: retrievedImages,
-      },
+      retrievedImages,
     );
     return retrievedImages;
   } catch (error) {
@@ -53,9 +49,7 @@ export const retrieveImagesFromAsyncStorage = async (): Promise<string[]> => {
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'IError retrieving image from AsyncStorage',
-      {
-        error,
-      },
+      error,
     );
     throw error;
   }

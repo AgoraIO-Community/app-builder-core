@@ -71,6 +71,7 @@ import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 enum RnEncryptionEnum {
   /**
@@ -174,7 +175,7 @@ const VideoCall: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
-      console.log('Videocall unmounted');
+      logger.log(LogSource.Internals, 'VIDEO_CALL_ROOM', 'Videocall unmounted');
       setRoomInfo(RoomInfoDefaultValue);
       if (awake) {
         release();

@@ -60,9 +60,7 @@ const useIsLocalUserSpeaking = () => {
         LogSource.Internals,
         'ACTIVE_SPEAKER',
         'Error on stopping the hark',
-        {
-          error,
-        },
+        error,
       );
     }
     try {
@@ -82,9 +80,7 @@ const useIsLocalUserSpeaking = () => {
         LogSource.Internals,
         'ACTIVE_SPEAKER',
         'Error on starting the hark',
-        {
-          error,
-        },
+        error,
       );
     }
   };
@@ -106,9 +102,7 @@ const useIsLocalUserSpeaking = () => {
             LogSource.Internals,
             'ACTIVE_SPEAKER',
             'couldnt stop the track',
-            {
-              error,
-            },
+            error,
           );
         }
       };

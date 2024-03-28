@@ -281,11 +281,12 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
           logger.log(LogSource.Internals, 'STT', 'stt restarted successfully');
         })
         .catch(error => {
-          logger.error(LogSource.Internals, 'STT', 'Error in restarting', {
-            data: {
-              error,
-            },
-          });
+          logger.error(
+            LogSource.Internals,
+            'STT',
+            'Error in restarting',
+            error,
+          );
           // Handle the error case
         });
     }

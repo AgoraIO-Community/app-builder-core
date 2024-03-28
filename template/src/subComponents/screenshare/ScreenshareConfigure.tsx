@@ -307,11 +307,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       'SCREENSHARE',
       `${isActive ? 'starting' : 'stopping'}  screenshare`,
       {
-        data: {
-          channel,
-          screenShareUid,
-          encryption,
-        },
+        channel,
+        screenShareUid,
+        encryption,
       },
     );
     try {
@@ -356,9 +354,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         LogSource.Internals,
         'SCREENSHARE',
         'failed to start screen share',
-        {
-          error: e,
-        },
+        e,
       );
       executeNormalQuery();
       Toast.show({

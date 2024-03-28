@@ -42,11 +42,9 @@ export default function useCreateRoom(): createRoomFun {
       'createChannel',
       'API createChannel. Trying to create room',
       {
-        data: {
-          roomTitle,
-          enablePSTN,
-          isSeparateHostLink,
-        },
+        roomTitle,
+        enablePSTN,
+        isSeparateHostLink,
       },
     );
     const res = await createChannel({
@@ -64,9 +62,7 @@ export default function useCreateRoom(): createRoomFun {
         LogSource.NetworkRest,
         'createChannel',
         'API createChannel failed. There was an error',
-        {
-          data: error,
-        },
+        error,
       );
       throw error;
     }
@@ -75,9 +71,7 @@ export default function useCreateRoom(): createRoomFun {
         LogSource.NetworkRest,
         'createChannel',
         'API createChannel. Channel created successfully',
-        {
-          data: res,
-        },
+        res.data.createChannel,
       );
       let roomInfo: Partial<RoomInfoContextInterface['data']> = {
         roomId: {
@@ -97,15 +91,11 @@ export default function useCreateRoom(): createRoomFun {
         };
       }
       logger.log(LogSource.Internals, 'CREATE_MEETING', 'Room created', {
-        data: {
-          roomInfo: {
-            isHost: true,
-            isSeparateHostLink: isSeparateHostLink ? true : false,
-            meetingTitle: roomTitle,
-            roomId: roomInfo?.roomId,
-            pstn: roomInfo?.pstn,
-          },
-        },
+        isHost: true,
+        isSeparateHostLink: isSeparateHostLink ? true : false,
+        meetingTitle: roomTitle,
+        roomId: roomInfo?.roomId,
+        pstn: roomInfo?.pstn,
       });
       setRoomInfo({
         data: {

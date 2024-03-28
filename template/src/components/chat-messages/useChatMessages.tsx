@@ -610,11 +610,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       LogSource.Internals,
       'CHAT',
       `sending ${toUid ? 'private' : 'public'} chat message..`,
-      {
-        data: {
-          text: msg,
-        },
-      },
+      msg,
     );
     if (toUid) {
       const messageData = {
@@ -659,10 +655,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       'CHAT',
       `editing ${toUid ? 'private' : 'public'} chat message..`,
       {
-        data: {
-          id: msgId,
-          text: msg,
-        },
+        msgId,
+        msg,
       },
     );
     if (toUid) {
@@ -698,10 +692,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           'CHAT',
           "You don't have permission to edit",
           {
-            data: {
-              id: msgId,
-              text: msg,
-            },
+            msgId,
+            msg,
           },
         );
       }
@@ -736,10 +728,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           'CHAT',
           "You don't have permission to edit",
           {
-            data: {
-              id: msgId,
-              text: msg,
-            },
+            msgId,
+            msg,
           },
         );
       }
@@ -752,9 +742,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       'CHAT',
       `deleting ${toUid ? 'private' : 'public'} chat message..`,
       {
-        data: {
-          id: msgId,
-        },
+        msgId,
       },
     );
     if (toUid) {
@@ -790,9 +778,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           'CHAT',
           "You don't have permission to delete",
           {
-            data: {
-              id: msgId,
-            },
+            msgId,
           },
         );
       }
@@ -827,9 +813,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           'CHAT',
           "You don't have permission to delete",
           {
-            data: {
-              id: msgId,
-            },
+            msgId,
           },
         );
       }

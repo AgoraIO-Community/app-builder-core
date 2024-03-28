@@ -67,9 +67,7 @@ export const saveImagesToIndexDB = async (
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'Error saving images to IndexedDB',
-      {
-        error,
-      },
+      error,
     );
   }
 };
@@ -104,9 +102,7 @@ export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
         LogSource.Internals,
         'VIRTUAL_BACKGROUND',
         'Error retrieving images from IndexedDB',
-        {
-          error,
-        },
+        error,
       );
       reject(error);
     }

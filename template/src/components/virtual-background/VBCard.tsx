@@ -98,10 +98,8 @@ const VBCard: React.FC<VBCardProps> = ({
         'VIRTUAL_BACKGROUND',
         'check if file is less than 1MB amd type is image/jpeg or image/png',
         {
-          data: {
-            size: selectedFile.size,
-            type: selectedFile.type,
-          },
+          size: selectedFile.size,
+          type: selectedFile.type,
         },
       );
       if (selectedFile.size <= 1024 * 1024 * 1) {

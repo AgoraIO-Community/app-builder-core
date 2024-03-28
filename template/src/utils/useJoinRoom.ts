@@ -119,9 +119,7 @@ export default function useJoinRoom() {
           `API ${
             isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
           } failed.`,
-          {
-            data: response?.error,
-          },
+          response?.error,
         );
         throw response.error;
       } else {
@@ -133,9 +131,7 @@ export default function useJoinRoom() {
             `API to ${
               isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
             } successful.`,
-            {
-              data: phrase,
-            },
+            phrase,
           );
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
 

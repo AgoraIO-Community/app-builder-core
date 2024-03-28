@@ -211,9 +211,7 @@ const Create = () => {
           LogSource.Internals,
           'CREATE_MEETING',
           'There was error while creating meeting',
-          {
-            data: error,
-          },
+          error,
         );
         if (
           createRoomErrorToastHeadingText ||
