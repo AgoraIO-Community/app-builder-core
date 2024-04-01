@@ -927,7 +927,7 @@ export default class RtcEngine {
         logger.log(
           LogSource.AgoraSDK,
           'API',
-          `RTC [setMuted] trying on audio track with value - ${muted}`,
+          `RTC [setMuted] on audio track with value - ${muted}`,
         );
         await this.localStream.audio?.setMuted(muted);
         logger.log(
