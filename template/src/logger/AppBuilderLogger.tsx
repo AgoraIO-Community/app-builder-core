@@ -1,9 +1,7 @@
 import {nanoid} from 'nanoid';
-import {
-  version as core_version,
-  name as vertical_name,
-} from '../../../package.json';
-import {RoomData as RoomInfo} from '../components/room-info/useRoomInfo';
+import pkg from '../../package.json';
+import {isWeb} from '../utils/common';
+import {version as cli_version} from '../../../package.json';
 
 export declare const StatusTypes: {
   readonly debug: 'debug';
@@ -73,41 +71,6 @@ type LogType = {
   [LogSource.SDK]: 'Log' | 'Event';
 };
 
-/** The App environment */
-export type Environment = 'development' | 'production';
-
-interface AppInfo {
-  env: string;
-  timestamp: number;
-  session_id: string;
-  core_version: string;
-  region: string;
-  app_id: string;
-  project_id: string;
-  vertical: string;
-  sdk_version: {
-    rtm: string;
-    rtc: string;
-  };
-}
-/** CallData Info interface */
-/** CallData Info interface */
-interface CallInfo {
-  passphrase: string;
-  channelId: string;
-  uid: number;
-  screenShareUid: number;
-  role: string;
-  // traceId: ??
-  // config.json???
-}
-/** Metadata Info interface */
-interface ContextInfo {
-  appInfo: AppInfo;
-  roomInfo: Partial<RoomInfo>;
-  callInfo: CallInfo;
-}
-
 /** Log levels */
 export type LogLevel = 'log' | 'warn' | 'error' | 'info';
 
@@ -140,6 +103,12 @@ class AppBuilderLogger implements Logger {
 
   constructor(_customTransport?: any) {
     const session = nanoid();
+    const rtmPkg = isWeb()
+      ? pkg.dependencies['agora-rtm-sdk']
+      : pkg.dependencies['agora-react-native-rtm'];
+    const rtcPkg = isWeb()
+      ? pkg.dependencies['agora-rtc-sdk-ng']
+      : pkg.dependencies['react-native-agora'];
     const logger =
       (status: StatusType) =>
       <T extends LogSource>(
@@ -148,7 +117,7 @@ class AppBuilderLogger implements Logger {
         logMessage: string,
         ...data: any[]
       ) => {
-        if (status === 'debug') {
+        if (!$config.LOG_ENABLED) {
           return;
         }
         const context = {
@@ -157,11 +126,15 @@ class AppBuilderLogger implements Logger {
           type,
           data,
           contextInfo: {
-            env: 'development',
+            env: process.env.NODE_ENV,
             session_id: session,
             app_id: $config.APP_ID,
             project_id: $config.PROJECT_ID,
-            core_version,
+            sdk_version: {
+              rtm: rtmPkg,
+              rtc: rtcPkg,
+            },
+            cli_version,
           },
         };
 
