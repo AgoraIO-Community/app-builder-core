@@ -16,7 +16,7 @@ import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import useIsHandRaised from '../../utils/useIsHandRaised';
 import {isAndroid, isIOS} from '../../utils/common';
@@ -83,7 +83,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (
-    rtcProps.role == ClientRole.Audience &&
+    rtcProps.role == ClientRoleType.ClientRoleAudience &&
     $config.EVENT_MODE &&
     !$config.RAISE_HAND
   ) {
@@ -91,7 +91,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
+    rtcProps.role == ClientRoleType.ClientRoleAudience &&
     $config.EVENT_MODE &&
     $config.RAISE_HAND &&
     !isHost

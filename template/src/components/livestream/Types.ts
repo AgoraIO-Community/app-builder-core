@@ -1,6 +1,6 @@
 // DECLARE ENUMS & CONTANTS
 import {TextDataInterface} from '../../language/default-labels';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 
 export enum RaiseHandValue {
   TRUE = 'TRUE',
@@ -14,7 +14,7 @@ export interface raiseHandListInterface {
 }
 
 export interface raiseHandItemInterface {
-  role: ClientRole;
+  role: ClientRoleType;
   raised: RaiseHandValue;
   ts: number;
   isProcessed: boolean;
