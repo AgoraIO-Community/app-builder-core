@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "a569f8fb0309417780b793786b534a86",
   "PROJECT_ID": "49c705c1c9efb71000d7",
-  "FRONTEND_ENDPOINT": "https://app-builder-core-live-streaming-light-git-featur-ea5b4d-agoraio.vercel.app",
+  "FRONTEND_ENDPOINT": "https://live.agora.io",
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
