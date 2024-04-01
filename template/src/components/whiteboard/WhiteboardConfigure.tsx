@@ -94,6 +94,8 @@ export interface whiteboardContextInterface {
   getWhiteboardUid: () => number;
   whiteboardStartedFirst?: boolean;
   clearAllCallback?: () => void;
+  isWhiteboardOnFullScreen?: boolean;
+  setWhiteboardOnFullScreen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface WhiteboardPropsInterface {
@@ -102,6 +104,7 @@ export interface WhiteboardPropsInterface {
 
 const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
+  const [isWhiteboardOnFullScreen, setWhiteboardOnFullScreen] = useState(false);
   const [whiteboardActive, setWhiteboardActive] = useState(false);
   const [whiteboardStartedFirst, setWhiteboardStartedFirst] = useState(false);
   const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
@@ -457,6 +460,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         insertImageIntoWhiteboard,
         whiteboardStartedFirst,
         clearAllCallback,
+        isWhiteboardOnFullScreen,
+        setWhiteboardOnFullScreen,
       }}>
       {props.children}
     </whiteboardContext.Provider>

@@ -29,7 +29,7 @@ import Recording from '../subComponents/Recording';
 import LocalSwitchCamera from '../subComponents/LocalSwitchCamera';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import {ClientRole} from '../../agora-rn-uikit';
+import {ClientRoleType} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
@@ -526,14 +526,14 @@ const MoreButton = () => {
     if ($config.SCREEN_SHARING) {
       if (
         !(
-          rtcProps.role == ClientRole.Audience &&
+          rtcProps.role == ClientRoleType.ClientRoleAudience &&
           $config.EVENT_MODE &&
           !$config.RAISE_HAND
         )
       ) {
         actionMenuitems.push({
           disabled:
-            rtcProps.role == ClientRole.Audience &&
+            rtcProps.role == ClientRoleType.ClientRoleAudience &&
             $config.EVENT_MODE &&
             $config.RAISE_HAND &&
             !isHost,
@@ -776,9 +776,9 @@ export const RaiseHandToolbarItem = () => {
     data: {isHost},
   } = useRoomInfo();
   return $config.EVENT_MODE ? (
-    rtcProps.role == ClientRole.Audience ? (
+    rtcProps.role == ClientRoleType.ClientRoleAudience ? (
       <LiveStreamControls showControls={true} />
-    ) : rtcProps?.role == ClientRole.Broadcaster ? (
+    ) : rtcProps?.role == ClientRoleType.ClientRoleBroadcaster ? (
       /**
        * In event mode when raise hand feature is active
        * and audience is promoted to host, the audience can also

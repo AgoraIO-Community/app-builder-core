@@ -31,7 +31,6 @@ import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
-import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 import {useString} from '../../../src/utils/useString';
@@ -45,6 +44,11 @@ import {
 interface TranscriptProps {
   showHeader?: boolean;
 }
+
+type WebStreamMessageArgs = [number, Uint8Array];
+type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
+type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
+
 const Transcript = (props: TranscriptProps) => {
   const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
   const searchText = useString(sttTranscriptPanelSearchText)();
@@ -175,26 +179,25 @@ const Transcript = (props: TranscriptProps) => {
     return <Text style={styles.emptyMsg}>{noresults}</Text>;
   };
 
-  const handleStreamMessageCallback = (
-    ...args: [number, Uint8Array] | [number, string, Uint8Array]
-  ) => {
+  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
-      streamMessageCallback(args as [number, Uint8Array]);
+      const [uid, data] = args as WebStreamMessageArgs;
+      streamMessageCallback([uid, data]);
     } else {
-      const [uid, , data] = args;
-      const streamBuffer = Object.values(data);
-      streamMessageCallback([uid, new Uint8Array(streamBuffer)]);
+      const [, uid, , data] = args as NativeStreamMessageArgs;
+      streamMessageCallback([uid, data]);
     }
   };
 
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
       RtcEngineUnsafe.addListener(
-        'StreamMessage',
-        handleStreamMessageCallback as unknown as StreamMessageCallback,
+        'onStreamMessage',
+        handleStreamMessageCallback,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -170,6 +170,7 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 8,
+    maxWidth: '88%',
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
@@ -204,6 +205,7 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 0,
+    maxWidth: '88%',
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

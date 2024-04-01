@@ -17,7 +17,7 @@ import React, {
   useRef,
   useContext,
 } from 'react';
-import {ClientRole, RtcContext} from '../../agora-rn-uikit';
+import {ClientRoleType, RtcContext} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
 import {useRtc} from 'customization-api';
@@ -50,7 +50,7 @@ const log = (...args: any[]) => {
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 interface Props {
-  userRole: ClientRole;
+  userRole: ClientRoleType;
 }
 export type deviceInfo = MediaDeviceInfo;
 export type deviceId = deviceInfo['deviceId'];

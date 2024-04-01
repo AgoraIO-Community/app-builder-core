@@ -62,5 +62,5 @@ target 'HelloWorld' do
 end
 
 target 'ScreenSharing' do
-  pod 'AgoraRtcEngine_iOS', '3.7.0.3'
+  pod 'AgoraRtcEngine_iOS', '4.3.0'
 end

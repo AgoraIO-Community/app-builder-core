@@ -152,32 +152,49 @@ export const clearAllWhiteboardPopupSubHeading =
 export const clearAllWhiteboardPopupPrimaryBtnText =
   'clearAllWhiteboardPopupPrimaryBtnText';
 
-export const leavePopupHeading = `leave${room}PopupHeading`;
-export const leavePopupSubHeading = `leave${room}PopupSubHeading`;
-export const leavePopupPrimaryBtnText = `leave${room}PopupPrimaryBtnText`;
+export const leavePopupHeading = `leave${room}PopupHeading` as const;
+export const leavePopupSubHeading = `leave${room}PopupSubHeading` as const;
+export const leavePopupPrimaryBtnText =
+  `leave${room}PopupPrimaryBtnText` as const;
 
-export const removeUserFromRoomPopupHeading = `removeUserFrom${room}PopupHeading`;
-export const removeUserFromRoomPopupSubHeading = `removeUserFrom${room}PopupSubHeading`;
-export const removeUserFromRoomPopupPrimaryBtnText = `removeUserFrom${room}PopupPrimaryBtnText`;
+export const removeUserFromRoomPopupHeading =
+  `removeUserFrom${room}PopupHeading` as const;
+export const removeUserFromRoomPopupSubHeading =
+  `removeUserFrom${room}PopupSubHeading` as const;
+export const removeUserFromRoomPopupPrimaryBtnText =
+  `removeUserFrom${room}PopupPrimaryBtnText` as const;
 
-export const removeScreenshareFromRoomPopupHeading = `removeScreenshareFrom${room}PopupHeading`;
-export const removeScreenshareFromRoomPopupSubHeading = `removeScreenshareFrom${room}PopupSubHeading`;
-export const removeScreenshareFromRoomPopupPrimaryBtnText = `removeScreenshareFrom${room}PopupPrimaryBtnText`;
+export const removeScreenshareFromRoomPopupHeading =
+  `removeScreenshareFrom${room}PopupHeading` as const;
+export const removeScreenshareFromRoomPopupSubHeading =
+  `removeScreenshareFrom${room}PopupSubHeading` as const;
+export const removeScreenshareFromRoomPopupPrimaryBtnText =
+  `removeScreenshareFrom${room}PopupPrimaryBtnText` as const;
 
 export const stt = 'stt';
 
-export const sttChangeLanguagePopupHeading = `${stt}ChangeSpokenLanguagePopupHeading`;
-export const sttChangeLanguagePopupSubHeading = `${stt}ChangeSpokenLanguagePopupSubHeading`;
-export const sttChangeLanguagePopupDropdownError = `${stt}ChangeSpokenLanguagePopupDropdownError`;
-export const sttChangeLanguagePopupDropdownInfo = `${stt}ChangeSpokenLanguagePopupDropdownInfo`;
-export const sttChangeLanguagePopupPrimaryBtnText = `${stt}ChangeSpokenLanguagePopupPrimaryBtnText`;
+export const sttChangeLanguagePopupHeading =
+  `${stt}ChangeSpokenLanguagePopupHeading` as const;
+export const sttChangeLanguagePopupSubHeading =
+  `${stt}ChangeSpokenLanguagePopupSubHeading` as const;
+export const sttChangeLanguagePopupDropdownError =
+  `${stt}ChangeSpokenLanguagePopupDropdownError` as const;
+export const sttChangeLanguagePopupDropdownInfo =
+  `${stt}ChangeSpokenLanguagePopupDropdownInfo` as const;
+export const sttChangeLanguagePopupPrimaryBtnText =
+  `${stt}ChangeSpokenLanguagePopupPrimaryBtnText` as const;
 
-export const sttChangeSpokenLanguageText = `${stt}ChangeSpokenLanguageText`;
-export const sttSettingSpokenLanguageText = `${stt}SettingSpokenLanguageText`;
-export const sttTranscriptPanelHeaderText = `${stt}TranscriptPanelHeaderText`;
-export const sttDownloadBtnText = `${stt}DownloadBtnText`;
-export const sttDownloadTranscriptBtnText = `${stt}DownloadTranscriptBtnText`;
-export const sttLanguageChangeInProgress = `${stt}LanguageChangeInProgress`;
+export const sttChangeSpokenLanguageText =
+  `${stt}ChangeSpokenLanguageText` as const;
+export const sttSettingSpokenLanguageText =
+  `${stt}SettingSpokenLanguageText` as const;
+export const sttTranscriptPanelHeaderText =
+  `${stt}TranscriptPanelHeaderText` as const;
+export const sttDownloadBtnText = `${stt}DownloadBtnText` as const;
+export const sttDownloadTranscriptBtnText =
+  `${stt}DownloadTranscriptBtnText` as const;
+export const sttLanguageChangeInProgress =
+  `${stt}LanguageChangeInProgress` as const;
 
 export const chatPanelGroupTabText = 'chatPanelGroupTabText';
 export const chatPanelPrivateTabText = 'chatPanelPrivateTabText';
@@ -323,12 +340,14 @@ export const livestreamPromoteAsCoHostToastHeading =
 export const livestreamRequestAlreadyProcessed =
   'livestreamRequestAlreadyProcessed';
 
-export const videoRoomUserFallbackText = `video${room}UserFallbackText`;
+export const videoRoomUserFallbackText =
+  `video${room}UserFallbackText` as const;
 
 export const peoplePanelMeText = 'peoplePanelMeText';
 export const peoplePanelPresenterText = 'peoplePanelPresenterText';
 
-export const userRemovedFromTheRoomToastHeading = `userRemovedFromThe${room}ToastHeading`;
+export const userRemovedFromTheRoomToastHeading =
+  `userRemovedFromThe${room}ToastHeading` as const;
 
 export const vbPanelImageUploadErrorToastHeading =
   'vbPanelImageUploadErrorToastHeading';
@@ -380,6 +399,9 @@ export const whiteboardToolboxEraseText = 'whiteboardToolboxEraseText';
 export const whiteboardToolboxUploadText = 'whiteboardToolboxUploadText';
 export const whiteboardToolboxClearAllText = 'whiteboardToolboxClearAllText';
 
+export const whiteboardNativeInfoToastHeading =
+  'whiteboardNativeInfoToastHeading';
+
 export const sttSpokenLanguageToastHeading = `${stt}SpokenLanguageToastHeading`;
 export const sttSpokenLanguageToastSubHeading = `${stt}SpokenLanguageToastSubHeading`;
 
@@ -413,12 +435,16 @@ export const waitingRoomApprovalRejectionToastHeading =
 export const waitingRoomApprovalRejectionToastSubHeading =
   'waitingRoomApprovalRejectionToastSubHeading';
 
-export const videoRoomRecordingText = `video${room}RecordingText`;
-export const videoRoomGoToActiveSpeakerText = `video${room}GoToActiveSpeakerText`;
-export const videoRoomScreenshareText = `video${room}ScreenshareText`;
-export const videoRoomStartingCallText = `video${room}StartingCallText`;
-export const videoRoomScreenshareOverlayText = `video${room}ScreenshareOverlayText`;
-export const videoRoomScreenshareStopSharingBtnText = `video${room}ScreenshareStopSharingBtnText`;
+export const videoRoomRecordingText = `video${room}RecordingText` as const;
+export const videoRoomGoToActiveSpeakerText =
+  `video${room}GoToActiveSpeakerText` as const;
+export const videoRoomScreenshareText = `video${room}ScreenshareText` as const;
+export const videoRoomStartingCallText =
+  `video${room}StartingCallText` as const;
+export const videoRoomScreenshareOverlayText =
+  `video${room}ScreenshareOverlayText` as const;
+export const videoRoomScreenshareStopSharingBtnText =
+  `video${room}ScreenshareStopSharingBtnText` as const;
 
 export const chatPanelUserOfflineText = 'chatPanelUserOfflineText';
 export const chatPanelUnreadMessageText = 'chatPanelUnreadMessageText';
@@ -433,11 +459,21 @@ export const peoplePanelWaitingRoomRequestApprovalBtnTxt =
 export const peoplePanelWaitingRoomRequestDenyBtnTxt =
   'peoplePanelWaitingRoomRequestDenyBtnTxt';
 
-export const videoRoomScreenShareErrorToastHeading = `video${room}ScreenShareErrorToastHeading`;
-export const videoRoomScreenShareErrorToastSubHeading = `video${room}ScreenShareErrorToastSubHeading`;
+export const videoRoomScreenShareErrorToastHeading =
+  `video${room}ScreenShareErrorToastHeading` as const;
+export const videoRoomScreenShareErrorToastSubHeading =
+  `video${room}ScreenShareErrorToastSubHeading` as const;
 
-export const videoRoomRecordingToastHeading = `video${room}RecordingToastHeading`;
-export const videoRoomRecordingToastSubHeading = `video${room}RecordingToastSubHeading`;
+export const videoRoomRecordingToastHeading =
+  `video${room}RecordingToastHeading` as const;
+export const videoRoomRecordingToastSubHeading =
+  `video${room}RecordingToastSubHeading` as const;
+export const videoRoomRecordingStartErrorToastHeading =
+  'videoRoomRecordingStartErrorToastHeading';
+export const videoRoomRecordingStopErrorToastHeading =
+  'videoRoomRecordingStopErrorToastHeading';
+export const videoRoomRecordingErrorToastSubHeading =
+  'videoRoomRecordingErrorToastSubHeading';
 
 export const peoplePanelUserNotFoundLabel = 'peoplePanelUserNotFoundLabel';
 export const peoplePanelStreamingRequestSectionHeader =
@@ -447,12 +483,17 @@ export const peoplePanelLivestreamingApprovalBtnText =
 export const peoplePanelLivestreamingDenyBtnText =
   'peoplePanelLivestreamingDenyBtnText';
 
-export const sttTranscriptPanelSearchText = `${stt}TranscriptPanelSearchText`;
-export const sttTranscriptPanelNoSearchResultsFoundText = `${stt}TranscriptPanelNoSearchResultsFoundText`;
-export const sttTranscriptPanelViewLatestText = `${stt}TranscriptPanelViewLatestText`;
+export const sttTranscriptPanelSearchText =
+  `${stt}TranscriptPanelSearchText` as const;
+export const sttTranscriptPanelNoSearchResultsFoundText =
+  `${stt}TranscriptPanelNoSearchResultsFoundText` as const;
+export const sttTranscriptPanelViewLatestText =
+  `${stt}TranscriptPanelViewLatestText` as const;
 
-export const videoRoomPeopleCountTooltipHostText = `video${room}PeopleCountTooltipHostText`;
-export const videoRoomPeopleCountTooltipAttendeeText = `video${room}PeopleCountTooltipAttendeeText`;
+export const videoRoomPeopleCountTooltipHostText =
+  `video${room}PeopleCountTooltipHostText` as const;
+export const videoRoomPeopleCountTooltipAttendeeText =
+  `video${room}PeopleCountTooltipAttendeeText` as const;
 
 export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemPeopleText]?: I18nBaseType;
@@ -679,6 +720,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [whiteboardFileUploadInfoToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
   [whiteboardFileUploadTypeErrorToastHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
   [whiteboardFileUploadTypeErrorToastSubHeading]?: I18nBaseType<whiteboardFileUploadToastDataType>;
+  [whiteboardNativeInfoToastHeading]?: I18nBaseType;
 
   [sttSpokenLanguageToastHeading]?: I18nBaseType<sttSpokenLanguageToastHeadingDataType>;
   [sttSpokenLanguageToastSubHeading]?: I18nBaseType<sttSpokenLanguageToastSubHeadingDataInterface>;
@@ -725,6 +767,10 @@ export interface I18nVideoCallScreenLabelsInterface {
   [videoRoomScreenShareErrorToastSubHeading]?: I18nBaseType;
   [videoRoomRecordingToastHeading]?: I18nConditionalType;
   [videoRoomRecordingToastSubHeading]?: I18nDynamicType;
+  [videoRoomRecordingStartErrorToastHeading]?: I18nBaseType;
+  [videoRoomRecordingStopErrorToastHeading]?: I18nBaseType;
+  [videoRoomRecordingErrorToastSubHeading]?: I18nBaseType;
+
   [peoplePanelUserNotFoundLabel]?: I18nBaseType;
   [peoplePanelStreamingRequestSectionHeader]?: I18nBaseType;
   [peoplePanelLivestreamingApprovalBtnText]?: I18nBaseType;
@@ -1155,6 +1201,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Recording Started' : 'Recording Stopped',
   [videoRoomRecordingToastSubHeading]: name =>
     `This room is being recorded by ${name}`,
+  [videoRoomRecordingStartErrorToastHeading]: 'Recording failed to start',
+  [videoRoomRecordingStopErrorToastHeading]: 'Recording failed to stop',
+  [videoRoomRecordingErrorToastSubHeading]: 'There was an internal error.',
+
   [peoplePanelUserNotFoundLabel]: 'User not found',
   [peoplePanelStreamingRequestSectionHeader]: 'STREAMING REQUEST',
   [peoplePanelLivestreamingApprovalBtnText]: 'Accept',
@@ -1167,4 +1217,6 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [videoRoomPeopleCountTooltipHostText]: 'Host',
   [videoRoomPeopleCountTooltipAttendeeText]: ({eventMode}) =>
     eventMode ? 'Audience' : 'Attendee',
+  [whiteboardNativeInfoToastHeading]:
+    'Use two finger to move around the whiteboard',
 };

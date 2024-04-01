@@ -11,7 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../subComponents/LocalAudioMute';
@@ -40,7 +40,8 @@ const Controls = () => {
 
   return (
     <View style={style.bottomBar}>
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+      {$config.EVENT_MODE &&
+      rtcProps.role == ClientRoleType.ClientRoleAudience ? (
         <LiveStreamControls showControls={true} />
       ) : (
         <>
@@ -51,7 +52,10 @@ const Controls = () => {
            */}
           {$config.EVENT_MODE && (
             <LiveStreamControls
-              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+              showControls={
+                rtcProps?.role == ClientRoleType.ClientRoleBroadcaster &&
+                !isHost
+              }
             />
           )}
           <View style={{alignSelf: 'center'}}>

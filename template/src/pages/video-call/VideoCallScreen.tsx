@@ -35,13 +35,13 @@ import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript from '../../subComponents/caption/Transcript';
-
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -239,6 +239,7 @@ const VideoCallScreen = () => {
       'User has landed on video call room',
     );
   }, []);
+  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -264,16 +265,23 @@ const VideoCallScreen = () => {
             )}
           </ToolbarProvider>
           <View style={style.full}>
-            <ToolbarProvider value={{position: ToolbarPosition.top}}>
-              {TopbarProps?.length ? (
-                <TopbarComponent
-                  customItems={TopbarProps}
-                  includeDefaultItems={false}
-                />
-              ) : (
-                <TopbarComponent />
-              )}
-            </ToolbarProvider>
+            <View
+              style={
+                isRecordingBot &&
+                !recordingBotUIConfig.topBar &&
+                style.zeroHeight
+              }>
+              <ToolbarProvider value={{position: ToolbarPosition.top}}>
+                {TopbarProps?.length ? (
+                  <TopbarComponent
+                    customItems={TopbarProps}
+                    includeDefaultItems={false}
+                  />
+                ) : (
+                  <TopbarComponent />
+                )}
+              </ToolbarProvider>
+            </View>
             <View
               style={[
                 style.videoView,
@@ -325,7 +333,14 @@ const VideoCallScreen = () => {
                   <>
                     <CaptionContainer />
                     <Spacer size={10} />
-                    <BottombarComponent />
+                    <View
+                      style={
+                        isRecordingBot &&
+                        !recordingBotUIConfig.bottomBar &&
+                        style.zeroHeight
+                      }>
+                      <BottombarComponent />
+                    </View>
                   </>
                 )}
               </ToolbarProvider>
@@ -370,5 +385,9 @@ const style = StyleSheet.create({
   videoView: {
     flex: 12,
     flexDirection: 'row',
+  },
+  zeroHeight: {
+    height: 0,
+    visibility: 'hidden',
   },
 });

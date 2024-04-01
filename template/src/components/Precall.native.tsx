@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {PropsContext, ClientRole, ToggleState} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType, ToggleState} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useRoomInfo} from './room-info/useRoomInfo';
@@ -96,7 +96,9 @@ const JoinRoomInputView = ({isDesktop}) => {
           {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
           </Text> */}
-          {rtcProps.role == ClientRole.Audience && <Spacer size={20} />}
+          {rtcProps.role == ClientRoleType.ClientRoleAudience && (
+            <Spacer size={20} />
+          )}
         </>
       ) : (
         <></>
@@ -104,7 +106,7 @@ const JoinRoomInputView = ({isDesktop}) => {
       <View
         style={
           $config.EVENT_MODE &&
-          rtcProps.role == ClientRole.Audience && {
+          rtcProps.role == ClientRoleType.ClientRoleAudience && {
             justifyContent: 'space-between',
             flex: 1,
           }
@@ -117,7 +119,7 @@ const JoinRoomInputView = ({isDesktop}) => {
               : {width: '100%'}
           }>
           {$config.ENABLE_WAITING_ROOM &&
-          rtcProps.role === ClientRole.Audience ? (
+          rtcProps.role === ClientRoleType.ClientRoleAudience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -203,7 +205,7 @@ const JoinRoomButton = () => {
     return components;
   });
   return $config.ENABLE_WAITING_ROOM &&
-    rtcProps.role === ClientRole.Audience ? (
+    rtcProps.role === ClientRoleType.ClientRoleAudience ? (
     <JoinWaitingRoomBtn />
   ) : (
     <JoinButton />
@@ -350,7 +352,8 @@ const Precall = (props: any) => {
           contentContainerStyle={style.mainMobile}
           testID="precall-screen">
           {/* Precall screen only changes for audience in Live Stream event */}
-          {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          {$config.EVENT_MODE &&
+          rtcProps.role == ClientRoleType.ClientRoleAudience ? (
             //  Live (Audience)
             <View style={{flex: 1}}>
               <View

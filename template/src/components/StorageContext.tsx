@@ -29,6 +29,7 @@ export interface StoreInterface {
     rememberedDevicesListEntries
   >;
   activeDeviceId: Record<MediaDeviceInfo['kind'], string>;
+  whiteboardNativeInfoToast?: boolean;
 }
 
 export interface StorageContextInterface {
@@ -37,6 +38,7 @@ export interface StorageContextInterface {
 }
 
 export const initStoreValue: StoreInterface = {
+  whiteboardNativeInfoToast: false,
   token: null,
   displayName: '',
   selectedLanguageCode: '',
@@ -91,10 +93,11 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
               storeFromStorage[key] = initStoreValue[key];
             }
           });
-          //unauth flow delete token from the localstoage if any
+          // unauth flow delete token from the localstoage if any
           if (!ENABLE_AUTH) {
             storeFromStorage['token'] = null;
           }
+          storeFromStorage['whiteboardNativeInfoToast'] = false;
           setStore(storeFromStorage);
           logger.log(
             LogSource.Internals,

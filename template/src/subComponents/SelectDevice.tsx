@@ -13,7 +13,7 @@ import React, {useContext, useEffect, useState, useMemo} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {
   PropsContext,
-  ClientRole,
+  ClientRoleType,
   LocalContext,
   PermissionState,
   LocalUserContext,
@@ -69,7 +69,10 @@ const useSelectDevice = (): [boolean, string] => {
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
+    if (
+      $config.EVENT_MODE &&
+      rtcProps.role === ClientRoleType.ClientRoleAudience
+    ) {
       logger.log(
         LogSource.Internals,
         'DEVICE_CONFIGURE',

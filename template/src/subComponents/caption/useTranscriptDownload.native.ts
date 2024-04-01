@@ -43,37 +43,27 @@ const useTranscriptDownload = (): {
               'TRANSCRIPT',
               'Content downloaded successfully on native',
             );
-            // display preview of the document and option to share
-            if (isIOS()) {
-              RNFetchBlob.ios.previewDocument(filePath);
-            } else if (isAndroid()) {
-              console.warn('android download complete !');
-              logger.warn(
-                LogSource.Internals,
-                'TRANSCRIPT',
-                'android download complete!',
-              );
-              // need to show the preview of downloaded file
-              Share.open({url: `file://${filePath}`, type: 'text/plain'})
-                .then(res => {
-                  logger.warn(
-                    LogSource.Internals,
-                    'TRANSCRIPT',
-                    'File shared successfully:',
-                    res,
-                  );
-                  resolve(filePath);
-                })
-                .catch(error => {
-                  logger.error(
-                    LogSource.Internals,
-                    'TRANSCRIPT',
-                    'Error sharing file:',
-                    error,
-                  );
-                  reject(error);
-                });
-            }
+            // need to show the preview of downloaded file
+            Share.open({url: `file://${filePath}`, type: 'text/plain'})
+              .then(res => {
+                logger.warn(
+                  LogSource.Internals,
+                  'TRANSCRIPT',
+                  'File shared successfully:',
+                  res,
+                );
+                resolve(filePath);
+              })
+              .catch(error => {
+                logger.error(
+                  LogSource.Internals,
+                  'TRANSCRIPT',
+                  'Error sharing file:',
+                  error,
+                );
+                reject(error);
+              });
+
             resolve(filePath);
           })
           .catch(error => {

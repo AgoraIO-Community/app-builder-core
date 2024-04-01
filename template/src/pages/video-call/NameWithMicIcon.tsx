@@ -105,7 +105,8 @@ const style = StyleSheet.create({
     bottom: 8,
     borderRadius: 4,
     flexDirection: 'row',
-    zIndex: 5,
+    zIndex: 999,
+    elevation: 5,
   },
   name: {
     color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
