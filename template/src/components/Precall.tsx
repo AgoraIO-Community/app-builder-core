@@ -328,7 +328,9 @@ const Precall = () => {
       LogSource.Internals,
       'PRECALL_SCREEN',
       `User has landed on precall room with role as ${
-        rtcProps.role === ClientRole.Audience ? 'AUDIENCE' : 'HOST'
+        rtcProps.role === ClientRoleType.ClientRoleAudience
+          ? 'AUDIENCE'
+          : 'HOST'
       } and the mode of this call as ${
         $config.EVENT_MODE ? 'LIVE' : 'COMMUNICATION'
       }`,

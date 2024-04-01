@@ -1141,7 +1141,9 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         `RTC [setClientRole] for user and screen client with role ${
-          clientRole == ClientRoleType.Audience ? 'audience' : 'broadcaster'
+          clientRole == ClientRoleType.ClientRoleAudience
+            ? 'audience'
+            : 'broadcaster'
         }`,
       );
       if (clientRole == ClientRoleType.ClientRoleAudience) {
@@ -1177,7 +1179,9 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         `RTC [setClientRole] for user and screen client with role ${
-          clientRole == ClientRoleType.Audience ? 'audience' : 'broadcaster'
+          clientRole == ClientRoleType.ClientRoleAudience
+            ? 'audience'
+            : 'broadcaster'
         } done successfully`,
       );
     } catch (e) {
@@ -1185,7 +1189,9 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         `RTC [setClientRole] Error while doing setClientRole for user and screen client with role ${
-          clientRole == ClientRoleType.Audience ? 'audience' : 'broadcaster'
+          clientRole == ClientRoleType.ClientRoleAudience
+            ? 'audience'
+            : 'broadcaster'
         }`,
         e,
       );
