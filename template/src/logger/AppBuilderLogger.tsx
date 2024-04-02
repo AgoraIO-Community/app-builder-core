@@ -50,6 +50,7 @@ type LogType = {
     | 'NOISE_CANCELLATION'
     | 'ACTIVE_SPEAKER'
     | 'WAITING_ROOM'
+    | 'RECORDING'
     | 'STORE';
   [LogSource.NetworkRest]:
     | 'idp_login'
@@ -65,7 +66,9 @@ type LogType = {
     | 'stt'
     | 'whiteboard_image'
     | 'whiteboard_upload'
-    | 'whiteboard_fileconvert';
+    | 'whiteboard_fileconvert'
+    | 'recording_start'
+    | 'recording_stop';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
   [LogSource.CustomizationAPI]: 'Log';
   [LogSource.SDK]: 'Log' | 'Event';

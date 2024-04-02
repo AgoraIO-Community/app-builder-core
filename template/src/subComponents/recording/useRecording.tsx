@@ -45,6 +45,7 @@ import {
   videoRoomRecordingErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {getOriginURL} from '../../auth/config';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const getFrontendUrl = (url: string) => {
   // check if it doesn't contains the https protocol
@@ -193,22 +194,34 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
-    console.log('web-recording - start recording API called');
-
     if (inProgress) {
-      console.error('web-recording - start recording API already in progress');
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
+        'start recording already in progress. Aborting..',
+      );
       return;
     }
     if (recordinghostURL.includes('localhost')) {
-      console.error(
-        'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
+      logger.error(
+        LogSource.Internals,
+        'RECORDING',
+        'Recording url cannot be localhost. It should be a valid deployed URL',
+        recordinghostURL,
       );
       return;
     }
     recordinghostURL = getFrontendUrl(recordinghostURL);
-    console.log('web-recording - recordinghostURL: ', recordinghostURL);
-
     setInProgress(true);
+    logger.log(
+      LogSource.NetworkRest,
+      'recording_start',
+      'Trying to start recording',
+      {
+        passphrase: roomId.host,
+        url: `${recordinghostURL}/${passphrase}`,
+      },
+    );
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
       headers: {
@@ -225,6 +238,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then((res: any) => {
         setInProgress(false);
         if (res.status === 200) {
+          logger.log(
+            LogSource.NetworkRest,
+            'recording_start',
+            'start recording successfull',
+            res,
+          );
           /**
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now active.
@@ -241,14 +260,31 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setUidWhoStarted(localUid);
           setRecordingActive(true);
         } else if (res.status === 500) {
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_start',
+            'Error while start recording',
+            res,
+          );
           showErrorToast(headingStartError, subheadingError);
         } else {
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_start',
+            'Error while start recording',
+            res,
+          );
           showErrorToast(headingStartError);
         }
       })
       .catch(err => {
+        logger.error(
+          LogSource.NetworkRest,
+          'recording_start',
+          'Error while start recording',
+          err,
+        );
         setInProgress(false);
-        console.log(err);
       });
   };
 
@@ -256,15 +292,22 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
-    console.log('web-recording - stop recording API called');
+    logger.log(LogSource.Internals, 'RECORDING', 'stop recording API called');
     if (inProgress) {
-      console.error(
-        'web-recording - stop recording already in progress. Aborting..',
+      logger.error(
+        LogSource.Internals,
+        'RECORDING',
+        'stop recording already in progress. Aborting..',
       );
       return;
     }
     setInProgress(true);
     // If recording is already going on, stop the recording by executing the below query.
+    logger.log(
+      LogSource.NetworkRest,
+      'recording_stop',
+      'Trying to stop recording',
+    );
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
       headers: {
@@ -278,6 +321,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then(res => {
         setInProgress(false);
         if (res.status === 200) {
+          logger.log(
+            LogSource.NetworkRest,
+            'recording_stop',
+            'stop recording successfull',
+            res,
+          );
           /**
            * 1. Once the backend sucessfuly stops recording, send message
            * in the channel indicating that cloud recording is now inactive.
@@ -293,14 +342,31 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
         } else if (res.status === 500) {
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_stop',
+            'Error while stopping recording',
+            res,
+          );
           showErrorToast(headingStopError, subheadingError);
         } else {
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_stop',
+            'Error while stopping recording',
+            res,
+          );
           showErrorToast(headingStopError);
         }
       })
       .catch(err => {
+        logger.error(
+          LogSource.NetworkRest,
+          'recording_stop',
+          'Error while stopping recording',
+          err,
+        );
         setInProgress(false);
-        console.log(err);
       });
   }, [
     headingStopError,
