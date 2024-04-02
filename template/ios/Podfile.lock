@@ -360,12 +360,10 @@ PODS:
     - AgoraRtcEngine_Special_iOS (= 4.2.6.3)
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - react-native-document-picker (9.1.1):
-    - React-Core
   - react-native-chat-sdk (1.2.1):
     - HyphenateChat (= 4.1.1)
     - React-Core
-  - react-native-document-picker (9.1.0):
+  - react-native-document-picker (9.1.1):
     - React-Core
   - react-native-keep-awake (4.0.0):
     - React
@@ -774,6 +772,7 @@ SPEC CHECKSUMS:
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
   react-native-agora: 0d623411f75a126e6d5f6a41761df9ef74da87e6
+  react-native-chat-sdk: 8a4969c99fc27019042acc48e78f469947813fbc
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
