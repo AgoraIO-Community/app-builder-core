@@ -1,10 +1,33 @@
 import {Option} from './useVB';
 import images from './images';
+import {
+  vbPanelOptionBlurText,
+  vbPanelOptionCustomText,
+  vbPanelOptionNoneText,
+} from '../../language/default-labels/precallScreenLabels';
 
 const imagePathsArray: Option[] = [
-  {type: 'none', icon: 'remove', label: 'None', id: 'VBOption_1'},
-  {type: 'blur', icon: 'blur', label: 'Blur', id: 'VBOption_2'},
-  {type: 'custom', icon: 'upload-new', label: 'Custom', id: 'VBOption_3'},
+  {
+    type: 'none',
+    icon: 'remove',
+    label: 'None',
+    translationKey: vbPanelOptionNoneText,
+    id: 'VBOption_1',
+  },
+  {
+    type: 'blur',
+    icon: 'blur',
+    label: 'Blur',
+    translationKey: vbPanelOptionBlurText,
+    id: 'VBOption_2',
+  },
+  {
+    type: 'custom',
+    icon: 'upload-new',
+    label: 'Custom',
+    translationKey: vbPanelOptionCustomText,
+    id: 'VBOption_3',
+  },
   {
     type: 'image',
     icon: 'vb',

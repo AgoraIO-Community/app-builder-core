@@ -6,8 +6,13 @@ import CaptionText from './CaptionText';
 import Loading from '../Loading';
 import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
-import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {useString} from '../../utils/useString';
+import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
+
+type WebStreamMessageArgs = [number, Uint8Array];
+type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
+type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
 
 const Caption: React.FC = () => {
   const {RtcEngineUnsafe} = useRtc();
@@ -19,38 +24,37 @@ const Caption: React.FC = () => {
     activeSpeakerRef,
     prevSpeakerRef,
   } = useCaption();
-
+  const ssLabel = useString(sttSettingSpokenLanguageText)();
   const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(0);
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
 
-  const handleStreamMessageCallback = (
-    ...args: [number, Uint8Array] | [number, string, Uint8Array]
-  ) => {
+  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
-      streamMessageCallback(args as [number, Uint8Array]);
+      const [uid, data] = args as WebStreamMessageArgs;
+      streamMessageCallback([uid, data]);
     } else {
-      const [uid, , data] = args;
-      const streamBuffer = Object.values(data);
-      streamMessageCallback([uid, new Uint8Array(streamBuffer)]);
+      const [, uid, , data] = args as NativeStreamMessageArgs;
+      streamMessageCallback([uid, data]);
     }
   };
 
   React.useEffect(() => {
     !isSTTListenerAdded &&
       RtcEngineUnsafe.addListener(
-        'StreamMessage',
-        handleStreamMessageCallback as unknown as StreamMessageCallback,
+        'onStreamMessage',
+        handleStreamMessageCallback,
       );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLangChangeInProgress)
     return (
       <Loading
-        text="Setting Spoken Language"
+        text={ssLabel}
         background="transparent"
         indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
         textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}

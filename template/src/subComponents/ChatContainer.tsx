@@ -49,6 +49,11 @@ import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import {useSDKChatMessages} from '../components/chat/useSDKChatMessages';
+import {
+  chatPanelUnreadMessageText,
+  chatPanelUserOfflineText,
+  groupChatWelcomeContent,
+} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -58,6 +63,7 @@ import {useSDKChatMessages} from '../components/chat/useSDKChatMessages';
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const info1 = useString<boolean>(groupChatWelcomeContent);
   const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
@@ -79,9 +85,6 @@ const ChatContainer = (props?: {
     setUnreadIndividualMessageCount,
   } = useChatNotification();
   const localUid = useLocalUid();
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -144,9 +147,9 @@ const ChatContainer = (props?: {
     }
     return components;
   });
-  //commented for v1 release
-  //const userOfflineLabel = useString('userOfflineLabel')();
-  const userOfflineLabel = 'User is offline';
+
+  const userOfflineLabel = useString(chatPanelUserOfflineText)();
+  const unreadMessageLabel = useString(chatPanelUnreadMessageText)();
 
   //if we don't have unread count then enable scroll to end
   useEffect(() => {
@@ -204,9 +207,7 @@ const ChatContainer = (props?: {
           <>
             <View style={style.defaultMessageContainer}>
               <Text style={style.defaultMessageText}>
-                {!messageStore?.length
-                  ? `Welcome to Chat! \nAll messages are deleted when call ends.`
-                  : 'All messages are deleted when call ends.'}
+                {info1(messageStore?.length ? false : true)}
               </Text>
             </View>
             {messageStore.map((message: any, index) => (
@@ -218,7 +219,7 @@ const ChatContainer = (props?: {
                     style={style.unreadMessageContainer}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
-                      {grpUnreadCount} Unread Message
+                      {grpUnreadCount} {unreadMessageLabel}
                     </Text>
                   </View>
                 ) : (
@@ -277,7 +278,7 @@ const ChatContainer = (props?: {
                     style={style.unreadMessageContainer}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
-                      {privateUnreadCount} Unread Message
+                      {privateUnreadCount} {unreadMessageLabel}
                     </Text>
                   </View>
                 ) : (

@@ -17,7 +17,7 @@ import React, {
   useRef,
   useContext,
 } from 'react';
-import {ClientRole, RtcContext} from '../../agora-rn-uikit';
+import {ClientRoleType, RtcContext} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
 import {useRtc} from 'customization-api';
@@ -33,6 +33,14 @@ import {getOS} from '../utils/common';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {useString} from '../utils/useString';
+import {
+  deviceDetectionSecondaryBtnText,
+  deviceDetectionCheckboxText,
+  deviceDetectionPrimaryBtnText,
+  deviceDetectionToastHeading,
+  deviceDetectionToastSubHeading,
+} from '../language/default-labels/videoCallScreenLabels';
 
 const log = (...args: any[]) => {
   console.log('[DeviceConfigure] ', ...args);
@@ -41,7 +49,7 @@ const log = (...args: any[]) => {
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 interface Props {
-  userRole: ClientRole;
+  userRole: ClientRoleType;
 }
 export type deviceInfo = MediaDeviceInfo;
 export type deviceId = deviceInfo['deviceId'];
@@ -53,6 +61,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [uiSelectedMic, setUiSelectedMic] = useState('');
   const [uiSelectedSpeaker, setUiSelectedSpeaker] = useState('');
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
+
+  const toastHeading = useString(deviceDetectionToastHeading);
+  const toastSubHeading = useString<{name: string; label: string}>(
+    deviceDetectionToastSubHeading,
+  );
+  const toastPrimaryBtnText = useString(deviceDetectionPrimaryBtnText)();
+  const toastCancelBtnText = useString(deviceDetectionSecondaryBtnText)();
+  const toastCheckboxBtnText = useString(deviceDetectionCheckboxText)();
 
   const micSelectInProgress = useRef(false);
   const micSelectQueue = useRef([]);
@@ -713,23 +729,25 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       type: 'checked',
       leadingIconName: 'mic-on',
       // leadingIcon: <CustomIcon name={'mic-on'} />,
-      text1: `New ${name} detected`,
+      text1: toastHeading(name),
+      text2: toastSubHeading({name, label: device?.label}),
       // @ts-ignore
-      text2: (
-        <Text>
-          <Text>New {name} named </Text>
-          <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
-          <Text> detected. Do you want to switch?</Text>
-        </Text>
-      ),
+      // text2: (
+      //   <Text>
+      //     <Text>New {name} named </Text>
+      //     <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
+      //     <Text> detected. Do you want to switch?</Text>
+      //   </Text>
+      // ),
       visibilityTime: 6000,
+      //@ts-ignore
       checkbox: {
         disabled: false,
         color: primaryColor,
-        text: 'Remember my choice',
+        text: toastCheckboxBtnText,
       },
       primaryBtn: {
-        text: 'SWITCH DEVICE',
+        text: toastPrimaryBtnText,
         onPress: (checked: boolean) => {
           setAction(device.deviceId);
           checked && updateRememberedDeviceList(device, true);
@@ -737,7 +755,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         },
       },
       secondaryBtn: {
-        text: 'IGNORE',
+        text: toastCancelBtnText,
         onPress: (checked: boolean) => {
           checked && updateRememberedDeviceList(device, false);
           Toast.hide();

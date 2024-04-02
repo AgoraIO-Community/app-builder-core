@@ -18,7 +18,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import {
   isMobileUA,
   isWebInternal,
@@ -53,6 +53,11 @@ import VBPanel from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
 import {DeviceSelectProps} from './precall/selectDevice';
+import {useString} from '../utils/useString';
+import {
+  precallYouAreJoiningAsHeading,
+  settingsPanelHeading,
+} from '../language/default-labels/precallScreenLabels';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -103,7 +108,9 @@ const JoinRoomInputView = ({isDesktop}) => {
           {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
           </Text> */}
-          {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
+          {rtcProps.role == ClientRoleType.ClientRoleAudience && (
+            <Spacer size={40} />
+          )}
         </>
       ) : (
         <></>
@@ -111,7 +118,7 @@ const JoinRoomInputView = ({isDesktop}) => {
       <View
         style={
           $config.EVENT_MODE &&
-          rtcProps.role == ClientRole.Audience && {
+          rtcProps.role == ClientRoleType.ClientRoleAudience && {
             justifyContent: 'space-between',
             flex: 1,
           }
@@ -124,7 +131,7 @@ const JoinRoomInputView = ({isDesktop}) => {
               : {width: '100%'}
           }>
           {$config.ENABLE_WAITING_ROOM &&
-          rtcProps.role === ClientRole.Audience ? (
+          rtcProps.role === ClientRoleType.ClientRoleAudience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -212,7 +219,7 @@ const JoinRoomButton = () => {
   });
 
   return $config.ENABLE_WAITING_ROOM &&
-    rtcProps.role === ClientRole.Audience ? (
+    rtcProps.role === ClientRoleType.ClientRoleAudience ? (
     <JoinWaitingRoomBtn />
   ) : (
     <JoinButton />
@@ -220,6 +227,8 @@ const JoinRoomButton = () => {
 };
 
 const Precall = () => {
+  const settingsLabel = useString(settingsPanelHeading)();
+  const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
   const {rtcProps} = useContext(PropsContext);
   const {height} = useWindowDimensions();
   // const {isVBActive, setIsVBActive} = useVB();
@@ -348,13 +357,14 @@ const Precall = () => {
   ) : (
     <>
       <PrecallBeforeView />
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+      {$config.EVENT_MODE &&
+      rtcProps.role == ClientRoleType.ClientRoleAudience ? (
         <View style={style.root}>
           {!isMobileUA() ? <IDPLogoutComponent /> : <></>}
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
-                <MeetingName prefix="You are joining" />
+                <MeetingName prefix={youAreJoiningAs} />
               </View>
               <Spacer size={32} />
               <JoinRoomInputView isDesktop={true} />
@@ -405,8 +415,7 @@ const Precall = () => {
                   }>
                   <View style={style.desktopRootcontainer}>
                     <View>
-                      {' '}
-                      <MeetingName prefix="You are joining" />
+                      <MeetingName prefix={youAreJoiningAs} />
                     </View>
                     <View style={style.desktopContainer}>
                       <View style={style.desktopContentContainer}>
@@ -470,7 +479,7 @@ const Precall = () => {
                     iconType="plain"
                   />
                 </View>
-                <Text style={style.settingTextStyle}>Settings</Text>
+                <Text style={style.settingTextStyle}>{settingsLabel}</Text>
               </View>
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect isOnPrecall={true} />

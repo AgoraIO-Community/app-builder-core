@@ -13,8 +13,21 @@ import Spacer from '../atoms/Spacer';
 import PlatformWrapper from '../utils/PlatformWrapper';
 import {isMobileOrTablet} from 'customization-api';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useString} from '../utils/useString';
+import {
+  I18nMuteConfirmation,
+  I18nMuteType,
+  I18nRequestConfirmation,
+  muteAllConfirmationPopoverContent,
+  muteAllConfirmationPopoverPrimaryBtnText,
+  muteConfirmationPopoverContent,
+  muteConfirmationPopoverPrimaryBtnText,
+  requestConfirmationPopoverContent,
+  requestConfirmationPopoverPrimaryBtnText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
-export interface ActionMenuProps {
+export interface RemoteMutePopupProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: React.Dispatch<SetStateAction<boolean>>;
   modalPosition?: {
@@ -25,11 +38,26 @@ export interface ActionMenuProps {
   };
   name: string;
   onMutePress: () => void;
-  type: 'video' | 'audio';
+  type: I18nMuteType;
   action?: 'mute' | 'request';
 }
 
-const RemoteMutePopup = (props: ActionMenuProps) => {
+const RemoteMutePopup = (props: RemoteMutePopupProps) => {
+  const cancelLabel = useString(cancelText)();
+  const muteLabel = useString(muteConfirmationPopoverPrimaryBtnText)();
+  const muteAllLabel = useString(muteAllConfirmationPopoverPrimaryBtnText)();
+  const requestLabel = useString(requestConfirmationPopoverPrimaryBtnText)();
+
+  const muteAllConfirmation = useString<I18nMuteType>(
+    muteAllConfirmationPopoverContent,
+  );
+  const requestConfirmation = useString<I18nRequestConfirmation>(
+    requestConfirmationPopoverContent,
+  );
+  const muteConfirmation = useString<I18nMuteConfirmation>(
+    muteConfirmationPopoverContent,
+  );
+
   const {height} = useWindowDimensions();
   const {
     actionMenuVisible,
@@ -38,22 +66,35 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
     action = 'mute',
   } = props;
   let message = '';
+  let btnLabel = '';
 
   if (props.name) {
     //mute action
     if (action === 'mute') {
-      message = `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`;
+      message = muteConfirmation({
+        name: props?.name,
+        type: props.type,
+      });
+      btnLabel = muteLabel;
+      //message = `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`;
     }
     //request action
     else {
-      if (props?.type === 'audio') {
-        message = `Request ${props.name} to turn on their microphone?`;
-      } else {
-        message = `Request ${props.name} to turn on their camera?`;
-      }
+      message = requestConfirmation({
+        name: props?.name,
+        type: props?.type,
+      });
+      btnLabel = requestLabel;
+      // if (props?.type === 'audio') {
+      //   //message = `Request ${props.name} to turn on their microphone?`;
+      // } else {
+      //   //message = `Request ${props.name} to turn on their camera?`;
+      // }
     }
   } else {
-    message = `Mute everyone's ${props.type} on the call?`;
+    message = muteAllConfirmation(props?.type);
+    btnLabel = muteAllLabel;
+    //message = `Mute everyone's ${props.type} on the call?`;
   }
 
   return (
@@ -95,7 +136,9 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
                     <TouchableOpacity
                       style={isHovered ? styles.onHoverBtnStyle : {}}
                       onPress={() => props.setActionMenuVisible(false)}>
-                      <Text style={styles.btnText}>Cancel</Text>
+                      <Text style={styles.btnText}>
+                        {cancelLabel?.toLowerCase()}
+                      </Text>
                     </TouchableOpacity>
                   );
                 }}
@@ -107,9 +150,7 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
                     <TouchableOpacity
                       style={isHovered ? styles.onHoverBtnStyle : {}}
                       onPress={() => props.onMutePress()}>
-                      <Text style={styles.btnText}>
-                        {action === 'mute' ? 'Mute' : 'Request'}
-                      </Text>
+                      <Text style={styles.btnText}>{btnLabel}</Text>
                     </TouchableOpacity>
                   );
                 }}

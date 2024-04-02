@@ -50,6 +50,7 @@
   "dependencies": {
     "@apollo/client": "3.8.1",
     "@gorhom/bottom-sheet": "4.4.7",
+    "@netless/react-native-whiteboard": "^0.0.14",
     "@openspacelabs/react-native-zoomable-view": "^2.1.1",
     "@react-native-async-storage/async-storage": "1.19.2",
     "@react-native-community/checkbox": "0.5.16",
@@ -60,8 +61,9 @@
     "agora-extension-ai-denoiser": "1.1.0",
     "agora-extension-virtual-background": "^1.1.3",
     "agora-react-native-rtm": "1.5.1",
-    "agora-rtc-sdk-ng": "4.16.1",
+    "agora-rtc-sdk-ng": "4.20.1",
     "agora-rtm-sdk": "1.5.1",
+    "buffer": "^6.0.3",
     "electron-log": "4.3.5",
     "electron-squirrel-startup": "1.0.0",
     "electron-updater": "4.3.9",
@@ -81,8 +83,8 @@
     "react-dom": "18.2.0",
     "react-is": "18.0.0",
     "react-native": "0.72.4",
-    "react-native-agora": "3.7.2-rc.3",
     "react-native-agora-chat": "1.2.1",
+    "react-native-agora": "4.2.6-build.3-rc.1",
     "react-native-document-picker": "^9.1.0",
     "react-native-exit-app": "1.1.0",
     "react-native-fs": "^2.20.0",
@@ -93,11 +95,12 @@
     "react-native-keyboard-manager": "6.5.4-1",
     "react-native-reanimated": "3.4.2",
     "react-native-responsive-fontsize": "0.5.1",
-    "react-native-share": "7.9.0",
+    "react-native-share": "10.0.2",
     "react-native-svg": "13.6.0",
     "react-native-vector-icons": "9.2.0",
     "react-native-walkthrough-tooltip": "1.4.0",
     "react-native-web": "0.19.7",
+    "react-native-webview": "13.8.1",
     "react-router-dom": "5.2.0",
     "react-router-native": "5.2.0",
     "react-spring-bottom-sheet": "3.4.1",
@@ -154,6 +157,7 @@
     "metro-react-native-babel-preset": "0.76.8",
     "prettier": "^2.4.1",
     "react-devtools-electron": "4.7.0",
+    "react-native-url-polyfill": "^2.0.0",
     "react-refresh": "0.12.0",
     "react-test-renderer": "18.2.0",
     "style-loader": "3.3.1",
@@ -167,6 +171,6 @@
     "yargs": "15.4.1"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }

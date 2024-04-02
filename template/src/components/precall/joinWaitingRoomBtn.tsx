@@ -13,14 +13,17 @@
 import React, {useContext, useEffect} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
-import {useString} from '../../utils/useString';
+import {useString, useStringRef} from '../../utils/useString';
 import {
   ChannelProfile,
   DispatchContext,
   PropsContext,
   useLocalUid,
 } from '../../../agora-rn-uikit';
-import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
+import {
+  PrecallJoinBtnTextInterface,
+  precallJoinBtnText,
+} from '../../language/default-labels/precallScreenLabels';
 
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../useWakeLock';
@@ -37,6 +40,10 @@ import events from '../../rtm-events-api';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {UserType} from '../RTMConfigure';
 import {useContent} from 'customization-api';
+import {
+  waitingRoomApprovalRejectionToastHeading,
+  waitingRoomApprovalRejectionToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -52,6 +59,10 @@ export interface PreCallJoinWaitingRoomBtnProps {
 
 let shouldWaitingRoomPoll = null;
 const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
+  const headinglabel = useStringRef(waitingRoomApprovalRejectionToastHeading);
+  const subheadinglabel = useStringRef(
+    waitingRoomApprovalRejectionToastSubHeading,
+  );
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive, callActive} = usePreCall();
@@ -61,7 +72,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const {awake, request} = useWakeLock();
   const {saveName} = useUserPreference();
   const waitingRoomButton =
-    useString<JoinRoomButtonTextInterface>('waitingRoomButton');
+    useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
   const {setRoomInfo} = useSetRoomInfo();
   const {request: requestToJoin} = useWaitingRoomAPI();
 
@@ -74,6 +85,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
+      waitingRoom: true,
       ready: isInWaitingRoom,
     }),
   );
@@ -135,8 +147,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
         // inform user that entry was denied by the host
         Toast.show({
           leadingIconName: 'info',
-          text1: `Approval Required`,
-          text2: 'Permission to enter the meeting was denied by the host',
+          text1: headinglabel?.current(),
+          text2: subheadinglabel?.current(),
           visibilityTime: 3000,
           type: 'error',
           primaryBtn: null,
@@ -209,6 +221,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   useEffect(() => {
     setButtonText(
       waitingRoomButton({
+        waitingRoom: true,
         ready: !isInWaitingRoom,
       }),
     );

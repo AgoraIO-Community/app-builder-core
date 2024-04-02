@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import StorageContext from '../../components/StorageContext';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useCaption} from './useCaption';
@@ -7,7 +7,7 @@ import {EventNames} from '../../rtm-events';
 import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
 import {capitalizeFirstLetter} from '../../utils/common';
-import {useLocalUid} from '../../../agora-rn-uikit';
+import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -35,6 +35,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
   const username = useGetName();
   const localUid = useLocalUid();
+  const {rtcProps} = useContext(PropsContext);
 
   React.useEffect(() => {
     currentLangRef.current = language;
@@ -49,8 +50,11 @@ const useSTTAPI = (): IuseSTTAPI => {
       },
       body: JSON.stringify({
         passphrase: roomId?.host || '',
-        lang: lang.join(','),
+        lang: lang,
         dataStream_uid: 111111, // bot ID
+        encryption_mode: $config.ENCRYPTION_ENABLED
+          ? rtcProps.encryption.mode
+          : null,
       }),
     });
     const res = await response.json();

@@ -112,6 +112,7 @@ interface ConfigInterface {
   CHAT_ORG_NAME: string;
   CHAT_APP_NAME: string;
   CHAT_URL: string;
+  ENABLE_NOISE_CANCELLATION_BY_DEFAULT: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

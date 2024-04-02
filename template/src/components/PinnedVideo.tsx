@@ -24,16 +24,23 @@ import {useContent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {BREAKPOINTS, isMobileUA} from '../utils/common';
+import {BREAKPOINTS, isMobileUA, isWebInternal} from '../utils/common';
 import {DispatchContext} from '../../agora-rn-uikit';
 import {useVideoCall} from '../components/useVideoCall';
 import useActiveSpeaker from '../utils/useActiveSpeaker';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import {useWhiteboard} from '../components/whiteboard/WhiteboardConfigure';
+import {useString} from '../utils/useString';
+import {
+  moreBtnRemoveFromLarge,
+  videoRoomGoToActiveSpeakerText,
+} from '../language/default-labels/videoCallScreenLabels';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
+  const removeFromLargeText = useString(moreBtnRemoveFromLarge)();
+  const goToASText = useString(videoRoomGoToActiveSpeakerText)();
   const [isOnTop, setIsOnTop] = useState(true);
   const {pinnedUid, secondaryPinnedUid} = useContent();
   const [collapse, setCollapse] = useState(false);
@@ -101,7 +108,9 @@ const PinnedVideo = ({renderData}) => {
                     marginBottom: 8,
                   }
             }>
-            {secondaryPinnedUid ? (
+            {secondaryPinnedUid &&
+            secondaryPinnedUid !== pinnedUid &&
+            secondaryPinnedUid !== maxUid ? (
               <Pressable
                 disabled={true}
                 style={
@@ -130,6 +139,8 @@ const PinnedVideo = ({renderData}) => {
             {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
             {minUids?.map((minUid, i) => {
               if (minUid === secondaryPinnedUid) return null;
+              if (minUid === pinnedUid) return null;
+              if (minUid === maxUid) return null;
               //rendering minimized view
               return (
                 <Pressable
@@ -169,7 +180,7 @@ const PinnedVideo = ({renderData}) => {
               );
             })}
           </ScrollView>
-          {$config.ACTIVE_SPEAKER && !isOnTop && (
+          {$config.ACTIVE_SPEAKER && !isOnTop && isWebInternal() && (
             <View
               style={
                 isSidePinnedlayout
@@ -220,7 +231,7 @@ const PinnedVideo = ({renderData}) => {
                     fontFamily: ThemeConfig.FontFamily.sansPro,
                     alignSelf: 'center',
                   }}>
-                  Go to Active Speaker
+                  {goToASText}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -287,7 +298,7 @@ const PinnedVideo = ({renderData}) => {
                   dispatch({type: 'UserPin', value: [0]});
                 }}
                 btnTextProps={{
-                  text: 'Remove from large',
+                  text: removeFromLargeText,
                   textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                   textStyle: {
                     marginTop: 0,

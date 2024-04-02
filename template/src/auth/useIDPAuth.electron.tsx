@@ -7,10 +7,13 @@ import {
 import StorageContext from '../components/StorageContext';
 import useTokenAuth from './useTokenAuth';
 import {useHistory} from '../components/Router';
+import {useString} from '../utils/useString';
+import {authSessionTimeoutToastHeading} from '../language/default-labels/commonLabels';
 
 export const useIDPAuth = () => {
   const {store, setStore} = useContext(StorageContext);
   const {tokenLogout} = useTokenAuth();
+  const headingText = useString(authSessionTimeoutToastHeading)();
   const history = useHistory();
   const idpLogout = () => {
     return new Promise((resolve, reject) => {
@@ -21,7 +24,7 @@ export const useIDPAuth = () => {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
           },
         })
-          .then((response) => response.json())
+          .then(response => response.json())
           .then((res: any) => {
             if (res && res?.url) {
               //Storing the URL in the local variable
@@ -33,7 +36,7 @@ export const useIDPAuth = () => {
               tokenLogout()
                 .then(() => {
                   //call IDP logout url
-                  addEventListenerForToken(history);
+                  addEventListenerForToken(history, headingText);
                   setTimeout(() => {
                     window.open(IDPAuthLogoutURL, 'modal');
                   });
@@ -46,7 +49,7 @@ export const useIDPAuth = () => {
               reject(false);
             }
           })
-          .catch((_) => {
+          .catch(_ => {
             reject(false);
           });
       } catch (error) {

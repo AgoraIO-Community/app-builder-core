@@ -8,6 +8,8 @@ import {useVB} from './useVB';
 import ThemeConfig from '../../../src/theme';
 import {isMobileUA} from '../../utils/common';
 import InlineNotification from '../../atoms/InlineNotification';
+import {useString} from '../../utils/useString';
+import {vbPanelInfo} from '../../language/default-labels/precallScreenLabels';
 interface VideoPreviewProps {
   isLocalVideoON?: boolean;
 }
@@ -24,10 +26,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
   const {defaultContent, activeUids} = useContent();
   const [maxUid] = activeUids;
 
-  const fallbackText = isCameraAvailable
-    ? `Camera is currently off. Selected background will be applied as soon
-  as your camera turns on.`
-    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
+  const fallbackText = useString<boolean>(vbPanelInfo);
 
   const createCameraTrack = async () => {
     if (isLocalVideoON && vContainerRef.current && !previewVideoTrack) {
@@ -69,12 +68,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
         <MaxVideoView
           user={defaultContent[localUid]}
           key={localUid}
-          fallback={() => (
-            <InlineNotification
-              text="Camera is currently off. Selected background will be applied as soon
-        as your camera turns on."
-            />
-          )}
+          fallback={() => <InlineNotification text={fallbackText(true)} />}
           isFullView={true}
           containerStyle={{
             width: '100%',
@@ -85,7 +79,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
       ) : isLocalVideoON ? (
         <View ref={vContainerRef} style={styles.desktopPreview}></View>
       ) : (
-        <InlineNotification text={fallbackText} />
+        <InlineNotification text={fallbackText(isCameraAvailable)} />
       )}
     </View>
   );

@@ -22,14 +22,32 @@ import {
 import {whiteboardContext, BoardColor} from './WhiteboardConfigure';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {randomString} from '../../utils/common';
+import {
+  isIOS,
+  isMobileUA,
+  isWebInternal,
+  randomString,
+  isAndroid,
+} from '../../utils/common';
 import Toast from '../../../react-native-toast-message';
 import ThemeConfig from '../../theme';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 import ImageIcon from '../../atoms/ImageIcon';
 import StorageContext from '../StorageContext';
 import Clipboard from '../../subComponents/Clipboard';
-import {opacity} from 'react-native-reanimated';
+import {useString} from '../../utils/useString';
+import {
+  whiteboardExportErrorToastHeading,
+  whiteboardExportInfoToastHeading,
+  whiteboardExportSuccessToastHeading,
+  whiteboardWidgetExportToCloudText,
+  whiteboardWidgetFitToScreenText,
+  whiteboardWidgetRedoText,
+  whiteboardWidgetUndoText,
+  whiteboardWidgetViewOnlyText,
+  whiteboardWidgetZoomInText,
+  whiteboardWidgetZoomOutText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const Seperator = () => {
   return (
@@ -45,9 +63,24 @@ const Seperator = () => {
 };
 
 const WhiteboardWidget = ({whiteboardRoom}) => {
+  const viewonlylabel = useString(whiteboardWidgetViewOnlyText)();
+  const zoominlabel = useString(whiteboardWidgetZoomInText)();
+  const zoomoutlabel = useString(whiteboardWidgetZoomOutText)();
+  const fittoscreenlabel = useString(whiteboardWidgetFitToScreenText)();
+  const redolabel = useString(whiteboardWidgetRedoText)();
+  const undolabel = useString(whiteboardWidgetUndoText)();
+  const exportlabel = useString(whiteboardWidgetExportToCloudText)();
+  const exportError = useString(whiteboardExportErrorToastHeading)();
+  const exportInfo = useString(whiteboardExportInfoToastHeading)();
+  const exportsuccess = useString(whiteboardExportSuccessToastHeading)();
+
   const [isInProgress, setIsInProgress] = useState(false);
-  const {setBoardColor, boardColor, getWhiteboardUid} =
-    useContext(whiteboardContext);
+  const {
+    setBoardColor,
+    boardColor,
+    getWhiteboardUid,
+    isWhiteboardOnFullScreen,
+  } = useContext(whiteboardContext);
   const {
     data: {whiteboard: {room_uuid} = {}},
   } = useRoomInfo();
@@ -72,7 +105,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     Toast.show({
       leadingIconName: 'alert',
       type: 'error',
-      text1: 'Failed to export the whiteboard',
+      text1: exportError,
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
@@ -85,8 +118,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       Toast.show({
         leadingIconName: 'info',
         type: 'info',
-        text1:
-          'Please wait few seconds to get the screenshot link of the whiteboard',
+        text1: exportInfo,
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
@@ -112,8 +144,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
             Toast.show({
               leadingIconName: 'tick-fill',
               type: 'success',
-              text1:
-                'Whiteboard exported as an image. Link copied to your clipboard.',
+              text1: exportsuccess,
               visibilityTime: 3000,
               primaryBtn: null,
               secondaryBtn: null,
@@ -178,7 +209,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     <>
       <View style={style.toolboxContainer}>
         <View style={style.toolboxNew} nativeID="toolbox">
-          {!whiteboardRoom.current?.isWritable ? (
+          {(!whiteboardRoom.current?.isWritable || isIOS() || isAndroid()) &&
+          !isWhiteboardOnFullScreen ? (
             <View style={style.viewOnlyContainerStyle}>
               <ImageIcon
                 name="view-only"
@@ -186,15 +218,16 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                 iconType="plain"
                 tintColor={$config.CARD_LAYER_5_COLOR}
               />
-              <Text style={style.viewOnlyTextStyle}>View Only</Text>
+              <Text style={style.viewOnlyTextStyle}>{viewonlylabel}</Text>
             </View>
           ) : (
             <></>
           )}
-          <View style={style.widgetContainer}>
-            {whiteboardRoom.current?.isWritable ? (
-              <>
-                {/** <IconButton
+          {isWebInternal() && !isMobileUA() ? (
+            <View style={style.widgetContainer}>
+              {whiteboardRoom.current?.isWritable ? (
+                <>
+                  {/** <IconButton
                   toolTipMessage={
                     boardColor === BoardColor.Black
                       ? 'Whiteboard'
@@ -225,31 +258,43 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
                   }}
                 />
                 <Seperator /> */}
-                <RedoUndo room={whiteboardRoom.current} />
-                <Seperator />
-              </>
-            ) : (
-              <></>
-            )}
-            <ScaleController room={whiteboardRoom.current} />
-            {whiteboardRoom.current?.isWritable &&
-            $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
-              <>
-                <Seperator />
-                <TouchableOpacity
-                  disabled={isInProgress}
-                  style={[
-                    style.btnContainerStyle,
-                    isInProgress ? {opacity: 0.6} : {},
-                  ]}
-                  onPress={exportWhiteboard}>
-                  <Text style={style.btnTextStyle}>{'Export to Cloud'}</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <></>
-            )}
-          </View>
+                  <RedoUndo
+                    room={whiteboardRoom.current}
+                    undoLabel={undolabel}
+                    redoLabel={redolabel}
+                  />
+                  <Seperator />
+                </>
+              ) : (
+                <></>
+              )}
+              <ScaleController
+                room={whiteboardRoom.current}
+                zoomInLabel={zoominlabel}
+                zoomOutLabel={zoomoutlabel}
+                fitToScreenLabel={fittoscreenlabel}
+              />
+              {whiteboardRoom.current?.isWritable &&
+              $config.ENABLE_WHITEBOARD_FILE_UPLOAD ? (
+                <>
+                  <Seperator />
+                  <TouchableOpacity
+                    disabled={isInProgress}
+                    style={[
+                      style.btnContainerStyle,
+                      isInProgress ? {opacity: 0.6} : {},
+                    ]}
+                    onPress={exportWhiteboard}>
+                    <Text style={style.btnTextStyle}>{exportlabel}</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <></>
+              )}
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
       </View>
     </>
@@ -265,6 +310,9 @@ export type ScaleControllerState = {
 
 export type ScaleControllerProps = {
   room: Room;
+  zoomInLabel: string;
+  zoomOutLabel: string;
+  fitToScreenLabel: string;
 };
 
 class ScaleController extends React.Component<
@@ -391,7 +439,7 @@ class ScaleController extends React.Component<
     return (
       <>
         <IconButton
-          toolTipMessage={'Fit to screen'}
+          toolTipMessage={this.props.fitToScreenLabel}
           placement={'bottom'}
           showTooltipArrow={false}
           onPress={() => {
@@ -410,7 +458,7 @@ class ScaleController extends React.Component<
         />
         <Seperator />
         <IconButton
-          toolTipMessage="Zoom Out"
+          toolTipMessage={this.props.zoomOutLabel}
           placement={'bottom'}
           showTooltipArrow={false}
           onPress={() => {
@@ -428,7 +476,7 @@ class ScaleController extends React.Component<
         />
 
         <IconButton
-          toolTipMessage={'Zoom In'}
+          toolTipMessage={this.props.zoomInLabel}
           placement={'bottom'}
           showTooltipArrow={false}
           onPress={() => {
@@ -452,6 +500,8 @@ class ScaleController extends React.Component<
 
 export type RedoUndoProps = {
   room: Room;
+  undoLabel: string;
+  redoLabel: string;
 };
 export type RedoUndoStates = {
   undoSteps: number;
@@ -510,7 +560,7 @@ class RedoUndo extends React.Component<RedoUndoProps, RedoUndoStates> {
       <>
         <IconButton
           disabled={undoDisabled}
-          toolTipMessage="Undo"
+          toolTipMessage={this.props.undoLabel}
           placement={'bottom'}
           showTooltipArrow={false}
           onPress={this.handleUndo}
@@ -530,7 +580,7 @@ class RedoUndo extends React.Component<RedoUndoProps, RedoUndoStates> {
         />
         <IconButton
           disabled={redoDisabled}
-          toolTipMessage="Redo"
+          toolTipMessage={this.props.redoLabel}
           placement={'bottom'}
           showTooltipArrow={false}
           onPress={this.handleRedo}

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
   DispatchContext,
   ContentInterface,
@@ -22,8 +22,15 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
-import {useRtc} from 'customization-api';
+import {filterObject, useContent, useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
+import {
+  PSTNUserLabel,
+  videoRoomScreenshareText,
+  videoRoomUserFallbackText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {useLanguage} from '../language/useLanguage';
+import {useScreenContext} from '../components/contexts/ScreenShareContext';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -59,6 +66,36 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   const [displayName, setDisplayName] = useState(getInitialUsername());
   const [updateUserName] = useMutation(UPDATE_USER_NAME_MUTATION);
 
+  const {languageCode} = useLanguage();
+  const {screenShareData} = useScreenContext();
+  const {defaultContent} = useContent();
+  const screenShareDataRef = useRef({screenShareData});
+  useEffect(() => {
+    screenShareDataRef.current.screenShareData = screenShareData;
+  }, [screenShareData]);
+
+  useEffect(() => {
+    try {
+      if (languageCode) {
+        Object.keys(screenShareDataRef.current.screenShareData).map(i => {
+          let screenShareUidToUpdate = parseInt(i);
+          const users = filterObject(
+            defaultContent,
+            ([k, v]) => v?.screenUid === screenShareUidToUpdate,
+          );
+          const keys = Object.keys(users);
+          if (users && keys && keys?.length) {
+            updateRenderListState(screenShareUidToUpdate, {
+              name: getScreenShareName(
+                users[parseInt(keys[0])]?.name || userText,
+              ),
+            });
+          }
+        });
+      }
+    } catch (error) {}
+  }, [languageCode, screenShareData]);
+
   const saveName = (name: string) => {
     if (name && name?.trim() !== '') {
       try {
@@ -66,7 +103,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           variables: {
             name,
           },
-        }).catch((error) => {
+        }).catch(error => {
           console.log('ERROR, could not save the name', error);
         });
       } catch (error) {
@@ -74,16 +111,12 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
       }
     }
   };
-  //commented for v1 release
-  // const userText = useString('remoteUserDefaultLabel')();
-  const userText = 'User';
-  const pstnUserLabel = useString('pstnUserLabel')();
-  //commented for v1 release
-  //const getScreenShareName = useString('screenshareUserName');
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  const userText = useString(videoRoomUserFallbackText)();
+  const pstnUserLabel = useString(PSTNUserLabel)();
+  const getScreenShareName = useString(videoRoomScreenshareText);
 
   useEffect(() => {
-    events.on(EventNames.NAME_ATTRIBUTE, (data) => {
+    events.on(EventNames.NAME_ATTRIBUTE, data => {
       const value = JSON.parse(data?.payload);
       if (value) {
         if (value?.uid) {
@@ -108,7 +141,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     //Update the store displayName value if the state is changed
-    setStore((prevState) => {
+    setStore(prevState => {
       return {
         ...prevState,
         displayName,

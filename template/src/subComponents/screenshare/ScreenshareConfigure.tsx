@@ -18,12 +18,10 @@ import {
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
-import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
-import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {timeNow} from '../../rtm/utils';
 import {
   controlMessageEnum,
@@ -33,24 +31,24 @@ import {
 } from 'customization-api';
 import {filterObject} from '../../utils';
 import Toast from '../../../react-native-toast-message';
+import {useString} from '../../utils/useString';
+import {
+  videoRoomScreenShareErrorToastHeading,
+  videoRoomScreenShareErrorToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+  const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
+  const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
   const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
     useContent();
   const isPinned = useRef(0);
-  const {isRecordingActive} = useRecording();
-  const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
-  // commented for v1 release
-  // const getScreenShareName = useString('screenshareUserName');
-  // const userText = useString('remoteUserDefaultLabel')();
-  // const getScreenShareName = (name: string) => `${name}'s screenshare`;
-  // const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
@@ -230,7 +228,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
     console.log('STOPPED SHARING');
-    executeNormalQuery();
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({
@@ -266,21 +263,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     // @ts-ignore
     rtc.RtcEngineUnsafe.addListener(
-      'ScreenshareStopped',
+      'onScreenshareStopped',
       ScreenshareStoppedCallback,
     );
   }, []);
-
-  const executeRecordingQuery = (isScreenActive: boolean) => {
-    if (isScreenActive) {
-      console.log('screenshare: Executing presenter query');
-      // If screen share is not going on, start the screen share by executing the graphql query
-      executePresenterQuery(screenShareUid);
-    } else {
-      // If recording is already going on, stop the recording by executing the graphql query.
-      executeNormalQuery();
-    }
-  };
 
   const stopUserScreenShare = () => {
     if (!isScreenshareActive) {
@@ -296,10 +282,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const userScreenshare = async (isActive: boolean) => {
-    if (isRecordingActive) {
-      executeRecordingQuery(isActive);
-    }
-    console.log('screenshare query executed');
     try {
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(
@@ -339,15 +321,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
     } catch (e) {
       console.error("can't start the screen share", e);
-      executeNormalQuery();
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'Failed to initiate screen sharing',
-        text2: 'Permission denied',
+        text1: toastHeading,
+        text2: toastSubHeading,
         visibilityTime: 1000 * 10,
         primaryBtn: null,
-        secondaryBtn: null
+        secondaryBtn: null,
       });
     }
   };

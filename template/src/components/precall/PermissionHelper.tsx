@@ -1,20 +1,27 @@
 import {useLocalUserInfo} from 'customization-api';
 import React, {useContext, useEffect, useState} from 'react';
-import {
-  View,
-  Image,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import {View, Image, TouchableOpacity, StyleSheet, Text} from 'react-native';
 import Popup from '../../atoms/Popup';
 import ThemeConfig from '../../theme';
 //@ts-ignore
 import permissionHelper from '../../assets/permission.png';
 import {DispatchContext, PermissionState} from '../../../agora-rn-uikit';
+import {useString} from '../../utils/useString';
+import {
+  permissionPopupDismissBtnText,
+  permissionPopupHeading,
+  permissionPopupSubHeading,
+} from '../../language/default-labels/precallScreenLabels';
 
 const PermissionHelper = () => {
+  const heading = useString<any>(permissionPopupHeading)({
+    audioRoom: $config.AUDIO_ROOM,
+  });
+  const subheading = useString<any>(permissionPopupSubHeading)({
+    audioRoom: $config.AUDIO_ROOM,
+  });
+  const dismiss = useString(permissionPopupDismissBtnText)();
+
   const {dispatch} = useContext(DispatchContext);
   const {permissionStatus} = useLocalUserInfo();
   const [showPopup, setShowPopup] = useState(false);
@@ -78,23 +85,13 @@ const PermissionHelper = () => {
           />
         </View>
         <View style={styles.modalContent}>
-          <Text style={styles.infoMessage1}>
-            {$config.AUDIO_ROOM
-              ? 'Allow access to microphone'
-              : 'Allow access to camera and microphone'}
-          </Text>
-          <Text style={styles.infoMessage2}>
-            Select
-            <Text style={styles.infoMessage2Highlight}>{` “Allow” `}</Text>
-            {$config.AUDIO_ROOM
-              ? 'for others to hear you'
-              : 'for others to see and hear you'}
-          </Text>
+          <Text style={styles.infoMessage1}>{heading}</Text>
+          <Text style={styles.infoMessage2}>{subheading}</Text>
           <TouchableOpacity
             onPress={() => {
               closePopup();
             }}>
-            <Text style={styles.dismissBtn}>Dismiss</Text>
+            <Text style={styles.dismissBtn}>{dismiss}</Text>
           </TouchableOpacity>
         </View>
       </Popup>

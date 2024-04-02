@@ -17,6 +17,21 @@ import {Route, Switch, Redirect} from './components/Router';
 import AuthRoute from './auth/AuthRoute';
 import {IDPAuth} from './auth/IDPAuth';
 import {Text} from 'react-native';
+import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
+import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
+
+function VideoCallWrapper(props) {
+  const {isRecordingBotRoute} = useIsRecordingBot();
+  return isRecordingBotRoute ? (
+    <RecordingBotRoute history={props.history}>
+      <VideoCall />
+    </RecordingBotRoute>
+  ) : (
+    <AuthRoute>
+      <VideoCall />
+    </AuthRoute>
+  );
+}
 
 function AppRoutes() {
   return (
@@ -33,9 +48,7 @@ function AppRoutes() {
       <AuthRoute exact path={'/create'}>
         <Create />
       </AuthRoute>
-      <AuthRoute path={'/:phrase'}>
-        <VideoCall />
-      </AuthRoute>
+      <Route exact path={'/:phrase'} component={VideoCallWrapper} />
       <Route path="*">
         <Text>Page not found</Text>
       </Route>

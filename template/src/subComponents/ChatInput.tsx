@@ -31,6 +31,10 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import ChatSendButton from './chat/ChatSendButton';
 import {ChatMessageType} from '../components/chat/useSDKChatMessages';
+import {
+  groupChatInputPlaceHolderText,
+  privateChatInputPlaceHolderText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 // export interface ChatSendButtonProps {
 //   render?: (onPress: () => void) => JSX.Element;
@@ -116,11 +120,16 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   // )();
   const [name] = useUserName();
 
-  // const chatMessageInputPlaceholder =
-  //   chatType === ChatType.Private
-  //     ? `Private Message to ${defaultContent[privateChatUser]?.name}`
-  //     : `Chat publicly as ${name}...`;
-  const chatMessageInputPlaceholder = 'Type Message Here';
+ 
+  const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
+  const privateChatInputPlaceHolder = useString(
+    privateChatInputPlaceHolderText,
+  );
+
+  const chatMessageInputPlaceholder =
+    chatType === ChatType.Private
+      ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
+      : groupChatInputPlaceHolder(name);
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (message.length === 0) return;

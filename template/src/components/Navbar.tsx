@@ -66,6 +66,11 @@ import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
+import {
+  toolbarItemChatText,
+  toolbarItemPeopleText,
+  videoRoomRecordingText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -73,9 +78,10 @@ export const ParticipantsCountView = ({
   isMobileView?: boolean;
 }) => {
   const {onlineUsersCount} = useContext(ChatContext);
+  const peopleLabel = useString(toolbarItemPeopleText)();
   return isMobileView ? (
     <Text>
-      People {'\n'} ({numFormatter(onlineUsersCount)})
+      {peopleLabel} {'\n'} ({numFormatter(onlineUsersCount)})
     </Text>
   ) : (
     <>
@@ -117,11 +123,9 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-  //commented for v1 release
-  //const participantsLabel = useString('participantsLabel')();
+
   const {waitingRoomUids} = useWaitingRoomContext();
-  //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
-  const participantsLabel = `People`;
+  const participantsLabel = useString(toolbarItemPeopleText)();
   const isPanelActive = sidePanel === SidePanelType.Participants;
   const {
     data: {isHost},
@@ -244,9 +248,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
   const {setChatType, setPrivateChatUser} = useChatUIControls();
 
-  //commented for v1 release
-  //const chatLabel = useString('chatLabel')();
-  const chatLabel = 'Chat';
+  const chatLabel = useString(toolbarItemChatText)();
+
   const isPanelActive = sidePanel === SidePanelType.Chat;
 
   //when chat panel is close then we need to show the toast notification. for that
@@ -422,7 +425,7 @@ export const ParticipantCountToolbarItem = () => {
   );
 };
 export const RecordingStatusToolbarItem = () => {
-  const recordingLabel = 'Recording';
+  const recordingLabel = useString(videoRoomRecordingText)();
   const {isRecordingActive} = useRecording();
   return isRecordingActive ? (
     <ToolbarItem>
@@ -507,8 +510,6 @@ export interface NavbarProps {
   includeDefaultItems?: boolean;
 }
 const Navbar = (props: NavbarProps) => {
-  //commented for v1 release
-  //const recordingLabel = useString('recordingLabel')();
   const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
 

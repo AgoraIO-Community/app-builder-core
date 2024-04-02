@@ -35,9 +35,15 @@ import {useCustomization} from 'customization-implementation';
 import NavbarMobile from '../../components/NavbarMobile';
 import {useVB} from '../../components/virtual-background/useVB';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {WhiteboardListener} from '../../components/Controls';
+import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
+import WhiteboardView from '../../components/whiteboard/WhiteboardView';
 
-const VideoCallMobileView = () => {
+const VideoCallMobileView = props => {
+  const {native = true} = props;
+  const {customContent} = useContent();
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
+  const {getWhiteboardUid, isWhiteboardOnFullScreen} = useWhiteboard();
 
   const {RtcEngineUnsafe} = useContext(RtcContext);
   const {dispatch} = useContext(DispatchContext);
@@ -116,13 +122,39 @@ const VideoCallMobileView = () => {
     return <VBPanel />;
   }
 
+  if (isWhiteboardOnFullScreen) {
+    return (
+      <>
+        {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
+        <VideoRenderer
+          user={{
+            uid: customContent[getWhiteboardUid()]?.uid,
+            type: 'whiteboard',
+            video: 0,
+            audio: 0,
+            parentUid: undefined,
+            name: 'Whiteboard',
+            muted: undefined,
+          }}
+          CustomChild={WhiteboardView}
+        />
+      </>
+    );
+  }
+
   return isScreenShareOnFullView &&
     maxScreenShareUid &&
     defaultContent[maxScreenShareUid] &&
     defaultContent[maxScreenShareUid]?.video ? (
-    <VideoRenderer user={defaultContent[maxScreenShareUid]} />
+    <>
+      {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
+      <VideoRenderer user={defaultContent[maxScreenShareUid]} />
+    </>
   ) : (
-    <VideoCallView />
+    <>
+      {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
+      <VideoCallView />
+    </>
   );
 };
 

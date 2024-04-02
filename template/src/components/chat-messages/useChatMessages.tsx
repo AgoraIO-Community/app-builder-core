@@ -28,6 +28,16 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
+import {useStringRef} from '../../utils/useString';
+import {
+  publicChatToastHeading,
+  multiplePublicChatToastHeading,
+  multiplePrivateChatToastHeading,
+  privateChatToastHeading,
+  multiplePublicAndPrivateChatToastHeading,
+  multiplePublicAndPrivateChatToastSubHeading,
+  multiplePublicChatToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 enum ChatMessageActionEnum {
   Create = 'Create_Chat_Message',
@@ -82,13 +92,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {setSidePanel, sidePanel} = useSidePanel();
   const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
     useChatUIControls();
-  const {
-    setUnreadGroupMessageCount,
-    setUnreadIndividualMessageCount,
-    unreadPrivateMessageCount,
-    unreadIndividualMessageCount,
-    setUnreadPrivateMessageCount,
-  } = useChatNotification();
+  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
+    useChatNotification();
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [privateMessageStore, setPrivateMessageStore] = useState<{
     [key: string]: messageStoreInterface[];
@@ -102,10 +107,38 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
-  //commented for v1 release
-  //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string) => `${name} commented in the public chat`;
-  const privateMessageLabel = 'You’ve received a private message';
+  //public single
+  const fromText = useStringRef(publicChatToastHeading);
+
+  //public multple
+  const multiplePublicChatToastHeadingTT = useStringRef(
+    multiplePublicChatToastHeading,
+  );
+  //@ts-ignore
+  const multiplePublicChatToastSubHeadingTT = useStringRef<{
+    count: number;
+    from: string;
+  }>(multiplePublicChatToastSubHeading);
+
+  //private single
+  const privateMessageLabel = useStringRef(privateChatToastHeading);
+
+  //private multiple
+  //@ts-ignore
+  const multiplePrivateChatToastHeadingTT = useStringRef<{count: number}>(
+    multiplePrivateChatToastHeading,
+  );
+
+  //multiple private and public toast
+  const multiplePublicAndPrivateChatToastHeadingTT = useStringRef(
+    multiplePublicAndPrivateChatToastHeading,
+  );
+  //@ts-ignore
+  const multiplePublicAndPrivateChatToastSubHeadingTT = useStringRef<{
+    publicChatCount: number;
+    privateChatCount: number;
+    from: string;
+  }>(multiplePublicAndPrivateChatToastSubHeading);
 
   useEffect(() => {
     callActiveRef.current.callActive = callActive;
@@ -231,12 +264,21 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           leadingIconName: 'chat-nav',
           text1:
             privateMessages && privateMessages.length
-              ? 'New comments in Public & Private Chat'
-              : 'New comments in Public Chat',
+              ? multiplePublicAndPrivateChatToastHeadingTT?.current()
+              : multiplePublicChatToastHeadingTT?.current(),
           text2:
             privateMessages && privateMessages.length
-              ? `You have ${publicMessages.length} new messages from ${fromNames} and ${privateMessages.length} Private chat`
-              : `You have ${publicMessages.length} new messages from ${fromNames}`,
+              ? //@ts-ignore
+                multiplePublicAndPrivateChatToastSubHeadingTT?.current({
+                  publicChatCount: publicMessages.length,
+                  privateChatCount: privateMessages.length,
+                  from: fromNames,
+                })
+              : //@ts-ignore
+                multiplePublicChatToastSubHeadingTT?.current({
+                  count: publicMessages.length,
+                  from: fromNames,
+                }),
           visibilityTime: 3000,
           onPress: () => {
             if (isPrivateMessage) {
@@ -260,7 +302,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           secondaryBtn: null,
           type: 'info',
           leadingIconName: 'chat-nav',
-          text1: `You’ve received ${privateMessages.length} private messages`,
+          text1:
+            //@ts-ignore
+            multiplePrivateChatToastHeadingTT?.current({
+              count: privateMessages.length,
+            }),
           text2: ``,
           visibilityTime: 3000,
           onPress: () => {
@@ -291,10 +337,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           type: 'info',
           leadingIconName: 'chat-nav',
           text1: isPrivateMessage
-            ? privateMessageLabel
+            ? privateMessageLabel?.current()
             : //@ts-ignore
             defaultContentRef.current.defaultContent[uidAsNumber]?.name
-            ? fromText(
+            ? fromText?.current(
                 trimText(
                   //@ts-ignore
                   defaultContentRef.current.defaultContent[uidAsNumber]?.name,

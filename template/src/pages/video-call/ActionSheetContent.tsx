@@ -10,7 +10,7 @@ import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 import {
   RoomInfoContextInterface,
   useRoomInfo,
@@ -44,6 +44,11 @@ import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContex
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
 import VBButton from '../../components/virtual-background/VBButton';
 import {useVB} from '../../components/virtual-background/useVB';
+import {useString} from '../../utils/useString';
+import {
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -196,42 +201,13 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
     (isHost || (!isHost && isSTTActive))
   );
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <CaptionIcon
-          isOnActionSheet={true}
-          showLabel={false}
-          closeActionSheet={onPress}
-        />
-      </View>
-      {showLabel && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-              },
-            ]}>
-            {isCaptionON ? 'Hide' : 'Show'}
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Caption
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem>
+      <CaptionIcon
+        isOnActionSheet={true}
+        showLabel={true}
+        closeActionSheet={onPress}
+      />
+    </ToolbarItem>
   );
 };
 
@@ -252,38 +228,9 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
     (isHost || (!isHost && isSTTActive))
   );
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
-      </View>
-      {showLabel && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-              },
-            ]}>
-            {isTranscriptON ? 'Hide' : 'Show'}
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Transcript
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem>
+      <TranscriptIcon isOnActionSheet={true} showLabel={true} />
+    </ToolbarItem>
   );
 };
 
@@ -294,6 +241,14 @@ const ToastIcon = ({color}) => (
 );
 
 const ActionSheetContent = props => {
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
+  const subheading = useString<{
+    action: 'Set' | 'Changed';
+    newLanguage: string;
+    oldLanguage: string;
+    username: string;
+  }>(sttSpokenLanguageToastSubHeading);
+
   const {
     handleSheetChanges,
     isExpanded,
@@ -353,16 +308,29 @@ const ActionSheetContent = props => {
       defaultContentRef.current[uid]?.name || username
     } ${actionText} `;
 
+    let subheadingObj: any = {};
+    if (prevLang.indexOf('') !== -1) {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+      };
+    } else {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+        oldLanguage: getLanguageLabel(prevLang),
+      };
+    }
     Toast.show({
       leadingIconName: 'lang-select',
       type: 'info',
-      text1: `Spoken Language ${
-        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-      }`,
+      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
-      text2: msg,
+      text2: subheading(subheadingObj),
     });
     setRoomInfo(prev => {
       return {
@@ -387,8 +355,9 @@ const ActionSheetContent = props => {
   }, [sttLanguage]);
 
   const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
-  const isAudience = rtcProps?.role === ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role === ClientRole.Broadcaster;
+  const isAudience = rtcProps?.role === ClientRoleType.ClientRoleAudience;
+  const isBroadCasting =
+    rtcProps?.role === ClientRoleType.ClientRoleBroadcaster;
   const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
 
   const isAudioRoom = $config.AUDIO_ROOM;
@@ -515,16 +484,16 @@ const ActionSheetContent = props => {
       order: 8,
       hide: 'no',
       align: 'start',
-      component: <LayoutIcon />,
+      component:
+        !isAudioRoom &&
+        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
     },
     {
       default: true,
       order: 9,
       hide: 'no',
       align: 'start',
-      component:
-        !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
+      component: <LayoutIcon />,
     },
     {
       default: true,

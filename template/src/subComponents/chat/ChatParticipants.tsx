@@ -21,6 +21,10 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
+import {
+  inviteTileNoElseJoinedYetText,
+  videoRoomUserFallbackText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const ChatIcon = () => (
   <View style={{alignSelf: 'center', marginRight: 20}}>
@@ -33,9 +37,7 @@ const ChatIcon = () => (
 );
 
 const ChatParticipants = (props: any) => {
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const {selectUser} = props;
   const {defaultContent, activeUids, customContent} = useContent();
   const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
@@ -52,6 +54,8 @@ const ChatParticipants = (props: any) => {
     }
   }, [waitingRoomUids, activeUids]);
 
+  const noOneElseJoinedYet = useString(inviteTileNoElseJoinedYetText)();
+
   return (
     <ScrollView>
       {
@@ -60,9 +64,7 @@ const ChatParticipants = (props: any) => {
         //livestreaming vertical
         ($config.EVENT_MODE && hostUids.length + audienceUids.length === 1) ? (
           <View style={style.defaultMessageContainer}>
-            <Text style={style.defaultMessageText}>
-              No one else has joined yet.
-            </Text>
+            <Text style={style.defaultMessageText}>{noOneElseJoinedYet}</Text>
           </View>
         ) : (
           <></>

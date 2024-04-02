@@ -36,6 +36,7 @@ import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
 import {ChatMessageType} from '../components/chat/useSDKChatMessages';
+import {videoRoomUserFallbackText} from '../language/default-labels/videoCallScreenLabels';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -100,7 +101,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   };
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
 
   return props?.render ? (
     props.render(
@@ -270,6 +271,7 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 8,
+    maxWidth: '88%',
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
@@ -304,6 +306,7 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 0,
+    maxWidth: '88%',
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

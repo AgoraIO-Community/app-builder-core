@@ -1,4 +1,3 @@
-import {useContext} from 'react';
 import {gql} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
@@ -6,6 +5,7 @@ import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {GraphQLContext} from '../components/GraphQLProvider';
 import useGetName from './useGetName';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
+import {base64ToUint8Array} from '../utils';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -19,6 +19,7 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         userToken
         isGroupOwner
       }
+      secretSalt
       mainUser {
         rtc
         rtm
@@ -53,6 +54,7 @@ const JOIN_CHANNEL_PHRASE = gql`
         userToken
         isGroupOwner
       }
+      secretSalt
       mainUser {
         rtc
         rtm
@@ -139,6 +141,13 @@ export default function useJoinRoom() {
             roomInfo.encryptionSecret = isWaitingRoomEnabled
               ? data.secret
               : data.joinChannel.secret;
+          }
+          if (data?.joinChannel?.secretSalt || data?.secretSalt) {
+            roomInfo.encryptionSecretSalt = base64ToUint8Array(
+              isWaitingRoomEnabled
+                ? data.secretSalt
+                : data.joinChannel.secretSalt,
+            );
           }
           if (data?.joinChannel?.screenShare?.uid || data?.screenShare?.uid) {
             roomInfo.screenShareUid = isWaitingRoomEnabled

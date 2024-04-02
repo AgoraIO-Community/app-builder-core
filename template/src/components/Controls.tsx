@@ -29,7 +29,7 @@ import Recording from '../subComponents/Recording';
 import LocalSwitchCamera from '../subComponents/LocalSwitchCamera';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import {ClientRole} from '../../agora-rn-uikit';
+import {ClientRoleType} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
@@ -81,6 +81,24 @@ import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
+import {useString} from '../utils/useString';
+import {
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
+  toolbarItemCaptionText,
+  toolbarItemChatText,
+  toolbarItemInviteText,
+  toolbarItemLayoutText,
+  toolbarItemMoreText,
+  toolbarItemNoiseCancellationText,
+  toolbarItemPeopleText,
+  toolbarItemRecordingText,
+  toolbarItemSettingText,
+  toolbarItemShareText,
+  toolbarItemTranscriptText,
+  toolbarItemVirtualBackgroundText,
+  toolbarItemWhiteboardText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -224,6 +242,19 @@ export const WhiteboardListener = () => {
 };
 
 const MoreButton = () => {
+  const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
+  const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
+  const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const transcriptLabel = useString<boolean>(toolbarItemTranscriptText);
+  const settingsLabel = useString(toolbarItemSettingText)();
+  const screenShareButton = useString<boolean>(toolbarItemShareText);
+  const recordingButton = useString<boolean>(toolbarItemRecordingText);
+  const moreButtonLabel = useString(toolbarItemMoreText)();
+  const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
+  const chatLabel = useString(toolbarItemChatText)();
+  const inviteLabel = useString(toolbarItemInviteText)();
+  const peopleLabel = useString(toolbarItemPeopleText)();
+  const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
   const {setCustomContent} = useContent();
@@ -278,7 +309,7 @@ const MoreButton = () => {
       icon: 'noise-cancellation',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Noise Cancellation',
+      title: noiseCancellationLabel,
       //isNoiseSupressionEnabled === ToggleState.enabled
       callback: () => {
         setActionMenuVisible(false);
@@ -307,7 +338,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
-      title: 'Virtual Background',
+      title: virtualBackgroundLabel,
       callback: () => {
         setActionMenuVisible(false);
         toggleVB();
@@ -399,7 +430,7 @@ const MoreButton = () => {
 
   //whiteboard ends
 
-  if (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
+  if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
@@ -407,11 +438,7 @@ const MoreButton = () => {
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive
-        ? 'Hide Whiteboard'
-        : whiteboardStartedFirst
-        ? 'Show Whiteboard'
-        : 'Start Whiteboard',
+      title: whiteboardLabel(whiteboardActive),
       callback: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
@@ -427,7 +454,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+      title: captionLabel(isCaptionON),
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
@@ -450,7 +477,7 @@ const MoreButton = () => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+      title: transcriptLabel(isTranscriptON),
       callback: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isTranscriptON ? 'transcript' : null;
@@ -477,7 +504,7 @@ const MoreButton = () => {
       icon: 'participants',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'People',
+      title: peopleLabel,
       callback: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.Participants);
@@ -487,7 +514,7 @@ const MoreButton = () => {
       icon: 'chat-nav',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Chat',
+      title: chatLabel,
       callback: () => {
         setActionMenuVisible(false);
         setChatType(ChatType.Group);
@@ -498,14 +525,14 @@ const MoreButton = () => {
     if ($config.SCREEN_SHARING) {
       if (
         !(
-          rtcProps.role == ClientRole.Audience &&
+          rtcProps.role == ClientRoleType.ClientRoleAudience &&
           $config.EVENT_MODE &&
           !$config.RAISE_HAND
         )
       ) {
         actionMenuitems.push({
           disabled:
-            rtcProps.role == ClientRole.Audience &&
+            rtcProps.role == ClientRoleType.ClientRoleAudience &&
             $config.EVENT_MODE &&
             $config.RAISE_HAND &&
             !isHost,
@@ -516,7 +543,7 @@ const MoreButton = () => {
           textColor: isScreenshareActive
             ? $config.SEMANTIC_ERROR
             : $config.FONT_COLOR,
-          title: isScreenshareActive ? 'Stop Share' : 'Share',
+          title: screenShareButton(isScreenshareActive),
           callback: () => {
             setActionMenuVisible(false);
             isScreenshareActive
@@ -536,7 +563,7 @@ const MoreButton = () => {
         textColor: isRecordingActive
           ? $config.SEMANTIC_ERROR
           : $config.FONT_COLOR,
-        title: isRecordingActive ? 'Stop Recording' : 'Record',
+        title: recordingButton(isRecordingActive),
         callback: () => {
           setActionMenuVisible(false);
           if (!isRecordingActive) {
@@ -557,7 +584,7 @@ const MoreButton = () => {
       isExternalIcon: true,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Layout',
+      title: layoutLabel,
       callback: () => {
         //setShowLayoutOption(true);
       },
@@ -582,7 +609,7 @@ const MoreButton = () => {
       icon: 'share',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Invite',
+      title: inviteLabel,
       callback: () => {
         setActionMenuVisible(false);
         setShowInvitePopup(true);
@@ -595,7 +622,7 @@ const MoreButton = () => {
       icon: 'settings',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Settings',
+      title: settingsLabel,
       callback: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.Settings);
@@ -701,7 +728,7 @@ const MoreButton = () => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           btnTextProps={{
-            text: $config.ICON_TEXT ? 'More' : '',
+            text: $config.ICON_TEXT ? moreButtonLabel : '',
             textColor: $config.FONT_COLOR,
           }}
         />
@@ -748,9 +775,9 @@ export const RaiseHandToolbarItem = () => {
     data: {isHost},
   } = useRoomInfo();
   return $config.EVENT_MODE ? (
-    rtcProps.role == ClientRole.Audience ? (
+    rtcProps.role == ClientRoleType.ClientRoleAudience ? (
       <LiveStreamControls showControls={true} />
-    ) : rtcProps?.role == ClientRole.Broadcaster ? (
+    ) : rtcProps?.role == ClientRoleType.ClientRoleBroadcaster ? (
       /**
        * In event mode when raise hand feature is active
        * and audience is promoted to host, the audience can also
@@ -838,9 +865,9 @@ export const MoreButtonToolbarItem = () => {
     ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
-    (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) ? (
+    (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
     <ToolbarItem testID="more-btn">
-      {!isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK()) ? (
+      {!isHost && $config.ENABLE_WHITEBOARD && isWebInternal() ? (
         <WhiteboardListener />
       ) : (
         <></>
@@ -929,6 +956,13 @@ const Controls = (props: ControlsProps) => {
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
   const {setRoomInfo} = useSetRoomInfo();
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
+  const subheading = useString<{
+    action: 'Set' | 'Changed';
+    newLanguage: string;
+    oldLanguage: string;
+    username: string;
+  }>(sttSpokenLanguageToastSubHeading);
 
   const {
     data: {isHost},
@@ -957,21 +991,34 @@ const Controls = (props: ControlsProps) => {
         : `changed the spoken language from "${getLanguageLabel(
             prevLang,
           )}" to "${getLanguageLabel(newLang)}" `;
-    const msg = `${
-      //@ts-ignore
-      defaultContentRef.current[uid]?.name || username
-    } ${actionText} `;
+    // const msg = `${
+    //   //@ts-ignore
+    //   defaultContentRef.current[uid]?.name || username
+    // } ${actionText} `;
+    let subheadingObj: any = {};
+    if (prevLang.indexOf('') !== -1) {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+      };
+    } else {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+        oldLanguage: getLanguageLabel(prevLang),
+      };
+    }
 
     Toast.show({
       leadingIconName: 'lang-select',
       type: 'info',
-      text1: `Spoken Language ${
-        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-      }`,
+      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
-      text2: msg,
+      text2: subheading(subheadingObj),
     });
     setRoomInfo(prev => {
       return {

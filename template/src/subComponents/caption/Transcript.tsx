@@ -31,14 +31,30 @@ import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
-import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
 import DownloadTranscriptBtn from './DownloadTranscriptBtn';
+import {useString} from '../../../src/utils/useString';
+import {
+  sttSettingSpokenLanguageText,
+  sttTranscriptPanelNoSearchResultsFoundText,
+  sttTranscriptPanelSearchText,
+  sttTranscriptPanelViewLatestText,
+} from '../../../src/language/default-labels/videoCallScreenLabels';
 
 interface TranscriptProps {
   showHeader?: boolean;
 }
+
+type WebStreamMessageArgs = [number, Uint8Array];
+type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
+type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
+
 const Transcript = (props: TranscriptProps) => {
+  const settingSpokenLanguageLabel = useString(sttSettingSpokenLanguageText)();
+  const searchText = useString(sttTranscriptPanelSearchText)();
+  const noresults = useString(sttTranscriptPanelNoSearchResultsFoundText)();
+  const viewlatest = useString(sttTranscriptPanelViewLatestText)();
+
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
@@ -102,7 +118,7 @@ const Transcript = (props: TranscriptProps) => {
     ) : (
       <TranscriptText
         user={defaultContent[item.uid].name}
-        time={item.time}
+        time={item?.time}
         value={item.text}
         searchQuery={searchQuery}
       />
@@ -160,29 +176,28 @@ const Transcript = (props: TranscriptProps) => {
   const renderedData = searchQuery ? searchResults : data;
 
   const NoResultsMsg = () => {
-    return <Text style={styles.emptyMsg}>No search results found</Text>;
+    return <Text style={styles.emptyMsg}>{noresults}</Text>;
   };
 
-  const handleStreamMessageCallback = (
-    ...args: [number, Uint8Array] | [number, string, Uint8Array]
-  ) => {
+  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
-      streamMessageCallback(args as [number, Uint8Array]);
+      const [uid, data] = args as WebStreamMessageArgs;
+      streamMessageCallback([uid, data]);
     } else {
-      const [uid, , data] = args;
-      const streamBuffer = Object.values(data);
-      streamMessageCallback([uid, new Uint8Array(streamBuffer)]);
+      const [, uid, , data] = args as NativeStreamMessageArgs;
+      streamMessageCallback([uid, data]);
     }
   };
 
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
       RtcEngineUnsafe.addListener(
-        'StreamMessage',
-        handleStreamMessageCallback as unknown as StreamMessageCallback,
+        'onStreamMessage',
+        handleStreamMessageCallback,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -219,7 +234,7 @@ const Transcript = (props: TranscriptProps) => {
         )}
         <TextInput
           style={styles.searchInput}
-          placeholder="Search"
+          placeholder={searchText}
           value={searchQuery}
           onChangeText={handleSearch}
           placeholderTextColor={
@@ -245,7 +260,7 @@ const Transcript = (props: TranscriptProps) => {
       {isLangChangeInProgress ? (
         <View style={{flex: 1}}>
           <Loading
-            text="Setting Spoken Language"
+            text={settingSpokenLanguageLabel}
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
@@ -273,7 +288,7 @@ const Transcript = (props: TranscriptProps) => {
               style={styles.contentContainer}
               data={renderedData}
               renderItem={renderItem}
-              keyExtractor={item => item.uid + '-' + item.time}
+              keyExtractor={item => item.uid + '-' + item?.time}
               onContentSizeChange={handleContentSizeChange}
               onScroll={
                 isWebInternal()
@@ -305,7 +320,7 @@ const Transcript = (props: TranscriptProps) => {
                   textStyle={styles.textStyleBtn}
                   onPress={handleViewLatest}
                   iconSize={20}
-                  text={'View Latest'}
+                  text={viewlatest}
                 />
               </View>
             ) : null}

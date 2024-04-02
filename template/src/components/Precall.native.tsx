@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {PropsContext, ClientRole, ToggleState} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType, ToggleState} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useRoomInfo} from './room-info/useRoomInfo';
@@ -45,6 +45,9 @@ import PreCallSettings from './precall/PreCallSettings';
 import VBPanel from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
 import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
+import {useString} from '../../src/utils/useString';
+import {precallYouAreJoiningAsHeading} from '../../src/language/default-labels/precallScreenLabels';
+import {loadingText} from '../../src/language/default-labels/commonLabels';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -93,7 +96,9 @@ const JoinRoomInputView = ({isDesktop}) => {
           {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
           </Text> */}
-          {rtcProps.role == ClientRole.Audience && <Spacer size={20} />}
+          {rtcProps.role == ClientRoleType.ClientRoleAudience && (
+            <Spacer size={20} />
+          )}
         </>
       ) : (
         <></>
@@ -101,7 +106,7 @@ const JoinRoomInputView = ({isDesktop}) => {
       <View
         style={
           $config.EVENT_MODE &&
-          rtcProps.role == ClientRole.Audience && {
+          rtcProps.role == ClientRoleType.ClientRoleAudience && {
             justifyContent: 'space-between',
             flex: 1,
           }
@@ -114,7 +119,7 @@ const JoinRoomInputView = ({isDesktop}) => {
               : {width: '100%'}
           }>
           {$config.ENABLE_WAITING_ROOM &&
-          rtcProps.role === ClientRole.Audience ? (
+          rtcProps.role === ClientRoleType.ClientRoleAudience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -200,7 +205,7 @@ const JoinRoomButton = () => {
     return components;
   });
   return $config.ENABLE_WAITING_ROOM &&
-    rtcProps.role === ClientRole.Audience ? (
+    rtcProps.role === ClientRoleType.ClientRoleAudience ? (
     <JoinWaitingRoomBtn />
   ) : (
     <JoinButton />
@@ -329,11 +334,14 @@ const Precall = (props: any) => {
     return undefined;
   });
 
+  const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
+  const loading = useString(loadingText)();
+
   if (isVBAvaialble) {
     return <VBPanel isOnPrecall={true} />;
   }
 
-  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
+  if (!isJoinDataFetched) return <Text style={style.titleFont}>{loading}</Text>;
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
@@ -344,7 +352,8 @@ const Precall = (props: any) => {
           contentContainerStyle={style.mainMobile}
           testID="precall-screen">
           {/* Precall screen only changes for audience in Live Stream event */}
-          {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          {$config.EVENT_MODE &&
+          rtcProps.role == ClientRoleType.ClientRoleAudience ? (
             //  Live (Audience)
             <View style={{flex: 1}}>
               <View
@@ -354,7 +363,7 @@ const Precall = (props: any) => {
                   alignItems: 'center',
                   paddingVertical: 12,
                 }}>
-                <MeetingName prefix="You are joining" />
+                <MeetingName prefix={youAreJoiningAs} />
                 <IDPLogoutComponent
                   containerStyle={{marginTop: 0, marginRight: 0}}
                 />
@@ -383,7 +392,7 @@ const Precall = (props: any) => {
               <View style={{flex: 1}} testID="precall-mobile-preview">
                 <View style={style.preCallContainer}>
                   <View style={style.header}>
-                    <MeetingName prefix="You are joining" />
+                    <MeetingName prefix={youAreJoiningAs} />
                     {isWebInternal() ? <PreCallSettings /> : <></>}
                   </View>
                   <View style={style.content}>
