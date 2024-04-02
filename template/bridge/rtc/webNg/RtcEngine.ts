@@ -360,8 +360,8 @@ export default class RtcEngine {
         'API',
         'RTC [createMicrophoneAndCameraTracks] audio and video tracks created successfully',
         {
-          audio,
-          video,
+          audio: localAudio,
+          video: localVideo,
         },
       );
       this.localStream.audio = localAudio;
