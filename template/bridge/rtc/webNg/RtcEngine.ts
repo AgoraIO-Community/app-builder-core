@@ -1384,7 +1384,7 @@ export default class RtcEngine {
         'RTC [setEncryptionConfig] trying to set encryption config on user and screen client',
         {
           mode,
-          key: encryptionKey,
+          key: config.encryptionKey,
         },
       );
       await Promise.all([
