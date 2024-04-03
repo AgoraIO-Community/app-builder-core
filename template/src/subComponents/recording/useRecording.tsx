@@ -363,7 +363,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }
       } else {
         const error = {
-          message: data?.errors?.map(e => e.message).join('\n'),
+          message: data?.error?.message,
         };
         return Promise.reject(error);
       }

@@ -12,14 +12,14 @@ function RecordingsDateView({status, recordings, error, pagination}) {
   }
   if (status === 'rejected') {
     return (
-      <Text style={[style.ttime, style.pt10]}>
-        There was an error while fetching the recordings
+      <Text style={[style.ttime, style.pt10, style.pl10]}>
+        {error?.message}
       </Text>
     );
   }
   if (status === 'resolved' && recordings.length === 0) {
     return (
-      <Text style={[style.ttime, style.pt10]}>
+      <Text style={[style.ttime, style.pt10, style.pl10]}>
         No recordings found for this meeting
       </Text>
     );
