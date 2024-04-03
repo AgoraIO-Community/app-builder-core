@@ -105,6 +105,7 @@ export const toolbarItemCaptionText = 'toolbarItemCaptionText';
 export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
 export const toolbarItemVirtualBackgroundText =
   'toolbarItemVirtualBackgroundText';
+export const toolbarItemViewRecordingText = 'toolbarItemViewRecordingText';
 
 export const toolbarItemRaiseHandText = 'toolbarItemRaiseHandText';
 
@@ -520,6 +521,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemCaptionText]?: I18nConditionalType;
   [toolbarItemTranscriptText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
+  [toolbarItemViewRecordingText]?: I18nConditionalType;
 
   [toolbarItemRaiseHandText]?: I18nConditionalType;
 
@@ -851,6 +853,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Hide Caption' : 'Show Caption',
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
+  [toolbarItemViewRecordingText]: 'View Recordings',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
   [toolbarItemSwitchCameraText]: 'Switch Camera',
