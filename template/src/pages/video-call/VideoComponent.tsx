@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from 'react';
 import {View} from 'react-native';
 import useLayoutsData from './useLayoutsData';
 import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
-import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../../agora-rn-uikit';
 import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
@@ -53,7 +53,10 @@ const VideoComponent = () => {
   }, [currentLayout]);
 
   const showInviteTile = () => {
-    if ($config.EVENT_MODE && rtcProps.role == ClientRole.Audience) {
+    if (
+      $config.EVENT_MODE &&
+      rtcProps.role == ClientRoleType.ClientRoleAudience
+    ) {
       return false;
     }
     if (activeUids.length == 1) return true;

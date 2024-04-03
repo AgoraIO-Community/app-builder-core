@@ -306,7 +306,7 @@ const EventsConfigure: React.FC<Props> = props => {
         });
       }
     });
-    events.on(controlMessageEnum.muteAudio, ({sender}) => {
+    events.on(controlMessageEnum.muteAudio, async ({sender}) => {
       Toast.show({
         leadingIconName: 'mic-off',
         type: 'info',
@@ -319,7 +319,10 @@ const EventsConfigure: React.FC<Props> = props => {
         secondaryBtn: null,
         leadingIcon: null,
       });
-      RtcEngineUnsafe.muteLocalAudioStream(true);
+      isWebInternal()
+        ? await RtcEngineUnsafe.muteLocalAudioStream(true)
+        : //@ts-ignore
+          await RtcEngineUnsafe.enableLocalAudio(false);
       dispatch({
         type: 'LocalMuteAudio',
         value: [0],
@@ -364,8 +367,11 @@ const EventsConfigure: React.FC<Props> = props => {
               containerStyle={style.primaryBtn}
               textStyle={style.textStyle}
               text={requestUserAudioPrimaryBtnRef.current}
-              onPress={() => {
-                RtcEngineUnsafe.muteLocalAudioStream(false);
+              onPress={async () => {
+                isWebInternal()
+                  ? await RtcEngineUnsafe.muteLocalAudioStream(false)
+                  : //@ts-ignore
+                    await RtcEngineUnsafe.enableLocalAudio(true);
                 dispatch({
                   type: 'LocalMuteAudio',
                   value: [1],

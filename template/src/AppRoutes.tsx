@@ -20,6 +20,21 @@ import {Text} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import {CUSTOM_ROUTES_PREFIX, CustomRoutesInterface} from 'customization-api';
 import PrivateRoute from './components/PrivateRoute';
+import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
+import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
+
+function VideoCallWrapper(props) {
+  const {isRecordingBotRoute} = useIsRecordingBot();
+  return isRecordingBotRoute ? (
+    <RecordingBotRoute history={props.history}>
+      <VideoCall />
+    </RecordingBotRoute>
+  ) : (
+    <AuthRoute>
+      <VideoCall />
+    </AuthRoute>
+  );
+}
 
 function AppRoutes() {
   const CustomRoutes = useCustomization(data => data?.customRoutes);
@@ -65,9 +80,7 @@ function AppRoutes() {
         <Create />
       </AuthRoute>
       {RenderCustomRoutes()}
-      <AuthRoute path={'/:phrase'}>
-        <VideoCall />
-      </AuthRoute>
+      <Route exact path={'/:phrase'} component={VideoCallWrapper} />
       <Route path="*">
         <Text>Page not found</Text>
       </Route>

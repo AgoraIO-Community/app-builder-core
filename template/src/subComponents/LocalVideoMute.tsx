@@ -14,7 +14,7 @@ import {
   ToggleState,
   PermissionState,
   ImageIcon as UIKitImageIcon,
-  ClientRole,
+  ClientRoleType,
   PropsContext,
   RtcContext,
   DispatchContext,
@@ -154,8 +154,9 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     //   justifyContent: 'center',
     //   alignItems: 'center',
     // };
-    const isAudience = rtcProps?.role == ClientRole.Audience;
-    const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+    const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
+    const isBroadCasting =
+      rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
     iconButtonProps.disabled =
       permissionDenied || ($config.EVENT_MODE && isAudience && !isBroadCasting)
@@ -191,7 +192,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
+    rtcProps.role == ClientRoleType.ClientRoleAudience &&
     $config.EVENT_MODE &&
     !$config.RAISE_HAND
   ) {
@@ -199,7 +200,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
 
   if (
-    (rtcProps.role == ClientRole.Audience &&
+    (rtcProps.role == ClientRoleType.ClientRoleAudience &&
       $config.EVENT_MODE &&
       $config.RAISE_HAND &&
       !isHost) ||

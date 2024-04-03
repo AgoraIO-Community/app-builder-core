@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState, useLayoutEffect} from 'react';
 import {Platform} from 'react-native';
 import KeyboardManager from 'react-native-keyboard-manager';
 import AppWrapper from './AppWrapper';
@@ -21,6 +21,7 @@ import {
 import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
+import {isWebInternal} from './utils/common';
 
 // hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -44,8 +45,64 @@ declare module 'agora-rn-uikit' {
   // }
 }
 
+declare global {
+  interface Navigator {
+    notifyReady?: () => boolean;
+  }
+}
+
 const App: React.FC = () => {
   //commented for v1 release
+  //const CustomRoutes = useCustomization((data) => data?.customRoutes);
+  // const RenderCustomRoutes = () => {
+  //   try {
+  //     return (
+  //       CustomRoutes &&
+  //       Array.isArray(CustomRoutes) &&
+  //       CustomRoutes.length &&
+  //       CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
+  //         let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+  //         return (
+  //           <RouteComponent
+  //             path={CUSTOM_ROUTES_PREFIX + item.path}
+  //             exact={item.exact}
+  //             key={i}
+  //             failureRedirectTo={
+  //               item.failureRedirectTo ? item.failureRedirectTo : '/'
+  //             }
+  //             {...item.routeProps}>
+  //             <item.component {...item.componentProps} />
+  //           </RouteComponent>
+  //         );
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.error('Error on rendering the custom routes');
+  //     return null;
+  //   }
+  // };
+
+  const notifyReady = () => {
+    if (typeof window.navigator.notifyReady === 'function') {
+      console.log('recording-bot: notifyReady is available');
+      window.navigator.notifyReady();
+    } else {
+      console.log('recording-bot: notifyReady is un-available');
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (isWebInternal()) {
+      // Register only on web
+      window.addEventListener('load', notifyReady);
+    }
+    return () => {
+      if (isWebInternal()) {
+        window.removeEventListener('load', notifyReady);
+      }
+    };
+  }, []);
+
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 

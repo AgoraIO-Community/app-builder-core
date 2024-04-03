@@ -39,6 +39,7 @@ import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -51,7 +52,7 @@ const Chat = (props?: ChatProps) => {
   const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
-
+  const {isRecordingBot} = useIsRecordingBot();
   const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
   const {
@@ -170,9 +171,13 @@ const Chat = (props?: ChatProps) => {
         {chatType === ChatType.Group ? (
           <>
             <ChatContainer {...props} />
-            <View style={style.chatInputContainer}>
-              <ChatInputComponent />
-            </View>
+            {isRecordingBot ? (
+              <></>
+            ) : (
+              <View style={style.chatInputContainer}>
+                <ChatInputComponent />
+              </View>
+            )}
           </>
         ) : (
           <></>
@@ -185,11 +190,15 @@ const Chat = (props?: ChatProps) => {
         {chatType === ChatType.Private ? (
           <>
             <ChatContainer {...props} />
-            <View>
-              <View style={style.chatInputContainer}>
-                <ChatInputComponent />
+            {isRecordingBot ? (
+              <></>
+            ) : (
+              <View>
+                <View style={style.chatInputContainer}>
+                  <ChatInputComponent />
+                </View>
               </View>
-            </View>
+            )}
           </>
         ) : (
           <></>

@@ -11,12 +11,13 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
+import {useApolloClient} from '@apollo/client';
 import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
   PropsProvider,
-  ClientRole,
-  ChannelProfile,
+  ClientRoleType,
+  ChannelProfileType,
   LocalUserContext,
   UidType,
   CallbacksInterface,
@@ -49,7 +50,6 @@ import {
   WaitingRoomStatus,
 } from '../components/room-info/useRoomInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
-import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
 import {ChatUIControlsProvider} from '../components/chat-ui/useChatUIControls';
@@ -70,13 +70,13 @@ import {CaptionProvider} from '../subComponents/caption/useCaption';
 import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 import StorageContext from '../components/StorageContext';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
-import WhiteboardConfigure from '../components/whiteboard/WhiteboardConfigure';
 import {NoiseSupressionProvider} from '../app-state/useNoiseSupression';
 import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
-import {isWeb} from '../utils/common';
+import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 import {useCustomization} from 'customization-implementation';
@@ -130,9 +130,26 @@ const VideoCall: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
   const joiningLoaderLabel = useString(videoRoomStartingCallText)();
 
+  const client = useApolloClient();
+
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
-  const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
+  const {isRecordingBot} = useIsRecordingBot();
+  /**
+   *  Should we set the callscreen to active ??
+   *  a) If Recording bot( i.e prop: recordingBot) is TRUE then it means,
+   *     the recording bot is accessing the screen - so YES we should set
+   *     the callActive as true and we need not check for whether
+   *     $config.PRECALL is enabled or not.
+   *  b) If Recording bot( i.e prop: recordingBot) is FALSE then we should set
+   *     the callActive depending upon the value of magic variable - $config.PRECALL
+   */
+  const shouldCallBeSetToActive = isRecordingBot
+    ? true
+    : $config.PRECALL
+    ? false
+    : true;
+  const [callActive, setCallActive] = useState(shouldCallBeSetToActive);
 
   //layouts
   const layouts = useLayoutsData();
@@ -177,7 +194,7 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128GCM2, screenKey: null}
       : false,
-    role: ClientRole.Broadcaster,
+    role: ClientRoleType.ClientRoleBroadcaster,
     geoFencing: $config.GEO_FENCING,
     audioRoom: $config.AUDIO_ROOM,
     activeSpeaker: $config.ACTIVE_SPEAKER,
@@ -185,6 +202,7 @@ const VideoCall: React.FC = () => {
       sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
     preferredMicrophoneId:
       sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
+    recordingBot: isRecordingBot ? true : false,
   });
 
   const history = useHistory();
@@ -290,7 +308,9 @@ const VideoCall: React.FC = () => {
           : false,
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
-        role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
+        role: data.isHost
+          ? ClientRoleType.ClientRoleBroadcaster
+          : ClientRoleType.ClientRoleAudience,
         preventJoin:
           !$config.ENABLE_WAITING_ROOM ||
           ($config.ENABLE_WAITING_ROOM && data.isHost) ||
@@ -329,6 +349,7 @@ const VideoCall: React.FC = () => {
         // TODO: These callbacks are being called twice
         SDKEvents.emit('leave');
         history.push('/');
+        client.resetStore();
       }, 0);
     },
     UserJoined: (uid: UidType) => {
@@ -376,8 +397,8 @@ const VideoCall: React.FC = () => {
                 callbacks,
                 styleProps,
                 mode: $config.EVENT_MODE
-                  ? ChannelProfile.LiveBroadcasting
-                  : ChannelProfile.Communication,
+                  ? ChannelProfileType.ChannelProfileLiveBroadcasting
+                  : ChannelProfileType.ChannelProfileCommunication,
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
@@ -433,14 +454,7 @@ const VideoCall: React.FC = () => {
                                                                 <VideoMeetingDataProvider>
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
-                                                                      {$config.ENABLE_WHITEBOARD &&
-                                                                      isWebInternal() ? (
-                                                                        <WhiteboardConfigure>
-                                                                          <VideoCallScreen />
-                                                                        </WhiteboardConfigure>
-                                                                      ) : (
-                                                                        <VideoCallScreen />
-                                                                      )}
+                                                                      <VideoCallScreenWrapper />
                                                                     </DisableChatProvider>
                                                                   </VideoCallProvider>
                                                                 </VideoMeetingDataProvider>
