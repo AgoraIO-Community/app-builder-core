@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, View, Linking} from 'react-native';
-import Clipbboard from '../../subComponents/Clipboard';
+import Clipboard from '../../subComponents/Clipboard';
 import {style} from './style';
 // import Pagination from '../../atoms/pagination/Pagination';
 import Loading from '../../subComponents/Loading';
@@ -68,7 +68,7 @@ function RecordingsDateView({status, recordings, error, pagination}) {
                         <Text
                           style={[style.tlink, style.pl10]}
                           onPress={() => {
-                            Clipbboard.setString(item.download_url);
+                            Clipboard.setString(item.download_url);
                             setToolTipVisible(true);
                           }}>
                           Copy shareable link
