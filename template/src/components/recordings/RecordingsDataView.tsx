@@ -63,6 +63,9 @@ function RecordingsDateView({status, recordings, error, pagination}) {
                       </>
                     }
                     toolTipMessage="Link Copied"
+                    onPress={() => {
+                      Clipboard.setString(item.download_url);
+                    }}
                     renderContent={(isToolTipVisible, setToolTipVisible) => {
                       return (
                         <Text
