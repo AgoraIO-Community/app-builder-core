@@ -5,6 +5,9 @@ import {style} from './style';
 // import Pagination from '../../atoms/pagination/Pagination';
 import Loading from '../../subComponents/Loading';
 import {getRecordedDate} from './utils';
+import Tooltip from '../../atoms/Tooltip';
+import Spacer from '../../atoms/Spacer';
+import ImageIcon from '../../atoms/ImageIcon';
 
 function RecordingsDateView({status, recordings, error, pagination}) {
   if (status === 'idle' || status === 'pending') {
@@ -45,14 +48,35 @@ function RecordingsDateView({status, recordings, error, pagination}) {
                   }}>
                   View
                 </Text>
-                <Text
-                  style={[style.tlink, style.pl10]}
-                  onPress={() => {
-                    Clipbboard.setString(item.download_url);
-                    // showLinkCopiedToast();
-                  }}>
-                  Copy shareable link
-                </Text>
+                <View>
+                  <Tooltip
+                    isClickable
+                    placement="right"
+                    toolTipIcon={
+                      <>
+                        <ImageIcon
+                          iconType="plain"
+                          name="tick-fill"
+                          tintColor={$config.SEMANTIC_SUCCESS}
+                        />
+                        <Spacer size={4} horizontal={true} />
+                      </>
+                    }
+                    toolTipMessage="Link Copied"
+                    renderContent={(isToolTipVisible, setToolTipVisible) => {
+                      return (
+                        <Text
+                          style={[style.tlink, style.pl10]}
+                          onPress={() => {
+                            Clipbboard.setString(item.download_url);
+                            setToolTipVisible(true);
+                          }}>
+                          Copy shareable link
+                        </Text>
+                      );
+                    }}
+                  />
+                </View>
               </View>
             </View>
           </View>

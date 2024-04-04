@@ -5,6 +5,8 @@ export function getRecordedDate(ipDate: string) {
   let ryear = rdate.getFullYear();
   let rmonth = rdate.getMonth() + 1;
   let rdt = rdate.getDate();
+  const hour = rdate.getHours();
+  const minute = rdate.getMinutes();
 
   let today = new Date();
   today.setHours(0);
@@ -16,12 +18,10 @@ export function getRecordedDate(ipDate: string) {
   let diff = today.getTime() - compDate.getTime(); // get the difference between today(at 00:00:00) and the date
 
   if (compDate.getTime() == today.getTime()) {
-    return 'Today';
+    return `Today\n${hour}:${minute}`;
   } else if (diff <= 24 * 60 * 60 * 1000) {
-    return 'Yesterday';
+    return `Yesterday\n${hour}:${minute}`;
   } else {
-    const hour = rdate.getHours();
-    const minute = rdate.getMinutes();
     let fulldate = rdate.toDateString();
     fulldate = fulldate.substring(fulldate.indexOf(' ') + 1);
     return `${fulldate}\n${hour}:${minute}`;

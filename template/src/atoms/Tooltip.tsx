@@ -26,7 +26,7 @@ const Tooltip = (props: TooltipProps) => {
   const css = showTooltipArrow
     ? `
   .custom-tool-tip{
-    padding:12px;
+    padding:8px;
     border-radius: 8px;
   }
   .custom-tool-tip div{
@@ -37,17 +37,11 @@ const Tooltip = (props: TooltipProps) => {
   .__react_component_tooltip.show{
     opacity:1;
   }
-  .custom-tool-tip::after {
-    width: 20px !important;
-    height: 20px !important;
-    border-top-right-radius: 5px !important;
-    bottom: -10px !important;
-    margin-left: -10px !important;
-  }`
-    : `.custom-tool-tip{
-    padding:12px;
-    border-radius: 8px;
-  }
+ `
+    : `.custom-tool-tip {
+        padding:8px;
+        border-radius: 8px;
+      }
   .custom-tool-tip div{
     font-family: "Source Sans Pro";
     font-weight: 400;
@@ -103,7 +97,7 @@ const Tooltip = (props: TooltipProps) => {
         type="dark"
         effect="solid">
         <style type="text/css">{css}</style>
-        <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           {props?.toolTipIcon ? props.toolTipIcon : null}
           <Text style={{color: $config.FONT_COLOR}}>
             {props.toolTipMessage}
