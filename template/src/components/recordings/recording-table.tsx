@@ -69,20 +69,11 @@ function RTableBody({status, recordings}) {
                     <Tooltip
                       isClickable
                       placement="right"
-                      toolTipIcon={
-                        <>
-                          <ImageIcon
-                            iconType="plain"
-                            name="tick-fill"
-                            tintColor={$config.SEMANTIC_SUCCESS}
-                          />
-                          <Spacer size={4} horizontal={true} />
-                        </>
-                      }
                       toolTipMessage="Link Copied"
                       onPress={() => {
                         Clipboard.setString(item.download_url[0]);
                       }}
+                      fontSize={12}
                       renderContent={(isToolTipVisible, setToolTipVisible) => {
                         return (
                           <Text

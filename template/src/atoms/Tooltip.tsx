@@ -14,6 +14,7 @@ interface TooltipProps {
   isClickable?: boolean;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   showTooltipArrow?: boolean;
+  fontSize?: number;
   onPress?: () => void;
 }
 const Tooltip = (props: TooltipProps) => {
@@ -32,7 +33,7 @@ const Tooltip = (props: TooltipProps) => {
   .custom-tool-tip div{
     font-family: "Source Sans Pro";
     font-weight: 400;
-    font-size: 16px;
+    font-size: ${props.fontSize ? props.fontSize : 16}px;
   }
   .__react_component_tooltip.show{
     opacity:1;
@@ -45,7 +46,7 @@ const Tooltip = (props: TooltipProps) => {
   .custom-tool-tip div{
     font-family: "Source Sans Pro";
     font-weight: 400;
-    font-size: 16px;
+    font-size: ${props.fontSize ? props.fontSize : 16}px;
   }
   .__react_component_tooltip.show{
     opacity:1;
