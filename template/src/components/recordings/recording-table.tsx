@@ -113,13 +113,14 @@ function RTableFooter({currentPage, setCurrentPage, pagination}) {
   if (!pagination || (pagination && Object.keys(pagination).length === 0)) {
     return <View style={style.mfooter}> </View>;
   }
-  const total = pagination?.total;
+  const limit = pagination?.limit || 10;
+  const total = pagination?.total || 1;
   const showing =
-    total <= pagination?.limit
+    total <= limit
       ? total
-      : pagination.limit * currentPage >= total
+      : limit * currentPage >= total
       ? total
-      : pagination.limit * currentPage;
+      : limit * currentPage;
 
   return (
     <View style={style.mfooter}>
