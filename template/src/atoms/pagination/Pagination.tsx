@@ -40,7 +40,13 @@ const Pagination = props => {
           disabled={currentPage === 1}
           style={[style.paginationButton, style.paginationFirstButton]}
           onPress={onPrevious}>
-          <Text style={style.btnText}>Prev</Text>
+          <Text
+            style={[
+              style.btnText,
+              currentPage === 1 ? style.disabledText : {},
+            ]}>
+            Prev
+          </Text>
         </TouchableOpacity>
         {paginationRange.map(pageNumber => {
           if (pageNumber === DOTS) {
@@ -66,7 +72,13 @@ const Pagination = props => {
           disabled={currentPage === lastPage}
           style={[style.paginationButton, style.paginationLastButton]}
           onPress={onNext}>
-          <Text style={style.btnText}>Next</Text>
+          <Text
+            style={[
+              style.btnText,
+              currentPage === lastPage ? style.disabledText : {},
+            ]}>
+            Next
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -99,11 +111,13 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   btnText: {
-    // color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
     color: $config.SECONDARY_ACTION_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 20,
+  },
+  disabledText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
   activeButton: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
