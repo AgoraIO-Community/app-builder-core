@@ -30,60 +30,62 @@ function RecordingsDateView({status, recordings, error, pagination}) {
   return (
     <>
       <View style={style.tbody}>
-        {recordings.map(item => (
-          <View style={style.tbrow} key={item.id}>
-            <View style={[style.td, style.plzero]}>
-              <Text style={style.ttime}>
-                {getRecordedDate(item.created_at)}
-              </Text>
-            </View>
-            <View style={style.td}>
-              <View style={style.tactions}>
-                <Text
-                  style={style.tlink}
-                  onPress={async () => {
-                    if (await Linking.canOpenURL(item.download_url)) {
-                      await Linking.openURL(item.download_url);
-                    }
-                  }}>
-                  View
+        {recordings
+          .filter(item => item.download_url)
+          .map(item => (
+            <View style={style.tbrow} key={item.id}>
+              <View style={[style.td, style.plzero]}>
+                <Text style={style.ttime}>
+                  {getRecordedDate(item.created_at)}
                 </Text>
-                <View>
-                  <Tooltip
-                    isClickable
-                    placement="right"
-                    toolTipIcon={
-                      <>
-                        <ImageIcon
-                          iconType="plain"
-                          name="tick-fill"
-                          tintColor={$config.SEMANTIC_SUCCESS}
-                        />
-                        <Spacer size={4} horizontal={true} />
-                      </>
-                    }
-                    toolTipMessage="Link Copied"
-                    onPress={() => {
-                      Clipboard.setString(item.download_url);
-                    }}
-                    renderContent={(isToolTipVisible, setToolTipVisible) => {
-                      return (
-                        <Text
-                          style={[style.tlink, style.pl10]}
-                          onPress={() => {
-                            Clipboard.setString(item.download_url);
-                            setToolTipVisible(true);
-                          }}>
-                          Copy shareable link
-                        </Text>
-                      );
-                    }}
-                  />
+              </View>
+              <View style={style.td}>
+                <View style={style.tactions}>
+                  <Text
+                    style={style.tlink}
+                    onPress={async () => {
+                      if (await Linking.canOpenURL(item.download_url)) {
+                        await Linking.openURL(item.download_url);
+                      }
+                    }}>
+                    View
+                  </Text>
+                  <View>
+                    <Tooltip
+                      isClickable
+                      placement="right"
+                      toolTipIcon={
+                        <>
+                          <ImageIcon
+                            iconType="plain"
+                            name="tick-fill"
+                            tintColor={$config.SEMANTIC_SUCCESS}
+                          />
+                          <Spacer size={4} horizontal={true} />
+                        </>
+                      }
+                      toolTipMessage="Link Copied"
+                      onPress={() => {
+                        Clipboard.setString(item.download_url);
+                      }}
+                      renderContent={(isToolTipVisible, setToolTipVisible) => {
+                        return (
+                          <Text
+                            style={[style.tlink, style.pl10]}
+                            onPress={() => {
+                              Clipboard.setString(item.download_url);
+                              setToolTipVisible(true);
+                            }}>
+                            Copy shareable link
+                          </Text>
+                        );
+                      }}
+                    />
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        ))}
+          ))}
       </View>
       {/* <View style={style.mfooter}>
         <Text style={style.mfooterTitle}>
