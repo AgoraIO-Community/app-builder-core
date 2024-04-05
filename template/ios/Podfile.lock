@@ -535,6 +535,7 @@ PODS:
   - RNVectorIcons (9.2.0):
     - React-Core
   - SocketRocket (0.6.1)
+  - TrustKit (3.0.4)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -598,6 +599,7 @@ DEPENDENCIES:
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - TrustKit
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -611,6 +613,7 @@ SPEC REPOS:
     - IQKeyboardManagerSwift
     - libevent
     - SocketRocket
+    - TrustKit
 
 EXTERNAL SOURCES:
   agora-react-native-rtm:
@@ -798,8 +801,9 @@ SPEC CHECKSUMS:
   RNSVG: 3a79c0c4992213e4f06c08e62730c5e7b9e4dc17
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  TrustKit: 403e8d2cfbff2abfc37cd41acc558dab8ec78e59
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
 
-PODFILE CHECKSUM: be04179eb7bb6b413f3e785e287b050128ebfee6
+PODFILE CHECKSUM: 1a042be2d7f2bdbb4f21393f3709284412a6e2df
 
 COCOAPODS: 1.15.2

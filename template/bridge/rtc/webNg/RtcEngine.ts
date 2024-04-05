@@ -748,14 +748,14 @@ export default class RtcEngine {
   async setChannelProfile(profile: ChannelProfileType): Promise<void> {
     try {
       this.client = AgoraRTC.createClient({
-        codec: 'vp8',
+        codec: 'vp9',
         mode:
           profile === ChannelProfileType.ChannelProfileLiveBroadcasting
             ? mode.live
             : mode.rtc,
       });
       this.screenClient = AgoraRTC.createClient({
-        codec: 'vp8',
+        codec: 'vp9',
         mode:
           profile === ChannelProfileType.ChannelProfileLiveBroadcasting
             ? mode.live
