@@ -63,7 +63,7 @@ export interface RecordingContextInterface {
   stopRecording: () => void;
   isRecordingActive: boolean;
   inProgress: boolean;
-  fetchRecordings?: () => Promise<RecordingsData>;
+  fetchRecordings?: (page: number) => Promise<RecordingsData>;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
@@ -339,36 +339,42 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     };
   }, [roomId.host, setRecordingActive]);
 
-  const fetchRecordings = useCallback(() => {
-    return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store.token ? `Bearer ${store.token}` : '',
-      },
-      // '05db0b0b-6e62-48b6-8c70-6f15b5ca39dc'
-      body: JSON.stringify({
-        passphrase: roomId?.host,
-        limit: 50,
-      }),
-    }).then(async response => {
-      const data = await response.json();
-      if (response.ok) {
-        if (data) {
-          return data;
+  const fetchRecordings = useCallback(
+    (page: number) => {
+      return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+        },
+        // '2b65f378-b048-4d28-9d4c-bd71edab61b7'
+        body: JSON.stringify({
+          passphrase: roomId?.host,
+          limit: 10,
+          page,
+        }),
+      }).then(async response => {
+        const data = await response.json();
+        if (response.ok) {
+          if (data) {
+            return data;
+          } else {
+            return Promise.reject(
+              new Error(
+                `No recordings found for meeting Id: "${roomId?.host}"`,
+              ),
+            );
+          }
         } else {
-          return Promise.reject(
-            new Error(`No recordings found for meeting Id: "${roomId?.host}"`),
-          );
+          const error = {
+            message: data?.error?.message,
+          };
+          return Promise.reject(error);
         }
-      } else {
-        const error = {
-          message: data?.error?.message,
-        };
-        return Promise.reject(error);
-      }
-    });
-  }, [roomId?.host, store.token]);
+      });
+    },
+    [roomId?.host, store.token],
+  );
 
   return (
     <RecordingContext.Provider

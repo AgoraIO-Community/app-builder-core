@@ -1,42 +1,35 @@
-import React, {SetStateAction, Dispatch, useEffect} from 'react';
-import {Text, View, ScrollView} from 'react-native';
+import React, {SetStateAction, Dispatch} from 'react';
+import {View} from 'react-native';
 import RecordingsModal from './RecordingsModal';
-import RecordingsDateView from './RecordingsDataView';
 import {style} from './style';
-import {useRecording} from '../../subComponents/recording/useRecording';
+import RecordingsDateTable from './RecordingsDateTable';
 
 interface ViewRecordingsModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
+// interface FetchRecordingResponse {
+//   pagination: {
+//     limit: number;
+//     total: number;
+//     page: number;
+//   };
+//   recordings: [
+//     {
+//       id: string;
+//       download_url: string;
+//       title: string;
+//       created_at: string;
+//     },
+//   ];
+// }
+// interface ViewRecordingsState {
+//   status: 'idle' | 'pending' | 'resolved' | 'rejected';
+//   data: FetchRecordingResponse;
+//   error: null;
+// }
 export default function ViewRecordingsModal(props: ViewRecordingsModalProps) {
   const {setModalOpen} = props;
-  const [state, setState] = React.useState({
-    status: 'idle',
-    data: {
-      pagination: null,
-      recordings: [],
-    },
-    error: null,
-  });
-
-  const {fetchRecordings} = useRecording();
-
-  useEffect(() => {
-    setState(prev => ({...prev, status: 'pending'}));
-    fetchRecordings().then(
-      response =>
-        setState(prev => ({
-          ...prev,
-          status: 'resolved',
-          data: {
-            recordings: response?.recordings || [],
-            pagination: response?.pagination || {},
-          },
-        })),
-      error => setState(prev => ({...prev, status: 'rejected', error})),
-    );
-  }, [fetchRecordings]);
 
   return (
     <RecordingsModal
@@ -47,28 +40,7 @@ export default function ViewRecordingsModal(props: ViewRecordingsModalProps) {
       cancelable={false}
       contentContainerStyle={style.mContainer}>
       <View style={style.mbody}>
-        <View style={style.ttable}>
-          <View style={style.thead}>
-            <View style={style.throw}>
-              <View style={[style.th, style.plzero]}>
-                <Text style={style.thText}>Date/time</Text>
-              </View>
-              <View style={style.th}>
-                <Text style={style.thText}>Actions</Text>
-              </View>
-            </View>
-          </View>
-          <ScrollView
-            contentContainerStyle={style.scrollgrow}
-            showsVerticalScrollIndicator={false}>
-            <RecordingsDateView
-              status={state.status}
-              recordings={state.data.recordings}
-              pagination={state.data.pagination}
-              error={state.error}
-            />
-          </ScrollView>
-        </View>
+        <RecordingsDateTable />
       </View>
     </RecordingsModal>
   );

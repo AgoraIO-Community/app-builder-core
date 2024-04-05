@@ -165,4 +165,10 @@ export const style = StyleSheet.create({
   pt10: {
     paddingTop: 10,
   },
+  pv10: {
+    paddingVertical: 10,
+  },
+  ph20: {
+    paddingHorizontal: 20,
+  },
 });
