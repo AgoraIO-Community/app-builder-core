@@ -3,7 +3,7 @@ import {Text, View, ScrollView, Linking} from 'react-native';
 import {style} from './style';
 import Pagination from '../../atoms/pagination/Pagination';
 import Clipboard from '../../subComponents/Clipboard';
-import {getRecordedDate} from './utils';
+import {downloadRecording, getRecordedDate} from './utils';
 import Tooltip from '../../atoms/Tooltip';
 import Spacer from '../../atoms/Spacer';
 import ImageIcon from '../../atoms/ImageIcon';
@@ -52,11 +52,18 @@ function RTableBody({status, recordings}) {
                   <Text
                     style={style.tlink}
                     onPress={async () => {
-                      if (await Linking.canOpenURL(item.download_url)) {
-                        await Linking.openURL(item.download_url);
+                      if (await Linking.canOpenURL(item.download_url[0])) {
+                        await Linking.openURL(item.download_url[0]);
                       }
                     }}>
                     View
+                  </Text>
+                  <Text
+                    style={[style.tlink, style.pl15]}
+                    onPress={() => {
+                      downloadRecording(item.download_url[0]);
+                    }}>
+                    Download
                   </Text>
                   <View>
                     <Tooltip
@@ -74,16 +81,14 @@ function RTableBody({status, recordings}) {
                       }
                       toolTipMessage="Link Copied"
                       onPress={() => {
-                        console.log('surpiya copied 1');
-                        Clipboard.setString(item.download_url);
+                        Clipboard.setString(item.download_url[0]);
                       }}
                       renderContent={(isToolTipVisible, setToolTipVisible) => {
                         return (
                           <Text
-                            style={[style.tlink, style.pl10]}
+                            style={[style.tlink, style.pl15]}
                             onPress={() => {
-                              console.log('surpiya copied 2');
-                              Clipboard.setString(item.download_url);
+                              Clipboard.setString(item.download_url[0]);
                               setToolTipVisible(true);
                             }}>
                             Copy shareable link
@@ -111,7 +116,11 @@ function RTableBody({status, recordings}) {
 
 function RTableFooter({currentPage, setCurrentPage, pagination}) {
   if (!pagination || (pagination && Object.keys(pagination).length === 0)) {
-    return <View style={style.mfooter}> </View>;
+    return (
+      <View style={style.mfooter}>
+        <Text> </Text>
+      </View>
+    );
   }
   const limit = pagination?.limit || 10;
   const total = pagination?.total || 1;

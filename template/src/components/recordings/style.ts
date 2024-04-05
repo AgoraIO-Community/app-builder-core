@@ -171,4 +171,7 @@ export const style = StyleSheet.create({
   ph20: {
     paddingHorizontal: 20,
   },
+  pl15: {
+    paddingLeft: 15,
+  },
 });

@@ -31,11 +31,41 @@ export function getRecordedDate(ipDate: string) {
   }
 }
 
-const showLinkCopiedToast = () => {
-  Toast.show({
-    leadingIconName: 'info',
-    type: 'info',
-    text1: 'Link copied',
-    visibilityTime: 100000,
-  });
+export const getFileName = (url: string) => {
+  return url.split('#')[0].split('?')[0].split('/').pop();
+};
+
+export const downloadRecording = (url: string) => {
+  const fileName = getFileName(url);
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.responseType = 'arraybuffer';
+  xhr.onload = function (_) {
+    var blob = new Blob([xhr.response], {type: 'video/mp4'});
+    // render `blob` url ✅
+    const downloadUrl = URL.createObjectURL(blob);
+    // anchor element to download
+    const anchor = document.createElement('a');
+    anchor.setAttribute('download', fileName);
+    anchor.href = downloadUrl;
+    // click to dowload the file
+    anchor.click();
+    // revoke download url
+    URL.revokeObjectURL(downloadUrl);
+  };
+  xhr.send();
+  // fetch(url, {method: 'get', mode: 'no-cors', referrerPolicy: 'no-referrer'})
+  //   .then(res => res.blob())
+  //   .then(res => {
+  //     const anchor = document.createElement('a');
+  //     anchor.setAttribute('download', fileName);
+  //     const downloadUrl = URL.createObjectURL(res);
+  //     anchor.href = downloadUrl;
+  //     anchor.setAttribute('target', '_blank');
+  //     anchor.click();
+  //     URL.revokeObjectURL(downloadUrl);
+  //   })
+  //   .catch(error => {
+  //     console.log('supriya error', error); // OUTPUT ERRORS, SUCH AS CORS WHEN TESTING NON LOCALLY
+  //   });
 };
