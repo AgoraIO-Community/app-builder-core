@@ -107,6 +107,7 @@ function RTableBody({status, recordings}) {
 
   return (
     <ScrollView
+      horizontal={true}
       contentContainerStyle={style.scrollgrow}
       showsVerticalScrollIndicator={false}>
       <View style={style.tbody}>{renderTableBodyContent()}</View>
