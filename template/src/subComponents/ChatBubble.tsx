@@ -123,7 +123,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
       <View
         style={[
           isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView,
-          isURL(message) ? {maxWidth: '88%'} : {},
+          //isURL(message) ? {maxWidth: '88%'} : {},
         ]}>
         <View
           style={
