@@ -15,13 +15,13 @@ import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
-import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
-import {useCustomization} from 'customization-implementation';
+import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
+
 import {
   ChatType,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
-import {useContent, useUserName} from 'customization-api';
+import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import {BottomSheetTextInput} from '@gorhom/bottom-sheet';
@@ -29,40 +29,26 @@ import {
   groupChatInputPlaceHolderText,
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
+import ChatSendButton from './chat/ChatSendButton';
+import {ChatAttachmentButton} from './chat/ChatAttachment';
+import {useChatConfigure} from '../components/chat/chatConfigure';
+import {ChatMessageType} from '../components/chat/useSDKChatMessages';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
-
-export const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {privateChatUser, message, setMessage, inputActive} =
-    useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
-  const onPress = () => {
-    if (!privateChatUser) {
-      sendChatMessage(message);
-      setMessage && setMessage('');
-    } else {
-      sendChatMessage(message, privateChatUser);
-      setMessage && setMessage('');
-    }
-  };
-  return props?.render ? (
-    props.render(onPress)
-  ) : (
-    <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
-      <ImageIcon
-        iconType="plain"
-        tintColor={
-          inputActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NEUTRAL
-        }
-        name={'send'}
-      />
-    </TouchableOpacity>
+const ChatPanel = () => {
+  return (
+    <View style={style.chatPanelContainer}>
+      <View style={style.chatPanel}>
+        <ChatAttachmentButton />
+        <ChatEmojiButton />
+      </View>
+      <ChatSendButton />
+    </View>
   );
 };
+
 export interface ChatTextInputProps {
   render?: (
     message: string,
@@ -72,15 +58,12 @@ export interface ChatTextInputProps {
   ) => JSX.Element;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
-  let chatInputRef = useRef(null);
   const {privateChatUser, message, setMessage, chatType, inputActive} =
     useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
+ 
   const {defaultContent} = useContent();
-  //commented for v1 release
-  // const chatMessageInputPlaceholder = useString(
-  //   'chatMessageInputPlaceholder',
-  // )();
+  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+  const {data} = useRoomInfo();
   const [name] = useUserName();
   const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
   const privateChatInputPlaceHolder = useString(
@@ -93,23 +76,21 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       : groupChatInputPlaceHolder(name);
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
-    if (!privateChatUser) {
-      sendChatMessage(message);
+    if (message.length === 0) return;
+    const groupID = data.chat.group_id;
+   
+     const option = {
+        chatType:  privateChatUser ? 'singleChat': 'groupChat',
+        type: ChatMessageType.TXT,
+        from: data.uid.toString(),
+        to: privateChatUser ? privateChatUser.toString() : groupID,
+        msg: message,
+      };
+      sendChatSDKMessage(option);
       setMessage('');
-    } else {
-      sendChatMessage(message, privateChatUser);
-      setMessage('');
-    }
+    
   };
   const {setInputActive} = useChatUIControls();
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (isWebInternal()) {
-        chatInputRef?.current?.focus();
-      }
-    });
-  }, []);
 
   return props?.render ? (
     props.render(
@@ -119,6 +100,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
+
     <BottomSheetTextInput
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
@@ -133,10 +115,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         textAlign: 'left',
         paddingVertical: 21,
         paddingLeft: 20,
-        flex: 1,
+        flex: 2,
         alignSelf: 'center',
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
+        backgroundColor:"red"
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
@@ -153,12 +136,22 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive} = useChatUIControls();
+  const {inputActive, showEmojiPicker} = useChatUIControls();
   return (
-    <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
+    <View
+    style={[
+      {flex: 1},
+      showEmojiPicker
+        ? {backgroundColor: 'transparent'}
+        : {backgroundColor: $config.CARD_LAYER_1_COLOR},
+      // inputActive ? style.inputActiveView : {},
+    ]}>
+    {showEmojiPicker && <ChatEmojiPicker />}
+    <View style={style.inputView}>
       <ChatTextInput />
-      <ChatSendButton />
+      <ChatPanel />
     </View>
+  </View>
   );
 };
 
@@ -179,6 +172,16 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 12,
     alignSelf: 'center',
     marginRight: 16,
+  },
+  chatPanelContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+  },
+  chatPanel: {
+    flexDirection: 'row',
   },
 });
 export default ChatInput;

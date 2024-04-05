@@ -14,9 +14,11 @@ import {
 import StorageContext from '../StorageContext';
 import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
 
+
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  sendChatSDKMessage:() => void;
   deleteChatUser: () => void;
 }
 
@@ -24,6 +26,7 @@ export const chatConfigureContext =
   createContext<chatConfigureContextInterface>({
     open: false,
     setOpen: () => {},
+    sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
   });
 
@@ -59,7 +62,7 @@ const ChatConfigure = ({children}) => {
       const msgListerner: ChatMessageEventListener = {
         onMessagesReceived: (messages: Array<ChatMessage>) => {
           // all types of msg recivied : text, image, video etc..
-          console.warn('on msg rcvd', messages);
+          console.warn('on msg rcvd : Native', messages);
           const isGroupChat =
             messages[0].chatType === ChatMessageChatType.GroupChat;
           const isPeerChat =
@@ -188,6 +191,7 @@ const ChatConfigure = ({children}) => {
     };
 
     const initializeChatSDK = async () => {
+      console.warn("chatSDK native:init", $config.CHAT_ORG_NAME)
       const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
       const chatOptions = new ChatOptions({
         appKey: CHAT_APP_KEY,
@@ -238,6 +242,32 @@ const ChatConfigure = ({children}) => {
     };
   }, []);
 
+  const sendChatSDKMessage = (option) => {
+    const {type,to,msg,chatType,from} = option
+    const chatMsgChatType = chatType === 'singleChat' ? ChatMessageChatType.PeerChat : ChatMessageChatType.GroupChat
+    let chatMsg: ChatMessage;
+    switch(type) {
+      case ChatMessageType.TXT : 
+      chatMsg = ChatMessage.createTextMessage(to,msg,chatMsgChatType,from)
+      break;
+      case ChatMessageType.IMAGE :
+        break;
+      case ChatMessageType.FILE :
+        break;
+    }
+    //
+    chatClient.chatManager.sendMessage(chatMsg).then(() => {
+      // Print the log here if the method call succeeds.
+      console.warn("send message success.");
+    })
+    .catch((reason) => {
+      // Print the log here if the method call fails.
+      console.warn("send message fail.", reason);
+    });
+
+  }
+
+ 
   const deleteChatUser = async () => {
     const groupID = data.chat.group_id;
     const userID = data.uid;
@@ -261,7 +291,7 @@ const ChatConfigure = ({children}) => {
   };
 
   return (
-    <chatConfigureContext.Provider value={{open, setOpen, deleteChatUser}}>
+    <chatConfigureContext.Provider value={{open, setOpen, deleteChatUser, sendChatSDKMessage}}>
       {children}
     </chatConfigureContext.Provider>
   );
