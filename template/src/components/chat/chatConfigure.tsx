@@ -43,7 +43,6 @@ interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   sendChatSDKMessage: (option: ChatOption) => void;
-  sendGroupChatSDKMessage: (option: ChatOption) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
 }
@@ -53,7 +52,7 @@ export const chatConfigureContext =
     open: false,
     setOpen: () => {},
     sendChatSDKMessage: () => {},
-    sendGroupChatSDKMessage: () => {},
+
     deleteChatUser: () => {},
     downloadAttachment: () => {},
   });
@@ -310,51 +309,19 @@ const ChatConfigure = ({children}) => {
             ext: option?.file?.filetype,
             fileName: option?.file?.filename,
           };
+          //todo chattype as per natue type
           // this is local user messages
-          addMessageToPrivateStore(Number(option.to), messageData, true);
+          if (option.chatType === 'singleChat') {
+            addMessageToPrivateStore(Number(option.to), messageData, true);
+          }
+          else {
+            addMessageToStore(Number(option.from), messageData);
+          }
+          
         })
         .catch(error => {
           console.log(
             '%cChatSDK: Send private msg fail: %s',
-            'color: blue',
-            error,
-          );
-        });
-    }
-  };
-
-  const sendGroupChatSDKMessage = (option: ChatOption) => {
-    if (connRef.current) {
-      //TODO thumb and url of actual image uploaded available in file upload complete
-      const localFileUrl = option?.file?.url || '';
-      //@ts-ignore
-      const msg = AgoraChat.message.create(option);
-      connRef.current
-        .send(msg)
-        .then(res => {
-          console.log(
-            '%cChatSDK: Send Group msg success: %s',
-            'color: blue',
-            JSON.stringify(res, null, 2),
-          );
-          // update local messagre store
-          const messageData = {
-            msg: option.msg,
-            createdTimestamp: timeNow(),
-            msgId: msg.id,
-            isDeleted: false,
-            type: option.type,
-            thumb: localFileUrl,
-            url: localFileUrl,
-            ext: option?.file?.filetype,
-            fileName: option?.file?.filename,
-          };
-          // this is group msg
-          addMessageToStore(Number(option.from), messageData);
-        })
-        .catch(error => {
-          console.log(
-            '%cChatSDK: Send Group msg fail: %s',
             'color: blue',
             error,
           );
@@ -398,7 +365,6 @@ const ChatConfigure = ({children}) => {
         open,
         setOpen,
         sendChatSDKMessage,
-        sendGroupChatSDKMessage,
         deleteChatUser,
         downloadAttachment,
       }}>

@@ -15,7 +15,7 @@ export interface ChatAttachmentButtonProps {
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const {data} = useRoomInfo();
-  const {sendGroupChatSDKMessage, sendChatSDKMessage} = useChatConfigure();
+  const { sendChatSDKMessage} = useChatConfigure();
   const {privateChatUser} = useChatUIControls();
 
   const fileAllowedTypes = {
@@ -68,9 +68,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           // update local store
         },
       };
-      privateChatUser
-        ? sendChatSDKMessage(option)
-        : sendGroupChatSDKMessage(option);
+      sendChatSDKMessage(option)
     } else {
       Toast.show({
         leadingIconName: 'chat_attachment_unknown',

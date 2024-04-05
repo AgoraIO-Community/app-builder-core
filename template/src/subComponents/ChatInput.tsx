@@ -9,14 +9,11 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet, Text} from 'react-native';
-import ColorContext from '../components/ColorContext';
+import React, { useEffect, useRef} from 'react';
+import {View,  StyleSheet, Text} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
-import {isValidReactComponent, isWebInternal} from '../utils/common';
-import {useCustomization} from 'customization-implementation';
+import {isWebInternal} from '../utils/common';
 import {
   ChatType,
   useChatUIControls,
@@ -24,7 +21,6 @@ import {
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
-import EmojiPicker from 'emoji-picker-react';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 import {useChatConfigure} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -36,47 +32,6 @@ import {
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
 
-// export interface ChatSendButtonProps {
-//   render?: (onPress: () => void) => JSX.Element;
-// }
-
-// export const ChatSendButton = (props: ChatSendButtonProps) => {
-//   const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
-//   const {
-//     privateChatUser: selectedUserId,
-//     message,
-//     setMessage,
-//     inputActive,
-//   } = useChatUIControls();
-//   const {sendChatMessage} = useChatMessages();
-//   const onPress = () => {
-//     if (!selectedUserId) {
-//       // sendChatMessage(message);
-//       sendGroupChatSDKMessage(message);
-//       setMessage && setMessage('');
-//     } else {
-//       //  sendChatMessage(message, selectedUserId);
-//       //send chatSDK peer msg
-//       sendChatSDKMessage(selectedUserId, message);
-//       setMessage && setMessage('');
-//     }
-//   };
-//   return props?.render ? (
-//     props.render(onPress)
-//   ) : (
-//     <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
-//       <ImageIcon
-//         iconType="plain"
-//         tintColor={
-//           inputActive
-//             ? $config.PRIMARY_ACTION_BRAND_COLOR
-//             : $config.SEMANTIC_NEUTRAL
-//         }
-//         name={'chat_send'}
-//       />
-//     </TouchableOpacity>
-//   );
-// };
 
 const ChatUploadStatus = () => {
   return (
@@ -109,15 +64,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   let chatInputRef = useRef(null);
   const {privateChatUser, message, setMessage, inputActive, chatType} =
     useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
   const {defaultContent} = useContent();
-  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage} = useChatConfigure();
 
   const {data} = useRoomInfo();
-  //commented for v1 release
-  // const chatMessageInputPlaceholder = useString(
-  //   'chatMessageInputPlaceholder',
-  // )();
   const [name] = useUserName();
 
  
@@ -134,31 +84,16 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const onSubmitEditing = () => {
     if (message.length === 0) return;
     const groupID = data.chat.group_id;
-    if (!privateChatUser) {
-      // group msg
-      const option = {
-        chatType: 'groupChat',
-        type: ChatMessageType.TXT,
-        from: data.uid.toString(),
-        to: groupID,
-        msg: message,
-      };
-      //sendChatMessage(message);
-      sendGroupChatSDKMessage(option);
-      setMessage('');
-    } else {
-      //  sendChatMessage(message, privateChatUser);
-      //send chatSDK peer msg
-      const option = {
-        chatType: 'singleChat',
-        type: ChatMessageType.TXT,
-        from: data.uid.toString(),
-        to: privateChatUser.toString(),
-        msg: message,
-      };
-      sendChatSDKMessage(option);
-      setMessage('');
-    }
+    
+    const option = {
+      chatType: privateChatUser ? 'singleChat' :'groupChat',
+      type: ChatMessageType.TXT,
+      from: data.uid.toString(),
+      to: privateChatUser ?privateChatUser.toString() :groupID,
+      msg: message,
+    };
+    sendChatSDKMessage(option);
+    setMessage('');
   };
 
   // with multiline textinput enter prints /n

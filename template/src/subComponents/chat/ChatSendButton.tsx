@@ -12,45 +12,31 @@ export interface ChatSendButtonProps {
 }
 
 const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage} = useChatConfigure();
   const {
     privateChatUser: selectedUserId,
     message,
     setMessage,
     inputActive,
   } = useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
+ 
 
   const {data} = useRoomInfo();
 
   const onPress = () => {
     if (message.length === 0) return;
     const groupID = data.chat.group_id;
-    if (!selectedUserId) {
-      // sendChatMessage(message); for native
-      //  send group msg
-      const option = {
-        chatType: 'groupChat',
-        type: ChatMessageType.TXT,
-        from: data.uid.toString(),
-        to: groupID,
-        msg: message,
-      };
-      sendGroupChatSDKMessage(option);
-      setMessage && setMessage('');
-    } else {
-      //  sendChatMessage(message, selectedUserId); for native
-      //send  peer msg
-      const option = {
-        chatType: 'singleChat',
-        type: ChatMessageType.TXT,
-        from: data.uid.toString(),
-        to: selectedUserId.toString(),
-        msg: message,
-      };
-      sendChatSDKMessage(option);
-      setMessage && setMessage('');
-    }
+
+    const option = {
+      chatType: selectedUserId ? 'singleChat' :'groupChat',
+      type: ChatMessageType.TXT,
+      from: data.uid.toString(),
+      to: selectedUserId ? selectedUserId.toString() : groupID,
+      msg: message,
+    };
+    sendChatSDKMessage(option);
+    setMessage && setMessage('');
+
   };
   return props?.render ? (
     props.render(onPress)
