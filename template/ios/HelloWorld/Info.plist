@@ -85,9 +85,9 @@
 	<false/>
 	
 	<key>HostName</key>
-	<string>managedservices-preprod.rteappbuilder.com</string>
+	<string>managedservices-prod.rteappbuilder.com</string>
 	<key>MainPublicKey</key>
-	<string>pCL9CdYsDVWtkF3DktsMyfmuSGsnKNzAraubM/2JawQ=</string>
+	<string>5VC9ody3DexBxZs51+65COtntkY7seybRRwJIC0VZRA=</string>
 	<key>BackupPublicKey</key>
 	<string>18tkPyr2nckv4fgo0dhAkaUtJ2hu2831xlO2SKhq8dg=</string>
 </dict>
