@@ -33,4 +33,5 @@ const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
 };
 
 export {React, RN};
+export {AppBuilderReactSdkApi};
 export default AppBuilderReactSdkApi;
