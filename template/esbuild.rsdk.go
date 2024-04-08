@@ -143,6 +143,9 @@ func commonLoader() map[string]api.Loader {
 		".jpg":  api.LoaderDataURL,
 		".jpeg": api.LoaderDataURL,
 		".gif":  api.LoaderDataURL,
+
+    ".wasm": api.LoaderFile,
+    ".ttf": api.LoaderFile,
 	}
 
 	return loader
