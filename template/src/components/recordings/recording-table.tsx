@@ -5,8 +5,7 @@ import Pagination from '../../atoms/pagination/Pagination';
 import Clipboard from '../../subComponents/Clipboard';
 import {downloadRecording, getRecordedDate} from './utils';
 import Tooltip from '../../atoms/Tooltip';
-import Spacer from '../../atoms/Spacer';
-import ImageIcon from '../../atoms/ImageIcon';
+
 import Loading from '../../subComponents/Loading';
 
 function RTableHeader() {
@@ -14,7 +13,7 @@ function RTableHeader() {
     <View style={style.thead}>
       <View style={style.throw}>
         <View style={[style.th, style.plzero]}>
-          <Text style={style.thText}>Date/time</Text>
+          <Text style={style.thText}>Date/Time</Text>
         </View>
         <View style={style.th}>
           <Text style={style.thText}>Actions</Text>
@@ -98,10 +97,11 @@ function RTableBody({status, recordings}) {
 
   return (
     <ScrollView
-      horizontal={true}
       contentContainerStyle={style.scrollgrow}
       showsVerticalScrollIndicator={false}>
-      <View style={style.tbody}>{renderTableBodyContent()}</View>
+      <ScrollView horizontal={true} contentContainerStyle={style.scrollgrow}>
+        <View style={style.tbody}>{renderTableBodyContent()}</View>
+      </ScrollView>
     </ScrollView>
   );
 }

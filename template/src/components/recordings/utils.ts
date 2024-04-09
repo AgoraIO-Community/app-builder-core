@@ -1,33 +1,42 @@
-import Toast from '../../../react-native-toast-message';
-
 export function getRecordedDate(ipDate: string) {
-  let rdate = new Date(ipDate);
-  let ryear = rdate.getFullYear();
-  let rmonth = rdate.getMonth() + 1;
-  let rdt = rdate.getDate();
-  const hour = rdate.getHours();
-  const minute = rdate.getMinutes();
-  const formattedHHMM = `${String(hour).padStart(2, '0')}:${String(
-    minute,
-  ).padStart(2, '0')}`;
+  try {
+    let rdate = new Date(ipDate);
+    let ryear = rdate.getFullYear();
+    let rmonth = rdate.getMonth() + 1;
+    let rdt = rdate.getDate();
+    let hour = rdate.getHours();
+    let minute = rdate.getMinutes();
+    let ampm = hour >= 12 ? 'pm' : 'am';
+    hour = hour % 12;
+    hour = hour ? hour : 12; // the hour '0' should be '12'
+    minute = minute < 10 ? minute : minute;
 
-  let today = new Date();
-  today.setHours(0);
-  today.setMinutes(0);
-  today.setSeconds(0);
-  today.setMilliseconds(0);
+    const formattedHHMM = `${String(hour)}:${String(minute).padStart(
+      2,
+      '0',
+    )} ${ampm}`;
 
-  let compDate = new Date(ryear, rmonth - 1, rdt); // month - 1 because January == 0
-  let diff = today.getTime() - compDate.getTime(); // get the difference between today(at 00:00:00) and the date
+    let today = new Date();
+    today.setHours(0);
+    today.setMinutes(0);
+    today.setSeconds(0);
+    today.setMilliseconds(0);
 
-  if (compDate.getTime() == today.getTime()) {
-    return `Today\n${formattedHHMM}`;
-  } else if (diff <= 24 * 60 * 60 * 1000) {
-    return `Yesterday\n${formattedHHMM}`;
-  } else {
-    let fulldate = rdate.toDateString();
-    fulldate = fulldate.substring(fulldate.indexOf(' ') + 1);
-    return `${fulldate}\n${formattedHHMM}`;
+    let compDate = new Date(ryear, rmonth - 1, rdt); // month - 1 because January == 0
+    let diff = today.getTime() - compDate.getTime(); // get the difference between today(at 00:00:00) and the date
+
+    if (compDate.getTime() == today.getTime()) {
+      return `Today\n${formattedHHMM}`;
+    } else if (diff <= 24 * 60 * 60 * 1000) {
+      return `Yesterday\n${formattedHHMM}`;
+    } else {
+      let fulldate = rdate.toDateString();
+      fulldate = fulldate.substring(fulldate.indexOf(' ') + 1);
+      return `${fulldate}\n${formattedHHMM}`;
+    }
+  } catch (error) {
+    console.error('error while converting recorded time: ', error);
+    return ipDate;
   }
 }
 
