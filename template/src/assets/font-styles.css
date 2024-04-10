@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-play-circle:before {
+  content: '\e978';
+  color: #fff;
+}
 .icon-clear-all:before {
   content: '\e96f';
   color: #fff;

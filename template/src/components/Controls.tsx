@@ -93,12 +93,15 @@ import {
   toolbarItemNoiseCancellationText,
   toolbarItemPeopleText,
   toolbarItemRecordingText,
+  toolbarItemViewRecordingText,
   toolbarItemSettingText,
   toolbarItemShareText,
   toolbarItemTranscriptText,
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {useModal} from '../utils/useModal';
+import ViewRecordingsModal from './recordings/ViewRecordingsModal';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -249,6 +252,9 @@ const MoreButton = () => {
   const settingsLabel = useString(toolbarItemSettingText)();
   const screenShareButton = useString<boolean>(toolbarItemShareText);
   const recordingButton = useString<boolean>(toolbarItemRecordingText);
+  const viewRecordingsLabel = useString<boolean>(
+    toolbarItemViewRecordingText,
+  )();
   const moreButtonLabel = useString(toolbarItemMoreText)();
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
@@ -261,6 +267,11 @@ const MoreButton = () => {
   const [_, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
+  const {
+    modalOpen: isVRModalOpen,
+    setModalOpen: setVRModalOpen,
+    toggle: toggleVRModal,
+  } = useModal();
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const layouts = useLayoutsData();
@@ -499,6 +510,20 @@ const MoreButton = () => {
     });
   }
 
+  // view recordings
+
+  if (isHost && $config.CLOUD_RECORDING && isWeb()) {
+    actionMenuitems.push({
+      icon: 'play-circle',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: viewRecordingsLabel,
+      callback: () => {
+        toggleVRModal();
+      },
+    });
+  }
+
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
       icon: 'participants',
@@ -685,6 +710,9 @@ const MoreButton = () => {
         onConfirm={onConfirm}
         isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
+      {$config.CLOUD_RECORDING && isHost && isWeb() && isVRModalOpen && (
+        <ViewRecordingsModal setModalOpen={setVRModalOpen} />
+      )}
       <ActionMenu
         containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}
         hoverMode={true}

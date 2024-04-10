@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "a569f8fb0309417780b793786b534a86",
   "PROJECT_ID": "49c705c1c9efb71000d7",
-  "FRONTEND_ENDPOINT": "https://voicecall.agora.io",
+  "FRONTEND_ENDPOINT": "https://app-builder-core-voice-chat-git-preprod-agoraio.vercel.app",
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
