@@ -62,7 +62,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     useChatUIControls();
  
   const {defaultContent} = useContent();
-  const {sendChatSDKMessage, sendGroupChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
   const [name] = useUserName();
   const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);

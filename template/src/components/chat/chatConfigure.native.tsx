@@ -13,6 +13,7 @@ import {
 } from 'react-native-agora-chat';
 import StorageContext from '../StorageContext';
 import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
+import {timeNow} from '../../rtm/utils';
 
 
 interface chatConfigureContextInterface {
@@ -257,11 +258,33 @@ const ChatConfigure = ({children}) => {
     }
     //
     chatClient.chatManager.sendMessage(chatMsg).then(() => {
-      // Print the log here if the method call succeeds.
+      // log here if the method call succeeds.
       console.warn("send message success.");
+      const localFileUrl = option?.file?.url || '';
+      // add to local store of sender
+      const messageData = {
+        msg: option.msg,
+        createdTimestamp: timeNow(),
+        msgId: msg.id,
+        isDeleted: false,
+        type: option.type,
+        thumb: localFileUrl,
+        url: localFileUrl,
+        ext: option?.file?.filetype,
+        fileName: option?.file?.filename,
+      };
+     
+      // this is local user messages
+      if (option.chatType === 'singleChat') {
+        addMessageToPrivateStore(Number(option.to), messageData, true);
+      }
+      else {
+        addMessageToStore(Number(option.from), messageData);
+      }
+
     })
     .catch((reason) => {
-      // Print the log here if the method call fails.
+      //log here if the method call fails.
       console.warn("send message fail.", reason);
     });
 
