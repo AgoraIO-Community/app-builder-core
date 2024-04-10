@@ -68,7 +68,8 @@ type LogType = {
     | 'whiteboard_upload'
     | 'whiteboard_fileconvert'
     | 'recording_start'
-    | 'recording_stop';
+    | 'recording_stop'
+    | 'recordings_get';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
   [LogSource.CustomizationAPI]: 'Log';
   [LogSource.SDK]: 'Log' | 'Event';

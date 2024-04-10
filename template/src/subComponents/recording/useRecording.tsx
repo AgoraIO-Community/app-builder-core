@@ -406,6 +406,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const fetchRecordings = useCallback(
     (page: number) => {
+      logger.log(
+        LogSource.NetworkRest,
+        'recordings_get',
+        'Trying to fetch recordings',
+        {
+          passphrase: roomId?.host,
+          limit: 10,
+          page,
+        },
+      );
       return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
         method: 'POST',
         headers: {
@@ -421,6 +431,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }).then(async response => {
         const data = await response.json();
         if (response.ok) {
+          logger.log(
+            LogSource.NetworkRest,
+            'recordings_get',
+            'fetch recordings successfull',
+            data,
+          );
           if (data) {
             return data;
           } else {
@@ -434,6 +450,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           const error = {
             message: data?.error?.message,
           };
+          logger.error(
+            LogSource.NetworkRest,
+            'recordings_get',
+            'Error while fetching recording',
+            error,
+          );
           return Promise.reject(error);
         }
       });
