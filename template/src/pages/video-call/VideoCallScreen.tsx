@@ -40,6 +40,7 @@ import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
 const VideoCallScreen = () => {
@@ -231,6 +232,13 @@ const VideoCallScreen = () => {
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
 
+  useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'VIDEO_CALL_ROOM',
+      'User has landed on video call room',
+    );
+  }, []);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   return VideocallComponent ? (

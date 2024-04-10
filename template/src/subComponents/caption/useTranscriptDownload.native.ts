@@ -3,6 +3,7 @@ import {useCaption} from './useCaption';
 import RNFetchBlob from 'rn-fetch-blob';
 import {isAndroid, isIOS, useRoomInfo, useContent} from 'customization-api';
 import Share from 'react-native-share';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
@@ -16,6 +17,11 @@ const useTranscriptDownload = (): {
   const downloadTranscript = (): Promise<string | null> => {
     return new Promise((resolve, reject) => {
       try {
+        logger.log(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          'Trying to download transcript',
+        );
         const [finalContent, fileName] = formatTranscriptContent(
           meetingTranscript,
           meetingTitle,
@@ -32,26 +38,50 @@ const useTranscriptDownload = (): {
         RNFetchBlob.fs
           .writeFile(filePath, finalContent, 'utf8')
           .then(() => {
-            console.warn('Content downloaded successfully on native.');
+            logger.warn(
+              LogSource.Internals,
+              'TRANSCRIPT',
+              'Content downloaded successfully on native',
+            );
             // need to show the preview of downloaded file
             Share.open({url: `file://${filePath}`, type: 'text/plain'})
               .then(res => {
-                //  console.warn('File shared successfully:', res);
+                logger.warn(
+                  LogSource.Internals,
+                  'TRANSCRIPT',
+                  'File shared successfully:',
+                  res,
+                );
                 resolve(filePath);
               })
               .catch(error => {
-                // console.error('Error sharing file:', error);
+                logger.error(
+                  LogSource.Internals,
+                  'TRANSCRIPT',
+                  'Error sharing file:',
+                  error,
+                );
                 reject(error);
               });
 
             resolve(filePath);
           })
           .catch(error => {
-            console.error('Error downloading content:', error);
+            logger.error(
+              LogSource.Internals,
+              'TRANSCRIPT',
+              'Error downloading content:',
+              error,
+            );
             reject(error);
           });
       } catch (error) {
-        console.error('Error downloading content:', error);
+        logger.error(
+          LogSource.Internals,
+          'TRANSCRIPT',
+          'Error downloading content:',
+          error,
+        );
         reject(error);
       }
     });

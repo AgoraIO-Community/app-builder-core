@@ -5,6 +5,7 @@ import {useAsyncEffect} from './useAsyncEffect';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 const useIsLocalUserSpeaking = () => {
@@ -60,7 +61,12 @@ const useIsLocalUserSpeaking = () => {
           audioTrackRef.current[0]?.stop();
       }
     } catch (error) {
-      log(' Error on stopping the hark', error);
+      logger.error(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        'Error on stopping the hark',
+        error,
+      );
     }
     try {
       //detect local user speaking or not
@@ -75,7 +81,12 @@ const useIsLocalUserSpeaking = () => {
       speechRef.current.on('speaking', speakingCallBack);
       speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
     } catch (error) {
-      log(' Error on starting the hark', error);
+      logger.error(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        'Error on starting the hark',
+        error,
+      );
     }
   };
 
@@ -92,7 +103,12 @@ const useIsLocalUserSpeaking = () => {
             audioTrackRef.current[0]?.stop &&
             audioTrackRef.current[0]?.stop();
         } catch (error) {
-          console.log('error couldnt stop the track');
+          logger.error(
+            LogSource.Internals,
+            'ACTIVE_SPEAKER',
+            'couldnt stop the track',
+            error,
+          );
         }
       };
     }

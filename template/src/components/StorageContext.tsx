@@ -13,6 +13,7 @@ import React, {createContext, ReactChildren, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 import {ENABLE_AUTH} from '../auth/config';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 type rememberedDevicesListEntries = Record<
   string,
@@ -74,9 +75,16 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
   useMount(() => {
     const hydrateStore = async () => {
       try {
+        logger.log(LogSource.Internals, 'STORE', 'hydrating store');
         const storeString = await AsyncStorage.getItem('store');
         if (storeString === null) {
           await AsyncStorage.setItem('store', JSON.stringify(initStoreValue));
+          logger.log(
+            LogSource.Internals,
+            'STORE',
+            'hydrating store from initial values done',
+            initStoreValue,
+          );
           setReady(true);
         } else {
           const storeFromStorage = JSON.parse(storeString);
@@ -91,11 +99,22 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           }
           storeFromStorage['whiteboardNativeInfoToast'] = false;
           setStore(storeFromStorage);
+          logger.log(
+            LogSource.Internals,
+            'STORE',
+            'hydrating store from already stored values done',
+            storeFromStorage,
+          );
           setReady(true);
         }
         setReady(true);
       } catch (e) {
-        console.error('problem hydrating store', e);
+        logger.error(
+          LogSource.Internals,
+          'STORE',
+          'problem hydrating store',
+          e,
+        );
       }
     };
     hydrateStore();
@@ -115,8 +134,19 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           tempStore['token'] = null;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
+        logger.log(
+          LogSource.Internals,
+          'STORE',
+          'syncing storage done',
+          tempStore,
+        );
       } catch (e) {
-        console.log('problem syncing the store', e);
+        logger.error(
+          LogSource.Internals,
+          'STORE',
+          'problem syncing the store',
+          e,
+        );
       }
     };
     ready && syncStore();
