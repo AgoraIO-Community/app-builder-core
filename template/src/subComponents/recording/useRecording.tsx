@@ -202,7 +202,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
     if (recordinghostURL.includes('localhost')) {
       console.error(
-        'web-recording - Recording url cannot be localhost. It should be a valid URL',
+        'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
       );
       return;
     }
