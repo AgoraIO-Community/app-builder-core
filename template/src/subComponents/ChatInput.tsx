@@ -131,7 +131,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       style={{
         height: 48,
         maxHeight: 92,
-        width: 318,
+        width: '100%',
         borderRadius: 8,
         borderWidth: 1,
         color: $config.FONT_COLOR,

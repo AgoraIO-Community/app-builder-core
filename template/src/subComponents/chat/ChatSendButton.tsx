@@ -1,11 +1,11 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import {useChatConfigure} from '../../components/chat/chatConfigure';
 import IconButton from '../../../src/atoms/IconButton';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
-import {useChatMessages} from '../../components/chat-messages/useChatMessages';
 import {useRoomInfo} from 'customization-api';
 import {ChatMessageType} from '../../components/chat/useSDKChatMessages';
+
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -41,6 +41,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
   return props?.render ? (
     props.render(onPress)
   ) : (
+   <View>
     <IconButton
       hoverEffect={true}
       hoverEffectStyle={{
@@ -50,7 +51,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       iconProps={{
         iconType: 'plain',
         iconContainerStyle: {
-          padding: 4,
+          padding: 4,   
         },
         iconSize: 24,
         name: 'chat_send',
@@ -60,6 +61,8 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       }}
       onPress={onPress}
     />
+    </View>
+  
   );
 };
 

@@ -82,7 +82,7 @@ export interface ChatEmojiButtonProps {
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
   const {setShowEmojiPicker} = useChatUIControls();
   const onPress = () => {
-    setShowEmojiPicker(true);
+    setShowEmojiPicker(prev=>!prev);
   };
   return props?.render ? (
     props.render(onPress)
@@ -119,7 +119,6 @@ const styles = StyleSheet.create({
   },
   emojiPicker: {
     width: '100%',
-
     border: 0,
   },
 });

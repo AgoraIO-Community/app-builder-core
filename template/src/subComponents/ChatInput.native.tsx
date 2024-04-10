@@ -33,6 +33,7 @@ import ChatSendButton from './chat/ChatSendButton';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import {useChatConfigure} from '../components/chat/chatConfigure';
 import {ChatMessageType} from '../components/chat/useSDKChatMessages';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -44,7 +45,7 @@ const ChatPanel = () => {
         <ChatAttachmentButton />
         <ChatEmojiButton />
       </View>
-      <ChatSendButton />
+      <ChatSendButton /> 
     </View>
   );
 };
@@ -107,19 +108,22 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       value={message}
       onChangeText={onChangeText}
       style={{
-        minHeight: 56,
-        borderRadius: 0,
-        borderBottomLeftRadius: 12,
-        borderWidth: 0,
         color: $config.FONT_COLOR,
         textAlign: 'left',
-        paddingVertical: 21,
-        paddingLeft: 20,
-        flex: 2,
+       padding:12,
+        width:'100%',
         alignSelf: 'center',
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
-        backgroundColor:"red"
+        height: 48,
+        maxHeight: 92,
+        paddingRight: 0,
+        fontSize: ThemeConfig.FontSize.small,
+        lineHeight: 17,
+        borderWidth:1,
+        borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
+        backgroundColor: $config.CARD_LAYER_2_COLOR,
+        borderRadius: 8,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
@@ -135,12 +139,12 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 /**
  * Input component for the Chat interface
  */
-export const ChatInput = () => {
+ const ChatInput = () => {
   const {inputActive, showEmojiPicker} = useChatUIControls();
   return (
     <View
     style={[
-      {flex: 1},
+      style.inputContainer,
       showEmojiPicker
         ? {backgroundColor: 'transparent'}
         : {backgroundColor: $config.CARD_LAYER_1_COLOR},
@@ -160,28 +164,28 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
-  inputView: {
+  inputContainer:{
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    flexDirection:'column',
+  },
+
+  inputView: {
+    flexDirection: 'column',
     borderTopWidth: 1,
     borderTopColor: 'transparent',
+    paddingHorizontal: 12,
   },
-  chatInputButton: {
-    flex: 0.1,
-    borderBottomRightRadius: 12,
-    alignSelf: 'center',
-    marginRight: 16,
-  },
+
   chatPanelContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+    height:36,
   },
   chatPanel: {
-    flexDirection: 'row',
+  flexDirection: 'row',
+  
   },
 });
 export default ChatInput;
