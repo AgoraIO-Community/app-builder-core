@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   ToggleState,
   PermissionState,
@@ -17,6 +17,8 @@ import {
   ClientRoleType,
   PropsContext,
   useLocalUid,
+  DispatchContext,
+  RtcContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
@@ -59,13 +61,13 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const {
     data: {isHost},
   } = useRoomInfo();
+
   const {position} = useToolbar();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
-
   const micButtonLabel = useString<I18nDeviceStatus>(toolbarItemMicrophoneText);
   const micButtonTooltip = useString<I18nDeviceStatus>(
     toolbarItemMicrophoneTooltipText,
@@ -185,19 +187,21 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRoleType.ClientRoleAudience &&
-    $config.EVENT_MODE &&
-    $config.RAISE_HAND &&
-    !isHost
+    (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      !isHost) ||
+    local.audioBtnDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'mic-off',
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
-    iconButtonProps.toolTipMessage = showToolTip
-      ? lstooltip(isHandRaised(local.uid))
-      : '';
+    iconButtonProps.toolTipMessage =
+      showToolTip && !local.audioBtnDisabled
+        ? lstooltip(isHandRaised(local.uid))
+        : '';
     iconButtonProps.disabled = true;
   }
 
