@@ -130,4 +130,5 @@ export interface IconsInterface {
   'fit-to-screen': string;
   warning: string;
   'view-only': string;
+  'play-circle': string;
 }

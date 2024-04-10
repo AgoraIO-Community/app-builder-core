@@ -3,11 +3,13 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 const EmphasisOpacity = {
   high: 1,
   medium: 0.85,
+  low: 0.4,
   disabled: 0.4,
 };
 const EmphasisPlus = {
   high: '',
   medium: hexadecimalTransparency['85%'],
+  low: hexadecimalTransparency['40%'],
   disabled: hexadecimalTransparency['40%'],
 };
 export interface FontSizes {
@@ -20,6 +22,7 @@ export interface FontSizes {
 }
 const FontSize: {
   extraLarge: 32;
+  xLarge: 24;
   large: 20;
   medium: 18;
   normal: 16;
@@ -27,6 +30,7 @@ const FontSize: {
   tiny: 12;
 } = {
   extraLarge: 32,
+  xLarge: 24,
   large: 20,
   medium: 18,
   normal: 16,

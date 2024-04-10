@@ -9,13 +9,15 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {
   ToggleState,
   PermissionState,
   ImageIcon as UIKitImageIcon,
   ClientRoleType,
   PropsContext,
+  RtcContext,
+  DispatchContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
@@ -26,7 +28,7 @@ import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useScreenshare} from './screenshare/useScreenshare';
-import {isAndroid} from '../utils/common';
+import {isAndroid, isWebInternal} from '../utils/common';
 import {isIOS} from '../utils/common';
 import {useVideoCall} from '../components/useVideoCall';
 import {useToolbarMenu} from '../utils/useMenu';
@@ -64,6 +66,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const {
     data: {isHost},
   } = useRoomInfo();
+
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
@@ -211,19 +214,21 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRoleType.ClientRoleAudience &&
-    $config.EVENT_MODE &&
-    $config.RAISE_HAND &&
-    !isHost
+    (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      !isHost) ||
+    local?.videoForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'video-off',
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
-    iconButtonProps.toolTipMessage = showToolTip
-      ? lstooltip(isHandRaised(local.uid))
-      : '';
+    iconButtonProps.toolTipMessage =
+      showToolTip && !local?.videoForceDisabled
+        ? lstooltip(isHandRaised(local.uid))
+        : '';
     iconButtonProps.disabled = true;
   }
   return props?.render ? (

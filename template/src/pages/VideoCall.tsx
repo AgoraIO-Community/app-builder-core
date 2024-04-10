@@ -73,6 +73,7 @@ import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useCustomization} from 'customization-implementation';
 
 enum RnEncryptionEnum {
   /**
@@ -159,7 +160,11 @@ const VideoCall: React.FC = () => {
   } = useContext(SdkApiContext);
 
   // commented for v1 release
-  //const lifecycle = useCustomization((data) => data.lifecycle);
+  const afterEndCall = useCustomization(
+    data =>
+      data?.lifecycle?.useAfterEndCall && data?.lifecycle?.useAfterEndCall(),
+  );
+
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
