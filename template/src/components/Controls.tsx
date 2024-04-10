@@ -514,7 +514,7 @@ const MoreButton = () => {
 
   if (isHost && $config.CLOUD_RECORDING && isWeb()) {
     actionMenuitems.push({
-      icon: 'recording',
+      icon: 'play-circle',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: viewRecordingsLabel,
