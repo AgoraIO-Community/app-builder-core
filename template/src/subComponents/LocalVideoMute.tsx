@@ -204,7 +204,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       $config.EVENT_MODE &&
       $config.RAISE_HAND &&
       !isHost) ||
-    local.videoBtnDisabled
+    local?.videoForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
@@ -212,7 +212,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage =
-      showToolTip && !local.videoBtnDisabled
+      showToolTip && !local?.videoForceDisabled
         ? lstooltip(isHandRaised(local.uid))
         : '';
     iconButtonProps.disabled = true;

@@ -191,7 +191,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       $config.EVENT_MODE &&
       $config.RAISE_HAND &&
       !isHost) ||
-    local.audioBtnDisabled
+    local?.audioForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
@@ -199,7 +199,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage =
-      showToolTip && !local.audioBtnDisabled
+      showToolTip && !local?.audioForceDisabled
         ? lstooltip(isHandRaised(local.uid))
         : '';
     iconButtonProps.disabled = true;
