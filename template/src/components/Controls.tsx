@@ -100,7 +100,6 @@ import {
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
 } from '../language/default-labels/videoCallScreenLabels';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
 import ViewRecordingsModal from './recordings/ViewRecordingsModal';
 
@@ -699,7 +698,7 @@ const MoreButton = () => {
         await restart(language);
       }
     } catch (error) {
-      logger.log(LogSource.Internals, 'STT', 'error in starting stt', error);
+      console.log('eror in starting stt', error);
     }
   };
 

@@ -31,7 +31,6 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {useLanguage} from '../language/useLanguage';
 import {useScreenContext} from '../components/contexts/ScreenShareContext';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -105,20 +104,10 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
             name,
           },
         }).catch(error => {
-          logger.error(
-            LogSource.Internals,
-            'NAME',
-            'ERROR, could not save the name',
-            error,
-          );
+          console.log('ERROR, could not save the name', error);
         });
       } catch (error) {
-        logger.error(
-          LogSource.Internals,
-          'NAME',
-          'ERROR, could not save the name',
-          error,
-        );
+        console.log('ERROR, could not save the name', error);
       }
     }
   };

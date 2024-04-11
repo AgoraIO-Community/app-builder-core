@@ -5,7 +5,6 @@ import Loading from '../subComponents/Loading';
 import useTokenAuth from './useTokenAuth';
 import {useString} from '../utils/useString';
 import {authAuthorizingApplicationText} from '../language/default-labels/commonLabels';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export const IDPAuth = () => {
   const {setIsAuthenticated} = useAuth();
@@ -23,7 +22,7 @@ export const IDPAuth = () => {
         })
         .catch(() => {
           setIsAuthenticated(false);
-          logger.error(LogSource.Internals, 'AUTH', 'electron login failed');
+          console.log('debugging electron login failed');
         });
     }
   }, []);

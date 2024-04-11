@@ -9,9 +9,8 @@ import {useScreenshare} from './screenshare/useScreenshare';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
-import {useString} from '../../src/utils/useString';
-import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useString} from '../utils/useString';
+import {toolbarItemLeaveText} from '../language/default-labels/videoCallScreenLabels';
 import useEndCall from '../utils/useEndCall';
 
 export interface LocalEndcallProps {
@@ -23,11 +22,7 @@ export interface LocalEndcallProps {
 export const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
-    logger.log(
-      LogSource.Internals,
-      'CONTROLS',
-      'Local end call - stopping foreground service, bg audio for android only',
-    );
+    console.log('stopping foreground service');
   }
 };
 

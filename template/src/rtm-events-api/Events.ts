@@ -21,7 +21,6 @@ import {
   PersistanceLevel,
 } from './types';
 import {adjustUID} from '../rtm/utils';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 class Events {
   private source: EventSource = EventSource.core;
@@ -46,10 +45,8 @@ class Events {
       // Step 1: Call RTM API to update local attributes
       await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
     } catch (error) {
-      logger.error(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        'error occured while updating the value ',
+      console.log(
+        'CUSTOM_EVENT_API error occured while updating the value ',
         error,
       );
     }
@@ -109,31 +106,18 @@ class Events {
       (typeof to === 'number' && to <= 0) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
-      logger.log(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        'case 1 executed - sending in channel',
-      );
+      console.log('CUSTOM_EVENT_API: case 1 executed');
       try {
         const channelId = RTMEngine.getInstance().channelUid;
         await rtmEngine.sendMessageByChannelId(channelId, text);
       } catch (error) {
-        logger.error(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'send event case 1 error',
-          error,
-        );
+        console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
         throw error;
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'number' && to >= 0) {
-      logger.log(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        `case 2 executed - sending to individual ${to}`,
-      );
+    if (typeof to === 'number' && to !== 0) {
+      console.log('CUSTOM_EVENT_API: case 2 executed', to);
       const adjustedUID = adjustUID(to);
       try {
         await rtmEngine.sendMessageToPeer({
@@ -142,23 +126,14 @@ class Events {
           text,
         });
       } catch (error) {
-        logger.error(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'send event case 2 error',
-          error,
-        );
+        console.log('CUSTOM_EVENT_API: send event case 2 error : ', error);
         throw error;
       }
     }
     // Case 3: send to multiple individuals
     if (typeof to === 'object' && Array.isArray(to)) {
-      logger.log(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        'case 3 executed - sending to multiple individuals',
-        to,
-      );
+      console.log('CUSTOM_EVENT_API: case 3 executed', to);
+
       try {
         for (const uid of to) {
           const adjustedUID = adjustUID(uid);
@@ -169,12 +144,7 @@ class Events {
           });
         }
       } catch (error) {
-        logger.error(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'send event case 3 error',
-          error,
-        );
+        console.log('CUSTOM_EVENT_API: send event case 3 error : ', error);
         throw error;
       }
     }
@@ -192,21 +162,16 @@ class Events {
    */
   on = (eventName: string, listener: EventCallback): Function => {
     try {
-      if (!this._validateEvt(eventName) || !this._validateListener(listener)) {
+      if (!this._validateEvt(eventName) || !this._validateListener(listener))
         return;
-      }
       EventUtils.addListener(eventName, listener, this.source);
+      console.log('CUSTOM_EVENT_API event listener registered', eventName);
       return () => {
         //@ts-ignore
         EventUtils.removeListener(eventName, listener, this.source);
       };
     } catch (error) {
-      logger.error(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        'Error: events.on',
-        error,
-      );
+      console.log('CUSTOM_EVENT_API on error: ', error);
     }
   };
 
@@ -237,12 +202,7 @@ class Events {
         EventUtils.removeAll(this.source);
       }
     } catch (error) {
-      logger.error(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        'Error: events.off',
-        error,
-      );
+      console.log('CUSTOM_EVENT_API off error: ', error);
     }
   };
 
@@ -264,9 +224,7 @@ class Events {
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
   ) => {
-    if (!this._validateEvt(eventName)) {
-      return;
-    }
+    if (!this._validateEvt(eventName)) return;
 
     const persistValue = JSON.stringify({
       payload,
@@ -286,24 +244,13 @@ class Events {
       try {
         await this._persist(eventName, persistValue);
       } catch (error) {
-        logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', error);
+        console.log('CUSTOM_EVENT_API persist error: ', error);
       }
     }
     try {
-      logger.log(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        `sending event -> ${eventName}`,
-        persistValue,
-      );
       await this._send(rtmPayload, receiver);
     } catch (error) {
-      logger.error(
-        LogSource.Events,
-        'CUSTOM_EVENTS',
-        'sending event failed',
-        error,
-      );
+      console.log('CUSTOM_EVENT_API: sending failed. ', error);
     }
   };
 }

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
@@ -55,22 +55,6 @@ const PreCallProvider = (props: PreCallProviderProps) => {
   const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
   const setUsername = useSetName();
-  const [isCameraAvailable, setCameraAvailable] = useState(false);
-  const [isMicAvailable, setMicAvailable] = useState(false);
-  const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
-  const [isPermissionRequested, setIsPermissionRequested] = useState(false);
-
-  const value = {
-    ...props.value,
-    setCameraAvailable,
-    isCameraAvailable,
-    isMicAvailable,
-    setMicAvailable,
-    isSpeakerAvailable,
-    setSpeakerAvailable,
-    isPermissionRequested,
-    setIsPermissionRequested,
-  };
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
@@ -95,7 +79,7 @@ const PreCallProvider = (props: PreCallProviderProps) => {
   }, []);
 
   return (
-    <PreCallContext.Provider value={value}>
+    <PreCallContext.Provider value={{...props.value}}>
       {props.children}
     </PreCallContext.Provider>
   );

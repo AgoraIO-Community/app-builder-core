@@ -10,10 +10,9 @@
 *********************************************
 */
 
-import React, {useState, SetStateAction, useEffect} from 'react';
+import React, {SetStateAction} from 'react';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {createHook} from 'customization-implementation';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export interface SidePanelContextInterface {
   sidePanel: SidePanelType;
@@ -26,22 +25,12 @@ const SidePanelContext = React.createContext<SidePanelContextInterface>({
 });
 
 interface SidePanelProviderProps {
+  value: SidePanelContextInterface;
   children: React.ReactNode;
 }
 const SidePanelProvider = (props: SidePanelProviderProps) => {
-  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
-
-  useEffect(() => {
-    logger.log(
-      LogSource.Internals,
-      'CONTROLS',
-      `Side panel changed to -> ${SidePanelType[sidePanel]}`,
-    );
-  }, [sidePanel]);
-
-  const value = {sidePanel, setSidePanel};
   return (
-    <SidePanelContext.Provider value={value}>
+    <SidePanelContext.Provider value={{...props.value}}>
       {props.children}
     </SidePanelContext.Provider>
   );

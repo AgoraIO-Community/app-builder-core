@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {SetStateAction, useState} from 'react';
+import React, {SetStateAction} from 'react';
 import {createHook} from 'customization-implementation';
 
 export interface currentFocus {
@@ -27,17 +27,12 @@ const FocusContext = React.createContext<FocusContextInterface>({
 });
 
 interface FocusProviderProps {
+  value: FocusContextInterface;
   children: React.ReactNode;
 }
 const FocusProvider = (props: FocusProviderProps) => {
-  const [currentFocus, setFocus] = useState<currentFocus>({
-    editName: false,
-  });
-
-  const value = {currentFocus, setFocus};
-
   return (
-    <FocusContext.Provider value={value}>
+    <FocusContext.Provider value={{...props.value}}>
       {props.children}
     </FocusContext.Provider>
   );

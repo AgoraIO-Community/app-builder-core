@@ -1,7 +1,6 @@
 import React, {createContext, useState, useEffect} from 'react';
 import {ToggleState} from '../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export interface NoiseSupressionContextInterface {
   isNoiseSupressionEnabled: ToggleState;
@@ -36,11 +35,6 @@ export function NoiseSupressionProvider(props) {
         isNoiseSupressionEnabled === ToggleState.disabling ||
         isNoiseSupressionEnabled === ToggleState.enabling
       ) {
-        logger.error(
-          LogSource.Internals,
-          'NOISE_CANCELLATION',
-          'Cant change noise supression, already in transition',
-        );
         throw new Error('Cant change noise supression, already in transition');
       }
       let stateToBeSet =

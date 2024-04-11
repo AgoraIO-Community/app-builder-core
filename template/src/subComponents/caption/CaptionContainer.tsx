@@ -35,7 +35,6 @@ import {
   sttChangeSpokenLanguageText,
   toolbarItemCaptionText,
 } from '../../language/default-labels/videoCallScreenLabels';
-import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 const CaptionContainer = () => {
   const moreIconRef = React.useRef<View>(null);
@@ -224,22 +223,12 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
-      logger.log(
-        LogSource.Internals,
-        'STT',
-        `Language changed to  ${language}. Restarting STT`,
-      );
       restart(language)
         .then(() => {
-          logger.log(LogSource.Internals, 'STT', 'stt restarted successfully');
+          console.log('stt restarted successfully');
         })
         .catch(error => {
-          logger.error(
-            LogSource.Internals,
-            'STT',
-            'Error in restarting',
-            error,
-          );
+          console.log('Error in restarting', error);
           // Handle the error case
         });
     }

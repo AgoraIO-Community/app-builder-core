@@ -25,7 +25,6 @@ import {
   inviteTileNoElseJoinedYetText,
   videoRoomUserFallbackText,
 } from '../../language/default-labels/videoCallScreenLabels';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const ChatIcon = () => (
   <View style={{alignSelf: 'center', marginRight: 20}}>
@@ -125,11 +124,6 @@ const ChatParticipants = (props: any) => {
                 return (
                   <Pressable
                     onPress={() => {
-                      logger.log(
-                        LogSource.Internals,
-                        'CHAT',
-                        `Starting chat with ${name}`,
-                      );
                       selectUser(uidAsNumber);
                     }}>
                     <View style={style.participantContainer}>

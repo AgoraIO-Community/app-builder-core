@@ -17,7 +17,6 @@ import {
   vbPanelImageUploadErrorToastHeading,
   vbPanelImageUploadErrorToastSubHeading,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 interface VBCardProps {
   type: VBMode;
@@ -80,49 +79,21 @@ const VBCard: React.FC<VBCardProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    logger.log(
-      LogSource.Internals,
-      'VIRTUAL_BACKGROUND',
-      'User wants to upload custom background',
-    );
     const selectedFile = e.target.files && e.target.files[0];
-    logger.log(
-      LogSource.Internals,
-      'VIRTUAL_BACKGROUND',
-      `User selected a file ${e?.target?.files[0]?.name || 'none'}`,
-    );
+
     if (selectedFile) {
       // check if file size (less than 1MB)
-      logger.log(
-        LogSource.Internals,
-        'VIRTUAL_BACKGROUND',
-        'check if file is less than 1MB amd type is image/jpeg or image/png',
-        {
-          size: selectedFile.size,
-          type: selectedFile.type,
-        },
-      );
       if (selectedFile.size <= 1024 * 1024 * 1) {
         // check image format
         if (
           selectedFile.type === 'image/jpeg' ||
           selectedFile.type === 'image/png'
         ) {
-          logger.log(
-            LogSource.Internals,
-            'VIRTUAL_BACKGROUND',
-            'file uploaded satisfies the above constraint. Convert the file to base64',
-          );
           convertBlobToBase64(URL.createObjectURL(selectedFile))
             .then((base64Data: string) => {
               if (
                 options.filter(option => option.path === base64Data).length > 0
               ) {
-                logger.log(
-                  LogSource.Internals,
-                  'VIRTUAL_BACKGROUND',
-                  'file is already uploaded',
-                );
                 Toast.show({
                   leadingIconName: 'alert',
                   type: 'error',
@@ -145,11 +116,6 @@ const VBCard: React.FC<VBCardProps> = ({
                 updatedOptions.splice(3, 0, newCard);
                 return updatedOptions;
               });
-              logger.log(
-                LogSource.Internals,
-                'VIRTUAL_BACKGROUND',
-                'file uploaded successfully and storing to indexDB',
-              );
               saveImagesToIndexDB(base64Data);
             })
             .catch(error => {
@@ -177,11 +143,6 @@ const VBCard: React.FC<VBCardProps> = ({
   };
 
   const handleClick = () => {
-    logger.log(
-      LogSource.Internals,
-      'VIRTUAL_BACKGROUND',
-      `User selected a virtual background type - ${type}`,
-    );
     setSaveVB(false);
     setVBmode(type);
     if (path) {

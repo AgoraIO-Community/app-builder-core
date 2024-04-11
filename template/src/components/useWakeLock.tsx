@@ -2,7 +2,6 @@ import NoSleep from 'nosleep.js';
 import React from 'react';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {isWebInternal} from '../utils/common';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const useWakeLock = () => {
   if (isMobileOrTablet() && isWebInternal()) {
@@ -13,31 +12,18 @@ const useWakeLock = () => {
       noSleep
         .enable()
         .then(() => {
-          logger.log(
-            LogSource.Internals,
-            'VIDEO_CALL_ROOM',
-            'enabled sleep successfully',
-          );
+          console.log('enabled sleep successfully');
           set(noSleep.isEnabled);
         })
-        .catch(e => {
-          logger.error(
-            LogSource.Internals,
-            'VIDEO_CALL_ROOM',
-            'error enabling sleep',
-            e,
-          );
+        .catch((e) => {
+          console.log('error enabling sleep', e);
         });
     }, []);
 
     const release = React.useCallback(() => {
       noSleep.disable();
       set(noSleep.isEnabled);
-      logger.log(
-        LogSource.Internals,
-        'VIDEO_CALL_ROOM',
-        'disabled sleep successfully',
-      );
+      console.log('disabled sleep successfully');
     }, []);
 
     return {

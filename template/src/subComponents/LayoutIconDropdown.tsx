@@ -14,7 +14,6 @@ import {
   toolbarItemLayoutOptionGridText,
   toolbarItemLayoutOptionSidebarText,
 } from '../language/default-labels/videoCallScreenLabels';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -53,11 +52,6 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
       let onPress = () => {
-        logger.log(
-          LogSource.Internals,
-          'LAYOUT',
-          `Layout changed to - ${item.name}`,
-        );
         setLayout(item.name);
         setShowDropdown(false);
       };

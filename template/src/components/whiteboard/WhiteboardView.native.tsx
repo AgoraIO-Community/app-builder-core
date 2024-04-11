@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
- Use without a license or in violation of any license terms and conditions (including use for
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
- information visit https://appbuilder.agora.io.
+ AppBuilder and all associated components, source code, APIs, services, and documentation 
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
+ Use without a license or in violation of any license terms and conditions (including use for 
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
+ information visit https://appbuilder.agora.io. 
 *********************************************
 */
 
@@ -19,7 +19,6 @@ import {
   RoomCallbackHandler,
 } from '@netless/react-native-whiteboard';
 import WhiteboardWidget from './WhiteboardWidget';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {
   whiteboardInitializingText,
   whiteboardNativeInfoToastHeading,
@@ -69,24 +68,14 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
     onPhaseChanged: e => {
-      logger.log(
-        LogSource.Internals,
-        'WHITEBOARD',
-        'onPhaseChanged changed:',
-        e,
-      ),
-        setIsLoading(false);
+      console.log('debugging onPhaseChanged changed: ', e);
+      setIsLoading(false);
     },
     // onRoomStateChanged: e =>
     //   console.log('debugging onRoomStateChanged changed: ', e),
     onDisconnectWithError: e => {
-      logger.log(
-        LogSource.Internals,
-        'WHITEBOARD',
-        'onDisconnectWithError:',
-        e,
-      ),
-        setIsLoading(false);
+      console.log('debugging onDisconnectWithError: ', e);
+      setIsLoading(false);
     },
   };
 
@@ -101,28 +90,15 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     roomRef.current = aRoom;
     sdkRef.current = aSdk;
 
-    logger.log(LogSource.Internals, 'WHITEBOARD', 'debugging aRoom:', {
-      data: aRoom,
-    });
-
+    console.log('debugging aRoom', aRoom);
     setIsLoading(false);
     if (error) {
-      logger.error(
-        LogSource.Internals,
-        'WHITEBOARD',
-        'joinRoomCallback error:',
-        error,
-      );
+      console.log(error);
     } else {
       try {
         //aRoom.setMemberState({currentApplianceName: 'hand'});
       } catch (error2) {
-        logger.error(
-          LogSource.Internals,
-          'WHITEBOARD',
-          'error on whiteboard setMemberState',
-          error,
-        );
+        console.log('debugging error on whiteboard setMemberState');
       }
     }
   };

@@ -14,7 +14,6 @@ import RNFS from 'react-native-fs';
 import {ImageSourcePropType} from 'react-native/types';
 import imagePathsArray from './imagePaths';
 import getUniqueID from '../../../src/utils/getUniqueID';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -66,12 +65,7 @@ const downloadBase64Image = async (base64Data, filename) => {
     await RNFS.writeFile(filePath, extractData, 'base64');
     return filePath;
   } catch (error) {
-    logger.error(
-      LogSource.Internals,
-      'VIRTUAL_BACKGROUND',
-      'Error saving base64 image',
-      error,
-    );
+    console.error('Error saving base64 image:', error);
     return null;
   }
 };
@@ -94,12 +88,7 @@ const VBProvider: React.FC = ({children}) => {
     const fetchData = async () => {
       try {
         const customImages = await retrieveImagesFromAsyncStorage();
-        logger.log(
-          LogSource.Internals,
-          'VIRTUAL_BACKGROUND',
-          'retrived from async storage',
-          customImages,
-        );
+        console.log('retrived from async storage', customImages);
         setOptions((prevOptions: Option[]) => [
           ...prevOptions,
           ...(customImages?.map(
@@ -113,12 +102,7 @@ const VBProvider: React.FC = ({children}) => {
           ) || []),
         ]);
       } catch (error) {
-        logger.error(
-          LogSource.Internals,
-          'VIRTUAL_BACKGROUND',
-          'Error fetching data',
-          error,
-        );
+        console.error('Error fetching data:', error);
       }
     };
 

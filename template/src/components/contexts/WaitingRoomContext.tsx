@@ -4,7 +4,6 @@ import {UidType} from '../../../agora-rn-uikit';
 import {useContent} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import {filterObject} from '../../utils';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export interface WaitingRoomContextInterface {
   waitingRoomUids: UidType[];
@@ -30,10 +29,7 @@ const WaitingRoomProvider = ({children}) => {
           v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
       ),
     ).map(Number);
-    logger.log(LogSource.Internals, 'WAITING_ROOM', 'users in waiting room', {
-      uids,
-      defaultContent,
-    });
+    console.log('in waiting - de', uids, defaultContent);
 
     setwaitingRoomUids(uids);
   }, [defaultContent]);

@@ -9,7 +9,6 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {LogSource, logger} from '../src/logger/AppBuilderLogger';
 import {CustomizationApiInterface} from './typeDefinition';
 import ReactIs from 'react-is';
 /**
@@ -59,21 +58,15 @@ function validateComponents(components: any) {
             validateComponents(comp);
           }
         } else {
-          logger.error(
-            LogSource.CustomizationAPI,
-            'Log',
-            `Error ${key} should be a react component or object`,
+          console.error(
+            `Customize:Error ${key} should be a react component or object`,
           );
         }
       }
     } else {
       let comp = components[key];
       if (comp && !isFunction(comp)) {
-        logger.error(
-          LogSource.CustomizationAPI,
-          'Log',
-          `Error ${key} should be an function`,
-        );
+        console.error(`Customize:Error ${key} should be an function`);
       }
     }
   }
@@ -83,10 +76,8 @@ function validateLifecycle(data: any) {
   for (const key in data) {
     const callback = data[key];
     if (callback && !isFunction(callback)) {
-      logger.error(
-        LogSource.CustomizationAPI,
-        'Log',
-        `Error ${key} should be a function that return async function`,
+      console.error(
+        `Customize:Error ${key} should be a function that return async function`,
       );
     }
   }
@@ -94,33 +85,23 @@ function validateLifecycle(data: any) {
 
 function validateCustomRoutes(routes: any) {
   if (routes && !Array.isArray(routes)) {
-    logger.error(
-      LogSource.CustomizationAPI,
-      'Log',
-      'Error customRoutes should be an array',
-    );
+    console.error(`Customize:Error customRoutes should be an array`);
   }
 }
 
 function validatei18n(data: any) {
   if (data) {
     if (!Array.isArray(data)) {
-      logger.error(
-        LogSource.CustomizationAPI,
-        'Log',
-        'Error i18n should be an array',
-      );
+      console.error(`Customize:Error i18n should be an array`);
     } else {
-      data.map(item => {
+      data.map((item) => {
         const langData = item.data;
         for (const key in langData) {
           const value = langData[key];
           if (value) {
             if (!(isString(value) || isFunction(value))) {
-              logger.error(
-                LogSource.CustomizationAPI,
-                'Log',
-                `Error ${item.locale} ${key} should be a string or function`,
+              console.error(
+                `Customize:Error ${item.locale} ${key} should be a string or function`,
               );
             }
           }

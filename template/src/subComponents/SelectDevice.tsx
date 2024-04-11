@@ -41,7 +41,6 @@ import {
   settingsPanelSystemDefaultSpeakerText,
   settingsPanelUpdatingText,
 } from '../language/default-labels/precallScreenLabels';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 // import {dropdown} from '../../theme.json';
 
 /*
@@ -73,19 +72,9 @@ const useSelectDevice = (): [boolean, string] => {
       $config.EVENT_MODE &&
       rtcProps.role === ClientRoleType.ClientRoleAudience
     ) {
-      logger.log(
-        LogSource.Internals,
-        'DEVICE_CONFIGURE',
-        'User is AUDIENCE and in Live mode - device picker is disabled',
-      );
       setPickerDisabled(true);
       setBtnTheme('rgba(16, 16, 16, 0.3)');
     } else {
-      logger.log(
-        LogSource.Internals,
-        'DEVICE_CONFIGURE',
-        'User is HOST - device picker is enabled',
-      );
       setPickerDisabled(false);
       setBtnTheme(primaryColor);
     }
@@ -172,30 +161,11 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         onSelect={({label, value}) => {
           setIsFocussed(true);
           try {
-            logger.log(
-              LogSource.Internals,
-              'DEVICE_CONFIGURE',
-              `Trying to set camera - ${label} - ${value}`,
-            );
             pendingStateUpdateHelper(
               async () => await setSelectedCam(value),
               setIsPendingUpdate,
             );
-            logger.log(
-              LogSource.Internals,
-              'DEVICE_CONFIGURE',
-              `Camera set - ${value}`,
-            );
           } catch (e) {
-            logger.error(
-              LogSource.Internals,
-              'DEVICE_CONFIGURE',
-              `There was an error setting camera - ${value}`,
-              {
-                data: value,
-                error: e,
-              },
-            );
             setIsPendingUpdate(false);
           }
         }}
@@ -288,30 +258,11 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         onSelect={({label, value}) => {
           setIsFocussed(true);
           try {
-            logger.log(
-              LogSource.Internals,
-              'DEVICE_CONFIGURE',
-              `Trying to set mic - ${label} - ${value}`,
-            );
             pendingStateUpdateHelper(
               async () => await setSelectedMic(value),
               setIsPendingUpdate,
             );
-            logger.log(
-              LogSource.Internals,
-              'DEVICE_CONFIGURE',
-              `Mic set - ${value}`,
-            );
           } catch (e) {
-            logger.error(
-              LogSource.Internals,
-              'DEVICE_CONFIGURE',
-              `There was an error setting mic - ${value}`,
-              {
-                data: value,
-                error: e,
-              },
-            );
             setIsPendingUpdate(false);
           }
         }}
@@ -400,30 +351,11 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           onSelect={({label, value}) => {
             setIsFocussed(true);
             try {
-              logger.log(
-                LogSource.Internals,
-                'DEVICE_CONFIGURE',
-                `Trying to set speaker - ${label} - ${value}`,
-              );
               pendingStateUpdateHelper(
                 async () => await setSelectedSpeaker(value),
                 setIsPendingUpdate,
               );
-              logger.log(
-                LogSource.Internals,
-                'DEVICE_CONFIGURE',
-                `Speaker set - ${value}`,
-              );
             } catch (e) {
-              logger.error(
-                LogSource.Internals,
-                'DEVICE_CONFIGURE',
-                `There was an error setting speaker - ${value}`,
-                {
-                  data: value,
-                  error: e,
-                },
-              );
               setIsPendingUpdate(false);
             }
           }}
@@ -507,59 +439,19 @@ const SelectDevice = (props: SelectDeviceProps) => {
   // });
 
   useEffect(() => {
-    const isDeviceAvailable = audioDevices && audioDevices.length;
-    logger.log(
-      LogSource.Internals,
-      'DEVICE_CONFIGURE',
-      'audio devices changed',
-      {
-        devices: [...audioDevices],
-        isDeviceAvailable: isDeviceAvailable
-          ? 'Yes, setting mic'
-          : 'No audio devices available',
-      },
-    );
-    if (isDeviceAvailable) {
+    if (audioDevices && audioDevices.length) {
       setMicAvailable(true);
     }
   }, [audioDevices]);
 
   useEffect(() => {
-    const isDeviceAvailable = videoDevices && videoDevices.length;
-    logger.log(
-      LogSource.Internals,
-      'DEVICE_CONFIGURE',
-      'camera devices changed',
-      {
-        data: {
-          devices: [...videoDevices],
-          isDeviceAvailable: isDeviceAvailable
-            ? 'Yes, setting camera'
-            : 'No video devices available',
-        },
-      },
-    );
-    if (isDeviceAvailable) {
+    if (videoDevices && videoDevices.length) {
       setCameraAvailable(true);
     }
   }, [videoDevices]);
 
   useEffect(() => {
-    const isDeviceAvailable = speakerDevices && speakerDevices.length;
-    logger.log(
-      LogSource.Internals,
-      'DEVICE_CONFIGURE',
-      'speaker devices changed',
-      {
-        data: {
-          devices: [...speakerDevices],
-          isDeviceAvailable: isDeviceAvailable
-            ? 'Yes, setting speaker'
-            : 'No speaker devices available',
-        },
-      },
-    );
-    if (isDeviceAvailable) {
+    if (speakerDevices && speakerDevices.length) {
       setSpeakerAvailable(true);
     }
   }, [speakerDevices]);

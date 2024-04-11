@@ -10,17 +10,12 @@ import ThemeConfig from '../theme';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import CircularProgress from '../atoms/CircularProgress';
 import {useIsDesktop} from '../utils/common';
-import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 /* For android only, bg audio */
 const StopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
-    logger.log(
-      LogSource.Internals,
-      'CONTROLS',
-      'End call - stopping foreground service, bg audio for android only',
-    );
+    console.log('stopping foreground service');
   }
 };
 

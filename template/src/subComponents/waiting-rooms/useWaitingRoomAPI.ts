@@ -7,7 +7,6 @@ import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import {useParams} from '../../components/Router';
-import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 interface IuseWaitingRoomAPI {
   request: (params: {
@@ -41,7 +40,6 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       body: payload,
     });
     const res = await response.json();
-
     return res;
   };
 
@@ -50,19 +48,7 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       passphrase: meetingPhrase || phrase,
       send_event: send_event,
     });
-    logger.log(
-      LogSource.NetworkRest,
-      'channel_join_request',
-      'API channel_join_request trying to send request to join channel',
-      payload,
-    );
     const res = await apiCall('request', payload);
-    logger.log(
-      LogSource.NetworkRest,
-      'channel_join_request',
-      'API channel_join_request executed successfully',
-      res,
-    );
     return res;
   };
 
@@ -79,19 +65,7 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       attendee_screenshare_uid: attendee_screenshare_uid, // screenshare uid of attendee
       approved: approved, //approval status,
     });
-    logger.log(
-      LogSource.NetworkRest,
-      'channel_join_approval',
-      `API channel_join_approval. Trying to approve join channel request as waiting room is enabled. Is request approved ?  ${approved}`,
-      payload,
-    );
     const res = await apiCall('approval', payload);
-    logger.log(
-      LogSource.NetworkRest,
-      'channel_join_request',
-      'API channel_join_approval executed successfully',
-      res,
-    );
     return res;
   };
 

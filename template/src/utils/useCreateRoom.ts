@@ -3,7 +3,6 @@ import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from './isSDK';
-import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel($title: String!, $enablePSTN: Boolean) {
@@ -37,16 +36,6 @@ export default function useCreateRoom(): createRoomFun {
     //isSeparateHostLink will be for internal usage since backend integration is not there
     isSeparateHostLink?: boolean,
   ) => {
-    logger.log(
-      LogSource.NetworkRest,
-      'createChannel',
-      'API createChannel. Trying to create room',
-      {
-        roomTitle,
-        enablePSTN,
-        isSeparateHostLink,
-      },
-    );
     const res = await createChannel({
       variables: {
         title: roomTitle,
@@ -58,21 +47,9 @@ export default function useCreateRoom(): createRoomFun {
     // upgrade core dependency as well. The following condition accounts
     // for differences in the way the two version function.
     if (error && !isSDK) {
-      logger.error(
-        LogSource.NetworkRest,
-        'createChannel',
-        'API createChannel failed. There was an error',
-        error,
-      );
       throw error;
     }
     if (res && res?.data && res?.data?.createChannel) {
-      logger.log(
-        LogSource.NetworkRest,
-        'createChannel',
-        'API createChannel. Channel created successfully',
-        res.data.createChannel,
-      );
       let roomInfo: Partial<RoomInfoContextInterface['data']> = {
         roomId: {
           attendee: '',
@@ -90,13 +67,6 @@ export default function useCreateRoom(): createRoomFun {
           pin: res.data.createChannel.pstn.dtmf,
         };
       }
-      logger.log(LogSource.Internals, 'CREATE_MEETING', 'Room created', {
-        isHost: true,
-        isSeparateHostLink: isSeparateHostLink ? true : false,
-        meetingTitle: roomTitle,
-        roomId: roomInfo?.roomId,
-        pstn: roomInfo?.pstn,
-      });
       setRoomInfo({
         data: {
           isHost: true,
