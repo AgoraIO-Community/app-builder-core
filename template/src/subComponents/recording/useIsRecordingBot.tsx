@@ -1,6 +1,4 @@
-import {useEffect} from 'react';
 import {useSearchParams} from '../../utils/useSearchParams';
-import {useUserPreference} from '../../components/useUserPreference';
 
 interface RecordingBotUIConfig {
   chat: boolean;
@@ -12,7 +10,6 @@ interface RecordingBotUIConfig {
 const regexPattern = new RegExp('true');
 
 export function useIsRecordingBot() {
-  const {setDisplayName} = useUserPreference();
   // Reading and setting URL params
   const isRecordingBot = useSearchParams().get('bot');
   const recordingBotToken = useSearchParams().get('token');
@@ -30,10 +27,6 @@ export function useIsRecordingBot() {
     bottomBar: bottomBarParam ? regexPattern.test(bottomBarParam) : false,
     stt: sttParam ? regexPattern.test(sttParam) : false,
   };
-
-  useEffect(() => {
-    setDisplayName(recordingBotName);
-  }, [setDisplayName, recordingBotName]);
 
   return {
     isRecordingBotRoute,

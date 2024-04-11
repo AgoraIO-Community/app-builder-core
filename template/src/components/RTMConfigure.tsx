@@ -48,7 +48,6 @@ import LocalEventEmitter, {
 import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
 import {controlMessageEnum} from '../components/ChatContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
-import {RECORDING_BOT_UID} from '../utils/constants';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
@@ -451,7 +450,7 @@ const RtmConfigure = (props: any) => {
           const userData = {
             screenUid: screenUid,
             //below thing for livestreaming
-            type: uid === parseInt(RECORDING_BOT_UID) ? 'bot' : 'rtc',
+            type: 'rtc',
             uid,
             offline: false,
             lastMessageTimeStamp: 0,

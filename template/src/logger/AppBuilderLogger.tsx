@@ -3,8 +3,6 @@ import pkg from '../../package.json';
 import {isWeb} from '../utils/common';
 import {version as cli_version} from '../../../package.json';
 
-const SKIP_LOG = true;
-
 export declare const StatusTypes: {
   readonly debug: 'debug';
   readonly error: 'error';
@@ -123,8 +121,7 @@ class AppBuilderLogger implements Logger {
         logMessage: string,
         ...data: any[]
       ) => {
-        // if (!$config.LOG_ENABLED) {
-        if (SKIP_LOG) {
+        if (!$config.LOG_ENABLED) {
           return;
         }
         const context = {
