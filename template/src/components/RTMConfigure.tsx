@@ -246,7 +246,7 @@ const RtmConfigure = (props: any) => {
                 const userData = {
                   screenUid: screenUid,
                   //below thing for livestreaming
-                  type: 'rtc',
+                  type: uid === parseInt(RECORDING_BOT_UID) ? 'bot' : 'rtc',
                   uid,
                   offline: false,
                   lastMessageTimeStamp: 0,
