@@ -37,16 +37,15 @@ function RTableBody({status, recordings}) {
     }
     return (
       <>
-        {recordings
-          .filter(item => item.download_url)
-          .map(item => (
-            <View style={style.tbrow} key={item.id}>
-              <View style={[style.td, style.plzero]}>
-                <Text style={style.ttime}>
-                  {getRecordedDate(item.created_at)}
-                </Text>
-              </View>
-              <View style={style.td}>
+        {recordings.map(item => (
+          <View style={style.tbrow} key={item.id}>
+            <View style={[style.td, style.plzero]}>
+              <Text style={style.ttime}>
+                {getRecordedDate(item.created_at)}
+              </Text>
+            </View>
+            <View style={style.td}>
+              {item?.download_url ? (
                 <View style={style.tactions}>
                   <Text
                     style={style.tlink}
@@ -88,9 +87,16 @@ function RTableBody({status, recordings}) {
                     />
                   </View>
                 </View>
-              </View>
+              ) : (
+                <View style={style.tactions}>
+                  <Text style={style.placeHolder}>
+                    Recording is in progress
+                  </Text>
+                </View>
+              )}
             </View>
-          ))}
+          </View>
+        ))}
       </>
     );
   };
