@@ -54,11 +54,16 @@ const getFrontendUrl = (url: string) => {
   return url;
 };
 
+interface RecordingsData {
+  recordings: [];
+  pagination: {};
+}
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
   isRecordingActive: boolean;
   inProgress: boolean;
+  fetchRecordings?: (page: number) => Promise<RecordingsData>;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
@@ -334,6 +339,43 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     };
   }, [roomId.host, setRecordingActive]);
 
+  const fetchRecordings = useCallback(
+    (page: number) => {
+      return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+        },
+        // '2b65f378-b048-4d28-9d4c-bd71edab61b7'
+        body: JSON.stringify({
+          passphrase: roomId?.host,
+          limit: 10,
+          page,
+        }),
+      }).then(async response => {
+        const data = await response.json();
+        if (response.ok) {
+          if (data) {
+            return data;
+          } else {
+            return Promise.reject(
+              new Error(
+                `No recordings found for meeting Id: "${roomId?.host}"`,
+              ),
+            );
+          }
+        } else {
+          const error = {
+            message: data?.error?.message,
+          };
+          return Promise.reject(error);
+        }
+      });
+    },
+    [roomId?.host, store.token],
+  );
+
   return (
     <RecordingContext.Provider
       value={{
@@ -341,6 +383,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         startRecording,
         stopRecording,
         isRecordingActive,
+        fetchRecordings,
       }}>
       {props.children}
     </RecordingContext.Provider>

@@ -83,7 +83,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	
 	<key>HostName</key>
 	<string>managedservices-prod.rteappbuilder.com</string>
 	<key>MainPublicKey</key>
