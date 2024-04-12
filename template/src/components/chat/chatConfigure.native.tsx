@@ -14,14 +14,26 @@ import {
 import StorageContext from '../StorageContext';
 import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
 import {timeNow} from '../../rtm/utils';
+import Share from 'react-native-share';
+import RNFetchBlob from 'rn-fetch-blob';
 
-
-
+interface ChatOption {
+  chatType: string;
+  type: ChatMessageType;
+  from: string;
+  to: string;
+  msg?: string;
+  file?: object;
+  ext?: {file_length: number};
+  onFileUploadError?: () => void;
+  onFileUploadProgress?: (e: ProgressEvent) => void;
+}
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  sendChatSDKMessage:() => void;
+  sendChatSDKMessage: (option: ChatOption) => void;
   deleteChatUser: () => void;
+  downloadAttachment: (fileName: string, fileUrl: string) => void;
 }
 
 export const chatConfigureContext =
@@ -30,6 +42,7 @@ export const chatConfigureContext =
     setOpen: () => {},
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
+    downloadAttachment: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -50,9 +63,6 @@ const ChatConfigure = ({children}) => {
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
-
-
-
 
   useEffect(() => {
     const logout = async () => {
@@ -196,7 +206,7 @@ const ChatConfigure = ({children}) => {
     };
 
     const initializeChatSDK = async () => {
-      console.warn("chatSDK native:init", $config.CHAT_ORG_NAME)
+      console.warn('chatSDK native:init', $config.CHAT_ORG_NAME);
       const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
       const chatOptions = new ChatOptions({
         appKey: CHAT_APP_KEY,
@@ -247,68 +257,85 @@ const ChatConfigure = ({children}) => {
     };
   }, []);
 
-  const sendChatSDKMessage = (option) => {
-    const {type,to,msg,chatType,from,url=''} = option;
-    let file_ext = ''
-    const chatMsgChatType = chatType === 'singleChat' ? ChatMessageChatType.PeerChat : ChatMessageChatType.GroupChat
+  const sendChatSDKMessage = option => {
+    const {type, to, msg, chatType, from, url = ''} = option;
+    let file_ext = '';
+    const chatMsgChatType =
+      chatType === 'singleChat'
+        ? ChatMessageChatType.PeerChat
+        : ChatMessageChatType.GroupChat;
     let chatMsg: ChatMessage;
-    switch(type) {
-      case ChatMessageType.TXT : 
-      chatMsg = ChatMessage.createTextMessage(to,msg,chatMsgChatType)
-      break;
-      case ChatMessageType.IMAGE :
-       chatMsg = ChatMessage.createImageMessage(to,url,chatMsgChatType)
-       console.warn('Image msg to be sent',chatMsg)
+    switch (type) {
+      case ChatMessageType.TXT:
+        chatMsg = ChatMessage.createTextMessage(to, msg, chatMsgChatType);
         break;
-      case ChatMessageType.FILE :
-        file_ext = option?.ext?.file_ext.split('/')[1]
-        chatMsg = ChatMessage.createFileMessage(to,url,chatMsgChatType,{
-          displayName:option?.fileName 
-        })
+      case ChatMessageType.IMAGE:
+        chatMsg = ChatMessage.createImageMessage(to, url, chatMsgChatType);
+        console.warn('Image msg to be sent', chatMsg);
+        break;
+      case ChatMessageType.FILE:
+        file_ext = option?.ext?.file_ext.split('/')[1];
+        chatMsg = ChatMessage.createFileMessage(to, url, chatMsgChatType, {
+          displayName: option?.fileName,
+        });
         chatMsg.attributes = {
           file_length: option?.ext?.file_length,
-          file_ext : file_ext
-        }
-        console.warn('File msg to be sent',chatMsg)
+          file_ext: file_ext,
+        };
+        console.warn('File msg to be sent', chatMsg);
         break;
     }
     //
-    chatClient.chatManager.sendMessage(chatMsg).then(() => {
-      // log here if the method call succeeds.
-      console.warn("send message success.");
-      const localFileUrl = option?.url || '';
-      // add to local store of sender
-      const messageData = {
-        msg: option.msg,
-        createdTimestamp: timeNow(),
-        msgId: chatMsg.msgId,
-        isDeleted: false,
-        type: option.type,
-        thumb: localFileUrl,
-        url: localFileUrl,
-        ext: file_ext ,
-        fileName: option?.fileName
-      };
+    chatClient.chatManager
+      .sendMessage(chatMsg)
+      .then(() => {
+        // log here if the method call succeeds.
+        console.warn('send message success.');
+        const localFileUrl = option?.url || '';
+        // add to local store of sender
+        const messageData = {
+          msg: option.msg,
+          createdTimestamp: timeNow(),
+          msgId: chatMsg.msgId,
+          isDeleted: false,
+          type: option.type,
+          thumb: localFileUrl,
+          url: localFileUrl,
+          ext: file_ext,
+          fileName: option?.fileName,
+        };
 
-    
-     
-      // this is local user messages
-      if (option.chatType === 'singleChat') {
-        addMessageToPrivateStore(Number(option.to), messageData, true);
-      }
-      else {
-        addMessageToStore(Number(option.from), messageData);
-      }
+        // this is local user messages
+        if (option.chatType === 'singleChat') {
+          addMessageToPrivateStore(Number(option.to), messageData, true);
+        } else {
+          addMessageToStore(Number(option.from), messageData);
+        }
+      })
+      .catch(reason => {
+        //log here if the method call fails.
+        console.warn('send message fail.', reason);
+      });
+  };
 
-    })
-    .catch((reason) => {
-      //log here if the method call fails.
-      console.warn("send message fail.", reason);
-    });
+  const downloadAttachment = (fileName: string, fileUrl: string) => {
+    console.warn(fileName);
+    RNFetchBlob.fs
+      .writeFile(fileUrl, 'utf8')
+      .then(() => {
+        Share.open({url: `file://${fileUrl}`})
+          .then(res => {
+            console.warn('File shared successfully:', res);
+          })
+          .catch(error => {
+            console.error('Error sharing file:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error downloading content:', error);
+      });
+  };
 
-  }
-
- 
   const deleteChatUser = async () => {
     const groupID = data.chat.group_id;
     const userID = data.uid;
@@ -332,7 +359,14 @@ const ChatConfigure = ({children}) => {
   };
 
   return (
-    <chatConfigureContext.Provider value={{open, setOpen, deleteChatUser, sendChatSDKMessage}}>
+    <chatConfigureContext.Provider
+      value={{
+        open,
+        setOpen,
+        deleteChatUser,
+        sendChatSDKMessage,
+        downloadAttachment,
+      }}>
       {children}
     </chatConfigureContext.Provider>
   );

@@ -7,6 +7,7 @@ import {useContent} from 'customization-api';
 import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
 import {timeNow} from '../../rtm/utils';
 import StorageContext from '../StorageContext';
+import { actionTypeGuard } from 'agora-rn-uikit/src/Utils/actionTypeGuard';
 
 // AppKey:
 // 41754367#1042822
@@ -355,6 +356,7 @@ const ChatConfigure = ({children}) => {
     const anchor = document.createElement('a');
     anchor.href = fileUrl;
     anchor.download = fileName;
+    anchor.target = "_blank"
     anchor.click();
     anchor.remove();
   };
