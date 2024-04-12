@@ -16,6 +16,7 @@ import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
 import {timeNow} from '../../rtm/utils';
 
 
+
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,6 +50,9 @@ const ChatConfigure = ({children}) => {
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
+
+
+
 
   useEffect(() => {
     const logout = async () => {
@@ -244,35 +248,49 @@ const ChatConfigure = ({children}) => {
   }, []);
 
   const sendChatSDKMessage = (option) => {
-    const {type,to,msg,chatType,from} = option
+    const {type,to,msg,chatType,from,url=''} = option;
+    let file_ext = ''
     const chatMsgChatType = chatType === 'singleChat' ? ChatMessageChatType.PeerChat : ChatMessageChatType.GroupChat
     let chatMsg: ChatMessage;
     switch(type) {
       case ChatMessageType.TXT : 
-      chatMsg = ChatMessage.createTextMessage(to,msg,chatMsgChatType,from)
+      chatMsg = ChatMessage.createTextMessage(to,msg,chatMsgChatType)
       break;
       case ChatMessageType.IMAGE :
+       chatMsg = ChatMessage.createImageMessage(to,url,chatMsgChatType)
+       console.warn('Image msg to be sent',chatMsg)
         break;
       case ChatMessageType.FILE :
+        file_ext = option?.ext?.file_ext.split('/')[1]
+        chatMsg = ChatMessage.createFileMessage(to,url,chatMsgChatType,{
+          displayName:option?.fileName 
+        })
+        chatMsg.attributes = {
+          file_length: option?.ext?.file_length,
+          file_ext : file_ext
+        }
+        console.warn('File msg to be sent',chatMsg)
         break;
     }
     //
     chatClient.chatManager.sendMessage(chatMsg).then(() => {
       // log here if the method call succeeds.
       console.warn("send message success.");
-      const localFileUrl = option?.file?.url || '';
+      const localFileUrl = option?.url || '';
       // add to local store of sender
       const messageData = {
         msg: option.msg,
         createdTimestamp: timeNow(),
-        msgId: msg.id,
+        msgId: chatMsg.msgId,
         isDeleted: false,
         type: option.type,
         thumb: localFileUrl,
         url: localFileUrl,
-        ext: option?.file?.filetype,
-        fileName: option?.file?.filename,
+        ext: file_ext ,
+        fileName: option?.fileName
       };
+
+    
      
       // this is local user messages
       if (option.chatType === 'singleChat') {
