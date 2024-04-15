@@ -41,7 +41,7 @@ function useLocalAudio() {
     }
   };
 
-  const getRemoteAudioStream = uid => {
+  const getRemoteAudioStream = (uid: number) => {
     try {
       return isWeb() ? window?.engine?.remoteStreams?.get(uid)?.audio : null;
     } catch (error) {

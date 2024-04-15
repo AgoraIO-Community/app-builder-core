@@ -41,7 +41,7 @@ function useLocalVideo() {
     }
   };
 
-  const getRemoteVideoStream = uid => {
+  const getRemoteVideoStream = (uid: number) => {
     try {
       return isWeb() ? window?.engine?.remoteStreams?.get(uid)?.video : null;
     } catch (error) {
