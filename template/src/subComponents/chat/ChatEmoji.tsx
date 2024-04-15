@@ -24,7 +24,7 @@ export const ChatEmojiPicker: React.FC = () => {
   const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
 
   const handleEmojiClick = (emojiObject: {emoji: string; names: string[]}) => {
-    setMessage(prev => prev + emojiObject.emoji);
+    setMessage(prev => prev + ' ' + emojiObject.emoji);
     // setShowEmojiPicker(false);
   };
   return (
@@ -82,7 +82,7 @@ export interface ChatEmojiButtonProps {
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
   const {setShowEmojiPicker} = useChatUIControls();
   const onPress = () => {
-    setShowEmojiPicker(prev=>!prev);
+    setShowEmojiPicker(prev => !prev);
   };
   return props?.render ? (
     props.render(onPress)
