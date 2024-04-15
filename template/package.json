@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.8.1",
+    "@datadog/browser-logs": "^5.15.0",
     "@gorhom/bottom-sheet": "4.4.7",
     "@netless/react-native-whiteboard": "^0.0.14",
     "@openspacelabs/react-native-zoomable-view": "^2.1.1",

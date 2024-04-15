@@ -2,6 +2,8 @@ import {nanoid} from 'nanoid';
 import pkg from '../../package.json';
 import {isWeb} from '../utils/common';
 import {version as cli_version} from '../../../package.json';
+import {ENABLE_AGORA_TRANSPORT, ENABLE_BROWSER_CONSOLE_LOGS} from './contants';
+import {initTransportLayerForAgora} from './transports/agora-transport';
 
 export declare const StatusTypes: {
   readonly debug: 'debug';
@@ -98,7 +100,7 @@ export interface Logger {
 }
 
 /** Logger which outputs to the browser console */
-class AppBuilderLogger implements Logger {
+export default class AppBuilderLogger implements Logger {
   log: LogFn;
   info: LogFn;
   warn: LogFn;
@@ -144,16 +146,27 @@ class AppBuilderLogger implements Logger {
 
         const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
         const consoleCSS = 'color: violet; font-weight: bold';
-
-        _customTransport
-          ? _customTransport(logMessage, context, status)
-          : console[status](
-              consoleHeader,
-              consoleCSS,
-              logMessage,
-              context,
-              status,
-            );
+        if (_customTransport) {
+          /**
+           *  Datadog logger API format
+           *  logger.debug | info | warn | error (message: string, messageContext?: Context, error?: Error)
+           */
+          _customTransport[status](
+            logMessage,
+            context,
+            status,
+            status === 'error' ? data[0] : undefined,
+          );
+        }
+        if (ENABLE_BROWSER_CONSOLE_LOGS) {
+          console[status](
+            consoleHeader,
+            consoleCSS,
+            logMessage,
+            context,
+            status,
+          );
+        }
       };
 
     this.log = logger('info');
@@ -164,4 +177,10 @@ class AppBuilderLogger implements Logger {
   }
 }
 
-export const logger = new AppBuilderLogger();
+let transport = null;
+
+if (ENABLE_AGORA_TRANSPORT) {
+  transport = initTransportLayerForAgora();
+}
+
+export const logger = new AppBuilderLogger(transport);
