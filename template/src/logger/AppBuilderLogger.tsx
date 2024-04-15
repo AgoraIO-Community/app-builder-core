@@ -4,6 +4,7 @@ import {isWeb} from '../utils/common';
 import {version as cli_version} from '../../../package.json';
 import {ENABLE_AGORA_TRANSPORT, ENABLE_BROWSER_CONSOLE_LOGS} from './contants';
 import {initTransportLayerForAgora} from './transports/agora-transport';
+import configJSON from '../../config.json';
 
 export declare const StatusTypes: {
   readonly debug: 'debug';
@@ -140,7 +141,7 @@ export default class AppBuilderLogger implements Logger {
               rtm: rtmPkg,
               rtc: rtcPkg,
             },
-            cli_version,
+            version: cli_version,
           },
         };
 
@@ -174,6 +175,10 @@ export default class AppBuilderLogger implements Logger {
     this.debug = logger('debug');
     this.warn = logger('warn');
     this.error = logger('error');
+
+    this.log(LogSource.Internals, 'AUTH', 'App intitialized with config.json', {
+      config: configJSON,
+    });
   }
 }
 
