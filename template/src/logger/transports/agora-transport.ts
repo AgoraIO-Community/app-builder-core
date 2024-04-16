@@ -4,7 +4,6 @@ import {version as cli_version} from '../../../../package.json';
 const DATADOG_CLIENT_TOKEN = 'pubeccdaed5357d217e2c75e85aaef432fe';
 const DATADOG_SITE = 'datadoghq.com';
 
-console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 export const initTransportLayerForAgora = () => {
   datadogLogs.init({
     clientToken: DATADOG_CLIENT_TOKEN,
@@ -13,8 +12,8 @@ export const initTransportLayerForAgora = () => {
     sessionSampleRate: 100,
     service: 'app-builder-core-frontend',
     version: cli_version,
-    env: process.env.NODE_ENV,
+    env: 'none',
   });
-  return datadogLogs.logger;
+
+  return datadogLogs.logger.log;
 };
-// logger.debug | info | warn | error (message: string, messageContext?: Context, error?: Error)

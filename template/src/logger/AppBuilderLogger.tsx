@@ -130,18 +130,17 @@ export default class AppBuilderLogger implements Logger {
         const context = {
           timestamp: Date.now(),
           source,
+          version: cli_version,
           type,
           data,
           contextInfo: {
-            env: process.env.NODE_ENV,
             session_id: session,
             app_id: $config.APP_ID,
             project_id: $config.PROJECT_ID,
-            sdk_version: {
+            agora_sdk_version: {
               rtm: rtmPkg,
               rtc: rtcPkg,
             },
-            version: cli_version,
           },
         };
 
