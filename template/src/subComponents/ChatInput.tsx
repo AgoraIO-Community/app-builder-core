@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { useEffect, useRef} from 'react';
-import {View,  StyleSheet, Text} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {View, StyleSheet, Text} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
 import {isWebInternal} from '../utils/common';
@@ -31,7 +31,6 @@ import {
   groupChatInputPlaceHolderText,
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
-
 
 const ChatUploadStatus = () => {
   return (
@@ -66,11 +65,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
+  const [inputHeight, setInputHeight] = React.useState(43); // Initial height for one line
 
   const {data} = useRoomInfo();
   const [name] = useUserName();
 
- 
   const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
   const privateChatInputPlaceHolder = useString(
     privateChatInputPlaceHolderText,
@@ -80,16 +79,19 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     chatType === ChatType.Private
       ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
       : groupChatInputPlaceHolder(name);
-  const onChangeText = (text: string) => setMessage(text);
+
+  const onChangeText = (text: string) => {
+    setMessage(text);
+  };
   const onSubmitEditing = () => {
     if (message.length === 0) return;
     const groupID = data.chat.group_id;
-    
+
     const option = {
-      chatType: privateChatUser ? 'singleChat' :'groupChat',
+      chatType: privateChatUser ? 'singleChat' : 'groupChat',
       type: ChatMessageType.TXT,
       from: data.uid.toString(),
-      to: privateChatUser ?privateChatUser.toString() :groupID,
+      to: privateChatUser ? privateChatUser.toString() : groupID,
       msg: message,
     };
     sendChatSDKMessage(option);
@@ -104,6 +106,12 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     }
   };
   const {setInputActive} = useChatUIControls();
+  const handleContentSizeChange = e => {
+    const contentHeight = e.nativeEvent.contentSize.height;
+    const lines = Math.floor((contentHeight - 24) / 17);
+    const newHeight = Math.min(17 * lines + 24 + 2, 17 * 3 + 2); // Assuming lineHeight is 17
+    setInputHeight(newHeight);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -128,23 +136,25 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       value={message}
       multiline={true}
       onChangeText={onChangeText}
+      textAlignVertical="center"
       style={{
-        height: 48,
-        maxHeight: 92,
-        width: '100%',
-        borderRadius: 8,
-        borderWidth: 1,
         color: $config.FONT_COLOR,
         textAlign: 'left',
-        padding: 12,
-        paddingRight: 0,
-        fontSize: ThemeConfig.FontSize.small,
-        lineHeight: 17,
+        width: '100%',
         alignSelf: 'center',
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
+        height: inputHeight,
+        paddingRight: 0,
+        paddingLeft: 12,
+        paddingTop: 12,
+        paddingBottom: 12,
+        fontSize: ThemeConfig.FontSize.small,
+        lineHeight: 18,
+        borderWidth: 1,
         borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
         backgroundColor: $config.CARD_LAYER_2_COLOR,
+        borderRadius: 8,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
@@ -152,6 +162,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
       autoCorrect={false}
       onKeyPress={handleKeyPress}
+      onContentSizeChange={handleContentSizeChange}
     />
   );
 };

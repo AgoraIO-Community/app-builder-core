@@ -45,7 +45,7 @@ const ChatPanel = () => {
         <ChatAttachmentButton />
         <ChatEmojiButton />
       </View>
-      <ChatSendButton /> 
+      <ChatSendButton />
     </View>
   );
 };
@@ -61,7 +61,7 @@ export interface ChatTextInputProps {
 export const ChatTextInput = (props: ChatTextInputProps) => {
   const {privateChatUser, message, setMessage, chatType, inputActive} =
     useChatUIControls();
- 
+
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
@@ -70,6 +70,17 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const privateChatInputPlaceHolder = useString(
     privateChatInputPlaceHolderText,
   );
+  const [inputHeight, setInputHeight] = React.useState(43); // Initial height for one line
+
+  const handleContentSizeChange = ({
+    nativeEvent: {
+      contentSize: {width, height},
+    },
+  }) => {
+    const lines = Math.floor(height / 17);
+    const newHeight = Math.min(17 * lines + 24 + 2, 17 * 3 + 2); // Assuming lineHeight is 17
+    setInputHeight(newHeight);
+  };
 
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
@@ -79,17 +90,16 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const onSubmitEditing = () => {
     if (message.length === 0) return;
     const groupID = data.chat.group_id;
-   
-     const option = {
-        chatType:  privateChatUser ? 'singleChat': 'groupChat',
-        type: ChatMessageType.TXT,
-        from: data.uid.toString(),
-        to: privateChatUser ? privateChatUser.toString() : groupID,
-        msg: message,
-      };
-      sendChatSDKMessage(option);
-      setMessage('');
-    
+
+    const option = {
+      chatType: privateChatUser ? 'singleChat' : 'groupChat',
+      type: ChatMessageType.TXT,
+      from: data.uid.toString(),
+      to: privateChatUser ? privateChatUser.toString() : groupID,
+      msg: message,
+    };
+    sendChatSDKMessage(option);
+    setMessage('');
   };
   const {setInputActive} = useChatUIControls();
 
@@ -101,26 +111,27 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
-
     <BottomSheetTextInput
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}
       onChangeText={onChangeText}
+      multiline={true}
       style={{
         color: $config.FONT_COLOR,
         textAlign: 'left',
-       padding:12,
-        width:'100%',
+        width: '100%',
         alignSelf: 'center',
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
-        height: 48,
-        maxHeight: 92,
+        height: inputHeight,
         paddingRight: 0,
+        paddingLeft: 12,
+        paddingTop: 12,
+        paddingBottom: 12,
         fontSize: ThemeConfig.FontSize.small,
-        lineHeight: 17,
-        borderWidth:1,
+        lineHeight: 18,
+        borderWidth: 1,
         borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
         backgroundColor: $config.CARD_LAYER_2_COLOR,
         borderRadius: 8,
@@ -132,6 +143,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
       }
       autoCorrect={false}
+      onContentSizeChange={handleContentSizeChange}
     />
   );
 };
@@ -139,23 +151,23 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 /**
  * Input component for the Chat interface
  */
- const ChatInput = () => {
+const ChatInput = () => {
   const {inputActive, showEmojiPicker} = useChatUIControls();
   return (
     <View
-    style={[
-      style.inputContainer,
-      showEmojiPicker
-        ? {backgroundColor: 'transparent'}
-        : {backgroundColor: $config.CARD_LAYER_1_COLOR},
-      // inputActive ? style.inputActiveView : {},
-    ]}>
-    {showEmojiPicker && <ChatEmojiPicker />}
-    <View style={style.inputView}>
-      <ChatTextInput />
-      <ChatPanel />
+      style={[
+        style.inputContainer,
+        showEmojiPicker
+          ? {backgroundColor: 'transparent'}
+          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
+        // inputActive ? style.inputActiveView : {},
+      ]}>
+      {showEmojiPicker && <ChatEmojiPicker />}
+      <View style={style.inputView}>
+        <ChatTextInput />
+        <ChatPanel />
+      </View>
     </View>
-  </View>
   );
 };
 
@@ -164,9 +176,9 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
-  inputContainer:{
+  inputContainer: {
     flex: 1,
-    flexDirection:'column',
+    flexDirection: 'column',
   },
 
   inputView: {
@@ -181,11 +193,10 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    height:36,
+    height: 36,
   },
   chatPanel: {
-  flexDirection: 'row',
-  
+    flexDirection: 'row',
   },
 });
 export default ChatInput;
