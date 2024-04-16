@@ -151,7 +151,7 @@ export default class AppBuilderLogger implements Logger {
            *  Datadog logger API format
            *  logger.debug | info | warn | error (message: string, messageContext?: Context, error?: Error)
            */
-          _customTransport[status](
+          _customTransport(
             logMessage,
             context,
             status,
