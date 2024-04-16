@@ -8,12 +8,12 @@ export const initTransportLayerForAgora = () => {
   datadogLogs.init({
     clientToken: DATADOG_CLIENT_TOKEN,
     site: DATADOG_SITE,
-    forwardErrorsToLogs: true,
+    forwardErrorsToLogs: false,
     sessionSampleRate: 100,
     service: 'app-builder-core-frontend',
     version: cli_version,
     env: 'none',
   });
 
-  return datadogLogs.logger.log;
+  return datadogLogs.logger;
 };

@@ -144,21 +144,22 @@ export default class AppBuilderLogger implements Logger {
           },
         };
 
-        const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
-        const consoleCSS = 'color: violet; font-weight: bold';
         if (_customTransport) {
           /**
            *  Datadog logger API format
-           *  logger.debug | info | warn | error (message: string, messageContext?: Context, error?: Error)
+           *  logger.log | debug | info | warn | error (message: string, messageContext?: Context, error?: Error)
            */
-          _customTransport(
+          _customTransport.log(
             logMessage,
             context,
             status,
-            status === 'error' ? data[0] : undefined,
+            status === 'error' ? data : undefined,
           );
         }
         if (ENABLE_BROWSER_CONSOLE_LOGS) {
+          const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
+          const consoleCSS = 'color: violet; font-weight: bold';
+
           console[status](
             consoleHeader,
             consoleCSS,
