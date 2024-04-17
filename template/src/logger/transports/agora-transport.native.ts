@@ -8,8 +8,10 @@ import {
   UploadFrequency,
 } from '@datadog/mobile-react-native';
 
+let loggerConfig = null;
+
 export const initTransportLayerForAgora = () => {
-  const config = new DatadogProviderConfiguration(
+  loggerConfig = new DatadogProviderConfiguration(
     'pubdb41371dc4efb3e57a918a4f2096578c',
     'none',
     'fc33ae27-6fd6-4c7b-94c6-c2c11b9f565e',
@@ -18,25 +20,25 @@ export const initTransportLayerForAgora = () => {
     true, // track Errors
   );
   // Optional: Select your Datadog website (one of "US1", "EU1", "US3", "US5", "AP1" or "GOV")
-  config.site = 'US1';
+  loggerConfig.site = 'US1';
   // Optional: Enable JavaScript long task collection
-  config.longTaskThresholdMs = 100;
+  loggerConfig.longTaskThresholdMs = 100;
   // Optional: enable or disable native crash reports
-  config.nativeCrashReportEnabled = true;
+  loggerConfig.nativeCrashReportEnabled = true;
   // Optional: sample RUM sessions (here, 100% of session will be sent to Datadog. Default = 100%)
-  config.sampleRate = 100;
+  loggerConfig.sampleRate = 100;
   // Optional: The service name for your application
-  config.serviceName = 'app-builder-core-frontend-native';
+  loggerConfig.serviceName = 'app-builder-core-frontend-native';
 
   if (__DEV__) {
     // Optional: Send data more frequently
-    config.uploadFrequency = UploadFrequency.FREQUENT;
+    loggerConfig.uploadFrequency = UploadFrequency.FREQUENT;
     // Optional: Send smaller batches of data
-    config.batchSize = BatchSize.SMALL;
+    loggerConfig.batchSize = BatchSize.SMALL;
     // Optional: Enable debug logging
-    config.verbosity = SdkVerbosity.DEBUG;
+    loggerConfig.verbosity = SdkVerbosity.DEBUG;
   }
-  return config;
+  return loggerConfig;
 };
 
 const getTransportLogger = () => {
@@ -49,4 +51,4 @@ const getTransportLogger = () => {
   };
 };
 
-export {DatadogProvider, getTransportLogger};
+export {DatadogProvider, getTransportLogger, loggerConfig};

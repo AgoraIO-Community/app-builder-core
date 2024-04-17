@@ -18,17 +18,14 @@ import 'react-native-url-polyfill/auto';
 import App from './src/App';
 import {name as appName} from './app.json';
 import React from 'react';
-
 import {
   DatadogProvider,
-  initTransportLayerForAgora,
+  loggerConfig,
 } from './src/logger/transports/agora-transport';
-import {ENABLE_AGORA_TRANSPORT} from './src/logger/contants';
 
-if ($config.LOG_ENABLED && ENABLE_AGORA_TRANSPORT) {
-  const config = initTransportLayerForAgora();
+if (loggerConfig) {
   const AppWithLogs = () => (
-    <DatadogProvider configuration={config}>
+    <DatadogProvider configuration={loggerConfig}>
       <App />
     </DatadogProvider>
   );

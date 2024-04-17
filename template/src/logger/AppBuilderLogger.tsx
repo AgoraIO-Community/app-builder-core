@@ -2,7 +2,10 @@ import 'react-native-get-random-values';
 import {nanoid} from 'nanoid';
 import pkg from '../../package.json';
 import {isWeb} from '../utils/common';
-import {ENABLE_AGORA_TRANSPORT, ENABLE_BROWSER_CONSOLE_LOGS} from './contants';
+import {
+  ENABLE_AGORA_LOGGER_TRANSPORT,
+  ENABLE_BROWSER_CONSOLE_LOGS,
+} from './contants';
 import {
   getTransportLogger,
   initTransportLayerForAgora,
@@ -152,7 +155,7 @@ export default class AppBuilderLogger implements Logger {
           },
         };
 
-        if (_transportLogger) {
+        if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
           _transportLogger(logMessage, context, status);
         }
         if (ENABLE_BROWSER_CONSOLE_LOGS) {
@@ -183,7 +186,7 @@ export default class AppBuilderLogger implements Logger {
 
 let _transportLogger = null;
 
-if (ENABLE_AGORA_TRANSPORT && $config.LOG_ENABLED) {
+if (ENABLE_AGORA_LOGGER_TRANSPORT) {
   initTransportLayerForAgora();
   _transportLogger = getTransportLogger();
 }

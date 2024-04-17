@@ -14,8 +14,6 @@ export const initTransportLayerForAgora = () => {
     version: cli_version,
     env: 'none',
   });
-
-  return datadogLogs.logger;
 };
 
 export const getTransportLogger = () => {
