@@ -17,5 +17,22 @@ import {AppRegistry} from 'react-native';
 import 'react-native-url-polyfill/auto';
 import App from './src/App';
 import {name as appName} from './app.json';
+import React from 'react';
 
-AppRegistry.registerComponent(appName, () => App);
+import {
+  DatadogProvider,
+  initTransportLayerForAgora,
+} from './src/logger/transports/agora-transport';
+import {ENABLE_AGORA_TRANSPORT} from './src/logger/contants';
+
+if ($config.LOG_ENABLED && ENABLE_AGORA_TRANSPORT) {
+  const config = initTransportLayerForAgora();
+  const AppWithLogs = () => (
+    <DatadogProvider configuration={config}>
+      <App />
+    </DatadogProvider>
+  );
+  AppRegistry.registerComponent(appName, () => AppWithLogs);
+} else {
+  AppRegistry.registerComponent(appName, () => App);
+}

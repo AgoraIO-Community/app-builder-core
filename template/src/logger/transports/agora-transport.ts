@@ -1,4 +1,4 @@
-import {datadogLogs} from '@datadog/browser-logs';
+import {StatusType, datadogLogs} from '@datadog/browser-logs';
 import {version as cli_version} from '../../../../package.json';
 
 const DATADOG_CLIENT_TOKEN = 'pubeccdaed5357d217e2c75e85aaef432fe';
@@ -16,4 +16,15 @@ export const initTransportLayerForAgora = () => {
   });
 
   return datadogLogs.logger;
+};
+
+export const getTransportLogger = () => {
+  return (text: string, data: any, status: StatusType) => {
+    datadogLogs.logger.log(
+      text,
+      data,
+      status,
+      status === 'error' ? data[0] : undefined,
+    );
+  };
 };

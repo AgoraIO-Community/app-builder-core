@@ -1,10 +1,16 @@
+import 'react-native-get-random-values';
 import {nanoid} from 'nanoid';
 import pkg from '../../package.json';
 import {isWeb} from '../utils/common';
-import {version as cli_version} from '../../../package.json';
 import {ENABLE_AGORA_TRANSPORT, ENABLE_BROWSER_CONSOLE_LOGS} from './contants';
-import {initTransportLayerForAgora} from './transports/agora-transport';
+import {
+  getTransportLogger,
+  initTransportLayerForAgora,
+} from './transports/agora-transport';
 import configJSON from '../../config.json';
+import {getPlatformId} from '../auth/config';
+
+const cli_version = 'test';
 
 export declare const StatusTypes: {
   readonly debug: 'debug';
@@ -99,7 +105,6 @@ export interface Logger {
   info: LogFn;
   debug: LogFn;
 }
-
 /** Logger which outputs to the browser console */
 export default class AppBuilderLogger implements Logger {
   log: LogFn;
@@ -108,8 +113,9 @@ export default class AppBuilderLogger implements Logger {
   debug: LogFn;
   error: LogFn;
 
-  constructor(_customTransport?: any) {
+  constructor(_transportLogger?: any) {
     const session = nanoid();
+    const platform = getPlatformId();
     const rtmPkg = isWeb()
       ? pkg.dependencies['agora-rtm-sdk']
       : pkg.dependencies['agora-react-native-rtm'];
@@ -127,12 +133,14 @@ export default class AppBuilderLogger implements Logger {
         if (!$config.LOG_ENABLED) {
           return;
         }
+
         const context = {
           timestamp: Date.now(),
           source,
           version: cli_version,
           type,
           data,
+          platform,
           contextInfo: {
             session_id: session,
             app_id: $config.APP_ID,
@@ -144,17 +152,8 @@ export default class AppBuilderLogger implements Logger {
           },
         };
 
-        if (_customTransport) {
-          /**
-           *  Datadog logger API format
-           *  logger.log | debug | info | warn | error (message: string, messageContext?: Context, error?: Error)
-           */
-          _customTransport.log(
-            logMessage,
-            context,
-            status,
-            status === 'error' ? data : undefined,
-          );
+        if (_transportLogger) {
+          _transportLogger(logMessage, context, status);
         }
         if (ENABLE_BROWSER_CONSOLE_LOGS) {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
@@ -182,10 +181,11 @@ export default class AppBuilderLogger implements Logger {
   }
 }
 
-let transport = null;
+let _transportLogger = null;
 
-if (ENABLE_AGORA_TRANSPORT) {
-  transport = initTransportLayerForAgora();
+if (ENABLE_AGORA_TRANSPORT && $config.LOG_ENABLED) {
+  initTransportLayerForAgora();
+  _transportLogger = getTransportLogger();
 }
 
-export const logger = new AppBuilderLogger(transport);
+export const logger = new AppBuilderLogger(_transportLogger);
