@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Image, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
@@ -34,10 +34,12 @@ import {ChatAttachmentButton} from './chat/ChatAttachment';
 import {useChatConfigure} from '../components/chat/chatConfigure';
 import {ChatMessageType} from '../components/chat/useSDKChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import ChatUploadStatus from './chat/ChatUploadStatus';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
+
 const ChatPanel = () => {
   return (
     <View style={style.chatPanelContainer}>
@@ -164,6 +166,7 @@ const ChatInput = () => {
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
+        <ChatUploadStatus />
         <ChatTextInput />
         <ChatPanel />
       </View>

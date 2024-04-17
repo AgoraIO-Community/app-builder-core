@@ -7,7 +7,6 @@ import {useContent} from 'customization-api';
 import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
 import {timeNow} from '../../rtm/utils';
 import StorageContext from '../StorageContext';
-import { actionTypeGuard } from 'agora-rn-uikit/src/Utils/actionTypeGuard';
 
 // AppKey:
 // 41754367#1042822
@@ -34,7 +33,7 @@ interface ChatOption {
   from: string;
   to: string;
   msg?: string;
-  file?: object;
+  file?: {url?: string; filename?: string; filetype?: string};
   ext?: {file_length: number};
   onFileUploadError?: () => void;
   onFileUploadProgress?: (e: ProgressEvent) => void;
@@ -314,11 +313,9 @@ const ChatConfigure = ({children}) => {
           // this is local user messages
           if (option.chatType === 'singleChat') {
             addMessageToPrivateStore(Number(option.to), messageData, true);
-          }
-          else {
+          } else {
             addMessageToStore(Number(option.from), messageData);
           }
-          
         })
         .catch(error => {
           console.log(
@@ -356,7 +353,7 @@ const ChatConfigure = ({children}) => {
     const anchor = document.createElement('a');
     anchor.href = fileUrl;
     anchor.download = fileName;
-    anchor.target = "_blank"
+    anchor.target = '_blank';
     anchor.click();
     anchor.remove();
   };

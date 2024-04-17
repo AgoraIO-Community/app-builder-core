@@ -16,6 +16,7 @@ import {useString} from '../utils/useString';
 import {isWebInternal} from '../utils/common';
 import {
   ChatType,
+  UploadStatus,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
@@ -31,14 +32,7 @@ import {
   groupChatInputPlaceHolderText,
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
-
-const ChatUploadStatus = () => {
-  return (
-    <View style={style.chatStatusContainer}>
-      <Text style={style.chatStatusText}>{'Uploading... Please wait'}</Text>
-    </View>
-  );
-};
+import ChatUploadStatus from './chat/ChatUploadStatus';
 
 const ChatPanel = () => {
   return (
@@ -171,7 +165,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive, showEmojiPicker} = useChatUIControls();
+  const {inputActive, showEmojiPicker, uploadStatus} = useChatUIControls();
   return (
     <View
       style={[
@@ -183,6 +177,7 @@ export const ChatInput = () => {
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
+        <ChatUploadStatus />
         <ChatTextInput />
         <ChatPanel />
       </View>
@@ -222,20 +217,6 @@ const style = StyleSheet.create({
   },
   chatPanel: {
     flexDirection: 'row',
-  },
-  chatStatusContainer: {
-    flex: 1,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderColor: 'yellow',
-  },
-  chatStatusText: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    lineHeight: 14.5,
-    fontStyle: 'italic',
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisOpacity.medium,
   },
 });
 export default ChatInput;

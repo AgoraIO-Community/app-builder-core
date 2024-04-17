@@ -20,6 +20,13 @@ export enum ChatType {
   Private,
 }
 
+export enum UploadStatus {
+  NOT_STARTED = 'notStarted',
+  IN_PROGRESS = 'inProgress',
+  SUCCESS = 'success',
+  FAILURE = 'failure',
+}
+
 export interface ChatUIControlsInterface {
   chatType: ChatType;
   privateChatUser: UidType;
@@ -31,6 +38,8 @@ export interface ChatUIControlsInterface {
   setMessage: React.Dispatch<SetStateAction<string>>;
   showEmojiPicker: boolean;
   setShowEmojiPicker: React.Dispatch<SetStateAction<boolean>>;
+  uploadStatus: UploadStatus;
+  setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -44,6 +53,8 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setInputActive: () => {},
   showEmojiPicker: false,
   setShowEmojiPicker: () => {},
+  uploadStatus: UploadStatus.NOT_STARTED,
+  setUploadStatus: () => {},
 });
 
 interface ChatUIControlsProviderProps {
@@ -56,6 +67,9 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [privateChatUser, setPrivateChatUser] = useState<UidType>(0);
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
+    UploadStatus.NOT_STARTED,
+  );
   return (
     <ChatUIControlsContext.Provider
       value={{
@@ -69,6 +83,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setInputActive,
         showEmojiPicker,
         setShowEmojiPicker,
+        uploadStatus,
+        setUploadStatus,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

@@ -10,6 +10,7 @@ import {
   ChatMessageChatType,
   ChatMessageEventListener,
   ChatOptions,
+  ChatMessageStatusCallback,
 } from 'react-native-agora-chat';
 import StorageContext from '../StorageContext';
 import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
@@ -24,14 +25,17 @@ interface ChatOption {
   to: string;
   msg?: string;
   file?: object;
-  ext?: {file_length: number};
-  onFileUploadError?: () => void;
-  onFileUploadProgress?: (e: ProgressEvent) => void;
+  ext?: {file_length: number; file_ext: string};
+  url?: string;
+  fileName?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  sendChatSDKMessage: (option: ChatOption) => void;
+  sendChatSDKMessage: (
+    option: ChatOption,
+    callback: ChatMessageStatusCallback,
+  ) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
 }
@@ -257,7 +261,10 @@ const ChatConfigure = ({children}) => {
     };
   }, []);
 
-  const sendChatSDKMessage = option => {
+  const sendChatSDKMessage = (
+    option: ChatOption,
+    callback: ChatMessageStatusCallback,
+  ) => {
     const {type, to, msg, chatType, from, url = ''} = option;
     let file_ext = '';
     const chatMsgChatType =
@@ -287,7 +294,7 @@ const ChatConfigure = ({children}) => {
     }
     //
     chatClient.chatManager
-      .sendMessage(chatMsg)
+      .sendMessage(chatMsg, callback)
       .then(() => {
         // log here if the method call succeeds.
         console.warn('send message success.');

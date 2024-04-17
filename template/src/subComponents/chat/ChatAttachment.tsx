@@ -5,7 +5,10 @@ import AgoraChat from 'agora-chat';
 import {useRoomInfo} from 'customization-api';
 import {useChatConfigure} from '../../components/chat/chatConfigure';
 import Toast from '../../../react-native-toast-message';
-import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
+import {
+  UploadStatus,
+  useChatUIControls,
+} from '../../components/chat-ui/useChatUIControls';
 import {ChatMessageType} from '../../components/chat/useSDKChatMessages';
 
 export interface ChatAttachmentButtonProps {
@@ -15,8 +18,8 @@ export interface ChatAttachmentButtonProps {
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const {data} = useRoomInfo();
-  const { sendChatSDKMessage} = useChatConfigure();
-  const {privateChatUser} = useChatUIControls();
+  const {sendChatSDKMessage} = useChatConfigure();
+  const {privateChatUser, setUploadStatus} = useChatUIControls();
 
   const fileAllowedTypes = {
     zip: true,
@@ -56,19 +59,22 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         },
         // Occurs when the image file fails to be uploaded.
         onFileUploadError: function () {
+          setUploadStatus(UploadStatus.FAILURE);
           console.log('onFileUploadError');
         },
         // Reports the progress of uploading the image file.
         onFileUploadProgress: function (e: ProgressEvent) {
+          setUploadStatus(UploadStatus.IN_PROGRESS);
           console.log(e);
         },
         // Occurs when the image file is successfully uploaded.
         onFileUploadComplete: function (e) {
+          setUploadStatus(UploadStatus.SUCCESS);
           console.log('onFileUploadComplete');
           // update local store
         },
       };
-      sendChatSDKMessage(option)
+      sendChatSDKMessage(option);
     } else {
       Toast.show({
         leadingIconName: 'chat_attachment_unknown',
