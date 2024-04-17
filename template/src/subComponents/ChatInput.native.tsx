@@ -186,6 +186,7 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'transparent',
     paddingHorizontal: 12,
+    paddingBottom: 8,
   },
 
   chatPanelContainer: {
@@ -194,6 +195,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     height: 36,
+    paddingTop: 4,
   },
   chatPanel: {
     flexDirection: 'row',

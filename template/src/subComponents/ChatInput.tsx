@@ -201,6 +201,7 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'transparent',
     paddingHorizontal: 12,
+    paddingBottom: 8,
   },
   chatInputButton: {
     flex: 0.1,
@@ -216,6 +217,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
+    paddingTop: 4,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
   chatPanel: {
