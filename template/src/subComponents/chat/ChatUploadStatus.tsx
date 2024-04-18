@@ -18,22 +18,31 @@ const ChatUploadStatus = () => {
       text = `Something went wrong while sharing.Let'as try again`;
       break;
   }
-  return (
-    <View style={styles.chatStatusContainer}>
+  return text.length > 0 ? (
+    <View
+      style={[
+        styles.chatStatusContainer,
+        uploadStatus === UploadStatus.FAILURE && {
+          backgroundColor:
+            $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
+        },
+      ]}>
       <Text style={styles.chatStatusText}>{text}</Text>
     </View>
-  );
+  ) : null;
 };
 
 export default ChatUploadStatus;
 
 const styles = StyleSheet.create({
   chatStatusContainer: {
-    flex: 1,
-    borderWidth: 1,
+    flexGrow: 1,
+    borderWidth: 0,
     paddingHorizontal: 16,
     paddingVertical: 8,
     backgroundColor: $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['15%'],
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   chatStatusText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

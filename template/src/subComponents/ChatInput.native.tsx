@@ -19,6 +19,7 @@ import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 
 import {
   ChatType,
+  UploadStatus,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
@@ -61,8 +62,14 @@ export interface ChatTextInputProps {
   ) => JSX.Element;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
-  const {privateChatUser, message, setMessage, chatType, inputActive} =
-    useChatUIControls();
+  const {
+    privateChatUser,
+    message,
+    setMessage,
+    chatType,
+    inputActive,
+    uploadStatus,
+  } = useChatUIControls();
 
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
@@ -73,6 +80,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     privateChatInputPlaceHolderText,
   );
   const [inputHeight, setInputHeight] = React.useState(43); // Initial height for one line
+  const isUploadStatusShown =
+    uploadStatus === UploadStatus.IN_PROGRESS ||
+    uploadStatus === UploadStatus.FAILURE;
 
   const handleContentSizeChange = ({
     nativeEvent: {
@@ -137,6 +147,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
         backgroundColor: $config.CARD_LAYER_2_COLOR,
         borderRadius: 8,
+        borderTopRightRadius: isUploadStatusShown ? 0 : 8,
+        borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}

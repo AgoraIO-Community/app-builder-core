@@ -55,11 +55,21 @@ export interface ChatTextInputProps {
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
   let chatInputRef = useRef(null);
-  const {privateChatUser, message, setMessage, inputActive, chatType} =
-    useChatUIControls();
+  const {
+    privateChatUser,
+    message,
+    setMessage,
+    inputActive,
+    chatType,
+    uploadStatus,
+  } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
   const [inputHeight, setInputHeight] = React.useState(43); // Initial height for one line
+
+  const isUploadStatusShown =
+    uploadStatus === UploadStatus.IN_PROGRESS ||
+    uploadStatus === UploadStatus.FAILURE;
 
   const {data} = useRoomInfo();
   const [name] = useUserName();
@@ -149,6 +159,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
         backgroundColor: $config.CARD_LAYER_2_COLOR,
         borderRadius: 8,
+        borderTopRightRadius: isUploadStatusShown ? 0 : 8,
+        borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
@@ -165,7 +177,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive, showEmojiPicker, uploadStatus} = useChatUIControls();
+  const {inputActive, showEmojiPicker} = useChatUIControls();
+
   return (
     <View
       style={[
