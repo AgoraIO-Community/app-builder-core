@@ -49,7 +49,7 @@ export const ChatEmojiPicker = () => {
     <View style={styles.emojiContainer} testID={'emoji-container'}>
       <Picker
         //data={data}
-        autoFocus={true}
+        // autoFocus={true}
         native={true}
         emojiSize={28}
         perLine={9}
