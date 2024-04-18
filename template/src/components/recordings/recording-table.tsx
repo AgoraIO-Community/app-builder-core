@@ -45,8 +45,8 @@ function RTableBody({status, recordings}) {
               </Text>
             </View>
             <View style={style.td}>
-              {item?.download_url.length > 0 ? (
-                item?.download_url.map((link: string, i: number) => (
+              {item?.download_url?.length > 0 ? (
+                item?.download_url?.map((link: string, i: number) => (
                   <View style={style.tactions} key={i}>
                     <Text
                       style={style.tlink}
