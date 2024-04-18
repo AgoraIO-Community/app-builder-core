@@ -90,12 +90,14 @@ export const style = StyleSheet.create({
   tbrow: {
     display: 'flex',
     alignSelf: 'stretch',
-    height: 50,
+    minHeight: 50,
     flexDirection: 'row',
+    paddingBottom: 10,
+    paddingTop: 20,
   },
   td: {
     flex: 1,
-    alignSelf: 'stretch',
+    alignSelf: 'flex-start',
     justifyContent: 'center',
     paddingHorizontal: 12,
     // height: 100,
