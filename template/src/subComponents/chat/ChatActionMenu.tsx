@@ -7,6 +7,12 @@ import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useChatConfigure} from '../../components/chat/chatConfigure';
 import Clipboard from '../../subComponents/Clipboard';
+import {useString} from '../../utils/useString';
+import {
+  chatActionMenuCopyLinkText,
+  chatActionMenuDownloadText,
+  chatActionMenuDeleteText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 interface MoreMenuProps {
   setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -38,7 +44,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Download ',
+    title: useString(chatActionMenuDownloadText)(),
     callback: () => {
       downloadAttachment(fileName, fileUrl);
       setActionMenuVisible(false);
@@ -49,7 +55,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'clipboard',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Copy file link',
+    title: useString(chatActionMenuCopyLinkText)(),
     callback: () => {
       Clipboard.setString(fileUrl);
       setActionMenuVisible(false);
@@ -59,7 +65,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'remove',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Delete',
+    title: useString(chatActionMenuDeleteText)(),
     callback: () => {
       setActionMenuVisible(false);
     },

@@ -207,6 +207,10 @@ export const groupChatInputPlaceHolderText = 'groupChatInputPlaceHolderText';
 export const privateChatInputPlaceHolderText =
   'privateChatInputPlaceHolderText';
 
+export const chatActionMenuDownloadText = 'chatActionMenuDownloadText';
+export const chatActionMenuCopyLinkText = 'chatActionMenuCopyLinkText';
+export const chatActionMenuDeleteText = 'chatActionMenuDeleteText';
+
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
 export const peoplePanelMuteAllMicBtnText = 'peoplePanelMuteAllMicBtnText';
@@ -595,6 +599,10 @@ export interface I18nVideoCallScreenLabelsInterface {
   [groupChatInputPlaceHolderText]?: I18nBaseType;
   [privateChatInputPlaceHolderText]?: I18nBaseType;
 
+  [chatActionMenuDownloadText]?: I18nBaseType;
+  [chatActionMenuCopyLinkText]?: I18nBaseType;
+  [chatActionMenuDeleteText]?: I18nBaseType;
+
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
 
@@ -961,6 +969,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [groupChatInputPlaceHolderText]: name => `Chat publicly as ${name}...`,
   [privateChatInputPlaceHolderText]: name => `Private Message to ${name}`,
+
+  [chatActionMenuDownloadText]: 'Download',
+  [chatActionMenuCopyLinkText]: 'Copy File Link',
+  [chatActionMenuDeleteText]: 'Delete',
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute All',
