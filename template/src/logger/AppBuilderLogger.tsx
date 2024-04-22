@@ -5,6 +5,7 @@ import {isWeb} from '../utils/common';
 import {
   ENABLE_AGORA_LOGGER_TRANSPORT,
   ENABLE_BROWSER_CONSOLE_LOGS,
+  ENABLE_CUSTOMER_LOGGER_TRANSPORT,
 } from './contants';
 import {
   getTransportLogger,
@@ -12,6 +13,7 @@ import {
 } from './transports/agora-transport';
 import configJSON from '../../config.json';
 import {getPlatformId} from '../auth/config';
+import {initTransportLayerForCustomers} from './transports/customer-transport';
 
 const cli_version = 'test';
 
@@ -155,8 +157,18 @@ export default class AppBuilderLogger implements Logger {
           },
         };
 
-        if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
-          _transportLogger(logMessage, context, status);
+        if (
+          (ENABLE_AGORA_LOGGER_TRANSPORT || ENABLE_CUSTOMER_LOGGER_TRANSPORT) &&
+          _transportLogger
+        ) {
+          try {
+            _transportLogger(logMessage, context, status);
+          } catch (error) {
+            console.log(
+              `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
+              error,
+            );
+          }
         }
         if (ENABLE_BROWSER_CONSOLE_LOGS) {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
@@ -189,6 +201,10 @@ let _transportLogger = null;
 if (ENABLE_AGORA_LOGGER_TRANSPORT) {
   initTransportLayerForAgora();
   _transportLogger = getTransportLogger();
+}
+
+if (ENABLE_CUSTOMER_LOGGER_TRANSPORT) {
+  _transportLogger = initTransportLayerForCustomers();
 }
 
 export const logger = new AppBuilderLogger(_transportLogger);
