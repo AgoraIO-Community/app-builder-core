@@ -265,9 +265,6 @@ const ChatConfigure = ({children}) => {
           },
 
           onRecallMessage: message => {
-            debugger;
-            console.warn('recall msgs', message);
-            // message.id ; message.mid
             const isGroupChat = message.to === data.chat.group_id;
             if (isGroupChat) {
               removeMessageFromStore(message.mid, true);
@@ -381,7 +378,6 @@ const ChatConfigure = ({children}) => {
   };
 
   const deleteAttachment = (msgId, recallFromUser, chatType) => {
-    debugger;
     const option = {mid: msgId, to: recallFromUser, chatType};
     if (connRef.current) {
       connRef.current

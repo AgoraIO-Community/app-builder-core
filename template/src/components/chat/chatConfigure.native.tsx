@@ -38,6 +38,11 @@ interface chatConfigureContextInterface {
   ) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
+  deleteAttachment: (
+    msgId: string,
+    privateChatUser: string,
+    chatType: string,
+  ) => void;
 }
 
 export const chatConfigureContext =
@@ -47,6 +52,7 @@ export const chatConfigureContext =
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
     downloadAttachment: () => {},
+    deleteAttachment: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -61,8 +67,13 @@ const ChatConfigure = ({children}) => {
   const localUid = data?.uid?.toString();
   const agoraToken = data?.chat?.user_token;
   const {store} = React.useContext(StorageContext);
-  const {addMessageToPrivateStore, showMessageNotification, addMessageToStore} =
-    useSDKChatMessages();
+  const {
+    addMessageToPrivateStore,
+    showMessageNotification,
+    addMessageToStore,
+    removeMessageFromStore,
+    removeMessageFromPrivateStore,
+  } = useSDKChatMessages();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -79,14 +90,23 @@ const ChatConfigure = ({children}) => {
     };
     const setupMessageListener = () => {
       const msgListerner: ChatMessageEventListener = {
-        onMessagesReceived: (messages: Array<ChatMessage>) => {
+        onMessagesRecalled: (messages: ChatMessage[]) => {
+          console.warn('on msg recalled', messages);
+          const isGroupChat = messages[0].to === data.chat.group_id;
+          if (isGroupChat) {
+            removeMessageFromStore(messages[0].msgId.toString(), true);
+          } else {
+            removeMessageFromPrivateStore(messages[0].msgId.toString(), true);
+          }
+        },
+        onMessagesReceived: (messages: ChatMessage[]) => {
           // all types of msg recivied : text, image, video etc..
           console.warn('on msg rcvd : Native', messages);
           const isGroupChat =
             messages[0].chatType === ChatMessageChatType.GroupChat;
           const isPeerChat =
             messages[0].chatType === ChatMessageChatType.PeerChat;
-          const {localMsgId, from, body, localTime} = messages[0];
+          const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
 
           //@ts-ignore
@@ -100,7 +120,7 @@ const ChatConfigure = ({children}) => {
                 addMessageToStore(Number(from), {
                   msg: chatContent,
                   createdTimestamp: localTime,
-                  msgId: localMsgId,
+                  msgId: msgId,
                   isDeleted: false,
                   type: ChatMessageType.TXT,
                 });
@@ -112,7 +132,7 @@ const ChatConfigure = ({children}) => {
                   {
                     msg: chatContent,
                     createdTimestamp: localTime,
-                    msgId: localMsgId,
+                    msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.TXT,
                   },
@@ -130,7 +150,7 @@ const ChatConfigure = ({children}) => {
                 addMessageToStore(Number(from), {
                   msg: '',
                   createdTimestamp: localTime,
-                  msgId: localMsgId,
+                  msgId: msgId,
                   isDeleted: false,
                   type: ChatMessageType.IMAGE,
                   thumb: thumb,
@@ -148,7 +168,7 @@ const ChatConfigure = ({children}) => {
                   {
                     msg: '',
                     createdTimestamp: localTime,
-                    msgId: localMsgId,
+                    msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.IMAGE,
                     thumb: thumb,
@@ -174,7 +194,7 @@ const ChatConfigure = ({children}) => {
                 addMessageToStore(Number(from), {
                   msg: '',
                   createdTimestamp: localTime,
-                  msgId: localMsgId,
+                  msgId: msgId,
                   isDeleted: false,
                   type: ChatMessageType.FILE,
                   url: fileUrl,
@@ -189,7 +209,7 @@ const ChatConfigure = ({children}) => {
                   {
                     msg: '',
                     createdTimestamp: localTime,
-                    msgId: localMsgId,
+                    msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.FILE,
                     url: fileUrl,
@@ -297,26 +317,29 @@ const ChatConfigure = ({children}) => {
       .sendMessage(chatMsg, callback)
       .then(() => {
         // log here if the method call succeeds.
-        console.warn('send message success.');
+        console.warn('send message success');
         const localFileUrl = option?.url || '';
         // add to local store of sender
-        const messageData = {
-          msg: option.msg,
-          createdTimestamp: timeNow(),
-          msgId: chatMsg.msgId,
-          isDeleted: false,
-          type: option.type,
-          thumb: localFileUrl,
-          url: localFileUrl,
-          ext: file_ext,
-          fileName: option?.fileName,
-        };
+        // for image and file msgs we will update on upload success of chatAttachment.native
+        if (type === ChatMessageType.TXT) {
+          const messageData = {
+            msg: option.msg,
+            createdTimestamp: timeNow(),
+            msgId: chatMsg.msgId,
+            isDeleted: false,
+            type: option.type,
+            thumb: localFileUrl,
+            url: localFileUrl,
+            ext: file_ext,
+            fileName: option?.fileName,
+          };
 
-        // this is local user messages
-        if (option.chatType === 'singleChat') {
-          addMessageToPrivateStore(Number(option.to), messageData, true);
-        } else {
-          addMessageToStore(Number(option.from), messageData);
+          // this is local user messages
+          if (option.chatType === 'singleChat') {
+            addMessageToPrivateStore(Number(option.to), messageData, true);
+          } else {
+            addMessageToStore(Number(option.from), messageData);
+          }
         }
       })
       .catch(reason => {
@@ -366,23 +389,19 @@ const ChatConfigure = ({children}) => {
   };
 
   const deleteAttachment = (msgId, recallFromUser, chatType) => {
-    debugger;
-
     const chatMsgChatType =
       chatType === 'singleChat'
         ? ChatMessageChatType.PeerChat
         : ChatMessageChatType.GroupChat;
-    const option = {mid: msgId, to: recallFromUser, chatMsgChatType};
-    if (connRef.current) {
-      connRef.current
-        .recallMessage(option)
-        .then(res => {
-          console.log('recall success', res);
-        })
-        .catch(err => {
-          console.log('recall fail', err);
-        });
-    }
+
+    chatClient.chatManager
+      .recallMessage(msgId)
+      .then(() => {
+        console.warn('recall message success');
+      })
+      .catch(reason => {
+        console.warn('recall message fail.', reason);
+      });
   };
 
   return (
@@ -393,6 +412,7 @@ const ChatConfigure = ({children}) => {
         deleteChatUser,
         sendChatSDKMessage,
         downloadAttachment,
+        deleteAttachment,
       }}>
       {children}
     </chatConfigureContext.Provider>

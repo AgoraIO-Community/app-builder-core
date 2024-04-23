@@ -258,6 +258,7 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
   };
 
   const removeMessageFromStore = (msgID, isMsgRecalled) => {
+    console.warn('msg delete native', msgID);
     setMessageStore(prev => {
       if (isMsgRecalled) {
         const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);

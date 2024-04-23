@@ -9,8 +9,15 @@ import {
   UploadStatus,
 } from '../../components/chat-ui/useChatUIControls';
 import {useChatConfigure} from '../../components/chat/chatConfigure.native';
-import {ChatMessageType} from '../../components/chat/useSDKChatMessages';
-import {ChatError, ChatMessage} from 'react-native-agora-chat';
+import {
+  ChatMessageType,
+  useSDKChatMessages,
+} from '../../components/chat/useSDKChatMessages';
+import {
+  ChatError,
+  ChatMessage,
+  ChatMessageChatType,
+} from 'react-native-agora-chat';
 
 export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -21,6 +28,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
 
+  const {
+    addMessageToPrivateStore,
+
+    addMessageToStore,
+  } = useSDKChatMessages();
   const fileAllowedTypes = {
     zip: true,
     txt: true,
@@ -92,6 +104,27 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         };
         const onSuccess = (message: ChatMessage) => {
           console.warn('upload on success', message);
+          // text msg is update on
+          const messageData = {
+            msg: '',
+            createdTimestamp: message.localTime,
+            msgId: message.msgId,
+            isDeleted: false,
+            type: message.body.type,
+            thumb: message.body?.localPath,
+            url: message.body?.remotePath,
+            ext: message.attributes?.file_ext,
+            fileName: message.body?.displayName,
+          };
+          console.warn('message data', messageData);
+
+          // this is local user messages
+          if (message.chatType === ChatMessageChatType.PeerChat) {
+            addMessageToPrivateStore(Number(message.to), messageData, true);
+          } else {
+            addMessageToStore(Number(message.from), messageData);
+          }
+
           setUploadStatus(UploadStatus.SUCCESS);
         };
         sendChatSDKMessage(option, {onProgress, onError, onSuccess});
