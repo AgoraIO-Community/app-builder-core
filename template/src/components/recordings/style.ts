@@ -90,12 +90,14 @@ export const style = StyleSheet.create({
   tbrow: {
     display: 'flex',
     alignSelf: 'stretch',
-    height: 50,
+    minHeight: 50,
     flexDirection: 'row',
+    paddingBottom: 10,
+    paddingTop: 20,
   },
   td: {
     flex: 1,
-    alignSelf: 'stretch',
+    alignSelf: 'flex-start',
     justifyContent: 'center',
     paddingHorizontal: 12,
     // height: 100,
@@ -148,8 +150,11 @@ export const style = StyleSheet.create({
     borderColor: $config.CARD_LAYER_4_COLOR,
     backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
-  paginationItem: {},
-  pbtn: {},
+  placeHolder: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
   // footer ends
   zeroHPadding: {
     paddingHorizontal: 0,

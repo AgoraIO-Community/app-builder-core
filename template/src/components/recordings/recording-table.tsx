@@ -37,60 +37,71 @@ function RTableBody({status, recordings}) {
     }
     return (
       <>
-        {recordings
-          .filter(item => item.download_url)
-          .map(item => (
-            <View style={style.tbrow} key={item.id}>
-              <View style={[style.td, style.plzero]}>
-                <Text style={style.ttime}>
-                  {getRecordedDate(item.created_at)}
-                </Text>
-              </View>
-              <View style={style.td}>
-                <View style={style.tactions}>
-                  <Text
-                    style={style.tlink}
-                    onPress={async () => {
-                      if (await Linking.canOpenURL(item.download_url[0])) {
-                        await Linking.openURL(item.download_url[0]);
-                      }
-                    }}>
-                    View
-                  </Text>
-                  <Text
-                    style={[style.tlink, style.pl15]}
-                    onPress={() => {
-                      downloadRecording(item.download_url[0]);
-                    }}>
-                    Download
-                  </Text>
-                  <View>
-                    <Tooltip
-                      isClickable
-                      placement="right"
-                      toolTipMessage="Link Copied"
-                      onPress={() => {
-                        Clipboard.setString(item.download_url[0]);
-                      }}
-                      fontSize={12}
-                      renderContent={(isToolTipVisible, setToolTipVisible) => {
-                        return (
-                          <Text
-                            style={[style.tlink, style.pl15]}
-                            onPress={() => {
-                              Clipboard.setString(item.download_url[0]);
-                              setToolTipVisible(true);
-                            }}>
-                            Copy shareable link
-                          </Text>
-                        );
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
+        {recordings.map(item => (
+          <View style={style.tbrow} key={item.id}>
+            <View style={[style.td, style.plzero]}>
+              <Text style={style.ttime}>
+                {getRecordedDate(item.created_at)}
+              </Text>
             </View>
-          ))}
+            <View style={style.td}>
+              {item?.download_url?.length > 0 ? (
+                item?.download_url?.map((link: string, i: number) => (
+                  <View style={style.tactions} key={i}>
+                    <Text
+                      style={style.tlink}
+                      onPress={async () => {
+                        if (await Linking.canOpenURL(link)) {
+                          await Linking.openURL(link);
+                        }
+                      }}>
+                      View
+                    </Text>
+                    <Text
+                      style={[style.tlink, style.pl15]}
+                      onPress={() => {
+                        downloadRecording(link);
+                      }}>
+                      Download
+                    </Text>
+                    <View>
+                      <Tooltip
+                        isClickable
+                        placement="right"
+                        toolTipMessage="Link Copied"
+                        onPress={() => {
+                          Clipboard.setString(link);
+                        }}
+                        fontSize={12}
+                        renderContent={(
+                          isToolTipVisible,
+                          setToolTipVisible,
+                        ) => {
+                          return (
+                            <Text
+                              style={[style.tlink, style.pl15]}
+                              onPress={() => {
+                                Clipboard.setString(link);
+                                setToolTipVisible(true);
+                              }}>
+                              Copy shareable link
+                            </Text>
+                          );
+                        }}
+                      />
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={style.tactions}>
+                  <Text style={style.placeHolder}>
+                    Recording is in progress
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        ))}
       </>
     );
   };
