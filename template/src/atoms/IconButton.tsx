@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ViewStyle,
   TextStyle,
@@ -7,6 +7,7 @@ import {
   Pressable,
   PressableProps,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import {isMobileUA, isWebInternal} from '../utils/common';
@@ -17,6 +18,7 @@ export interface BtnTextProps {
   textStyle?: TextStyle;
   textColor?: string;
   text?: string;
+  numberOfLines?: number;
 }
 
 export interface IconButtonProps {
@@ -24,6 +26,8 @@ export interface IconButtonProps {
   onPress?: PressableProps['onPress'];
   disabled?: boolean;
   containerStyle?: ViewStyle;
+  rootContainerStyle?: ViewStyle;
+  iconContainerStyle?: ViewStyle;
   btnTextProps?: BtnTextProps;
   iconProps: ImageIconProps;
   toolTipMessage?: string;
@@ -33,16 +37,22 @@ export interface IconButtonProps {
   hoverEffect?: boolean;
   hoverEffectStyle?: ViewStyle;
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  showTooltipArrow?: boolean;
   isClickable?: boolean;
+  onHoverCallBack?: (isHovered: boolean) => void;
 }
 
 const IconButton = (props: IconButtonProps) => {
   return (
-    <ButtonWrapper {...props}>
-      <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+    <IconButtonWrapper {...props}>
+      {props?.iconProps ? (
+        <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
+      ) : (
+        <></>
+      )}
       {props?.btnTextProps?.text ? (
         <Text
-          numberOfLines={1}
+          numberOfLines={props?.btnTextProps?.numberOfLines || 1}
           ellipsizeMode="tail"
           style={[
             styles.btnTextStyle,
@@ -56,7 +66,21 @@ const IconButton = (props: IconButtonProps) => {
       ) : (
         <></>
       )}
-    </ButtonWrapper>
+    </IconButtonWrapper>
+  );
+};
+
+const IconButtonWrapper = props => {
+  const {isOnActionSheet = false, children, rootContainerStyle} = props;
+  if (!isOnActionSheet) {
+    return <ButtonWrapper {...props}>{children}</ButtonWrapper>;
+  }
+  const [child1, ...restChildren] = React.Children.toArray(children);
+  return (
+    <View style={[styles.rootContainerStyle, rootContainerStyle]}>
+      <ButtonWrapper {...props}>{child1}</ButtonWrapper>
+      {restChildren}
+    </View>
   );
 };
 
@@ -64,7 +88,7 @@ const ButtonWrapper = ({children, ...props}) => {
   const isMobileView = isMobileUA();
   return isMobileView ? (
     <TouchableOpacity
-      ref={(ref) => props?.setRef && props.setRef(ref)}
+      ref={ref => props?.setRef && props.setRef(ref)}
       style={
         !props.isOnActionSheet && [
           styles.containerStyle,
@@ -80,7 +104,7 @@ const ButtonWrapper = ({children, ...props}) => {
     </TouchableOpacity>
   ) : (
     <Pressable
-      ref={(ref) => props?.setRef && props.setRef(ref)}
+      ref={ref => props?.setRef && props.setRef(ref)}
       style={
         !props.isOnActionSheet && [
           styles.containerStyle,
@@ -115,13 +139,28 @@ const PlatformWrapper = ({children, ...props}) => {
 
 const IconButtonWithToolTip = (props: IconButtonProps) => {
   const [isHovered, setIsHovered] = React.useState(false);
-  const {placement = 'top', isClickable = false} = props;
+
+  useEffect(() => {
+    if (isHovered) {
+      props?.onHoverCallBack && props?.onHoverCallBack(true);
+    } else {
+      props?.onHoverCallBack && props?.onHoverCallBack(false);
+    }
+  }, [isHovered]);
+
+  const {
+    placement = 'top',
+    isClickable = false,
+    showTooltipArrow = true,
+  } = props;
   if (props?.toolTipMessage) {
     return (
       <ToolTip
         isClickable={isClickable}
         toolTipMessage={props.toolTipMessage}
+        //@ts-ignore
         placement={placement}
+        showTooltipArrow={showTooltipArrow}
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <IconButton
@@ -130,7 +169,8 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
               setToolTipVisible={setToolTipVisible}
             />
           );
-        }}></ToolTip>
+        }}
+      />
     );
   }
   return (
@@ -147,6 +187,9 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
 export default IconButtonWithToolTip;
 
 const styles = StyleSheet.create({
+  rootContainerStyle: {
+    alignItems: 'center',
+  },
   containerStyle: {
     flex: 1,
     flexDirection: 'column',

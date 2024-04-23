@@ -21,6 +21,9 @@ export {default as useIsPSTN} from '../src/utils/useIsPSTN';
 export {default as useIsAudioEnabled} from '../src/utils/useIsAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/useIsVideoEnabled';
 
+//hook to get active speaker uid
+export {default as useActiveSpeaker} from '../src/utils/useActiveSpeaker';
+
 //hooks used for navigation
 export {useHistory, useParams} from '../src/components/Router';
 
@@ -28,3 +31,4 @@ export {useHistory, useParams} from '../src/components/Router';
 export {isWeb, isIOS, isAndroid, isDesktop} from '../src/utils/common';
 export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
+export {default as useLocalAudio} from '../src/utils/useLocalAudio';

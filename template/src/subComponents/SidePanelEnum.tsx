@@ -14,4 +14,6 @@ export enum SidePanelType {
   Participants,
   Chat,
   Settings,
+  Transcript,
+  VirtualBackground,
 }

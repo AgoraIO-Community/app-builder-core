@@ -16,7 +16,6 @@ import SessionContext from './SessionContext';
 const JoinPhrase = () => {
   const {phrase} = useParams();
   const {joinSession} = useContext(SessionContext);
-  console.log({phrase});
   joinSession({phrase});
   return <></>;
 };

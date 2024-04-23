@@ -25,12 +25,10 @@ import {
 } from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
-import useCreateMeeting from '../utils/useCreateMeeting';
+import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
-import useJoinMeeting from '../utils/useJoinMeeting';
-import SDKEvents from '../utils/SdkEvents';
-import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import useJoinRoom from '../utils/useJoinRoom';
+import {RoomInfoDefaultValue} from '../components/room-info/useRoomInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -42,9 +40,27 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import isSDK from '../utils/isSDK';
+import {
+  createRoomAllowPhoneNumberJoining,
+  createRoomAllowPhoneNumberJoiningTooltipText,
+  createRoomBtnText,
+  createRoomErrorToastHeading,
+  createRoomErrorToastSubHeading,
+  createRoomHeading,
+  createRoomInputLabel,
+  createRoomInputPlaceholderText,
+  createRoomJoinWithID,
+  createRoomMakeEveryOneCoHost,
+  createRoomMakeEveryOneCoHostTooltipText,
+  createRoomSuccessToastHeading,
+  createRoomSuccessToastSubHeading,
+} from '../language/default-labels/createScreenLabels';
 
 const Create = () => {
-  const {CreateComponent} = useCustomization((data) => {
+  const {CreateComponent} = useCustomization(data => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
@@ -62,7 +78,7 @@ const Create = () => {
     return components;
   });
 
-  const useJoin = useJoinMeeting();
+  const useJoin = useJoinRoom();
   const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
@@ -72,41 +88,66 @@ const Create = () => {
   const [pstnToggle, setPstnToggle] = useState(false);
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
-  const createRoomFun = useCreateMeeting();
-  const {setMeetingInfo} = useSetMeetingInfo();
-  //commented for v1 release
-  // const createdText = useString('meetingCreatedNotificationLabel')();
-  // const hostControlsToggle = useString<boolean>('hostControlsToggle');
-  // const pstnToggle = useString<boolean>('pstnToggle');
-  // const loadingWithDots = useString('loadingWithDots')();
-  // const createMeetingButton = useString('createMeetingButton')();
-  // const haveMeetingID = useString('haveMeetingID')();
+  const createRoomFun = useCreateRoom();
+  const {setRoomInfo} = useSetRoomInfo();
 
-  const createdText = ' has been created';
-  // const meetingNameInputPlaceholder = useString(
-  //   'meetingNameInputPlaceholder',
-  // )();
-  const meetingNameInputPlaceholder = 'The Annual Galactic Meet';
-  const loadingWithDots = 'Loading...';
+  const loadingText = useString('loadingText')();
 
-  const btnLabel = () => {
-    if ($config.AUDIO_ROOM) {
-      if ($config.EVENT_MODE) {
-        return 'CREATE A AUDIO LIVECAST';
-      } else {
-        return 'CREATE A VOICE CHAT';
-      }
-    } else {
-      if ($config.EVENT_MODE) {
-        return 'CREATE A STREAM';
-      } else {
-        return 'CREATE A MEETING';
-      }
-    }
-  };
+  //heading
+  const headingText = useString<any>(createRoomHeading)({
+    audioRoom: $config.AUDIO_ROOM,
+    eventMode: $config.EVENT_MODE,
+  });
+  //heading
 
-  const createMeetingButton = btnLabel();
-  const haveMeetingID = 'Join with a meeting ID';
+  //input label
+  const inputLabel = useString<any>(createRoomInputLabel)({
+    audioRoom: $config.AUDIO_ROOM,
+    eventMode: $config.EVENT_MODE,
+  });
+  //input label
+
+  //placeholder
+  const placeHolderText = useString(createRoomInputPlaceholderText)();
+  //placeholder
+
+  //toggle
+  const everyoneCoHost = useString(createRoomMakeEveryOneCoHost)();
+  const everyoneCoHostTooltip = useString(
+    createRoomMakeEveryOneCoHostTooltipText,
+  )();
+  const allowPhoneNumberJoining = useString(
+    createRoomAllowPhoneNumberJoining,
+  )();
+  const allowPhoneNumberJoiningToolTip = useString(
+    createRoomAllowPhoneNumberJoiningTooltipText,
+  )();
+  //toggle
+
+  //create button
+  const createBtnText = useString<any>(createRoomBtnText)({
+    audioRoom: $config.AUDIO_ROOM,
+    eventMode: $config.EVENT_MODE,
+  });
+  //create button
+
+  const joinWithRoomID = useString(createRoomJoinWithID)();
+
+  //toast
+  const createRoomSuccessToastHeadingText = useString(
+    createRoomSuccessToastHeading,
+  );
+  const createRoomSuccessToastSubHeadingText = useString(
+    createRoomSuccessToastSubHeading,
+  )();
+  //toast
+
+  const createRoomErrorToastHeadingText = useString(
+    createRoomErrorToastHeading,
+  )();
+  const createRoomErrorToastSubHeadingText = useString(
+    createRoomErrorToastSubHeading,
+  )();
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
@@ -117,27 +158,11 @@ const Create = () => {
     //   )}-${randomNameGenerator(3)}`,
     // );
 
-    if (isWebInternal()) {
+    if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
-    const unbind = SDKEvents.on(
-      'joinMeetingWithPhrase',
-      (phrase, resolve, reject) => {
-        console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
-        try {
-          setMeetingInfo(MeetingInfoDefaultValue);
-          history.push(phrase);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      },
-    );
-    SDKEvents.emit('joinInit');
-    return () => {
-      unbind();
-    };
+    return () => {};
   }, []);
 
   const showShareScreen = () => {
@@ -152,21 +177,35 @@ const Create = () => {
     if (roomTitle !== '') {
       setLoading(true);
       try {
-        setMeetingInfo(MeetingInfoDefaultValue);
+        setRoomInfo(RoomInfoDefaultValue);
+        //@ts-ignore
+        //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({
+          leadingIconName: 'tick-fill',
           type: 'success',
-          text1: trimText(roomTitle) + createdText,
-          text2: 'Your New meeting is now live',
+          text1: createRoomSuccessToastHeadingText(trimText(roomTitle)),
+          text2: createRoomSuccessToastSubHeadingText,
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
+          leadingIcon: null,
         });
         showShareScreen();
       } catch (error) {
         setLoading(false);
-        setGlobalErrorMessage(error);
+        if (
+          createRoomErrorToastHeadingText ||
+          createRoomErrorToastSubHeadingText
+        ) {
+          setGlobalErrorMessage({
+            name: createRoomErrorToastHeadingText,
+            message: createRoomErrorToastSubHeadingText,
+          });
+        } else {
+          setGlobalErrorMessage(error);
+        }
       }
     }
   };
@@ -188,46 +227,16 @@ const Create = () => {
     );
   };
 
-  const getHeading = () => {
-    if ($config.AUDIO_ROOM) {
-      if ($config.EVENT_MODE) {
-        return 'Create a Audio Livecast';
-      } else {
-        return 'Create a Voice Chat';
-      }
-    } else {
-      if ($config.EVENT_MODE) {
-        return 'Create a Livestream';
-      } else {
-        return 'Create a Meeting';
-      }
-    }
-  };
-
-  const getInputLabel = () => {
-    if ($config.AUDIO_ROOM) {
-      if ($config.EVENT_MODE) {
-        return 'Audio Livecast Name';
-      } else {
-        return 'Voice Chat Name';
-      }
-    } else {
-      if ($config.EVENT_MODE) {
-        return 'Stream Name';
-      } else {
-        return 'Meeting Name';
-      }
-    }
-  };
-
   const showError = () => {
     Toast.show({
+      leadingIconName: 'alert',
       type: 'error',
       text1: 'Backend endpoint not configured',
       text2: 'Please configure backend endpoint config.json',
       visibilityTime: 1000 * 10,
       primaryBtn: null,
       secondaryBtn: null,
+      leadingIcon: null,
     });
   };
 
@@ -241,20 +250,34 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <View style={style.root}>
+            {!isMobileUA() ? (
+              <IDPLogoutComponent containerStyle={{marginBottom: -100}} />
+            ) : (
+              <></>
+            )}
             <ScrollView contentContainerStyle={style.main}>
               <Card>
                 <View>
-                  <Logo />
+                  <View style={style.logoContainerStyle}>
+                    <Logo />
+                    {isMobileUA() ? (
+                      <IDPLogoutComponent
+                        containerStyle={{marginTop: 0, marginRight: 0}}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                  </View>
                   <Spacer size={isDesktop ? 20 : 16} />
-                  <Text style={style.heading}>{getHeading()}</Text>
+                  <Text style={style.heading}>{headingText}</Text>
                   <Spacer size={40} />
                   <Input
                     maxLength={maxInputLimit}
                     labelStyle={style.inputLabelStyle}
-                    label={getInputLabel()}
+                    label={inputLabel}
                     value={roomTitle}
-                    placeholder={meetingNameInputPlaceholder}
-                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    placeholder={placeHolderText}
+                    onChangeText={text => onChangeRoomTitle(text)}
                     onSubmitEditing={() => {
                       if (!roomTitle?.trim()) {
                         return;
@@ -285,18 +308,19 @@ const Create = () => {
                       ]}>
                       <View style={style.infoContainer}>
                         <Text numberOfLines={1} style={style.toggleLabel}>
-                          Make everyone a Co-Host
+                          {everyoneCoHost}
                         </Text>
                         <Tooltip
                           activeBgStyle={style.tooltipActiveBgStyle}
                           defaultBgStyle={style.tooltipDefaultBgStyle}
-                          toolTipMessage="Turning on will give everyone the control of this meeting"
+                          toolTipMessage={everyoneCoHostTooltip}
                           renderContent={(
                             isToolTipVisible,
                             setToolTipVisible,
                           ) =>
                             renderInfoIcon(isToolTipVisible, setToolTipVisible)
-                          }></Tooltip>
+                          }
+                        />
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle
@@ -318,12 +342,12 @@ const Create = () => {
                         ]}>
                         <View style={style.infoContainer}>
                           <Text numberOfLines={1} style={style.toggleLabel}>
-                            Allow joining via a phone number
+                            {allowPhoneNumberJoining}
                           </Text>
                           <Tooltip
                             activeBgStyle={style.tooltipActiveBgStyle}
                             defaultBgStyle={style.tooltipDefaultBgStyle}
-                            toolTipMessage="Attendees can dial a number and join via PSTN"
+                            toolTipMessage={allowPhoneNumberJoiningToolTip}
                             renderContent={(
                               isToolTipVisible,
                               setToolTipVisible,
@@ -332,7 +356,8 @@ const Create = () => {
                                 isToolTipVisible,
                                 setToolTipVisible,
                               )
-                            }></Tooltip>
+                            }
+                          />
                         </View>
                         <View style={style.infoToggleContainer}>
                           <Toggle
@@ -365,11 +390,11 @@ const Create = () => {
                         );
                       }
                     }}
-                    text={loading ? loadingWithDots : createMeetingButton}
+                    text={loading ? loadingText : createBtnText}
                   />
                   <Spacer size={16} />
                   <LinkButton
-                    text={haveMeetingID}
+                    text={joinWithRoomID}
                     onPress={() => history.push('/join')}
                   />
                 </View>
@@ -386,6 +411,11 @@ const Create = () => {
 };
 
 const style = StyleSheet.create({
+  logoContainerStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   root: {
     flex: 1,
   },

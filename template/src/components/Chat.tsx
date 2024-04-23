@@ -24,14 +24,10 @@ import {
   isWebInternal,
   useIsSmall,
 } from '../utils/common';
-import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
-import {
-  ChatTextInputProps,
-  ChatSendButtonProps,
-} from '../subComponents/ChatInput';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';
@@ -42,33 +38,22 @@ import CommonStyles from './CommonStyles';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+  chatInput?: React.ComponentType;
   showHeader?: boolean;
 }
 
 const Chat = (props?: ChatProps) => {
   // commented for v1 release
-  // const groupChatLabel = useString('groupChatLabel')();
-  // const privateChatLabel = useString('privateChatLabel')();
-  const chatLabel = 'Chat';
-  const groupChatLabel = 'Group';
-  const privateChatLabel = 'Private';
-
   const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
-
-  const {
-    groupActive,
-    setGroupActive,
-    privateActive,
-    setPrivateActive,
-    setSelectedChatUserId: setSelectedUser,
-  } = useChatUIControl();
+  const {isRecordingBot} = useIsRecordingBot();
+  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
   const {
     unreadGroupMessageCount,
@@ -80,19 +65,19 @@ const Chat = (props?: ChatProps) => {
   } = useChatNotification();
 
   const {primaryColor} = useContext(ColorContext);
+  const {transcriptHeight} = useCaptionWidth();
 
   React.useEffect(() => {
     return () => {
       // reset both the active tabs
-      setGroupActive(false);
-      setPrivateActive(false);
-      setSelectedUser(0);
+      setChatType(ChatType.Group);
+      setPrivateChatUser(0);
     };
   }, []);
 
   const selectUser = (userUID: UidType) => {
-    setSelectedUser(userUID);
-    setPrivateActive(true);
+    setPrivateChatUser(userUID);
+    setChatType(ChatType.Private);
     //move this logic into ChatContainer
     // setUnreadIndividualMessageCount((prevState) => {
     //   return {
@@ -105,39 +90,60 @@ const Chat = (props?: ChatProps) => {
     // );
   };
 
-  const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
-    let components: {
-      ChatAfterView: React.ComponentType;
-      ChatBeforeView: React.ComponentType;
-    } = {
-      ChatAfterView: React.Fragment,
-      ChatBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.videoCall &&
-      typeof data?.components?.videoCall === 'object'
-    ) {
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall?.chat &&
-      //   typeof data?.components?.videoCall?.chat === 'object'
-      // ) {
-      //   if (
-      //     data?.components?.videoCall?.chat?.after &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
-      //   ) {
-      //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
-      //   }
-      //   if (
-      //     data?.components?.videoCall?.chat?.before &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
-      //   ) {
-      //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
-      //   }
-      // }
-    }
-    return components;
-  });
+  const {ChatAfterView, ChatBeforeView, ChatInputComponent} = useCustomization(
+    data => {
+      let components: {
+        ChatAfterView: React.ComponentType;
+        ChatBeforeView: React.ComponentType;
+        ChatInputComponent: React.ComponentType;
+      } = {
+        ChatAfterView: React.Fragment,
+        ChatBeforeView: React.Fragment,
+        ChatInputComponent: ChatInput,
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat &&
+          typeof data?.components?.videoCall?.chat === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatInput &&
+            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+          ) {
+            components.ChatInputComponent =
+              data?.components?.videoCall?.chat?.chatInput;
+          }
+        }
+        // commented for v1 release
+        // if (
+        //   data?.components?.videoCall?.chat &&
+        //   typeof data?.components?.videoCall?.chat === 'object'
+        // ) {
+        //   if (
+        //     data?.components?.videoCall?.chat?.after &&
+        //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
+        //   ) {
+        //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
+        //   }
+        //   if (
+        //     data?.components?.videoCall?.chat?.before &&
+        //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
+        //   ) {
+        //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
+        //   }
+        // }
+      } else {
+        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
+          components.ChatInputComponent = props.chatInput;
+        }
+      }
+      return components;
+    },
+  );
   const {currentLayout} = useLayout();
   return (
     <>
@@ -154,34 +160,48 @@ const Chat = (props?: ChatProps) => {
           isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
+          // @ts-ignore
+          transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
          */}
         <ChatBeforeView />
         {showHeader && <ChatHeader />}
-        {groupActive ? (
+        {chatType === ChatType.Group ? (
           <>
             <ChatContainer {...props} />
-            <View style={style.chatInputContainer}>
-              <ChatInput {...props} />
-            </View>
-          </>
-        ) : (
-          <>
-            {!privateActive ? (
-              <ChatParticipants selectUser={selectUser} />
+            {isRecordingBot ? (
+              <></>
             ) : (
-              <>
-                <ChatContainer {...props} />
-                <View>
-                  <View style={style.chatInputContainer}>
-                    <ChatInput {...props} />
-                  </View>
-                </View>
-              </>
+              <View style={style.chatInputContainer}>
+                <ChatInputComponent />
+              </View>
             )}
           </>
+        ) : (
+          <></>
+        )}
+        {chatType === ChatType.MemberList ? (
+          <ChatParticipants selectUser={selectUser} />
+        ) : (
+          <></>
+        )}
+        {chatType === ChatType.Private ? (
+          <>
+            <ChatContainer {...props} />
+            {isRecordingBot ? (
+              <></>
+            ) : (
+              <View>
+                <View style={style.chatInputContainer}>
+                  <ChatInputComponent />
+                </View>
+              </View>
+            )}
+          </>
+        ) : (
+          <></>
         )}
         <ChatAfterView />
       </View>

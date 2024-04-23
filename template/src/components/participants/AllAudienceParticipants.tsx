@@ -3,16 +3,17 @@ import {Text} from 'react-native';
 import chatContext from '../ChatContext';
 import {useString} from '../../utils/useString';
 import {
-  RenderInterface,
+  ContentInterface,
   UidType,
-  useMeetingInfo,
-  useRender,
+  useRoomInfo,
+  useContent,
 } from 'customization-api';
 import Participant from './Participant';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import {useScreenContext} from '../contexts/ScreenShareContext';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {videoRoomUserFallbackText} from '../../language/default-labels/videoCallScreenLabels';
 
 const AllAudienceParticipants = (props: any) => {
   const {screenShareData} = useScreenContext();
@@ -23,24 +24,22 @@ const AllAudienceParticipants = (props: any) => {
     updateActionSheet,
     emptyMessage,
   } = props;
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {localUid} = useContext(chatContext);
-  //commented for v1 release
-  //const participantListPlaceholder = useString('participantListPlaceholder')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const getParticipantName = (uid: UidType) => {
-    return renderList[uid]?.name || remoteUserDefaultLabel;
+    return defaultContent[uid]?.name || remoteUserDefaultLabel;
   };
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {hostUids} = useLiveStreamDataContext();
 
-  const renderScreenShare = (user: RenderInterface) => {
+  const renderScreenShare = (user: ContentInterface) => {
     if (screenShareData[user.screenUid]?.isActive) {
       return (
         <ScreenshareParticipants
-          user={renderList[user.screenUid]}
+          user={defaultContent[user.screenUid]}
           key={user.screenUid}
         />
       );
@@ -70,20 +69,20 @@ const AllAudienceParticipants = (props: any) => {
       ) : (
         <>
           {/**Audience should see his name first */}
-          {uids.filter((i) => i === localUid).length ? (
+          {uids.filter(i => i === localUid).length ? (
             <>
               <Participant
                 isLocal={true}
                 name={getParticipantName(localUid)}
-                user={renderList[localUid]}
+                user={defaultContent[localUid]}
                 isAudienceUser={
                   $config.EVENT_MODE && hostUids.indexOf(localUid) !== -1
                     ? false
                     : true
                 }
                 showControls={
-                  (renderList[localUid]?.type === 'rtc' && isHost) ||
-                  (renderList[localUid]?.type === 'rtc' &&
+                  (defaultContent[localUid]?.type === 'rtc' && isHost) ||
+                  (defaultContent[localUid]?.type === 'rtc' &&
                     $config.EVENT_MODE &&
                     hostUids.indexOf(localUid) !== -1)
                     ? true
@@ -95,21 +94,21 @@ const AllAudienceParticipants = (props: any) => {
                 handleClose={handleClose}
                 updateActionSheet={updateActionSheet}
               />
-              {renderScreenShare(renderList[localUid])}
+              {renderScreenShare(defaultContent[localUid])}
             </>
           ) : (
             <></>
           )}
           {/* Others Audience in the call */}
           {uids
-            .filter((i) => i !== localUid)
+            .filter(i => i !== localUid)
             .map((uid: any, index: number) => (
               <>
                 <Participant
                   isLocal={false}
                   name={getParticipantName(uid)}
-                  user={renderList[uid]}
-                  showControls={renderList[uid]?.type === 'rtc' && isHost}
+                  user={defaultContent[uid]}
+                  showControls={defaultContent[uid]?.type === 'rtc' && isHost}
                   isAudienceUser={true}
                   isHostUser={false}
                   key={uid}
@@ -117,7 +116,7 @@ const AllAudienceParticipants = (props: any) => {
                   handleClose={handleClose}
                   updateActionSheet={updateActionSheet}
                 />
-                {renderScreenShare(renderList[uid])}
+                {renderScreenShare(defaultContent[uid])}
               </>
             ))}
         </>

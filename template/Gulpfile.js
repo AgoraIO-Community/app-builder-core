@@ -83,7 +83,7 @@ const general = {
   cleanBuildDirectory: () => {
     return del([`${BUILD_PATH}/**/*`], {force: true});
   },
-  addPackageInfo: async (cb) => {
+  addPackageInfo: async cb => {
     let {private, author, description, dependencies} = JSON.parse(
       await fs.readFile(path.join(__dirname, 'package.json')),
     );
@@ -130,7 +130,7 @@ const general = {
       // Takes externals from the webpack config and applies them
       // to react-sdk package as peer dependencies
       newPackage.peerDependencies = Object.keys(dependencies)
-        .filter((key) => Object.keys(webpackRsdkConfig.externals).includes(key))
+        .filter(key => Object.keys(webpackRsdkConfig.externals).includes(key))
         .reduce((peerDependencies, key) => {
           peerDependencies[key] = `^${dependencies[key].split('.')[0]}`;
           return peerDependencies;
@@ -151,7 +151,7 @@ const general = {
   createBuildDirectory: () => {
     return fs.mkdir(BUILD_PATH, {recursive: true});
   },
-  generateApiTypedefs: (cb) => {
+  generateApiTypedefs: cb => {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/customization-api.d.ts',
@@ -177,41 +177,41 @@ declare module 'customization' {
   cleanTempFiles: () => {
     return del([`${path.join(BUILD_PATH, '../', '/')}*.d.ts`], {force: true});
   },
-  genTsDefs: (cb) => {
+  genTsDefs: cb => {
     runCli(
       `mkdir -p ${TS_DEFS_BUILD_PATH} && cp ${BUILD_PATH}/index.d.ts ${TS_DEFS_BUILD_PATH}/index.d.ts`,
       cb,
     );
   },
-  useTsDefs: (cb) => {
+  useTsDefs: cb => {
     runCli(`cp ${TS_DEFS_BUILD_PATH}/index.d.ts ${BUILD_PATH}/index.d.ts`, cb);
   },
-  generateNpmPackage: (cb) => {
+  generateNpmPackage: cb => {
     runCli(`cd ${BUILD_PATH} && npm pack`, cb);
   },
 };
 
 const electron = {
-  webpack_renderer: (cb) => {
+  webpack_renderer: cb => {
     runCli('webpack --config webpack.renderer.config.js', cb);
   },
 
-  webpack_main: (cb) => {
+  webpack_main: cb => {
     runCli('webpack --config ./webpack.main.config.js', cb);
   },
 
-  build: (cb) => {
+  build: cb => {
     runCli('electron-builder build --config ./electron-builder.js', cb);
   },
 
-  devServer: (cb) => {
+  devServer: cb => {
     const config = webpack(webpackConfig);
     new WebpackDevServer(config, {
       hot: true,
       client: {
         overlay: false,
       },
-    }).listen(webpackConfig.devServer.port, 'localhost', (err) => {
+    }).listen(webpackConfig.devServer.port, 'localhost', err => {
       if (err) {
         console.error(err);
       } else {
@@ -220,16 +220,16 @@ const electron = {
     });
   },
 
-  start: (cb) => {
+  start: cb => {
     runCli('electron ./electron/main/index.js', cb);
   },
 };
 
 const reactSdk = {
-  webpack: (cb) => {
+  webpack: cb => {
     runCli('webpack --config ./webpack.rsdk.config.js', cb);
   },
-  esbuild: (cb) => {
+  esbuild: cb => {
     let outPath = '';
     if (outPathArg != -1) {
       outPath = ` --outpath ${process.argv[outPathArg + 1]}`;
@@ -247,7 +247,7 @@ const reactSdk = {
     console.log(esbuildCmd);
     runCli(esbuildCmd, cb);
   },
-  generateSdkTypedefs: (cb) => {
+  generateSdkTypedefs: cb => {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
@@ -272,10 +272,10 @@ const reactSdk = {
 };
 
 const webSdk = {
-  webpack: (cb) => {
+  webpack: cb => {
     runCli('webpack --config ./webpack.wsdk.config.js', cb);
   },
-  generateSdkTypedefs: (cb) => {
+  generateSdkTypedefs: cb => {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       'npx -p typescript tsc --project tsconfig_wsdk_index.json --outFile ../Builds/webSdk.d.ts',
@@ -296,19 +296,19 @@ const webSdk = {
       .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
   },
-  npmPack: (cb) => {
+  npmPack: cb => {
     runCli('cd ../Builds/web-sdk && npm pack', cb);
   },
 };
 
 const android = {
-  gradleBuildUnix: (cb) => {
+  gradleBuildUnix: cb => {
     runCli('cd android && ./gradlew assembleRelease', cb);
   },
-  gradleBuildWin: (cb) => {
+  gradleBuildWin: cb => {
     runCli('cd android && gradlew.bat assembleRelease', cb);
   },
-  copyBuild: (cb) => {
+  copyBuild: cb => {
     fs.copyFile(
       path.resolve(
         'android',
@@ -324,7 +324,7 @@ const android = {
       .then(() => {
         cb();
       })
-      .catch((err) => {
+      .catch(err => {
         cb(new Error('Error in copying build', err));
       });
   },
@@ -460,11 +460,11 @@ module.exports.androidWin = series(
 );
 
 module.exports.test = series(
-  general.generateNpmPackage,
-  // general.typescript,
-  // general.typescriptFix,
-  // reactSdk.typescript,
-  // reactSdk.typescriptFix,
-  // webSdk.typescript,
-  // webSdk.typescriptFix,
+  general.createBuildDirectory,
+  general.generateApiTypedefs,
+  general.bundleApiTypedefs,
+  webSdk.generateSdkTypedefs,
+  webSdk.bundleSdkTypedefs,
+  general.cleanTempFiles,
+  general.genTsDefs,
 );

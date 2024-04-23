@@ -13,20 +13,22 @@ import React from 'react';
 import {useRecording} from './recording/useRecording';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useVideoCall} from '../components/useVideoCall';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
+import {useString} from '../utils/useString';
+import {toolbarItemRecordingText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface RecordingButtonProps {
   showLabel?: boolean;
   render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
-  isOnActionSheet?: boolean;
 }
 
 const Recording = (props: RecordingButtonProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {startRecording, inProgress, isRecordingActive} = useRecording();
-  //commented for v1 release
-  //const recordingButton = useString<boolean>('recordingButton');
-  const recordingButton = (recording: boolean) =>
-    recording ? 'Stop Rec' : 'Record';
-  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
+  const recordingButton = useString<boolean>(toolbarItemRecordingText);
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {setShowStopRecordingPopup} = useVideoCall();
   const onPress = () => {
     if (!isRecordingActive) {
@@ -51,14 +53,32 @@ const Recording = (props: RecordingButtonProps) => {
     containerStyle: inProgress ? {opacity: 0.6} : {},
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   return props?.render ? (
     props.render(onPress, isRecordingActive)
+  ) : isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
   ) : (
-    <>
-      <IconButton {...iconButtonProps} />
-    </>
+    <IconButton {...iconButtonProps} />
   );
 };
 

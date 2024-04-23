@@ -8,14 +8,14 @@ export enum EventSource {
   core = 'core',
   fpe = 'fpe',
 }
-export enum EventPersistLevel {
-  'LEVEL1' = 1,
-  'LEVEL2',
-  'LEVEL3',
+export enum PersistanceLevel {
+  'None' = 1,
+  'Sender',
+  'Session',
 }
 interface EventCallbackPayload {
   payload: string;
-  persistLevel: EventPersistLevel;
+  persistLevel: PersistanceLevel;
   sender: UidType;
   ts: number;
 }

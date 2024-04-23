@@ -9,13 +9,19 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent, useRender, useRtc} from 'customization-api';
+import {LayoutComponent, useContent} from 'customization-api';
 import React, {useContext, useMemo, useState} from 'react';
 import {View, StyleSheet, Pressable, Text} from 'react-native';
 import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
-import {ClientRole, PropsContext} from '../../agora-rn-uikit';
+import {
+  ClientRoleType,
+  DispatchContext,
+  PropsContext,
+} from '../../agora-rn-uikit';
+import LiveStreamAttendeeLandingTile from './livestream/views/LiveStreamAttendeeLandingTile';
+
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -34,10 +40,11 @@ const layout = (len: number, isDesktop: boolean = true) => {
   };
 };
 
-const GridVideo: layoutComponent = ({renderData}) => {
-  const {dispatch} = useRtc();
+const GridVideo: LayoutComponent = ({renderData}) => {
+  const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const {activeUids} = useRender();
+  const {activeUids, customContent, pinnedUid, secondaryPinnedUid} =
+    useContent();
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
@@ -50,30 +57,37 @@ const GridVideo: layoutComponent = ({renderData}) => {
   //livestreaming audience will see this if no host joined the call
   if (
     $config.EVENT_MODE &&
-    rtcProps?.role === ClientRole.Audience &&
-    activeUids.length === 0
+    rtcProps?.role === ClientRoleType.ClientRoleAudience &&
+    activeUids.filter(i => !customContent[i]).length === 0
   ) {
-    return (
-      <View style={style.infoTextContainer}>
-        <Text style={style.infoTextStyle}>Waiting for the host to join...</Text>
-      </View>
-    );
+    return <LiveStreamAttendeeLandingTile />;
   }
 
   return (
     <View style={[style.full]}>
       {matrix.map((r, ridx) => (
-        <View style={style.gridRow} key={ridx}>
+        <View
+          style={[
+            style.gridRow,
+            {paddingBottom: ridx === matrix.length - 1 ? 0 : 4},
+          ]}
+          key={ridx}>
           {r.map((c, cidx) => (
             <Pressable
               disabled={renderData.length === 1}
               onPress={() => {
-                if (!(ridx === 0 && cidx === 0)) {
+                //if (!(ridx === 0 && cidx === 0)) {
+                const currentUid = renderData[ridx * dims.c + cidx];
+                if (
+                  currentUid !== pinnedUid &&
+                  currentUid !== secondaryPinnedUid
+                ) {
                   dispatch({
-                    type: 'SwapVideo',
+                    type: 'ActiveSpeaker',
                     value: [renderData[ridx * dims.c + cidx]],
                   });
                 }
+                //}
                 setPinnedLayout();
               }}
               style={{
@@ -118,7 +132,7 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-    paddingVertical: 4,
+    paddingTop: 4,
   },
   gridVideoContainerInner: {
     //borderRadius: 12,

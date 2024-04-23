@@ -14,12 +14,16 @@ import {networkIconsObject} from '../components/NetworkQualityContext';
 //import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 import {isMobileUA, isWebInternal} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
-import {RenderInterface, UidType} from '../../agora-rn-uikit';
+import {ContentInterface, UidType} from '../../agora-rn-uikit';
 import ThemeConfig from '../theme';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
+import {
+  NetworkQualities,
+  videoTileNetworkQuailtyLabel,
+} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  *
@@ -32,45 +36,25 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
  *
  */
 interface NetworkQualityPillProps {
-  user: RenderInterface;
+  uid: UidType;
 }
 const NetworkQualityPill = (props: NetworkQualityPillProps) => {
-  const {user} = props;
+  const {uid} = props;
+  const {defaultContent} = useContent();
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
-  //commented for v1 release
-  //const getLabel = useString<NetworkQualities>('networkQualityLabel');
-  const getLabel = (quality: string) => {
-    switch (quality) {
-      case 'unknown':
-        return 'Network Unsupported';
-      case 'excellent':
-        return 'Excellent Network';
-      case 'good':
-        return 'Good Network';
-      case 'bad':
-        return 'Bad Network';
-      case 'veryBad':
-        return 'Very Bad Network';
-      case 'unpublished':
-        return 'Network Unpublished';
-      case 'loading':
-        return 'Network Loading';
-      default:
-        return 'Loading';
-    }
-  };
+  const getLabel = useString<NetworkQualities>(videoTileNetworkQuailtyLabel);
+
   const networkQualityStat = useContext(NetworkQualityContext);
-  const networkStat = networkQualityStat[user.uid]
-    ? networkQualityStat[user.uid]
-    : user.audio || user.video
+  const networkStat = networkQualityStat[uid]
+    ? networkQualityStat[uid]
+    : defaultContent[uid]?.audio || defaultContent[uid]?.video
     ? 8
     : 7;
-  const {activeUids} = useRender();
+  const {activeUids, customContent} = useContent();
+  const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
   const {currentLayout} = useLayout();
   const reduceSpace =
-    isMobileUA() &&
-    activeUids.length > 4 &&
-    currentLayout === getGridLayoutName();
+    isMobileUA() && activeUidsLen > 4 && currentLayout === getGridLayoutName();
   return (
     <View
       testID="videocall-networkpill"
@@ -90,7 +74,7 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
           networkTextVisible,
           setNetworkTextVisible,
           reduceSpace,
-          activeUids,
+          activeUidsLen,
         }}>
         <View>
           <ImageIcon
@@ -120,7 +104,7 @@ const PlatformSpecificWrapper = ({
   setNetworkTextVisible,
   children,
   reduceSpace,
-  activeUids,
+  activeUidsLen,
 }: any) => {
   return !isWebInternal() ? (
     <Pressable
@@ -129,7 +113,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
+        padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
@@ -143,9 +127,9 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
+        padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
       }}
-      onClick={(e) => {
+      onClick={e => {
         e.preventDefault();
         setNetworkTextVisible((visible: boolean) => !visible);
       }}

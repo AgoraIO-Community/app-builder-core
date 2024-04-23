@@ -12,14 +12,18 @@
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
-import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
+import {
+  ContentInterface,
+  DispatchContext,
+  PropsContext,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import ChatContext from './ChatContext';
-import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {isAndroid, isWeb, isWebInternal} from '../utils/common';
-import {useRender, useRtc} from 'customization-api';
+import {isAndroid, isIOS, isWeb, isWebInternal} from '../utils/common';
+import {useContent, useIsAttendee, useUserName} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -27,10 +31,23 @@ import {
   getMessageTime,
   get32BitUid,
 } from '../rtm/utils';
-import {EventUtils, EventsQueue} from '../rtm-events';
-import {EventPersistLevel} from '../rtm-events-api';
+import {EventUtils, EventsQueue, EventNames} from '../rtm-events';
+import events, {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
+import SDKEvents from '../utils/SdkEvents';
+import isSDK from '../utils/isSDK';
+import {useAsyncEffect} from '../utils/useAsyncEffect';
+import {
+  WaitingRoomStatus,
+  useRoomInfo,
+} from '../components/room-info/useRoomInfo';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
+import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
+import {controlMessageEnum} from '../components/ChatContext';
+import {RECORDING_BOT_UID} from '../utils/constants';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -41,10 +58,26 @@ const RtmConfigure = (props: any) => {
   const localUid = useLocalUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
-  const {RtcEngine, dispatch} = useRtc();
-  const {renderList, activeUids} = useRender();
-  const renderListRef = useRef({renderList: renderList});
+  const {dispatch} = useContext(DispatchContext);
+  const {defaultContent, activeUids} = useContent();
+  const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
+
+  const {
+    waitingRoomStatus,
+    data: {isHost},
+  } = useRoomInfo();
+  const waitingRoomStatusRef = useRef({waitingRoomStatus: waitingRoomStatus});
+
+  const isHostRef = useRef({isHost: isHost});
+
+  useEffect(() => {
+    isHostRef.current.isHost = isHost;
+  }, [isHost]);
+
+  useEffect(() => {
+    waitingRoomStatusRef.current.waitingRoomStatus = waitingRoomStatus;
+  }, [waitingRoomStatus]);
 
   /**
    * inside event callback state won't have latest value.
@@ -55,21 +88,11 @@ const RtmConfigure = (props: any) => {
   }, [activeUids]);
 
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
-
-  const [login, setLogin] = useState<boolean>(false);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
-
-  //commented for v1 release
-  // const userText = useString('remoteUserDefaultLabel')();
-  const userText = 'User';
-  const pstnUserLabel = useString('pstnUserLabel')();
-  //commented for v1 release
-  //const getScreenShareName = useString('screenshareUserName');
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
 
   let engine = useRef<RtmEngine>(null!);
   const timerValueRef: any = useRef(5);
@@ -77,13 +100,19 @@ const RtmConfigure = (props: any) => {
   React.useEffect(() => {
     setTotalOnlineUsers(
       Object.keys(
-        filterObject(renderList, ([k, v]) => v?.type === 'rtc' && !v.offline),
+        filterObject(
+          defaultContent,
+          ([k, v]) =>
+            v?.type === 'rtc' &&
+            !v.offline &&
+            activeUids.indexOf(v?.uid) !== -1,
+        ),
       ).length,
     );
-  }, [renderList]);
+  }, [defaultContent]);
 
   React.useEffect(() => {
-    const handBrowserClose = (ev) => {
+    const handBrowserClose = ev => {
       ev.preventDefault();
       return (ev.returnValue = 'Are you sure you want to exit?');
     };
@@ -94,7 +123,7 @@ const RtmConfigure = (props: any) => {
     if (!isWebInternal()) return;
     window.addEventListener(
       'beforeunload',
-      isWeb() ? handBrowserClose : () => {},
+      isWeb() && !isSDK() ? handBrowserClose : () => {},
     );
 
     window.addEventListener('pagehide', logoutRtm);
@@ -102,7 +131,7 @@ const RtmConfigure = (props: any) => {
     return () => {
       window.removeEventListener(
         'beforeunload',
-        isWeb() ? handBrowserClose : () => {},
+        isWeb() && !isSDK() ? handBrowserClose : () => {},
       );
       window.removeEventListener('pagehide', logoutRtm);
     };
@@ -114,8 +143,9 @@ const RtmConfigure = (props: any) => {
         uid: localUid.toString(),
         token: rtcProps.rtm,
       });
+      RTMEngine.getInstance().setLocalUID(localUid.toString());
       timerValueRef.current = 5;
-      setAttribute();
+      await setAttribute();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -144,7 +174,14 @@ const RtmConfigure = (props: any) => {
 
   const joinChannel = async () => {
     try {
-      await engine.current.joinChannel(rtcProps.channel);
+      if (RTMEngine.getInstance().channelUid !== rtcProps.channel) {
+        await engine.current.joinChannel(rtcProps.channel);
+        RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        console.log('Emitting rtm joined');
+        SDKEvents.emit('_rtm-joined', rtcProps.channel);
+      } else {
+        console.log('RTM already joined channel skipping');
+      }
       timerValueRef.current = 5;
       await getMembers();
     } catch (error) {
@@ -157,7 +194,7 @@ const RtmConfigure = (props: any) => {
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
@@ -166,7 +203,7 @@ const RtmConfigure = (props: any) => {
     try {
       await engine.current
         .getChannelMembersBychannelId(rtcProps.channel)
-        .then(async (data) => {
+        .then(async data => {
           await Promise.all(
             data.members.map(async (member: any) => {
               const backoffAttributes = backOff(
@@ -209,7 +246,7 @@ const RtmConfigure = (props: any) => {
                 const userData = {
                   screenUid: screenUid,
                   //below thing for livestreaming
-                  type: 'rtc',
+                  type: uid === parseInt(RECORDING_BOT_UID) ? 'bot' : 'rtc',
                   uid,
                   offline: false,
                   lastMessageTimeStamp: 0,
@@ -246,7 +283,7 @@ const RtmConfigure = (props: any) => {
               }
             }),
           );
-          setLogin(true);
+
           console.log('RTM init done');
         });
       timerValueRef.current = 5;
@@ -260,7 +297,7 @@ const RtmConfigure = (props: any) => {
 
   const init = async () => {
     engine.current = RTMEngine.getInstance().engine;
-    RTMEngine.getInstance().setLoginInfo(localUid.toString(), rtcProps.channel);
+    RTMEngine.getInstance();
 
     engine.current.on('connectionStateChanged', (evt: any) => {
       //console.log(evt);
@@ -303,7 +340,7 @@ const RtmConfigure = (props: any) => {
           const userData = {
             screenUid: screenUid,
             //below thing for livestreaming
-            type: 'rtc',
+            type: uid === parseInt(RECORDING_BOT_UID) ? 'bot' : 'rtc',
             uid,
             offline: false,
             lastMessageTimeStamp: 0,
@@ -357,30 +394,46 @@ const RtmConfigure = (props: any) => {
       }
     });
 
-    engine.current.on('channelMessageReceived', (evt) => {
+    engine.current.on('channelMessageReceived', evt => {
       console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
 
       const {uid, channelId, text, ts} = evt;
-      const [err, msg] = safeJsonParse(text);
-      if (err) {
-        console.log(
-          'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
-        );
-      }
+      //whiteboard upload
+      if (uid == 1010101) {
+        const [err, res] = safeJsonParse(text);
+        if (err) {
+          console.log(
+            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          );
+        }
+        if (res?.data?.data?.images) {
+          LocalEventEmitter.emit(
+            LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+            res?.data?.data?.images,
+          );
+        }
+      } else {
+        const [err, msg] = safeJsonParse(text);
+        if (err) {
+          console.log(
+            'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+          );
+        }
 
-      const timestamp = getMessageTime(ts);
+        const timestamp = getMessageTime(ts);
 
-      const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
+        const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
 
-      if (channelId === rtcProps.channel) {
-        try {
-          eventDispatcher(msg, sender, timestamp);
-        } catch (error) {
-          console.log('error while dispacthing', error);
+        if (channelId === rtcProps.channel) {
+          try {
+            eventDispatcher(msg, sender, timestamp);
+          } catch (error) {
+            console.log('error while dispacthing', error);
+          }
         }
       }
     });
-    doLoginAndSetupRTM();
+    await doLoginAndSetupRTM();
   };
 
   const runQueuedEvents = async () => {
@@ -403,36 +456,121 @@ const RtmConfigure = (props: any) => {
     ts: number,
   ) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
-    const {evt, value} = data;
-    // Step 1: Set local attributes
-    if (value?.persistLevel === EventPersistLevel.LEVEL3) {
-      const rtmAttribute = {key: evt, value: value};
-      await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
+    let evt = '',
+      value = {};
+
+    if (data.feat === 'WAITING_ROOM') {
+      if (data.etyp === 'REQUEST') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            attendee_uid: data.data.data.attendee_uid,
+            attendee_screenshare_uid: data.data.data.attendee_screenshare_uid,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp; //rename if client side RTM meessage is to be sent for approval
+        value = formattedData;
+      }
+      if (data.etyp === 'RESPONSE') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            approved: data.data.data.approved,
+            channelName: data.data.data.channel_name,
+            mainUser: data.data.data.mainUser,
+            screenShare: data.data.data.screenShare,
+            whiteboard: data.data.data.whiteboard,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp;
+        value = formattedData;
+      }
+    } else {
+      if (
+        $config.ENABLE_WAITING_ROOM &&
+        !isHostRef.current?.isHost &&
+        waitingRoomStatusRef.current?.waitingRoomStatus !==
+          WaitingRoomStatus.APPROVED
+      ) {
+        if (
+          data.evt === controlMessageEnum.muteAudio ||
+          data.evt === controlMessageEnum.muteVideo
+        ) {
+          return;
+        } else {
+          evt = data.evt;
+          value = data.value;
+        }
+      } else {
+        evt = data.evt;
+        value = data.value;
+      }
     }
-    // Step 2: Emit the event
+
     try {
       const {payload, persistLevel, source} = JSON.parse(value);
+      // Step 1: Set local attributes
+      if (persistLevel === PersistanceLevel.Session) {
+        const rtmAttribute = {key: evt, value: value};
+        await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      }
+      // Step 2: Emit the event
       console.log('CUSTOM_EVENT_API:  emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
+      // Because async gets evaluated in a different order when in an sdk
+      if (evt === 'name') {
+        setTimeout(() => {
+          EventUtils.emitEvent(evt, source, {
+            payload,
+            persistLevel,
+            sender,
+            ts,
+          });
+        }, 200);
+      }
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
     }
   };
 
   const end = async () => {
-    callActive
-      ? (RTMEngine.getInstance().destroy(),
-        EventUtils.clear(),
-        setHasUserJoinedRTM(false),
-        // setLogin(false),
-        console.log('RTM cleanup done'))
-      : {};
+    if (!callActive) {
+      return;
+    }
+    await RTMEngine.getInstance().destroy();
+    if (isIOS() || isAndroid()) {
+      EventUtils.clear();
+    }
+    setHasUserJoinedRTM(false);
+    console.log('RTM cleanup done');
   };
 
-  useEffect(() => {
-    callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
-    return () => {
-      end();
+  useAsyncEffect(async () => {
+    //waiting room attendee -> rtm login will happen on page load
+    if ($config.ENABLE_WAITING_ROOM) {
+      //attendee
+      if (!isHost && !callActive) {
+        await init();
+      }
+      //host
+      if (isHost && callActive) {
+        await init();
+      }
+    }
+    if (!$config.ENABLE_WAITING_ROOM) {
+      //host and attendee
+      if (callActive) {
+        await init();
+      }
+    }
+    return async () => {
+      await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rtcProps.channel, rtcProps.appId, callActive]);
@@ -446,7 +584,7 @@ const RtmConfigure = (props: any) => {
         localUid: localUid,
         onlineUsersCount,
       }}>
-      {login ? props.children : <></>}
+      {props.children}
     </ChatContext.Provider>
   );
 };

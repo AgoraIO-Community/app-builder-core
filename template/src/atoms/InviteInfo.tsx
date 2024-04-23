@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import isSDKCheck from '../utils/isSDK';
 import platform from '../subComponents/Platform';
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {
   SHARE_LINK_CONTENT_TYPE,
   useShareLink,
@@ -12,8 +12,8 @@ import React from 'react';
 import IconButton from './IconButton';
 
 const InviteInfo = () => {
-  const meetingUrlText = 'Meeting Link';
-  const meetingIdText = 'Meeting ID';
+  const meetingUrlText = 'Room Link';
+  const meetingIdText = 'Room ID';
   const hostIdText = 'Host ID';
   const attendeeUrlLabel = 'Attendee Link';
   const attendeeIdLabel = 'Attendee ID';
@@ -26,7 +26,7 @@ const InviteInfo = () => {
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
     data: {isSeparateHostLink},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const isSDK = isSDKCheck();
   const isWeb = $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);

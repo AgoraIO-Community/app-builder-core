@@ -24,14 +24,23 @@ import LocalVideoMute, {
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import PreCallSettings from './PreCallSettings';
-import Spacer from '../../atoms/Spacer';
+
 import {usePreCall} from './usePreCall';
 import DeviceContext from '../DeviceContext';
+import VBButton from '../virtual-background/VBButton';
+import {ToolbarItem} from 'customization-api';
+import IconButton from '../../atoms/IconButton';
 
-const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
-  const {VideoMute, AudioMute} = useCustomization((data) => {
+interface PreCallProps {
+  isMobileView?: boolean;
+  isSettingsOpen?: boolean;
+  setIsSettingsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  isVBOpen?: boolean;
+  setIsVBOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const PreCallLocalMute = (props: PreCallProps) => {
+  const {VideoMute, AudioMute} = useCustomization(data => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
       AudioMute: React.ComponentType<LocalVideoMuteProps>;
@@ -70,18 +79,25 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
     // }
     return components;
   });
-  const {isMobileView = false} = props;
+  const {
+    isMobileView = false,
+    isSettingsOpen,
+    setIsSettingsOpen,
+    isVBOpen,
+    setIsVBOpen,
+  } = props;
   const isNative = isAndroid() || isIOS();
   // for mweb check for camera * mic availablity for desktop it happens in settings panel
   // refactor later to set mic/camera availablity oustside settings panel <selectDevice>
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable} = usePreCall();
-  const audioDevices = deviceList.filter((device) => {
+
+  const audioDevices = deviceList.filter(device => {
     if (device.kind === 'audioinput') {
       return true;
     }
   });
-  const videoDevices = deviceList.filter((device) => {
+  const videoDevices = deviceList.filter(device => {
     if (device.kind === 'videoinput') {
       return true;
     }
@@ -99,47 +115,57 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
   }, [videoDevices]);
   return (
     <View
-      style={[style.precallControls, isMobileView && {paddingVertical: 10}]}
+      style={[
+        style.precallControls,
+        isMobileView && {
+          paddingVertical: 10,
+          borderBottomLeftRadius: 12,
+          borderBottomRightRadius: 12,
+          flex: 1,
+        },
+      ]}
       testID="precall-controls">
-      <View style={{width: 52, height: 52}}>
-        <AudioMute
-          isMobileView={isMobileView}
-          showLabel={isMobileUA() ? !isMobileView : $config.ICON_TEXT}
-          showToolTip={true}
-        />
-      </View>
+      <AudioMute showToolTip={true} />
 
       {!$config.AUDIO_ROOM && (
-        <>
-          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <View
-            style={{
-              width: 52,
-              height: 52,
-            }}>
-            <VideoMute
-              isMobileView={isMobileView}
-              showLabel={isMobileUA() ? !isMobileView : $config.ICON_TEXT}
-              showToolTip={true}
-            />
-          </View>
-        </>
+        <View style={{marginLeft: isMobileView ? 24 : 16}}>
+          <VideoMute showToolTip={true} />
+        </View>
       )}
 
-      {/* Settings View in Mobile */}
-      {isMobileView && !isNative && (
-        <>
-          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <View
-            style={{
-              width: 52,
-              height: 52,
-            }}>
-            <PreCallSettings />
+      {$config.ENABLE_VIRTUAL_BACKGROUND &&
+        !$config.AUDIO_ROOM &&
+        isMobileView && (
+          <View style={{marginLeft: isMobileView ? 24 : 16}}>
+            <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
           </View>
-        </>
-      )}
+        )}
     </View>
+  );
+};
+
+const SettingsButton = ({isSettingsOpen, setIsSettingsOpen}) => {
+  return (
+    <ToolbarItem>
+      <IconButton
+        hoverEffect={true}
+        iconProps={{
+          iconBackgroundColor: isSettingsOpen
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
+            : '',
+          tintColor: $config.SECONDARY_ACTION_COLOR,
+          name: 'settings',
+          iconSize: 26,
+        }}
+        btnTextProps={{
+          textColor: $config.FONT_COLOR,
+          text: isSettingsOpen ? 'Hide Settings' : 'Show Settings',
+        }}
+        onPress={() => {
+          setIsSettingsOpen(prev => !prev);
+        }}
+      />
+    </ToolbarItem>
   );
 };
 export const PreCallLocalMuteComponentsArray: [
@@ -152,11 +178,9 @@ export default PreCallLocalMute;
 const style = StyleSheet.create({
   precallControls: {
     flexDirection: 'row',
-    paddingVertical: 32,
+    padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    // borderBottomLeftRadius: 4,
-    // borderBottomRightRadius: 4,
   },
 });

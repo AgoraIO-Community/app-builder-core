@@ -5,6 +5,8 @@ import LiveStreamContext from '../../../components/livestream';
 import PrimaryButton from '../../../atoms/PrimaryButton';
 import ThemeConfig from '../../../theme';
 import Toast from '../../../../react-native-toast-message';
+import {useString} from '../../../utils/useString';
+import {peoplePanelLivestreamingApprovalBtnText} from '../../../language/default-labels/videoCallScreenLabels';
 
 export interface RemoteLiveStreamControlProps {
   uid: UidType;
@@ -16,23 +18,25 @@ const RemoteLiveStreamRequestApprove = (
 ) => {
   const {uid, toastId} = props;
   const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
-
+  const btnText = useString(peoplePanelLivestreamingApprovalBtnText)();
   return (
-    <View style={{flex: 1}}>
+    <View>
       <PrimaryButton
         containerStyle={{
           minWidth: 'auto',
-          borderRadius: ThemeConfig.BorderRadius.small,
-          height: 38,
-          paddingHorizontal: 8,
+          paddingHorizontal: 13,
           paddingVertical: 8,
+          borderRadius: 4,
         }}
         textStyle={{
           fontWeight: '600',
           fontSize: 12,
+          lineHeight: 12,
+          fontFamily: ThemeConfig.FontFamily.sansPro,
+          textTransform: 'capitalize',
         }}
         disabled={!uid}
-        text={'Accept'}
+        text={btnText}
         onPress={() => {
           //Hiding the toast if its get approved in the participant panel
           if (Toast.getToastId() === toastId) {

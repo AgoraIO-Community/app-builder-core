@@ -15,7 +15,7 @@ import {UidType} from '../../agora-rn-uikit';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
-import {useRender} from 'customization-api';
+import {I18nMuteType, useContent} from 'customization-api';
 import {calculatePosition} from '../utils/common';
 import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 /**
@@ -36,7 +36,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const requestRemoteVideo = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
   const [pos, setPos] = useState({});
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const onPress = () => {
     props?.video
@@ -48,10 +48,10 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
     <>
       <RemoteMutePopup
         action={props?.video ? 'mute' : 'request'}
-        type="video"
+        type={I18nMuteType.video}
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
-        name={renderList[props.uid]?.name}
+        name={defaultContent[props.uid]?.name}
         modalPosition={pos}
         onMutePress={onPress}
       />
@@ -61,7 +61,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,
         }}
-        setRef={(ref) => (btnRef.current = ref)}
+        setRef={ref => (btnRef.current = ref)}
         disabled={!isHost}
         onPress={() => {
           btnRef?.current?.measure(

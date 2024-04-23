@@ -7,8 +7,13 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import Spacer from '../atoms/Spacer';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import {useString} from '../utils/useString';
+import {
+  toolbarItemLayoutOptionGridText,
+  toolbarItemLayoutOptionSidebarText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -35,10 +40,14 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
     modalPosition = {top: 0, left: 0},
     onHoverPlaceHolder = 'horizontal',
   } = props;
-  const {activeUids} = useRender();
+  const {activeUids, customContent} = useContent();
+
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();
   const isMobileView = isMobileUA();
+
+  const gridLabel = useString(toolbarItemLayoutOptionGridText)();
+  const sidebarLabel = useString(toolbarItemLayoutOptionSidebarText)();
 
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
@@ -48,7 +57,9 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       };
       let content = [];
       const disabled =
-        item.name === getPinnedLayoutName() && activeUids?.length === 1
+        item.name === getPinnedLayoutName() &&
+        //activeUids?.filter((i) => customContent[i])?.length === 1
+        activeUids?.length === 1
           ? true
           : false;
       let iconButtonProps: IconButtonProps = {
@@ -80,10 +91,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             padding: 10,
           },
           iconType: 'plain',
-          name:
-            item.iconName === 'pinned' && isMobileView
-              ? 'list-view'
-              : item.iconName,
+          icon: item.icon,
           tintColor: $config.SECONDARY_ACTION_COLOR,
         },
         btnTextProps: {
@@ -91,7 +99,12 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             marginTop: 0,
           },
           //text: $config.ICON_TEXT ? item.label : '',
-          text: item.label,
+          text:
+            item?.translationKey === toolbarItemLayoutOptionGridText
+              ? gridLabel
+              : item?.translationKey === toolbarItemLayoutOptionSidebarText
+              ? sidebarLabel
+              : item.label,
           textColor: $config.FONT_COLOR,
         },
       };

@@ -8,11 +8,11 @@ import React, {
 } from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import {useRoomInfo} from '../room-info/useRoomInfo';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import ChatContext from '../ChatContext';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 
 export interface VideoMeetingDataInterface {
   hostUids: UidType[];
@@ -29,8 +29,8 @@ interface VideoMeetingDataProviderProps {
 const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
   const {
     data: {isHost},
-  } = useMeetingInfo();
-  const {activeUids} = useRender();
+  } = useRoomInfo();
+  const {activeUids} = useContent();
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const localUid = useLocalUid();
   const [hostUids, setHostUids] = useState<UidType[]>([]);
@@ -91,7 +91,7 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
           ? EventNames.VIDEO_MEETING_HOST
           : EventNames.VIDEO_MEETING_ATTENDEE,
         JSON.stringify({uid: localUid}),
-        EventPersistLevel.LEVEL2,
+        PersistanceLevel.Sender,
       );
     }
   }, [isHost, hasUserJoinedRTM]);

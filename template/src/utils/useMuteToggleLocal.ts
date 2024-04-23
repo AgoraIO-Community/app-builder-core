@@ -10,11 +10,15 @@
 *********************************************
 */
 import {useLocalUserInfo, useRtc} from 'customization-api';
-import {useContext, useEffect, useRef, useState} from 'react';
-
-import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import {isMobileUA, isWebInternal} from './common';
-import {AppState} from 'react-native';
+import {useContext} from 'react';
+import {
+  PropsContext,
+  ClientRoleType,
+  ToggleState,
+  DispatchContext,
+} from '../../agora-rn-uikit';
+import {isAndroid, isIOS, isWebInternal} from './common';
+import {SdkMuteQueueContext} from '../components/SdkMuteToggleListener';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -24,52 +28,35 @@ export enum MUTE_LOCAL_TYPE {
  * Returns an asynchronous function to toggle muted state of the given track type for the local user.
  */
 function useMuteToggleLocal() {
-  const {RtcEngine, dispatch} = useRtc();
+  const {RtcEngineUnsafe} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const local = useLocalUserInfo();
+  const isLiveStream = $config.EVENT_MODE;
+  const {rtcProps} = useContext(PropsContext);
+  const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
-  const appState = useRef(AppState.currentState);
-  const [appStateVisible, setAppStateVisible] = useState(appState.current);
-  const isCamON = useRef(local.video);
+  const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
 
-  useEffect(() => {
-    if ($config.AUDIO_ROOM || !isMobileUA()) return;
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      appState.current = nextAppState;
-      setAppStateVisible(appState.current);
-    });
+  const toggleMute = async (
+    type: MUTE_LOCAL_TYPE,
+    _action?: ToggleState,
+    _fromSdk?: boolean,
+  ) => {
+    const queueRef =
+      type === MUTE_LOCAL_TYPE.video ? videoMuteQueue : audioMuteQueue;
 
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
-    if (appStateVisible === 'background') {
-      isCamON.current = local.video;
-      if (isCamON.current) {
-        isWebInternal()
-          ? RtcEngine.muteLocalVideoStream(true)
-          : RtcEngine.enableLocalVideo(false);
-
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [0],
-        });
+    const handleQueue = async () => {
+      if (queueRef.current.length > 0) {
+        const queueItem = queueRef.current.shift();
+        try {
+          await toggleMute(type, queueItem.action, true);
+          queueItem.resolveQueued();
+        } catch (e) {
+          queueItem.rejectQueued(e);
+        }
       }
-    }
-    if (appStateVisible === 'active' && isCamON.current) {
-      isWebInternal()
-        ? RtcEngine.muteLocalVideoStream(false)
-        : RtcEngine.enableLocalVideo(true);
-      dispatch({
-        type: 'LocalMuteVideo',
-        value: [1],
-      });
-    }
-  }, [appStateVisible]);
+    };
 
-  return async (type: MUTE_LOCAL_TYPE) => {
     switch (type) {
       case MUTE_LOCAL_TYPE.audio:
         let localAudioState = local.audio;
@@ -78,35 +65,50 @@ function useMuteToggleLocal() {
           localAudioState === ToggleState.enabled ||
           localAudioState === ToggleState.disabled
         ) {
-          // Disable UI
-          dispatch({
-            type: 'LocalMuteAudio',
-            value: [
-              localAudioState === ToggleState.enabled
-                ? ToggleState.disabling
-                : ToggleState.enabling,
-            ],
-          });
-
-          try {
-            await RtcEngine.muteLocalAudioStream(
-              localAudioState === ToggleState.enabled,
-            );
-            // Enable UI
+          if (localAudioState !== _action) {
+            // Disable UI
             dispatch({
               type: 'LocalMuteAudio',
               value: [
                 localAudioState === ToggleState.enabled
-                  ? ToggleState.disabled
-                  : ToggleState.enabled,
+                  ? ToggleState.disabling
+                  : ToggleState.enabling,
               ],
             });
-          } catch (e) {
-            console.error(e);
-            dispatch({
-              type: 'LocalMuteAudio',
-              value: [localAudioState],
-            });
+
+            try {
+              isWebInternal()
+                ? await RtcEngineUnsafe.muteLocalAudioStream(
+                    localAudioState === ToggleState.enabled,
+                  ) //@ts-ignore
+                : await RtcEngineUnsafe.enableLocalAudio(
+                    localAudioState === ToggleState.enabled ? false : true,
+                  );
+
+              // Enable UI
+              dispatch({
+                type: 'LocalMuteAudio',
+                value: [
+                  localAudioState === ToggleState.enabled
+                    ? ToggleState.disabled
+                    : ToggleState.enabled,
+                ],
+              });
+              handleQueue();
+            } catch (e) {
+              dispatch({
+                type: 'LocalMuteAudio',
+                value: [localAudioState],
+              });
+              handleQueue();
+              if (_fromSdk) {
+                throw e;
+              } else {
+                console.error('Error toggling audio', e);
+              }
+            }
+          } else {
+            handleQueue();
           }
         }
         break;
@@ -118,45 +120,68 @@ function useMuteToggleLocal() {
           localVideoState === ToggleState.disabled
         ) {
           // Disable UI
-          dispatch({
-            type: 'LocalMuteVideo',
-            value: [
-              localVideoState === ToggleState.enabled
-                ? ToggleState.disabling
-                : ToggleState.enabling,
-            ],
-          });
-
-          try {
-            //enableLocalVideo not available on web
-            isWebInternal()
-              ? await RtcEngine.muteLocalVideoStream(
-                  localVideoState === ToggleState.enabled ? true : false,
-                )
-              : await RtcEngine.enableLocalVideo(
-                  localVideoState === ToggleState.enabled ? false : true,
-                );
-
-            // Enable UI
+          if (localVideoState !== _action) {
             dispatch({
               type: 'LocalMuteVideo',
               value: [
                 localVideoState === ToggleState.enabled
-                  ? ToggleState.disabled
-                  : ToggleState.enabled,
+                  ? ToggleState.disabling
+                  : ToggleState.enabling,
               ],
             });
-          } catch (e) {
-            console.log('error while dispatching');
-            dispatch({
-              type: 'LocalMuteVideo',
-              value: [localVideoState],
-            });
+
+            try {
+              //enableLocalVideo not available on web
+              isWebInternal()
+                ? await RtcEngineUnsafe.muteLocalVideoStream(
+                    localVideoState === ToggleState.enabled ? true : false,
+                  )
+                : //@ts-ignore
+                  await RtcEngineUnsafe.enableLocalVideo(
+                    localVideoState === ToggleState.enabled ? false : true,
+                  );
+              /**
+               * In native only
+               * hotfix for livestream co-presenter video publishing
+               * enableLocalVideo -> only enabled local video not publishing video stream
+               * enable publishing for livestreaming presenter(who raised hand and approved by host)
+               */
+              if ((isAndroid() || isIOS()) && isLiveStream && isBroadCasting) {
+                await RtcEngineUnsafe.muteLocalVideoStream(
+                  localVideoState === ToggleState.enabled ? true : false,
+                );
+              }
+              // Enable UI
+              dispatch({
+                type: 'LocalMuteVideo',
+                value: [
+                  localVideoState === ToggleState.enabled
+                    ? ToggleState.disabled
+                    : ToggleState.enabled,
+                ],
+              });
+              handleQueue();
+            } catch (e) {
+              dispatch({
+                type: 'LocalMuteVideo',
+                value: [localVideoState],
+              });
+              handleQueue();
+              if (_fromSdk) {
+                throw e;
+              } else {
+                console.error('Error toggling video', e);
+              }
+            }
+          } else {
+            handleQueue();
           }
         }
         break;
     }
   };
+
+  return toggleMute;
 }
 
 export default useMuteToggleLocal;

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useContext} from 'react';
 import {Router} from './components/Router';
 import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
@@ -29,9 +29,12 @@ import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
+import {AuthProvider} from './auth/AuthProvider';
 import {PropsConsumer} from 'agora-rn-uikit';
 import ToastComponent from './components/ToastComponent';
 import {ToastContext, ToastProvider} from './components/useToast';
+import {SdkApiContext} from './components/SdkApiContext';
+import isSDK from './utils/isSDK';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -63,7 +66,7 @@ const ImageBackgroundComp = (props: {
 };
 
 const AppWrapper = (props: AppWrapperProps) => {
-  const AppRoot = useCustomization((data) => {
+  const AppRoot = useCustomization(data => {
     if (
       data?.components?.appRoot &&
       isValidReactComponent(data?.components?.appRoot)
@@ -73,6 +76,8 @@ const AppWrapper = (props: AppWrapperProps) => {
     return React.Fragment;
   });
 
+  const {join: SdkJoinState} = useContext(SdkApiContext);
+
   return (
     <AppRoot>
       <ImageBackgroundComp bg={$config.BG} color={$config.BACKGROUND_COLOR}>
@@ -80,32 +85,44 @@ const AppWrapper = (props: AppWrapperProps) => {
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-          <ToastProvider>
-            <ToastContext.Consumer>
-              {({isActionSheetVisible}) => {
-                return !isActionSheetVisible ? <ToastComponent /> : null;
-              }}
-            </ToastContext.Consumer>
-            <StorageProvider>
+          <StorageProvider>
+            <LanguageProvider>
               <GraphQLProvider>
-                <Router>
-                  <SessionProvider>
-                    <ColorConfigure>
-                      <DimensionProvider>
-                        <LanguageProvider>
-                          <ErrorProvider>
-                            <Error />
-                            <Navigation />
-                            {props.children}
-                          </ErrorProvider>
-                        </LanguageProvider>
-                      </DimensionProvider>
-                    </ColorConfigure>
-                  </SessionProvider>
+                <Router
+                  /*@ts-ignore Router will be memory Router in sdk*/
+                  initialEntries={[
+                    //@ts-ignore
+                    isSDK && SdkJoinState.phrase
+                      ? //@ts-ignore
+                        `/${SdkJoinState.phrase}`
+                      : '',
+                  ]}>
+                  <ToastProvider>
+                    <ToastContext.Consumer>
+                      {({isActionSheetVisible}) => {
+                        return !isActionSheetVisible ? (
+                          <ToastComponent />
+                        ) : null;
+                      }}
+                    </ToastContext.Consumer>
+                    <AuthProvider>
+                      <SessionProvider>
+                        <ColorConfigure>
+                          <DimensionProvider>
+                            <ErrorProvider>
+                              <Error />
+                              <Navigation />
+                              {props.children}
+                            </ErrorProvider>
+                          </DimensionProvider>
+                        </ColorConfigure>
+                      </SessionProvider>
+                    </AuthProvider>
+                  </ToastProvider>
                 </Router>
               </GraphQLProvider>
-            </StorageProvider>
-          </ToastProvider>
+            </LanguageProvider>
+          </StorageProvider>
         </SafeAreaView>
       </ImageBackgroundComp>
     </AppRoot>

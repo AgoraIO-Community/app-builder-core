@@ -17,7 +17,7 @@ const VideoCallleScreen = () => {
           delay: 1000,
           onLoop: true,
           taskId: 'taskid',
-          onError: (e) => console.log(`Error logging:`, e),
+          onError: e => console.log(`Error logging:`, e),
         },
       );
       ReactNativeForegroundService.start({
@@ -27,9 +27,10 @@ const VideoCallleScreen = () => {
       });
     }
   }, []);
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <VideoCallMobileView />
+      <VideoCallMobileView native={true} />
     </GestureHandlerRootView>
   );
 };

@@ -1,8 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
 
 @font-face {
   font-family: 'icomoon';
-  src: url('https://dbudicf5k4as1.cloudfront.net/10/icomoon.ttf') format('truetype');
+  src: url('fonts/icomoon.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -24,6 +24,178 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-play-circle:before {
+  content: '\e978';
+  color: #fff;
+}
+.icon-clear-all:before {
+  content: '\e96f';
+  color: #fff;
+}
+.icon-erasor:before {
+  content: '\e970';
+  color: #fff;
+}
+.icon-color-picker:before {
+  content: '\e973';
+  color: #fff;
+}
+.icon-shapes:before {
+  content: '\e974';
+  color: #fff;
+}
+.icon-pen:before {
+  content: '\e975';
+  color: #fff;
+}
+.icon-selector:before {
+  content: '\e977';
+  color: #fff;
+}
+.icon-view-only:before {
+  content: '\e97a';
+  color: #808080;
+}
+.icon-fit-to-screen:before {
+  content: '\e979';
+  color: #fff;
+}
+.icon-zoom-in:before {
+  content: '\e963';
+  color: #fff;
+}
+.icon-zoom-out:before {
+  content: '\e964';
+  color: #fff;
+}
+.icon-undo:before {
+  content: '\e965';
+  color: #fff;
+}
+.icon-redo:before {
+  content: '\e966';
+  color: #fff;
+}
+.icon-light:before {
+  content: '\e967';
+  color: #fff;
+}
+.icon-dark:before {
+  content: '\e968';
+  color: #fff;
+}
+.icon-line:before {
+  content: '\e969';
+  color: #fff;
+}
+.icon-square:before {
+  content: '\e96a';
+  color: #fff;
+}
+.icon-circle:before {
+  content: '\e96b';
+  color: #fff;
+}
+.icon-arrow:before {
+  content: '\e96c';
+  color: #fff;
+}
+.icon-gradient:before {
+  content: '\e96d';
+  color: #eac443;
+}
+.icon-area-selection:before {
+  content: '\e96e';
+  color: #fff;
+}
+.icon-highlight:before {
+  content: '\e971';
+  color: #fff;
+}
+.icon-move:before {
+  content: '\e972';
+  color: #fff;
+}
+.icon-text:before {
+  content: '\e976';
+  color: #fff;
+}
+.icon-celebration:before {
+  content: '\e962';
+  color: #ff414d;
+}
+.icon-upload-new:before {
+  content: '\e961';
+  color: #fff;
+}
+.icon-add:before {
+  content: '\e95d';
+  color: #fff;
+}
+.icon-blur:before {
+  content: '\e95e';
+  color: #fff;
+}
+.icon-remove:before {
+  content: '\e95f';
+  color: #fff;
+}
+.icon-vb:before {
+  content: '\e960';
+  color: #fff;
+}
+.icon-captions:before {
+  content: '\e941';
+  color: #fff;
+}
+.icon-captions-off:before {
+  content: '\e958';
+  color: #fff;
+}
+.icon-view-last:before {
+  content: '\e95c';
+  color: #fff;
+}
+.icon-download:before {
+  content: '\e959';
+  color: #fff;
+}
+.icon-transcript-stop:before {
+  content: '\e95a';
+  color: #fff;
+}
+.icon-transcript:before {
+  content: '\e95b';
+  color: #fff;
+}
+.icon-search:before {
+  content: '\e945';
+  color: #808080;
+}
+.icon-lang-select:before {
+  content: '\e942';
+  color: #fff;
+}
+.icon-globe:before {
+  content: '\e944';
+  color: #808080;
+}
+.icon-down-arrow:before {
+  content: '\e93f';
+  color: #fff;
+}
+.icon-caption-mode:before {
+  content: '\e93c';
+  color: #fff;
+}
+.icon-stt:before {
+  content: '\e93d';
+  color: #fff;
+}
+.icon-transcript-mode:before {
+  content: '\e93e';
+  color: #fff;
+}
 .icon-demote-filled:before {
   content: '\e912';
   color: #fafafa;
@@ -254,7 +426,7 @@
 .icon-recording:before {
   content: '\e928';
 }
-.icon-remove:before {
+.icon-remove1:before {
   content: '\e929';
 }
 .icon-remove-meeting:before {

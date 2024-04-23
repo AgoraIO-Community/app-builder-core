@@ -9,31 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useLayoutEffect} from 'react';
 import {Platform} from 'react-native';
-import Join from './pages/Join';
-import VideoCall from './pages/VideoCall';
-import Create from './pages/Create';
-import {Route, Switch, Redirect} from './components/Router';
-import PrivateRoute from './components/PrivateRoute';
-import OAuth from './components/OAuth';
-import StoreToken from './components/StoreToken';
-import {shouldAuthenticate} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
-// commented for v1 release
-//import {CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'customization-api';
-//import {useCustomization} from 'customization-implementation';
 import AppWrapper from './AppWrapper';
 import {
-  MeetingInfoContextInterface,
-  MeetingInfoDefaultValue,
-  MeetingInfoProvider,
-} from './components/meeting-info/useMeetingInfo';
-import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
+  RoomInfoContextInterface,
+  RoomInfoDefaultValue,
+  RoomInfoProvider,
+} from './components/room-info/useRoomInfo';
+import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
-import Endcall from './pages/Endcall';
+import AppRoutes from './AppRoutes';
+import {isWebInternal} from './utils/common';
 
-//hook can't be used in the outside react function calls. so directly checking the platform.
+// hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
@@ -43,15 +33,21 @@ if (Platform.OS === 'ios') {
 
 //Extending the UI Kit Type defintion to add custom attribute to render interface
 declare module 'agora-rn-uikit' {
-  interface DefaultRenderInterface {
-    name: string;
-    screenUid: number;
-    offline: boolean;
-    lastMessageTimeStamp: number;
-  }
-  interface RtcPropsInterface {
-    screenShareUid: number;
-    screenShareToken?: string;
+  // interface DefaultContentInterface {
+  //   name: string;
+  //   screenUid: number;
+  //   offline: boolean;
+  //   lastMessageTimeStamp: number;
+  // }
+  // interface RtcPropsInterface {
+  //   screenShareUid: number;
+  //   screenShareToken?: string;
+  // }
+}
+
+declare global {
+  interface Navigator {
+    notifyReady?: () => boolean;
   }
 }
 
@@ -85,52 +81,40 @@ const App: React.FC = () => {
   //     return null;
   //   }
   // };
-  const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
-    MeetingInfoDefaultValue,
-  );
+
+  const notifyReady = () => {
+    if (typeof window.navigator.notifyReady === 'function') {
+      console.log('recording-bot: notifyReady is available');
+      window.navigator.notifyReady();
+    } else {
+      console.log('recording-bot: notifyReady is un-available');
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (isWebInternal()) {
+      // Register only on web
+      window.addEventListener('load', notifyReady);
+    }
+    return () => {
+      if (isWebInternal()) {
+        window.removeEventListener('load', notifyReady);
+      }
+    };
+  }, []);
+
+  const [roomInfo, setRoomInfo] =
+    useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 
   return (
     <AppWrapper>
-      <SetMeetingInfoProvider value={{setMeetingInfo}}>
-        <MeetingInfoProvider value={{...meetingInfo}}>
+      <SetRoomInfoProvider value={{setRoomInfo}}>
+        <RoomInfoProvider value={{...roomInfo}}>
           <ShareLinkProvider>
-            <Switch>
-              {/* commented for v1 release */}
-              {/* {RenderCustomRoutes()} */}
-              <Route exact path={'/'}>
-                <Redirect to={'/create'} />
-              </Route>
-              <Route exact path={'/authenticate'}>
-                {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
-              </Route>
-              <Route path={'/auth-token/:token'}>
-                <StoreToken />
-              </Route>
-              <Route exact path={'/join'}>
-                <Join />
-              </Route>
-              {/* Will be used in the future
-              <Route exact path={'/leave'}>
-                <Endcall />
-              </Route> */}
-              {shouldAuthenticate ? (
-                <PrivateRoute
-                  path={'/create'}
-                  failureRedirectTo={'/authenticate'}>
-                  <Create />
-                </PrivateRoute>
-              ) : (
-                <Route path={'/create'}>
-                  <Create />
-                </Route>
-              )}
-              <Route path={'/:phrase'}>
-                <VideoCall />
-              </Route>
-            </Switch>
+            <AppRoutes />
           </ShareLinkProvider>
-        </MeetingInfoProvider>
-      </SetMeetingInfoProvider>
+        </RoomInfoProvider>
+      </SetRoomInfoProvider>
     </AppWrapper>
   );
 };

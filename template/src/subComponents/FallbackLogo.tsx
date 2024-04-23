@@ -13,7 +13,7 @@ import React from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import UserAvatar from '../atoms/UserAvatar';
 //import AnimatedRings from '../atoms/AnimatedRings';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {BREAKPOINTS, isMobileUA} from '../utils/common';
 import {
   getGridLayoutName,
@@ -27,7 +27,7 @@ export default function FallbackLogo(
   isMax?: boolean,
   avatarSize?: number,
 ) {
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {currentLayout} = useLayout();
   const {width} = useWindowDimensions();
   const isSmall = width < BREAKPOINTS.xl;

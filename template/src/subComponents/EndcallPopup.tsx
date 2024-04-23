@@ -1,4 +1,4 @@
-import React, {SetStateAction, useContext} from 'react';
+import React, {SetStateAction, useContext, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../atoms/Spacer';
 import Popup from '../atoms/Popup';
@@ -6,20 +6,61 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
+import DownloadTranscriptBtn from './caption/DownloadTranscriptBtn';
+import ImageIcon from '../atoms/ImageIcon';
+import {useCaption} from './caption/useCaption';
+import {useString} from '../utils/useString';
+import {
+  leavePopupHeading,
+  leavePopupPrimaryBtnText,
+  leavePopupSubHeading,
+  sttDownloadBtnText,
+  sttTranscriptPanelHeaderText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
   endCall: () => void;
 }
+
+const DownloadTranscript = () => {
+  const label = useString(sttTranscriptPanelHeaderText)();
+  const downloadLabel = useString(sttDownloadBtnText)();
+  return (
+    <View style={[styles.btnDownloadContainer, styles.row]}>
+      <View style={styles.row}>
+        <ImageIcon
+          iconType="plain"
+          name={'transcript-mode'}
+          tintColor={$config.FONT_COLOR}
+          iconSize={20}
+        />
+        <Spacer size={4} horizontal />
+        <Text style={styles.label}>{label}</Text>
+      </View>
+      <DownloadTranscriptBtn
+        textStyle={[styles.label, styles.downloadBtnText] as Object}
+        containerStyle={styles.downloadBtn}
+        iconName=""
+        text={downloadLabel}
+      />
+    </View>
+  );
+};
+
 const EndcallPopup = (props: EndcallPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const leaveMeetingLabelHeading = 'Leave Meeting?';
-  const leaveMeetingLabelSubHeading =
-    'Are you sure you want to leave this meeting?';
+  const leaveMeetingLabelHeading = useString(leavePopupHeading)();
+  const leaveMeetingLabelSubHeading = useString<boolean>(leavePopupSubHeading);
+  const leaveMeetingPopupActionButton = useString(leavePopupPrimaryBtnText)();
+  const cancelLabel = useString(cancelText)();
+  const {isSTTActive} = useCaption();
+  const isTranscriptAvailable = $config.ENABLE_STT && isSTTActive;
 
-  const stayBtnLabel = 'CANCEL';
-  const leaveBtnLabel = 'LEAVE';
+  const stayBtnLabel = cancelLabel;
+  const leaveBtnLabel = leaveMeetingPopupActionButton;
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -28,16 +69,19 @@ const EndcallPopup = (props: EndcallPopupProps) => {
       contentContainerStyle={styles.contentContainer}>
       <Text style={styles.heading}>{leaveMeetingLabelHeading}</Text>
       <Spacer size={8} />
-      <Text style={styles.subHeading}>{leaveMeetingLabelSubHeading}</Text>
-      <Spacer size={32} />
+      <Text style={styles.subHeading}>
+        {leaveMeetingLabelSubHeading(isTranscriptAvailable)}
+      </Text>
+      {isTranscriptAvailable ? <DownloadTranscript /> : <></>}
+      <Spacer size={40} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
         <View style={isDesktop && {flex: 1}}>
           <TertiaryButton
             containerStyle={{
               width: '100%',
               height: 48,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
+              paddingVertical: 8,
+              paddingHorizontal: 40,
               borderRadius: ThemeConfig.BorderRadius.medium,
             }}
             text={stayBtnLabel}
@@ -57,8 +101,8 @@ const EndcallPopup = (props: EndcallPopupProps) => {
               borderRadius: ThemeConfig.BorderRadius.medium,
               height: 48,
               backgroundColor: $config.SEMANTIC_ERROR,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
+              paddingVertical: 8,
+              paddingHorizontal: 36,
             }}
             text={leaveBtnLabel}
             textStyle={styles.btnText}
@@ -103,5 +147,32 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     color: $config.FONT_COLOR,
+    maxWidth: 336,
+  },
+  downloadBtn: {
+    minWidth: 'auto',
+  },
+  btnDownloadContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 6,
+    marginTop: 20,
+  },
+  downloadBtnText: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
+  label: {
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 20,
+    fontWeight: '600',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  row: {
+    flexDirection: 'row',
   },
 });

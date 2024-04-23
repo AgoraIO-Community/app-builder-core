@@ -10,11 +10,28 @@
 *********************************************
 */
 
-import React, {SetStateAction, useState} from 'react';
+import React, {
+  SetStateAction,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
+import StartScreenSharePopup from './popups/StartScreenSharePopup';
+import StopScreenSharePopup from './popups/StopScreenSharePopup';
+import {SdkApiContext} from './SdkApiContext';
+import {UidType, useRoomInfo} from 'customization-api';
+import SDKEvents from '../utils/SdkEvents';
+import DeviceContext from './DeviceContext';
+import useSetName from '../utils/useSetName';
+import WhiteboardClearAllPopup from './popups/WhiteboardClearAllPopup';
 
+interface InViewPortState {
+  [key: number]: boolean;
+}
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
   setShowInvitePopup: React.Dispatch<SetStateAction<boolean>>;
@@ -22,6 +39,16 @@ export interface VideoCallContextInterface {
   setShowStopRecordingPopup: React.Dispatch<SetStateAction<boolean>>;
   showLayoutOption: boolean;
   setShowLayoutOption: React.Dispatch<SetStateAction<boolean>>;
+  showStartScreenSharePopup: boolean;
+  setShowStartScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
+  showStopScreenSharePopup: boolean;
+  setShowStopScreenSharePopup: React.Dispatch<SetStateAction<boolean>>;
+  enablePinForMe: boolean;
+  setEnablePinForMe: React.Dispatch<SetStateAction<boolean>>;
+  videoTileInViewPortState: InViewPortState;
+  setVideoTileInViewPortState: (uid: UidType, visible: boolean) => void;
+  showWhiteboardClearAllPopup: boolean;
+  setShowWhiteboardClearAllPopup: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -31,15 +58,66 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   setShowStopRecordingPopup: () => {},
   showLayoutOption: false,
   setShowLayoutOption: () => {},
+  showStartScreenSharePopup: false,
+  setShowStartScreenSharePopup: () => {},
+  showStopScreenSharePopup: false,
+  setShowStopScreenSharePopup: () => {},
+  enablePinForMe: true,
+  setEnablePinForMe: () => {},
+  videoTileInViewPortState: {},
+  setVideoTileInViewPortState: () => {},
+  showWhiteboardClearAllPopup: false,
+  setShowWhiteboardClearAllPopup: () => {},
 });
 
 interface VideoCallProviderProps {
   children: React.ReactNode;
 }
 const VideoCallProvider = (props: VideoCallProviderProps) => {
+  const [showWhiteboardClearAllPopup, setShowWhiteboardClearAllPopup] =
+    useState(false);
+  const [enablePinForMe, setEnablePinForMe] = useState(true);
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
+  const [showStartScreenSharePopup, setShowStartScreenSharePopup] =
+    useState(false);
+  const [showStopScreenSharePopup, setShowStopScreenSharePopup] =
+    useState(false);
+  const {join, enterRoom} = useContext(SdkApiContext);
+  const roomInfo = useRoomInfo();
+  const {deviceList} = useContext(DeviceContext);
+  const setUsername = useSetName();
+  //const videoTileInViewPortStateRef = useRef({});
+  const [videoTileInViewPortState, setVideoTileInViewPortStateL] = useState({});
+
+  const setVideoTileInViewPortState = (uid: UidType, visible: boolean) => {
+    //videoTileInViewPortStateRef.current[uid] = visible;
+    setVideoTileInViewPortStateL(prevState => {
+      return {
+        ...prevState,
+        [uid]: visible,
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (join.initialized && join.phrase) {
+      if (join.userName && join.skipPrecall) {
+        setUsername(join.userName);
+      }
+      join.promise.res(roomInfo.data);
+    }
+    if (enterRoom.promise) {
+      enterRoom.promise.res(roomInfo.data);
+    }
+    SDKEvents.emit(
+      'join',
+      roomInfo.data.meetingTitle,
+      deviceList,
+      roomInfo.data.isHost,
+    );
+  }, []);
   return (
     <VideoCallContext.Provider
       value={{
@@ -49,9 +127,23 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
         setShowStopRecordingPopup,
         showLayoutOption,
         setShowLayoutOption,
+        showStartScreenSharePopup,
+        setShowStartScreenSharePopup,
+        showStopScreenSharePopup,
+        setShowStopScreenSharePopup,
+        enablePinForMe,
+        setEnablePinForMe,
+        setVideoTileInViewPortState,
+        //videoTileInViewPortState: videoTileInViewPortStateRef.current,
+        videoTileInViewPortState,
+        showWhiteboardClearAllPopup,
+        setShowWhiteboardClearAllPopup,
       }}>
+      <StartScreenSharePopup />
+      <StopScreenSharePopup />
       <StopRecordingPopup />
       <InvitePopup />
+      <WhiteboardClearAllPopup />
       {props.children}
     </VideoCallContext.Provider>
   );

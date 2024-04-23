@@ -1,30 +1,57 @@
 import React, {useContext} from 'react';
+import {Text, ViewStyle} from 'react-native';
 import {useString} from '../utils/useString';
-import {PropsContext, ToggleState} from '../../agora-rn-uikit';
+import {ClientRoleType, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
-import {useLocalUserInfo, useRtc} from 'customization-api';
+import {isAndroid, isIOS, useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import {useScreenshare} from './screenshare/useScreenshare';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
+import {toolbarItemSwitchCameraText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface LocalSwitchCameraProps {
-  showLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
-  disabled?: boolean;
+  showText?: boolean;
+  iconBackgroundColor?: string;
+  iconSize?: number;
+  iconContainerStyle?: ViewStyle;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {callbacks} = useContext(PropsContext);
-  const {RtcEngine} = useRtc();
+  const {isScreenshareActive} = useScreenshare();
+  const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
-  const {showLabel = $config.ICON_TEXT, disabled = false} = props;
-  //commented for v1 release
-  //const switchCameraButtonText = useString('switchCameraButton')();
-  const switchCameraButtonText = 'Switch';
+  const {isOnActionSheet, showLabel} = useActionSheet();
+  const {
+    showText = true,
+    iconBackgroundColor,
+    iconSize,
+    iconContainerStyle = {},
+  } = props;
 
+  const switchCameraText = useString(toolbarItemSwitchCameraText)();
+
+  const {rtcProps} = useContext(PropsContext);
+  const isLiveStream = $config.EVENT_MODE;
+  const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
+  const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
+  const showTitle = showText ? showLabel : false;
   const onPress = () => {
-    RtcEngine.switchCamera();
+    RtcEngineUnsafe.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
   };
-  const isVideoEnabled = local.video === ToggleState.enabled;
+  const isNativeScreenShareActive =
+    (isAndroid() || isIOS()) && isScreenshareActive;
+  const isVideoEnabled = isNativeScreenShareActive
+    ? false
+    : local.video === ToggleState.enabled;
+  const disabled =
+    (isLiveStream && isAudience && !isBroadCasting) || !isVideoEnabled;
+
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: 'switch-camera',
@@ -32,13 +59,30 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
         isVideoEnabled || !disabled
           ? $config.SECONDARY_ACTION_COLOR
           : $config.SEMANTIC_NEUTRAL,
+      ...(iconBackgroundColor && {iconBackgroundColor}),
+      ...(iconSize && {iconSize}),
+      iconContainerStyle: iconContainerStyle,
     },
-    disabled: !isVideoEnabled || disabled ? true : false,
+    disabled: disabled,
     onPress: onPress,
+    btnTextProps: {
+      text: showTitle ? switchCameraText?.replace(' ', '\n') : '',
+      numberOfLines: 2,
+      textStyle: {
+        marginTop: 8,
+        fontSize: 12,
+        fontWeight: '400',
+        fontFamily: 'Source Sans Pro',
+        textAlign: 'center',
+        color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
+      },
+    },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
+  ) : isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
   ) : (
     <IconButton {...iconButtonProps} />
   );

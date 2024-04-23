@@ -1,31 +1,57 @@
 import React from 'react';
 import {Text, StyleSheet, View, TextStyle} from 'react-native';
-import {trimText} from '../../utils/common';
+import {isMobileUA, trimText} from '../../utils/common';
 import ThemeConfig from '../../theme';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 
 export interface MeetingTitleProps {
-  textStyle?: TextStyle;
+  prefix?: string;
 }
+const isMobile = isMobileUA();
 const MeetingTitle = (props?: MeetingTitleProps) => {
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
+
   return (
-    <Text style={[style.titleHeading, props?.textStyle ? props.textStyle : {}]}>
-      {trimText(meetingTitle)}
-    </Text>
+    <View style={isMobile ? style.mobileContainer : style.desktopContainer}>
+      <Text
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={[style.textStyle, style.prefixStyle]}>
+        {props.prefix}
+      </Text>
+      <Text style={[style.textStyle, {fontWeight: '600'}]}>
+        {trimText(meetingTitle)}
+      </Text>
+    </View>
   );
 };
 
 export default MeetingTitle;
 
 const style = StyleSheet.create({
-  titleHeading: {
-    fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
-    fontWeight: '600',
+  mobileContainer: {
+    flexDirection: 'column',
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  desktopContainer: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+  },
+  textStyle: {
+    fontSize: ThemeConfig.FontSize.large,
+    lineHeight: 28,
+    fontWeight: '400',
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    textAlign: 'center',
+  },
+  prefixStyle: {
+    marginRight: 8,
+    color: isMobile
+      ? $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+      : $config.FONT_COLOR,
   },
 });

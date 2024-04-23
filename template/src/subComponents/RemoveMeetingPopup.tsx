@@ -6,6 +6,13 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
+import {useString} from '../utils/useString';
+import {
+  removeUserFromRoomPopupHeading,
+  removeUserFromRoomPopupPrimaryBtnText,
+  removeUserFromRoomPopupSubHeading,
+} from '../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../language/default-labels/commonLabels';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -15,20 +22,26 @@ interface RemoveMeetingPopupProps {
 }
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const removeMeetingLabelHeading = 'Remove ' + props.username + '?';
-  const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the meeting later.`;
+  const removeMeetingLabelHeading = useString(removeUserFromRoomPopupHeading);
+  const removeMeetingLabelSubHeading = useString(
+    removeUserFromRoomPopupSubHeading,
+  );
 
-  const cancelBtnLabel = 'CANCEL';
-  const removeBtnLabel = 'REMOVE';
+  const cancelBtnLabel = useString(cancelText)();
+  const removeBtnLabel = useString(removeUserFromRoomPopupPrimaryBtnText)();
   return (
     <Popup
       modalVisible={props.modalVisible}
       setModalVisible={props.setModalVisible}
       showCloseIcon={false}
       contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.heading}>{removeMeetingLabelHeading}</Text>
+      <Text style={styles.heading}>
+        {removeMeetingLabelHeading(props?.username)}
+      </Text>
       <Spacer size={8} />
-      <Text style={styles.subHeading}>{removeMeetingLabelSubHeading}</Text>
+      <Text style={styles.subHeading}>
+        {removeMeetingLabelSubHeading(props?.username)}
+      </Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
         <View style={isDesktop && {flex: 1}}>

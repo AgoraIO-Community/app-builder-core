@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -43,9 +43,26 @@ import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useFocus} from '../utils/useFocus';
 import {SettingsHeader} from '../pages/video-call/SidePanelHeader';
+import {useUserPreference} from './useUserPreference';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
+import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import InlineNotification from '../../src/atoms/InlineNotification';
+import {useRoomInfo} from './room-info/useRoomInfo';
+import {useString} from '../../src/utils/useString';
+import {
+  settingPanelNameCantbeChangedInfo,
+  settingPanelNameInputLabel,
+} from '../../src/language/default-labels/videoCallScreenLabels';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const yournameLabel = useString(settingPanelNameInputLabel)();
+  const nameCantbeChangedInfo = useString(settingPanelNameCantbeChangedInfo)();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const {saveName} = useUserPreference();
+  const {whiteboardActive} = useContext(whiteboardContext);
   const [saved, setSaved] = useState(false);
   const username = useGetName();
   const [newName, setNewName] = useState(username);
@@ -83,6 +100,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         setSaved(false);
       }, 2000);
       setEditable(false);
+      saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
       inputRef.current.focus();
@@ -96,7 +114,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
       setEditable(true);
       setTimeout(() => {
         inputRef.current.focus();
-        setFocus((prevState) => {
+        setFocus(prevState => {
           return {
             ...prevState,
             editName: false,
@@ -108,8 +126,23 @@ const EditName: React.FC = (props?: EditNameProps) => {
 
   return (
     <>
-      <Text style={editNameStyle.yournameText}>Your name</Text>
+      <Text style={editNameStyle.yournameText}>{yournameLabel}</Text>
       <Spacer size={12} />
+      {whiteboardActive && isHost ? (
+        <>
+          <InlineNotification
+            text={nameCantbeChangedInfo}
+            customStyle={{
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 171, 0, 0.15)',
+            }}
+            warning={true}
+          />
+          <Spacer size={12} />
+        </>
+      ) : (
+        <></>
+      )}
       <View style={editNameStyle.container}>
         <View style={editNameStyle.nameContainer}>
           <ImageIcon
@@ -124,7 +157,8 @@ const EditName: React.FC = (props?: EditNameProps) => {
             style={[
               editNameStyle.inputStyle,
               //true -> previously editable variable
-              !true
+              //!true
+              whiteboardActive && isHost
                 ? {
                     color:
                       $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
@@ -134,8 +168,8 @@ const EditName: React.FC = (props?: EditNameProps) => {
             onBlur={onPress}
             placeholder={username}
             value={newName}
-            editable={true}
-            onChangeText={(text) => setNewName(text)}
+            editable={whiteboardActive && isHost ? false : true}
+            onChangeText={text => setNewName(text)}
             onSubmitEditing={onPress}
             placeholderTextColor={
               $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
@@ -240,12 +274,11 @@ const editNameStyle = StyleSheet.create({
     color: $config.FONT_COLOR,
   },
 });
-const SettingsView = (props) => {
+const SettingsView = props => {
   const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
-  const settingsLabel = 'Settings';
-  const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
+  const {transcriptHeight} = useCaptionWidth();
 
   return (
     <View
@@ -261,6 +294,8 @@ const SettingsView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <SettingsHeader {...props} />}
       <ScrollView style={style.contentContainer}>

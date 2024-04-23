@@ -17,7 +17,8 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ImageIconProps {
   tintColor?: string;
-  name: keyof IconsInterface;
+  name?: keyof IconsInterface;
+  icon?: string;
   iconSize?: number;
   iconContainerStyle?: ViewStyle;
   iconBackgroundColor?: string;
@@ -31,13 +32,16 @@ export interface ImageIconProps {
 }
 
 const ImageIcon = (props: ImageIconProps) => {
+  let defaultSize = $config.ICON_TEXT ? 26 : 24;
   const {
     name,
-    iconSize = 26,
+    icon = undefined,
+    iconSize = defaultSize,
     tintColor,
     base64 = false,
     base64TintColor = '',
     iconType = 'round',
+    iconContainerStyle,
   } = props;
   return (
     <View
@@ -53,7 +57,7 @@ const ImageIcon = (props: ImageIconProps) => {
         style={[
           {alignItems: 'center'},
           iconType === 'round'
-            ? {padding: 13, borderRadius: 50}
+            ? {padding: $config.ICON_TEXT ? 13 : 12, borderRadius: 50}
             : {padding: 0, borderRadius: 0},
           iconType === 'round' && props?.isHovered
             ? {
@@ -61,7 +65,7 @@ const ImageIcon = (props: ImageIconProps) => {
                   $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
               }
             : {},
-          props?.iconContainerStyle,
+          iconContainerStyle,
         ]}>
         {props?.showWarningIcon ? (
           <View style={{position: 'absolute', top: -2.5, right: -2}}>
@@ -77,11 +81,20 @@ const ImageIcon = (props: ImageIconProps) => {
         {base64 ? (
           <UIKitImageIcon
             tintColor={base64TintColor}
+            //@ts-ignore
             name={name}
             style={{width: iconSize, height: iconSize}}
           />
-        ) : (
+        ) : icon ? (
+          <UIKitImageIcon
+            tintColor={tintColor}
+            icon={icon}
+            style={{width: iconSize, height: iconSize}}
+          />
+        ) : name ? (
           <CustomIcon name={name} color={tintColor} size={iconSize} />
+        ) : (
+          <></>
         )}
       </View>
     </View>

@@ -11,7 +11,7 @@
 */
 import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
 import AllHostParticipants from './participants/AllHostParticipants';
@@ -19,7 +19,7 @@ import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
 import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
 import ChatContext from './ChatContext';
@@ -27,7 +27,6 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import TertiaryButton from '../atoms/TertiaryButton';
 import HostControlView from './HostControlView';
-import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
@@ -37,12 +36,22 @@ import SidePanelHeader, {
   SidePanelStyles,
 } from '../subComponents/SidePanelHeader';
 import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
+import WaitingRoomParticipants from './participants/WaitingRoomParticipants';
+import {
+  peoplePanelAudienceSectionHeaderText,
+  peoplePanelHostSectionHeaderText,
+  peoplePanelInThisMeetingLabel,
+  peoplePanelNoAudienceJoinedContent,
+  peoplePanelNoHostJoinedContent,
+  peoplePanelNoUsersJoinedContent,
+} from '../../src/language/default-labels/videoCallScreenLabels';
 
-const ParticipantView = (props) => {
-  const {activeUids} = useRender();
+const ParticipantView = props => {
+  const {activeUids, customContent, defaultContent} = useContent();
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     attendeeUids: attendeeUidsVideoMeeting,
@@ -52,25 +61,27 @@ const ParticipantView = (props) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
   const {showHeader = true} = props;
-  //commented for v1 release
-  // const hostLabel = useString('hostLabel')();
-  // const audienceLabel = useString('audienceLabel')();
-  // const participantsLabel = useString('participantsLabel')();
-  const hostLabel = 'Host';
-  const audienceLabel = 'Audience';
-  const attendeeLabel = 'Attendee';
-  const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
+  const hostLabel = useString(peoplePanelHostSectionHeaderText)();
+  const audienceLabel = useString(peoplePanelAudienceSectionHeaderText)();
+  const meetingParticpantsLabel = useString(peoplePanelInThisMeetingLabel)();
+  const noHostJoinedYet = useString(peoplePanelNoHostJoinedContent)();
+  const noAudienceJoinedYet = useString(peoplePanelNoAudienceJoinedContent)();
+  const noUsersJoinedYet = useString(peoplePanelNoUsersJoinedContent)();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const isSmall = useIsSmall();
+  const [showWaitingRoomSection, setShowWaitingRoomSection] = useState(true);
   //video meeting
   const [showHostSection, setShowHostSection] = useState(true);
   const [showParticipantSection, setShowParticipantSection] = useState(true);
+  const [showMeetingParticipants, setShowMeetingParticipants] = useState(true);
   //live streaming
   const [showTempHostSection, setShowTempHostSection] = useState(true);
   const [showAudienceSection, setShowAudienceSection] = useState(true);
   const {currentLayout} = useLayout();
+  const {transcriptHeight} = useCaptionWidth();
+
   return (
     <View
       testID="videocall-participants"
@@ -86,23 +97,35 @@ const ParticipantView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        //@ts-ignore
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <PeopleHeader />}
+      {/* Waiting Room Participants */}
+
       <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
           <>
             {
               /*Live streaming is true            
                 Host and New host view */
-              rtcProps?.role == ClientRole.Broadcaster &&
+              rtcProps?.role == ClientRoleType.ClientRoleBroadcaster &&
                 (isHost ? (
                   /**
                    * Original Host
                    * a) Can view streaming requests
                    * b) Can view all hosts with remote controls
+                   * c) Can admit from waiting room
                    */
                   <>
+                    {/* c) Waiting Room View */}
+                    {$config.ENABLE_WAITING_ROOM ? (
+                      <WaitingRoomParticipants />
+                    ) : (
+                      <></>
+                    )}
                     {/* a) Live streaming view */}
+
                     <CurrentLiveStreamRequestsView userList={liveStreamData} />
                     {/* b) Host view with remote controls*/}
                     <ParticipantSectionTitle
@@ -113,7 +136,7 @@ const ParticipantView = (props) => {
                     />
                     {showHostSection ? (
                       <AllHostParticipants
-                        emptyMessage={'No Host has joined yet.'}
+                        emptyMessage={noHostJoinedYet}
                         uids={hostUids}
                         isMobile={isSmall()}
                         updateActionSheet={props.updateActionSheet}
@@ -138,7 +161,7 @@ const ParticipantView = (props) => {
                     />
                     {showTempHostSection ? (
                       <AllAudienceParticipants
-                        emptyMessage={'No Host has joined yet.'}
+                        emptyMessage={noHostJoinedYet}
                         uids={hostUids}
                         isMobile={isSmall()}
                         updateActionSheet={props.updateActionSheet}
@@ -154,7 +177,7 @@ const ParticipantView = (props) => {
               /**
                *  Audience views all hosts without remote controls
                */
-              rtcProps?.role == ClientRole.Audience && (
+              rtcProps?.role == ClientRoleType.ClientRoleAudience && (
                 <>
                   <ParticipantSectionTitle
                     title={hostLabel}
@@ -163,8 +186,8 @@ const ParticipantView = (props) => {
                     onPress={() => setShowHostSection(!showHostSection)}
                   />
                   {showHostSection ? (
-                    <AllAudienceParticipants
-                      emptyMessage={'No Host has joined yet.'}
+                    <AllHostParticipants
+                      emptyMessage={noHostJoinedYet}
                       uids={hostUids}
                       isMobile={isSmall()}
                       updateActionSheet={props.updateActionSheet}
@@ -187,7 +210,7 @@ const ParticipantView = (props) => {
                 />
                 {showAudienceSection ? (
                   <AllAudienceParticipants
-                    emptyMessage={'No Audience has joined yet.'}
+                    emptyMessage={noAudienceJoinedYet}
                     uids={audienceUids}
                     isMobile={isSmall()}
                     updateActionSheet={props.updateActionSheet}
@@ -201,54 +224,38 @@ const ParticipantView = (props) => {
           </>
         ) : (
           <>
-            <AllHostParticipants
-              emptyMessage={'No Users has joined yet'}
-              uids={activeUids}
-              isMobile={isSmall()}
-              updateActionSheet={props.updateActionSheet}
-              handleClose={props.handleClose}
-            />
-            {/* <ParticipantSectionTitle
-              title={hostLabel}
-              count={hostUidsVideoMeeting.length}
-              isOpen={showHostSection}
-              onPress={() => setShowHostSection(!showHostSection)}
-            /> */}
-            {/* {showHostSection ? (
-              <AllHostParticipants
-                emptyMessage={'No Host has joined yet'}
-                uids={hostUidsVideoMeeting}
-                isMobile={isSmall()}
-                updateActionSheet={props.updateActionSheet}
-                handleClose={props.handleClose}
-              />
+            {$config.ENABLE_WAITING_ROOM && isHost ? (
+              <WaitingRoomParticipants />
             ) : (
-              <Spacer size={1} />
-            )} */}
-            {/* <ParticipantSectionTitle
-              title={attendeeLabel}
-              count={attendeeUidsVideoMeeting.length}
-              isOpen={showParticipantSection}
-              onPress={() => setShowParticipantSection(!showParticipantSection)}
-            /> */}
-            {/* {showParticipantSection ? (
+              <></>
+            )}
+
+            <ParticipantSectionTitle
+              title={meetingParticpantsLabel}
+              count={onlineUsersCount}
+              isOpen={showMeetingParticipants}
+              onPress={() =>
+                setShowMeetingParticipants(!showMeetingParticipants)
+              }
+            />
+            {showMeetingParticipants ? (
               <AllHostParticipants
-                emptyMessage={'No Attendee has joined yet'}
-                uids={attendeeUidsVideoMeeting}
+                emptyMessage={noUsersJoinedYet}
+                //custom content shouldn't be shown in the participant list. so filtering the activeuids
+                uids={activeUids.filter(i => !customContent[i])}
                 isMobile={isSmall()}
                 updateActionSheet={props.updateActionSheet}
                 handleClose={props.handleClose}
               />
             ) : (
               <></>
-            )} */}
+            )}
           </>
         )}
       </ScrollView>
 
       {isHost && (
         <View style={style.footer}>
-          {/*  <CopyJoinInfo showTeritaryButton /> */}
           <HostControlView />
         </View>
       )}

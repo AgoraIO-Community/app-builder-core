@@ -1,19 +1,25 @@
-import React, {useContext, useState} from 'react';
-import {useRtc} from 'customization-api';
+import React, {useContext, useEffect, useState} from 'react';
+import {isAndroid, isIOS, useContent, useRoomInfo} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
-import StorageContext from '../components/StorageContext';
-import {Prompt, useParams} from '../components/Router';
+import {Prompt} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {Platform} from 'react-native';
+import {useScreenshare} from './screenshare/useScreenshare';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
+import {useString} from '../utils/useString';
+import {toolbarItemLeaveText} from '../language/default-labels/videoCallScreenLabels';
+import useEndCall from '../utils/useEndCall';
+
 export interface LocalEndcallProps {
-  showLabel?: boolean;
-  isOnActionSheet?: boolean;
   render?: (onPress: () => void) => JSX.Element;
+  customExit?: () => void;
 }
 
 /* For android only, bg audio */
-const stopForegroundService = () => {
+export const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
     console.log('stopping foreground service');
@@ -21,27 +27,35 @@ const stopForegroundService = () => {
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
-  const {dispatch} = useRtc();
-  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
-  //commented for v1 release
-  //const endCallLabel = useString('endCallButton')();
-  const endCallLabel = 'Leave';
-  const {setStore} = useContext(StorageContext);
+  const {isScreenshareActive, stopUserScreenShare} = useScreenshare();
+  const {isToolbarMenuItem} = useToolbarMenu();
+  const {isOnActionSheet, showLabel} = useActionSheet();
+  const endCallLabel = useString(toolbarItemLeaveText)();
   const [endcallVisible, setEndcallVisible] = useState(false);
-  const {phrase} = useParams<{phrase: string}>();
   const onPress = () => {
     setEndcallVisible(true);
   };
+  const [endCallState, setEndCallState] = useState(false);
+  const executeEndCall = useEndCall();
+
+  useEffect(() => {
+    if (!isScreenshareActive && endCallState) {
+      executeEndCall();
+      setEndCallState(false);
+    }
+  }, [isScreenshareActive, endCallState]);
 
   const endCall = async () => {
-    setTimeout(() => {
-      dispatch({
-        type: 'EndCall',
-        value: [],
-      });
-    });
-    // stopping foreground servie on end call
-    stopForegroundService();
+    if (props?.customExit) {
+      props.customExit();
+    } else {
+      if ((isAndroid() || isIOS()) && isScreenshareActive) {
+        stopUserScreenShare();
+        setEndCallState(true);
+      } else {
+        executeEndCall();
+      }
+    }
   };
 
   let iconButtonProps: IconButtonProps = {
@@ -51,7 +65,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       iconBackgroundColor: $config.SEMANTIC_ERROR,
       iconContainerStyle: !isOnActionSheet && {
         width: 72,
-        height: 52,
+        height: $config.ICON_TEXT ? 52 : 48,
       },
     },
     onPress,
@@ -60,6 +74,25 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       textColor: $config.FONT_COLOR,
     },
   };
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: 'white',
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
 
   return props?.render ? (
     props.render(onPress)
@@ -80,7 +113,11 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         setModalVisible={setEndcallVisible}
         modalVisible={endcallVisible}
       />
-      <IconButton {...iconButtonProps} />
+      {isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
+      ) : (
+        <IconButton {...iconButtonProps} />
+      )}
     </>
   );
 };

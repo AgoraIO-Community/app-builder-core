@@ -9,9 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext} from 'react';
+import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
+import {SdkApiContext} from '../SdkApiContext';
+import {useRoomInfo} from '../room-info/useRoomInfo';
+import SDKEvents from '../../utils/SdkEvents';
+import DeviceContext from '../DeviceContext';
+import useSetName from '../../utils/useSetName';
 
 export interface PreCallContextInterface {
   callActive: boolean;
@@ -46,6 +51,33 @@ interface PreCallProviderProps {
 }
 
 const PreCallProvider = (props: PreCallProviderProps) => {
+  const {join, enterRoom} = useContext(SdkApiContext);
+  const roomInfo = useRoomInfo();
+  const {deviceList} = useContext(DeviceContext);
+  const setUsername = useSetName();
+
+  useEffect(() => {
+    if (join.initialized && join.phrase) {
+      if (join.userName) {
+        setUsername(join.userName);
+      }
+
+      //@ts-ignore
+      join?.promise?.res([
+        roomInfo.data,
+        (userName: string) => {
+          return new Promise((res, rej) => {
+            setUsername(userName);
+            enterRoom.set({res, rej});
+            props.value.setCallActive(true);
+          });
+        },
+      ]);
+    }
+
+    SDKEvents.emit('ready-to-join', roomInfo.data.meetingTitle, deviceList);
+  }, []);
+
   return (
     <PreCallContext.Provider value={{...props.value}}>
       {props.children}

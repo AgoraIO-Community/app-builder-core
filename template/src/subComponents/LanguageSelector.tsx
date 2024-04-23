@@ -10,20 +10,20 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {Picker, StyleSheet, Text} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {useLanguage} from '../language/useLanguage';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import {DEFAULT_I18_DATA} from '../language';
+import ThemeConfig from '../theme';
+import Dropdown from '../atoms/Dropdown';
+import {settingsPanelLanguageLabel} from '../language/default-labels/precallScreenLabels';
 
 const LanguageSelector = () => {
-  const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage();
-  const languageData = useCustomization((data) => data?.i18n);
-  //commented for v1 release
-  //const languageText = useString('language')();
-  const languageText = 'Language';
+  const languageData = useCustomization(data => data?.i18n);
+  const languageText = useString(settingsPanelLanguageLabel)();
   if (!languageData || !languageData.length) {
     return <></>;
   }
@@ -35,36 +35,40 @@ const LanguageSelector = () => {
     return <></>;
   }
 
+  const data = [];
+
+  languageData.forEach(element => {
+    data.push({
+      label: element.label || element.locale,
+      value: element.locale,
+    });
+  });
+
   return (
-    <>
-      <Text style={style.heading}>{languageText}</Text>
-      <Picker
+    <View>
+      <Text style={style.label}>{languageText}</Text>
+      <Dropdown
+        icon={'lang-select'}
+        enabled={true}
         selectedValue={languageCode}
-        style={[{borderColor: primaryColor}, style.popupPicker]}
-        onValueChange={(itemValue) => setLanguageCode(itemValue)}>
-        {languageData.map((item) => {
-          return (
-            <Picker.Item
-              label={item.label || item.locale}
-              value={item.locale}
-              key={item.locale}
-            />
-          );
-        })}
-        {!languageData.filter((i) => i.locale === DEFAULT_I18_DATA.locale)
-          .length ? (
-          <Picker.Item
-            label={DEFAULT_I18_DATA.label || DEFAULT_I18_DATA.locale}
-            value={DEFAULT_I18_DATA.locale}
-            key={DEFAULT_I18_DATA.locale}
-          />
-        ) : null}
-      </Picker>
-    </>
+        label={''}
+        data={data}
+        onSelect={({value}) => {
+          setLanguageCode(value);
+        }}
+      />
+    </View>
   );
 };
 
 const style = StyleSheet.create({
+  label: {
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    marginBottom: 12,
+  },
   heading: {
     fontSize: 20,
     fontWeight: '700',

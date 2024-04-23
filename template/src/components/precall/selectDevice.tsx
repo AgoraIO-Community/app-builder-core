@@ -16,11 +16,11 @@ import {isWebInternal} from '../../utils/common';
 import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
-const selectDevice: React.FC = () => {
-  //commented for v1 release
-  //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
-  const selectInputDeviceLabel = 'Select Input Device';
-  return <SelectDevice />;
+export interface DeviceSelectProps {
+  isOnPrecall?: boolean;
+}
+const selectDevice = (props?: DeviceSelectProps) => {
+  return <SelectDevice {...props} />;
 };
 
 export default selectDevice;

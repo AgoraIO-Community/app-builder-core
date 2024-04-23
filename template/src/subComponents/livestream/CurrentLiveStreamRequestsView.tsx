@@ -6,24 +6,21 @@ import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 import {useString} from '../../utils/useString';
-import {ClientRole} from '../../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {ClientRoleType} from '../../../agora-rn-uikit';
+import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import Spacer from '../../atoms/Spacer';
+import {
+  peoplePanelStreamingRequestSectionHeader,
+  peoplePanelUserNotFoundLabel,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
-  //commented for v1 release
-  // const noLiveStreamingRequestsLabel = useString(
-  //   'raisedHandsListPlaceholder',
-  // )();
-  // const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  // const noUserFoundLabel = useString('noUserFoundLabel')();
-  // const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
-  const noLiveStreamingRequestsLabel = 'No streaming request(s)';
-  const remoteUserDefaultLabel = 'User';
-  const noUserFoundLabel = 'User not found';
-  const raisedHandsListTitleLabel = 'Streaming Request';
-  const {renderList} = useRender();
+  const noUserFoundLabel = useString(peoplePanelUserNotFoundLabel)();
+  const raisedHandsListTitleLabel = useString(
+    peoplePanelStreamingRequestSectionHeader,
+  )();
+  const {defaultContent} = useContent();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
@@ -34,7 +31,8 @@ const CurrentLiveStreamRequestsView = (props: any) => {
       filterObject(
         raiseHandList,
         ([k, v]) =>
-          v?.raised === RaiseHandValue.TRUE && v?.role == ClientRole.Audience,
+          v?.raised === RaiseHandValue.TRUE &&
+          v?.role == ClientRoleType.ClientRoleAudience,
       ),
     );
   }, [raiseHandList]);
@@ -73,11 +71,11 @@ const CurrentLiveStreamRequestsView = (props: any) => {
           {showRequestSection ? (
             Object.keys(activeLiveStreamRequests).map(
               (userUID: any, index: number) =>
-                renderList[userUID] ? (
+                defaultContent[userUID] ? (
                   <View style={styles.container}>
                     <View style={styles.userInfoContainer}>
                       <UserAvatar
-                        name={renderList[userUID].name}
+                        name={defaultContent[userUID].name}
                         containerStyle={containerStyle}
                         textStyle={textStyle}
                       />
@@ -85,10 +83,11 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                         <Text
                           style={styles.participantNameText}
                           numberOfLines={1}>
-                          {renderList[userUID].name}
+                          {defaultContent[userUID].name}
                         </Text>
                       </View>
                     </View>
+                    <Spacer size={24} horizontal={true} />
                     <View style={styles.btnContainer}>
                       <RemoteLiveStreamRequestReject
                         uid={userUID}
@@ -117,9 +116,9 @@ const CurrentLiveStreamRequestsView = (props: any) => {
 };
 const styles = StyleSheet.create({
   btnContainer: {
-    flex: 1,
+    //  flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
+    //  justifyContent: 'center',
     alignItems: 'center',
   },
   container: {

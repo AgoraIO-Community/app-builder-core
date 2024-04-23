@@ -15,23 +15,23 @@ import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
 import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useVideoCall} from '../components/useVideoCall';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
+import {useString} from '../utils/useString';
+import {toolbarItemInviteText} from '../language/default-labels/videoCallScreenLabels';
 
 export interface CopyJoinInfoProps {
-  showLabel?: boolean;
   showTeritaryButton?: boolean;
   render?: (onPress: () => void) => JSX.Element;
-  isOnActionSheet?: boolean;
 }
 
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
-  const {
-    showLabel = $config.ICON_TEXT || false,
-    showTeritaryButton = false,
-    isOnActionSheet = false,
-  } = props;
-  //commented for v1 release
-  //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
-  const copyMeetingInviteButton = 'Invite';
+  const {isOnActionSheet, showLabel} = useActionSheet();
+  const {isToolbarMenuItem} = useToolbarMenu();
+
+  const {showTeritaryButton = false} = props;
+  const copyMeetingInviteButton = useString(toolbarItemInviteText)();
   const {setShowInvitePopup} = useVideoCall();
 
   const onPress = () => {
@@ -49,6 +49,24 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     },
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   return props?.render ? (
@@ -56,7 +74,9 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   ) : (
     <>
       {showTeritaryButton ? (
-        <TertiaryButton text="Invite" onPress={onPress} />
+        <TertiaryButton text={copyMeetingInviteButton} onPress={onPress} />
+      ) : isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
       ) : (
         <IconButton {...iconButtonProps} />
       )}

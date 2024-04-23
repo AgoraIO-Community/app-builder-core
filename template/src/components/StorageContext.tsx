@@ -10,8 +10,9 @@
 *********************************************
 */
 import React, {createContext, ReactChildren, useEffect, useState} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
+import {ENABLE_AUTH} from '../auth/config';
 
 type rememberedDevicesListEntries = Record<
   string,
@@ -27,6 +28,7 @@ export interface StoreInterface {
     rememberedDevicesListEntries
   >;
   activeDeviceId: Record<MediaDeviceInfo['kind'], string>;
+  whiteboardNativeInfoToast?: boolean;
 }
 
 export interface StorageContextInterface {
@@ -35,6 +37,7 @@ export interface StorageContextInterface {
 }
 
 export const initStoreValue: StoreInterface = {
+  whiteboardNativeInfoToast: false,
   token: null,
   displayName: '',
   selectedLanguageCode: '',
@@ -77,14 +80,19 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           setReady(true);
         } else {
           const storeFromStorage = JSON.parse(storeString);
-          Object.keys(initStoreValue).forEach((key) => {
-            if (!storeFromStorage[key])
+          Object.keys(initStoreValue).forEach(key => {
+            if (!storeFromStorage[key]) {
               storeFromStorage[key] = initStoreValue[key];
+            }
           });
+          // unauth flow delete token from the localstoage if any
+          if (!ENABLE_AUTH) {
+            storeFromStorage['token'] = null;
+          }
+          storeFromStorage['whiteboardNativeInfoToast'] = false;
           setStore(storeFromStorage);
           setReady(true);
         }
-        console.log('store hydrated', storeString);
         setReady(true);
       } catch (e) {
         console.error('problem hydrating store', e);
@@ -97,14 +105,23 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     const syncStore = async () => {
       try {
-        await AsyncStorage.setItem('store', JSON.stringify(store));
-        console.log('store synced with value', store);
+        /**
+         * if authentication is not enabled then store react state will have the token
+         * but it won't be saved in the localstorage
+         * Fix: if we duplicate browser tab and join the same meeting, we will create new session
+         */
+        let tempStore = JSON.parse(JSON.stringify(store));
+        if (!ENABLE_AUTH) {
+          tempStore['token'] = null;
+        }
+        await AsyncStorage.setItem('store', JSON.stringify(tempStore));
       } catch (e) {
         console.log('problem syncing the store', e);
       }
     };
     ready && syncStore();
   }, [store, ready]);
+
   return (
     <StorageContext.Provider value={{store, setStore}}>
       {ready ? props.children : <></>}

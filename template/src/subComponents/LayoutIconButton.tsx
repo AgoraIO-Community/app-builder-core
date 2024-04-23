@@ -8,24 +8,29 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isMobileUA} from '../utils/common';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {useWindowDimensions} from 'react-native';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
+import {useActionSheet} from '../utils/useActionSheet';
+import {useString} from '../utils/useString';
+import {toolbarItemLayoutText} from '../language/default-labels/videoCallScreenLabels';
 
-interface LayoutIconButtonInterface {
+export interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
-  showLabel?: boolean;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const {activeUids} = useRender();
+  const {activeUids, customContent} = useContent();
+  //const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
   const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
   const isMobileView = isMobileUA();
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {isOnActionSheet} = useActionSheet();
+  const showLabel = $config.ICON_TEXT ? true : false;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
+      //@ts-ignore
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
         setModalPosition({
           bottom: isMobileOrTablet()
@@ -37,14 +42,12 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       });
     }
   };
-  //commented for v1 release
-  //const layoutLabel = useString('layoutLabel')('');
-  const layoutLabel = 'Layout';
+  const layoutLabel = useString(toolbarItemLayoutText)('');
   const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout, setLayout} = useLayout();
 
-  const layout = layouts.findIndex((item) => item.name === currentLayout);
+  const layout = layouts.findIndex(item => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
     let onPress = () => {};
     let renderContent = [];
@@ -67,12 +70,26 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         textColor: $config.FONT_COLOR,
       },
     };
-    const iconName =
-      layouts[layout]?.iconName === 'pinned' && isMobileView
-        ? 'list-view'
-        : layouts[layout]?.iconName;
-
-    renderContent.push(
+    iconButtonProps.isOnActionSheet = isOnActionSheet;
+    if (isOnActionSheet) {
+      // iconButtonProps.containerStyle = {
+      //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+      //   width: 52,
+      //   height: 52,
+      //   borderRadius: 26,
+      //   justifyContent: 'center',
+      //   alignItems: 'center',
+      // };
+      iconButtonProps.btnTextProps.textStyle = {
+        color: $config.FONT_COLOR,
+        marginTop: 8,
+        fontSize: 12,
+        fontWeight: '400',
+        fontFamily: 'Source Sans Pro',
+        textAlign: 'center',
+      };
+    }
+    const iconName = renderContent.push(
       props?.render ? (
         props.render(onPress)
       ) : (
@@ -100,12 +117,12 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
             containerStyle={{
               opacity: !activeUids || activeUids.length === 0 ? 0.6 : 1,
             }}
-            setRef={(ref) => {
+            setRef={ref => {
               layoutBtnRef.current = ref;
             }}
             key={'defaultLayoutIconWithName'}
             iconProps={{
-              name: iconName,
+              icon: layouts[layout]?.icon,
               tintColor: $config.SECONDARY_ACTION_COLOR,
             }}
             {...iconButtonProps}

@@ -13,31 +13,48 @@ interface TooltipProps {
   toolTipIcon?: React.ReactNode;
   isClickable?: boolean;
   placement?: 'top' | 'bottom' | 'left' | 'right';
+  showTooltipArrow?: boolean;
+  fontSize?: number;
   onPress?: () => void;
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
-  const {isClickable = false, placement = 'top'} = props;
-  const css = `
+  const {
+    isClickable = false,
+    placement = 'top',
+    showTooltipArrow = true,
+  } = props;
+  const css = showTooltipArrow
+    ? `
   .custom-tool-tip{
-    padding:12px;
+    padding:8px;
     border-radius: 8px;
   }
   .custom-tool-tip div{
     font-family: "Source Sans Pro";
     font-weight: 400;
-    font-size: 16px;
+    font-size: ${props.fontSize ? props.fontSize : 16}px;
   }
   .__react_component_tooltip.show{
     opacity:1;
   }
-  .custom-tool-tip::after {
-    width: 20px !important;
-    height: 20px !important;
-    border-top-right-radius: 5px !important;
-    bottom: -10px !important;
-    margin-left: -10px !important;
-  }`;
+ `
+    : `.custom-tool-tip {
+        padding:8px;
+        border-radius: 8px;
+      }
+  .custom-tool-tip div{
+    font-family: "Source Sans Pro";
+    font-weight: 400;
+    font-size: ${props.fontSize ? props.fontSize : 16}px;
+  }
+  .__react_component_tooltip.show{
+    opacity:1;
+  }
+  .custom-tool-tip::after{
+    display:none
+  }
+`;
   const randomString = (
     length = 5,
     chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -77,11 +94,11 @@ const Tooltip = (props: TooltipProps) => {
         id={toolTipId}
         backgroundColor={$config.CARD_LAYER_3_COLOR}
         className="custom-tool-tip"
-        place={'top'}
+        place={placement}
         type="dark"
         effect="solid">
         <style type="text/css">{css}</style>
-        <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           {props?.toolTipIcon ? props.toolTipIcon : null}
           <Text style={{color: $config.FONT_COLOR}}>
             {props.toolTipMessage}

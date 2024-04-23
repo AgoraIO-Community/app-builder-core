@@ -20,19 +20,22 @@ import SettingsView from '../../components/SettingsView';
 import ActionSheetContent from './ActionSheetContent';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
-import {isIOS} from '../../utils/common';
+import {isAndroid, isIOS} from '../../utils/common';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
+import Transcript from '../../subComponents/caption/Transcript';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
-const ActionSheet = () => {
+const ActionSheet = props => {
+  const {snapPointsMinMax = [100, 400]} = props;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {sidePanel, setSidePanel} = useSidePanel();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const chatSheetRef = useRef<BottomSheetModal>(null);
   const participantsSheetRef = useRef<BottomSheetModal>(null);
   const settingsSheetRef = useRef<BottomSheetModal>(null);
+  const transcriptSheetRef = useRef<BottomSheetModal>(null);
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
@@ -46,6 +49,7 @@ const ActionSheet = () => {
 
   // updating on sidepanel changes
   React.useEffect(() => {
+    let timeout;
     switch (sidePanel) {
       case SidePanelType.Participants: {
         participantsSheetRef?.current.present();
@@ -59,15 +63,37 @@ const ActionSheet = () => {
         settingsSheetRef?.current.present();
         break;
       }
+      case SidePanelType.Transcript: {
+        transcriptSheetRef?.current.present();
+        break;
+      }
       case SidePanelType.None: {
-        chatSheetRef?.current.close();
-        participantsSheetRef?.current.close();
-        settingsSheetRef?.current.close();
+        if (isAndroid()) {
+          timeout = setTimeout(() => {
+            // Code to be executed after the timeout until https://github.com/gorhom/react-native-bottom-sheet/pull/1164/files is merged
+            chatSheetRef?.current.close();
+            participantsSheetRef?.current.close();
+            settingsSheetRef?.current.close();
+            transcriptSheetRef?.current.close();
+            bottomSheetRef?.current.present();
+          }, 200);
+        } else {
+          // Code to be executed immediately without a timer
+          chatSheetRef?.current.dismiss();
+          participantsSheetRef?.current.close();
+          settingsSheetRef?.current.close();
+          transcriptSheetRef?.current.close();
+        }
+
         handleSheetChanges(0);
+        break;
       }
       default:
         bottomSheetRef?.current.present();
     }
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [sidePanel]);
 
   React.useEffect(() => {
@@ -90,7 +116,7 @@ const ActionSheet = () => {
       )}
       {/* Controls  Action Sheet*/}
       <BottomSheetModal
-        snapPoints={[100, 350]}
+        snapPoints={snapPointsMinMax}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         enablePanDownToClose={false}
@@ -108,6 +134,8 @@ const ActionSheet = () => {
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
+            native={true}
+            {...props}
           />
         </BottomSheetView>
       </BottomSheetModal>
@@ -125,6 +153,7 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Chat} />
         )}
+        android_keyboardInputMode="adjustResize"
         keyboardBehavior="extend"
         stackBehavior="push">
         <BottomSheetView>
@@ -167,6 +196,25 @@ const ActionSheet = () => {
         stackBehavior="push">
         <BottomSheetView>
           <SettingsView showHeader={false} />
+        </BottomSheetView>
+      </BottomSheetModal>
+
+      {/* Transcript Action Sheet  */}
+      <BottomSheetModal
+        snapPoints={['100%']}
+        ref={transcriptSheetRef}
+        name="TranscriptSheet"
+        onDismiss={onDismiss}
+        style={styles.container}
+        backgroundStyle={styles.backgroundStyle}
+        handleIndicatorStyle={styles.handleIndicatorStyle}
+        enableContentPanningGesture={false}
+        handleComponent={() => (
+          <ActionSheetHandle sidePanel={SidePanelType.Transcript} />
+        )}
+        stackBehavior="push">
+        <BottomSheetView>
+          <Transcript showHeader={false} />
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>

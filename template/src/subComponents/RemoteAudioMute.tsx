@@ -18,7 +18,7 @@ import Styles from '../components/styles';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
-import {useRender} from 'customization-api';
+import {I18nMuteType, useContent} from 'customization-api';
 import {calculatePosition} from '../utils/common';
 import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 export interface RemoteAudioMuteProps {
@@ -39,7 +39,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const requestRemoteAudio = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
   const [pos, setPos] = useState({});
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -61,15 +61,15 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
     <>
       <RemoteMutePopup
         action={props?.audio ? 'mute' : 'request'}
-        type="audio"
+        type={I18nMuteType.audio}
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
-        name={renderList[props.uid]?.name}
+        name={defaultContent[props.uid]?.name}
         modalPosition={pos}
         onMutePress={onPress}
       />
       <IconButton
-        setRef={(ref) => (btnRef.current = ref)}
+        setRef={ref => (btnRef.current = ref)}
         disabled={!isHost}
         onPress={() => {
           btnRef?.current?.measure(
