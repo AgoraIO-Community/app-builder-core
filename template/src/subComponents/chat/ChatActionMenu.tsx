@@ -13,6 +13,7 @@ import {
   chatActionMenuDownloadText,
   chatActionMenuDeleteText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {useSDKChatMessages} from '../../components/chat/useSDKChatMessages';
 
 interface MoreMenuProps {
   setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,20 +24,33 @@ interface CaptionsActionMenuProps {
   btnRef: React.RefObject<View>;
   fileName: string;
   fileUrl: string;
+  msgId: string;
+  privateChatUser: number;
+  isLocal: boolean;
 }
 
 export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
-  const {actionMenuVisible, setActionMenuVisible, btnRef, fileName, fileUrl} =
-    props;
+  const {
+    actionMenuVisible,
+    setActionMenuVisible,
+    btnRef,
+    fileName,
+    fileUrl,
+    msgId,
+    privateChatUser,
+    isLocal,
+  } = props;
 
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const {downloadAttachment} = useChatConfigure();
+  const {downloadAttachment, deleteAttachment} = useChatConfigure();
+  const {removeMessageFromPrivateStore, removeMessageFromStore} =
+    useSDKChatMessages();
 
   const {
-    data: {isHost},
+    data: {isHost, chat},
   } = useRoomInfo();
 
   // only Host is authorized to start/stop stt
@@ -67,6 +81,20 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     textColor: $config.FONT_COLOR,
     title: useString(chatActionMenuDeleteText)(),
     callback: () => {
+      const groupID = chat.group_id;
+      const chatType = privateChatUser ? 'singleChat' : 'groupChat';
+      const recallFromUser = privateChatUser ? privateChatUser : groupID;
+
+      if (chatType === 'singleChat') {
+        removeMessageFromPrivateStore(msgId, isLocal);
+      }
+      if (chatType === 'groupChat') {
+        removeMessageFromStore(msgId, isLocal);
+      }
+      if (isLocal) {
+        deleteAttachment(msgId, recallFromUser.toString(), chatType);
+      }
+
       setActionMenuVisible(false);
     },
   });

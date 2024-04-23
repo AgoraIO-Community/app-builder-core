@@ -210,6 +210,7 @@ export const privateChatInputPlaceHolderText =
 export const chatActionMenuDownloadText = 'chatActionMenuDownloadText';
 export const chatActionMenuCopyLinkText = 'chatActionMenuCopyLinkText';
 export const chatActionMenuDeleteText = 'chatActionMenuDeleteText';
+export const chatMsgDeletedText = 'chatMsgDeletedText';
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -602,6 +603,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatActionMenuDownloadText]?: I18nBaseType;
   [chatActionMenuCopyLinkText]?: I18nBaseType;
   [chatActionMenuDeleteText]?: I18nBaseType;
+  [chatMsgDeletedText]?: I18nBaseType;
 
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
@@ -973,6 +975,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatActionMenuDownloadText]: 'Download',
   [chatActionMenuCopyLinkText]: 'Copy File Link',
   [chatActionMenuDeleteText]: 'Delete',
+  [chatMsgDeletedText]: name => `${name} deleted this message`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute All',

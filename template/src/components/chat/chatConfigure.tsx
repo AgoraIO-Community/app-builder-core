@@ -45,6 +45,11 @@ interface chatConfigureContextInterface {
   sendChatSDKMessage: (option: ChatOption) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
+  deleteAttachment: (
+    msgId: string,
+    privateChatUser: string,
+    chatType: string,
+  ) => void;
 }
 
 export const chatConfigureContext =
@@ -52,9 +57,9 @@ export const chatConfigureContext =
     open: false,
     setOpen: () => {},
     sendChatSDKMessage: () => {},
-
     deleteChatUser: () => {},
     downloadAttachment: () => {},
+    deleteAttachment: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -63,8 +68,13 @@ const ChatConfigure = ({children}) => {
   const connRef = React.useRef(null);
   const {defaultContent} = useContent();
   const defaultContentRef = React.useRef(defaultContent);
-  const {addMessageToPrivateStore, showMessageNotification, addMessageToStore} =
-    useSDKChatMessages();
+  const {
+    addMessageToPrivateStore,
+    showMessageNotification,
+    addMessageToStore,
+    removeMessageFromPrivateStore,
+    removeMessageFromStore,
+  } = useSDKChatMessages();
   const {store} = React.useContext(StorageContext);
 
   React.useEffect(() => {
@@ -253,6 +263,18 @@ const ChatConfigure = ({children}) => {
               );
             }
           },
+
+          onRecallMessage: message => {
+            debugger;
+            console.warn('recall msgs', message);
+            // message.id ; message.mid
+            const isGroupChat = message.to === data.chat.group_id;
+            if (isGroupChat) {
+              removeMessageFromStore(message.mid, true);
+            } else {
+              removeMessageFromPrivateStore(message.mid, true);
+            }
+          },
           // on token expired
           onTokenExpired: () => {
             debugger;
@@ -297,11 +319,11 @@ const ChatConfigure = ({children}) => {
             JSON.stringify(res, null, 2),
           );
           // update local messagre store
-          // debugger;
+          debugger;
           const messageData = {
             msg: option.msg,
             createdTimestamp: timeNow(),
-            msgId: msg.id,
+            msgId: res?.serverMsgId,
             isDeleted: false,
             type: option.type,
             thumb: localFileUrl,
@@ -358,6 +380,21 @@ const ChatConfigure = ({children}) => {
     anchor.remove();
   };
 
+  const deleteAttachment = (msgId, recallFromUser, chatType) => {
+    debugger;
+    const option = {mid: msgId, to: recallFromUser, chatType};
+    if (connRef.current) {
+      connRef.current
+        .recallMessage(option)
+        .then(res => {
+          console.log('recall success', res);
+        })
+        .catch(err => {
+          console.log('recall fail', err);
+        });
+    }
+  };
+
   return (
     <chatConfigureContext.Provider
       value={{
@@ -366,6 +403,7 @@ const ChatConfigure = ({children}) => {
         sendChatSDKMessage,
         deleteChatUser,
         downloadAttachment,
+        deleteAttachment,
       }}>
       {children}
     </chatConfigureContext.Provider>

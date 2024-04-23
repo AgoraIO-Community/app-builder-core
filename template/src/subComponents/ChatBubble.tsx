@@ -36,7 +36,10 @@ import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
 import {ChatMessageType} from '../components/chat/useSDKChatMessages';
-import {videoRoomUserFallbackText} from '../language/default-labels/videoCallScreenLabels';
+import {
+  chatMsgDeletedText,
+  videoRoomUserFallbackText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
@@ -67,6 +70,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
   } = props;
 
   let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+
+  const chatMsgDeletedTxt = useString(chatMsgDeletedText);
 
   let forceShowUserNameandTimeStamp = false;
   //calculate time difference between current message and last message
@@ -210,37 +215,58 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 ) : null}
               </View>
             )}
-            {type === ChatMessageType.FILE && (
-              // <Pressable onPress={() => downloadAttachment(fileName, url)}>
-              <View style={style.fileContainer}>
-                <ImageIcon
-                  base64={true}
-                  iconSize={24}
-                  iconType="plain"
-                  name={
-                    ext === 'pdf'
-                      ? 'chat_attachment_pdf'
-                      : ext === 'doc'
-                      ? 'chat_attachment_doc'
-                      : 'chat_attachment_unknown'
-                  }
-                  tintColor={$config.SEMANTIC_NEUTRAL}
-                />
-                <Text style={style.fileName}>{fileName}</Text>
-                <MoreMenu
-                  ref={moreIconRef}
-                  setActionMenuVisible={setActionMenuVisible}
-                />
-                <ChatActionMenu
-                  actionMenuVisible={actionMenuVisible}
-                  setActionMenuVisible={setActionMenuVisible}
-                  btnRef={moreIconRef}
-                  fileName={fileName}
-                  fileUrl={url}
-                />
-              </View>
-              // </Pressable>
-            )}
+            {type === ChatMessageType.FILE ? (
+              isDeleted ? (
+                <View style={style.deleteMsgContainer}>
+                  <ImageIcon
+                    iconSize={18}
+                    iconType="plain"
+                    name="remove"
+                    tintColor={$config.SEMANTIC_NEUTRAL}
+                  />
+                  <Text
+                    style={[
+                      style.messageStyle,
+                      {color: $config.SEMANTIC_NEUTRAL, marginLeft: 5},
+                    ]}>
+                    {chatMsgDeletedTxt(
+                      isLocal ? 'You' : defaultContent[uid]?.name,
+                    )}
+                  </Text>
+                </View>
+              ) : (
+                <View style={style.fileContainer}>
+                  <ImageIcon
+                    base64={true}
+                    iconSize={24}
+                    iconType="plain"
+                    name={
+                      ext === 'pdf'
+                        ? 'chat_attachment_pdf'
+                        : ext === 'doc'
+                        ? 'chat_attachment_doc'
+                        : 'chat_attachment_unknown'
+                    }
+                    tintColor={$config.SEMANTIC_NEUTRAL}
+                  />
+                  <Text style={style.fileName}>{fileName}</Text>
+                  <MoreMenu
+                    ref={moreIconRef}
+                    setActionMenuVisible={setActionMenuVisible}
+                  />
+                  <ChatActionMenu
+                    actionMenuVisible={actionMenuVisible}
+                    setActionMenuVisible={setActionMenuVisible}
+                    btnRef={moreIconRef}
+                    fileName={fileName}
+                    fileUrl={url}
+                    msgId={msgId}
+                    privateChatUser={privateChatUser}
+                    isLocal={isLocal}
+                  />
+                </View>
+              )
+            ) : null}
           </Hyperlink>
         </View>
       </View>
@@ -344,6 +370,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
+  },
+  deleteMsgContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
 });
 

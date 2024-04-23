@@ -103,6 +103,11 @@ interface ChatMessagesInterface {
     isPrivateMessage?: boolean,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
+  removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
+  removeMessageFromPrivateStore: (
+    msgId: string,
+    isMsgRecalled: boolean,
+  ) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
@@ -112,6 +117,8 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   addMessageToPrivateStore: () => {},
   showMessageNotification: () => {},
   openPrivateChat: () => {},
+  removeMessageFromStore: () => {},
+  removeMessageFromPrivateStore: () => {},
 });
 
 const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
@@ -246,6 +253,59 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
               },
             ],
           });
+      return {...newState};
+    });
+  };
+
+  const removeMessageFromStore = (msgID, isMsgRecalled) => {
+    setMessageStore(prev => {
+      if (isMsgRecalled) {
+        const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
+        if (recalledMsgIndex !== -1) {
+          const updatedMessages = [...prev];
+          updatedMessages[recalledMsgIndex].isDeleted = true;
+          return updatedMessages;
+        } else {
+          return prev;
+        }
+      } else {
+        return prev.filter(msg => msg.msgId !== msgID);
+      }
+    });
+  };
+
+  // const removeMessageFromPrivateStore = (msgID, isMsgRecalled) => {
+  //   setPrivateMessageStore(prev => {
+  //     const state = {...prev};
+  //     const filteredData = prev[localUid].filter(msg => msg.msgId !== msgID);
+  //     const newState = {...state, [localUid]: filteredData};
+  //     return {...newState};
+  //   });
+  // };
+
+  const removeMessageFromPrivateStore = (msgID, isMsgRecalled) => {
+    setPrivateMessageStore(state => {
+      const newState = {...state};
+
+      if (isMsgRecalled) {
+        Object.keys(newState).forEach(uid => {
+          const messages = newState[uid];
+          if (messages) {
+            const recalledMsg = messages.find(msg => msg.msgId === msgID);
+            if (recalledMsg) {
+              recalledMsg.isDeleted = true;
+            }
+          }
+        });
+      } else {
+        Object.keys(newState).forEach(uid => {
+          const messages = newState[uid];
+          if (messages) {
+            newState[uid] = messages.filter(msg => msg.msgId !== msgID);
+          }
+        });
+      }
+
       return {...newState};
     });
   };
@@ -442,6 +502,8 @@ const SDKChatMessagesProvider = (props: SDKChatMessagesProviderProps) => {
         privateMessageStore,
         addMessageToStore,
         addMessageToPrivateStore,
+        removeMessageFromStore,
+        removeMessageFromPrivateStore,
         showMessageNotification,
         openPrivateChat,
       }}>

@@ -365,6 +365,26 @@ const ChatConfigure = ({children}) => {
     return res;
   };
 
+  const deleteAttachment = (msgId, recallFromUser, chatType) => {
+    debugger;
+
+    const chatMsgChatType =
+      chatType === 'singleChat'
+        ? ChatMessageChatType.PeerChat
+        : ChatMessageChatType.GroupChat;
+    const option = {mid: msgId, to: recallFromUser, chatMsgChatType};
+    if (connRef.current) {
+      connRef.current
+        .recallMessage(option)
+        .then(res => {
+          console.log('recall success', res);
+        })
+        .catch(err => {
+          console.log('recall fail', err);
+        });
+    }
+  };
+
   return (
     <chatConfigureContext.Provider
       value={{
