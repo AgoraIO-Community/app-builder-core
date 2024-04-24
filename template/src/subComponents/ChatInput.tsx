@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useEffect, useRef} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
 import {isWebInternal} from '../utils/common';
@@ -65,7 +65,16 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
-  const [inputHeight, setInputHeight] = React.useState(43); // Initial height for one line
+  const MIN_HEIGHT = 43;
+  const MAX_HEIGHT = 92;
+  const LINE_HEIGHT = 17;
+  const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT); // Initial height for one line
+
+  React.useEffect(() => {
+    if (message.length === 0) {
+      setInputHeight(MIN_HEIGHT);
+    }
+  }, [message]);
 
   const isUploadStatusShown =
     uploadStatus === UploadStatus.IN_PROGRESS ||
@@ -112,9 +121,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const {setInputActive} = useChatUIControls();
   const handleContentSizeChange = e => {
     const contentHeight = e.nativeEvent.contentSize.height;
-    const lines = Math.floor((contentHeight - 24) / 17);
-    const newHeight = Math.min(17 * lines + 24 + 2, 17 * 3 + 2); // Assuming lineHeight is 17
-    setInputHeight(newHeight);
+    const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
+    const newHeight = lines < 5 ? LINE_HEIGHT * lines + 24 + 2 : MAX_HEIGHT; // Assuming lineHeight is LINE_HEIGHT
+    message.length && setInputHeight(newHeight);
   };
 
   useEffect(() => {
@@ -140,7 +149,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       value={message}
       multiline={true}
       onChangeText={onChangeText}
-      textAlignVertical="center"
+      textAlignVertical="top"
       style={{
         color: $config.FONT_COLOR,
         textAlign: 'left',
@@ -149,18 +158,17 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
         height: inputHeight,
-        paddingRight: 0,
-        paddingLeft: 12,
-        paddingTop: 12,
-        paddingBottom: 12,
+        padding: 12,
         fontSize: ThemeConfig.FontSize.small,
-        lineHeight: 18,
+        lineHeight: LINE_HEIGHT,
         borderWidth: 1,
         borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
         backgroundColor: $config.CARD_LAYER_2_COLOR,
         borderRadius: 8,
         borderTopRightRadius: isUploadStatusShown ? 0 : 8,
         borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
+        maxHeight: MAX_HEIGHT,
+        overflow: 'scroll',
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
