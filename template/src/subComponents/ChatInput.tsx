@@ -29,7 +29,8 @@ import {ChatAttachmentButton} from './chat/ChatAttachment';
 import ChatSendButton from './chat/ChatSendButton';
 import {ChatMessageType} from '../components/chat-messages/useChatMessages';
 import {
-  groupChatInputPlaceHolderText,
+  groupChatLiveInputPlaceHolderText,
+  groupChatMeetingInputPlaceHolderText,
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
 import ChatUploadStatus from './chat/ChatUploadStatus';
@@ -83,7 +84,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const {data} = useRoomInfo();
   const [name] = useUserName();
 
-  const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
+  const groupChatInputPlaceHolder = $config.EVENT_MODE
+    ? useString(groupChatLiveInputPlaceHolderText)
+    : useString(groupChatMeetingInputPlaceHolderText);
   const privateChatInputPlaceHolder = useString(
     privateChatInputPlaceHolderText,
   );

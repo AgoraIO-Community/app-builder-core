@@ -24,7 +24,8 @@ import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import {BottomSheetTextInput} from '@gorhom/bottom-sheet';
 import {
-  groupChatInputPlaceHolderText,
+  groupChatMeetingInputPlaceHolderText,
+  groupChatLiveInputPlaceHolderText,
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
 import ChatSendButton from './chat/ChatSendButton';
@@ -72,7 +73,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
   const [name] = useUserName();
-  const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
+  const groupChatInputPlaceHolder = $config.EVENT_MODE
+    ? useString(groupChatLiveInputPlaceHolderText)
+    : useString(groupChatMeetingInputPlaceHolderText);
   const privateChatInputPlaceHolder = useString(
     privateChatInputPlaceHolderText,
   );
@@ -95,7 +98,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       contentSize: {width, height},
     },
   }) => {
-    console.warn('height', height);
     const lines = Math.floor(height / LINE_HEIGHT);
     const newHeight = lines < 5 ? LINE_HEIGHT * lines + 24 + 2 : MAX_HEIGHT; // Assuming lineHeight is LINE_HEIGHT
     message.length && setInputHeight(newHeight);

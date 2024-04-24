@@ -203,7 +203,10 @@ export const groupChatWelcomeContent = 'groupChatWelcomeContent';
 
 export const peoplePanelHeaderText = 'peoplePanelHeaderText';
 
-export const groupChatInputPlaceHolderText = 'groupChatInputPlaceHolderText';
+export const groupChatMeetingInputPlaceHolderText =
+  'groupChatMeetingInputPlaceHolderText';
+export const groupChatLiveInputPlaceHolderText =
+  'groupChatLiveInputPlaceHolderText';
 export const privateChatInputPlaceHolderText =
   'privateChatInputPlaceHolderText';
 
@@ -597,7 +600,8 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [groupChatWelcomeContent]?: I18nConditionalType;
 
-  [groupChatInputPlaceHolderText]?: I18nBaseType;
+  [groupChatLiveInputPlaceHolderText]?: I18nBaseType;
+  [groupChatMeetingInputPlaceHolderText]?: I18nBaseType;
   [privateChatInputPlaceHolderText]?: I18nBaseType;
 
   [chatActionMenuDownloadText]?: I18nBaseType;
@@ -961,7 +965,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [peoplePanelHeaderText]: 'People',
 
-  [chatPanelGroupTabText]: 'Group',
+  [chatPanelGroupTabText]: 'Public',
   [chatPanelPrivateTabText]: 'Private',
 
   [groupChatWelcomeContent]: noMessage =>
@@ -969,7 +973,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
       ? 'Welcome to Chat!\nAll messages are deleted when call ends.'
       : 'All messages are deleted when call ends.',
 
-  [groupChatInputPlaceHolderText]: name => `Chat publicly as ${name}...`,
+  [groupChatLiveInputPlaceHolderText]: name => `Chat publicly as ${name}...`,
+  [groupChatMeetingInputPlaceHolderText]: name => `Type Message Here`,
   [privateChatInputPlaceHolderText]: name => `Private Message to ${name}`,
 
   [chatActionMenuDownloadText]: 'Download',

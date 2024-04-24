@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     zIndex: 1,
     elevation: 1,
+    minWidth: 180,
   },
   rowHoveredMiddleItems: {
     backgroundColor:
