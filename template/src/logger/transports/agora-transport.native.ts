@@ -8,10 +8,14 @@ import {
   UploadFrequency,
 } from '@datadog/mobile-react-native';
 
-let loggerConfig = null;
-
 export const initTransportLayerForAgora = () => {
-  loggerConfig = new DatadogProviderConfiguration(
+  console.log(
+    'Initialized the logger in index entry file for native platforms ',
+  );
+};
+
+const getConfig = () => {
+  const loggerConfig = new DatadogProviderConfiguration(
     'pubdb41371dc4efb3e57a918a4f2096578c',
     'none',
     'fc33ae27-6fd6-4c7b-94c6-c2c11b9f565e',
@@ -51,4 +55,4 @@ const getTransportLogger = () => {
   };
 };
 
-export {DatadogProvider, getTransportLogger, loggerConfig};
+export {DatadogProvider, getTransportLogger, getConfig};
