@@ -42,13 +42,12 @@ import {
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent} from 'customization-api';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import {useSDKChatMessages} from '../components/chat/useSDKChatMessages';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {
   chatPanelUnreadMessageText,
   chatPanelUserOfflineText,
@@ -69,8 +68,7 @@ const ChatContainer = (props?: {
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {defaultContent} = useContent();
-  // const {messageStore} = useChatMessages();
-  const {privateMessageStore, messageStore} = useSDKChatMessages();
+  const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
   const {chatType, setChatType, privateChatUser, inputActive} =

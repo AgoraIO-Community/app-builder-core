@@ -4,7 +4,7 @@ import {useChatConfigure} from '../../components/chat/chatConfigure';
 import IconButton from '../../../src/atoms/IconButton';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import {useRoomInfo} from 'customization-api';
-import {ChatMessageType} from '../../components/chat/useSDKChatMessages';
+import {ChatMessageType} from '../../components/chat-messages/useChatMessages';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;

@@ -11,8 +11,8 @@ import {
 import {useChatConfigure} from '../../components/chat/chatConfigure.native';
 import {
   ChatMessageType,
-  useSDKChatMessages,
-} from '../../components/chat/useSDKChatMessages';
+  useChatMessages,
+} from '../../components/chat-messages/useChatMessages';
 import {
   ChatError,
   ChatMessage,
@@ -28,11 +28,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
 
-  const {
-    addMessageToPrivateStore,
-
-    addMessageToStore,
-  } = useSDKChatMessages();
+  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
   const fileAllowedTypes = {
     zip: true,
     txt: true,

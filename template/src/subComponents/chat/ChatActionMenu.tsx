@@ -13,7 +13,7 @@ import {
   chatActionMenuDownloadText,
   chatActionMenuDeleteText,
 } from '../../language/default-labels/videoCallScreenLabels';
-import {useSDKChatMessages} from '../../components/chat/useSDKChatMessages';
+import {useChatMessages} from '../../components/chat-messages/useChatMessages';
 
 interface MoreMenuProps {
   setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,7 +47,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const {downloadAttachment, deleteAttachment} = useChatConfigure();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
-    useSDKChatMessages();
+    useChatMessages();
 
   const {
     data: {isHost, chat},

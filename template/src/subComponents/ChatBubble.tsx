@@ -35,7 +35,7 @@ import {useChatConfigure} from '../components/chat/chatConfigure';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
-import {ChatMessageType} from '../components/chat/useSDKChatMessages';
+import {ChatMessageType} from '../components/chat-messages/useChatMessages';
 import {
   chatMsgDeletedText,
   videoRoomUserFallbackText,

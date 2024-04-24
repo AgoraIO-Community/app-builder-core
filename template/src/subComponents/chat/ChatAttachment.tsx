@@ -9,7 +9,7 @@ import {
   UploadStatus,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
-import {ChatMessageType} from '../../components/chat/useSDKChatMessages';
+import {ChatMessageType} from '../../components/chat-messages/useChatMessages';
 
 export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;

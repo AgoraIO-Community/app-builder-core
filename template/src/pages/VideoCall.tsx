@@ -53,7 +53,6 @@ import {SidePanelProvider} from '../utils/useSidePanel';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
 import {ChatUIControlsProvider} from '../components/chat-ui/useChatUIControls';
-import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {VideoMeetingDataProvider} from '../components/contexts/VideoMeetingDataContext';
@@ -77,7 +76,7 @@ import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import {isWeb} from '../utils/common';
 import ChatConfigure from '../components/chat/chatConfigure';
-import {SDKChatMessagesProvider} from '../components/chat/useSDKChatMessages';
+import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
@@ -404,7 +403,6 @@ const VideoCall: React.FC = () => {
                     <VideoQualityContextProvider>
                       <ChatUIControlsProvider>
                         <ChatNotificationProvider>
-
                           <LayoutProvider
                             value={{
                               currentLayout,
@@ -417,7 +415,6 @@ const VideoCall: React.FC = () => {
                                   setSidePanel,
                                 }}>
                                 <ChatMessagesProvider callActive={callActive}>
-                                  <SDKChatMessagesProvider callActive={callActive}>
                                   <ScreenShareProvider>
                                     <RtmConfigure
                                       setRecordingActive={setRecordingActive}
@@ -455,7 +452,7 @@ const VideoCall: React.FC = () => {
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
                                                                       <ChatConfigure>
-                                                                      <VideoCallScreenWrapper />
+                                                                        <VideoCallScreenWrapper />
                                                                       </ChatConfigure>
                                                                     </DisableChatProvider>
                                                                   </VideoCallProvider>
@@ -493,7 +490,6 @@ const VideoCall: React.FC = () => {
                                       </UserPreferenceProvider>
                                     </RtmConfigure>
                                   </ScreenShareProvider>
-                                  </SDKChatMessagesProvider>
                                 </ChatMessagesProvider>
                               </SidePanelProvider>
                             </FocusProvider>

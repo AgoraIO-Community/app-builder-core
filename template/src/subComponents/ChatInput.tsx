@@ -27,7 +27,7 @@ import {useChatConfigure} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import ChatSendButton from './chat/ChatSendButton';
-import {ChatMessageType} from '../components/chat/useSDKChatMessages';
+import {ChatMessageType} from '../components/chat-messages/useChatMessages';
 import {
   groupChatInputPlaceHolderText,
   privateChatInputPlaceHolderText,

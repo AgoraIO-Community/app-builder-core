@@ -28,33 +28,61 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
-import {useStringRef} from '../../utils/useString';
-import {
-  publicChatToastHeading,
-  multiplePublicChatToastHeading,
-  multiplePrivateChatToastHeading,
-  privateChatToastHeading,
-  multiplePublicAndPrivateChatToastHeading,
-  multiplePublicAndPrivateChatToastSubHeading,
-  multiplePublicChatToastSubHeading,
-} from '../../language/default-labels/videoCallScreenLabels';
-
-enum ChatMessageActionEnum {
-  Create = 'Create_Chat_Message',
-  Update = 'Update_Chat_Message',
-  Delete = 'Delete_Chat_Message',
-}
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
   callActive: boolean;
 }
+export enum ChatMessageType {
+  /**
+   * Text message.
+   */
+  TXT = 'txt',
+  /**
+   * Image message.
+   */
+  IMAGE = 'img',
+  /**
+   * Video message.
+   */
+  VIDEO = 'video',
+  /**
+   * Location message.
+   */
+  LOCATION = 'loc',
+  /**
+   * Voice message.
+   */
+  VOICE = 'voice',
+  /**
+   * File message.
+   */
+  FILE = 'file',
+  /**
+   * Command message.
+   */
+  CMD = 'cmd',
+  /**
+   * Custom message.
+   */
+  CUSTOM = 'custom',
+  /**
+   * Combined message.
+   */
+  COMBINE = 'combine',
+}
+
 export interface messageInterface {
   createdTimestamp: number;
   updatedTimestamp?: number;
   msg: string;
   msgId: string;
   isDeleted: boolean;
+  type: ChatMessageType;
+  thumb?: string;
+  url?: string;
+  fileName?: string;
+  ext?: string;
 }
 export interface messageStoreInterface extends messageInterface {
   uid: UidType;
@@ -63,19 +91,34 @@ export interface messageStoreInterface extends messageInterface {
 interface ChatMessagesInterface {
   messageStore: messageStoreInterface[];
   privateMessageStore: {[key: string]: messageStoreInterface[]};
-  sendChatMessage: (msg: string, toUid?: UidType) => void;
-  editChatMessage: (msgId: string, msg: string, toUid?: UidType) => void;
-  deleteChatMessage: (msgId: string, toUid?: UidType) => void;
+  addMessageToPrivateStore: (
+    uid: UidType,
+    body: messageInterface,
+    local: boolean,
+  ) => void;
+  addMessageToStore: (uid: UidType, body: messageInterface) => void;
+  showMessageNotification: (
+    msg: string,
+    uid: string,
+    isPrivateMessage?: boolean,
+  ) => void;
   openPrivateChat: (toUid: UidType) => void;
+  removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
+  removeMessageFromPrivateStore: (
+    msgId: string,
+    isMsgRecalled: boolean,
+  ) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   messageStore: [],
   privateMessageStore: {},
-  sendChatMessage: () => {},
-  editChatMessage: () => {},
-  deleteChatMessage: () => {},
+  addMessageToStore: () => {},
+  addMessageToPrivateStore: () => {},
+  showMessageNotification: () => {},
   openPrivateChat: () => {},
+  removeMessageFromStore: () => {},
+  removeMessageFromPrivateStore: () => {},
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
@@ -94,7 +137,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     useChatUIControls();
   const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
     useChatNotification();
+  // to store group msgs
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
+  // to store private msgs
   const [privateMessageStore, setPrivateMessageStore] = useState<{
     [key: string]: messageStoreInterface[];
   }>({});
@@ -107,38 +152,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
-  //public single
-  const fromText = useStringRef(publicChatToastHeading);
-
-  //public multple
-  const multiplePublicChatToastHeadingTT = useStringRef(
-    multiplePublicChatToastHeading,
-  );
-  //@ts-ignore
-  const multiplePublicChatToastSubHeadingTT = useStringRef<{
-    count: number;
-    from: string;
-  }>(multiplePublicChatToastSubHeading);
-
-  //private single
-  const privateMessageLabel = useStringRef(privateChatToastHeading);
-
-  //private multiple
-  //@ts-ignore
-  const multiplePrivateChatToastHeadingTT = useStringRef<{count: number}>(
-    multiplePrivateChatToastHeading,
-  );
-
-  //multiple private and public toast
-  const multiplePublicAndPrivateChatToastHeadingTT = useStringRef(
-    multiplePublicAndPrivateChatToastHeading,
-  );
-  //@ts-ignore
-  const multiplePublicAndPrivateChatToastSubHeadingTT = useStringRef<{
-    publicChatCount: number;
-    privateChatCount: number;
-    from: string;
-  }>(multiplePublicAndPrivateChatToastSubHeading);
+  //commented for v1 release
+  //const fromText = useString('messageSenderNotificationLabel');
+  const fromText = (name: string) => `${name} commented in the public chat`;
+  const privateMessageLabel = 'You’ve received a private message';
 
   useEffect(() => {
     callActiveRef.current.callActive = callActive;
@@ -161,23 +178,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }, [privateChatUser]);
 
   const allEqual = arr => arr.every(val => val === arr[0]);
-  const openPrivateChat = uidAsNumber => {
-    //move this logic into ChatContainer
-    // setUnreadPrivateMessageCount(
-    //   unreadPrivateMessageCount -
-    //     (unreadIndividualMessageCount[uidAsNumber] || 0),
-    // );
-    // setUnreadIndividualMessageCount((prevState) => {
-    //   return {
-    //     ...prevState,
-    //     [uidAsNumber]: 0,
-    //   };
-    // });
-
+  const openPrivateChat = (uidAsNumber: number) => {
     setPrivateChatUser(uidAsNumber);
     setChatType(ChatType.Private);
     setSidePanel(SidePanelType.Chat);
   };
+
+  //TODO: check why need
 
   const updateRenderListState = (
     uid: number,
@@ -185,374 +192,6 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
-
-  React.useEffect(() => {
-    const showMessageNotification = (
-      msg: string,
-      uid: string,
-      isPrivateMessage: boolean = false,
-      forceStop: boolean = false,
-    ) => {
-      //don't show group message notification if group chat is open
-      if (!isPrivateMessage && groupActiveRef.current) {
-        return;
-      }
-      const uidAsNumber = parseInt(uid);
-      //don't show private message notification if private chat is open
-      if (isPrivateMessage && uidAsNumber === individualActiveRef.current) {
-        return;
-      }
-      if (forceStop) {
-        return;
-      }
-      clearTimeout(timeoutRef.current);
-      isToastVisibleRef.current = true;
-      timeoutRef.current = setTimeout(() => {
-        isToastVisibleRef.current = false;
-        previousNotificationRef.current = [];
-      }, 3000);
-
-      previousNotificationRef.current.push({
-        isPrivateMessage: isPrivateMessage,
-        fromUid: isPrivateMessage ? uidAsNumber : 0,
-        from:
-          !isPrivateMessage &&
-          //@ts-ignore
-          defaultContentRef.current.defaultContent[uidAsNumber]?.name
-            ? trimText(
-                //@ts-ignore
-                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
-              )
-            : '',
-      });
-
-      const privateMessages = previousNotificationRef.current.filter(
-        i => i.isPrivateMessage,
-      );
-      const publicMessages = previousNotificationRef.current.filter(
-        i => !i.isPrivateMessage,
-      );
-
-      //if 1 or more public and private messages
-      if (publicMessages && publicMessages.length > 1) {
-        const fromNamesArray = publicMessages
-          .filter(i => i.from !== undefined && i.from !== null && i.from !== '')
-          .map(i => i.from);
-        //removing the duplicate names
-        const fromNamesArrayUnique = [...new Set(fromNamesArray)];
-        //public chat with two name will seperated by "and"
-        //public chat with two or more name will have "and more" at the end
-        const fromNamesArrayUpdated =
-          fromNamesArrayUnique.length > 2
-            ? fromNamesArrayUnique
-                .slice(0, 2)
-                .map((i, index) => (index === 0 ? i + ', ' : i))
-                .concat(privateMessages?.length ? ', more' : ' and more')
-            : fromNamesArrayUnique.length == 2
-            ? fromNamesArrayUnique.map((i, index) =>
-                index === 0 ? i + ' and ' : i,
-              )
-            : fromNamesArrayUnique;
-        //converting the names array to string
-        const fromNames = fromNamesArrayUpdated.join('');
-        Toast.show({
-          //@ts-ignore
-          update: isToastVisibleRef.current ? true : false,
-          primaryBtn: null,
-          secondaryBtn: null,
-          type: 'info',
-          leadingIconName: 'chat-nav',
-          text1:
-            privateMessages && privateMessages.length
-              ? multiplePublicAndPrivateChatToastHeadingTT?.current()
-              : multiplePublicChatToastHeadingTT?.current(),
-          text2:
-            privateMessages && privateMessages.length
-              ? //@ts-ignore
-                multiplePublicAndPrivateChatToastSubHeadingTT?.current({
-                  publicChatCount: publicMessages.length,
-                  privateChatCount: privateMessages.length,
-                  from: fromNames,
-                })
-              : //@ts-ignore
-                multiplePublicChatToastSubHeadingTT?.current({
-                  count: publicMessages.length,
-                  from: fromNames,
-                }),
-          visibilityTime: 3000,
-          onPress: () => {
-            if (isPrivateMessage) {
-              openPrivateChat(uidAsNumber);
-            } else {
-              //move this logic into ChatContainer
-              // setUnreadGroupMessageCount(0);
-              setPrivateChatUser(0);
-              setChatType(ChatType.Group);
-              setSidePanel(SidePanelType.Chat);
-            }
-          },
-        });
-      }
-      //if one or more private message and no public messages
-      else if (privateMessages && privateMessages.length > 1) {
-        Toast.show({
-          //@ts-ignore
-          update: isToastVisibleRef.current ? true : false,
-          primaryBtn: null,
-          secondaryBtn: null,
-          type: 'info',
-          leadingIconName: 'chat-nav',
-          text1:
-            //@ts-ignore
-            multiplePrivateChatToastHeadingTT?.current({
-              count: privateMessages.length,
-            }),
-          text2: ``,
-          visibilityTime: 3000,
-          onPress: () => {
-            const openPrivateChatDetails = allEqual(
-              privateMessages.map(i => i.fromUid),
-            );
-            //if all private message comes from the single user then open details private chat
-            if (openPrivateChatDetails) {
-              openPrivateChat(privateMessages[0].fromUid);
-            }
-            //if private message comes from different user then open private tab not the private chatting window
-            else {
-              //open private tab (not the detail of private chat user)
-              setPrivateChatUser(0);
-              setChatType(ChatType.Group);
-              setSidePanel(SidePanelType.Chat);
-            }
-          },
-        });
-      }
-      //either 1 public or 1 private message
-      else {
-        Toast.show({
-          //@ts-ignore
-          update: isToastVisibleRef.current ? true : false,
-          primaryBtn: null,
-          secondaryBtn: null,
-          type: 'info',
-          leadingIconName: 'chat-nav',
-          text1: isPrivateMessage
-            ? privateMessageLabel?.current()
-            : //@ts-ignore
-            defaultContentRef.current.defaultContent[uidAsNumber]?.name
-            ? fromText?.current(
-                trimText(
-                  //@ts-ignore
-                  defaultContentRef.current.defaultContent[uidAsNumber]?.name,
-                ),
-              )
-            : '',
-          text2: isPrivateMessage
-            ? ''
-            : msg.length > 30
-            ? msg.slice(0, 30) + '...'
-            : msg,
-          visibilityTime: 3000,
-          onPress: () => {
-            if (isPrivateMessage) {
-              openPrivateChat(uidAsNumber);
-            } else {
-              //move this logic into ChatContainer
-              // setUnreadGroupMessageCount(0);
-              setPrivateChatUser(0);
-              setChatType(ChatType.Group);
-              setSidePanel(SidePanelType.Chat);
-            }
-          },
-        });
-      }
-    };
-    const unsubPublicChatMessage = events.on(
-      EventNames.PUBLIC_CHAT_MESSAGE,
-      data => {
-        const forceStop =
-          $config.ENABLE_WAITING_ROOM &&
-          !isHostRef.current.isHost &&
-          !callActiveRef.current.callActive;
-        //if call is not active don't store the message in the state
-        if (forceStop) {
-          return;
-        }
-        const payload = JSON.parse(data.payload);
-        const messageAction = payload.action;
-        const messageData = payload.value;
-        switch (messageAction) {
-          case ChatMessageActionEnum.Create:
-            showMessageNotification(
-              messageData.msg,
-              `${data.sender}`,
-              false,
-              forceStop,
-            );
-            addMessageToStore(data.sender, {
-              msg: messageData.msg,
-              createdTimestamp: messageData.createdTimestamp,
-              isDeleted: messageData.isDeleted,
-              msgId: messageData.msgId,
-            });
-            /**
-             * if chat group window is not active.
-             * then we will increment the unread count
-             */
-            if (!groupActiveRef.current) {
-              setUnreadGroupMessageCount(prevState => {
-                return prevState + 1;
-              });
-            }
-            break;
-          case ChatMessageActionEnum.Update:
-            setMessageStore(prevState => {
-              const newState = prevState.map(item => {
-                if (
-                  item.msgId === messageData.msgId &&
-                  item.uid === data.sender
-                ) {
-                  return {
-                    ...item,
-                    msg: messageData.msg,
-                    updatedTimestamp: messageData.updatedTimestamp,
-                  };
-                } else {
-                  return item;
-                }
-              });
-              return newState;
-            });
-            break;
-          case ChatMessageActionEnum.Delete:
-            setMessageStore(prevState => {
-              const newState = prevState.map(item => {
-                if (
-                  item.msgId === messageData.msgId &&
-                  item.uid === data.sender
-                ) {
-                  return {
-                    ...item,
-                    isDeleted: true,
-                    updatedTimestamp: messageData.updatedTimestamp,
-                  };
-                } else {
-                  return item;
-                }
-              });
-              return newState;
-            });
-            break;
-          default:
-            break;
-        }
-      },
-    );
-
-    const unsubPrivateChatMessage = events.on(
-      EventNames.PRIVATE_CHAT_MESSAGE,
-      data => {
-        const payload = JSON.parse(data.payload);
-        const messageAction = payload.action;
-        const messageData = payload.value;
-        switch (messageAction) {
-          case ChatMessageActionEnum.Create:
-            //To order chat participant based on recent message
-            try {
-              updateRenderListState(data.sender, {
-                lastMessageTimeStamp: new Date().getTime(),
-              });
-            } catch (error) {
-              console.log("ERROR : couldn't update the last message timestamp");
-            }
-            showMessageNotification(messageData.msg, `${data.sender}`, true);
-            addMessageToPrivateStore(
-              data.sender,
-              {
-                msg: messageData.msg,
-                createdTimestamp: messageData.createdTimestamp,
-                msgId: messageData.msgId,
-                isDeleted: messageData.isDeleted,
-              },
-              false,
-            );
-            /**
-             * if user's private window is active.
-             * then we will not increment the unread count
-             */
-
-            if (!(individualActiveRef.current === data.sender)) {
-              setUnreadIndividualMessageCount(prevState => {
-                const prevCount =
-                  prevState && prevState[data.sender]
-                    ? prevState[data.sender]
-                    : 0;
-                return {
-                  ...prevState,
-                  [data.sender]: prevCount + 1,
-                };
-              });
-            }
-            break;
-          case ChatMessageActionEnum.Update:
-            setPrivateMessageStore(prevState => {
-              const privateChatOfUid = prevState[data.sender];
-              const updatedData = privateChatOfUid.map(item => {
-                if (
-                  item.msgId === messageData.msgId &&
-                  item.uid === data.sender
-                ) {
-                  return {
-                    ...item,
-                    msg: messageData.msg,
-                    updatedTimestamp: messageData.updatedTimestamp,
-                  };
-                } else {
-                  return item;
-                }
-              });
-              const newState = {
-                ...prevState,
-                [data.sender]: updatedData,
-              };
-              return newState;
-            });
-            break;
-          case ChatMessageActionEnum.Delete:
-            setPrivateMessageStore(prevState => {
-              const privateChatOfUid = prevState[data.sender];
-              const updatedData = privateChatOfUid.map(item => {
-                if (
-                  item.msgId === messageData.msgId &&
-                  item.uid === data.sender
-                ) {
-                  return {
-                    ...item,
-                    isDeleted: true,
-                    updatedTimestamp: messageData.updatedTimestamp,
-                  };
-                } else {
-                  return item;
-                }
-              });
-              const newState = {
-                ...prevState,
-                [data.sender]: updatedData,
-              };
-              return newState;
-            });
-            break;
-          default:
-            break;
-        }
-      },
-    );
-
-    return () => {
-      unsubPublicChatMessage();
-      unsubPrivateChatMessage();
-    };
-  }, []);
 
   const addMessageToStore = (uid: UidType, body: messageInterface) => {
     setMessageStore((m: messageStoreInterface[]) => {
@@ -564,6 +203,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           msg: body.msg,
           msgId: body.msgId,
           isDeleted: body.isDeleted,
+          type: body.type,
+          thumb: body?.thumb,
+          url: body?.url,
+          ext: body?.ext,
+          fileName: body?.fileName,
         },
       ];
     });
@@ -585,6 +229,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
               msg: body.msg,
               msgId: body.msgId,
               isDeleted: body.isDeleted,
+              type: body.type,
+              thumb: body?.thumb,
+              url: body?.url,
+              ext: body?.ext,
+              fileName: body?.fileName,
             },
           ])
         : (newState = {
@@ -596,6 +245,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 msg: body.msg,
                 msgId: body.msgId,
                 isDeleted: body.isDeleted,
+                type: body.type,
+                thumb: body.thumb,
+                url: body.url,
+                ext: body?.ext,
+                fileName: body?.fileName,
               },
             ],
           });
@@ -603,166 +257,242 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     });
   };
 
-  const sendChatMessage = (msg: string, toUid?: UidType) => {
-    if (typeof msg == 'string' && msg.trim() === '') return;
-    if (toUid) {
-      const messageData = {
-        msg,
-        createdTimestamp: timeNow(),
-        msgId: getUniqueID(),
-        isDeleted: false,
-      };
-      events.send(
-        EventNames.PRIVATE_CHAT_MESSAGE,
-        JSON.stringify({
-          value: messageData,
-          action: ChatMessageActionEnum.Create,
-        }),
-        PersistanceLevel.None,
-        toUid,
-      );
-      addMessageToPrivateStore(toUid, messageData, true);
-    } else {
-      const messageData = {
-        msg,
-        msgId: getUniqueID(),
-        isDeleted: false,
-        createdTimestamp: timeNow(),
-      };
-      events.send(
-        EventNames.PUBLIC_CHAT_MESSAGE,
-        JSON.stringify({
-          value: messageData,
-          action: ChatMessageActionEnum.Create,
-        }),
-        PersistanceLevel.None,
-      );
-      addMessageToStore(localUid, messageData);
-    }
+  const removeMessageFromStore = (msgID, isMsgRecalled) => {
+    console.warn('msg delete native', msgID);
+    setMessageStore(prev => {
+      if (isMsgRecalled) {
+        const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
+        if (recalledMsgIndex !== -1) {
+          const updatedMessages = [...prev];
+          updatedMessages[recalledMsgIndex].isDeleted = true;
+          return updatedMessages;
+        } else {
+          return prev;
+        }
+      } else {
+        return prev.filter(msg => msg.msgId !== msgID);
+      }
+    });
   };
 
-  const editChatMessage = (msgId: string, msg: string, toUid?: UidType) => {
-    if (typeof msg == 'string' && msg.trim() === '') return;
-    if (toUid) {
-      const checkData = privateMessageStore[toUid].filter(
-        item => item.msgId === msgId && item.uid === localUid,
-      );
-      if (checkData && checkData.length) {
-        const editMsgData = {msg, updatedTimestamp: timeNow()};
-        events.send(
-          EventNames.PRIVATE_CHAT_MESSAGE,
-          JSON.stringify({
-            value: {msgId, ...editMsgData},
-            action: ChatMessageActionEnum.Update,
-          }),
-          PersistanceLevel.None,
-          toUid,
-        );
-        setPrivateMessageStore(prevState => {
-          const privateChatOfUid = prevState[toUid];
-          const updatedData = privateChatOfUid.map(item => {
-            if (item.msgId === msgId) {
-              return {...item, ...editMsgData};
-            } else {
-              return item;
+  // const removeMessageFromPrivateStore = (msgID, isMsgRecalled) => {
+  //   setPrivateMessageStore(prev => {
+  //     const state = {...prev};
+  //     const filteredData = prev[localUid].filter(msg => msg.msgId !== msgID);
+  //     const newState = {...state, [localUid]: filteredData};
+  //     return {...newState};
+  //   });
+  // };
+
+  const removeMessageFromPrivateStore = (msgID, isMsgRecalled) => {
+    setPrivateMessageStore(state => {
+      const newState = {...state};
+
+      if (isMsgRecalled) {
+        Object.keys(newState).forEach(uid => {
+          const messages = newState[uid];
+          if (messages) {
+            const recalledMsg = messages.find(msg => msg.msgId === msgID);
+            if (recalledMsg) {
+              recalledMsg.isDeleted = true;
             }
-          });
-          const newState = {...prevState, [toUid]: updatedData};
-          return newState;
+          }
         });
       } else {
-        console.log("You don't have permission to edit");
-      }
-    } else {
-      //check if user has permission to edit
-      const checkData = messageStore.filter(
-        item => item.msgId === msgId && item.uid === localUid,
-      );
-      if (checkData && checkData.length) {
-        const editMsgData = {msg, updatedTimestamp: timeNow()};
-        events.send(
-          EventNames.PUBLIC_CHAT_MESSAGE,
-          JSON.stringify({
-            value: {msgId, ...editMsgData},
-            action: ChatMessageActionEnum.Update,
-          }),
-          PersistanceLevel.None,
-        );
-        setMessageStore(prevState => {
-          const newState = prevState.map(item => {
-            if (item.msgId === msgId) {
-              return {...item, ...editMsgData};
-            } else {
-              return item;
-            }
-          });
-          return newState;
+        Object.keys(newState).forEach(uid => {
+          const messages = newState[uid];
+          if (messages) {
+            newState[uid] = messages.filter(msg => msg.msgId !== msgID);
+          }
         });
-      } else {
-        console.log("You don't have permission to edit");
       }
-    }
+
+      return {...newState};
+    });
   };
 
-  const deleteChatMessage = (msgId: string, toUid?: UidType) => {
-    if (toUid) {
-      const checkData = privateMessageStore[toUid].filter(
-        item => item.msgId === msgId && item.uid === localUid,
-      );
-      if (checkData && checkData.length) {
-        const deleteMsgData = {updatedTimestamp: timeNow()};
-        events.send(
-          EventNames.PRIVATE_CHAT_MESSAGE,
-          JSON.stringify({
-            value: {msgId, ...deleteMsgData},
-            action: ChatMessageActionEnum.Delete,
-          }),
-          PersistanceLevel.None,
-          toUid,
-        );
-        setPrivateMessageStore(prevState => {
-          const privateChatOfUid = prevState[toUid];
-          const updatedData = privateChatOfUid.map(item => {
-            if (item.msgId === msgId) {
-              return {...item, isDeleted: true, ...deleteMsgData};
-            } else {
-              return item;
-            }
-          });
-          const newState = {...prevState, [toUid]: updatedData};
-          return newState;
+  const showMessageNotification = (
+    msg: string,
+    uid: string,
+    isPrivateMessage: boolean = false,
+    forceStop: boolean = false,
+  ) => {
+    if (isPrivateMessage) {
+      // update notification count
+      if (!(individualActiveRef.current === Number(uid))) {
+        setUnreadIndividualMessageCount(prevState => {
+          const prevCount = prevState && prevState[uid] ? prevState[uid] : 0;
+          return {
+            ...prevState,
+            [uid]: prevCount + 1,
+          };
         });
-      } else {
-        console.log("You don't have permission to delete");
       }
     } else {
-      //check if user has permission to delete
-      const checkData = messageStore.filter(
-        item => item.msgId === msgId && item.uid === localUid,
-      );
-      if (checkData && checkData.length) {
-        const deleteMsgData = {updatedTimestamp: timeNow()};
-        events.send(
-          EventNames.PUBLIC_CHAT_MESSAGE,
-          JSON.stringify({
-            value: {msgId, ...deleteMsgData},
-            action: ChatMessageActionEnum.Delete,
-          }),
-          PersistanceLevel.None,
-        );
-        setMessageStore(prevState => {
-          const newState = prevState.map(item => {
-            if (item.msgId === msgId) {
-              return {...item, isDeleted: true, ...deleteMsgData};
-            } else {
-              return item;
-            }
-          });
-          return newState;
+      if (!groupActiveRef.current) {
+        setUnreadGroupMessageCount(prevState => {
+          return prevState + 1;
         });
-      } else {
-        console.log("You don't have permission to delete");
       }
+    }
+
+    //don't show group message notification if group chat is open
+    if (!isPrivateMessage && groupActiveRef.current) {
+      return;
+    }
+    const uidAsNumber = parseInt(uid);
+    //don't show private message notification if private chat is open
+    if (isPrivateMessage && uidAsNumber === individualActiveRef.current) {
+      return;
+    }
+    if (forceStop) {
+      return;
+    }
+    clearTimeout(timeoutRef.current);
+    isToastVisibleRef.current = true;
+    timeoutRef.current = setTimeout(() => {
+      isToastVisibleRef.current = false;
+      previousNotificationRef.current = [];
+    }, 3000);
+
+    previousNotificationRef.current.push({
+      isPrivateMessage: isPrivateMessage,
+      fromUid: isPrivateMessage ? uidAsNumber : 0,
+      from:
+        !isPrivateMessage &&
+        //@ts-ignore
+        defaultContentRef.current.defaultContent[uidAsNumber]?.name
+          ? trimText(
+              //@ts-ignore
+              defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+            )
+          : '',
+    });
+
+    const privateMessages = previousNotificationRef.current.filter(
+      i => i.isPrivateMessage,
+    );
+    const publicMessages = previousNotificationRef.current.filter(
+      i => !i.isPrivateMessage,
+    );
+
+    //if 1 or more public and private messages
+    if (publicMessages && publicMessages.length > 1) {
+      const fromNamesArray = publicMessages
+        .filter(i => i.from !== undefined && i.from !== null && i.from !== '')
+        .map(i => i.from);
+      //removing the duplicate names
+      const fromNamesArrayUnique = [...new Set(fromNamesArray)];
+      //public chat with two name will seperated by "and"
+      //public chat with two or more name will have "and more" at the end
+      const fromNamesArrayUpdated =
+        fromNamesArrayUnique.length > 2
+          ? fromNamesArrayUnique
+              .slice(0, 2)
+              .map((i, index) => (index === 0 ? i + ', ' : i))
+              .concat(privateMessages?.length ? ', more' : ' and more')
+          : fromNamesArrayUnique.length == 2
+          ? fromNamesArrayUnique.map((i, index) =>
+              index === 0 ? i + ' and ' : i,
+            )
+          : fromNamesArrayUnique;
+      //converting the names array to string
+      const fromNames = fromNamesArrayUpdated.join('');
+      Toast.show({
+        //@ts-ignore
+        update: isToastVisibleRef.current ? true : false,
+        primaryBtn: null,
+        secondaryBtn: null,
+        type: 'info',
+        leadingIconName: 'chat-nav',
+        text1:
+          privateMessages && privateMessages.length
+            ? 'New comments in Public & Private Chat'
+            : 'New comments in Public Chat',
+        text2:
+          privateMessages && privateMessages.length
+            ? `You have ${publicMessages.length} new messages from ${fromNames} and ${privateMessages.length} Private chat`
+            : `You have ${publicMessages.length} new messages from ${fromNames}`,
+        visibilityTime: 3000,
+        onPress: () => {
+          if (isPrivateMessage) {
+            openPrivateChat(uidAsNumber);
+          } else {
+            //move this logic into ChatContainer
+            // setUnreadGroupMessageCount(0);
+            setPrivateChatUser(0);
+            setChatType(ChatType.Group);
+            setSidePanel(SidePanelType.Chat);
+          }
+        },
+      });
+    }
+    //if one or more private message and no public messages
+    else if (privateMessages && privateMessages.length > 1) {
+      Toast.show({
+        //@ts-ignore
+        update: isToastVisibleRef.current ? true : false,
+        primaryBtn: null,
+        secondaryBtn: null,
+        type: 'info',
+        leadingIconName: 'chat-nav',
+        text1: `You’ve received ${privateMessages.length} private messages`,
+        text2: ``,
+        visibilityTime: 3000,
+        onPress: () => {
+          const openPrivateChatDetails = allEqual(
+            privateMessages.map(i => i.fromUid),
+          );
+          //if all private message comes from the single user then open details private chat
+          if (openPrivateChatDetails) {
+            openPrivateChat(privateMessages[0].fromUid);
+          }
+          //if private message comes from different user then open private tab not the private chatting window
+          else {
+            //open private tab (not the detail of private chat user)
+            setPrivateChatUser(0);
+            setChatType(ChatType.Group);
+            setSidePanel(SidePanelType.Chat);
+          }
+        },
+      });
+    }
+    //either 1 public or 1 private message
+    else {
+      Toast.show({
+        //@ts-ignore
+        update: isToastVisibleRef.current ? true : false,
+        primaryBtn: null,
+        secondaryBtn: null,
+        type: 'info',
+        leadingIconName: 'chat-nav',
+        text1: isPrivateMessage
+          ? privateMessageLabel
+          : //@ts-ignore
+          defaultContentRef.current.defaultContent[uidAsNumber]?.name
+          ? fromText(
+              trimText(
+                //@ts-ignore
+                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+              ),
+            )
+          : '',
+        text2: isPrivateMessage
+          ? ''
+          : msg.length > 30
+          ? msg.slice(0, 30) + '...'
+          : msg,
+        visibilityTime: 3000,
+        onPress: () => {
+          if (isPrivateMessage) {
+            openPrivateChat(uidAsNumber);
+          } else {
+            setPrivateChatUser(0);
+            setChatType(ChatType.Group);
+            setSidePanel(SidePanelType.Chat);
+          }
+        },
+      });
     }
   };
 
@@ -771,9 +501,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       value={{
         messageStore,
         privateMessageStore,
-        sendChatMessage,
-        editChatMessage,
-        deleteChatMessage,
+        addMessageToStore,
+        addMessageToPrivateStore,
+        removeMessageFromStore,
+        removeMessageFromPrivateStore,
+        showMessageNotification,
         openPrivateChat,
       }}>
       {props.children}

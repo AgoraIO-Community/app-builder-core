@@ -11,10 +11,7 @@
 */
 import React, {useContext, useEffect, useRef} from 'react';
 import {View, TouchableOpacity, StyleSheet, Image, Text} from 'react-native';
-import ColorContext from '../components/ColorContext';
-import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 
 import {
@@ -33,7 +30,7 @@ import {
 import ChatSendButton from './chat/ChatSendButton';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import {useChatConfigure} from '../components/chat/chatConfigure';
-import {ChatMessageType} from '../components/chat/useSDKChatMessages';
+import {ChatMessageType} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ChatUploadStatus from './chat/ChatUploadStatus';
 

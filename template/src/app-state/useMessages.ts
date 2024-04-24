@@ -12,9 +12,9 @@ export interface messageInterface {
   privateMessages: {
     [key: string]: messageStoreInterface[];
   };
-  sendMessage: (msg: string, toUid?: number) => void;
-  editMessage: (msgId: string, msg: string, toUid?: number) => void;
-  deleteMessage: (msgId: string, toUid?: number) => void;
+  // sendMessage: (msg: string, toUid?: number) => void;
+  // editMessage: (msgId: string, msg: string, toUid?: number) => void;
+  // deleteMessage: (msgId: string, toUid?: number) => void;
   groupUnreadCount: number;
   individualUnreadCount: individualUnreadMessageCount;
   setGroupUnreadCount: React.Dispatch<React.SetStateAction<number>>;
@@ -28,11 +28,11 @@ export interface messageInterface {
  */
 export const useMessages: () => messageInterface = () => {
   const {
-    deleteChatMessage: deleteMessage,
-    editChatMessage: editMessage,
+    // deleteChatMessage: deleteMessage,
+    //editChatMessage: editMessage,
     messageStore: groupMessages,
     privateMessageStore: privateMessages,
-    sendChatMessage: sendMessage,
+    //sendChatMessage: sendMessage,
   } = useChatMessages();
   const {
     setUnreadIndividualMessageCount: setIndividualUnreadCount,
@@ -44,9 +44,9 @@ export const useMessages: () => messageInterface = () => {
   return {
     groupMessages,
     privateMessages,
-    sendMessage,
-    editMessage,
-    deleteMessage,
+    //sendMessage,
+    //editMessage,
+    //deleteMessage,
     groupUnreadCount,
     individualUnreadCount,
     setGroupUnreadCount,

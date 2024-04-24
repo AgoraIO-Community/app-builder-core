@@ -4,7 +4,10 @@ import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 
 import {useContent} from 'customization-api';
-import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
+import {
+  ChatMessageType,
+  useChatMessages,
+} from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
 import StorageContext from '../StorageContext';
 
@@ -74,7 +77,7 @@ const ChatConfigure = ({children}) => {
     addMessageToStore,
     removeMessageFromPrivateStore,
     removeMessageFromStore,
-  } = useSDKChatMessages();
+  } = useChatMessages();
   const {store} = React.useContext(StorageContext);
 
   React.useEffect(() => {

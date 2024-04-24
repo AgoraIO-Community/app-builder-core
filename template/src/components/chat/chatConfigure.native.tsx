@@ -13,7 +13,10 @@ import {
   ChatMessageStatusCallback,
 } from 'react-native-agora-chat';
 import StorageContext from '../StorageContext';
-import {ChatMessageType, useSDKChatMessages} from './useSDKChatMessages';
+import {
+  ChatMessageType,
+  useChatMessages,
+} from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -73,7 +76,7 @@ const ChatConfigure = ({children}) => {
     addMessageToStore,
     removeMessageFromStore,
     removeMessageFromPrivateStore,
-  } = useSDKChatMessages();
+  } = useChatMessages();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
