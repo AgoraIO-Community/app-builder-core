@@ -101,7 +101,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         setSaved(false);
       }, 2000);
       setEditable(false);
-      logger.log(LogSource.Internals, 'NAME', `Name changed ${name}`);
+      logger.log(LogSource.Internals, 'NAME', `Name changed ${newName}`);
       saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
