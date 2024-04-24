@@ -6,7 +6,7 @@ import {
   ENABLE_AGORA_LOGGER_TRANSPORT,
   ENABLE_BROWSER_CONSOLE_LOGS,
   ENABLE_CUSTOMER_LOGGER_TRANSPORT,
-} from './contants';
+} from './constants';
 import {
   getTransportLogger,
   initTransportLayerForAgora,
