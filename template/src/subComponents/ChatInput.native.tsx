@@ -44,7 +44,7 @@ const ChatPanel = () => {
     <View style={style.chatPanelContainer}>
       <View style={style.chatPanel}>
         <ChatAttachmentButton />
-        <ChatEmojiButton />
+        {/* <ChatEmojiButton /> */}
       </View>
       <ChatSendButton />
     </View>

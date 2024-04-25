@@ -18,6 +18,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 export interface ImageIconProps {
   tintColor?: string;
   name?: keyof IconsInterface;
+  hoverIconName?: keyof IconsInterface;
   icon?: string;
   iconSize?: number;
   iconContainerStyle?: ViewStyle;
@@ -35,6 +36,7 @@ const ImageIcon = (props: ImageIconProps) => {
   let defaultSize = $config.ICON_TEXT ? 26 : 24;
   const {
     name,
+    hoverIconName = name,
     icon = undefined,
     iconSize = defaultSize,
     tintColor,
@@ -42,6 +44,7 @@ const ImageIcon = (props: ImageIconProps) => {
     base64TintColor = '',
     iconType = 'round',
     iconContainerStyle,
+    isHovered,
   } = props;
   return (
     <View
@@ -82,7 +85,7 @@ const ImageIcon = (props: ImageIconProps) => {
           <UIKitImageIcon
             tintColor={base64TintColor}
             //@ts-ignore
-            name={name}
+            name={isHovered ? hoverIconName : name}
             style={{width: iconSize, height: iconSize}}
           />
         ) : icon ? (
@@ -92,7 +95,11 @@ const ImageIcon = (props: ImageIconProps) => {
             style={{width: iconSize, height: iconSize}}
           />
         ) : name ? (
-          <CustomIcon name={name} color={tintColor} size={iconSize} />
+          <CustomIcon
+            name={isHovered ? hoverIconName : name}
+            color={tintColor}
+            size={iconSize}
+          />
         ) : (
           <></>
         )}

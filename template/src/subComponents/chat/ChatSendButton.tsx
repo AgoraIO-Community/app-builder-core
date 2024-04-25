@@ -5,6 +5,9 @@ import IconButton from '../../../src/atoms/IconButton';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import {useRoomInfo} from 'customization-api';
 import {ChatMessageType} from '../../components/chat-messages/useChatMessages';
+import {useString} from '../../utils/useString';
+import {chatSendMessageBtnText} from '../../language/default-labels/videoCallScreenLabels';
+import {isMobileUA} from '../../utils/common';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -46,6 +49,9 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
         }}
+        toolTipMessage={
+          isMobileUA() ? null : useString(chatSendMessageBtnText)()
+        }
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {
@@ -58,7 +64,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
             paddingRight: 4,
           },
           iconSize: 24,
-          name: 'chat_send',
+          name: isValidMsg ? 'chat_send_fill' : 'chat_send',
           tintColor: isValidMsg
             ? $config.SECONDARY_ACTION_COLOR
             : $config.SEMANTIC_NEUTRAL,

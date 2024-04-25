@@ -95,11 +95,13 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
       }}
       iconProps={{
         iconType: 'plain',
+        base64: true,
         iconContainerStyle: {
           padding: 4,
         },
         iconSize: 24,
         name: 'chat_emoji',
+        hoverIconName: 'chat_emoji_fill',
         tintColor: $config.SECONDARY_ACTION_COLOR,
       }}
       onPress={onPress}
