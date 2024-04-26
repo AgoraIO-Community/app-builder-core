@@ -76,9 +76,9 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
   actionMenuitems.push({
-    icon: 'remove',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
+    icon: 'delete',
+    iconColor: $config.SEMANTIC_ERROR,
+    textColor: $config.SEMANTIC_ERROR,
     title: useString(chatActionMenuDeleteText)(),
     callback: () => {
       const groupID = chat.group_id;

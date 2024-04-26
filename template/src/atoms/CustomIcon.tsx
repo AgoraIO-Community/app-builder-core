@@ -142,4 +142,8 @@ export interface IconsInterface {
   chat_gif: string;
   chat_gif_fill: string;
   chat_attachment: string;
+  reply: string;
+  delete: string;
+  reply_all: string;
+  block_user: string;
 }

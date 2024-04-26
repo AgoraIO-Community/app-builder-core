@@ -8,6 +8,7 @@
   font-display: block;
 }
 
+
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -23,6 +24,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-reply:before {
+  content: "\e999";
+  color: #fff;
+}
+.icon-reply_all:before {
+  content: "\e99a";
+  color: #fff;
+}
+.icon-delete:before {
+  content: "\e99b";
+  color: #ff414d;
+}
+.icon-block_user:before {
+  content: "\e99c";
+  color: #ff414d;
+}
 .icon-chat_send:before {
   content: "\e978";
   color: #fff;

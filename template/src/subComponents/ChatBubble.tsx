@@ -352,7 +352,7 @@ const style = StyleSheet.create({
   },
   previewImg: {
     width: 150,
-    height: 100,
+    aspectRatio: 1.6,
     resizeMode: 'cover',
     borderRadius: 8,
   },
