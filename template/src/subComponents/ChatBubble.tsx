@@ -236,34 +236,43 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 </View>
               ) : (
                 <View style={style.fileContainer}>
-                  <ImageIcon
-                    base64={true}
-                    iconSize={24}
-                    iconType="plain"
-                    name={
-                      ext === 'pdf'
-                        ? 'chat_attachment_pdf'
-                        : ext === 'doc'
-                        ? 'chat_attachment_doc'
-                        : 'chat_attachment_unknown'
-                    }
-                    tintColor={$config.SEMANTIC_NEUTRAL}
-                  />
-                  <Text style={style.fileName}>{fileName}</Text>
-                  <MoreMenu
-                    ref={moreIconRef}
-                    setActionMenuVisible={setActionMenuVisible}
-                  />
-                  <ChatActionMenu
-                    actionMenuVisible={actionMenuVisible}
-                    setActionMenuVisible={setActionMenuVisible}
-                    btnRef={moreIconRef}
-                    fileName={fileName}
-                    fileUrl={url}
-                    msgId={msgId}
-                    privateChatUser={privateChatUser}
-                    isLocal={isLocal}
-                  />
+                  <View style={style.fileBlock}>
+                    <ImageIcon
+                      base64={true}
+                      iconSize={24}
+                      iconType="plain"
+                      name={
+                        ext === 'pdf'
+                          ? 'chat_attachment_pdf'
+                          : ext === 'doc'
+                          ? 'chat_attachment_doc'
+                          : 'chat_attachment_unknown'
+                      }
+                      tintColor={$config.SEMANTIC_NEUTRAL}
+                    />
+                    <Text
+                      style={style.fileName}
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
+                      {fileName}
+                    </Text>
+                  </View>
+                  <View>
+                    <MoreMenu
+                      ref={moreIconRef}
+                      setActionMenuVisible={setActionMenuVisible}
+                    />
+                    <ChatActionMenu
+                      actionMenuVisible={actionMenuVisible}
+                      setActionMenuVisible={setActionMenuVisible}
+                      btnRef={moreIconRef}
+                      fileName={fileName}
+                      fileUrl={url}
+                      msgId={msgId}
+                      privateChatUser={privateChatUser}
+                      isLocal={isLocal}
+                    />
+                  </View>
                 </View>
               )
             ) : null}
@@ -361,9 +370,21 @@ const style = StyleSheet.create({
   },
   fileContainer: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 2,
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
+    padding: 8,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: $config.FONT_COLOR + hexadecimalTransparency['25%'],
+    width: 240,
+  },
+  fileBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 0.8,
   },
   spinnerContainer: {
     position: 'absolute',

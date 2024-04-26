@@ -158,9 +158,6 @@ export const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
           iconContainerStyle: {
             padding: 4,
             borderRadius: 18,
-            backgroundColor: isMobile
-              ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%']
-              : 'transparent',
           },
         }}
         onPress={() => {
