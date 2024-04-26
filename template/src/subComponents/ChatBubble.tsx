@@ -351,7 +351,7 @@ const style = StyleSheet.create({
     color: $config.FONT_COLOR,
   },
   previewImg: {
-    width: 150,
+    width: 244,
     aspectRatio: 1.6,
     resizeMode: 'cover',
     borderRadius: 8,
