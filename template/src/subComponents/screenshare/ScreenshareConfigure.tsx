@@ -228,7 +228,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
-    logger.log(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
+    logger.debug(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({

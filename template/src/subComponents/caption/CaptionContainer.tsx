@@ -231,7 +231,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
       );
       restart(language)
         .then(() => {
-          logger.log(LogSource.Internals, 'STT', 'stt restarted successfully');
+          logger.debug(
+            LogSource.Internals,
+            'STT',
+            'stt restarted successfully',
+          );
         })
         .catch(error => {
           logger.error(

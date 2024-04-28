@@ -13,7 +13,7 @@ const useWakeLock = () => {
       noSleep
         .enable()
         .then(() => {
-          logger.log(
+          logger.debug(
             LogSource.Internals,
             'VIDEO_CALL_ROOM',
             'enabled sleep successfully',
@@ -33,7 +33,7 @@ const useWakeLock = () => {
     const release = React.useCallback(() => {
       noSleep.disable();
       set(noSleep.isEnabled);
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'VIDEO_CALL_ROOM',
         'disabled sleep successfully',

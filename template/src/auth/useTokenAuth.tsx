@@ -97,7 +97,12 @@ const useTokenAuth = () => {
         try {
           timerRef.current && clearInterval(timerRef.current);
         } catch (error) {
-          logger.log(LogSource.Internals, 'AUTH', 'error on clearing interval');
+          logger.debug(
+            LogSource.Internals,
+            'AUTH',
+            'error on clearing interval',
+            error,
+          );
         }
       } else {
         const decoded = jwt_decode(store.token);

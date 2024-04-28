@@ -50,14 +50,14 @@ export const saveImagesToIndexDB = async (
     store.add(item);
 
     tx.oncomplete = () => {
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'VIRTUAL_BACKGROUND',
         'Transaction completed',
       );
     };
 
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'Added images to the store!',
@@ -89,7 +89,7 @@ export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
           retrievedImages.push(cursor.value.data);
           cursor.continue();
         } else {
-          logger.log(
+          logger.debug(
             LogSource.Internals,
             'VIRTUAL_BACKGROUND',
             'Successfully retrieved images from IndexedDB!',

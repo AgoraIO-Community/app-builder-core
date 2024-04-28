@@ -170,7 +170,7 @@ export default class AppBuilderLogger implements Logger {
             );
           }
         }
-        if (ENABLE_BROWSER_CONSOLE_LOGS) {
+        if (ENABLE_BROWSER_CONSOLE_LOGS || status === 'debug') {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
           const consoleCSS = 'color: violet; font-weight: bold';
 

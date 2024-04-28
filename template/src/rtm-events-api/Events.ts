@@ -109,7 +109,7 @@ class Events {
       (typeof to === 'number' && to <= 0) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
-      logger.log(
+      logger.debug(
         LogSource.Events,
         'CUSTOM_EVENTS',
         'case 1 executed - sending in channel',
@@ -129,7 +129,7 @@ class Events {
     }
     // Case 2: send to indivdual
     if (typeof to === 'number' && to >= 0) {
-      logger.log(
+      logger.debug(
         LogSource.Events,
         'CUSTOM_EVENTS',
         `case 2 executed - sending to individual ${to}`,
@@ -153,7 +153,7 @@ class Events {
     }
     // Case 3: send to multiple individuals
     if (typeof to === 'object' && Array.isArray(to)) {
-      logger.log(
+      logger.debug(
         LogSource.Events,
         'CUSTOM_EVENTS',
         'case 3 executed - sending to multiple individuals',
@@ -196,6 +196,7 @@ class Events {
         return;
       }
       EventUtils.addListener(eventName, listener, this.source);
+      console.log('CUSTOM_EVENT_API event listener registered', eventName);
       return () => {
         //@ts-ignore
         EventUtils.removeListener(eventName, listener, this.source);

@@ -699,7 +699,7 @@ const MoreButton = () => {
         await restart(language);
       }
     } catch (error) {
-      logger.log(LogSource.Internals, 'STT', 'error in starting stt', error);
+      logger.error(LogSource.Internals, 'STT', 'error in starting stt', error);
     }
   };
 

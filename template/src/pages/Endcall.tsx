@@ -16,7 +16,7 @@ import {logger, LogSource} from '../logger/AppBuilderLogger';
 const StopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'CONTROLS',
       'End call - stopping foreground service, bg audio for android only',

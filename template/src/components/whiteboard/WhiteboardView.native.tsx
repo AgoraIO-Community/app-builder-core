@@ -69,7 +69,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
 
   const roomCallbacks: Partial<RoomCallbackHandler> = {
     onPhaseChanged: e => {
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'WHITEBOARD',
         'onPhaseChanged changed:',
@@ -80,7 +80,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     // onRoomStateChanged: e =>
     //   console.log('debugging onRoomStateChanged changed: ', e),
     onDisconnectWithError: e => {
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'WHITEBOARD',
         'onDisconnectWithError:',
@@ -101,7 +101,7 @@ const WhiteboardView: React.FC<WhiteboardViewInterface> = () => {
     roomRef.current = aRoom;
     sdkRef.current = aSdk;
 
-    logger.log(LogSource.Internals, 'WHITEBOARD', 'debugging aRoom:', {
+    logger.debug(LogSource.Internals, 'WHITEBOARD', 'debugging aRoom:', {
       data: aRoom,
     });
 

@@ -199,7 +199,11 @@ const VideoCall: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
-      logger.log(LogSource.Internals, 'VIDEO_CALL_ROOM', 'Videocall unmounted');
+      logger.debug(
+        LogSource.Internals,
+        'VIDEO_CALL_ROOM',
+        'Videocall unmounted',
+      );
       setRoomInfo(RoomInfoDefaultValue);
       if (awake) {
         release();

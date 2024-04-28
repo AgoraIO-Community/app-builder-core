@@ -139,7 +139,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   },
   createCustomization: customize,
   on: (userEventName, cb) => {
-    logger.log(
+    logger.debug(
       LogSource.SDK,
       'Event',
       `Event Registered for SDK event- ${userEventName}`,

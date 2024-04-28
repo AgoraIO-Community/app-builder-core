@@ -94,7 +94,7 @@ const VBProvider: React.FC = ({children}) => {
     const fetchData = async () => {
       try {
         const customImages = await retrieveImagesFromAsyncStorage();
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'VIRTUAL_BACKGROUND',
           'retrived from async storage',

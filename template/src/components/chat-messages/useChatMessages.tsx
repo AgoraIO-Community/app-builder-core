@@ -693,7 +693,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'CHAT',
           "You don't have permission to edit",
@@ -729,7 +729,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'CHAT',
           "You don't have permission to edit",
@@ -779,7 +779,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'CHAT',
           "You don't have permission to delete",
@@ -814,7 +814,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'CHAT',
           "You don't have permission to delete",

@@ -337,7 +337,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             body: body,
           })
             .then(res2 => {
-              logger.log(
+              logger.debug(
                 LogSource.NetworkRest,
                 'whiteboard_fileconvert',
                 'file convert success',
@@ -369,11 +369,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           });
         });
     } else {
-      logger.log(
-        LogSource.Internals,
-        'WHITEBOARD',
-        'debugging upload url is empty',
-      );
+      logger.debug(LogSource.Internals, 'WHITEBOARD', 'upload url is empty');
       Toast.show({
         type: 'error',
         text1: whiteboardFileUploadErrorToastHeadingTT('File'),
@@ -416,7 +412,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 const imageUrl = jsonData?.url?.replaceAll('\u0026', '&');
                 insertImageIntoWhiteboard(imageUrl);
               }
-              logger.log(
+              logger.debug(
                 LogSource.NetworkRest,
                 'whiteboard_image',
                 'image upload success',
@@ -445,7 +441,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           });
         });
     } else {
-      logger.error(
+      logger.debug(
         LogSource.Internals,
         'WHITEBOARD',
         'image upload url is empty',

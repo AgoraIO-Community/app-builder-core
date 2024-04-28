@@ -238,7 +238,7 @@ export default class RtcEngine {
         'RTC [getRemoteVideoStats] getting remote video stats',
       );
       const data = this.client.getRemoteVideoStats();
-      logger.log(
+      logger.debug(
         LogSource.AgoraSDK,
         'API',
         'RTC [getRemoteVideoStats] got remote video stats successfully',
@@ -454,7 +454,7 @@ export default class RtcEngine {
             localVideo,
           );
         } catch (eVideo) {
-          logger.log(
+          logger.debug(
             LogSource.AgoraSDK,
             'API',
             'RTC [createCameraVideoTrack] Error while creating video tracks',
@@ -475,7 +475,7 @@ export default class RtcEngine {
               localVideo,
             );
           } catch (error) {
-            logger.error(
+            logger.debug(
               LogSource.AgoraSDK,
               'API',
               'RTC [createCameraVideoTrack] Error while creating video track',
@@ -781,7 +781,7 @@ export default class RtcEngine {
 
     // this.client.on('stream-fallback', (evt))
     this.client.on('stream-type-changed', function (uid, streamType) {
-      logger.log(
+      logger.debug(
         LogSource.AgoraSDK,
         'Event',
         'RTC [stream-type-changed]',
@@ -820,7 +820,7 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
-      logger.log(
+      logger.debug(
         LogSource.AgoraSDK,
         'Event',
         'RTC [stream-message](stt-web: onStreamMessageCallback)',
@@ -1513,7 +1513,11 @@ export default class RtcEngine {
   ): Promise<void> {
     if (!this.inScreenshare) {
       try {
-        logger.log(LogSource.AgoraSDK, 'Log', 'RTC start screenshare');
+        logger.debug(
+          LogSource.AgoraSDK,
+          'Log',
+          'RTC start screenshare, creating stream',
+        );
         if (encryption && encryption.screenKey && encryption.mode) {
           let mode: EncryptionMode;
           mode = this.getEncryptionMode(true, encryption?.mode);

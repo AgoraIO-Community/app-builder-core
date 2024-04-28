@@ -163,7 +163,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     let updatedDeviceList: MediaDeviceInfo[];
     await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
       !noEmitLog &&
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           'Fetching all devices: ',
@@ -191,7 +191,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       );
 
       !noEmitLog &&
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           'Setting unique devices',
@@ -224,7 +224,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             RtcEngineUnsafe.audioDeviceId
           : //@ts-ignore
             RtcEngineUnsafe.videoDeviceId;
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'DEVICE_CONFIGURE',
         `Agora ${type} Engine is using ${currentDevice}`,
@@ -233,7 +233,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       currentDevice = localStream[type]
         ?.getMediaStreamTrack()
         .getSettings().deviceId;
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'DEVICE_CONFIGURE',
         `Agora ${type} Track is using ${currentDevice}`,
@@ -249,7 +249,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
    * truth.
    */
   const syncSelectedDeviceUi = (kind?: deviceKind) => {
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
       'Refreshing',
@@ -489,7 +489,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           },
         }[kind];
 
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           `${logTag} ${deviceLogTag} Device list populated but none selected`,
@@ -507,7 +507,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           currentDevice !== storedDevice &&
           checkDeviceExists(storedDevice, deviceList)
         ) {
-          logger.log(
+          logger.debug(
             LogSource.Internals,
             'DEVICE_CONFIGURE',
             `${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
@@ -536,7 +536,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       deviceList.length === 0 ||
       deviceList.find((device: MediaDeviceInfo) => device.label === '')
     ) {
-      logger.error(
+      logger.debug(
         LogSource.Internals,
         'DEVICE_CONFIGURE',
         `${logTag} Empty device list`,
@@ -570,7 +570,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       },
     }[changedDevice.kind];
 
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
       `${logTag}`,
@@ -699,7 +699,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       },
     }[kind];
 
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
       `${logtag} ${kind} setting to ${deviceId}`,
@@ -718,7 +718,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     return new Promise<void>((res, rej) => {
       if (mutexRef.current) {
         const e = new Error(logtag + ' Change already in progress');
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           `${logtag} Error setting ${kind}`,

@@ -113,7 +113,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           PersistanceLevel.Sender,
         );
         setIsSTTActive(true);
-        logger.log(
+        logger.debug(
           LogSource.NetworkRest,
           'stt',
           `stt lang update from: ${language} to ${lang}`,

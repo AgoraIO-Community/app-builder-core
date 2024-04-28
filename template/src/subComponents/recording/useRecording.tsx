@@ -200,7 +200,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
     if (inProgress) {
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'RECORDING',
         'start recording already in progress. Aborting..',
@@ -218,7 +218,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
     recordinghostURL = getFrontendUrl(recordinghostURL);
     setInProgress(true);
-    logger.log(
+    logger.debug(
       LogSource.NetworkRest,
       'recording_start',
       'Trying to start recording',
@@ -243,7 +243,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then((res: any) => {
         setInProgress(false);
         if (res.status === 200) {
-          logger.log(
+          logger.debug(
             LogSource.NetworkRest,
             'recording_start',
             'start recording successfull',
@@ -297,7 +297,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
-    logger.log(LogSource.Internals, 'RECORDING', 'stop recording API called');
+    logger.debug(LogSource.Internals, 'RECORDING', 'stop recording API called');
     if (inProgress) {
       logger.error(
         LogSource.Internals,
@@ -308,7 +308,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
     setInProgress(true);
     // If recording is already going on, stop the recording by executing the below query.
-    logger.log(
+    logger.debug(
       LogSource.NetworkRest,
       'recording_stop',
       'Trying to stop recording',
@@ -326,7 +326,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then(res => {
         setInProgress(false);
         if (res.status === 200) {
-          logger.log(
+          logger.debug(
             LogSource.NetworkRest,
             'recording_stop',
             'stop recording successfull',

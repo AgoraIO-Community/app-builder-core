@@ -53,7 +53,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
     initialize();
     return () => {
       if (localVideo) {
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           isLocalVideoON ? 'VIRTUAL_BACKGROUND' : 'PRECALL_SCREEN',
           'cleaning up local video preview',

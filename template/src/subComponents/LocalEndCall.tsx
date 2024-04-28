@@ -23,7 +23,7 @@ export interface LocalEndcallProps {
 export const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'CONTROLS',
       'Local end call - stopping foreground service, bg audio for android only',

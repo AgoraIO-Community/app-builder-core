@@ -30,7 +30,7 @@ const WaitingRoomProvider = ({children}) => {
           v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
       ),
     ).map(Number);
-    logger.log(LogSource.Internals, 'WAITING_ROOM', 'users in waiting room', {
+    logger.debug(LogSource.Internals, 'WAITING_ROOM', 'users in waiting room', {
       uids,
       defaultContent,
     });

@@ -9,7 +9,7 @@ export const saveImagesToAsyncStorage = async (
     const key = `image_${timestampId}`;
 
     await AsyncStorage.setItem(key, base64Data);
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       `Image saved to AsyncStorage with key - ${key}`,
@@ -37,7 +37,7 @@ export const retrieveImagesFromAsyncStorage = async (): Promise<string[]> => {
       }),
     );
 
-    logger.log(
+    logger.debug(
       LogSource.Internals,
       'VIRTUAL_BACKGROUND',
       'Retrieved images from AsyncStorage:',

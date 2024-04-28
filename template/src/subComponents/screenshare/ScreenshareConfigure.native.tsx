@@ -260,7 +260,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //For ios will update state in the video state changed callback
     } else {
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'SCREENSHARE',
         'screenshare is already active',
@@ -295,7 +295,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //For ios will update state in the video state changed callback
     } else {
-      logger.log(
+      logger.debug(
         LogSource.Internals,
         'SCREENSHARE',
         'no screenshare is active',

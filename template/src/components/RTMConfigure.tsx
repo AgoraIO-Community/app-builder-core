@@ -216,10 +216,15 @@ const RtmConfigure = (props: any) => {
           'RTM setChannelId',
           rtcProps.channel,
         );
-        console.log('Emitting rtm joined');
+        logger.debug(
+          LogSource.SDK,
+          'Event',
+          'Emitting rtm joined',
+          rtcProps.channel,
+        );
         SDKEvents.emit('_rtm-joined', rtcProps.channel);
       } else {
-        logger.log(
+        logger.debug(
           LogSource.AgoraSDK,
           'Log',
           'RTM already joined channel skipping',
@@ -306,7 +311,7 @@ const RtmConfigure = (props: any) => {
                 },
                 {
                   retry: (e, idx) => {
-                    logger.error(
+                    logger.debug(
                       LogSource.AgoraSDK,
                       'Log',
                       `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
@@ -369,7 +374,7 @@ const RtmConfigure = (props: any) => {
               }
             }),
           );
-          logger.log(
+          logger.debug(
             LogSource.AgoraSDK,
             'Log',
             'RTM fetched all data and user attr...RTM init done',
@@ -432,7 +437,7 @@ const RtmConfigure = (props: any) => {
         },
         {
           retry: (e, idx) => {
-            logger.error(
+            logger.debug(
               LogSource.AgoraSDK,
               'Log',
               `[retrying] Attempt ${idx}. Fetching ${data.uid}'s name`,
@@ -480,7 +485,7 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMemberLeft', (data: any) => {
-      logger.log(LogSource.AgoraSDK, 'Event', 'channelMemberLeft', data);
+      logger.debug(LogSource.AgoraSDK, 'Event', 'channelMemberLeft', data);
       // Chat of left user becomes undefined. So don't cleanup
       const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
@@ -491,7 +496,7 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('messageReceived', (evt: any) => {
-      logger.log(LogSource.Events, 'CUSTOM_EVENTS', 'messageReceived', evt);
+      logger.debug(LogSource.Events, 'CUSTOM_EVENTS', 'messageReceived', evt);
       const {peerId, ts, text} = evt;
       const [err, msg] = safeJsonParse(text);
       if (err) {
@@ -520,7 +525,7 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMessageReceived', evt => {
-      logger.log(
+      logger.debug(
         LogSource.Events,
         'CUSTOM_EVENTS',
         'channelMessageReceived',
@@ -707,7 +712,7 @@ const RtmConfigure = (props: any) => {
       EventUtils.clear();
     }
     setHasUserJoinedRTM(false);
-    logger.log(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
+    logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
   };
 
   useAsyncEffect(async () => {

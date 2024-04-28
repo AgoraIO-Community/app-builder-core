@@ -60,7 +60,7 @@ export default class RtmEngine {
   ]);
   constructor() {
     this.appId = '';
-    logger.log(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
+    logger.debug(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
   }
 
   on(event: any, listener: any) {

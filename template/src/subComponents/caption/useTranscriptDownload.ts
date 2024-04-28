@@ -38,7 +38,7 @@ const useTranscriptDownload = (): {
 
         // revoke download url
         URL.revokeObjectURL(downloadUrl);
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'TRANSCRIPT',
           'content donwloaded successfully',
