@@ -87,6 +87,8 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           ext: {
             file_length: result[0].size,
             file_ext: uploadedFileType,
+            file_name: result[0].name,
+            file_url: filePath,
           },
         };
         const onProgress = (localMsgId: string, progress: number) => {
@@ -100,7 +102,6 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         };
         const onSuccess = (message: ChatMessage) => {
           console.warn('upload on success', message);
-          // text msg is update on
           const messageData = {
             msg: '',
             createdTimestamp: message.localTime,
@@ -110,7 +111,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             thumb: message.body?.localPath,
             url: message.body?.remotePath,
             ext: message.attributes?.file_ext,
-            fileName: message.body?.displayName,
+            fileName: message.attributes?.file_name,
           };
           console.warn('message data', messageData);
 

@@ -28,7 +28,13 @@ interface ChatOption {
   to: string;
   msg?: string;
   file?: object;
-  ext?: {file_length: number; file_ext: string};
+  ext?: {
+    file_length: number;
+    file_ext: string;
+    file_name: string;
+    file_url: string;
+    from_platform?: string;
+  };
   url?: string;
   fileName?: string;
 }
@@ -111,6 +117,8 @@ const ChatConfigure = ({children}) => {
             messages[0].chatType === ChatMessageChatType.PeerChat;
           const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
+          const {file_ext, file_name, file_url, from_platform} =
+            messages[0].attributes;
 
           //@ts-ignore
 
@@ -145,9 +153,13 @@ const ChatConfigure = ({children}) => {
               break;
             case ChatMessageType.IMAGE:
               //@ts-ignore
-              const thumb = body.thumbnailRemotePath;
+              const thumb =
+                from_platform === 'web'
+                  ? file_url + '&thumbnail=true'
+                  : body.thumbnailRemotePath;
               //@ts-ignore
-              const url = body.remotePath;
+              const url = from_platform === 'web' ? file_url : body.remotePath;
+              console.warn('url ==>', url);
               if (isGroupChat) {
                 showMessageNotification('You got group image msg', from, false);
                 addMessageToStore(Number(from), {
@@ -183,11 +195,8 @@ const ChatConfigure = ({children}) => {
               break;
             case ChatMessageType.FILE:
               //@ts-ignore
-              const fileUrl = body.remotePath;
-              //@ts-ignore
-              const {file_ext} = messages[0].attributes;
-              //@ts-ignore
-              const fileName = body.displayName;
+
+              console.warn('message', JSON.stringify(messages, null, 2));
               if (isGroupChat) {
                 showMessageNotification(
                   'You got group file msg 1',
@@ -200,9 +209,9 @@ const ChatConfigure = ({children}) => {
                   msgId: msgId,
                   isDeleted: false,
                   type: ChatMessageType.FILE,
-                  url: fileUrl,
+                  url: file_url,
                   ext: file_ext,
-                  fileName: fileName,
+                  fileName: file_name,
                 });
               }
               if (isPeerChat) {
@@ -215,9 +224,9 @@ const ChatConfigure = ({children}) => {
                     msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.FILE,
-                    url: fileUrl,
+                    url: file_url,
                     ext: file_ext,
-                    fileName: fileName,
+                    fileName: file_name,
                   },
                   false,
                 );
@@ -301,6 +310,14 @@ const ChatConfigure = ({children}) => {
         break;
       case ChatMessageType.IMAGE:
         chatMsg = ChatMessage.createImageMessage(to, url, chatMsgChatType);
+        chatMsg.attributes = {
+          file_length: option?.ext?.file_length,
+          file_ext: option?.ext?.file_ext,
+          file_name: option?.ext?.file_name,
+          file_url: option?.ext?.file_url, // this local url , when upload util is available for native then will use it
+          from_platform: 'native',
+        };
+
         console.warn('Image msg to be sent', chatMsg);
         break;
       case ChatMessageType.FILE:
@@ -311,6 +328,9 @@ const ChatConfigure = ({children}) => {
         chatMsg.attributes = {
           file_length: option?.ext?.file_length,
           file_ext: file_ext,
+          file_name: option?.fileName,
+          file_url: option?.url, // this local url , when upload util is available for native then will use it
+          from_platform: 'native',
         };
         console.warn('File msg to be sent', chatMsg);
         break;

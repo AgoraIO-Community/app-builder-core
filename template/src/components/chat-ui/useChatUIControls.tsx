@@ -27,6 +27,15 @@ export enum UploadStatus {
   FAILURE = 'failure',
 }
 
+export interface File {
+  file_length: number;
+  file_ext: string;
+  file_url: string;
+  file_name: string;
+  file_type: string;
+  file_obj: object;
+}
+
 export interface ChatUIControlsInterface {
   chatType: ChatType;
   privateChatUser: UidType;
@@ -40,6 +49,8 @@ export interface ChatUIControlsInterface {
   setShowEmojiPicker: React.Dispatch<SetStateAction<boolean>>;
   uploadStatus: UploadStatus;
   setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
+  uploadedFiles: File[];
+  setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -55,6 +66,8 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setShowEmojiPicker: () => {},
   uploadStatus: UploadStatus.NOT_STARTED,
   setUploadStatus: () => {},
+  uploadedFiles: [],
+  setUploadedFiles: () => {},
 });
 
 interface ChatUIControlsProviderProps {
@@ -70,6 +83,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
     UploadStatus.NOT_STARTED,
   );
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
   return (
     <ChatUIControlsContext.Provider
       value={{
@@ -85,6 +100,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setShowEmojiPicker,
         uploadStatus,
         setUploadStatus,
+        uploadedFiles,
+        setUploadedFiles,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

@@ -2,12 +2,15 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useChatConfigure} from '../../components/chat/chatConfigure';
 import IconButton from '../../../src/atoms/IconButton';
-import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
+import {
+  UploadStatus,
+  useChatUIControls,
+} from '../../components/chat-ui/useChatUIControls';
 import {useRoomInfo} from 'customization-api';
 import {ChatMessageType} from '../../components/chat-messages/useChatMessages';
 import {useString} from '../../utils/useString';
 import {chatSendMessageBtnText} from '../../language/default-labels/videoCallScreenLabels';
-import {isMobileUA} from '../../utils/common';
+import {isMobileUA, isWeb} from '../../utils/common';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -20,24 +23,48 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     message,
     setMessage,
     inputActive,
+    uploadStatus,
+    uploadedFiles,
+    setUploadedFiles,
   } = useChatUIControls();
 
   const {data} = useRoomInfo();
-  const isValidMsg = message.length > 0;
+  const isValidMsg =
+    message.length > 0 ||
+    (uploadedFiles.length > 0 && uploadStatus === UploadStatus.SUCCESS);
 
   const onPress = () => {
-    if (message.length === 0) return;
+    if (!isValidMsg) return;
     const groupID = data.chat.group_id;
+    const msgType =
+      uploadedFiles.length > 0
+        ? uploadedFiles[0].file_type
+        : ChatMessageType.TXT;
+
+    const {
+      file_ext = '',
+      file_length = 0,
+      file_name = '',
+      file_url = '',
+    } = uploadedFiles[0] || {};
 
     const option = {
       chatType: selectedUserId ? 'singleChat' : 'groupChat',
-      type: ChatMessageType.TXT,
+      type: msgType as ChatMessageType,
+      msg: msgType === ChatMessageType.TXT ? message : '', // currenlt not supporting combinarion msg (file+txt)
       from: data.uid.toString(),
       to: selectedUserId ? selectedUserId.toString() : groupID,
-      msg: message,
+      ext: {
+        file_length,
+        file_ext,
+        file_url,
+        file_name,
+        from_platform: isWeb() ? 'web' : 'native',
+      },
     };
     sendChatSDKMessage(option);
     setMessage && setMessage('');
+    setUploadedFiles && setUploadedFiles(prev => []);
   };
   return props?.render ? (
     props.render(onPress)

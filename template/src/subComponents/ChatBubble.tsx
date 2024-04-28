@@ -41,6 +41,40 @@ import {
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
 
+export const AttachmentBubble = ({
+  fileName,
+  fileExt,
+  isFullWidth = false,
+  fileType = '',
+  secondaryComponent,
+}) => {
+  return (
+    <View style={[style.fileContainer, isFullWidth && {width: '100%'}]}>
+      <View style={style.fileBlock}>
+        <ImageIcon
+          base64={true}
+          iconSize={24}
+          iconType="plain"
+          name={
+            fileType === ChatMessageType.IMAGE
+              ? 'chat_attachment_image'
+              : fileExt === 'pdf'
+              ? 'chat_attachment_pdf'
+              : fileExt === 'doc'
+              ? 'chat_attachment_doc'
+              : 'chat_attachment_unknown'
+          }
+          tintColor={$config.SEMANTIC_NEUTRAL}
+        />
+        <Text style={style.fileName} numberOfLines={1} ellipsizeMode="tail">
+          {fileName}
+        </Text>
+      </View>
+      {secondaryComponent}
+    </View>
+  );
+};
+
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
   const {primaryColor} = useContext(ColorContext);
@@ -235,45 +269,28 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   </Text>
                 </View>
               ) : (
-                <View style={style.fileContainer}>
-                  <View style={style.fileBlock}>
-                    <ImageIcon
-                      base64={true}
-                      iconSize={24}
-                      iconType="plain"
-                      name={
-                        ext === 'pdf'
-                          ? 'chat_attachment_pdf'
-                          : ext === 'doc'
-                          ? 'chat_attachment_doc'
-                          : 'chat_attachment_unknown'
-                      }
-                      tintColor={$config.SEMANTIC_NEUTRAL}
-                    />
-                    <Text
-                      style={style.fileName}
-                      numberOfLines={1}
-                      ellipsizeMode="tail">
-                      {fileName}
-                    </Text>
-                  </View>
-                  <View>
-                    <MoreMenu
-                      ref={moreIconRef}
-                      setActionMenuVisible={setActionMenuVisible}
-                    />
-                    <ChatActionMenu
-                      actionMenuVisible={actionMenuVisible}
-                      setActionMenuVisible={setActionMenuVisible}
-                      btnRef={moreIconRef}
-                      fileName={fileName}
-                      fileUrl={url}
-                      msgId={msgId}
-                      privateChatUser={privateChatUser}
-                      isLocal={isLocal}
-                    />
-                  </View>
-                </View>
+                <AttachmentBubble
+                  fileName={fileName}
+                  fileExt={ext}
+                  secondaryComponent={
+                    <View>
+                      <MoreMenu
+                        ref={moreIconRef}
+                        setActionMenuVisible={setActionMenuVisible}
+                      />
+                      <ChatActionMenu
+                        actionMenuVisible={actionMenuVisible}
+                        setActionMenuVisible={setActionMenuVisible}
+                        btnRef={moreIconRef}
+                        fileName={fileName}
+                        fileUrl={url}
+                        msgId={msgId}
+                        privateChatUser={privateChatUser}
+                        isLocal={isLocal}
+                      />
+                    </View>
+                  }
+                />
               )
             ) : null}
           </Hyperlink>

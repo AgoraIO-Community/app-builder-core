@@ -10,6 +10,11 @@ import {
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
 import StorageContext from '../StorageContext';
+import {
+  File,
+  UploadStatus,
+  useChatUIControls,
+} from '../../components/chat-ui/useChatUIControls';
 
 // AppKey:
 // 41754367#1042822
@@ -36,8 +41,14 @@ interface ChatOption {
   from: string;
   to: string;
   msg?: string;
-  file?: {url?: string; filename?: string; filetype?: string};
-  ext?: {file_length: number};
+  body?: {url?: string; filename?: string; filetype?: string};
+  ext?: {
+    file_length: number;
+    file_url: string;
+    file_name: string;
+    file_ext: string;
+    from_platform?: string;
+  };
   onFileUploadError?: () => void;
   onFileUploadProgress?: (e: ProgressEvent) => void;
   onFileUploadComplete?: (e: any) => void;
@@ -48,6 +59,7 @@ interface chatConfigureContextInterface {
   sendChatSDKMessage: (option: ChatOption) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
+  uploadAttachment: (fileObj: object) => void;
   deleteAttachment: (
     msgId: string,
     privateChatUser: string,
@@ -62,6 +74,7 @@ export const chatConfigureContext =
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
     downloadAttachment: () => {},
+    uploadAttachment: () => {},
     deleteAttachment: () => {},
   });
 
@@ -70,6 +83,8 @@ const ChatConfigure = ({children}) => {
   const {data} = useRoomInfo();
   const connRef = React.useRef(null);
   const {defaultContent} = useContent();
+  const {privateChatUser, setUploadStatus, setUploadedFiles, uploadedFiles} =
+    useChatUIControls();
   const defaultContentRef = React.useRef(defaultContent);
   const {
     addMessageToPrivateStore,
@@ -149,21 +164,26 @@ const ChatConfigure = ({children}) => {
           },
 
           onFileMessage: message => {
+            const fileUrl =
+              message.ext?.from_platform === 'native'
+                ? message.url
+                : message.ext.file_url;
             if (message.chatType === 'groupChat') {
               showMessageNotification(
                 'You got group file msg',
                 message.from,
                 false,
               );
+
               addMessageToStore(Number(message.from), {
                 msg: '',
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
                 type: ChatMessageType.FILE,
-                url: message.url,
+                url: fileUrl,
                 ext: message.ext.file_ext,
-                fileName: message.filename,
+                fileName: message.ext.file_name,
               });
             }
             if (message.chatType === 'singleChat') {
@@ -180,15 +200,20 @@ const ChatConfigure = ({children}) => {
                   msgId: message.id,
                   isDeleted: false,
                   type: ChatMessageType.FILE,
-                  url: message.url,
+                  url: fileUrl,
                   ext: message.ext.file_ext,
-                  fileName: message.filename,
+                  fileName: message.ext.file_name,
                 },
                 false,
               );
             }
           },
           onImageMessage: message => {
+            const fileUrl =
+              message.ext?.from_platform === 'native'
+                ? message.url
+                : message.ext.file_url;
+
             if (message.chatType === 'groupChat') {
               showMessageNotification(
                 'You got group image msg',
@@ -201,8 +226,8 @@ const ChatConfigure = ({children}) => {
                 msgId: message.id,
                 isDeleted: false,
                 type: ChatMessageType.IMAGE,
-                thumb: message.thumb,
-                url: message.url,
+                thumb: fileUrl + '&thumbnail=true',
+                url: fileUrl,
               });
             }
             if (message.chatType === 'singleChat') {
@@ -221,8 +246,8 @@ const ChatConfigure = ({children}) => {
                   msgId: message.id,
                   isDeleted: false,
                   type: ChatMessageType.IMAGE,
-                  thumb: message.thumb,
-                  url: message.url,
+                  thumb: fileUrl + '&thumbnail=true',
+                  url: fileUrl,
                 },
                 false,
               );
@@ -307,7 +332,7 @@ const ChatConfigure = ({children}) => {
   const sendChatSDKMessage = (option: ChatOption) => {
     if (connRef.current) {
       //TODO thumb and url of actual image uploaded available in file upload complete
-      const localFileUrl = option?.file?.url || '';
+      const localFileUrl = option?.ext?.file_url || '';
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
@@ -326,10 +351,10 @@ const ChatConfigure = ({children}) => {
             msgId: res?.serverMsgId,
             isDeleted: false,
             type: option.type,
-            thumb: localFileUrl,
-            url: localFileUrl,
-            ext: option?.file?.filetype,
-            fileName: option?.file?.filename,
+            thumb: option?.ext?.file_url + '&thumbnail=true',
+            url: option?.ext?.file_url,
+            ext: option?.ext?.file_ext,
+            fileName: option?.ext?.file_name,
           };
           //todo chattype as per natue type
           // this is local user messages
@@ -380,6 +405,62 @@ const ChatConfigure = ({children}) => {
     anchor.remove();
   };
 
+  const uploadAttachment = uploadFiles => {
+    const {file_type, file_length, file_name, file_url, file_obj, file_ext} =
+      uploadFiles;
+    const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
+    const uploadedFileType = file_ext;
+
+    const fileAllowedTypes = {
+      zip: true,
+      txt: true,
+      doc: true,
+      pdf: true,
+    };
+
+    const imageAllowedTypes = {
+      jpg: true,
+      jpeg: true,
+      gif: true,
+      png: true,
+      bmp: true,
+    };
+    const isImageUploaded = uploadedFileType in imageAllowedTypes;
+    const isFileUploaded = uploadedFileType in fileAllowedTypes;
+
+    const uploadObj = {
+      onFileUploadProgress: (data: ProgressEvent) => {
+        setUploadStatus(UploadStatus.IN_PROGRESS);
+      },
+      onFileUploadComplete: (data: any) => {
+        const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
+        //TODO: handle for multiple uploads
+        setUploadedFiles(prev => {
+          return [{...prev[0], file_url: url}];
+        });
+        setUploadStatus(UploadStatus.SUCCESS);
+      },
+      onFileUploadError: (error: ErrorEvent) => {
+        setUploadStatus(UploadStatus.FAILURE);
+      },
+      onFileUploadCanceled: data => {
+        //setUploadStatus(UploadStatus.NOT_STARTED);
+      },
+      accessToken: data?.chat?.user_token,
+      appKey: CHAT_APP_KEY,
+      file: file_obj,
+      apiUrl: $config.CHAT_URL,
+    };
+
+    try {
+      AgoraChat.utils.uploadFile(uploadObj);
+      debugger;
+    } catch (error) {
+      debugger;
+      console.error(error);
+    }
+  };
+
   const deleteAttachment = (msgId, recallFromUser, chatType) => {
     const option = {mid: msgId, to: recallFromUser, chatType};
     if (connRef.current) {
@@ -402,6 +483,7 @@ const ChatConfigure = ({children}) => {
         sendChatSDKMessage,
         deleteChatUser,
         downloadAttachment,
+        uploadAttachment,
         deleteAttachment,
       }}>
       {children}

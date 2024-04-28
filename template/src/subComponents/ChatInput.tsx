@@ -10,10 +10,16 @@
 *********************************************
 */
 import React, {useEffect, useRef} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
-import {isWebInternal} from '../utils/common';
+import {isWeb, isWebInternal} from '../utils/common';
 import {
   ChatType,
   UploadStatus,
@@ -34,6 +40,8 @@ import {
   privateChatInputPlaceHolderText,
 } from '../language/default-labels/videoCallScreenLabels';
 import ChatUploadStatus from './chat/ChatUploadStatus';
+import {AttachmentBubble} from './ChatBubble';
+import IconButton from '../atoms/IconButton';
 
 const ChatPanel = () => {
   return (
@@ -61,11 +69,14 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     message,
     setMessage,
     inputActive,
+    setInputActive,
     chatType,
     uploadStatus,
+    uploadedFiles,
+    setUploadedFiles,
   } = useChatUIControls();
   const {defaultContent} = useContent();
-  const {sendChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
   const MIN_HEIGHT = 43;
   const MAX_HEIGHT = 92;
   const LINE_HEIGHT = 17;
@@ -77,12 +88,20 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     }
   }, [message]);
 
-  const isUploadStatusShown =
-    uploadStatus === UploadStatus.IN_PROGRESS ||
-    uploadStatus === UploadStatus.FAILURE;
+  useEffect(() => {
+    setTimeout(() => {
+      if (isWebInternal()) {
+        chatInputRef?.current?.focus();
+      }
+    });
+  }, []);
 
   const {data} = useRoomInfo();
   const [name] = useUserName();
+
+  const isUploadStatusShown =
+    uploadStatus === UploadStatus.IN_PROGRESS ||
+    uploadStatus === UploadStatus.FAILURE;
 
   const groupChatInputPlaceHolder = $config.EVENT_MODE
     ? useString(groupChatLiveInputPlaceHolderText)
@@ -121,7 +140,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       nativeEvent.preventDefault();
     }
   };
-  const {setInputActive} = useChatUIControls();
+
   const handleContentSizeChange = e => {
     const contentHeight = e.nativeEvent.contentSize.height;
     const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
@@ -129,13 +148,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     message.length && setInputHeight(newHeight);
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (isWebInternal()) {
-        chatInputRef?.current?.focus();
-      }
-    });
-  }, []);
+  const handleUploadRetry = () => {
+    uploadAttachment(uploadedFiles[0]);
+  };
 
   return props?.render ? (
     props.render(
@@ -145,42 +160,92 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
-    <TextInput
-      setRef={ref => (chatInputRef.current = ref)}
-      onFocus={() => setInputActive(true)}
-      onBlur={() => setInputActive(false)}
-      value={message}
-      multiline={true}
-      onChangeText={onChangeText}
-      textAlignVertical="top"
-      style={{
-        color: $config.FONT_COLOR,
-        textAlign: 'left',
-        width: '100%',
-        alignSelf: 'center',
-        fontFamily: ThemeConfig.FontFamily.sansPro,
-        fontWeight: '400',
-        height: inputHeight,
-        padding: 12,
-        fontSize: ThemeConfig.FontSize.small,
-        lineHeight: LINE_HEIGHT,
-        borderWidth: 1,
-        borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
-        backgroundColor: $config.CARD_LAYER_2_COLOR,
-        borderRadius: 8,
-        borderTopRightRadius: isUploadStatusShown ? 0 : 8,
-        borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
-        maxHeight: MAX_HEIGHT,
-        overflow: 'scroll',
-      }}
-      blurOnSubmit={false}
-      onSubmitEditing={onSubmitEditing}
-      placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
-      autoCorrect={false}
-      onKeyPress={handleKeyPress}
-      onContentSizeChange={handleContentSizeChange}
-    />
+    <>
+      {uploadedFiles.length > 0 ? (
+        uploadedFiles.map((file, index) => (
+          <AttachmentBubble
+            key={index}
+            fileName={file.file_name}
+            fileExt={file.file_ext}
+            isFullWidth={true}
+            fileType={file.file_type}
+            secondaryComponent={
+              uploadStatus === UploadStatus.IN_PROGRESS ? (
+                <ActivityIndicator />
+              ) : uploadStatus === UploadStatus.FAILURE ? (
+                <TouchableOpacity onPress={handleUploadRetry}>
+                  <Text style={style.btnRetry}>{'Retry'}</Text>
+                </TouchableOpacity>
+              ) : uploadStatus === UploadStatus.SUCCESS ? (
+                <View>
+                  <IconButton
+                    hoverEffect={true}
+                    hoverEffectStyle={{
+                      backgroundColor:
+                        $config.CARD_LAYER_5_COLOR +
+                        hexadecimalTransparency['20%'],
+                      borderRadius: 20,
+                    }}
+                    iconProps={{
+                      iconType: 'plain',
+                      iconSize: 20,
+                      iconContainerStyle: {
+                        padding: 2,
+                      },
+                      name: 'close',
+                      tintColor: $config.SECONDARY_ACTION_COLOR,
+                    }}
+                    onPress={() => {
+                      setUploadedFiles(prev => []);
+                    }}
+                  />
+                </View>
+              ) : null
+            }
+          />
+        ))
+      ) : (
+        <TextInput
+          setRef={ref => (chatInputRef.current = ref)}
+          onFocus={() => setInputActive(true)}
+          onBlur={() => setInputActive(false)}
+          value={message}
+          multiline={true}
+          onChangeText={onChangeText}
+          textAlignVertical="top"
+          style={{
+            color: $config.FONT_COLOR,
+            textAlign: 'left',
+            width: '100%',
+            alignSelf: 'center',
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+            fontWeight: '400',
+            height: inputHeight,
+            padding: 12,
+            fontSize: ThemeConfig.FontSize.small,
+            lineHeight: LINE_HEIGHT,
+            borderWidth: 1,
+            borderColor:
+              $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
+            backgroundColor: $config.CARD_LAYER_2_COLOR,
+            borderRadius: 8,
+            borderTopRightRadius: isUploadStatusShown ? 0 : 8,
+            borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
+            maxHeight: MAX_HEIGHT,
+            overflow: 'scroll',
+          }}
+          blurOnSubmit={false}
+          onSubmitEditing={onSubmitEditing}
+          placeholder={chatMessageInputPlaceholder}
+          placeholderTextColor={
+            $config.FONT_COLOR + hexadecimalTransparency['40%']
+          }
+          autoCorrect={false}
+          onKeyPress={handleKeyPress}
+          onContentSizeChange={handleContentSizeChange}
+        />
+      )}
+    </>
   );
 };
 
@@ -241,6 +306,12 @@ const style = StyleSheet.create({
   },
   chatPanel: {
     flexDirection: 'row',
+  },
+  btnRetry: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 export default ChatInput;
