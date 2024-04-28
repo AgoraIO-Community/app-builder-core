@@ -190,9 +190,14 @@ export default class AppBuilderLogger implements Logger {
     this.warn = logger('warn');
     this.error = logger('error');
 
-    this.log(LogSource.Internals, 'AUTH', 'App intitialized with config.json', {
-      config: configJSON,
-    });
+    this.debug(
+      LogSource.Internals,
+      'AUTH',
+      'App intitialized with config.json',
+      {
+        config: configJSON,
+      },
+    );
   }
 }
 
