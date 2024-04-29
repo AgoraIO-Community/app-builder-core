@@ -125,7 +125,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const userlabel = useString(videoRoomUserFallbackText)();
 
-  const {localUid} = useContext(ChatContext);
+  const {localUid, onlineUsersCount} = useContext(ChatContext);
   const {store} = React.useContext(StorageContext);
 
   const {setChatType} = useChatUIControls();
@@ -375,6 +375,21 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     },
     [roomId?.host, store.token],
   );
+
+  useEffect(() => {
+    /**
+     * The below piece of code is executed only for recording bot
+     * If all the members have left the call and recording is still active -
+     * bot will call the stop recording API
+     */
+    if (isRecordingBot && isRecordingActive && !onlineUsersCount) {
+      setTimeout(() => {
+        console.log('Recording bot trying to stop recording');
+        stopRecording();
+        // Run after 10 seconds
+      }, 10000);
+    }
+  }, [isRecordingBot, isRecordingActive, onlineUsersCount, stopRecording]);
 
   return (
     <RecordingContext.Provider
