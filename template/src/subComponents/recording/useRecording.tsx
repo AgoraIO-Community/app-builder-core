@@ -382,13 +382,31 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * If all the members have left the call and recording is still active -
      * bot will call the stop recording API
      */
-    if (isRecordingBot && isRecordingActive && !onlineUsersCount) {
-      setTimeout(() => {
-        console.log('Recording bot trying to stop recording');
+    let timer = null;
+    const shouldStopRecording = () =>
+      isRecordingBot && isRecordingActive && !onlineUsersCount;
+
+    console.log('Recording-bot: Checking if bot should stop recording', {
+      shouldStopRecording: shouldStopRecording(),
+      onlineUsersCount,
+    });
+    if (shouldStopRecording()) {
+      console.log(
+        'Recording-bot: will end the meeting after 10 seconds if no one joins',
+      );
+      timer = setTimeout(() => {
+        // Check again if still there are some users
+        console.log('Recording-bot: trying to stop recording');
         stopRecording();
         // Run after 10 seconds
       }, 10000);
+      console.log('Recording-bot: timer starts, timerId - ', timer);
     }
+
+    return () => {
+      console.log('Recording-bot: clear timer,  timerId - ', timer);
+      clearTimeout(timer);
+    };
   }, [isRecordingBot, isRecordingActive, onlineUsersCount, stopRecording]);
 
   return (
