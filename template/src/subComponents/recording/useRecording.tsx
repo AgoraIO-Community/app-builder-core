@@ -399,7 +399,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         console.log('Recording-bot: trying to stop recording');
         stopRecording();
         // Run after 10 seconds
-      }, 10000);
+      }, 20000);
       console.log('Recording-bot: timer starts, timerId - ', timer);
     }
 
