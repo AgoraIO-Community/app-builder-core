@@ -49,6 +49,8 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     const isImageUploaded = uploadedFileType in imageAllowedTypes;
     const isFileUploaded = uploadedFileType in fileAllowedTypes;
 
+    if (!selectedFile) return;
+
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
     const uploadedFile: File = {
       file_name: file.filename,
@@ -62,84 +64,20 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     // setUploadedFiles(prev => [...prev, uploadedFile]);
     setUploadedFiles(prev => [uploadedFile]);
 
-    const uploadObj = {
-      onFileUploadProgress: (data: ProgressEvent) => {
-        setUploadStatus(UploadStatus.IN_PROGRESS);
-      },
-      onFileUploadComplete: (data: any) => {
-        setUploadStatus(UploadStatus.SUCCESS);
-        console.log(data);
-        const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
-        const uploadedFile: File = {
-          file_name: file.filename,
-          file_ext: uploadedFileType,
-          file_url: url,
-          file_length: file.data.size,
-          file_type: isImageUploaded
-            ? ChatMessageType.IMAGE
-            : ChatMessageType.FILE,
-          file_obj: file,
-        };
-
-        setUploadedFiles(prev => [uploadedFile]);
-      },
-      onFileUploadError: (error: ErrorEvent) => {
-        debugger;
-        setUploadStatus(UploadStatus.FAILURE);
-      },
-      onFileUploadCanceled: data => {
-        debugger;
-        console.log(data);
-      },
-      accessToken: data?.chat?.user_token,
-      appKey: CHAT_APP_KEY,
-      file: file,
-      apiUrl: $config.CHAT_URL,
-    };
-
     uploadAttachment(uploadedFile);
 
-    if (isImageUploaded || isFileUploaded) {
-      // check size    selectedFile.size
-      // cehck type    selectedFile.type
-      // const option = {
-      //   type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
-      //   from: data.uid.toString(),
-      //   to: privateChatUser ? privateChatUser.toString() : groupID,
-      //   file: file,
-      //   chatType: privateChatUser ? 'singleChat' : 'groupChat',
-      //   ext: {
-      //     file_length: file.data.size,
-      //     file_ext: uploadedFileType,
-      //   },
-      //   // Occurs when the image file fails to be uploaded.
-      //   onFileUploadError: function () {
-      //     setUploadStatus(UploadStatus.FAILURE);
-      //     console.log('onFileUploadError');
-      //   },
-      //   // Reports the progress of uploading the image file.
-      //   onFileUploadProgress: function (e: ProgressEvent) {
-      //     setUploadStatus(UploadStatus.IN_PROGRESS);
-      //     console.log(e);
-      //   },
-      //   // Occurs when the image file is successfully uploaded.
-      //   onFileUploadComplete: function (e) {
-      //     setUploadStatus(UploadStatus.SUCCESS);
-      //     console.log('onFileUploadComplete');
-      //     // update local store
-      //   },
-      // };
-      //sendChatSDKMessage(option);
-    } else {
-      Toast.show({
-        leadingIconName: 'chat_attachment_unknown',
-        type: 'info',
-        text1: `Attachment Upload Error`,
-        visibilityTime: 3000,
-        primaryBtn: null,
-        secondaryBtn: null,
-        text2: `${file.filetype} is not supported `,
-      });
+    if (!(isImageUploaded || isFileUploaded)) {
+      {
+        Toast.show({
+          leadingIconName: 'chat_attachment_unknown',
+          type: 'info',
+          text1: `Attachment Upload Error`,
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+          text2: `${file.filetype} is not supported `,
+        });
+      }
     }
   };
   const onPress = () => {

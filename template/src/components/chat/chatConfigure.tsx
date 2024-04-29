@@ -302,11 +302,9 @@ const ChatConfigure = ({children}) => {
           },
           // on token expired
           onTokenExpired: () => {
-            debugger;
             console.log('%cChatSDK: token has expired', 'color: blue');
           },
           onError: error => {
-            debugger;
             console.log('on error', error);
           },
         });
@@ -344,7 +342,6 @@ const ChatConfigure = ({children}) => {
             JSON.stringify(res, null, 2),
           );
           // update local messagre store
-          debugger;
           const messageData = {
             msg: option.msg,
             createdTimestamp: timeNow(),
@@ -454,9 +451,7 @@ const ChatConfigure = ({children}) => {
 
     try {
       AgoraChat.utils.uploadFile(uploadObj);
-      debugger;
     } catch (error) {
-      debugger;
       console.error(error);
     }
   };
