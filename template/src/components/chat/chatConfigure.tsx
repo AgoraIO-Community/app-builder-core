@@ -427,9 +427,11 @@ const ChatConfigure = ({children}) => {
 
     const uploadObj = {
       onFileUploadProgress: (data: ProgressEvent) => {
+        console.log('Chat-SDK: upload inprogress', data);
         setUploadStatus(UploadStatus.IN_PROGRESS);
       },
       onFileUploadComplete: (data: any) => {
+        console.log('Chat-SDK: upload success', data);
         const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
         //TODO: handle for multiple uploads
         setUploadedFiles(prev => {
@@ -438,9 +440,11 @@ const ChatConfigure = ({children}) => {
         setUploadStatus(UploadStatus.SUCCESS);
       },
       onFileUploadError: (error: ErrorEvent) => {
+        console.log('Chat-SDK: upload error', error);
         setUploadStatus(UploadStatus.FAILURE);
       },
       onFileUploadCanceled: data => {
+        console.log('Chat-SDK: upload cancel', data);
         //setUploadStatus(UploadStatus.NOT_STARTED);
       },
       accessToken: data?.chat?.user_token,
@@ -449,9 +453,12 @@ const ChatConfigure = ({children}) => {
       apiUrl: $config.CHAT_URL,
     };
 
+    console.log('Chat-SDK: upload Obj', uploadObj);
+
     try {
       AgoraChat.utils.uploadFile(uploadObj);
     } catch (error) {
+      console.log('Chat-SDK: upload util error', error);
       console.error(error);
     }
   };
