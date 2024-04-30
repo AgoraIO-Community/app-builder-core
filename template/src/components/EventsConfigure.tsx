@@ -53,7 +53,6 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 import useEndCall from '../utils/useEndCall';
-import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 interface Props {
   children: React.ReactNode;
@@ -276,7 +275,6 @@ const EventsConfigure: React.FC<Props> = props => {
     //     });
     //   }
     // });
-
     events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
         leadingIconName: 'video-off',
