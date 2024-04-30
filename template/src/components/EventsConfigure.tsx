@@ -265,13 +265,16 @@ const EventsConfigure: React.FC<Props> = props => {
   // Recording bot starts
   const {isRecordingBot} = useIsRecordingBot();
   useEffect(() => {
-    events.on('RECORDING_BOT_JOINED', async data => {
-      console.log('Recording-bot: joined custom event received:', data);
-    });
-
     if (isRecordingBot) {
-      console.log('Recording-bot: entered the video call room');
-      events.send('RECORDING_BOT_JOINED', 'Bot joined the call', 3);
+      events.on('RECORDING_BOT_JOINED', async data => {
+        console.log('Recording-bot: joined custom event received:', data);
+      });
+
+      events.send(
+        'RECORDING_BOT_JOINED',
+        'Bot joined the call',
+        PersistanceLevel.Session,
+      );
     }
   }, [isRecordingBot]);
   // Recording bot ends
