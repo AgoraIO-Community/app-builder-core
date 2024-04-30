@@ -238,24 +238,41 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   };
 
   const startRecording = () => {
+    const passphrase = roomId.host || '';
+    let recordinghostURL = getOriginURL();
+    console.log('web-recording - start recording API called');
+
+    if (inProgress) {
+      console.error('web-recording - start recording API already in progress');
+      return;
+    }
+    if (recordinghostURL.includes('localhost')) {
+      console.error(
+        'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
+      );
+      return;
+    }
+    recordinghostURL = getFrontendUrl(recordinghostURL);
+    console.log('web-recording - recordinghostURL: ', recordinghostURL);
+
     setInProgress(true);
-    // If recording is not going on, start the recording by executing the graphql query
-    startRecordingQuery({
-      variables: {
-        passphrase: phrase,
-        secret:
-          rtcProps.encryption && rtcProps.encryption.key
-            ? rtcProps.encryption.key
-            : '',
-        config: {
-          resolution: 'SD360p',
-          trigger: 'AUTO',
-        },
+    fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: store.token ? `Bearer ${store.token}` : '',
       },
+      body: JSON.stringify({
+        passphrase: roomId.host,
+        url: `${recordinghostURL}/${passphrase}`,
+        webpage_ready_timeout: 10,
+        encryption: $config.ENCRYPTION_ENABLED,
+        mode: 'mix',
+      }),
     })
       .then(res => {
         setInProgress(false);
-        if (res.data.startRecordingSession === 'success') {
+        if (res.status === 200) {
           /**
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now active.
@@ -314,10 +331,20 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     ) {
       setInProgress(true);
       // If recording is already going on, stop the recording by executing the graphql query.
-      stopRecordingQuery({variables: {passphrase: phrase}})
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+        },
+        body: JSON.stringify({
+          passphrase: roomId.host,
+          mode: 'mix',
+        }),
+      })
         .then(res => {
           setInProgress(false);
-          if (res.data.stopRecordingSession === 'success') {
+          if (res.status === 200) {
             /**
              * 1. Once the backend sucessfuly starts recording, send message
              * in the channel indicating that cloud recording is now inactive.
