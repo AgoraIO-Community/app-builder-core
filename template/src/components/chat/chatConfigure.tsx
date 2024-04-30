@@ -266,7 +266,7 @@ const ChatConfigure = ({children}) => {
               // show to notifcation- group msg received
               showMessageNotification(message.msg, message.from, false);
               addMessageToStore(Number(message.from), {
-                msg: message.msg,
+                msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
@@ -281,7 +281,7 @@ const ChatConfigure = ({children}) => {
               addMessageToPrivateStore(
                 Number(message.from),
                 {
-                  msg: message.msg,
+                  msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
@@ -343,7 +343,7 @@ const ChatConfigure = ({children}) => {
           );
           // update local messagre store
           const messageData = {
-            msg: option.msg,
+            msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
             createdTimestamp: timeNow(),
             msgId: res?.serverMsgId,
             isDeleted: false,

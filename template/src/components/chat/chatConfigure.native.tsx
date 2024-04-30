@@ -129,7 +129,7 @@ const ChatConfigure = ({children}) => {
               if (isGroupChat) {
                 showMessageNotification(chatContent, from, false);
                 addMessageToStore(Number(from), {
-                  msg: chatContent,
+                  msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
                   createdTimestamp: localTime,
                   msgId: msgId,
                   isDeleted: false,
@@ -141,7 +141,7 @@ const ChatConfigure = ({children}) => {
                 addMessageToPrivateStore(
                   Number(from),
                   {
-                    msg: chatContent,
+                    msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
@@ -346,7 +346,7 @@ const ChatConfigure = ({children}) => {
         // for image and file msgs we will update on upload success of chatAttachment.native
         if (type === ChatMessageType.TXT) {
           const messageData = {
-            msg: option.msg,
+            msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
             createdTimestamp: timeNow(),
             msgId: chatMsg.msgId,
             isDeleted: false,

@@ -45,6 +45,8 @@ export interface ChatUIControlsInterface {
   setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
+  inputHeight: number;
+  setInputHeight: React.Dispatch<SetStateAction<number>>;
   showEmojiPicker: boolean;
   setShowEmojiPicker: React.Dispatch<SetStateAction<boolean>>;
   uploadStatus: UploadStatus;
@@ -61,6 +63,8 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setPrivateChatUser: () => {},
   setMessage: () => {},
   inputActive: false,
+  inputHeight: 0,
+  setInputHeight: () => {},
   setInputActive: () => {},
   showEmojiPicker: false,
   setShowEmojiPicker: () => {},
@@ -74,6 +78,10 @@ interface ChatUIControlsProviderProps {
   children: React.ReactNode;
 }
 
+export const MIN_HEIGHT = 43;
+export const MAX_HEIGHT = 92;
+export const LINE_HEIGHT = 17;
+
 const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [chatType, setChatType] = useState<ChatType>(ChatType.Group);
   const [inputActive, setInputActive] = useState(false);
@@ -84,6 +92,7 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
     UploadStatus.NOT_STARTED,
   );
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT);
 
   return (
     <ChatUIControlsContext.Provider
@@ -94,6 +103,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setPrivateChatUser,
         message,
         setMessage,
+        inputHeight,
+        setInputHeight,
         inputActive,
         setInputActive,
         showEmojiPicker,

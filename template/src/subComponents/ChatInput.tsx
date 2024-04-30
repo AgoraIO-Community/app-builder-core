@@ -24,6 +24,9 @@ import {
   ChatType,
   UploadStatus,
   useChatUIControls,
+  MIN_HEIGHT,
+  MAX_HEIGHT,
+  LINE_HEIGHT,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
@@ -74,13 +77,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     uploadStatus,
     uploadedFiles,
     setUploadedFiles,
+    inputHeight,
+    setInputHeight,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
-  const MIN_HEIGHT = 43;
-  const MAX_HEIGHT = 92;
-  const LINE_HEIGHT = 17;
-  const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT); // Initial height for one line
 
   React.useEffect(() => {
     if (message.length === 0) {
@@ -130,6 +131,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       msg: message,
     };
     sendChatSDKMessage(option);
+    setInputHeight(MIN_HEIGHT);
     setMessage('');
   };
 
@@ -145,7 +147,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     const contentHeight = e.nativeEvent.contentSize.height;
     const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
     const newHeight = lines < 5 ? LINE_HEIGHT * lines + 24 + 2 : MAX_HEIGHT; // Assuming lineHeight is LINE_HEIGHT
-    message.length && setInputHeight(newHeight);
+    setInputHeight(newHeight);
   };
 
   const handleUploadRetry = () => {

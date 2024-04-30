@@ -3,6 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {useChatConfigure} from '../../components/chat/chatConfigure';
 import IconButton from '../../../src/atoms/IconButton';
 import {
+  MIN_HEIGHT,
   UploadStatus,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
@@ -26,6 +27,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     uploadStatus,
     uploadedFiles,
     setUploadedFiles,
+    setInputHeight,
   } = useChatUIControls();
 
   const {data} = useRoomInfo();
@@ -64,6 +66,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     };
     sendChatSDKMessage(option);
     setMessage && setMessage('');
+    setInputHeight && setInputHeight(MIN_HEIGHT);
     setUploadedFiles && setUploadedFiles(prev => []);
   };
   return props?.render ? (
