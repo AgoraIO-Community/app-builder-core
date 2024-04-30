@@ -125,7 +125,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const userlabel = useString(videoRoomUserFallbackText)();
 
-  const {localUid, onlineUsersCount} = useContext(ChatContext);
+  const {localUid, onlineUsersCount, hasUserJoinedRTM} =
+    useContext(ChatContext);
   const {store} = React.useContext(StorageContext);
 
   const {setChatType} = useChatUIControls();
@@ -408,6 +409,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       clearTimeout(timer);
     };
   }, [isRecordingBot, isRecordingActive, onlineUsersCount, stopRecording]);
+
+  useEffect(() => {
+    if (hasUserJoinedRTM && isRecordingBot) {
+      events.send(
+        EventNames.RECORDING_BOT_JOINED,
+        JSON.stringify({msg: 'Recording bot joined'}),
+        PersistanceLevel.Session,
+      );
+    }
+  }, [isRecordingBot, hasUserJoinedRTM]);
 
   return (
     <RecordingContext.Provider

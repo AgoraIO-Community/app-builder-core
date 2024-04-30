@@ -262,19 +262,6 @@ const EventsConfigure: React.FC<Props> = props => {
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
 
-  // Recording bot starts
-  const {isRecordingBot} = useIsRecordingBot();
-  useEffect(() => {
-    if (isRecordingBot) {
-      events.send(
-        'RECORDING_BOT_JOINED',
-        'Bot joined the call',
-        PersistanceLevel.Session,
-      );
-    }
-  }, [isRecordingBot]);
-  // Recording bot ends
-
   useEffect(() => {
     //user joined event listener
     // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
