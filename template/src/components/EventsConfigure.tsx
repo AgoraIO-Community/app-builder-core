@@ -266,10 +266,6 @@ const EventsConfigure: React.FC<Props> = props => {
   const {isRecordingBot} = useIsRecordingBot();
   useEffect(() => {
     if (isRecordingBot) {
-      events.on('RECORDING_BOT_JOINED', async data => {
-        console.log('Recording-bot: joined custom event received:', data);
-      });
-
       events.send(
         'RECORDING_BOT_JOINED',
         'Bot joined the call',
@@ -293,6 +289,9 @@ const EventsConfigure: React.FC<Props> = props => {
     //     });
     //   }
     // });
+    events.on('RECORDING_BOT_JOINED', async data => {
+      console.log('Recording-bot: joined custom event received:', data);
+    });
     events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
         leadingIconName: 'video-off',
@@ -804,6 +803,7 @@ const EventsConfigure: React.FC<Props> = props => {
       events.off(EventNames.BOARD_COLOR_CHANGED);
       events.off(EventNames.STT_ACTIVE);
       events.off(EventNames.STT_LANGUAGE);
+      events.off('RECORDING_BOT_JOINED');
     };
   }, []);
 
