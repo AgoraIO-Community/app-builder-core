@@ -230,7 +230,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }),
     })
       .then((res: any) => {
-        setInProgress(false);
         if (res.status === 200) {
           /**
            * 1. Once the backend sucessfuly starts recording, send message
@@ -246,7 +245,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           );
           // 2. set the local recording state to true to update the UI
           setUidWhoStarted(localUid);
-          setRecordingActive(true);
         } else if (res.status === 500) {
           showErrorToast(headingStartError, subheadingError);
         } else {
@@ -335,10 +333,22 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
+    events.on(EventNames.RECORDING_BOT_JOINED, async data => {
+      console.log('Recording-bot: joined custom event received', {
+        startedBy: uidWhoStarted,
+        me: localUid,
+      });
+
+      if (localUid === uidWhoStarted) {
+        setInProgress(false);
+        setRecordingActive(true);
+      }
+    });
     return () => {
       events.off(EventNames.RECORDING_ATTRIBUTE);
+      events.off(EventNames.RECORDING_BOT_JOINED);
     };
-  }, [roomId.host, setRecordingActive]);
+  }, [roomId.host, setRecordingActive, uidWhoStarted, localUid]);
 
   const fetchRecordings = useCallback(
     (page: number) => {
