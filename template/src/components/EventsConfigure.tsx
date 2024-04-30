@@ -53,6 +53,7 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 import useEndCall from '../utils/useEndCall';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 interface Props {
   children: React.ReactNode;
@@ -260,6 +261,20 @@ const EventsConfigure: React.FC<Props> = props => {
   useEffect(() => {
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
+
+  // Recording bot starts
+  const {isRecordingBot} = useIsRecordingBot();
+  useEffect(() => {
+    events.on('RECORDING_BOT_JOINED', async data => {
+      console.log('Recording-bot: joined custom event received:', data);
+    });
+
+    if (isRecordingBot) {
+      console.log('Recording-bot: entered the video call room');
+      events.send('RECORDING_BOT_JOINED', 'Bot joined the call', 3);
+    }
+  }, [isRecordingBot]);
+  // Recording bot ends
 
   useEffect(() => {
     //user joined event listener

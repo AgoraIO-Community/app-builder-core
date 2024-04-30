@@ -205,12 +205,6 @@ const VideoCall: React.FC = () => {
     recordingBot: isRecordingBot ? true : false,
   });
 
-  useEffect(() => {
-    if (isRecordingBot) {
-      console.log('Recording-bot: entered the video call room');
-    }
-  }, [isRecordingBot]);
-
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
 
