@@ -423,10 +423,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       return;
     }
     const shouldStopRecording =
-      uidWhoStarted && isRecordingBot && !hostUids?.length;
+      isRecordingActive && isRecordingBot && !hostUids?.length;
     console.log(
       ' Recording-bot: trying to stop recording',
-      uidWhoStarted,
+      isRecordingActive,
       isRecordingBot,
       hostUids?.length,
     );
@@ -438,13 +438,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       console.log('Recording-bot: trying to stop recording');
       // stopRecording();
     }
-  }, [
-    isRecordingBot,
-    isRecordingActive,
-    hostUids,
-    stopRecording,
-    uidWhoStarted,
-  ]);
+  }, [isRecordingBot, isRecordingActive, hostUids, stopRecording]);
 
   useEffect(() => {
     if (hasUserJoinedRTM && isRecordingBot) {
