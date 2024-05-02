@@ -24,6 +24,7 @@ export interface AppBuilderSdkApiInterface {
   joinPrecall: (
     roomDetails: string | meetingData,
     userName?: string,
+    skipPrecall?: boolean,
   ) => Promise<
     [
       meetingData,
@@ -70,13 +71,13 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
       userName,
     );
   },
-  joinPrecall: async (roomDetails, userName) => {
+  joinPrecall: async (roomDetails, userName, skipPrecall) => {
     if (!$config.PRECALL)
       throw new Error('Precall disabled in config, cant join precall');
     const t = await SDKMethodEventsManager.emit(
       'join',
       roomDetails,
-      false,
+      skipPrecall,
       userName,
     );
     return t as unknown as [
