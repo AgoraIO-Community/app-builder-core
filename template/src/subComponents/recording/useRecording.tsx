@@ -49,6 +49,10 @@ import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 
+const log = (...args: any[]) => {
+  console.log('[Recording_v2:] ', ...args);
+};
+
 const getFrontendUrl = (url: string) => {
   // check if it doesn't contains the https protocol
   if (url.indexOf('https://') !== 0) {
@@ -190,7 +194,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   useEffect(() => {
     events.on(EventNames.RECORDING_ATTRIBUTE, data => {
-      console.log('web-recording attribute received', data);
+      log('attribute received', data);
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
@@ -217,7 +221,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
-    console.log('web-recording - start recording API called');
+    log('start recording API called');
 
     if (inProgress) {
       console.error('web-recording - start recording API already in progress');
@@ -230,7 +234,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       return;
     }
     recordinghostURL = getFrontendUrl(recordinghostURL);
-    console.log('web-recording - recordinghostURL: ', recordinghostURL);
+    log('recordinghostURL: ', recordinghostURL);
 
     setInProgress(true);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
@@ -273,8 +277,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
             const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
             if (activeScreenshareUid) {
-              console.log(
-                'web-recording - screenshare: Executing presenter query for screenuid',
+              log(
+                'screenshare: Executing presenter query for screenuid',
                 activeScreenshareUid,
               );
               executePresenterQuery(parseInt(activeScreenshareUid));
@@ -298,7 +302,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
-    console.log('web-recording - stop recording API called');
+    log('stop recording API called');
     if (inProgress) {
       console.error(
         'web-recording - stop recording already in progress. Aborting..',
@@ -426,31 +430,31 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     const shouldStopRecording = () =>
       isRecordingActive && isRecordingBot && !hostUids?.length;
 
-    console.log('Recording-bot: Checking if bot should stop recording', {
+    log('Recording-bot: Checking if bot should stop recording', {
       shouldStopRecording: shouldStopRecording(),
       areHostsInChannel: hostUids?.length,
     });
     if (shouldStopRecording()) {
-      console.log(
+      log(
         'Recording-bot: will end the meeting after 30 seconds if no one joins',
       );
       timer = setTimeout(() => {
         // Check again if still there are some users
-        console.log('Recording-bot: trying to stop recording');
+        log('Recording-bot: trying to stop recording');
         stopRecording();
         // Run after 30 seconds
       }, 30000);
-      console.log('Recording-bot: timer starts, timerId - ', timer);
+      log('Recording-bot: timer starts, timerId - ', timer);
     }
     return () => {
-      console.log('Recording-bot: clear timer,  timerId - ', timer);
+      log('Recording-bot: clear timer,  timerId - ', timer);
       clearTimeout(timer);
     };
   }, [isRecordingBot, isRecordingActive, hostUids, stopRecording]);
 
   useEffect(() => {
     if (hasUserJoinedRTM && isRecordingBot) {
-      console.log('Recording-bot: sending event');
+      log('Recording-bot: sending event');
       events.send(
         EventNames.RECORDING_ATTRIBUTE,
         JSON.stringify({
