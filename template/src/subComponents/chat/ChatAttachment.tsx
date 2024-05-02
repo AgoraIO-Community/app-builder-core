@@ -7,10 +7,17 @@ import {useChatConfigure} from '../../components/chat/chatConfigure';
 import Toast from '../../../react-native-toast-message';
 import {
   File,
+  MAX_UPLOAD_SIZE,
   UploadStatus,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {ChatMessageType} from '../../components/chat-messages/useChatMessages';
+import {
+  chatUploadErrorToastHeading,
+  chatUploadErrorFileSizeToastSubHeading,
+  chatUploadErrorFileTypeToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {useString} from '../../utils/useString';
 
 export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -22,6 +29,9 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {privateChatUser, setUploadStatus, setUploadedFiles} =
     useChatUIControls();
   const {uploadAttachment} = useChatConfigure();
+  const toastHeading = useString(chatUploadErrorToastHeading)();
+  const errorSubHeading1 = useString(chatUploadErrorFileSizeToastSubHeading);
+  const errorSubHeading2 = useString(chatUploadErrorFileTypeToastSubHeading);
 
   const fileAllowedTypes = {
     zip: true,
@@ -49,9 +59,23 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     const isImageUploaded = uploadedFileType in imageAllowedTypes;
     const isFileUploaded = uploadedFileType in fileAllowedTypes;
 
+    if (file.data.size > MAX_UPLOAD_SIZE * 1024 * 1024) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeading,
+        text2: errorSubHeading1(MAX_UPLOAD_SIZE.toString()),
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      return;
+    }
+
     if (!selectedFile) return;
 
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
+
     const uploadedFile: File = {
       file_name: file.filename,
       file_ext: uploadedFileType,
@@ -71,11 +95,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         Toast.show({
           leadingIconName: 'chat_attachment_unknown',
           type: 'info',
-          text1: `Attachment Upload Error`,
+          text1: toastHeading,
+          text2: errorSubHeading2(file.filetype),
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
-          text2: `${file.filetype} is not supported `,
         });
       }
     }

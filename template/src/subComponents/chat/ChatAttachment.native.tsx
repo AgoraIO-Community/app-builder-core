@@ -7,6 +7,7 @@ import Toast from '../../../react-native-toast-message';
 import {
   useChatUIControls,
   UploadStatus,
+  MAX_UPLOAD_SIZE,
 } from '../../components/chat-ui/useChatUIControls';
 import {useChatConfigure} from '../../components/chat/chatConfigure.native';
 import {
@@ -19,6 +20,13 @@ import {
   ChatMessageChatType,
 } from 'react-native-agora-chat';
 
+import {
+  chatUploadErrorToastHeading,
+  chatUploadErrorFileSizeToastSubHeading,
+  chatUploadErrorFileTypeToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {useString} from '../../utils/useString';
+
 export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
@@ -29,6 +37,10 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {data} = useRoomInfo();
 
   const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
+  const toastHeading = useString(chatUploadErrorToastHeading)();
+  const errorSubHeading1 = useString(chatUploadErrorFileSizeToastSubHeading);
+  const errorSubHeading2 = useString(chatUploadErrorFileTypeToastSubHeading);
+
   const fileAllowedTypes = {
     zip: true,
     txt: true,
@@ -58,6 +70,19 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         presentationStyle: 'fullScreen',
         copyTo: 'documentDirectory',
       });
+
+      if (result[0].size > MAX_UPLOAD_SIZE * 1024 * 1024) {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text1: toastHeading,
+          text2: errorSubHeading1(MAX_UPLOAD_SIZE.toString()),
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+        });
+        return;
+      }
 
       //todo check for mime type of file above
       const uploadedFileType = result[0].type;
@@ -129,11 +154,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         Toast.show({
           leadingIconName: 'chat_attachment_unknown',
           type: 'info',
-          text1: `Attachment Upload Error`,
+          text1: toastHeading,
+          text2: errorSubHeading2(uploadedFileType),
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
-          text2: `${uploadedFileType} is not supported `,
         });
       }
 

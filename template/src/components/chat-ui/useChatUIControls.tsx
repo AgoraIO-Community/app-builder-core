@@ -81,6 +81,7 @@ interface ChatUIControlsProviderProps {
 export const MIN_HEIGHT = 43;
 export const MAX_HEIGHT = 92;
 export const LINE_HEIGHT = 17;
+export const MAX_UPLOAD_SIZE = 10; //MB
 
 const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [chatType, setChatType] = useState<ChatType>(ChatType.Group);
