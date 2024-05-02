@@ -45,6 +45,9 @@ import {
   videoRoomRecordingErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {getOriginURL} from '../../auth/config';
+import useRecordingLayoutQuery from './useRecordingLayoutQuery';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import {useVideoMeetingData} from '../../components/contexts/VideoMeetingDataContext';
 
 const getFrontendUrl = (url: string) => {
   // check if it doesn't contains the https protocol
@@ -96,19 +99,24 @@ interface RecordingProviderProps {
 }
 
 /**
- * Component to start / stop Agora cloud recording.
+ * Component to start / stop Agora cloud and web recording.
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
 
+type RecordingMode = 'mix' | 'web';
+
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
+  const recordingMode: RecordingMode = 'web';
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {defaultContent, activeUids} = useContent();
+  const {defaultContent} = useContent();
+  const {hostUids} = useVideoMeetingData();
+
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
@@ -125,33 +133,27 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const userlabel = useString(videoRoomUserFallbackText)();
 
-  const {localUid, onlineUsersCount, hasUserJoinedRTM} =
-    useContext(ChatContext);
+  const {localUid, hasUserJoinedRTM} = useContext(ChatContext);
   const {store} = React.useContext(StorageContext);
 
   const {setChatType} = useChatUIControls();
   const {setSidePanel} = useSidePanel();
   const {setIsCaptionON} = useCaption();
-  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
+  const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
+  const {screenShareData} = useScreenContext();
 
-  const setRecordingBotUI = () => {
-    if (isRecordingBot) {
-      if (recordingBotUIConfig?.chat && $config.CHAT) {
-        setSidePanel(SidePanelType.Chat);
-        setChatType(ChatType.Group);
-      }
-      if (recordingBotUIConfig.stt && $config.ENABLE_STT) {
-        setIsCaptionON(true);
-      }
-    }
+  const showErrorToast = (text1: string, text2?: string) => {
+    Toast.show({
+      leadingIconName: 'alert',
+      type: 'error',
+      text1: text1,
+      text2: text2 ? text2 : '',
+      visibilityTime: 3000,
+      primaryBtn: null,
+      secondaryBtn: null,
+      leadingIcon: null,
+    });
   };
-
-  useEffect(() => {
-    if (callActive) {
-      setRecordingBotUI();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [callActive]);
 
   useEffect(() => {
     /**
@@ -161,7 +163,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * shown
      */
     if (prevRecordingState) {
-      if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
+      if (prevRecordingState?.isRecordingActive === isRecordingActive) {
+        return;
+      }
 
       if ($config.ENABLE_WAITING_ROOM && !isHost && !callActive) {
         return;
@@ -184,18 +188,30 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
   }, [isRecordingActive, callActive, isHost]);
 
-  const showErrorToast = (text1: string, text2?: string) => {
-    Toast.show({
-      leadingIconName: 'alert',
-      type: 'error',
-      text1: text1,
-      text2: text2 ? text2 : '',
-      visibilityTime: 3000,
-      primaryBtn: null,
-      secondaryBtn: null,
-      leadingIcon: null,
+  useEffect(() => {
+    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+      switch (action) {
+        case EventActions.RECORDING_STARTED_BY:
+          setUidWhoStarted(parseInt(value));
+          break;
+        case EventActions.RECORDING_STARTED:
+          setRecordingActive(true);
+          break;
+        case EventActions.RECORDING_STOPPED:
+          setRecordingActive(false);
+          break;
+
+        default:
+          break;
+      }
     });
-  };
+    return () => {
+      events.off(EventNames.RECORDING_ATTRIBUTE);
+    };
+  }, [roomId.host, setRecordingActive, uidWhoStarted, localUid]);
 
   const startRecording = () => {
     const passphrase = roomId.host || '';
@@ -227,6 +243,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         url: `${recordinghostURL}/${passphrase}`,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
+        mode: recordingMode,
       }),
     })
       .then((res: any) => {
@@ -238,13 +255,32 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           events.send(
             EventNames.RECORDING_ATTRIBUTE,
             JSON.stringify({
-              action: EventActions.RECORDING_STARTED,
+              action: EventActions.RECORDING_STARTED_BY,
               value: `${localUid}`,
             }),
             PersistanceLevel.Session,
           );
           // 2. set the local recording state to true to update the UI
           setUidWhoStarted(localUid);
+          // 3. Check if recording mode is cloud
+          if (recordingMode === 'mix') {
+            // 3.a  Set the presenter mode if screen share is active
+            // 3.b Get the most recent screenshare uid
+            const sorted = Object.entries(screenShareData)
+              .filter(el => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
+              .sort((a, b) => b[1].ts - a[1].ts);
+
+            const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
+            if (activeScreenshareUid) {
+              console.log(
+                'web-recording - screenshare: Executing presenter query for screenuid',
+                activeScreenshareUid,
+              );
+              executePresenterQuery(parseInt(activeScreenshareUid));
+            } else {
+              executeNormalQuery();
+            }
+          }
         } else if (res.status === 500) {
           showErrorToast(headingStartError, subheadingError);
         } else {
@@ -278,6 +314,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
+        mode: recordingMode,
       }),
     })
       .then(res => {
@@ -316,40 +353,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     subheadingError,
   ]);
 
-  React.useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-      switch (action) {
-        case EventActions.RECORDING_STARTED:
-          setUidWhoStarted(parseInt(value));
-          setRecordingActive(true);
-          break;
-        case EventActions.RECORDING_STOPPED:
-          setRecordingActive(false);
-          break;
-        default:
-          break;
-      }
-    });
-    events.on(EventNames.RECORDING_BOT_JOINED, async data => {
-      console.log('Recording-bot: joined custom event received', {
-        startedBy: uidWhoStarted,
-        me: localUid,
-      });
-
-      if (localUid === uidWhoStarted) {
-        setInProgress(false);
-        setRecordingActive(true);
-      }
-    });
-    return () => {
-      events.off(EventNames.RECORDING_ATTRIBUTE);
-      events.off(EventNames.RECORDING_BOT_JOINED);
-    };
-  }, [roomId.host, setRecordingActive, uidWhoStarted, localUid]);
-
   const fetchRecordings = useCallback(
     (page: number) => {
       return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
@@ -387,6 +390,28 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     [roomId?.host, store.token],
   );
 
+  // ************ Recording Bot starts ************
+  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
+
+  const setRecordingBotUI = () => {
+    if (isRecordingBot) {
+      if (recordingBotUIConfig?.chat && $config.CHAT) {
+        setSidePanel(SidePanelType.Chat);
+        setChatType(ChatType.Group);
+      }
+      if (recordingBotUIConfig.stt && $config.ENABLE_STT) {
+        setIsCaptionON(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (callActive) {
+      setRecordingBotUI();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callActive]);
+
   useEffect(() => {
     /**
      * The below piece of code is executed only for recording bot
@@ -396,44 +421,31 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (!isRecordingBot) {
       return;
     }
-    let timer = null;
-    const shouldStopRecording = () =>
-      isRecordingBot && isRecordingActive && !onlineUsersCount;
-
+    const shouldStopRecording = isRecordingBot && !hostUids?.length;
     console.log('Recording-bot: Checking if bot should stop recording', {
-      shouldStopRecording: shouldStopRecording(),
-      onlineUsersCount,
+      shouldStopRecording,
+      areHostsInChannel: hostUids?.length,
     });
-    if (shouldStopRecording()) {
-      console.log(
-        'Recording-bot: will end the meeting after 10 seconds if no one joins',
-      );
-      timer = setTimeout(() => {
-        // Check again if still there are some users
-        console.log('Recording-bot: trying to stop recording');
-        stopRecording();
-        // Run after 10 seconds
-      }, 20000);
-      console.log('Recording-bot: timer starts, timerId - ', timer);
+    if (shouldStopRecording) {
+      console.log('Recording-bot: trying to stop recording');
+      stopRecording();
     }
-
-    return () => {
-      if (timer) {
-        console.log('Recording-bot: clear timer,  timerId - ', timer);
-        clearTimeout(timer);
-      }
-    };
-  }, [isRecordingBot, isRecordingActive, onlineUsersCount, stopRecording]);
+  }, [isRecordingBot, isRecordingActive, hostUids, stopRecording]);
 
   useEffect(() => {
     if (hasUserJoinedRTM && isRecordingBot) {
       events.send(
-        EventNames.RECORDING_BOT_JOINED,
-        JSON.stringify({msg: 'Recording bot joined'}),
+        EventNames.RECORDING_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.RECORDING_STARTED,
+          value: `${localUid}`,
+        }),
         PersistanceLevel.Session,
       );
     }
-  }, [isRecordingBot, hasUserJoinedRTM]);
+  }, [isRecordingBot, hasUserJoinedRTM, localUid]);
+
+  // ************ Recording Bot ends ************
 
   return (
     <RecordingContext.Provider
