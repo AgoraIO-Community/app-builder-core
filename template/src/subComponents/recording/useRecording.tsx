@@ -47,7 +47,7 @@ import {
 import {getOriginURL} from '../../auth/config';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import {useVideoMeetingData} from '../../components/contexts/VideoMeetingDataContext';
+import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 
 const getFrontendUrl = (url: string) => {
   // check if it doesn't contains the https protocol
@@ -115,7 +115,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
   const {defaultContent} = useContent();
-  const {hostUids} = useVideoMeetingData();
+  const {hostUids} = useLiveStreamDataContext();
 
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
@@ -422,22 +422,30 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (!isRecordingBot) {
       return;
     }
-    const shouldStopRecording =
+    let timer = null;
+    const shouldStopRecording = () =>
       isRecordingActive && isRecordingBot && !hostUids?.length;
-    console.log(
-      ' Recording-bot: trying to stop recording',
-      isRecordingActive,
-      isRecordingBot,
-      hostUids?.length,
-    );
+
     console.log('Recording-bot: Checking if bot should stop recording', {
-      shouldStopRecording,
+      shouldStopRecording: shouldStopRecording(),
       areHostsInChannel: hostUids?.length,
     });
-    if (shouldStopRecording) {
-      console.log('Recording-bot: trying to stop recording');
-      // stopRecording();
+    if (shouldStopRecording()) {
+      console.log(
+        'Recording-bot: will end the meeting after 10 seconds if no one joins',
+      );
+      timer = setTimeout(() => {
+        // Check again if still there are some users
+        console.log('Recording-bot: trying to stop recording');
+        stopRecording();
+        // Run after 30 seconds
+      }, 30000);
+      console.log('Recording-bot: timer starts, timerId - ', timer);
     }
+    return () => {
+      console.log('Recording-bot: clear timer,  timerId - ', timer);
+      clearTimeout(timer);
+    };
   }, [isRecordingBot, isRecordingActive, hostUids, stopRecording]);
 
   useEffect(() => {
@@ -451,8 +459,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }),
         PersistanceLevel.Session,
       );
+      setRecordingActive(true);
     }
-  }, [isRecordingBot, hasUserJoinedRTM, localUid]);
+  }, [isRecordingBot, hasUserJoinedRTM, localUid, setRecordingActive]);
   // ************ Recording Bot ends ************
 
   return (
