@@ -60,7 +60,7 @@ export const AttachmentBubble = ({
               ? 'chat_attachment_image'
               : fileExt === 'pdf'
               ? 'chat_attachment_pdf'
-              : fileExt === 'doc'
+              : fileExt === 'doc' || fileExt === 'docx'
               ? 'chat_attachment_doc'
               : 'chat_attachment_unknown'
           }
@@ -329,8 +329,7 @@ const style = StyleSheet.create({
     backgroundColor: 'transparent',
     //  width: '100%',
     // height: '100%',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    padding: 8,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 8,
@@ -339,8 +338,7 @@ const style = StyleSheet.create({
   chatBubbleLocalViewLayer2: {
     //width: '100%',
     //height: '100%',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    padding: 8,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 8,

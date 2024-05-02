@@ -32,6 +32,7 @@ export interface ActionMenuItem {
   onHoverCallback?: (isHovered: boolean) => void;
   onHoverContent?: JSX.Element;
   disabled?: boolean;
+  iconSize?: number;
 }
 export interface ActionMenuProps {
   from: string;
@@ -75,6 +76,7 @@ const ActionMenu = (props: ActionMenuProps) => {
           disabled = false,
           onHoverCallback = undefined,
           onHoverContent = undefined,
+          iconSize = 20,
         },
         index,
       ) => (
@@ -110,7 +112,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                       base64={isBase64Icon}
                       base64TintColor={iconColor}
                       iconType="plain"
-                      iconSize={20}
+                      iconSize={iconSize}
                       icon={externalIconString}
                       tintColor={iconColor}
                     />
@@ -119,7 +121,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                       base64={isBase64Icon}
                       base64TintColor={iconColor}
                       iconType="plain"
-                      iconSize={20}
+                      iconSize={iconSize}
                       name={
                         isHovered && onHoverIcon && !disabled
                           ? onHoverIcon

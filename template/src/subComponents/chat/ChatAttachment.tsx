@@ -38,6 +38,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     txt: true,
     doc: true,
     pdf: true,
+    docx: true,
+    ppt: true,
+    pptx: true,
+    xls: true,
+    xlsx: true,
   };
 
   const imageAllowedTypes = {
@@ -71,6 +76,20 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
       });
       return;
     }
+    if (!(isImageUploaded || isFileUploaded)) {
+      {
+        Toast.show({
+          leadingIconName: 'chat_attachment_unknown',
+          type: 'info',
+          text1: toastHeading,
+          text2: errorSubHeading2(file.filetype),
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+        });
+      }
+      return;
+    }
 
     if (!selectedFile) return;
 
@@ -89,20 +108,6 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     setUploadedFiles(prev => [uploadedFile]);
 
     uploadAttachment(uploadedFile);
-
-    if (!(isImageUploaded || isFileUploaded)) {
-      {
-        Toast.show({
-          leadingIconName: 'chat_attachment_unknown',
-          type: 'info',
-          text1: toastHeading,
-          text2: errorSubHeading2(file.filetype),
-          visibilityTime: 3000,
-          primaryBtn: null,
-          secondaryBtn: null,
-        });
-      }
-    }
   };
   const onPress = () => {
     fileInputRef.current.click();
@@ -113,7 +118,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     <>
       <input
         type="file"
-        accept="image/jpeg, image/png, image/gif, image/bmp, .zip, .txt, .doc, .pdf"
+        accept="image/jpeg, image/png, image/gif, image/bmp, .zip, .txt, .doc, .pdf, .docx, .ppt, .pptx"
         onChange={handleFileUpload}
         style={{display: 'none'}}
         id={`file-input-`}
