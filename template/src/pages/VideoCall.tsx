@@ -426,24 +426,22 @@ const VideoCall: React.FC = () => {
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure>
-                                              <RecordingProvider
-                                                value={{
-                                                  setRecordingActive,
-                                                  isRecordingActive,
-                                                  callActive,
-                                                }}>
-                                                <ScreenshareConfigure>
-                                                  <LiveStreamContextProvider
-                                                    value={{
-                                                      setRtcProps,
-                                                      rtcProps,
-                                                      callActive,
-                                                    }}>
-                                                    <LiveStreamDataProvider>
-                                                      <LocalUserContext
-                                                        localUid={
-                                                          rtcProps?.uid
-                                                        }>
+                                              <ScreenshareConfigure>
+                                                <LiveStreamContextProvider
+                                                  value={{
+                                                    setRtcProps,
+                                                    rtcProps,
+                                                    callActive,
+                                                  }}>
+                                                  <LiveStreamDataProvider>
+                                                    <LocalUserContext
+                                                      localUid={rtcProps?.uid}>
+                                                      <RecordingProvider
+                                                        value={{
+                                                          setRecordingActive,
+                                                          isRecordingActive,
+                                                          callActive,
+                                                        }}>
                                                         <NetworkQualityProvider>
                                                           {!isMobileUA() && (
                                                             <PermissionHelper />
@@ -480,11 +478,11 @@ const VideoCall: React.FC = () => {
                                                             </SdkMuteToggleListener>
                                                           </VBProvider>
                                                         </NetworkQualityProvider>
-                                                      </LocalUserContext>
-                                                    </LiveStreamDataProvider>
-                                                  </LiveStreamContextProvider>
-                                                </ScreenshareConfigure>
-                                              </RecordingProvider>
+                                                      </RecordingProvider>
+                                                    </LocalUserContext>
+                                                  </LiveStreamDataProvider>
+                                                </LiveStreamContextProvider>
+                                              </ScreenshareConfigure>
                                             </EventsConfigure>
                                           </WaitingRoomProvider>
                                         </CaptionProvider>
