@@ -190,6 +190,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   useEffect(() => {
     events.on(EventNames.RECORDING_ATTRIBUTE, data => {
+      console.log('web-recording attribute received', data);
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
@@ -421,19 +422,33 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (!isRecordingBot) {
       return;
     }
-    const shouldStopRecording = isRecordingBot && !hostUids?.length;
+    const shouldStopRecording =
+      uidWhoStarted && isRecordingBot && !hostUids?.length;
+    console.log(
+      ' Recording-bot: trying to stop recording',
+      uidWhoStarted,
+      isRecordingBot,
+      hostUids?.length,
+    );
     console.log('Recording-bot: Checking if bot should stop recording', {
       shouldStopRecording,
       areHostsInChannel: hostUids?.length,
     });
     if (shouldStopRecording) {
       console.log('Recording-bot: trying to stop recording');
-      stopRecording();
+      // stopRecording();
     }
-  }, [isRecordingBot, isRecordingActive, hostUids, stopRecording]);
+  }, [
+    isRecordingBot,
+    isRecordingActive,
+    hostUids,
+    stopRecording,
+    uidWhoStarted,
+  ]);
 
   useEffect(() => {
     if (hasUserJoinedRTM && isRecordingBot) {
+      console.log('Recording-bot: sending event');
       events.send(
         EventNames.RECORDING_ATTRIBUTE,
         JSON.stringify({
@@ -444,7 +459,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       );
     }
   }, [isRecordingBot, hasUserJoinedRTM, localUid]);
-
   // ************ Recording Bot ends ************
 
   return (
