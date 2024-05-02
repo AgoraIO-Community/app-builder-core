@@ -432,7 +432,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     });
     if (shouldStopRecording()) {
       console.log(
-        'Recording-bot: will end the meeting after 10 seconds if no one joins',
+        'Recording-bot: will end the meeting after 30 seconds if no one joins',
       );
       timer = setTimeout(() => {
         // Check again if still there are some users
