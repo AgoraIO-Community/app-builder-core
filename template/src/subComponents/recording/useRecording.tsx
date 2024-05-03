@@ -48,6 +48,7 @@ import {getOriginURL} from '../../auth/config';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
+import useEndCall from '../../utils/useEndCall';
 
 const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
@@ -145,6 +146,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setIsCaptionON} = useCaption();
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {screenShareData} = useScreenContext();
+  const executeEndCall = useEndCall();
 
   const showErrorToast = (text1: string, text2?: string) => {
     Toast.show({
@@ -308,7 +310,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       });
   };
 
-  const stopRecording = useCallback(() => {
+  const stopRecording = useCallback(async () => {
     /**
      * Any host in the channel can stop recording.
      */
@@ -317,11 +319,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       console.error(
         'web-recording - stop recording already in progress. Aborting..',
       );
-      return;
+      return Promise.reject('stop recording already in progress. Aborting..');
     }
     setInProgress(true);
     // If recording is already going on, stop the recording by executing the below query.
-    fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
+    return fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -334,6 +336,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then(res => {
         setInProgress(false);
+        if (res.status >= 400 || res.status <= 499) {
+          return Promise.reject(res);
+        }
         if (res.status === 200) {
           /**
            * 1. Once the backend sucessfuly stops recording, send message
@@ -349,15 +354,19 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           );
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
+          return Promise.resolve(true);
         } else if (res.status === 500) {
           showErrorToast(headingStopError, subheadingError);
+          return Promise.reject('Internal server down');
         } else {
           showErrorToast(headingStopError);
+          return Promise.reject(res);
         }
       })
       .catch(err => {
         setInProgress(false);
         console.log(err);
+        return Promise.reject(err);
       });
   }, [
     headingStopError,
@@ -445,22 +454,44 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       areHostsInChannel: hostUids?.length,
     });
     if (shouldStopRecording()) {
-      // log(
-      //   'Recording-bot: will end the meeting after 30 seconds if no one joins',
-      // );
-      // timer = setTimeout(() => {
-      //   // Check again if still there are some users
-      //   log('Recording-bot: trying to stop recording');
-      //   // stopRecording();
-      //   // Run after 30 seconds
-      // }, 30000);
-      // log('Recording-bot: timer starts, timerId - ', timer);
+      log(
+        'Recording-bot: will end the meeting after 30 seconds if no one joins',
+      );
+      timer = setTimeout(() => {
+        // Check again if still there are some users
+        log('Recording-bot: trying to stop recording');
+        stopRecording().catch(error => {
+          log(
+            'Recording-bot: there was an error when trying to stop recording. Ending call for the bot',
+            error,
+          );
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STOPPED,
+              value: '',
+            }),
+            PersistanceLevel.Session,
+          );
+          setRecordingActive(false);
+          executeEndCall();
+        });
+        // Run after 30 seconds
+      }, 30000);
+      log('Recording-bot: timer starts, timerId - ', timer);
     }
     return () => {
       log('Recording-bot: clear timer,  timerId - ', timer);
       clearTimeout(timer);
     };
-  }, [isRecordingBot, isRecordingActive, hostUids, stopRecording]);
+  }, [
+    isRecordingBot,
+    isRecordingActive,
+    hostUids,
+    stopRecording,
+    setRecordingActive,
+    executeEndCall,
+  ]);
 
   useEffect(() => {
     if (hasUserJoinedRTM && isRecordingBot) {
