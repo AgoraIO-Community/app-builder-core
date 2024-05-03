@@ -445,16 +445,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       areHostsInChannel: hostUids?.length,
     });
     if (shouldStopRecording()) {
-      log(
-        'Recording-bot: will end the meeting after 30 seconds if no one joins',
-      );
-      timer = setTimeout(() => {
-        // Check again if still there are some users
-        log('Recording-bot: trying to stop recording');
-        stopRecording();
-        // Run after 30 seconds
-      }, 30000);
-      log('Recording-bot: timer starts, timerId - ', timer);
+      // log(
+      //   'Recording-bot: will end the meeting after 30 seconds if no one joins',
+      // );
+      // timer = setTimeout(() => {
+      //   // Check again if still there are some users
+      //   log('Recording-bot: trying to stop recording');
+      //   // stopRecording();
+      //   // Run after 30 seconds
+      // }, 30000);
+      // log('Recording-bot: timer starts, timerId - ', timer);
     }
     return () => {
       log('Recording-bot: clear timer,  timerId - ', timer);
