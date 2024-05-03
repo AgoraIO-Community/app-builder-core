@@ -109,10 +109,10 @@ interface RecordingProviderProps {
  */
 
 type RecordingMode = 'mix' | 'web';
+const recordingMode: RecordingMode = $config.RECORDING_MODE || 'web';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
-  const recordingMode: RecordingMode = 'web';
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
@@ -201,8 +201,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       switch (action) {
         case EventActions.RECORDING_STARTED_BY:
           setUidWhoStarted(parseInt(value));
+          if (recordingMode === 'mix') {
+            setRecordingActive(true);
+          }
           break;
         case EventActions.RECORDING_STARTED:
+          setInProgress(false);
           setRecordingActive(true);
           break;
         case EventActions.RECORDING_STOPPED:
@@ -221,6 +225,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const startRecording = () => {
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
+    // let recordinghostURL =
+    //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
+
     log('start recording API called');
 
     if (inProgress) {
@@ -235,6 +242,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
     recordinghostURL = getFrontendUrl(recordinghostURL);
     log('recordinghostURL: ', recordinghostURL);
+    log('recordingMode', recordingMode);
 
     setInProgress(true);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
@@ -269,6 +277,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setUidWhoStarted(localUid);
           // 3. Check if recording mode is cloud
           if (recordingMode === 'mix') {
+            setInProgress(false);
+            setRecordingActive(true);
             // 3.a  Set the presenter mode if screen share is active
             // 3.b Get the most recent screenshare uid
             const sorted = Object.entries(screenShareData)
