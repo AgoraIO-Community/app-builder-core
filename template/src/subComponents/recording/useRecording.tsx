@@ -128,6 +128,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {localUid} = useContext(ChatContext);
   const {screenShareData} = useScreenContext();
+  console.log('screenShareData: ', screenShareData);
 
   React.useEffect(() => {
     events.on(EventNames.RECORDING_ATTRIBUTE, data => {
@@ -186,7 +187,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   }, [isRecordingActive, callActive, isHost]);
 
   const startRecording = () => {
-    setInProgress(true);
     // If recording is not going on, start the recording by executing the graphql query
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
