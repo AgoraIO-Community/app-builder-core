@@ -12,16 +12,15 @@
 import React, {
   createContext,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-  useCallback,
 } from 'react';
-import {useMutation} from '@apollo/client';
+import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
-import {START_RECORDING, STOP_RECORDING} from './queries';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'customization-implementation';
 import {useString} from '../../utils/useString';
@@ -33,43 +32,20 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
 import {useRoomInfo} from 'customization-api';
-import StorageContext from '../../components/StorageContext';
-import {useSidePanel} from '../../utils/useSidePanel';
-import {useCaption} from '../caption/useCaption';
-import {SidePanelType} from '../SidePanelEnum';
-import {
-  ChatType,
-  useChatUIControls,
-} from '../../components/chat-ui/useChatUIControls';
-import {useIsRecordingBot} from './useIsRecordingBot';
 import {
   videoRoomRecordingToastHeading,
   videoRoomRecordingToastSubHeading,
   videoRoomUserFallbackText,
-  videoRoomRecordingStartErrorToastHeading,
-  videoRoomRecordingStopErrorToastHeading,
-  videoRoomRecordingErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import StorageContext from '../../components/StorageContext';
 import {getOriginURL} from '../../auth/config';
 
-const getFrontendUrl = (url: string) => {
-  // check if it doesn't contains the https protocol
-  if (url.indexOf('https://') !== 0) {
-    url = `https://${url}`;
-  }
-  return url;
-};
-
-interface RecordingsData {
-  recordings: [];
-  pagination: {};
-}
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
   isRecordingActive: boolean;
   inProgress: boolean;
-  fetchRecordings?: (page: number) => Promise<RecordingsData>;
+  fetchRecordings?: any;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
@@ -78,6 +54,26 @@ const RecordingContext = createContext<RecordingContextInterface>({
   isRecordingActive: false,
   inProgress: false,
 });
+
+const START_RECORDING = gql`
+  mutation startRecordingSession(
+    $passphrase: String!
+    $secret: String
+    $config: recordingConfig!
+  ) {
+    startRecordingSession(
+      passphrase: $passphrase
+      secret: $secret
+      config: $config
+    )
+  }
+`;
+
+const STOP_RECORDING = gql`
+  mutation stopRecordingSession($passphrase: String!) {
+    stopRecordingSession(passphrase: $passphrase)
+  }
+`;
 
 /**
  * Component to start / stop Agora cloud recording.
@@ -116,6 +112,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
   const {defaultContent, activeUids} = useContent();
+  const {phrase} = useParams<{phrase: string}>();
+  const [startRecordingQuery] = useMutation(START_RECORDING);
+  const [stopRecordingQuery] = useMutation(STOP_RECORDING);
+  const {store} = React.useContext(StorageContext);
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
@@ -123,48 +123,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     videoRoomRecordingToastHeading,
   );
   const subheading = useString(videoRoomRecordingToastSubHeading);
-
-  const headingStartError = useString(
-    videoRoomRecordingStartErrorToastHeading,
-  )();
-  const headingStopError = useString(videoRoomRecordingStopErrorToastHeading)();
-  const subheadingError = useString(videoRoomRecordingErrorToastSubHeading)();
-
   const userlabel = useString(videoRoomUserFallbackText)();
 
-  const {localUid} = useContext(ChatContext);
-  const {store} = React.useContext(StorageContext);
-  // Web Recording starts
-  const {setChatType} = useChatUIControls();
-  const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON} = useCaption();
-  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
-
-  const setRecordingBotUI = () => {
-    if (isRecordingBot) {
-      if (recordingBotUIConfig?.chat && $config.CHAT) {
-        setSidePanel(SidePanelType.Chat);
-        setChatType(ChatType.Group);
-      }
-      if (recordingBotUIConfig.stt && $config.ENABLE_STT) {
-        setIsCaptionON(true);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (callActive) {
-      setRecordingBotUI();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [callActive]);
-
-  // Web Recording ends
-
-  const {phrase} = useParams<{phrase: string}>();
-  const [startRecordingQuery] = useMutation(START_RECORDING);
-  const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
+  const {localUid} = useContext(ChatContext);
   const {screenShareData} = useScreenContext();
 
   React.useEffect(() => {
@@ -187,7 +149,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
-
     return () => {
       events.off(EventNames.RECORDING_ATTRIBUTE);
     };
@@ -224,22 +185,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
   }, [isRecordingActive, callActive, isHost]);
 
-  const showErrorToast = (text1: string, text2?: string) => {
-    Toast.show({
-      leadingIconName: 'alert',
-      type: 'error',
-      text1: text1,
-      text2: text2 ? text2 : '',
-      visibilityTime: 3000,
-      primaryBtn: null,
-      secondaryBtn: null,
-      leadingIcon: null,
-    });
-  };
-
   const startRecording = () => {
+    setInProgress(true);
+    // If recording is not going on, start the recording by executing the graphql query
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
+    // let recordinghostURL =
+    //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
     console.log('web-recording - start recording API called');
 
     if (inProgress) {
@@ -252,7 +204,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       );
       return;
     }
-    recordinghostURL = getFrontendUrl(recordinghostURL);
     console.log('web-recording - recordinghostURL: ', recordinghostURL);
 
     setInProgress(true);
@@ -376,149 +327,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       );
     }
   };
-
-  const startWebRecording = () => {
-    const passphrase = roomId.host || '';
-    let recordinghostURL = getOriginURL();
-    console.log('web-recording - start recording API called');
-
-    if (inProgress) {
-      console.error('web-recording - start recording API already in progress');
-      return;
-    }
-    if (recordinghostURL.includes('localhost')) {
-      console.error(
-        'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
-      );
-      return;
-    }
-    recordinghostURL = getFrontendUrl(recordinghostURL);
-    console.log('web-recording - recordinghostURL: ', recordinghostURL);
-
-    setInProgress(true);
-    fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store.token ? `Bearer ${store.token}` : '',
-      },
-      body: JSON.stringify({
-        passphrase: roomId.host,
-        url: `${recordinghostURL}/${passphrase}`,
-        webpage_ready_timeout: 10,
-        encryption: $config.ENCRYPTION_ENABLED,
-      }),
-    })
-      .then((res: any) => {
-        setInProgress(false);
-        if (res.status === 200) {
-          /**
-           * 1. Once the backend sucessfuly starts recording, send message
-           * in the channel indicating that cloud recording is now active.
-           */
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STARTED,
-              value: `${localUid}`,
-            }),
-            PersistanceLevel.Session,
-          );
-          // 2. set the local recording state to true to update the UI
-          setUidWhoStarted(localUid);
-          setRecordingActive(true);
-        } else if (res.status === 500) {
-          showErrorToast(headingStartError, subheadingError);
-        } else {
-          showErrorToast(headingStartError);
-        }
-      })
-      .catch(err => {
-        setInProgress(false);
-        console.log(err);
-      });
-  };
-
-  const stopWebRecording = useCallback(() => {
-    /**
-     * Any host in the channel can stop recording.
-     */
-    console.log('web-recording - stop recording API called');
-    if (inProgress) {
-      console.error(
-        'web-recording - stop recording already in progress. Aborting..',
-      );
-      return;
-    }
-    setInProgress(true);
-    // If recording is already going on, stop the recording by executing the below query.
-    fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store.token ? `Bearer ${store.token}` : '',
-      },
-      body: JSON.stringify({
-        passphrase: roomId.host,
-      }),
-    })
-      .then(res => {
-        setInProgress(false);
-        if (res.status === 200) {
-          /**
-           * 1. Once the backend sucessfuly stops recording, send message
-           * in the channel indicating that cloud recording is now inactive.
-           */
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STOPPED,
-              value: '',
-            }),
-            PersistanceLevel.Session,
-          );
-          // 2. set the local recording state to false to update the UI
-          setRecordingActive(false);
-        } else if (res.status === 500) {
-          showErrorToast(headingStopError, subheadingError);
-        } else {
-          showErrorToast(headingStopError);
-        }
-      })
-      .catch(err => {
-        setInProgress(false);
-        console.log(err);
-      });
-  }, [
-    headingStopError,
-    inProgress,
-    roomId.host,
-    setRecordingActive,
-    store.token,
-    subheadingError,
-  ]);
-
-  React.useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-      switch (action) {
-        case EventActions.RECORDING_STARTED:
-          setUidWhoStarted(parseInt(value));
-          setRecordingActive(true);
-          break;
-        case EventActions.RECORDING_STOPPED:
-          setRecordingActive(false);
-          break;
-        default:
-          break;
-      }
-    });
-    return () => {
-      events.off(EventNames.RECORDING_ATTRIBUTE);
-    };
-  }, [roomId.host, setRecordingActive]);
 
   const fetchRecordings = useCallback(
     (page: number) => {
