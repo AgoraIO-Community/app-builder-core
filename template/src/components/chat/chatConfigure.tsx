@@ -228,6 +228,7 @@ const ChatConfigure = ({children}) => {
                 type: ChatMessageType.IMAGE,
                 thumb: fileUrl + '&thumbnail=true',
                 url: fileUrl,
+                fileName: message.ext?.file_name,
               });
             }
             if (message.chatType === 'singleChat') {
@@ -248,6 +249,7 @@ const ChatConfigure = ({children}) => {
                   type: ChatMessageType.IMAGE,
                   thumb: fileUrl + '&thumbnail=true',
                   url: fileUrl,
+                  fileName: message.ext?.file_name,
                 },
                 false,
               );

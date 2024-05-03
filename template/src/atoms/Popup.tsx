@@ -26,6 +26,7 @@ interface PopupProps extends ModalProps {
   closeBtnStyle?: ViewStyle;
   containerStyle?: ViewStyle;
   cancelable?: boolean;
+  headerComponent?: React.ReactNode;
 }
 const Popup = (props: PopupProps) => {
   const {
@@ -38,6 +39,7 @@ const Popup = (props: PopupProps) => {
     cancelable = true,
     bodyContainerStyle = {},
     closeBtnStyle = {},
+    headerComponent = null,
     ...otherProps
   } = props;
 
@@ -66,10 +68,12 @@ const Popup = (props: PopupProps) => {
         </TouchableWithoutFeedback>
 
         <View style={[styles.modalView, props?.contentContainerStyle]}>
-          {title || showCloseIcon ? (
+          {title || showCloseIcon || headerComponent ? (
             <>
               <View style={styles.header}>
-                <Text style={styles.title}>{title}</Text>
+                {title && <Text style={styles.title}>{title}</Text>}
+                {headerComponent}
+
                 {showCloseIcon ? (
                   <View>
                     <IconButton

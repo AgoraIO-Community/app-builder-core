@@ -245,6 +245,10 @@ const ChatBubble = (props: ChatBubbleProps) => {
                     modalVisible={lightboxVisible}
                     setModalVisible={setLightboxVisible}
                     imageUrl={url}
+                    msgId={msgId}
+                    fileName={fileName}
+                    senderName={isLocal ? 'You' : defaultContent[uid]?.name}
+                    timestamp={createdTimestamp}
                   />
                 ) : null}
               </View>

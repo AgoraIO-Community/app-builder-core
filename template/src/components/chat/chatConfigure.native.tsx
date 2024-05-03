@@ -170,6 +170,7 @@ const ChatConfigure = ({children}) => {
                   type: ChatMessageType.IMAGE,
                   thumb: thumb,
                   url: url,
+                  fileName: file_name,
                 });
               }
               if (isPeerChat) {
@@ -188,6 +189,7 @@ const ChatConfigure = ({children}) => {
                     type: ChatMessageType.IMAGE,
                     thumb: thumb,
                     url: url,
+                    fileName: file_name,
                   },
                   false,
                 );
