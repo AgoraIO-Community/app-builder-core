@@ -170,9 +170,10 @@ const ChatConfigure = ({children}) => {
                 : message.ext.file_url;
             if (message.chatType === 'groupChat') {
               showMessageNotification(
-                'You got group file msg',
+                message.ext.file_name,
                 message.from,
                 false,
+                message.type,
               );
 
               addMessageToStore(Number(message.from), {
@@ -188,9 +189,10 @@ const ChatConfigure = ({children}) => {
             }
             if (message.chatType === 'singleChat') {
               showMessageNotification(
-                'You got private file msg',
+                message.ext.file_name,
                 message.from,
                 true,
+                message.type,
               );
               addMessageToPrivateStore(
                 Number(message.from),
@@ -216,9 +218,10 @@ const ChatConfigure = ({children}) => {
 
             if (message.chatType === 'groupChat') {
               showMessageNotification(
-                'You got group image msg',
+                message.ext.file_name,
                 message.from,
                 false,
+                message.type,
               );
               addMessageToStore(Number(message.from), {
                 msg: '',
@@ -234,9 +237,10 @@ const ChatConfigure = ({children}) => {
             if (message.chatType === 'singleChat') {
               // show to notifcation- privat msg received
               showMessageNotification(
-                'You got private image msg',
+                message.ext.file_name,
                 message.from,
                 true,
+                message.type,
               );
               // this is remote user messages
               addMessageToPrivateStore(
@@ -266,7 +270,12 @@ const ChatConfigure = ({children}) => {
 
             if (message.chatType === 'groupChat') {
               // show to notifcation- group msg received
-              showMessageNotification(message.msg, message.from, false);
+              showMessageNotification(
+                message.msg,
+                message.from,
+                false,
+                message.type,
+              );
               addMessageToStore(Number(message.from), {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                 createdTimestamp: message.time,
@@ -278,7 +287,12 @@ const ChatConfigure = ({children}) => {
 
             if (message.chatType === 'singleChat') {
               // show to notifcation- privat msg received
-              showMessageNotification(message.msg, message.from, true);
+              showMessageNotification(
+                message.msg,
+                message.from,
+                true,
+                message.type,
+              );
               // this is remote user messages
               addMessageToPrivateStore(
                 Number(message.from),

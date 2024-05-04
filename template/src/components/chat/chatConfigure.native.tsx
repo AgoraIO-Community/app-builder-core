@@ -110,7 +110,7 @@ const ChatConfigure = ({children}) => {
         },
         onMessagesReceived: (messages: ChatMessage[]) => {
           // all types of msg recivied : text, image, video etc..
-          console.warn('on msg rcvd : Native', messages);
+          console.warn('on msg rcvd : Native101', messages);
           const isGroupChat =
             messages[0].chatType === ChatMessageChatType.GroupChat;
           const isPeerChat =
@@ -161,7 +161,12 @@ const ChatConfigure = ({children}) => {
               const url = from_platform === 'web' ? file_url : body.remotePath;
               console.warn('url ==>', url);
               if (isGroupChat) {
-                showMessageNotification('You got group image msg', from, false);
+                showMessageNotification(
+                  file_name,
+                  from,
+                  false,
+                  ChatMessageType.IMAGE,
+                );
                 addMessageToStore(Number(from), {
                   msg: '',
                   createdTimestamp: localTime,
@@ -178,6 +183,7 @@ const ChatConfigure = ({children}) => {
                   'You got private image msg',
                   from,
                   true,
+                  ChatMessageType.IMAGE,
                 );
                 addMessageToPrivateStore(
                   Number(from),
@@ -201,9 +207,10 @@ const ChatConfigure = ({children}) => {
               console.warn('message', JSON.stringify(messages, null, 2));
               if (isGroupChat) {
                 showMessageNotification(
-                  'You got group file msg 1',
+                  file_name,
                   from,
                   false,
+                  ChatMessageType.FILE,
                 );
                 addMessageToStore(Number(from), {
                   msg: '',
@@ -217,7 +224,12 @@ const ChatConfigure = ({children}) => {
                 });
               }
               if (isPeerChat) {
-                showMessageNotification('You got private file msg', from, true);
+                showMessageNotification(
+                  file_name,
+                  from,
+                  true,
+                  ChatMessageType.FILE,
+                );
                 addMessageToPrivateStore(
                   Number(from),
                   {

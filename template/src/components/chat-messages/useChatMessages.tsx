@@ -101,6 +101,7 @@ interface ChatMessagesInterface {
     msg: string,
     uid: string,
     isPrivateMessage?: boolean,
+    msgType?: ChatMessageType,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
   removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
@@ -154,7 +155,24 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string) => `${name} commented in the public chat`;
+  const fromText = (name: string, msgType: ChatMessageType) => {
+    let text = '';
+    switch (msgType) {
+      case ChatMessageType.TXT:
+        text = `${name} commented in the public chat`;
+        break;
+      case ChatMessageType.IMAGE:
+        text = `${name} sent an image in the public chat`;
+        break;
+      case ChatMessageType.FILE:
+        text = `${name} sent a file in the public chat`;
+        break;
+      default:
+        text = `${name} commented in the public chat`;
+        break;
+    }
+    return text;
+  };
   const privateMessageLabel = 'You’ve received a private message';
 
   useEffect(() => {
@@ -315,6 +333,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     msg: string,
     uid: string,
     isPrivateMessage: boolean = false,
+    msgType: ChatMessageType,
     forceStop: boolean = false,
   ) => {
     if (isPrivateMessage) {
@@ -407,8 +426,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         leadingIconName: 'chat-nav',
         text1:
           privateMessages && privateMessages.length
-            ? 'New comments in Public & Private Chat'
-            : 'New comments in Public Chat',
+            ? 'New messages in Public & Private Chat'
+            : 'New messages in Public Chat',
         text2:
           privateMessages && privateMessages.length
             ? `You have ${publicMessages.length} new messages from ${fromNames} and ${privateMessages.length} Private chat`
@@ -475,6 +494,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               ),
+              msgType,
             )
           : '',
         text2: isPrivateMessage
