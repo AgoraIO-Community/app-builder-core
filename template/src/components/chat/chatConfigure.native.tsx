@@ -386,21 +386,31 @@ const ChatConfigure = ({children}) => {
   };
 
   const downloadAttachment = (fileName: string, fileUrl: string) => {
-    console.warn(fileName);
-    RNFetchBlob.fs
-      .writeFile(fileUrl, 'utf8')
-      .then(() => {
-        Share.open({url: `file://${fileUrl}`})
-          .then(res => {
-            console.warn('File shared successfully:', res);
+    console.warn('fileUrl', fileName);
+    const source = fileUrl;
+    const {dirs} = RNFetchBlob.fs;
+    RNFetchBlob.config({
+      fileCache: true,
+      appendExt: fileName.split('.')[1],
+      path: `${dirs.DocumentDir}/${fileName}`,
+    })
+      .fetch('GET', source)
+      .then(res => {
+        const filePath = res.path();
+        // Share the downloaded file
+        Share.open({
+          url: `file://${filePath}`,
+          title: 'Share File',
+          filename: fileName, // Set the filename for sharing
+        })
+          .then(() => {
+            console.log('File shared successfully');
           })
           .catch(error => {
             console.error('Error sharing file:', error);
           });
       })
-      .catch(error => {
-        console.error('Error downloading content:', error);
-      });
+      .catch(err => console.log('BLOB ERROR -> ', err));
   };
 
   const deleteChatUser = async () => {
