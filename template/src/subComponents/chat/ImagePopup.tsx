@@ -5,6 +5,7 @@ import {
   Image,
   ActivityIndicator,
   Modal,
+  TouchableOpacity,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import Popup from '../../atoms/Popup';
@@ -12,6 +13,12 @@ import UserAvatar from '../../atoms/UserAvatar';
 import ThemeConfig from '../../theme';
 import {timeAgo} from '../../../src/utils';
 import IconButton from '../../atoms/IconButton';
+import {useChatConfigure} from '../../components/chat/chatConfigure';
+import {useChatMessages} from '../../components/chat-messages/useChatMessages';
+import Clipboard from '../../subComponents/Clipboard';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
+import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
+import {IconsInterface} from '../../atoms/CustomIcon';
 
 interface ImagePopupProps {
   modalVisible: boolean;
@@ -21,6 +28,7 @@ interface ImagePopupProps {
   timestamp: string;
   senderName: string;
   msgId: string;
+  isLocal: boolean;
 }
 
 const ImagePopup = (props: ImagePopupProps) => {
@@ -32,6 +40,7 @@ const ImagePopup = (props: ImagePopupProps) => {
     timestamp,
     senderName,
     msgId,
+    isLocal,
   } = props;
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -76,6 +85,86 @@ const ImagePopup = (props: ImagePopupProps) => {
     );
   };
 
+  const ControlsMenu = () => {
+    const {downloadAttachment, deleteAttachment} = useChatConfigure();
+    const {removeMessageFromPrivateStore, removeMessageFromStore} =
+      useChatMessages();
+    const {privateChatUser} = useChatUIControls();
+    const {
+      data: {isHost, chat},
+    } = useRoomInfo();
+
+    const menuItems = [
+      {
+        icon: 'download',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        iconSize: 20,
+        callback: () => {
+          downloadAttachment(fileName, imageUrl);
+        },
+      },
+      {
+        icon: 'clipboard',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        iconSize: 20,
+        callback: () => {
+          Clipboard.setString(imageUrl);
+        },
+      },
+      {
+        icon: 'delete',
+        iconColor: $config.SEMANTIC_ERROR,
+        iconSize: 24,
+        callback: () => {
+          const groupID = chat.group_id;
+          const chatType = privateChatUser ? 'singleChat' : 'groupChat';
+          const recallFromUser = privateChatUser ? privateChatUser : groupID;
+
+          setModalVisible(false);
+
+          if (chatType === 'singleChat') {
+            removeMessageFromPrivateStore(msgId, isLocal);
+          }
+          if (chatType === 'groupChat') {
+            removeMessageFromStore(msgId, isLocal);
+          }
+          if (isLocal) {
+            deleteAttachment(msgId, recallFromUser.toString(), chatType);
+          }
+        },
+      },
+    ];
+    return !isLoading ? (
+      <View style={styles.controlsContainer}>
+        {menuItems.map(obj => (
+          <View>
+            <IconButton
+              key={obj.icon}
+              hoverEffect={true}
+              hoverEffectStyle={{
+                backgroundColor: $config.ICON_BG_COLOR,
+              }}
+              iconProps={{
+                iconType: 'plain',
+                iconContainerStyle: {
+                  backgroundColor: 'transparent',
+                  borderRadius: obj.iconSize,
+                  padding: 8,
+                },
+                iconSize: obj.iconSize,
+                name: obj.icon as keyof IconsInterface,
+                tintColor: obj.iconColor,
+              }}
+              onPress={obj.callback}
+            />
+          </View>
+        ))}
+      </View>
+    ) : (
+      <></>
+    );
+  };
+
   const HeaderComponent = () => {
     return (
       <View style={styles.headerContainer}>
@@ -117,6 +206,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         style={styles.image}
         onLoad={handleImageLoad}
       />
+      <ControlsMenu />
     </Popup>
   );
 };
@@ -161,6 +251,7 @@ const styles = StyleSheet.create({
   bodyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
   closeBtnContainer: {
     position: 'absolute',
@@ -198,5 +289,21 @@ const styles = StyleSheet.create({
   },
   subTextContainer: {
     flexDirection: 'row',
+  },
+  controlsContainer: {
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 16,
+    borderRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    zIndex: 1,
+    elevation: 1,
   },
 });

@@ -208,71 +208,70 @@ const ChatBubble = (props: ChatBubbleProps) => {
               : style.chatBubbleRemoteViewLayer2,
             type === ChatMessageType.IMAGE && style.chatBubbleViewImg,
           ]}>
-          <Hyperlink
-            onPress={handleUrl}
-            linkStyle={{
-              color: $config.FONT_COLOR,
-              textDecorationLine: 'underline',
-            }}>
-            {type === ChatMessageType.TXT && (
-              <Text style={style.messageStyle} selectable={true}>
-                {message}
+          {isDeleted ? (
+            <View style={style.deleteMsgContainer}>
+              <ImageIcon
+                iconSize={18}
+                iconType="plain"
+                name="remove"
+                tintColor={$config.SEMANTIC_NEUTRAL}
+              />
+              <Text
+                style={[
+                  style.messageStyle,
+                  {color: $config.SEMANTIC_NEUTRAL, marginLeft: 5},
+                ]}>
+                {chatMsgDeletedTxt(isLocal ? 'You' : defaultContent[uid]?.name)}
               </Text>
-            )}
-            {type === ChatMessageType.IMAGE && (
-              <View>
-                <TouchableOpacity
-                  style={{justifyContent: 'center', alignItems: 'center'}}
-                  onPress={() => {
-                    !isLoading && setLightboxVisible(true);
-                  }}>
-                  {isLoading ? (
-                    <View style={style.spinnerContainer}>
-                      <ActivityIndicator
-                        size="small"
-                        color={$config.PRIMARY_ACTION_BRAND_COLOR}
-                      />
-                    </View>
+            </View>
+          ) : (
+            <Hyperlink
+              onPress={handleUrl}
+              linkStyle={{
+                color: $config.FONT_COLOR,
+                textDecorationLine: 'underline',
+              }}>
+              {type === ChatMessageType.TXT && (
+                <Text style={style.messageStyle} selectable={true}>
+                  {message}
+                </Text>
+              )}
+              {type === ChatMessageType.IMAGE && (
+                <View>
+                  <TouchableOpacity
+                    style={{justifyContent: 'center', alignItems: 'center'}}
+                    onPress={() => {
+                      !isLoading && setLightboxVisible(true);
+                    }}>
+                    {isLoading ? (
+                      <View style={style.spinnerContainer}>
+                        <ActivityIndicator
+                          size="small"
+                          color={$config.PRIMARY_ACTION_BRAND_COLOR}
+                        />
+                      </View>
+                    ) : null}
+                    <Image
+                      source={{uri: thumb}}
+                      style={style.previewImg}
+                      onLoad={handleImageLoad}
+                    />
+                  </TouchableOpacity>
+                  {lightboxVisible ? (
+                    <ImagePopup
+                      modalVisible={lightboxVisible}
+                      setModalVisible={setLightboxVisible}
+                      imageUrl={url}
+                      msgId={msgId}
+                      fileName={fileName}
+                      senderName={isLocal ? 'You' : defaultContent[uid]?.name}
+                      timestamp={createdTimestamp}
+                      isLocal={isLocal}
+                    />
                   ) : null}
-                  <Image
-                    source={{uri: thumb}}
-                    style={style.previewImg}
-                    onLoad={handleImageLoad}
-                  />
-                </TouchableOpacity>
-                {lightboxVisible ? (
-                  <ImagePopup
-                    modalVisible={lightboxVisible}
-                    setModalVisible={setLightboxVisible}
-                    imageUrl={url}
-                    msgId={msgId}
-                    fileName={fileName}
-                    senderName={isLocal ? 'You' : defaultContent[uid]?.name}
-                    timestamp={createdTimestamp}
-                  />
-                ) : null}
-              </View>
-            )}
-            {type === ChatMessageType.FILE ? (
-              isDeleted ? (
-                <View style={style.deleteMsgContainer}>
-                  <ImageIcon
-                    iconSize={18}
-                    iconType="plain"
-                    name="remove"
-                    tintColor={$config.SEMANTIC_NEUTRAL}
-                  />
-                  <Text
-                    style={[
-                      style.messageStyle,
-                      {color: $config.SEMANTIC_NEUTRAL, marginLeft: 5},
-                    ]}>
-                    {chatMsgDeletedTxt(
-                      isLocal ? 'You' : defaultContent[uid]?.name,
-                    )}
-                  </Text>
                 </View>
-              ) : (
+              )}
+              {type === ChatMessageType.FILE && (
                 <AttachmentBubble
                   fileName={fileName}
                   fileExt={ext}
@@ -295,9 +294,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
                     </View>
                   }
                 />
-              )
-            ) : null}
-          </Hyperlink>
+              )}
+            </Hyperlink>
+          )}
         </View>
       </View>
     </>
