@@ -110,7 +110,7 @@ interface RecordingProviderProps {
  */
 
 type RecordingMode = 'mix' | 'web';
-const recordingMode: RecordingMode = $config.RECORDING_MODE || 'web';
+const recordingMode: RecordingMode = $config?.RECORDING_MODE || 'web';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
