@@ -12,7 +12,7 @@
 import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
-import {ChatMessageType} from './chat/chatConfigure';
+import {ChatMessageType} from './chat-messages/useChatMessages';
 
 export interface ChatBubbleProps {
   isLocal: boolean;

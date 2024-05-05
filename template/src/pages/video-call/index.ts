@@ -21,6 +21,8 @@ import Controls, {
 } from '../../components/Controls';
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
+import {ChatAttachmentButton} from '../../subComponents/chat/ChatAttachment';
+import {ChatEmojiButton} from '../../subComponents/chat/ChatEmoji';
 import SettingsView from '../../components/SettingsView';
 import WhiteboardButton from '../../components/whiteboard/WhiteboardButton';
 
@@ -50,5 +52,7 @@ export {
   Controls,
   ChatBubble,
   ChatInput,
+  ChatAttachmentButton,
+  ChatEmojiButton,
   ToolbarComponents,
 };

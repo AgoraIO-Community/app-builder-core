@@ -23,15 +23,12 @@ import {
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
-import ColorContext from '../components/ColorContext';
 import {isWebInternal, trimText} from '../utils/common';
 import {useChatUIControls, useContent} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import Spacer from '../atoms/Spacer';
 import {formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
-import {useChatConfigure} from '../components/chat/chatConfigure';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
@@ -77,9 +74,7 @@ export const AttachmentBubble = ({
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
-  const {primaryColor} = useContext(ColorContext);
   const {chatType, privateChatUser} = useChatUIControls();
-  const {downloadAttachment} = useChatConfigure();
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const [lightboxVisible, setLightboxVisible] = React.useState(false);
