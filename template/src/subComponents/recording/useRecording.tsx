@@ -453,37 +453,37 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       shouldStopRecording: shouldStopRecording(),
       areHostsInChannel: hostUids?.length,
     });
-    if (shouldStopRecording()) {
-      log(
-        'Recording-bot: will end the meeting after 30 seconds if no one joins',
-      );
-      timer = setTimeout(() => {
-        // Check again if still there are some users
-        log('Recording-bot: trying to stop recording');
-        stopRecording().catch(error => {
-          log(
-            'Recording-bot: there was an error when trying to stop recording. Ending call for the bot',
-            error,
-          );
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STOPPED,
-              value: '',
-            }),
-            PersistanceLevel.Session,
-          );
-          setRecordingActive(false);
-          executeEndCall();
-        });
-        // Run after 30 seconds
-      }, 30000);
-      log('Recording-bot: timer starts, timerId - ', timer);
-    }
-    return () => {
-      log('Recording-bot: clear timer,  timerId - ', timer);
-      clearTimeout(timer);
-    };
+    // if (shouldStopRecording()) {
+    //   log(
+    //     'Recording-bot: will end the meeting after 30 seconds if no one joins',
+    //   );
+    //   timer = setTimeout(() => {
+    //     // Check again if still there are some users
+    //     log('Recording-bot: trying to stop recording');
+    //     stopRecording().catch(error => {
+    //       log(
+    //         'Recording-bot: there was an error when trying to stop recording. Ending call for the bot',
+    //         error,
+    //       );
+    //       events.send(
+    //         EventNames.RECORDING_ATTRIBUTE,
+    //         JSON.stringify({
+    //           action: EventActions.RECORDING_STOPPED,
+    //           value: '',
+    //         }),
+    //         PersistanceLevel.Session,
+    //       );
+    //       setRecordingActive(false);
+    //       executeEndCall();
+    //     });
+    //     // Run after 30 seconds
+    //   }, 30000);
+    //   log('Recording-bot: timer starts, timerId - ', timer);
+    // }
+    // return () => {
+    //   log('Recording-bot: clear timer,  timerId - ', timer);
+    //   clearTimeout(timer);
+    // };
   }, [
     isRecordingBot,
     isRecordingActive,
