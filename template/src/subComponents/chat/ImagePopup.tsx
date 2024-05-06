@@ -14,7 +14,10 @@ import ThemeConfig from '../../theme';
 import {timeAgo} from '../../../src/utils';
 import IconButton from '../../atoms/IconButton';
 import {useChatConfigure} from '../../components/chat/chatConfigure';
-import {useChatMessages} from '../../components/chat-messages/useChatMessages';
+import {
+  SDKChatType,
+  useChatMessages,
+} from '../../components/chat-messages/useChatMessages';
 import Clipboard from '../../subComponents/Clipboard';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
@@ -117,15 +120,17 @@ const ImagePopup = (props: ImagePopupProps) => {
         iconSize: 24,
         callback: () => {
           const groupID = chat.group_id;
-          const chatType = privateChatUser ? 'singleChat' : 'groupChat';
+          const chatType = privateChatUser
+            ? SDKChatType.SINGLE_CHAT
+            : SDKChatType.GROUP_CHAT;
           const recallFromUser = privateChatUser ? privateChatUser : groupID;
 
           setModalVisible(false);
 
-          if (chatType === 'singleChat') {
+          if (chatType === SDKChatType.SINGLE_CHAT) {
             removeMessageFromPrivateStore(msgId, isLocal);
           }
-          if (chatType === 'groupChat') {
+          if (chatType === SDKChatType.GROUP_CHAT) {
             removeMessageFromStore(msgId, isLocal);
           }
           if (isLocal) {

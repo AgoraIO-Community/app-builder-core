@@ -36,7 +36,10 @@ import {useChatConfigure} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import ChatSendButton from './chat/ChatSendButton';
-import {ChatMessageType} from '../components/chat-messages/useChatMessages';
+import {
+  ChatMessageType,
+  SDKChatType,
+} from '../components/chat-messages/useChatMessages';
 import {
   groupChatLiveInputPlaceHolderText,
   groupChatMeetingInputPlaceHolderText,
@@ -124,7 +127,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     const groupID = data.chat.group_id;
 
     const option = {
-      chatType: privateChatUser ? 'singleChat' : 'groupChat',
+      chatType: privateChatUser
+        ? SDKChatType.SINGLE_CHAT
+        : SDKChatType.GROUP_CHAT,
       type: ChatMessageType.TXT,
       from: data.uid.toString(),
       to: privateChatUser ? privateChatUser.toString() : groupID,
@@ -215,6 +220,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
           multiline={true}
           onChangeText={onChangeText}
           textAlignVertical="top"
+          scrollEnabled={true}
           style={{
             color: $config.FONT_COLOR,
             textAlign: 'left',
@@ -234,7 +240,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
             borderTopRightRadius: isUploadStatusShown ? 0 : 8,
             borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
             maxHeight: MAX_HEIGHT,
-            overflow: 'scroll',
           }}
           blurOnSubmit={false}
           onSubmitEditing={onSubmitEditing}

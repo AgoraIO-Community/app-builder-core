@@ -7,7 +7,7 @@ import {
   MessageStatusCallback,
   messageStoreInterface,
   useChatMessages,
-  ChatType,
+  SDKChatType,
 } from '../components/chat-messages/useChatMessages';
 import {useChatConfigure} from '../components/chat/chatConfigure';
 import {isWeb} from '../utils/common';
@@ -23,7 +23,7 @@ export interface messageInterface {
     messageStatusCallback?: MessageStatusCallback,
   ) => void;
   // editMessage: (msgId: string, msg: string, toUid?: number) => void;
-  deleteMessage: (msgId: string, to?: UidType, chatType?: ChatType) => void;
+  deleteMessage: (msgId: string, to?: string, chatType?: SDKChatType) => void;
   groupUnreadCount: number;
   individualUnreadCount: individualUnreadMessageCount;
   setGroupUnreadCount: React.Dispatch<React.SetStateAction<number>>;
@@ -59,8 +59,8 @@ export const useMessages: () => messageInterface = () => {
 
   const deleteMessageWrapper = (
     msgId: string,
-    to?: UidType,
-    chatType?: ChatType,
+    to?: string,
+    chatType?: SDKChatType,
   ) => {
     if (isWeb()) {
       deleteAttachment(msgId, to, chatType);

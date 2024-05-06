@@ -22,7 +22,7 @@ import {
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {
-  ChatType as ChatType1,
+  ChatType as ChatType,
   useChatUIControls,
 } from '../chat-ui/useChatUIControls';
 import {useChatNotification} from '../chat-notification/useChatNotification';
@@ -88,10 +88,13 @@ export interface messageInterface {
   ext?: string;
 }
 
-export type ChatType = 'sigleChat' | 'groupChat';
+export enum SDKChatType {
+  SINGLE_CHAT = 'singleChat',
+  GROUP_CHAT = 'groupChat',
+}
 
 export interface ChatOption {
-  chatType: string;
+  chatType: SDKChatType;
   type: ChatMessageType;
   from: string;
   to: string;
@@ -239,7 +242,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   useEffect(() => {
     groupActiveRef.current =
-      chatType === ChatType1.Group && sidePanel === SidePanelType.Chat;
+      chatType === ChatType.Group && sidePanel === SidePanelType.Chat;
   }, [chatType, sidePanel]);
 
   useEffect(() => {
@@ -249,7 +252,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const allEqual = arr => arr.every(val => val === arr[0]);
   const openPrivateChat = (uidAsNumber: number) => {
     setPrivateChatUser(uidAsNumber);
-    setChatType(ChatType1.Private);
+    setChatType(ChatType.Private);
     setSidePanel(SidePanelType.Chat);
   };
 
@@ -491,7 +494,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             //move this logic into ChatContainer
             // setUnreadGroupMessageCount(0);
             setPrivateChatUser(0);
-            setChatType(ChatType1.Group);
+            setChatType(ChatType.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },
@@ -521,7 +524,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           else {
             //open private tab (not the detail of private chat user)
             setPrivateChatUser(0);
-            setChatType(ChatType1.Group);
+            setChatType(ChatType.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },
@@ -559,7 +562,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             openPrivateChat(uidAsNumber);
           } else {
             setPrivateChatUser(0);
-            setChatType(ChatType1.Group);
+            setChatType(ChatType.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },

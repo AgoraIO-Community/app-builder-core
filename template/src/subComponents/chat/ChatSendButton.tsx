@@ -8,7 +8,10 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {useRoomInfo} from 'customization-api';
-import {ChatMessageType} from '../../components/chat-messages/useChatMessages';
+import {
+  ChatMessageType,
+  SDKChatType,
+} from '../../components/chat-messages/useChatMessages';
 import {useString} from '../../utils/useString';
 import {chatSendMessageBtnText} from '../../language/default-labels/videoCallScreenLabels';
 import {isMobileUA, isWeb} from '../../utils/common';
@@ -51,7 +54,9 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     } = uploadedFiles[0] || {};
 
     const option = {
-      chatType: selectedUserId ? 'singleChat' : 'groupChat',
+      chatType: selectedUserId
+        ? SDKChatType.SINGLE_CHAT
+        : SDKChatType.GROUP_CHAT,
       type: msgType as ChatMessageType,
       msg: msgType === ChatMessageType.TXT ? message : '', // currenlt not supporting combinarion msg (file+txt)
       from: data.uid.toString(),

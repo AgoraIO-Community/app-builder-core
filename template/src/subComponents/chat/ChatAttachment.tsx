@@ -56,10 +56,6 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files && e.target.files[0];
     const file = AgoraChat.utils.getFileUrl(e.target);
-    const groupID = data.chat.group_id;
-    const fromUid = data.uid.toString();
-    const chatType = privateChatUser ? 'singleChat' : 'groupChat';
-    const toUid = privateChatUser ? privateChatUser.toString() : groupID;
     const uploadedFileType = file.filetype.toLowerCase();
     const isImageUploaded = uploadedFileType in imageAllowedTypes;
     const isFileUploaded = uploadedFileType in fileAllowedTypes;
@@ -92,8 +88,6 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     }
 
     if (!selectedFile) return;
-
-    const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
 
     const uploadedFile: File = {
       file_name: file.filename,

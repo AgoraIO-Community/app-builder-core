@@ -13,7 +13,10 @@ import {
   chatActionMenuDownloadText,
   chatActionMenuDeleteText,
 } from '../../language/default-labels/videoCallScreenLabels';
-import {useChatMessages} from '../../components/chat-messages/useChatMessages';
+import {
+  SDKChatType,
+  useChatMessages,
+} from '../../components/chat-messages/useChatMessages';
 
 interface MoreMenuProps {
   setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -83,13 +86,15 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     title: useString(chatActionMenuDeleteText)(),
     callback: () => {
       const groupID = chat.group_id;
-      const chatType = privateChatUser ? 'singleChat' : 'groupChat';
+      const chatType = privateChatUser
+        ? SDKChatType.SINGLE_CHAT
+        : SDKChatType.GROUP_CHAT;
       const recallFromUser = privateChatUser ? privateChatUser : groupID;
 
-      if (chatType === 'singleChat') {
+      if (chatType === SDKChatType.SINGLE_CHAT) {
         removeMessageFromPrivateStore(msgId, isLocal);
       }
-      if (chatType === 'groupChat') {
+      if (chatType === SDKChatType.GROUP_CHAT) {
         removeMessageFromStore(msgId, isLocal);
       }
       if (isLocal) {

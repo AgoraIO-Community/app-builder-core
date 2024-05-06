@@ -7,7 +7,7 @@ import {UidType, useContent} from 'customization-api';
 import {
   ChatMessageType,
   ChatOption,
-  ChatType,
+  SDKChatType,
   useChatMessages,
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
@@ -46,8 +46,8 @@ interface chatConfigureContextInterface {
   uploadAttachment: (fileObj: object) => void;
   deleteAttachment: (
     msgId: string,
-    recallFromUser?: UidType,
-    chatType?: ChatType,
+    recallFromUser?: string,
+    chatType?: SDKChatType,
   ) => void;
 }
 
@@ -152,7 +152,7 @@ const ChatConfigure = ({children}) => {
               message.ext?.from_platform === 'native'
                 ? message.url
                 : message.ext.file_url;
-            if (message.chatType === 'groupChat') {
+            if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
                 message.from,
@@ -171,7 +171,7 @@ const ChatConfigure = ({children}) => {
                 fileName: message.ext.file_name,
               });
             }
-            if (message.chatType === 'singleChat') {
+            if (message.chatType === SDKChatType.SINGLE_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
                 message.from,
@@ -200,7 +200,7 @@ const ChatConfigure = ({children}) => {
                 ? message.url
                 : message.ext.file_url;
 
-            if (message.chatType === 'groupChat') {
+            if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
                 message.from,
@@ -218,7 +218,7 @@ const ChatConfigure = ({children}) => {
                 fileName: message.ext?.file_name,
               });
             }
-            if (message.chatType === 'singleChat') {
+            if (message.chatType === SDKChatType.SINGLE_CHAT) {
               // show to notifcation- privat msg received
               showMessageNotification(
                 message.ext.file_name,
@@ -252,7 +252,7 @@ const ChatConfigure = ({children}) => {
               defaultContentRef.current[message.from]?.name,
             );
 
-            if (message.chatType === 'groupChat') {
+            if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
               showMessageNotification(
                 message.msg,
@@ -269,7 +269,7 @@ const ChatConfigure = ({children}) => {
               });
             }
 
-            if (message.chatType === 'singleChat') {
+            if (message.chatType === SDKChatType.SINGLE_CHAT) {
               // show to notifcation- privat msg received
               showMessageNotification(
                 message.msg,
@@ -358,7 +358,7 @@ const ChatConfigure = ({children}) => {
           };
           //todo chattype as per natue type
           // this is local user messages
-          if (option.chatType === 'singleChat') {
+          if (option.chatType === SDKChatType.SINGLE_CHAT) {
             addMessageToPrivateStore(Number(option.to), messageData, true);
           } else {
             addMessageToStore(Number(option.from), messageData);
@@ -448,8 +448,8 @@ const ChatConfigure = ({children}) => {
 
   const deleteAttachment = (
     msgId: string,
-    recallFromUser: UidType,
-    chatType: ChatType,
+    recallFromUser: string,
+    chatType: SDKChatType,
   ) => {
     const option = {mid: msgId, to: recallFromUser, chatType};
     if (connRef.current) {

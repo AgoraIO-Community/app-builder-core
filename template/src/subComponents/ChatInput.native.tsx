@@ -34,7 +34,10 @@ import {
 import ChatSendButton from './chat/ChatSendButton';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
 import {useChatConfigure} from '../components/chat/chatConfigure';
-import {ChatMessageType} from '../components/chat-messages/useChatMessages';
+import {
+  ChatMessageType,
+  SDKChatType,
+} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ChatUploadStatus from './chat/ChatUploadStatus';
 
@@ -115,7 +118,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     const groupID = data.chat.group_id;
 
     const option = {
-      chatType: privateChatUser ? 'singleChat' : 'groupChat',
+      chatType: privateChatUser
+        ? SDKChatType.SINGLE_CHAT
+        : SDKChatType.GROUP_CHAT,
       type: ChatMessageType.TXT,
       from: data.uid.toString(),
       to: privateChatUser ? privateChatUser.toString() : groupID,

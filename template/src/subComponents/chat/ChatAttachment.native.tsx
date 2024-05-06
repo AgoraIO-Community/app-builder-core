@@ -12,6 +12,7 @@ import {
 import {useChatConfigure} from '../../components/chat/chatConfigure.native';
 import {
   ChatMessageType,
+  SDKChatType,
   useChatMessages,
 } from '../../components/chat-messages/useChatMessages';
 import {
@@ -123,7 +124,9 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
           url: filePath,
           to: privateChatUser ? privateChatUser.toString() : groupID,
-          chatType: privateChatUser ? 'singleChat' : 'groupChat',
+          chatType: privateChatUser
+            ? SDKChatType.SINGLE_CHAT
+            : SDKChatType.GROUP_CHAT,
           from: data.uid.toString(),
           fileName: result[0].name,
           ext: {

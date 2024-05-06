@@ -16,6 +16,7 @@ import StorageContext from '../StorageContext';
 import {
   ChatMessageType,
   ChatOption,
+  SDKChatType,
   useChatMessages,
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
@@ -304,7 +305,7 @@ const ChatConfigure = ({children}) => {
     const {type, to, msg, chatType, from, url = ''} = option;
     let file_ext = '';
     const chatMsgChatType =
-      chatType === 'singleChat'
+      chatType === SDKChatType.SINGLE_CHAT
         ? ChatMessageChatType.PeerChat
         : ChatMessageChatType.GroupChat;
     let chatMsg: ChatMessage;
@@ -357,7 +358,7 @@ const ChatConfigure = ({children}) => {
           };
 
           // this is local user messages
-          if (option.chatType === 'singleChat') {
+          if (option.chatType === SDKChatType.SINGLE_CHAT) {
             addMessageToPrivateStore(Number(option.to), messageData, true);
           } else {
             addMessageToStore(Number(option.from), messageData);
