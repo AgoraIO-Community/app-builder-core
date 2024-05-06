@@ -21,7 +21,10 @@ import {
 } from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {ChatType, useChatUIControls} from '../chat-ui/useChatUIControls';
+import {
+  ChatType as ChatType1,
+  useChatUIControls,
+} from '../chat-ui/useChatUIControls';
 import {useChatNotification} from '../chat-notification/useChatNotification';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
@@ -83,6 +86,54 @@ export interface messageInterface {
   url?: string;
   fileName?: string;
   ext?: string;
+}
+
+export type ChatType = 'sigleChat' | 'groupChat';
+
+export interface ChatOption {
+  chatType: string;
+  type: ChatMessageType;
+  from: string;
+  to: string;
+  msg?: string;
+  file?: object;
+  ext?: {
+    file_length: number;
+    file_ext: string;
+    file_name: string;
+    file_url: string;
+    from_platform?: string;
+  };
+  url?: string;
+}
+
+interface ChatMessage {
+  msgId?: string;
+  localMsgId?: string;
+  conversationId?: string;
+  from?: string;
+  to?: string;
+  localTime?: number;
+  serverTime?: number;
+  hasDeliverAck?: boolean;
+  hasReadAck?: boolean;
+  needGroupAck?: boolean;
+  groupAckCount?: number;
+  hasRead?: boolean;
+  chatType?: number;
+  direction?: string;
+  status?: number;
+  attributes?: any;
+  body: any;
+  isChatThread?: boolean;
+  isOnline?: boolean;
+  deliverOnlineOnly?: boolean;
+  receiverList?: string[];
+}
+export interface MessageStatusCallback {
+  onProgress?(localMsgId: string, progress: number): void;
+  onError(localMsgId: string, error: any): void;
+  onSuccess(message: ChatMessage): void;
 }
 export interface messageStoreInterface extends messageInterface {
   uid: UidType;
@@ -188,7 +239,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   useEffect(() => {
     groupActiveRef.current =
-      chatType === ChatType.Group && sidePanel === SidePanelType.Chat;
+      chatType === ChatType1.Group && sidePanel === SidePanelType.Chat;
   }, [chatType, sidePanel]);
 
   useEffect(() => {
@@ -198,7 +249,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const allEqual = arr => arr.every(val => val === arr[0]);
   const openPrivateChat = (uidAsNumber: number) => {
     setPrivateChatUser(uidAsNumber);
-    setChatType(ChatType.Private);
+    setChatType(ChatType1.Private);
     setSidePanel(SidePanelType.Chat);
   };
 
@@ -440,7 +491,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             //move this logic into ChatContainer
             // setUnreadGroupMessageCount(0);
             setPrivateChatUser(0);
-            setChatType(ChatType.Group);
+            setChatType(ChatType1.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },
@@ -470,7 +521,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           else {
             //open private tab (not the detail of private chat user)
             setPrivateChatUser(0);
-            setChatType(ChatType.Group);
+            setChatType(ChatType1.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },
@@ -508,7 +559,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             openPrivateChat(uidAsNumber);
           } else {
             setPrivateChatUser(0);
-            setChatType(ChatType.Group);
+            setChatType(ChatType1.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },

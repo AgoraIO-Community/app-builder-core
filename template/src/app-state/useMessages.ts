@@ -3,18 +3,27 @@ import {
   useChatNotification,
 } from '../components/chat-notification/useChatNotification';
 import {
+  ChatOption,
+  MessageStatusCallback,
   messageStoreInterface,
   useChatMessages,
+  ChatType,
 } from '../components/chat-messages/useChatMessages';
+import {useChatConfigure} from '../components/chat/chatConfigure';
+import {isWeb} from '../utils/common';
+import type {UidType} from '../../agora-rn-uikit';
 
 export interface messageInterface {
   groupMessages: messageStoreInterface[];
   privateMessages: {
     [key: string]: messageStoreInterface[];
   };
-  // sendMessage: (msg: string, toUid?: number) => void;
+  sendMessage: (
+    option: ChatOption,
+    messageStatusCallback?: MessageStatusCallback,
+  ) => void;
   // editMessage: (msgId: string, msg: string, toUid?: number) => void;
-  // deleteMessage: (msgId: string, toUid?: number) => void;
+  deleteMessage: (msgId: string, to?: UidType, chatType?: ChatType) => void;
   groupUnreadCount: number;
   individualUnreadCount: individualUnreadMessageCount;
   setGroupUnreadCount: React.Dispatch<React.SetStateAction<number>>;
@@ -27,13 +36,9 @@ export interface messageInterface {
  * The Messages app state governs the chat messages.
  */
 export const useMessages: () => messageInterface = () => {
-  const {
-    // deleteChatMessage: deleteMessage,
-    //editChatMessage: editMessage,
-    messageStore: groupMessages,
-    privateMessageStore: privateMessages,
-    //sendChatMessage: sendMessage,
-  } = useChatMessages();
+  const {messageStore: groupMessages, privateMessageStore: privateMessages} =
+    useChatMessages();
+  const {sendChatSDKMessage, deleteAttachment} = useChatConfigure();
   const {
     setUnreadIndividualMessageCount: setIndividualUnreadCount,
     setUnreadGroupMessageCount: setGroupUnreadCount,
@@ -41,12 +46,35 @@ export const useMessages: () => messageInterface = () => {
     unreadIndividualMessageCount: individualUnreadCount,
   } = useChatNotification();
 
+  const sendMessageWrapper = (
+    option: ChatOption,
+    messageStatusCallback?: MessageStatusCallback,
+  ) => {
+    if (isWeb()) {
+      sendChatSDKMessage(option);
+    } else {
+      sendChatSDKMessage(option, messageStatusCallback);
+    }
+  };
+
+  const deleteMessageWrapper = (
+    msgId: string,
+    to?: UidType,
+    chatType?: ChatType,
+  ) => {
+    if (isWeb()) {
+      deleteAttachment(msgId, to, chatType);
+    } else {
+      deleteAttachment(msgId);
+    }
+  };
+
   return {
     groupMessages,
     privateMessages,
-    //sendMessage,
+    sendMessage: sendMessageWrapper,
     //editMessage,
-    //deleteMessage,
+    deleteMessage: deleteMessageWrapper,
     groupUnreadCount,
     individualUnreadCount,
     setGroupUnreadCount,

@@ -31,6 +31,18 @@ export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
+interface ExtendedChatMessage extends ChatMessage {
+  body: {
+    localPath?: string;
+    remotePath?: string;
+    type: ChatMessageType;
+  };
+  attributes: {
+    file_ext?: string;
+    file_name?: string;
+  };
+}
+
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {privateChatUser, setUploadStatus} = useChatUIControls();
   const {sendChatSDKMessage} = useChatConfigure();
@@ -116,11 +128,13 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           fileName: result[0].name,
           ext: {
             file_length: result[0].size,
-            file_ext: uploadedFileType,
+            file_ext: uploadedFileType.split('/')[1],
             file_name: result[0].name,
             file_url: filePath,
+            from_platform: 'native',
           },
         };
+        console.warn('chatOPtion', option);
         const onProgress = (localMsgId: string, progress: number) => {
           // always gives 100 , its in WIP for agoar-chat-native-sdk
           console.warn('upload in progress', progress);
@@ -130,7 +144,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           console.warn('upload on error', error);
           setUploadStatus(UploadStatus.FAILURE);
         };
-        const onSuccess = (message: ChatMessage) => {
+        const onSuccess = (message: ExtendedChatMessage) => {
           console.warn('upload on success', message);
           const messageData = {
             msg: '',

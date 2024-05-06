@@ -15,28 +15,18 @@ import {
 import StorageContext from '../StorageContext';
 import {
   ChatMessageType,
+  ChatOption,
   useChatMessages,
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 
-interface ChatOption {
-  chatType: string;
-  type: ChatMessageType;
-  from: string;
-  to: string;
-  msg?: string;
-  file?: object;
-  ext?: {
-    file_length: number;
-    file_ext: string;
-    file_name: string;
-    file_url: string;
-    from_platform?: string;
-  };
-  url?: string;
-  fileName?: string;
+interface ChatMessageAttributes {
+  file_ext?: string;
+  file_name?: string;
+  file_url?: string;
+  from_platform?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -117,8 +107,8 @@ const ChatConfigure = ({children}) => {
             messages[0].chatType === ChatMessageChatType.PeerChat;
           const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
-          const {file_ext, file_name, file_url, from_platform} =
-            messages[0].attributes;
+          const {file_ext, file_name, file_url, from_platform} = messages[0]
+            .attributes as ChatMessageAttributes;
 
           //@ts-ignore
 
@@ -152,11 +142,11 @@ const ChatConfigure = ({children}) => {
               }
               break;
             case ChatMessageType.IMAGE:
-              //@ts-ignore
               const thumb =
                 from_platform === 'web'
                   ? file_url + '&thumbnail=true'
-                  : body.thumbnailRemotePath;
+                  : (body as {thumbnailRemotePath?: string})
+                      .thumbnailRemotePath;
               //@ts-ignore
               const url = from_platform === 'web' ? file_url : body.remotePath;
               console.warn('url ==>', url);
@@ -337,12 +327,12 @@ const ChatConfigure = ({children}) => {
       case ChatMessageType.FILE:
         file_ext = option?.ext?.file_ext.split('/')[1];
         chatMsg = ChatMessage.createFileMessage(to, url, chatMsgChatType, {
-          displayName: option?.fileName,
+          displayName: option?.ext?.file_name,
         });
         chatMsg.attributes = {
           file_length: option?.ext?.file_length,
-          file_ext: file_ext,
-          file_name: option?.fileName,
+          file_ext: option?.ext?.file_ext,
+          file_name: option?.ext?.file_name,
           file_url: option?.url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
         };
@@ -355,7 +345,6 @@ const ChatConfigure = ({children}) => {
       .then(() => {
         // log here if the method call succeeds.
         console.warn('send message success');
-        const localFileUrl = option?.url || '';
         // add to local store of sender
         // for image and file msgs we will update on upload success of chatAttachment.native
         if (type === ChatMessageType.TXT) {
@@ -365,10 +354,6 @@ const ChatConfigure = ({children}) => {
             msgId: chatMsg.msgId,
             isDeleted: false,
             type: option.type,
-            thumb: localFileUrl,
-            url: localFileUrl,
-            ext: file_ext,
-            fileName: option?.fileName,
           };
 
           // this is local user messages
@@ -435,12 +420,7 @@ const ChatConfigure = ({children}) => {
     return res;
   };
 
-  const deleteAttachment = (msgId, recallFromUser, chatType) => {
-    const chatMsgChatType =
-      chatType === 'singleChat'
-        ? ChatMessageChatType.PeerChat
-        : ChatMessageChatType.GroupChat;
-
+  const deleteAttachment = (msgId: string) => {
     chatClient.chatManager
       .recallMessage(msgId)
       .then(() => {

@@ -3,9 +3,11 @@ import React, {createContext, useState, useEffect} from 'react';
 import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 
-import {useContent} from 'customization-api';
+import {UidType, useContent} from 'customization-api';
 import {
   ChatMessageType,
+  ChatOption,
+  ChatType,
   useChatMessages,
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
@@ -35,35 +37,17 @@ export interface FileObj {
   data: File;
 }
 
-interface ChatOption {
-  chatType: string;
-  type: ChatMessageType;
-  from: string;
-  to: string;
-  msg?: string;
-  body?: {url?: string; filename?: string; filetype?: string};
-  ext?: {
-    file_length: number;
-    file_url: string;
-    file_name: string;
-    file_ext: string;
-    from_platform?: string;
-  };
-  onFileUploadError?: () => void;
-  onFileUploadProgress?: (e: ProgressEvent) => void;
-  onFileUploadComplete?: (e: any) => void;
-}
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  sendChatSDKMessage: (option: ChatOption) => void;
+  sendChatSDKMessage: (option: ChatOption, messageStatusCallback?: any) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
   uploadAttachment: (fileObj: object) => void;
   deleteAttachment: (
     msgId: string,
-    privateChatUser: string,
-    chatType: string,
+    recallFromUser?: UidType,
+    chatType?: ChatType,
   ) => void;
 }
 
@@ -343,7 +327,10 @@ const ChatConfigure = ({children}) => {
     };
   }, []);
 
-  const sendChatSDKMessage = (option: ChatOption) => {
+  const sendChatSDKMessage = (
+    option: ChatOption,
+    messageStatusCallback?: any,
+  ) => {
     if (connRef.current) {
       //TODO thumb and url of actual image uploaded available in file upload complete
       const localFileUrl = option?.ext?.file_url || '';
@@ -422,25 +409,6 @@ const ChatConfigure = ({children}) => {
     const {file_type, file_length, file_name, file_url, file_obj, file_ext} =
       uploadFiles;
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
-    const uploadedFileType = file_ext;
-
-    const fileAllowedTypes = {
-      zip: true,
-      txt: true,
-      doc: true,
-      pdf: true,
-    };
-
-    const imageAllowedTypes = {
-      jpg: true,
-      jpeg: true,
-      gif: true,
-      png: true,
-      bmp: true,
-    };
-    const isImageUploaded = uploadedFileType in imageAllowedTypes;
-    const isFileUploaded = uploadedFileType in fileAllowedTypes;
-
     const uploadObj = {
       onFileUploadProgress: (data: ProgressEvent) => {
         console.log('Chat-SDK: upload inprogress', data);
@@ -455,12 +423,12 @@ const ChatConfigure = ({children}) => {
         });
         setUploadStatus(UploadStatus.SUCCESS);
       },
-      onFileUploadError: (error: ErrorEvent) => {
+      onFileUploadError: (error: any) => {
         console.log('Chat-SDK: upload error', error);
         setUploadStatus(UploadStatus.FAILURE);
       },
-      onFileUploadCanceled: data => {
-        console.log('Chat-SDK: upload cancel', data);
+      onFileUploadCanceled: () => {
+        console.log('Chat-SDK: upload cancel');
         //setUploadStatus(UploadStatus.NOT_STARTED);
       },
       accessToken: data?.chat?.user_token,
@@ -470,7 +438,6 @@ const ChatConfigure = ({children}) => {
     };
 
     console.log('Chat-SDK: upload Obj', uploadObj);
-
     try {
       AgoraChat.utils.uploadFile(uploadObj);
     } catch (error) {
@@ -479,7 +446,11 @@ const ChatConfigure = ({children}) => {
     }
   };
 
-  const deleteAttachment = (msgId, recallFromUser, chatType) => {
+  const deleteAttachment = (
+    msgId: string,
+    recallFromUser: UidType,
+    chatType: ChatType,
+  ) => {
     const option = {mid: msgId, to: recallFromUser, chatType};
     if (connRef.current) {
       connRef.current
