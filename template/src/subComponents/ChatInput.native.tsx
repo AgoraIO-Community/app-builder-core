@@ -10,7 +10,14 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet, Image, Text} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Text,
+  TextInput,
+} from 'react-native';
 import {useString} from '../utils/useString';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 
@@ -40,6 +47,7 @@ import {
 } from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ChatUploadStatus from './chat/ChatUploadStatus';
+import {isAndroid} from '../utils/common';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -132,6 +140,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   };
   const {setInputActive} = useChatUIControls();
 
+  const TextInputComponent = isAndroid() ? TextInput : BottomSheetTextInput;
+
   return props?.render ? (
     props.render(
       message,
@@ -140,7 +150,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
-    <BottomSheetTextInput
+    <TextInputComponent
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}
