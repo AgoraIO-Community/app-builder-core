@@ -393,6 +393,7 @@ const ChatConfigure = ({children}) => {
       },
     );
     const res = await response.json();
+    sessionStorage.removeItem('user_id');
     return res;
   };
 

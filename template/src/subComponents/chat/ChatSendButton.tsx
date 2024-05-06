@@ -22,6 +22,7 @@ export interface ChatSendButtonProps {
 
 const ChatSendButton = (props: ChatSendButtonProps) => {
   const {sendChatSDKMessage} = useChatConfigure();
+  const {setShowEmojiPicker} = useChatUIControls();
   const {
     privateChatUser: selectedUserId,
     message,
@@ -73,6 +74,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     setMessage && setMessage('');
     setInputHeight && setInputHeight(MIN_HEIGHT);
     setUploadedFiles && setUploadedFiles(prev => []);
+    isWeb() && setShowEmojiPicker(false);
   };
   return props?.render ? (
     props.render(onPress)

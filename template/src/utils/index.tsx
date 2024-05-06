@@ -127,3 +127,14 @@ export function timeAgo(timestamp: number) {
     return 'just now';
   }
 }
+
+export const containsOnlyEmojis = (text: string) => {
+  const emojiRegex =
+    /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F191}-\u{1F251}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F251}\s]/gu;
+  return (
+    emojiRegex.test(text) &&
+    !/[^\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F191}-\u{1F251}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F251}\s]/gu.test(
+      text,
+    )
+  );
+};

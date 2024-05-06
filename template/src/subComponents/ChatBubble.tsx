@@ -27,7 +27,7 @@ import {isWebInternal, trimText} from '../utils/common';
 import {useChatUIControls, useContent} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {formatAMPM, isURL} from '../utils';
+import {containsOnlyEmojis, formatAMPM, isURL} from '../utils';
 import {ChatType} from '../components/chat-ui/useChatUIControls';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
@@ -227,7 +227,14 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 textDecorationLine: 'underline',
               }}>
               {type === ChatMessageType.TXT && (
-                <Text style={style.messageStyle} selectable={true}>
+                <Text
+                  style={[
+                    style.messageStyle,
+                    containsOnlyEmojis(message)
+                      ? {fontSize: 24, lineHeight: 32}
+                      : {fontSize: 14, lineHeight: 20},
+                  ]}
+                  selectable={true}>
                   {message}
                 </Text>
               )}
