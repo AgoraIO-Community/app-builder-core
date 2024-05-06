@@ -343,7 +343,7 @@ const style = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginTop: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     marginBottom: 0,
   },
   defaultMessageText: {

@@ -63,7 +63,10 @@ export default function MeetingInfoGridTile() {
   return (
     <View style={style.root}>
       <ScrollView
-        contentContainerStyle={[style.scroll, !isMobile && {paddingLeft: 0}]}>
+        contentContainerStyle={[
+          style.scroll,
+          !isMobile && {paddingLeft: 0, paddingRight: 0},
+        ]}>
         <View style={style.inviteContainerTile}>
           <View style={style.inviteTile}>
             <MeetingInfo

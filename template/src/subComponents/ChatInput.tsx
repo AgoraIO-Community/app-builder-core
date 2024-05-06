@@ -234,7 +234,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
             lineHeight: LINE_HEIGHT,
             borderWidth: 1,
             borderColor:
-              $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['8%'],
+              $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
             backgroundColor: $config.CARD_LAYER_2_COLOR,
             borderRadius: 8,
             borderTopRightRadius: isUploadStatusShown ? 0 : 8,

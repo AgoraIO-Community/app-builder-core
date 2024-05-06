@@ -162,9 +162,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
           style={{
             flexDirection: 'row',
             justifyContent: isLocal ? 'flex-end' : 'flex-start',
-            marginBottom: 8,
-            marginTop: 14,
-            marginHorizontal: 20,
+            marginBottom: 4,
+            marginTop: 16,
+            marginHorizontal: 12,
           }}>
           <Text style={style.userNameStyle}>
             {isLocal
@@ -182,9 +182,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
           style={{
             flexDirection: 'row',
             justifyContent: isLocal ? 'flex-end' : 'flex-start',
-            marginBottom: 8,
-            marginTop: 14,
-            marginHorizontal: 20,
+            marginBottom: 4,
+            marginTop: 16,
+            marginHorizontal: 12,
           }}>
           <Text style={style.timestampStyle}>{time}</Text>
         </View>
@@ -316,7 +316,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     alignSelf: 'flex-start',
     marginVertical: 2,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 0,
@@ -349,7 +349,7 @@ const style = StyleSheet.create({
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     alignSelf: 'flex-end',
     marginVertical: 2,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 8,
