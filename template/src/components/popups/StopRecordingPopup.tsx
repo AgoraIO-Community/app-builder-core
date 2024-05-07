@@ -28,7 +28,10 @@ const StopRecordingPopup = () => {
 
   const doStopRecording = () => {
     if (isRecordingActive) {
-      stopRecording && stopRecording();
+      stopRecording &&
+        stopRecording().catch(err => {
+          console.log('Error occured while stoppping recording', err);
+        });
       setShowStopRecordingPopup(false);
     }
   };
