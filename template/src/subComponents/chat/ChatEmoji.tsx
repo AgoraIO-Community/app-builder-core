@@ -9,13 +9,57 @@ import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import IconButton from '../../../src/atoms/IconButton';
 
 const css = `
-.chatEmojiPicker h2 {
+.chatEmojiPicker .epr-emoji-category-label {
   font-size:16px;
   color:${$config.SECONDARY_ACTION_COLOR};
-  font-family:'Source Sans Pro'
+  font-family:'Source Sans Pro';
+  font-weight:600;
 }
-.chatEmojiPicker  .epr-skin-tones {
+.chatEmojiPicker.epr-dark-theme{
+  --epr-emoji-size: 32px;
+  --epr-emoji-gap:4px;
+  --epr-emoji-padding:4px;
+  --epr-header-padding:12px;
+  --epr-horizontal-padding:12px;
+  --epr-category-label-height:24px;
+  --epr-search-input-border-radius:4px;
+  --epr-search-bar-inner-padding:8px;
+  --epr-search-input-text-color:${$config.FONT_COLOR}
+
+}
+.chatEmojiPicker.epr-light-theme{
+  --epr-emoji-size: 32px;
+  --epr-emoji-gap:4px;
+   --epr-emoji-padding:4px;
+   --epr-header-padding:12px;
+   --epr-horizontal-padding:12px;
+   --epr-category-label-height:24px;
+   --epr-search-input-border-radius:4px;
+   --epr-search-bar-inner-padding:8px;
+   --epr-search-input-text-color:${$config.FONT_COLOR}
+}
+.chatEmojiPicker .epr-category-nav {
+  padding-top:0 !important
+}
+.chatEmojiPicker .epr-skin-tones {
   visibility:hidden
+}
+
+.chatEmojiPicker .epr-search-container input:focus {
+border:1px solid ${$config.PRIMARY_ACTION_BRAND_COLOR}
+}
+
+.chatEmojiPicker .epr-icn-search {
+  left:8px
+}
+
+.chatEmojiPicker .epr-icn-clear-search {
+  visibility:hidden
+}
+.chatEmojiPicker .epr-search-container input {
+  font-family:'Source Sans Pro' !important;
+  font-size:14px;
+  font-weight:400
 }
 
 `;
@@ -44,6 +88,8 @@ export const ChatEmojiPicker: React.FC = () => {
         className="chatEmojiPicker"
         lazyLoadEmojis={true}
         previewConfig={{showPreview: false}}
+        height={370}
+        autoFocusSearch={false}
       />
       <View
         style={{
@@ -123,7 +169,11 @@ const styles = StyleSheet.create({
   },
   emojiPicker: {
     width: '100%',
-    border: 0,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_4_COLOR,
+    marginBottom: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
 });
 
