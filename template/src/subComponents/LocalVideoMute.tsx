@@ -42,7 +42,7 @@ import {
   toolbarItemCameraText,
   toolbarItemCameraTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
-
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 /**
  * A component to mute / unmute the local video
  */
@@ -86,7 +86,21 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const onPress = () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
     //show confirm popup to stop the screenshare
+    logger.log(
+      LogSource.Internals,
+      'LOCAL_MUTE',
+      'toggle mute/unmute local video',
+      {
+        isVideoEnabled,
+        permissionDenied,
+      },
+    );
     if ((isAndroid() || isIOS()) && isScreenshareActive) {
+      logger.log(
+        LogSource.Internals,
+        'LOCAL_MUTE',
+        'Screenshare is active. To turn on video screenshare should be turn off',
+      );
       setShowStopScreenSharePopup(true);
     } else {
       localMute(MUTE_LOCAL_TYPE.video);

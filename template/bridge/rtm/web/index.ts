@@ -19,6 +19,7 @@ import {
 import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
 import RtmClient from 'agora-react-native-rtm';
+import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
 // export {RtmAttribute}
 //
 interface RtmAttributePlaceholder {}
@@ -59,7 +60,7 @@ export default class RtmEngine {
   ]);
   constructor() {
     this.appId = '';
-    console.log('Using RTM Bridge');
+    logger.debug(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
   }
 
   on(event: any, listener: any) {

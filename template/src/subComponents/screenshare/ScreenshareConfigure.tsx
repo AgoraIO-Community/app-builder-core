@@ -36,6 +36,7 @@ import {
   videoRoomScreenShareErrorToastHeading,
   videoRoomScreenShareErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -227,7 +228,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
-    console.log('STOPPED SHARING');
+    logger.debug(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({
@@ -282,6 +283,16 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const userScreenshare = async (isActive: boolean) => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${isActive ? 'starting' : 'stopping'}  screenshare`,
+      {
+        channel,
+        screenShareUid,
+        encryption,
+      },
+    );
     try {
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(
@@ -321,7 +332,12 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         );
       }
     } catch (e) {
-      console.error("can't start the screen share", e);
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'failed to start screen share',
+        e,
+      );
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
