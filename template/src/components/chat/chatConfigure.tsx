@@ -400,6 +400,7 @@ const ChatConfigure = ({children}) => {
   const downloadAttachment = (fileName: string, fileUrl: string) => {
     const anchor = document.createElement('a');
     anchor.href = fileUrl;
+    anchor.target = "_blank";
     anchor.download = fileName;
     anchor.click();
     anchor.remove();
