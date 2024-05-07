@@ -93,7 +93,8 @@ export const initTransportLayerForCustomers = () => {
     log({
       data: args,
       _time: Date.now(),
-      projectId: $config.APP_ID,
+      projectId: $config.PROJECT_ID,
+      appId: $config.APP_ID,
       service: 'app-builder-core-frontend-customer',
     });
 
