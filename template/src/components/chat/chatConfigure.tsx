@@ -401,7 +401,6 @@ const ChatConfigure = ({children}) => {
     const anchor = document.createElement('a');
     anchor.href = fileUrl;
     anchor.download = fileName;
-    anchor.target = '_blank';
     anchor.click();
     anchor.remove();
   };

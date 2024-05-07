@@ -4,7 +4,6 @@ import {
   View,
   Image,
   ActivityIndicator,
-  Modal,
   TouchableOpacity,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
@@ -22,6 +21,7 @@ import Clipboard from '../../subComponents/Clipboard';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import {IconsInterface} from '../../atoms/CustomIcon';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 interface ImagePopupProps {
   modalVisible: boolean;
@@ -99,24 +99,8 @@ const ImagePopup = (props: ImagePopupProps) => {
 
     const menuItems = [
       {
-        icon: 'download',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        iconSize: 20,
-        callback: () => {
-          downloadAttachment(fileName, imageUrl);
-        },
-      },
-      {
-        icon: 'clipboard',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        iconSize: 20,
-        callback: () => {
-          Clipboard.setString(imageUrl);
-        },
-      },
-      {
         icon: 'delete',
-        iconColor: $config.SEMANTIC_ERROR,
+        iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 24,
         callback: () => {
           const groupID = chat.group_id;
@@ -138,31 +122,49 @@ const ImagePopup = (props: ImagePopupProps) => {
           }
         },
       },
+      {
+        icon: 'download',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        iconSize: 24,
+        callback: () => {
+          downloadAttachment(fileName, imageUrl);
+        },
+      },
+      {
+        icon: 'close',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        iconSize: 24,
+        callback: () => {
+          setModalVisible(false);
+        },
+      },
     ];
     return !isLoading ? (
       <View style={styles.controlsContainer}>
-        {menuItems.map(obj => (
-          <View>
-            <IconButton
-              key={obj.icon}
-              hoverEffect={true}
-              hoverEffectStyle={{
-                backgroundColor: $config.ICON_BG_COLOR,
-              }}
-              iconProps={{
-                iconType: 'plain',
-                iconContainerStyle: {
-                  backgroundColor: 'transparent',
-                  borderRadius: obj.iconSize,
-                  padding: 8,
-                },
-                iconSize: obj.iconSize,
-                name: obj.icon as keyof IconsInterface,
-                tintColor: obj.iconColor,
-              }}
-              onPress={obj.callback}
-            />
-          </View>
+        {menuItems.map((obj, index) => (
+          <IconButton
+            key={obj.icon}
+            hoverEffect={false}
+            hoverEffectStyle={{
+              backgroundColor:
+                $config.ICON_BG_COLOR + hexadecimalTransparency['50%'],
+            }}
+            iconProps={{
+              iconType: 'plain',
+              iconContainerStyle: {
+                backgroundColor: 'transparent',
+                paddingHorizontal: 8,
+                borderRightWidth: index === menuItems.length - 1 ? 0 : 1,
+                borderRightColor:
+                  $config.SECONDARY_ACTION_COLOR +
+                  hexadecimalTransparency['20%'],
+              },
+              iconSize: obj.iconSize,
+              name: obj.icon as keyof IconsInterface,
+              tintColor: obj.iconColor,
+            }}
+            onPress={obj.callback}
+          />
         ))}
       </View>
     ) : (
@@ -204,7 +206,8 @@ const ImagePopup = (props: ImagePopupProps) => {
       showCloseIcon={false}
       contentContainerStyle={styles.contentContainer}
       bodyContainerStyle={styles.bodyContainer}
-      headerComponent={<HeaderComponent />}>
+      // headerComponent={<HeaderComponent />}
+    >
       {isLoading ? <Loader /> : null}
       <Image
         source={{uri: imageUrl}}
@@ -225,8 +228,9 @@ export default ImagePopup;
 const styles = StyleSheet.create({
   contentContainer: {
     padding: 12,
-    maxWidth: 800,
     width: '100%',
+    maxWidth: 1376,
+    marginHorizontal: 32,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -296,18 +300,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   controlsContainer: {
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    backgroundColor:
+      $config.CARD_LAYER_2_COLOR + hexadecimalTransparency['50%'],
     flexDirection: 'row',
     position: 'absolute',
-    bottom: 16,
+    right: 16,
+    top: 12,
     borderRadius: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    paddingVertical: 8,
     zIndex: 1,
     elevation: 1,
   },
