@@ -303,6 +303,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         appId,
         rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
+        {encoderConfig: '1080p_2', optimizationMode: 'detail'},
       );
       isActive && setScreenshareActive(true);
 

@@ -1,5 +1,6 @@
 import {useLocation} from '../components/Router';
 import {useMemo} from 'react';
+import isSDK from './isSDK';
 
 interface ReadOnlyURLSearchParams extends URLSearchParams {
   append: never;
@@ -8,9 +9,18 @@ interface ReadOnlyURLSearchParams extends URLSearchParams {
   sort: never;
 }
 
-export function useSearchParams() {
-  const {search} = useLocation();
+function useLocationWrapper() {
+  let search = useLocation().search;
+  if (isSDK()) {
+    search = window.location.search;
+  }
+  return {
+    search,
+  };
+}
 
+export function useSearchParams() {
+  const {search} = useLocationWrapper();
   return useMemo(
     () => new URLSearchParams(search) as ReadOnlyURLSearchParams,
     [search],

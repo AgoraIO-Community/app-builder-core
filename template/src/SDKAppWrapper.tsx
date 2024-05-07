@@ -25,6 +25,7 @@ export interface AppBuilderSdkApiInterface {
   joinPrecall: (
     roomDetails: string | meetingData,
     userName?: string,
+    skipPrecall?: boolean,
   ) => Promise<
     [
       meetingData,
@@ -78,7 +79,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
       userName,
     );
   },
-  joinPrecall: async (roomDetails, userName) => {
+  joinPrecall: async (roomDetails, userName, skipPrecall) => {
     logger.log(LogSource.SDK, 'Event', 'emiting event for joinPrecall - join', {
       room: roomDetails,
       userName: userName,
@@ -94,7 +95,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     const t = await SDKMethodEventsManager.emit(
       'join',
       roomDetails,
-      false,
+      skipPrecall,
       userName,
     );
     return t as unknown as [

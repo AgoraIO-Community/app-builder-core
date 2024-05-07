@@ -100,6 +100,36 @@ export default class RtmEngine {
     this.appId = APP_ID;
     this.client = AgoraRTM.createInstance(this.appId);
 
+    if ($config.GEO_FENCING) {
+      try {
+        //include area is comma seperated value
+        let includeArea = $config.GEO_FENCING_INCLUDE_AREA
+          ? $config.GEO_FENCING_INCLUDE_AREA
+          : AREAS.GLOBAL;
+
+        //exclude area is single value
+        let excludeArea = $config.GEO_FENCING_EXCLUDE_AREA
+          ? $config.GEO_FENCING_EXCLUDE_AREA
+          : '';
+
+        includeArea = includeArea?.split(',');
+
+        //pass excludedArea if only its provided
+        if (excludeArea) {
+          AgoraRTM.setArea({
+            areaCodes: includeArea,
+            excludedArea: excludeArea,
+          });
+        }
+        //otherwise we can pass area directly
+        else {
+          AgoraRTM.setArea({areaCodes: includeArea});
+        }
+      } catch (setAeraError) {
+        console.log('error on RTM setArea', setAeraError);
+      }
+    }
+
     window.rtmClient = this.client;
 
     this.client.on('ConnectionStateChanged', (state, reason) => {
