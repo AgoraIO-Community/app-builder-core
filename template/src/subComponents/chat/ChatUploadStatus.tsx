@@ -6,16 +6,22 @@ import {
   UploadStatus,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
+import {
+  chatUploadStatusFailure,
+  chatUploadStatusInProgress,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {useString} from '../../utils/useString';
 
 const ChatUploadStatus = () => {
   const {uploadStatus} = useChatUIControls();
+
   let text = '';
   switch (uploadStatus) {
     case UploadStatus.IN_PROGRESS:
-      text = 'Uploading... Please wait';
+      text = useString(chatUploadStatusInProgress)();
       break;
     case UploadStatus.FAILURE:
-      text = `Something went wrong while sharing.Let'as try again`;
+      text = useString(chatUploadStatusFailure)();
       break;
   }
   return text.length > 0 ? (
@@ -37,7 +43,9 @@ export default ChatUploadStatus;
 const styles = StyleSheet.create({
   chatStatusContainer: {
     flexGrow: 1,
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
+    borderBottomWidth: 0,
     paddingHorizontal: 16,
     paddingVertical: 8,
     backgroundColor: $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['15%'],

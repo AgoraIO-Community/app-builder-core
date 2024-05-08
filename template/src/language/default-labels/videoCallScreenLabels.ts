@@ -223,6 +223,9 @@ export const chatUploadErrorFileSizeToastSubHeading =
 export const chatUploadErrorFileTypeToastSubHeading =
   'chatUploadErrorFileTypeToastSubHeading';
 
+export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
+export const chatUploadStatusFailure = 'chatUploadStatusFailure';
+
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
 export const peoplePanelMuteAllMicBtnText = 'peoplePanelMuteAllMicBtnText';
@@ -622,6 +625,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatUploadErrorFileSizeToastHeading]?: I18nBaseType;
   [chatUploadErrorFileSizeToastSubHeading]?: I18nBaseType;
   [chatUploadErrorFileTypeToastSubHeading]?: I18nBaseType;
+  [chatUploadStatusInProgress]?: I18nBaseType;
+  [chatUploadStatusFailure]?: I18nBaseType;
 
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
@@ -1002,6 +1007,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatUploadErrorFileSizeToastSubHeading]: size =>
     `You can send attachments upto ${size}MB in size`,
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
+  [chatUploadStatusInProgress]: `Uploading... Please wait`,
+  [chatUploadStatusFailure]: `Something went wrong while sharing.Let'as try again`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute All',
