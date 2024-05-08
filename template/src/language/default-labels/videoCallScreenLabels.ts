@@ -223,6 +223,12 @@ export const chatUploadErrorFileSizeToastSubHeading =
 export const chatUploadErrorFileTypeToastSubHeading =
   'chatUploadErrorFileTypeToastSubHeading';
 
+export const chatMessageDeleteConfirmBtnText =
+  'chatMessageDeleteConfirmBtnText';
+export const chatPublicMessageDeletePopupText =
+  'chatPublicMessageDeletePopupText';
+export const chatPrivateMessageDeletePopupText =
+  'chatPrivateMessageDeletePopupText';
 export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
 export const chatUploadStatusFailure = 'chatUploadStatusFailure';
 
@@ -620,7 +626,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatActionMenuDeleteText]?: I18nBaseType;
   [chatSendMessageBtnText]?: I18nBaseType;
   [chatMsgDeletedText]?: I18nBaseType;
-
+  [chatMessageDeleteConfirmBtnText]?: I18nBaseType;
+  [chatPublicMessageDeletePopupText]?: I18nBaseType;
+  [chatPrivateMessageDeletePopupText]?: I18nBaseType;
   [chatUploadErrorToastHeading]?: I18nBaseType;
   [chatUploadErrorFileSizeToastHeading]?: I18nBaseType;
   [chatUploadErrorFileSizeToastSubHeading]?: I18nBaseType;
@@ -1009,6 +1017,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
   [chatUploadStatusInProgress]: `Uploading... Please wait`,
   [chatUploadStatusFailure]: `Something went wrong while sharing.Let'as try again`,
+  [chatMessageDeleteConfirmBtnText]: `Delete`,
+  [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
+  [chatPrivateMessageDeletePopupText]: (name: string) =>
+    `Are you sure you want to delete this message for ${name}`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute All',
