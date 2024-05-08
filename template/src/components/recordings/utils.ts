@@ -78,3 +78,42 @@ export const downloadRecording = (url: string) => {
   //     console.log('supriya error', error); // OUTPUT ERRORS, SUCH AS CORS WHEN TESTING NON LOCALLY
   //   });
 };
+
+export const getDuration = (start: string, end: string): string => {
+  try {
+    const date_future = new Date(start).valueOf();
+    if (date_future < 0) {
+      throw new Error('Not a valid end date');
+    }
+    const date_now = new Date(end).valueOf();
+    let delta = Math.abs(date_future - date_now) / 1000;
+    // calculate (and subtract) whole days
+    const days = Math.floor(delta / 86400);
+    delta -= days * 86400;
+    // calculate (and subtract) whole hours
+    const hours = Math.floor(delta / 3600) % 24;
+    delta -= hours * 3600;
+    // calculate (and subtract) whole minutes
+    const minutes = Math.floor(delta / 60) % 60;
+    delta -= minutes * 60;
+    // what's left is seconds
+    const seconds = Math.floor(delta) % 60;
+
+    // console.log(`date ${hours}:${minutes}:${seconds}`);
+    let formattedHHMM = '';
+    if (seconds) {
+      formattedHHMM = `${String(seconds)}s`;
+    }
+    if (minutes) {
+      formattedHHMM = `${String(minutes)}m ${String(seconds)}s`;
+    }
+    if (hours) {
+      formattedHHMM = `${String(hours)}h ${String(minutes)}m ${String(
+        seconds,
+      )}s`;
+    }
+    return formattedHHMM;
+  } catch (error) {
+    return '-';
+  }
+};

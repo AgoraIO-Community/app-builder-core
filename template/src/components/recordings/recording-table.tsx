@@ -3,7 +3,7 @@ import {Text, View, ScrollView, Linking} from 'react-native';
 import {style} from './style';
 import Pagination from '../../atoms/pagination/Pagination';
 import Clipboard from '../../subComponents/Clipboard';
-import {downloadRecording, getRecordedDate} from './utils';
+import {downloadRecording, getDuration, getRecordedDate} from './utils';
 import Tooltip from '../../atoms/Tooltip';
 
 import Loading from '../../subComponents/Loading';
@@ -15,6 +15,9 @@ function RTableHeader() {
       <View style={style.throw}>
         <View style={[style.th, style.plzero]}>
           <Text style={style.thText}>Date/Time</Text>
+        </View>
+        <View style={[style.th]}>
+          <Text style={style.thText}>Duration</Text>
         </View>
         <View style={style.th}>
           <Text style={style.thText}>Actions</Text>
@@ -55,6 +58,11 @@ function RTableBody({status, recordings}) {
             <View style={[style.td, style.plzero]}>
               <Text style={style.ttime}>
                 {getRecordedDate(item.created_at)}
+              </Text>
+            </View>
+            <View style={[style.td]}>
+              <Text style={style.ttime}>
+                {getDuration(item.created_at, item.ended_at)}
               </Text>
             </View>
             <View style={style.td}>
