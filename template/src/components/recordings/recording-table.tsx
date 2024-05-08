@@ -7,6 +7,7 @@ import {downloadRecording, getRecordedDate} from './utils';
 import Tooltip from '../../atoms/Tooltip';
 
 import Loading from '../../subComponents/Loading';
+import ImageIcon from '../../atoms/ImageIcon';
 
 function RTableHeader() {
   return (
@@ -30,9 +31,21 @@ function RTableBody({status, recordings}) {
     }
     if (status === 'resolved' && recordings.length === 0) {
       return (
-        <Text style={[style.ttime, style.pt10, style.pl10]}>
-          No recordings found for this meeting
-        </Text>
+        <View style={style.infotextContainer}>
+          <View>
+            <ImageIcon
+              iconType="plain"
+              name="info"
+              tintColor={'#777777'}
+              iconSize={32}
+            />
+          </View>
+          <View>
+            <Text style={[style.infoText, style.pt10, style.pl10]}>
+              No recordings found for this meeting
+            </Text>
+          </View>
+        </View>
       );
     }
     return (

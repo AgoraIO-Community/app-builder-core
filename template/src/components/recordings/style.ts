@@ -156,6 +156,18 @@ export const style = StyleSheet.create({
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
   // footer ends
+  infotextContainer: {
+    display: 'flex',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoText: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
   zeroHPadding: {
     paddingHorizontal: 0,
   },
