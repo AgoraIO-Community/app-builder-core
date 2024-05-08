@@ -133,7 +133,7 @@ const ImagePopup = (props: ImagePopupProps) => {
       {
         icon: 'close',
         iconColor: $config.SECONDARY_ACTION_COLOR,
-        iconSize: 24,
+        iconSize: 20,
         callback: () => {
           setModalVisible(false);
         },
@@ -304,6 +304,8 @@ const styles = StyleSheet.create({
       $config.CARD_LAYER_2_COLOR + hexadecimalTransparency['50%'],
     flexDirection: 'row',
     position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
     right: 16,
     top: 12,
     borderRadius: 4,

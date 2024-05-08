@@ -216,6 +216,8 @@ export const chatActionMenuDeleteText = 'chatActionMenuDeleteText';
 export const chatMsgDeletedText = 'chatMsgDeletedText';
 export const chatSendMessageBtnText = 'chatSendMessageBtnText';
 export const chatUploadErrorToastHeading = 'chatUploadErrorToastHeading';
+export const chatUploadErrorFileSizeToastHeading =
+  'chatUploadErrorFileSizeToastHeading';
 export const chatUploadErrorFileSizeToastSubHeading =
   'chatUploadErrorFileSizeToastSubHeading';
 export const chatUploadErrorFileTypeToastSubHeading =
@@ -617,6 +619,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatMsgDeletedText]?: I18nBaseType;
 
   [chatUploadErrorToastHeading]?: I18nBaseType;
+  [chatUploadErrorFileSizeToastHeading]?: I18nBaseType;
   [chatUploadErrorFileSizeToastSubHeading]?: I18nBaseType;
   [chatUploadErrorFileTypeToastSubHeading]?: I18nBaseType;
 
@@ -995,8 +998,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatMsgDeletedText]: name => `${name} deleted this message`,
 
   [chatUploadErrorToastHeading]: 'Attachment Upload Error',
+  [chatUploadErrorFileSizeToastHeading]: 'File size is too large',
   [chatUploadErrorFileSizeToastSubHeading]: size =>
-    `Max upload size of attachment is ${size}MB`,
+    `You can send attachments upto ${size}MB in size`,
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',

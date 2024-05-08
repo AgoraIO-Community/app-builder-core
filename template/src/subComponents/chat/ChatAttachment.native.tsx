@@ -23,6 +23,7 @@ import {
 
 import {
   chatUploadErrorToastHeading,
+  chatUploadErrorFileSizeToastHeading,
   chatUploadErrorFileSizeToastSubHeading,
   chatUploadErrorFileTypeToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
@@ -50,9 +51,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {data} = useRoomInfo();
 
   const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
-  const toastHeading = useString(chatUploadErrorToastHeading)();
-  const errorSubHeading1 = useString(chatUploadErrorFileSizeToastSubHeading);
-  const errorSubHeading2 = useString(chatUploadErrorFileTypeToastSubHeading);
+
+  const toastHeadingType = useString(chatUploadErrorToastHeading)();
+  const toastHeadingSize = useString(chatUploadErrorFileSizeToastHeading)();
+  const errorSubHeadingSize = useString(chatUploadErrorFileSizeToastSubHeading);
+  const errorSubHeadingType = useString(chatUploadErrorFileTypeToastSubHeading);
 
   const fileAllowedTypes = {
     zip: true,
@@ -93,8 +96,8 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: toastHeading,
-          text2: errorSubHeading1(MAX_UPLOAD_SIZE.toString()),
+          text1: toastHeadingSize,
+          text2: errorSubHeadingSize(MAX_UPLOAD_SIZE.toString()),
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
@@ -176,8 +179,8 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         Toast.show({
           leadingIconName: 'chat_attachment_unknown',
           type: 'info',
-          text1: toastHeading,
-          text2: errorSubHeading2(uploadedFileType),
+          text1: toastHeadingType,
+          text2: errorSubHeadingType(uploadedFileType),
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,

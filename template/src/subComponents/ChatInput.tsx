@@ -169,48 +169,60 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   ) : (
     <>
       {uploadedFiles.length > 0 ? (
-        uploadedFiles.map((file, index) => (
-          <AttachmentBubble
-            key={index}
-            fileName={file.file_name}
-            fileExt={file.file_ext}
-            isFullWidth={true}
-            fileType={file.file_type}
-            secondaryComponent={
-              uploadStatus === UploadStatus.IN_PROGRESS ? (
-                <ActivityIndicator />
-              ) : uploadStatus === UploadStatus.FAILURE ? (
-                <TouchableOpacity onPress={handleUploadRetry}>
-                  <Text style={style.btnRetry}>{'Retry'}</Text>
-                </TouchableOpacity>
-              ) : uploadStatus === UploadStatus.SUCCESS ? (
-                <View>
-                  <IconButton
-                    hoverEffect={true}
-                    hoverEffectStyle={{
-                      backgroundColor:
-                        $config.CARD_LAYER_5_COLOR +
-                        hexadecimalTransparency['20%'],
-                      borderRadius: 20,
-                    }}
-                    iconProps={{
-                      iconType: 'plain',
-                      iconSize: 20,
-                      iconContainerStyle: {
-                        padding: 2,
-                      },
-                      name: 'close',
-                      tintColor: $config.SECONDARY_ACTION_COLOR,
-                    }}
-                    onPress={() => {
-                      setUploadedFiles(prev => []);
-                    }}
-                  />
-                </View>
-              ) : null
-            }
-          />
-        ))
+        <View
+          style={[
+            style.attachmentContainer,
+            isUploadStatusShown
+              ? {
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                  borderTopWidth: 0,
+                }
+              : {borderRadius: 8, borderTopWidth: 1},
+          ]}>
+          {uploadedFiles.map((file, index) => (
+            <AttachmentBubble
+              key={index}
+              fileName={file.file_name}
+              fileExt={file.file_ext}
+              isFullWidth={true}
+              fileType={file.file_type}
+              secondaryComponent={
+                uploadStatus === UploadStatus.IN_PROGRESS ? (
+                  <ActivityIndicator />
+                ) : uploadStatus === UploadStatus.FAILURE ? (
+                  <TouchableOpacity onPress={handleUploadRetry}>
+                    <Text style={style.btnRetry}>{'Retry'}</Text>
+                  </TouchableOpacity>
+                ) : uploadStatus === UploadStatus.SUCCESS ? (
+                  <View>
+                    <IconButton
+                      hoverEffect={true}
+                      hoverEffectStyle={{
+                        backgroundColor:
+                          $config.CARD_LAYER_5_COLOR +
+                          hexadecimalTransparency['20%'],
+                        borderRadius: 20,
+                      }}
+                      iconProps={{
+                        iconType: 'plain',
+                        iconSize: 20,
+                        iconContainerStyle: {
+                          padding: 2,
+                        },
+                        name: 'close',
+                        tintColor: $config.SECONDARY_ACTION_COLOR,
+                      }}
+                      onPress={() => {
+                        setUploadedFiles(prev => []);
+                      }}
+                    />
+                  </View>
+                ) : null
+              }
+            />
+          ))}
+        </View>
       ) : (
         <TextInput
           setRef={ref => (chatInputRef.current = ref)}
@@ -285,6 +297,15 @@ const style = StyleSheet.create({
   inputActiveView: {
     borderTopWidth: 1,
     borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
+  attachmentContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 40,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
+    borderRadius: 8,
   },
   inputView: {
     flex: 1,

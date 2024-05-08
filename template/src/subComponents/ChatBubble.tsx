@@ -28,7 +28,7 @@ import {useChatUIControls, useContent} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {containsOnlyEmojis, formatAMPM, isURL} from '../utils';
-import {ChatType} from '../components/chat-ui/useChatUIControls';
+import {ChatType, UploadStatus} from '../components/chat-ui/useChatUIControls';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
@@ -45,9 +45,18 @@ export const AttachmentBubble = ({
   fileType = '',
   secondaryComponent,
 }) => {
+  const {uploadStatus} = useChatUIControls();
+
   return (
-    <View style={[style.fileContainer, isFullWidth && {width: '100%'}]}>
-      <View style={style.fileBlock}>
+    <View
+      style={[
+        style.fileContainer,
+        isFullWidth && {width: '100%'},
+        uploadStatus === UploadStatus.FAILURE && {
+          borderColor: $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
+        },
+      ]}>
+      <View style={[style.fileBlock]}>
         <ImageIcon
           base64={true}
           iconSize={24}
@@ -397,8 +406,16 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: $config.FONT_COLOR + hexadecimalTransparency['25%'],
+    borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
     width: 240,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1, // For Android
   },
   fileBlock: {
     flexDirection: 'row',
