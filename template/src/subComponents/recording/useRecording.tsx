@@ -394,7 +394,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
         },
-        // '2b65f378-b048-4d28-9d4c-bd71edab61b7'
         body: JSON.stringify({
           passphrase: roomId?.host,
           limit: 10,
