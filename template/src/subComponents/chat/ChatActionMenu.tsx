@@ -163,7 +163,9 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
           modalPosition={modalPosition}
           message={message}
           cancelLabel={cancelLabel}
+          cancelLabelStyle={{color: $config.SECONDARY_ACTION_COLOR}}
           confirmLabel={confirmLabel}
+          confirmLabelStyle={{color: $config.SEMANTIC_ERROR}}
           onConfirmClick={() => {
             deleteAttachment(msgId, recallFromUser.toString(), chatType);
             if (chatType === SDKChatType.SINGLE_CHAT) {

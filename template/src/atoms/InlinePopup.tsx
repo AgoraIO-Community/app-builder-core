@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   useWindowDimensions,
+  TextStyle,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 
@@ -28,6 +29,8 @@ interface InlinePopupProps {
   message: string;
   cancelLabel: string;
   confirmLabel: string;
+  cancelLabelStyle?: TextStyle;
+  confirmLabelStyle?: TextStyle;
 }
 
 const InlinePopup = (props: InlinePopupProps) => {
@@ -39,6 +42,8 @@ const InlinePopup = (props: InlinePopupProps) => {
     cancelLabel,
     confirmLabel,
     onConfirmClick,
+    cancelLabelStyle = {},
+    confirmLabelStyle = {},
   } = props;
   const {height} = useWindowDimensions();
   return (
@@ -80,7 +85,9 @@ const InlinePopup = (props: InlinePopupProps) => {
                     <TouchableOpacity
                       style={isHovered ? styles.onHoverBtnStyle : {}}
                       onPress={() => setActionMenuVisible(false)}>
-                      <Text style={styles.btnText}>{cancelLabel}</Text>
+                      <Text style={[styles.btnText, cancelLabelStyle]}>
+                        {cancelLabel}
+                      </Text>
                     </TouchableOpacity>
                   );
                 }}
@@ -92,7 +99,9 @@ const InlinePopup = (props: InlinePopupProps) => {
                     <TouchableOpacity
                       style={isHovered ? styles.onHoverBtnStyle : {}}
                       onPress={onConfirmClick}>
-                      <Text style={styles.btnText}>{confirmLabel}</Text>
+                      <Text style={[styles.btnText, confirmLabelStyle]}>
+                        {confirmLabel}
+                      </Text>
                     </TouchableOpacity>
                   );
                 }}

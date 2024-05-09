@@ -5,6 +5,7 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import Popup from '../../atoms/Popup';
@@ -22,6 +23,16 @@ import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import {IconsInterface} from '../../atoms/CustomIcon';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import InlinePopup from '../../atoms/InlinePopup';
+import {calculatePosition, trimText} from '../../utils/common';
+import {useString} from '../../utils/useString';
+import {
+  chatMessageDeleteConfirmBtnText,
+  chatPublicMessageDeletePopupText,
+  chatPrivateMessageDeletePopupText,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
+import {useContent} from 'customization-api';
 
 interface ImagePopupProps {
   modalVisible: boolean;
@@ -46,6 +57,69 @@ const ImagePopup = (props: ImagePopupProps) => {
     isLocal,
   } = props;
   const [isLoading, setIsLoading] = React.useState(true);
+  const [showDeleteMessageModal, setShowDeleteMessageModal] =
+    React.useState(false);
+  const {privateChatUser} = useChatUIControls();
+  const {
+    data: {isHost, chat},
+  } = useRoomInfo();
+  const {downloadAttachment, deleteAttachment} = useChatConfigure();
+  const {removeMessageFromPrivateStore, removeMessageFromStore} =
+    useChatMessages();
+
+  const groupID = chat.group_id;
+  const chatType = privateChatUser
+    ? SDKChatType.SINGLE_CHAT
+    : SDKChatType.GROUP_CHAT;
+  const recallFromUser = privateChatUser ? privateChatUser : groupID;
+  const [modalPosition, setModalPosition] = React.useState({});
+  const [isPosCalculated, setIsPosCalculated] = React.useState(false);
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const btnRef = React.useRef<View>(null);
+  const {defaultContent} = useContent();
+
+  const cancelTxt = useString(cancelText)();
+  const cancelLabel =
+    cancelTxt.charAt(0).toUpperCase() + cancelTxt.slice(1).toLowerCase();
+  const confirmLabel = useString(chatMessageDeleteConfirmBtnText)();
+
+  let message = '';
+  if (chatType === SDKChatType.GROUP_CHAT) {
+    message = useString(chatPublicMessageDeletePopupText)();
+  }
+  if (chatType === SDKChatType.SINGLE_CHAT) {
+    message = useString(chatPrivateMessageDeletePopupText)(
+      trimText(defaultContent[recallFromUser]?.name),
+    );
+  }
+
+  React.useEffect(() => {
+    //getting btnRef x,y
+    if (modalVisible && !isLoading) {
+      btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          const data = calculatePosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          debugger;
+          setModalPosition(data);
+          setIsPosCalculated(true);
+        },
+      );
+    }
+  }, [modalVisible, isLoading]);
 
   const handleImageLoad = () => {
     setIsLoading(false);
@@ -89,36 +163,22 @@ const ImagePopup = (props: ImagePopupProps) => {
   };
 
   const ControlsMenu = () => {
-    const {downloadAttachment, deleteAttachment} = useChatConfigure();
-    const {removeMessageFromPrivateStore, removeMessageFromStore} =
-      useChatMessages();
-    const {privateChatUser} = useChatUIControls();
-    const {
-      data: {isHost, chat},
-    } = useRoomInfo();
-
     const menuItems = [
       {
         icon: 'delete',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 24,
         callback: () => {
-          const groupID = chat.group_id;
-          const chatType = privateChatUser
-            ? SDKChatType.SINGLE_CHAT
-            : SDKChatType.GROUP_CHAT;
-          const recallFromUser = privateChatUser ? privateChatUser : groupID;
-
-          setModalVisible(false);
-
-          if (chatType === SDKChatType.SINGLE_CHAT) {
-            removeMessageFromPrivateStore(msgId, isLocal);
-          }
-          if (chatType === SDKChatType.GROUP_CHAT) {
-            removeMessageFromStore(msgId, isLocal);
-          }
           if (isLocal) {
-            deleteAttachment(msgId, recallFromUser.toString(), chatType);
+            debugger;
+            setShowDeleteMessageModal(true);
+          } else {
+            if (chatType === SDKChatType.SINGLE_CHAT) {
+              removeMessageFromPrivateStore(msgId, isLocal);
+            }
+            if (chatType === SDKChatType.GROUP_CHAT) {
+              removeMessageFromStore(msgId, isLocal);
+            }
           }
         },
       },
@@ -142,29 +202,30 @@ const ImagePopup = (props: ImagePopupProps) => {
     return !isLoading ? (
       <View style={styles.controlsContainer}>
         {menuItems.map((obj, index) => (
-          <IconButton
-            key={obj.icon}
-            hoverEffect={false}
-            hoverEffectStyle={{
-              backgroundColor:
-                $config.ICON_BG_COLOR + hexadecimalTransparency['50%'],
-            }}
-            iconProps={{
-              iconType: 'plain',
-              iconContainerStyle: {
-                backgroundColor: 'transparent',
-                paddingHorizontal: 8,
-                borderRightWidth: index === menuItems.length - 1 ? 0 : 1,
-                borderRightColor:
-                  $config.SECONDARY_ACTION_COLOR +
-                  hexadecimalTransparency['20%'],
-              },
-              iconSize: obj.iconSize,
-              name: obj.icon as keyof IconsInterface,
-              tintColor: obj.iconColor,
-            }}
-            onPress={obj.callback}
-          />
+          <View key={obj.icon} ref={obj.icon === 'delete' ? btnRef : null}>
+            <IconButton
+              hoverEffect={false}
+              hoverEffectStyle={{
+                backgroundColor:
+                  $config.ICON_BG_COLOR + hexadecimalTransparency['50%'],
+              }}
+              iconProps={{
+                iconType: 'plain',
+                iconContainerStyle: {
+                  backgroundColor: 'transparent',
+                  paddingHorizontal: 8,
+                  borderRightWidth: index === menuItems.length - 1 ? 0 : 1,
+                  borderRightColor:
+                    $config.SECONDARY_ACTION_COLOR +
+                    hexadecimalTransparency['20%'],
+                },
+                iconSize: obj.iconSize,
+                name: obj.icon as keyof IconsInterface,
+                tintColor: obj.iconColor,
+              }}
+              onPress={obj.callback}
+            />
+          </View>
         ))}
       </View>
     ) : (
@@ -172,33 +233,33 @@ const ImagePopup = (props: ImagePopupProps) => {
     );
   };
 
-  const HeaderComponent = () => {
-    return (
-      <View style={styles.headerContainer}>
-        <View style={styles.header}>
-          <UserAvatar
-            name={senderName}
-            containerStyle={styles.avatarContainerStyle}
-            textStyle={styles.avatarTextStyle}
-          />
-          <View>
-            <Text
-              style={styles.nameText}
-              numberOfLines={1}
-              ellipsizeMode={'tail'}>
-              {senderName}
-            </Text>
-            <View style={styles.subTextContainer}>
-              <Text style={styles.subText} ellipsizeMode={'tail'}>
-                {timeAgo(parseInt(timestamp))} - {fileName}
-              </Text>
-            </View>
-          </View>
-        </View>
-        <CloseIcon />
-      </View>
-    );
-  };
+  // const HeaderComponent = () => {
+  //   return (
+  //     <View style={styles.headerContainer}>
+  //       <View style={styles.header}>
+  //         <UserAvatar
+  //           name={senderName}
+  //           containerStyle={styles.avatarContainerStyle}
+  //           textStyle={styles.avatarTextStyle}
+  //         />
+  //         <View>
+  //           <Text
+  //             style={styles.nameText}
+  //             numberOfLines={1}
+  //             ellipsizeMode={'tail'}>
+  //             {senderName}
+  //           </Text>
+  //           <View style={styles.subTextContainer}>
+  //             <Text style={styles.subText} ellipsizeMode={'tail'}>
+  //               {timeAgo(parseInt(timestamp))} - {fileName}
+  //             </Text>
+  //           </View>
+  //         </View>
+  //       </View>
+  //       <CloseIcon />
+  //     </View>
+  //   );
+  // };
   return (
     <Popup
       modalVisible={modalVisible}
@@ -214,6 +275,31 @@ const ImagePopup = (props: ImagePopupProps) => {
         style={styles.image}
         onLoad={handleImageLoad}
       />
+      {isLocal ? (
+        <InlinePopup
+          actionMenuVisible={showDeleteMessageModal && isPosCalculated}
+          setActionMenuVisible={setShowDeleteMessageModal}
+          modalPosition={modalPosition}
+          message={message}
+          cancelLabel={cancelLabel}
+          cancelLabelStyle={{color: $config.SECONDARY_ACTION_COLOR}}
+          confirmLabel={confirmLabel}
+          confirmLabelStyle={{color: $config.SEMANTIC_ERROR}}
+          onConfirmClick={() => {
+            deleteAttachment(msgId, recallFromUser.toString(), chatType);
+            if (chatType === SDKChatType.SINGLE_CHAT) {
+              removeMessageFromPrivateStore(msgId, isLocal);
+            }
+            if (chatType === SDKChatType.GROUP_CHAT) {
+              removeMessageFromStore(msgId, isLocal);
+            }
+            setShowDeleteMessageModal(false);
+            setModalVisible(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
       <ControlsMenu />
     </Popup>
   );
