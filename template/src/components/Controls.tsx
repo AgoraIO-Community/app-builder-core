@@ -301,7 +301,7 @@ const MoreButton = () => {
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
-  const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
+  const {isScreenshareActive, startScreenshare, stopScreenshare} =
     useScreenshare();
   const {isRecordingActive, startRecording, inProgress} = useRecording();
   const {setChatType} = useChatUIControls();
@@ -572,9 +572,7 @@ const MoreButton = () => {
           title: screenShareButton(isScreenshareActive),
           callback: () => {
             setActionMenuVisible(false);
-            isScreenshareActive
-              ? stopUserScreenShare()
-              : startUserScreenshare();
+            isScreenshareActive ? stopScreenshare() : startScreenshare();
           },
         });
       }

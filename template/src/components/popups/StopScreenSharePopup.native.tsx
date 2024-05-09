@@ -24,7 +24,7 @@ import {cancelText} from '../../language/default-labels/commonLabels';
 const StopScreenSharePopup = () => {
   const {showStopScreenSharePopup, setShowStopScreenSharePopup} =
     useVideoCall();
-  const {stopUserScreenShare, isScreenshareActive} = useScreenshare();
+  const {stopScreenshare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
   const localMute = useMuteToggleLocal();
   const screenshareLabelHeading = useString(
@@ -43,7 +43,7 @@ const StopScreenSharePopup = () => {
     if (isScreenshareActive) {
       //true means keep the video enabled and stop only the screenshare
       //@ts-ignore
-      stopUserScreenShare(true);
+      stopScreenshare(true);
       setShowStopScreenSharePopup(false);
     }
   };

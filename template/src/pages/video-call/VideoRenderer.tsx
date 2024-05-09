@@ -38,7 +38,7 @@ import {
   moreBtnViewWhiteboard,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
-interface VideoRendererProps {
+export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
   CustomChild?: React.ComponentType;
