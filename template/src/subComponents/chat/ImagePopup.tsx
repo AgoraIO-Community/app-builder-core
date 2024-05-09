@@ -95,7 +95,7 @@ const ImagePopup = (props: ImagePopupProps) => {
 
   React.useEffect(() => {
     //getting btnRef x,y
-    if (modalVisible && !isLoading) {
+    if (!isLoading) {
       btnRef?.current?.measure(
         (
           _fx: number,
@@ -113,13 +113,12 @@ const ImagePopup = (props: ImagePopupProps) => {
             globalHeight,
             globalWidth,
           });
-          debugger;
           setModalPosition(data);
           setIsPosCalculated(true);
         },
       );
     }
-  }, [modalVisible, isLoading]);
+  }, [isLoading]);
 
   const handleImageLoad = () => {
     setIsLoading(false);
@@ -170,7 +169,6 @@ const ImagePopup = (props: ImagePopupProps) => {
         iconSize: 24,
         callback: () => {
           if (isLocal) {
-            debugger;
             setShowDeleteMessageModal(true);
           } else {
             if (chatType === SDKChatType.SINGLE_CHAT) {
