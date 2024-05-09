@@ -268,13 +268,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     );
   }, []);
 
-  const stopUserScreenShare = () => {
+  const stopScreenshare = () => {
     if (!isScreenshareActive) {
       return;
     }
     userScreenshare(false);
   };
-  const startUserScreenshare = () => {
+  const startScreenshare = () => {
     if (isScreenshareActive) {
       return;
     }
@@ -338,8 +338,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>

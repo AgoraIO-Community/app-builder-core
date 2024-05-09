@@ -222,7 +222,7 @@ const EventsConfigure: React.FC<Props> = props => {
   }, [waitingRoomApprovalRequiredSecondaryBtnTextTT]);
 
   //@ts-ignore
-  const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
+  const {isScreenshareActive, ScreenshareStoppedCallback, stopScreenshare} =
     useScreenshare();
   const isLiveStream = $config.EVENT_MODE;
   const {dispatch} = useContext(DispatchContext);
@@ -293,7 +293,7 @@ const EventsConfigure: React.FC<Props> = props => {
         isScreenshareActiveRef.current.isScreenshareActive
       ) {
         //@ts-ignore
-        stopUserScreenShare(false, true);
+        stopScreenshare(false, true);
       } else {
         isWebInternal()
           ? await RtcEngineUnsafe.muteLocalVideoStream(true)

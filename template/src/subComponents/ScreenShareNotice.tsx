@@ -39,7 +39,7 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
     videoRoomScreenshareStopSharingBtnText,
   )();
   const {currentLayout} = useLayout();
-  const {stopUserScreenShare} = useScreenshare();
+  const {stopScreenshare} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
   return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>
@@ -56,7 +56,7 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
       ) : (
         <TouchableOpacity
           style={styles.btnContainer}
-          onPress={() => stopUserScreenShare()}>
+          onPress={() => stopScreenshare()}>
           <View style={styles.iconContainer}>
             <ImageIcon
               iconType="plain"

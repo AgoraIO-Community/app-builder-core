@@ -27,7 +27,7 @@ export const stopForegroundService = () => {
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
-  const {isScreenshareActive, stopUserScreenShare} = useScreenshare();
+  const {isScreenshareActive, stopScreenshare} = useScreenshare();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet, showLabel} = useActionSheet();
   const endCallLabel = useString(toolbarItemLeaveText)();
@@ -50,7 +50,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       props.customExit();
     } else {
       if ((isAndroid() || isIOS()) && isScreenshareActive) {
-        stopUserScreenShare();
+        stopScreenshare();
         setEndCallState(true);
       } else {
         executeEndCall();
