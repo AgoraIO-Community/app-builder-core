@@ -75,7 +75,6 @@ import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
 import {isWeb} from '../utils/common';
-import ChatConfigure from '../components/chat/chatConfigure';
 import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
@@ -451,9 +450,7 @@ const VideoCall: React.FC = () => {
                                                                 <VideoMeetingDataProvider>
                                                                   <VideoCallProvider>
                                                                     <DisableChatProvider>
-                                                                      <ChatConfigure>
-                                                                        <VideoCallScreenWrapper />
-                                                                      </ChatConfigure>
+                                                                      <VideoCallScreenWrapper />
                                                                     </DisableChatProvider>
                                                                   </VideoCallProvider>
                                                                 </VideoMeetingDataProvider>

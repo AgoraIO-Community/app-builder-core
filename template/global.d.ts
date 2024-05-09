@@ -51,7 +51,7 @@ interface ConfigInterface {
   BACKEND_ENDPOINT: string;
   PSTN: boolean;
   PRECALL: boolean;
-  ENABLE_CHAT: boolean;
+  CHAT: boolean;
   CLOUD_RECORDING: boolean;
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;

@@ -65,7 +65,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     );
 
     // removing user from chat server
-    if ($config.ENABLE_CHAT) {
+    if ($config.CHAT) {
       deleteChatUser();
     }
 

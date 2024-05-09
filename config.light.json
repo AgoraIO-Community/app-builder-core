@@ -12,7 +12,7 @@
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
-  "ENABLE_CHAT": true,
+  "CHAT": true,
   "CLOUD_RECORDING": true,
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
