@@ -42,17 +42,17 @@ export default function MeetingInfoGridTile() {
       typeof data?.components?.videoCall === 'object'
     ) {
       if (
-        data?.components?.videoCall.invitePopup.renderComponent &&
-        typeof data?.components?.videoCall.invitePopup.renderComponent !==
+        data?.components?.videoCall?.invitePopup?.renderComponent &&
+        typeof data?.components?.videoCall?.invitePopup?.renderComponent !==
           'object' &&
         isValidReactComponent(
-          data?.components?.videoCall.invitePopup.renderComponent,
+          data?.components?.videoCall?.invitePopup?.renderComponent,
         )
       ) {
         components.InvitePopupContent =
           data?.components?.videoCall.invitePopup.renderComponent;
       }
-      if (data?.components?.videoCall.invitePopup.title) {
+      if (data?.components?.videoCall?.invitePopup?.title) {
         components.InvitePopupTitle =
           data?.components?.videoCall.invitePopup.title;
       }

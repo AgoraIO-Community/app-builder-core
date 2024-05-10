@@ -17,6 +17,7 @@ import useUserName from '../../utils/useUserName';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const whiteboardPaper = isWebInternal()
   ? document.createElement('div')
@@ -162,7 +163,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         }
       }
     } catch (error) {
-      console.log('debugging error on whiteboard setWritable ', error);
+      logger.error(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'error on whiteboard setWritable',
+        error,
+      );
     }
   }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
 
@@ -325,6 +331,9 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     try {
       const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
+      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room', {
+        data: {},
+      });
       whiteWebSdkClient.current
         .joinRoom({
           cursorAdapter: cursorAdapter,
@@ -340,6 +349,14 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           },
         })
         .then(room => {
+          logger.log(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room successful',
+            {
+              data: {},
+            },
+          );
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
@@ -353,11 +370,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
-          console.log(err);
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room error',
+            err,
+          );
         });
     } catch (err) {
       setWhiteboardRoomState(InitState);
-      console.log(err);
+      logger.error(LogSource.Internals, 'WHITEBOARD', 'Join room error', err);
     }
   };
 
@@ -374,11 +396,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
-          console.log(err);
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'leave room error',
+            err,
+          );
         });
     } catch (err) {
       setWhiteboardRoomState(InitState);
-      console.log(err);
+      logger.error(LogSource.Internals, 'WHITEBOARD', 'leave room error', err);
     }
   };
 

@@ -69,6 +69,8 @@ interface ConfigInterface {
   EVENT_MODE: boolean;
   RAISE_HAND: boolean;
   GEO_FENCING: boolean;
+  GEO_FENCING_INCLUDE_AREA: string;
+  GEO_FENCING_EXCLUDE_AREA: string;
   LOG_ENABLED: boolean;
   AUDIO_ROOM: boolean;
   PRIMARY_ACTION_BRAND_COLOR: string;

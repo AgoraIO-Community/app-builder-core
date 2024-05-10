@@ -105,6 +105,7 @@ export const toolbarItemCaptionText = 'toolbarItemCaptionText';
 export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
 export const toolbarItemVirtualBackgroundText =
   'toolbarItemVirtualBackgroundText';
+export const toolbarItemViewRecordingText = 'toolbarItemViewRecordingText';
 
 export const toolbarItemRaiseHandText = 'toolbarItemRaiseHandText';
 
@@ -141,6 +142,7 @@ export const nativeStopScreensharePopupSubHeading =
 export const nativeStopScreensharePopupPrimaryBtnText =
   'nativeStopScreensharePopupPrimaryBtnText';
 
+export const recordingModalTitleIntn = 'recordingModalTitleIntn';
 export const stopRecordingPopupHeading = 'stopRecordingPopupHeading';
 export const stopRecordingPopupSubHeading = 'stopRecordingPopupSubHeading';
 export const stopRecordingPopupPrimaryBtnText =
@@ -545,6 +547,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemCaptionText]?: I18nConditionalType;
   [toolbarItemTranscriptText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
+  [toolbarItemViewRecordingText]?: I18nConditionalType;
 
   [toolbarItemRaiseHandText]?: I18nConditionalType;
 
@@ -577,6 +580,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [nativeStopScreensharePopupSubHeading]?: I18nBaseType;
   [nativeStopScreensharePopupPrimaryBtnText]?: I18nBaseType;
 
+  [recordingModalTitleIntn]?: I18nBaseType;
   [stopRecordingPopupHeading]?: I18nBaseType;
   [stopRecordingPopupSubHeading]?: I18nBaseType;
   [stopRecordingPopupPrimaryBtnText]?: I18nBaseType;
@@ -892,6 +896,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Hide Caption' : 'Show Caption',
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
+  [toolbarItemViewRecordingText]: 'View Recordings',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
   [toolbarItemSwitchCameraText]: 'Switch Camera',
@@ -946,6 +951,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'You need to stop sharing your screen in order to turn the camera ON',
   [nativeStopScreensharePopupPrimaryBtnText]: 'STOP SHARE & TURN CAMERA ON',
 
+  [recordingModalTitleIntn]: 'Recordings',
   [stopRecordingPopupHeading]: 'Stop Recording?',
   [stopRecordingPopupSubHeading]:
     'Are you sure you want to stop recording? You can’t undo this action.',

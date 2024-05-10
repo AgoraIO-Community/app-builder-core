@@ -19,8 +19,6 @@ import {
   ContentInterface,
   DispatchContext,
 } from '../../../agora-rn-uikit';
-import events, {PersistanceLevel} from '../../rtm-events-api';
-import {EventNames} from '../../rtm-events';
 import {
   ChatType as ChatType,
   useChatUIControls,
@@ -31,6 +29,16 @@ import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
 import {trimText} from '../../utils/common';
+import {useStringRef} from '../../utils/useString';
+import {
+  publicChatToastHeading,
+  multiplePublicChatToastHeading,
+  multiplePrivateChatToastHeading,
+  privateChatToastHeading,
+  multiplePublicAndPrivateChatToastHeading,
+  multiplePublicAndPrivateChatToastSubHeading,
+  multiplePublicChatToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
@@ -206,6 +214,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
+
+  //i18 labels:
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');

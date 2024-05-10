@@ -10,6 +10,7 @@ import {isMobileUA} from '../../utils/common';
 import InlineNotification from '../../atoms/InlineNotification';
 import {useString} from '../../utils/useString';
 import {vbPanelInfo} from '../../language/default-labels/precallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 interface VideoPreviewProps {
   isLocalVideoON?: boolean;
 }
@@ -42,13 +43,21 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
     if (isMobileWeb) return;
     let localVideo = null;
     const initialize = async () => {
-      localVideo = await createCameraTrack();
+      logger.log(
+        LogSource.Internals,
+        isLocalVideoON ? 'VIRTUAL_BACKGROUND' : 'PRECALL_SCREEN',
+        'creating canera track for local preview',
+      );
     };
 
     initialize();
     return () => {
-      console.log('cleanup local preview');
       if (localVideo) {
+        logger.debug(
+          LogSource.Internals,
+          isLocalVideoON ? 'VIRTUAL_BACKGROUND' : 'PRECALL_SCREEN',
+          'cleaning up local video preview',
+        );
         localVideo.stop();
         localVideo.close();
         setPreviewVideoTrack(null);
