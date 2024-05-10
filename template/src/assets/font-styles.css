@@ -8,7 +8,6 @@
   font-display: block;
 }
 
-
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -24,7 +23,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-play_circle:before {
+
+.icon-play-circle:before {
   content: "\e99d";
   color: #fff;
 }
