@@ -315,6 +315,8 @@ export const livestreamingAttendeeWaitingForHostToJoinText =
   'livestreamingAttendeeWaitingForHostToJoinText';
 
 export const publicChatToastHeading = 'publicChatToastHeading';
+export const publicChatImgToastHeading = 'publicChatToastHeading';
+export const publicChatFileToastHeading = 'publicChatToastHeading';
 
 export const multiplePublicChatToastHeading = 'multiplePublicChatToastHeading';
 export const multiplePublicChatToastSubHeading =
@@ -691,6 +693,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [livestreamingAttendeeInviteOthersText]?: I18nBaseType;
 
   [publicChatToastHeading]?: I18nBaseType;
+  [publicChatImgToastHeading]?: I18nBaseType;
+  [publicChatFileToastHeading]?: I18nBaseType;
+
   [multiplePublicChatToastHeading]?: I18nBaseType;
   [multiplePublicChatToastSubHeading]?: I18nBaseType<publicChatToastSubHeadingDataInterface>;
 
@@ -1093,7 +1098,13 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [publicChatToastHeading]: (name: string) =>
     `${name} commented in the public chat`,
 
-  [multiplePublicChatToastHeading]: 'New comments in Public Chat',
+  [publicChatImgToastHeading]: (name: string) =>
+    `${name} sent an image in the public chat`,
+
+  [publicChatFileToastHeading]: (name: string) =>
+    `${name} sent a file in the public chat`,
+
+  [multiplePublicChatToastHeading]: 'New messages in Public Chat',
   [multiplePublicChatToastSubHeading]: ({count, from}) =>
     `You have ${count} new messages from ${from}`,
 
@@ -1103,7 +1114,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     `You’ve received ${count} private messages`,
 
   [multiplePublicAndPrivateChatToastHeading]:
-    'New comments in Public & Private Chat',
+    'New messages in Public & Private Chat',
   [multiplePublicAndPrivateChatToastSubHeading]: ({
     publicChatCount,
     privateChatCount,

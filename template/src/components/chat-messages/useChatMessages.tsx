@@ -32,6 +32,8 @@ import {trimText} from '../../utils/common';
 import {useStringRef} from '../../utils/useString';
 import {
   publicChatToastHeading,
+  publicChatFileToastHeading,
+  publicChatImgToastHeading,
   multiplePublicChatToastHeading,
   multiplePrivateChatToastHeading,
   privateChatToastHeading,
@@ -217,27 +219,61 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //i18 labels:
 
+  //public multple
+  const multiplePublicChatToastHeadingTT = useStringRef(
+    multiplePublicChatToastHeading,
+  );
+  //@ts-ignore
+  const multiplePublicChatToastSubHeadingTT = useStringRef<{
+    count: number;
+    from: string;
+  }>(multiplePublicChatToastSubHeading);
+
+  //private single
+  const privateMessageLabel = useStringRef(privateChatToastHeading);
+
+  //private multiple
+  //@ts-ignore
+  const multiplePrivateChatToastHeadingTT = useStringRef<{count: number}>(
+    multiplePrivateChatToastHeading,
+  );
+
+  //multiple private and public toast
+  const multiplePublicAndPrivateChatToastHeadingTT = useStringRef(
+    multiplePublicAndPrivateChatToastHeading,
+  );
+  //@ts-ignore
+  const multiplePublicAndPrivateChatToastSubHeadingTT = useStringRef<{
+    publicChatCount: number;
+    privateChatCount: number;
+    from: string;
+  }>(multiplePublicAndPrivateChatToastSubHeading);
+
+  //public single
+  const txtToastHeading = useStringRef(publicChatToastHeading);
+  const imgToastHeading = useStringRef(publicChatImgToastHeading);
+  const fileToastHeading = useStringRef(publicChatFileToastHeading);
+
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
   const fromText = (name: string, msgType: ChatMessageType) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        text = `${name} commented in the public chat`;
+        text = txtToastHeading?.current(name);
         break;
       case ChatMessageType.IMAGE:
-        text = `${name} sent an image in the public chat`;
+        text = imgToastHeading?.current(name);
         break;
       case ChatMessageType.FILE:
-        text = `${name} sent a file in the public chat`;
+        text = fileToastHeading?.current(name);
         break;
       default:
-        text = `${name} commented in the public chat`;
+        text = txtToastHeading?.current(name);
         break;
     }
     return text;
   };
-  const privateMessageLabel = 'You’ve received a private message';
 
   useEffect(() => {
     callActiveRef.current.callActive = callActive;
@@ -490,12 +526,21 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         leadingIconName: 'chat-nav',
         text1:
           privateMessages && privateMessages.length
-            ? 'New messages in Public & Private Chat'
-            : 'New messages in Public Chat',
+            ? multiplePublicAndPrivateChatToastHeadingTT?.current()
+            : multiplePublicChatToastHeadingTT?.current(),
         text2:
           privateMessages && privateMessages.length
-            ? `You have ${publicMessages.length} new messages from ${fromNames} and ${privateMessages.length} Private chat`
-            : `You have ${publicMessages.length} new messages from ${fromNames}`,
+            ? //@ts-ignore
+              multiplePublicAndPrivateChatToastSubHeadingTT?.current({
+                publicChatCount: publicMessages.length,
+                privateChatCount: privateMessages.length,
+                from: fromNames,
+              })
+            : //@ts-ignore
+              multiplePublicChatToastSubHeadingTT?.current({
+                count: publicMessages.length,
+                from: fromNames,
+              }),
         visibilityTime: 3000,
         onPress: () => {
           if (isPrivateMessage) {
@@ -519,7 +564,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         secondaryBtn: null,
         type: 'info',
         leadingIconName: 'chat-nav',
-        text1: `You’ve received ${privateMessages.length} private messages`,
+        //@ts-ignore
+        text1: multiplePrivateChatToastHeadingTT?.current({
+          count: privateMessages.length,
+        }),
         text2: ``,
         visibilityTime: 3000,
         onPress: () => {
@@ -550,7 +598,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         type: 'info',
         leadingIconName: 'chat-nav',
         text1: isPrivateMessage
-          ? privateMessageLabel
+          ? privateMessageLabel?.current()
           : //@ts-ignore
           defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
