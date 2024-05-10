@@ -146,4 +146,5 @@ export interface IconsInterface {
   delete: string;
   reply_all: string;
   block_user: string;
+  play_circle: string;
 }

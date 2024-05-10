@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-play_circle:before {
+  content: "\e99d";
+  color: #fff;
+}
 .icon-reply:before {
   content: "\e999";
   color: #fff;
