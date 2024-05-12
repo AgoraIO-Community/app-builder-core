@@ -30,14 +30,24 @@ export interface messageInterface {
   setIndividualUnreadCount: React.Dispatch<
     React.SetStateAction<individualUnreadMessageCount>
   >;
+
+  removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
+  removeMessageFromPrivateStore: (
+    msgId: string,
+    isMsgRecalled: boolean,
+  ) => void;
 }
 
 /**
  * The Messages app state governs the chat messages.
  */
 export const useMessages: () => messageInterface = () => {
-  const {messageStore: groupMessages, privateMessageStore: privateMessages} =
-    useChatMessages();
+  const {
+    messageStore: groupMessages,
+    privateMessageStore: privateMessages,
+    removeMessageFromPrivateStore,
+    removeMessageFromStore,
+  } = useChatMessages();
   const {sendChatSDKMessage, deleteAttachment} = useChatConfigure();
   const {
     setUnreadIndividualMessageCount: setIndividualUnreadCount,
@@ -79,5 +89,7 @@ export const useMessages: () => messageInterface = () => {
     individualUnreadCount,
     setGroupUnreadCount,
     setIndividualUnreadCount,
+    removeMessageFromStore,
+    removeMessageFromPrivateStore,
   };
 };
