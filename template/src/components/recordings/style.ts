@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import ThemeConfig from '../../theme';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export const style = StyleSheet.create({
   scrollgrow: {
@@ -167,6 +168,22 @@ export const style = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
+  iconButtonContainer: {
+    marginTop: -8,
+  },
+  iconButton: {
+    width: 32,
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+  },
+  iconButtonHoverEffect: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
+    borderRadius: 16,
   },
   zeroHPadding: {
     paddingHorizontal: 0,

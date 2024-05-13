@@ -1,4 +1,4 @@
-export function getRecordedDate(ipDate: string) {
+export function getRecordedDateTime(ipDate: string) {
   try {
     let rdate = new Date(ipDate);
     let ryear = rdate.getFullYear();
@@ -26,13 +26,13 @@ export function getRecordedDate(ipDate: string) {
     let diff = today.getTime() - compDate.getTime(); // get the difference between today(at 00:00:00) and the date
 
     if (compDate.getTime() == today.getTime()) {
-      return `Today\n${formattedHHMM}`;
+      return ['Today', `${formattedHHMM}`];
     } else if (diff <= 24 * 60 * 60 * 1000) {
-      return `Yesterday\n${formattedHHMM}`;
+      return ['Yesterday', `${formattedHHMM}`];
     } else {
       let fulldate = rdate.toDateString();
       fulldate = fulldate.substring(fulldate.indexOf(' ') + 1);
-      return `${fulldate}\n${formattedHHMM}`;
+      return [fulldate, `${formattedHHMM}`];
     }
   } catch (error) {
     console.error('error while converting recorded time: ', error);

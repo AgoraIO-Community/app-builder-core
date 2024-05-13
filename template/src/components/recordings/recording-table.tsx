@@ -1,10 +1,11 @@
 import React from 'react';
-import {Text, View, ScrollView, Linking} from 'react-native';
+import {Text, View, ScrollView, Linking, TouchableOpacity} from 'react-native';
 import {style} from './style';
 import Pagination from '../../atoms/pagination/Pagination';
 import Clipboard from '../../subComponents/Clipboard';
-import {downloadRecording, getDuration, getRecordedDate} from './utils';
+import {downloadRecording, getDuration, getRecordedDateTime} from './utils';
 import Tooltip from '../../atoms/Tooltip';
+import IconButtonWithToolTip from '../../atoms/IconButton';
 
 import Loading from '../../subComponents/Loading';
 import ImageIcon from '../../atoms/ImageIcon';
@@ -14,7 +15,10 @@ function RTableHeader() {
     <View style={style.thead}>
       <View style={style.throw}>
         <View style={[style.th, style.plzero]}>
-          <Text style={style.thText}>Date/Time</Text>
+          <Text style={style.thText}>Date</Text>
+        </View>
+        <View style={[style.th]}>
+          <Text style={style.thText}>Time</Text>
         </View>
         <View style={[style.th]}>
           <Text style={style.thText}>Duration</Text>
@@ -53,76 +57,122 @@ function RTableBody({status, recordings}) {
     }
     return (
       <>
-        {recordings.map(item => (
-          <View style={style.tbrow} key={item.id}>
-            <View style={[style.td, style.plzero]}>
-              <Text style={style.ttime}>
-                {getRecordedDate(item.created_at)}
-              </Text>
-            </View>
-            <View style={[style.td]}>
-              <Text style={style.ttime}>
-                {getDuration(item.created_at, item.ended_at)}
-              </Text>
-            </View>
-            <View style={style.td}>
-              {item?.download_url?.length > 0 ? (
-                item?.download_url?.map((link: string, i: number) => (
-                  <View style={style.tactions} key={i}>
-                    <Text
-                      style={style.tlink}
-                      onPress={async () => {
-                        if (await Linking.canOpenURL(link)) {
-                          await Linking.openURL(link);
-                        }
-                      }}>
-                      View
-                    </Text>
-                    <Text
-                      style={[style.tlink, style.pl15]}
-                      onPress={() => {
-                        downloadRecording(link);
-                      }}>
-                      Download
-                    </Text>
-                    <View>
-                      <Tooltip
-                        isClickable
-                        placement="right"
-                        toolTipMessage="Link Copied"
-                        onPress={() => {
-                          Clipboard.setString(link);
-                        }}
-                        fontSize={12}
-                        renderContent={(
-                          isToolTipVisible,
-                          setToolTipVisible,
-                        ) => {
-                          return (
-                            <Text
-                              style={[style.tlink, style.pl15]}
-                              onPress={() => {
-                                Clipboard.setString(link);
-                                setToolTipVisible(true);
-                              }}>
-                              Copy shareable link
-                            </Text>
-                          );
-                        }}
-                      />
+        {recordings.map(item => {
+          const [date, time] = getRecordedDateTime(item.created_at);
+          return (
+            <View style={style.tbrow} key={item.id}>
+              <View style={[style.td, style.plzero]}>
+                <Text style={style.ttime}>{date}</Text>
+              </View>
+              <View style={[style.td]}>
+                <Text style={style.ttime}>{time}</Text>
+              </View>
+              <View style={[style.td]}>
+                <Text style={style.ttime}>
+                  {getDuration(item.created_at, item.ended_at)}
+                </Text>
+              </View>
+              <View style={(style.td, style.iconButtonContainer)}>
+                {item?.download_url?.length > 0 ? (
+                  item?.download_url?.map((link: string, i: number) => (
+                    <View style={style.tactions} key={i}>
+                      <View>
+                        <IconButtonWithToolTip
+                          // placement="bottom"
+                          // toolTipMessage="Download"
+                          hoverEffect={true}
+                          hoverEffectStyle={style.iconButtonHoverEffect}
+                          containerStyle={style.iconButton}
+                          iconProps={{
+                            name: 'download',
+                            iconType: 'plain',
+                            iconSize: 20,
+                            tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
+                          }}
+                          onPress={() => {
+                            console.log('onpress');
+                            downloadRecording(link);
+                          }}
+                        />
+                      </View>
+                      <View style={style.pl15}>
+                        <IconButtonWithToolTip
+                          // placement="bottom"
+                          // toolTipMessage="Share"
+                          hoverEffect={true}
+                          hoverEffectStyle={style.iconButtonHoverEffect}
+                          containerStyle={style.iconButton}
+                          iconProps={{
+                            name: 'link-share',
+                            iconType: 'plain',
+                            iconSize: 20,
+                            tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
+                          }}
+                          onPress={async () => {
+                            if (await Linking.canOpenURL(link)) {
+                              await Linking.openURL(link);
+                            }
+                          }}
+                        />
+                      </View>
+                      <View style={style.pl15}>
+                        <IconButtonWithToolTip
+                          // placement="bottom"
+                          // toolTipMessage="Share"
+                          containerStyle={style.iconButton}
+                          hoverEffect={true}
+                          hoverEffectStyle={style.iconButtonHoverEffect}
+                          iconProps={{
+                            name: 'link-share',
+                            iconType: 'plain',
+                            iconSize: 20,
+                            tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
+                            iconBackgroundColor: 'red',
+                          }}
+                          onPress={() => {
+                            console.log('onpress');
+                          }}
+                        />
+                      </View>
+                      {/* <View>
+                        <Tooltip
+                          isClickable
+                          placement="right"
+                          toolTipMessage="Link Copied"
+                          onPress={() => {
+                            Clipboard.setString(link);
+                          }}
+                          fontSize={12}
+                          renderContent={(
+                            isToolTipVisible,
+                            setToolTipVisible,
+                          ) => {
+                            return (
+                              <Text
+                                style={[style.tlink, style.pl15]}
+                                onPress={() => {
+                                  Clipboard.setString(link);
+                                  setToolTipVisible(true);
+                                }}>
+                                Copy shareable link
+                              </Text>
+                            );
+                          }}
+                        />
+                      </View> */}
                     </View>
+                  ))
+                ) : (
+                  <View style={style.tactions}>
+                    <Text style={style.placeHolder}>
+                      Recording is in progress
+                    </Text>
                   </View>
-                ))
-              ) : (
-                <View style={style.tactions}>
-                  <Text style={style.placeHolder}>
-                    Recording is in progress
-                  </Text>
-                </View>
-              )}
+                )}
+              </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
       </>
     );
   };
