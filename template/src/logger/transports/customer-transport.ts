@@ -20,7 +20,7 @@ export function getCircularReplacer() {
     return value;
   };
 }
-const getSafeBody = p => {
+const getSafeBody = (p: any[]) => {
   try {
     return JSON.stringify(p, getCircularReplacer());
   } catch (error) {
