@@ -43,6 +43,7 @@ const VideoPreview = ({isLocalVideoON}: VideoPreviewProps) => {
     if (isMobileWeb) return;
     let localVideo = null;
     const initialize = async () => {
+      localVideo = await createCameraTrack();
       logger.log(
         LogSource.Internals,
         isLocalVideoON ? 'VIRTUAL_BACKGROUND' : 'PRECALL_SCREEN',
