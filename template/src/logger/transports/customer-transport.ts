@@ -20,6 +20,14 @@ export function getCircularReplacer() {
     return value;
   };
 }
+const getSafeBody = p => {
+  try {
+    return JSON.stringify(p, getCircularReplacer());
+  } catch (error) {
+    console.error('there was an error converting this object');
+    return '';
+  }
+};
 
 const fetchRetry = createRetryFetch(fetch, {
   retries: 23,
@@ -43,7 +51,7 @@ const sendLogs = (p: any[]) => {
       headers: new Headers({
         'Content-Type': 'application/json',
       }),
-      body: JSON.stringify(p, getCircularReplacer()),
+      body: getSafeBody(p),
     },
   ).catch(err => {
     console.log('error ocuured while replacing circular reference', p, err);
