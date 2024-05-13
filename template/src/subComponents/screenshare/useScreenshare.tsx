@@ -14,14 +14,14 @@ import {createHook} from 'customization-implementation';
 
 export interface ScreenshareContextInterface {
   isScreenshareActive: boolean;
-  startUserScreenshare: () => void;
-  stopUserScreenShare: () => void;
+  startScreenshare: () => void;
+  stopScreenshare: () => void;
 }
 
 export const ScreenshareContext = createContext<ScreenshareContextInterface>({
   isScreenshareActive: false,
-  startUserScreenshare: () => {},
-  stopUserScreenShare: () => {},
+  startScreenshare: () => {},
+  stopScreenshare: () => {},
   //@ts-ignore
   ScreenshareStoppedCallback: () => {},
 });

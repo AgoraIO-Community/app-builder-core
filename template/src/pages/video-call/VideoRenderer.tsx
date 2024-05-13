@@ -37,7 +37,7 @@ import {
   moreBtnViewInLarge,
   moreBtnViewWhiteboard,
 } from '../../language/default-labels/videoCallScreenLabels';
-interface VideoRendererProps {
+export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
   CustomChild?: React.ComponentType;
