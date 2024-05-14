@@ -641,6 +641,7 @@ const RtmConfigure = (props: any) => {
             mainUser: data.data.data.mainUser,
             screenShare: data.data.data.screenShare,
             whiteboard: data.data.data.whiteboard,
+            chat: data.data.data?.chat,
           }),
           persistLevel: 1,
           source: 'core',
