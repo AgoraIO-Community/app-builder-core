@@ -352,6 +352,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly stops recording, send message
            * in the channel indicating that cloud recording is now inactive.
            */
+          log('Recording-bot: recording stopped successfully');
           events.send(
             EventNames.RECORDING_ATTRIBUTE,
             JSON.stringify({
@@ -520,6 +521,21 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       );
       setRecordingActive(true);
     }
+    return () => {
+      if (isRecordingBot) {
+        log(
+          'Recording-bot: sending event that recording has stopped during unmount',
+        );
+        events.send(
+          EventNames.RECORDING_ATTRIBUTE,
+          JSON.stringify({
+            action: EventActions.RECORDING_STOPPED,
+            value: '',
+          }),
+          PersistanceLevel.Session,
+        );
+      }
+    };
   }, [isRecordingBot, hasUserJoinedRTM, localUid, setRecordingActive]);
   // ************ Recording Bot ends ************
 
