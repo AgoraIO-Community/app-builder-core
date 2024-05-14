@@ -6,9 +6,9 @@ import Clipboard from '../../subComponents/Clipboard';
 import {downloadRecording, getDuration, getRecordedDateTime} from './utils';
 import Tooltip from '../../atoms/Tooltip';
 import IconButtonWithToolTip from '../../atoms/IconButton';
-
 import Loading from '../../subComponents/Loading';
 import ImageIcon from '../../atoms/ImageIcon';
+import Spacer from '../../atoms/Spacer';
 
 function RTableHeader() {
   return (
@@ -78,8 +78,6 @@ function RTableBody({status, recordings}) {
                     <View style={style.tactions} key={i}>
                       <View>
                         <IconButtonWithToolTip
-                          // placement="bottom"
-                          // toolTipMessage="Download"
                           hoverEffect={true}
                           hoverEffectStyle={style.iconButtonHoverEffect}
                           containerStyle={style.iconButton}
@@ -115,10 +113,72 @@ function RTableBody({status, recordings}) {
                           }}
                         />
                       </View>
-                      <View style={style.pl15}>
-                        <IconButtonWithToolTip
-                          // placement="bottom"
-                          // toolTipMessage="Share"
+                      <View style={[style.pl15, style.iconShareLink]}>
+                        <Tooltip
+                          isClickable
+                          placement="left"
+                          toolTipMessage="Link Copied"
+                          onPress={() => {
+                            Clipboard.setString(link);
+                          }}
+                          toolTipIcon={
+                            <>
+                              <ImageIcon
+                                iconType="plain"
+                                name="tick-fill"
+                                tintColor={$config.SEMANTIC_SUCCESS}
+                                iconSize={20}
+                              />
+                              <Spacer size={8} horizontal={true} />
+                            </>
+                          }
+                          fontSize={12}
+                          renderContent={() => {
+                            return (
+                              <TouchableOpacity
+                                onPress={() => {
+                                  Clipboard.setString(link);
+                                }}>
+                                <ImageIcon
+                                  iconType="plain"
+                                  name="link-share"
+                                  iconSize={20}
+                                  tintColor={$config.SECONDARY_ACTION_COLOR}
+                                />
+                              </TouchableOpacity>
+                              // <IconButtonWithToolTip
+                              //   placement="top"
+                              //   toolTipMessage="Link Copied"
+                              //   containerStyle={style.iconButton}
+                              //   hoverEffect={true}
+                              //   hoverEffectStyle={style.iconButtonHoverEffect}
+                              //   iconProps={{
+                              //     name: 'link-share',
+                              //     iconType: 'plain',
+                              //     iconSize: 20,
+                              //     tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
+                              //     iconBackgroundColor: 'red',
+                              //   }}
+                              //   onPress={() => {
+                              //     Clipboard.setString(link);
+                              //     setToolTipVisible(true);
+                              //   }}
+                              // />
+
+                              // <Text
+                              //   style={[style.tlink, style.pl15]}
+                              //   onPress={() => {
+                              //     Clipboard.setString(link);
+                              //     setToolTipVisible(true);
+                              //   }}>
+                              //   Copy shareable link
+                              // </Text>
+                            );
+                          }}
+                        />
+                        {/* <IconButtonWithToolTip
+                          placement="bottom"
+                          toolTipMessage="Link Copied"
                           containerStyle={style.iconButton}
                           hoverEffect={true}
                           hoverEffectStyle={style.iconButtonHoverEffect}
@@ -132,7 +192,7 @@ function RTableBody({status, recordings}) {
                           onPress={() => {
                             console.log('onpress');
                           }}
-                        />
+                        /> */}
                       </View>
                       {/* <View>
                         <Tooltip

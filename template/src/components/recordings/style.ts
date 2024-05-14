@@ -185,6 +185,9 @@ export const style = StyleSheet.create({
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
     borderRadius: 16,
   },
+  iconShareLink: {
+    justifyContent: 'center',
+  },
   zeroHPadding: {
     paddingHorizontal: 0,
   },
