@@ -127,6 +127,7 @@ export const style = StyleSheet.create({
   tactions: {
     display: 'flex',
     flexDirection: 'row',
+    marginTop: -8,
   },
   tlink: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
