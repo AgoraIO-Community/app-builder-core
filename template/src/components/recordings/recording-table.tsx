@@ -163,7 +163,7 @@ function RTableBody({status, recordings}) {
                                 }}>
                                 <ImageIcon
                                   iconType="plain"
-                                  name="link-share"
+                                  name="copy-link"
                                   iconSize={20}
                                   tintColor={$config.SECONDARY_ACTION_COLOR}
                                 />
@@ -246,9 +246,7 @@ function RTableBody({status, recordings}) {
                   ))
                 ) : (
                   <View style={style.tactions}>
-                    <Text style={style.placeHolder}>
-                      Recording is in progress
-                    </Text>
+                    <Text style={style.placeHolder}>No recordings found</Text>
                   </View>
                 )}
               </View>
