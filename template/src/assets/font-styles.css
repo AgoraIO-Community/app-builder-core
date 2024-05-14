@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-copy-link:before {
+  content: '\e97b';
+  color: #fff;
+}
 .icon-play-circle:before {
   content: '\e978';
   color: #fff;

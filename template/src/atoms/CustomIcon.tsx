@@ -131,4 +131,5 @@ export interface IconsInterface {
   warning: string;
   'view-only': string;
   'play-circle': string;
+  'copy-link': string;
 }
