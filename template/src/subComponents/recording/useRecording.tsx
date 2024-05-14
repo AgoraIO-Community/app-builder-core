@@ -493,14 +493,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
     let timer = null;
     const shouldStopRecording = () =>
-      isRecordingActive &&
-      isRecordingBot &&
-      !hostUids?.length &&
-      !stopAPICalledByBotOnce.current;
+      isRecordingBot && !hostUids?.length && !stopAPICalledByBotOnce.current;
 
     log('Recording-bot: Checking if bot should stop recording', {
       shouldStopRecording: shouldStopRecording(),
-      isRecordingActive: isRecordingActive,
       isRecordingBot: isRecordingBot,
       areHostsInChannel: hostUids?.length,
       stopAPIcalled: stopAPICalledByBotOnce.current,
