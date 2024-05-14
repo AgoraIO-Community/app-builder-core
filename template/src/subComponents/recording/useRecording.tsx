@@ -360,7 +360,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const stopRecording = useCallback(() => {
     if (recordingMode === 'web') {
+      log('Stopping recording by sending event to bot');
       // send stop request to bot
+      setInProgress(true);
       events.send(
         EventNames.RECORDING_ATTRIBUTE,
         JSON.stringify({
@@ -371,6 +373,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         100000, // bot uid
       );
     } else {
+      log('Stopping recording by calling stop');
       _stopRecording().catch(err => {
         log('error while stopping recording', err);
       });
@@ -432,6 +435,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setRecordingActive(true);
           break;
         case EventActions.RECORDING_STOPPED:
+          setInProgress(false);
           setRecordingActive(false);
           break;
         case EventActions.REQUEST_TO_STOP_RECORDING:
