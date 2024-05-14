@@ -174,10 +174,33 @@ interface RemoteStream {
 }
 
 if ($config.GEO_FENCING) {
-  AgoraRTC.setArea({
-    areaCode: AREAS.GLOBAL,
-    excludedArea: AREAS.CHINA,
-  });
+  try {
+    //include area is comma seperated value
+    let includeArea = $config.GEO_FENCING_INCLUDE_AREA
+      ? $config.GEO_FENCING_INCLUDE_AREA
+      : AREAS.GLOBAL;
+
+    //exclude area is single value
+    let excludeArea = $config.GEO_FENCING_EXCLUDE_AREA
+      ? $config.GEO_FENCING_EXCLUDE_AREA
+      : '';
+
+    includeArea = includeArea?.split(',');
+
+    //pass excludedArea if only its provided
+    if (excludeArea) {
+      AgoraRTC.setArea({
+        areaCode: includeArea,
+        excludedArea: excludeArea,
+      });
+    }
+    //otherwise we can pass area directly
+    else {
+      AgoraRTC.setArea(includeArea);
+    }
+  } catch (setAeraError) {
+    console.log('error on RTC setArea', setAeraError);
+  }
 }
 
 if ($config.LOG_ENABLED) {

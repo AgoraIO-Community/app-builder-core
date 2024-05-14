@@ -268,13 +268,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     );
   }, []);
 
-  const stopUserScreenShare = () => {
+  const stopScreenshare = () => {
     if (!isScreenshareActive) {
       return;
     }
     userScreenshare(false);
   };
-  const startUserScreenshare = () => {
+  const startScreenshare = () => {
     if (isScreenshareActive) {
       return;
     }
@@ -292,6 +292,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         appId,
         rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
+        {encoderConfig: '1080p_2', optimizationMode: 'detail'},
       );
       isActive && setScreenshareActive(true);
 
@@ -337,8 +338,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>

@@ -240,7 +240,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     };
   }, []);
 
-  const startUserScreenshare = async (captureAudio: boolean = false) => {
+  const startScreenshare = async (captureAudio: boolean = false) => {
     if (!isScreenshareActive) {
       // either user can publish local video or screenshare stream
       // so if user video is turned on then we are turning off video before screenshare
@@ -275,7 +275,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     }, 1000);
   }, [appState]);
 
-  const stopUserScreenShare = async (
+  const stopScreenshare = async (
     enableVideo: boolean = false,
     forceStop: boolean = false,
   ) => {
@@ -339,8 +339,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>
