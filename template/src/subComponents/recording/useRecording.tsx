@@ -239,10 +239,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then((res: any) => {
         if (res.status === 200) {
-          // if (window.location.origin.includes('localhost')) {
-          //   setInProgress(false);
-          //   setRecordingActive(true);
-          // }
           /**
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud/web recording is now active.
@@ -296,47 +292,25 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
-    events.send(
-      EventNames.RECORDING_ATTRIBUTE,
-      JSON.stringify({
-        action: EventActions.RECORDING_MESSAGES,
-        value: 'called stopped recording',
-      }),
-      PersistanceLevel.Session,
-    );
     log('stop recording API called');
     if (inProgress) {
-      events.send(
-        EventNames.RECORDING_ATTRIBUTE,
-        JSON.stringify({
-          action: EventActions.RECORDING_MESSAGES,
-          value: 'value of in progress is true',
-        }),
-        PersistanceLevel.Session,
-      );
       console.error(
         'web-recording - stop recording already in progress. Aborting..',
       );
-      return Promise.reject('stop recording already in progress. Aborting..');
+      return;
     }
-    events.send(
-      EventNames.RECORDING_ATTRIBUTE,
-      JSON.stringify({
-        action: EventActions.RECORDING_MESSAGES,
-        value: 'setting value of in progress as true',
-      }),
-      PersistanceLevel.Session,
-    );
     setInProgress(true);
-    // If recording is already going on, stop the recording by executing the below query.
-    events.send(
-      EventNames.RECORDING_ATTRIBUTE,
-      JSON.stringify({
-        action: EventActions.RECORDING_MESSAGES,
-        value: 'calling stop',
-      }),
-      PersistanceLevel.Session,
-    );
+    if (isRecordingBot) {
+      // send message to everyone that bot will be stopping the recording
+      events.send(
+        EventNames.RECORDING_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.RECORDING_STOPPED,
+          value: '',
+        }),
+        PersistanceLevel.Session,
+      );
+    }
     fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
       headers: {
@@ -349,14 +323,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }),
     })
       .then(res => {
-        events.send(
-          EventNames.RECORDING_ATTRIBUTE,
-          JSON.stringify({
-            action: EventActions.RECORDING_MESSAGES,
-            value: 'response received ',
-          }),
-          PersistanceLevel.Session,
-        );
+        // Bot when stops the recording, it does not reach here
         setInProgress(false);
         if (res.status === 200) {
           /**
@@ -396,6 +363,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     setRecordingActive,
     store.token,
     subheadingError,
+    isRecordingBot,
   ]);
 
   const stopRecording = useCallback(() => {
@@ -574,7 +542,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }),
         PersistanceLevel.Session,
       );
-      setRecordingActive(true);
     }
   }, [isRecordingBot, hasUserJoinedRTM, localUid, setRecordingActive]);
   // ************ Recording Bot ends ************
