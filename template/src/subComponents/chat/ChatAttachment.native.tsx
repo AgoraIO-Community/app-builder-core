@@ -87,6 +87,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           DocumentPicker.types.pptx,
           DocumentPicker.types.xls,
           DocumentPicker.types.xlsx,
+          DocumentPicker.types.csv,
         ],
         presentationStyle: 'fullScreen',
         copyTo: 'documentDirectory',

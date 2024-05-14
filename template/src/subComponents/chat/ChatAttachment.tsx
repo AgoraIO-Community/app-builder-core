@@ -45,6 +45,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     pptx: true,
     xls: true,
     xlsx: true,
+    csv: true,
   };
 
   const imageAllowedTypes = {
@@ -115,7 +116,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     <>
       <input
         type="file"
-        accept="image/jpeg, image/png, image/gif, image/bmp, .zip, .txt, .doc, .pdf, .docx, .ppt, .pptx"
+        accept="image/jpeg, image/png, image/gif, image/bmp, .zip, .txt, .doc, .pdf, .docx, .ppt, .pptx, .xls, .xlsx .csv"
         onChange={handleFileUpload}
         style={{display: 'none'}}
         id={`file-input-`}
