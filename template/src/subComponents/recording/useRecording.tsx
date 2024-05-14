@@ -296,16 +296,48 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
+    events.send(
+      EventNames.RECORDING_ATTRIBUTE,
+      JSON.stringify({
+        action: EventActions.RECORDING_MESSAGES,
+        value: 'called stopped recording',
+      }),
+      PersistanceLevel.Session,
+    );
     log('stop recording API called');
     if (inProgress) {
+      events.send(
+        EventNames.RECORDING_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.RECORDING_MESSAGES,
+          value: 'value of in progress is true',
+        }),
+        PersistanceLevel.Session,
+      );
       console.error(
         'web-recording - stop recording already in progress. Aborting..',
       );
       return Promise.reject('stop recording already in progress. Aborting..');
     }
+    events.send(
+      EventNames.RECORDING_ATTRIBUTE,
+      JSON.stringify({
+        action: EventActions.RECORDING_MESSAGES,
+        value: 'setting value of in progress as true',
+      }),
+      PersistanceLevel.Session,
+    );
     setInProgress(true);
     // If recording is already going on, stop the recording by executing the below query.
-    return fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
+    events.send(
+      EventNames.RECORDING_ATTRIBUTE,
+      JSON.stringify({
+        action: EventActions.RECORDING_MESSAGES,
+        value: 'calling stop',
+      }),
+      PersistanceLevel.Session,
+    );
+    fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -317,6 +349,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }),
     })
       .then(res => {
+        events.send(
+          EventNames.RECORDING_ATTRIBUTE,
+          JSON.stringify({
+            action: EventActions.RECORDING_MESSAGES,
+            value: 'response received ',
+          }),
+          PersistanceLevel.Session,
+        );
         setInProgress(false);
         if (res.status === 200) {
           /**
@@ -334,20 +374,20 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           );
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
-          return Promise.resolve(true);
+          // return Promise.resolve(true);
         } else if (res.status === 500) {
           showErrorToast(headingStopError, subheadingError);
-          return Promise.reject('Internal server down');
+          // return Promise.reject('Internal server down');
         } else {
           showErrorToast(headingStopError);
-          return Promise.reject(res);
+          // return Promise.reject(res);
         }
       })
       .catch(err => {
         setRecordingActive(false);
         setInProgress(false);
         log('stop recording', err);
-        return Promise.reject(err);
+        // return Promise.reject(err);
       });
   }, [
     headingStopError,
@@ -374,9 +414,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       );
     } else {
       log('Stopping recording by calling stop');
-      _stopRecording().catch(err => {
-        log('error while stopping recording', err);
-      });
+      _stopRecording();
     }
   }, [_stopRecording]);
 
@@ -508,21 +546,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         log('Recording-bot: trying to stop recording');
         stopAPICalledByBotOnce.current = true;
         clearTimeout(timer);
-        _stopRecording().catch(error => {
-          log(
-            'Recording-bot: there was an error when trying to stop recording',
-            error,
-          );
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STOPPED,
-              value: '',
-            }),
-            PersistanceLevel.Session,
-          );
-          setRecordingActive(false);
-        });
+        _stopRecording();
         // Run after 15 seconds
       }, 15000);
       log('Recording-bot: timer starts, timerId - ', timer);
