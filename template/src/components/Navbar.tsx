@@ -39,6 +39,7 @@ import {
   isValidReactComponent,
   isWebInternal,
   trimText,
+  updateToolbarDefaultConfig,
   useIsDesktop,
 } from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
@@ -61,7 +62,10 @@ import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
-import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import {
+  ToolbarCustomItem,
+  ToolbarDefaultItemConfig,
+} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
@@ -435,27 +439,6 @@ export const RecordingStatusToolbarItem = () => {
     <></>
   );
 };
-const defaultStartItems: ToolbarCustomItem[] = [
-  {
-    align: 'start',
-    component: MeetingTitleToolbarItem,
-    order: 0,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: ParticipantCountToolbarItem,
-    order: 1,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: RecordingStatusToolbarItem,
-    order: 2,
-    hide: 'no',
-  },
-];
-const defaultCenterItems: ToolbarCustomItem[] = [];
 
 export const ParticipantToolbarItem = () => {
   return (
@@ -484,21 +467,45 @@ export const SettingsToobarItem = () => {
   );
 };
 
-const defaultEndItems: ToolbarCustomItem[] = [
+const defaultItems: ToolbarCustomItem[] = [
   {
     align: 'start',
-    component: ParticipantToolbarItem,
+    componentName: 'meeting-title',
+    component: MeetingTitleToolbarItem,
     order: 0,
     hide: 'no',
   },
   {
     align: 'start',
-    component: ChatToolbarItem,
+    componentName: 'participant-count',
+    component: ParticipantCountToolbarItem,
     order: 1,
     hide: 'no',
   },
   {
     align: 'start',
+    componentName: 'recording-status',
+    component: RecordingStatusToolbarItem,
+    order: 2,
+    hide: 'no',
+  },
+  {
+    align: 'end',
+    componentName: 'participant',
+    component: ParticipantToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'end',
+    componentName: 'chat',
+    component: ChatToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'end',
+    componentName: 'settings',
     component: SettingsToobarItem,
     order: 2,
     hide: 'no',
@@ -508,9 +515,14 @@ const defaultEndItems: ToolbarCustomItem[] = [
 export interface NavbarProps {
   customItems?: ToolbarCustomItem[];
   includeDefaultItems?: boolean;
+  defaultItemsConfig?: ToolbarDefaultItemConfig;
 }
 const Navbar = (props: NavbarProps) => {
-  const {customItems = [], includeDefaultItems = true} = props;
+  const {
+    customItems = [],
+    includeDefaultItems = true,
+    defaultItemsConfig = {},
+  } = props;
   const {width} = useWindowDimensions();
 
   const isHidden = i => {
@@ -518,18 +530,30 @@ const Navbar = (props: NavbarProps) => {
   };
 
   const customStartItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => i.align === 'start' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => i.align === 'center' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => i.align === 'end' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort(CustomToolbarSort);
 
   const renderContent = (

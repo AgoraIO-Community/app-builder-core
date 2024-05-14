@@ -7,7 +7,36 @@ import {isMobileUA} from '../utils/common';
 import NavbarMobile from '../components/NavbarMobile';
 import ActionSheet from '../pages/video-call/ActionSheet';
 
+export type ToolbarDefaultItemName =
+  //bottom bar
+
+  //left
+  | 'layout'
+  | 'invite'
+  //center
+  | 'local-audio'
+  | 'local-video'
+  | 'screenshare'
+  | 'recording'
+  | 'switch-camera'
+  | 'end-call'
+  | 'raise-hand'
+  | 'more'
+
+  //topbar
+  | 'meeting-title'
+  | 'participant-count'
+  | 'recording-status'
+  | 'chat'
+  | 'participant'
+  | 'settings';
+
+export type ToolbarDefaultItemConfig = {
+  [key in ToolbarDefaultItemName]?: Partial<ToolbarCustomItem>;
+};
+
 export interface ToolbarCustomItem {
+  componentName?: ToolbarDefaultItemName;
   component: () => JSX.Element;
   align: 'start' | 'center' | 'end';
   hide: 'yes' | 'no' | 'never';
@@ -17,11 +46,13 @@ export interface ToolbarCustomItem {
 export interface ToolbarBottomPresetProps {
   align: 'bottom';
   customItems?: Array<ToolbarCustomItem>;
+  defaultItemsConfig?: ToolbarDefaultItemConfig;
   snapPointsMinMax: [number, number];
 }
 export interface ToolbarOtherPresetProps {
   align: 'top' | 'left' | 'right';
   customItems?: Array<ToolbarCustomItem>;
+  defaultItemsConfig?: ToolbarDefaultItemConfig;
   snapPointsMinMax?: never;
 }
 
@@ -50,9 +81,14 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
       <NavbarMobile
         customItems={props?.customItems}
         includeDefaultItems={true}
+        defaultItemsConfig={props?.defaultItemsConfig}
       />
     ) : (
-      <Navbar customItems={props?.customItems} includeDefaultItems={true} />
+      <Navbar
+        customItems={props?.customItems}
+        includeDefaultItems={true}
+        defaultItemsConfig={props?.defaultItemsConfig}
+      />
     );
   } else if (align === 'bottom') {
     return isMobileUA() ? (
@@ -60,9 +96,14 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
         customItems={props?.customItems}
         includeDefaultItems={true}
         snapPointsMinMax={props?.snapPointsMinMax}
+        defaultItemsConfig={props?.defaultItemsConfig}
       />
     ) : (
-      <Controls customItems={props?.customItems} includeDefaultItems={true} />
+      <Controls
+        customItems={props?.customItems}
+        includeDefaultItems={true}
+        defaultItemsConfig={props?.defaultItemsConfig}
+      />
     );
   } else {
     return null;

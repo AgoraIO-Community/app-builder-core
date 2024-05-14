@@ -24,7 +24,12 @@ import {
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
-import {useContent, useLocalUserInfo, ToolbarItem} from 'customization-api';
+import {
+  useContent,
+  useLocalUserInfo,
+  ToolbarItem,
+  ToolbarCustomItem,
+} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
@@ -38,7 +43,10 @@ import {EventNames} from '../../rtm-events';
 import events from '../../rtm-events-api';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
-import {CustomToolbarSort} from '../../utils/common';
+import {
+  CustomToolbarSort,
+  updateToolbarDefaultConfig,
+} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
@@ -257,6 +265,7 @@ const ActionSheetContent = props => {
     displayCustomBottomSheetContent = false,
     customBottomSheetContent,
     native = false,
+    defaultItemsConfig = {},
   } = props;
 
   const {localUid} = useContext(ChatContext);
@@ -387,6 +396,7 @@ const ActionSheetContent = props => {
       order: 0,
       hide: 'no',
       align: 'start',
+      componentName: 'local-audio',
       component: isAudioVideoControlsDisabled ? null : <AudioIcon />,
     },
     {
@@ -397,6 +407,7 @@ const ActionSheetContent = props => {
       /*For AudioCast Host:Chat ,Attendee:Raise Hand 
             For VoiceChat Host:Chat, Attendee:Chat
            */
+      componentName: 'chat',
       component: (isAudioCastHost ||
         isVoiceChatHost ||
         isVoiceChatAudience) && <ChatIcon />,
@@ -407,6 +418,7 @@ const ActionSheetContent = props => {
       order: 0,
       hide: 'no',
       align: 'start',
+      componentName: 'raise-hand',
       component:
         (isAudioCastAudience && isLiveStream && isAudience) ||
         (isBroadCasting && !isHost) ? (
@@ -420,6 +432,7 @@ const ActionSheetContent = props => {
       order: 1,
       hide: 'no',
       align: 'start',
+      componentName: 'local-video',
       component:
         !isAudioRoom && (isAudioVideoControlsDisabled ? null : <CamIcon />),
     },
@@ -428,6 +441,7 @@ const ActionSheetContent = props => {
       order: 2,
       hide: 'no',
       align: 'start',
+      componentName: 'end-call',
       component: <EndCallIcon />,
     },
     //reset of the controls
@@ -436,6 +450,7 @@ const ActionSheetContent = props => {
       order: 4,
       hide: 'no',
       align: 'start',
+      componentName: 'raise-hand',
       component:
         (isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
           $config.RAISE_HAND && !isAudioRoom ? (
@@ -449,6 +464,7 @@ const ActionSheetContent = props => {
       order: 5,
       hide: 'no',
       align: 'start',
+      componentName: 'chat',
       component: !(
         isAudioCastHost ||
         isVoiceChatHost ||
@@ -460,6 +476,7 @@ const ActionSheetContent = props => {
       order: 6,
       hide: 'no',
       align: 'start',
+      componentName: 'participant',
       component: <ParticipantsIcon />,
     },
     {
@@ -467,6 +484,7 @@ const ActionSheetContent = props => {
       order: 7,
       hide: 'no',
       align: 'start',
+      componentName: 'recording',
       component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
     },
     {
@@ -474,6 +492,7 @@ const ActionSheetContent = props => {
       order: 7,
       hide: 'no',
       align: 'start',
+      componentName: 'virtual-background',
       component:
         $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM ? (
           <VBIcon />
@@ -484,6 +503,7 @@ const ActionSheetContent = props => {
       order: 8,
       hide: 'no',
       align: 'start',
+      componentName: 'switch-camera',
       component:
         !isAudioRoom &&
         (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
@@ -493,6 +513,7 @@ const ActionSheetContent = props => {
       order: 9,
       hide: 'no',
       align: 'start',
+      componentName: 'layout',
       component: <LayoutIcon />,
     },
     {
@@ -500,6 +521,7 @@ const ActionSheetContent = props => {
       order: 10,
       hide: 'no',
       align: 'start',
+      componentName: 'settings',
       component: <SettingsIcon />,
     },
     {
@@ -507,6 +529,7 @@ const ActionSheetContent = props => {
       order: 11,
       hide: 'no',
       align: 'start',
+      componentName: 'invite',
       component: <ShareIcon />,
     },
     {
@@ -514,6 +537,7 @@ const ActionSheetContent = props => {
       order: 12,
       hide: 'no',
       align: 'start',
+      componentName: 'caption',
       component: (
         <CaptionIconBtn
           onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
@@ -525,6 +549,7 @@ const ActionSheetContent = props => {
       order: 13,
       hide: 'no',
       align: 'start',
+      componentName: 'transcript',
       component: <TranscriptIconBtn />,
     },
   ];
@@ -533,8 +558,12 @@ const ActionSheetContent = props => {
     return i?.hide === 'yes';
   };
   const combinedItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultItems : [])
     //to filter empty component because of some condition array will have empty component
     ?.filter(i => i?.component)
     ?.sort(CustomToolbarSort);
