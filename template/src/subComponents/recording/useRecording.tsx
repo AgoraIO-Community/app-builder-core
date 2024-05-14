@@ -68,7 +68,7 @@ interface RecordingsData {
 }
 export interface RecordingContextInterface {
   startRecording: () => void;
-  stopRecording: () => Promise<any>;
+  stopRecording: () => void;
   isRecordingActive: boolean;
   inProgress: boolean;
   fetchRecordings?: (page: number) => Promise<RecordingsData>;
@@ -152,6 +152,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {screenShareData} = useScreenContext();
   const stopAPICalledByBotOnce = useRef<boolean>(false);
+  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   const showErrorToast = (text1: string, text2?: string) => {
     Toast.show({
@@ -198,36 +199,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       });
     }
   }, [isRecordingActive, callActive, isHost]);
-
-  useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
-      log('recording attribute received', data);
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-      switch (action) {
-        case EventActions.RECORDING_STARTED_BY:
-          setUidWhoStarted(parseInt(value));
-          if (recordingMode === 'mix') {
-            setRecordingActive(true);
-          }
-          break;
-        case EventActions.RECORDING_STARTED:
-          setInProgress(false);
-          setRecordingActive(true);
-          break;
-        case EventActions.RECORDING_STOPPED:
-          setRecordingActive(false);
-          break;
-
-        default:
-          break;
-      }
-    });
-    return () => {
-      events.off(EventNames.RECORDING_ATTRIBUTE);
-    };
-  }, [roomId.host, setRecordingActive, uidWhoStarted, localUid]);
 
   const startRecording = () => {
     const passphrase = roomId.host || '';
@@ -321,7 +292,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       });
   };
 
-  const stopRecording = useCallback(async () => {
+  const _stopRecording = useCallback(async () => {
     /**
      * Any host in the channel can stop recording.
      */
@@ -387,6 +358,25 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     subheadingError,
   ]);
 
+  const stopRecording = useCallback(() => {
+    if (recordingMode === 'web') {
+      // send stop request to bot
+      events.send(
+        EventNames.RECORDING_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.REQUEST_TO_STOP_RECORDING,
+          value: '',
+        }),
+        PersistanceLevel.Session,
+        100000, // bot uid
+      );
+    } else {
+      _stopRecording().catch(err => {
+        log('error while stopping recording', err);
+      });
+    }
+  }, [_stopRecording]);
+
   const fetchRecordings = useCallback(
     (page: number) => {
       return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
@@ -423,8 +413,45 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     [roomId?.host, store.token],
   );
 
+  // Events
+  useEffect(() => {
+    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
+      log('recording attribute received', data);
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+      switch (action) {
+        case EventActions.RECORDING_STARTED_BY:
+          setUidWhoStarted(parseInt(value));
+          if (recordingMode === 'mix') {
+            setRecordingActive(true);
+          }
+          break;
+        case EventActions.RECORDING_STARTED:
+          setInProgress(false);
+          setRecordingActive(true);
+          break;
+        case EventActions.RECORDING_STOPPED:
+          setRecordingActive(false);
+          break;
+        case EventActions.REQUEST_TO_STOP_RECORDING:
+          _stopRecording();
+          break;
+        default:
+          break;
+      }
+    });
+    return () => {
+      events.off(EventNames.RECORDING_ATTRIBUTE);
+    };
+  }, [
+    roomId.host,
+    setRecordingActive,
+    uidWhoStarted,
+    localUid,
+    _stopRecording,
+  ]);
   // ************ Recording Bot starts ************
-  const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   const setRecordingBotUI = () => {
     if (isRecordingBot) {
@@ -477,7 +504,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         log('Recording-bot: trying to stop recording');
         stopAPICalledByBotOnce.current = true;
         clearTimeout(timer);
-        stopRecording().catch(error => {
+        _stopRecording().catch(error => {
           log(
             'Recording-bot: there was an error when trying to stop recording',
             error,
@@ -504,7 +531,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     isRecordingBot,
     isRecordingActive,
     hostUids,
-    stopRecording,
+    _stopRecording,
     setRecordingActive,
   ]);
 
@@ -521,21 +548,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       );
       setRecordingActive(true);
     }
-    return () => {
-      if (isRecordingBot) {
-        log(
-          'Recording-bot: sending event that recording has stopped during unmount',
-        );
-        events.send(
-          EventNames.RECORDING_ATTRIBUTE,
-          JSON.stringify({
-            action: EventActions.RECORDING_STOPPED,
-            value: '',
-          }),
-          PersistanceLevel.Session,
-        );
-      }
-    };
   }, [isRecordingBot, hasUserJoinedRTM, localUid, setRecordingActive]);
   // ************ Recording Bot ends ************
 
