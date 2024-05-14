@@ -14,14 +14,16 @@ import {useString} from '../../utils/useString';
 
 const ChatUploadStatus = () => {
   const {uploadStatus} = useChatUIControls();
+  const inProgressText = useString(chatUploadStatusInProgress)();
+  const failureText = useString(chatUploadStatusFailure)();
 
   let text = '';
   switch (uploadStatus) {
     case UploadStatus.IN_PROGRESS:
-      text = useString(chatUploadStatusInProgress)();
+      text = inProgressText;
       break;
     case UploadStatus.FAILURE:
-      text = useString(chatUploadStatusFailure)();
+      text = failureText;
       break;
   }
   return text.length > 0 ? (

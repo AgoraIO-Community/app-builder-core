@@ -106,6 +106,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     uploadAttachment(uploadedFile);
   };
   const onPress = () => {
+    fileInputRef.current.value = null;
     fileInputRef.current.click();
   };
   return props?.render ? (
