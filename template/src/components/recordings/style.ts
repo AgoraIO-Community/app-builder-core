@@ -157,6 +157,21 @@ export const style = StyleSheet.create({
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
   // footer ends
+  captionContainer: {
+    height: 44,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    padding: 12,
+    borderRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  captionText: {
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: 'Source Sans Pro',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    paddingLeft: 8,
+  },
   infotextContainer: {
     display: 'flex',
     flex: 1,
@@ -202,6 +217,9 @@ export const style = StyleSheet.create({
   },
   pt10: {
     paddingTop: 10,
+  },
+  pt12: {
+    paddingTop: 12,
   },
   pv10: {
     paddingVertical: 10,

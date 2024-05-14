@@ -59,6 +59,28 @@ function RTableBody({status, recordings}) {
       <>
         {recordings.map(item => {
           const [date, time] = getRecordedDateTime(item.created_at);
+          const recordingStatus = item.status;
+          if (
+            recordingStatus === 'STARTED' ||
+            recordingStatus === 'INPROGRESS'
+          ) {
+            return (
+              <View key={item.id} style={style.pt12}>
+                <View style={[style.infotextContainer, style.captionContainer]}>
+                  <ImageIcon
+                    iconSize={20}
+                    iconType="plain"
+                    name="info"
+                    tintColor={$config.SEMANTIC_NEUTRAL}
+                  />
+                  <Text style={[style.captionText]}>
+                    Current recording is ongoing. Once it concludes, we'll
+                    generate the link
+                  </Text>
+                </View>
+              </View>
+            );
+          }
           return (
             <View style={style.tbrow} key={item.id}>
               <View style={[style.td, style.plzero]}>
