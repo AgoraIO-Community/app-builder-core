@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   },
   activeContainer: {
     margin: 2,
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
     alignSelf: 'center',
   },

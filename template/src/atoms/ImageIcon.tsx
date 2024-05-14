@@ -24,6 +24,7 @@ export interface ImageIconProps {
   iconContainerStyle?: ViewStyle;
   iconBackgroundColor?: string;
   base64?: boolean;
+  hoverBase64?: boolean;
   base64TintColor?: string;
   iconType?: 'round' | 'plain';
   isHovered?: boolean;
@@ -41,6 +42,7 @@ const ImageIcon = (props: ImageIconProps) => {
     iconSize = defaultSize,
     tintColor,
     base64 = false,
+    hoverBase64 = false,
     base64TintColor = '',
     iconType = 'round',
     iconContainerStyle,
@@ -81,7 +83,14 @@ const ImageIcon = (props: ImageIconProps) => {
         ) : (
           <></>
         )}
-        {base64 ? (
+        {isHovered && hoverBase64 ? (
+          <UIKitImageIcon
+            tintColor={base64TintColor}
+            //@ts-ignore
+            name={hoverIconName}
+            style={{width: iconSize, height: iconSize}}
+          />
+        ) : base64 ? (
           <UIKitImageIcon
             tintColor={base64TintColor}
             //@ts-ignore

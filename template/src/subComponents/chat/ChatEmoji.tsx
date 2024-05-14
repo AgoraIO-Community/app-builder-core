@@ -143,7 +143,8 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
       }}
       iconProps={{
         iconType: 'plain',
-        base64: true,
+        base64: false,
+        hoverBase64: true,
         iconContainerStyle: {
           padding: 4,
         },
