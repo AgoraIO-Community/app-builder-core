@@ -53,6 +53,7 @@ import {
   settingPanelNameCantbeChangedInfo,
   settingPanelNameInputLabel,
 } from '../../src/language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -100,6 +101,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         setSaved(false);
       }, 2000);
       setEditable(false);
+      logger.log(LogSource.Internals, 'NAME', `Name changed ${newName}`);
       saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
