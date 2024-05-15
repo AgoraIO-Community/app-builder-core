@@ -3,6 +3,7 @@ import {View, StyleSheet} from 'react-native';
 import Toolbar from '../atoms/Toolbar';
 import {
   ToolbarCustomItem,
+  ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
 } from '../atoms/ToolbarPreset';
 import {
@@ -21,7 +22,7 @@ export interface NavbarProps {
 
 const NavbarMobile = (props: NavbarProps) => {
   const {isRecordingActive} = useRecording();
-  const defaultItems: ToolbarCustomItem[] = [
+  const defaultItems: ToolbarDefaultItem[] = [
     {
       align: 'start',
       componentName: 'meeting-title',

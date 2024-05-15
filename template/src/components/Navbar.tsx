@@ -64,6 +64,7 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {
   ToolbarCustomItem,
+  ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
 } from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
@@ -467,7 +468,7 @@ export const SettingsToobarItem = () => {
   );
 };
 
-const defaultItems: ToolbarCustomItem[] = [
+const defaultItems: ToolbarDefaultItem[] = [
   {
     align: 'start',
     componentName: 'meeting-title',

@@ -71,6 +71,7 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {
   ToolbarCustomItem,
+  ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
 } from '../atoms/ToolbarPreset';
 
@@ -908,7 +909,7 @@ export const LocalEndcallToolbarItem = (
   );
 };
 
-const defaultItems: ToolbarCustomItem[] = [
+const defaultItems: ToolbarDefaultItem[] = [
   {
     align: 'start',
     component: LayoutToolbarItem,

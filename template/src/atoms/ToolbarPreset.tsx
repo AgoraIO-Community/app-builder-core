@@ -32,25 +32,35 @@ export type ToolbarDefaultItemName =
   | 'settings';
 
 export type ToolbarDefaultItemConfig = {
-  [key in ToolbarDefaultItemName]?: Partial<ToolbarCustomItem>;
+  [key in ToolbarDefaultItemName]?: ToolbarDefaultItem;
 };
 
-export interface ToolbarCustomItem {
-  componentName?: ToolbarDefaultItemName;
-  component: () => JSX.Element;
-  align: 'start' | 'center' | 'end';
-  hide: 'yes' | 'no' | 'never';
+export type ToolbarItemAlign = 'start' | 'center' | 'end';
+export type ToolbarItemHide = 'yes' | 'no';
+
+export interface ToolbarDefaultItem {
+  component?: () => JSX.Element;
+  align?: ToolbarItemAlign;
+  hide?: ToolbarItemHide;
   order?: number;
 }
 
+export interface ToolbarCustomItem {
+  component: () => JSX.Element;
+  align: ToolbarItemAlign;
+  hide: ToolbarItemHide;
+  order?: number;
+}
+export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
+
 export interface ToolbarBottomPresetProps {
-  align: 'bottom';
+  align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
   defaultItemsConfig?: ToolbarDefaultItemConfig;
   snapPointsMinMax: [number, number];
 }
 export interface ToolbarOtherPresetProps {
-  align: 'top' | 'left' | 'right';
+  align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
   defaultItemsConfig?: ToolbarDefaultItemConfig;
   snapPointsMinMax?: never;
