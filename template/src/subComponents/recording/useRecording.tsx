@@ -110,11 +110,11 @@ interface RecordingProviderProps {
  */
 
 type RecordingMode = 'mix' | 'web';
-let recordingMode: RecordingMode = 'web';
+let recordingMode: RecordingMode = 'mix';
 try {
   recordingMode = $config.RECORDING_MODE;
 } catch (error) {
-  recordingMode = 'web';
+  recordingMode = 'mix';
 }
 
 const RecordingProvider = (props: RecordingProviderProps) => {
@@ -201,27 +201,32 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   }, [isRecordingActive, callActive, isHost]);
 
   const startRecording = () => {
-    const passphrase = roomId.host || '';
-    let recordinghostURL = getOriginURL();
-    // let recordinghostURL =
-    //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
-
     log('start recording API called');
+    const passphrase = roomId.host || '';
+    let url = '';
+    if (recordingMode === 'web') {
+      let recordinghostURL = getOriginURL();
+      // let recordinghostURL =
+      //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
 
-    if (inProgress) {
-      console.error('web-recording - start recording API already in progress');
-      return;
+      if (inProgress) {
+        console.error(
+          'web-recording - start recording API already in progress',
+        );
+        return;
+      }
+      if (recordinghostURL.includes('localhost')) {
+        console.error(
+          'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
+        );
+        return;
+      }
+      recordinghostURL = getFrontendUrl(recordinghostURL);
+      url = `${recordinghostURL}/${passphrase}`;
+      log('recordinghostURL for web: ', recordinghostURL);
     }
-    if (recordinghostURL.includes('localhost')) {
-      console.error(
-        'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
-      );
-      return;
-    }
-    recordinghostURL = getFrontendUrl(recordinghostURL);
-    log('recordinghostURL: ', recordinghostURL);
     log('recordingMode', recordingMode);
-
+    log('recordingURL: ', url);
     setInProgress(true);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
@@ -231,7 +236,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        url: `${recordinghostURL}/${passphrase}`,
+        url,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
         mode: recordingMode,
