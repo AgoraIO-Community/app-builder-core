@@ -110,11 +110,11 @@ interface RecordingProviderProps {
  */
 
 type RecordingMode = 'mix' | 'web';
-let recordingMode: RecordingMode = 'mix';
+let recordingMode: RecordingMode = 'web';
 try {
   recordingMode = $config.RECORDING_MODE;
 } catch (error) {
-  recordingMode = 'mix';
+  recordingMode = 'web';
 }
 
 const RecordingProvider = (props: RecordingProviderProps) => {
