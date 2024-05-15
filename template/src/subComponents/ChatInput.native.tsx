@@ -28,6 +28,7 @@ import {
   MIN_HEIGHT,
   MAX_HEIGHT,
   LINE_HEIGHT,
+  MAX_TEXT_MESSAGE_SIZE,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
@@ -37,6 +38,8 @@ import {
   groupChatMeetingInputPlaceHolderText,
   groupChatLiveInputPlaceHolderText,
   privateChatInputPlaceHolderText,
+  chatSendErrorTextSizeToastHeading,
+  chatSendErrorTextSizeToastSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
 import ChatSendButton from './chat/ChatSendButton';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
@@ -48,6 +51,7 @@ import {
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ChatUploadStatus from './chat/ChatUploadStatus';
 import {isAndroid} from '../utils/common';
+import Toast from '../../react-native-toast-message';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -106,6 +110,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     uploadStatus === UploadStatus.IN_PROGRESS ||
     uploadStatus === UploadStatus.FAILURE;
 
+  const toastHeadingSize = useString(chatSendErrorTextSizeToastHeading)();
+  const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
+
   const handleContentSizeChange = ({
     nativeEvent: {
       contentSize: {width, height},
@@ -123,8 +130,21 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (message.length === 0) return;
-    const groupID = data.chat.group_id;
 
+    if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeadingSize,
+        text2: errorSubHeadingSize(MAX_TEXT_MESSAGE_SIZE.toString()),
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      return;
+    }
+
+    const groupID = data.chat.group_id;
     const option = {
       chatType: privateChatUser
         ? SDKChatType.SINGLE_CHAT

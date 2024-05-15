@@ -6,6 +6,7 @@ import {
   MIN_HEIGHT,
   UploadStatus,
   useChatUIControls,
+  MAX_TEXT_MESSAGE_SIZE,
 } from '../../components/chat-ui/useChatUIControls';
 import {useRoomInfo} from 'customization-api';
 import {
@@ -13,8 +14,13 @@ import {
   SDKChatType,
 } from '../../components/chat-messages/useChatMessages';
 import {useString} from '../../utils/useString';
-import {chatSendMessageBtnText} from '../../language/default-labels/videoCallScreenLabels';
+import {
+  chatSendMessageBtnText,
+  chatSendErrorTextSizeToastHeading,
+  chatSendErrorTextSizeToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
 import {isMobileUA, isWeb} from '../../utils/common';
+import Toast from '../../../react-native-toast-message';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -38,9 +44,23 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
   const isValidMsg =
     message.length > 0 ||
     (uploadedFiles.length > 0 && uploadStatus === UploadStatus.SUCCESS);
+  const toastHeadingSize = useString(chatSendErrorTextSizeToastHeading)();
+  const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
   const onPress = () => {
     if (!isValidMsg) return;
+    if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeadingSize,
+        text2: errorSubHeadingSize(MAX_TEXT_MESSAGE_SIZE.toString()),
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      return;
+    }
     const groupID = data.chat.group_id;
     const msgType =
       uploadedFiles.length > 0

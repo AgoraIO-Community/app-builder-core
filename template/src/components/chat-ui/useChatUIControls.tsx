@@ -82,6 +82,7 @@ export const MIN_HEIGHT = 43;
 export const MAX_HEIGHT = 92;
 export const LINE_HEIGHT = 17;
 export const MAX_UPLOAD_SIZE = 10; //MB
+export const MAX_TEXT_MESSAGE_SIZE = 5; //KB
 
 const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [chatType, setChatType] = useState<ChatType>(ChatType.Group);

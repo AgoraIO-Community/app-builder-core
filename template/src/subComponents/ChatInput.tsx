@@ -27,6 +27,7 @@ import {
   MIN_HEIGHT,
   MAX_HEIGHT,
   LINE_HEIGHT,
+  MAX_TEXT_MESSAGE_SIZE,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
@@ -44,10 +45,13 @@ import {
   groupChatLiveInputPlaceHolderText,
   groupChatMeetingInputPlaceHolderText,
   privateChatInputPlaceHolderText,
+  chatSendErrorTextSizeToastHeading,
+  chatSendErrorTextSizeToastSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
 import ChatUploadStatus from './chat/ChatUploadStatus';
 import {AttachmentBubble} from './ChatBubble';
 import IconButton from '../atoms/IconButton';
+import Toast from '../../react-native-toast-message';
 
 const ChatPanel = () => {
   return (
@@ -102,6 +106,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 
   const {data} = useRoomInfo();
   const [name] = useUserName();
+  const toastHeadingSize = useString(chatSendErrorTextSizeToastHeading)();
+  const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
   const isUploadStatusShown =
     uploadStatus === UploadStatus.IN_PROGRESS ||
@@ -125,6 +131,19 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const onSubmitEditing = () => {
     if (message.length === 0) return;
     const groupID = data.chat.group_id;
+
+    if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeadingSize,
+        text2: errorSubHeadingSize(MAX_TEXT_MESSAGE_SIZE.toString()),
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      return;
+    }
 
     const option = {
       chatType: privateChatUser

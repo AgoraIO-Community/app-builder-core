@@ -224,6 +224,10 @@ export const chatUploadErrorFileSizeToastSubHeading =
   'chatUploadErrorFileSizeToastSubHeading';
 export const chatUploadErrorFileTypeToastSubHeading =
   'chatUploadErrorFileTypeToastSubHeading';
+export const chatSendErrorTextSizeToastHeading =
+  'chatSendErrorTextSizeToastHeading';
+export const chatSendErrorTextSizeToastSubHeading =
+  'chatSendErrorTextSizeToastSubHeading';
 
 export const chatMessageDeleteConfirmBtnText =
   'chatMessageDeleteConfirmBtnText';
@@ -637,7 +641,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatPrivateMessageDeletePopupText]?: I18nBaseType;
   [chatUploadErrorToastHeading]?: I18nBaseType;
   [chatUploadErrorFileSizeToastHeading]?: I18nBaseType;
+  [chatSendErrorTextSizeToastHeading]?: I18nBaseType;
   [chatUploadErrorFileSizeToastSubHeading]?: I18nBaseType;
+  [chatSendErrorTextSizeToastSubHeading]?: I18nBaseType;
   [chatUploadErrorFileTypeToastSubHeading]?: I18nBaseType;
   [chatUploadStatusInProgress]?: I18nBaseType;
   [chatUploadStatusFailure]?: I18nBaseType;
@@ -1023,8 +1029,11 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [chatUploadErrorToastHeading]: 'Attachment Upload Error',
   [chatUploadErrorFileSizeToastHeading]: 'File size is too large',
+  [chatSendErrorTextSizeToastHeading]: 'Text size is too large',
   [chatUploadErrorFileSizeToastSubHeading]: size =>
     `You can send attachments upto ${size}MB in size`,
+  [chatSendErrorTextSizeToastSubHeading]: size =>
+    `You can send text message upto ${size}KB in size`,
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
   [chatUploadStatusInProgress]: `Uploading... Please wait`,
   [chatUploadStatusFailure]: `Something went wrong while sharing.Let'as try again`,
