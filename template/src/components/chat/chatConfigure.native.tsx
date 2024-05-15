@@ -263,6 +263,7 @@ const ChatConfigure = ({children}) => {
           console.warn('localUId - agoraToken', localUid, agoraToken);
           await chatClient.loginWithAgoraToken(localUid, agoraToken);
           console.warn('chat sdk: login success');
+          setupMessageListener();
           // adding chat connection event listeners
           let listener: ChatConnectEventListener = {
             onTokenWillExpire() {
@@ -274,7 +275,6 @@ const ChatConfigure = ({children}) => {
             onConnected() {
               console.warn('onConnected');
               // once sdk connects to chat server successfully , need to add message listeners
-              setupMessageListener();
             },
             onDisconnected() {
               console.warn('onDisconnected:');
