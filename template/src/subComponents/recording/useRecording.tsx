@@ -114,7 +114,7 @@ let recordingMode: RecordingMode = 'web';
 try {
   recordingMode = $config.RECORDING_MODE;
 } catch (error) {
-  recordingMode = 'web';
+  recordingMode = 'mix';
 }
 
 const RecordingProvider = (props: RecordingProviderProps) => {
@@ -204,7 +204,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     const passphrase = roomId.host || '';
     let recordinghostURL = getOriginURL();
     // let recordinghostURL =
-    //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
+    // 'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
 
     log('start recording API called');
 
