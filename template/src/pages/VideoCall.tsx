@@ -426,7 +426,10 @@ const VideoCall: React.FC = () => {
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure>
-                                              <ScreenshareConfigure>
+                                              <ScreenshareConfigure
+                                                isRecordingActive={
+                                                  isRecordingActive
+                                                }>
                                                 <LiveStreamContextProvider
                                                   value={{
                                                     setRtcProps,
