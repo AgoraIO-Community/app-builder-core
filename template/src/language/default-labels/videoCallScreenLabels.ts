@@ -315,8 +315,8 @@ export const livestreamingAttendeeWaitingForHostToJoinText =
   'livestreamingAttendeeWaitingForHostToJoinText';
 
 export const publicChatToastHeading = 'publicChatToastHeading';
-export const publicChatImgToastHeading = 'publicChatToastHeading';
-export const publicChatFileToastHeading = 'publicChatToastHeading';
+export const publicChatImgToastHeading = 'publicChatImgToastHeading';
+export const publicChatFileToastHeading = 'publicChatFileToastHeading';
 
 export const multiplePublicChatToastHeading = 'multiplePublicChatToastHeading';
 export const multiplePublicChatToastSubHeading =
