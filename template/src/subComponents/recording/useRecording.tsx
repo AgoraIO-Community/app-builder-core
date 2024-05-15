@@ -112,7 +112,7 @@ interface RecordingProviderProps {
 type RecordingMode = 'mix' | 'web';
 let recordingMode: RecordingMode = 'mix';
 try {
-  recordingMode = $config.RECORDING_MODE;
+  recordingMode = 'mix';
 } catch (error) {
   recordingMode = 'mix';
 }
