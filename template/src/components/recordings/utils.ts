@@ -86,7 +86,7 @@ export const getDuration = (start: string, end: string): string => {
   try {
     const date_future = new Date(end).valueOf();
     if (date_future < 0) {
-      throw new Error('Not a valid end date');
+      throw new Error(`Not a valid end date, ${end}`);
     }
     const date_now = new Date(start).valueOf();
     let delta = Math.abs(date_future - date_now) / 1000;
