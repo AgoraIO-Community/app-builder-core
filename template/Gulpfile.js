@@ -258,6 +258,7 @@ const reactSdk = {
   bundleSdkTypedefs: () => {
     return src(['../Builds/customization-api.d.ts', '../Builds/reactSdk.d.ts'])
       .pipe(concat('index.d.ts'))
+      .pipe(replace(`${$config.PRODUCT_ID}/`, ''))
       .pipe(
         replace(
           'declare module "index.rsdk"',
