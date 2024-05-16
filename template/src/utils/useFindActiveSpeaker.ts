@@ -58,18 +58,6 @@ const useFindActiveSpeaker = () => {
         ? log(' %cLocal user started speaking', 'color:green')
         : log(' %cLocal user stopped speaking', 'color:red');
 
-      isLocalUserSpeaking
-        ? logger.log(
-            LogSource.Internals,
-            'ACTIVE_SPEAKER',
-            `${'%cLocal user started speaking'}, ${'color:green'}`,
-          )
-        : logger.log(
-            LogSource.Internals,
-            'ACTIVE_SPEAKER',
-            `${'%cLocal user stopped speaking'}, ${'color:red'}`,
-          );
-
       //sending local user speaking and non speaking volume to remote users
       let volume = 0;
       //@ts-ignore
