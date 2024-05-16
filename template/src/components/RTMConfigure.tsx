@@ -607,7 +607,7 @@ const RtmConfigure = (props: any) => {
     sender: string,
     ts: number,
   ) => {
-    logger.debug(
+    console.debug(
       LogSource.Events,
       'CUSTOM_EVENTS',
       'inside eventDispatcher ',
@@ -679,7 +679,7 @@ const RtmConfigure = (props: any) => {
         await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
       }
       // Step 2: Emit the event
-      logger.debug(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
+      console.debug(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
       if (evt === 'name') {
@@ -693,7 +693,7 @@ const RtmConfigure = (props: any) => {
         }, 200);
       }
     } catch (error) {
-      logger.error(
+      console.error(
         LogSource.Events,
         'CUSTOM_EVENTS',
         'error while emiting event:',

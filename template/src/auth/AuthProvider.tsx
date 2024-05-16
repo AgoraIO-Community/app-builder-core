@@ -347,10 +347,10 @@ const AuthProvider = (props: AuthProviderProps) => {
           }
         })
         .catch(error => {
-          logger.error(
+          logger.log(
             LogSource.NetworkRest,
             'user_details',
-            'API user details query failed. User is un-authenticated',
+            'API user details query failed. User is un-authenticated. Will Login in the user',
             error,
           );
           setIsAuthenticated(false);
