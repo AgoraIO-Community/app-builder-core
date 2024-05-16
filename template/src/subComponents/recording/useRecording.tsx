@@ -343,7 +343,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
-        mode: recordingMode,
+        mode: recordingMode.toLowerCase(),
       }),
     })
       .then(res => {
