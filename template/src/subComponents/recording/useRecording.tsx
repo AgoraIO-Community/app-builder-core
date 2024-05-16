@@ -109,13 +109,7 @@ interface RecordingProviderProps {
  * Cloud recording has started/stopped.
  */
 
-type RecordingMode = 'mix' | 'web';
-let recordingMode: RecordingMode = 'web';
-try {
-  recordingMode = $config.RECORDING_MODE;
-} catch (error) {
-  recordingMode = 'web';
-}
+const recordingMode = $config.RECORDING_MODE || 'MIX';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
@@ -204,7 +198,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     log('start recording API called');
     const passphrase = roomId.host || '';
     let url = '';
-    if (recordingMode === 'web') {
+    if (recordingMode === 'WEB') {
       let recordinghostURL = getOriginURL();
       // let recordinghostURL =
       //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
@@ -239,7 +233,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         url,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
-        mode: recordingMode,
+        mode: recordingMode.toLowerCase(),
       }),
     })
       .then((res: any) => {
@@ -259,7 +253,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 2. set the local recording state to true to update the UI
           setUidWhoStarted(localUid);
           // 3. Check if recording mode is cloud
-          if (recordingMode === 'mix') {
+          if (recordingMode === 'MIX') {
             setInProgress(false);
             setRecordingActive(true);
             // 3.a  Set the presenter mode if screen share is active
@@ -372,7 +366,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   ]);
 
   const stopRecording = useCallback(() => {
-    if (recordingMode === 'web') {
+    if (recordingMode === 'WEB') {
       log('Stopping recording by sending event to bot');
       // send stop request to bot
       setInProgress(true);
@@ -437,7 +431,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       switch (action) {
         case EventActions.RECORDING_STARTED_BY:
           setUidWhoStarted(parseInt(value));
-          if (recordingMode === 'mix') {
+          if (recordingMode === 'MIX') {
             setRecordingActive(true);
           }
           break;
