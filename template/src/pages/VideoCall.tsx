@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 // @ts-nocheck
@@ -27,13 +27,7 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {
-  useHasBrandLogo,
-  isArray,
-  isMobileUA,
-  isWebInternal,
-} from '../utils/common';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {useHasBrandLogo, isMobileUA, isWebInternal} from '../utils/common';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
@@ -41,7 +35,6 @@ import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {LayoutProvider} from '../utils/useLayout';
 import Precall from '../components/Precall';
-import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinRoom from '../utils/useJoinRoom';
 import {
@@ -62,7 +55,7 @@ import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
-import {currentFocus, FocusProvider} from '../utils/useFocus';
+import {FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
 import {SdkApiContext} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
@@ -79,6 +72,7 @@ import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 import {videoRoomStartingCallText} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useCustomization} from 'customization-implementation';
 
 enum RnEncryptionEnum {
@@ -150,21 +144,11 @@ const VideoCall: React.FC = () => {
     ? false
     : true;
   const [callActive, setCallActive] = useState(shouldCallBeSetToActive);
-
-  //layouts
-  const layouts = useLayoutsData();
-  const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
-  const [currentLayout, setLayout] = useState(defaultLayoutName);
-  //layouts
-
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
-  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
-  const [currentFocus, setFocus] = useState<currentFocus>({
-    editName: false,
-  });
+
   const {phrase} = useParams<{phrase: string}>();
 
   const {store} = useContext(StorageContext);
@@ -215,7 +199,11 @@ const VideoCall: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
-      console.log('Videocall unmounted');
+      logger.debug(
+        LogSource.Internals,
+        'VIDEO_CALL_ROOM',
+        'Videocall unmounted',
+      );
       setRoomInfo(RoomInfoDefaultValue);
       if (awake) {
         release();
@@ -275,7 +263,6 @@ const VideoCall: React.FC = () => {
   React.useEffect(() => {
     if (
       //isJoinDataFetched === true && (!queryComplete || !isInWaitingRoom)
-
       //non waiting room - host/attendee
       (!$config.ENABLE_WAITING_ROOM &&
         isJoinDataFetched === true &&
@@ -377,10 +364,7 @@ const VideoCall: React.FC = () => {
       }
     },
   };
-  const [isCameraAvailable, setCameraAvailable] = useState(false);
-  const [isMicAvailable, setMicAvailable] = useState(false);
-  const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
-  const [isPermissionRequested, setIsPermissionRequested] = useState(false);
+
   return (
     <>
       {queryComplete ? (
@@ -406,22 +390,12 @@ const VideoCall: React.FC = () => {
                     <VideoQualityContextProvider>
                       <ChatUIControlsProvider>
                         <ChatNotificationProvider>
-                          <LayoutProvider
-                            value={{
-                              currentLayout,
-                              setLayout,
-                            }}>
-                            <FocusProvider value={{currentFocus, setFocus}}>
-                              <SidePanelProvider
-                                value={{
-                                  sidePanel,
-                                  setSidePanel,
-                                }}>
+                          <LayoutProvider>
+                            <FocusProvider>
+                              <SidePanelProvider>
                                 <ChatMessagesProvider callActive={callActive}>
                                   <ScreenShareProvider>
-                                    <RtmConfigure
-                                      setRecordingActive={setRecordingActive}
-                                      callActive={callActive}>
+                                    <RtmConfigure callActive={callActive}>
                                       <UserPreferenceProvider>
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
@@ -464,14 +438,6 @@ const VideoCall: React.FC = () => {
                                                                   value={{
                                                                     callActive,
                                                                     setCallActive,
-                                                                    isCameraAvailable,
-                                                                    isMicAvailable,
-                                                                    setCameraAvailable,
-                                                                    setMicAvailable,
-                                                                    isPermissionRequested,
-                                                                    setIsPermissionRequested,
-                                                                    isSpeakerAvailable,
-                                                                    setSpeakerAvailable,
                                                                   }}>
                                                                   <Precall />
                                                                 </PreCallProvider>

@@ -37,6 +37,7 @@ import {
   videoRoomScreenShareErrorToastHeading,
   videoRoomScreenShareErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -233,7 +234,7 @@ export const ScreenshareConfigure = (props: {
 
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
-    console.log('STOPPED SHARING');
+    logger.debug(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({
@@ -285,13 +286,13 @@ export const ScreenshareConfigure = (props: {
     }
   };
 
-  const stopUserScreenShare = () => {
+  const stopScreenshare = () => {
     if (!isScreenshareActive) {
       return;
     }
     userScreenshare(false);
   };
-  const startUserScreenshare = () => {
+  const startScreenshare = () => {
     if (isScreenshareActive) {
       return;
     }
@@ -299,6 +300,16 @@ export const ScreenshareConfigure = (props: {
   };
 
   const userScreenshare = async (isActive: boolean) => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${isActive ? 'starting' : 'stopping'}  screenshare`,
+      {
+        channel,
+        screenShareUid,
+        encryption,
+      },
+    );
     try {
       if (props.isRecordingActive) {
         executeRecordingQuery(isActive);
@@ -313,6 +324,7 @@ export const ScreenshareConfigure = (props: {
         appId,
         rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
+        {encoderConfig: '1080p_2', optimizationMode: 'detail'},
       );
       isActive && setScreenshareActive(true);
 
@@ -341,7 +353,12 @@ export const ScreenshareConfigure = (props: {
         );
       }
     } catch (e) {
-      console.error("can't start the screen share", e);
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'failed to start screen share',
+        e,
+      );
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
@@ -358,8 +375,8 @@ export const ScreenshareConfigure = (props: {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>

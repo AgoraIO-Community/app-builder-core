@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
 //import Logo from '../subComponents/Logo';
@@ -48,6 +48,7 @@ import {
   joinRoomInputLabel,
   joinRoomInputPlaceHolderText,
 } from '../language/default-labels/joinScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const mobileOrTablet = isMobileOrTablet();
 
@@ -90,19 +91,44 @@ const Join = () => {
     null,
   );
 
-  const useJoin = useJoinRoom();
+  const apiJoinCall = useJoinRoom();
   const {setRoomInfo} = useSetRoomInfo();
+
   const createMeeting = () => {
+    logger.log(
+      LogSource.Internals,
+      'JOIN_MEETING',
+      'User is navigated to create-room screen',
+    );
     history.push('/create');
   };
 
+  useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'JOIN_MEETING',
+      'user landed on join-meeting screen',
+    );
+  }, []);
+
   const startCall = async () => {
-    useJoin(phrase)
+    logger.log(
+      LogSource.Internals,
+      'JOIN_MEETING',
+      'User wants to join meeting',
+      phrase,
+    );
+    apiJoinCall(phrase)
       .then(() => {
         setRoomInfo(RoomInfoDefaultValue);
+        logger.log(
+          LogSource.Internals,
+          'JOIN_MEETING',
+          'Navigating the user to precall screen or video call screen depending upon the project config',
+          phrase,
+        );
         history.push(phrase);
       })
-
       .catch(error => {
         const isInvalidUrl =
           error?.message.toLowerCase().trim() === 'invalid passphrase' || false;
@@ -122,6 +148,7 @@ const Join = () => {
         });
       });
   };
+
   const {JoinComponent} = useCustomization(data => {
     let components: {
       JoinComponent?: React.ComponentType;

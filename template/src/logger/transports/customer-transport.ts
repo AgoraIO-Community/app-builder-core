@@ -1,6 +1,5 @@
 import createRetryFetch from 'fetch-retry';
-import isSDK from './isSDK';
-import {isAndroid, isWeb, isIOS} from './common';
+import {isWeb} from '../../utils/common';
 
 /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value#examples */
 export function getCircularReplacer() {
@@ -21,6 +20,14 @@ export function getCircularReplacer() {
     return value;
   };
 }
+const getSafeBody = (p: any[]) => {
+  try {
+    return JSON.stringify(p, getCircularReplacer());
+  } catch (error) {
+    console.error('there was an error converting this object');
+    return '';
+  }
+};
 
 const fetchRetry = createRetryFetch(fetch, {
   retries: 23,
@@ -37,16 +44,18 @@ const fetchRetry = createRetryFetch(fetch, {
 
 const sendLogs = (p: any[]) => {
   fetchRetry(
-    'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core',
+    'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
     // "&strategy=queue", // to send logs to a specific dataset [default: queue]
     {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json',
       }),
-      body: JSON.stringify(p, getCircularReplacer()),
+      body: getSafeBody(p),
     },
-  );
+  ).catch(err => {
+    console.log('error ocuured while replacing circular reference', p, err);
+  });
 };
 
 export const createAxiomLogger = () => {
@@ -85,34 +94,22 @@ export const createAxiomLogger = () => {
   return [log, flush] as const;
 };
 
-export const setupLogger = () => {
+export const initTransportLayerForCustomers = () => {
   const [log, flush] = createAxiomLogger();
 
-  const _console_log = console.log;
-
-  console.log = (...args: any[]) => {
+  const printLogs = (...args: any[]) => {
     log({
       data: args,
       _time: Date.now(),
       projectId: $config.PROJECT_ID,
       appId: $config.APP_ID,
-      service: 'app-builder-core',
-      env: isSDK()
-        ? 'SDK'
-        : isWeb()
-        ? 'Web'
-        : isAndroid()
-        ? 'Android'
-        : isIOS()
-        ? 'Ios'
-        : 'Electron',
+      service: 'app-builder-core-frontend-customer',
     });
 
     isWeb() &&
       window.addEventListener('beforeunload', () => {
         flush();
       });
-
-    _console_log(...args);
   };
+  return printLogs;
 };

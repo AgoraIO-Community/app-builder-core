@@ -78,7 +78,7 @@ export default function UserActionMenuOptionsOptions(
   const [showVideoMuteModal, setShowVideoMuteModal] = useState(false);
   const [isPosCalculated, setIsPosCalculated] = useState(false);
   const {setFocus} = useFocus();
-  const {stopUserScreenShare} = useScreenshare();
+  const {stopScreenshare} = useScreenshare();
   const remoteEndScreenshare = useRemoteEndScreenshare();
   const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
     useState(false);
@@ -379,7 +379,7 @@ export default function UserActionMenuOptionsOptions(
           setActionMenuVisible(false);
           //for local user directly stop the screenshare
           if (localuid === user.parentUid) {
-            stopUserScreenShare();
+            stopScreenshare();
           }
           //for remote user show popup and then user will use cta to stop screenshare
           else {

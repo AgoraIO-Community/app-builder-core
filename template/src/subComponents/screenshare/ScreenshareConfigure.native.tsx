@@ -31,6 +31,7 @@ import useMuteToggleLocal, {
 import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
 import {LocalVideoStreamError} from 'react-native-agora';
 import useAppState from '../../utils/useAppState';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -240,10 +241,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     };
   }, []);
 
-  const startUserScreenshare = async (captureAudio: boolean = false) => {
+  const startScreenshare = async (captureAudio: boolean = false) => {
     if (!isScreenshareActive) {
       // either user can publish local video or screenshare stream
       // so if user video is turned on then we are turning off video before screenshare
+      logger.log(LogSource.Internals, 'SCREENSHARE', 'starting screenshare');
       await RtcEngineUnsafe?.startScreenCapture({
         captureVideo: true,
         captureAudio,
@@ -258,7 +260,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //For ios will update state in the video state changed callback
     } else {
-      console.log('screenshare is already active');
+      logger.debug(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'screenshare is already active',
+      );
     }
   };
 
@@ -275,12 +281,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     }, 1000);
   }, [appState]);
 
-  const stopUserScreenShare = async (
+  const stopScreenshare = async (
     enableVideo: boolean = false,
     forceStop: boolean = false,
   ) => {
     if (isScreenshareActive || forceStop) {
       enableVideoRef.current = enableVideo;
+      logger.log(LogSource.Internals, 'SCREENSHARE', 'stopping screenshare');
       await RtcEngineUnsafe?.stopScreenCapture();
       if (Platform.OS === 'android') {
         processRef.current = true;
@@ -288,15 +295,29 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //For ios will update state in the video state changed callback
     } else {
-      console.log('no screenshare is active');
+      logger.debug(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'no screenshare is active',
+      );
     }
   };
 
   useEffect(() => {
     if (processRef.current) {
       //native screenshare is started
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare is started',
+      );
       if (isScreenshareActive) {
         //to increase the performance - stop incoming video stream
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'muting all remote video streams[muteAllRemoteVideoStreams(true)] to increase the performance',
+        );
         RtcEngineUnsafe.muteAllRemoteVideoStreams(true);
 
         //since native screenshare uses local user video
@@ -308,7 +329,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //native screenshare is stopped
       else {
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'native screenshare is stopped',
+        );
         //resume the incoming video stream
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'resume all remote video streams[muteAllRemoteVideoStreams(false)]',
+        );
         RtcEngineUnsafe.muteAllRemoteVideoStreams(false);
 
         //edge case - if screenshare is going on and user want to enable the video
@@ -339,8 +370,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>

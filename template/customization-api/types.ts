@@ -1,11 +1,12 @@
 //audio/video toggle state
 export {
   ToggleState,
-  ClientRole,
+  ClientRoleType,
 } from '../agora-rn-uikit/src/Contexts/PropsContext';
 export type {
   ContentInterface,
   ContentStateInterface,
+  ExtenedContentInterface,
   UidType,
 } from '../agora-rn-uikit';
 export {

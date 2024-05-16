@@ -9,8 +9,9 @@ import {useScreenshare} from './screenshare/useScreenshare';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
-import {useString} from '../utils/useString';
-import {toolbarItemLeaveText} from '../language/default-labels/videoCallScreenLabels';
+import {useString} from '../../src/utils/useString';
+import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 import useEndCall from '../utils/useEndCall';
 
 export interface LocalEndcallProps {
@@ -22,12 +23,16 @@ export interface LocalEndcallProps {
 export const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
-    console.log('stopping foreground service');
+    logger.debug(
+      LogSource.Internals,
+      'CONTROLS',
+      'Local end call - stopping foreground service, bg audio for android only',
+    );
   }
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
-  const {isScreenshareActive, stopUserScreenShare} = useScreenshare();
+  const {isScreenshareActive, stopScreenshare} = useScreenshare();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet, showLabel} = useActionSheet();
   const endCallLabel = useString(toolbarItemLeaveText)();
@@ -50,7 +55,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       props.customExit();
     } else {
       if ((isAndroid() || isIOS()) && isScreenshareActive) {
-        stopUserScreenShare();
+        stopScreenshare();
         setEndCallState(true);
       } else {
         executeEndCall();

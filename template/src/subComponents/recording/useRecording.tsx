@@ -49,6 +49,7 @@ import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {fetchRetry} from '../../utils/fetch-retry';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
@@ -202,7 +203,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       let recordinghostURL = getOriginURL();
       // let recordinghostURL =
       //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
-
       if (inProgress) {
         console.error(
           'web-recording - start recording API already in progress',
@@ -222,6 +222,15 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     log('recordingMode', recordingMode);
     log('recordingURL: ', url);
     setInProgress(true);
+    logger.debug(
+      LogSource.NetworkRest,
+      'recording_start',
+      'Trying to start recording',
+      {
+        passphrase: roomId.host,
+        url,
+      },
+    );
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
       method: 'POST',
       headers: {
@@ -238,6 +247,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then((res: any) => {
         if (res.status === 200) {
+          logger.debug(
+            LogSource.NetworkRest,
+            'recording_start',
+            'start recording successfull',
+            res,
+          );
           /**
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud/web recording is now active.
@@ -282,8 +297,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }
       })
       .catch(err => {
+        logger.error(
+          LogSource.NetworkRest,
+          'recording_start',
+          'Error while start recording',
+          err,
+        );
         setInProgress(false);
-        console.log(err);
       });
   };
 
@@ -291,10 +311,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
-    log('stop recording API called');
+    logger.debug(LogSource.Internals, 'RECORDING', 'stop recording API called');
     if (inProgress) {
-      console.error(
-        'web-recording - stop recording already in progress. Aborting..',
+      logger.error(
+        LogSource.Internals,
+        'RECORDING',
+        'stop recording already in progress. Aborting..',
       );
       return;
     }
@@ -325,6 +347,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         // Bot when stops the recording, it does not reach here
         setInProgress(false);
         if (res.status === 200) {
+          logger.debug(
+            LogSource.NetworkRest,
+            'recording_stop',
+            'stop recording successfull',
+            res,
+          );
           /**
            * 1. Once the backend sucessfuly stops recording, send message
            * in the channel indicating that cloud recording is now inactive.
@@ -342,9 +370,21 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setRecordingActive(false);
           // return Promise.resolve(true);
         } else if (res.status === 500) {
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_stop',
+            'Error while stopping recording',
+            res,
+          );
           showErrorToast(headingStopError, subheadingError);
           // return Promise.reject('Internal server down');
         } else {
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_stop',
+            'Error while stopping recording',
+            res,
+          );
           showErrorToast(headingStopError);
           // return Promise.reject(res);
         }
@@ -387,6 +427,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const fetchRecordings = useCallback(
     (page: number) => {
+      logger.log(
+        LogSource.NetworkRest,
+        'recordings_get',
+        'Trying to fetch recordings',
+        {
+          passphrase: roomId?.host,
+          limit: 10,
+          page,
+        },
+      );
       return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
         method: 'POST',
         headers: {
@@ -401,6 +451,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }).then(async response => {
         const data = await response.json();
         if (response.ok) {
+          logger.log(
+            LogSource.NetworkRest,
+            'recordings_get',
+            'fetch recordings successfull',
+            data,
+          );
           if (data) {
             return data;
           } else {
@@ -414,6 +470,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           const error = {
             message: data?.error?.message,
           };
+          logger.error(
+            LogSource.NetworkRest,
+            'recordings_get',
+            'Error while fetching recording',
+            error,
+          );
           return Promise.reject(error);
         }
       });
