@@ -30,7 +30,7 @@ export interface StyleProps {
 interface SurfaceViewInterface extends RtcSurfaceViewProps, StyleProps {}
 
 const RtcSurfaceView = (props: SurfaceViewInterface) => {
-  logger.debug(LogSource.Internals, 'LAYOUT', 'Rtc Surface View props', props);
+  console.debug('Rtc Surface View props', props);
   const {uid, renderMode} = props.canvas;
   const stream: ILocalVideoTrack | IRemoteVideoTrack =
     uid === 0
