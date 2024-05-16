@@ -197,6 +197,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const startRecording = () => {
     log('start recording API called');
+    logger.log(
+      LogSource.NetworkRest,
+      'recording_start',
+      'start recording API called',
+    );
     const passphrase = roomId.host || '';
     let url = '';
     if (recordingMode === 'WEB') {
@@ -217,10 +222,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
       recordinghostURL = getFrontendUrl(recordinghostURL);
       url = `${recordinghostURL}/${passphrase}`;
-      log('recordinghostURL for web: ', recordinghostURL);
     }
-    log('recordingMode', recordingMode);
-    log('recordingURL: ', url);
     setInProgress(true);
     logger.debug(
       LogSource.NetworkRest,
@@ -229,6 +231,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       {
         passphrase: roomId.host,
         url,
+        mode: recordingMode,
       },
     );
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
@@ -327,7 +330,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         EventNames.RECORDING_ATTRIBUTE,
         JSON.stringify({
           action: EventActions.RECORDING_STOPPED,
-          value: '',
+          value: 'before fetch',
         }),
         PersistanceLevel.Session,
       );
@@ -362,7 +365,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             EventNames.RECORDING_ATTRIBUTE,
             JSON.stringify({
               action: EventActions.RECORDING_STOPPED,
-              value: '',
+              value: 'test:inside then',
             }),
             PersistanceLevel.Session,
           );
@@ -563,12 +566,18 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       stopAPIcalled: stopAPICalledByBotOnce.current,
     });
     if (shouldStopRecording()) {
-      log(
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
         'Recording-bot: will end the meeting after 15 seconds if no one joins',
       );
       timer = setTimeout(() => {
         // Check again if still there are some users
-        log('Recording-bot: trying to stop recording');
+        logger.log(
+          LogSource.Internals,
+          'RECORDING',
+          'Recording-bot: trying to stop recording',
+        );
         stopAPICalledByBotOnce.current = true;
         clearTimeout(timer);
         _stopRecording();
@@ -591,6 +600,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   useEffect(() => {
     if (hasUserJoinedRTM && isRecordingBot) {
       log('Recording-bot: sending event that recording has started');
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
+        'Recording-bot: sending event recording-started event to users in the call',
+      );
       events.send(
         EventNames.RECORDING_ATTRIBUTE,
         JSON.stringify({
