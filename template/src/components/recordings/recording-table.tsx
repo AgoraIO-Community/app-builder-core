@@ -189,7 +189,7 @@ function RTableBody({status, recordings}) {
                     </View>
                   ))
                 ) : (
-                  <View style={style.tactions}>
+                  <View style={(style.tactions, {marginTop: 0})}>
                     <Text style={style.placeHolder}>No recordings found</Text>
                   </View>
                 )}
