@@ -2,6 +2,9 @@ export function getRecordedDateTime(ipDate: string) {
   try {
     let rdate = new Date(ipDate);
     let ryear = rdate.getFullYear();
+    if (ryear === 1) {
+      throw Error(`Invalid end date, ${ipDate}`);
+    }
     let rmonth = rdate.getMonth() + 1;
     let rdt = rdate.getDate();
     let hour = rdate.getHours();
@@ -81,11 +84,11 @@ export const downloadRecording = (url: string) => {
 
 export const getDuration = (start: string, end: string): string => {
   try {
-    const date_future = new Date(start).valueOf();
+    const date_future = new Date(end).valueOf();
     if (date_future < 0) {
       throw new Error('Not a valid end date');
     }
-    const date_now = new Date(end).valueOf();
+    const date_now = new Date(start).valueOf();
     let delta = Math.abs(date_future - date_now) / 1000;
     // calculate (and subtract) whole days
     const days = Math.floor(delta / 86400);
