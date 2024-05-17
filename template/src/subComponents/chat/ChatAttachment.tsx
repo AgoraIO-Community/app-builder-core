@@ -76,17 +76,16 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
       return;
     }
     if (!(isImageUploaded || isFileUploaded)) {
-      {
-        Toast.show({
-          leadingIconName: 'chat_attachment_unknown',
-          type: 'info',
-          text1: toastHeadingType,
-          text2: errorSubHeadingType(file.filetype),
-          visibilityTime: 3000,
-          primaryBtn: null,
-          secondaryBtn: null,
-        });
-      }
+      // Toast.show({
+      //   leadingIconName: 'chat_attachment_unknown',
+      //   type: 'info',
+      //   text1: toastHeadingType,
+      //   text2: errorSubHeadingType(file.filetype),
+      //   visibilityTime: 3000,
+      //   primaryBtn: null,
+      //   secondaryBtn: null,
+      // });
+
       return;
     }
 
