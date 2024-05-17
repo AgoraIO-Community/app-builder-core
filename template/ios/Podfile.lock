@@ -52,6 +52,7 @@ PODS:
   - hermes-engine (0.72.4):
     - hermes-engine/Pre-built (= 0.72.4)
   - hermes-engine/Pre-built (0.72.4)
+  - HyphenateChat (4.1.1)
   - IQKeyboardManagerSwift (6.5.4)
   - libevent (2.1.12)
   - RCT-Folly (2021.07.22.00):
@@ -359,6 +360,9 @@ PODS:
     - AgoraRtcEngine_Special_iOS (= 4.2.6.3)
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
+  - react-native-chat-sdk (1.2.1):
+    - HyphenateChat (= 4.1.1)
+    - React-Core
   - react-native-document-picker (9.1.1):
     - React-Core
   - react-native-keep-awake (4.0.0):
@@ -565,6 +569,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-agora (from `../node_modules/react-native-agora`)
+  - react-native-chat-sdk (from `../node_modules/react-native-agora-chat`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-keep-awake (from `../node_modules/react-native-keep-awake`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -610,6 +615,7 @@ SPEC REPOS:
     - AgoraRtm_iOS
     - BEMCheckBox
     - fmt
+    - HyphenateChat
     - IQKeyboardManagerSwift
     - libevent
     - SocketRocket
@@ -663,6 +669,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-agora:
     :path: "../node_modules/react-native-agora"
+  react-native-chat-sdk:
+    :path: "../node_modules/react-native-agora-chat"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
   react-native-keep-awake:
@@ -748,6 +756,7 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
+  HyphenateChat: 95aa4abbad0e763f513acbe21ff9543f50b886cd
   IQKeyboardManagerSwift: 2dde0fc70110e8eac7ccce2a46fdbec6a850b414
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -766,6 +775,7 @@ SPEC CHECKSUMS:
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
   react-native-agora: 0d623411f75a126e6d5f6a41761df9ef74da87e6
+  react-native-chat-sdk: 8a4969c99fc27019042acc48e78f469947813fbc
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3

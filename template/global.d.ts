@@ -111,6 +111,9 @@ interface ConfigInterface {
   ENABLE_WAITING_ROOM: boolean;
   WHITEBOARD_APPIDENTIFIER: string;
   WHITEBOARD_REGION: string;
+  CHAT_ORG_NAME: string;
+  CHAT_APP_NAME: string;
+  CHAT_URL: string;
   ENABLE_NOISE_CANCELLATION_BY_DEFAULT: boolean;
 }
 declare var $config: ConfigInterface;

@@ -22,6 +22,10 @@ export {
   ChatInput,
   Chat,
   SettingsView,
+  ChatAttachmentButton,
+  ChatEmojiButton,
+  ChatUploadStatus,
+  ChatSendButton,
   ToolbarComponents,
 } from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
