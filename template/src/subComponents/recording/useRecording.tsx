@@ -238,6 +238,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         url: `${recordinghostURL}/${passphrase}`,
         webpage_ready_timeout: 10,
         encryption: $config.ENCRYPTION_ENABLED,
+        mode: 'web',
       }),
     })
       .then((res: any) => {
@@ -321,6 +322,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
+        mode: 'web',
       }),
     })
       .then(res => {
