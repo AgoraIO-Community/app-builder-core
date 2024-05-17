@@ -22,6 +22,7 @@ import {
 import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 interface ChatMessageAttributes {
   file_ext?: string;
@@ -84,8 +85,18 @@ const ChatConfigure = ({children}) => {
       try {
         await chatClient.logout();
         console.warn('logout success');
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          `Logged out User ${localUid} from Agora Chat Server`,
+        );
       } catch (error) {
         console.warn('logout failed');
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          `Failed Logging  out User ${localUid} from Agora Chat Server`,
+        );
       }
     };
     const setupMessageListener = () => {
@@ -260,9 +271,13 @@ const ChatConfigure = ({children}) => {
 
         // log in user to agoar chat
         try {
-          console.warn('localUId - agoraToken', localUid, agoraToken);
           await chatClient.loginWithAgoraToken(localUid, agoraToken);
           console.warn('chat sdk: login success');
+          logger.log(
+            LogSource.Internals,
+            'CHAT',
+            `Logged in User ${localUid} to Agora Chat Server`,
+          );
           setupMessageListener();
           // adding chat connection event listeners
           let listener: ChatConnectEventListener = {
@@ -283,8 +298,14 @@ const ChatConfigure = ({children}) => {
           chatClient.addConnectionListener(listener);
         } catch (error) {
           console.warn(
-            'chat sdk: login failed 1',
+            'chat sdk: login failed ',
             JSON.stringify(error, null, 2),
+          );
+          logger.error(
+            LogSource.Internals,
+            'CHAT',
+            `Failed Looger  User ${localUid} to Agora Chat Server`,
+            error,
           );
         }
       } catch (error) {
@@ -407,18 +428,28 @@ const ChatConfigure = ({children}) => {
     // ower exit user = 1, delete ,
     // member exit user > 1 delete ,
     // member exit user = 1 , owner needs to be deleted
-    const response = await fetch(
-      `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
+
+    try {
+      const response = await fetch(
+        `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: store.token ? `Bearer ${store.token}` : '',
+          },
         },
-      },
-    );
-    const res = await response.json();
-    return res;
+      );
+      const res = await response.json();
+      return res;
+    } catch (error) {
+      logger.debug(
+        LogSource.Internals,
+        'CHAT',
+        `Failed deleting User ${userID} from Chat Server`,
+        error,
+      );
+    }
   };
 
   const deleteAttachment = (msgId: string) => {
@@ -427,8 +458,13 @@ const ChatConfigure = ({children}) => {
       .then(() => {
         console.warn('recall message success');
       })
-      .catch(reason => {
-        console.warn('recall message fail.', reason);
+      .catch(err => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          'Chat Message Reacalled Failed',
+          err,
+        );
       });
   };
 

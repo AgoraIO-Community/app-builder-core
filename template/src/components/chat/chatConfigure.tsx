@@ -17,18 +17,7 @@ import {
   UploadStatus,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
-
-// AppKey:
-// 41754367#1042822
-// OrgName:
-// 41754367
-// AppName:
-// 1042822
-// API request url
-// WebSocket Address:
-// msync-api-41.chat.agora.io
-// REST API:
-// a41.chat.agora.io
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 export interface FileObj {
   url: string;
@@ -93,58 +82,22 @@ const ChatConfigure = ({children}) => {
         newConn = new AgoraChat.connection({
           appKey: CHAT_APP_KEY,
         });
-
-        const createGroup = () => {
-          const groupOption = {
-            data: {
-              groupname: 'Group',
-              desc: 'Public Chat users',
-              members: [], // start with local user
-              public: true,
-              approval: false,
-              allowinvites: false,
-              inviteNeedConfirm: false,
-              maxusers: 100, // max 100 in free plan https://docs.agora.io/en/agora-chat/reference/pricing-plan-details?platform=web#group
-            },
-          };
-          newConn
-            .createGroup(groupOption)
-            .then(res => {
-              console.log(
-                'ChatSDK : group created',
-                JSON.stringify(res, null, 2),
-              );
-            })
-            .catch(err => {
-              console.log(
-                'ChatSDK : error in created group',
-                JSON.stringify(err, null, 2),
-              );
-            });
-        };
-
         // Logs into Agora Chat.
-        newConn.open({
+        const result = await newConn.open({
           user: data.uid.toString(),
-          // pwd: data.chatUserPwd,
           agoraToken: data.chat.user_token,
-          success: e => {
-            console.log('%cChatSDK: User is logged in', 'color: blue');
-          },
-          error: e => {
-            console.log('%cChatSDK: User login failed', 'color: red');
-          },
         });
-
-        // create a chat group (Group for public chats), this should be only once ,if exists then user should only join not creatr grp
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Logged in User ${data.uid} to Agora Chat Server`,
+        );
 
         //  event listener for messages
         newConn.addEventHandler('connection&message', {
           // app is connected to chat server
           onConnected: () => {
             console.log('%cChatSDK: connected to chat server', 'color: blue');
-            // group will be created at server for a channel
-            //createGroup();
           },
 
           onFileMessage: message => {
@@ -305,16 +258,22 @@ const ChatConfigure = ({children}) => {
             console.log('%cChatSDK: token has expired', 'color: blue');
           },
           onError: error => {
-            console.log('on error', error);
+            console.log('%cChatSDK: error', 'color: blue', error);
           },
         });
         connRef.current = newConn;
-        console.log('%cChatSDK: Initialize Chat SDK: %s', 'color: green');
+        logger.debug(LogSource.Internals, 'CHAT', 'Initialized Chat SDK');
       } catch (error) {
         console.log(
           '%cChatSDK: initialization error: %s',
           'color: red',
           JSON.stringify(error, null, 2),
+        );
+        logger.error(
+          LogSource.Internals,
+          'CHAT',
+          'Initialization Error Chat SDK',
+          error,
         );
       }
     };
@@ -323,7 +282,11 @@ const ChatConfigure = ({children}) => {
     initializeChatSDK();
     return () => {
       newConn.close();
-      console.log('web:close connection chat sdk');
+      logger.debug(
+        LogSource.Internals,
+        'CHAT',
+        `Logging out User ${data.uid} from Agora Chat Server`,
+      );
     };
   }, []);
 
@@ -340,7 +303,7 @@ const ChatConfigure = ({children}) => {
         .send(msg)
         .then(res => {
           console.log(
-            '%cChatSDK: Send private msg success: %s',
+            '%cChatSDK: Send  msg success: %s',
             'color: blue',
             JSON.stringify(res, null, 2),
           );
@@ -365,9 +328,10 @@ const ChatConfigure = ({children}) => {
           }
         })
         .catch(error => {
-          console.log(
-            '%cChatSDK: Send private msg fail: %s',
-            'color: blue',
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            'Failed sending chat message',
             error,
           );
         });
@@ -382,25 +346,39 @@ const ChatConfigure = ({children}) => {
     // ower exit user = 1, delete ,
     // member exit user > 1 delete ,
     // member exit user = 1 , owner needs to be deleted
-    const response = await fetch(
-      `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
+    try {
+      const response = await fetch(
+        `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: store.token ? `Bearer ${store.token}` : '',
+          },
         },
-      },
-    );
-    const res = await response.json();
-    sessionStorage.removeItem('user_id');
-    return res;
+      );
+      const res = await response.json();
+      sessionStorage.removeItem('user_id');
+      logger.debug(
+        LogSource.Internals,
+        'CHAT',
+        `User ${userID} deleted from Chat Server`,
+      );
+      return res;
+    } catch (error) {
+      logger.debug(
+        LogSource.Internals,
+        'CHAT',
+        `Failed deleting User ${userID} from Chat Server`,
+        error,
+      );
+    }
   };
 
   const downloadAttachment = (fileName: string, fileUrl: string) => {
     const anchor = document.createElement('a');
     anchor.href = fileUrl;
-    anchor.target = "_blank";
+    anchor.target = '_blank';
     anchor.download = fileName;
     anchor.click();
     anchor.remove();
@@ -426,10 +404,10 @@ const ChatConfigure = ({children}) => {
       },
       onFileUploadError: (error: any) => {
         console.log('Chat-SDK: upload error', error);
+        logger.error(LogSource.Internals, 'CHAT', 'Attachment upload failed');
         setUploadStatus(UploadStatus.FAILURE);
       },
       onFileUploadCanceled: () => {
-        console.log('Chat-SDK: upload cancel');
         //setUploadStatus(UploadStatus.NOT_STARTED);
       },
       accessToken: data?.chat?.user_token,
@@ -438,11 +416,15 @@ const ChatConfigure = ({children}) => {
       apiUrl: $config.CHAT_URL,
     };
 
-    console.log('Chat-SDK: upload Obj', uploadObj);
     try {
       AgoraChat.utils.uploadFile(uploadObj);
     } catch (error) {
-      console.log('Chat-SDK: upload util error', error);
+      logger.debug(
+        LogSource.Internals,
+        'CHAT',
+        'Attachment upload failed',
+        error,
+      );
       console.error(error);
     }
   };
@@ -460,7 +442,12 @@ const ChatConfigure = ({children}) => {
           console.log('recall success', res);
         })
         .catch(err => {
-          console.log('recall fail', err);
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            'Chat Message Reacalled Failed',
+            err,
+          );
         });
     }
   };
