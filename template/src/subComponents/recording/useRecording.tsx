@@ -338,7 +338,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then(res => {
         // Bot when stops the recording, it does not reach here
         setInProgress(false);
-        if (res.status === 200) {
+        if (res.status === 200 || res.status === 202) {
           logger.debug(
             LogSource.NetworkRest,
             'recording_stop',
