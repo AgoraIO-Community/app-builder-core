@@ -59,6 +59,14 @@ export interface LayoutItem {
 }
 
 export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
+
+export interface AppRouteInterface {
+  _customLogger: (
+    message: string,
+    context?: object,
+    type?: string,
+  ) => Promise<void>;
+}
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
   topToolBar?: ToolbarType;
@@ -125,6 +133,13 @@ export interface CustomizationApiInterface {
    */
   // commented for v1 release
   lifecycle?: {
+    onBeforeAppLoad?: {
+      _customLogger: (
+        message: string,
+        context?: object,
+        type?: string,
+      ) => Promise<void>;
+    };
     useAfterEndCall?: EndCallHookType;
     useBeforeEndCall?: EndCallHookType;
     // useBeforeJoin?: CustomHookType;
