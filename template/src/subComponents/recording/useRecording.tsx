@@ -324,17 +324,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       return;
     }
     setInProgress(true);
-    if (isRecordingBot) {
-      // send message to everyone that bot will be stopping the recording
-      events.send(
-        EventNames.RECORDING_ATTRIBUTE,
-        JSON.stringify({
-          action: EventActions.RECORDING_STOPPED,
-          value: 'before fetch',
-        }),
-        PersistanceLevel.Session,
-      );
-    }
     fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
       headers: {
@@ -365,13 +354,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             EventNames.RECORDING_ATTRIBUTE,
             JSON.stringify({
               action: EventActions.RECORDING_STOPPED,
-              value: 'test:inside then',
+              value: 'success',
             }),
             PersistanceLevel.Session,
           );
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
-          // return Promise.resolve(true);
         } else if (res.status === 500) {
           logger.error(
             LogSource.NetworkRest,
@@ -380,7 +368,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             res,
           );
           showErrorToast(headingStopError, subheadingError);
-          // return Promise.reject('Internal server down');
+          throw Error(`Internal server error ${res.status}`);
         } else {
           logger.error(
             LogSource.NetworkRest,
@@ -390,13 +378,21 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           );
           showErrorToast(headingStopError);
           // return Promise.reject(res);
+          throw Error(`Internal server error ${res.status}`);
         }
       })
       .catch(err => {
         setRecordingActive(false);
         setInProgress(false);
         log('stop recording', err);
-        // return Promise.reject(err);
+        events.send(
+          EventNames.RECORDING_ATTRIBUTE,
+          JSON.stringify({
+            action: EventActions.RECORDING_STOPPED,
+            value: 'error',
+          }),
+          PersistanceLevel.Session,
+        );
       });
   }, [
     headingStopError,
@@ -405,7 +401,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     setRecordingActive,
     store.token,
     subheadingError,
-    isRecordingBot,
   ]);
 
   const stopRecording = useCallback(() => {

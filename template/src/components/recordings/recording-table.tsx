@@ -62,6 +62,7 @@ function RTableBody({status, recordings}) {
           const [date, time] = getRecordedDateTime(item.created_at);
           const recordingStatus = item.status;
           if (
+            recordingStatus === 'STOPPING' ||
             recordingStatus === 'STARTED' ||
             recordingStatus === 'INPROGRESS'
           ) {
