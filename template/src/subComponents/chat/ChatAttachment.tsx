@@ -27,7 +27,7 @@ export interface ChatAttachmentButtonProps {
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const {data} = useRoomInfo();
-  const {privateChatUser, setUploadStatus, setUploadedFiles} =
+  const {privateChatUser, setUploadStatus, setUploadedFiles, uploadStatus} =
     useChatUIControls();
   const {uploadAttachment} = useChatConfigure();
   const toastHeadingType = useString(chatUploadErrorToastHeading)();
@@ -127,6 +127,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
         }}
+        disabled={uploadStatus === UploadStatus.IN_PROGRESS ? true : false}
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {
@@ -134,7 +135,10 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           },
           iconSize: 24,
           name: 'chat_attachment',
-          tintColor: $config.SECONDARY_ACTION_COLOR,
+          tintColor:
+            uploadStatus === UploadStatus.IN_PROGRESS
+              ? $config.SEMANTIC_NEUTRAL
+              : $config.SECONDARY_ACTION_COLOR,
         }}
         onPress={onPress}
       />
