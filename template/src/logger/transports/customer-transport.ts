@@ -63,14 +63,16 @@ export const createAxiomLogger = () => {
   let batchId = 0;
   let timeout: number | null = null;
 
-  const sendInterval = 45000; // 45s
+  const sendInterval = 30000; // 30s
 
   const flush = () => {
     if (timeout !== null) {
       clearTimeout(timeout);
       timeout = null;
     }
-    if (queue.length === 0) return;
+    if (queue.length === 0) {
+      return;
+    }
     sendLogs(queue);
     queue.length = 0;
     batchId = batchId + 1;
@@ -79,7 +81,7 @@ export const createAxiomLogger = () => {
   const log = (logContent: {[key: string]: any}) => {
     logContent.batchId = batchId;
     queue.push(logContent);
-    if (queue.length >= 1000) {
+    if (queue.length >= 500) {
       flush();
     } else {
       if (timeout === null) {
