@@ -45,7 +45,7 @@ const PinnedVideo = ({renderData}) => {
   const {pinnedUid, secondaryPinnedUid} = useContent();
   const [collapse, setCollapse] = useState(false);
   const {width} = useWindowDimensions();
-  const isDesktop = width > BREAKPOINTS.xl;
+  const isDesktop = width > BREAKPOINTS.lg;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   const [maxUid, ...minUids] = renderData;
   const activeSpeaker = useActiveSpeaker();
