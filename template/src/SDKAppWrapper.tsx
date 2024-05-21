@@ -12,6 +12,7 @@ import App from './App';
 import SdkApiContextProvider from './components/SdkApiContext';
 import {Unsubscribe} from 'nanoevents';
 import {deviceId} from './components/DeviceConfigure';
+import {LogSource, logger} from './logger/AppBuilderLogger';
 
 type meetingData = Partial<RoomInfoContextInterface['data']>;
 
@@ -56,16 +57,24 @@ export interface AppBuilderSdkApiInterface {
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   login: async (token: string) => {
+    logger.log(LogSource.SDK, 'Event', 'emiting event - login');
     return await SDKMethodEventsManager.emit('login', token);
   },
   logout: async () => {
+    logger.log(LogSource.SDK, 'Event', 'emiting event - logout');
     return await SDKMethodEventsManager.emit('logout');
   },
   customize: async customization => {
+    logger.log(LogSource.SDK, 'Event', 'emiting event - customize');
     return await SDKMethodEventsManager.emit('customize', customization);
   },
   customEvents: customEvents,
   joinRoom: async (roomDetails, userName, preference) => {
+    logger.log(LogSource.SDK, 'Event', 'emiting event for joinRoom - join', {
+      room: roomDetails,
+      userName: userName,
+      preference: preference
+    });
     return await SDKMethodEventsManager.emit(
       'join',
       roomDetails,
@@ -75,8 +84,19 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     );
   },
   joinPrecall: async (roomDetails, userName, skipPrecall, preference) => {
-    if (!$config.PRECALL)
+    logger.log(LogSource.SDK, 'Event', 'emiting event for joinPrecall - join', {
+      room: roomDetails,
+      userName: userName,
+      preference: preference
+    });
+    if (!$config.PRECALL) {
+      logger.error(
+        LogSource.SDK,
+        'Log',
+        'Precall disabled in config, cant join precall',
+      );
       throw new Error('Precall disabled in config, cant join precall');
+    }
     const t = await SDKMethodEventsManager.emit(
       'join',
       roomDetails,
@@ -90,23 +110,47 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     ];
   },
   setMicrophone: async deviceId => {
+    logger.log(
+      LogSource.SDK,
+      'Event',
+      'emiting event - microphoneDevice',
+      deviceId,
+    );
     return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
   },
   setSpeaker: async deviceId => {
+    logger.log(
+      LogSource.SDK,
+      'Event',
+      'emiting event - speakerDevice',
+      deviceId,
+    );
     return await SDKMethodEventsManager.emit('speakerDevice', deviceId);
   },
   setCamera: async deviceId => {
+    logger.log(
+      LogSource.SDK,
+      'Event',
+      'emiting event - cameraDevice',
+      deviceId,
+    );
     return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
   },
   muteAudio: async state => {
+    logger.log(LogSource.SDK, 'Event', 'emiting event - muteAudio', state);
     return await SDKMethodEventsManager.emit('muteAudio', state);
   },
   muteVideo: async state => {
+    logger.log(LogSource.SDK, 'Event', 'emiting event - muteVideo', state);
     return await SDKMethodEventsManager.emit('muteVideo', state);
   },
   createCustomization: customize,
   on: (userEventName, cb) => {
-    console.log('SDKEvents: Event Registered', userEventName);
+    logger.debug(
+      LogSource.SDK,
+      'Event',
+      `Event Registered for SDK event- ${userEventName}`,
+    );
     return SDKEvents.on(userEventName, cb);
   },
 };

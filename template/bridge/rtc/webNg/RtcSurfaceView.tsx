@@ -14,6 +14,7 @@ import {ILocalVideoTrack, IRemoteVideoTrack} from 'agora-rtc-sdk-ng';
 import React, {useEffect} from 'react';
 import {StyleProp, StyleSheet, ViewProps, ViewStyle} from 'react-native';
 import {RenderModeType} from './Types';
+import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
 
 export interface RtcSurfaceViewProps extends ViewProps {
   canvas: {
@@ -29,7 +30,7 @@ export interface StyleProps {
 interface SurfaceViewInterface extends RtcSurfaceViewProps, StyleProps {}
 
 const RtcSurfaceView = (props: SurfaceViewInterface) => {
-  console.log('Rtc Surface View props', props);
+  console.debug('Rtc Surface View props', props);
   const {uid, renderMode} = props.canvas;
   const stream: ILocalVideoTrack | IRemoteVideoTrack =
     uid === 0

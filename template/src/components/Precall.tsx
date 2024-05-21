@@ -58,6 +58,7 @@ import {
   precallYouAreJoiningAsHeading,
   settingsPanelHeading,
 } from '../language/default-labels/precallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -323,6 +324,20 @@ const Precall = () => {
   });
 
   useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'PRECALL_SCREEN',
+      `User has landed on precall room with role as ${
+        rtcProps.role === ClientRoleType.ClientRoleAudience
+          ? 'AUDIENCE'
+          : 'HOST'
+      } and the mode of this call as ${
+        $config.EVENT_MODE ? 'LIVE' : 'COMMUNICATION'
+      }`,
+    );
+  }, []);
+
+  useEffect(() => {
     if (isJoinDataFetched) {
       new Promise(res =>
         // @ts-ignore
@@ -330,6 +345,12 @@ const Precall = () => {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {
+        logger.log(
+          LogSource.Internals,
+          'PRECALL_SCREEN',
+          'fetching available devices',
+          devices,
+        );
         SDKEvents.emit('ready-to-join', meetingTitle, devices);
       });
     }

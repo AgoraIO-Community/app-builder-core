@@ -4,6 +4,7 @@ import StorageContext from '../components/StorageContext';
 import SdkEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {getPlatformId} from './config';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
@@ -96,7 +97,12 @@ const useTokenAuth = () => {
         try {
           timerRef.current && clearInterval(timerRef.current);
         } catch (error) {
-          console.log('debugging error on clearing interval');
+          logger.debug(
+            LogSource.Internals,
+            'AUTH',
+            'error on clearing interval',
+            error,
+          );
         }
       } else {
         const decoded = jwt_decode(store.token);

@@ -8,6 +8,7 @@ import wasm1 from './../../node_modules/agora-extension-ai-denoiser/external/den
 //@ts-ignore
 import wasm2 from './../../node_modules/agora-extension-ai-denoiser/external/denoiser-wasm-simd.wasm';
 import {createHook} from 'customization-implementation';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 // Necessary To bypass treeshaking, dont remove
 console.log('wasm files loaded are', wasm1, wasm2);
 
@@ -59,13 +60,24 @@ export function NoiseSupressionProvider(props) {
       localAudioTrack
         ?.pipe(processor.current)
         .pipe(localAudioTrack?.processorDestination);
+
       await processor?.current?.enable();
+      logger.log(
+        LogSource.Internals,
+        'NOISE_CANCELLATION',
+        'noise suppression enabled',
+      );
     }
   };
 
   const disableNoiseSuppression = async () => {
     if (processor?.current) {
       await processor?.current?.disable();
+      logger.log(
+        LogSource.Internals,
+        'NOISE_CANCELLATION',
+        'noise suppression disabled',
+      );
     }
   };
 
@@ -75,6 +87,11 @@ export function NoiseSupressionProvider(props) {
         isNoiseSupressionEnabled === ToggleState.disabling ||
         isNoiseSupressionEnabled === ToggleState.enabling
       ) {
+        logger.error(
+          LogSource.Internals,
+          'NOISE_CANCELLATION',
+          'Cant change noise supression, already in transition',
+        );
         throw new Error('Cant change noise supression, already in transition');
       }
       let stateToBeSet =

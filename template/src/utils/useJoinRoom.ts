@@ -7,6 +7,7 @@ import {GraphQLContext} from '../components/GraphQLProvider';
 import useGetName from './useGetName';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {base64ToUint8Array} from '../utils';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -90,11 +91,21 @@ export default function useJoinRoom() {
     try {
       let response = null;
       if (isWaitingRoomEnabled) {
+        logger.log(
+          LogSource.NetworkRest,
+          'channel_join_request',
+          'API channel_join_request. Trying request to join channel as waiting room is enabled',
+        );
         response = await requestToJoin({
           meetingPhrase: phrase,
           send_event: false,
         });
       } else {
+        logger.log(
+          LogSource.NetworkRest,
+          'joinChannel',
+          'API joinChannel. Trying to join channel. Waiting room is disabled',
+        );
         response = await client.query({
           query:
             store.token === null
@@ -107,10 +118,26 @@ export default function useJoinRoom() {
         });
       }
       if (response?.error) {
+        logger.error(
+          LogSource.NetworkRest,
+          `${isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'}`,
+          `API ${
+            isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
+          } failed.`,
+          response?.error,
+        );
         throw response.error;
       } else {
         if ((response && response.data) || isWaitingRoomEnabled) {
           let data = isWaitingRoomEnabled ? response : response.data;
+          logger.log(
+            LogSource.NetworkRest,
+            `${isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'}`,
+            `API to ${
+              isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
+            } successful.`,
+            phrase,
+          );
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
 
           if (data?.joinChannel?.channel || data?.channel) {

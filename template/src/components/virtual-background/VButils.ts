@@ -1,3 +1,5 @@
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
+
 interface ImageItem {
   id: number;
   data: string;
@@ -48,12 +50,25 @@ export const saveImagesToIndexDB = async (
     store.add(item);
 
     tx.oncomplete = () => {
-      console.log('Transaction completed');
+      logger.debug(
+        LogSource.Internals,
+        'VIRTUAL_BACKGROUND',
+        'Transaction completed',
+      );
     };
 
-    console.log('Added images to the store!');
+    logger.debug(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Added images to the store!',
+    );
   } catch (error) {
-    console.error('Error saving images to IndexedDB:', error);
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Error saving images to IndexedDB',
+      error,
+    );
   }
 };
 
@@ -74,12 +89,21 @@ export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
           retrievedImages.push(cursor.value.data);
           cursor.continue();
         } else {
-          console.log('Successfully Retrieved images from IndexedDB:');
+          logger.debug(
+            LogSource.Internals,
+            'VIRTUAL_BACKGROUND',
+            'Successfully retrieved images from IndexedDB!',
+          );
           resolve(retrievedImages);
         }
       };
     } catch (error) {
-      console.error('Error retrieving images from IndexedDB:', error);
+      logger.error(
+        LogSource.Internals,
+        'VIRTUAL_BACKGROUND',
+        'Error retrieving images from IndexedDB',
+        error,
+      );
       reject(error);
     }
   });

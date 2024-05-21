@@ -38,6 +38,7 @@ import {
   multiplePublicAndPrivateChatToastSubHeading,
   multiplePublicChatToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 enum ChatMessageActionEnum {
   Create = 'Create_Chat_Message',
@@ -463,7 +464,12 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 lastMessageTimeStamp: new Date().getTime(),
               });
             } catch (error) {
-              console.log("ERROR : couldn't update the last message timestamp");
+              logger.error(
+                LogSource.Internals,
+                'CHAT',
+                'ERROR : couldnt update the last message timestamp',
+                error,
+              );
             }
             showMessageNotification(messageData.msg, `${data.sender}`, true);
             addMessageToPrivateStore(
@@ -605,6 +611,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   const sendChatMessage = (msg: string, toUid?: UidType) => {
     if (typeof msg == 'string' && msg.trim() === '') return;
+    logger.log(
+      LogSource.Internals,
+      'CHAT',
+      `sending ${toUid ? 'private' : 'public'} chat message -> ${msg} ${
+        toUid ? toUid : ''
+      }`,
+    );
     if (toUid) {
       const messageData = {
         msg,
@@ -643,6 +656,15 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   const editChatMessage = (msgId: string, msg: string, toUid?: UidType) => {
     if (typeof msg == 'string' && msg.trim() === '') return;
+    logger.log(
+      LogSource.Internals,
+      'CHAT',
+      `editing ${toUid ? 'private' : 'public'} chat message..`,
+      {
+        msgId,
+        msg,
+      },
+    );
     if (toUid) {
       const checkData = privateMessageStore[toUid].filter(
         item => item.msgId === msgId && item.uid === localUid,
@@ -671,7 +693,15 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to edit");
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to edit",
+          {
+            msgId,
+            msg,
+          },
+        );
       }
     } else {
       //check if user has permission to edit
@@ -699,12 +729,28 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to edit");
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to edit",
+          {
+            msgId,
+            msg,
+          },
+        );
       }
     }
   };
 
   const deleteChatMessage = (msgId: string, toUid?: UidType) => {
+    logger.log(
+      LogSource.Internals,
+      'CHAT',
+      `deleting ${toUid ? 'private' : 'public'} chat message..`,
+      {
+        msgId,
+      },
+    );
     if (toUid) {
       const checkData = privateMessageStore[toUid].filter(
         item => item.msgId === msgId && item.uid === localUid,
@@ -733,7 +779,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to delete");
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to delete",
+          {
+            msgId,
+          },
+        );
       }
     } else {
       //check if user has permission to delete
@@ -761,7 +814,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return newState;
         });
       } else {
-        console.log("You don't have permission to delete");
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          "You don't have permission to delete",
+          {
+            msgId,
+          },
+        );
       }
     }
   };
