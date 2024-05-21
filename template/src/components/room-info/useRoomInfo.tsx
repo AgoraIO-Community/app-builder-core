@@ -14,6 +14,7 @@ import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
 import {LanguageType} from '../../subComponents/caption/utils';
 import {BoardColor} from '../whiteboard/WhiteboardConfigure';
+import {joinRoomPreference} from '../../utils/useJoinRoom';
 
 export enum WaitingRoomStatus {
   NOT_REQUESTED = 1,
@@ -66,6 +67,7 @@ export interface RoomInfoContextInterface {
     langChanged?: Boolean;
   };
   isSTTActive?: boolean;
+  roomPreference?: joinRoomPreference;
 }
 
 export const validateMeetingInfoData = (
@@ -106,6 +108,9 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
       attendee: '',
     },
     isSeparateHostLink: true,
+  },
+  roomPreference: {
+    disableShareTile: false,
   },
 };
 
