@@ -243,6 +243,7 @@ const VideoCall: React.FC = () => {
       meetingDetails: sdkMeetingDetails,
       skipPrecall,
       promise,
+      preference,
     } = SdkJoinState;
 
     const sdkMeetingPath = `/${sdkMeetingPhrase}`;
@@ -258,12 +259,13 @@ const VideoCall: React.FC = () => {
             ...roomInfo.data,
             ...sdkMeetingDetails,
           },
+          roomPreference: preference,
         };
       });
     } else if (sdkMeetingPhrase) {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
-      useJoin(sdkMeetingPhrase).catch(error => {
+      useJoin(sdkMeetingPhrase, preference).catch(error => {
         setGlobalErrorMessage(error);
         history.push('/');
         currentMeetingPhrase.current = '';

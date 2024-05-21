@@ -20,11 +20,13 @@ export interface AppBuilderSdkApiInterface {
   joinRoom: (
     roomDetails: string | meetingData,
     userName?: string,
+    preference?: {disableShareTile: boolean},
   ) => Promise<meetingData>;
   joinPrecall: (
     roomDetails: string | meetingData,
     userName?: string,
     skipPrecall?: boolean,
+    preference?: {disableShareTile: boolean},
   ) => Promise<
     [
       meetingData,
@@ -63,15 +65,16 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
   customEvents: customEvents,
-  joinRoom: async (roomDetails, userName) => {
+  joinRoom: async (roomDetails, userName, preference) => {
     return await SDKMethodEventsManager.emit(
       'join',
       roomDetails,
       true,
       userName,
+      preference,
     );
   },
-  joinPrecall: async (roomDetails, userName, skipPrecall) => {
+  joinPrecall: async (roomDetails, userName, skipPrecall, preference) => {
     if (!$config.PRECALL)
       throw new Error('Precall disabled in config, cant join precall');
     const t = await SDKMethodEventsManager.emit(
@@ -79,6 +82,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
       roomDetails,
       skipPrecall,
       userName,
+      preference,
     );
     return t as unknown as [
       RoomInfoContextInterface['data'],
