@@ -306,8 +306,25 @@ function hexToRgb(hex: string): [number, number, number] {
       ]
     : [0, 0, 0];
 }
+const updateToolbarDefaultConfig = (data, defaultItemsConfig) => {
+  return data?.map(i => {
+    if (
+      i?.componentName &&
+      defaultItemsConfig &&
+      defaultItemsConfig[i?.componentName]
+    ) {
+      return {
+        ...i,
+        ...defaultItemsConfig[i?.componentName],
+      };
+    } else {
+      return i;
+    }
+  });
+};
 
 export {
+  updateToolbarDefaultConfig,
   useIsDesktop,
   useIsSmall,
   BREAKPOINTS,
