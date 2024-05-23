@@ -926,7 +926,7 @@ const defaultItems: ToolbarDefaultItem[] = [
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
     component: RaiseHandToolbarItem,
     componentName: 'raise-hand',
     order: 0,
