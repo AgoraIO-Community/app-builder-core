@@ -72,3 +72,6 @@ export type {
   ToolbarCustomItem,
   ToolbarPresetProps,
 } from '../src/atoms/ToolbarPreset';
+export {default as TranscriptPanel} from '../src/subComponents/caption/Transcript';
+export type {TranscriptProps} from '../src/subComponents/caption/Transcript';
+export {default as CaptionPanel} from '../src/subComponents/caption/CaptionContainer';
