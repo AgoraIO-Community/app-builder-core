@@ -20,6 +20,22 @@ export enum ChatType {
   Private,
 }
 
+export enum UploadStatus {
+  NOT_STARTED = 'notStarted',
+  IN_PROGRESS = 'inProgress',
+  SUCCESS = 'success',
+  FAILURE = 'failure',
+}
+
+export interface File {
+  file_length: number;
+  file_ext: string;
+  file_url: string;
+  file_name: string;
+  file_type: string;
+  file_obj: object;
+}
+
 export interface ChatUIControlsInterface {
   chatType: ChatType;
   privateChatUser: UidType;
@@ -29,6 +45,14 @@ export interface ChatUIControlsInterface {
   setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
+  inputHeight: number;
+  setInputHeight: React.Dispatch<SetStateAction<number>>;
+  showEmojiPicker: boolean;
+  setShowEmojiPicker: React.Dispatch<SetStateAction<boolean>>;
+  uploadStatus: UploadStatus;
+  setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
+  uploadedFiles: File[];
+  setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -39,18 +63,39 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setPrivateChatUser: () => {},
   setMessage: () => {},
   inputActive: false,
+  inputHeight: 0,
+  setInputHeight: () => {},
   setInputActive: () => {},
+  showEmojiPicker: false,
+  setShowEmojiPicker: () => {},
+  uploadStatus: UploadStatus.NOT_STARTED,
+  setUploadStatus: () => {},
+  uploadedFiles: [],
+  setUploadedFiles: () => {},
 });
 
 interface ChatUIControlsProviderProps {
   children: React.ReactNode;
 }
 
+export const MIN_HEIGHT = 43;
+export const MAX_HEIGHT = 92;
+export const LINE_HEIGHT = 17;
+export const MAX_UPLOAD_SIZE = 10; //MB
+export const MAX_TEXT_MESSAGE_SIZE = 5; //KB
+
 const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [chatType, setChatType] = useState<ChatType>(ChatType.Group);
   const [inputActive, setInputActive] = useState(false);
   const [privateChatUser, setPrivateChatUser] = useState<UidType>(0);
   const [message, setMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
+    UploadStatus.NOT_STARTED,
+  );
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT);
+
   return (
     <ChatUIControlsContext.Provider
       value={{
@@ -60,8 +105,16 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setPrivateChatUser,
         message,
         setMessage,
+        inputHeight,
+        setInputHeight,
         inputActive,
         setInputActive,
+        showEmojiPicker,
+        setShowEmojiPicker,
+        uploadStatus,
+        setUploadStatus,
+        uploadedFiles,
+        setUploadedFiles,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

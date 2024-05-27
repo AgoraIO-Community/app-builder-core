@@ -205,9 +205,38 @@ export const groupChatWelcomeContent = 'groupChatWelcomeContent';
 
 export const peoplePanelHeaderText = 'peoplePanelHeaderText';
 
-export const groupChatInputPlaceHolderText = 'groupChatInputPlaceHolderText';
+export const groupChatMeetingInputPlaceHolderText =
+  'groupChatMeetingInputPlaceHolderText';
+export const groupChatLiveInputPlaceHolderText =
+  'groupChatLiveInputPlaceHolderText';
 export const privateChatInputPlaceHolderText =
   'privateChatInputPlaceHolderText';
+
+export const chatActionMenuDownloadText = 'chatActionMenuDownloadText';
+export const chatActionMenuCopyLinkText = 'chatActionMenuCopyLinkText';
+export const chatActionMenuDeleteText = 'chatActionMenuDeleteText';
+export const chatMsgDeletedText = 'chatMsgDeletedText';
+export const chatSendMessageBtnText = 'chatSendMessageBtnText';
+export const chatUploadErrorToastHeading = 'chatUploadErrorToastHeading';
+export const chatUploadErrorFileSizeToastHeading =
+  'chatUploadErrorFileSizeToastHeading';
+export const chatUploadErrorFileSizeToastSubHeading =
+  'chatUploadErrorFileSizeToastSubHeading';
+export const chatUploadErrorFileTypeToastSubHeading =
+  'chatUploadErrorFileTypeToastSubHeading';
+export const chatSendErrorTextSizeToastHeading =
+  'chatSendErrorTextSizeToastHeading';
+export const chatSendErrorTextSizeToastSubHeading =
+  'chatSendErrorTextSizeToastSubHeading';
+
+export const chatMessageDeleteConfirmBtnText =
+  'chatMessageDeleteConfirmBtnText';
+export const chatPublicMessageDeletePopupText =
+  'chatPublicMessageDeletePopupText';
+export const chatPrivateMessageDeletePopupText =
+  'chatPrivateMessageDeletePopupText';
+export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
+export const chatUploadStatusFailure = 'chatUploadStatusFailure';
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -290,6 +319,8 @@ export const livestreamingAttendeeWaitingForHostToJoinText =
   'livestreamingAttendeeWaitingForHostToJoinText';
 
 export const publicChatToastHeading = 'publicChatToastHeading';
+export const publicChatImgToastHeading = 'publicChatImgToastHeading';
+export const publicChatFileToastHeading = 'publicChatFileToastHeading';
 
 export const multiplePublicChatToastHeading = 'multiplePublicChatToastHeading';
 export const multiplePublicChatToastSubHeading =
@@ -596,8 +627,26 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [groupChatWelcomeContent]?: I18nConditionalType;
 
-  [groupChatInputPlaceHolderText]?: I18nBaseType;
+  [groupChatLiveInputPlaceHolderText]?: I18nBaseType;
+  [groupChatMeetingInputPlaceHolderText]?: I18nBaseType;
   [privateChatInputPlaceHolderText]?: I18nBaseType;
+
+  [chatActionMenuDownloadText]?: I18nBaseType;
+  [chatActionMenuCopyLinkText]?: I18nBaseType;
+  [chatActionMenuDeleteText]?: I18nBaseType;
+  [chatSendMessageBtnText]?: I18nBaseType;
+  [chatMsgDeletedText]?: I18nBaseType;
+  [chatMessageDeleteConfirmBtnText]?: I18nBaseType;
+  [chatPublicMessageDeletePopupText]?: I18nBaseType;
+  [chatPrivateMessageDeletePopupText]?: I18nBaseType;
+  [chatUploadErrorToastHeading]?: I18nBaseType;
+  [chatUploadErrorFileSizeToastHeading]?: I18nBaseType;
+  [chatSendErrorTextSizeToastHeading]?: I18nBaseType;
+  [chatUploadErrorFileSizeToastSubHeading]?: I18nBaseType;
+  [chatSendErrorTextSizeToastSubHeading]?: I18nBaseType;
+  [chatUploadErrorFileTypeToastSubHeading]?: I18nBaseType;
+  [chatUploadStatusInProgress]?: I18nBaseType;
+  [chatUploadStatusFailure]?: I18nBaseType;
 
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
@@ -650,6 +699,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [livestreamingAttendeeInviteOthersText]?: I18nBaseType;
 
   [publicChatToastHeading]?: I18nBaseType;
+  [publicChatImgToastHeading]?: I18nBaseType;
+  [publicChatFileToastHeading]?: I18nBaseType;
+
   [multiplePublicChatToastHeading]?: I18nBaseType;
   [multiplePublicChatToastSubHeading]?: I18nBaseType<publicChatToastSubHeadingDataInterface>;
 
@@ -957,7 +1009,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [peoplePanelHeaderText]: 'People',
 
-  [chatPanelGroupTabText]: 'Group',
+  [chatPanelGroupTabText]: 'Public',
   [chatPanelPrivateTabText]: 'Private',
 
   [groupChatWelcomeContent]: noMessage =>
@@ -965,8 +1017,30 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
       ? 'Welcome to Chat!\nAll messages are deleted when call ends.'
       : 'All messages are deleted when call ends.',
 
-  [groupChatInputPlaceHolderText]: name => `Chat publicly as ${name}...`,
+  [groupChatLiveInputPlaceHolderText]: name => `Chat publicly as ${name}...`,
+  [groupChatMeetingInputPlaceHolderText]: name => `Type Message Here`,
   [privateChatInputPlaceHolderText]: name => `Private Message to ${name}`,
+
+  [chatActionMenuDownloadText]: 'Download',
+  [chatActionMenuCopyLinkText]: 'Copy File Link',
+  [chatActionMenuDeleteText]: 'Delete',
+  [chatSendMessageBtnText]: 'Send',
+  [chatMsgDeletedText]: name => `${name} deleted this message`,
+
+  [chatUploadErrorToastHeading]: 'Attachment Upload Error',
+  [chatUploadErrorFileSizeToastHeading]: 'File size is too large',
+  [chatSendErrorTextSizeToastHeading]: 'Text size is too large',
+  [chatUploadErrorFileSizeToastSubHeading]: size =>
+    `You can send attachments upto ${size}MB in size`,
+  [chatSendErrorTextSizeToastSubHeading]: size =>
+    `You can send text message upto ${size}KB in size`,
+  [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
+  [chatUploadStatusInProgress]: `Uploading... Please wait`,
+  [chatUploadStatusFailure]: `Something went wrong while sharing.Let'as try again`,
+  [chatMessageDeleteConfirmBtnText]: `Delete`,
+  [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
+  [chatPrivateMessageDeletePopupText]: (name: string) =>
+    `Are you sure you want to delete this message for ${name}`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute All',
@@ -1033,7 +1107,13 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [publicChatToastHeading]: (name: string) =>
     `${name} commented in the public chat`,
 
-  [multiplePublicChatToastHeading]: 'New comments in Public Chat',
+  [publicChatImgToastHeading]: (name: string) =>
+    `${name} sent an image in the public chat`,
+
+  [publicChatFileToastHeading]: (name: string) =>
+    `${name} sent a file in the public chat`,
+
+  [multiplePublicChatToastHeading]: 'New messages in Public Chat',
   [multiplePublicChatToastSubHeading]: ({count, from}) =>
     `You have ${count} new messages from ${from}`,
 
@@ -1043,7 +1123,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     `You’ve received ${count} private messages`,
 
   [multiplePublicAndPrivateChatToastHeading]:
-    'New comments in Public & Private Chat',
+    'New messages in Public & Private Chat',
   [multiplePublicAndPrivateChatToastSubHeading]: ({
     publicChatCount,
     privateChatCount,

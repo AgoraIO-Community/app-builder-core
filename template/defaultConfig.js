@@ -69,6 +69,9 @@ const DefaultConfig = {
   WHITEBOARD_APPIDENTIFIER: '',
   WHITEBOARD_REGION: '',
   ENABLE_NOISE_CANCELLATION_BY_DEFAULT: false,
+  CHAT_ORG_NAME:'',
+  CHAT_APP_NAME: '',
+  CHAT_URL: '',
 };
 
 module.exports = DefaultConfig;

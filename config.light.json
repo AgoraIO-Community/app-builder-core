@@ -16,7 +16,7 @@
   "CLOUD_RECORDING": true,
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
-  "ENCRYPTION_ENABLED": false,
+  "ENCRYPTION_ENABLED": true,
   "ENABLE_GOOGLE_OAUTH": false,
   "ENABLE_APPLE_OAUTH": false,
   "ENABLE_SLACK_OAUTH": false,
@@ -82,5 +82,8 @@
   "ENABLE_WAITING_ROOM": true,
   "WHITEBOARD_APPIDENTIFIER": "EEJBQPVbEe2Bao8ZShuoHQ/hgB5eo0qcDbVig",
   "WHITEBOARD_REGION": "us-sv",
+  "CHAT_ORG_NAME": "41754367",
+  "CHAT_APP_NAME": "1042822",
+  "CHAT_URL": "https://a41.chat.agora.io",
   "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true
 }

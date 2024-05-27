@@ -444,6 +444,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     sendLastImageUploadPositionToRemoteUsers(0);
   };
 
+  useEffect(() => {
+    if (!whiteboardActive && isWhiteboardOnFullScreen) {
+      setWhiteboardOnFullScreen(false);
+    }
+  }, [whiteboardActive]);
+
   return (
     <whiteboardContext.Provider
       value={{
