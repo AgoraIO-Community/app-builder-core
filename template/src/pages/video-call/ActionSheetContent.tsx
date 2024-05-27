@@ -235,6 +235,9 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
     $config.ENABLE_STT &&
     (isHost || (!isHost && isSTTActive))
   );
+  if (!$config.ENABLE_MEETING_TRANSCRIPT) {
+    return null;
+  }
   return (
     <ToolbarItem>
       <TranscriptIcon isOnActionSheet={true} showLabel={true} />

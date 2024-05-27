@@ -465,12 +465,16 @@ const MoreButton = () => {
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 
-  if ($config.ENABLE_STT) {
+  if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
+      disabled: !(
+        $config.ENABLE_STT &&
+        $config.ENABLE_CAPTION &&
+        (isHost || (!isHost && isSTTActive))
+      ),
       title: captionLabel(isCaptionON),
       callback: () => {
         setActionMenuVisible(false);
@@ -489,31 +493,38 @@ const MoreButton = () => {
       },
     });
 
-    actionMenuitems.push({
-      icon: 'transcript',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: transcriptLabel(isTranscriptON),
-      callback: () => {
-        setActionMenuVisible(false);
-        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-        if (isSTTError) {
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-          return;
-        }
-        if (isSTTActive) {
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-        } else {
-          isFirstTimePopupOpen.current = true;
-          setLanguagePopup(true);
-        }
-      },
-    });
+    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+      actionMenuitems.push({
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        disabled: !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          $config.ENABLE_MEETING_TRANSCRIPT &&
+          (isHost || (!isHost && isSTTActive))
+        ),
+        title: transcriptLabel(isTranscriptON),
+        callback: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+          if (isSTTError) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+            return;
+          }
+          if (isSTTActive) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
+    }
   }
 
   // view recordings
@@ -880,7 +891,9 @@ export const MoreButtonToolbarItem = () => {
   }, [isHost]);
 
   return width < BREAKPOINTS.md ||
-    ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
+    ($config.ENABLE_STT &&
+      $config.ENABLE_CAPTION &&
+      (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
     (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (

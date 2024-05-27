@@ -313,7 +313,15 @@ const VideoCallScreen = () => {
               ) : (
                 <></>
               )}
-              {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+              {sidePanel === SidePanelType.Transcript ? (
+                $config.ENABLE_MEETING_TRANSCRIPT ? (
+                  <Transcript />
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
               {sidePanel === SidePanelType.VirtualBackground ? (
                 <VBPanel />
               ) : (

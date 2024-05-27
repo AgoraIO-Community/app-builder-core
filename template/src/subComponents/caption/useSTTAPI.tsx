@@ -15,6 +15,7 @@ interface IuseSTTAPI {
   stop: () => Promise<void>;
   restart: (lang: LanguageType[]) => Promise<void>;
   isAuthorizedSTTUser: () => boolean;
+  isAuthorizedTranscriptUser: () => boolean;
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -213,9 +214,23 @@ const useSTTAPI = (): IuseSTTAPI => {
 
   // attendee can view option if any host has started STT
   const isAuthorizedSTTUser = () =>
-    $config.ENABLE_STT && (isHost || (!isHost && isSTTActive));
+    $config.ENABLE_STT &&
+    $config.ENABLE_CAPTION &&
+    (isHost || (!isHost && isSTTActive));
 
-  return {start, stop, restart, isAuthorizedSTTUser};
+  const isAuthorizedTranscriptUser = () =>
+    $config.ENABLE_STT &&
+    $config.ENABLE_CAPTION &&
+    $config.ENABLE_MEETING_TRANSCRIPT &&
+    (isHost || (!isHost && isSTTActive));
+
+  return {
+    start,
+    stop,
+    restart,
+    isAuthorizedSTTUser,
+    isAuthorizedTranscriptUser,
+  };
 };
 
 export default useSTTAPI;

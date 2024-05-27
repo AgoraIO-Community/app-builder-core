@@ -139,7 +139,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         setSidePanel(SidePanelType.Chat);
         setChatType(ChatType.Group);
       }
-      if (recordingBotUIConfig.stt && $config.ENABLE_STT) {
+      if (
+        recordingBotUIConfig.stt &&
+        $config.ENABLE_STT &&
+        $config.ENABLE_CAPTION
+      ) {
         setIsCaptionON(true);
       }
     }
