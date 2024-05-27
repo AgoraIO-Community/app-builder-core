@@ -126,13 +126,6 @@ export interface CustomizationApiInterface {
    */
   // commented for v1 release
   lifecycle?: {
-    useBeforeAppLoad?: {
-      _customLogger: (
-        message: string,
-        context?: object,
-        type?: string,
-      ) => Promise<void>;
-    };
     useAfterEndCall?: EndCallHookType;
     useBeforeEndCall?: EndCallHookType;
     // useBeforeJoin?: CustomHookType;
