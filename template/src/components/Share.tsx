@@ -92,6 +92,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
     return (
       <View style={style.iconContainer}>
         <Tooltip
+          rootTooltipContainer={style.tooltipContainer}
           isClickable
           onPress={() => {
             copyShareLinkToClipboard(type);
@@ -443,7 +444,7 @@ const style = StyleSheet.create({
     paddingLeft: 8,
   },
   urlContainer: {
-    flex: 0.9,
+    flex: 1,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderWidth: 1,
@@ -453,8 +454,7 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   iconContainer: {
-    flex: 0.1,
-    minWidth: 25,
+    flexBasis: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
@@ -468,6 +468,13 @@ const style = StyleSheet.create({
     borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
     borderTopLeftRadius: 0,
   },
+  tooltipContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
+    width: '100%',
+    height: '100%',
+  },
   url: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
     fontSize: ThemeConfig.FontSize.small,
@@ -476,7 +483,7 @@ const style = StyleSheet.create({
   },
   urlPadding: {
     paddingHorizontal: 20,
-    paddingVertical: 21,
+    paddingVertical: 20,
   },
   clipboardIcon: {
     width: 17,
