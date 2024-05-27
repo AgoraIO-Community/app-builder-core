@@ -17,6 +17,12 @@ import {initTransportLayerForCustomers} from './transports/customer-transport';
 
 const cli_version = 'test';
 
+export type CustomLogger = (
+  message: string,
+  data: any,
+  type: StatusType,
+) => void;
+
 export declare const StatusTypes: {
   readonly debug: 'debug';
   readonly error: 'error';
@@ -117,6 +123,7 @@ export default class AppBuilderLogger implements Logger {
   warn: LogFn;
   debug: LogFn;
   error: LogFn;
+  _customLogger: CustomLogger;
 
   constructor(_transportLogger?: any) {
     const session = nanoid();
@@ -157,19 +164,24 @@ export default class AppBuilderLogger implements Logger {
           },
         };
 
-        if (
-          (ENABLE_AGORA_LOGGER_TRANSPORT || ENABLE_CUSTOMER_LOGGER_TRANSPORT) &&
-          _transportLogger
-        ) {
-          try {
-            _transportLogger(logMessage, context, status);
-          } catch (error) {
-            console.log(
-              `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
-              error,
-            );
+        try {
+          if (ENABLE_CUSTOMER_LOGGER_TRANSPORT) {
+            if (this._customLogger) {
+              this._customLogger(logMessage, context, status);
+            } else if (_transportLogger) {
+              _transportLogger(logMessage, context, status);
+            }
           }
+          if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
+            _transportLogger(logMessage, context, status);
+          }
+        } catch (error) {
+          console.log(
+            `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
+            error,
+          );
         }
+
         if (ENABLE_BROWSER_CONSOLE_LOGS || status === 'debug') {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
           const consoleCSS = 'color: violet; font-weight: bold';
@@ -199,6 +211,10 @@ export default class AppBuilderLogger implements Logger {
       },
     );
   }
+
+  setCustomLogger = (_customLogger: CustomLogger) => {
+    this._customLogger = _customLogger;
+  };
 }
 
 let _transportLogger = null;
