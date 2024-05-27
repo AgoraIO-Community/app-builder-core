@@ -42,12 +42,12 @@ import {
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent} from 'customization-api';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {
   chatPanelUnreadMessageText,
   chatPanelUserOfflineText,
@@ -68,7 +68,7 @@ const ChatContainer = (props?: {
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {defaultContent} = useContent();
-  const {messageStore, privateMessageStore} = useChatMessages();
+  const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
   const {chatType, setChatType, privateChatUser, inputActive} =
@@ -240,9 +240,14 @@ const ChatContainer = (props?: {
                   createdTimestamp={message.createdTimestamp}
                   updatedTimestamp={message.updatedTimestamp}
                   uid={message.uid}
-                  key={message.ts}
+                  key={message.msgId}
                   msgId={message.msgId}
                   isDeleted={message.isDeleted}
+                  type={message.type}
+                  url={message?.url}
+                  thumb={message?.thumb}
+                  fileName={message?.fileName}
+                  ext={message?.ext}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -293,6 +298,11 @@ const ChatContainer = (props?: {
                   key={message.ts}
                   msgId={message.msgId}
                   isDeleted={message.isDeleted}
+                  type={message.type}
+                  url={message?.url}
+                  thumb={message?.thumb}
+                  fileName={message?.fileName}
+                  ext={message?.ext}
                 />
                 {privateMessageStore[privateChatUser]?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -333,7 +343,7 @@ const style = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginTop: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     marginBottom: 0,
   },
   defaultMessageText: {

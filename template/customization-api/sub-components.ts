@@ -22,12 +22,17 @@ export {
   ChatInput,
   Chat,
   SettingsView,
+  ChatAttachmentButton,
+  ChatEmojiButton,
+  ChatUploadStatus,
+  ChatSendButton,
   ToolbarComponents,
 } from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';
 export {default as VideoComponent} from '../src/pages/video-call/VideoComponent';
 export {default as MaxVideoView} from '../src/pages/video-call/VideoRenderer';
+export type {VideoRendererProps as MaxVideoViewProps} from '../src/pages/video-call/VideoRenderer';
 export {default as NameWithMicIcon} from '../src/pages/video-call/NameWithMicIcon';
 export {default as NetworkQualityPill} from '../src/subComponents/NetworkQualityPill';
 //videocall screen
@@ -49,8 +54,8 @@ export {WhiteboardListener} from '../src/components/Controls';
 //export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
 export {
   MaxVideoView as UiKitMaxVideoView,
-  ClientRole as UikitClientRole,
-  ChannelProfile as UikitChannelProfile,
+  ClientRoleType as UikitClientRole,
+  ChannelProfileType as UikitChannelProfile,
   PropsContext as UikitPropsContext,
 } from '../agora-rn-uikit';
 export {default as Toolbar} from '../src/atoms/Toolbar';
@@ -58,6 +63,12 @@ export {default as ToolbarItem} from '../src/atoms/ToolbarItem';
 export {default as ToolbarPreset} from '../src/atoms/ToolbarPreset';
 export {default as ToolbarMenu} from '../src/atoms/ToolbarMenu';
 export type {
+  ToolbarPresetAlign,
+  ToolbarDefaultItem,
+  ToolbarDefaultItemConfig,
+  ToolbarItemAlign,
+  ToolbarItemHide,
+  ToolbarDefaultItemName,
   ToolbarCustomItem,
   ToolbarPresetProps,
 } from '../src/atoms/ToolbarPreset';

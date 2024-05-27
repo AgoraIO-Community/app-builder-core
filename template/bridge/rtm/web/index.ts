@@ -19,6 +19,7 @@ import {
 import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
 import RtmClient from 'agora-react-native-rtm';
+import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
 // export {RtmAttribute}
 //
 interface RtmAttributePlaceholder {}
@@ -59,7 +60,7 @@ export default class RtmEngine {
   ]);
   constructor() {
     this.appId = '';
-    console.log('Using RTM Bridge');
+    logger.debug(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
   }
 
   on(event: any, listener: any) {
@@ -98,6 +99,36 @@ export default class RtmEngine {
   createClient(APP_ID: string) {
     this.appId = APP_ID;
     this.client = AgoraRTM.createInstance(this.appId);
+
+    if ($config.GEO_FENCING) {
+      try {
+        //include area is comma seperated value
+        let includeArea = $config.GEO_FENCING_INCLUDE_AREA
+          ? $config.GEO_FENCING_INCLUDE_AREA
+          : AREAS.GLOBAL;
+
+        //exclude area is single value
+        let excludeArea = $config.GEO_FENCING_EXCLUDE_AREA
+          ? $config.GEO_FENCING_EXCLUDE_AREA
+          : '';
+
+        includeArea = includeArea?.split(',');
+
+        //pass excludedArea if only its provided
+        if (excludeArea) {
+          AgoraRTM.setArea({
+            areaCodes: includeArea,
+            excludedArea: excludeArea,
+          });
+        }
+        //otherwise we can pass area directly
+        else {
+          AgoraRTM.setArea({areaCodes: includeArea});
+        }
+      } catch (setAeraError) {
+        console.log('error on RTM setArea', setAeraError);
+      }
+    }
 
     window.rtmClient = this.client;
 
@@ -268,8 +299,8 @@ export default class RtmEngine {
 
   async queryPeersOnlineStatus(uid: Array<String>) {
     let peerArray: Array<any> = [];
-    await this.client.queryPeersOnlineStatus(uid).then((list) => {
-      Object.entries(list).forEach((value) => {
+    await this.client.queryPeersOnlineStatus(uid).then(list => {
+      Object.entries(list).forEach(value => {
         peerArray.push({
           online: value[1],
           uid: value[0],
@@ -306,7 +337,7 @@ export default class RtmEngine {
 
   async replaceLocalUserAttributes(attributes: string[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -316,7 +347,7 @@ export default class RtmEngine {
 
   async setLocalUserAttributes(attributes: string[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -327,7 +358,7 @@ export default class RtmEngine {
 
   async addOrUpdateLocalUserAttributes(attributes: RtmAttribute[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;

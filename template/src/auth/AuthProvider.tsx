@@ -37,6 +37,7 @@ import {
   authSessionTimeoutToastHeading,
   loadingText,
 } from '../language/default-labels/commonLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export const GET_USER = gql`
   query getUser {
@@ -169,20 +170,37 @@ const AuthProvider = (props: AuthProviderProps) => {
                 })
                 .catch(() => {
                   setIsAuthenticated(false);
-                  console.log('debugging error on IDP token setting');
+                  logger.error(
+                    LogSource.Internals,
+                    'AUTH',
+                    'error on IDP token setting',
+                  );
                 });
             } else {
-              console.log('debugging deep-linking token is empty');
+              logger.error(
+                LogSource.Internals,
+                'AUTH',
+                'deep-linking token is empty',
+              );
               history.push('/');
             }
           } else if (url?.indexOf('authorize') === -1) {
-            console.log('debugging deep-linking setting return to');
+            logger.error(
+              LogSource.Internals,
+              'AUTH',
+              `deep-linking setting return to - ${url}`,
+            );
             setReturnTo(url);
           } else {
             history.push(url);
           }
         } catch (error) {
-          console.log('debugging deep-linking error catch');
+          logger.error(
+            LogSource.Internals,
+            'AUTH',
+            'deep-linking error catch',
+            error,
+          );
           history.push('/');
         }
       } else {
@@ -285,12 +303,18 @@ const AuthProvider = (props: AuthProviderProps) => {
   useEffect(() => {
     // Ignore if on sdk since IDP flow is not supported
     // For unauthenticated flow authLogin should be called to get the token
+    logger.log(LogSource.Internals, 'AUTH', 'App loaded');
     if (isSDK() && ENABLE_AUTH) {
       setIsAuthenticated(true);
       setLoading(false);
       return () => {};
     }
     //if application in authorization state then don't call authlogin
+    logger.log(
+      LogSource.Internals,
+      'AUTH',
+      'check if application is in authorized state ?',
+    );
     if (
       //to check authoriztion
       location?.pathname?.indexOf('authorize') === -1 &&
@@ -299,12 +323,22 @@ const AuthProvider = (props: AuthProviderProps) => {
       location?.search?.indexOf('msg') === -1
     ) {
       //fetch user details
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API fetching user_details, to check if user is authenticated',
+      );
       getUserDetails()
         .then(_ => {
           //Each time user refresh the page we have to redirect the user to IDP login.then only we can able to refresh the token
           //because we can't read the cookie so we don't know expirytime.
           //so each time page refresh will get new token
           //then only
+          logger.log(
+            LogSource.NetworkRest,
+            'user_details',
+            'API user_details query succesful. User is authenticated',
+          );
           if (isWeb() && $config.ENABLE_IDP_AUTH) {
             //authLogin();this is for cookie based authentication
             setIsAuthenticated(true);
@@ -312,7 +346,13 @@ const AuthProvider = (props: AuthProviderProps) => {
             setIsAuthenticated(true);
           }
         })
-        .catch(() => {
+        .catch(error => {
+          logger.log(
+            LogSource.NetworkRest,
+            'user_details',
+            'API user details query failed. User is un-authenticated. Will Login in the user',
+            error,
+          );
           setIsAuthenticated(false);
           authLogin();
         });
@@ -338,11 +378,18 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogin = () => {
     // Authenticated login flow
+    logger.log(LogSource.Internals, 'AUTH', 'Trying to authenticate the user');
     if (ENABLE_AUTH) {
       //AUTH -> IDP -> NATIVE and WEB and DESKTOP
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
         //it will open external web link and post authentication it will redirect to application
         //@ts-ignore
+        logger.log(LogSource.Internals, 'AUTH', 'IDP auth enabled');
+        logger.log(
+          LogSource.NetworkRest,
+          'idp_login',
+          'API idp_login Trying to authenticate user',
+        );
         enableIDPAuth(
           isWeb()
             ? location.pathname
@@ -353,6 +400,12 @@ const AuthProvider = (props: AuthProviderProps) => {
             : '',
           timeoutHeading,
         )?.then((response: any) => {
+          logger.log(
+            LogSource.NetworkRest,
+            'idp_login',
+            'API idp_login authentication successful',
+            response,
+          );
           if (isAndroid() || isIOS()) {
             if (response && response?.showNativePopup) {
               setShowNativePopup(true);
@@ -364,8 +417,20 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
+        logger.log(LogSource.Internals, 'AUTH', 'Token auth enabled');
+        logger.log(
+          LogSource.NetworkRest,
+          'token_login',
+          'API token_login Trying to authenticate user',
+        );
         enableTokenAuth()
           .then(res => {
+            logger.log(
+              LogSource.NetworkRest,
+              'token_login',
+              'API token_login User Authenticated successfully',
+              res,
+            );
             setIsAuthenticated(true);
             history.push('/create');
           })
@@ -373,6 +438,12 @@ const AuthProvider = (props: AuthProviderProps) => {
             //don't show token expire/not found toast in the sdk
             //we have event emitter to inform the customer application
             //they have to listen for those events
+            logger.error(
+              LogSource.NetworkRest,
+              'token_login',
+              'API token_login failed. There was an error',
+              error,
+            );
             if (!isSDK()) {
               if (error instanceof Error) {
                 setAuthError(error.message);
@@ -388,6 +459,16 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
     // Unauthenticated login flow
     else {
+      logger.log(
+        LogSource.Internals,
+        'AUTH',
+        'Project has No auth(token or idp) enabled',
+      );
+      logger.log(
+        LogSource.NetworkRest,
+        'unauth_login',
+        'API unauth_login Trying to authenticate user',
+      );
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
       })
@@ -395,9 +476,28 @@ const AuthProvider = (props: AuthProviderProps) => {
         .then(response => {
           // unauthenticated flow all platform we will have to handle the token manually
           // we need to store token manually
+          logger.log(
+            LogSource.NetworkRest,
+            'unauth_login',
+            'API unauth_login authentication successful. User is logged in.',
+            response.token,
+          );
           if (!response.token) {
+            logger.error(
+              LogSource.NetworkRest,
+              'unauth_login',
+              'API unauth_login failed. There was an error',
+              {
+                data: 'Token not received',
+              },
+            );
             throw new Error('Token not received');
           } else {
+            isWeb() &&
+              sessionStorage.setItem(
+                'user_id',
+                JSON.parse(atob(response.token?.split('.')[1]))?.user_id,
+              );
             enableTokenAuth(response.token)
               .then(() => {
                 //set auth enabled on useEffect
@@ -418,6 +518,12 @@ const AuthProvider = (props: AuthProviderProps) => {
           }
         })
         .catch(error => {
+          logger.error(
+            LogSource.NetworkRest,
+            'unauth_login',
+            'API unauth_login failed. There was an error',
+            error,
+          );
           if (error instanceof Error) {
             setAuthError(error.message);
           } else {
@@ -430,12 +536,30 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogout = () => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
+      logger.log(LogSource.Internals, 'AUTH', 'Request to log out');
+      logger.log(
+        LogSource.NetworkRest,
+        'idp_logout',
+        'API idp_logout Trying to log out IDP authenticated user',
+      );
       idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
         .then(res => {
+          logger.log(
+            LogSource.NetworkRest,
+            'idp_logout',
+            'API idp_logout User logged out successfully',
+            res,
+          );
           setIsAuthenticated(false);
         })
-        .catch(() => {
+        .catch(error => {
           setIsAuthenticated(false);
+          logger.error(
+            LogSource.NetworkRest,
+            'idp_logout',
+            'API idp_logout failed. There was an error',
+            error,
+          );
           console.error('user logout failed');
           setAuthError('Error occured on Logout, please try again.');
           setTimeout(() => {
@@ -449,10 +573,28 @@ const AuthProvider = (props: AuthProviderProps) => {
         //sdk with auth flow will use sdk api for logout
         history.push('/create');
       } else {
+        logger.log(LogSource.Internals, 'AUTH', 'Request to log out');
+        logger.log(
+          LogSource.NetworkRest,
+          'token_logout',
+          'API token_logout Trying to log out token authenticated user',
+        );
         tokenLogout()
-          .then(res => {})
-          .catch(() => {
+          .then(res => {
+            logger.log(
+              LogSource.NetworkRest,
+              'token_logout',
+              'API token_logout. Logged out user successfully',
+            );
+          })
+          .catch(error => {
             console.error('user logout failed');
+            logger.error(
+              LogSource.NetworkRest,
+              'token_logout',
+              'API token_logout failed. There was an error',
+              error,
+            );
             setAuthError('Error occured on Logout, please try again.');
           })
           .finally(() => {

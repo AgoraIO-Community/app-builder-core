@@ -24,7 +24,7 @@ const StartScreenSharePopup = () => {
   const {showStartScreenSharePopup, setShowStartScreenSharePopup} =
     useVideoCall();
   const {video} = useLocalUserInfo();
-  const {startUserScreenshare, isScreenshareActive} = useScreenshare();
+  const {startScreenshare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
   const cancelLabel = useString(cancelText)();
   const proceedLabel = useString(nativeScreensharePopupPrimaryBtnText)();
@@ -42,7 +42,7 @@ const StartScreenSharePopup = () => {
   const doStartScreenShare = () => {
     if (!isScreenshareActive) {
       //@ts-ignore native only we will have argument
-      startUserScreenshare && startUserScreenshare(shareAudio);
+      startScreenshare && startScreenshare(shareAudio);
       setShowStartScreenSharePopup(false);
     }
   };

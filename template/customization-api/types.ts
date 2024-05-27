@@ -1,11 +1,12 @@
 //audio/video toggle state
 export {
   ToggleState,
-  ClientRole,
+  ClientRoleType,
 } from '../agora-rn-uikit/src/Contexts/PropsContext';
 export type {
   ContentInterface,
   ContentStateInterface,
+  ExtenedContentInterface,
   UidType,
 } from '../agora-rn-uikit';
 export {
@@ -24,3 +25,9 @@ export type {
   publicAndPrivateChatToastSubHeadingDataInterface,
 } from '../src/language/default-labels/videoCallScreenLabels';
 export type {TextDataInterface} from '../src/language/default-labels';
+export {
+  type ChatOption,
+  ChatMessageType,
+  SDKChatType,
+} from '../src/components/chat-messages/useChatMessages';
+export {UploadStatus} from '../src/components/chat-ui/useChatUIControls';
