@@ -22,6 +22,8 @@ import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
 import {isWebInternal} from './utils/common';
+import {useCustomization} from 'customization-implementation';
+import {logger} from './logger/AppBuilderLogger';
 
 // hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -102,6 +104,14 @@ const App: React.FC = () => {
       }
     };
   }, []);
+
+  // Setting custom logger
+  useCustomization(data => {
+    if (data?.logger) {
+      // Setting custom logger
+      logger.setCustomLogger(data.logger);
+    }
+  });
 
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);

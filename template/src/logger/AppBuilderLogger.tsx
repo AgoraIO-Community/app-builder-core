@@ -123,7 +123,7 @@ export default class AppBuilderLogger implements Logger {
   warn: LogFn;
   debug: LogFn;
   error: LogFn;
-  _customLogger: CustomLogger;
+  private _customLogger: CustomLogger;
 
   constructor(_transportLogger?: any) {
     const session = nanoid();
