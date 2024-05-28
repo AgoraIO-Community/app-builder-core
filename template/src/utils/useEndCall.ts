@@ -7,6 +7,7 @@ import {stopForegroundService} from '../subComponents/LocalEndCall';
 import RTMEngine from '../rtm/RTMEngine';
 import {ENABLE_AUTH} from '../auth/config';
 import {useAuth} from '../auth/AuthProvider';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 
 const useEndCall = () => {
   const history = useHistory();
@@ -16,6 +17,7 @@ const useEndCall = () => {
     data: {isHost},
   } = useRoomInfo();
   const {authLogin} = useAuth();
+  const {deleteChatUser} = useChatConfigure();
 
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
@@ -49,11 +51,16 @@ const useEndCall = () => {
       item => item[1].type === 'rtc',
     );
     usersInCall.length === 1 && isSTTActive && stop();
+    // removing user from chat server
+    if ($config.CHAT) {
+      deleteChatUser();
+    }
     RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
     if (!ENABLE_AUTH) {
       // await authLogout();
       await authLogin();
     }
+
     try {
       await afterEndCall(isHost, history as unknown as History);
     } catch (error) {

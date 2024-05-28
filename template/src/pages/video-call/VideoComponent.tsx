@@ -4,7 +4,7 @@ import useLayoutsData from './useLayoutsData';
 import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
 import {PropsContext, ClientRoleType} from '../../../agora-rn-uikit';
 import {useLayout} from '../../utils/useLayout';
-import {useContent} from 'customization-api';
+import {useContent, useRoomInfo} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
 import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
@@ -22,11 +22,17 @@ const VideoComponent = () => {
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const [showNoUserInfo, setShowNoUserInfo] = useState(false);
 
+  const {
+    roomPreference: {disableShareTile},
+  } = useRoomInfo();
+
   useEffect(() => {
-    setTimeout(() => {
-      setShowNoUserInfo(true);
-    }, 2500);
-  }, []);
+    if (!disableShareTile) {
+      setTimeout(() => {
+        setShowNoUserInfo(true);
+      }, 2500);
+    }
+  }, [disableShareTile]);
 
   const currentLayoutRef = useRef(currentLayout);
   const gridLayoutName = getGridLayoutName();

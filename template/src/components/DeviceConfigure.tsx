@@ -163,7 +163,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     let updatedDeviceList: MediaDeviceInfo[];
     await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
       !noEmitLog &&
-        logger.debug(
+        console.debug(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           'Fetching all devices: ',
@@ -191,7 +191,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       );
 
       !noEmitLog &&
-        logger.debug(
+        console.debug(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           'Setting unique devices',
@@ -224,7 +224,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             RtcEngineUnsafe.audioDeviceId
           : //@ts-ignore
             RtcEngineUnsafe.videoDeviceId;
-      logger.debug(
+      console.debug(
         LogSource.Internals,
         'DEVICE_CONFIGURE',
         `Agora ${type} Engine is using ${currentDevice}`,
@@ -233,7 +233,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       currentDevice = localStream[type]
         ?.getMediaStreamTrack()
         .getSettings().deviceId;
-      logger.debug(
+      console.debug(
         LogSource.Internals,
         'DEVICE_CONFIGURE',
         `Agora ${type} Track is using ${currentDevice}`,
@@ -249,7 +249,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
    * truth.
    */
   const syncSelectedDeviceUi = (kind?: deviceKind) => {
-    logger.debug(
+    console.debug(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
       'Refreshing',

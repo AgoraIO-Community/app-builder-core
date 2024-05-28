@@ -253,7 +253,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           logger.debug(
             LogSource.NetworkRest,
             'recording_start',
-            'start recording successfull',
+            'start recording successfully',
             res,
           );
           /**

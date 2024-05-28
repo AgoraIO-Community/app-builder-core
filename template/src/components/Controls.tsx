@@ -37,6 +37,7 @@ import {
   isWeb,
   isWebInternal,
   useIsDesktop,
+  updateToolbarDefaultConfig,
 } from '../utils/common';
 import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
@@ -68,7 +69,11 @@ import ImageIcon from '../atoms/ImageIcon';
 import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
-import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import {
+  ToolbarCustomItem,
+  ToolbarDefaultItem,
+  ToolbarDefaultItemConfig,
+} from '../atoms/ToolbarPreset';
 
 import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
@@ -460,12 +465,16 @@ const MoreButton = () => {
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 
-  if ($config.ENABLE_STT) {
+  if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
+      disabled: !(
+        $config.ENABLE_STT &&
+        $config.ENABLE_CAPTION &&
+        (isHost || (!isHost && isSTTActive))
+      ),
       title: captionLabel(isCaptionON),
       callback: () => {
         setActionMenuVisible(false);
@@ -484,31 +493,38 @@ const MoreButton = () => {
       },
     });
 
-    actionMenuitems.push({
-      icon: 'transcript',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: transcriptLabel(isTranscriptON),
-      callback: () => {
-        setActionMenuVisible(false);
-        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-        if (isSTTError) {
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-          return;
-        }
-        if (isSTTActive) {
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-        } else {
-          isFirstTimePopupOpen.current = true;
-          setLanguagePopup(true);
-        }
-      },
-    });
+    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+      actionMenuitems.push({
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        disabled: !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          $config.ENABLE_MEETING_TRANSCRIPT &&
+          (isHost || (!isHost && isSTTActive))
+        ),
+        title: transcriptLabel(isTranscriptON),
+        callback: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+          if (isSTTError) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+            return;
+          }
+          if (isSTTActive) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
+    }
   }
 
   // view recordings
@@ -780,20 +796,6 @@ export const InviteToolbarItem = () => {
     </ToolbarItem>
   );
 };
-const defaultStartItems: Array<ToolbarCustomItem> = [
-  {
-    align: 'start',
-    component: LayoutToolbarItem,
-    order: 0,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: InviteToolbarItem,
-    order: 1,
-    hide: 'no',
-  },
-];
 
 export const RaiseHandToolbarItem = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -889,7 +891,9 @@ export const MoreButtonToolbarItem = () => {
   }, [isHost]);
 
   return width < BREAKPOINTS.md ||
-    ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
+    ($config.ENABLE_STT &&
+      $config.ENABLE_CAPTION &&
+      (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
     (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
@@ -919,65 +923,90 @@ export const LocalEndcallToolbarItem = (
   );
 };
 
-const defaultCenterItems: ToolbarCustomItem[] = [
+const defaultItems: ToolbarDefaultItem[] = [
   {
     align: 'start',
-    component: RaiseHandToolbarItem,
+    component: LayoutToolbarItem,
+    componentName: 'layout',
     order: 0,
     hide: 'no',
   },
   {
     align: 'start',
-    component: LocalAudioToolbarItem,
+    component: InviteToolbarItem,
+    componentName: 'invite',
     order: 1,
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
+    component: RaiseHandToolbarItem,
+    componentName: 'raise-hand',
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'center',
+    component: LocalAudioToolbarItem,
+    componentName: 'local-audio',
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'center',
     component: LocalVideoToolbarItem,
+    componentName: 'local-video',
     order: 2,
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
     component: SwitchCameraToolbarItem,
+    componentName: 'switch-camera',
     order: 3,
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
     component: ScreenShareToolbarItem,
+    componentName: 'screenshare',
     order: 4,
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
     component: RecordingToolbarItem,
+    componentName: 'recording',
     order: 5,
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
     component: MoreButtonToolbarItem,
+    componentName: 'more',
     order: 6,
     hide: 'no',
   },
   {
-    align: 'start',
+    align: 'center',
+    componentName: 'end-call',
     component: LocalEndcallToolbarItem,
     order: 7,
     hide: 'no',
   },
 ];
 
-const defaultEndItems: ToolbarCustomItem[] = [];
-
 export interface ControlsProps {
   customItems?: ToolbarCustomItem[];
   includeDefaultItems?: boolean;
+  defaultItemsConfig?: ToolbarDefaultItemConfig;
 }
 const Controls = (props: ControlsProps) => {
-  const {customItems = [], includeDefaultItems = true} = props;
+  const {
+    customItems = [],
+    includeDefaultItems = true,
+    defaultItemsConfig = {},
+  } = props;
   const {width} = useWindowDimensions();
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
@@ -1083,18 +1112,30 @@ const Controls = (props: ControlsProps) => {
     return i?.hide === 'yes';
   };
   const customStartItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => i?.align === 'start' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => i?.align === 'center' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
+    ?.concat(
+      includeDefaultItems
+        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
+        : [],
+    )
     ?.filter(i => i?.align === 'end' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort(CustomToolbarSort);
 
   const renderContent = (

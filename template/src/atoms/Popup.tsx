@@ -22,8 +22,11 @@ interface PopupProps extends ModalProps {
   showCloseIcon?: boolean;
   children: React.ReactNode;
   contentContainerStyle?: ViewStyle;
+  bodyContainerStyle?: ViewStyle;
+  closeBtnStyle?: ViewStyle;
   containerStyle?: ViewStyle;
   cancelable?: boolean;
+  headerComponent?: React.ReactNode;
 }
 const Popup = (props: PopupProps) => {
   const {
@@ -34,6 +37,9 @@ const Popup = (props: PopupProps) => {
     children,
     showCloseIcon,
     cancelable = true,
+    bodyContainerStyle = {},
+    closeBtnStyle = {},
+    headerComponent = null,
     ...otherProps
   } = props;
 
@@ -62,10 +68,12 @@ const Popup = (props: PopupProps) => {
         </TouchableWithoutFeedback>
 
         <View style={[styles.modalView, props?.contentContainerStyle]}>
-          {title || showCloseIcon ? (
+          {title || showCloseIcon || headerComponent ? (
             <>
               <View style={styles.header}>
-                <Text style={styles.title}>{title}</Text>
+                {title && <Text style={styles.title}>{title}</Text>}
+                {headerComponent}
+
                 {showCloseIcon ? (
                   <View>
                     <IconButton
@@ -78,6 +86,7 @@ const Popup = (props: PopupProps) => {
                         iconType: 'plain',
                         iconContainerStyle: {
                           padding: isMobileUA() ? 0 : 5,
+                          ...closeBtnStyle,
                         },
                         name: 'close',
                         tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -97,12 +106,12 @@ const Popup = (props: PopupProps) => {
                 <></>
               )}
 
-              <Spacer size={32} />
+              {title ? <Spacer size={32} /> : null}
             </>
           ) : (
             <></>
           )}
-          {children}
+          <View style={bodyContainerStyle}>{children}</View>
         </View>
       </View>
     </Modal>

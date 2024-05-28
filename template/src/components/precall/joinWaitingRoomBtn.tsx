@@ -105,7 +105,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   useEffect(() => {
     events.on(EventNames.WAITING_ROOM_RESPONSE, data => {
-      const {approved, mainUser, screenShare, whiteboard} = JSON.parse(
+      const {approved, mainUser, screenShare, whiteboard, chat} = JSON.parse(
         data?.payload,
       );
       // stop polling if user has responsed with yes / no
@@ -133,6 +133,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
               screenShareToken: screenShare.rtc,
               screenShareUid: screenShare.uid,
               whiteboard,
+              chat: {
+                user_token: chat.userToken,
+                group_id: chat.groupId,
+                is_group_owner: chat.isGroupOwner,
+              },
             },
           };
         });

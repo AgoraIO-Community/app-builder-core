@@ -16,6 +16,11 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
       title
       isHost
       secret
+      chat {
+        groupId
+        userToken
+        isGroupOwner
+      }
       secretSalt
       mainUser {
         rtc
@@ -46,6 +51,11 @@ const JOIN_CHANNEL_PHRASE = gql`
       title
       isHost
       secret
+      chat {
+        groupId
+        userToken
+        isGroupOwner
+      }
       secretSalt
       mainUser {
         rtc
@@ -67,6 +77,11 @@ const JOIN_CHANNEL_PHRASE = gql`
 /**
  * Returns an asynchronous function to join a meeting with the given phrase.
  */
+
+export interface joinRoomPreference {
+  disableShareTile: boolean;
+}
+
 export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
   const {setRoomInfo} = useSetRoomInfo();
@@ -76,7 +91,7 @@ export default function useJoinRoom() {
   const {request: requestToJoin} = useWaitingRoomAPI();
   const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
 
-  return async (phrase: string) => {
+  return async (phrase: string, preference?: joinRoomPreference) => {
     setRoomInfo(prevState => {
       return {
         ...prevState,
@@ -177,6 +192,28 @@ export default function useJoinRoom() {
               ? data.screenShare.rtc
               : data.joinChannel.screenShare.rtc;
           }
+
+          if (data?.joinChannel?.mainUser?.rtm || data?.mainUser?.rtm) {
+            roomInfo.rtmToken = isWaitingRoomEnabled
+              ? data.mainUser.rtm
+              : data.joinChannel.mainUser.rtm;
+          }
+          if (data?.joinChannel?.chat || data?.chat) {
+            const chat: RoomInfoContextInterface['data']['chat'] = {
+              user_token: isWaitingRoomEnabled
+                ? data.chat.userToken
+                : data?.joinChannel?.chat?.userToken,
+              group_id: isWaitingRoomEnabled
+                ? data.chat.groupId
+                : data?.joinChannel?.chat?.groupId,
+              is_group_owner: isWaitingRoomEnabled
+                ? data.chat.isGroupOwner
+                : data?.joinChannel?.chat?.isGroupOwner,
+            };
+
+            roomInfo.chat = chat;
+          }
+
           roomInfo.isHost = isWaitingRoomEnabled
             ? data.isHost
             : data.joinChannel.isHost;
@@ -212,6 +249,7 @@ export default function useJoinRoom() {
               ...prevState,
               isJoinDataFetched: true,
               data: compiledMeetingInfo,
+              roomPreference: {...preference},
             };
           });
           return roomInfo;

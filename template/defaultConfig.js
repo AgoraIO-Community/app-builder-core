@@ -62,6 +62,8 @@ const DefaultConfig = {
   ENABLE_IDP_AUTH: false,
   ENABLE_TOKEN_AUTH: false,
   ENABLE_STT: false,
+  ENABLE_CAPTION: true,
+  ENABLE_MEETING_TRANSCRIPT: true,
   ENABLE_NOISE_CANCELLATION: true,
   ENABLE_VIRTUAL_BACKGROUND: true,
   ENABLE_WHITEBOARD: false,
@@ -70,6 +72,9 @@ const DefaultConfig = {
   WHITEBOARD_APPIDENTIFIER: '',
   WHITEBOARD_REGION: '',
   ENABLE_NOISE_CANCELLATION_BY_DEFAULT: false,
+  CHAT_ORG_NAME: '',
+  CHAT_APP_NAME: '',
+  CHAT_URL: '',
 };
 
 module.exports = DefaultConfig;
