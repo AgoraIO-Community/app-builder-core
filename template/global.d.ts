@@ -53,6 +53,7 @@ interface ConfigInterface {
   PRECALL: boolean;
   CHAT: boolean;
   CLOUD_RECORDING: boolean;
+  RECORDING_MODE: 'WEB' | 'MIX';
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;

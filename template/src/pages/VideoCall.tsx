@@ -145,7 +145,7 @@ const VideoCall: React.FC = () => {
     ? false
     : true;
   const [callActive, setCallActive] = useState(shouldCallBeSetToActive);
-
+  const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
@@ -403,22 +403,25 @@ const VideoCall: React.FC = () => {
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure>
-                                              <RecordingProvider
-                                                value={{
-                                                  callActive,
-                                                }}>
-                                                <ScreenshareConfigure>
-                                                  <LiveStreamContextProvider
-                                                    value={{
-                                                      setRtcProps,
-                                                      rtcProps,
-                                                      callActive,
-                                                    }}>
-                                                    <LiveStreamDataProvider>
-                                                      <LocalUserContext
-                                                        localUid={
-                                                          rtcProps?.uid
-                                                        }>
+                                              <ScreenshareConfigure
+                                                isRecordingActive={
+                                                  isRecordingActive
+                                                }>
+                                                <LiveStreamContextProvider
+                                                  value={{
+                                                    setRtcProps,
+                                                    rtcProps,
+                                                    callActive,
+                                                  }}>
+                                                  <LiveStreamDataProvider>
+                                                    <LocalUserContext
+                                                      localUid={rtcProps?.uid}>
+                                                      <RecordingProvider
+                                                        value={{
+                                                          setRecordingActive,
+                                                          isRecordingActive,
+                                                          callActive,
+                                                        }}>
                                                         <NetworkQualityProvider>
                                                           {!isMobileUA() && (
                                                             <PermissionHelper />
@@ -447,11 +450,11 @@ const VideoCall: React.FC = () => {
                                                             </SdkMuteToggleListener>
                                                           </VBProvider>
                                                         </NetworkQualityProvider>
-                                                      </LocalUserContext>
-                                                    </LiveStreamDataProvider>
-                                                  </LiveStreamContextProvider>
-                                                </ScreenshareConfigure>
-                                              </RecordingProvider>
+                                                      </RecordingProvider>
+                                                    </LocalUserContext>
+                                                  </LiveStreamDataProvider>
+                                                </LiveStreamContextProvider>
+                                              </ScreenshareConfigure>
                                             </EventsConfigure>
                                           </WaitingRoomProvider>
                                         </CaptionProvider>
