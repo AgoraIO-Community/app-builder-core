@@ -895,6 +895,7 @@ export const MoreButtonToolbarItem = () => {
       $config.ENABLE_CAPTION &&
       (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
+    (isHost && $config.CLOUD_RECORDING && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
     (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
     <ToolbarItem testID="more-btn">
