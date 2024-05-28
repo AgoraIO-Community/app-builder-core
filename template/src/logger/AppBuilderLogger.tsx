@@ -214,6 +214,13 @@ export default class AppBuilderLogger implements Logger {
 
   setCustomLogger = (_customLogger: CustomLogger) => {
     this._customLogger = _customLogger;
+    _customLogger(
+      'App intitialized with config.json',
+      {
+        config: configJSON,
+      },
+      'debug',
+    );
   };
 }
 
