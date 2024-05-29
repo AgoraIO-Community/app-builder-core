@@ -20,6 +20,7 @@ import {
   ChatMessage,
   ChatMessageChatType,
 } from 'react-native-agora-chat';
+import {isAndroid} from '../../utils/common';
 
 import {
   chatUploadErrorToastHeading,
@@ -159,7 +160,9 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             msgId: message.msgId,
             isDeleted: false,
             type: message.body.type,
-            thumb: message.body?.localPath,
+            thumb: isAndroid()
+              ? 'file://' + message.body?.localPath
+              : message.body?.localPath,
             url: message.body?.remotePath,
             ext: message.attributes?.file_ext,
             fileName: message.attributes?.file_name,

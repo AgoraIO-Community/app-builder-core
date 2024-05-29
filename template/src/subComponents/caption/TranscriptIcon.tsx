@@ -27,9 +27,9 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isMobileView = false,
   } = props;
 
-  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
+  const {start, restart, isAuthorizedTranscriptUser} = useSTTAPI();
   const {isSTTActive, language: prevLang, isSTTError} = useCaption();
-  const isDisabled = !isAuthorizedSTTUser();
+  const isDisabled = !isAuthorizedTranscriptUser();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);

@@ -77,6 +77,11 @@ const JOIN_CHANNEL_PHRASE = gql`
 /**
  * Returns an asynchronous function to join a meeting with the given phrase.
  */
+
+export interface joinRoomPreference {
+  disableShareTile: boolean;
+}
+
 export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
   const {setRoomInfo} = useSetRoomInfo();
@@ -86,7 +91,7 @@ export default function useJoinRoom() {
   const {request: requestToJoin} = useWaitingRoomAPI();
   const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
 
-  return async (phrase: string) => {
+  return async (phrase: string, preference?: joinRoomPreference) => {
     setRoomInfo(prevState => {
       return {
         ...prevState,
@@ -244,6 +249,7 @@ export default function useJoinRoom() {
               ...prevState,
               isJoinDataFetched: true,
               data: compiledMeetingInfo,
+              roomPreference: {...preference},
             };
           });
           return roomInfo;

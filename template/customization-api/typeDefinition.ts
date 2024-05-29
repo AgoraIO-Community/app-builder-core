@@ -74,6 +74,8 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   chat?: ChatCmpInterface;
+  captionPanel?: React.ComponentType;
+  transcriptPanel?: React.ComponentType;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
   invitePopup?: {

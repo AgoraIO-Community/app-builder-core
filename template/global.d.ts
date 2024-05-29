@@ -53,6 +53,7 @@ interface ConfigInterface {
   PRECALL: boolean;
   CHAT: boolean;
   CLOUD_RECORDING: boolean;
+  RECORDING_MODE: 'WEB' | 'MIX';
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;
@@ -104,6 +105,8 @@ interface ConfigInterface {
   ENABLE_IDP_AUTH: boolean;
   PROJECT_ID: string;
   ENABLE_STT: boolean;
+  ENABLE_CAPTION: boolean;
+  ENABLE_MEETING_TRANSCRIPT: boolean;
   ENABLE_NOISE_CANCELLATION: boolean;
   ENABLE_VIRTUAL_BACKGROUND: boolean;
   ENABLE_WHITEBOARD: boolean;

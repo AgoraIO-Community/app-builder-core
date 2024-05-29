@@ -63,6 +63,15 @@ export {default as ToolbarItem} from '../src/atoms/ToolbarItem';
 export {default as ToolbarPreset} from '../src/atoms/ToolbarPreset';
 export {default as ToolbarMenu} from '../src/atoms/ToolbarMenu';
 export type {
+  ToolbarPresetAlign,
+  ToolbarDefaultItem,
+  ToolbarDefaultItemConfig,
+  ToolbarItemAlign,
+  ToolbarItemHide,
+  ToolbarDefaultItemName,
   ToolbarCustomItem,
   ToolbarPresetProps,
 } from '../src/atoms/ToolbarPreset';
+export {default as TranscriptPanel} from '../src/subComponents/caption/Transcript';
+export type {TranscriptProps} from '../src/subComponents/caption/Transcript';
+export {default as CaptionPanel} from '../src/subComponents/caption/CaptionContainer';
