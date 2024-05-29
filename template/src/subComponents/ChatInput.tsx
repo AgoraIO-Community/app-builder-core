@@ -9,61 +9,59 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
-import ColorContext from '../components/ColorContext';
+import React, {useEffect, useRef} from 'react';
+import {
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
-import {isValidReactComponent, isWebInternal} from '../utils/common';
-import {useCustomization} from 'customization-implementation';
+import {isWeb, isWebInternal} from '../utils/common';
 import {
   ChatType,
+  UploadStatus,
   useChatUIControls,
+  MIN_HEIGHT,
+  MAX_HEIGHT,
+  LINE_HEIGHT,
+  MAX_TEXT_MESSAGE_SIZE,
 } from '../components/chat-ui/useChatUIControls';
-import {useContent, useUserName} from 'customization-api';
+import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
+import {useChatConfigure} from '../components/chat/chatConfigure';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {ChatAttachmentButton} from './chat/ChatAttachment';
+import ChatSendButton from './chat/ChatSendButton';
 import {
-  groupChatInputPlaceHolderText,
+  ChatMessageType,
+  SDKChatType,
+} from '../components/chat-messages/useChatMessages';
+import {
+  groupChatLiveInputPlaceHolderText,
+  groupChatMeetingInputPlaceHolderText,
   privateChatInputPlaceHolderText,
+  chatSendErrorTextSizeToastHeading,
+  chatSendErrorTextSizeToastSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
+import ChatUploadStatus from './chat/ChatUploadStatus';
+import {AttachmentBubble} from './ChatBubble';
+import IconButton from '../atoms/IconButton';
+import Toast from '../../react-native-toast-message';
 
-export interface ChatSendButtonProps {
-  render?: (onPress: () => void) => JSX.Element;
-}
-
-export const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {
-    privateChatUser: selectedUserId,
-    message,
-    setMessage,
-    inputActive,
-  } = useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
-  const onPress = () => {
-    if (!selectedUserId) {
-      sendChatMessage(message);
-      setMessage && setMessage('');
-    } else {
-      sendChatMessage(message, selectedUserId);
-      setMessage && setMessage('');
-    }
-  };
-  return props?.render ? (
-    props.render(onPress)
-  ) : (
-    <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
-      <ImageIcon
-        iconType="plain"
-        tintColor={
-          inputActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NEUTRAL
-        }
-        name={'send'}
-      />
-    </TouchableOpacity>
+const ChatPanel = () => {
+  return (
+    <View style={style.chatPanelContainer}>
+      <View style={style.chatPanel}>
+        <ChatAttachmentButton />
+        <ChatEmojiButton />
+      </View>
+      <ChatSendButton />
+    </View>
   );
 };
 export interface ChatTextInputProps {
@@ -76,35 +74,27 @@ export interface ChatTextInputProps {
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
   let chatInputRef = useRef(null);
-  const {privateChatUser, message, setMessage, inputActive, chatType} =
-    useChatUIControls();
-  const {sendChatMessage} = useChatMessages();
+  const {
+    privateChatUser,
+    message,
+    setMessage,
+    inputActive,
+    setInputActive,
+    chatType,
+    uploadStatus,
+    uploadedFiles,
+    setUploadedFiles,
+    inputHeight,
+    setInputHeight,
+  } = useChatUIControls();
   const {defaultContent} = useContent();
-  //commented for v1 release
-  // const chatMessageInputPlaceholder = useString(
-  //   'chatMessageInputPlaceholder',
-  // )();
-  const [name] = useUserName();
-  const groupChatInputPlaceHolder = useString(groupChatInputPlaceHolderText);
-  const privateChatInputPlaceHolder = useString(
-    privateChatInputPlaceHolderText,
-  );
+  const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
 
-  const chatMessageInputPlaceholder =
-    chatType === ChatType.Private
-      ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
-      : groupChatInputPlaceHolder(name);
-  const onChangeText = (text: string) => setMessage(text);
-  const onSubmitEditing = () => {
-    if (!privateChatUser) {
-      sendChatMessage(message);
-      setMessage('');
-    } else {
-      sendChatMessage(message, privateChatUser);
-      setMessage('');
+  React.useEffect(() => {
+    if (message.length === 0) {
+      setInputHeight(MIN_HEIGHT);
     }
-  };
-  const {setInputActive} = useChatUIControls();
+  }, [message]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -114,6 +104,80 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     });
   }, []);
 
+  const {data} = useRoomInfo();
+  const [name] = useUserName();
+  const toastHeadingSize = useString(chatSendErrorTextSizeToastHeading)();
+  const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
+
+  const isUploadStatusShown =
+    uploadStatus === UploadStatus.IN_PROGRESS ||
+    uploadStatus === UploadStatus.FAILURE;
+
+  const groupChatInputPlaceHolder = $config.EVENT_MODE
+    ? useString(groupChatLiveInputPlaceHolderText)
+    : useString(groupChatMeetingInputPlaceHolderText);
+  const privateChatInputPlaceHolder = useString(
+    privateChatInputPlaceHolderText,
+  );
+
+  const chatMessageInputPlaceholder =
+    chatType === ChatType.Private
+      ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
+      : groupChatInputPlaceHolder(name);
+
+  const onChangeText = (text: string) => {
+    setMessage(text);
+  };
+  const onSubmitEditing = () => {
+    if (message.length === 0) return;
+    const groupID = data.chat.group_id;
+
+    if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: toastHeadingSize,
+        text2: errorSubHeadingSize(MAX_TEXT_MESSAGE_SIZE.toString()),
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      return;
+    }
+
+    const option = {
+      chatType: privateChatUser
+        ? SDKChatType.SINGLE_CHAT
+        : SDKChatType.GROUP_CHAT,
+      type: ChatMessageType.TXT,
+      from: data.uid.toString(),
+      to: privateChatUser ? privateChatUser.toString() : groupID,
+      msg: message,
+    };
+    sendChatSDKMessage(option);
+    setInputHeight(MIN_HEIGHT);
+    setMessage('');
+  };
+
+  // with multiline textinput enter prints /n
+  const handleKeyPress = ({nativeEvent}) => {
+    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
+      onSubmitEditing();
+      nativeEvent.preventDefault();
+    }
+  };
+
+  const handleContentSizeChange = e => {
+    const contentHeight = e.nativeEvent.contentSize.height;
+    const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
+    const newHeight = lines < 5 ? LINE_HEIGHT * lines + 24 + 2 : MAX_HEIGHT; // Assuming lineHeight is LINE_HEIGHT
+    setInputHeight(newHeight);
+  };
+
+  const handleUploadRetry = () => {
+    uploadAttachment(uploadedFiles[0]);
+  };
+
   return props?.render ? (
     props.render(
       message,
@@ -122,34 +186,104 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       chatMessageInputPlaceholder,
     )
   ) : (
-    <TextInput
-      setRef={ref => (chatInputRef.current = ref)}
-      onFocus={() => setInputActive(true)}
-      onBlur={() => setInputActive(false)}
-      value={message}
-      onChangeText={onChangeText}
-      style={{
-        minHeight: 56,
-        borderRadius: 0,
-        borderBottomLeftRadius: 12,
-        borderWidth: 0,
-        color: $config.FONT_COLOR,
-        textAlign: 'left',
-        paddingVertical: 21,
-        paddingLeft: 20,
-        flex: 1,
-        alignSelf: 'center',
-        fontFamily: ThemeConfig.FontFamily.sansPro,
-        fontWeight: '400',
-      }}
-      blurOnSubmit={false}
-      onSubmitEditing={onSubmitEditing}
-      placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={
-        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-      }
-      autoCorrect={false}
-    />
+    <>
+      {uploadedFiles.length > 0 ? (
+        <View
+          style={[
+            style.attachmentContainer,
+            isUploadStatusShown
+              ? {
+                  borderTopLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                  borderTopWidth: 0,
+                }
+              : {borderRadius: 8, borderTopWidth: 1},
+          ]}>
+          {uploadedFiles.map((file, index) => (
+            <AttachmentBubble
+              key={index}
+              fileName={file.file_name}
+              fileExt={file.file_ext}
+              isFullWidth={true}
+              fileType={file.file_type}
+              secondaryComponent={
+                uploadStatus === UploadStatus.IN_PROGRESS ? (
+                  <ActivityIndicator />
+                ) : uploadStatus === UploadStatus.FAILURE ? (
+                  <TouchableOpacity onPress={handleUploadRetry}>
+                    <Text style={style.btnRetry}>{'Retry'}</Text>
+                  </TouchableOpacity>
+                ) : uploadStatus === UploadStatus.SUCCESS ? (
+                  <View>
+                    <IconButton
+                      hoverEffect={true}
+                      hoverEffectStyle={{
+                        backgroundColor:
+                          $config.CARD_LAYER_5_COLOR +
+                          hexadecimalTransparency['20%'],
+                        borderRadius: 20,
+                      }}
+                      iconProps={{
+                        iconType: 'plain',
+                        iconSize: 20,
+                        iconContainerStyle: {
+                          padding: 2,
+                        },
+                        name: 'close',
+                        tintColor: $config.SECONDARY_ACTION_COLOR,
+                      }}
+                      onPress={() => {
+                        setUploadedFiles(prev => []);
+                      }}
+                    />
+                  </View>
+                ) : null
+              }
+            />
+          ))}
+        </View>
+      ) : (
+        <TextInput
+          setRef={ref => (chatInputRef.current = ref)}
+          onFocus={() => setInputActive(true)}
+          onBlur={() => setInputActive(false)}
+          value={message}
+          multiline={true}
+          onChangeText={onChangeText}
+          textAlignVertical="top"
+          scrollEnabled={true}
+          style={{
+            color: $config.FONT_COLOR,
+            textAlign: 'left',
+            width: '100%',
+            alignSelf: 'center',
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+            fontWeight: '400',
+            height: inputHeight,
+            padding: 12,
+            fontSize: ThemeConfig.FontSize.small,
+            lineHeight: LINE_HEIGHT,
+            borderWidth: 1,
+            borderColor:
+              $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
+            backgroundColor: $config.CARD_LAYER_2_COLOR,
+            borderRadius: 8,
+            borderTopRightRadius: isUploadStatusShown ? 0 : 8,
+            borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
+            maxHeight: MAX_HEIGHT,
+          }}
+          blurOnSubmit={false}
+          onSubmitEditing={onSubmitEditing}
+          placeholder={chatMessageInputPlaceholder}
+          placeholderTextColor={
+            $config.FONT_COLOR + hexadecimalTransparency['40%']
+          }
+          autoCorrect={false}
+          onKeyPress={handleKeyPress}
+          onContentSizeChange={handleContentSizeChange}
+        />
+      )}
+    </>
   );
 };
 
@@ -157,11 +291,23 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive} = useChatUIControls();
+  const {inputActive, showEmojiPicker} = useChatUIControls();
+
   return (
-    <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
-      <ChatTextInput />
-      <ChatSendButton />
+    <View
+      style={[
+        {flex: 1},
+        showEmojiPicker
+          ? {backgroundColor: 'transparent'}
+          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
+        // inputActive ? style.inputActiveView : {},
+      ]}>
+      {showEmojiPicker && <ChatEmojiPicker />}
+      <View style={style.inputView}>
+        <ChatUploadStatus />
+        <ChatTextInput />
+        <ChatPanel />
+      </View>
     </View>
   );
 };
@@ -171,18 +317,48 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
+  attachmentContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 40,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
+    borderRadius: 8,
+  },
   inputView: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    flexDirection: 'column',
     borderTopWidth: 1,
     borderTopColor: 'transparent',
+    paddingHorizontal: 12,
+    paddingBottom: 8,
   },
   chatInputButton: {
     flex: 0.1,
     borderBottomRightRadius: 12,
     alignSelf: 'center',
     marginRight: 16,
+  },
+  emojiPicker: {
+    width: '100%',
+  },
+  chatPanelContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingTop: 4,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+  },
+  chatPanel: {
+    flexDirection: 'row',
+  },
+  btnRetry: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 export default ChatInput;

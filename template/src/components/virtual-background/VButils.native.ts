@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const saveImagesToAsyncStorage = async (
   base64Data: string,
@@ -8,10 +9,18 @@ export const saveImagesToAsyncStorage = async (
     const key = `image_${timestampId}`;
 
     await AsyncStorage.setItem(key, base64Data);
-
-    console.log('Image saved to AsyncStorage with key:', key);
+    logger.debug(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      `Image saved to AsyncStorage with key - ${key}`,
+    );
   } catch (error) {
-    console.error('Error saving image to AsyncStorage:', error);
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Error saving image to AsyncStorage',
+      error,
+    );
   }
 };
 
@@ -28,10 +37,20 @@ export const retrieveImagesFromAsyncStorage = async (): Promise<string[]> => {
       }),
     );
 
-    console.log('Retrieved images from AsyncStorage:', retrievedImages);
+    logger.debug(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Retrieved images from AsyncStorage:',
+      retrievedImages,
+    );
     return retrievedImages;
   } catch (error) {
-    console.error('Error retrieving images from AsyncStorage:', error);
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'IError retrieving image from AsyncStorage',
+      error,
+    );
     throw error;
   }
 };

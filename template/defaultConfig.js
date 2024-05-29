@@ -11,6 +11,7 @@ const DefaultConfig = {
   PRECALL: true,
   CHAT: true,
   CLOUD_RECORDING: false,
+  RECORDING_MODE: 'WEB',
   SCREEN_SHARING: true,
   LANDING_SUB_HEADING: 'The Real-Time Engagement Platform',
   ENCRYPTION_ENABLED: false,
@@ -23,6 +24,8 @@ const DefaultConfig = {
   SLACK_CLIENT_ID: '',
   APPLE_CLIENT_ID: '',
   GEO_FENCING: true,
+  GEO_FENCING_INCLUDE_AREA: 'GLOBAL',
+  GEO_FENCING_EXCLUDE_AREA: '',
   LOG_ENABLED: true,
   EVENT_MODE: false,
   RAISE_HAND: false,
@@ -59,6 +62,8 @@ const DefaultConfig = {
   ENABLE_IDP_AUTH: false,
   ENABLE_TOKEN_AUTH: false,
   ENABLE_STT: false,
+  ENABLE_CAPTION: true,
+  ENABLE_MEETING_TRANSCRIPT: true,
   ENABLE_NOISE_CANCELLATION: true,
   ENABLE_VIRTUAL_BACKGROUND: true,
   ENABLE_WHITEBOARD: false,
@@ -67,6 +72,9 @@ const DefaultConfig = {
   WHITEBOARD_APPIDENTIFIER: '',
   WHITEBOARD_REGION: '',
   ENABLE_NOISE_CANCELLATION_BY_DEFAULT: false,
+  CHAT_ORG_NAME: '',
+  CHAT_APP_NAME: '',
+  CHAT_URL: '',
 };
 
 module.exports = DefaultConfig;

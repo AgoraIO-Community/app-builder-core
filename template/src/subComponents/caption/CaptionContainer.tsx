@@ -35,6 +35,7 @@ import {
   sttChangeSpokenLanguageText,
   toolbarItemCaptionText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 const CaptionContainer = () => {
   const moreIconRef = React.useRef<View>(null);
@@ -66,8 +67,12 @@ const CaptionContainer = () => {
           },
           //@ts-ignore
           isCaptionNotFullWidth && {
-            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
-            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
+            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${
+              SIDE_PANEL_GAP + 1
+            }px )`,
+            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${
+              SIDE_PANEL_GAP + 1
+            }px )`,
           },
         ]}>
         <View
@@ -223,12 +228,26 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
+      logger.log(
+        LogSource.Internals,
+        'STT',
+        `Language changed to  ${language}. Restarting STT`,
+      );
       restart(language)
         .then(() => {
-          console.log('stt restarted successfully');
+          logger.debug(
+            LogSource.Internals,
+            'STT',
+            'stt restarted successfully',
+          );
         })
         .catch(error => {
-          console.log('Error in restarting', error);
+          logger.error(
+            LogSource.Internals,
+            'STT',
+            'Error in restarting',
+            error,
+          );
           // Handle the error case
         });
     }

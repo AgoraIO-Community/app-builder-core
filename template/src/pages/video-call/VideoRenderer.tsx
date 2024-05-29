@@ -37,7 +37,8 @@ import {
   moreBtnViewInLarge,
   moreBtnViewWhiteboard,
 } from '../../language/default-labels/videoCallScreenLabels';
-interface VideoRendererProps {
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
+export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
   CustomChild?: React.ComponentType;
@@ -361,6 +362,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           !isMobileUA() ? (
             <IconButton
               onPress={() => {
+                logger.log(
+                  LogSource.Internals,
+                  'LAYOUT',
+                  `Pin user -> ${user.uid}`,
+                );
                 dispatch({type: 'UserPin', value: [user.uid]});
               }}
               containerStyle={

@@ -49,21 +49,21 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   } = useRoomInfo();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
-  const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
+  const {isScreenshareActive, startScreenshare, stopScreenshare} =
     useScreenshare();
   const {setShowStartScreenSharePopup} = useVideoCall();
   const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
   const onPress = () => {
     if (isScreenshareActive) {
-      stopUserScreenShare();
+      stopScreenshare();
     } else {
       if (isAndroid() || isIOS()) {
         //native screen we need to stop user video before proceeding the screenshare
         //so showing confirm popup to stop camera(if cam on ) and option to share audio
         setShowStartScreenSharePopup(true);
       } else {
-        startUserScreenshare();
+        startScreenshare();
       }
     }
   };

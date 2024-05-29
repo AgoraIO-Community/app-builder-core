@@ -29,17 +29,21 @@ import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
   ToolbarCustomItem,
   controlMessageEnum,
+  useCaption,
   useUserName,
 } from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
-import Transcript from '../../subComponents/caption/Transcript';
+import Transcript, {
+  TranscriptProps,
+} from '../../subComponents/caption/Transcript';
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
 const VideoCallScreen = () => {
@@ -49,11 +53,14 @@ const VideoCallScreen = () => {
   const {
     data: {meetingTitle, isHost},
   } = useRoomInfo();
+  const {isCaptionON} = useCaption();
   const {
     ChatComponent,
     VideocallComponent,
     BottombarComponent,
     ParticipantsComponent,
+    TranscriptComponent,
+    CaptionComponent,
     SettingsComponent,
     TopbarComponent,
     VideocallBeforeView,
@@ -72,6 +79,8 @@ const VideoCallScreen = () => {
       ChatComponent: React.ComponentType<ChatProps>;
       BottombarComponent: React.ComponentType<ControlsProps>;
       ParticipantsComponent: React.ComponentType;
+      TranscriptComponent: React.ComponentType<TranscriptProps>;
+      CaptionComponent: React.ComponentType;
       SettingsComponent: React.ComponentType;
       TopbarComponent: React.ComponentType<NavbarProps>;
       VideocallBeforeView: React.ComponentType;
@@ -87,6 +96,8 @@ const VideoCallScreen = () => {
       TopbarComponent: Navbar,
       ChatComponent: Chat,
       ParticipantsComponent: ParticipantsView,
+      TranscriptComponent: Transcript,
+      CaptionComponent: CaptionContainer,
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
@@ -205,6 +216,23 @@ const VideoCallScreen = () => {
           data?.components?.videoCall.participantsPanel;
       }
 
+      if (
+        data?.components?.videoCall.transcriptPanel &&
+        typeof data?.components?.videoCall.transcriptPanel !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.transcriptPanel)
+      ) {
+        components.TranscriptComponent =
+          data?.components?.videoCall.transcriptPanel;
+      }
+
+      if (
+        data?.components?.videoCall.captionPanel &&
+        typeof data?.components?.videoCall.captionPanel !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.captionPanel)
+      ) {
+        components.CaptionComponent = data?.components?.videoCall.captionPanel;
+      }
+
       //todo hari - need to remove wrapper
       if (
         data?.components?.videoCall.wrapper &&
@@ -231,6 +259,13 @@ const VideoCallScreen = () => {
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
 
+  useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'VIDEO_CALL_ROOM',
+      'User has landed on video call room',
+    );
+  }, []);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   return VideocallComponent ? (
@@ -305,7 +340,15 @@ const VideoCallScreen = () => {
               ) : (
                 <></>
               )}
-              {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
+              {sidePanel === SidePanelType.Transcript ? (
+                $config.ENABLE_MEETING_TRANSCRIPT ? (
+                  <TranscriptComponent />
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
               {sidePanel === SidePanelType.VirtualBackground ? (
                 <VBPanel />
               ) : (
@@ -323,7 +366,7 @@ const VideoCallScreen = () => {
                   />
                 ) : (
                   <>
-                    <CaptionContainer />
+                    {isCaptionON ? <CaptionComponent /> : <></>}
                     <Spacer size={10} />
                     <View
                       style={

@@ -39,6 +39,7 @@ import {
   toolbarItemMicrophoneText,
   toolbarItemMicrophoneTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 /**
  * A component to mute / unmute the local audio
@@ -79,15 +80,24 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     rtcProps: {callActive},
   } = useContext(PropsContext);
 
-  const onPress = () => {
-    localMute(MUTE_LOCAL_TYPE.audio);
-  };
   const isAudioEnabled = local.audio === ToggleState.enabled;
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
+  const onPress = () => {
+    logger.log(
+      LogSource.Internals,
+      'LOCAL_MUTE',
+      'toggle mute/unmute local audio',
+      {
+        isAudioEnabled,
+        permissionDenied,
+      },
+    );
+    localMute(MUTE_LOCAL_TYPE.audio);
+  };
   const audioLabel = permissionDenied
     ? micButtonLabel(I18nDeviceStatus.PERMISSION_DENIED)
     : isAudioEnabled

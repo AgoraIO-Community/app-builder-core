@@ -8,6 +8,7 @@ import {
   toolbarItemLayoutOptionGridText,
   toolbarItemLayoutOptionSidebarText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 const isMobileView = isMobileUA();
 const DefaultLayouts: LayoutItem[] = [
   {
@@ -70,8 +71,15 @@ export const useChangeDefaultLayout = () => {
   }
 
   return () => {
-    setLayout((activeLayout: string) =>
-      activeLayout === layout[1].name ? layout[0].name : layout[1].name,
-    );
+    setLayout((activeLayout: string) => {
+      const layoutIs =
+        activeLayout === layout[1].name ? layout[0].name : layout[1].name;
+      logger.log(
+        LogSource.Internals,
+        'LAYOUT',
+        `layout changed to - ${layoutIs}`,
+      );
+      return layoutIs;
+    });
   };
 };

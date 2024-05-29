@@ -1,7 +1,10 @@
-export function getRecordedDate(ipDate: string) {
+export function getRecordedDateTime(ipDate: string) {
   try {
     let rdate = new Date(ipDate);
     let ryear = rdate.getFullYear();
+    if (ryear === 1) {
+      throw Error(`Invalid end date, ${ipDate}`);
+    }
     let rmonth = rdate.getMonth() + 1;
     let rdt = rdate.getDate();
     let hour = rdate.getHours();
@@ -26,13 +29,13 @@ export function getRecordedDate(ipDate: string) {
     let diff = today.getTime() - compDate.getTime(); // get the difference between today(at 00:00:00) and the date
 
     if (compDate.getTime() == today.getTime()) {
-      return `Today\n${formattedHHMM}`;
+      return ['Today', `${formattedHHMM}`];
     } else if (diff <= 24 * 60 * 60 * 1000) {
-      return `Yesterday\n${formattedHHMM}`;
+      return ['Yesterday', `${formattedHHMM}`];
     } else {
       let fulldate = rdate.toDateString();
       fulldate = fulldate.substring(fulldate.indexOf(' ') + 1);
-      return `${fulldate}\n${formattedHHMM}`;
+      return [fulldate, `${formattedHHMM}`];
     }
   } catch (error) {
     console.error('error while converting recorded time: ', error);
@@ -77,4 +80,43 @@ export const downloadRecording = (url: string) => {
   //   .catch(error => {
   //     console.log('supriya error', error); // OUTPUT ERRORS, SUCH AS CORS WHEN TESTING NON LOCALLY
   //   });
+};
+
+export const getDuration = (start: string, end: string): string => {
+  try {
+    const date_future = new Date(end).valueOf();
+    if (date_future < 0) {
+      throw new Error(`Not a valid end date, ${end}`);
+    }
+    const date_now = new Date(start).valueOf();
+    let delta = Math.abs(date_future - date_now) / 1000;
+    // calculate (and subtract) whole days
+    const days = Math.floor(delta / 86400);
+    delta -= days * 86400;
+    // calculate (and subtract) whole hours
+    const hours = Math.floor(delta / 3600) % 24;
+    delta -= hours * 3600;
+    // calculate (and subtract) whole minutes
+    const minutes = Math.floor(delta / 60) % 60;
+    delta -= minutes * 60;
+    // what's left is seconds
+    const seconds = Math.floor(delta) % 60;
+
+    // console.log(`date ${hours}:${minutes}:${seconds}`);
+    let formattedHHMM = '';
+    if (seconds) {
+      formattedHHMM = `${String(seconds)}s`;
+    }
+    if (minutes) {
+      formattedHHMM = `${String(minutes)}m ${String(seconds)}s`;
+    }
+    if (hours) {
+      formattedHHMM = `${String(hours)}h ${String(minutes)}m ${String(
+        seconds,
+      )}s`;
+    }
+    return formattedHHMM;
+  } catch (error) {
+    return '-';
+  }
 };

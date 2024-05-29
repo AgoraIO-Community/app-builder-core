@@ -22,6 +22,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
+import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {timeNow} from '../../rtm/utils';
 import {
   controlMessageEnum,
@@ -36,10 +37,14 @@ import {
   videoRoomScreenShareErrorToastHeading,
   videoRoomScreenShareErrorToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+export const ScreenshareConfigure = (props: {
+  children: React.ReactNode;
+  isRecordingActive: boolean;
+}) => {
   const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
   const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
@@ -53,6 +58,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
   const currentLayoutRef = useRef({currentLayout: currentLayout});
+
+  const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
 
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
@@ -227,7 +234,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
-    console.log('STOPPED SHARING');
+    logger.debug(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({
@@ -268,13 +275,33 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     );
   }, []);
 
-  const stopUserScreenShare = () => {
+  const executeRecordingQuery = (isScreenActive: boolean) => {
+    if (isScreenActive) {
+      // If recording is going on, set the presenter query
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is going on set presenter query',
+      );
+      executePresenterQuery(screenShareUid);
+    } else {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is NOT going on set normal query',
+      );
+      // If no recording is going on, set the normal query
+      executeNormalQuery();
+    }
+  };
+
+  const stopScreenshare = () => {
     if (!isScreenshareActive) {
       return;
     }
     userScreenshare(false);
   };
-  const startUserScreenshare = () => {
+  const startScreenshare = () => {
     if (isScreenshareActive) {
       return;
     }
@@ -282,7 +309,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const userScreenshare = async (isActive: boolean) => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${isActive ? 'starting' : 'stopping'}  screenshare`,
+      {
+        channel,
+        screenShareUid,
+        encryption,
+      },
+    );
     try {
+      if (props.isRecordingActive) {
+        executeRecordingQuery(isActive);
+      }
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(
         screenShareToken,
@@ -292,6 +332,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         appId,
         rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
+        {encoderConfig: '1080p_2', optimizationMode: 'detail'},
       );
       isActive && setScreenshareActive(true);
 
@@ -320,7 +361,12 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         );
       }
     } catch (e) {
-      console.error("can't start the screen share", e);
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'failed to start screen share',
+        e,
+      );
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
@@ -337,8 +383,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>

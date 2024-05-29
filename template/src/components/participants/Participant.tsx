@@ -19,7 +19,6 @@ import {isMobileUA, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import Spacer from '../../atoms/Spacer';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
-import {useChatMessages} from '../chat-messages/useChatMessages';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';

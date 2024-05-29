@@ -25,21 +25,21 @@ export interface LeftbarProps {
 }
 const Leftbar = (props: LeftbarProps) => {
   const {customItems = [], includeDefaultItems = true} = props;
-  const isHidden = (i) => {
+  const isHidden = i => {
     return i?.hide === 'yes';
   };
   const customStartItems = customItems
-    ?.filter((i) => i?.align === 'start' && !isHidden(i))
+    ?.filter(i => i?.align === 'start' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
-    ?.filter((i) => i?.align === 'center' && !isHidden(i))
+    ?.filter(i => i?.align === 'center' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
-    ?.filter((i) => i?.align === 'end' && !isHidden(i))
+    ?.filter(i => i?.align === 'end' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort(CustomToolbarSort);
 

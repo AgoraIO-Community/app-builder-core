@@ -53,7 +53,8 @@ const Chat = (props?: ChatProps) => {
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
   const {isRecordingBot} = useIsRecordingBot();
-  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
+  const {chatType, setChatType, setPrivateChatUser, showEmojiPicker} =
+    useChatUIControls();
 
   const {
     unreadGroupMessageCount,
@@ -162,6 +163,11 @@ const Chat = (props?: ChatProps) => {
             : {},
           // @ts-ignore
           transcriptHeight && !isMobileUA() && {height: transcriptHeight},
+          // showEmojiPicker && {
+          //   backgroundColor:
+          //     $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60'],
+          // },
+          ,
         ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
