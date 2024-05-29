@@ -14,5 +14,5 @@ export const ENABLE_CUSTOMER_LOGGER_TRANSPORT =
   $config.LOG_ENABLED && !isInternalApp;
 
 // Print logs to browser console window - true in dev mode
-export const ENABLE_BROWSER_CONSOLE_LOGS = $config.LOG_ENABLED;
-//   && process.env.NODE_ENV === 'development';
+export const ENABLE_BROWSER_CONSOLE_LOGS =
+  $config.LOG_ENABLED && process.env.NODE_ENV === 'development';
