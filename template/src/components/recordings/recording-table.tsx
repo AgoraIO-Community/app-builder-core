@@ -64,7 +64,7 @@ function RTableBody({status, recordings}) {
           if (
             recordingStatus === 'STOPPING' ||
             recordingStatus === 'STARTED' ||
-            recordingStatus === 'INPROGRESS'
+            (recordingStatus === 'INPROGRESS' && !item?.download_url)
           ) {
             return (
               <View key={item.id} style={style.pt12}>
