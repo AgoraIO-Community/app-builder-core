@@ -420,9 +420,9 @@ const ChatConfigure = ({children}) => {
       .catch(err => console.log('BLOB ERROR -> ', err));
   };
 
-  const deleteChatUser = async () => {
+  const deleteChatUser = async (botUID: string) => {
     const groupID = data.chat.group_id;
-    const userID = data.uid;
+    const userID = botUID ? botUID : data.uid;
     const isChatGroupOwner = data.chat.is_group_owner;
     // owner exit user > 1 , dont call delete
     // ower exit user = 1, delete ,
