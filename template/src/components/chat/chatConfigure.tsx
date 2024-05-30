@@ -18,6 +18,10 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../../src/rtm-events-api/LocalEvents';
+import {RECORDING_BOT_UID} from '../../utils/constants';
 
 export interface FileObj {
   url: string;
@@ -30,7 +34,7 @@ interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   sendChatSDKMessage: (option: ChatOption, messageStatusCallback?: any) => void;
-  deleteChatUser: () => void;
+  deleteChatUser: (botUID?: string) => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
   uploadAttachment: (fileObj: object) => void;
   deleteAttachment: (
@@ -280,12 +284,26 @@ const ChatConfigure = ({children}) => {
 
     // initializing chat sdk
     initializeChatSDK();
+
+    // remove rec bot when stopped rec called
+    const removeRecordingBot = () => {
+      deleteChatUser(RECORDING_BOT_UID);
+    };
+    LocalEventEmitter.on(
+      LocalEventsEnum.REMOVE_RECORDING_BOT,
+      removeRecordingBot,
+    );
+
     return () => {
       newConn.close();
       logger.debug(
         LogSource.Internals,
         'CHAT',
         `Logging out User ${data.uid} from Agora Chat Server`,
+      );
+      LocalEventEmitter.off(
+        LocalEventsEnum.REMOVE_RECORDING_BOT,
+        removeRecordingBot,
       );
     };
   }, []);

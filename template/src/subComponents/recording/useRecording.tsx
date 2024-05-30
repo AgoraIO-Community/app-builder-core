@@ -50,6 +50,11 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {fetchRetry} from '../../utils/fetch-retry';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {useChatConfigure} from '../../components/chat/chatConfigure';
+import {RECORDING_BOT_UID} from '../../utils/constants';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../../src/rtm-events-api/LocalEvents';
 
 const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
@@ -149,6 +154,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const stopAPICalledByBotOnce = useRef<boolean>(false);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
+  const {deleteChatUser} = useChatConfigure();
+
   const showErrorToast = (text1: string, text2?: string) => {
     Toast.show({
       leadingIconName: 'alert',
@@ -224,6 +231,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       url = `${recordinghostURL}/${passphrase}`;
     }
     setInProgress(true);
+    // delete any prev rec bot chat user
+    if ($config.CHAT) {
+      LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
+    }
     logger.debug(
       LogSource.NetworkRest,
       'recording_start',
@@ -408,6 +419,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       log('Stopping recording by sending event to bot');
       // send stop request to bot
       setInProgress(true);
+
       events.send(
         EventNames.RECORDING_ATTRIBUTE,
         JSON.stringify({

@@ -23,6 +23,10 @@ import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {RECORDING_BOT_UID} from '../../../src/utils/constants';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../../src/rtm-events-api/LocalEvents';
 
 interface ChatMessageAttributes {
   file_ext?: string;
@@ -51,7 +55,7 @@ export const chatConfigureContext =
     open: false,
     setOpen: () => {},
     sendChatSDKMessage: () => {},
-    deleteChatUser: () => {},
+    deleteChatUser: (botUID?: string) => {},
     downloadAttachment: () => {},
     deleteAttachment: () => {},
   });
@@ -314,8 +318,20 @@ const ChatConfigure = ({children}) => {
     };
 
     initializeChatSDK();
+    // remove rec bot when stopped rec called
+    const removeRecordingBot = () => {
+      deleteChatUser(RECORDING_BOT_UID);
+    };
+    LocalEventEmitter.on(
+      LocalEventsEnum.REMOVE_RECORDING_BOT,
+      removeRecordingBot,
+    );
     return () => {
       logout();
+      LocalEventEmitter.off(
+        LocalEventsEnum.REMOVE_RECORDING_BOT,
+        removeRecordingBot,
+      );
     };
   }, []);
 
