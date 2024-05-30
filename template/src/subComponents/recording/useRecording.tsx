@@ -23,7 +23,7 @@ import {createHook} from 'customization-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
-import {EventActions, EventNames} from '../../rtm-events';
+import {EventNames} from '../../rtm-events';
 import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
 import {useRoomInfo} from 'customization-api';
@@ -109,15 +109,19 @@ interface RecordingProviderProps {
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
-
-enum RECORDING_STATE {
-  PENDING,
-  STARTED_MIX,
-  STARTED_WEB,
-  STOPPED,
-  FAILED,
+enum RECORDING_REQUEST_STATE {
+  PENDING = 'PENDING',
+  STARTED_MIX = 'STARTED_MIX',
+  STARTED_WEB = 'STARTED_WEB',
+  STOPPED = 'STOPPED',
+  FAILED = 'FAILED',
 }
-const recordingMode = $config.RECORDING_MODE || 'MIX';
+const RecordingActions = {
+  RECORDING_REQUEST_STATE: RECORDING_REQUEST_STATE,
+  REQUEST_TO_STOP_RECORDING: 'REQUEST_TO_STOP_RECORDING',
+};
+
+const recordingMode = 'MIX';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
@@ -240,10 +244,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     }
     setInProgress(true);
     events.send(
-      EventNames.RECORDING_ATTRIBUTE,
+      EventNames.RECORDING_STATE_ATTRIBUTE,
       JSON.stringify({
-        action: EventActions.RECORDING_REQUEST_STATE,
-        value: RECORDING_STATE.PENDING,
+        action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
+        value: `${localUid}`,
       }),
       PersistanceLevel.Session,
     );
@@ -279,29 +283,17 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             'start recording successfully',
             res,
           );
-          /**
-           * 1. Once the backend sucessfuly starts recording, send message
-           * in the channel indicating that cloud/web recording is now active.
-           */
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STARTED_BY,
-              value: `${localUid}`,
-            }),
-            PersistanceLevel.Session,
-          );
-          // 2. set the local recording state to true to update the UI
+          // 1. set the local recording state to true to update the UI
           setUidWhoStarted(localUid);
-          // 3. Check if recording mode is cloud
+          // 2. Check if recording mode is cloud
           if (recordingMode === 'MIX') {
             setInProgress(false);
             setRecordingActive(true);
             events.send(
-              EventNames.RECORDING_ATTRIBUTE,
+              EventNames.RECORDING_STATE_ATTRIBUTE,
               JSON.stringify({
-                action: EventActions.RECORDING_REQUEST_STATE,
-                value: RECORDING_STATE.STARTED_MIX,
+                action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_MIX,
+                value: `${localUid}`,
               }),
               PersistanceLevel.Session,
             );
@@ -334,10 +326,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         setRecordingActive(false);
         setInProgress(false);
         events.send(
-          EventNames.RECORDING_ATTRIBUTE,
+          EventNames.RECORDING_STATE_ATTRIBUTE,
           JSON.stringify({
-            action: EventActions.RECORDING_REQUEST_STATE,
-            value: RECORDING_STATE.FAILED,
+            action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+            value: `${localUid}`,
           }),
           PersistanceLevel.Session,
         );
@@ -389,10 +381,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            */
           log('Recording-bot: recording stopped successfully');
           events.send(
-            EventNames.RECORDING_ATTRIBUTE,
+            EventNames.RECORDING_STATE_ATTRIBUTE,
             JSON.stringify({
-              action: EventActions.RECORDING_REQUEST_STATE,
-              value: RECORDING_STATE.STOPPED,
+              action: RecordingActions.RECORDING_REQUEST_STATE.STOPPED,
+              value: `${localUid}`,
             }),
             PersistanceLevel.Session,
           );
@@ -424,10 +416,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         setInProgress(false);
         log('stop recording', err);
         events.send(
-          EventNames.RECORDING_ATTRIBUTE,
+          EventNames.RECORDING_STATE_ATTRIBUTE,
           JSON.stringify({
-            action: EventActions.RECORDING_REQUEST_STATE,
-            value: RECORDING_STATE.FAILED,
+            action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+            value: `${localUid}`,
           }),
           PersistanceLevel.Session,
         );
@@ -439,15 +431,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     setRecordingActive,
     store.token,
     subheadingError,
+    localUid,
   ]);
 
   const stopRecording = useCallback(() => {
     setInProgress(true);
     events.send(
-      EventNames.RECORDING_ATTRIBUTE,
+      EventNames.RECORDING_STATE_ATTRIBUTE,
       JSON.stringify({
-        action: EventActions.RECORDING_REQUEST_STATE,
-        value: RECORDING_STATE.PENDING,
+        action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
+        value: `${localUid}`,
       }),
       PersistanceLevel.Session,
     );
@@ -455,12 +448,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       log('Stopping recording by sending event to bot');
       // send stop request to bot
       events.send(
-        EventNames.RECORDING_ATTRIBUTE,
+        EventNames.RECORDING_STATE_ATTRIBUTE,
         JSON.stringify({
-          action: EventActions.REQUEST_TO_STOP_RECORDING,
+          action: RecordingActions.REQUEST_TO_STOP_RECORDING,
           value: `${localUid}`,
         }),
-        PersistanceLevel.Session,
+        PersistanceLevel.None,
         100000, // bot uid
       );
     } else {
@@ -529,40 +522,31 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   // Events
   useEffect(() => {
-    events.on(EventNames.RECORDING_ATTRIBUTE, data => {
+    events.on(EventNames.RECORDING_STATE_ATTRIBUTE, data => {
       log('recording attribute received', data);
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
       switch (action) {
-        case EventActions.RECORDING_STARTED_BY:
+        case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
           setUidWhoStarted(parseInt(value));
-
+          setInProgress(true);
+          setRecordingActive(false);
           break;
-
-        case EventActions.RECORDING_REQUEST_STATE:
-          switch (value) {
-            case RECORDING_STATE.PENDING:
-              setInProgress(true);
-              setRecordingActive(false);
-              break;
-            case RECORDING_STATE.STARTED_MIX:
-              setInProgress(false);
-              setRecordingActive(true);
-              break;
-            case RECORDING_STATE.STARTED_WEB:
-              setInProgress(false);
-              setRecordingActive(true);
-              break;
-            case RECORDING_STATE.STOPPED:
-              setInProgress(false);
-              setRecordingActive(false);
-              break;
-            default:
-              break;
-          }
+        case RecordingActions.RECORDING_REQUEST_STATE.STARTED_MIX:
+          setUidWhoStarted(parseInt(value));
+          setInProgress(false);
+          setRecordingActive(true);
           break;
-        case EventActions.REQUEST_TO_STOP_RECORDING:
+        case RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB:
+          setInProgress(false);
+          setRecordingActive(true);
+          break;
+        case RecordingActions.RECORDING_REQUEST_STATE.STOPPED:
+          setInProgress(false);
+          setRecordingActive(false);
+          break;
+        case RecordingActions.REQUEST_TO_STOP_RECORDING:
           _stopRecording();
           break;
         default:
@@ -570,7 +554,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
     });
     return () => {
-      events.off(EventNames.RECORDING_ATTRIBUTE);
+      events.off(EventNames.RECORDING_STATE_ATTRIBUTE);
     };
   }, [
     roomId.host,
@@ -662,10 +646,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       setInProgress(false);
       setRecordingActive(true);
       events.send(
-        EventNames.RECORDING_ATTRIBUTE,
+        EventNames.RECORDING_STATE_ATTRIBUTE,
         JSON.stringify({
-          action: EventActions.RECORDING_REQUEST_STATE,
-          value: RECORDING_STATE.STARTED_WEB,
+          action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB,
+          value: `${localUid}`,
         }),
         PersistanceLevel.Session,
       );
