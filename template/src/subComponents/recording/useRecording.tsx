@@ -231,10 +231,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       url = `${recordinghostURL}/${passphrase}`;
     }
     setInProgress(true);
-    // delete any prev rec bot chat user
-    if ($config.CHAT) {
-      LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
-    }
+
     logger.debug(
       LogSource.NetworkRest,
       'recording_start',
@@ -434,6 +431,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       _stopRecording();
     }
   }, [_stopRecording]);
+
+  // delete any prev rec bot chat user
+  if ($config.CHAT) {
+    LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
+  }
 
   const fetchRecordings = useCallback(
     (page: number) => {
