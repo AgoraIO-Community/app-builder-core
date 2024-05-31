@@ -531,7 +531,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
           setUidWhoStarted(parseInt(value));
           setInProgress(true);
-          setRecordingActive(false);
           break;
         case RecordingActions.RECORDING_REQUEST_STATE.STARTED_MIX:
           setUidWhoStarted(parseInt(value));
