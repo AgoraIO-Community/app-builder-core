@@ -213,6 +213,7 @@ const Participant = (props: ParticipantInterface) => {
                             video={user.video}
                             isHost={isHost}
                             userContainerRef={usercontainerRef}
+                            iconContainerStyle={styles.iconContainerStyle}
                           />
                         </View>
                       ))}
@@ -243,6 +244,7 @@ const Participant = (props: ParticipantInterface) => {
                           uid={user.uid}
                           audio={user.audio}
                           isHost={isHost}
+                          iconContainerStyle={styles.iconContainerStyle}
                           userContainerRef={usercontainerRef}
                         />
                       </View>
@@ -321,7 +323,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   userInfoContainer: {
