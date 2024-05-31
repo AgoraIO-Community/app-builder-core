@@ -121,7 +121,7 @@ const RecordingActions = {
   REQUEST_TO_STOP_RECORDING: 'REQUEST_TO_STOP_RECORDING',
 };
 
-const recordingMode = 'MIX';
+const recordingMode = $config.RECORDING_MODE || 'MIX';
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
