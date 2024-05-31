@@ -358,7 +358,6 @@ const ChatConfigure = ({children}) => {
         },
       );
       const res = await response.json();
-      sessionStorage.removeItem('user_id');
       logger.debug(
         LogSource.Internals,
         'CHAT',

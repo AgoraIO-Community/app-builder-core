@@ -14,56 +14,56 @@ import {DispatchContext, RtcContext} from '../../agora-rn-uikit';
 import {useContext} from 'react';
 import {isWeb} from './common';
 
-function useLocalAudio() {
+function useLocalVideo() {
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useContext(RtcContext);
 
-  const disableAudioButton = () => {
-    RtcEngineUnsafe.muteLocalAudioStream(true);
+  const disableVideoButton = () => {
+    RtcEngineUnsafe.muteLocalVideoStream(true);
     dispatch({
-      type: 'LocalMuteAudio',
+      type: 'LocalMuteVideo',
       value: [0, true],
     });
   };
 
-  const enableAudioButton = () => {
+  const enableVideoButton = () => {
     dispatch({
-      type: 'LocalMuteAudio',
+      type: 'LocalMuteVideo',
       value: [0, false],
     });
   };
 
-  const getLocalAudioStream = () => {
+  const getLocalVideoStream = () => {
     try {
-      return isWeb() ? window?.engine?.localStream?.audio : null;
+      return isWeb() ? window?.engine?.localStream?.video : null;
     } catch (error) {
       throw error;
     }
   };
 
-  const getRemoteAudioStream = (uid: number) => {
+  const getRemoteVideoStream = (uid: number) => {
     try {
-      return isWeb() ? window?.engine?.remoteStreams?.get(uid)?.audio : null;
+      return isWeb() ? window?.engine?.remoteStreams?.get(uid)?.video : null;
     } catch (error) {
       throw error;
     }
   };
 
-  const getLocalScreenshareAudioStream = () => {
+  const getLocalScreenshareVideoStream = () => {
     try {
-      return isWeb() ? window?.engine?.screenStream?.audio : null;
+      return isWeb() ? window?.engine?.screenStream?.video : null;
     } catch (error) {
       throw error;
     }
   };
 
   return {
-    enableAudioButton,
-    disableAudioButton,
-    getLocalAudioStream,
-    getRemoteAudioStream,
-    getLocalScreenshareAudioStream,
+    enableVideoButton,
+    disableVideoButton,
+    getLocalVideoStream,
+    getRemoteVideoStream,
+    getLocalScreenshareVideoStream,
   };
 }
 
-export default useLocalAudio;
+export default useLocalVideo;

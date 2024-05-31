@@ -22,6 +22,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
+import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {timeNow} from '../../rtm/utils';
 import {
   controlMessageEnum,
@@ -40,7 +41,10 @@ import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+export const ScreenshareConfigure = (props: {
+  children: React.ReactNode;
+  isRecordingActive: boolean;
+}) => {
   const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
   const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
@@ -54,6 +58,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
   const currentLayoutRef = useRef({currentLayout: currentLayout});
+
+  const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
 
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
@@ -269,6 +275,26 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     );
   }, []);
 
+  const executeRecordingQuery = (isScreenActive: boolean) => {
+    if (isScreenActive) {
+      // If recording is going on, set the presenter query
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is going on set presenter query',
+      );
+      executePresenterQuery(screenShareUid);
+    } else {
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is NOT going on set normal query',
+      );
+      // If no recording is going on, set the normal query
+      executeNormalQuery();
+    }
+  };
+
   const stopScreenshare = () => {
     if (!isScreenshareActive) {
       return;
@@ -294,6 +320,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       },
     );
     try {
+      if (props.isRecordingActive) {
+        executeRecordingQuery(isActive);
+      }
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(
         screenShareToken,

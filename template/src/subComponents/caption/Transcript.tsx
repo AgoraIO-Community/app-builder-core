@@ -41,7 +41,7 @@ import {
   sttTranscriptPanelViewLatestText,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
 
-interface TranscriptProps {
+export interface TranscriptProps {
   showHeader?: boolean;
 }
 

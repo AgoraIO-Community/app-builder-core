@@ -24,12 +24,6 @@ export const getPlatformId = (): string => {
   return platformID;
 };
 
-export const getUserId = (): string => {
-  if (!isWeb()) return null;
-  const userId = sessionStorage.getItem('user_id');
-  return userId;
-};
-
 export const getRequestHeaders = () => {
   return {
     'X-Project-ID': $config.PROJECT_ID,
@@ -53,9 +47,7 @@ export const getOriginURL = () => {
 };
 
 export const GET_UNAUTH_FLOW_API_ENDPOINT = () => {
-  const userId = getUserId();
-  const userIdParam = userId ? `&user_id=${userId}` : '';
   return `${$config.BACKEND_ENDPOINT}/v1/login?project_id=${
     $config.PROJECT_ID
-  }&platform_id=${getPlatformId()}${userIdParam}`;
+  }&platform_id=${getPlatformId()}`;
 };
