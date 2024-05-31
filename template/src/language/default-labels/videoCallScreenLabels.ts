@@ -1254,7 +1254,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [waitingRoomApprovalRejectionToastSubHeading]:
     'Permission to enter the meeting was denied by the host',
 
-  [videoRoomRecordingText]: 'Recording',
+  [videoRoomRecordingText]: mode =>
+    mode === 'MIX' ? 'Cloud recording' : 'Web recording',
+
   [videoRoomGoToActiveSpeakerText]: 'Go To Active Speaker',
   [videoRoomScreenshareText]: username => `${username}'s screenshare`,
   [videoRoomStartingCallText]: 'Starting Call. Just a second.',
