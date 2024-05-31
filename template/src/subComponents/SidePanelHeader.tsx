@@ -114,7 +114,7 @@ export const SidePanelStyles = StyleSheet.create({
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
   },
   chatPadding: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 12,
   },
   heading: {
