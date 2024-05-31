@@ -50,8 +50,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {fetchRetry} from '../../utils/fetch-retry';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
-import {useChatConfigure} from '../../components/chat/chatConfigure';
-import {RECORDING_BOT_UID} from '../../utils/constants';
+
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../../src/rtm-events-api/LocalEvents';
@@ -428,10 +427,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       log('Stopping recording by calling stop');
       _stopRecording();
     }
-    // delete any prev rec bot chat user
-    if ($config.CHAT) {
-      LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
-    }
+    // delete any prev rec bot chat user, to be done after dynamic rec bot id
+    // if ($config.CHAT) {
+    //   LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
+    // }
   }, [_stopRecording]);
 
   const fetchRecordings = useCallback(
