@@ -204,7 +204,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         leadingIcon: null,
       });
     }
-  }, [isRecordingActive, callActive, isHost]);
+  }, [isRecordingActive, callActive, isHost, uidWhoStarted]);
 
   const startRecording = () => {
     log('start recording API called');
