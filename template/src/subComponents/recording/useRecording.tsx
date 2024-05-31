@@ -227,12 +227,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       let recordinghostURL = getOriginURL();
       // let recordinghostURL =
       //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
-      if (inProgress) {
-        console.error(
-          'web-recording - start recording API already in progress',
-        );
-        return;
-      }
       if (recordinghostURL.includes('localhost')) {
         console.error(
           'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
@@ -347,14 +341,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * Any host in the channel can stop recording.
      */
     logger.debug(LogSource.Internals, 'RECORDING', 'stop recording API called');
-    if (inProgress) {
-      logger.error(
-        LogSource.Internals,
-        'RECORDING',
-        'stop recording already in progress. Aborting..',
-      );
-      return;
-    }
     fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
       headers: {
@@ -426,7 +412,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       });
   }, [
     headingStopError,
-    inProgress,
     roomId.host,
     setRecordingActive,
     store.token,
