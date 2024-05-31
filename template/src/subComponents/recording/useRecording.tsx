@@ -278,6 +278,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             res,
           );
           // 1. set the local recording state to true to update the UI
+          events.send(
+            EventNames.RECORDING_STARTED_BY_ATTRIBUTE,
+            JSON.stringify({
+              action: '',
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           setUidWhoStarted(localUid);
           // 2. Check if recording mode is cloud
           if (recordingMode === 'MIX') {
@@ -508,17 +516,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   // Events
   useEffect(() => {
     events.on(EventNames.RECORDING_STATE_ATTRIBUTE, data => {
-      log('recording attribute received', data);
+      log('recording_state attribute received', data);
       const payload = JSON.parse(data.payload);
       const action = payload.action;
-      const value = payload.value;
       switch (action) {
         case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
-          setUidWhoStarted(parseInt(value));
           setInProgress(true);
           break;
         case RecordingActions.RECORDING_REQUEST_STATE.STARTED_MIX:
-          setUidWhoStarted(parseInt(value));
           setInProgress(false);
           setRecordingActive(true);
           break;
@@ -530,6 +535,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setInProgress(false);
           setRecordingActive(false);
           break;
+        /**
+         * The below case is not persisted, hence we need not worry about whether the
+         * new user gets the correct state or not
+         */
         case RecordingActions.REQUEST_TO_STOP_RECORDING:
           _stopRecording();
           break;
@@ -537,8 +546,15 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
+    events.on(EventNames.RECORDING_STARTED_BY_ATTRIBUTE, data => {
+      log('recording_started_by attribute received', data);
+      const payload = JSON.parse(data.payload);
+      const value = payload.value;
+      setUidWhoStarted(parseInt(value));
+    });
     return () => {
       events.off(EventNames.RECORDING_STATE_ATTRIBUTE);
+      events.off(EventNames.RECORDING_STARTED_BY_ATTRIBUTE);
     };
   }, [
     roomId.host,
