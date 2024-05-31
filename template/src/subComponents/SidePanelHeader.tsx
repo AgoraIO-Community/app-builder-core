@@ -64,9 +64,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
                   }}
                   iconProps={{
                     iconType: 'plain',
-                    iconContainerStyle: {
-                      padding: 5,
-                    },
+                    iconContainerStyle: SidePanelStyles.iconContainerStyle,
                     iconSize: 20,
                     name: props?.trailingIconName,
                     tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -86,9 +84,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
                 }}
                 iconProps={{
                   iconType: 'plain',
-                  iconContainerStyle: {
-                    padding: 5,
-                  },
+                  iconContainerStyle: SidePanelStyles.iconContainerStyle,
                   iconSize: 20,
                   name: props?.trailingIconName2,
                   tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -112,7 +108,7 @@ export const SidePanelStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 22,
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
@@ -122,6 +118,7 @@ export const SidePanelStyles = StyleSheet.create({
     paddingVertical: 12,
   },
   heading: {
+    paddingLeft: 4,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.normal,
     lineHeight: 1.6 * ThemeConfig.FontSize.normal,
@@ -141,6 +138,13 @@ export const SidePanelStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 0.3,
+  },
+  iconContainerStyle: {
+    width: 28,
+    height: 28,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 export default SidePanelHeader;

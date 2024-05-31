@@ -184,7 +184,6 @@ const Participant = (props: ParticipantInterface) => {
             )}
             {showControls ? (
               <>
-                <Spacer horizontal={true} size={8} />
                 {!$config.AUDIO_ROOM &&
                   (isLocal
                     ? !isAudienceUser && (
@@ -290,8 +289,8 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   iconContainerStyle: {
-    width: 30,
-    height: 30,
+    width: 28,
+    height: 28,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
