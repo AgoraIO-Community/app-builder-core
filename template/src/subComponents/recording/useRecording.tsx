@@ -154,8 +154,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const stopAPICalledByBotOnce = useRef<boolean>(false);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
-  const {deleteChatUser} = useChatConfigure();
-
   const showErrorToast = (text1: string, text2?: string) => {
     Toast.show({
       leadingIconName: 'alert',
@@ -430,12 +428,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       log('Stopping recording by calling stop');
       _stopRecording();
     }
+    // delete any prev rec bot chat user
+    if ($config.CHAT) {
+      LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
+    }
   }, [_stopRecording]);
-
-  // delete any prev rec bot chat user
-  if ($config.CHAT) {
-    LocalEventEmitter.emit(LocalEventsEnum.REMOVE_RECORDING_BOT);
-  }
 
   const fetchRecordings = useCallback(
     (page: number) => {

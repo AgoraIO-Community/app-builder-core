@@ -439,7 +439,7 @@ const ChatConfigure = ({children}) => {
   const deleteChatUser = async (botUID: string) => {
     const groupID = data.chat.group_id;
     const userID = botUID ? botUID : data.uid;
-    const isChatGroupOwner = data.chat.is_group_owner;
+    const isChatGroupOwner = botUID ? false : data.chat.is_group_owner;
     // owner exit user > 1 , dont call delete
     // ower exit user = 1, delete ,
     // member exit user > 1 delete ,
@@ -447,7 +447,9 @@ const ChatConfigure = ({children}) => {
 
     try {
       const response = await fetch(
-        `${$config.BACKEND_ENDPOINT}/v1/${data.channel}/chat/${groupID}/users/${userID}/${isChatGroupOwner}`,
+        `${$config.BACKEND_ENDPOINT}/v1/${
+          data.channel
+        }/chat/${groupID}/users/${userID}/${botUID ? false : isChatGroupOwner}`,
         {
           method: 'DELETE',
           headers: {
