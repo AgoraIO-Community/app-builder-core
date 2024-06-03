@@ -84,7 +84,7 @@ const ChatConfigure = ({children}) => {
         });
         // Logs into Agora Chat.
         const result = await newConn.open({
-          user: data.uid.toString(),
+          user: data?.channel + '_' + data?.uid?.toString(),
           agoraToken: data.chat.user_token,
         });
         logger.debug(
