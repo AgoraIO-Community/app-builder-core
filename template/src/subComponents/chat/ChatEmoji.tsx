@@ -27,6 +27,8 @@ const css = `
   --epr-search-input-text-color:${$config.FONT_COLOR};
   --epr-search-input-bg-color:${$config.INPUT_FIELD_BACKGROUND_COLOR};
   --epr-search-input-bg-color-active:${$config.INPUT_FIELD_BACKGROUND_COLOR};
+  --epr-bg-color:${$config.CARD_LAYER_2_COLOR};
+  --epr-category-label-bg-color:${$config.CARD_LAYER_2_COLOR};
 }
 .chatEmojiPicker.epr-light-theme{
   --epr-emoji-size: 32px;
@@ -40,10 +42,16 @@ const css = `
    --epr-search-input-text-color:${$config.FONT_COLOR};
    --epr-search-input-bg-color:${$config.INPUT_FIELD_BACKGROUND_COLOR};
    --epr-search-input-bg-color-active:${$config.INPUT_FIELD_BACKGROUND_COLOR};
+   --epr-bg-color:${$config.CARD_LAYER_2_COLOR};
+   --epr-category-label-bg-color:${$config.CARD_LAYER_2_COLOR};
 }
 .chatEmojiPicker .epr-category-nav {
-  padding-top:0 !important
+  // padding-top:0 !important
 }
+.chatEmojiPicker .epr-header > div:first-child {
+  border-bottom: 1px solid ${$config.CARD_LAYER_4_COLOR}
+}
+
 .chatEmojiPicker .epr-skin-tones {
   visibility:hidden
 }

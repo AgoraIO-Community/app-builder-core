@@ -169,10 +169,25 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 
   const _handleHeightChange = e => {
     e.target.style.height = 0;
-    e.target.style.height = `${e.target.scrollHeight}px`;
+    const DIV_HEIGHT = e.target.scrollHeight;
+    e.target.style.height = `${
+      DIV_HEIGHT < MIN_HEIGHT ? MIN_HEIGHT : DIV_HEIGHT
+    }px`;
+    e.target.style.overflow = 'hidden';
+    // Make sure the text is center align only
+    if (DIV_HEIGHT <= MIN_HEIGHT) {
+      e.target.style.lineHeight = `${(MIN_HEIGHT - 2) / 2}px`;
+    } else {
+      e.target.style.lineHeight = '17px';
+    }
+    // Handle scroll when content increase the div height
+    if (DIV_HEIGHT > MAX_HEIGHT) {
+      e.target.style.overflow = 'auto';
+    }
   };
 
   const handleContentSizeChange = e => {
+    const LINE_HEIGHT = 17;
     const contentHeight = e.nativeEvent.contentSize.height;
     const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
     const newHeight = lines < 5 ? LINE_HEIGHT * lines + 24 + 2 : MAX_HEIGHT; // Assuming lineHeight is LINE_HEIGHT
@@ -265,6 +280,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
             fontFamily: ThemeConfig.FontFamily.sansPro,
             fontWeight: '400',
             height: inputHeight,
+            minHeight: MIN_HEIGHT,
             padding: 12,
             fontSize: ThemeConfig.FontSize.small,
             lineHeight: LINE_HEIGHT,
