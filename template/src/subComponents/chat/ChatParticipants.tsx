@@ -156,8 +156,6 @@ const ChatParticipants = (props: any) => {
                           </View>
                           <Spacer size={20} horizontal={true} />
                         </>
-                      ) : isMobile || isHovered ? (
-                        <ChatIcon />
                       ) : (
                         <></>
                       )}
