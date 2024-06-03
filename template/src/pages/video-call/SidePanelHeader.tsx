@@ -138,18 +138,14 @@ export const ChatHeader = () => {
               <View style={styles.chatNotification} />
             ) : null}
             <Text
-              style={
-                isGroupActive || unreadGroupMessageCount
-                  ? styles.activeText
-                  : styles.nonActiveText
-              }>
+              style={isGroupActive ? styles.activeText : styles.nonActiveText}>
               {groupChatLabel}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={selectPrivate}
             style={
-              !isGroupActive || unreadPrivateMessageCount
+              !isGroupActive
                 ? [styles.activeContainer]
                 : [styles.nonActiveContainer]
             }>
