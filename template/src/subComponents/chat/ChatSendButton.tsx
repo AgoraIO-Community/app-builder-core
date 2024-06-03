@@ -80,8 +80,10 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
         : SDKChatType.GROUP_CHAT,
       type: msgType as ChatMessageType,
       msg: msgType === ChatMessageType.TXT ? message : '', // currenlt not supporting combinarion msg (file+txt)
-      from: data.uid.toString(),
-      to: selectedUserId ? selectedUserId.toString() : groupID,
+      from: data.channel + '_' + data.uid.toString(),
+      to: selectedUserId
+        ? data.channel + '_' + selectedUserId.toString()
+        : groupID,
       ext: {
         file_length,
         file_ext,
