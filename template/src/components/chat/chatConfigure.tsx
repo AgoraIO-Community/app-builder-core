@@ -105,15 +105,18 @@ const ChatConfigure = ({children}) => {
               message.ext?.from_platform === 'native'
                 ? message.url
                 : message.ext.file_url;
+
+            const fromUser = message?.from.split('_')[1];
+
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
-                message.from,
+                fromUser,
                 false,
                 message.type,
               );
 
-              addMessageToStore(Number(message.from), {
+              addMessageToStore(Number(fromUser), {
                 msg: '',
                 createdTimestamp: message.time,
                 msgId: message.id,
@@ -127,12 +130,12 @@ const ChatConfigure = ({children}) => {
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
-                message.from,
+                fromUser,
                 true,
                 message.type,
               );
               addMessageToPrivateStore(
-                Number(message.from),
+                Number(fromUser),
                 {
                   msg: '',
                   createdTimestamp: message.time,
@@ -153,14 +156,16 @@ const ChatConfigure = ({children}) => {
                 ? message.url
                 : message.ext.file_url;
 
+            const fromUser = message?.from.split('_')[1];
+
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
-                message.from,
+                fromUser,
                 false,
                 message.type,
               );
-              addMessageToStore(Number(message.from), {
+              addMessageToStore(Number(fromUser), {
                 msg: '',
                 createdTimestamp: message.time,
                 msgId: message.id,
@@ -175,13 +180,13 @@ const ChatConfigure = ({children}) => {
               // show to notifcation- privat msg received
               showMessageNotification(
                 message.ext.file_name,
-                message.from,
+                fromUser,
                 true,
                 message.type,
               );
               // this is remote user messages
               addMessageToPrivateStore(
-                Number(message.from),
+                Number(fromUser),
                 {
                   msg: '',
                   createdTimestamp: message.time,
@@ -205,15 +210,17 @@ const ChatConfigure = ({children}) => {
               defaultContentRef.current[message.from]?.name,
             );
 
+            const fromUser = message?.from.split('_')[1];
+
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
               showMessageNotification(
                 message.msg,
-                message.from,
+                fromUser,
                 false,
                 message.type,
               );
-              addMessageToStore(Number(message.from), {
+              addMessageToStore(Number(fromUser), {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                 createdTimestamp: message.time,
                 msgId: message.id,
@@ -226,13 +233,13 @@ const ChatConfigure = ({children}) => {
               // show to notifcation- privat msg received
               showMessageNotification(
                 message.msg,
-                message.from,
+                fromUser,
                 true,
                 message.type,
               );
               // this is remote user messages
               addMessageToPrivateStore(
-                Number(message.from),
+                Number(fromUser),
                 {
                   msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                   createdTimestamp: message.time,
@@ -322,9 +329,13 @@ const ChatConfigure = ({children}) => {
           //todo chattype as per natue type
           // this is local user messages
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(Number(option.to), messageData, true);
+            addMessageToPrivateStore(
+              Number(option?.to.split('_')[1]),
+              messageData,
+              true,
+            );
           } else {
-            addMessageToStore(Number(option.from), messageData);
+            addMessageToStore(Number(option?.from.split('_')[1]), messageData);
           }
         })
         .catch(error => {
