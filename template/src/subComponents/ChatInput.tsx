@@ -145,13 +145,17 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       return;
     }
 
+    debugger;
+    console.log(data);
     const option = {
       chatType: privateChatUser
         ? SDKChatType.SINGLE_CHAT
         : SDKChatType.GROUP_CHAT,
       type: ChatMessageType.TXT,
-      from: data.uid.toString(),
-      to: privateChatUser ? privateChatUser.toString() : groupID,
+      from: data.channel + '_' + data.uid.toString(),
+      to: privateChatUser
+        ? data.channel + '_' + privateChatUser.toString()
+        : groupID,
       msg: message,
     };
     sendChatSDKMessage(option);
