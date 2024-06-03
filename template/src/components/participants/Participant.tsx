@@ -298,8 +298,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textStyle: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 14,
     fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },

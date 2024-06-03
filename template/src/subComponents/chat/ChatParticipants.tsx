@@ -225,9 +225,9 @@ const style = StyleSheet.create({
     borderRadius: 18,
   },
   userAvatarText: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 14,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
