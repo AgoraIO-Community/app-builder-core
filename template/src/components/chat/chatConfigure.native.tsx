@@ -65,7 +65,7 @@ const ChatConfigure = ({children}) => {
   const chatClient = ChatClient.getInstance();
   const chatManager = chatClient.chatManager;
 
-  const localUid = data?.uid?.toString();
+  const localUid = data?.channel + '_' + data?.uid?.toString();
   const agoraToken = data?.chat?.user_token;
   const {store} = React.useContext(StorageContext);
   const {

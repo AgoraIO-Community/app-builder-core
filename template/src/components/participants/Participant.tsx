@@ -135,8 +135,8 @@ const Participant = (props: ParticipantInterface) => {
                 ref={moreIconRef}
                 collapsable={false}
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 24,
+                  height: 24,
                   alignSelf: 'center',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -187,14 +187,14 @@ const Participant = (props: ParticipantInterface) => {
                 {!$config.AUDIO_ROOM &&
                   (isLocal
                     ? !isAudienceUser && (
-                        <View style={styles.mlIcon}>
+                        <View>
                           <LocalVideoMute
                             plainIconHoverEffect={true}
                             iconProps={(isVideoEnabled, isPermissionDenied) => {
                               return {
                                 iconSize: 20,
                                 iconType: 'plain',
-                                iconContainerStyle: styles.iconContainerStyle,
+                                iconContainerStyle: {padding: 8},
                                 showWarningIcon: false,
                                 tintColor: isVideoEnabled
                                   ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -207,7 +207,7 @@ const Participant = (props: ParticipantInterface) => {
                         </View>
                       )
                     : !isAudienceUser && (
-                        <View style={styles.mlIcon}>
+                        <View>
                           <RemoteVideoMute
                             uid={user.uid}
                             video={user.video}
@@ -219,14 +219,14 @@ const Participant = (props: ParticipantInterface) => {
                       ))}
                 {isLocal
                   ? !isAudienceUser && (
-                      <View style={styles.mlIcon}>
+                      <View>
                         <LocalAudioMute
                           plainIconHoverEffect={true}
                           iconProps={(isAudioEnabled, isPermissionDenied) => {
                             return {
                               iconSize: 20,
                               iconType: 'plain',
-                              iconContainerStyle: styles.iconContainerStyle,
+                              iconContainerStyle: {padding: 8},
                               showWarningIcon: false,
                               tintColor: isAudioEnabled
                                 ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -239,7 +239,7 @@ const Participant = (props: ParticipantInterface) => {
                       </View>
                     )
                   : !isAudienceUser && (
-                      <View style={styles.mlIcon}>
+                      <View>
                         <RemoteAudioMute
                           uid={user.uid}
                           audio={user.audio}
@@ -290,13 +290,6 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
   },
-  iconContainerStyle: {
-    width: 28,
-    height: 28,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   textStyle: {
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 14,
@@ -334,8 +327,5 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     backgroundColor: 'red',
-  },
-  mlIcon: {
-    marginLeft: 8,
   },
 });
