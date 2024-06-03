@@ -309,11 +309,13 @@ const ChatConfigure = ({children}) => {
       connRef.current
         .send(msg)
         .then(res => {
-          console.log(
-            '%cChatSDK: Send  msg success: %s',
-            'color: blue',
-            JSON.stringify(res, null, 2),
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            'Succesfully sent chat message',
+            option,
           );
+
           // update local messagre store
           const messageData = {
             msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
