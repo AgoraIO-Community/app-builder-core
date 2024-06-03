@@ -1,7 +1,7 @@
 import {StatusType, datadogLogs} from '@datadog/browser-logs';
 import {version as cli_version} from '../../../../package.json';
 
-const DATADOG_CLIENT_TOKEN = 'pubeccdaed5357d217e2c75e85aaef432fe';
+const DATADOG_CLIENT_TOKEN = 'pubad10d7feb87f0b039c267e69b46ee84e';
 const DATADOG_SITE = 'datadoghq.com';
 
 export const initTransportLayerForAgora = () => {
@@ -10,7 +10,7 @@ export const initTransportLayerForAgora = () => {
     site: DATADOG_SITE,
     forwardErrorsToLogs: false,
     sessionSampleRate: 100,
-    service: 'app-builder-core-frontend',
+    service: 'app-builder-core-frontendv2',
     version: cli_version,
     env: 'none',
   });
