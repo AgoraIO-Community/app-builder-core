@@ -102,10 +102,14 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     <View style={styles.containerBtn}>
       <IconButton
         hoverEffect={true}
-        hoverEffectStyle={{
-          backgroundColor: $config.ICON_BG_COLOR,
-          borderRadius: 24,
-        }}
+        hoverEffectStyle={
+          isValidMsg
+            ? {
+                backgroundColor: $config.ICON_BG_COLOR,
+                borderRadius: 24,
+              }
+            : {}
+        }
         toolTipMessage={
           isMobileUA() ? null : useString(chatSendMessageBtnText)()
         }
