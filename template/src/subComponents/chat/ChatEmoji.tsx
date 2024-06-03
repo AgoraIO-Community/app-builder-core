@@ -188,6 +188,8 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 0,
     position: 'absolute',
     bottom: 0,
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
   },
 });
 

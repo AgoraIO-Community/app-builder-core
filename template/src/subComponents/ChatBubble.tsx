@@ -383,7 +383,7 @@ const style = StyleSheet.create({
     width: 256,
     height: 160,
     resizeMode: 'cover',
-    borderRadius: 8,
+    borderRadius: 4,
   },
   chatBubbleViewImg: {
     paddingHorizontal: 6,
@@ -433,6 +433,9 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  mtZero: {
+    marginTop: 0,
   },
 });
 

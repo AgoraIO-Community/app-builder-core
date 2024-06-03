@@ -250,7 +250,7 @@ const style = StyleSheet.create({
     flexShrink: 1,
   },
   chatNotificationPrivate: {
-    backgroundColor: $config.SEMANTIC_NEUTRAL,
+    backgroundColor: $config.SEMANTIC_ERROR,
     borderRadius: 8,
     alignSelf: 'center',
   },

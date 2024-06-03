@@ -285,12 +285,14 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'chat-nav',
-      tintColor: isPanelActive
-        ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.SECONDARY_ACTION_COLOR,
-      iconBackgroundColor: isPanelActive
-        ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : '',
+      tintColor:
+        isPanelActive || totalUnreadCount
+          ? $config.PRIMARY_ACTION_TEXT_COLOR
+          : $config.SECONDARY_ACTION_COLOR,
+      iconBackgroundColor:
+        isPanelActive || totalUnreadCount
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : '',
     },
     btnTextProps: {
       text: showLabel ? chatLabel : '',
