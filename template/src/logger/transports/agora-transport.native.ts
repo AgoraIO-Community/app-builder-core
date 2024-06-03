@@ -16,9 +16,9 @@ export const initTransportLayerForAgora = () => {
 
 const getConfig = () => {
   const loggerConfig = new DatadogProviderConfiguration(
-    'pubdb41371dc4efb3e57a918a4f2096578c',
+    'pub5b520008af91c772f322121cb2adc81c',
     'none',
-    'fc33ae27-6fd6-4c7b-94c6-c2c11b9f565e',
+    'fc33ae27-6fd6-4c7b-94c6-c2c11b9f565e', // application ID
     true, // track User interactions (e.g.: Tap on buttons. You can use 'accessibilityLabel' element property to give tap action the name, otherwise element type will be reported)
     true, // track XHR Resources
     true, // track Errors
@@ -32,7 +32,7 @@ const getConfig = () => {
   // Optional: sample RUM sessions (here, 100% of session will be sent to Datadog. Default = 100%)
   loggerConfig.sampleRate = 100;
   // Optional: The service name for your application
-  loggerConfig.serviceName = 'app-builder-core-frontend-native';
+  loggerConfig.serviceName = 'app-builder-core-frontend-nativev2';
 
   if (__DEV__) {
     // Optional: Send data more frequently
