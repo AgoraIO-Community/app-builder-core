@@ -167,6 +167,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     }
   };
 
+  const _handleHeightChange = e => {
+    e.target.style.height = 0;
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
   const handleContentSizeChange = e => {
     const contentHeight = e.nativeEvent.contentSize.height;
     const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
@@ -280,7 +285,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
           }
           autoCorrect={false}
           onKeyPress={handleKeyPress}
-          onContentSizeChange={handleContentSizeChange}
+          onChange={_handleHeightChange}
         />
       )}
     </>
