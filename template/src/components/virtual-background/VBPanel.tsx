@@ -53,8 +53,12 @@ interface VBCardProps {
   isMobile?: boolean;
 }
 
+export interface VBPanelProps {
+  isOnPrecall?: boolean;
+}
+
 const isNative = isAndroid() || isIOS();
-const VBPanel = (props?: {isOnPrecall?: boolean}) => {
+const VBPanel = (props?: VBPanelProps) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 

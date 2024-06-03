@@ -31,3 +31,4 @@ export {
   SDKChatType,
 } from '../src/components/chat-messages/useChatMessages';
 export {UploadStatus} from '../src/components/chat-ui/useChatUIControls';
+export {type VBPanelProps} from '../src/components/virtual-background/VBPanel';
