@@ -198,33 +198,38 @@ const ImagePopup = (props: ImagePopupProps) => {
       },
     ];
     return !isLoading ? (
-      <View style={styles.controlsContainer}>
-        {menuItems.map((obj, index) => (
-          <View key={obj.icon} ref={obj.icon === 'delete' ? btnRef : null}>
-            <IconButton
-              hoverEffect={false}
-              hoverEffectStyle={{
-                backgroundColor:
-                  $config.ICON_BG_COLOR + hexadecimalTransparency['50%'],
-              }}
-              iconProps={{
-                iconType: 'plain',
-                iconContainerStyle: {
-                  backgroundColor: 'transparent',
-                  paddingHorizontal: 8,
-                  borderRightWidth: index === menuItems.length - 1 ? 0 : 1,
-                  borderRightColor:
-                    $config.SECONDARY_ACTION_COLOR +
-                    hexadecimalTransparency['20%'],
-                },
-                iconSize: obj.iconSize,
-                name: obj.icon as keyof IconsInterface,
-                tintColor: obj.iconColor,
-              }}
-              onPress={obj.callback}
-            />
-          </View>
-        ))}
+      <View style={styles.outerControlsContainer}>
+        <View style={styles.innerControlsContainer}>
+          {menuItems.map((obj, index) => (
+            <View
+              key={obj.icon}
+              ref={obj.icon === 'delete' ? btnRef : null}
+              style={{
+                paddingHorizontal: 8,
+                borderRightWidth: index === menuItems.length - 1 ? 0 : 1,
+                borderRightColor:
+                  $config.SECONDARY_ACTION_COLOR +
+                  hexadecimalTransparency['20%'],
+              }}>
+              <IconButton
+                hoverEffect={true}
+                hoverEffectStyle={{
+                  borderRadius: 4,
+                  backgroundColor:
+                    $config.CARD_LAYER_2_COLOR + hexadecimalTransparency['30%'],
+                }}
+                iconProps={{
+                  iconType: 'plain',
+                  iconContainerStyle: styles.iconContainerStyle,
+                  iconSize: obj.iconSize,
+                  name: obj.icon as keyof IconsInterface,
+                  tintColor: obj.iconColor,
+                }}
+                onPress={obj.callback}
+              />
+            </View>
+          ))}
+        </View>
       </View>
     ) : (
       <></>
@@ -389,7 +394,7 @@ const styles = StyleSheet.create({
   subTextContainer: {
     flexDirection: 'row',
   },
-  controlsContainer: {
+  outerControlsContainer: {
     backgroundColor:
       $config.CARD_LAYER_2_COLOR + hexadecimalTransparency['50%'],
     flexDirection: 'row',
@@ -399,8 +404,21 @@ const styles = StyleSheet.create({
     right: 16,
     top: 12,
     borderRadius: 4,
-    paddingVertical: 8,
     zIndex: 1,
     elevation: 1,
+    height: 44,
+  },
+  innerControlsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainerStyle: {
+    width: 28,
+    height: 28,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
 });
