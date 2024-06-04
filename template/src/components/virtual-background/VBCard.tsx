@@ -19,7 +19,7 @@ import {
 } from '../../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
-interface VBCardProps {
+export interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};

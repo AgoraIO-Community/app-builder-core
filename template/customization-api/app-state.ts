@@ -58,3 +58,4 @@ export {
   ChatType,
 } from '../src/components/chat-ui/useChatUIControls';
 export type {ChatUIControlsInterface} from '../src/components/chat-ui/useChatUIControls';
+export {useVirtualBackground} from '../src/app-state/useVirtualBackground';
