@@ -75,3 +75,4 @@ export type {
 export {default as TranscriptPanel} from '../src/subComponents/caption/Transcript';
 export type {TranscriptProps} from '../src/subComponents/caption/Transcript';
 export {default as CaptionPanel} from '../src/subComponents/caption/CaptionContainer';
+export {default as VBPreview} from '../src/components/virtual-background/VideoPreview';

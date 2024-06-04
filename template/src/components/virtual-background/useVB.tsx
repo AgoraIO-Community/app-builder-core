@@ -20,11 +20,13 @@ export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
 export type Option = {
   type: VBMode;
-  icon: keyof IconsInterface;
+  icon?: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
   id?: string;
   translationKey?: keyof TextDataInterface;
+  isBase64Image?: boolean;
+  isSelected?: boolean;
 };
 
 // processors for the main view and preview view
@@ -69,6 +71,8 @@ type VBContextValue = {
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
+  applyVirtualBackgroundToMainView;
+  applyVirtualBackgroundToPreviewView;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -84,6 +88,8 @@ export const VBContext = React.createContext<VBContextValue>({
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
+  applyVirtualBackgroundToMainView: () => {},
+  applyVirtualBackgroundToPreviewView: () => {},
 });
 
 const VBProvider: React.FC = ({children}) => {
@@ -256,6 +262,8 @@ const VBProvider: React.FC = ({children}) => {
         setSaveVB,
         options,
         setOptions,
+        applyVirtualBackgroundToMainView,
+        applyVirtualBackgroundToPreviewView,
       }}>
       {children}
     </VBContext.Provider>

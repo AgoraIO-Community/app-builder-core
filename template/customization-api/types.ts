@@ -32,5 +32,9 @@ export {
 } from '../src/components/chat-messages/useChatMessages';
 export {UploadStatus} from '../src/components/chat-ui/useChatUIControls';
 export {type VBPanelProps} from '../src/components/virtual-background/VBPanel';
-export {type VBMode} from '../src/components/virtual-background/useVB';
+export {
+  type VBMode,
+  type Option,
+} from '../src/components/virtual-background/useVB';
 export {type VBCardProps} from '../src/components/virtual-background/VBCard';
+export {type userVBOptions} from '../src/app-state/useVirtualBackground';

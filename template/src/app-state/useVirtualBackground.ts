@@ -6,20 +6,25 @@ import {
   type VBMode,
 } from '../../src/components/virtual-background/useVB';
 
-interface userVBOptions {
+export interface userVBOptions {
   type: VBMode;
   label?: string;
   imagePaths?: string[];
 }
 
+export interface VBConfig {
+  target: 'mainView' | 'preview';
+  blurDegree?: number;
+  type: 'blur' | 'img' | 'custom'; // Adjust this as needed based on your configuration options
+  source?: HTMLImageElement;
+}
+
 export interface virtualBackgroundInterface {
-  options: Option[]; // options available in vb panel
-  selectedImage: string | null;
-  setSelectedImage: React.Dispatch<React.SetStateAction<string | null>>;
-  vbMode: VBMode;
-  setVBmode: React.Dispatch<React.SetStateAction<VBMode>>;
-  setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
-  updateVBOptions: (options: userVBOptions[]) => void;
+  vbOptions: Option[]; // options available in vb panel
+  setVBOptions: (options: Option[]) => void;
+  saveVBOption: (type: VBMode, path: string) => void;
+  applyVBOption: () => void;
+  isVBOptionSelected: (type: VBMode, path: string) => boolean;
 }
 
 export const useVirtualBackground: () => virtualBackgroundInterface = () => {
@@ -31,9 +36,11 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setSelectedImage,
     setVBmode,
     setSaveVB,
+    applyVirtualBackgroundToMainView,
+    applyVirtualBackgroundToPreviewView,
   } = useVB();
 
-  const updateVBOptions = async options => {
+  const updateVBOptions1 = async (options: userVBOptions[]) => {
     const vbOptions = [];
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
@@ -62,7 +69,6 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
               `Error fetching and converting image ${imgPath}:`,
               error,
             );
-            continue;
           }
 
           vbOptions.push(imgObj);
@@ -72,13 +78,69 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
 
     setOptions(vbOptions);
   };
+  const updateVBOptions = async (options: Option[]) => {
+    const vbOptions = [];
+    for (let i = 0; i < options.length; i++) {
+      const option = options[i];
+
+      if (option.type === 'image' && option?.isBase64Image === false) {
+        const imgObj = {
+          type: 'image',
+          icon: 'vb',
+          path: '',
+          id: `VBOption_${i + 1}`,
+        };
+        try {
+          imgObj.path = await convertBlobToBase64(option.path);
+        } catch (error) {
+          console.error(
+            `Error fetching and converting image ${option.path}:`,
+            error,
+          );
+        }
+        vbOptions.push(imgObj);
+        if (option?.isSelected) {
+          setSelectedImage(imgObj.path);
+          setVBmode('image');
+        }
+      } else {
+        vbOptions.push(option);
+      }
+    }
+    setOptions(vbOptions);
+  };
+
+  const saveVBOption = (type: VBMode, path: string) => {
+    if (path) {
+      setSelectedImage(path);
+    } else {
+      setSelectedImage(null);
+    }
+    setVBmode(type);
+    setSaveVB(false);
+  };
+
+  const applyVBOption = () => {
+    setSaveVB(true);
+  };
+
+  const isVBOptionSelected = (type: VBMode, path: string) => {
+    return path ? path === selectedImage : type === vbMode;
+  };
+
+  //TODO: later
+  const applyVirtualBackground = (config: VBConfig) => {
+    if (config.target === 'mainView') {
+      applyVirtualBackgroundToMainView(config);
+    } else {
+      applyVirtualBackgroundToPreviewView(config);
+    }
+  };
   return {
-    options,
-    selectedImage,
-    setSelectedImage,
-    vbMode,
-    setVBmode,
-    updateVBOptions,
-    setSaveVB,
+    vbOptions: options,
+    setVBOptions: updateVBOptions,
+    saveVBOption,
+    applyVBOption,
+    isVBOptionSelected,
   };
 };
