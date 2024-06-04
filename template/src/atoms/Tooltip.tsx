@@ -17,6 +17,7 @@ interface TooltipProps {
   showTooltipArrow?: boolean;
   fontSize?: number;
   onPress?: () => void;
+  disabled?: boolean;
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
@@ -25,6 +26,7 @@ const Tooltip = (props: TooltipProps) => {
     placement = 'top',
     showTooltipArrow = true,
     rootTooltipContainer = {},
+    disabled = false,
   } = props;
   const css = showTooltipArrow
     ? `
@@ -95,6 +97,7 @@ const Tooltip = (props: TooltipProps) => {
         afterShow={() => {
           isClickable && props?.onPress && props.onPress();
         }}
+        disable={disabled}
         globalEventOff="click"
         id={toolTipId}
         backgroundColor={$config.CARD_LAYER_3_COLOR}

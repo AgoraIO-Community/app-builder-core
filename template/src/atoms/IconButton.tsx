@@ -152,12 +152,14 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
     placement = 'top',
     isClickable = false,
     showTooltipArrow = true,
+    disabled = false,
   } = props;
   if (props?.toolTipMessage) {
     return (
       <ToolTip
         isClickable={isClickable}
         toolTipMessage={props.toolTipMessage}
+        disabled={disabled}
         //@ts-ignore
         placement={placement}
         showTooltipArrow={showTooltipArrow}

@@ -71,7 +71,7 @@ const ChatContainer = (props?: {
   const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
-  const {chatType, setChatType, privateChatUser, inputActive} =
+  const {chatType, setChatType, privateChatUser, inputActive, showEmojiPicker} =
     useChatUIControls();
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
@@ -179,6 +179,7 @@ const ChatContainer = (props?: {
 
   return (
     <View style={style.containerView}>
+      {showEmojiPicker && <View style={style.tintedOverlay} />}
       {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
@@ -395,7 +396,20 @@ const style = StyleSheet.create({
     textAlign: 'left',
     flexShrink: 1,
   },
-  containerView: {flex: 8},
+  containerView: {
+    flex: 8,
+    position: 'relative',
+  },
+  tintedOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
+    zIndex: 1,
+  },
   infoTextView: {
     marginVertical: 2,
     flexDirection: 'row',

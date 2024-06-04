@@ -145,7 +145,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       return;
     }
 
-    debugger;
     console.log(data);
     const option = {
       chatType: privateChatUser
@@ -321,11 +320,13 @@ export const ChatInput = () => {
   return (
     <View
       style={[
-        {flex: 1},
-        showEmojiPicker
-          ? {backgroundColor: 'transparent'}
-          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
-        // inputActive ? style.inputActiveView : {},
+        {
+          flex: 1,
+        },
+        showEmojiPicker && {
+          backgroundColor:
+            $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
+        },
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
@@ -374,7 +375,6 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingTop: 4,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
   chatPanel: {
     flexDirection: 'row',

@@ -112,6 +112,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
               }
             : {}
         }
+        disabled={!isValidMsg}
         toolTipMessage={
           isMobileUA() ? null : useString(chatSendMessageBtnText)()
         }
