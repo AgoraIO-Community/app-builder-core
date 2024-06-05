@@ -226,9 +226,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     const passphrase = roomId.host || '';
     let url = '';
     if (recordingMode === 'WEB') {
-      let recordinghostURL = getOriginURL();
-      // let recordinghostURL =
-      //   'https://app-builder-core-git-hotfix-recording-state-attr-c1a3f2-agoraio.vercel.app';
+      // let recordinghostURL = getOriginURL();
+      let recordinghostURL =
+        'https://app-builder-core-git-hotfix-recording-state-attr-c1a3f2-agoraio.vercel.app';
       if (recordinghostURL.includes('localhost')) {
         console.error(
           'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
@@ -524,7 +524,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       switch (action) {
         case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
           setInProgress(true);
-          if (hasUserJoinedRTM && isRecordingBot) {
+          if (isRecordingBot) {
             log('Recording-bot: sending event that recording has started');
             logger.log(
               LogSource.Internals,
@@ -584,13 +584,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   }, [
     roomId.host,
     setRecordingActive,
-    uidWhoStarted,
     localUid,
     _stopRecording,
     showErrorToast,
     headingStartError,
     subheadingError,
-    hasUserJoinedRTM,
     isRecordingBot,
   ]);
   // ************ Recording Bot starts ************
