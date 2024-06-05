@@ -106,6 +106,10 @@ export type EndCallHookType = () => (
   history: History,
 ) => Promise<void>;
 
+export interface AppConfig {
+  defaultRootFallback?: React.ComponentType;
+}
+
 export interface CustomizationApiInterface {
   /**
    * components used to replace whole screen or subcomponents
@@ -116,6 +120,10 @@ export interface CustomizationApiInterface {
    */
   // commented for v1 release
   customRoutes?: CustomRoutesInterface[];
+  /**
+   * app config
+   */
+  config?: AppConfig;
   /**
    * Internationlization
    */
