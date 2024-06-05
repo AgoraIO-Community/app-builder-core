@@ -226,9 +226,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     const passphrase = roomId.host || '';
     let url = '';
     if (recordingMode === 'WEB') {
-      // let recordinghostURL = getOriginURL();
-      let recordinghostURL =
-        'https://app-builder-core-git-hotfix-recording-state-attr-c1a3f2-agoraio.vercel.app';
+      let recordinghostURL = getOriginURL();
+      // let recordinghostURL =
+      //   'https://app-builder-core-git-hotfix-recording-state-attr-c1a3f2-agoraio.vercel.app';
       if (recordinghostURL.includes('localhost')) {
         console.error(
           'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
