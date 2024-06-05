@@ -676,7 +676,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     setRecordingActive,
   ]);
 
-  // useEffect(() => {
+  // useEffect(() => { //
   //   if (hasUserJoinedRTM && isRecordingBot) {
   //     log('Recording-bot: sending event that recording has started');
   //     logger.log(
