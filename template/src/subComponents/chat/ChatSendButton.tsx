@@ -114,7 +114,9 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
         }
         disabled={!isValidMsg}
         toolTipMessage={
-          isMobileUA() ? null : useString(chatSendMessageBtnText)()
+          isMobileUA() || !isValidMsg
+            ? null
+            : useString(chatSendMessageBtnText)()
         }
         iconProps={{
           iconType: 'plain',
