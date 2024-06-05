@@ -139,7 +139,7 @@ export interface ChatEmojiButtonProps {
 }
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
-  const {setShowEmojiPicker} = useChatUIControls();
+  const {showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
   };
@@ -152,17 +152,18 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
         backgroundColor: $config.ICON_BG_COLOR,
         borderRadius: 24,
       }}
+      focusEffect={showEmojiPicker}
       iconProps={{
         iconType: 'plain',
-        base64: false,
+        base64: true,
         hoverBase64: true,
         iconContainerStyle: {
           padding: 4,
         },
         iconSize: 24,
-        name: 'chat_emoji',
+        name: showEmojiPicker ? 'chat_emoji_fill' : 'chat_emoji',
         hoverIconName: 'chat_emoji_fill',
-        tintColor: $config.SECONDARY_ACTION_COLOR,
+        tintColor: $config.SEMANTIC_NEUTRAL,
       }}
       onPress={onPress}
     />

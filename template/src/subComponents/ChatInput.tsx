@@ -86,6 +86,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setUploadedFiles,
     inputHeight,
     setInputHeight,
+    setShowEmojiPicker,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
@@ -130,6 +131,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   };
   const onSubmitEditing = () => {
     if (message.length === 0) return;
+    setShowEmojiPicker(false); // This will close emoji picker on enter
     const groupID = data.chat.group_id;
 
     if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
@@ -181,7 +183,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     if (DIV_HEIGHT <= MIN_HEIGHT) {
       e.target.style.lineHeight = `${(MIN_HEIGHT - 2) / 2}px`;
     } else {
-      e.target.style.lineHeight = '17px';
+      e.target.style.lineHeight = `${LINE_HEIGHT}px`;
     }
     // Handle scroll when content increase the div height
     if (DIV_HEIGHT > MAX_HEIGHT) {
@@ -190,7 +192,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   };
 
   const handleContentSizeChange = e => {
-    const LINE_HEIGHT = 17;
     const contentHeight = e.nativeEvent.contentSize.height;
     const lines = Math.floor((contentHeight - 24) / LINE_HEIGHT);
     const newHeight = lines < 5 ? LINE_HEIGHT * lines + 24 + 2 : MAX_HEIGHT; // Assuming lineHeight is LINE_HEIGHT

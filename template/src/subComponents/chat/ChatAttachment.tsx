@@ -27,8 +27,13 @@ export interface ChatAttachmentButtonProps {
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const {data} = useRoomInfo();
-  const {privateChatUser, setUploadStatus, setUploadedFiles, uploadStatus} =
-    useChatUIControls();
+  const {
+    privateChatUser,
+    setUploadStatus,
+    setUploadedFiles,
+    uploadStatus,
+    setShowEmojiPicker,
+  } = useChatUIControls();
   const {uploadAttachment} = useChatConfigure();
   const toastHeadingType = useString(chatUploadErrorToastHeading)();
   const toastHeadingSize = useString(chatUploadErrorFileSizeToastHeading)();
@@ -57,6 +62,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowEmojiPicker(false); // This will close emoji picker on when file is uplaoded
     const selectedFile = e.target.files && e.target.files[0];
     const file = AgoraChat.utils.getFileUrl(e.target);
     const uploadedFileType = file.filetype.toLowerCase();

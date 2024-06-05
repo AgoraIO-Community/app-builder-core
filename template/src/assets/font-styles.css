@@ -24,6 +24,25 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-chat_emoji_fill .path1:before {
+  content: '\e995';
+  color: rgb(255, 171, 0);
+}
+.icon-chat_emoji_fill .path2:before {
+  content: '\e996';
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.icon-chat_emoji_fill .path3:before {
+  content: '\e997';
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.icon-chat_emoji_fill .path4:before {
+  content: '\e998';
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
 .icon-copy-link:before {
   content: '\e99e';
   color: #fff;
@@ -176,25 +195,6 @@
 .icon-chat_gif_fill:before {
   content: '\e994';
   color: #fff;
-}
-.icon-chat_emoji_fill .path1:before {
-  content: '\e995';
-  color: rgb(255, 171, 0);
-}
-.icon-chat_emoji_fill .path2:before {
-  content: '\e996';
-  margin-left: -1em;
-  color: rgb(17, 17, 17);
-}
-.icon-chat_emoji_fill .path3:before {
-  content: '\e997';
-  margin-left: -1em;
-  color: rgb(0, 0, 0);
-}
-.icon-chat_emoji_fill .path4:before {
-  content: '\e998';
-  margin-left: -1em;
-  color: rgb(0, 0, 0);
 }
 .icon-clear-all:before {
   content: '\e96f';
