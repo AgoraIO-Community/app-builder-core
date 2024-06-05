@@ -315,7 +315,8 @@ const VideoCallScreen = () => {
                 $config.ICON_TEXT
                   ? {
                       paddingHorizontal: isDesktop() ? 32 : 10,
-                      paddingVertical: 24,
+                      paddingVertical: 10,
+                      paddingBottom: 0,
                     }
                   : {marginVertical: 20},
               ]}>
