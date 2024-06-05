@@ -55,6 +55,8 @@ const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
 };
 
+const RECORDING_BOT_UID = 100000;
+
 const getFrontendUrl = (url: string) => {
   // check if it doesn't contains the https protocol
   if (url.indexOf('https://') !== 0) {
@@ -447,7 +449,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           value: `${localUid}`,
         }),
         PersistanceLevel.None,
-        100000, // bot uid
+        RECORDING_BOT_UID, // bot uid
       );
     } else {
       log('Stopping recording by calling stop');
@@ -530,6 +532,22 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         case RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB:
           setInProgress(false);
           setRecordingActive(true);
+          if (localUid === uidWhoStarted) {
+            events.send(
+              EventNames.RECORDING_STATE_ATTRIBUTE,
+              JSON.stringify({
+                action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB,
+                value: `${payload.action?.value || ''}`,
+              }),
+              PersistanceLevel.Session,
+              RECORDING_BOT_UID,
+            );
+          }
+          break;
+        case RecordingActions.RECORDING_REQUEST_STATE.FAILED:
+          setInProgress(false);
+          setRecordingActive(false);
+          showErrorToast(headingStartError, subheadingError);
           break;
         case RecordingActions.RECORDING_REQUEST_STATE.STOPPED:
           setInProgress(false);
@@ -562,6 +580,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     uidWhoStarted,
     localUid,
     _stopRecording,
+    showErrorToast,
+    headingStartError,
+    subheadingError,
   ]);
   // ************ Recording Bot starts ************
 
