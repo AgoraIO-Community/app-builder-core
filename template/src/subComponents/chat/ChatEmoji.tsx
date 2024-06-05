@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
-    marginBottom: 16,
+    marginBottom: 12,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     position: 'absolute',

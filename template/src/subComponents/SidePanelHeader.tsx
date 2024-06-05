@@ -5,6 +5,7 @@ import ThemeConfig from '../theme';
 import {IconsInterface} from '../atoms/CustomIcon';
 import {isWebInternal} from '../utils/common';
 import styles from 'react-native-toast-message/src/styles';
+import CommonStyles from '../components/CommonStyles';
 
 export interface SidePanelHeaderProps {
   centerComponent?: React.ReactNode;
@@ -16,10 +17,11 @@ export interface SidePanelHeaderProps {
   trailingIconOnPress2?: () => void;
   isChat?: boolean;
   children?: React.ReactNode;
+  showTintedOverlay?: boolean;
 }
 const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
   (props: SidePanelHeaderProps, ref) => {
-    const {isChat = false, children = <></>} = props;
+    const {isChat = false, showTintedOverlay = false, children = <></>} = props;
     return (
       <>
         <View
@@ -27,6 +29,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
             SidePanelStyles.sidePanelHeader,
             isChat ? SidePanelStyles.chatPadding : {},
           ]}>
+          {showTintedOverlay && <View style={CommonStyles.tintedOverlay} />}
           {props?.leadingIconName ? (
             <View>
               <IconButton
@@ -112,6 +115,7 @@ export const SidePanelStyles = StyleSheet.create({
     paddingVertical: 22,
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
+    position: 'relative',
   },
   chatPadding: {
     paddingHorizontal: 16,

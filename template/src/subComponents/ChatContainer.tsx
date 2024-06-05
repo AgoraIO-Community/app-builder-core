@@ -53,6 +53,7 @@ import {
   chatPanelUserOfflineText,
   groupChatWelcomeContent,
 } from '../language/default-labels/videoCallScreenLabels';
+import CommonStyles from '../components/CommonStyles';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -179,7 +180,7 @@ const ChatContainer = (props?: {
 
   return (
     <View style={style.containerView}>
-      {showEmojiPicker && <View style={style.tintedOverlay} />}
+      {showEmojiPicker && <View style={CommonStyles.tintedOverlay} />}
       {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
@@ -399,16 +400,6 @@ const style = StyleSheet.create({
   containerView: {
     flex: 8,
     position: 'relative',
-  },
-  tintedOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
-    zIndex: 1,
   },
   infoTextView: {
     marginVertical: 2,

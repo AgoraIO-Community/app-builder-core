@@ -323,10 +323,6 @@ export const ChatInput = () => {
         {
           flex: 1,
         },
-        showEmojiPicker && {
-          backgroundColor:
-            $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
-        },
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
