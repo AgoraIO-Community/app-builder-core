@@ -228,7 +228,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (recordingMode === 'WEB') {
       let recordinghostURL = getOriginURL();
       // let recordinghostURL =
-      //   'https://app-builder-core-git-hotfix-recording-bot-ends-r-253634-agoraio.vercel.app';
+      //   'https://app-builder-core-git-hotfix-recording-state-attr-c1a3f2-agoraio.vercel.app';
       if (recordinghostURL.includes('localhost')) {
         console.error(
           'web-recording - Recording url cannot be localhost. It should be a valid deployed URL',
@@ -550,17 +550,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         case RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB:
           setInProgress(false);
           setRecordingActive(true);
-          if (localUid === uidWhoStarted) {
-            events.send(
-              EventNames.RECORDING_STATE_ATTRIBUTE,
-              JSON.stringify({
-                action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB,
-                value: `${payload.action?.value || ''}`,
-              }),
-              PersistanceLevel.Session,
-              RECORDING_BOT_UID,
-            );
-          }
           break;
         case RecordingActions.RECORDING_REQUEST_STATE.FAILED:
           setInProgress(false);
