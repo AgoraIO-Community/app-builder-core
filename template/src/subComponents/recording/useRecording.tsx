@@ -524,6 +524,24 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       switch (action) {
         case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
           setInProgress(true);
+          if (hasUserJoinedRTM && isRecordingBot) {
+            log('Recording-bot: sending event that recording has started');
+            logger.log(
+              LogSource.Internals,
+              'RECORDING',
+              'Recording-bot: sending event recording-started event to users in the call',
+            );
+            setInProgress(false);
+            setRecordingActive(true);
+            events.send(
+              EventNames.RECORDING_STATE_ATTRIBUTE,
+              JSON.stringify({
+                action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB,
+                value: `${localUid}`,
+              }),
+              PersistanceLevel.Session,
+            );
+          }
           break;
         case RecordingActions.RECORDING_REQUEST_STATE.STARTED_MIX:
           setInProgress(false);
@@ -583,6 +601,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     showErrorToast,
     headingStartError,
     subheadingError,
+    hasUserJoinedRTM,
+    isRecordingBot,
   ]);
   // ************ Recording Bot starts ************
 
@@ -656,26 +676,26 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     setRecordingActive,
   ]);
 
-  useEffect(() => {
-    if (hasUserJoinedRTM && isRecordingBot) {
-      log('Recording-bot: sending event that recording has started');
-      logger.log(
-        LogSource.Internals,
-        'RECORDING',
-        'Recording-bot: sending event recording-started event to users in the call',
-      );
-      setInProgress(false);
-      setRecordingActive(true);
-      events.send(
-        EventNames.RECORDING_STATE_ATTRIBUTE,
-        JSON.stringify({
-          action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB,
-          value: `${localUid}`,
-        }),
-        PersistanceLevel.Session,
-      );
-    }
-  }, [isRecordingBot, hasUserJoinedRTM, localUid, setRecordingActive]);
+  // useEffect(() => {
+  //   if (hasUserJoinedRTM && isRecordingBot) {
+  //     log('Recording-bot: sending event that recording has started');
+  //     logger.log(
+  //       LogSource.Internals,
+  //       'RECORDING',
+  //       'Recording-bot: sending event recording-started event to users in the call',
+  //     );
+  //     setInProgress(false);
+  //     setRecordingActive(true);
+  //     events.send(
+  //       EventNames.RECORDING_STATE_ATTRIBUTE,
+  //       JSON.stringify({
+  //         action: RecordingActions.RECORDING_REQUEST_STATE.STARTED_WEB,
+  //         value: `${localUid}`,
+  //       }),
+  //       PersistanceLevel.Session,
+  //     );
+  //   }
+  // }, [isRecordingBot, hasUserJoinedRTM, localUid, setRecordingActive]);
   // ************ Recording Bot ends ************
 
   return (
