@@ -6,12 +6,6 @@ import {
   type VBMode,
 } from '../../src/components/virtual-background/useVB';
 
-export interface userVBOptions {
-  type: VBMode;
-  label?: string;
-  imagePaths?: string[];
-}
-
 export interface VBConfig {
   target: 'mainView' | 'preview';
   blurDegree?: number;
@@ -25,6 +19,8 @@ export interface virtualBackgroundInterface {
   saveVBOption: (type: VBMode, path: string) => void;
   applyVBOption: () => void;
   isVBOptionSelected: (type: VBMode, path: string) => boolean;
+  isVBPanelOpen: boolean;
+  closeVBPanel: () => void;
 }
 
 export const useVirtualBackground: () => virtualBackgroundInterface = () => {
@@ -36,48 +32,12 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setSelectedImage,
     setVBmode,
     setSaveVB,
+    isVBActive,
+    setIsVBActive,
     applyVirtualBackgroundToMainView,
     applyVirtualBackgroundToPreviewView,
   } = useVB();
 
-  const updateVBOptions1 = async (options: userVBOptions[]) => {
-    const vbOptions = [];
-    for (let i = 0; i < options.length; i++) {
-      const option = options[i];
-
-      if (option.type === 'none' || option.type === 'blur') {
-        vbOptions.push({
-          type: option.type,
-          icon: option.type === 'none' ? 'remove' : 'blur',
-          label: option.label,
-          id: `VBOption_${i + 1}`,
-        });
-      } else if (option.type === 'image' && option.imagePaths) {
-        for (let j = 0; j < option.imagePaths.length; j++) {
-          const imgPath = option.imagePaths[j];
-          const imgObj = {
-            type: 'image',
-            icon: 'vb',
-            path: '',
-            id: `VBOption_${i + j + 1}`,
-          };
-
-          try {
-            imgObj.path = await convertBlobToBase64(imgPath);
-          } catch (error) {
-            console.error(
-              `Error fetching and converting image ${imgPath}:`,
-              error,
-            );
-          }
-
-          vbOptions.push(imgObj);
-        }
-      }
-    }
-
-    setOptions(vbOptions);
-  };
   const updateVBOptions = async (options: Option[]) => {
     const vbOptions = [];
     for (let i = 0; i < options.length; i++) {
@@ -99,7 +59,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
           );
         }
         vbOptions.push(imgObj);
-        if (option?.isSelected) {
+        if (option?.isSelected && !selectedImage) {
           setSelectedImage(imgObj.path);
           setVBmode('image');
         }
@@ -128,6 +88,10 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     return path ? path === selectedImage : type === vbMode;
   };
 
+  const closeVBPanel = () => {
+    setIsVBActive(false);
+  };
+
   //TODO: later
   const applyVirtualBackground = (config: VBConfig) => {
     if (config.target === 'mainView') {
@@ -142,5 +106,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     saveVBOption,
     applyVBOption,
     isVBOptionSelected,
+    isVBPanelOpen: isVBActive,
+    closeVBPanel,
   };
 };

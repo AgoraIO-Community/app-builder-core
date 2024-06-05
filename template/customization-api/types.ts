@@ -37,4 +37,3 @@ export {
   type Option,
 } from '../src/components/virtual-background/useVB';
 export {type VBCardProps} from '../src/components/virtual-background/VBCard';
-export {type userVBOptions} from '../src/app-state/useVirtualBackground';

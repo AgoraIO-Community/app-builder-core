@@ -87,6 +87,7 @@ export type ComponentsInterface = {
   appRoot?: React.ComponentType;
   // commented for v1 release
   precall?: PreCallInterface | React.ComponentType;
+  preferenceWrapper?: React.ComponentType;
   //precall?: React.ComponentType;
   //create?: React.ComponentType;
   //share?: React.ComponentType;
