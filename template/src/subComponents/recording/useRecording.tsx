@@ -524,10 +524,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       switch (action) {
         case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
           setInProgress(true);
-          if (
-            isRecordingBot &&
-            payload?.action?.value?.api === 'START_RECORDING'
-          ) {
+          if (isRecordingBot && payload?.value?.api === 'START_RECORDING') {
             log('Recording-bot: sending event that recording has started');
             logger.log(
               LogSource.Internals,
