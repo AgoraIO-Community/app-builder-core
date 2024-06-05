@@ -243,7 +243,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       EventNames.RECORDING_STATE_ATTRIBUTE,
       JSON.stringify({
         action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
-        value: `${localUid}`,
+        value: {uid: `${localUid}`, api: 'START_RECORDING'},
       }),
       PersistanceLevel.Session,
     );
@@ -435,7 +435,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       EventNames.RECORDING_STATE_ATTRIBUTE,
       JSON.stringify({
         action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
-        value: `${localUid}`,
+        value: {uid: `${localUid}`, api: 'STOP_RECORDING'},
       }),
       PersistanceLevel.Session,
     );
@@ -524,7 +524,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       switch (action) {
         case RecordingActions.RECORDING_REQUEST_STATE.PENDING:
           setInProgress(true);
-          if (isRecordingBot) {
+          if (
+            isRecordingBot &&
+            payload?.action?.value?.api === 'START_RECORDING'
+          ) {
             log('Recording-bot: sending event that recording has started');
             logger.log(
               LogSource.Internals,
