@@ -80,7 +80,7 @@ export const ChatEmojiPicker: React.FC = () => {
 
   const handleEmojiClick = (emojiObject: {emoji: string; names: string[]}) => {
     setMessage(prev =>
-      prev ? prev + '  ' + emojiObject.emoji : emojiObject.emoji,
+      prev ? prev + ' ' + emojiObject.emoji : emojiObject.emoji,
     );
     // setShowEmojiPicker(false);
   };
@@ -107,7 +107,7 @@ export const ChatEmojiPicker: React.FC = () => {
           width: 30,
           height: 30,
           position: 'absolute',
-          top: -371,
+          top: -367,
           right: 8,
         }}>
         <IconButton
