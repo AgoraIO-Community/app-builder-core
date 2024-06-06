@@ -218,7 +218,7 @@ const ChatContainer = (props?: {
                   <View
                     style={[
                       style.unreadMessageContainer,
-                      index === 0 && {marginTop: 16, marginBottom: 0},
+                      index === 0 && {marginTop: 8, marginBottom: 0},
                     ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
@@ -280,7 +280,7 @@ const ChatContainer = (props?: {
                   <View
                     style={[
                       style.unreadMessageContainer,
-                      index === 0 && {marginTop: 16, marginBottom: 0},
+                      index === 0 && {marginTop: 8, marginBottom: 0},
                     ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
