@@ -53,6 +53,7 @@ export interface ChatUIControlsInterface {
   setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
   uploadedFiles: File[];
   setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
+  _resetTextareaHeight: (e) => void;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -72,6 +73,7 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setUploadStatus: () => {},
   uploadedFiles: [],
   setUploadedFiles: () => {},
+  _resetTextareaHeight: () => {},
 });
 
 interface ChatUIControlsProviderProps {
@@ -81,6 +83,7 @@ interface ChatUIControlsProviderProps {
 export const MIN_HEIGHT = 48;
 export const MAX_HEIGHT = 92;
 export const LINE_HEIGHT = 17;
+export const INITIAL_LINE_HEIGHT = 22;
 export const MAX_UPLOAD_SIZE = 10; //MB
 export const MAX_TEXT_MESSAGE_SIZE = 5; //KB
 
@@ -95,6 +98,13 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   );
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT);
+
+  const _resetTextareaHeight = e => {
+    console.log('reset chat input textarea');
+    e.target.style.height = `${MIN_HEIGHT}px`;
+    e.target.style.overflow = 'hidden';
+    e.target.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+  };
 
   return (
     <ChatUIControlsContext.Provider
@@ -115,6 +125,7 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setUploadStatus,
         uploadedFiles,
         setUploadedFiles,
+        _resetTextareaHeight,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

@@ -27,6 +27,7 @@ import {
   MIN_HEIGHT,
   MAX_HEIGHT,
   LINE_HEIGHT,
+  INITIAL_LINE_HEIGHT,
   MAX_TEXT_MESSAGE_SIZE,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
@@ -87,6 +88,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     inputHeight,
     setInputHeight,
     setShowEmojiPicker,
+    _resetTextareaHeight,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
@@ -130,8 +132,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setMessage(text);
   };
   const onSubmitEditing = () => {
-    if (message.length === 0) return;
-    setShowEmojiPicker(false); // This will close emoji picker on enter
+    if (message.length === 0) {
+      return;
+    }
     const groupID = data.chat.group_id;
 
     if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
@@ -167,24 +170,25 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   // with multiline textinput enter prints /n
   const handleKeyPress = ({nativeEvent}) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
-      onSubmitEditing();
       nativeEvent.preventDefault();
+      onSubmitEditing();
+      setShowEmojiPicker(false); // This will close emoji picker on enter
+      _resetTextareaHeight(nativeEvent);
     }
   };
 
   const _handleHeightChange = e => {
     e.target.style.height = 0;
+    if (e.target.scrollHeight <= MIN_HEIGHT) {
+      e.target.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+    } else {
+      e.target.style.lineHeight = `${LINE_HEIGHT}px`;
+    }
     const DIV_HEIGHT = e.target.scrollHeight;
     e.target.style.height = `${
       DIV_HEIGHT < MIN_HEIGHT ? MIN_HEIGHT : DIV_HEIGHT
     }px`;
     e.target.style.overflow = 'hidden';
-    // Make sure the text is center align only
-    if (DIV_HEIGHT <= MIN_HEIGHT) {
-      e.target.style.lineHeight = `${(MIN_HEIGHT - 2) / 2}px`;
-    } else {
-      e.target.style.lineHeight = `${LINE_HEIGHT}px`;
-    }
     // Handle scroll when content increase the div height
     if (DIV_HEIGHT > MAX_HEIGHT) {
       e.target.style.overflow = 'auto';
@@ -287,7 +291,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
             minHeight: MIN_HEIGHT,
             padding: 12,
             fontSize: ThemeConfig.FontSize.small,
-            lineHeight: LINE_HEIGHT,
+            lineHeight: INITIAL_LINE_HEIGHT,
             borderWidth: 1,
             borderColor:
               $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
