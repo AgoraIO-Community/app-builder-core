@@ -17,13 +17,12 @@ export interface VBConfig {
 }
 
 export interface virtualBackgroundInterface {
-  vbOptions: Option[]; // options available in vb panel
-  setVBOptions: (options: Option[]) => void;
-  saveVBOption: (type: VBMode, path: string) => void;
-  applyVBOption: () => void;
-  isVBOptionSelected: (type: VBMode, path: string) => boolean;
-  isVBPanelOpen: boolean;
-  closeVBPanel: () => void;
+  virtualBackgrounds: Option[]; // options available in vb panel
+  addVirtualBackgrounds: (options: Option[]) => void;
+  setVBPreview: (type: VBMode, path: string) => void;
+  applyVirtualBackground: () => void;
+  isVirtualBackgroundSelected: (type: VBMode, path: string) => boolean;
+  hideVirtualBackgroundPanel: () => void;
 }
 
 export const useVirtualBackground: () => virtualBackgroundInterface = () => {
@@ -44,6 +43,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
   const {setSidePanel} = useSidePanel();
 
   const updateVBOptions = async (options: Option[]) => {
+    console.warn('Sdsd');
     const vbOptions = [];
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
@@ -75,7 +75,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setOptions(vbOptions);
   };
 
-  const saveVBOption = (type: VBMode, path: string) => {
+  const setVBPreview = (type: VBMode, path: string) => {
     if (path) {
       setSelectedImage(path);
     } else {
@@ -85,34 +85,33 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setSaveVB(false);
   };
 
-  const applyVBOption = () => {
+  const applyVirtualBackground = () => {
     setSaveVB(true);
   };
 
-  const isVBOptionSelected = (type: VBMode, path: string) => {
+  const isVirtualBackgroundSelected = (type: VBMode, path: string) => {
     return path ? path === selectedImage : type === vbMode;
   };
 
-  const closeVBPanel = () => {
+  const hideVirtualBackgroundPanel = () => {
     setSidePanel(SidePanelType.None);
     setIsVBActive(false);
   };
 
   //TODO: later
-  const applyVirtualBackground = (config: VBConfig) => {
-    if (config.target === 'mainView') {
-      applyVirtualBackgroundToMainView(config);
-    } else {
-      applyVirtualBackgroundToPreviewView(config);
-    }
-  };
+  // const applyVirtualBackground = (config: VBConfig) => {
+  //   if (config.target === 'mainView') {
+  //     applyVirtualBackgroundToMainView(config);
+  //   } else {
+  //     applyVirtualBackgroundToPreviewView(config);
+  //   }
+  // };
   return {
-    vbOptions: options,
-    setVBOptions: updateVBOptions,
-    saveVBOption,
-    applyVBOption,
-    isVBOptionSelected,
-    isVBPanelOpen: isVBActive,
-    closeVBPanel,
+    virtualBackgrounds: options,
+    addVirtualBackgrounds: updateVBOptions,
+    setVBPreview,
+    applyVirtualBackground,
+    isVirtualBackgroundSelected,
+    hideVirtualBackgroundPanel,
   };
 };

@@ -54,3 +54,19 @@ export const retrieveImagesFromAsyncStorage = async (): Promise<string[]> => {
     throw error;
   }
 };
+
+export const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    fetch(blobURL)
+      .then(response => response.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      })
+      .catch(reject);
+  });
+};
