@@ -359,6 +359,7 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'transparent',
     paddingHorizontal: 12,
+    paddingTop: 12,
     paddingBottom: 8,
   },
   chatInputButton: {

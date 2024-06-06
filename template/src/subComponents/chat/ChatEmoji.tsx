@@ -107,8 +107,8 @@ export const ChatEmojiPicker: React.FC = () => {
           width: 30,
           height: 30,
           position: 'absolute',
-          top: -367,
-          right: 8,
+          top: -355,
+          right: 5,
         }}>
         <IconButton
           hoverEffect={false}
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
-    marginBottom: 12,
+    // marginBottom: 12,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     position: 'absolute',
