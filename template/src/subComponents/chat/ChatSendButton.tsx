@@ -38,6 +38,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     uploadedFiles,
     setUploadedFiles,
     setInputHeight,
+    _resetTextareaHeight,
   } = useChatUIControls();
 
   const {data} = useRoomInfo();
@@ -48,7 +49,10 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
   const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
   const onPress = () => {
-    if (!isValidMsg) return;
+    if (!isValidMsg) {
+      return;
+    }
+    _resetTextareaHeight();
     if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
       Toast.show({
         leadingIconName: 'alert',

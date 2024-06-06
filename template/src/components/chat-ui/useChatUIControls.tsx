@@ -10,7 +10,7 @@
 *********************************************
 */
 import {createHook} from 'customization-implementation';
-import React, {SetStateAction, useState} from 'react';
+import React, {SetStateAction, useState, useRef} from 'react';
 import {UidType} from '../../../agora-rn-uikit';
 
 export enum ChatType {
@@ -53,7 +53,8 @@ export interface ChatUIControlsInterface {
   setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
   uploadedFiles: File[];
   setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
-  _resetTextareaHeight: (e) => void;
+  _resetTextareaHeight: () => void;
+  chatInputRef: any;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -74,6 +75,7 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   uploadedFiles: [],
   setUploadedFiles: () => {},
   _resetTextareaHeight: () => {},
+  chatInputRef: null,
 });
 
 interface ChatUIControlsProviderProps {
@@ -97,13 +99,15 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
     UploadStatus.NOT_STARTED,
   );
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT);
+  const [inputHeight, setInputHeight] = useState(MIN_HEIGHT);
+  const chatInputRef = useRef(null);
 
-  const _resetTextareaHeight = e => {
-    console.log('reset chat input textarea');
-    e.target.style.height = `${MIN_HEIGHT}px`;
-    e.target.style.overflow = 'hidden';
-    e.target.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+  const _resetTextareaHeight = () => {
+    if (chatInputRef?.current) {
+      chatInputRef.current.style.height = `${MIN_HEIGHT}px`;
+      chatInputRef.current.style.overflow = 'hidden';
+      chatInputRef.current.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+    }
   };
 
   return (
@@ -125,6 +129,7 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setUploadStatus,
         uploadedFiles,
         setUploadedFiles,
+        chatInputRef,
         _resetTextareaHeight,
       }}>
       {props.children}

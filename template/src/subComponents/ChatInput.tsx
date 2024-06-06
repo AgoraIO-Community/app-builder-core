@@ -74,7 +74,6 @@ export interface ChatTextInputProps {
   ) => JSX.Element;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
-  let chatInputRef = useRef(null);
   const {
     privateChatUser,
     message,
@@ -89,6 +88,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setInputHeight,
     setShowEmojiPicker,
     _resetTextareaHeight,
+    chatInputRef,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
@@ -173,7 +173,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       nativeEvent.preventDefault();
       onSubmitEditing();
       setShowEmojiPicker(false); // This will close emoji picker on enter
-      _resetTextareaHeight(nativeEvent);
+      _resetTextareaHeight();
     }
   };
 
