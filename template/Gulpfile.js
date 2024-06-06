@@ -288,7 +288,7 @@ const webSdk = {
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
-          'declare module "index.wsdk"',
+          `declare module "${config.PRODUCT_ID}/index.wsdk"`,
           `declare module "${PACKAGE_NAME}"`,
         ),
       )
