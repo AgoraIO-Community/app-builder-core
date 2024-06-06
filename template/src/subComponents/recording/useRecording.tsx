@@ -125,6 +125,19 @@ const RecordingActions = {
 
 const recordingMode = $config.RECORDING_MODE || 'MIX';
 
+const showErrorToast = (text1: string, text2?: string) => {
+  Toast.show({
+    leadingIconName: 'alert',
+    type: 'error',
+    text1: text1,
+    text2: text2 ? text2 : '',
+    visibilityTime: 3000,
+    primaryBtn: null,
+    secondaryBtn: null,
+    leadingIcon: null,
+  });
+};
+
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
   const {
@@ -161,19 +174,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {screenShareData} = useScreenContext();
   const stopAPICalledByBotOnce = useRef<boolean>(false);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
-
-  const showErrorToast = (text1: string, text2?: string) => {
-    Toast.show({
-      leadingIconName: 'alert',
-      type: 'error',
-      text1: text1,
-      text2: text2 ? text2 : '',
-      visibilityTime: 3000,
-      primaryBtn: null,
-      secondaryBtn: null,
-      leadingIcon: null,
-    });
-  };
 
   useEffect(() => {
     /**
@@ -586,9 +586,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     setRecordingActive,
     localUid,
     _stopRecording,
-    showErrorToast,
-    headingStartError,
-    subheadingError,
     isRecordingBot,
   ]);
   // ************ Recording Bot starts ************
