@@ -216,7 +216,10 @@ const ChatContainer = (props?: {
                 grpUnreadCount &&
                 messageStore.length - grpUnreadCount === index ? (
                   <View
-                    style={style.unreadMessageContainer}
+                    style={[
+                      style.unreadMessageContainer,
+                      index === 0 && {marginTop: 16, marginBottom: 0},
+                    ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {grpUnreadCount} {unreadMessageLabel}
@@ -275,7 +278,10 @@ const ChatContainer = (props?: {
                   privateUnreadCount ===
                   index ? (
                   <View
-                    style={style.unreadMessageContainer}
+                    style={[
+                      style.unreadMessageContainer,
+                      index === 0 && {marginTop: 16, marginBottom: 0},
+                    ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {privateUnreadCount} {unreadMessageLabel}
