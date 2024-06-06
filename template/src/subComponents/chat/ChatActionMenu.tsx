@@ -21,8 +21,12 @@ import {
   useChatMessages,
 } from '../../components/chat-messages/useChatMessages';
 import InlinePopup from '../../../src/atoms/InlinePopup';
-import {cancelText} from '../../language/default-labels/commonLabels';
+import {
+  cancelText,
+  copiedToClipboardText,
+} from '../../language/default-labels/commonLabels';
 import {useContent} from 'customization-api';
+import Toast from '../../../react-native-toast-message';
 
 interface MoreMenuProps {
   setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -83,6 +87,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
       trimText(defaultContent[recallFromUser]?.name),
     );
   }
+  const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
 
   actionMenuitems.push({
     icon: 'download',
@@ -104,6 +109,14 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     callback: () => {
       Clipboard.setString(fileUrl);
       setActionMenuVisible(false);
+      Toast.show({
+        leadingIconName: 'tick-fill',
+        type: 'success',
+        text1: copiedToClipboardTextLabel,
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
     },
   });
   actionMenuitems.push({
