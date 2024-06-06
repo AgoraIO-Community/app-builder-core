@@ -6,6 +6,9 @@ import {
   type VBMode,
 } from '../../src/components/virtual-background/useVB';
 
+import {useSidePanel} from '../utils/useSidePanel';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+
 export interface VBConfig {
   target: 'mainView' | 'preview';
   blurDegree?: number;
@@ -37,6 +40,8 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     applyVirtualBackgroundToMainView,
     applyVirtualBackgroundToPreviewView,
   } = useVB();
+
+  const {setSidePanel} = useSidePanel();
 
   const updateVBOptions = async (options: Option[]) => {
     const vbOptions = [];
@@ -89,6 +94,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
   };
 
   const closeVBPanel = () => {
+    setSidePanel(SidePanelType.None);
     setIsVBActive(false);
   };
 

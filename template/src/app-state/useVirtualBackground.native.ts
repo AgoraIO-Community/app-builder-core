@@ -6,6 +6,8 @@ import {
 } from '../../src/components/virtual-background/useVB';
 import RNFS from 'react-native-fs';
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
+import {useSidePanel} from '../utils/useSidePanel';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 export interface virtualBackgroundInterface {
   vbOptions: Option[]; // options available in vb panel
@@ -83,6 +85,8 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setIsVBActive,
   } = useVB();
 
+  const {setSidePanel} = useSidePanel();
+
   const updateVBOptions = async (options: Option[]) => {
     const vbOptions = [];
     for (let i = 0; i < options.length; i++) {
@@ -143,6 +147,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setSaveVB(true);
   };
   const closeVBPanel = () => {
+    setSidePanel(SidePanelType.None);
     setIsVBActive(false);
   };
 
