@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-clipboard_outlined:before {
+  content: '\e99f';
+}
 .icon-chat_emoji_fill .path1:before {
   content: '\e995';
   color: rgb(255, 171, 0);

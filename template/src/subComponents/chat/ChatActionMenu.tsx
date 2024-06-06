@@ -97,6 +97,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
 
   actionMenuitems.push({
     icon: 'clipboard',
+    onHoverIcon: 'clipboard_outlined',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: useString(chatActionMenuCopyLinkText)(),
