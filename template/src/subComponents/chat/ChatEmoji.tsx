@@ -90,6 +90,7 @@ export const ChatEmojiPicker: React.FC = () => {
         previewConfig={{showPreview: false}}
         height={370}
         autoFocusSearch={false}
+        emojiStyle={EmojiStyle.NATIVE}
       />
       <View
         style={{
