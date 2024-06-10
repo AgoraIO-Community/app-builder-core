@@ -9,18 +9,19 @@ import RtcEngine, {
   VirtualBackgroundSource,
   BackgroundSourceType,
 } from 'react-native-agora';
-import {useRtc} from 'customization-api';
+import {useLocalUserInfo, useRtc} from 'customization-api';
 import RNFS from 'react-native-fs';
 import {ImageSourcePropType} from 'react-native/types';
 import imagePathsArray from './imagePaths';
 import getUniqueID from '../../../src/utils/getUniqueID';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {ToggleState} from '../../../agora-rn-uikit';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
 export type Option = {
   type: VBMode;
-  icon: keyof IconsInterface;
+  icon?: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
   id?: string;
@@ -86,6 +87,8 @@ const VBProvider: React.FC = ({children}) => {
   // can be original video track/clone track
   const [previewVideoTrack, setPreviewVideoTrack] = React.useState<null>(null);
   const [options, setOptions] = React.useState<Option[]>(imagePathsArray);
+  const {video: localVideoStatus} = useLocalUserInfo();
+  const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
   const rtc = useRtc();
 
@@ -125,19 +128,11 @@ const VBProvider: React.FC = ({children}) => {
     fetchData();
   }, []);
 
-  const applyVirtualBackgroundToMainView = async (
-    config: VirtualBackgroundSource,
-    disable = false,
-  ) => {
-    if (disable) {
-      await rtc?.RtcEngineUnsafe.enableVirtualBackground(false, config, {});
-    } else {
-      await rtc?.RtcEngineUnsafe.enableVirtualBackground(true, config, {});
-    }
-  };
-
   /* VB Change modes */
   React.useEffect(() => {
+    if (!isLocalVideoON) {
+      return;
+    }
     switch (vbMode) {
       case 'blur':
         blurVB();
@@ -151,7 +146,18 @@ const VBProvider: React.FC = ({children}) => {
       default:
         break;
     }
-  }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
+  }, [vbMode, selectedImage, saveVB, previewVideoTrack, isLocalVideoON]);
+
+  const applyVirtualBackgroundToMainView = async (
+    config: VirtualBackgroundSource,
+    disable = false,
+  ) => {
+    if (disable) {
+      await rtc?.RtcEngineUnsafe.enableVirtualBackground(false, config, {});
+    } else {
+      await rtc?.RtcEngineUnsafe.enableVirtualBackground(true, config, {});
+    }
+  };
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundSource = new VirtualBackgroundSource();
