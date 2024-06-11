@@ -72,7 +72,7 @@ export const saveImagesToIndexDB = async (
   }
 };
 
-export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
+export const retrieveImagesFromStorage = async (): Promise<string[]> => {
   return new Promise<string[]>(async (resolve, reject) => {
     try {
       const db = await openIndexedDB('vb-image-db', 1);

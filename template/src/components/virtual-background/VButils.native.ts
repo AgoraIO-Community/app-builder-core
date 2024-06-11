@@ -24,7 +24,7 @@ export const saveImagesToAsyncStorage = async (
   }
 };
 
-export const retrieveImagesFromAsyncStorage = async (): Promise<string[]> => {
+export const retrieveImagesFromStorage = async (): Promise<string[]> => {
   try {
     const keys = await AsyncStorage.getAllKeys();
 

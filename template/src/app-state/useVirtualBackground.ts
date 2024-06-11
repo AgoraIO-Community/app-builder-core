@@ -1,5 +1,8 @@
 import {useEffect, useRef} from 'react';
-import {convertBlobToBase64} from '../../src/components/virtual-background/VButils';
+import {
+  convertBlobToBase64,
+  retrieveImagesFromStorage,
+} from '../../src/components/virtual-background/VButils';
 import {
   Option,
   useVB,
@@ -21,8 +24,9 @@ export interface virtualBackgroundInterface {
   addVirtualBackgrounds: (options: Option[]) => void;
   setVBPreview: (type: VBMode, path: string) => void;
   applyVirtualBackground: () => void;
-  isVirtualBackgroundSelected: (type: VBMode, path: string) => boolean;
+  isVirtualBackgroundPanelOpen: boolean;
   hideVirtualBackgroundPanel: () => void;
+  showVirtualBackgroundPanel: () => void;
 }
 
 export const useVirtualBackground: () => virtualBackgroundInterface = () => {
@@ -43,17 +47,17 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
   const {setSidePanel} = useSidePanel();
 
   const updateVBOptions = async (options: Option[]) => {
-    console.warn('Sdsd');
     const vbOptions = [];
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
 
-      if (option.type === 'image' && option?.isBase64Image === false) {
+      if (option.type === 'image') {
         const imgObj = {
           type: 'image',
           icon: 'vb',
           path: '',
           id: `VBOption_${i + 1}`,
+          isSelected: false,
         };
         try {
           imgObj.path = await convertBlobToBase64(option.path);
@@ -65,14 +69,27 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
         }
         vbOptions.push(imgObj);
         if (option?.isSelected && !selectedImage) {
+          imgObj.isSelected = true;
           setSelectedImage(imgObj.path);
           setVBmode('image');
         }
       } else {
+        option.isSelected = false;
         vbOptions.push(option);
       }
     }
-    setOptions(vbOptions);
+
+    const customImages = await retrieveImagesFromStorage();
+    const savedImagesArr = customImages?.map(
+      base64Data =>
+        ({
+          type: 'image',
+          icon: 'vb',
+          path: base64Data,
+        } as Option),
+    );
+    // also fetch from db
+    setOptions([...vbOptions, ...savedImagesArr]);
   };
 
   const setVBPreview = (type: VBMode, path: string) => {
@@ -83,19 +100,32 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     }
     setVBmode(type);
     setSaveVB(false);
+    // update selected options
+    // Update selected options
+    options.forEach(option => {
+      // Reset isSelected for all options
+      option.isSelected = false;
+
+      // Set isSelected for the matching option
+      if (type === 'image' && path && option.path === path) {
+        option.isSelected = true;
+      } else if (type !== 'image' && type === option.type) {
+        option.isSelected = true;
+      }
+    });
   };
 
   const applyVirtualBackground = () => {
     setSaveVB(true);
   };
 
-  const isVirtualBackgroundSelected = (type: VBMode, path: string) => {
-    return path ? path === selectedImage : type === vbMode;
-  };
-
   const hideVirtualBackgroundPanel = () => {
     setSidePanel(SidePanelType.None);
     setIsVBActive(false);
+  };
+  const showVirtualBackgroundPanel = () => {
+    setSidePanel(SidePanelType.VirtualBackground);
+    setIsVBActive(true);
   };
 
   //TODO: later
@@ -111,7 +141,8 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     addVirtualBackgrounds: updateVBOptions,
     setVBPreview,
     applyVirtualBackground,
-    isVirtualBackgroundSelected,
+    isVirtualBackgroundPanelOpen: isVBActive,
     hideVirtualBackgroundPanel,
+    showVirtualBackgroundPanel,
   };
 };
