@@ -45,16 +45,18 @@
         scrollbar-width: thin;
         scrollbar-color: transparent #777;
       }
-      @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
-        html {
-          transform: rotate(-90deg);
-          transform-origin: left top;
-          width: 100vh;
-          overflow-x: hidden;
-          position: absolute;
-          top: 100%;
-          left: 0;
-        }
+
+      .rotateWebview {
+        transform: rotate(-90deg);
+        transform-origin: left top;
+        /* Set content width to viewport height */
+        width: 100vh;
+        /* Set content height to viewport width */
+        height: 100vw;
+        overflow-x: hidden;
+        position: absolute;
+        top: 100%;
+        left: 0;
       }
     </style>
     <div

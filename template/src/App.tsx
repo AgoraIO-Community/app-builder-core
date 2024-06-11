@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useLayoutEffect} from 'react';
-import {Platform} from 'react-native';
+import React, {useState, useLayoutEffect, useEffect} from 'react';
+import {Platform, useWindowDimensions} from 'react-native';
 import KeyboardManager from 'react-native-keyboard-manager';
 import AppWrapper from './AppWrapper';
 import {
@@ -21,7 +21,7 @@ import {
 import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
-import {isWebInternal} from './utils/common';
+import {isMobileUA, isWebInternal} from './utils/common';
 
 // hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -52,6 +52,7 @@ declare global {
 }
 
 const App: React.FC = () => {
+  const {height, width} = useWindowDimensions();
   //commented for v1 release
   //const CustomRoutes = useCustomization((data) => data?.customRoutes);
   // const RenderCustomRoutes = () => {
@@ -102,6 +103,15 @@ const App: React.FC = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    var root = document.getElementsByTagName('html')[0]; // '0' to assign the first (and only `HTML` tag)
+    if (width > height && isMobileUA()) {
+      root.setAttribute('class', 'rotateWebview');
+    } else {
+      root.removeAttribute('class');
+    }
+  }, [width, height]);
 
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
