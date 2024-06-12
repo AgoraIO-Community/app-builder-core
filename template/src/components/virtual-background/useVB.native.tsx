@@ -2,7 +2,7 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {IconsInterface} from '../../atoms/CustomIcon';
 import {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
-import {retrieveImagesFromAsyncStorage} from './VButils.native';
+import {retrieveImagesFromStorage} from './VButils.native';
 
 import RtcEngine, {
   BackgroundBlurDegree,
@@ -13,7 +13,6 @@ import {useLocalUserInfo, useRtc} from 'customization-api';
 import RNFS from 'react-native-fs';
 import {ImageSourcePropType} from 'react-native/types';
 import imagePathsArray from './imagePaths';
-import getUniqueID from '../../../src/utils/getUniqueID';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {ToggleState} from '../../../agora-rn-uikit';
 
@@ -96,7 +95,7 @@ const VBProvider: React.FC = ({children}) => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const customImages = await retrieveImagesFromAsyncStorage();
+        const customImages = await retrieveImagesFromStorage();
         logger.debug(
           LogSource.Internals,
           'VIRTUAL_BACKGROUND',
@@ -111,7 +110,6 @@ const VBProvider: React.FC = ({children}) => {
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
-                id: getUniqueID(),
               } as Option),
           ) || []),
         ]);

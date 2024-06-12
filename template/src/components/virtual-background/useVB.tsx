@@ -15,11 +15,8 @@ import wasm1 from '../../wasms/agora-virtual-background.wasm';
 import {IconsInterface} from '../../atoms/CustomIcon';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
-import {retrieveImagesFromIndexDB} from './VButils';
+import {retrieveImagesFromStorage} from './VButils';
 import imagePathsArray from './imagePaths';
-import getUniqueID from '../../../src/utils/getUniqueID';
-import {TextDataInterface} from '../../../src/language/default-labels';
-//@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -28,9 +25,6 @@ export type Option = {
   icon?: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
-  id?: string;
-  translationKey?: keyof TextDataInterface;
-  isBase64Image?: boolean;
   isSelected?: boolean;
 };
 
@@ -156,7 +150,7 @@ const VBProvider: React.FC = ({children}) => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const customImages = await retrieveImagesFromIndexDB();
+        const customImages = await retrieveImagesFromStorage();
         setOptions((prevOptions: Option[]) => [
           ...prevOptions,
           ...(customImages?.map(
@@ -165,7 +159,6 @@ const VBProvider: React.FC = ({children}) => {
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
-                id: getUniqueID(),
               } as Option),
           ) || []),
         ]);
