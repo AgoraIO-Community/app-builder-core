@@ -38,6 +38,7 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   deviceSelect?: React.ComponentType;
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
+  virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
 }
 export interface ChatCmpInterface {
   //commented for v1 release
@@ -58,6 +59,10 @@ export interface LayoutItem {
   component: LayoutComponent;
 }
 
+export interface VBPanelProps {
+  isOnPrecall?: boolean;
+}
+
 export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
@@ -68,6 +73,9 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   chat?: ChatCmpInterface;
+  captionPanel?: React.ComponentType;
+  transcriptPanel?: React.ComponentType;
+  virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
   invitePopup?: {
@@ -82,12 +90,13 @@ export type ComponentsInterface = {
    */
   appRoot?: React.ComponentType;
   // commented for v1 release
-  // precall?: PreCallInterface | React.ComponentType;
-  precall?: React.ComponentType;
+  precall?: PreCallInterface;
+  preferenceWrapper?: React.ComponentType;
+  //precall?: React.ComponentType;
   //create?: React.ComponentType;
   //share?: React.ComponentType;
   //join?: React.ComponentType;
-  videoCall?: VideoCallInterface | React.ComponentType;
+  videoCall?: VideoCallInterface;
 };
 
 export interface CustomRoutesInterface {

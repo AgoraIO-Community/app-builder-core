@@ -15,7 +15,7 @@ import DocumentPicker from 'react-native-document-picker';
 import Toast from '../../../react-native-toast-message';
 import RNFS from 'react-native-fs';
 import {saveImagesToAsyncStorage} from './VButils.native';
-import getUniqueID from '../../../src/utils/getUniqueID';
+
 import {useString} from '../../../src/utils/useString';
 import {
   vbPanelImageSizeLimitErrorToastHeading,
@@ -25,14 +25,14 @@ import {
   vbPanelImageUploadErrorToastHeading,
   vbPanelImageUploadErrorToastSubHeading,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
-import {TextDataInterface} from 'customization-api';
+
+import {vbOptionText} from '../../../src/language/default-labels/precallScreenLabels';
 
 interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: ImageSourcePropType;
   label?: string;
-  translationKey?: keyof TextDataInterface;
   position?: number;
   isOnPrecall?: boolean;
   isMobile?: boolean;
@@ -61,7 +61,6 @@ const VBCard: React.FC<VBCardProps> = ({
   position,
   isOnPrecall,
   isMobile,
-  translationKey,
 }) => {
   const {
     setVBmode,
@@ -83,7 +82,7 @@ const VBCard: React.FC<VBCardProps> = ({
   const uploadErrorSubHeading = useString(
     vbPanelImageUploadErrorToastSubHeading,
   )();
-  const translation = useString(translationKey)();
+  const vbOptionLabel = useString<VBMode>(vbOptionText);
 
   const isSelected = path ? path == selectedImage : vbMode === type;
 
@@ -136,7 +135,6 @@ const VBCard: React.FC<VBCardProps> = ({
           type: 'image' as VBMode,
           icon: 'vb' as keyof IconsInterface,
           path: base64Data,
-          id: getUniqueID(),
         };
 
         setOptions(prevOptions => {
@@ -201,7 +199,7 @@ const VBCard: React.FC<VBCardProps> = ({
             name={icon}
             tintColor={$config.SECONDARY_ACTION_COLOR}
           />
-          {label && translation ? (
+          {label ? (
             <View>
               <Text
                 style={{
@@ -211,7 +209,7 @@ const VBCard: React.FC<VBCardProps> = ({
                   color: $config.SECONDARY_ACTION_COLOR,
                   paddingVertical: 4,
                 }}>
-                {translation}
+                {vbOptionLabel(type)}
               </Text>
             </View>
           ) : (

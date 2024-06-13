@@ -65,7 +65,7 @@ const ChatConfigure = ({children}) => {
   const chatClient = ChatClient.getInstance();
   const chatManager = chatClient.chatManager;
 
-  const localUid = data?.uid?.toString();
+  const localUid = data?.channel + '_' + data?.uid?.toString();
   const agoraToken = data?.chat?.user_token;
   const {store} = React.useContext(StorageContext);
   const {
@@ -119,6 +119,7 @@ const ChatConfigure = ({children}) => {
             messages[0].chatType === ChatMessageChatType.PeerChat;
           const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
+          const fromUser = from.split('_')[1];
           const {file_ext, file_name, file_url, from_platform} = messages[0]
             .attributes as ChatMessageAttributes;
 
@@ -129,8 +130,8 @@ const ChatConfigure = ({children}) => {
               //@ts-ignore
               const chatContent = body.content;
               if (isGroupChat) {
-                showMessageNotification(chatContent, from, false);
-                addMessageToStore(Number(from), {
+                showMessageNotification(chatContent, fromUser, false);
+                addMessageToStore(Number(fromUser), {
                   msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
                   createdTimestamp: localTime,
                   msgId: msgId,
@@ -139,9 +140,9 @@ const ChatConfigure = ({children}) => {
                 });
               }
               if (isPeerChat) {
-                showMessageNotification(chatContent, from, true);
+                showMessageNotification(chatContent, fromUser, true);
                 addMessageToPrivateStore(
-                  Number(from),
+                  Number(fromUser),
                   {
                     msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
                     createdTimestamp: localTime,
@@ -165,11 +166,11 @@ const ChatConfigure = ({children}) => {
               if (isGroupChat) {
                 showMessageNotification(
                   file_name,
-                  from,
+                  fromUser,
                   false,
                   ChatMessageType.IMAGE,
                 );
-                addMessageToStore(Number(from), {
+                addMessageToStore(Number(fromUser), {
                   msg: '',
                   createdTimestamp: localTime,
                   msgId: msgId,
@@ -183,12 +184,12 @@ const ChatConfigure = ({children}) => {
               if (isPeerChat) {
                 showMessageNotification(
                   'You got private image msg',
-                  from,
+                  fromUser,
                   true,
                   ChatMessageType.IMAGE,
                 );
                 addMessageToPrivateStore(
-                  Number(from),
+                  Number(fromUser),
                   {
                     msg: '',
                     createdTimestamp: localTime,
@@ -210,11 +211,11 @@ const ChatConfigure = ({children}) => {
               if (isGroupChat) {
                 showMessageNotification(
                   file_name,
-                  from,
+                  fromUser,
                   false,
                   ChatMessageType.FILE,
                 );
-                addMessageToStore(Number(from), {
+                addMessageToStore(Number(fromUser), {
                   msg: '',
                   createdTimestamp: localTime,
                   msgId: msgId,
@@ -228,12 +229,12 @@ const ChatConfigure = ({children}) => {
               if (isPeerChat) {
                 showMessageNotification(
                   file_name,
-                  from,
+                  fromUser,
                   true,
                   ChatMessageType.FILE,
                 );
                 addMessageToPrivateStore(
-                  Number(from),
+                  Number(fromUser),
                   {
                     msg: '',
                     createdTimestamp: localTime,
@@ -380,9 +381,13 @@ const ChatConfigure = ({children}) => {
 
           // this is local user messages
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(Number(option.to), messageData, true);
+            addMessageToPrivateStore(
+              Number(option.to.split('_')[1]),
+              messageData,
+              true,
+            );
           } else {
-            addMessageToStore(Number(option.from), messageData);
+            addMessageToStore(Number(option.from.split('_')[1]), messageData);
           }
         }
       })

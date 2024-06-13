@@ -134,9 +134,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
               screenShareUid: screenShare.uid,
               whiteboard,
               chat: {
-                user_token: chat.userToken,
-                group_id: chat.groupId,
-                is_group_owner: chat.isGroupOwner,
+                user_token: chat?.userToken,
+                group_id: chat?.groupId,
+                is_group_owner: chat?.isGroupOwner,
               },
             },
           };

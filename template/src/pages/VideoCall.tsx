@@ -67,7 +67,7 @@ import {VideoQualityContextProvider} from '../app-state/useVideoQuality';
 import {VBProvider} from '../components/virtual-background/useVB';
 import {DisableChatProvider} from '../components/disable-chat/useDisableChat';
 import {WaitingRoomProvider} from '../components/contexts/WaitingRoomContext';
-import {isWeb} from '../utils/common';
+import {isValidReactComponent} from '../utils/common';
 import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import VideoCallScreenWrapper from './video-call/VideoCallScreenWrapper';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
@@ -145,7 +145,7 @@ const VideoCall: React.FC = () => {
     ? false
     : true;
   const [callActive, setCallActive] = useState(shouldCallBeSetToActive);
-
+  const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
@@ -165,6 +165,23 @@ const VideoCall: React.FC = () => {
     data =>
       data?.lifecycle?.useAfterEndCall && data?.lifecycle?.useAfterEndCall(),
   );
+
+  const {PrefereceWrapper} = useCustomization(data => {
+    let components: {
+      PrefereceWrapper: React.ComponentType;
+    } = {
+      PrefereceWrapper: React.Fragment,
+    };
+    if (
+      data?.components?.preferenceWrapper &&
+      typeof data?.components?.preferenceWrapper !== 'object' &&
+      isValidReactComponent(data?.components?.preferenceWrapper)
+    ) {
+      components.PrefereceWrapper = data?.components?.preferenceWrapper;
+    }
+
+    return components;
+  });
 
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
@@ -403,55 +420,60 @@ const VideoCall: React.FC = () => {
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure>
-                                              <RecordingProvider
-                                                value={{
-                                                  callActive,
-                                                }}>
-                                                <ScreenshareConfigure>
-                                                  <LiveStreamContextProvider
-                                                    value={{
-                                                      setRtcProps,
-                                                      rtcProps,
-                                                      callActive,
-                                                    }}>
-                                                    <LiveStreamDataProvider>
-                                                      <LocalUserContext
-                                                        localUid={
-                                                          rtcProps?.uid
-                                                        }>
+                                              <ScreenshareConfigure
+                                                isRecordingActive={
+                                                  isRecordingActive
+                                                }>
+                                                <LiveStreamContextProvider
+                                                  value={{
+                                                    setRtcProps,
+                                                    rtcProps,
+                                                    callActive,
+                                                  }}>
+                                                  <LiveStreamDataProvider>
+                                                    <LocalUserContext
+                                                      localUid={rtcProps?.uid}>
+                                                      <RecordingProvider
+                                                        value={{
+                                                          setRecordingActive,
+                                                          isRecordingActive,
+                                                          callActive,
+                                                        }}>
                                                         <NetworkQualityProvider>
                                                           {!isMobileUA() && (
                                                             <PermissionHelper />
                                                           )}
                                                           <VBProvider>
-                                                            <SdkMuteToggleListener>
-                                                              {callActive ? (
-                                                                <VideoMeetingDataProvider>
-                                                                  <VideoCallProvider>
-                                                                    <DisableChatProvider>
-                                                                      <VideoCallScreenWrapper />
-                                                                    </DisableChatProvider>
-                                                                  </VideoCallProvider>
-                                                                </VideoMeetingDataProvider>
-                                                              ) : $config.PRECALL ? (
-                                                                <PreCallProvider
-                                                                  value={{
-                                                                    callActive,
-                                                                    setCallActive,
-                                                                  }}>
-                                                                  <Precall />
-                                                                </PreCallProvider>
-                                                              ) : (
-                                                                <></>
-                                                              )}
-                                                            </SdkMuteToggleListener>
+                                                            <PrefereceWrapper>
+                                                              <SdkMuteToggleListener>
+                                                                {callActive ? (
+                                                                  <VideoMeetingDataProvider>
+                                                                    <VideoCallProvider>
+                                                                      <DisableChatProvider>
+                                                                        <VideoCallScreenWrapper />
+                                                                      </DisableChatProvider>
+                                                                    </VideoCallProvider>
+                                                                  </VideoMeetingDataProvider>
+                                                                ) : $config.PRECALL ? (
+                                                                  <PreCallProvider
+                                                                    value={{
+                                                                      callActive,
+                                                                      setCallActive,
+                                                                    }}>
+                                                                    <Precall />
+                                                                  </PreCallProvider>
+                                                                ) : (
+                                                                  <></>
+                                                                )}
+                                                              </SdkMuteToggleListener>
+                                                            </PrefereceWrapper>
                                                           </VBProvider>
                                                         </NetworkQualityProvider>
-                                                      </LocalUserContext>
-                                                    </LiveStreamDataProvider>
-                                                  </LiveStreamContextProvider>
-                                                </ScreenshareConfigure>
-                                              </RecordingProvider>
+                                                      </RecordingProvider>
+                                                    </LocalUserContext>
+                                                  </LiveStreamDataProvider>
+                                                </LiveStreamContextProvider>
+                                              </ScreenshareConfigure>
                                             </EventsConfigure>
                                           </WaitingRoomProvider>
                                         </CaptionProvider>

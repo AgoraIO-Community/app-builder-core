@@ -147,4 +147,5 @@ export interface IconsInterface {
   reply_all: string;
   block_user: string;
   'play-circle': string;
+  'copy-link': string;
 }

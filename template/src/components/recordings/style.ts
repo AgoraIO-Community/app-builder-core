@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import ThemeConfig from '../../theme';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export const style = StyleSheet.create({
   scrollgrow: {
@@ -126,6 +127,7 @@ export const style = StyleSheet.create({
   tactions: {
     display: 'flex',
     flexDirection: 'row',
+    marginTop: -8,
   },
   tlink: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
@@ -156,6 +158,56 @@ export const style = StyleSheet.create({
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
   // footer ends
+  captionContainer: {
+    height: 44,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    padding: 12,
+    borderRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  captionText: {
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: 'Source Sans Pro',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    paddingLeft: 8,
+  },
+  infotextContainer: {
+    display: 'flex',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoText: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
+  iconButtonContainer: {
+    marginTop: -8,
+  },
+  iconButton: {
+    width: 32,
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+  },
+  iconButtonHoverEffect: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
+    borderRadius: 16,
+  },
+  iconShareLink: {
+    width: 32,
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   zeroHPadding: {
     paddingHorizontal: 0,
   },
@@ -170,6 +222,9 @@ export const style = StyleSheet.create({
   },
   pt10: {
     paddingTop: 10,
+  },
+  pt12: {
+    paddingTop: 12,
   },
   pv10: {
     paddingVertical: 10,

@@ -11,7 +11,8 @@ const regexPattern = new RegExp('true');
 
 export function useIsRecordingBot() {
   // Reading and setting URL params
-  const isRecordingBot = useSearchParams().get('bot');
+  const botParam = useSearchParams().get('bot');
+  const isRecordingBot = botParam ? regexPattern.test(botParam) : false;
   const recordingBotToken = useSearchParams().get('token');
   const recordingBotName = useSearchParams().get('user_name');
   const isRecordingBotRoute = isRecordingBot && recordingBotToken;

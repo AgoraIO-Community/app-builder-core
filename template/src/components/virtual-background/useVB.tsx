@@ -1,30 +1,31 @@
 import {createHook} from 'customization-implementation';
 import React, {useContext} from 'react';
 import {useEffect, useRef} from 'react';
-import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
+import {
+  SidePanelType,
+  useLocalUserInfo,
+  useRtc,
+  useSidePanel,
+} from 'customization-api';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import Image from 'react-native';
 import VirtualBackgroundExtension from 'agora-extension-virtual-background';
 //@ts-ignore
 import wasm1 from '../../wasms/agora-virtual-background.wasm';
 import {IconsInterface} from '../../atoms/CustomIcon';
-import {PropsContext} from '../../../agora-rn-uikit';
+import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
-import {retrieveImagesFromIndexDB} from './VButils';
+import {retrieveImagesFromStorage} from './VButils';
 import imagePathsArray from './imagePaths';
-import getUniqueID from '../../../src/utils/getUniqueID';
-import {TextDataInterface} from '../../../src/language/default-labels';
-//@ts-ignore
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
 export type Option = {
   type: VBMode;
-  icon: keyof IconsInterface;
+  icon?: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
-  id?: string;
-  translationKey?: keyof TextDataInterface;
+  isSelected?: boolean;
 };
 
 // processors for the main view and preview view
@@ -69,6 +70,8 @@ type VBContextValue = {
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
+  applyVirtualBackgroundToMainView;
+  applyVirtualBackgroundToPreviewView;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -84,6 +87,8 @@ export const VBContext = React.createContext<VBContextValue>({
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
+  applyVirtualBackgroundToMainView: () => {},
+  applyVirtualBackgroundToPreviewView: () => {},
 });
 
 const VBProvider: React.FC = ({children}) => {
@@ -97,6 +102,8 @@ const VBProvider: React.FC = ({children}) => {
     React.useState<ILocalVideoTrack | null>(null);
   const {sidePanel} = useSidePanel();
   const [options, setOptions] = React.useState<Option[]>(imagePathsArray);
+  const {video: localVideoStatus} = useLocalUserInfo();
+  const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
   const {
     rtcProps: {callActive},
@@ -120,6 +127,49 @@ const VBProvider: React.FC = ({children}) => {
       setIsVBActive(false);
     }
   }, [sidePanel]);
+
+  /* VB Change modes */
+  React.useEffect(() => {
+    if (!isLocalVideoON) {
+      return;
+    }
+    switch (vbMode) {
+      case 'blur':
+        blurVB();
+        break;
+      case 'image':
+        imageVB();
+        break;
+      case 'none':
+        disableVB();
+        break;
+    }
+  }, [vbMode, selectedImage, saveVB, previewVideoTrack, isLocalVideoON]);
+
+  /* Fetch Saved Images from IndexDB to show in VBPanel */
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const customImages = await retrieveImagesFromStorage();
+        setOptions((prevOptions: Option[]) => [
+          ...prevOptions,
+          ...(customImages?.map(
+            base64Data =>
+              ({
+                type: 'image',
+                icon: 'vb',
+                path: base64Data,
+              } as Option),
+          ) || []),
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle the error as needed
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const applyVirtualBackgroundToMainView = async (
     config: VirtualBackgroundConfig,
@@ -147,47 +197,6 @@ const VBProvider: React.FC = ({children}) => {
     previewViewProcessor.setOptions(config);
     await previewViewProcessor.enable();
   };
-
-  /* VB Change modes */
-  React.useEffect(() => {
-    switch (vbMode) {
-      case 'blur':
-        blurVB();
-        break;
-      case 'image':
-        imageVB();
-        break;
-      case 'none':
-        disableVB();
-        break;
-    }
-  }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
-
-  /* Fetch Saved Images from IndexDB to show in VBPanel */
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const customImages = await retrieveImagesFromIndexDB();
-        setOptions((prevOptions: Option[]) => [
-          ...prevOptions,
-          ...(customImages?.map(
-            base64Data =>
-              ({
-                type: 'image',
-                icon: 'vb',
-                path: base64Data,
-                id: getUniqueID(),
-              } as Option),
-          ) || []),
-        ]);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // Handle the error as needed
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
@@ -256,6 +265,8 @@ const VBProvider: React.FC = ({children}) => {
         setSaveVB,
         options,
         setOptions,
+        applyVirtualBackgroundToMainView,
+        applyVirtualBackgroundToPreviewView,
       }}>
       {children}
     </VBContext.Provider>
