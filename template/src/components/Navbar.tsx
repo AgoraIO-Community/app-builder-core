@@ -580,7 +580,7 @@ const Navbar = (props: NavbarProps) => {
       <View style={style.centerContent}>
         {renderContent(customCenterItems, 'center')}
       </View>
-      {width > BREAKPOINTS.sm || isMobileUA() ? (
+      {width > BREAKPOINTS.lg || isMobileUA() ? (
         <View style={style.endContent}>
           {renderContent(customEndItems, 'end')}
         </View>

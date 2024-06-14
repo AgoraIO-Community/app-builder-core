@@ -490,7 +490,12 @@ const ActionSheetContent = props => {
       componentName: 'recording',
       component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
     },
-    {
+  ];
+
+  if (
+    !(defaultItemsConfig?.more?.fields?.['virtual-background']?.hide === 'yes')
+  ) {
+    defaultItems.push({
       default: true,
       order: 7,
       hide: 'no',
@@ -500,42 +505,45 @@ const ActionSheetContent = props => {
         $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM ? (
           <VBIcon />
         ) : null,
-    },
-    {
-      default: true,
-      order: 8,
-      hide: 'no',
-      align: 'start',
-      componentName: 'switch-camera',
-      component:
-        !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
-    },
-    {
-      default: true,
-      order: 9,
-      hide: 'no',
-      align: 'start',
-      componentName: 'layout',
-      component: <LayoutIcon />,
-    },
-    {
-      default: true,
-      order: 10,
-      hide: 'no',
-      align: 'start',
-      componentName: 'settings',
-      component: <SettingsIcon />,
-    },
-    {
-      default: true,
-      order: 11,
-      hide: 'no',
-      align: 'start',
-      componentName: 'invite',
-      component: <ShareIcon />,
-    },
-    {
+    });
+  }
+  defaultItems.push({
+    default: true,
+    order: 8,
+    hide: 'no',
+    align: 'start',
+    componentName: 'switch-camera',
+    component:
+      !isAudioRoom &&
+      (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
+  });
+  defaultItems.push({
+    default: true,
+    order: 9,
+    hide: 'no',
+    align: 'start',
+    componentName: 'layout',
+    component: <LayoutIcon />,
+  });
+  defaultItems.push({
+    default: true,
+    order: 10,
+    hide: 'no',
+    align: 'start',
+    componentName: 'settings',
+    component: <SettingsIcon />,
+  });
+  defaultItems.push({
+    default: true,
+    order: 11,
+    hide: 'no',
+    align: 'start',
+    componentName: 'invite',
+    component: <ShareIcon />,
+  });
+
+  if (!(defaultItemsConfig?.more?.fields?.caption?.hide === 'yes')) {
+    defaultItems.push({
       default: true,
       order: 12,
       hide: 'no',
@@ -546,16 +554,18 @@ const ActionSheetContent = props => {
           onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
         />
       ),
-    },
-    {
+    });
+  }
+  if (!(defaultItemsConfig?.more?.fields?.transcript?.hide === 'yes')) {
+    defaultItems.push({
       default: true,
       order: 13,
       hide: 'no',
       align: 'start',
       componentName: 'transcript',
       component: <TranscriptIconBtn />,
-    },
-  ];
+    });
+  }
 
   const isHidden = i => {
     return i?.hide === 'yes';
@@ -645,13 +655,11 @@ const CarouselWrapper = ({data}) => {
 
   const isPaginationRequired = slides.length > 1;
 
-  if (isPaginationRequired)
-    return (
-      <View style={{flexDirection: 'row'}}>
-        <Carousel data={slides} />
-      </View>
-    );
-  return <View style={styles.row}>{slides[0].component}</View>;
+  return (
+    <View style={{flexDirection: 'row'}}>
+      <Carousel data={slides} isPaginationRequired={isPaginationRequired} />
+    </View>
+  );
 };
 
 export default ActionSheetContent;

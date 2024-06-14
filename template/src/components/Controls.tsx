@@ -70,6 +70,7 @@ import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {
+  ToolbarBottomPresetProps,
   ToolbarCustomItem,
   ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
@@ -250,7 +251,11 @@ export const WhiteboardListener = () => {
   return null;
 };
 
-const MoreButton = () => {
+const MoreButton = (props: {
+  defaultItemsConfig: ToolbarBottomPresetProps['defaultItemsConfig'];
+}) => {
+  const defaultItemsConfig = props?.defaultItemsConfig || {};
+  const defaultMoreItemsConfig = props?.defaultItemsConfig?.more?.fields || {};
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -316,23 +321,25 @@ const MoreButton = () => {
 
   //AINS
   if ($config.ENABLE_NOISE_CANCELLATION) {
-    actionMenuitems.push({
-      toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
-      disabled:
-        isNoiseSupressionEnabled === ToggleState.disabling ||
-        isNoiseSupressionEnabled === ToggleState.enabling,
-      isBase64Icon: true,
-      //@ts-ignore
-      icon: 'noise-cancellation',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: noiseCancellationLabel,
-      //isNoiseSupressionEnabled === ToggleState.enabled
-      callback: () => {
-        setActionMenuVisible(false);
-        setNoiseSupression(p => !p);
-      },
-    });
+    if (!(defaultMoreItemsConfig['noise-cancellation']?.hide === 'yes')) {
+      actionMenuitems.push({
+        toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
+        disabled:
+          isNoiseSupressionEnabled === ToggleState.disabling ||
+          isNoiseSupressionEnabled === ToggleState.enabling,
+        isBase64Icon: true,
+        //@ts-ignore
+        icon: 'noise-cancellation',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: noiseCancellationLabel,
+        //isNoiseSupressionEnabled === ToggleState.enabled
+        callback: () => {
+          setActionMenuVisible(false);
+          setNoiseSupression(p => !p);
+        },
+      });
+    }
   }
   //AINS
 
@@ -348,19 +355,21 @@ const MoreButton = () => {
     setIsVBActive(prev => !prev);
   };
   if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
-    actionMenuitems.push({
-      isBase64Icon: true,
-      //@ts-ignore
-      icon: 'vb',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
-      title: virtualBackgroundLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        toggleVB();
-      },
-    });
+    if (!(defaultMoreItemsConfig['virtual-background']?.hide === 'yes')) {
+      actionMenuitems.push({
+        isBase64Icon: true,
+        //@ts-ignore
+        icon: 'vb',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
+        title: virtualBackgroundLabel,
+        callback: () => {
+          setActionMenuVisible(false);
+          toggleVB();
+        },
+      });
+    }
   }
   //virtual background
 
@@ -448,76 +457,47 @@ const MoreButton = () => {
   //whiteboard ends
 
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
-    actionMenuitems.push({
-      disabled: WhiteboardDisabled,
-      isBase64Icon: true,
-      //@ts-ignore
-      icon: 'whiteboard-new',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: whiteboardLabel(whiteboardActive),
-      callback: () => {
-        setActionMenuVisible(false);
-        toggleWhiteboard(whiteboardActive, true);
-      },
-    });
+    if (!(defaultMoreItemsConfig?.whiteboard?.hide === 'yes')) {
+      actionMenuitems.push({
+        disabled: WhiteboardDisabled,
+        isBase64Icon: true,
+        //@ts-ignore
+        icon: 'whiteboard-new',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: whiteboardLabel(whiteboardActive),
+        callback: () => {
+          setActionMenuVisible(false);
+          toggleWhiteboard(whiteboardActive, true);
+        },
+      });
+    }
   }
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 
   if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
-    actionMenuitems.push({
-      icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      disabled: !(
-        $config.ENABLE_STT &&
-        $config.ENABLE_CAPTION &&
-        (isHost || (!isHost && isSTTActive))
-      ),
-      title: captionLabel(isCaptionON),
-      callback: () => {
-        setActionMenuVisible(false);
-        STT_clicked.current = !isCaptionON ? 'caption' : null;
-        if (isSTTError) {
-          setIsCaptionON(prev => !prev);
-          return;
-        }
-        if (isSTTActive) {
-          setIsCaptionON(prev => !prev);
-          // is lang popup has been shown once for any user in meeting
-        } else {
-          isFirstTimePopupOpen.current = true;
-          setLanguagePopup(true);
-        }
-      },
-    });
-
-    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+    if (!(defaultMoreItemsConfig?.caption?.hide === 'yes')) {
       actionMenuitems.push({
-        icon: 'transcript',
+        icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.FONT_COLOR,
         disabled: !(
           $config.ENABLE_STT &&
           $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT &&
           (isHost || (!isHost && isSTTActive))
         ),
-        title: transcriptLabel(isTranscriptON),
+        title: captionLabel(isCaptionON),
         callback: () => {
           setActionMenuVisible(false);
-          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+          STT_clicked.current = !isCaptionON ? 'caption' : null;
           if (isSTTError) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
+            setIsCaptionON(prev => !prev);
             return;
           }
           if (isSTTActive) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
+            setIsCaptionON(prev => !prev);
+            // is lang popup has been shown once for any user in meeting
           } else {
             isFirstTimePopupOpen.current = true;
             setLanguagePopup(true);
@@ -525,45 +505,87 @@ const MoreButton = () => {
         },
       });
     }
+    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+      if (!(defaultMoreItemsConfig?.transcript?.hide === 'yes')) {
+        actionMenuitems.push({
+          icon: 'transcript',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.FONT_COLOR,
+          disabled: !(
+            $config.ENABLE_STT &&
+            $config.ENABLE_CAPTION &&
+            $config.ENABLE_MEETING_TRANSCRIPT &&
+            (isHost || (!isHost && isSTTActive))
+          ),
+          title: transcriptLabel(isTranscriptON),
+          callback: () => {
+            setActionMenuVisible(false);
+            STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+            if (isSTTError) {
+              !isTranscriptON
+                ? setSidePanel(SidePanelType.Transcript)
+                : setSidePanel(SidePanelType.None);
+              return;
+            }
+            if (isSTTActive) {
+              !isTranscriptON
+                ? setSidePanel(SidePanelType.Transcript)
+                : setSidePanel(SidePanelType.None);
+            } else {
+              isFirstTimePopupOpen.current = true;
+              setLanguagePopup(true);
+            }
+          },
+        });
+      }
+    }
   }
 
   // view recordings
 
   if (isHost && $config.CLOUD_RECORDING && isWeb()) {
-    actionMenuitems.push({
-      icon: 'play-circle',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: viewRecordingsLabel,
-      callback: () => {
-        toggleVRModal();
-      },
-    });
+    if (!(defaultMoreItemsConfig?.['view-recordings']?.hide === 'yes')) {
+      actionMenuitems.push({
+        icon: 'play-circle',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: viewRecordingsLabel,
+        callback: () => {
+          toggleVRModal();
+        },
+      });
+    }
+  }
+
+  if (globalWidth <= BREAKPOINTS.lg) {
+    if (!(defaultItemsConfig?.participant?.hide === 'yes')) {
+      actionMenuitems.push({
+        icon: 'participants',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: peopleLabel,
+        callback: () => {
+          setActionMenuVisible(false);
+          setSidePanel(SidePanelType.Participants);
+        },
+      });
+    }
+    if (!(defaultItemsConfig?.chat?.hide === 'yes')) {
+      actionMenuitems.push({
+        icon: 'chat-nav',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: chatLabel,
+        callback: () => {
+          setActionMenuVisible(false);
+          setChatType(ChatType.Group);
+          setSidePanel(SidePanelType.Chat);
+        },
+      });
+    }
   }
 
   if (globalWidth <= BREAKPOINTS.sm) {
-    actionMenuitems.push({
-      icon: 'participants',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: peopleLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Participants);
-      },
-    });
-    actionMenuitems.push({
-      icon: 'chat-nav',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: chatLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setChatType(ChatType.Group);
-        setSidePanel(SidePanelType.Chat);
-      },
-    });
-
     if ($config.SCREEN_SHARING) {
       if (
         !(
@@ -572,102 +594,112 @@ const MoreButton = () => {
           !$config.RAISE_HAND
         )
       ) {
+        if (!(defaultItemsConfig?.screenshare?.hide === 'yes')) {
+          actionMenuitems.push({
+            disabled:
+              rtcProps.role == ClientRoleType.ClientRoleAudience &&
+              $config.EVENT_MODE &&
+              $config.RAISE_HAND &&
+              !isHost,
+            icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
+            iconColor: isScreenshareActive
+              ? $config.SEMANTIC_ERROR
+              : $config.SECONDARY_ACTION_COLOR,
+            textColor: isScreenshareActive
+              ? $config.SEMANTIC_ERROR
+              : $config.FONT_COLOR,
+            title: screenShareButton(isScreenshareActive),
+            callback: () => {
+              setActionMenuVisible(false);
+              isScreenshareActive ? stopScreenshare() : startScreenshare();
+            },
+          });
+        }
+      }
+    }
+    if (isHost && $config.CLOUD_RECORDING) {
+      if (!(defaultItemsConfig?.recording?.hide === 'yes')) {
         actionMenuitems.push({
-          disabled:
-            rtcProps.role == ClientRoleType.ClientRoleAudience &&
-            $config.EVENT_MODE &&
-            $config.RAISE_HAND &&
-            !isHost,
-          icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
-          iconColor: isScreenshareActive
+          disabled: inProgress,
+          icon: isRecordingActive ? 'stop-recording' : 'recording',
+          iconColor: isRecordingActive
             ? $config.SEMANTIC_ERROR
             : $config.SECONDARY_ACTION_COLOR,
-          textColor: isScreenshareActive
+          textColor: isRecordingActive
             ? $config.SEMANTIC_ERROR
             : $config.FONT_COLOR,
-          title: screenShareButton(isScreenshareActive),
+          title: recordingButton(isRecordingActive),
           callback: () => {
             setActionMenuVisible(false);
-            isScreenshareActive ? stopScreenshare() : startScreenshare();
+            if (!isRecordingActive) {
+              startRecording();
+            } else {
+              setShowStopRecordingPopup(true);
+            }
           },
         });
       }
     }
-    if (isHost && $config.CLOUD_RECORDING) {
+  }
+
+  if (globalWidth <= BREAKPOINTS.lg) {
+    if (!(defaultItemsConfig?.layout?.hide === 'yes')) {
       actionMenuitems.push({
-        disabled: inProgress,
-        icon: isRecordingActive ? 'stop-recording' : 'recording',
-        iconColor: isRecordingActive
-          ? $config.SEMANTIC_ERROR
-          : $config.SECONDARY_ACTION_COLOR,
-        textColor: isRecordingActive
-          ? $config.SEMANTIC_ERROR
-          : $config.FONT_COLOR,
-        title: recordingButton(isRecordingActive),
+        //below icon key is dummy value
+        icon: 'grid',
+        externalIconString: layouts[layout]?.icon,
+        isExternalIcon: true,
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: layoutLabel,
+        callback: () => {
+          //setShowLayoutOption(true);
+        },
+        onHoverCallback: isHovered => {
+          setShowLayoutOption(isHovered);
+        },
+        onHoverContent: (
+          <LayoutIconDropdown
+            onHoverPlaceHolder="vertical"
+            setShowDropdown={() => {}}
+            showDropdown={true}
+            modalPosition={
+              globalWidth <= BREAKPOINTS.lg
+                ? {bottom: 65, left: -150}
+                : {bottom: 20, left: -150}
+            }
+            caretPosition={{bottom: 45, right: -10}}
+          />
+        ),
+      });
+    }
+    if (!(defaultItemsConfig?.invite?.hide === 'yes')) {
+      actionMenuitems.push({
+        icon: 'share',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: inviteLabel,
         callback: () => {
           setActionMenuVisible(false);
-          if (!isRecordingActive) {
-            startRecording();
-          } else {
-            setShowStopRecordingPopup(true);
-          }
+          setShowInvitePopup(true);
         },
       });
     }
   }
 
-  if (globalWidth <= BREAKPOINTS.md) {
-    actionMenuitems.push({
-      //below icon key is dummy value
-      icon: 'grid',
-      externalIconString: layouts[layout]?.icon,
-      isExternalIcon: true,
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: layoutLabel,
-      callback: () => {
-        //setShowLayoutOption(true);
-      },
-      onHoverCallback: isHovered => {
-        setShowLayoutOption(isHovered);
-      },
-      onHoverContent: (
-        <LayoutIconDropdown
-          onHoverPlaceHolder="vertical"
-          setShowDropdown={() => {}}
-          showDropdown={true}
-          modalPosition={
-            globalWidth <= BREAKPOINTS.sm
-              ? {bottom: 65, left: -150}
-              : {bottom: 20, left: -150}
-          }
-          caretPosition={{bottom: 45, right: -10}}
-        />
-      ),
-    });
-    actionMenuitems.push({
-      icon: 'share',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: inviteLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setShowInvitePopup(true);
-      },
-    });
-  }
-
-  if (globalWidth <= BREAKPOINTS.sm) {
-    actionMenuitems.push({
-      icon: 'settings',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: settingsLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Settings);
-      },
-    });
+  if (globalWidth <= BREAKPOINTS.lg) {
+    if (!(defaultItemsConfig?.settings?.hide === 'yes')) {
+      actionMenuitems.push({
+        icon: 'settings',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: settingsLabel,
+        callback: () => {
+          setActionMenuVisible(false);
+          setSidePanel(SidePanelType.Settings);
+        },
+      });
+    }
   }
 
   useEffect(() => {
@@ -878,7 +910,9 @@ export const RecordingToolbarItem = () => {
   );
 };
 
-export const MoreButtonToolbarItem = () => {
+export const MoreButtonToolbarItem = (props: {
+  defaultItemsConfig: ToolbarBottomPresetProps['defaultItemsConfig'];
+}) => {
   const {width} = useWindowDimensions();
   const {
     data: {isHost},
@@ -890,7 +924,7 @@ export const MoreButtonToolbarItem = () => {
     forceUpdate();
   }, [isHost]);
 
-  return width < BREAKPOINTS.md ||
+  return width < BREAKPOINTS.lg ||
     ($config.ENABLE_STT &&
       $config.ENABLE_CAPTION &&
       (isHost || (!isHost && isSTTActive))) ||
@@ -904,7 +938,7 @@ export const MoreButtonToolbarItem = () => {
       ) : (
         <></>
       )}
-      <MoreButton />
+      <MoreButton defaultItemsConfig={props?.defaultItemsConfig} />
     </ToolbarItem>
   ) : (
     <WhiteboardListener />
@@ -1146,7 +1180,12 @@ const Controls = (props: ControlsProps) => {
     return items?.map((item, index) => {
       const ToolbarItem = item?.component;
       if (ToolbarItem) {
-        return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+        return (
+          <ToolbarItem
+            key={`bottom-toolbar-${type}` + index}
+            defaultItemsConfig={defaultItemsConfig}
+          />
+        );
       } else {
         return null;
       }
@@ -1154,7 +1193,7 @@ const Controls = (props: ControlsProps) => {
   };
   return (
     <Toolbar>
-      {width >= BREAKPOINTS.md && (
+      {width >= BREAKPOINTS.lg && (
         <View style={[style.startContent]}>
           {renderContent(customStartItems, 'start')}
         </View>
@@ -1162,7 +1201,7 @@ const Controls = (props: ControlsProps) => {
       <View style={[style.centerContent]}>
         {renderContent(customCenterItems, 'center')}
       </View>
-      {width >= BREAKPOINTS.md && (
+      {width >= BREAKPOINTS.lg && (
         <View style={style.endContent}>
           {renderContent(customEndItems, 'end')}
         </View>

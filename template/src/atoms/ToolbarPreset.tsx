@@ -7,6 +7,14 @@ import {isMobileUA} from '../utils/common';
 import NavbarMobile from '../components/NavbarMobile';
 import ActionSheet from '../pages/video-call/ActionSheet';
 
+export type ToolbarMoreOptionDefaultItemName =
+  | 'virtual-background'
+  | 'noise-cancellation'
+  | 'caption'
+  | 'transcript'
+  | 'view-recordings'
+  | 'whiteboard';
+
 export type ToolbarDefaultItemName =
   //bottom bar
 
@@ -35,8 +43,20 @@ export type ToolbarDefaultItemConfig = {
   [key in ToolbarDefaultItemName]?: ToolbarDefaultItem;
 };
 
+export type ToolbarMoreButton = {
+  ['more']?: ToolbarMoreDefaultItem;
+};
+
+export type ToolbarMoreButtonConfig = {
+  [key in ToolbarMoreOptionDefaultItemName]?: ToolbarDefaultItem;
+};
+
 export type ToolbarItemAlign = 'start' | 'center' | 'end';
 export type ToolbarItemHide = 'yes' | 'no';
+
+export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
+  fields?: ToolbarMoreButtonConfig;
+}
 
 export interface ToolbarDefaultItem {
   component?: () => JSX.Element;
@@ -56,13 +76,13 @@ export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
 export interface ToolbarBottomPresetProps {
   align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
+  defaultItemsConfig?: ToolbarDefaultItemConfig | ToolbarMoreButton;
   snapPointsMinMax: [number, number];
 }
 export interface ToolbarOtherPresetProps {
   align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
+  defaultItemsConfig?: ToolbarDefaultItemConfig | ToolbarMoreButton;
   snapPointsMinMax?: never;
 }
 
