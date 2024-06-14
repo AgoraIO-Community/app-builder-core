@@ -78,7 +78,7 @@ export const downloadRecording = (url: string) => {
   //     URL.revokeObjectURL(downloadUrl);
   //   })
   //   .catch(error => {
-  //     console.log('supriya error', error); // OUTPUT ERRORS, SUCH AS CORS WHEN TESTING NON LOCALLY
+  //     console.log('error', error); // OUTPUT ERRORS, SUCH AS CORS WHEN TESTING NON LOCALLY
   //   });
 };
 

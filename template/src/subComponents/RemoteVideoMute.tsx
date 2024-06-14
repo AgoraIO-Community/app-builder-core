@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useRef} from 'react';
-import {useWindowDimensions} from 'react-native';
+import {useWindowDimensions, ViewStyle} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
@@ -28,10 +28,11 @@ export interface RemoteVideoMuteProps {
   video: boolean;
   isHost: boolean;
   userContainerRef: any;
+  iconContainerStyle?: ViewStyle;
 }
 const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const btnRef = useRef(null);
-  const {isHost = false, userContainerRef} = props;
+  const {isHost = false, userContainerRef, iconContainerStyle = {}} = props;
   const muteRemoteVideo = useRemoteMute();
   const requestRemoteVideo = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
@@ -87,7 +88,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           );
         }}
         iconProps={{
-          iconContainerStyle: {padding: 8},
+          iconContainerStyle: {...iconContainerStyle},
           name: props?.video ? 'video-on' : 'video-off',
           iconSize: 20,
           iconType: 'plain',

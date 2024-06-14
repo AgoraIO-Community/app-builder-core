@@ -10,7 +10,7 @@
 *********************************************
 */
 import {createHook} from 'customization-implementation';
-import React, {SetStateAction, useState} from 'react';
+import React, {SetStateAction, useState, useRef} from 'react';
 import {UidType} from '../../../agora-rn-uikit';
 
 export enum ChatType {
@@ -53,6 +53,8 @@ export interface ChatUIControlsInterface {
   setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
   uploadedFiles: File[];
   setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
+  _resetTextareaHeight: () => void;
+  chatInputRef: any;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -72,15 +74,18 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setUploadStatus: () => {},
   uploadedFiles: [],
   setUploadedFiles: () => {},
+  _resetTextareaHeight: () => {},
+  chatInputRef: null,
 });
 
 interface ChatUIControlsProviderProps {
   children: React.ReactNode;
 }
 
-export const MIN_HEIGHT = 43;
+export const MIN_HEIGHT = 48;
 export const MAX_HEIGHT = 92;
 export const LINE_HEIGHT = 17;
+export const INITIAL_LINE_HEIGHT = 22;
 export const MAX_UPLOAD_SIZE = 10; //MB
 export const MAX_TEXT_MESSAGE_SIZE = 5; //KB
 
@@ -94,7 +99,16 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
     UploadStatus.NOT_STARTED,
   );
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT);
+  const [inputHeight, setInputHeight] = useState(MIN_HEIGHT);
+  const chatInputRef = useRef(null);
+
+  const _resetTextareaHeight = () => {
+    if (chatInputRef?.current) {
+      chatInputRef.current.style.height = `${MIN_HEIGHT}px`;
+      chatInputRef.current.style.overflow = 'hidden';
+      chatInputRef.current.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+    }
+  };
 
   return (
     <ChatUIControlsContext.Provider
@@ -115,6 +129,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setUploadStatus,
         uploadedFiles,
         setUploadedFiles,
+        chatInputRef,
+        _resetTextareaHeight,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

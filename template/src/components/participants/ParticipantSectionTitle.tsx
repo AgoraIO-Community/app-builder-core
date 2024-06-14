@@ -27,6 +27,7 @@ export default function ParticipantSectionTitle(props: PropsInterface) {
           iconType="plain"
           name={props?.isOpen ? 'arrow-up' : 'arrow-down'}
           iconSize={20}
+          iconContainerStyle={style.iconContainerStyle}
           tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </View>
@@ -40,7 +41,9 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+    minHeight: 40,
+    height: 40,
   },
   subheading: {
     fontSize: 12,
@@ -48,10 +51,17 @@ const style = StyleSheet.create({
     fontWeight: '700',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
     paddingVertical: 8,
+    paddingLeft: 4,
     alignSelf: 'center',
   },
   iconView: {
-    paddingVertical: 8,
     alignSelf: 'center',
+  },
+  iconContainerStyle: {
+    width: 28,
+    height: 28,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

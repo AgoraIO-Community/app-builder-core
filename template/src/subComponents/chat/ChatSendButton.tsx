@@ -38,6 +38,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     uploadedFiles,
     setUploadedFiles,
     setInputHeight,
+    _resetTextareaHeight,
   } = useChatUIControls();
 
   const {data} = useRoomInfo();
@@ -48,7 +49,10 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
   const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
   const onPress = () => {
-    if (!isValidMsg) return;
+    if (!isValidMsg) {
+      return;
+    }
+    _resetTextareaHeight();
     if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
       Toast.show({
         leadingIconName: 'alert',
@@ -104,12 +108,19 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     <View style={styles.containerBtn}>
       <IconButton
         hoverEffect={true}
-        hoverEffectStyle={{
-          backgroundColor: $config.ICON_BG_COLOR,
-          borderRadius: 24,
-        }}
+        hoverEffectStyle={
+          isValidMsg
+            ? {
+                backgroundColor: $config.ICON_BG_COLOR,
+                borderRadius: 24,
+              }
+            : {}
+        }
+        disabled={!isValidMsg}
         toolTipMessage={
-          isMobileUA() ? null : useString(chatSendMessageBtnText)()
+          isMobileUA() || !isValidMsg
+            ? null
+            : useString(chatSendMessageBtnText)()
         }
         iconProps={{
           iconType: 'plain',

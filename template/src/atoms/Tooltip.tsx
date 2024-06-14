@@ -5,6 +5,7 @@ import {Text, View, ViewStyle} from 'react-native';
 interface TooltipProps {
   activeBgStyle?: ViewStyle;
   defaultBgStyle?: ViewStyle;
+  rootTooltipContainer?: React.CSSProperties;
   renderContent: (
     isToolTipVisible: boolean,
     setToolTipVisible: React.Dispatch<React.SetStateAction<boolean>>,
@@ -16,6 +17,7 @@ interface TooltipProps {
   showTooltipArrow?: boolean;
   fontSize?: number;
   onPress?: () => void;
+  disabled?: boolean;
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
@@ -23,6 +25,8 @@ const Tooltip = (props: TooltipProps) => {
     isClickable = false,
     placement = 'top',
     showTooltipArrow = true,
+    rootTooltipContainer = {},
+    disabled = false,
   } = props;
   const css = showTooltipArrow
     ? `
@@ -70,7 +74,10 @@ const Tooltip = (props: TooltipProps) => {
   return (
     <>
       <div
-        style={{cursor: isClickable ? 'pointer' : 'auto'}}
+        style={{
+          cursor: isClickable ? 'pointer' : 'auto',
+          ...rootTooltipContainer,
+        }}
         data-tip
         data-event={isClickable ? 'click focus' : 'mouseenter'}
         data-event-off={isClickable ? '' : 'mouseleave'}
@@ -90,6 +97,7 @@ const Tooltip = (props: TooltipProps) => {
         afterShow={() => {
           isClickable && props?.onPress && props.onPress();
         }}
+        disable={disabled}
         globalEventOff="click"
         id={toolTipId}
         backgroundColor={$config.CARD_LAYER_3_COLOR}

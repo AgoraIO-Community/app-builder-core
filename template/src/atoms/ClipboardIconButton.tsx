@@ -31,6 +31,7 @@ const ClipboardIconButton = (props: Props) => {
   return (
     <View style={style.iconContainer}>
       <Tooltip
+        rootTooltipContainer={style.tooltipContainer}
         isClickable
         onPress={() => {
           copyShareLinkToClipboard(text);
@@ -73,8 +74,7 @@ export default ClipboardIconButton;
 
 export const style = StyleSheet.create({
   iconContainer: {
-    flex: 0.1,
-    minWidth: 25,
+    flexBasis: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
@@ -87,5 +87,12 @@ export const style = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
     borderTopLeftRadius: 0,
+  },
+  tooltipContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
+    width: '100%',
+    height: '100%',
   },
 });

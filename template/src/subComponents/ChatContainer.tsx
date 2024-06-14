@@ -53,6 +53,7 @@ import {
   chatPanelUserOfflineText,
   groupChatWelcomeContent,
 } from '../language/default-labels/videoCallScreenLabels';
+import CommonStyles from '../components/CommonStyles';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -71,7 +72,7 @@ const ChatContainer = (props?: {
   const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
-  const {chatType, setChatType, privateChatUser, inputActive} =
+  const {chatType, setChatType, privateChatUser, inputActive, showEmojiPicker} =
     useChatUIControls();
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
@@ -179,6 +180,7 @@ const ChatContainer = (props?: {
 
   return (
     <View style={style.containerView}>
+      {showEmojiPicker && <View style={CommonStyles.tintedOverlay} />}
       {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
@@ -214,7 +216,10 @@ const ChatContainer = (props?: {
                 grpUnreadCount &&
                 messageStore.length - grpUnreadCount === index ? (
                   <View
-                    style={style.unreadMessageContainer}
+                    style={[
+                      style.unreadMessageContainer,
+                      index === 0 && {marginTop: 8, marginBottom: 0},
+                    ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {grpUnreadCount} {unreadMessageLabel}
@@ -273,7 +278,10 @@ const ChatContainer = (props?: {
                   privateUnreadCount ===
                   index ? (
                   <View
-                    style={style.unreadMessageContainer}
+                    style={[
+                      style.unreadMessageContainer,
+                      index === 0 && {marginTop: 8, marginBottom: 0},
+                    ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {privateUnreadCount} {unreadMessageLabel}
@@ -369,9 +377,9 @@ const style = StyleSheet.create({
     borderRadius: 18,
   },
   userAvatarText: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 14,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
@@ -395,7 +403,10 @@ const style = StyleSheet.create({
     textAlign: 'left',
     flexShrink: 1,
   },
-  containerView: {flex: 8},
+  containerView: {
+    flex: 8,
+    position: 'relative',
+  },
   infoTextView: {
     marginVertical: 2,
     flexDirection: 'row',

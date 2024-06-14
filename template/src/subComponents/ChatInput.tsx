@@ -27,6 +27,7 @@ import {
   MIN_HEIGHT,
   MAX_HEIGHT,
   LINE_HEIGHT,
+  INITIAL_LINE_HEIGHT,
   MAX_TEXT_MESSAGE_SIZE,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
@@ -73,7 +74,6 @@ export interface ChatTextInputProps {
   ) => JSX.Element;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
-  let chatInputRef = useRef(null);
   const {
     privateChatUser,
     message,
@@ -86,6 +86,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setUploadedFiles,
     inputHeight,
     setInputHeight,
+    setShowEmojiPicker,
+    _resetTextareaHeight,
+    chatInputRef,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
@@ -129,7 +132,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setMessage(text);
   };
   const onSubmitEditing = () => {
-    if (message.length === 0) return;
+    if (message.length === 0) {
+      return;
+    }
     const groupID = data.chat.group_id;
 
     if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
@@ -145,7 +150,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       return;
     }
 
-    debugger;
     console.log(data);
     const option = {
       chatType: privateChatUser
@@ -166,8 +170,28 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   // with multiline textinput enter prints /n
   const handleKeyPress = ({nativeEvent}) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
-      onSubmitEditing();
       nativeEvent.preventDefault();
+      onSubmitEditing();
+      setShowEmojiPicker(false); // This will close emoji picker on enter
+      _resetTextareaHeight();
+    }
+  };
+
+  const _handleHeightChange = e => {
+    e.target.style.height = 0;
+    if (e.target.scrollHeight <= MIN_HEIGHT) {
+      e.target.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+    } else {
+      e.target.style.lineHeight = `${LINE_HEIGHT}px`;
+    }
+    const DIV_HEIGHT = e.target.scrollHeight;
+    e.target.style.height = `${
+      DIV_HEIGHT < MIN_HEIGHT ? MIN_HEIGHT : DIV_HEIGHT
+    }px`;
+    e.target.style.overflow = 'hidden';
+    // Handle scroll when content increase the div height
+    if (DIV_HEIGHT > MAX_HEIGHT) {
+      e.target.style.overflow = 'auto';
     }
   };
 
@@ -264,9 +288,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
             fontFamily: ThemeConfig.FontFamily.sansPro,
             fontWeight: '400',
             height: inputHeight,
+            minHeight: MIN_HEIGHT,
             padding: 12,
             fontSize: ThemeConfig.FontSize.small,
-            lineHeight: LINE_HEIGHT,
+            lineHeight: INITIAL_LINE_HEIGHT,
             borderWidth: 1,
             borderColor:
               $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
@@ -284,7 +309,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
           }
           autoCorrect={false}
           onKeyPress={handleKeyPress}
-          onContentSizeChange={handleContentSizeChange}
+          onChange={_handleHeightChange}
         />
       )}
     </>
@@ -300,11 +325,9 @@ export const ChatInput = () => {
   return (
     <View
       style={[
-        {flex: 1},
-        showEmojiPicker
-          ? {backgroundColor: 'transparent'}
-          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
-        // inputActive ? style.inputActiveView : {},
+        {
+          flex: 1,
+        },
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
@@ -336,6 +359,7 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'transparent',
     paddingHorizontal: 12,
+    paddingTop: 12,
     paddingBottom: 8,
   },
   chatInputButton: {
@@ -353,7 +377,6 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingTop: 4,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
   chatPanel: {
     flexDirection: 'row',

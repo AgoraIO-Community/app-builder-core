@@ -19,6 +19,7 @@ export const authErrorOnLoginToastHeading = 'authErrorOnLoginToastHeading';
 export const authAuthenticationFailedText = 'authAuthenticationFailedText';
 export const authAuthorizingApplicationText = 'authAuthorizingApplicationText';
 
+export const copiedToClipboardText = 'copiedToClipboardText';
 export interface I18nCommonLabelsInterface {
   [cancelText]?: I18nBaseType;
   [loadingText]?: I18nBaseType;
@@ -36,6 +37,8 @@ export interface I18nCommonLabelsInterface {
   [authErrorOnLoginToastHeading]?: I18nBaseType;
   [authAuthenticationFailedText]?: I18nBaseType;
   [authAuthorizingApplicationText]?: I18nBaseType;
+
+  [copiedToClipboardText]?: I18nBaseType;
 }
 
 export const CommonLabels: I18nCommonLabelsInterface = {
@@ -55,4 +58,6 @@ export const CommonLabels: I18nCommonLabelsInterface = {
   [authErrorOnLoginToastHeading]: 'Error occured on Login, Please login again.',
   [authAuthenticationFailedText]: 'Authentication failed',
   [authAuthorizingApplicationText]: 'Authorizing app...',
+
+  [copiedToClipboardText]: 'Copied to clipboard',
 };

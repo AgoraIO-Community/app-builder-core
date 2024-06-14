@@ -125,7 +125,7 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
       ...customStyles.label,
     },
     linkTextBox: {
-      flex: 0.9,
+      flex: 1,
       width: 0,
       backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
       borderColor: $config.INPUT_FIELD_BORDER_COLOR,
@@ -135,7 +135,7 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
       borderTopRightRadius: 0,
       borderBottomRightRadius: 0,
       paddingHorizontal: 20,
-      paddingVertical: 21,
+      paddingVertical: 20,
       ...customStyles.linkTextBox,
     },
     linkText: {
