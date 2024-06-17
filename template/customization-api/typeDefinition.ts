@@ -103,7 +103,7 @@ export type ComponentsInterface = {
   // commented for v1 release
   // precall?: PreCallInterface | React.ComponentType;
   precall?: React.ComponentType;
-  //create?: React.ComponentType;
+  create?: React.ComponentType;
   //share?: React.ComponentType;
   //join?: React.ComponentType;
   videoCall?: VideoCallInterface | React.ComponentType;
