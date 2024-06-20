@@ -54,6 +54,7 @@ import {
   settingPanelNameInputLabel,
 } from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -304,6 +305,9 @@ const SettingsView = props => {
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
+        <View style={style.panelContainer}>
+          <BeautyEffectsControls />
+        </View>
       </ScrollView>
     </View>
   );
@@ -312,6 +316,12 @@ const SettingsView = props => {
 const style = StyleSheet.create({
   contentContainer: {
     padding: 20,
+  },
+  panelContainer: {
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
   },
 });
 
