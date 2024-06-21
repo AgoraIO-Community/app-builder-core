@@ -43,7 +43,7 @@ const BeautyEffectsControls = () => {
   } = useBeautyEffect();
 
   return (
-    <View style={styles.container}>
+    <View>
       <Header />
       <ScrollView>
         <View style={styles.row}>
