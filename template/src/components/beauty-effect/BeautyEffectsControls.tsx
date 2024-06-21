@@ -47,7 +47,7 @@ const BeautyEffectsControls = () => {
       <Header />
       <ScrollView>
         <View style={styles.row}>
-          <Text numberOfLines={1} style={styles.toggleLabel}>
+          <Text numberOfLines={1} style={styles.label}>
             Enable Beauty Effects
           </Text>
           <View style={styles.toggleContainer}>
@@ -75,7 +75,7 @@ const BeautyEffectsControls = () => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>
-            Lightening : {lighteningLevel.toFixed(2)}
+            Lightening : {lighteningLevel.toFixed(1)}
           </Text>
           <RangeSlider
             minimumValue={0}
@@ -88,7 +88,7 @@ const BeautyEffectsControls = () => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>
-            Smoothness : {smoothnessLevel.toFixed(2)}
+            Smoothness : {smoothnessLevel.toFixed(1)}
           </Text>
           <RangeSlider
             minimumValue={0}
@@ -101,7 +101,7 @@ const BeautyEffectsControls = () => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>
-            Sharpness : {sharpnessLevel.toFixed(2)}
+            Sharpness : {sharpnessLevel.toFixed(1)}
           </Text>
 
           <RangeSlider
@@ -114,7 +114,7 @@ const BeautyEffectsControls = () => {
           />
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Redness : {rednessLevel.toFixed(2)}</Text>
+          <Text style={styles.label}>Redness : {rednessLevel.toFixed(1)}</Text>
           <RangeSlider
             minimumValue={0}
             maximumValue={1}
@@ -132,18 +132,6 @@ const BeautyEffectsControls = () => {
 export default BeautyEffectsControls;
 
 const styles = StyleSheet.create({
-  title: {
-    color: $config.FONT_COLOR,
-  },
-  container: {},
-  toggleLabel: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.normal,
-    marginRight: 4,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    alignSelf: 'center',
-  },
   row: {
     flexDirection: 'row',
     paddingHorizontal: 24,
@@ -162,9 +150,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.normal,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
   },
 });
