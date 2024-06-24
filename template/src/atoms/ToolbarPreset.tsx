@@ -48,7 +48,10 @@ export type ToolbarMoreButton = {
 };
 
 export type ToolbarMoreButtonConfig = {
-  [key in ToolbarMoreOptionDefaultItemName]?: ToolbarDefaultItem;
+  [key in ToolbarMoreOptionDefaultItemName]?: {
+    hide?: ToolbarItemHide;
+    order?: number;
+  };
 };
 
 export type ToolbarItemAlign = 'start' | 'center' | 'end';
@@ -73,11 +76,20 @@ export interface ToolbarCustomItem {
 }
 export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
 
+export interface ToolbarMoreMenuCustomItem {
+  componentName: string;
+  title: string;
+  onPress: () => void;
+  iconBase64?: string;
+  hide?: ToolbarItemHide;
+  order?: number;
+}
 export interface ToolbarBottomPresetProps {
   align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
   defaultItemsConfig?: ToolbarDefaultItemConfig | ToolbarMoreButton;
   snapPointsMinMax: [number, number];
+  customMoreItems?: Array<ToolbarMoreMenuCustomItem>;
 }
 export interface ToolbarOtherPresetProps {
   align: ToolbarPresetAlign;
@@ -133,6 +145,8 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
         customItems={props?.customItems}
         includeDefaultItems={true}
         defaultItemsConfig={props?.defaultItemsConfig}
+        //@ts-ignore
+        customMoreItems={props?.customMoreItems}
       />
     );
   } else {
