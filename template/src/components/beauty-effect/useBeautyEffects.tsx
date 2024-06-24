@@ -5,9 +5,9 @@ import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import BeautyExtension from 'agora-extension-beauty-effect';
 import {useRtc} from 'customization-api';
 
-export type BeautyEffectOptions = {
-  lighteningContrastLevel: 0 | 1 | 2;
-  lighteningLevel: Number;
+export type BeautyEffects = {
+  lighteningContrastLevel?: 0 | 1 | 2;
+  lighteningLevel?: Number;
   smoothnessLevel?: Number;
   sharpnessLevel?: Number;
   rednessLevel?: Number;
@@ -32,6 +32,8 @@ type BeautyEffectContextValue = {
   setSharpnessLevel: React.Dispatch<React.SetStateAction<number>>;
   rednessLevel: number;
   setRednessLevel: React.Dispatch<React.SetStateAction<number>>;
+  applyBeautyEffect: (config?: BeautyEffects) => void;
+  removeBeautyEffect: () => void;
 };
 export type LighteningContrastLevel = 0 | 1 | 2;
 
@@ -49,6 +51,8 @@ export const BeautyEffectsContext =
     setSharpnessLevel: () => {},
     rednessLevel: 0.5,
     setRednessLevel: () => {},
+    applyBeautyEffect: () => {},
+    removeBeautyEffect: () => {},
   });
 
 const BeautyEffectProvider: React.FC = ({children}) => {
@@ -67,7 +71,13 @@ const BeautyEffectProvider: React.FC = ({children}) => {
 
   useEffect(() => {
     if (beautyEffectsOn) {
-      applyBeautyEffect();
+      applyBeautyEffect({
+        lighteningContrastLevel,
+        lighteningLevel,
+        smoothnessLevel,
+        sharpnessLevel,
+        rednessLevel,
+      });
     } else {
       removeBeautyEffect();
     }
@@ -77,23 +87,16 @@ const BeautyEffectProvider: React.FC = ({children}) => {
     smoothnessLevel,
     sharpnessLevel,
     rednessLevel,
+    lighteningContrastLevel,
   ]);
 
   const removeBeautyEffect = async () => {
     await processor.disable();
   };
 
-  const applyBeautyEffect = async () => {
+  const applyBeautyEffect = async (config: BeautyEffects) => {
     //@ts-ignore
-
-    await processor.setOptions({
-      lighteningContrastLevel,
-      lighteningLevel,
-      smoothnessLevel,
-      sharpnessLevel,
-      rednessLevel,
-    });
-
+    await processor.setOptions(config);
     processor.enable();
   };
 
@@ -112,6 +115,8 @@ const BeautyEffectProvider: React.FC = ({children}) => {
         setSharpnessLevel,
         rednessLevel,
         setRednessLevel,
+        applyBeautyEffect,
+        removeBeautyEffect,
       }}>
       {children}
     </BeautyEffectsContext.Provider>

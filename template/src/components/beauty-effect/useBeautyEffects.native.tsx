@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {useEffect, useRef} from 'react';
 import {useRtc} from 'customization-api';
 
-export type BeautyEffectOptions = {
+export type BeautyEffects = {
   lighteningContrastLevel: 0 | 1 | 2;
   lighteningLevel: Number;
   smoothnessLevel?: Number;
@@ -26,6 +26,8 @@ type BeautyEffectContextValue = {
   setSharpnessLevel: React.Dispatch<React.SetStateAction<number>>;
   rednessLevel: number;
   setRednessLevel: React.Dispatch<React.SetStateAction<number>>;
+  applyBeautyEffect: (config: BeautyEffects) => void;
+  removeBeautyEffect: () => void;
 };
 export type LighteningContrastLevel = 0 | 1 | 2;
 
@@ -43,6 +45,8 @@ export const BeautyEffectsContext =
     setSharpnessLevel: () => {},
     rednessLevel: 0.5,
     setRednessLevel: () => {},
+    applyBeautyEffect: () => {},
+    removeBeautyEffect: () => {},
   });
 
 const BeautyEffectProvider: React.FC = ({children}) => {
@@ -58,7 +62,13 @@ const BeautyEffectProvider: React.FC = ({children}) => {
 
   useEffect(() => {
     if (beautyEffectsOn) {
-      applyBeautyEffect();
+      applyBeautyEffect({
+        lighteningContrastLevel,
+        lighteningLevel,
+        smoothnessLevel,
+        sharpnessLevel,
+        rednessLevel,
+      });
     } else {
       removeBeautyEffect();
     }
@@ -68,23 +78,17 @@ const BeautyEffectProvider: React.FC = ({children}) => {
     smoothnessLevel,
     sharpnessLevel,
     rednessLevel,
+    lighteningContrastLevel,
   ]);
 
   const removeBeautyEffect = () => {
+    //@ts-ignore
     RtcEngineUnsafe.setBeautyEffectOptions(false, {});
   };
 
-  const applyBeautyEffect = () => {
+  const applyBeautyEffect = (config: BeautyEffects) => {
     //@ts-ignore
-    const options = {
-      lighteningContrastLevel,
-      lighteningLevel,
-      smoothnessLevel,
-      sharpnessLevel,
-      rednessLevel,
-    };
-
-    RtcEngineUnsafe.setBeautyEffectOptions(true, options);
+    RtcEngineUnsafe.setBeautyEffectOptions(true, config);
   };
 
   return (
@@ -102,6 +106,8 @@ const BeautyEffectProvider: React.FC = ({children}) => {
         setSharpnessLevel,
         rednessLevel,
         setRednessLevel,
+        applyBeautyEffect,
+        removeBeautyEffect,
       }}>
       {children}
     </BeautyEffectsContext.Provider>
