@@ -24,17 +24,16 @@ type BeautyEffectContextValue = {
   setLighteningContrastLevel: React.Dispatch<
     React.SetStateAction<LighteningContrastLevel>
   >;
-  lighteningLevel: Level;
-  setLighteningLevel: React.Dispatch<React.SetStateAction<Level>>;
-  smoothnessLevel: Level;
-  setSmoothnessLevel: React.Dispatch<React.SetStateAction<Level>>;
-  sharpnessLevel: Level;
-  setSharpnessLevel: React.Dispatch<React.SetStateAction<Level>>;
-  rednessLevel: Level;
-  setRednessLevel: React.Dispatch<React.SetStateAction<Level>>;
+  lighteningLevel: number;
+  setLighteningLevel: React.Dispatch<React.SetStateAction<number>>;
+  smoothnessLevel: number;
+  setSmoothnessLevel: React.Dispatch<React.SetStateAction<number>>;
+  sharpnessLevel: number;
+  setSharpnessLevel: React.Dispatch<React.SetStateAction<number>>;
+  rednessLevel: number;
+  setRednessLevel: React.Dispatch<React.SetStateAction<number>>;
 };
 export type LighteningContrastLevel = 0 | 1 | 2;
-export type Level = 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1;
 
 export const BeautyEffectsContext =
   React.createContext<BeautyEffectContextValue>({
@@ -56,10 +55,10 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   const [beautyEffectsOn, setBeautyEffectsOn] = useState<boolean>(false);
   const [lighteningContrastLevel, setLighteningContrastLevel] =
     useState<LighteningContrastLevel>(2);
-  const [lighteningLevel, setLighteningLevel] = useState<Level>(0.4);
-  const [smoothnessLevel, setSmoothnessLevel] = useState<Level>(0.6);
-  const [sharpnessLevel, setSharpnessLevel] = useState<Level>(0.5);
-  const [rednessLevel, setRednessLevel] = useState<Level>(0.5);
+  const [lighteningLevel, setLighteningLevel] = useState<number>(0.4);
+  const [smoothnessLevel, setSmoothnessLevel] = useState<number>(0.6);
+  const [sharpnessLevel, setSharpnessLevel] = useState<number>(0.5);
+  const [rednessLevel, setRednessLevel] = useState<number>(0.5);
 
   const {RtcEngineUnsafe} = useRtc();
   //@ts-ignore
