@@ -72,6 +72,9 @@ type VBContextValue = {
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
   applyVirtualBackgroundToMainView;
   applyVirtualBackgroundToPreviewView;
+  vbProcessor: ReturnType<
+    VirtualBackgroundExtension['_createProcessor']
+  > | null;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -89,6 +92,7 @@ export const VBContext = React.createContext<VBContextValue>({
   setOptions: () => {},
   applyVirtualBackgroundToMainView: () => {},
   applyVirtualBackgroundToPreviewView: () => {},
+  vbProcessor: null,
 });
 
 const VBProvider: React.FC = ({children}) => {
@@ -177,9 +181,9 @@ const VBProvider: React.FC = ({children}) => {
     //@ts-ignore
     const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
     //  mainViewProcessor && (await mainViewProcessor.disable()); // Disable the old processor
-    localVideoTrack
-      ?.pipe(mainViewProcessor)
-      .pipe(localVideoTrack?.processorDestination);
+    // localVideoTrack
+    //   ?.pipe(mainViewProcessor)
+    //   .pipe(localVideoTrack?.processorDestination);
     mainViewProcessor.setOptions(config);
     await mainViewProcessor.enable();
   };
@@ -267,6 +271,7 @@ const VBProvider: React.FC = ({children}) => {
         setOptions,
         applyVirtualBackgroundToMainView,
         applyVirtualBackgroundToPreviewView,
+        vbProcessor: mainViewProcessor,
       }}>
       {children}
     </VBContext.Provider>
