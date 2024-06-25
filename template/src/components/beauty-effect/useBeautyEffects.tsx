@@ -4,6 +4,7 @@ import {useEffect, useRef} from 'react';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import BeautyExtension from 'agora-extension-beauty-effect';
 import {useRtc} from 'customization-api';
+import {useVB} from '../virtual-background/useVB';
 
 export type BeautyEffects = {
   lighteningContrastLevel?: 0 | 1 | 2;
@@ -15,7 +16,7 @@ export type BeautyEffects = {
 
 const extension = new BeautyExtension();
 AgoraRTC.registerExtensions([extension]);
-const processor = extension.createProcessor();
+const beautyProcessor = extension.createProcessor();
 
 type BeautyEffectContextValue = {
   beautyEffectsOn: boolean;
@@ -64,10 +65,22 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   const [sharpnessLevel, setSharpnessLevel] = useState<number>(0.5);
   const [rednessLevel, setRednessLevel] = useState<number>(0.5);
 
+  const {vbProcessor} = useVB();
+
   const {RtcEngineUnsafe} = useRtc();
   //@ts-ignore
   const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
-  localVideoTrack?.pipe(processor).pipe(localVideoTrack?.processorDestination);
+
+  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+    localVideoTrack
+      ?.pipe(beautyProcessor)
+      .pipe(vbProcessor)
+      .pipe(localVideoTrack?.processorDestination);
+  } else {
+    localVideoTrack
+      ?.pipe(beautyProcessor)
+      .pipe(localVideoTrack?.processorDestination);
+  }
 
   useEffect(() => {
     if (beautyEffectsOn) {
@@ -91,13 +104,13 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   ]);
 
   const removeBeautyEffect = async () => {
-    await processor.disable();
+    await beautyProcessor.disable();
   };
 
   const applyBeautyEffect = async (config: BeautyEffects) => {
     //@ts-ignore
-    await processor.setOptions(config);
-    processor.enable();
+    await beautyProcessor.setOptions(config);
+    beautyProcessor.enable();
   };
 
   return (
