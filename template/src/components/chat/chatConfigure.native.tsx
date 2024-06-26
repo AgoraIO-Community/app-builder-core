@@ -29,6 +29,7 @@ interface ChatMessageAttributes {
   file_name?: string;
   file_url?: string;
   from_platform?: string;
+  channel?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -120,10 +121,13 @@ const ChatConfigure = ({children}) => {
           const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
           const fromUser = from;
-          const {file_ext, file_name, file_url, from_platform} = messages[0]
-            .attributes as ChatMessageAttributes;
+          const {file_ext, file_name, file_url, from_platform, channel} =
+            messages[0].attributes as ChatMessageAttributes;
 
-          //@ts-ignore
+          // prevent cross channel msgs
+          if (channel !== data.channel) {
+            return;
+          }
 
           switch (chatType) {
             case ChatMessageType.TXT:
@@ -277,7 +281,7 @@ const ChatConfigure = ({children}) => {
           logger.log(
             LogSource.Internals,
             'CHAT',
-            `Logged in User ${localUid} to Agora Chat Server`,
+            `Logged in Native User ${localUid} to Agora Chat Server`,
           );
           setupMessageListener();
           // adding chat connection event listeners
@@ -291,6 +295,11 @@ const ChatConfigure = ({children}) => {
             onConnected() {
               console.warn('onConnected');
               // once sdk connects to chat server successfully , need to add message listeners
+              logger.log(
+                LogSource.Internals,
+                'CHAT',
+                `Native User ${localUid} to connected to Agora Chat Server`,
+              );
             },
             onDisconnected() {
               console.warn('onDisconnected:');
@@ -305,7 +314,7 @@ const ChatConfigure = ({children}) => {
           logger.error(
             LogSource.Internals,
             'CHAT',
-            `Failed Looger  User ${localUid} to Agora Chat Server`,
+            `Failed Logging Native User ${localUid} from Agora Chat Server`,
             error,
           );
         }
@@ -334,6 +343,9 @@ const ChatConfigure = ({children}) => {
     switch (type) {
       case ChatMessageType.TXT:
         chatMsg = ChatMessage.createTextMessage(to, msg, chatMsgChatType);
+        chatMsg.attributes = {
+          channel: data.channel,
+        };
         break;
       case ChatMessageType.IMAGE:
         chatMsg = ChatMessage.createImageMessage(to, url, chatMsgChatType);
@@ -343,6 +355,7 @@ const ChatConfigure = ({children}) => {
           file_name: option?.ext?.file_name,
           file_url: option?.ext?.file_url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
+          channel: data.channel,
         };
 
         console.warn('Image msg to be sent', chatMsg);
@@ -358,6 +371,7 @@ const ChatConfigure = ({children}) => {
           file_name: option?.ext?.file_name,
           file_url: option?.url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
+          channel: data.channel,
         };
         console.warn('File msg to be sent', chatMsg);
         break;
