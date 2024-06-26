@@ -65,7 +65,7 @@ const ChatConfigure = ({children}) => {
   const chatClient = ChatClient.getInstance();
   const chatManager = chatClient.chatManager;
 
-  const localUid = data?.channel + '_' + data?.uid?.toString();
+  const localUid = data?.uid?.toString();
   const agoraToken = data?.chat?.user_token;
   const {store} = React.useContext(StorageContext);
   const {
@@ -119,7 +119,7 @@ const ChatConfigure = ({children}) => {
             messages[0].chatType === ChatMessageChatType.PeerChat;
           const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
-          const fromUser = from.split('_')[1];
+          const fromUser = from;
           const {file_ext, file_name, file_url, from_platform} = messages[0]
             .attributes as ChatMessageAttributes;
 
@@ -381,13 +381,9 @@ const ChatConfigure = ({children}) => {
 
           // this is local user messages
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(
-              Number(option.to.split('_')[1]),
-              messageData,
-              true,
-            );
+            addMessageToPrivateStore(Number(option.to), messageData, true);
           } else {
-            addMessageToStore(Number(option.from.split('_')[1]), messageData);
+            addMessageToStore(Number(option.from), messageData);
           }
         }
       })

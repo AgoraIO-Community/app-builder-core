@@ -84,7 +84,7 @@ const ChatConfigure = ({children}) => {
         });
         // Logs into Agora Chat.
         const result = await newConn.open({
-          user: data?.channel + '_' + data?.uid?.toString(),
+          user: data?.uid?.toString(),
           agoraToken: data.chat.user_token,
         });
         logger.debug(
@@ -106,7 +106,7 @@ const ChatConfigure = ({children}) => {
                 ? message.url
                 : message.ext.file_url;
 
-            const fromUser = message?.from.split('_')[1];
+            const fromUser = message?.from;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -156,7 +156,7 @@ const ChatConfigure = ({children}) => {
                 ? message.url
                 : message.ext.file_url;
 
-            const fromUser = message?.from.split('_')[1];
+            const fromUser = message?.from;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -210,7 +210,7 @@ const ChatConfigure = ({children}) => {
               defaultContentRef.current[message.from]?.name,
             );
 
-            const fromUser = message?.from.split('_')[1];
+            const fromUser = message?.from;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
@@ -331,13 +331,9 @@ const ChatConfigure = ({children}) => {
           //todo chattype as per natue type
           // this is local user messages
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(
-              Number(option?.to.split('_')[1]),
-              messageData,
-              true,
-            );
+            addMessageToPrivateStore(Number(option?.to), messageData, true);
           } else {
-            addMessageToStore(Number(option?.from.split('_')[1]), messageData);
+            addMessageToStore(Number(option?.from), messageData);
           }
         })
         .catch(error => {
