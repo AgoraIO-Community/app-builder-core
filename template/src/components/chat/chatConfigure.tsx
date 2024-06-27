@@ -77,6 +77,8 @@ const ChatConfigure = ({children}) => {
   useEffect(() => {
     const initializeChatSDK = async () => {
       try {
+        // disable Chat SDK logs
+        AgoraChat.logger.disableAll();
         const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
         // Initializes the Web client.
         newConn = new AgoraChat.connection({
