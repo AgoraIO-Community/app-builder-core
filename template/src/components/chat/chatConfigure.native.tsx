@@ -436,6 +436,7 @@ const ChatConfigure = ({children}) => {
   };
 
   const deleteChatUser = async () => {
+    return; //  worker will handle this
     const groupID = data.chat.group_id;
     const userID = data.uid;
     const isChatGroupOwner = data.chat.is_group_owner;
