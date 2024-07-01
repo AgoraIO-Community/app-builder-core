@@ -77,6 +77,8 @@ const ChatConfigure = ({children}) => {
   useEffect(() => {
     const initializeChatSDK = async () => {
       try {
+        // disable Chat SDK logs
+        AgoraChat.logger.disableAll();
         const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
         // Initializes the Web client.
         newConn = new AgoraChat.connection({
@@ -84,10 +86,10 @@ const ChatConfigure = ({children}) => {
         });
         // Logs into Agora Chat.
         const result = await newConn.open({
-          user: data?.channel + '_' + data?.uid?.toString(),
+          user: data?.uid?.toString(),
           agoraToken: data.chat.user_token,
         });
-        logger.debug(
+        logger.log(
           LogSource.Internals,
           'CHAT',
           `Logged in User ${data.uid} to Agora Chat Server`,
@@ -97,16 +99,29 @@ const ChatConfigure = ({children}) => {
         newConn.addEventHandler('connection&message', {
           // app is connected to chat server
           onConnected: () => {
-            console.log('%cChatSDK: connected to chat server', 'color: blue');
+            logger.log(
+              LogSource.Internals,
+              'CHAT',
+              `User  ${data.uid} connected to Agora Chat Server`,
+            );
           },
 
           onFileMessage: message => {
+            if (message?.ext?.channel !== data?.channel) {
+              return;
+            }
+            logger.debug(
+              LogSource.Internals,
+              'CHAT',
+              `Received File Message`,
+              message,
+            );
             const fileUrl =
               message.ext?.from_platform === 'native'
                 ? message.url
                 : message.ext.file_url;
 
-            const fromUser = message?.from.split('_')[1];
+            const fromUser = message?.from;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -151,12 +166,21 @@ const ChatConfigure = ({children}) => {
             }
           },
           onImageMessage: message => {
+            if (message?.ext?.channel !== data?.channel) {
+              return;
+            }
+            logger.debug(
+              LogSource.Internals,
+              'CHAT',
+              `Received Img Message`,
+              message,
+            );
             const fileUrl =
               message.ext?.from_platform === 'native'
                 ? message.url
                 : message.ext.file_url;
 
-            const fromUser = message?.from.split('_')[1];
+            const fromUser = message?.from;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -203,14 +227,17 @@ const ChatConfigure = ({children}) => {
           },
           // text message is recieved
           onTextMessage: message => {
-            console.log(
-              '%cChatSDK: received msg: %s. from: %s',
-              'color: blue',
-              JSON.stringify(message, null, 2),
-              defaultContentRef.current[message.from]?.name,
+            if (message?.ext?.channel !== data?.channel) {
+              return;
+            }
+            logger.debug(
+              LogSource.Internals,
+              'CHAT',
+              `Received Text Message`,
+              message,
             );
 
-            const fromUser = message?.from.split('_')[1];
+            const fromUser = message?.from;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
@@ -262,20 +289,14 @@ const ChatConfigure = ({children}) => {
           },
           // on token expired
           onTokenExpired: () => {
-            console.log('%cChatSDK: token has expired', 'color: blue');
+            logger.log(LogSource.Internals, 'CHAT', 'ChatSDK Token expired');
           },
           onError: error => {
-            console.log('%cChatSDK: error', 'color: blue', error);
+            logger.error(LogSource.Internals, 'CHAT', 'ChatSDK Error', error);
           },
         });
         connRef.current = newConn;
-        logger.debug(LogSource.Internals, 'CHAT', 'Initialized Chat SDK');
       } catch (error) {
-        console.log(
-          '%cChatSDK: initialization error: %s',
-          'color: red',
-          JSON.stringify(error, null, 2),
-        );
         logger.error(
           LogSource.Internals,
           'CHAT',
@@ -289,7 +310,7 @@ const ChatConfigure = ({children}) => {
     initializeChatSDK();
     return () => {
       newConn.close();
-      logger.debug(
+      logger.log(
         LogSource.Internals,
         'CHAT',
         `Logging out User ${data.uid} from Agora Chat Server`,
@@ -304,6 +325,9 @@ const ChatConfigure = ({children}) => {
     if (connRef.current) {
       //TODO thumb and url of actual image uploaded available in file upload complete
       const localFileUrl = option?.ext?.file_url || '';
+      //add channel name so to prevent cross channel message mixup when same user joins two diff channels
+      // this is filtered on msgRecived event
+      option.ext = {...option?.ext, channel: data?.channel};
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
@@ -331,13 +355,9 @@ const ChatConfigure = ({children}) => {
           //todo chattype as per natue type
           // this is local user messages
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(
-              Number(option?.to.split('_')[1]),
-              messageData,
-              true,
-            );
+            addMessageToPrivateStore(Number(option?.to), messageData, true);
           } else {
-            addMessageToStore(Number(option?.from.split('_')[1]), messageData);
+            addMessageToStore(Number(option?.from), messageData);
           }
         })
         .catch(error => {
@@ -402,11 +422,9 @@ const ChatConfigure = ({children}) => {
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
     const uploadObj = {
       onFileUploadProgress: (data: ProgressEvent) => {
-        console.log('Chat-SDK: upload inprogress', data);
         setUploadStatus(UploadStatus.IN_PROGRESS);
       },
       onFileUploadComplete: (data: any) => {
-        console.log('Chat-SDK: upload success', data);
         const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
         //TODO: handle for multiple uploads
         setUploadedFiles(prev => {
@@ -415,7 +433,6 @@ const ChatConfigure = ({children}) => {
         setUploadStatus(UploadStatus.SUCCESS);
       },
       onFileUploadError: (error: any) => {
-        console.log('Chat-SDK: upload error', error);
         logger.error(LogSource.Internals, 'CHAT', 'Attachment upload failed');
         setUploadStatus(UploadStatus.FAILURE);
       },
@@ -451,7 +468,12 @@ const ChatConfigure = ({children}) => {
       connRef.current
         .recallMessage(option)
         .then(res => {
-          console.log('recall success', res);
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            'Chat Message Reacalled Success',
+            res,
+          );
         })
         .catch(err => {
           logger.debug(
