@@ -51,6 +51,7 @@ type LogType = {
   [LogSource.Internals]:
     | 'AUTH'
     | 'CREATE_MEETING'
+    | 'SET_MEETING_DETAILS'
     | 'ENTER_MEETING_ROOM'
     | 'JOIN_MEETING'
     | 'PRECALL_SCREEN'
@@ -134,6 +135,11 @@ export default class AppBuilderLogger implements Logger {
     const rtcPkg = isWeb()
       ? pkg.dependencies['agora-rtc-sdk-ng']
       : pkg.dependencies['react-native-agora'];
+    let roomInfo = {
+      meetingTitle: null,
+      phrase: null,
+      roomId: null,
+    };
     const logger =
       (status: StatusType) =>
       <T extends LogSource>(
@@ -146,6 +152,9 @@ export default class AppBuilderLogger implements Logger {
           return;
         }
 
+        if (type === 'SET_MEETING_DETAILS') {
+          roomInfo = {...data[0]};
+        }
         const context = {
           timestamp: Date.now(),
           source,
@@ -161,6 +170,7 @@ export default class AppBuilderLogger implements Logger {
               rtm: rtmPkg,
               rtc: rtcPkg,
             },
+            ...roomInfo,
           },
         };
 

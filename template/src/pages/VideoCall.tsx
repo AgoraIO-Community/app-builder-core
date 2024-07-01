@@ -215,6 +215,17 @@ const VideoCall: React.FC = () => {
   const {isJoinDataFetched, data, isInWaitingRoom, waitingRoomStatus} =
     useRoomInfo();
 
+  useEffect(() => {
+    if (!isJoinDataFetched) {
+      return;
+    }
+    logger.log(LogSource.Internals, 'SET_MEETING_DETAILS', 'Room details', {
+      meetingTitle: data?.meetingTitle || '',
+      phrase: phrase,
+      roomId: data?.roomId,
+    });
+  }, [isJoinDataFetched, data, phrase]);
+
   React.useEffect(() => {
     return () => {
       logger.debug(
