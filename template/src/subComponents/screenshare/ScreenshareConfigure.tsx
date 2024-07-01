@@ -277,11 +277,20 @@ export const ScreenshareConfigure = (props: {
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
     if (isScreenActive) {
-      console.log('screenshare: Executing presenter query');
-      // If screen share is not going on, start the screen share by executing the graphql query
+      // If recording is going on, set the presenter query
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is going on set presenter query',
+      );
       executePresenterQuery(screenShareUid);
     } else {
-      // If recording is already going on, stop the recording by executing the graphql query.
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is NOT going on set normal query',
+      );
+      // If no recording is going on, set the normal query
       executeNormalQuery();
     }
   };
@@ -313,7 +322,6 @@ export const ScreenshareConfigure = (props: {
     try {
       if (props.isRecordingActive) {
         executeRecordingQuery(isActive);
-        console.log('screenshare recording layout query executed');
       }
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(

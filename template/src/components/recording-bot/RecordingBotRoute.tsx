@@ -14,6 +14,7 @@ import type {RouteProps} from 'react-router';
 import StorageContext from '../StorageContext';
 import Loading from '../../subComponents/Loading';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 interface RecordingBotRouteProps extends RouteProps {
   children: React.ReactNode;
@@ -25,6 +26,11 @@ const RecordingBotRoute: React.FC<RecordingBotRouteProps> = props => {
   const [ready, setReady] = useState(false);
   const {recordingBotToken} = useIsRecordingBot();
   useEffect(() => {
+    logger.debug(
+      LogSource.Internals,
+      'RECORDING',
+      'Inside the bot route wrapper',
+    );
     setStore &&
       setStore(prevState => ({
         ...prevState,

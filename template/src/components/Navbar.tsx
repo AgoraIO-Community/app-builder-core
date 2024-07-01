@@ -430,7 +430,9 @@ export const ParticipantCountToolbarItem = () => {
   );
 };
 export const RecordingStatusToolbarItem = () => {
-  const recordingLabel = useString(videoRoomRecordingText)();
+  const recordingLabel = useString(videoRoomRecordingText)(
+    $config.RECORDING_MODE,
+  );
   const {isRecordingActive} = useRecording();
   return isRecordingActive ? (
     <ToolbarItem>

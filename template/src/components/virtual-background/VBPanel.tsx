@@ -53,8 +53,12 @@ interface VBCardProps {
   isMobile?: boolean;
 }
 
+export interface VBPanelProps {
+  isOnPrecall?: boolean;
+}
+
 const isNative = isAndroid() || isIOS();
-const VBPanel = (props?: {isOnPrecall?: boolean}) => {
+const VBPanel = (props?: VBPanelProps) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 
@@ -163,12 +167,11 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           decelerationRate={0}>
           {options.map((item, index) => (
             <VBCard
-              key={item.id}
+              key={`VBOption_${index + 1}`}
               type={item.type}
               icon={item.icon}
               path={item.path}
               label={item?.label}
-              translationKey={item?.translationKey}
               position={index + 1}
               isOnPrecall={isOnPrecall}
               isMobile={isMobile}

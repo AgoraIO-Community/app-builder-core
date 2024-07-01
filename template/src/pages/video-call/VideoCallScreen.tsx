@@ -38,11 +38,14 @@ import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript, {
   TranscriptProps,
 } from '../../subComponents/caption/Transcript';
+
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
-import VBPanel from '../../components/virtual-background/VBPanel';
+import VBPanel, {
+  VBPanelProps,
+} from '../../components/virtual-background/VBPanel';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 
@@ -61,6 +64,7 @@ const VideoCallScreen = () => {
     ParticipantsComponent,
     TranscriptComponent,
     CaptionComponent,
+    VirtualBackgroundComponent,
     SettingsComponent,
     TopbarComponent,
     VideocallBeforeView,
@@ -81,6 +85,7 @@ const VideoCallScreen = () => {
       ParticipantsComponent: React.ComponentType;
       TranscriptComponent: React.ComponentType<TranscriptProps>;
       CaptionComponent: React.ComponentType;
+      VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       SettingsComponent: React.ComponentType;
       TopbarComponent: React.ComponentType<NavbarProps>;
       VideocallBeforeView: React.ComponentType;
@@ -98,6 +103,7 @@ const VideoCallScreen = () => {
       ParticipantsComponent: ParticipantsView,
       TranscriptComponent: Transcript,
       CaptionComponent: CaptionContainer,
+      VirtualBackgroundComponent: VBPanel,
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
@@ -233,6 +239,18 @@ const VideoCallScreen = () => {
         components.CaptionComponent = data?.components?.videoCall.captionPanel;
       }
 
+      if (
+        data?.components?.videoCall.virtualBackgroundPanel &&
+        typeof data?.components?.videoCall.virtualBackgroundPanel !==
+          'object' &&
+        isValidReactComponent(
+          data?.components?.videoCall.virtualBackgroundPanel,
+        )
+      ) {
+        components.VirtualBackgroundComponent =
+          data?.components?.videoCall.virtualBackgroundPanel;
+      }
+
       //todo hari - need to remove wrapper
       if (
         data?.components?.videoCall.wrapper &&
@@ -350,7 +368,7 @@ const VideoCallScreen = () => {
                 <></>
               )}
               {sidePanel === SidePanelType.VirtualBackground ? (
-                <VBPanel />
+                <VirtualBackgroundComponent />
               ) : (
                 <></>
               )}

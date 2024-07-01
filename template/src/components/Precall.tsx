@@ -49,7 +49,7 @@ import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
-import VBPanel from './virtual-background/VBPanel';
+import VBPanel, {VBPanelProps} from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
 import {DeviceSelectProps} from './precall/selectDevice';
@@ -245,6 +245,7 @@ const Precall = () => {
     VideoPreview,
     MeetingName,
     DeviceSelect,
+    VirtualBackgroundComponent,
     PrecallAfterView,
     PrecallBeforeView,
   } = useCustomization(data => {
@@ -252,6 +253,7 @@ const Precall = () => {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType<DeviceSelectProps>;
+      VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       VideoPreview: React.ComponentType;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
@@ -260,6 +262,7 @@ const Precall = () => {
       MeetingName: PreCallMeetingTitle,
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
+      VirtualBackgroundComponent: VBPanel,
     };
     // commented for v1 release
     // if (
@@ -306,6 +309,15 @@ const Precall = () => {
     //     }
     //   }
     // }
+
+    if (
+      data?.components?.precall?.virtualBackgroundPanel &&
+      typeof data?.components?.precall.virtualBackgroundPanel !== 'object' &&
+      isValidReactComponent(data?.components?.precall.virtualBackgroundPanel)
+    ) {
+      components.VirtualBackgroundComponent =
+        data?.components?.precall.virtualBackgroundPanel;
+    }
     return components;
   });
   const {
@@ -507,7 +519,7 @@ const Precall = () => {
               </View>
               {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
                 <ScrollView style={style.vbPanelContainer}>
-                  <VBPanel isOnPrecall={true} />
+                  <VirtualBackgroundComponent isOnPrecall={true} />
                 </ScrollView>
               )}
             </Card>

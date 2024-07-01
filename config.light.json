@@ -12,7 +12,7 @@
   "BACKEND_ENDPOINT": "https://managedservices-preprod.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
-  "CHAT": false,
+  "CHAT": true,
   "CLOUD_RECORDING": true,
   "RECORDING_MODE": "WEB",
   "SCREEN_SHARING": true,
@@ -82,11 +82,11 @@
   "ENABLE_VIRTUAL_BACKGROUND": true,
   "ENABLE_WHITEBOARD": true,
   "ENABLE_WHITEBOARD_FILE_UPLOAD": false,
-  "ENABLE_WAITING_ROOM": true,
+  "ENABLE_WAITING_ROOM": false,
   "WHITEBOARD_APPIDENTIFIER": "EEJBQPVbEe2Bao8ZShuoHQ/hgB5eo0qcDbVig",
   "WHITEBOARD_REGION": "us-sv",
   "CHAT_ORG_NAME": "41754367",
   "CHAT_APP_NAME": "1042822",
-  "CHAT_URL": "",
+  "CHAT_URL": "https://a41.chat.agora.io",
   "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true
 }

@@ -22,9 +22,17 @@ import {CUSTOM_ROUTES_PREFIX, CustomRoutesInterface} from 'customization-api';
 import PrivateRoute from './components/PrivateRoute';
 import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
 import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
+import {LogSource, logger} from './logger/AppBuilderLogger';
+import {isValidReactComponent} from './utils/common';
 
 function VideoCallWrapper(props) {
   const {isRecordingBotRoute} = useIsRecordingBot();
+  logger.debug(
+    LogSource.Internals,
+    'RECORDING',
+    'Check if this is a recording bot route',
+    isRecordingBotRoute,
+  );
   return isRecordingBotRoute ? (
     <RecordingBotRoute history={props.history}>
       <VideoCall />
@@ -38,6 +46,8 @@ function VideoCallWrapper(props) {
 
 function AppRoutes() {
   const CustomRoutes = useCustomization(data => data?.customRoutes);
+  const AppConfig = useCustomization(data => data?.config);
+  const {defaultRootFallback: DefaultRootFallback} = AppConfig || {};
   const RenderCustomRoutes = () => {
     try {
       return (
@@ -68,7 +78,14 @@ function AppRoutes() {
   return (
     <Switch>
       <Route exact path={'/'}>
-        <Redirect to={'/create'} />
+        {DefaultRootFallback &&
+        (typeof DefaultRootFallback === 'object' ||
+          typeof DefaultRootFallback === 'function') &&
+        isValidReactComponent(DefaultRootFallback) ? (
+          <DefaultRootFallback />
+        ) : (
+          <Redirect to={'/create'} />
+        )}
       </Route>
       <Route exact path={'/authorize/:token?'}>
         <IDPAuth />

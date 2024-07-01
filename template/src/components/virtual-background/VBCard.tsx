@@ -6,9 +6,8 @@ import {IconsInterface} from '../../atoms/CustomIcon';
 import Toast from '../../../react-native-toast-message';
 import {saveImagesToIndexDB, convertBlobToBase64} from './VButils';
 import ImageIcon from '../../atoms/ImageIcon';
-import getUniqueID from '../../../src/utils/getUniqueID';
+
 import {useString} from '../../../src/utils/useString';
-import {TextDataInterface} from '../../../src/language/default-labels';
 import {
   vbPanelImageSizeLimitErrorToastHeading,
   vbPanelImageSizeLimitErrorToastSubHeading,
@@ -18,12 +17,12 @@ import {
   vbPanelImageUploadErrorToastSubHeading,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {vbOptionText} from '../../../src/language/default-labels/precallScreenLabels';
 
-interface VBCardProps {
+export interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
-  translationKey?: keyof TextDataInterface;
   label?: string;
   position?: number;
   isOnPrecall?: boolean;
@@ -53,7 +52,6 @@ const VBCard: React.FC<VBCardProps> = ({
   position,
   isOnPrecall,
   isMobile,
-  translationKey,
 }) => {
   const {
     setVBmode,
@@ -76,8 +74,8 @@ const VBCard: React.FC<VBCardProps> = ({
     vbPanelImageUploadErrorToastSubHeading,
   )();
 
-  const translation = useString(translationKey)();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const vbOptionLabel = useString<VBMode>(vbOptionText);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     logger.log(
@@ -138,7 +136,6 @@ const VBCard: React.FC<VBCardProps> = ({
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
-                id: getUniqueID(),
               };
               setOptions(prevOptions => {
                 const updatedOptions = [...prevOptions];
@@ -232,7 +229,7 @@ const VBCard: React.FC<VBCardProps> = ({
             name={icon}
             tintColor={$config.SECONDARY_ACTION_COLOR}
           />
-          {label && translation ? (
+          {label ? (
             <Text
               style={{
                 fontSize: ThemeConfig.FontSize.tiny,
@@ -241,7 +238,7 @@ const VBCard: React.FC<VBCardProps> = ({
                 color: $config.SECONDARY_ACTION_COLOR,
                 paddingVertical: 4,
               }}>
-              {translation}
+              {vbOptionLabel(type)}
             </Text>
           ) : (
             <></>
