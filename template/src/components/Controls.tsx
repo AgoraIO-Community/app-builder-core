@@ -70,9 +70,11 @@ import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {
+  ToolbarBottomPresetProps,
   ToolbarCustomItem,
   ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
+  ToolbarMoreMenuCustomItem,
 } from '../atoms/ToolbarPreset';
 
 import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
@@ -250,7 +252,12 @@ export const WhiteboardListener = () => {
   return null;
 };
 
-const MoreButton = () => {
+const MoreButton = (props: {
+  defaultItemsConfig: ToolbarBottomPresetProps['defaultItemsConfig'];
+  customActionMenuItems: ToolbarMoreMenuCustomItem[];
+}) => {
+  const defaultItemsConfig = props?.defaultItemsConfig || {};
+  const defaultMoreItemsConfig = props?.defaultItemsConfig?.more?.fields || {};
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -317,6 +324,8 @@ const MoreButton = () => {
   //AINS
   if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
+      componentName: 'noise-cancellation',
+      order: 0,
       toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
         isNoiseSupressionEnabled === ToggleState.disabling ||
@@ -349,6 +358,8 @@ const MoreButton = () => {
   };
   if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
     actionMenuitems.push({
+      componentName: 'virtual-background',
+      order: 1,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'vb',
@@ -449,6 +460,8 @@ const MoreButton = () => {
 
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
+      componentName: 'whiteboard',
+      order: 2,
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
       //@ts-ignore
@@ -467,6 +480,8 @@ const MoreButton = () => {
 
   if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
+      componentName: 'caption',
+      order: 3,
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -495,6 +510,8 @@ const MoreButton = () => {
 
     if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
+        componentName: 'transcript',
+        order: 4,
         icon: 'transcript',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.FONT_COLOR,
@@ -531,6 +548,8 @@ const MoreButton = () => {
 
   if (isHost && $config.CLOUD_RECORDING && isWeb()) {
     actionMenuitems.push({
+      componentName: 'view-recordings',
+      order: 5,
       icon: 'play-circle',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -541,8 +560,10 @@ const MoreButton = () => {
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.sm) {
+  if (globalWidth <= BREAKPOINTS.lg) {
     actionMenuitems.push({
+      componentName: 'participant',
+      order: 6,
       icon: 'participants',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -552,7 +573,10 @@ const MoreButton = () => {
         setSidePanel(SidePanelType.Participants);
       },
     });
+
     actionMenuitems.push({
+      componentName: 'chat',
+      order: 7,
       icon: 'chat-nav',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -563,7 +587,9 @@ const MoreButton = () => {
         setSidePanel(SidePanelType.Chat);
       },
     });
+  }
 
+  if (globalWidth <= BREAKPOINTS.sm) {
     if ($config.SCREEN_SHARING) {
       if (
         !(
@@ -573,6 +599,8 @@ const MoreButton = () => {
         )
       ) {
         actionMenuitems.push({
+          componentName: 'screenshare',
+          order: 8,
           disabled:
             rtcProps.role == ClientRoleType.ClientRoleAudience &&
             $config.EVENT_MODE &&
@@ -595,6 +623,8 @@ const MoreButton = () => {
     }
     if (isHost && $config.CLOUD_RECORDING) {
       actionMenuitems.push({
+        componentName: 'recording',
+        order: 9,
         disabled: inProgress,
         icon: isRecordingActive ? 'stop-recording' : 'recording',
         iconColor: isRecordingActive
@@ -616,8 +646,10 @@ const MoreButton = () => {
     }
   }
 
-  if (globalWidth <= BREAKPOINTS.md) {
+  if (globalWidth <= BREAKPOINTS.lg) {
     actionMenuitems.push({
+      componentName: 'layout',
+      order: 10,
       //below icon key is dummy value
       icon: 'grid',
       externalIconString: layouts[layout]?.icon,
@@ -637,7 +669,7 @@ const MoreButton = () => {
           setShowDropdown={() => {}}
           showDropdown={true}
           modalPosition={
-            globalWidth <= BREAKPOINTS.sm
+            globalWidth <= BREAKPOINTS.lg
               ? {bottom: 65, left: -150}
               : {bottom: 20, left: -150}
           }
@@ -645,7 +677,10 @@ const MoreButton = () => {
         />
       ),
     });
+
     actionMenuitems.push({
+      componentName: 'invite',
+      order: 11,
       icon: 'share',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -657,8 +692,10 @@ const MoreButton = () => {
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.sm) {
+  if (globalWidth <= BREAKPOINTS.lg) {
     actionMenuitems.push({
+      componentName: 'settings',
+      order: 12,
       icon: 'settings',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -717,6 +754,21 @@ const MoreButton = () => {
     }
   };
 
+  const isHidden = i => {
+    return i?.hide === 'yes';
+  };
+
+  const CustomActionMenuItems = props?.customActionMenuItems || [];
+
+  const ActionMenuItems = CustomActionMenuItems?.concat(
+    updateToolbarDefaultConfig(actionMenuitems, {
+      ...defaultItemsConfig,
+      ...defaultMoreItemsConfig,
+    }),
+  )
+    ?.filter(i => !isHidden(i))
+    ?.sort(CustomToolbarSort);
+
   return (
     <>
       <LanguageSelectorPopup
@@ -739,7 +791,7 @@ const MoreButton = () => {
           bottom: 8,
           left: 0,
         }}
-        items={actionMenuitems}
+        items={ActionMenuItems}
       />
       <div
         onMouseEnter={() => {
@@ -878,7 +930,10 @@ export const RecordingToolbarItem = () => {
   );
 };
 
-export const MoreButtonToolbarItem = () => {
+export const MoreButtonToolbarItem = (props?: {
+  defaultItemsConfig?: ToolbarBottomPresetProps['defaultItemsConfig'];
+  customMoreItems?: ToolbarMoreMenuCustomItem[];
+}) => {
   const {width} = useWindowDimensions();
   const {
     data: {isHost},
@@ -890,7 +945,7 @@ export const MoreButtonToolbarItem = () => {
     forceUpdate();
   }, [isHost]);
 
-  return width < BREAKPOINTS.md ||
+  return width < BREAKPOINTS.lg ||
     ($config.ENABLE_STT &&
       $config.ENABLE_CAPTION &&
       (isHost || (!isHost && isSTTActive))) ||
@@ -904,7 +959,10 @@ export const MoreButtonToolbarItem = () => {
       ) : (
         <></>
       )}
-      <MoreButton />
+      <MoreButton
+        defaultItemsConfig={props?.defaultItemsConfig}
+        customActionMenuItems={props?.customMoreItems}
+      />
     </ToolbarItem>
   ) : (
     <WhiteboardListener />
@@ -999,6 +1057,7 @@ const defaultItems: ToolbarDefaultItem[] = [
 
 export interface ControlsProps {
   customItems?: ToolbarCustomItem[];
+  customMoreItems?: ToolbarMoreMenuCustomItem[];
   includeDefaultItems?: boolean;
   defaultItemsConfig?: ToolbarDefaultItemConfig;
 }
@@ -1007,6 +1066,7 @@ const Controls = (props: ControlsProps) => {
     customItems = [],
     includeDefaultItems = true,
     defaultItemsConfig = {},
+    customMoreItems = [],
   } = props;
   const {width} = useWindowDimensions();
   const {defaultContent} = useContent();
@@ -1146,7 +1206,15 @@ const Controls = (props: ControlsProps) => {
     return items?.map((item, index) => {
       const ToolbarItem = item?.component;
       if (ToolbarItem) {
-        return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+        return (
+          <ToolbarItem
+            key={`bottom-toolbar-${type}` + index}
+            //@ts-ignore
+            defaultItemsConfig={defaultItemsConfig}
+            //@ts-ignore
+            customMoreItems={customMoreItems}
+          />
+        );
       } else {
         return null;
       }
@@ -1154,7 +1222,7 @@ const Controls = (props: ControlsProps) => {
   };
   return (
     <Toolbar>
-      {width >= BREAKPOINTS.md && (
+      {width >= BREAKPOINTS.lg && (
         <View style={[style.startContent]}>
           {renderContent(customStartItems, 'start')}
         </View>
@@ -1162,7 +1230,7 @@ const Controls = (props: ControlsProps) => {
       <View style={[style.centerContent]}>
         {renderContent(customCenterItems, 'center')}
       </View>
-      {width >= BREAKPOINTS.md && (
+      {width >= BREAKPOINTS.lg && (
         <View style={style.endContent}>
           {renderContent(customEndItems, 'end')}
         </View>

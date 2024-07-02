@@ -7,6 +7,24 @@ import {isMobileUA} from '../utils/common';
 import NavbarMobile from '../components/NavbarMobile';
 import ActionSheet from '../pages/video-call/ActionSheet';
 
+export type ToolbarMoreOptionDefaultItemName =
+  | 'virtual-background'
+  | 'noise-cancellation'
+  | 'caption'
+  | 'transcript'
+  | 'view-recordings'
+  | 'whiteboard'
+  | Exclude<
+      ToolbarDefaultItemName,
+      | 'meeting-title'
+      | 'participant-count'
+      | 'recording-status'
+      | 'more'
+      | 'local-audio'
+      | 'local-video'
+      | 'end-call'
+    >;
+
 export type ToolbarDefaultItemName =
   //bottom bar
 
@@ -35,8 +53,23 @@ export type ToolbarDefaultItemConfig = {
   [key in ToolbarDefaultItemName]?: ToolbarDefaultItem;
 };
 
+export type ToolbarMoreButton = {
+  ['more']?: ToolbarMoreDefaultItem;
+};
+
+export type ToolbarMoreButtonConfig = {
+  [key in ToolbarMoreOptionDefaultItemName]?: {
+    hide?: ToolbarItemHide;
+    order?: number;
+  };
+};
+
 export type ToolbarItemAlign = 'start' | 'center' | 'end';
 export type ToolbarItemHide = 'yes' | 'no';
+
+export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
+  fields?: ToolbarMoreButtonConfig;
+}
 
 export interface ToolbarDefaultItem {
   component?: () => JSX.Element;
@@ -53,16 +86,25 @@ export interface ToolbarCustomItem {
 }
 export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
 
+export interface ToolbarMoreMenuCustomItem {
+  componentName: string;
+  title: string;
+  onPress: () => void;
+  iconBase64?: string;
+  hide?: ToolbarItemHide;
+  order?: number;
+}
 export interface ToolbarBottomPresetProps {
   align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
+  defaultItemsConfig?: ToolbarDefaultItemConfig | ToolbarMoreButton;
   snapPointsMinMax: [number, number];
+  customMoreItems?: Array<ToolbarMoreMenuCustomItem>;
 }
 export interface ToolbarOtherPresetProps {
   align: ToolbarPresetAlign;
   customItems?: Array<ToolbarCustomItem>;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
+  defaultItemsConfig?: ToolbarDefaultItemConfig | ToolbarMoreButton;
   snapPointsMinMax?: never;
 }
 
@@ -113,6 +155,8 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
         customItems={props?.customItems}
         includeDefaultItems={true}
         defaultItemsConfig={props?.defaultItemsConfig}
+        //@ts-ignore
+        customMoreItems={props?.customMoreItems}
       />
     );
   } else {

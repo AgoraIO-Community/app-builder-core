@@ -17,8 +17,12 @@ import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Toggle from './Toggle';
+import {Either} from '../../agora-rn-uikit/src/Controls/types';
+import {ToolbarMoreMenuCustomItem} from './ToolbarPreset';
 
 export interface ActionMenuItem {
+  componentName?: string;
+  order?: number;
   isExternalIcon?: boolean;
   externalIconString?: string;
   isBase64Icon?: boolean;
@@ -44,7 +48,7 @@ export interface ActionMenuProps {
     left?: number;
     bottom?: number;
   };
-  items: ActionMenuItem[];
+  items: Either<ActionMenuItem[], ToolbarMoreMenuCustomItem[]>;
   hoverMode?: boolean;
   onHover?: (hover: boolean) => void;
   containerStyle?: ViewStyle;
@@ -60,26 +64,73 @@ const ActionMenu = (props: ActionMenuProps) => {
   } = props;
 
   const renderItems = () => {
-    return items?.map(
-      (
-        {
-          icon = '',
-          onHoverIcon,
-          isBase64Icon = false,
-          isExternalIcon = false,
-          externalIconString = '',
-          title,
-          toggleStatus,
-          callback,
-          iconColor,
-          textColor,
-          disabled = false,
-          onHoverCallback = undefined,
-          onHoverContent = undefined,
-          iconSize = 20,
-        },
-        index,
-      ) => (
+    return items?.map((item, index) => {
+      //rendering the custom item with default UI
+      const {title, onPress, iconBase64, componentName} = item;
+      if (title && onPress) {
+        return (
+          <PlatformWrapper key={props.from + '_' + componentName + index}>
+            {(isHovered: boolean) => (
+              <>
+                <TouchableOpacity
+                  disabled={false}
+                  style={[
+                    styles.row,
+                    isHovered && !false
+                      ? //first item should have border-radius on top left and top right
+                        index === 0
+                        ? styles.rowHoveredFirstChild
+                        : //last item should have border-radius on bottom left and top right
+                        items?.length - 1 === index
+                        ? styles.rowHoveredLastChild
+                        : //middle items don't need any border-radius
+                          styles.rowHoveredMiddleItems
+                      : {},
+                    false ? {opacity: 0.4} : {},
+                    items?.length - 1 === index
+                      ? {borderBottomColor: 'transparent'}
+                      : {},
+                  ]}
+                  onPress={onPress}
+                  key={componentName + index}>
+                  {iconBase64 ? (
+                    <View style={styles.iconContainer}>
+                      <ImageIcon
+                        base64={false}
+                        base64TintColor={$config.SECONDARY_ACTION_COLOR}
+                        iconType="plain"
+                        iconSize={24}
+                        icon={iconBase64}
+                        tintColor={$config.SECONDARY_ACTION_COLOR}
+                      />
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                  <Text style={[styles.text]}>{title}</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </PlatformWrapper>
+        );
+      }
+
+      const {
+        icon = '',
+        onHoverIcon,
+        isBase64Icon = false,
+        isExternalIcon = false,
+        externalIconString = '',
+        toggleStatus,
+        callback,
+        iconColor,
+        textColor,
+        disabled = false,
+        onHoverCallback = undefined,
+        onHoverContent = undefined,
+        iconSize = 20,
+      } = item;
+      return (
         <PlatformWrapper key={props.from + '_' + title + index}>
           {(isHovered: boolean) => (
             <>
@@ -150,8 +201,8 @@ const ActionMenu = (props: ActionMenuProps) => {
             </>
           )}
         </PlatformWrapper>
-      ),
-    );
+      );
+    });
   };
 
   return (

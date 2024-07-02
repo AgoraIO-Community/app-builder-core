@@ -10,9 +10,10 @@ interface CarouselItem {
 
 interface CarouselProps {
   data: CarouselItem[];
+  isPaginationRequired?: boolean;
 }
 
-const Carousel: React.FC<CarouselProps> = ({data}) => {
+const Carousel: React.FC<CarouselProps> = ({data, isPaginationRequired}) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const flatListRef = React.useRef<FlatList | null>(null);
@@ -36,7 +37,8 @@ const Carousel: React.FC<CarouselProps> = ({data}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, !isPaginationRequired ? {paddingTop: 24} : {}]}>
       <FlatList
         ref={flatListRef}
         data={data}
@@ -47,28 +49,32 @@ const Carousel: React.FC<CarouselProps> = ({data}) => {
         keyExtractor={(_, index) => index.toString()}
         onScroll={handleScroll}
       />
-      <View style={styles.indicatorContainer}>
-        {data.map((_, index) => (
-          <Pressable
-            key={index}
-            onPress={() => {
-              scrollToIndex(index);
-              setActiveIndex(index);
-            }}
-            hitSlop={5} // to increase clickable area
-          >
-            {({pressed}) => (
-              <View
-                style={[
-                  styles.dot,
-                  index === activeIndex && styles.activeDot,
-                  pressed && styles.pressedDot,
-                ]}
-              />
-            )}
-          </Pressable>
-        ))}
-      </View>
+      {isPaginationRequired ? (
+        <View style={styles.indicatorContainer}>
+          {data.map((_, index) => (
+            <Pressable
+              key={index}
+              onPress={() => {
+                scrollToIndex(index);
+                setActiveIndex(index);
+              }}
+              hitSlop={5} // to increase clickable area
+            >
+              {({pressed}) => (
+                <View
+                  style={[
+                    styles.dot,
+                    index === activeIndex && styles.activeDot,
+                    pressed && styles.pressedDot,
+                  ]}
+                />
+              )}
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };

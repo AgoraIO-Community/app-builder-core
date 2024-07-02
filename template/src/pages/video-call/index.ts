@@ -18,6 +18,7 @@ import Controls, {
   ScreenShareToolbarItem,
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
+  MoreButtonToolbarItem,
 } from '../../components/Controls';
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
@@ -45,6 +46,7 @@ const ToolbarComponents = {
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
   WhiteboardToolbarItem: WhiteboardButton,
+  MoreButtonToolbarItem,
 };
 export {
   ParticipantsView,
