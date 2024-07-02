@@ -215,6 +215,17 @@ const VideoCall: React.FC = () => {
   const {isJoinDataFetched, data, isInWaitingRoom, waitingRoomStatus} =
     useRoomInfo();
 
+  useEffect(() => {
+    if (!isJoinDataFetched) {
+      return;
+    }
+    logger.log(LogSource.Internals, 'SET_MEETING_DETAILS', 'Room details', {
+      meetingTitle: data?.meetingTitle || '',
+      phrase: phrase,
+      roomId: data?.roomId,
+    });
+  }, [isJoinDataFetched, data, phrase]);
+
   React.useEffect(() => {
     return () => {
       logger.debug(
@@ -365,7 +376,7 @@ const VideoCall: React.FC = () => {
     },
     UserOffline: (uid: UidType) => {
       console.log('UIKIT Callback: UserOffline', uid);
-      SDKEvents.emit('rtc-user-joined', uid);
+      SDKEvents.emit('rtc-user-left', uid);
     },
     RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
       console.log('UIKIT Callback: RemoteAudioStateChanged', uid, status);

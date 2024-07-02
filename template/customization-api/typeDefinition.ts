@@ -64,6 +64,12 @@ export interface VBPanelProps {
 }
 
 export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
+export type CustomLogger = (
+  message: string,
+  data: any,
+  type: 'debug' | 'error' | 'info' | 'warn',
+) => void;
+
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
   topToolBar?: ToolbarType;
@@ -137,6 +143,10 @@ export interface CustomizationApiInterface {
    * Internationlization
    */
   i18n?: I18nInterface[];
+  /**
+   * Custom logger
+   */
+  logger?: CustomLogger;
   /**
    * Life cycle events
    */
