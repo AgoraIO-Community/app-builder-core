@@ -365,7 +365,7 @@ const VideoCall: React.FC = () => {
     },
     UserOffline: (uid: UidType) => {
       console.log('UIKIT Callback: UserOffline', uid);
-      SDKEvents.emit('rtc-user-joined', uid);
+      SDKEvents.emit('rtc-user-left', uid);
     },
     RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
       console.log('UIKIT Callback: RemoteAudioStateChanged', uid, status);
