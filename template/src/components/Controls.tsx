@@ -930,9 +930,9 @@ export const RecordingToolbarItem = () => {
   );
 };
 
-export const MoreButtonToolbarItem = (props: {
-  defaultItemsConfig: ToolbarBottomPresetProps['defaultItemsConfig'];
-  customMoreItems: ToolbarMoreMenuCustomItem[];
+export const MoreButtonToolbarItem = (props?: {
+  defaultItemsConfig?: ToolbarBottomPresetProps['defaultItemsConfig'];
+  customMoreItems?: ToolbarMoreMenuCustomItem[];
 }) => {
   const {width} = useWindowDimensions();
   const {

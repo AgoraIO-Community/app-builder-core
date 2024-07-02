@@ -13,7 +13,17 @@ export type ToolbarMoreOptionDefaultItemName =
   | 'caption'
   | 'transcript'
   | 'view-recordings'
-  | 'whiteboard';
+  | 'whiteboard'
+  | Exclude<
+      ToolbarDefaultItemName,
+      | 'meeting-title'
+      | 'participant-count'
+      | 'recording-status'
+      | 'more'
+      | 'local-audio'
+      | 'local-video'
+      | 'end-call'
+    >;
 
 export type ToolbarDefaultItemName =
   //bottom bar
