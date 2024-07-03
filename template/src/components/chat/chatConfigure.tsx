@@ -351,7 +351,7 @@ const ChatConfigure = ({children}) => {
       const localFileUrl = option?.ext?.file_url || '';
       //add channel name so to prevent cross channel message mixup when same user joins two diff channels
       // this is filtered on msgRecived event
-      option.ext = {...option?.ext};
+      option.ext = {...option?.ext, channel: data?.channel};
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current
