@@ -22,8 +22,6 @@ import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
 import {isWebInternal} from './utils/common';
-import {useCustomization} from 'customization-implementation';
-import {logger} from './logger/AppBuilderLogger';
 
 // hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
