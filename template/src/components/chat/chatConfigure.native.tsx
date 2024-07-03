@@ -23,6 +23,11 @@ import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
+import events from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 interface ChatMessageAttributes {
   file_ext?: string;
@@ -59,16 +64,19 @@ export const chatConfigureContext =
 
 const ChatConfigure = ({children}) => {
   const [open, setOpen] = useState(false);
-  const {data} = useRoomInfo();
+  const {data, roomPreference} = useRoomInfo();
   const connRef = React.useRef(null);
-  const {defaultContent} = useContent();
-  const defaultContentRef = React.useRef(defaultContent);
+
   const chatClient = ChatClient.getInstance();
   const chatManager = chatClient.chatManager;
 
   const localUid = data?.uid?.toString();
   const agoraToken = data?.chat?.user_token;
   const {store} = React.useContext(StorageContext);
+  const [allowChatLogin, setAllowChatLogin] = useState(
+    () => !roomPreference.preventChatAutoLogin,
+  );
+
   const {
     addMessageToPrivateStore,
     showMessageNotification,
@@ -77,14 +85,20 @@ const ChatConfigure = ({children}) => {
     removeMessageFromPrivateStore,
   } = useChatMessages();
 
-  React.useEffect(() => {
-    defaultContentRef.current = defaultContent;
-  }, [defaultContent]);
+  const enableChatCallback = () => {
+    console.warn('allow chat login callback', allowChatLogin);
+    setAllowChatLogin(true);
+  };
 
   useEffect(() => {
+    // Handle Chat login for self and other users
+    LocalEventEmitter.on(LocalEventsEnum.ENABLE_CHAT_LOGIN, enableChatCallback);
+    events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
+      enableChatCallback();
+    });
     const logout = async () => {
       try {
-        await chatClient.logout();
+        await chatClient?.logout();
         console.warn('logout success');
         logger.log(
           LogSource.Internals,
@@ -322,12 +336,16 @@ const ChatConfigure = ({children}) => {
         console.warn('chat sdk: init error', error);
       }
     };
+    if (allowChatLogin) {
+      initializeChatSDK();
+    } else {
+      console.warn('delay chat login');
+    }
 
-    initializeChatSDK();
     return () => {
       logout();
     };
-  }, []);
+  }, [allowChatLogin]);
 
   const sendChatSDKMessage = (
     option: ChatOption,

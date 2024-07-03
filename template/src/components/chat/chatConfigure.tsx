@@ -89,6 +89,7 @@ const ChatConfigure = ({children}) => {
   };
 
   useEffect(() => {
+    // Handle Chat login for self and other users
     LocalEventEmitter.on(LocalEventsEnum.ENABLE_CHAT_LOGIN, enableChatCallback);
     events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
       enableChatCallback();
