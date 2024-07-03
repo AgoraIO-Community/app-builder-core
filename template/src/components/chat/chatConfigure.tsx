@@ -2,6 +2,8 @@ import {createHook} from 'customization-implementation';
 import React, {createContext, useState, useEffect} from 'react';
 import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
+import events from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 import {UidType, useContent} from 'customization-api';
 import {
@@ -18,6 +20,9 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 export interface FileObj {
   url: string;
@@ -53,12 +58,20 @@ export const chatConfigureContext =
 
 const ChatConfigure = ({children}) => {
   const [open, setOpen] = useState(false);
-  const {data} = useRoomInfo();
+  const {data, roomPreference} = useRoomInfo();
+  const [allowChatLogin, setAllowChatLogin] = useState(
+    () => !roomPreference.preventChatAutoLogin,
+  );
+
+  // exponse onClick Chat so that this can be set truel
+  //const allowChatLogin = !roomPreference?.preventChatAutoLogin;
+  logger.debug(LogSource.Internals, 'CHAT', `Allow Chat Login`, allowChatLogin);
+
   const connRef = React.useRef(null);
-  const {defaultContent} = useContent();
+
   const {privateChatUser, setUploadStatus, setUploadedFiles, uploadedFiles} =
     useChatUIControls();
-  const defaultContentRef = React.useRef(defaultContent);
+
   const {
     addMessageToPrivateStore,
     showMessageNotification,
@@ -68,13 +81,18 @@ const ChatConfigure = ({children}) => {
   } = useChatMessages();
   const {store} = React.useContext(StorageContext);
 
-  React.useEffect(() => {
-    defaultContentRef.current = defaultContent;
-  }, [defaultContent]);
-
   let newConn = null;
 
+  const enableChatCallback = () => {
+    logger.debug(LogSource.Internals, 'CHAT', `enable chat login callback`);
+    setAllowChatLogin(true);
+  };
+
   useEffect(() => {
+    LocalEventEmitter.on(LocalEventsEnum.ENABLE_CHAT_LOGIN, enableChatCallback);
+    events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
+      enableChatCallback();
+    });
     const initializeChatSDK = async () => {
       try {
         // disable Chat SDK logs
@@ -307,16 +325,22 @@ const ChatConfigure = ({children}) => {
     };
 
     // initializing chat sdk
-    initializeChatSDK();
+    if (allowChatLogin) {
+      initializeChatSDK();
+    } else {
+      logger.debug(LogSource.Internals, 'CHAT', `delay chat login`);
+    }
     return () => {
-      newConn.close();
-      logger.log(
-        LogSource.Internals,
-        'CHAT',
-        `Logging out User ${data.uid} from Agora Chat Server`,
-      );
+      if (newConn) {
+        newConn.close();
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          `Logging out User ${data.uid} from Agora Chat Server`,
+        );
+      }
     };
-  }, []);
+  }, [allowChatLogin]);
 
   const sendChatSDKMessage = (
     option: ChatOption,
@@ -327,7 +351,7 @@ const ChatConfigure = ({children}) => {
       const localFileUrl = option?.ext?.file_url || '';
       //add channel name so to prevent cross channel message mixup when same user joins two diff channels
       // this is filtered on msgRecived event
-      option.ext = {...option?.ext, channel: data?.channel};
+      option.ext = {...option?.ext};
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
       connRef.current

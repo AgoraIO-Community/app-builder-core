@@ -786,6 +786,7 @@ const EventsConfigure: React.FC<Props> = props => {
       events.off(EventNames.BOARD_COLOR_CHANGED);
       events.off(EventNames.STT_ACTIVE);
       events.off(EventNames.STT_LANGUAGE);
+      events.off(EventNames.ENABLE_CHAT_LOGIN);
     };
   }, []);
 

@@ -9,6 +9,7 @@ export enum LocalEventsEnum {
   WHITEBOARD_OFF = 'WHITEBOARD_OFF',
   MIC_CHANGED = 'MIC_CHANGED',
   CLEAR_WHITEBOARD = 'CLEAR_WHITEBOARD',
+  ENABLE_CHAT_LOGIN = 'ENABLE_CHAT_LOGIN',
 }
 const LocalEventEmitter = new EventEmitter();
 export default LocalEventEmitter;
