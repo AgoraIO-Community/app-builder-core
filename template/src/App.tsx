@@ -105,14 +105,6 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // Setting custom logger
-  useCustomization(data => {
-    if (data?.logger) {
-      // Setting custom logger
-      logger.setCustomLogger(data.logger);
-    }
-  });
-
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 
