@@ -8,6 +8,7 @@ import useGetName from '../../utils/useGetName';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import {useParams} from '../../components/Router';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import getUniqueID from '../../utils/getUniqueID';
 
 interface IuseWaitingRoomAPI {
   request: (params: {
@@ -37,6 +38,7 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       headers: {
         'Content-Type': 'application/json',
         authorization: store.token ? `Bearer ${store.token}` : '',
+        'X-Request-Id': getUniqueID(),
       },
       body: payload,
     });
