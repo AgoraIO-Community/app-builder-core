@@ -4,6 +4,7 @@ import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import IconButton from '../../../src/atoms/IconButton';
 //import data from 'emoji-mart-native/data/google.json';
 import {Picker} from 'emoji-mart-native';
+import {useChatConfigure} from '../../../src/components/chat/chatConfigure';
 
 export interface ChatEmojiButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -11,6 +12,7 @@ export interface ChatEmojiButtonProps {
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
   const {setShowEmojiPicker} = useChatUIControls();
+  const {allowChatLogin} = useChatConfigure();
 
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
@@ -21,6 +23,7 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
     <View>
       <IconButton
         hoverEffect={true}
+        disabled={!allowChatLogin}
         hoverEffectStyle={{
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,

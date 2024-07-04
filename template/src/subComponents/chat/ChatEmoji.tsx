@@ -7,6 +7,7 @@ import EmojiPicker, {
 } from 'emoji-picker-react';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import IconButton from '../../../src/atoms/IconButton';
+import {useChatConfigure} from '../../../src/components/chat/chatConfigure';
 
 const css = `
 .chatEmojiPicker .epr-emoji-category-label {
@@ -130,6 +131,7 @@ export interface ChatEmojiButtonProps {
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
   const {setShowEmojiPicker} = useChatUIControls();
+  const {allowChatLogin} = useChatConfigure();
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
   };
@@ -138,6 +140,7 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
   ) : (
     <IconButton
       hoverEffect={true}
+      disabled={!allowChatLogin}
       hoverEffectStyle={{
         backgroundColor: $config.ICON_BG_COLOR,
         borderRadius: 24,

@@ -20,6 +20,7 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 import {EventNames} from '../rtm-events';
 import events, {PersistanceLevel} from '../rtm-events-api';
+import useChatLogin from './useChatLogin';
 
 export interface SidePanelContextInterface {
   sidePanel: SidePanelType;
@@ -40,24 +41,18 @@ const SidePanelProvider = (props: SidePanelProviderProps) => {
     roomPreference: {preventChatAutoLogin},
   } = useRoomInfo();
 
+  const {enableChatLogin} = useChatLogin();
+
   useEffect(() => {
     logger.log(
       LogSource.Internals,
       'CONTROLS',
       `Side panel changed to -> ${SidePanelType[sidePanel]}`,
     );
+
     if (sidePanel === SidePanelType.Chat) {
-      if (preventChatAutoLogin) {
-        logger.log(LogSource.Internals, 'CONTROLS', `enable chat login`);
-        // chat not signed in yet
-        // send local event for current user and RTM (L3) event to others in call
-        LocalEventEmitter.emit(LocalEventsEnum.ENABLE_CHAT_LOGIN);
-        events.send(
-          EventNames.ENABLE_CHAT_LOGIN,
-          null,
-          PersistanceLevel.Session,
-        );
-      }
+      // use below fn if preventChatLogin is true
+      //enableChatLogin();
     }
   }, [sidePanel]);
 

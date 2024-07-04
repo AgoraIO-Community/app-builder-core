@@ -52,7 +52,9 @@ import {
   chatPanelUnreadMessageText,
   chatPanelUserOfflineText,
   groupChatWelcomeContent,
+  chatUserNotLoggedIn,
 } from '../language/default-labels/videoCallScreenLabels';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -63,6 +65,7 @@ const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
   const info1 = useString<boolean>(groupChatWelcomeContent);
+  const userLoginInfo = useString<boolean>(chatUserNotLoggedIn);
   const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
@@ -76,6 +79,7 @@ const ChatContainer = (props?: {
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
   );
+  const {allowChatLogin} = useChatConfigure();
   const {
     setUnreadGroupMessageCount,
     unreadGroupMessageCount,
@@ -207,6 +211,9 @@ const ChatContainer = (props?: {
               <Text style={style.defaultMessageText}>
                 {info1(messageStore?.length ? false : true)}
               </Text>
+              {!allowChatLogin && (
+                <Text style={style.defaultMessageText}>{userLoginInfo()}</Text>
+              )}
             </View>
             {messageStore.map((message: any, index) => (
               <>

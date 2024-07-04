@@ -48,7 +48,7 @@ interface ExtendedChatMessage extends ChatMessage {
 
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {privateChatUser, setUploadStatus} = useChatUIControls();
-  const {sendChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage, allowChatLogin} = useChatConfigure();
   const {data} = useRoomInfo();
 
   const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
@@ -219,6 +219,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
         }}
+        disabled={!allowChatLogin}
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {

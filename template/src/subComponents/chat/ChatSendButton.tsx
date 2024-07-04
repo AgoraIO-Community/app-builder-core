@@ -27,7 +27,7 @@ export interface ChatSendButtonProps {
 }
 
 const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {sendChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage, allowChatLogin} = useChatConfigure();
   const {setShowEmojiPicker} = useChatUIControls();
   const {
     privateChatUser: selectedUserId,
@@ -109,6 +109,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
         toolTipMessage={
           isMobileUA() ? null : useString(chatSendMessageBtnText)()
         }
+        disabled={!allowChatLogin}
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {

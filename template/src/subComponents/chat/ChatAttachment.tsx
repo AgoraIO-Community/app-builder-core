@@ -29,7 +29,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const {data} = useRoomInfo();
   const {privateChatUser, setUploadStatus, setUploadedFiles, uploadStatus} =
     useChatUIControls();
-  const {uploadAttachment} = useChatConfigure();
+  const {uploadAttachment, allowChatLogin} = useChatConfigure();
   const toastHeadingType = useString(chatUploadErrorToastHeading)();
   const toastHeadingSize = useString(chatUploadErrorFileSizeToastHeading)();
   const errorSubHeadingSize = useString(chatUploadErrorFileSizeToastSubHeading);
@@ -127,7 +127,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
         }}
-        disabled={uploadStatus === UploadStatus.IN_PROGRESS ? true : false}
+        disabled={
+          uploadStatus === UploadStatus.IN_PROGRESS || !allowChatLogin
+            ? true
+            : false
+        }
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {

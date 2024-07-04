@@ -39,6 +39,7 @@ interface ChatMessageAttributes {
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  allowChatLogin: boolean;
   sendChatSDKMessage: (
     option: ChatOption,
     callback: ChatMessageStatusCallback,
@@ -56,6 +57,7 @@ export const chatConfigureContext =
   createContext<chatConfigureContextInterface>({
     open: false,
     setOpen: () => {},
+    allowChatLogin: false,
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
     downloadAttachment: () => {},
@@ -507,6 +509,7 @@ const ChatConfigure = ({children}) => {
       value={{
         open,
         setOpen,
+        allowChatLogin,
         deleteChatUser,
         sendChatSDKMessage,
         downloadAttachment,

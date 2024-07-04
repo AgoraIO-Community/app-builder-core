@@ -116,7 +116,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   },
   roomPreference: {
     disableShareTile: false,
-    preventChatAutoLogin: true,
+    preventChatAutoLogin: false,
   },
 };
 

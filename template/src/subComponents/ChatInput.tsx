@@ -88,7 +88,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setInputHeight,
   } = useChatUIControls();
   const {defaultContent} = useContent();
-  const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
+  const {sendChatSDKMessage, uploadAttachment, allowChatLogin} =
+    useChatConfigure();
 
   React.useEffect(() => {
     if (message.length === 0) {
@@ -252,6 +253,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
           onChangeText={onChangeText}
           textAlignVertical="top"
           scrollEnabled={true}
+          editable={allowChatLogin}
           style={{
             color: $config.FONT_COLOR,
             textAlign: 'left',

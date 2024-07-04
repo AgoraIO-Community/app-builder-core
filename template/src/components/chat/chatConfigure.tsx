@@ -34,6 +34,7 @@ export interface FileObj {
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  allowChatLogin: boolean;
   sendChatSDKMessage: (option: ChatOption, messageStatusCallback?: any) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
@@ -49,6 +50,7 @@ export const chatConfigureContext =
   createContext<chatConfigureContextInterface>({
     open: false,
     setOpen: () => {},
+    allowChatLogin: false,
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
     downloadAttachment: () => {},
@@ -517,6 +519,7 @@ const ChatConfigure = ({children}) => {
       value={{
         open,
         setOpen,
+        allowChatLogin,
         sendChatSDKMessage,
         deleteChatUser,
         downloadAttachment,
