@@ -42,6 +42,7 @@ import {
   whiteboardToolboxWidthLabel,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import getUniqueID from '../../utils/getUniqueID';
 
 const supportedDocTypes = [
   'application/msword',
@@ -325,6 +326,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           const myHeaders2 = new Headers();
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+          myHeaders2.append('X-Request-Id', getUniqueID());
+
           const body = JSON.stringify({
             resource_url: url,
             passphrase: roomId?.host,
@@ -398,6 +401,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           const myHeaders2 = new Headers();
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+          myHeaders2.append('X-Request-Id', getUniqueID());
           const body = JSON.stringify({
             resource_url: url,
           });
@@ -468,6 +472,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           method: 'GET',
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
+            'X-Request-Id': getUniqueID(),
           },
         })
           .then(async res => {

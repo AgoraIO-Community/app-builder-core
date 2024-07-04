@@ -38,6 +38,7 @@ import {
   loadingText,
 } from '../language/default-labels/commonLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import getUniqueID from '../utils/getUniqueID';
 
 export const GET_USER = gql`
   query getUser {
@@ -292,6 +293,11 @@ const AuthProvider = (props: AuthProviderProps) => {
       await apolloClient.query({
         query: GET_USER,
         fetchPolicy: 'network-only',
+        context: {
+          headers: {
+            'X-Request-Id': getUniqueID(),
+          },
+        },
       });
     } catch (error) {
       throw new Error(error);
@@ -471,6 +477,9 @@ const AuthProvider = (props: AuthProviderProps) => {
       );
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
+        headers: {
+          'X-Request-Id': getUniqueID(),
+        },
       })
         .then(response => response.json())
         .then(response => {

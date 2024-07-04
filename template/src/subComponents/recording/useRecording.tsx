@@ -50,6 +50,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {fetchRetry} from '../../utils/fetch-retry';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import getUniqueID from '../../utils/getUniqueID';
 
 const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
@@ -262,6 +263,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       headers: {
         'Content-Type': 'application/json',
         authorization: store.token ? `Bearer ${store.token}` : '',
+        'X-Request-Id': getUniqueID(),
       },
       body: JSON.stringify({
         passphrase: roomId.host,
