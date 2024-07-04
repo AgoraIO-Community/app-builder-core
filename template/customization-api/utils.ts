@@ -35,3 +35,4 @@ export {default as useLocalAudio} from '../src/utils/useLocalAudio';
 export {default as useLocalVideo} from '../src/utils/useLocalVideo';
 export type {LanguageType} from '../src/subComponents/caption/utils';
 export {default as useSpeechToText} from '../src/utils/useSpeechToText';
+export {default as useChatLogin} from '../src/utils/useChatLogin';
