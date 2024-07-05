@@ -43,19 +43,23 @@ const fetchRetry = createRetryFetch(fetch, {
 });
 
 const sendLogs = (p: any[]) => {
-  fetchRetry(
-    'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
-    // "&strategy=queue", // to send logs to a specific dataset [default: queue]
-    {
-      method: 'POST',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      body: getSafeBody(p),
-    },
-  ).catch(err => {
-    console.log('error ocuured while replacing circular reference', p, err);
-  });
+  if (p && p?.length) {
+    fetchRetry(
+      'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
+      // "&strategy=queue", // to send logs to a specific dataset [default: queue]
+      {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        body: getSafeBody(p),
+      },
+    ).catch(err => {
+      console.log('error ocuured while replacing circular reference', p, err);
+    });
+  } else {
+    console.log('queue is empty, no logs available to send');
+  }
 };
 
 export const createAxiomLogger = () => {
