@@ -35,7 +35,7 @@ const getSafeBody = (p: any[]) => {
     return JSON.stringify(p, getCircularReplacer());
   } catch (error) {
     console.error('there was an error converting this object', p);
-    return '';
+    return [' object convertion error'];
   }
 };
 
