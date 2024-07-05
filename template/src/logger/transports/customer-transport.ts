@@ -3,28 +3,38 @@ import {isWeb} from '../../utils/common';
 
 /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value#examples */
 export function getCircularReplacer() {
-  const ancestors = [];
-  return function (key, value) {
-    if (typeof value !== 'object' || value === null) {
-      return value;
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
     }
-    // `this` is the object that value is contained in,
-    // i.e., its direct parent.
-    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
-      ancestors.pop();
-    }
-    if (ancestors.includes(value)) {
-      return '[Circular]';
-    }
-    ancestors.push(value);
     return value;
   };
+  // const ancestors = [];
+  // return function (key, value) {
+  //   if (typeof value !== 'object' || value === null) {
+  //     return value;
+  //   }
+  //   // `this` is the object that value is contained in,
+  //   // i.e., its direct parent.
+  //   while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
+  //     ancestors.pop();
+  //   }
+  //   if (ancestors.includes(value)) {
+  //     return '[Circular]';
+  //   }
+  //   ancestors.push(value);
+  //   return value;
+  // };
 }
 const getSafeBody = (p: any[]) => {
   try {
     return JSON.stringify(p, getCircularReplacer());
   } catch (error) {
-    console.error('there was an error converting this object');
+    console.error('there was an error converting this object', p);
     return '';
   }
 };
