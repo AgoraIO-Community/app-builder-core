@@ -476,6 +476,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         headers: {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
+          'X-Request-Id': getUniqueID(),
         },
         body: JSON.stringify({
           passphrase: roomId?.host,
