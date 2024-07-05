@@ -36,17 +36,21 @@ const fetchRetry = createRetryFetch(fetch, {
 });
 
 const sendLogs = (p: any[]) => {
-  fetchRetry(
-    'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core',
-    // "&strategy=queue", // to send logs to a specific dataset [default: queue]
-    {
-      method: 'POST',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      body: JSON.stringify(p, getCircularReplacer()),
-    },
-  );
+  if (p && p?.length) {
+    fetchRetry(
+      'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core',
+      // "&strategy=queue", // to send logs to a specific dataset [default: queue]
+      {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(p, getCircularReplacer()),
+      },
+    );
+  } else {
+    console.log('queue is empty, no logs available to send');
+  }
 };
 
 export const createAxiomLogger = () => {
