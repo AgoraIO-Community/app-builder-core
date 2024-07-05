@@ -220,9 +220,10 @@ const VideoCall: React.FC = () => {
       return;
     }
     logger.log(LogSource.Internals, 'SET_MEETING_DETAILS', 'Room details', {
-      meetingTitle: data?.meetingTitle || '',
+      meeting_title: data?.meetingTitle || '',
       phrase: phrase,
-      roomId: data?.roomId,
+      room_id: data?.roomId,
+      channel_id: data?.channel,
     });
   }, [isJoinDataFetched, data, phrase]);
 
