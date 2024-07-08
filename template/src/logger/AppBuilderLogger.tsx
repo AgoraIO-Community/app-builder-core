@@ -136,10 +136,11 @@ export default class AppBuilderLogger implements Logger {
       ? pkg.dependencies['agora-rtc-sdk-ng']
       : pkg.dependencies['react-native-agora'];
     let roomInfo = {
-      meeting_title: null,
-      phrase: null,
-      room_id: null,
-      channel_id: null,
+      meeting_title: '',
+      phrase: '',
+      attendee_id: '',
+      host_id: '',
+      channel_id: '',
     };
     const logger =
       (status: StatusType) =>
