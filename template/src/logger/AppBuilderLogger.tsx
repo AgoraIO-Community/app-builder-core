@@ -136,10 +136,13 @@ export default class AppBuilderLogger implements Logger {
       ? pkg.dependencies['agora-rtc-sdk-ng']
       : pkg.dependencies['react-native-agora'];
     let roomInfo = {
-      meeting_title: null,
-      phrase: null,
-      room_id: null,
-      channel_id: null,
+      meeting_title: '',
+      phrase: '',
+      channel_id: '',
+      room_id: {
+        host_id: '',
+        attendee_id: '',
+      },
     };
     const logger =
       (status: StatusType) =>
@@ -152,7 +155,6 @@ export default class AppBuilderLogger implements Logger {
         if (!$config.LOG_ENABLED) {
           return;
         }
-
         if (type === 'SET_MEETING_DETAILS') {
           roomInfo = {...data[0]};
         }
@@ -171,7 +173,13 @@ export default class AppBuilderLogger implements Logger {
               rtm: rtmPkg,
               rtc: rtcPkg,
             },
-            ...roomInfo,
+            meeting_title: roomInfo?.meeting_title,
+            phrase: roomInfo?.phrase,
+            channel_id: roomInfo?.channel_id,
+            room_id: {
+              host_id: roomInfo?.room_id?.host_id,
+              attendee_id: roomInfo?.room_id?.attendee_id,
+            },
           },
         };
 
