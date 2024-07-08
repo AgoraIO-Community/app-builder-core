@@ -17,6 +17,7 @@ import LocalEventEmitter, {
 import {EventNames} from '../rtm-events';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import events, {PersistanceLevel} from '../rtm-events-api';
+import {useChatConfigure} from '../components/chat/chatConfigure';
 
 /**
  * Returns a function that enables users to login to agora-chat
@@ -26,6 +27,7 @@ function useChatLogin() {
   const {
     roomPreference: {preventChatAutoLogin},
   } = useRoomInfo();
+  const {allowChatLogin} = useChatConfigure();
 
   const enableChatLogin = () => {
     if (preventChatAutoLogin) {
@@ -36,7 +38,21 @@ function useChatLogin() {
       events.send(EventNames.ENABLE_CHAT_LOGIN, null, PersistanceLevel.Session);
     }
   };
-  return {enableChatLogin};
+
+  const enableChatLogout = () => {
+    if (preventChatAutoLogin) {
+      logger.debug(LogSource.Internals, 'CONTROLS', `enable chat logout`);
+      // chat not signed in yet
+      // send local event for current user and RTM (L3) event to others in call
+      LocalEventEmitter.emit(LocalEventsEnum.ENABLE_CHAT_LOGOUT);
+      events.send(
+        EventNames.ENABLE_CHAT_LOGOUT,
+        null,
+        PersistanceLevel.Session,
+      );
+    }
+  };
+  return {allowChatLogin, enableChatLogin, enableChatLogout};
 }
 
 export default useChatLogin;

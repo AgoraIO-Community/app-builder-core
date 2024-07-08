@@ -85,17 +85,37 @@ const ChatConfigure = ({children}) => {
 
   let newConn = null;
 
-  const enableChatCallback = () => {
+  const enableChatLoginCallback = () => {
     logger.debug(LogSource.Internals, 'CHAT', `enable chat login callback`);
     setAllowChatLogin(true);
   };
 
+  const enableChatLogoutCallback = () => {
+    logger.debug(LogSource.Internals, 'CHAT', `enable chat logout callback`);
+    setAllowChatLogin(false);
+    if (connRef.current) {
+      connRef.current.close();
+    }
+  };
+
   useEffect(() => {
     // Handle Chat login for self and other users
-    LocalEventEmitter.on(LocalEventsEnum.ENABLE_CHAT_LOGIN, enableChatCallback);
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGIN,
+      enableChatLoginCallback,
+    );
     events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
-      enableChatCallback();
+      enableChatLoginCallback();
     });
+
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+      enableChatLogoutCallback,
+    );
+    events.on(EventNames.ENABLE_CHAT_LOGOUT, () => {
+      enableChatLogoutCallback();
+    });
+
     const initializeChatSDK = async () => {
       try {
         // disable Chat SDK logs
@@ -330,8 +350,6 @@ const ChatConfigure = ({children}) => {
     // initializing chat sdk
     if (allowChatLogin) {
       initializeChatSDK();
-    } else {
-      logger.debug(LogSource.Internals, 'CHAT', `delay chat login`);
     }
     return () => {
       if (newConn) {
@@ -342,6 +360,16 @@ const ChatConfigure = ({children}) => {
           `Logging out User ${data.uid} from Agora Chat Server`,
         );
       }
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGIN,
+        enableChatLoginCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGIN, enableChatLoginCallback);
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+        enableChatLogoutCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGOUT, enableChatLogoutCallback);
     };
   }, [allowChatLogin]);
 

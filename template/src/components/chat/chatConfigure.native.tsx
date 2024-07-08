@@ -87,35 +87,54 @@ const ChatConfigure = ({children}) => {
     removeMessageFromPrivateStore,
   } = useChatMessages();
 
-  const enableChatCallback = () => {
+  const enableChatLoginCallback = () => {
     console.warn('allow chat login callback', allowChatLogin);
     setAllowChatLogin(true);
   };
 
+  const logout = async () => {
+    try {
+      await chatClient?.logout();
+      console.warn('chat logout success');
+      logger.log(
+        LogSource.Internals,
+        'CHAT',
+        `Logged out User ${localUid} from Agora Chat Server`,
+      );
+    } catch (error) {
+      console.warn('logout failed');
+      logger.log(
+        LogSource.Internals,
+        'CHAT',
+        `Failed Logging  out User ${localUid} from Agora Chat Server`,
+      );
+    }
+  };
+
+  const enableChatLogoutCallback = async () => {
+    console.warn('allow chat logout callback', allowChatLogin);
+    setAllowChatLogin(false);
+    await logout();
+  };
+
   useEffect(() => {
     // Handle Chat login for self and other users
-    LocalEventEmitter.on(LocalEventsEnum.ENABLE_CHAT_LOGIN, enableChatCallback);
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGIN,
+      enableChatLoginCallback,
+    );
     events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
-      enableChatCallback();
+      enableChatLoginCallback();
     });
-    const logout = async () => {
-      try {
-        await chatClient?.logout();
-        console.warn('logout success');
-        logger.log(
-          LogSource.Internals,
-          'CHAT',
-          `Logged out User ${localUid} from Agora Chat Server`,
-        );
-      } catch (error) {
-        console.warn('logout failed');
-        logger.log(
-          LogSource.Internals,
-          'CHAT',
-          `Failed Logging  out User ${localUid} from Agora Chat Server`,
-        );
-      }
-    };
+
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+      enableChatLogoutCallback,
+    );
+    events.on(EventNames.ENABLE_CHAT_LOGOUT, () => {
+      enableChatLogoutCallback();
+    });
+
     const setupMessageListener = () => {
       const msgListerner: ChatMessageEventListener = {
         onMessagesRecalled: (messages: ChatMessage[]) => {
@@ -346,6 +365,16 @@ const ChatConfigure = ({children}) => {
 
     return () => {
       logout();
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGIN,
+        enableChatLoginCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGIN, enableChatLoginCallback);
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+        enableChatLogoutCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGOUT, enableChatLogoutCallback);
     };
   }, [allowChatLogin]);
 
