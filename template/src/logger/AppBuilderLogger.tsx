@@ -138,9 +138,11 @@ export default class AppBuilderLogger implements Logger {
     let roomInfo = {
       meeting_title: '',
       phrase: '',
-      attendee_id: '',
-      host_id: '',
       channel_id: '',
+      room_id: {
+        host_id: '',
+        attendee_id: '',
+      },
     };
     const logger =
       (status: StatusType) =>
@@ -153,7 +155,6 @@ export default class AppBuilderLogger implements Logger {
         if (!$config.LOG_ENABLED) {
           return;
         }
-
         if (type === 'SET_MEETING_DETAILS') {
           roomInfo = {...data[0]};
         }
@@ -172,7 +173,13 @@ export default class AppBuilderLogger implements Logger {
               rtm: rtmPkg,
               rtc: rtcPkg,
             },
-            ...roomInfo,
+            meeting_title: roomInfo?.meeting_title,
+            phrase: roomInfo?.phrase,
+            channel_id: roomInfo?.channel_id,
+            room_id: {
+              host_id: roomInfo?.room_id?.host_id,
+              attendee_id: roomInfo?.room_id?.attendee_id,
+            },
           },
         };
 

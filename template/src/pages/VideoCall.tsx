@@ -222,9 +222,11 @@ const VideoCall: React.FC = () => {
     logger.log(LogSource.Internals, 'SET_MEETING_DETAILS', 'Room details', {
       meeting_title: data?.meetingTitle || '',
       phrase: phrase,
-      attendee_id: data?.roomId?.attendee || '',
-      host_id: data?.roomId?.host || '',
       channel_id: data?.channel,
+      room_id: {
+        host_id: data?.roomId?.host || '',
+        attendee_id: data?.roomId?.attendee || '',
+      },
     });
   }, [isJoinDataFetched, data, phrase]);
 
