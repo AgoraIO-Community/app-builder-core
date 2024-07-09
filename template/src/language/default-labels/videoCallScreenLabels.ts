@@ -1012,7 +1012,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [chatPanelGroupTabText]: 'Public',
   [chatPanelPrivateTabText]: 'Private',
-  [chatUserNotLoggedIn]: 'User is currently not logged in Agora Chat',
+  [chatUserNotLoggedIn]: 'You are currently not logged in Agora Chat',
 
   [groupChatWelcomeContent]: noMessage =>
     noMessage
