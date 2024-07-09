@@ -148,7 +148,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
   const {defaultContent} = useContent();
-  const {hostUids} = useLiveStreamDataContext();
+  const {hostUids, audienceUids} = useLiveStreamDataContext();
 
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
@@ -664,46 +664,29 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (!isRecordingBot) {
       return;
     }
-    let timer = null;
-    const shouldStopRecording = () =>
-      isRecordingBot && !hostUids?.length && !stopAPICalledByBotOnce.current;
-
-    log('Recording-bot: Checking if bot should stop recording', {
-      shouldStopRecording: shouldStopRecording(),
-      isRecordingBot: isRecordingBot,
-      areHostsInChannel: hostUids?.length,
-      stopAPIcalled: stopAPICalledByBotOnce.current,
-    });
-    if (shouldStopRecording()) {
+    // Check if user has joined RTM
+    if (!hasUserJoinedRTM) {
+      return;
+    }
+    const areUsersInChannel = hostUids?.length > 0 || audienceUids?.length > 0;
+    log(
+      'Recording-bot: Checking if bot should stop recording',
+      !areUsersInChannel,
+    );
+    if (!areUsersInChannel) {
       logger.log(
         LogSource.Internals,
         'RECORDING',
-        'Recording-bot: will end the meeting after 15 seconds if no one joins',
+        'Recording-bot: trying to stop recording',
       );
-      timer = setTimeout(() => {
-        // Check again if still there are some users
-        logger.log(
-          LogSource.Internals,
-          'RECORDING',
-          'Recording-bot: trying to stop recording',
-        );
-        stopAPICalledByBotOnce.current = true;
-        clearTimeout(timer);
-        _stopRecording();
-        // Run after 15 seconds
-      }, 15000);
-      log('Recording-bot: timer starts, timerId - ', timer);
+      _stopRecording();
     }
-    return () => {
-      log('Recording-bot: clear timer,  timerId - ', timer);
-      clearTimeout(timer);
-    };
   }, [
+    hasUserJoinedRTM,
     isRecordingBot,
-    isRecordingActive,
     hostUids,
+    audienceUids,
     _stopRecording,
-    setRecordingActive,
   ]);
 
   // useEffect(() => { //
