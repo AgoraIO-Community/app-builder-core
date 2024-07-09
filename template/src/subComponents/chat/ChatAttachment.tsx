@@ -122,7 +122,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         ref={fileInputRef}
       />
       <IconButton
-        hoverEffect={true}
+        hoverEffect={allowChatLogin ? true : false}
         hoverEffectStyle={{
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
@@ -140,7 +140,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           iconSize: 24,
           name: 'chat_attachment',
           tintColor:
-            uploadStatus === UploadStatus.IN_PROGRESS
+            uploadStatus === UploadStatus.IN_PROGRESS || !allowChatLogin
               ? $config.SEMANTIC_NEUTRAL
               : $config.SECONDARY_ACTION_COLOR,
         }}

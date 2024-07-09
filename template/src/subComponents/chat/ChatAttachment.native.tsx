@@ -214,7 +214,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   ) : (
     <View>
       <IconButton
-        hoverEffect={true}
+        hoverEffect={allowChatLogin ? true : false}
         hoverEffectStyle={{
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
@@ -227,7 +227,9 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           },
           iconSize: 24,
           name: 'chat_attachment',
-          tintColor: $config.SECONDARY_ACTION_COLOR,
+          tintColor: !allowChatLogin
+            ? $config.SEMANTIC_NEUTRAL
+            : $config.SECONDARY_ACTION_COLOR,
         }}
         onPress={onPress}
       />
