@@ -117,6 +117,7 @@ enum RECORDING_REQUEST_STATE {
   STARTED_MIX = 'STARTED_MIX',
   STARTED_WEB = 'STARTED_WEB',
   STOPPED = 'STOPPED',
+  STOP_FAILED = 'STOP_FAILED',
   FAILED = 'FAILED',
 }
 const RecordingActions = {
@@ -321,9 +322,29 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             }
           }
         } else if (res.status === 500) {
+          setRecordingActive(false);
+          setInProgress(false);
+          events.send(
+            EventNames.RECORDING_STATE_ATTRIBUTE,
+            JSON.stringify({
+              action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           showErrorToast(headingStartError, subheadingError);
           throw Error(`Internal server error ${res.status}`);
         } else {
+          setRecordingActive(false);
+          setInProgress(false);
+          events.send(
+            EventNames.RECORDING_STATE_ATTRIBUTE,
+            JSON.stringify({
+              action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           showErrorToast(headingStartError);
           throw Error(`Internal server error ${res.status}`);
         }
@@ -352,6 +373,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
+    events.send(
+      EventNames.RECORDING_STATE_ATTRIBUTE,
+      JSON.stringify({
+        action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
+        value: {uid: `${localUid}`, api: 'STOP_RECORDING'},
+      }),
+      PersistanceLevel.Session,
+    );
     logger.debug(LogSource.Internals, 'RECORDING', 'stop recording API called');
     fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
@@ -389,6 +418,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
         } else if (res.status === 500) {
+          events.send(
+            EventNames.RECORDING_STATE_ATTRIBUTE,
+            JSON.stringify({
+              action: RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           logger.error(
             LogSource.NetworkRest,
             'recording_stop',
@@ -398,6 +435,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           showErrorToast(headingStopError, subheadingError);
           throw Error(`Internal server error ${res.status}`);
         } else {
+          events.send(
+            EventNames.RECORDING_STATE_ATTRIBUTE,
+            JSON.stringify({
+              action: RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           logger.error(
             LogSource.NetworkRest,
             'recording_stop',
@@ -410,13 +455,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }
       })
       .catch(err => {
-        setRecordingActive(false);
         setInProgress(false);
         log('stop recording', err);
         events.send(
           EventNames.RECORDING_STATE_ATTRIBUTE,
           JSON.stringify({
-            action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+            action: RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED,
             value: `${localUid}`,
           }),
           PersistanceLevel.Session,
@@ -433,14 +477,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const stopRecording = useCallback(() => {
     setInProgress(true);
-    events.send(
-      EventNames.RECORDING_STATE_ATTRIBUTE,
-      JSON.stringify({
-        action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
-        value: {uid: `${localUid}`, api: 'STOP_RECORDING'},
-      }),
-      PersistanceLevel.Session,
-    );
     if (recordingMode === 'WEB') {
       log('Stopping recording by sending event to bot');
       // send stop request to bot
@@ -562,6 +598,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         case RecordingActions.RECORDING_REQUEST_STATE.STOPPED:
           setInProgress(false);
           setRecordingActive(false);
+          break;
+        /**
+         * The below case is for enable stop button again if stop recording api failed. for remote users
+         */
+        case RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED:
+          setInProgress(false);
+          setRecordingActive(true);
           break;
         /**
          * The below case is not persisted, hence we need not worry about whether the
