@@ -117,7 +117,7 @@ enum RECORDING_REQUEST_STATE {
   STARTED_MIX = 'STARTED_MIX',
   STARTED_WEB = 'STARTED_WEB',
   STOPPED = 'STOPPED',
-  STOPPED_FAILED = 'STOPPED_FAILED',
+  STOP_FAILED = 'STOP_FAILED',
   FAILED = 'FAILED',
 }
 const RecordingActions = {
@@ -393,7 +393,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           events.send(
             EventNames.RECORDING_STATE_ATTRIBUTE,
             JSON.stringify({
-              action: RecordingActions.RECORDING_REQUEST_STATE.STOPPED_FAILED,
+              action: RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED,
               value: `${localUid}`,
             }),
             PersistanceLevel.Session,
@@ -410,7 +410,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           events.send(
             EventNames.RECORDING_STATE_ATTRIBUTE,
             JSON.stringify({
-              action: RecordingActions.RECORDING_REQUEST_STATE.STOPPED_FAILED,
+              action: RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED,
               value: `${localUid}`,
             }),
             PersistanceLevel.Session,
@@ -432,7 +432,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         events.send(
           EventNames.RECORDING_STATE_ATTRIBUTE,
           JSON.stringify({
-            action: RecordingActions.RECORDING_REQUEST_STATE.STOPPED_FAILED,
+            action: RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED,
             value: `${localUid}`,
           }),
           PersistanceLevel.Session,
@@ -582,7 +582,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         /**
          * The below case is for enable stop button again if stop recording api failed. for remote users
          */
-        case RecordingActions.RECORDING_REQUEST_STATE.STOPPED_FAILED:
+        case RecordingActions.RECORDING_REQUEST_STATE.STOP_FAILED:
           setInProgress(false);
           setRecordingActive(true);
           break;
