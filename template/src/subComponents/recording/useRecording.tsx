@@ -322,9 +322,29 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             }
           }
         } else if (res.status === 500) {
+          setRecordingActive(false);
+          setInProgress(false);
+          events.send(
+            EventNames.RECORDING_STATE_ATTRIBUTE,
+            JSON.stringify({
+              action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           showErrorToast(headingStartError, subheadingError);
           throw Error(`Internal server error ${res.status}`);
         } else {
+          setRecordingActive(false);
+          setInProgress(false);
+          events.send(
+            EventNames.RECORDING_STATE_ATTRIBUTE,
+            JSON.stringify({
+              action: RecordingActions.RECORDING_REQUEST_STATE.FAILED,
+              value: `${localUid}`,
+            }),
+            PersistanceLevel.Session,
+          );
           showErrorToast(headingStartError);
           throw Error(`Internal server error ${res.status}`);
         }
@@ -353,6 +373,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     /**
      * Any host in the channel can stop recording.
      */
+    events.send(
+      EventNames.RECORDING_STATE_ATTRIBUTE,
+      JSON.stringify({
+        action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
+        value: {uid: `${localUid}`, api: 'STOP_RECORDING'},
+      }),
+      PersistanceLevel.Session,
+    );
     logger.debug(LogSource.Internals, 'RECORDING', 'stop recording API called');
     fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
       method: 'POST',
@@ -449,14 +477,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const stopRecording = useCallback(() => {
     setInProgress(true);
-    events.send(
-      EventNames.RECORDING_STATE_ATTRIBUTE,
-      JSON.stringify({
-        action: RecordingActions.RECORDING_REQUEST_STATE.PENDING,
-        value: {uid: `${localUid}`, api: 'STOP_RECORDING'},
-      }),
-      PersistanceLevel.Session,
-    );
     if (recordingMode === 'WEB') {
       log('Stopping recording by sending event to bot');
       // send stop request to bot
