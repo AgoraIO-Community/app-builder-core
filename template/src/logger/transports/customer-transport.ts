@@ -52,7 +52,7 @@ const fetchRetry = createRetryFetch(fetch, {
   },
 });
 
-const sendLogs = (p: any[]) => {
+export const sendLogs = (p: any[]) => {
   if (p && p?.length) {
     fetchRetry(
       'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
@@ -92,14 +92,6 @@ export const createAxiomLogger = () => {
     batchId = batchId + 1;
   };
 
-  const logNow = (logContent: {[key: string]: any}) => {
-    try {
-      sendLogs([logContent]);
-    } catch (error) {
-      console.error('error on calling logNow');
-    }
-  };
-
   const log = (logContent: {[key: string]: any}) => {
     logContent.batchId = batchId;
     queue.push(logContent);
@@ -115,16 +107,14 @@ export const createAxiomLogger = () => {
     }
   };
 
-  return [log, flush, logNow] as const;
+  return [log, flush] as const;
 };
 
 export const initTransportLayerForCustomers = () => {
-  const [log, flush, logNow] = createAxiomLogger();
+  const [log, flush] = createAxiomLogger();
 
   const printLogs = (...args: any[]) => {
-    let logFun = args?.length > 1 && args[2] === 'logNow' ? logNow : log;
-
-    logFun({
+    log({
       data: args,
       _time: Date.now(),
       projectId: $config.PROJECT_ID,

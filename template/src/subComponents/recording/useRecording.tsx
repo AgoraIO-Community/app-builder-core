@@ -354,11 +354,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       /**
        * Any host in the channel can stop recording.
        */
-      logger.logNow(
+      logger.log(
         LogSource.Internals,
-        'RECORDING',
+        'SEND_LOG_IMMEDIATELY',
         '_stopRecording API called',
-        {calledBy: calledBy, logNow: true},
+        {calledBy: calledBy},
       );
       events.send(
         EventNames.RECORDING_STATE_ATTRIBUTE,
@@ -382,11 +382,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         .then(res => {
           setInProgress(false);
           if (res.status === 200 || res.status === 202) {
-            logger.logNow(
-              LogSource.NetworkRest,
-              'recording_stop',
+            logger.log(
+              LogSource.Internals,
+              'SEND_LOG_IMMEDIATELY',
               '_stopRecording successfull',
-              {res, logNow: true},
+              {res},
             );
             /**
              * 1. Once the backend sucessfuly stops recording, send message
@@ -413,11 +413,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           }
         })
         .catch(err => {
-          logger.logNow(
-            LogSource.NetworkRest,
-            'recording_stop',
+          logger.log(
+            LogSource.Internals,
+            'SEND_LOG_IMMEDIATELY',
             '_stopRecording Error',
-            {err, logNow: true},
+            {err},
           );
           setInProgress(false);
           log('stop recording', err);
@@ -634,11 +634,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
          * new user gets the correct state or not
          */
         case RecordingActions.REQUEST_TO_STOP_RECORDING:
-          logger.logNow(
+          logger.log(
             LogSource.Internals,
-            'RECORDING',
+            'SEND_LOG_IMMEDIATELY',
             'recording_state -> REQUEST_TO_STOP_RECORDING',
-            {logNow: true},
           );
           _stopRecording('bot');
           break;

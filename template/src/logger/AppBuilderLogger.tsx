@@ -13,7 +13,10 @@ import {
 } from './transports/agora-transport';
 import configJSON from '../../config.json';
 import {getPlatformId} from '../auth/config';
-import {initTransportLayerForCustomers} from './transports/customer-transport';
+import {
+  initTransportLayerForCustomers,
+  sendLogs,
+} from './transports/customer-transport';
 
 const cli_version = 'test';
 
@@ -28,7 +31,6 @@ export declare const StatusTypes: {
   readonly error: 'error';
   readonly info: 'info';
   readonly warn: 'warn';
-  readonly logNow: 'logNow';
 };
 
 export type StatusType = (typeof StatusTypes)[keyof typeof StatusTypes];
@@ -50,6 +52,7 @@ export enum LogSource {
 type LogType = {
   [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service';
   [LogSource.Internals]:
+    | 'SEND_LOG_IMMEDIATELY'
     | 'AUTH'
     | 'CREATE_MEETING'
     | 'SET_MEETING_DETAILS'
@@ -113,7 +116,6 @@ type LogFn = <T extends LogSource>(
 /** Basic logger interface */
 export interface Logger {
   log: LogFn;
-  logNow: LogFn;
   warn: LogFn;
   error: LogFn;
   info: LogFn;
@@ -122,7 +124,6 @@ export interface Logger {
 /** Logger which outputs to the browser console */
 export default class AppBuilderLogger implements Logger {
   log: LogFn;
-  logNow: LogFn;
   info: LogFn;
   warn: LogFn;
   debug: LogFn;
@@ -191,7 +192,19 @@ export default class AppBuilderLogger implements Logger {
             if (this._customLogger) {
               this._customLogger(logMessage, context, status);
             } else if (_transportLogger) {
-              _transportLogger(logMessage, context, status);
+              if (type === 'SEND_LOG_IMMEDIATELY') {
+                sendLogs([
+                  {
+                    data: {logMessage, context, status},
+                    _time: Date.now(),
+                    projectId: $config.PROJECT_ID,
+                    appId: $config.APP_ID,
+                    service: 'app-builder-core-frontend-customer',
+                  },
+                ]);
+              } else {
+                _transportLogger(logMessage, context, status);
+              }
             }
           }
           if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
@@ -208,7 +221,7 @@ export default class AppBuilderLogger implements Logger {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
           const consoleCSS = 'color: violet; font-weight: bold';
 
-          console[status === 'logNow' ? 'info' : status](
+          console[status](
             consoleHeader,
             consoleCSS,
             logMessage,
@@ -219,7 +232,6 @@ export default class AppBuilderLogger implements Logger {
       };
 
     this.log = logger('info');
-    this.logNow = logger('logNow');
     this.info = logger('info');
     this.debug = logger('debug');
     this.warn = logger('warn');
