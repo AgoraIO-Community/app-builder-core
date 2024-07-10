@@ -354,11 +354,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       /**
        * Any host in the channel can stop recording.
        */
-      logger.debug(
+      logger.logNow(
         LogSource.Internals,
         'RECORDING',
         '_stopRecording API called',
-        {calledBy: calledBy},
+        {calledBy: calledBy, logNow: true},
       );
       events.send(
         EventNames.RECORDING_STATE_ATTRIBUTE,
@@ -382,11 +382,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         .then(res => {
           setInProgress(false);
           if (res.status === 200 || res.status === 202) {
-            logger.debug(
+            logger.logNow(
               LogSource.NetworkRest,
               'recording_stop',
               '_stopRecording successfull',
-              res,
+              {res, logNow: true},
             );
             /**
              * 1. Once the backend sucessfuly stops recording, send message
@@ -413,11 +413,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           }
         })
         .catch(err => {
-          logger.error(
+          logger.logNow(
             LogSource.NetworkRest,
             'recording_stop',
             '_stopRecording Error',
-            err,
+            {err, logNow: true},
           );
           setInProgress(false);
           log('stop recording', err);
@@ -634,10 +634,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
          * new user gets the correct state or not
          */
         case RecordingActions.REQUEST_TO_STOP_RECORDING:
-          logger.log(
+          logger.logNow(
             LogSource.Internals,
             'RECORDING',
             'recording_state -> REQUEST_TO_STOP_RECORDING',
+            {logNow: true},
           );
           _stopRecording('bot');
           break;

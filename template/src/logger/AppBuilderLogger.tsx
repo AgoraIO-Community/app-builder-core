@@ -28,6 +28,7 @@ export declare const StatusTypes: {
   readonly error: 'error';
   readonly info: 'info';
   readonly warn: 'warn';
+  readonly logNow: 'logNow';
 };
 
 export type StatusType = (typeof StatusTypes)[keyof typeof StatusTypes];
@@ -112,6 +113,7 @@ type LogFn = <T extends LogSource>(
 /** Basic logger interface */
 export interface Logger {
   log: LogFn;
+  logNow: LogFn;
   warn: LogFn;
   error: LogFn;
   info: LogFn;
@@ -120,6 +122,7 @@ export interface Logger {
 /** Logger which outputs to the browser console */
 export default class AppBuilderLogger implements Logger {
   log: LogFn;
+  logNow: LogFn;
   info: LogFn;
   warn: LogFn;
   debug: LogFn;
@@ -205,7 +208,7 @@ export default class AppBuilderLogger implements Logger {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
           const consoleCSS = 'color: violet; font-weight: bold';
 
-          console[status](
+          console[status === 'logNow' ? 'info' : status](
             consoleHeader,
             consoleCSS,
             logMessage,
@@ -216,6 +219,7 @@ export default class AppBuilderLogger implements Logger {
       };
 
     this.log = logger('info');
+    this.logNow = logger('logNow');
     this.info = logger('info');
     this.debug = logger('debug');
     this.warn = logger('warn');
