@@ -9,6 +9,7 @@ import useTokenAuth from './useTokenAuth';
 import {useHistory} from '../components/Router';
 import {useString} from '../utils/useString';
 import {authSessionTimeoutToastHeading} from '../language/default-labels/commonLabels';
+import getUniqueID from '../utils/getUniqueID';
 
 export const useIDPAuth = () => {
   const {store, setStore} = useContext(StorageContext);
@@ -22,6 +23,7 @@ export const useIDPAuth = () => {
         fetch(`${$config.BACKEND_ENDPOINT}/v1/idp/logout`, {
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
+            'X-Request-Id': getUniqueID(),
           },
         })
           .then(response => response.json())

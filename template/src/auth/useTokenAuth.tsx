@@ -5,6 +5,7 @@ import SdkEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
 import {getPlatformId} from './config';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import getUniqueID from '../utils/getUniqueID';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
@@ -44,6 +45,7 @@ const useTokenAuth = () => {
           'Content-Type': 'application/json',
           authorization: store?.token ? `Bearer ${store.token}` : '',
           'X-Platform-ID': getPlatformId(),
+          'X-Request-Id': getUniqueID(),
         },
       })
         .then(response => response.json())
@@ -174,6 +176,7 @@ const useTokenAuth = () => {
                   authorization: tokenRef.current
                     ? `Bearer ${tokenRef.current}`
                     : '',
+                  'X-Request-Id': getUniqueID(),
                 },
               },
         )
