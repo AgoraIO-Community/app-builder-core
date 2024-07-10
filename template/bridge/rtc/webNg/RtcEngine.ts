@@ -253,6 +253,35 @@ export default class RtcEngine {
     this.appId = appId;
   }
 
+  getAllRemoteVideoStats() {
+    try {
+      return this.client?.getRemoteVideoStats();
+    } catch (error) {
+      return error;
+    }
+  }
+  getAllRemoteAudioStats() {
+    try {
+      return this.client?.getRemoteAudioStats();
+    } catch (error) {
+      return error;
+    }
+  }
+  getLocalVideoStats() {
+    try {
+      return this.client?.getLocalVideoStats();
+    } catch (error) {
+      return error;
+    }
+  }
+  getLocalAudioStats() {
+    try {
+      return this.client?.getLocalAudioStats();
+    } catch (error) {
+      return error;
+    }
+  }
+
   getRemoteVideoStats(id: string) {
     try {
       logger.log(

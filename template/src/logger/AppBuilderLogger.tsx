@@ -72,7 +72,8 @@ type LogType = {
     | 'ACTIVE_SPEAKER'
     | 'WAITING_ROOM'
     | 'RECORDING'
-    | 'STORE';
+    | 'STORE'
+    | 'NETWORK_QUALITY';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'

@@ -9,12 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useState} from 'react';
+import React, {createContext, useRef, useState} from 'react';
 import {UidType, useLocalUid} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import {IconsInterface} from '../atoms/CustomIcon';
 import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
 import {useRtc} from 'customization-api';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
@@ -109,6 +110,8 @@ export const NetworkQualityProvider: React.FC = (props: {
       [localUid]: 0,
     });
   const {RtcEngineUnsafe} = useRtc();
+  const localUserDownlinkQuality = useRef(undefined);
+  const localUserUplinkQuality = useRef(undefined);
 
   useMount(() => {
     function handleNetworkQuality(
@@ -119,6 +122,33 @@ export const NetworkQualityProvider: React.FC = (props: {
       uplinkQuality: keyof typeof networkIconsObject,
       downlinkQuality: keyof typeof networkIconsObject,
     ) {
+      /**
+       * Log local user network quality
+       */
+      if (
+        uid === 0 &&
+        (localUserDownlinkQuality.current !== downlinkQuality ||
+          localUserUplinkQuality.current !== uplinkQuality)
+      ) {
+        localUserDownlinkQuality.current = downlinkQuality;
+        localUserUplinkQuality.current = uplinkQuality;
+        logger.log(
+          LogSource.Internals,
+          'NETWORK_QUALITY',
+          'onNetworkQualityChanged',
+          {
+            uid: localUid,
+            uplinkQuality: {
+              number: uplinkQuality,
+              text: networkIconsObject[uplinkQuality]?.text,
+            },
+            downlinkQuality: {
+              number: downlinkQuality,
+              text: networkIconsObject[downlinkQuality]?.text,
+            },
+          },
+        );
+      }
       setNetworkQualityStats(prevNetworkQualityStats => {
         const updatedNetworkQualityStats = {...prevNetworkQualityStats};
         if (uid === 0) {

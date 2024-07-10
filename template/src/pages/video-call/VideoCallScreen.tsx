@@ -48,9 +48,11 @@ import VBPanel, {
 } from '../../components/virtual-background/VBPanel';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
+import {useCallQualityLogger} from '../../utils/useCallQualityLogger';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
+  useCallQualityLogger();
   const {sidePanel} = useSidePanel();
   const [name] = useUserName();
   const {
