@@ -174,7 +174,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setIsCaptionON} = useCaption();
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {screenShareData} = useScreenContext();
-  const validUserCount = useRef<boolean>(false);
+  const userCountGotValidEntry = useRef<boolean>(false);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   useEffect(() => {
@@ -681,8 +681,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
        * If there are users in the call, set the user count as valid and
        * then going forward we can track if the users in the channel are reducing to zero
        */
-      if (!validUserCount.current) {
-        validUserCount.current = true;
+      if (!userCountGotValidEntry.current) {
+        userCountGotValidEntry.current = true;
       }
     }
     const shouldStopRecording = () => !areUsersInChannel && validUserCount;
@@ -690,7 +690,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       'Recording-bot: Checking if bot should stop recording',
       shouldStopRecording(),
     );
-    if (validUserCount && !areUsersInChannel) {
+    if (userCountGotValidEntry && !areUsersInChannel) {
       logger.log(
         LogSource.Internals,
         'RECORDING',
