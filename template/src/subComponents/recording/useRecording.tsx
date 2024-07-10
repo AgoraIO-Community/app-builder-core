@@ -672,6 +672,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     log(
       'Recording-bot: Checking if bot should stop recording',
       !areUsersInChannel,
+      hostUids,
+      audienceUids,
     );
     if (!areUsersInChannel) {
       logger.log(
