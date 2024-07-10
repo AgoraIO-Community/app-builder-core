@@ -249,7 +249,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }),
       PersistanceLevel.Session,
     );
-    logger.debug(
+    logger.log(
       LogSource.NetworkRest,
       'recording_start',
       'Trying to start recording',
@@ -276,7 +276,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then((res: any) => {
         if (res.status === 200) {
-          logger.debug(
+          logger.log(
             LogSource.NetworkRest,
             'recording_start',
             'start recording successfully',
@@ -444,7 +444,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const stopRecording = useCallback(() => {
     setInProgress(true);
     if (recordingMode === 'WEB') {
-      logger.debug(
+      logger.log(
         LogSource.Internals,
         'RECORDING',
         'stopRecording function is called',
@@ -466,7 +466,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         RECORDING_BOT_UID, // bot uid
       );
     } else {
-      logger.debug(
+      logger.log(
         LogSource.Internals,
         'RECORDING',
         'stopRecording function is called',
