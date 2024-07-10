@@ -174,7 +174,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setIsCaptionON} = useCaption();
   const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {screenShareData} = useScreenContext();
-  const stopAPICalledByBotOnce = useRef<boolean>(false);
+  const validUserCount = useRef<boolean>(false);
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   useEffect(() => {
@@ -661,6 +661,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * If all the members have left the call and recording is still active -
      * bot will call the stop recording API
      */
+    log(
+      'Recording-bot: supriya user ids',
+      hostUids,
+      audienceUids,
+      hasUserJoinedRTM,
+    );
     if (!isRecordingBot) {
       return;
     }
@@ -669,17 +675,26 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       return;
     }
     const areUsersInChannel = hostUids?.length > 0 || audienceUids?.length > 0;
+
+    if (areUsersInChannel) {
+      /**
+       * If there are users in the call, set the user count as valid and
+       * then going forward we can track if the users in the channel are reducing to zero
+       */
+      if (!validUserCount.current) {
+        validUserCount.current = true;
+      }
+    }
+    const shouldStopRecording = () => !areUsersInChannel && validUserCount;
     log(
       'Recording-bot: Checking if bot should stop recording',
-      !areUsersInChannel,
-      hostUids,
-      audienceUids,
+      shouldStopRecording(),
     );
-    if (!areUsersInChannel) {
+    if (validUserCount && !areUsersInChannel) {
       logger.log(
         LogSource.Internals,
         'RECORDING',
-        'Recording-bot: trying to stop recording',
+        'Recording-bot: will now stop recording',
       );
       _stopRecording();
     }
