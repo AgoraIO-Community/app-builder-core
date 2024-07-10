@@ -195,7 +195,7 @@ export default class AppBuilderLogger implements Logger {
               if (type === 'SEND_LOG_IMMEDIATELY') {
                 sendLogs([
                   {
-                    data: {logMessage, context, status},
+                    data: [logMessage, context, status],
                     _time: Date.now(),
                     projectId: $config.PROJECT_ID,
                     appId: $config.APP_ID,
