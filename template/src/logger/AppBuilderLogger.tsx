@@ -129,9 +129,9 @@ export default class AppBuilderLogger implements Logger {
   debug: LogFn;
   error: LogFn;
   private _customLogger: CustomLogger;
-
+  private _session;
   constructor(_transportLogger?: any) {
-    const session = nanoid();
+    this._session = nanoid();
     const platform = getPlatformId();
     const rtmPkg = isWeb()
       ? pkg.dependencies['agora-rtm-sdk']
@@ -170,7 +170,7 @@ export default class AppBuilderLogger implements Logger {
           data,
           platform,
           contextInfo: {
-            session_id: session,
+            session_id: this._session,
             app_id: $config.APP_ID,
             project_id: $config.PROJECT_ID,
             agora_sdk_version: {
@@ -246,6 +246,10 @@ export default class AppBuilderLogger implements Logger {
       },
     );
   }
+
+  getSessionId = () => {
+    return this._session;
+  };
 
   setCustomLogger = (_customLogger: CustomLogger) => {
     this._customLogger = _customLogger;
