@@ -252,6 +252,13 @@ export default class RtcEngine {
     logger.log(LogSource.AgoraSDK, 'Log', 'RTC engine initialized');
     this.appId = appId;
   }
+  getLocalVideoStats() {
+    try {
+      return this.client?.getLocalVideoStats();
+    } catch (error) {
+      return error;
+    }
+  }
 
   getRemoteVideoStats(id: string) {
     try {
@@ -357,6 +364,7 @@ export default class RtcEngine {
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
       microphoneId: preferredMicrophoneId,
     };
+    debugger;
     const videoConfig: CameraVideoTrackInitConfig = {
       encoderConfig: this.videoProfile,
       cameraId: preferredCameraId,

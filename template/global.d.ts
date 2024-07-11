@@ -42,6 +42,51 @@ type VideoProfile =
   | '720p_5'
   | '720p_6';
 
+type ScreenShareProfile =
+  | '480p_1'
+  | '480p_2'
+  | '480p_3'
+  | '720p'
+  | '720p_1'
+  | '720p_2'
+  | '720p_3'
+  | '720p_auto'
+  | '1080p'
+  | '1080p_1'
+  | '1080p_2'
+  | '1080p_3';
+
+interface AudioEncoderConfiguration {
+  /**
+   * Sample rate of the audio (Hz).
+   */
+  sampleRate?: number;
+  /**
+   * Sample size of the audio.
+   */
+  sampleSize?: number;
+  /**
+   * Whether to enable stereo.
+   */
+  stereo?: boolean;
+  /**
+   * Bitrate of the audio (Kbps).
+   */
+  bitrate?: number;
+}
+
+declare const AUDIO_ENCODER_CONFIG_SETTINGS: {
+  speech_low_quality: AudioEncoderConfiguration;
+  speech_standard: AudioEncoderConfiguration;
+  music_standard: AudioEncoderConfiguration;
+  standard_stereo: AudioEncoderConfiguration;
+  high_quality: AudioEncoderConfiguration;
+  high_quality_stereo: AudioEncoderConfiguration;
+};
+
+type AudioEncoderConfigurationPreset =
+  keyof typeof AUDIO_ENCODER_CONFIG_SETTINGS;
+
 interface ConfigInterface {
   PRODUCT_ID: string;
   APP_NAME: string;
@@ -59,6 +104,7 @@ interface ConfigInterface {
   LANDING_SUB_HEADING: string;
   ENCRYPTION_ENABLED: boolean;
   PROFILE: VideoProfile;
+  SCREEN_SHARE_PROFILE: ScreenShareProfile;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;
   ENABLE_MICROSOFT_OAUTH: boolean;
