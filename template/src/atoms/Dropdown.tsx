@@ -128,10 +128,11 @@ const Dropdown: FC<Props> = ({
               },
             ]}>
             <FlatList
-              showsVerticalScrollIndicator={false}
+              showsVerticalScrollIndicator={true}
               data={data}
               renderItem={renderItem}
               keyExtractor={(item, index) => index.toString()}
+              style={{ maxHeight: 200 }}
             />
           </View>
         </TouchableOpacity>

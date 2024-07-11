@@ -50,7 +50,6 @@ type ScreenShareProfile =
   | '720p_1'
   | '720p_2'
   | '720p_3'
-  | '720p_auto'
   | '1080p'
   | '1080p_1'
   | '1080p_2'

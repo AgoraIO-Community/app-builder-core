@@ -233,6 +233,7 @@ export default class RtcEngine {
   public remoteStreams = new Map<UID, RemoteStream>();
   private inScreenshare: Boolean = false;
   private videoProfile: VideoProfile = '480p_9';
+  private screenShareProfile = '720p_3';
   private isPublished = false;
   private isAudioEnabled = false;
   private isVideoEnabled = false;
@@ -305,6 +306,30 @@ export default class RtcEngine {
         LogSource.AgoraSDK,
         'API',
         'RTC [setEncoderConfiguration] Error while setting video profile',
+        error,
+      );
+    }
+  }
+
+  async setScreenShareProfile(profile: VideoProfile): Promise<void> {
+    try {
+      this.screenShareProfile = profile;
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        `RTC [setEncoderConfiguration] set screen share profile to - ${profile}`,
+      );
+      this.screenStream?.video?.setEncoderConfiguration(profile);
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        `RTC [setEncoderConfiguration] set screen share profile to - ${profile} successfully`,
+      );
+    } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [setEncoderConfiguration] Error while setting screen share profile',
         error,
       );
     }
@@ -1520,9 +1545,15 @@ export default class RtcEngine {
       mode: RnEncryptionEnum;
       salt: string;
     },
-    config: ScreenVideoTrackInitConfig = {},
+    screenShareConfig: ScreenVideoTrackInitConfig = {
+      encoderConfig: this.screenShareProfile,
+    },
     audio: 'enable' | 'disable' | 'auto' = 'auto',
   ): Promise<void> {
+    const config: ScreenVideoTrackInitConfig = {
+      ...screenShareConfig,
+      encoderConfig: this.screenShareProfile,
+    };
     if (!this.inScreenshare) {
       try {
         logger.debug(

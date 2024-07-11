@@ -54,6 +54,7 @@ import {
   settingPanelNameInputLabel,
 } from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import QualityControls from './quality-profiles/QualityControls';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -304,6 +305,9 @@ const SettingsView = props => {
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
+        <View>
+          <QualityControls />
+        </View>
       </ScrollView>
     </View>
   );

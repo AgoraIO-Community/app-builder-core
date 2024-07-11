@@ -1,14 +1,56 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, ScrollView} from 'react-native';
 import React from 'react';
 import ThemeConfig from '../../theme';
 import Dropdown from '../../atoms/Dropdown';
+import {
+  useVideoQuality,
+  videoProfilesArray,
+  screenShareProfilesArray,
+} from '../../app-state/useVideoQuality';
 
 const QualityControls = () => {
-  const data = [];
+  const {
+    videoQuality,
+    setVideoQuality,
+    screenShareQuality,
+    setScreenShareQuality,
+  } = useVideoQuality();
+  const videoProfiles = videoProfilesArray.map(profile => ({
+    label: profile,
+    value: profile,
+  }));
+  const screenShareProfiles = screenShareProfilesArray.map(profile => ({
+    label: profile,
+    value: profile,
+  }));
+
+  const OnVideoProfileChange = ({label, value}) => {
+    setVideoQuality(value);
+  };
+
+  const onScreenShareProfileChange = ({label, value}) => {
+    setScreenShareQuality(value);
+  };
+
   return (
-    <View>
+    <ScrollView>
       <Text style={styles.label}>{'Video Profile'}</Text>
-    </View>
+      <Dropdown
+        data={videoProfiles}
+        enabled={true}
+        label={videoQuality}
+        onSelect={OnVideoProfileChange}
+        selectedValue={videoQuality}
+      />
+      <Text style={styles.label}>{'Screen Share Profile'}</Text>
+      <Dropdown
+        data={screenShareProfiles}
+        enabled={true}
+        label={screenShareQuality}
+        onSelect={onScreenShareProfileChange}
+        selectedValue={screenShareQuality}
+      />
+    </ScrollView>
   );
 };
 
