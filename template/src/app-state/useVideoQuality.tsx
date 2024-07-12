@@ -1,7 +1,9 @@
 import React, {createContext, useState} from 'react';
-import {useRtc} from 'customization-api';
+import {isAndroid, isIOS, useRtc, useLocalUid} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import {Platform} from 'react-native';
+
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export type VideoQualityType = typeof $config.PROFILE;
 export type ScreenShareQualityType = typeof $config.SCREEN_SHARE_PROFILE;
@@ -67,7 +69,22 @@ export const VideoQualityContext = createContext<VideoQualityContextInterface>({
   setScreenShareQuality: (_p: ScreenShareQualityType) => {},
 });
 
+const checkIfDataIsValid = data => {
+  if (data && Object.keys(data)?.length) {
+    const values = Object.values(data);
+    const isAllZero = values.every(item => item === 0);
+    if (isAllZero) {
+      return false;
+    } else {
+      return true;
+    }
+  } else {
+    return false;
+  }
+};
+
 export const VideoQualityContextProvider = props => {
+  const localUid = useLocalUid();
   const [currentVideoQuality, setCurrentVideoQuality] =
     useState<VideoQualityType>($config.PROFILE);
 
@@ -90,6 +107,56 @@ export const VideoQualityContextProvider = props => {
       setCurrentScreenShareQuality(p);
     }
   };
+
+  const logCallQuality = async () => {
+    if (!isAndroid() && !isIOS()) {
+      //@ts-ignore
+      const videoStats = RtcEngineUnsafe?.getRemoteVideoStats();
+      // if (checkIfDataIsValid(videoStats)) {
+      logger.log(LogSource.AgoraSDK, 'API', 'getRemoteVideoStats', {
+        localUid,
+        videoStats,
+      });
+      //}
+      //@ts-ignore
+      // const audioStats = RtcEngineUnsafe?.getAllRemoteAudioStats();
+      // if (checkIfDataIsValid(audioStats)) {
+      //   logger.log(LogSource.AgoraSDK, 'API', 'getRemoteAudioStats', {
+      //     localUid,
+      //     audioStats,
+      //   });
+      // }
+      //@ts-ignore
+      const localVideoStats = await RtcEngineUnsafe?.getLocalVideoStats();
+      //  if (checkIfDataIsValid(localVideoStats)) {
+      logger.log(LogSource.AgoraSDK, 'API', 'getLocalVideoStats', {
+        localUid,
+        localVideoStats,
+      });
+      //   }
+
+      //@ts-ignore
+      // const localAudioStats = RtcEngineUnsafe?.getLocalAudioStats();
+      // if (checkIfDataIsValid(localAudioStats)) {
+      //   logger.log(LogSource.AgoraSDK, 'API', 'getLocalAudioStats', {
+      //     localUid,
+      //     localAudioStats,
+      //   });
+      // }
+    }
+  };
+
+  React.useEffect(() => {
+    /**
+     * Log audio/video quality details each 30 sec
+     */
+    let interval = null;
+    interval = setInterval(logCallQuality, 1000 * 30);
+
+    return () => {
+      interval && clearInterval(interval);
+    };
+  }, []);
 
   return (
     <VideoQualityContext.Provider

@@ -7,6 +7,7 @@ import {
   videoProfilesArray,
   screenShareProfilesArray,
 } from '../../app-state/useVideoQuality';
+import Spacer from '../../atoms/Spacer';
 
 const QualityControls = () => {
   const {
@@ -42,6 +43,7 @@ const QualityControls = () => {
         onSelect={OnVideoProfileChange}
         selectedValue={videoQuality}
       />
+      <Spacer size={24} />
       <Text style={styles.label}>{'Screen Share Profile'}</Text>
       <Dropdown
         data={screenShareProfiles}
