@@ -389,7 +389,7 @@ export default class RtcEngine {
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
       microphoneId: preferredMicrophoneId,
     };
-    debugger;
+
     const videoConfig: CameraVideoTrackInitConfig = {
       encoderConfig: this.videoProfile,
       cameraId: preferredCameraId,
