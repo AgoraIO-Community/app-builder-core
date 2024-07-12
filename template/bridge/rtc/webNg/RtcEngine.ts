@@ -255,7 +255,19 @@ export default class RtcEngine {
   }
   getLocalVideoStats() {
     try {
-      return this.client?.getLocalVideoStats();
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [getLocalVideoStats] getting local video stats',
+      );
+      const data = this.client?.getLocalVideoStats();
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [getLocalVideoStats] got local video stats successfully',
+        data,
+      );
+      return data;
     } catch (error) {
       return error;
     }
@@ -269,7 +281,7 @@ export default class RtcEngine {
         'RTC [getRemoteVideoStats] getting remote video stats',
       );
       const data = this.client.getRemoteVideoStats();
-      logger.debug(
+      logger.log(
         LogSource.AgoraSDK,
         'API',
         'RTC [getRemoteVideoStats] got remote video stats successfully',

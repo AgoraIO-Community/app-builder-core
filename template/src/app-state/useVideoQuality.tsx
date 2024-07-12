@@ -113,10 +113,10 @@ export const VideoQualityContextProvider = props => {
       //@ts-ignore
       const videoStats = RtcEngineUnsafe?.getRemoteVideoStats();
       // if (checkIfDataIsValid(videoStats)) {
-      logger.log(LogSource.AgoraSDK, 'API', 'getRemoteVideoStats', {
-        localUid,
-        videoStats,
-      });
+      // logger.log(LogSource.AgoraSDK, 'API', 'getRemoteVideoStats', {
+      //   localUid,
+      //   videoStats,
+      // });
       //}
       //@ts-ignore
       // const audioStats = RtcEngineUnsafe?.getAllRemoteAudioStats();
@@ -129,10 +129,10 @@ export const VideoQualityContextProvider = props => {
       //@ts-ignore
       const localVideoStats = await RtcEngineUnsafe?.getLocalVideoStats();
       //  if (checkIfDataIsValid(localVideoStats)) {
-      logger.log(LogSource.AgoraSDK, 'API', 'getLocalVideoStats', {
-        localUid,
-        localVideoStats,
-      });
+      // logger.log(LogSource.AgoraSDK, 'API', 'getLocalVideoStats', {
+      //   localUid,
+      //   localVideoStats,
+      // });
       //   }
 
       //@ts-ignore
