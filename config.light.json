@@ -48,6 +48,7 @@
   "AUDIO_ROOM": false,
   "BG": "https://dbudicf5k4as1.cloudfront.net/10/Artboard.png",
   "PROFILE": "720p_7",
+  "SCREEN_SHARE_PROFILE": "480p_3",
   "PRIMARY_ACTION_BRAND_COLOR": "#099DFD",
   "PRIMARY_ACTION_TEXT_COLOR": "#FFFFFF",
   "SECONDARY_ACTION_COLOR": "#19394D",

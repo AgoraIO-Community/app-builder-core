@@ -24,6 +24,7 @@
   "SLACK_CLIENT_ID": "",
   "APPLE_CLIENT_ID": "",
   "PROFILE": "720p_7",
+  "SCREEN_SHARE_PROFILE": "480p_3",
   "EVENT_MODE": true,
   "RAISE_HAND": true,
   "LOG_ENABLED": true,
