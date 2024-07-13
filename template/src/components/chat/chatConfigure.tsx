@@ -2,6 +2,8 @@ import {createHook} from 'customization-implementation';
 import React, {createContext, useState, useEffect} from 'react';
 import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
+import events from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 import {UidType, useContent} from 'customization-api';
 import {
@@ -18,6 +20,9 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 export interface FileObj {
   url: string;
@@ -29,6 +34,7 @@ export interface FileObj {
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  allowChatLogin: boolean;
   sendChatSDKMessage: (option: ChatOption, messageStatusCallback?: any) => void;
   deleteChatUser: () => void;
   downloadAttachment: (fileName: string, fileUrl: string) => void;
@@ -44,6 +50,7 @@ export const chatConfigureContext =
   createContext<chatConfigureContextInterface>({
     open: false,
     setOpen: () => {},
+    allowChatLogin: false,
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
     downloadAttachment: () => {},
@@ -53,12 +60,20 @@ export const chatConfigureContext =
 
 const ChatConfigure = ({children}) => {
   const [open, setOpen] = useState(false);
-  const {data} = useRoomInfo();
+  const {data, roomPreference} = useRoomInfo();
+  const [allowChatLogin, setAllowChatLogin] = useState(
+    () => !roomPreference.preventChatAutoLogin,
+  );
+
+  // exponse onClick Chat so that this can be set truel
+  //const allowChatLogin = !roomPreference?.preventChatAutoLogin;
+  logger.debug(LogSource.Internals, 'CHAT', `Allow Chat Login`, allowChatLogin);
+
   const connRef = React.useRef(null);
-  const {defaultContent} = useContent();
+
   const {privateChatUser, setUploadStatus, setUploadedFiles, uploadedFiles} =
     useChatUIControls();
-  const defaultContentRef = React.useRef(defaultContent);
+
   const {
     addMessageToPrivateStore,
     showMessageNotification,
@@ -68,13 +83,39 @@ const ChatConfigure = ({children}) => {
   } = useChatMessages();
   const {store} = React.useContext(StorageContext);
 
-  React.useEffect(() => {
-    defaultContentRef.current = defaultContent;
-  }, [defaultContent]);
-
   let newConn = null;
 
+  const enableChatLoginCallback = () => {
+    logger.debug(LogSource.Internals, 'CHAT', `enable chat login callback`);
+    setAllowChatLogin(true);
+  };
+
+  const enableChatLogoutCallback = () => {
+    logger.debug(LogSource.Internals, 'CHAT', `enable chat logout callback`);
+    setAllowChatLogin(false);
+    if (connRef.current) {
+      connRef.current.close();
+    }
+  };
+
   useEffect(() => {
+    // Handle Chat login for self and other users
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGIN,
+      enableChatLoginCallback,
+    );
+    events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
+      enableChatLoginCallback();
+    });
+
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+      enableChatLogoutCallback,
+    );
+    events.on(EventNames.ENABLE_CHAT_LOGOUT, () => {
+      enableChatLogoutCallback();
+    });
+
     const initializeChatSDK = async () => {
       try {
         // disable Chat SDK logs
@@ -307,16 +348,30 @@ const ChatConfigure = ({children}) => {
     };
 
     // initializing chat sdk
-    initializeChatSDK();
+    if (allowChatLogin) {
+      initializeChatSDK();
+    }
     return () => {
-      newConn.close();
-      logger.log(
-        LogSource.Internals,
-        'CHAT',
-        `Logging out User ${data.uid} from Agora Chat Server`,
+      if (newConn) {
+        newConn.close();
+        logger.log(
+          LogSource.Internals,
+          'CHAT',
+          `Logging out User ${data.uid} from Agora Chat Server`,
+        );
+      }
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGIN,
+        enableChatLoginCallback,
       );
+      events.off(EventNames.ENABLE_CHAT_LOGIN, enableChatLoginCallback);
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+        enableChatLogoutCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGOUT, enableChatLogoutCallback);
     };
-  }, []);
+  }, [allowChatLogin]);
 
   const sendChatSDKMessage = (
     option: ChatOption,
@@ -492,6 +547,7 @@ const ChatConfigure = ({children}) => {
       value={{
         open,
         setOpen,
+        allowChatLogin,
         sendChatSDKMessage,
         deleteChatUser,
         downloadAttachment,

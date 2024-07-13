@@ -202,6 +202,7 @@ export const chatPanelGroupTabText = 'chatPanelGroupTabText';
 export const chatPanelPrivateTabText = 'chatPanelPrivateTabText';
 
 export const groupChatWelcomeContent = 'groupChatWelcomeContent';
+export const chatUserNotLoggedIn = 'chatUserNotLogged';
 
 export const peoplePanelHeaderText = 'peoplePanelHeaderText';
 
@@ -624,7 +625,7 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [chatPanelGroupTabText]?: I18nBaseType;
   [chatPanelPrivateTabText]?: I18nBaseType;
-
+  [chatUserNotLoggedIn]?: I18nBaseType;
   [groupChatWelcomeContent]?: I18nConditionalType;
 
   [groupChatLiveInputPlaceHolderText]?: I18nBaseType;
@@ -1011,6 +1012,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [chatPanelGroupTabText]: 'Public',
   [chatPanelPrivateTabText]: 'Private',
+  [chatUserNotLoggedIn]: 'You are currently not logged in Agora Chat',
 
   [groupChatWelcomeContent]: noMessage =>
     noMessage

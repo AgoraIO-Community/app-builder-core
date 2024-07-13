@@ -23,6 +23,11 @@ import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
+import events from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 interface ChatMessageAttributes {
   file_ext?: string;
@@ -34,6 +39,7 @@ interface ChatMessageAttributes {
 interface chatConfigureContextInterface {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  allowChatLogin: boolean;
   sendChatSDKMessage: (
     option: ChatOption,
     callback: ChatMessageStatusCallback,
@@ -51,6 +57,7 @@ export const chatConfigureContext =
   createContext<chatConfigureContextInterface>({
     open: false,
     setOpen: () => {},
+    allowChatLogin: false,
     sendChatSDKMessage: () => {},
     deleteChatUser: () => {},
     downloadAttachment: () => {},
@@ -59,16 +66,19 @@ export const chatConfigureContext =
 
 const ChatConfigure = ({children}) => {
   const [open, setOpen] = useState(false);
-  const {data} = useRoomInfo();
+  const {data, roomPreference} = useRoomInfo();
   const connRef = React.useRef(null);
-  const {defaultContent} = useContent();
-  const defaultContentRef = React.useRef(defaultContent);
+
   const chatClient = ChatClient.getInstance();
   const chatManager = chatClient.chatManager;
 
   const localUid = data?.uid?.toString();
   const agoraToken = data?.chat?.user_token;
   const {store} = React.useContext(StorageContext);
+  const [allowChatLogin, setAllowChatLogin] = useState(
+    () => !roomPreference.preventChatAutoLogin,
+  );
+
   const {
     addMessageToPrivateStore,
     showMessageNotification,
@@ -77,29 +87,54 @@ const ChatConfigure = ({children}) => {
     removeMessageFromPrivateStore,
   } = useChatMessages();
 
-  React.useEffect(() => {
-    defaultContentRef.current = defaultContent;
-  }, [defaultContent]);
+  const enableChatLoginCallback = () => {
+    console.warn('allow chat login callback', allowChatLogin);
+    setAllowChatLogin(true);
+  };
+
+  const logout = async () => {
+    try {
+      await chatClient?.logout();
+      console.warn('chat logout success');
+      logger.log(
+        LogSource.Internals,
+        'CHAT',
+        `Logged out User ${localUid} from Agora Chat Server`,
+      );
+    } catch (error) {
+      console.warn('logout failed');
+      logger.log(
+        LogSource.Internals,
+        'CHAT',
+        `Failed Logging  out User ${localUid} from Agora Chat Server`,
+      );
+    }
+  };
+
+  const enableChatLogoutCallback = async () => {
+    console.warn('allow chat logout callback', allowChatLogin);
+    setAllowChatLogin(false);
+    await logout();
+  };
 
   useEffect(() => {
-    const logout = async () => {
-      try {
-        await chatClient.logout();
-        console.warn('logout success');
-        logger.log(
-          LogSource.Internals,
-          'CHAT',
-          `Logged out User ${localUid} from Agora Chat Server`,
-        );
-      } catch (error) {
-        console.warn('logout failed');
-        logger.log(
-          LogSource.Internals,
-          'CHAT',
-          `Failed Logging  out User ${localUid} from Agora Chat Server`,
-        );
-      }
-    };
+    // Handle Chat login for self and other users
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGIN,
+      enableChatLoginCallback,
+    );
+    events.on(EventNames.ENABLE_CHAT_LOGIN, () => {
+      enableChatLoginCallback();
+    });
+
+    LocalEventEmitter.on(
+      LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+      enableChatLogoutCallback,
+    );
+    events.on(EventNames.ENABLE_CHAT_LOGOUT, () => {
+      enableChatLogoutCallback();
+    });
+
     const setupMessageListener = () => {
       const msgListerner: ChatMessageEventListener = {
         onMessagesRecalled: (messages: ChatMessage[]) => {
@@ -322,12 +357,26 @@ const ChatConfigure = ({children}) => {
         console.warn('chat sdk: init error', error);
       }
     };
+    if (allowChatLogin) {
+      initializeChatSDK();
+    } else {
+      console.warn('delay chat login');
+    }
 
-    initializeChatSDK();
     return () => {
       logout();
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGIN,
+        enableChatLoginCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGIN, enableChatLoginCallback);
+      LocalEventEmitter.off(
+        LocalEventsEnum.ENABLE_CHAT_LOGOUT,
+        enableChatLogoutCallback,
+      );
+      events.off(EventNames.ENABLE_CHAT_LOGOUT, enableChatLogoutCallback);
     };
-  }, []);
+  }, [allowChatLogin]);
 
   const sendChatSDKMessage = (
     option: ChatOption,
@@ -489,6 +538,7 @@ const ChatConfigure = ({children}) => {
       value={{
         open,
         setOpen,
+        allowChatLogin,
         deleteChatUser,
         sendChatSDKMessage,
         downloadAttachment,

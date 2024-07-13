@@ -14,6 +14,13 @@ import React, {useState, SetStateAction, useEffect} from 'react';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {createHook} from 'customization-implementation';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
+import {EventNames} from '../rtm-events';
+import events, {PersistanceLevel} from '../rtm-events-api';
+import useChatLogin from './useChatLogin';
 
 export interface SidePanelContextInterface {
   sidePanel: SidePanelType;
@@ -30,6 +37,11 @@ interface SidePanelProviderProps {
 }
 const SidePanelProvider = (props: SidePanelProviderProps) => {
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
+  const {
+    roomPreference: {preventChatAutoLogin},
+  } = useRoomInfo();
+
+  const {enableChatLogin} = useChatLogin();
 
   useEffect(() => {
     logger.log(
@@ -37,6 +49,11 @@ const SidePanelProvider = (props: SidePanelProviderProps) => {
       'CONTROLS',
       `Side panel changed to -> ${SidePanelType[sidePanel]}`,
     );
+
+    if (sidePanel === SidePanelType.Chat) {
+      // use below fn if preventChatLogin is true
+      //enableChatLogin();
+    }
   }, [sidePanel]);
 
   const value = {sidePanel, setSidePanel};

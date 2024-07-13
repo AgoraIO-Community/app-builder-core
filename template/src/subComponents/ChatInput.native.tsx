@@ -90,7 +90,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   } = useChatUIControls();
 
   const {defaultContent} = useContent();
-  const {sendChatSDKMessage} = useChatConfigure();
+  const {sendChatSDKMessage, allowChatLogin} = useChatConfigure();
   const {data} = useRoomInfo();
   const [name] = useUserName();
   const groupChatInputPlaceHolder = $config.EVENT_MODE
@@ -177,6 +177,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       onChangeText={onChangeText}
       multiline={true}
       textAlignVertical="top"
+      editable={allowChatLogin}
       style={{
         color: $config.FONT_COLOR,
         textAlign: 'left',

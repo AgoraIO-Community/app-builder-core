@@ -1,5 +1,8 @@
 import {gql, useMutation} from '@apollo/client';
-import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
+import {
+  RoomInfoContextInterface,
+  RoomInfoDefaultValue,
+} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from './isSDK';
@@ -104,6 +107,12 @@ export default function useCreateRoom(): createRoomFun {
           meetingTitle: roomTitle,
           roomId: roomInfo?.roomId,
           pstn: roomInfo?.pstn,
+        },
+        roomPreference: {
+          disableShareTile:
+            RoomInfoDefaultValue.roomPreference.disableShareTile,
+          preventChatAutoLogin:
+            RoomInfoDefaultValue.roomPreference.preventChatAutoLogin,
         },
       });
       SDKEvents.emit(

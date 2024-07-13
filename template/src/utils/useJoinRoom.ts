@@ -79,7 +79,8 @@ const JOIN_CHANNEL_PHRASE = gql`
  */
 
 export interface joinRoomPreference {
-  disableShareTile: boolean;
+  disableShareTile?: boolean;
+  preventChatAutoLogin?: boolean;
 }
 
 export default function useJoinRoom() {
@@ -245,11 +246,15 @@ export default function useJoinRoom() {
               ...prevState.data,
               ...roomInfo,
             };
+            const validPreference =
+              preference && Object.keys(preference).length > 0;
             return {
               ...prevState,
               isJoinDataFetched: true,
               data: compiledMeetingInfo,
-              roomPreference: {...preference},
+              roomPreference: validPreference
+                ? {...preference}
+                : prevState.roomPreference,
             };
           });
           return roomInfo;

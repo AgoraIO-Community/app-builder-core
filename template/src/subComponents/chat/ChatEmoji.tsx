@@ -7,6 +7,7 @@ import EmojiPicker, {
 } from 'emoji-picker-react';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import IconButton from '../../../src/atoms/IconButton';
+import {useChatConfigure} from '../../../src/components/chat/chatConfigure';
 
 const css = `
 .chatEmojiPicker .epr-emoji-category-label {
@@ -130,6 +131,7 @@ export interface ChatEmojiButtonProps {
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
   const {setShowEmojiPicker} = useChatUIControls();
+  const {allowChatLogin} = useChatConfigure();
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
   };
@@ -137,7 +139,8 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
     props.render(onPress)
   ) : (
     <IconButton
-      hoverEffect={true}
+      hoverEffect={allowChatLogin ? true : false}
+      disabled={!allowChatLogin}
       hoverEffectStyle={{
         backgroundColor: $config.ICON_BG_COLOR,
         borderRadius: 24,
@@ -145,14 +148,16 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
       iconProps={{
         iconType: 'plain',
         base64: false,
-        hoverBase64: true,
+        hoverBase64: allowChatLogin ? true : false,
         iconContainerStyle: {
           padding: 4,
         },
         iconSize: 24,
         name: 'chat_emoji',
-        hoverIconName: 'chat_emoji_fill',
-        tintColor: $config.SECONDARY_ACTION_COLOR,
+        hoverIconName: !allowChatLogin ? 'chat_emoji' : 'chat_emoji_fill',
+        tintColor: !allowChatLogin
+          ? $config.SEMANTIC_NEUTRAL
+          : $config.SECONDARY_ACTION_COLOR,
       }}
       onPress={onPress}
     />
