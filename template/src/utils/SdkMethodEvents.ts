@@ -14,9 +14,12 @@ export interface SdkMethodEvents {
   microphoneDevice: (deviceId: deviceId) => void;
   speakerDevice: (deviceId: deviceId) => void;
   cameraDevice: (deviceId: deviceId) => void;
-  muteAllParticipants: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
+  muteAllParticipants: (
+    mute: boolean | ((currentMute: boolean) => boolean),
+  ) => void;
   muteAudio: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
   muteVideo: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
+  clearState: (state: 'join' | 'all') => void;
 }
 
 type EventParameterHelper<T extends keyof SdkMethodEvents> = Parameters<
@@ -61,8 +64,22 @@ class SDKMethodEvents {
     event: T,
     ...params: EventParameterHelper<T>
   ) {
-    if (this.emitCache[event]) {
-      throw new Error(`Event: ${event} already in callstack`);
+    if (event === 'clearState') {
+      const param = params[0];
+      switch (param) {
+        case 'join':
+        case 'clearState':
+          delete this.emitCache[param];
+          delete this.emitCacheDisabled[param];
+          break;
+        case 'all':
+          this.reset();
+        default:
+      }
+    } else {
+      if (this.emitCache[event]) {
+        throw new Error(`Event: ${event} already in callstack`);
+      }
     }
 
     const result = await new Promise<EventReturnTypeHelper<T>>((res, rej) => {
@@ -91,6 +108,11 @@ class SDKMethodEvents {
     }
     this.emitCacheDisabled[event] = true;
     return unsub;
+  }
+
+  reset() {
+    this.emitCache = {};
+    this.emitCacheDisabled = {};
   }
 }
 

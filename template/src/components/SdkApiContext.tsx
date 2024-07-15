@@ -8,6 +8,7 @@ import {
 } from './meeting-info/useMeetingInfo';
 import {CustomizationApiInterface} from 'customization-api';
 import {Unsubscribe} from 'nanoevents';
+import {cloneDeep} from 'lodash';
 
 type extractPromises<T extends (...p: any) => any> = {
   res: Parameters<T>[0];
@@ -57,8 +58,8 @@ type SdkApiContextInterface = {
   onMuteAudio: (callback: _InternalSDKMethodEventsMap['muteAudio']) => void;
   onMuteVideo: (callback: _InternalSDKMethodEventsMap['muteVideo']) => void;
   clearState: (
-    key: keyof _InternalSDKMethodEventsMap | 'enterRoom',
-    param?: any,
+    key: keyof _InternalSDKMethodEventsMap | 'enterRoom' | 'all',
+    hard?: boolean,
   ) => void;
 };
 
@@ -80,7 +81,7 @@ const defaultMuteAllParticipantsListener = ((res, _, param) => {
   res();
 }) as _InternalSDKMethodEventsMap['muteAllParticipants'];
 
-const SdkApiInitState: SdkApiContextInterface = {
+const SdkApiDefaultState: SdkApiContextInterface = {
   enterRoom: {
     set: () => {},
   },
@@ -100,6 +101,19 @@ const SdkApiInitState: SdkApiContextInterface = {
   onMuteAudio: (_) => {},
   clearState: () => {},
 };
+const SdkApiInitState: SdkApiContextInterface = cloneDeep(SdkApiDefaultState);
+
+export const clearStateGlobal = (
+  state: keyof SdkApiContextInterface | 'all',
+) => {
+  if (state === 'all') {
+    for (const key in SdkApiInitState)
+      SdkApiInitState[key] = cloneDeep(SdkApiDefaultState[key]);
+  } else {
+    //@ts-expect-error
+    SdkApiInitState[state] = cloneDeep(SdkApiDefaultState[state]);
+  }
+};
 
 export const READ_ONLY_SdkApiInitState = SdkApiInitState;
 
@@ -111,9 +125,10 @@ export const SdkApiContext =
 let moduleEventsUnsub: any[] = [];
 
 type commonEventHandlers = {
-  [K in keyof Omit<_InternalSDKMethodEventsMap, 'muteVideo' | 'muteAudio'>]?: (
-    setter: (p: SdkApiContextInterface[K]) => void,
-  ) => Unsubscribe;
+  [K in keyof Omit<
+    _InternalSDKMethodEventsMap,
+    'muteVideo' | 'muteAudio' | 'flushQueue'
+  >]?: (setter: (p: SdkApiContextInterface[K]) => void) => Unsubscribe;
 };
 
 const commonEventHandlers: commonEventHandlers = {
@@ -209,6 +224,10 @@ const registerListener = () => {
     ),
     SDKMethodEventsManager.on('muteVideo', defaultMuteListener),
     SDKMethodEventsManager.on('muteAudio', defaultMuteListener),
+    SDKMethodEventsManager.on('clearState', (res, _, queue) => {
+      clearStateGlobal(queue);
+      res();
+    }),
   ];
 };
 
@@ -261,26 +280,31 @@ const SdkApiContextProvider: React.FC = (props) => {
     muteAudioListener.current = value;
   };
 
-  const clearState: SdkApiContextInterface['clearState'] = (key) => {
+  const clearState: SdkApiContextInterface['clearState'] = (key, hard) => {
+    let fallthrough = false;
     switch (key) {
+      case 'all':
+        fallthrough = true;
       case 'join':
-        setJoinState(SdkApiInitState.join);
-        break;
+        setJoinState(hard ? SdkApiDefaultState.join : SdkApiInitState.join);
+        if (!fallthrough) break;
       case 'enterRoom':
         setEnterRoom(null);
-        break;
+        if (!fallthrough) break;
       case 'customize':
-        setUserCustomization(SdkApiInitState.customize);
-        break;
+        setUserCustomization(
+          hard ? SdkApiDefaultState.customize : SdkApiInitState.customize,
+        );
+        if (!fallthrough) break;
       case 'microphoneDevice':
         setMicrophoneDeviceState({});
-        break;
+        if (!fallthrough) break;
       case 'speakerDevice':
         setSpeakerDeviceState({});
-        break;
+        if (!fallthrough) break;
       case 'cameraDevice':
         setCameraDeviceState({});
-        break;
+        if (!fallthrough) break;
       case 'muteAllParticipants':
         setMuteAllParticipantsState((current) => {
           return {
@@ -288,12 +312,13 @@ const SdkApiContextProvider: React.FC = (props) => {
             promise: undefined,
           };
         });
+        if (!fallthrough) break;
       case 'muteVideo':
         setMuteVideoListener(defaultMuteListener);
-        break;
+        if (!fallthrough) break;
       case 'muteAudio':
         setMuteVideoListener(defaultMuteListener);
-        break;
+        if (!fallthrough) break;
     }
   };
 
@@ -352,6 +377,11 @@ const SdkApiContextProvider: React.FC = (props) => {
       }),
       SDKMethodEventsManager.on('muteAudio', (...args) => {
         muteAudioListener.current(...args);
+      }),
+      SDKMethodEventsManager.on('clearState', (res, _, queue) => {
+        clearStateGlobal(queue);
+        clearState(queue, true);
+        res();
       }),
     ];
 

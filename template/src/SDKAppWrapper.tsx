@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   CustomizationApiInterface,
   customize,
@@ -39,6 +39,7 @@ export interface AppBuilderSdkApiInterface {
   createCustomization: (
     customization: CustomizationApiInterface,
   ) => CustomizationApiInterface;
+  clearState: (stateKey: 'join' | 'all') => Promise<void>;
   customEvents: typeof customEvents;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
@@ -80,6 +81,15 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   },
   muteVideo: async (state) => {
     return await SDKMethodEventsManager.emit('muteVideo', state);
+  },
+  clearState: async (stateKey) => {
+    switch (stateKey) {
+      case 'all':
+      case 'join':
+        return await SDKMethodEventsManager.emit('clearState', stateKey);
+      default:
+        throw new Error('Invalid identifier');
+    }
   },
   createCustomization: customize,
   on: (userEventName, cb) => {
