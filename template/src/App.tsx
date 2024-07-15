@@ -82,26 +82,26 @@ const App: React.FC = () => {
   //   }
   // };
 
-  const notifyReady = () => {
-    if (typeof window.navigator.notifyReady === 'function') {
-      console.log('recording-bot: notifyReady is available');
-      window.navigator.notifyReady();
-    } else {
-      console.log('recording-bot: notifyReady is un-available');
-    }
-  };
+  // const notifyReady = () => {
+  //   if (typeof window.navigator.notifyReady === 'function') {
+  //     console.log('recording-bot: notifyReady is available');
+  //     // window.navigator.notifyReady();
+  //   } else {
+  //     console.log('recording-bot: notifyReady is un-available');
+  //   }
+  // };
 
-  useLayoutEffect(() => {
-    if (isWebInternal()) {
-      // Register only on web
-      window.addEventListener('load', notifyReady);
-    }
-    return () => {
-      if (isWebInternal()) {
-        window.removeEventListener('load', notifyReady);
-      }
-    };
-  }, []);
+  // useLayoutEffect(() => {
+  //   if (isWebInternal()) {
+  //     // Register only on web
+  //     window.addEventListener('load', notifyReady);
+  //   }
+  //   return () => {
+  //     if (isWebInternal()) {
+  //       window.removeEventListener('load', notifyReady);
+  //     }
+  //   };
+  // }, []);
 
   const [roomInfo, setRoomInfo] =
     useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
