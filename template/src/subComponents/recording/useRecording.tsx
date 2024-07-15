@@ -679,7 +679,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         userCountGotValidEntry.current = true;
       }
     }
-    const shouldStopRecording = !areUsersInChannel && userCountGotValidEntry;
+    const shouldStopRecording =
+      !areUsersInChannel && userCountGotValidEntry?.current;
     log(
       'Recording-bot: Checking if bot should stop recording',
       shouldStopRecording,
