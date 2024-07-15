@@ -1,7 +1,7 @@
 import 'react-native-get-random-values';
 import {nanoid} from 'nanoid';
 import pkg from '../../package.json';
-import {isWeb} from '../utils/common';
+import {isWeb, isWebInternal} from '../utils/common';
 import {
   ENABLE_AGORA_LOGGER_TRANSPORT,
   ENABLE_BROWSER_CONSOLE_LOGS,
@@ -18,12 +18,15 @@ import {
   sendLogs,
 } from './transports/customer-transport';
 
-const cli_version = 'test';
+const cli_version = $config.CLI_VERSION;
+const core_version = $config.CORE_VERSION;
 
 export type CustomLogger = (
   message: string,
-  data: any,
   type: StatusType,
+  columns?: Object,
+  contextInfo?: Object,
+  data?: any,
 ) => void;
 
 export declare const StatusTypes: {
@@ -141,12 +144,10 @@ export default class AppBuilderLogger implements Logger {
       : pkg.dependencies['react-native-agora'];
     let roomInfo = {
       meeting_title: '',
-      phrase: '',
       channel_id: '',
-      room_id: {
-        host_id: '',
-        attendee_id: '',
-      },
+      host_id: '',
+      attendee_id: '',
+      user_id: '',
     };
     const logger =
       (status: StatusType) =>
@@ -162,53 +163,83 @@ export default class AppBuilderLogger implements Logger {
         if (type === 'SET_MEETING_DETAILS') {
           roomInfo = {...data[0]};
         }
-        const context = {
+        const columns = {
           timestamp: Date.now(),
           source,
-          version: cli_version,
           type,
-          data,
           platform,
-          contextInfo: {
-            session_id: this._session,
+          user_id: roomInfo?.user_id,
+          session_id: this._session,
+          channel_id: roomInfo?.channel_id,
+          host_id: roomInfo?.host_id,
+          attendee_id: roomInfo?.attendee_id,
+        };
+
+        const contextInfo = {
+          agora_sdk_version: {
+            rtm: rtmPkg,
+            rtc: rtcPkg,
+          },
+          appbuilder_version: {
+            cli: cli_version,
+            core: core_version,
+          },
+          meeting_title: roomInfo?.meeting_title,
+        };
+
+        if (isWebInternal() && window) {
+          //@ts-ignore
+          window.APP_BUILDER = {
+            //need to store CORE version and CLI version
             app_id: $config.APP_ID,
             project_id: $config.PROJECT_ID,
-            agora_sdk_version: {
-              rtm: rtmPkg,
-              rtc: rtcPkg,
-            },
-            meeting_title: roomInfo?.meeting_title,
-            phrase: roomInfo?.phrase,
+            user_id: roomInfo?.user_id,
+            session_id: this._session,
             channel_id: roomInfo?.channel_id,
-            room_id: {
-              host_id: roomInfo?.room_id?.host_id,
-              attendee_id: roomInfo?.room_id?.attendee_id,
-            },
-          },
-        };
+            host_id: roomInfo?.host_id,
+            attendee_id: roomInfo?.attendee_id,
+            contextInfo: contextInfo,
+          };
+        }
 
         try {
           if (ENABLE_CUSTOMER_LOGGER_TRANSPORT) {
             if (this._customLogger) {
-              this._customLogger(logMessage, context, status);
+              this._customLogger(
+                logMessage,
+                status,
+                columns,
+                contextInfo,
+                data,
+              );
             } else if (_transportLogger) {
               if (type === 'SEND_LOG_IMMEDIATELY') {
                 sendLogs([
                   {
-                    data: [logMessage, context, status],
                     _time: Date.now(),
                     projectId: $config.PROJECT_ID,
                     appId: $config.APP_ID,
                     service: 'app-builder-core-frontend-customer',
+                    logType: status,
+                    logMessage: logMessage,
+                    ...columns,
+                    contextInfo,
+                    logContent: data,
                   },
                 ]);
               } else {
-                _transportLogger(logMessage, context, status);
+                _transportLogger(
+                  logMessage,
+                  status,
+                  columns,
+                  contextInfo,
+                  data,
+                );
               }
             }
           }
           if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
-            _transportLogger(logMessage, context, status);
+            _transportLogger(logMessage, status, columns, contextInfo, data);
           }
         } catch (error) {
           console.log(
@@ -225,7 +256,7 @@ export default class AppBuilderLogger implements Logger {
             consoleHeader,
             consoleCSS,
             logMessage,
-            context,
+            {...columns, contextInfo, logContent: data},
             status,
           );
         }
@@ -255,10 +286,12 @@ export default class AppBuilderLogger implements Logger {
     this._customLogger = _customLogger;
     _customLogger(
       'App intitialized with config.json',
+      'debug',
+      {},
+      {},
       {
         config: configJSON,
       },
-      'debug',
     );
   };
 }
