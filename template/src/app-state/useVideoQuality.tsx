@@ -1,14 +1,61 @@
 import React, {createContext, useState} from 'react';
-import {isAndroid, isIOS, useRtc, useLocalUid} from 'customization-api';
+import {useRtc} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import {Platform} from 'react-native';
 
-import {LogSource, logger} from '../logger/AppBuilderLogger';
+export type VideoEncoderConfigurationPreset = typeof $config.PROFILE;
+export type ScreenEncoderConfigurationPreset =
+  typeof $config.SCREEN_SHARE_PROFILE;
 
-export type VideoQualityType = typeof $config.PROFILE;
-export type ScreenShareQualityType = typeof $config.SCREEN_SHARE_PROFILE;
+// Specifies a constraint for a property, such as the resolution or bitrate for video capture in
+interface ConstraintLong {
+  /**
+   * A required value of a property. If the video capture device cannot output this value, the video capture fails.
+   */
+  exact?: number;
+  /**
+   * An ideal value of a property. If the video capture device cannot output this value, it outputs the closest value instead.
+   */
+  ideal?: number;
+  /**
+   * The upper limit of the property.
+   */
+  max?: number;
+  /**
+   * The lower limit of the property.
+   */
+  min?: number;
+}
 
-export const videoProfilesArray: VideoQualityType[] = [
+export interface VideoEncoderConfiguration {
+  /**
+   * The maximum bitrate of the video (Kbps).
+   */
+  bitrateMax?: number;
+  /**
+   * The minimum bitrate of the video (Kbps).
+   */
+
+  bitrateMin?: number;
+  /**
+   * Frame rate of the video (fps).
+   * You can pass a number, or a constraint such as { max: 30, min: 5 }.
+   */
+
+  frameRate?: number | ConstraintLong;
+  /**
+   * Height of the video.
+   * You can pass a number, or a constraint such as { max: 1280, min: 720 }.
+   */
+  height?: number | ConstraintLong;
+  /**
+   * Width of the video.
+   * You can pass a number, or a constraint such as { max: 1280, min: 720 }.
+   */
+  width?: number | ConstraintLong;
+}
+
+export const videoProfilesArray: VideoEncoderConfigurationPreset[] = [
   '120p_1',
   '120p_3',
   '180p_1',
@@ -41,7 +88,7 @@ export const videoProfilesArray: VideoQualityType[] = [
   '720p_6',
 ];
 
-export const screenShareProfilesArray: ScreenShareQualityType[] = [
+export const screenShareProfilesArray: ScreenEncoderConfigurationPreset[] = [
   '480p_1',
   '480p_2',
   '480p_3',
@@ -56,107 +103,61 @@ export const screenShareProfilesArray: ScreenShareQualityType[] = [
 ];
 
 interface VideoQualityContextInterface {
-  videoQuality: VideoQualityType;
-  setVideoQuality: (videoQuality: VideoQualityType) => void;
-  screenShareQuality: ScreenShareQualityType;
-  setScreenShareQuality: (screenShareQuality: ScreenShareQualityType) => void;
+  videoQuality: VideoEncoderConfigurationPreset | VideoEncoderConfiguration;
+  setVideoQuality: (
+    videoQuality: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ) => void;
+  screenShareQuality:
+    | ScreenEncoderConfigurationPreset
+    | VideoEncoderConfiguration;
+  setScreenShareQuality: (
+    screenShareQuality:
+      | ScreenEncoderConfigurationPreset
+      | VideoEncoderConfiguration,
+  ) => void;
 }
 
 export const VideoQualityContext = createContext<VideoQualityContextInterface>({
   videoQuality: $config.PROFILE,
-  setVideoQuality: (_p: VideoQualityType) => {},
+  setVideoQuality: (
+    _p: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ) => {},
   screenShareQuality: $config.SCREEN_SHARE_PROFILE,
-  setScreenShareQuality: (_p: ScreenShareQualityType) => {},
+  setScreenShareQuality: (
+    _p: ScreenEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ) => {},
 });
 
-const checkIfDataIsValid = data => {
-  if (data && Object.keys(data)?.length) {
-    const values = Object.values(data);
-    const isAllZero = values.every(item => item === 0);
-    if (isAllZero) {
-      return false;
-    } else {
-      return true;
-    }
-  } else {
-    return false;
-  }
-};
-
 export const VideoQualityContextProvider = props => {
-  const localUid = useLocalUid();
-  const [currentVideoQuality, setCurrentVideoQuality] =
-    useState<VideoQualityType>($config.PROFILE);
+  const [currentVideoQuality, setCurrentVideoQuality] = useState<
+    VideoEncoderConfigurationPreset | VideoEncoderConfiguration
+  >($config.PROFILE);
 
-  const [currentScreenShareQuality, setCurrentScreenShareQuality] =
-    useState<ScreenShareQualityType>($config.SCREEN_SHARE_PROFILE);
+  const [currentScreenShareQuality, setCurrentScreenShareQuality] = useState<
+    ScreenEncoderConfigurationPreset | VideoEncoderConfiguration
+  >($config.SCREEN_SHARE_PROFILE);
+
   const {RtcEngineUnsafe} = useRtc();
 
-  const setVideoQuality = async (p: VideoQualityType) => {
+  const setVideoQuality = async (
+    q: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ) => {
     if (Platform.OS === 'web' && RtcEngineUnsafe) {
       // @ts-ignore
-      await RtcEngineUnsafe.setVideoProfile(p);
-      setCurrentVideoQuality(p);
+      await RtcEngineUnsafe.setVideoProfile(q);
+      setCurrentVideoQuality(q);
     }
   };
 
-  const setScreenShareQuality = async (p: ScreenShareQualityType) => {
+  const setScreenShareQuality = async (
+    q: ScreenEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ) => {
     if (Platform.OS === 'web' && RtcEngineUnsafe) {
       // @ts-ignore
-      await RtcEngineUnsafe.setScreenShareProfile(p);
-      setCurrentScreenShareQuality(p);
+      await RtcEngineUnsafe.setScreenShareProfile(q);
+      setCurrentScreenShareQuality(q);
     }
   };
-
-  const logCallQuality = async () => {
-    if (!isAndroid() && !isIOS()) {
-      //@ts-ignore
-      const videoStats = RtcEngineUnsafe?.getRemoteVideoStats();
-      // if (checkIfDataIsValid(videoStats)) {
-      // logger.log(LogSource.AgoraSDK, 'API', 'getRemoteVideoStats', {
-      //   localUid,
-      //   videoStats,
-      // });
-      //}
-      //@ts-ignore
-      // const audioStats = RtcEngineUnsafe?.getAllRemoteAudioStats();
-      // if (checkIfDataIsValid(audioStats)) {
-      //   logger.log(LogSource.AgoraSDK, 'API', 'getRemoteAudioStats', {
-      //     localUid,
-      //     audioStats,
-      //   });
-      // }
-      //@ts-ignore
-      const localVideoStats = await RtcEngineUnsafe?.getLocalVideoStats();
-      //  if (checkIfDataIsValid(localVideoStats)) {
-      // logger.log(LogSource.AgoraSDK, 'API', 'getLocalVideoStats', {
-      //   localUid,
-      //   localVideoStats,
-      // });
-      //   }
-
-      //@ts-ignore
-      // const localAudioStats = RtcEngineUnsafe?.getLocalAudioStats();
-      // if (checkIfDataIsValid(localAudioStats)) {
-      //   logger.log(LogSource.AgoraSDK, 'API', 'getLocalAudioStats', {
-      //     localUid,
-      //     localAudioStats,
-      //   });
-      // }
-    }
-  };
-
-  React.useEffect(() => {
-    /**
-     * Log audio/video quality details each 30 sec
-     */
-    let interval = null;
-    interval = setInterval(logCallQuality, 1000 * 30);
-
-    return () => {
-      interval && clearInterval(interval);
-    };
-  }, []);
 
   return (
     <VideoQualityContext.Provider

@@ -33,6 +33,13 @@ const QualityControls = () => {
     setScreenShareQuality(value);
   };
 
+  if (
+    typeof videoQuality !== 'string' ||
+    typeof screenShareQuality !== 'string'
+  ) {
+    return;
+  }
+
   return (
     <ScrollView>
       <Text style={styles.label}>{'Video Profile'}</Text>

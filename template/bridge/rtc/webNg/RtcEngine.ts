@@ -40,6 +40,11 @@ import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
 import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
 import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
+import {
+  type VideoEncoderConfigurationPreset,
+  type ScreenEncoderConfigurationPreset,
+  type VideoEncoderConfiguration,
+} from '../../../src/app-state/useVideoQuality';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -232,8 +237,12 @@ export default class RtcEngine {
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
   private inScreenshare: Boolean = false;
-  private videoProfile: VideoProfile = '480p_9';
-  private screenShareProfile = '720p_3';
+  private videoProfile:
+    | VideoEncoderConfigurationPreset
+    | VideoEncoderConfiguration;
+  private screenShareProfile:
+    | ScreenEncoderConfigurationPreset
+    | VideoEncoderConfiguration;
   private isPublished = false;
   private isAudioEnabled = false;
   private isVideoEnabled = false;
@@ -299,49 +308,53 @@ export default class RtcEngine {
     }
   }
 
-  async setVideoProfile(profile: VideoProfile): Promise<void> {
+  async setVideoProfile(
+    profile: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ): Promise<void> {
     try {
       this.videoProfile = profile;
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] setting video profile to - ${profile}`,
+        `RTC [setEncoderConfiguration] setting video profile to  ${profile}`,
       );
       this.localStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set video profile to - ${profile} successfully`,
+        `RTC [setEncoderConfiguration] set video profile to  ${profile} successfully`,
       );
     } catch (error) {
       logger.error(
         LogSource.AgoraSDK,
         'API',
-        'RTC [setEncoderConfiguration] Error while setting video profile',
+        `RTC [setEncoderConfiguration] Error while setting video profile to ${profile}`,
         error,
       );
     }
   }
 
-  async setScreenShareProfile(profile: VideoProfile): Promise<void> {
+  async setScreenShareProfile(
+    profile: ScreenEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ): Promise<void> {
     try {
       this.screenShareProfile = profile;
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set screen share profile to - ${profile}`,
+        `RTC [setEncoderConfiguration] set screen share profile to  ${profile}`,
       );
       this.screenStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set screen share profile to - ${profile} successfully`,
+        `RTC [setEncoderConfiguration] set screen share profile to  ${profile} successfully`,
       );
     } catch (error) {
       logger.error(
         LogSource.AgoraSDK,
         'API',
-        'RTC [setEncoderConfiguration] Error while setting screen share profile',
+        `RTC [setEncoderConfiguration] Error while setting screen share profile to ${profile}`,
         error,
       );
     }

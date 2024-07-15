@@ -10,7 +10,7 @@
 *********************************************
 */
 // import statements are not allowed in global configs
-type VideoProfile =
+type VideoProfilePreset =
   | '120p_1'
   | '120p_3'
   | '180p_1'
@@ -42,7 +42,7 @@ type VideoProfile =
   | '720p_5'
   | '720p_6';
 
-type ScreenShareProfile =
+type ScreenShareProfilePreset =
   | '480p_1'
   | '480p_2'
   | '480p_3'
@@ -102,8 +102,8 @@ interface ConfigInterface {
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;
   ENCRYPTION_ENABLED: boolean;
-  PROFILE: VideoProfile;
-  SCREEN_SHARE_PROFILE: ScreenShareProfile;
+  PROFILE: VideoProfilePreset;
+  SCREEN_SHARE_PROFILE: ScreenShareProfilePreset;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;
   ENABLE_MICROSOFT_OAUTH: boolean;
