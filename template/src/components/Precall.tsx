@@ -518,9 +518,9 @@ const Precall = () => {
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect isOnPrecall={true} />
               </View>
-              <View style={style.deviceSelectContainer}>
+              {/* <View style={style.deviceSelectContainer}>
                 <QualityControls />
-              </View>
+              </View> */}
               {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
                 <ScrollView style={style.panelContainer}>
                   <VirtualBackgroundComponent isOnPrecall={true} />

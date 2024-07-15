@@ -278,7 +278,11 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = props => {
-  const {hideName = false, showHeader = true} = props;
+  const {
+    hideName = false,
+    showHeader = true,
+    showQualityControls = false,
+  } = props;
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
@@ -305,9 +309,7 @@ const SettingsView = props => {
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
-        <View>
-          <QualityControls />
-        </View>
+        {showQualityControls ? <QualityControls /> : <></>}
       </ScrollView>
     </View>
   );
