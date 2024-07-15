@@ -316,19 +316,21 @@ export default class RtcEngine {
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] setting video profile to  ${profile}`,
+        `RTC [setEncoderConfiguration] setting video profile.`,
+        profile,
       );
       this.localStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set video profile to  ${profile} successfully`,
+        `RTC [setEncoderConfiguration] video profile is set successfully`,
+        profile,
       );
     } catch (error) {
       logger.error(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] Error while setting video profile to ${profile}`,
+        `RTC [setEncoderConfiguration] Error while setting video profile.`,
         error,
       );
     }
@@ -342,19 +344,21 @@ export default class RtcEngine {
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set screen share profile to  ${profile}`,
+        `RTC [setEncoderConfiguration] set screen share profile.`,
+        profile,
       );
       this.screenStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set screen share profile to  ${profile} successfully`,
+        `RTC [setEncoderConfiguration] screen share profile is set successfully.`,
+        profile,
       );
     } catch (error) {
       logger.error(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] Error while setting screen share profile to ${profile}`,
+        `RTC [setEncoderConfiguration] Error while setting screen share profile.`,
         error,
       );
     }
