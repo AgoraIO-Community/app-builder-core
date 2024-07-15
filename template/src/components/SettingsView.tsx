@@ -278,14 +278,13 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = props => {
-  const {
-    hideName = false,
-    showHeader = true,
-    showQualityControls = false,
-  } = props;
+  const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
+  const {
+    roomPreference: {showQualityControls},
+  } = useRoomInfo();
 
   return (
     <View
