@@ -661,12 +661,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * If all the members have left the call and recording is still active -
      * bot will call the stop recording API
      */
-    log(
-      'Recording-bot: supriya user ids',
-      hostUids,
-      audienceUids,
-      hasUserJoinedRTM,
-    );
     if (!isRecordingBot) {
       return;
     }
@@ -685,12 +679,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         userCountGotValidEntry.current = true;
       }
     }
-    const shouldStopRecording = () => !areUsersInChannel && validUserCount;
+    const shouldStopRecording = !areUsersInChannel && userCountGotValidEntry;
     log(
       'Recording-bot: Checking if bot should stop recording',
-      shouldStopRecording(),
+      shouldStopRecording,
     );
-    if (userCountGotValidEntry && !areUsersInChannel) {
+    if (shouldStopRecording) {
       logger.log(
         LogSource.Internals,
         'RECORDING',
