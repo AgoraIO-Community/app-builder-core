@@ -146,7 +146,7 @@ export default function useJoinRoom() {
             `API to ${
               isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
             } successful.`,
-            phrase,
+            {phrase, data},
           );
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
 
