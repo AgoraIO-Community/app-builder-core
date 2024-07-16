@@ -27,14 +27,6 @@ import {isValidReactComponent} from './utils/common';
 
 function VideoCallWrapper(props) {
   const {isRecordingBotRoute} = useIsRecordingBot();
-  useEffect(() => {
-    logger.debug(
-      LogSource.Internals,
-      'RECORDING',
-      'Check if this is a recording bot route',
-      isRecordingBotRoute,
-    );
-  }, []);
   return isRecordingBotRoute ? (
     <RecordingBotRoute history={props.history}>
       <VideoCall />
