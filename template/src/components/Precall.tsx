@@ -324,7 +324,7 @@ const Precall = () => {
   const {
     isJoinDataFetched,
     data: {meetingTitle},
-    roomPreference: {showQualityControls},
+    roomPreference,
   } = useRoomInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
@@ -519,7 +519,7 @@ const Precall = () => {
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect isOnPrecall={true} />
               </View>
-              {showQualityControls ? (
+              {roomPreference?.showQualityControls ? (
                 <View style={style.deviceSelectContainer}>
                   <QualityControls />
                 </View>

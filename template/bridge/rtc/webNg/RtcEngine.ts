@@ -319,7 +319,7 @@ export default class RtcEngine {
         `RTC [setEncoderConfiguration] setting video profile.`,
         profile,
       );
-      this.localStream?.video?.setEncoderConfiguration(profile);
+      await this.localStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
@@ -347,7 +347,7 @@ export default class RtcEngine {
         `RTC [setEncoderConfiguration] set screen share profile.`,
         profile,
       );
-      this.screenStream?.video?.setEncoderConfiguration(profile);
+      await this.screenStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',

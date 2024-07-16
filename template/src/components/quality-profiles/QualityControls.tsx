@@ -11,9 +11,9 @@ import Spacer from '../../atoms/Spacer';
 
 const QualityControls = () => {
   const {
-    videoQuality,
+    currentVideoQuality,
     setVideoQuality,
-    screenShareQuality,
+    currentScreenShareQuality,
     setScreenShareQuality,
   } = useVideoQuality();
   const videoProfiles = videoProfilesArray.map(profile => ({
@@ -34,8 +34,8 @@ const QualityControls = () => {
   };
 
   if (
-    typeof videoQuality !== 'string' ||
-    typeof screenShareQuality !== 'string'
+    typeof currentVideoQuality !== 'string' ||
+    typeof currentScreenShareQuality !== 'string'
   ) {
     return;
   }
@@ -46,18 +46,18 @@ const QualityControls = () => {
       <Dropdown
         data={videoProfiles}
         enabled={true}
-        label={videoQuality}
+        label={currentVideoQuality}
         onSelect={OnVideoProfileChange}
-        selectedValue={videoQuality}
+        selectedValue={currentVideoQuality}
       />
       <Spacer size={24} />
       <Text style={styles.label}>{'Screen Share Profile'}</Text>
       <Dropdown
         data={screenShareProfiles}
         enabled={true}
-        label={screenShareQuality}
+        label={currentScreenShareQuality}
         onSelect={onScreenShareProfileChange}
-        selectedValue={screenShareQuality}
+        selectedValue={currentScreenShareQuality}
       />
     </ScrollView>
   );

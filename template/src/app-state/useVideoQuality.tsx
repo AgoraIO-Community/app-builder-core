@@ -3,9 +3,8 @@ import {useRtc} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import {Platform} from 'react-native';
 
-export type VideoEncoderConfigurationPreset = typeof $config.PROFILE;
-export type ScreenEncoderConfigurationPreset =
-  typeof $config.SCREEN_SHARE_PROFILE;
+export type VideoEncoderConfigurationPreset = VideoProfilePreset;
+export type ScreenEncoderConfigurationPreset = ScreenShareProfilePreset;
 
 // Specifies a constraint for a property, such as the resolution or bitrate for video capture in
 interface ConstraintLong {
@@ -103,11 +102,13 @@ export const screenShareProfilesArray: ScreenEncoderConfigurationPreset[] = [
 ];
 
 interface VideoQualityContextInterface {
-  videoQuality: VideoEncoderConfigurationPreset | VideoEncoderConfiguration;
+  currentVideoQuality:
+    | VideoEncoderConfigurationPreset
+    | VideoEncoderConfiguration;
   setVideoQuality: (
     videoQuality: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
   ) => void;
-  screenShareQuality:
+  currentScreenShareQuality:
     | ScreenEncoderConfigurationPreset
     | VideoEncoderConfiguration;
   setScreenShareQuality: (
@@ -115,17 +116,21 @@ interface VideoQualityContextInterface {
       | ScreenEncoderConfigurationPreset
       | VideoEncoderConfiguration,
   ) => void;
+  videoEncoderPresets: VideoEncoderConfigurationPreset[];
+  screenShareEncoderPresets: ScreenEncoderConfigurationPreset[];
 }
 
 export const VideoQualityContext = createContext<VideoQualityContextInterface>({
-  videoQuality: $config.PROFILE,
+  currentVideoQuality: $config.PROFILE,
   setVideoQuality: (
     _p: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
   ) => {},
-  screenShareQuality: $config.SCREEN_SHARE_PROFILE,
+  currentScreenShareQuality: $config.SCREEN_SHARE_PROFILE,
   setScreenShareQuality: (
     _p: ScreenEncoderConfigurationPreset | VideoEncoderConfiguration,
   ) => {},
+  videoEncoderPresets: videoProfilesArray,
+  screenShareEncoderPresets: screenShareProfilesArray,
 });
 
 export const VideoQualityContextProvider = props => {
@@ -162,10 +167,12 @@ export const VideoQualityContextProvider = props => {
   return (
     <VideoQualityContext.Provider
       value={{
-        videoQuality: currentVideoQuality,
+        currentVideoQuality,
         setVideoQuality,
-        screenShareQuality: currentScreenShareQuality,
+        currentScreenShareQuality,
         setScreenShareQuality,
+        videoEncoderPresets: videoProfilesArray,
+        screenShareEncoderPresets: screenShareProfilesArray,
       }}>
       {props.children}
     </VideoQualityContext.Provider>
