@@ -62,7 +62,9 @@ const applyDefaultPrefixConditionally = (device: MediaDeviceInfo) => {
  * A component to diplay a dropdown and select a device.
  * It will add the selected device to the device context.
  */
-const useSelectDevice = (): [boolean, string] => {
+const useSelectDevice = (
+  type?: 'Camera' | 'Microphone' | 'Speaker' | 'ToDisplayInfo',
+): [boolean, string] => {
   const {rtcProps} = useContext(PropsContext);
   const {primaryColor} = useContext(ColorContext);
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
@@ -73,19 +75,16 @@ const useSelectDevice = (): [boolean, string] => {
       $config.EVENT_MODE &&
       rtcProps.role === ClientRoleType.ClientRoleAudience
     ) {
-      logger.log(
-        LogSource.Internals,
-        'DEVICE_CONFIGURE',
-        'User is AUDIENCE and in Live mode - device picker is disabled',
-      );
+      type === 'ToDisplayInfo'
+        ? {}
+        : logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            `User is AUDIENCE and in Live mode - ${type} Dropdown is disabled`,
+          );
       setPickerDisabled(true);
       setBtnTheme('rgba(16, 16, 16, 0.3)');
     } else {
-      logger.log(
-        LogSource.Internals,
-        'DEVICE_CONFIGURE',
-        'User is HOST - device picker is enabled',
-      );
       setPickerDisabled(false);
       setBtnTheme(primaryColor);
     }
@@ -106,7 +105,7 @@ interface SelectVideoDeviceProps {
 
 const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
-  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isPickerDisabled, btnTheme] = useSelectDevice('Camera');
   const [isFocussed, setIsFocussed] = React.useState(false);
   const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
@@ -217,7 +216,7 @@ interface SelectAudioDeviceProps {
 
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
-  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isPickerDisabled, btnTheme] = useSelectDevice('Microphone');
   const [isFocussed, setIsFocussed] = useState(false);
   const local = useContext(LocalContext);
   const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
@@ -334,7 +333,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const {selectedSpeaker, setSelectedSpeaker, deviceList, isChrome} =
     useContext(DeviceContext);
   const local = useContext(LocalContext);
-  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isPickerDisabled, btnTheme] = useSelectDevice('Speaker');
   const [isFocussed, setIsFocussed] = React.useState(false);
   const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
@@ -463,7 +462,7 @@ interface SelectDeviceProps {
 }
 
 const SelectDevice = (props: SelectDeviceProps) => {
-  const [isPickerDisabled] = useSelectDevice();
+  const [isPickerDisabled] = useSelectDevice('ToDisplayInfo');
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable, setSpeakerAvailable} =
     usePreCall();
@@ -508,17 +507,6 @@ const SelectDevice = (props: SelectDeviceProps) => {
 
   useEffect(() => {
     const isDeviceAvailable = audioDevices && audioDevices.length;
-    logger.log(
-      LogSource.Internals,
-      'DEVICE_CONFIGURE',
-      'audio devices changed',
-      {
-        devices: [...audioDevices],
-        isDeviceAvailable: isDeviceAvailable
-          ? 'Yes, setting mic'
-          : 'No audio devices available',
-      },
-    );
     if (isDeviceAvailable) {
       setMicAvailable(true);
     }
@@ -526,19 +514,6 @@ const SelectDevice = (props: SelectDeviceProps) => {
 
   useEffect(() => {
     const isDeviceAvailable = videoDevices && videoDevices.length;
-    logger.log(
-      LogSource.Internals,
-      'DEVICE_CONFIGURE',
-      'camera devices changed',
-      {
-        data: {
-          devices: [...videoDevices],
-          isDeviceAvailable: isDeviceAvailable
-            ? 'Yes, setting camera'
-            : 'No video devices available',
-        },
-      },
-    );
     if (isDeviceAvailable) {
       setCameraAvailable(true);
     }
@@ -546,19 +521,6 @@ const SelectDevice = (props: SelectDeviceProps) => {
 
   useEffect(() => {
     const isDeviceAvailable = speakerDevices && speakerDevices.length;
-    logger.log(
-      LogSource.Internals,
-      'DEVICE_CONFIGURE',
-      'speaker devices changed',
-      {
-        data: {
-          devices: [...speakerDevices],
-          isDeviceAvailable: isDeviceAvailable
-            ? 'Yes, setting speaker'
-            : 'No speaker devices available',
-        },
-      },
-    );
     if (isDeviceAvailable) {
       setSpeakerAvailable(true);
     }
