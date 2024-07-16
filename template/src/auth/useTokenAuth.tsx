@@ -39,17 +39,42 @@ const useTokenAuth = () => {
 
   const getRefreshToken = async () => {
     if (store?.token) {
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'token_refresh',
+        'API token_refresh Trying to refresh the token',
+        {
+          requestId: requestId,
+          startReqTs,
+        },
+      );
       await fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           authorization: store?.token ? `Bearer ${store.token}` : '',
           'X-Platform-ID': getPlatformId(),
-          'X-Request-Id': getUniqueID(),
+          'X-Request-Id': requestId,
         },
       })
         .then(response => response.json())
         .then(data => {
+          const endReqTs = Date.now();
+          const latency = endReqTs - startReqTs;
+          logger.log(
+            LogSource.NetworkRest,
+            'token_refresh',
+            'API token_refresh successfully done',
+            {
+              requestId,
+              responseData: data,
+              startReqTs,
+              endReqTs,
+              latency,
+            },
+          );
           if (data?.token) {
             updateToken(data.token);
             if (isSDK()) {
@@ -167,6 +192,17 @@ const useTokenAuth = () => {
   const tokenLogout = async (cookieLogout: boolean = false) => {
     return new Promise((resolve, reject) => {
       try {
+        const startReqTs = Date.now();
+        const requestId = getUniqueID();
+        logger.log(
+          LogSource.NetworkRest,
+          'idp_logout',
+          'Trying to call v1 logout',
+          {
+            startReqTs,
+            ...(cookieLogout ? {} : {requestId}),
+          },
+        );
         fetch(
           `${$config.BACKEND_ENDPOINT}/v1/logout`,
           cookieLogout
@@ -176,16 +212,42 @@ const useTokenAuth = () => {
                   authorization: tokenRef.current
                     ? `Bearer ${tokenRef.current}`
                     : '',
-                  'X-Request-Id': getUniqueID(),
+                  'X-Request-Id': requestId,
                 },
               },
         )
           .then(response => response.text())
-          .then(_ => {
+          .then(res => {
+            const endReqTs = Date.now();
+            logger.log(
+              LogSource.NetworkRest,
+              'idp_logout',
+              'API V1 logout called successfully',
+              {
+                responseData: res,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                ...(cookieLogout ? {} : {requestId}),
+              },
+            );
             resolve(true);
             updateToken(null);
           })
-          .catch(_ => {
+          .catch(err => {
+            const endReqTs = Date.now();
+            logger.error(
+              LogSource.NetworkRest,
+              'idp_logout',
+              'Error API V1 logout called successfully',
+              {
+                error: err,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                ...(cookieLogout ? {} : {requestId}),
+              },
+            );
             reject(false);
           });
       } catch (error) {

@@ -32,6 +32,7 @@ import {
 import {useLanguage} from '../language/useLanguage';
 import {useScreenContext} from '../components/contexts/ScreenShareContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import getUniqueID from '../utils/getUniqueID';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -99,25 +100,71 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
   const saveName = (name: string) => {
     if (name && name?.trim() !== '') {
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
       try {
+        logger.log(
+          LogSource.Internals,
+          'NAME',
+          'Trying to save the display name',
+          {
+            requestId,
+            startReqTs,
+          },
+        );
         updateUserName({
+          context: {
+            headers: {
+              'X-Request-Id': requestId,
+            },
+          },
           variables: {
             name,
           },
-        }).catch(error => {
-          logger.error(
-            LogSource.Internals,
-            'NAME',
-            'ERROR, could not save the name',
-            error,
-          );
-        });
+        })
+          .then(res => {
+            const endReqTs = Date.now();
+            logger.log(
+              LogSource.Internals,
+              'NAME',
+              'name updated successfully',
+              {
+                responseData: res,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
+          })
+          .catch(error => {
+            const endReqTs = Date.now();
+            logger.error(
+              LogSource.Internals,
+              'NAME',
+              'ERROR, could not save the name',
+              {
+                error,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
+          });
       } catch (error) {
+        const endReqTs = Date.now();
         logger.error(
           LogSource.Internals,
           'NAME',
           'ERROR, could not save the name',
-          error,
+          {
+            error,
+            startReqTs,
+            endReqTs,
+            latency: endReqTs - startReqTs,
+            requestId,
+          },
         );
       }
     }

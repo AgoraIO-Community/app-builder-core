@@ -321,12 +321,44 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         headers: myHeaders,
         body: selectedFile,
       };
+      const startReqTsUpload = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'whiteboard_s3_upload',
+        'API whiteboard_s3_upload trying to send request to server',
+        {
+          startReqTs: startReqTsUpload,
+          uploadURL: url,
+          fileType: selectedFile?.type,
+        },
+      );
       fetch(url, requestOptions)
-        .then(() => {
+        .then(res => {
+          const endReqTsUpload = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'whiteboard_s3_upload success',
+            {
+              fileType: selectedFile?.type,
+              responseData: res,
+              startReqTs: startReqTsUpload,
+              endReqTs: endReqTsUpload,
+              latency: endReqTsUpload - startReqTsUpload,
+            },
+          );
+          const requestId = getUniqueID();
+          const startReqTs = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_fileconvert',
+            'API whiteboard_fileconvert trying to send request to server',
+            {requestId, startReqTs, fileType: selectedFile?.type},
+          );
           const myHeaders2 = new Headers();
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
-          myHeaders2.append('X-Request-Id', getUniqueID());
+          myHeaders2.append('X-Request-Id', requestId);
 
           const body = JSON.stringify({
             resource_url: url,
@@ -340,22 +372,38 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             body: body,
           })
             .then(res2 => {
-              logger.debug(
+              const endReqTs = Date.now();
+              logger.log(
                 LogSource.NetworkRest,
                 'whiteboard_fileconvert',
                 'file convert success',
-                res2,
+                {
+                  fileType: selectedFile?.type,
+                  responseData: res2,
+                  requestId,
+                  startReqTs,
+                  endReqTs,
+                  latency: endReqTs - startReqTs,
+                },
               );
               //updating upload flag as true
               //once we got RTM message we will proceed to insert image into whiteboard
               setUploadRef();
             })
             .catch(err2 => {
+              const endReqTs = Date.now();
               logger.error(
                 LogSource.NetworkRest,
                 'whiteboard_fileconvert',
                 'file convert failed',
-                err2,
+                {
+                  fileType: selectedFile?.type,
+                  error: err2,
+                  requestId,
+                  startReqTs,
+                  endReqTs,
+                  latency: endReqTs - startReqTs,
+                },
               );
               Toast.show({
                 type: 'error',
@@ -364,7 +412,20 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               });
             });
         })
-        .catch(() => {
+        .catch(error => {
+          const endReqTsUpload = Date.now();
+          logger.error(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'API whiteboard_s3_upload failed',
+            {
+              fileType: selectedFile?.type,
+              error: error,
+              startReqT: startReqTsUpload,
+              endReqTs: endReqTsUpload,
+              latency: endReqTsUpload - startReqTsUpload,
+            },
+          );
           Toast.show({
             type: 'error',
             text1: whiteboardFileUploadErrorToastHeadingTT('File'),
@@ -396,12 +457,47 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         headers: myHeaders,
         body: selectedFile,
       };
+      const startReqTsS3 = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'whiteboard_s3_upload',
+        'Trying to upload image into s3',
+        {
+          uploadURL: url,
+          startReqTs: startReqTsS3,
+        },
+      );
       fetch(url, requestOptions)
-        .then(() => {
+        .then(res => {
+          const endReqTsS3 = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'Uploaded image into s3 - success',
+            {
+              responseData: res,
+              startReqTs: startReqTsS3,
+              endReqTs: endReqTsS3,
+              latency: endReqTsS3 - startReqTsS3,
+            },
+          );
+
+          const requestId = getUniqueID();
+          const startReqTs = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_get_s3_signed_url',
+            'Trying to get signed url for s3 uploaded image',
+            {
+              uploadURL: url,
+              startReqTs,
+              requestId,
+            },
+          );
           const myHeaders2 = new Headers();
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
-          myHeaders2.append('X-Request-Id', getUniqueID());
+          myHeaders2.append('X-Request-Id', requestId);
           const body = JSON.stringify({
             resource_url: url,
           });
@@ -411,24 +507,56 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             body: body,
           })
             .then(async res2 => {
+              const endReqTs = Date.now();
               const jsonData = await res2.json();
               if (jsonData && jsonData?.url) {
+                logger.log(
+                  LogSource.NetworkRest,
+                  'whiteboard_get_s3_signed_url',
+                  'Got the signed url for s3 uploaded image',
+                  {
+                    responseData: res2,
+                    startReqTs,
+                    endReqTs,
+                    latency: endReqTs - startReqTs,
+                    requestId,
+                  },
+                );
                 const imageUrl = jsonData?.url?.replaceAll('\u0026', '&');
                 insertImageIntoWhiteboard(imageUrl);
+              } else {
+                logger.error(
+                  LogSource.NetworkRest,
+                  'whiteboard_get_s3_signed_url',
+                  'API success But failed to get signed url for s3 uploaded image',
+                  {
+                    responseData: res2,
+                    startReqTs,
+                    endReqTs,
+                    latency: endReqTs - startReqTs,
+                    requestId,
+                  },
+                );
+                Toast.show({
+                  type: 'error',
+                  text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
+                  visibilityTime: 10000,
+                });
               }
-              logger.debug(
-                LogSource.NetworkRest,
-                'whiteboard_image',
-                'image upload success',
-                res2,
-              );
             })
             .catch(err2 => {
+              const endReqTs = Date.now();
               logger.error(
                 LogSource.NetworkRest,
-                'whiteboard_image',
+                'whiteboard_get_s3_signed_url',
                 'Failed to get image URL',
-                err2,
+                {
+                  error: err2,
+                  startReqTs,
+                  endReqTs,
+                  latency: endReqTs - startReqTs,
+                  requestId,
+                },
               );
               Toast.show({
                 type: 'error',
@@ -437,7 +565,19 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               });
             });
         })
-        .catch(() => {
+        .catch(error => {
+          const endReqTsS3 = Date.now();
+          logger.error(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'Failed to upload image into s3',
+            {
+              error,
+              startReqTs: startReqTsS3,
+              endReqTs: endReqTsS3,
+              latency: endReqTsS3 - startReqTsS3,
+            },
+          );
           Toast.show({
             type: 'error',
             text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
@@ -445,7 +585,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           });
         });
     } else {
-      logger.debug(
+      logger.error(
         LogSource.Internals,
         'WHITEBOARD',
         'image upload url is empty',
@@ -468,16 +608,30 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         /**
          * Get URL to upload the file
          */
+        const requestId = getUniqueID();
+        const startReqTs = Date.now();
+        logger.log(
+          LogSource.NetworkRest,
+          'whiteboard_get_s3_upload_url',
+          'API whiteboard_get_s3_upload_url trying to send request to server',
+          {requestId, startReqTs},
+        );
         fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/upload`, {
           method: 'GET',
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
-            'X-Request-Id': getUniqueID(),
+            'X-Request-Id': requestId,
           },
         })
           .then(async res => {
+            const endReqTs = Date.now();
+            logger.log(
+              LogSource.NetworkRest,
+              'whiteboard_get_s3_upload_url',
+              'API whiteboard_get_upload get url success',
+              {requestId, startReqTs, endReqTs, latency: endReqTs - startReqTs},
+            );
             const data = await res.json();
-
             if (supportedImageType?.indexOf(selectedFile?.type) !== -1) {
               Toast.show({
                 type: 'info',
@@ -498,12 +652,19 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               fileUploadAndConvert(data, selectedFile);
             }
           })
-          .catch(err => {
+          .catch(error => {
+            const endReqTs = Date.now();
             logger.error(
               LogSource.NetworkRest,
-              'whiteboard_upload',
-              'upload api failed',
-              err,
+              'whiteboard_get_s3_upload_url',
+              'get upload url api failed',
+              {
+                error,
+                requestId,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+              },
             );
             Toast.show({
               type: 'error',
