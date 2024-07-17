@@ -282,9 +282,9 @@ const SettingsView = props => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
-  const {
-    roomPreference: {showQualityControls},
-  } = useRoomInfo();
+  const {roomPreference} = useRoomInfo();
+
+  const showQualityControls = roomPreference?.showQualityControls;
 
   return (
     <View

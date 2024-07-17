@@ -247,7 +247,7 @@ const VideoCall: React.FC = () => {
 
   useEffect(() => {
     if (!SdkJoinState.phrase) {
-      useJoin(phrase)
+      useJoin(phrase, RoomInfoDefaultValue.roomPreference)
         .then(() => {})
         .catch(error => {
           setGlobalErrorMessage(error);
