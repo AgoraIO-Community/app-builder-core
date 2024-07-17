@@ -174,7 +174,7 @@ export default class AppBuilderLogger implements Logger {
           type,
           platform,
           user_id: roomInfo?.user_id,
-          session_id: this._session,
+          app_builder_session_id: this._session,
           channel_id: roomInfo?.channel_id,
           host_id: roomInfo?.host_id,
           attendee_id: roomInfo?.attendee_id,
@@ -244,9 +244,6 @@ export default class AppBuilderLogger implements Logger {
             }
           }
           if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
-            delete columns?.session_id;
-            //@ts-ignore
-            columns.app_builder_session_id = this._session;
             _transportLogger(logMessage, status, columns, contextInfo, data);
           }
         } catch (error) {

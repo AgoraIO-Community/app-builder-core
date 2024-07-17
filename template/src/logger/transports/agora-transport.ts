@@ -26,7 +26,7 @@ export const getTransportLogger = () => {
   ) => {
     datadogLogs.logger.log(
       logMessage,
-      {...columns, contextInfo, logContent},
+      {...columns, logMessage, logType, contextInfo, logContent},
       logType,
       //logType === 'error' ? data[0] : undefined,
     );
