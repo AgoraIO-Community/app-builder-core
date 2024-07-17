@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
 import {useSearchParams} from '../../utils/useSearchParams';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import jwt_decode from 'jwt-decode';
 
 interface RecordingBotUIConfig {
   chat: boolean;
@@ -9,7 +10,23 @@ interface RecordingBotUIConfig {
   stt: boolean;
 }
 
+interface BotToken {
+  authentication_type: number;
+  app_id: string;
+  user_id: string;
+  project_id: string;
+  exp: number;
+}
+
 const regexPattern = new RegExp('true');
+
+const isValidBotUserId = (token: string): boolean => {
+  if (!token) {
+    return false;
+  }
+  const decoded = jwt_decode<BotToken>(token);
+  return decoded?.user_id?.startsWith('bc-') || false;
+};
 
 export function useIsRecordingBot() {
   /**
@@ -24,11 +41,14 @@ export function useIsRecordingBot() {
   const recordingBotParam = botParam ? regexPattern.test(botParam) : false;
   const recordingBotToken = useSearchParams().get('token');
   const recordingBotName = useSearchParams().get('user_name');
-  const isRecordingBot = recordingBotParam && recordingBotToken;
+  const isRecordingBot =
+    recordingBotParam &&
+    recordingBotToken &&
+    isValidBotUserId(recordingBotToken);
 
   useEffect(() => {
     logger.log(LogSource.Internals, 'RECORDING', 'Recording bot check', {
-      bot: recordingBotParam,
+      isBot: recordingBotParam,
       token: recordingBotToken,
       name: recordingBotName,
       isRecordingBot: isRecordingBot,
