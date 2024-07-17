@@ -95,6 +95,28 @@ const ChatConfigure = ({children}) => {
           `Logged in User ${data.uid} to Agora Chat Server`,
         );
 
+        // fetch chat members
+        const members = await newConn.listGroupMembers({
+          pageNum: 1,
+          pageSize: 20,
+          groupId: data.chat.group_id,
+        });
+
+        debugger;
+
+        // event listeners for group events
+
+        newConn.addEventHandler('eventName', {
+          onGroupEvent: function (msg) {
+            switch (msg.operation) {
+              case 'memberPresence': {
+                debugger;
+                // hwen new member is added to the group
+              }
+            }
+          },
+        });
+
         //  event listener for messages
         newConn.addEventHandler('connection&message', {
           // app is connected to chat server
