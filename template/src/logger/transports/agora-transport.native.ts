@@ -46,11 +46,17 @@ const getConfig = () => {
 };
 
 const getTransportLogger = () => {
-  return (text: string, data: any, status: StatusType) => {
-    if (status === 'error') {
-      DdLogs.error(text, data);
+  return (
+    logMessage: string,
+    logType: StatusType,
+    columns: Object,
+    contextInfo: Object,
+    logContent: Object,
+  ) => {
+    if (logType === 'error') {
+      DdLogs.error(logMessage, {...columns, contextInfo, logContent});
     } else {
-      DdLogs.debug(text, data);
+      DdLogs.debug(logMessage, {...columns, contextInfo, logContent});
     }
   };
 };

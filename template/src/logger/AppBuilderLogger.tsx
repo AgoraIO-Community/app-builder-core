@@ -168,7 +168,7 @@ export default class AppBuilderLogger implements Logger {
         if (type === 'SET_MEETING_DETAILS') {
           roomInfo = {...data[0]};
         }
-        const columns = {
+        let columns = {
           timestamp: Date.now(),
           source,
           type,
@@ -244,6 +244,9 @@ export default class AppBuilderLogger implements Logger {
             }
           }
           if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
+            delete columns?.session_id;
+            //@ts-ignore
+            columns.app_builder_session_id = this._session;
             _transportLogger(logMessage, status, columns, contextInfo, data);
           }
         } catch (error) {
