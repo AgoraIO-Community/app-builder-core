@@ -380,8 +380,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       const requestId = getUniqueID();
       const startReqTs = Date.now();
       logger.log(
-        LogSource.Internals,
-        'SEND_LOG_IMMEDIATELY',
+        LogSource.NetworkRest,
+        'recording_stop',
         '_stopRecording API called',
         {calledBy: calledBy, requestId, startReqTs},
       );
@@ -402,8 +402,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           setInProgress(false);
           if (res.status === 200 || res.status === 202) {
             logger.log(
-              LogSource.Internals,
-              'SEND_LOG_IMMEDIATELY',
+              LogSource.NetworkRest,
+              'recording_stop',
               '_stopRecording successfull',
               {
                 res,
@@ -440,8 +440,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         .catch(err => {
           const endReqTs = Date.now();
           logger.log(
-            LogSource.Internals,
-            'SEND_LOG_IMMEDIATELY',
+            LogSource.NetworkRest,
+            'recording_stop',
             '_stopRecording Error',
             {
               error: err,
@@ -684,8 +684,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
          */
         case RecordingActions.REQUEST_TO_STOP_RECORDING:
           logger.log(
-            LogSource.Internals,
-            'SEND_LOG_IMMEDIATELY',
+            LogSource.NetworkRest,
+            'recording_stop',
             'recording_state -> REQUEST_TO_STOP_RECORDING',
           );
           _stopRecording('bot');

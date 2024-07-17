@@ -55,7 +55,6 @@ export enum LogSource {
 type LogType = {
   [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service';
   [LogSource.Internals]:
-    | 'SEND_LOG_IMMEDIATELY'
     | 'AUTH'
     | 'CREATE_MEETING'
     | 'SET_MEETING_DETAILS'
@@ -218,7 +217,7 @@ export default class AppBuilderLogger implements Logger {
                 data,
               );
             } else if (_transportLogger) {
-              if (type === 'SEND_LOG_IMMEDIATELY') {
+              if (type === 'recording_stop') {
                 sendLogs([
                   {
                     _time: Date.now(),
