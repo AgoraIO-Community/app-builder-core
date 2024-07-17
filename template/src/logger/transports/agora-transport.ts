@@ -17,12 +17,18 @@ export const initTransportLayerForAgora = () => {
 };
 
 export const getTransportLogger = () => {
-  return (text: string, data: any, status: StatusType) => {
+  return (
+    logMessage: string,
+    logType: StatusType,
+    columns,
+    contextInfo,
+    logContent,
+  ) => {
     datadogLogs.logger.log(
-      text,
-      data,
-      status,
-      status === 'error' ? data[0] : undefined,
+      logMessage,
+      {columns, contextInfo, logContent},
+      logType,
+      //logType === 'error' ? data[0] : undefined,
     );
   };
 };
