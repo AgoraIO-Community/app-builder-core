@@ -282,6 +282,8 @@ const SettingsView = props => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
+  const {roomPreference} = useRoomInfo();
+  const showBeautyControls = roomPreference?.showBeautyControls;
 
   return (
     <View
@@ -305,9 +307,13 @@ const SettingsView = props => {
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
-        <View style={style.panelContainer}>
-          <BeautyEffectsControls />
-        </View>
+        {showBeautyControls ? (
+          <View style={style.panelContainer}>
+            <BeautyEffectsControls />
+          </View>
+        ) : (
+          <></>
+        )}
       </ScrollView>
     </View>
   );

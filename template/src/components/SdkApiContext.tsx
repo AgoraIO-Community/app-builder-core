@@ -27,7 +27,7 @@ type SdkApiContextInterface = {
         meetingDetails?: Partial<RoomInfoContextInterface['data']>;
         userName: string;
         skipPrecall: boolean;
-        preference: {disableShareTile: boolean};
+        preference: {disableShareTile: boolean; showBeautyControls: boolean};
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
     | {

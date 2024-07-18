@@ -385,6 +385,8 @@ const Precall = () => {
 
   const isDesktop = useIsDesktop();
   const getResponsiveValue = useResponsive();
+  const {roomPreference} = useRoomInfo();
+  const showBeautyControls = roomPreference?.showBeautyControls;
 
   return FpePrecallComponent ? (
     <FpePrecallComponent />
@@ -524,9 +526,13 @@ const Precall = () => {
                     <VirtualBackgroundComponent isOnPrecall={true} />
                   </ScrollView>
                 )}
-                <View style={style.panelContainer}>
-                  <BeautyEffectsControls />
-                </View>
+                {showBeautyControls ? (
+                  <View style={style.panelContainer}>
+                    <BeautyEffectsControls />
+                  </View>
+                ) : (
+                  <></>
+                )}
               </ScrollView>
             </Card>
           </ScrollView>
