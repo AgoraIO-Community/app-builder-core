@@ -48,6 +48,7 @@ import {
   whiteboardWidgetZoomInText,
   whiteboardWidgetZoomOutText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import getUniqueID from '../../utils/getUniqueID';
 
 const Seperator = () => {
   return (
@@ -126,6 +127,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       const myHeaders2 = new Headers();
       myHeaders2.append('Content-Type', 'application/json');
       myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+      myHeaders2.append('X-Request-Id', getUniqueID());
       const body = JSON.stringify({
         room_uuid: room_uuid,
         path: '/init',

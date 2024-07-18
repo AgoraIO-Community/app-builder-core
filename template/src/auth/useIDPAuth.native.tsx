@@ -8,6 +8,7 @@ import {
 } from './openIDPURL.native';
 import StorageContext from '../components/StorageContext';
 import useTokenAuth from './useTokenAuth';
+import getUniqueID from '../utils/getUniqueID';
 
 export const useIDPAuth = () => {
   const {store, setStore} = useContext(StorageContext);
@@ -19,9 +20,10 @@ export const useIDPAuth = () => {
         fetch(`${$config.BACKEND_ENDPOINT}/v1/idp/logout`, {
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
+            'X-Request-Id': getUniqueID(),
           },
         })
-          .then((response) => response.json())
+          .then(response => response.json())
           .then((res: any) => {
             if (res && res?.url) {
               //Storing the URL in the local variable
@@ -37,7 +39,7 @@ export const useIDPAuth = () => {
                     InAppBrowser.openAuth(
                       IDPAuthLogoutURL,
                       encodeURIComponent(getIDPAuthLoginURL()),
-                    ).then((res) => {
+                    ).then(res => {
                       if (res && res?.type === 'cancel') {
                         setShowNativePopup && setShowNativePopup(true);
                       }
@@ -54,7 +56,7 @@ export const useIDPAuth = () => {
               reject(false);
             }
           })
-          .catch((_) => {
+          .catch(_ => {
             reject(false);
           });
       } catch (error) {

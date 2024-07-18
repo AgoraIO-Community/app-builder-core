@@ -17,6 +17,12 @@ import {initTransportLayerForCustomers} from './transports/customer-transport';
 
 const cli_version = 'test';
 
+export type CustomLogger = (
+  message: string,
+  data: any,
+  type: StatusType,
+) => void;
+
 export declare const StatusTypes: {
   readonly debug: 'debug';
   readonly error: 'error';
@@ -45,6 +51,7 @@ type LogType = {
   [LogSource.Internals]:
     | 'AUTH'
     | 'CREATE_MEETING'
+    | 'SET_MEETING_DETAILS'
     | 'ENTER_MEETING_ROOM'
     | 'JOIN_MEETING'
     | 'PRECALL_SCREEN'
@@ -117,6 +124,7 @@ export default class AppBuilderLogger implements Logger {
   warn: LogFn;
   debug: LogFn;
   error: LogFn;
+  private _customLogger: CustomLogger;
 
   constructor(_transportLogger?: any) {
     const session = nanoid();
@@ -127,6 +135,15 @@ export default class AppBuilderLogger implements Logger {
     const rtcPkg = isWeb()
       ? pkg.dependencies['agora-rtc-sdk-ng']
       : pkg.dependencies['react-native-agora'];
+    let roomInfo = {
+      meeting_title: '',
+      phrase: '',
+      channel_id: '',
+      room_id: {
+        host_id: '',
+        attendee_id: '',
+      },
+    };
     const logger =
       (status: StatusType) =>
       <T extends LogSource>(
@@ -138,7 +155,9 @@ export default class AppBuilderLogger implements Logger {
         if (!$config.LOG_ENABLED) {
           return;
         }
-
+        if (type === 'SET_MEETING_DETAILS') {
+          roomInfo = {...data[0]};
+        }
         const context = {
           timestamp: Date.now(),
           source,
@@ -154,22 +173,34 @@ export default class AppBuilderLogger implements Logger {
               rtm: rtmPkg,
               rtc: rtcPkg,
             },
+            meeting_title: roomInfo?.meeting_title,
+            phrase: roomInfo?.phrase,
+            channel_id: roomInfo?.channel_id,
+            room_id: {
+              host_id: roomInfo?.room_id?.host_id,
+              attendee_id: roomInfo?.room_id?.attendee_id,
+            },
           },
         };
 
-        if (
-          (ENABLE_AGORA_LOGGER_TRANSPORT || ENABLE_CUSTOMER_LOGGER_TRANSPORT) &&
-          _transportLogger
-        ) {
-          try {
-            _transportLogger(logMessage, context, status);
-          } catch (error) {
-            console.log(
-              `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
-              error,
-            );
+        try {
+          if (ENABLE_CUSTOMER_LOGGER_TRANSPORT) {
+            if (this._customLogger) {
+              this._customLogger(logMessage, context, status);
+            } else if (_transportLogger) {
+              _transportLogger(logMessage, context, status);
+            }
           }
+          if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
+            _transportLogger(logMessage, context, status);
+          }
+        } catch (error) {
+          console.log(
+            `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
+            error,
+          );
         }
+
         if (ENABLE_BROWSER_CONSOLE_LOGS || status === 'debug') {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
           const consoleCSS = 'color: violet; font-weight: bold';
@@ -199,6 +230,17 @@ export default class AppBuilderLogger implements Logger {
       },
     );
   }
+
+  setCustomLogger = (_customLogger: CustomLogger) => {
+    this._customLogger = _customLogger;
+    _customLogger(
+      'App intitialized with config.json',
+      {
+        config: configJSON,
+      },
+      'debug',
+    );
+  };
 }
 
 let _transportLogger = null;

@@ -9,6 +9,7 @@ import useGetName from '../../utils/useGetName';
 import {capitalizeFirstLetter} from '../../utils/common';
 import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import getUniqueID from '../../utils/getUniqueID';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -55,6 +56,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         headers: {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
+          'X-Request-Id': getUniqueID(),
         },
         body: JSON.stringify({
           passphrase: roomId?.host || '',
