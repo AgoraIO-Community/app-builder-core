@@ -26,8 +26,8 @@ import {LogSource, logger} from './logger/AppBuilderLogger';
 import {isValidReactComponent} from './utils/common';
 
 function VideoCallWrapper(props) {
-  const {isRecordingBotRoute} = useIsRecordingBot();
-  return isRecordingBotRoute ? (
+  const {isRecordingBot} = useIsRecordingBot();
+  return isRecordingBot ? (
     <RecordingBotRoute history={props.history}>
       <VideoCall />
     </RecordingBotRoute>

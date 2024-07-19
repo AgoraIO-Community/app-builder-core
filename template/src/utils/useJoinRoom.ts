@@ -174,6 +174,7 @@ export default function useJoinRoom() {
               latency,
               requestId,
             },
+
           );
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
 
