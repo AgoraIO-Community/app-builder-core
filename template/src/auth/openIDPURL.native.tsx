@@ -43,7 +43,7 @@ export const enableIDPAuth = async openDeepLink => {
       LogSource.Internals,
       'AUTH',
       'failed to open IDP URL native',
-      error?.message,
+      error,
     );
   }
 };

@@ -98,8 +98,8 @@ const useSTTAPI = (): IuseSTTAPI => {
         LogSource.NetworkRest,
         'stt',
         `STT API Failure - Called ${method} on stt with lang ${lang}`,
+        error,
         {
-          error,
           requestId,
           startReqTs,
           endReqTs,
@@ -133,7 +133,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           LogSource.NetworkRest,
           'stt',
           `start stt for lang ${lang} failed`,
-          res?.error?.message,
+          res?.error,
         );
       } else {
         logger.log(

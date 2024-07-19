@@ -143,8 +143,8 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
               LogSource.Internals,
               'NAME',
               'ERROR, could not save the name',
+              error,
               {
-                error,
                 startReqTs,
                 endReqTs,
                 latency: endReqTs - startReqTs,
@@ -158,8 +158,8 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           LogSource.Internals,
           'NAME',
           'ERROR, could not save the name',
+          error,
           {
-            error,
             startReqTs,
             endReqTs,
             latency: endReqTs - startReqTs,

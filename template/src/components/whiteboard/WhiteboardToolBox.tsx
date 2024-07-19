@@ -396,9 +396,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 LogSource.NetworkRest,
                 'whiteboard_fileconvert',
                 'file convert failed',
+                err2,
                 {
                   fileType: selectedFile?.type,
-                  error: err2,
                   requestId,
                   startReqTs,
                   endReqTs,
@@ -418,9 +418,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             LogSource.NetworkRest,
             'whiteboard_s3_upload',
             'API whiteboard_s3_upload failed',
+            error,
             {
               fileType: selectedFile?.type,
-              error: error,
               startReqT: startReqTsUpload,
               endReqTs: endReqTsUpload,
               latency: endReqTsUpload - startReqTsUpload,
@@ -529,6 +529,9 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                   LogSource.NetworkRest,
                   'whiteboard_get_s3_signed_url',
                   'API success But failed to get signed url for s3 uploaded image',
+                  new Error(
+                    'API whiteboard_get_s3_signed_url success But failed to get signed url for s3 uploaded image',
+                  ),
                   {
                     responseData: res2,
                     startReqTs,
@@ -550,8 +553,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                 LogSource.NetworkRest,
                 'whiteboard_get_s3_signed_url',
                 'Failed to get image URL',
+                err2,
                 {
-                  error: err2,
                   startReqTs,
                   endReqTs,
                   latency: endReqTs - startReqTs,
@@ -571,8 +574,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             LogSource.NetworkRest,
             'whiteboard_s3_upload',
             'Failed to upload image into s3',
+            error,
             {
-              error,
               startReqTs: startReqTsS3,
               endReqTs: endReqTsS3,
               latency: endReqTsS3 - startReqTsS3,
@@ -658,8 +661,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               LogSource.NetworkRest,
               'whiteboard_get_s3_upload_url',
               'get upload url api failed',
+              error,
               {
-                error,
                 requestId,
                 startReqTs,
                 endReqTs,

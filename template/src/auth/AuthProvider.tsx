@@ -530,8 +530,8 @@ const AuthProvider = (props: AuthProviderProps) => {
               LogSource.NetworkRest,
               'unauth_login',
               'API unauth_login failed. There was an error',
+              new Error('Token not received'),
               {
-                error: 'Token not received',
                 requestId,
                 startReqTs,
                 endReqTs,
@@ -566,8 +566,8 @@ const AuthProvider = (props: AuthProviderProps) => {
             LogSource.NetworkRest,
             'unauth_login',
             'API unauth_login failed. There was an error',
+            error,
             {
-              error,
               requestId,
               startReqTs,
               endReqTs,

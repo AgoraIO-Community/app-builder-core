@@ -190,9 +190,9 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
               LogSource.Internals,
               'DEVICE_CONFIGURE',
               `There was an error setting camera - ${value}`,
+              e,
               {
                 data: value,
-                error: e,
               },
             );
             setIsPendingUpdate(false);
@@ -306,9 +306,9 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
               LogSource.Internals,
               'DEVICE_CONFIGURE',
               `There was an error setting mic - ${value}`,
+              e,
               {
                 data: value,
-                error: e,
               },
             );
             setIsPendingUpdate(false);
@@ -418,9 +418,9 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
                 LogSource.Internals,
                 'DEVICE_CONFIGURE',
                 `There was an error setting speaker - ${value}`,
+                e,
                 {
                   data: value,
-                  error: e,
                 },
               );
               setIsPendingUpdate(false);

@@ -112,8 +112,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       LogSource.NetworkRest,
       'whiteboard_screenshot',
       'API whiteboard_screenshot failed to generated screenshot URL',
+      error,
       {
-        error,
         startReqTs,
         endReqTs,
         latency: endReqTs - startReqTs,

@@ -52,6 +52,7 @@ const useMutePSTN = () => {
           LogSource.Internals,
           'MUTE_PSTN',
           'Mutation MUTE_PSTN success',
+          error,
           {startReqTs, endReqTs, latency: endReqTs - startReqTs, requestId},
         );
         throw error;

@@ -234,14 +234,14 @@ const useTokenAuth = () => {
             resolve(true);
             updateToken(null);
           })
-          .catch(err => {
+          .catch(error => {
             const endReqTs = Date.now();
             logger.error(
               LogSource.NetworkRest,
               'idp_logout',
               'Error API V1 logout called successfully',
+              error,
               {
-                error: err,
                 startReqTs,
                 endReqTs,
                 latency: endReqTs - startReqTs,

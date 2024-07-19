@@ -348,7 +348,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           LogSource.NetworkRest,
           'recording_start',
           'Error while start recording',
-          {err, startReqTs, endRequestTs, latency, requestId},
+          err,
+          {startReqTs, endRequestTs, latency, requestId},
         );
         setRecordingActive(false);
         setInProgress(false);
@@ -571,8 +572,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             LogSource.NetworkRest,
             'recordings_get',
             'Error while fetching recording',
+            error,
             {
-              error,
               startReqTs,
               endReqTs,
               latency: endReqTs - startReqTs,

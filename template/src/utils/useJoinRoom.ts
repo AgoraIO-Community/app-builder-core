@@ -148,8 +148,8 @@ export default function useJoinRoom() {
           `API ${
             isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
           } failed.`,
+          response?.error,
           {
-            error: response?.error,
             startReqTs,
             endReqTs,
             latency,

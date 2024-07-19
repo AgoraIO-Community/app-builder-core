@@ -108,8 +108,8 @@ export const useIDPAuth = () => {
       LogSource.NetworkRest,
       'idp_logout',
       'Error on calling API idp_logout',
+      error,
       {
-        error,
         requestId,
         startReqTs,
         endReqTs,

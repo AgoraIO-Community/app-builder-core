@@ -22,13 +22,17 @@ export const getTransportLogger = () => {
     logType: StatusType,
     columns: Object,
     contextInfo: Object,
-    logContent: Object,
+    logContent: any[],
   ) => {
     datadogLogs.logger.log(
       logMessage,
       {...columns, logMessage, logType, contextInfo, logContent},
       logType,
-      //logType === 'error' ? data[0] : undefined,
+      logType === 'error'
+        ? logContent?.length
+          ? logContent[0]
+          : undefined
+        : undefined,
     );
   };
 };

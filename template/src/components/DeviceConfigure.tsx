@@ -513,12 +513,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             'DEVICE_CONFIGURE',
             `${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
           );
-          setDevice(storedDevice).catch((e: Error) => {
+          setDevice(storedDevice).catch((error: Error) => {
             logger.error(
               LogSource.Internals,
               'DEVICE_CONFIGURE',
               `ERROR: ${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
-              e.message,
+              error,
             );
           });
         } else {
@@ -723,7 +723,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           `${logtag} Error setting ${kind}`,
-          e.message,
+          e,
         );
         rej(e);
         return;
@@ -744,7 +744,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             LogSource.Internals,
             'DEVICE_CONFIGURE',
             `${logtag} Error setting ${kind}`,
-            {error: e},
+            e,
           );
           rej(e);
           handleQueue();

@@ -55,8 +55,8 @@ export default function useGetMeetingPhrase() {
         LogSource.Internals,
         'GET_MEETING_PHRASE',
         'Query GET_MEETING_PHRASE failed',
+        response.error,
         {
-          error: response.error,
           requestId,
           startReqTs,
           endReqTs,
