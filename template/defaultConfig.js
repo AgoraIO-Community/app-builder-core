@@ -75,6 +75,8 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
+  CLI_VERSION: '',
+  CORE_VERSION: '',
 };
 
 module.exports = DefaultConfig;

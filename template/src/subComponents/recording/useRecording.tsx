@@ -253,6 +253,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }),
       PersistanceLevel.Session,
     );
+    const startReqTs = Date.now();
+    const requestId = getUniqueID();
     logger.debug(
       LogSource.NetworkRest,
       'recording_start',
@@ -261,6 +263,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         passphrase: roomId.host,
         url,
         mode: recordingMode,
+        startReqTs,
+        requestId: requestId,
       },
     );
     fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/start`, {
@@ -268,7 +272,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       headers: {
         'Content-Type': 'application/json',
         authorization: store.token ? `Bearer ${store.token}` : '',
-        'X-Request-Id': getUniqueID(),
+        'X-Request-Id': requestId,
       },
       body: JSON.stringify({
         passphrase: roomId.host,
@@ -279,12 +283,20 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }),
     })
       .then((res: any) => {
+        const endRequestTs = Date.now();
+        const latency = endRequestTs - startReqTs;
         if (res.status === 200) {
           logger.debug(
             LogSource.NetworkRest,
             'recording_start',
             'start recording successfully',
-            res,
+            {
+              responseData: res,
+              startReqTs,
+              endRequestTs,
+              latency,
+              requestId,
+            },
           );
           // 1. set the local recording state to true to update the UI
           events.send(
@@ -336,11 +348,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }
       })
       .catch(err => {
+        const endRequestTs = Date.now();
+        const latency = endRequestTs - startReqTs;
         logger.error(
           LogSource.NetworkRest,
           'recording_start',
           'Error while start recording',
           err,
+          {startReqTs, endRequestTs, latency, requestId},
         );
         setRecordingActive(false);
         setInProgress(false);
@@ -366,6 +381,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         '_stopRecording API called',
         {calledBy: calledBy},
       );
+
       events.send(
         EventNames.RECORDING_STATE_ATTRIBUTE,
         JSON.stringify({
@@ -374,11 +390,20 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }),
         PersistanceLevel.Session,
       );
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'recording_stop',
+        '_stopRecording API called',
+        {calledBy: calledBy, requestId, startReqTs},
+      );
       fetchRetry(`${$config.BACKEND_ENDPOINT}/v1/recording/stop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
+          'X-Request-Id': requestId,
         },
         body: JSON.stringify({
           passphrase: roomId.host,
@@ -386,13 +411,20 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }),
       })
         .then(res => {
+          const endReqTs = Date.now();
           setInProgress(false);
           if (res.status === 200 || res.status === 202) {
             logger.debug(
               LogSource.NetworkRest,
               'recording_stop',
               '_stopRecording successfull',
-              res,
+              {
+                res,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
             );
             /**
              * 1. Once the backend sucessfuly stops recording, send message
@@ -418,11 +450,18 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           }
         })
         .catch(err => {
-          logger.error(
+          const endReqTs = Date.now();
+          logger.log(
             LogSource.NetworkRest,
             'recording_stop',
             '_stopRecording Error',
-            err,
+            {
+              error: err,
+              startReqTs,
+              endReqTs,
+              latency: endReqTs - startReqTs,
+              requestId,
+            },
           );
           setInProgress(false);
           events.send(
@@ -488,6 +527,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const fetchRecordings = useCallback(
     (page: number) => {
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
       logger.debug(
         LogSource.NetworkRest,
         'recordings_get',
@@ -496,6 +537,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           passphrase: roomId?.host,
           limit: 10,
           page,
+          requestId,
+          startReqTs,
         },
       );
       return fetch(`${$config.BACKEND_ENDPOINT}/v1/recordings`, {
@@ -503,7 +546,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         headers: {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
-          'X-Request-Id': getUniqueID(),
+          'X-Request-Id': requestId,
         },
         body: JSON.stringify({
           passphrase: roomId?.host,
@@ -511,13 +554,20 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           page,
         }),
       }).then(async response => {
+        const endReqTs = Date.now();
         const data = await response.json();
         if (response.ok) {
           logger.debug(
             LogSource.NetworkRest,
             'recordings_get',
             'fetch recordings successfull',
-            data,
+            {
+              responseData: data,
+              startReqTs,
+              endReqTs,
+              latency: endReqTs - startReqTs,
+              requestId,
+            },
           );
           if (data) {
             return data;
@@ -537,6 +587,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             'recordings_get',
             'Error while fetching recording',
             error,
+            {
+              startReqTs,
+              endReqTs,
+              latency: endReqTs - startReqTs,
+              requestId,
+            },
           );
           return Promise.reject(error);
         }
@@ -640,9 +696,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
          * new user gets the correct state or not
          */
         case RecordingActions.REQUEST_TO_STOP_RECORDING:
-          logger.debug(
-            LogSource.Internals,
-            'RECORDING',
+          logger.log(
+            LogSource.NetworkRest,
+            'recording_stop',
             'recording_state -> REQUEST_TO_STOP_RECORDING',
           );
           _stopRecording('bot');

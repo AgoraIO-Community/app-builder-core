@@ -54,7 +54,6 @@ const authLink = (token: string) => {
           ...headers,
           'X-Project-ID': $config.PROJECT_ID,
           'X-Platform-ID': 'turnkey_web',
-          'X-REQUEST-ID': getUniqueID(),
           ...(token && {
             authorization: token ? `Bearer ${token}` : '',
           }),

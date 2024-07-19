@@ -34,8 +34,20 @@ const useFindActiveSpeaker = () => {
   const activeSpeakerUid = useRef(undefined);
 
   const emitActiveSpeaker = (uid: UidType) => {
+    const timenow = Date.now();
     if (uid !== activeSpeakerUid.current) {
       activeSpeakerUid.current = uid;
+      uid
+        ? logger.log(
+            LogSource.Internals,
+            'ACTIVE_SPEAKER',
+            `${'Final Active speaker - '} ${uid}`,
+            {
+              timestamp: timenow,
+              uid: uid,
+            },
+          )
+        : {};
       LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
     }
   };
@@ -131,11 +143,6 @@ const useFindActiveSpeaker = () => {
     );
     if (!speakingUids || speakingUids?.length == 0) {
       log(' %cFinal No Active speaker', 'color:red');
-      logger.log(
-        LogSource.Internals,
-        'ACTIVE_SPEAKER',
-        `${'%cFinal No Active speaker'}, ${'color:red'}`,
-      );
       emitActiveSpeaker(0);
     } else {
       if (speakingUids?.length === 1) {
