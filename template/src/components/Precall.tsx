@@ -60,6 +60,7 @@ import {
 } from '../language/default-labels/precallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
+import QualityControls from './quality-profiles/QualityControls';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -525,6 +526,13 @@ const Precall = () => {
                   <ScrollView style={style.panelContainer}>
                     <VirtualBackgroundComponent isOnPrecall={true} />
                   </ScrollView>
+                )}
+                {roomPreference?.showQualityControls ? (
+                  <View style={style.deviceSelectContainer}>
+                    <QualityControls />
+                  </View>
+                ) : (
+                  <></>
                 )}
                 {showBeautyControls ? (
                   <View style={style.panelContainer}>

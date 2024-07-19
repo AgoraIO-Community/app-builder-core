@@ -22,9 +22,9 @@ const VideoComponent = () => {
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const [showNoUserInfo, setShowNoUserInfo] = useState(false);
 
-  const {
-    roomPreference: {disableShareTile},
-  } = useRoomInfo();
+  const {roomPreference} = useRoomInfo();
+
+  const disableShareTile = roomPreference?.disableShareTile;
 
   useEffect(() => {
     if (!disableShareTile) {

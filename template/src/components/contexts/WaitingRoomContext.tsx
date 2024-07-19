@@ -30,10 +30,17 @@ const WaitingRoomProvider = ({children}) => {
           v?.type === 'rtc' && !v.offline && v?.isInWaitingRoom === true,
       ),
     ).map(Number);
-    logger.debug(LogSource.Internals, 'WAITING_ROOM', 'users in waiting room', {
-      uids,
-      defaultContent,
-    });
+    if ($config.ENABLE_WAITING_ROOM) {
+      logger.debug(
+        LogSource.Internals,
+        'WAITING_ROOM',
+        'users in waiting room',
+        {
+          uids,
+          defaultContent,
+        },
+      );
+    }
 
     setwaitingRoomUids(uids);
   }, [defaultContent]);

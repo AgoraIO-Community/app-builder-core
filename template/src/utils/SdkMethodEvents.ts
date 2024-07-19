@@ -11,7 +11,11 @@ export interface SdkMethodEvents {
     roomid: string | Partial<RoomInfoContextInterface['data']>,
     skipPrecall?: boolean,
     username?: string,
-    preference?: {disableShareTile: boolean; showBeautyControls: boolean},
+    preference?: {
+      disableShareTile: boolean;
+      showBeautyControls: boolean;
+      showQualityControls: boolean;
+    },
   ): RoomInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;
   speakerDevice: (deviceId: deviceId) => void;

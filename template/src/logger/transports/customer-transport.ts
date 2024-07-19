@@ -52,7 +52,7 @@ const fetchRetry = createRetryFetch(fetch, {
   },
 });
 
-const sendLogs = (p: any[]) => {
+export const sendLogs = (p: any[]) => {
   if (p && p?.length) {
     fetchRetry(
       'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
@@ -113,13 +113,17 @@ export const createAxiomLogger = () => {
 export const initTransportLayerForCustomers = () => {
   const [log, flush] = createAxiomLogger();
 
-  const printLogs = (...args: any[]) => {
+  const printLogs = (logMessage, logType, columns, contextInfo, logContent) => {
     log({
-      data: args,
       _time: Date.now(),
       projectId: $config.PROJECT_ID,
       appId: $config.APP_ID,
       service: 'app-builder-core-frontend-customer',
+      logType,
+      logMessage,
+      logContent,
+      contextInfo,
+      ...columns,
     });
 
     isWeb() &&

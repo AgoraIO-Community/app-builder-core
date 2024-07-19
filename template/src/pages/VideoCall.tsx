@@ -193,6 +193,7 @@ const VideoCall: React.FC = () => {
     screenShareUid: null,
     screenShareToken: null,
     profile: $config.PROFILE,
+    screenShareProfile: $config.SCREEN_SHARE_PROFILE,
     dual: true,
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128GCM2, screenKey: null}
@@ -221,13 +222,11 @@ const VideoCall: React.FC = () => {
       return;
     }
     logger.log(LogSource.Internals, 'SET_MEETING_DETAILS', 'Room details', {
+      user_id: data?.uid || '',
       meeting_title: data?.meetingTitle || '',
-      phrase: phrase,
       channel_id: data?.channel,
-      room_id: {
-        host_id: data?.roomId?.host || '',
-        attendee_id: data?.roomId?.attendee || '',
-      },
+      host_id: data?.roomId?.host || '',
+      attendee_id: data?.roomId?.attendee || '',
     });
   }, [isJoinDataFetched, data, phrase]);
 

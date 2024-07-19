@@ -55,6 +55,7 @@ import {
 } from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
+import QualityControls from './quality-profiles/QualityControls';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -285,6 +286,8 @@ const SettingsView = props => {
   const {roomPreference} = useRoomInfo();
   const showBeautyControls = roomPreference?.showBeautyControls;
 
+  const showQualityControls = roomPreference?.showQualityControls;
+
   return (
     <View
       style={[
@@ -314,6 +317,7 @@ const SettingsView = props => {
         ) : (
           <></>
         )}
+        {showQualityControls ? <QualityControls /> : <></>}
       </ScrollView>
     </View>
   );
