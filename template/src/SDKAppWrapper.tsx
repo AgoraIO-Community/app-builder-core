@@ -21,13 +21,21 @@ export interface AppBuilderSdkApiInterface {
   joinRoom: (
     roomDetails: string | meetingData,
     userName?: string,
-    preference?: {disableShareTile: boolean; showQualityControls: boolean},
+    preference?: {
+      disableShareTile: boolean;
+      showBeautyControls: boolean;
+      showQualityControls: boolean;
+    },
   ) => Promise<meetingData>;
   joinPrecall: (
     roomDetails: string | meetingData,
     userName?: string,
     skipPrecall?: boolean,
-    preference?: {disableShareTile: boolean; showQualityControls: boolean},
+    preference?: {
+      disableShareTile: boolean;
+      showBeautyControls: boolean;
+      showQualityControls: boolean;
+    },
   ) => Promise<
     [
       meetingData,
