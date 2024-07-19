@@ -32,13 +32,17 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
     data: {roomId, isHost},
   } = useRoomInfo();
 
-  const apiCall = async (method: 'request' | 'approval', payload: string) => {
+  const apiCall = async (
+    method: 'request' | 'approval',
+    payload: string,
+    requestId: string,
+  ) => {
     const response = await fetch(`${WAITING_ROOM_URL}/${method}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         authorization: store.token ? `Bearer ${store.token}` : '',
-        'X-Request-Id': getUniqueID(),
+        'X-Request-Id': requestId,
       },
       body: payload,
     });
@@ -52,18 +56,27 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       passphrase: meetingPhrase || phrase,
       send_event: send_event,
     });
+    const requestId = getUniqueID();
+    const startReqTs = Date.now();
     logger.log(
       LogSource.NetworkRest,
       'channel_join_request',
       'API channel_join_request trying to send request to join channel',
-      payload,
+      {payload, startReqTs, requestId},
     );
-    const res = await apiCall('request', payload);
+    const res = await apiCall('request', payload, requestId);
+    const endReqTs = Date.now();
     logger.log(
       LogSource.NetworkRest,
       'channel_join_request',
       'API channel_join_request executed successfully',
-      res,
+      {
+        responseData: res,
+        requestId,
+        startReqTs,
+        endReqTs,
+        latency: endReqTs - startReqTs,
+      },
     );
     return res;
   };
@@ -81,18 +94,27 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
       attendee_screenshare_uid: attendee_screenshare_uid, // screenshare uid of attendee
       approved: approved, //approval status,
     });
+    const requestId = getUniqueID();
+    const startReqTs = Date.now();
     logger.log(
       LogSource.NetworkRest,
       'channel_join_approval',
       `API channel_join_approval. Trying to approve join channel request as waiting room is enabled. Is request approved ?  ${approved}`,
-      payload,
+      {payload, requestId, startReqTs},
     );
-    const res = await apiCall('approval', payload);
+    const res = await apiCall('approval', payload, requestId);
+    const endReqTs = Date.now();
     logger.log(
       LogSource.NetworkRest,
       'channel_join_request',
       'API channel_join_approval executed successfully',
-      res,
+      {
+        responseData: res,
+        requestId,
+        startReqTs,
+        endReqTs,
+        latency: endReqTs - startReqTs,
+      },
     );
     return res;
   };
