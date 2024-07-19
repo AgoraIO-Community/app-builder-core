@@ -527,6 +527,7 @@ const Precall = () => {
                     <VirtualBackgroundComponent isOnPrecall={true} />
                   </ScrollView>
                 )}
+
                 {roomPreference?.showQualityControls ? (
                   <View style={style.deviceSelectContainer}>
                     <QualityControls />
@@ -534,6 +535,7 @@ const Precall = () => {
                 ) : (
                   <></>
                 )}
+                <Spacer size={24} />
                 {showBeautyControls ? (
                   <View style={style.panelContainer}>
                     <BeautyEffectsControls />

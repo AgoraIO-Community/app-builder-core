@@ -317,6 +317,7 @@ const SettingsView = props => {
         ) : (
           <></>
         )}
+        <Spacer size={24} />
         {showQualityControls ? <QualityControls /> : <></>}
       </ScrollView>
     </View>
