@@ -37,3 +37,8 @@ export {
   type Option as VBOption,
 } from '../src/components/virtual-background/useVB';
 export {type VBCardProps} from '../src/components/virtual-background/VBCard';
+export {
+  type VideoEncoderConfigurationPreset,
+  type ScreenEncoderConfigurationPreset,
+  type VideoEncoderConfiguration,
+} from '../src/app-state/useVideoQuality';

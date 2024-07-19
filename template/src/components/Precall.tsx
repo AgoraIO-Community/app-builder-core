@@ -59,6 +59,7 @@ import {
   settingsPanelHeading,
 } from '../language/default-labels/precallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import QualityControls from './quality-profiles/QualityControls';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -323,6 +324,7 @@ const Precall = () => {
   const {
     isJoinDataFetched,
     data: {meetingTitle},
+    roomPreference,
   } = useRoomInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
@@ -517,8 +519,16 @@ const Precall = () => {
               <View style={style.deviceSelectContainer}>
                 <DeviceSelect isOnPrecall={true} />
               </View>
+              {roomPreference?.showQualityControls ? (
+                <View style={style.deviceSelectContainer}>
+                  <QualityControls />
+                </View>
+              ) : (
+                <></>
+              )}
+
               {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
-                <ScrollView style={style.vbPanelContainer}>
+                <ScrollView style={style.panelContainer}>
                   <VirtualBackgroundComponent isOnPrecall={true} />
                 </ScrollView>
               )}
@@ -552,7 +562,7 @@ const style = StyleSheet.create({
   deviceSelectContainer: {
     paddingHorizontal: 24,
   },
-  vbPanelContainer: {
+  panelContainer: {
     margin: 24,
     marginTop: 0,
     overflow: 'hidden',

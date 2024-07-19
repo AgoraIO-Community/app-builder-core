@@ -81,6 +81,7 @@ const JOIN_CHANNEL_PHRASE = gql`
 
 export interface joinRoomPreference {
   disableShareTile: boolean;
+  showQualityControls: boolean;
 }
 
 export default function useJoinRoom() {
@@ -268,6 +269,8 @@ export default function useJoinRoom() {
           // if (data?.getUser?.name) {
           //   roomInfo.username = data.getUser.name;
           // }
+          const validPreference =
+            preference && Object.keys(preference).length > 0;
           setRoomInfo(prevState => {
             let compiledMeetingInfo = {
               ...prevState.data,
@@ -277,7 +280,9 @@ export default function useJoinRoom() {
               ...prevState,
               isJoinDataFetched: true,
               data: compiledMeetingInfo,
-              roomPreference: {...preference},
+              roomPreference: validPreference
+                ? {...preference}
+                : prevState.roomPreference,
             };
           });
           return roomInfo;
