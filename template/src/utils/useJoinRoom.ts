@@ -8,6 +8,7 @@ import useGetName from './useGetName';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {base64ToUint8Array} from '../utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import getUniqueID from './getUniqueID';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -80,6 +81,8 @@ const JOIN_CHANNEL_PHRASE = gql`
 
 export interface joinRoomPreference {
   disableShareTile: boolean;
+  showBeautyControls: boolean;
+  showQualityControls: boolean;
 }
 
 export default function useJoinRoom() {
@@ -99,6 +102,8 @@ export default function useJoinRoom() {
       };
     });
     try {
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
       let response = null;
       if (isWaitingRoomEnabled) {
         logger.log(
@@ -115,8 +120,17 @@ export default function useJoinRoom() {
           LogSource.NetworkRest,
           'joinChannel',
           'API joinChannel. Trying to join channel. Waiting room is disabled',
+          {
+            startReqTs,
+            requestId,
+          },
         );
         response = await client.query({
+          context: {
+            headers: {
+              'X-Request-Id': requestId,
+            },
+          },
           query:
             store.token === null
               ? JOIN_CHANNEL_PHRASE
@@ -127,6 +141,8 @@ export default function useJoinRoom() {
           },
         });
       }
+      const endReqTs = Date.now();
+      const latency = endReqTs - startReqTs;
       if (response?.error) {
         logger.error(
           LogSource.NetworkRest,
@@ -135,6 +151,12 @@ export default function useJoinRoom() {
             isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
           } failed.`,
           response?.error,
+          {
+            startReqTs,
+            endReqTs,
+            latency,
+            requestId,
+          },
         );
         throw response.error;
       } else {
@@ -146,7 +168,14 @@ export default function useJoinRoom() {
             `API to ${
               isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
             } successful.`,
-            phrase,
+            {
+              responseData: data,
+              phrase: phrase,
+              startReqTs,
+              endReqTs,
+              latency,
+              requestId,
+            },
           );
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
 
@@ -240,6 +269,8 @@ export default function useJoinRoom() {
           // if (data?.getUser?.name) {
           //   roomInfo.username = data.getUser.name;
           // }
+          const validPreference =
+            preference && Object.keys(preference).length > 0;
           setRoomInfo(prevState => {
             let compiledMeetingInfo = {
               ...prevState.data,
@@ -249,7 +280,9 @@ export default function useJoinRoom() {
               ...prevState,
               isJoinDataFetched: true,
               data: compiledMeetingInfo,
-              roomPreference: {...preference},
+              roomPreference: validPreference
+                ? {...preference}
+                : prevState.roomPreference,
             };
           });
           return roomInfo;

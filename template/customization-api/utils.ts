@@ -36,3 +36,4 @@ export {default as useLocalVideo} from '../src/utils/useLocalVideo';
 export type {LanguageType} from '../src/subComponents/caption/utils';
 export {default as useSpeechToText} from '../src/utils/useSpeechToText';
 export {isMobileUA} from '../src/utils/common';
+export {getSessionId} from '../src/utils/common';

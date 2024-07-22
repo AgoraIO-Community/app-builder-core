@@ -1,7 +1,7 @@
 import 'react-native-get-random-values';
 import {nanoid} from 'nanoid';
 import pkg from '../../package.json';
-import {isWeb} from '../utils/common';
+import {isWeb, isWebInternal} from '../utils/common';
 import {
   ENABLE_AGORA_LOGGER_TRANSPORT,
   ENABLE_BROWSER_CONSOLE_LOGS,
@@ -13,9 +13,21 @@ import {
 } from './transports/agora-transport';
 import configJSON from '../../config.json';
 import {getPlatformId} from '../auth/config';
-import {initTransportLayerForCustomers} from './transports/customer-transport';
+import {
+  initTransportLayerForCustomers,
+  sendLogs,
+} from './transports/customer-transport';
 
-const cli_version = 'test';
+const cli_version = $config.CLI_VERSION;
+const core_version = $config.CORE_VERSION;
+
+export type CustomLogger = (
+  message: string,
+  type: StatusType,
+  columns?: Object,
+  contextInfo?: Object,
+  data?: any,
+) => void;
 
 export declare const StatusTypes: {
   readonly debug: 'debug';
@@ -45,6 +57,7 @@ type LogType = {
   [LogSource.Internals]:
     | 'AUTH'
     | 'CREATE_MEETING'
+    | 'SET_MEETING_DETAILS'
     | 'ENTER_MEETING_ROOM'
     | 'JOIN_MEETING'
     | 'PRECALL_SCREEN'
@@ -65,22 +78,27 @@ type LogType = {
     | 'ACTIVE_SPEAKER'
     | 'WAITING_ROOM'
     | 'RECORDING'
-    | 'STORE';
+    | 'STORE'
+    | 'GET_MEETING_PHRASE'
+    | 'MUTE_PSTN';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'
     | 'unauth_login'
     | 'idp_logout'
     | 'token_logout'
+    | 'token_refresh'
     | 'user_details'
     | 'createChannel'
     | 'joinChannel'
     | 'channel_join_request'
     | 'channel_join_approval'
     | 'stt'
-    | 'whiteboard_image'
-    | 'whiteboard_upload'
+    | 'whiteboard_get_s3_signed_url'
+    | 'whiteboard_get_s3_upload_url'
+    | 'whiteboard_s3_upload'
     | 'whiteboard_fileconvert'
+    | 'whiteboard_screenshot'
     | 'recording_start'
     | 'recording_stop'
     | 'recordings_get';
@@ -117,9 +135,10 @@ export default class AppBuilderLogger implements Logger {
   warn: LogFn;
   debug: LogFn;
   error: LogFn;
-
+  private _customLogger: CustomLogger;
+  private _session;
   constructor(_transportLogger?: any) {
-    const session = nanoid();
+    this._session = nanoid();
     const platform = getPlatformId();
     const rtmPkg = isWeb()
       ? pkg.dependencies['agora-rtm-sdk']
@@ -127,6 +146,13 @@ export default class AppBuilderLogger implements Logger {
     const rtcPkg = isWeb()
       ? pkg.dependencies['agora-rtc-sdk-ng']
       : pkg.dependencies['react-native-agora'];
+    let roomInfo = {
+      meeting_title: '',
+      channel_id: '',
+      host_id: '',
+      attendee_id: '',
+      user_id: '',
+    };
     const logger =
       (status: StatusType) =>
       <T extends LogSource>(
@@ -138,38 +164,94 @@ export default class AppBuilderLogger implements Logger {
         if (!$config.LOG_ENABLED) {
           return;
         }
-
-        const context = {
+        if (type === 'SET_MEETING_DETAILS') {
+          roomInfo = {...data[0]};
+        }
+        let columns = {
           timestamp: Date.now(),
           source,
-          version: cli_version,
           type,
-          data,
           platform,
-          contextInfo: {
-            session_id: session,
-            app_id: $config.APP_ID,
-            project_id: $config.PROJECT_ID,
-            agora_sdk_version: {
-              rtm: rtmPkg,
-              rtc: rtcPkg,
-            },
-          },
+          user_id: roomInfo?.user_id,
+          app_builder_session_id: this._session,
+          channel_id: roomInfo?.channel_id,
+          host_id: roomInfo?.host_id,
+          attendee_id: roomInfo?.attendee_id,
         };
 
-        if (
-          (ENABLE_AGORA_LOGGER_TRANSPORT || ENABLE_CUSTOMER_LOGGER_TRANSPORT) &&
-          _transportLogger
-        ) {
-          try {
-            _transportLogger(logMessage, context, status);
-          } catch (error) {
-            console.log(
-              `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
-              error,
-            );
-          }
+        const contextInfo = {
+          agora_sdk_version: {
+            rtm: rtmPkg,
+            rtc: rtcPkg,
+          },
+          appbuilder_version: {
+            cli: cli_version,
+            core: core_version,
+          },
+          meeting_title: roomInfo?.meeting_title,
+        };
+
+        if (isWebInternal() && window) {
+          //@ts-ignore
+          window.APP_BUILDER = {
+            //need to store CORE version and CLI version
+            app_id: $config.APP_ID,
+            project_id: $config.PROJECT_ID,
+            user_id: roomInfo?.user_id,
+            session_id: this._session,
+            channel_id: roomInfo?.channel_id,
+            host_id: roomInfo?.host_id,
+            attendee_id: roomInfo?.attendee_id,
+            contextInfo: contextInfo,
+          };
         }
+
+        try {
+          if (ENABLE_CUSTOMER_LOGGER_TRANSPORT) {
+            if (this._customLogger) {
+              this._customLogger(
+                logMessage,
+                status,
+                columns,
+                contextInfo,
+                data,
+              );
+            } else if (_transportLogger) {
+              if (type === 'recording_stop') {
+                sendLogs([
+                  {
+                    _time: Date.now(),
+                    projectId: $config.PROJECT_ID,
+                    appId: $config.APP_ID,
+                    service: 'app-builder-core-frontend-customer',
+                    logType: status,
+                    logMessage: logMessage,
+                    ...columns,
+                    contextInfo,
+                    logContent: data,
+                  },
+                ]);
+              } else {
+                _transportLogger(
+                  logMessage,
+                  status,
+                  columns,
+                  contextInfo,
+                  data,
+                );
+              }
+            }
+          }
+          if (ENABLE_AGORA_LOGGER_TRANSPORT && _transportLogger) {
+            _transportLogger(logMessage, status, columns, contextInfo, data);
+          }
+        } catch (error) {
+          console.log(
+            `error occured whhile trasnporting log for project : ${$config.PROJECT_ID}`,
+            error,
+          );
+        }
+
         if (ENABLE_BROWSER_CONSOLE_LOGS || status === 'debug') {
           const consoleHeader = `%cApp-Builder: ${source}:[${type}] `;
           const consoleCSS = 'color: violet; font-weight: bold';
@@ -178,7 +260,7 @@ export default class AppBuilderLogger implements Logger {
             consoleHeader,
             consoleCSS,
             logMessage,
-            context,
+            {...columns, contextInfo, logContent: data},
             status,
           );
         }
@@ -199,6 +281,23 @@ export default class AppBuilderLogger implements Logger {
       },
     );
   }
+
+  getSessionId = () => {
+    return this._session;
+  };
+
+  setCustomLogger = (_customLogger: CustomLogger) => {
+    this._customLogger = _customLogger;
+    _customLogger(
+      'App intitialized with config.json',
+      'debug',
+      {},
+      {},
+      {
+        config: configJSON,
+      },
+    );
+  };
 }
 
 let _transportLogger = null;
