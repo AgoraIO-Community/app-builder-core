@@ -17,6 +17,9 @@ export default function BlockUI() {
       <View style={styles.blockui__body}>
         <Text style={styles.blockui__content}>
           Please change to portrait mode to further access our application.
+          value is:
+          {isMobileUA ? 'mobile ua' : 'not mobile ua'}
+          orientation is {orientation}
         </Text>
       </View>
     </View>
