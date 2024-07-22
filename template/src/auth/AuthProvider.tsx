@@ -39,6 +39,7 @@ import {
 } from '../language/default-labels/commonLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from '../utils/getUniqueID';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export const GET_USER = gql`
   query getUser {
@@ -83,7 +84,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const location = useLocation();
   // client
   const apolloClient = useApolloClient();
-
+  const {isRecordingBot} = useIsRecordingBot();
   const indexesOf = (arr, item) =>
     arr.reduce((acc, v, i) => (v === item && acc.push(i), acc), []);
   const nonprodenv = ['dev', 'staging', 'preprod', 'test'];
@@ -348,6 +349,16 @@ const AuthProvider = (props: AuthProviderProps) => {
     // Ignore if on sdk since IDP flow is not supported
     // For unauthenticated flow authLogin should be called to get the token
     logger.log(LogSource.Internals, 'AUTH', 'App loaded');
+    if (isRecordingBot) {
+      logger.debug(
+        LogSource.Internals,
+        'AUTH',
+        'skip app authentication as it is a bot',
+      );
+      setIsAuthenticated(true);
+      setLoading(false);
+      return;
+    }
     if (isSDK() && ENABLE_AUTH) {
       setIsAuthenticated(true);
       setLoading(false);
@@ -401,7 +412,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         setLoading(false);
       }
     }
-  }, []);
+  }, [isRecordingBot]);
 
   const authLogin = () => {
     // Authenticated login flow
