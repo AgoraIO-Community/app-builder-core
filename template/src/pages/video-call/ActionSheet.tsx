@@ -18,6 +18,7 @@ import Spacer from '../../atoms/Spacer';
 import Transcript from '../../subComponents/caption/Transcript';
 import {ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
+import {useOrientation} from '../../utils/useOrientation';
 
 const ActionSheet = props => {
   const {snapPointsMinMax = [100, 400]} = props;
@@ -136,6 +137,10 @@ const ActionSheet = props => {
       default:
     }
   };
+  const orientation = useOrientation();
+  if (orientation === 'LANDSCAPE') {
+    return <></>;
+  }
   return (
     <>
       {showOverlay && (
