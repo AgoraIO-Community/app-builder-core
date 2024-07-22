@@ -2,7 +2,7 @@ import {useState, useLayoutEffect} from 'react';
 import {Dimensions} from 'react-native';
 
 const isPortrait = () => {
-  const dim = Dimensions.get('window');
+  const dim = Dimensions.get('screen');
   return dim.height >= dim.width;
 };
 
