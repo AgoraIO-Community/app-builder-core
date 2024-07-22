@@ -2,9 +2,9 @@ import {useState, useLayoutEffect} from 'react';
 import {Dimensions} from 'react-native';
 
 const isPortrait = () => {
-  const dim = Dimensions.get('screen');
-  console.log('supriya -->', dim.height, dim.width);
-  return dim.height >= dim.width;
+  const dim = Dimensions.get('window');
+  // This 20 is added to adjust for keyboard autocomplete suggestion area height
+  return dim.height + 20 >= dim.width;
 };
 
 /**
