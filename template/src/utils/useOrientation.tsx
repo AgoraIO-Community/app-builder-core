@@ -3,6 +3,7 @@ import {Dimensions} from 'react-native';
 
 const isPortrait = () => {
   const dim = Dimensions.get('screen');
+  console.log('supriya -->', dim.height, dim.width);
   return dim.height >= dim.width;
 };
 
