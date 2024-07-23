@@ -74,6 +74,7 @@ import {
   ToolbarCustomItem,
   ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
+  ToolbarItemHide,
   ToolbarMoreMenuCustomItem,
 } from '../atoms/ToolbarPreset';
 
@@ -560,152 +561,165 @@ const MoreButton = (props: {
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.lg) {
-    actionMenuitems.push({
-      componentName: 'participant',
-      order: 6,
-      icon: 'participants',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: peopleLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Participants);
-      },
-    });
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'participant',
+    order: 6,
+    icon: 'participants',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: peopleLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.Participants);
+    },
+  });
 
-    actionMenuitems.push({
-      componentName: 'chat',
-      order: 7,
-      icon: 'chat-nav',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: chatLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setChatType(ChatType.Group);
-        setSidePanel(SidePanelType.Chat);
-      },
-    });
-  }
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'chat',
+    order: 7,
+    icon: 'chat-nav',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: chatLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setChatType(ChatType.Group);
+      setSidePanel(SidePanelType.Chat);
+    },
+  });
 
-  if (globalWidth <= BREAKPOINTS.sm) {
-    if ($config.SCREEN_SHARING) {
-      if (
-        !(
+  if ($config.SCREEN_SHARING) {
+    if (
+      !(
+        rtcProps.role == ClientRoleType.ClientRoleAudience &&
+        $config.EVENT_MODE &&
+        !$config.RAISE_HAND
+      )
+    ) {
+      actionMenuitems.push({
+        hide: w => {
+          return w >= BREAKPOINTS.sm ? true : false;
+        },
+        componentName: 'screenshare',
+        order: 8,
+        disabled:
           rtcProps.role == ClientRoleType.ClientRoleAudience &&
           $config.EVENT_MODE &&
-          !$config.RAISE_HAND
-        )
-      ) {
-        actionMenuitems.push({
-          componentName: 'screenshare',
-          order: 8,
-          disabled:
-            rtcProps.role == ClientRoleType.ClientRoleAudience &&
-            $config.EVENT_MODE &&
-            $config.RAISE_HAND &&
-            !isHost,
-          icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
-          iconColor: isScreenshareActive
-            ? $config.SEMANTIC_ERROR
-            : $config.SECONDARY_ACTION_COLOR,
-          textColor: isScreenshareActive
-            ? $config.SEMANTIC_ERROR
-            : $config.FONT_COLOR,
-          title: screenShareButton(isScreenshareActive),
-          callback: () => {
-            setActionMenuVisible(false);
-            isScreenshareActive ? stopScreenshare() : startScreenshare();
-          },
-        });
-      }
-    }
-    if (isHost && $config.CLOUD_RECORDING) {
-      actionMenuitems.push({
-        componentName: 'recording',
-        order: 9,
-        disabled: inProgress,
-        icon: isRecordingActive ? 'stop-recording' : 'recording',
-        iconColor: isRecordingActive
+          $config.RAISE_HAND &&
+          !isHost,
+        icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
+        iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
           : $config.SECONDARY_ACTION_COLOR,
-        textColor: isRecordingActive
+        textColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
           : $config.FONT_COLOR,
-        title: recordingButton(isRecordingActive),
+        title: screenShareButton(isScreenshareActive),
         callback: () => {
           setActionMenuVisible(false);
-          if (!isRecordingActive) {
-            startRecording();
-          } else {
-            setShowStopRecordingPopup(true);
-          }
+          isScreenshareActive ? stopScreenshare() : startScreenshare();
         },
       });
     }
   }
-
-  if (globalWidth <= BREAKPOINTS.lg) {
+  if (isHost && $config.CLOUD_RECORDING) {
     actionMenuitems.push({
-      componentName: 'layout',
-      order: 10,
-      //below icon key is dummy value
-      icon: 'grid',
-      externalIconString: layouts[layout]?.icon,
-      isExternalIcon: true,
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: layoutLabel,
-      callback: () => {
-        //setShowLayoutOption(true);
+      hide: w => {
+        return w >= BREAKPOINTS.sm ? true : false;
       },
-      onHoverCallback: isHovered => {
-        setShowLayoutOption(isHovered);
-      },
-      onHoverContent: (
-        <LayoutIconDropdown
-          onHoverPlaceHolder="vertical"
-          setShowDropdown={() => {}}
-          showDropdown={true}
-          modalPosition={
-            globalWidth <= BREAKPOINTS.lg
-              ? {bottom: 65, left: -150}
-              : {bottom: 20, left: -150}
-          }
-          caretPosition={{bottom: 45, right: -10}}
-        />
-      ),
-    });
-
-    actionMenuitems.push({
-      componentName: 'invite',
-      order: 11,
-      icon: 'share',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: inviteLabel,
+      componentName: 'recording',
+      order: 9,
+      disabled: inProgress,
+      icon: isRecordingActive ? 'stop-recording' : 'recording',
+      iconColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.SECONDARY_ACTION_COLOR,
+      textColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.FONT_COLOR,
+      title: recordingButton(isRecordingActive),
       callback: () => {
         setActionMenuVisible(false);
-        setShowInvitePopup(true);
+        if (!isRecordingActive) {
+          startRecording();
+        } else {
+          setShowStopRecordingPopup(true);
+        }
       },
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.lg) {
-    actionMenuitems.push({
-      componentName: 'settings',
-      order: 12,
-      icon: 'settings',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: settingsLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Settings);
-      },
-    });
-  }
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'layout',
+    order: 10,
+    //below icon key is dummy value
+    icon: 'grid',
+    externalIconString: layouts[layout]?.icon,
+    isExternalIcon: true,
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: layoutLabel,
+    callback: () => {
+      //setShowLayoutOption(true);
+    },
+    onHoverCallback: isHovered => {
+      setShowLayoutOption(isHovered);
+    },
+    onHoverContent: (
+      <LayoutIconDropdown
+        onHoverPlaceHolder="vertical"
+        setShowDropdown={() => {}}
+        showDropdown={true}
+        modalPosition={
+          globalWidth <= BREAKPOINTS.lg
+            ? {bottom: 65, left: -150}
+            : {bottom: 20, left: -150}
+        }
+        caretPosition={{bottom: 45, right: -10}}
+      />
+    ),
+  });
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'invite',
+    order: 11,
+    icon: 'share',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: inviteLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setShowInvitePopup(true);
+    },
+  });
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'settings',
+    order: 12,
+    icon: 'settings',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: settingsLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.Settings);
+    },
+  });
 
   useEffect(() => {
     if (isHovered) {
@@ -903,9 +917,7 @@ export const SwitchCameraToolbarItem = () => {
 };
 
 export const ScreenShareToolbarItem = () => {
-  const {width} = useWindowDimensions();
   return (
-    width > BREAKPOINTS.sm &&
     $config.SCREEN_SHARING &&
     !isMobileOrTablet() && (
       <ToolbarItem testID="screenShare-btn">
@@ -915,12 +927,10 @@ export const ScreenShareToolbarItem = () => {
   );
 };
 export const RecordingToolbarItem = () => {
-  const {width} = useWindowDimensions();
   const {
     data: {isHost},
   } = useRoomInfo();
   return (
-    width > BREAKPOINTS.sm &&
     isHost &&
     $config.CLOUD_RECORDING && (
       <ToolbarItem testID="recording-btn">
@@ -988,70 +998,72 @@ const defaultItems: ToolbarDefaultItem[] = [
     component: LayoutToolbarItem,
     componentName: 'layout',
     order: 0,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
   {
     align: 'start',
     component: InviteToolbarItem,
     componentName: 'invite',
     order: 1,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
   {
     align: 'center',
     component: RaiseHandToolbarItem,
     componentName: 'raise-hand',
     order: 0,
-    hide: 'no',
   },
   {
     align: 'center',
     component: LocalAudioToolbarItem,
     componentName: 'local-audio',
     order: 1,
-    hide: 'no',
   },
   {
     align: 'center',
     component: LocalVideoToolbarItem,
     componentName: 'local-video',
     order: 2,
-    hide: 'no',
   },
   {
     align: 'center',
     component: SwitchCameraToolbarItem,
     componentName: 'switch-camera',
     order: 3,
-    hide: 'no',
   },
   {
     align: 'center',
     component: ScreenShareToolbarItem,
     componentName: 'screenshare',
     order: 4,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.sm ? true : false;
+    },
   },
   {
     align: 'center',
     component: RecordingToolbarItem,
     componentName: 'recording',
     order: 5,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.sm ? true : false;
+    },
   },
   {
     align: 'center',
     component: MoreButtonToolbarItem,
     componentName: 'more',
     order: 6,
-    hide: 'no',
   },
   {
     align: 'center',
-    componentName: 'end-call',
     component: LocalEndcallToolbarItem,
+    componentName: 'end-call',
     order: 7,
-    hide: 'no',
   },
 ];
 
@@ -1068,7 +1080,7 @@ const Controls = (props: ControlsProps) => {
     defaultItemsConfig = {},
     customMoreItems = [],
   } = props;
-  const {width} = useWindowDimensions();
+  const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
@@ -1081,11 +1093,7 @@ const Controls = (props: ControlsProps) => {
     username: string;
   }>(sttSpokenLanguageToastSubHeading);
 
-  const {
-    data: {isHost},
-    sttLanguage,
-    isSTTActive,
-  } = useRoomInfo();
+  const {sttLanguage, isSTTActive} = useRoomInfo();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -1163,22 +1171,26 @@ const Controls = (props: ControlsProps) => {
     setIsSTTActive(isSTTActive);
   }, [isSTTActive]);
 
-  const ToastIcon = ({color}) => (
-    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
-      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
-    </View>
-  );
-
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
+
   const customStartItems = customItems
     ?.concat(
       includeDefaultItems
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => i?.align === 'start' && !isHidden(i))
+    ?.filter(i => i?.align === 'start' && !isHidden(i?.hide))
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
@@ -1187,7 +1199,7 @@ const Controls = (props: ControlsProps) => {
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => i?.align === 'center' && !isHidden(i))
+    ?.filter(i => i?.align === 'center' && !isHidden(i?.hide))
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
@@ -1196,7 +1208,7 @@ const Controls = (props: ControlsProps) => {
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => i?.align === 'end' && !isHidden(i))
+    ?.filter(i => i?.align === 'end' && !isHidden(i?.hide))
     ?.sort(CustomToolbarSort);
 
   const renderContent = (
@@ -1222,19 +1234,15 @@ const Controls = (props: ControlsProps) => {
   };
   return (
     <Toolbar>
-      {width >= BREAKPOINTS.lg && (
-        <View style={[style.startContent]}>
-          {renderContent(customStartItems, 'start')}
-        </View>
-      )}
+      <View style={[style.startContent]}>
+        {renderContent(customStartItems, 'start')}
+      </View>
       <View style={[style.centerContent]}>
         {renderContent(customCenterItems, 'center')}
       </View>
-      {width >= BREAKPOINTS.lg && (
-        <View style={style.endContent}>
-          {renderContent(customEndItems, 'end')}
-        </View>
-      )}
+      <View style={style.endContent}>
+        {renderContent(customEndItems, 'end')}
+      </View>
     </Toolbar>
   );
 };

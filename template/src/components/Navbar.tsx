@@ -66,6 +66,7 @@ import {
   ToolbarCustomItem,
   ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
+  ToolbarItemHide,
 } from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
@@ -476,42 +477,45 @@ const defaultItems: ToolbarDefaultItem[] = [
     componentName: 'meeting-title',
     component: MeetingTitleToolbarItem,
     order: 0,
-    hide: 'no',
   },
   {
     align: 'start',
     componentName: 'participant-count',
     component: ParticipantCountToolbarItem,
     order: 1,
-    hide: 'no',
   },
   {
     align: 'start',
     componentName: 'recording-status',
     component: RecordingStatusToolbarItem,
     order: 2,
-    hide: 'no',
   },
   {
     align: 'end',
     componentName: 'participant',
     component: ParticipantToolbarItem,
     order: 0,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
   {
     align: 'end',
     componentName: 'chat',
     component: ChatToolbarItem,
     order: 1,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
   {
     align: 'end',
     componentName: 'settings',
     component: SettingsToobarItem,
     order: 2,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
 ];
 
@@ -526,10 +530,19 @@ const Navbar = (props: NavbarProps) => {
     includeDefaultItems = true,
     defaultItemsConfig = {},
   } = props;
-  const {width} = useWindowDimensions();
+  const {width, height} = useWindowDimensions();
 
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
 
   const customStartItems = customItems
@@ -538,7 +551,7 @@ const Navbar = (props: NavbarProps) => {
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => i.align === 'start' && !isHidden(i))
+    ?.filter(i => i.align === 'start' && !isHidden(i?.hide))
     ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
@@ -547,7 +560,7 @@ const Navbar = (props: NavbarProps) => {
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => i.align === 'center' && !isHidden(i))
+    ?.filter(i => i.align === 'center' && !isHidden(i?.hide))
     ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
@@ -556,7 +569,7 @@ const Navbar = (props: NavbarProps) => {
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => i.align === 'end' && !isHidden(i))
+    ?.filter(i => i.align === 'end' && !isHidden(i?.hide))
     ?.sort(CustomToolbarSort);
 
   const renderContent = (
@@ -580,13 +593,9 @@ const Navbar = (props: NavbarProps) => {
       <View style={style.centerContent}>
         {renderContent(customCenterItems, 'center')}
       </View>
-      {width > BREAKPOINTS.lg || isMobileUA() ? (
-        <View style={style.endContent}>
-          {renderContent(customEndItems, 'end')}
-        </View>
-      ) : (
-        <></>
-      )}
+      <View style={style.endContent}>
+        {renderContent(customEndItems, 'end')}
+      </View>
     </Toolbar>
   );
 };

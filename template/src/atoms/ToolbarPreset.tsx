@@ -65,13 +65,14 @@ export type ToolbarMoreButtonConfig = {
 };
 
 export type ToolbarItemAlign = 'start' | 'center' | 'end';
-export type ToolbarItemHide = 'yes' | 'no';
-
+export type ToolbarHideCallback = (width: number, height: number) => boolean;
+export type ToolbarItemHide = boolean | ToolbarHideCallback;
 export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
   fields?: ToolbarMoreButtonConfig;
 }
 
 export interface ToolbarDefaultItem {
+  componentName?: string;
   component?: () => JSX.Element;
   align?: ToolbarItemAlign;
   hide?: ToolbarItemHide;
@@ -79,9 +80,10 @@ export interface ToolbarDefaultItem {
 }
 
 export interface ToolbarCustomItem {
+  componentName?: string;
   component: () => JSX.Element;
   align: ToolbarItemAlign;
-  hide: ToolbarItemHide;
+  hide?: ToolbarItemHide;
   order?: number;
 }
 export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';

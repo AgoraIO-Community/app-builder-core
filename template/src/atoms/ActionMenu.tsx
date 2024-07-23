@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   ViewStyle,
+  useWindowDimensions,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 
@@ -18,7 +19,7 @@ import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Toggle from './Toggle';
 import {Either} from '../../agora-rn-uikit/src/Controls/types';
-import {ToolbarMoreMenuCustomItem} from './ToolbarPreset';
+import {ToolbarItemHide, ToolbarMoreMenuCustomItem} from './ToolbarPreset';
 
 export interface ActionMenuItem {
   componentName?: string;
@@ -37,6 +38,7 @@ export interface ActionMenuItem {
   onHoverContent?: JSX.Element;
   disabled?: boolean;
   iconSize?: number;
+  hide?: ToolbarItemHide;
 }
 export interface ActionMenuProps {
   from: string;
@@ -62,11 +64,23 @@ const ActionMenu = (props: ActionMenuProps) => {
     items,
     hoverMode = false,
   } = props;
+  const {width, height} = useWindowDimensions();
 
   const renderItems = () => {
     return items?.map((item, index) => {
       //rendering the custom item with default UI
-      const {title, onPress, iconBase64, componentName} = item;
+      const {title, onPress, iconBase64, componentName, hide = false} = item;
+
+      if (typeof hide === 'boolean' && hide) {
+        return null;
+      }
+
+      try {
+        if (typeof hide === 'function' && hide && hide(width, height)) {
+          return null;
+        }
+      } catch (error) {}
+
       if (title && onPress) {
         return (
           <PlatformWrapper key={props.from + '_' + componentName + index}>

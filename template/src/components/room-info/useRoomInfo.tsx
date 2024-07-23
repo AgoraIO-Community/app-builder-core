@@ -69,7 +69,7 @@ export interface RoomInfoContextInterface {
     prevLang?: LanguageType[];
     newLang?: LanguageType[];
     uid?: UidType;
-    langChanged?: Boolean;
+    langChanged?: boolean;
   };
   isSTTActive?: boolean;
   roomPreference?: joinRoomPreference;

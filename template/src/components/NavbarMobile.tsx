@@ -1,10 +1,11 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import Toolbar from '../atoms/Toolbar';
 import {
   ToolbarCustomItem,
   ToolbarDefaultItem,
   ToolbarDefaultItemConfig,
+  ToolbarItemHide,
 } from '../atoms/ToolbarPreset';
 import {
   MeetingTitleToolbarItem,
@@ -28,21 +29,18 @@ const NavbarMobile = (props: NavbarProps) => {
       componentName: 'meeting-title',
       component: MeetingTitleToolbarItem,
       order: 0,
-      hide: 'no',
     },
     {
       align: 'start',
       componentName: 'participant-count',
       component: ParticipantCountToolbarItem,
       order: 1,
-      hide: 'no',
     },
     {
       align: 'start',
       componentName: 'recording-status',
       component: isRecordingActive ? RecordingStatusToolbarItem : null,
       order: 2,
-      hide: 'no',
     },
   ];
   const {
@@ -50,8 +48,19 @@ const NavbarMobile = (props: NavbarProps) => {
     includeDefaultItems = true,
     defaultItemsConfig = {},
   } = props;
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
 
   const customTopBarItems = customItems
@@ -60,7 +69,7 @@ const NavbarMobile = (props: NavbarProps) => {
         ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
         : [],
     )
-    ?.filter(i => !isHidden(i) && i?.component)
+    ?.filter(i => !isHidden(i?.hide) && i?.component)
     ?.sort(CustomToolbarSort);
 
   const renderContent = (
