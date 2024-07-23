@@ -3,7 +3,8 @@ import {Dimensions} from 'react-native';
 
 const isPortrait = () => {
   const dim = Dimensions.get('window');
-  return dim.height >= dim.width;
+  // This 20 is added to adjust for keyboard autocomplete suggestion area height
+  return dim.height + 20 >= dim.width;
 };
 
 /**
