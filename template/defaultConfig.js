@@ -76,8 +76,8 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.0.25-beta-12',
-  CORE_VERSION: '4.0.25-beta-12',
+  CLI_VERSION: '3.0.25-beta-13',
+  CORE_VERSION: '4.0.25-beta-13',
 };
 
 module.exports = DefaultConfig;
