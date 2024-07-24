@@ -347,7 +347,7 @@ export default class RtcEngine {
         `RTC [setEncoderConfiguration] set screen share profile.`,
         profile,
       );
-      await this.screenStream?.video?.setEncoderConfiguration(profile);
+      // await this.screenStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
@@ -1581,7 +1581,7 @@ export default class RtcEngine {
   ): Promise<void> {
     const config: ScreenVideoTrackInitConfig = {
       ...screenShareConfig,
-      encoderConfig: this.screenShareProfile,
+      // encoderConfig: this.screenShareProfile,
     };
     if (!this.inScreenshare) {
       try {
