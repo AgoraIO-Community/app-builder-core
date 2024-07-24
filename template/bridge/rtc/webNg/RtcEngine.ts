@@ -1583,6 +1583,8 @@ export default class RtcEngine {
       ...screenShareConfig,
       encoderConfig: this.screenShareProfile,
     };
+    console.log('supriya screenshare profile', this.screenShareProfile);
+    console.log('supriya screeenshare config', config);
     if (!this.inScreenshare) {
       try {
         logger.debug(
