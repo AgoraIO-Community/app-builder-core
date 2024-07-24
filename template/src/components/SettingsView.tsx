@@ -56,6 +56,7 @@ import {
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
 import QualityControls from './quality-profiles/QualityControls';
+import SuperClarityControls from './super-clarity/SuperClarityControls';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -285,7 +286,6 @@ const SettingsView = props => {
   const {transcriptHeight} = useCaptionWidth();
   const {roomPreference} = useRoomInfo();
   const showBeautyControls = roomPreference?.showBeautyControls;
-
   const showQualityControls = roomPreference?.showQualityControls;
 
   return (
@@ -310,7 +310,7 @@ const SettingsView = props => {
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
-        {showBeautyControls ? (
+        {roomPreference.showBeautyControls ? (
           <View style={style.panelContainer}>
             <BeautyEffectsControls />
           </View>
@@ -318,7 +318,14 @@ const SettingsView = props => {
           <></>
         )}
         <Spacer size={24} />
-        {showQualityControls ? <QualityControls /> : <></>}
+        {roomPreference.showQualityControls ? <QualityControls /> : <></>}
+
+        <Spacer size={24} />
+        {roomPreference.showScreenClarityControls ? (
+          <SuperClarityControls />
+        ) : (
+          <></>
+        )}
       </ScrollView>
     </View>
   );

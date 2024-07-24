@@ -83,6 +83,7 @@ export interface joinRoomPreference {
   disableShareTile: boolean;
   showBeautyControls: boolean;
   showQualityControls: boolean;
+  showScreenClarityControls: boolean;
 }
 
 export default function useJoinRoom() {

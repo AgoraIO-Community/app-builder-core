@@ -15,6 +15,7 @@ export interface SdkMethodEvents {
       disableShareTile: boolean;
       showBeautyControls: boolean;
       showQualityControls: boolean;
+      showScreenClarityControls: boolean;
     },
   ): RoomInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;

@@ -31,6 +31,7 @@ type SdkApiContextInterface = {
           disableShareTile: boolean;
           showBeautyControls: boolean;
           showQualityControls: boolean;
+          showScreenClarityControls: boolean;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }

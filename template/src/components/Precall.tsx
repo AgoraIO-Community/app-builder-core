@@ -61,6 +61,7 @@ import {
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
 import QualityControls from './quality-profiles/QualityControls';
+import SuperClarityControls from './super-clarity/superClarityControls';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -387,7 +388,6 @@ const Precall = () => {
   const isDesktop = useIsDesktop();
   const getResponsiveValue = useResponsive();
   const {roomPreference} = useRoomInfo();
-  const showBeautyControls = roomPreference?.showBeautyControls;
 
   return FpePrecallComponent ? (
     <FpePrecallComponent />
@@ -536,9 +536,18 @@ const Precall = () => {
                   <></>
                 )}
                 <Spacer size={24} />
-                {showBeautyControls ? (
+                {roomPreference?.showBeautyControls ? (
                   <View style={style.panelContainer}>
                     <BeautyEffectsControls />
+                  </View>
+                ) : (
+                  <></>
+                )}
+
+                <Spacer size={24} />
+                {roomPreference?.showScreenClarityControls ? (
+                  <View style={style.panelContainer}>
+                    <SuperClarityControls />
                   </View>
                 ) : (
                   <></>

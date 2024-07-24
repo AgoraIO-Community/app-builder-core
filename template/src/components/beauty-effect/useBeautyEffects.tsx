@@ -35,6 +35,7 @@ type BeautyEffectContextValue = {
   setRednessLevel: React.Dispatch<React.SetStateAction<number>>;
   applyBeautyEffect: (config?: BeautyEffects) => void;
   removeBeautyEffect: () => void;
+  beautyProcessor: ReturnType<BeautyExtension['_createProcessor']> | null;
 };
 export type LighteningContrastLevel = 0 | 1 | 2;
 
@@ -54,6 +55,7 @@ export const BeautyEffectsContext =
     setRednessLevel: () => {},
     applyBeautyEffect: () => {},
     removeBeautyEffect: () => {},
+    beautyProcessor: null,
   });
 
 const BeautyEffectProvider: React.FC = ({children}) => {
@@ -71,16 +73,16 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   //@ts-ignore
   const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
 
-  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
-    localVideoTrack
-      ?.pipe(beautyProcessor)
-      .pipe(vbProcessor)
-      .pipe(localVideoTrack?.processorDestination);
-  } else {
-    localVideoTrack
-      ?.pipe(beautyProcessor)
-      .pipe(localVideoTrack?.processorDestination);
-  }
+  // if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+  //   localVideoTrack
+  //     ?.pipe(beautyProcessor)
+  //     .pipe(vbProcessor)
+  //     .pipe(localVideoTrack?.processorDestination);
+  // } else {
+  //   localVideoTrack
+  //     ?.pipe(beautyProcessor)
+  //     .pipe(localVideoTrack?.processorDestination);
+  // }
 
   useEffect(() => {
     if (beautyEffectsOn) {
@@ -130,6 +132,7 @@ const BeautyEffectProvider: React.FC = ({children}) => {
         setRednessLevel,
         applyBeautyEffect,
         removeBeautyEffect,
+        beautyProcessor,
       }}>
       {children}
     </BeautyEffectsContext.Provider>
