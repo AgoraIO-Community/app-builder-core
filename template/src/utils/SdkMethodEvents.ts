@@ -13,8 +13,6 @@ export interface SdkMethodEvents {
     username?: string,
     preference?: {
       disableShareTile: boolean;
-      showBeautyControls: boolean;
-      showQualityControls: boolean;
     },
   ): RoomInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;

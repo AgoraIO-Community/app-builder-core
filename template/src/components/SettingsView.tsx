@@ -54,8 +54,6 @@ import {
   settingPanelNameInputLabel,
 } from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
-import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
-import QualityControls from './quality-profiles/QualityControls';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -284,9 +282,6 @@ const SettingsView = props => {
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
   const {roomPreference} = useRoomInfo();
-  const showBeautyControls = roomPreference?.showBeautyControls;
-
-  const showQualityControls = roomPreference?.showQualityControls;
 
   return (
     <View
@@ -310,15 +305,6 @@ const SettingsView = props => {
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
-        {showBeautyControls ? (
-          <View style={style.panelContainer}>
-            <BeautyEffectsControls />
-          </View>
-        ) : (
-          <></>
-        )}
-        <Spacer size={24} />
-        {showQualityControls ? <QualityControls /> : <></>}
       </ScrollView>
     </View>
   );

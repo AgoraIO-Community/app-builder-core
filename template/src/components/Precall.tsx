@@ -59,8 +59,6 @@ import {
   settingsPanelHeading,
 } from '../language/default-labels/precallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
-import BeautyEffectsControls from './beauty-effect/BeautyEffectsControls';
-import QualityControls from './quality-profiles/QualityControls';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -386,8 +384,6 @@ const Precall = () => {
 
   const isDesktop = useIsDesktop();
   const getResponsiveValue = useResponsive();
-  const {roomPreference} = useRoomInfo();
-  const showBeautyControls = roomPreference?.showBeautyControls;
 
   return FpePrecallComponent ? (
     <FpePrecallComponent />
@@ -526,22 +522,6 @@ const Precall = () => {
                   <ScrollView style={style.panelContainer}>
                     <VirtualBackgroundComponent isOnPrecall={true} />
                   </ScrollView>
-                )}
-
-                {roomPreference?.showQualityControls ? (
-                  <View style={style.deviceSelectContainer}>
-                    <QualityControls />
-                  </View>
-                ) : (
-                  <></>
-                )}
-                <Spacer size={24} />
-                {showBeautyControls ? (
-                  <View style={style.panelContainer}>
-                    <BeautyEffectsControls />
-                  </View>
-                ) : (
-                  <></>
                 )}
               </ScrollView>
             </Card>

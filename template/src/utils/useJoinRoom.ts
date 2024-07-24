@@ -81,8 +81,6 @@ const JOIN_CHANNEL_PHRASE = gql`
 
 export interface joinRoomPreference {
   disableShareTile: boolean;
-  showBeautyControls: boolean;
-  showQualityControls: boolean;
 }
 
 export default function useJoinRoom() {
