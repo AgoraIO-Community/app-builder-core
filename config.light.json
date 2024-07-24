@@ -42,7 +42,7 @@
   "GEO_FENCING": true,
   "GEO_FENCING_INCLUDE_AREA": "GLOBAL",
   "GEO_FENCING_EXCLUDE_AREA": "CHINA",
-  "LOG_ENABLED": true,
+  "LOG_ENABLED": false,
   "EVENT_MODE": false,
   "RAISE_HAND": false,
   "AUDIO_ROOM": false,
