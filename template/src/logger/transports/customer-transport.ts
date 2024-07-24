@@ -13,14 +13,29 @@ export function getCircularReplacer() {
     }
     return value;
   };
+  // const ancestors = [];
+  // return function (key, value) {
+  //   if (typeof value !== 'object' || value === null) {
+  //     return value;
+  //   }
+  //   // `this` is the object that value is contained in,
+  //   // i.e., its direct parent.
+  //   while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
+  //     ancestors.pop();
+  //   }
+  //   if (ancestors.includes(value)) {
+  //     return '[Circular]';
+  //   }
+  //   ancestors.push(value);
+  //   return value;
+  // };
 }
-
 const getSafeBody = (p: any[]) => {
   try {
     return JSON.stringify(p, getCircularReplacer());
   } catch (error) {
     console.error('there was an error converting this object', p);
-    return ['object conversion error'];
+    return [' object convertion error'];
   }
 };
 
@@ -38,9 +53,11 @@ const fetchRetry = createRetryFetch(fetch, {
 });
 
 export const sendLogs = (p: any[]) => {
-  if (p && p.length) {
+  return;
+  if (p && p?.length) {
     fetchRetry(
       'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
+      // "&strategy=queue", // to send logs to a specific dataset [default: queue]
       {
         method: 'POST',
         headers: new Headers({
@@ -49,7 +66,7 @@ export const sendLogs = (p: any[]) => {
         body: getSafeBody(p),
       },
     ).catch(err => {
-      console.log('error occurred while replacing circular reference', p, err);
+      console.log('error ocuured while replacing circular reference', p, err);
     });
   } else {
     console.log('queue is empty, no logs available to send');
@@ -73,7 +90,7 @@ export const createAxiomLogger = () => {
     }
     sendLogs(queue);
     queue.length = 0;
-    batchId++;
+    batchId = batchId + 1;
   };
 
   const log = (logContent: {[key: string]: any}) => {
@@ -83,7 +100,8 @@ export const createAxiomLogger = () => {
       flush();
     } else {
       if (timeout === null) {
-        timeout = window.setTimeout(() => {
+        // @ts-ignore
+        timeout = setTimeout(() => {
           flush();
         }, sendInterval);
       }
@@ -109,13 +127,10 @@ export const initTransportLayerForCustomers = () => {
       ...columns,
     });
 
-    if (isWeb()) {
-      const beforeUnloadHandler = () => {
+    isWeb() &&
+      window.addEventListener('beforeunload', () => {
         flush();
-        window.removeEventListener('beforeunload', beforeUnloadHandler);
-      };
-      window.addEventListener('beforeunload', beforeUnloadHandler);
-    }
+      });
   };
   return printLogs;
 };
