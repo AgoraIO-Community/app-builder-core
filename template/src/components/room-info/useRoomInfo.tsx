@@ -116,8 +116,6 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   },
   roomPreference: {
     disableShareTile: false,
-    showBeautyControls: false,
-    showQualityControls: false,
   },
 };
 
