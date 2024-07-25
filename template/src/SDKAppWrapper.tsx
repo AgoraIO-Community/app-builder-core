@@ -23,8 +23,6 @@ export interface AppBuilderSdkApiInterface {
     userName?: string,
     preference?: {
       disableShareTile: boolean;
-      showBeautyControls: boolean;
-      showQualityControls: boolean;
     },
   ) => Promise<meetingData>;
   joinPrecall: (
@@ -33,8 +31,6 @@ export interface AppBuilderSdkApiInterface {
     skipPrecall?: boolean,
     preference?: {
       disableShareTile: boolean;
-      showBeautyControls: boolean;
-      showQualityControls: boolean;
     },
   ) => Promise<
     [
