@@ -1,7 +1,38 @@
 import createRetryFetch from 'fetch-retry';
 import {isWeb} from '../../utils/common';
-import {flatten} from 'flat';
 
+function getCircularReplacerNew(maxDepth = 3) {
+  const seen = new WeakMap();
+  let depth = 0;
+
+  function replacer(key, value) {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular]'; // Return placeholder for circular references
+      }
+
+      if (depth >= maxDepth) {
+        return '[Max Depth]'; // Return placeholder for max depth reached
+      }
+
+      seen.set(value, true);
+
+      // Increase depth when descending into an object
+      depth++;
+      const result = value;
+      const res = Object.fromEntries(
+        Object.entries(result).map(([k, v]) => [k, replacer(k, v)]),
+      );
+      // Decrease depth when ascending from an object
+      depth--;
+      return res;
+    }
+
+    return value;
+  }
+
+  return replacer;
+}
 /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value#examples */
 export function getCircularReplacer() {
   const seen = new WeakSet();
@@ -94,6 +125,7 @@ export const createAxiomLogger = () => {
   };
 
   const log = (logdata: {[key: string]: any}) => {
+    console.log('supriya logdata: ', logdata);
     logdata.batchId = batchId;
     queue.push(logdata);
     if (queue.length >= 500) {
@@ -122,7 +154,10 @@ export const initTransportLayerForCustomers = () => {
       service: 'app-builder-core-frontend-customer',
       logType,
       logMessage,
-      logContent: [flatten(logContent[0])],
+      // logContent: JSON.stringify(logContent, getCircularReplacerNew(3)),
+      logContent: [
+        JSON.parse(JSON.stringify(logContent[0], getCircularReplacerNew(3))),
+      ],
       contextInfo,
       ...columns,
     });
