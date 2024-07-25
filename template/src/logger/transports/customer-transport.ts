@@ -33,7 +33,7 @@ export function getCircularReplacer() {
 }
 const getSafeBody = (p: any[]) => {
   try {
-    return JSON.stringify(p, getCircularReplacer());
+    return JSON.stringify(p);
   } catch (error) {
     console.error('there was an error converting this object', p);
     return [' object convertion error'];
@@ -93,9 +93,9 @@ export const createAxiomLogger = () => {
     batchId = batchId + 1;
   };
 
-  const log = (logContent: {[key: string]: any}) => {
-    logContent.batchId = batchId;
-    queue.push(logContent);
+  const log = (logdata: {[key: string]: any}) => {
+    logdata.batchId = batchId;
+    queue.push(logdata);
     if (queue.length >= 500) {
       flush();
     } else {
@@ -122,7 +122,7 @@ export const initTransportLayerForCustomers = () => {
       service: 'app-builder-core-frontend-customer',
       logType,
       logMessage,
-      logContent: flatten(logContent),
+      logContent: [flatten(logContent[0])],
       contextInfo,
       ...columns,
     });
