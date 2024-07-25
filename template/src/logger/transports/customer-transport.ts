@@ -30,12 +30,39 @@ export function getCircularReplacer() {
   //   return value;
   // };
 }
+
+function getTopLevels(obj, level = 1, maxLevel = 4) {
+  if (level > maxLevel || typeof obj !== 'object' || obj === null) {
+    return ['MaxLevelExceeds'];
+  }
+  const result = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        if (key === 'logContent') {
+          result[key] = [obj[key]];
+        } else {
+          result[key] = getTopLevels(obj[key], level + 1, maxLevel);
+        }
+      } else {
+        result[key] = obj[key];
+      }
+    }
+  }
+  return result;
+}
+
 const getSafeBody = (p: any[]) => {
   try {
-    return JSON.stringify(p, getCircularReplacer());
+    const logResult = [];
+    for (let index = 0; index < p.length; index++) {
+      const element = p[index];
+      logResult.push(getTopLevels(element));
+    }
+    return JSON.stringify(logResult);
   } catch (error) {
-    console.error('there was an error converting this object', p);
-    return [' object convertion error'];
+    console.error('there was an error converting this object', error, p);
+    return ['object convertion error'];
   }
 };
 
@@ -121,7 +148,7 @@ export const initTransportLayerForCustomers = () => {
       service: 'app-builder-core-frontend-customer',
       logType,
       logMessage,
-      logContent,
+      logContent: getTopLevels(logContent),
       contextInfo,
       ...columns,
     });
