@@ -1,5 +1,6 @@
 import createRetryFetch from 'fetch-retry';
 import {isWeb} from '../../utils/common';
+import {flatten} from 'flat';
 
 /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value#examples */
 export function getCircularReplacer() {
@@ -121,7 +122,7 @@ export const initTransportLayerForCustomers = () => {
       service: 'app-builder-core-frontend-customer',
       logType,
       logMessage,
-      logContent,
+      logContent: flatten(logContent),
       contextInfo,
       ...columns,
     });
