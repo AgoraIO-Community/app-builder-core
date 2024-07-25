@@ -276,9 +276,7 @@ export default class AppBuilderLogger implements Logger {
       LogSource.Internals,
       'AUTH',
       'App intitialized with config.json',
-      {
-        config: configJSON,
-      },
+      configJSON,
     );
   }
 
