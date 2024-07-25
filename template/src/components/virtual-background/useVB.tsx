@@ -17,6 +17,7 @@ import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
 import {retrieveImagesFromStorage} from './VButils';
 import imagePathsArray from './imagePaths';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -38,17 +39,26 @@ let previewViewProcessor: ReturnType<
 
 // fn to initialize processors
 const initializeProcessors = () => {
-  const mainViewExtension = new VirtualBackgroundExtension();
-  AgoraRTC.registerExtensions([mainViewExtension]);
-  mainViewProcessor = mainViewExtension.createProcessor();
-  mainViewProcessor.init(wasm1).then(() => {
-    mainViewProcessor.disable();
-  });
+  try {
+    const mainViewExtension = new VirtualBackgroundExtension();
+    AgoraRTC.registerExtensions([mainViewExtension]);
+    mainViewProcessor = mainViewExtension.createProcessor();
+    mainViewProcessor.init(wasm1).then(() => {
+      mainViewProcessor.disable();
+    });
 
-  previewViewProcessor = mainViewExtension.createProcessor();
-  previewViewProcessor.init(wasm1).then(() => {
-    previewViewProcessor.disable();
-  });
+    previewViewProcessor = mainViewExtension.createProcessor();
+    previewViewProcessor.init(wasm1).then(() => {
+      previewViewProcessor.disable();
+    });
+  } catch (error) {
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Failed to initiate VirtualBackgroundExtension',
+      error,
+    );
+  }
 };
 
 type VirtualBackgroundConfig = {
