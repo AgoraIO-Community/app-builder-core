@@ -4,7 +4,7 @@ const isInternalApp =
   $config.APP_ID === CONFERENCING_APP_ID &&
   $config.PROJECT_ID === CONFERENCING_PROJECT_ID;
 // Send logs to configured transport-> Datadog (used for internal app - www.confercning.agora.io)
-// Use the app id strict check to keep this true
+// Use the app id strict check to keep this true --
 export const ENABLE_AGORA_LOGGER_TRANSPORT =
   $config.LOG_ENABLED && isInternalApp;
 // $config.LOG_ENABLED && $config.APP_ID === CONFERENCING_APP_ID && true;
