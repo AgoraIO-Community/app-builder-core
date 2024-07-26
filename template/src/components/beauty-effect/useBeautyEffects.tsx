@@ -14,6 +14,10 @@ export type BeautyEffects = {
   rednessLevel?: Number;
 };
 
+export type BeautyProcessorType = ReturnType<
+  BeautyExtension['_createProcessor']
+> | null;
+
 const extension = new BeautyExtension();
 AgoraRTC.registerExtensions([extension]);
 const beautyProcessor = extension.createProcessor();
@@ -35,6 +39,7 @@ type BeautyEffectContextValue = {
   setRednessLevel: React.Dispatch<React.SetStateAction<number>>;
   applyBeautyEffect: (config?: BeautyEffects) => void;
   removeBeautyEffect: () => void;
+  beautyProcessor: BeautyProcessorType;
 };
 export type LighteningContrastLevel = 0 | 1 | 2;
 
@@ -54,6 +59,7 @@ export const BeautyEffectsContext =
     setRednessLevel: () => {},
     applyBeautyEffect: () => {},
     removeBeautyEffect: () => {},
+    beautyProcessor: null,
   });
 
 const BeautyEffectProvider: React.FC = ({children}) => {
@@ -130,6 +136,7 @@ const BeautyEffectProvider: React.FC = ({children}) => {
         setRednessLevel,
         applyBeautyEffect,
         removeBeautyEffect,
+        beautyProcessor,
       }}>
       {children}
     </BeautyEffectsContext.Provider>

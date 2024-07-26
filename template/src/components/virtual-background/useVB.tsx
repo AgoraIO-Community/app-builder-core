@@ -29,6 +29,9 @@ export type Option = {
   isSelected?: boolean;
 };
 
+export type VBProcessorType = ReturnType<
+  VirtualBackgroundExtension['_createProcessor']
+> | null;
 // processors for the main view and preview view
 let mainViewProcessor: ReturnType<
   VirtualBackgroundExtension['_createProcessor']
@@ -82,9 +85,7 @@ type VBContextValue = {
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
   applyVirtualBackgroundToMainView;
   applyVirtualBackgroundToPreviewView;
-  vbProcessor: ReturnType<
-    VirtualBackgroundExtension['_createProcessor']
-  > | null;
+  vbProcessor: VBProcessorType;
 };
 
 export const VBContext = React.createContext<VBContextValue>({

@@ -7,6 +7,7 @@ import {
   Option,
   useVB,
   type VBMode,
+  type VBProcessorType,
 } from '../../src/components/virtual-background/useVB';
 
 import {useSidePanel} from '../utils/useSidePanel';
@@ -27,6 +28,7 @@ export interface virtualBackgroundInterface {
   isVirtualBackgroundPanelOpen: boolean;
   hideVirtualBackgroundPanel: () => void;
   showVirtualBackgroundPanel: () => void;
+  virtualBackgroundProcessor: VBProcessorType;
 }
 
 export const useVirtualBackground: () => virtualBackgroundInterface = () => {
@@ -42,6 +44,7 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     setIsVBActive,
     applyVirtualBackgroundToMainView,
     applyVirtualBackgroundToPreviewView,
+    vbProcessor,
   } = useVB();
 
   const {setSidePanel} = useSidePanel();
@@ -144,5 +147,6 @@ export const useVirtualBackground: () => virtualBackgroundInterface = () => {
     isVirtualBackgroundPanelOpen: isVBActive,
     hideVirtualBackgroundPanel,
     showVirtualBackgroundPanel,
+    virtualBackgroundProcessor: vbProcessor,
   };
 };
