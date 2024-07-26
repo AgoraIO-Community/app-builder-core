@@ -33,8 +33,8 @@ const DefaultConfig = {
   BG: '',
   PRIMARY_FONT_COLOR: '#363636',
   SECONDARY_FONT_COLOR: '#FFFFFF',
-  PROFILE: "720p_3",
-  SCREEN_SHARE_PROFILE: "1080p_2",
+  PROFILE: '720p_3',
+  SCREEN_SHARE_PROFILE: '1080p_2',
   ICON_TEXT: true,
   PRIMARY_ACTION_BRAND_COLOR: '#099DFD',
   PRIMARY_ACTION_TEXT_COLOR: '#FFFFFF',
@@ -76,8 +76,8 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.0.25-beta-12',
-  CORE_VERSION: '4.0.25-beta-12',
+  CLI_VERSION: '3.0.25-beta-14',
+  CORE_VERSION: '4.0.25-beta-14',
 };
 
 module.exports = DefaultConfig;
