@@ -165,6 +165,7 @@ interface ConfigInterface {
   ENABLE_NOISE_CANCELLATION_BY_DEFAULT: boolean;
   CLI_VERSION: string;
   CORE_VERSION: string;
+  DISABLE_LANDSCAPE_MODE: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
