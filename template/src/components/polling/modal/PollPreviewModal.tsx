@@ -13,6 +13,7 @@ import {PollActionKind, usePollForm} from '../context/poll-form-context';
 export default function PollPreviewModal({visible}) {
   const {state, dispatch} = usePollForm();
   const {form} = state;
+
   return (
     <BaseModal visible={visible}>
       <BaseModalTitle title="Poll Preview" />
@@ -22,13 +23,17 @@ export default function PollPreviewModal({visible}) {
             <Text style={style.previewTimer}>{form.timer}</Text>
           )}
           <Text style={style.previewQuestion}>{form.question}</Text>
-          <View style={style.previewOptionSection}>
-            {form.options.map(option => (
-              <View style={style.previewOptionCard}>
-                <Text style={style.previewOptionText}>{option.text}</Text>
-              </View>
-            ))}
-          </View>
+          {form?.options ? (
+            <View style={style.previewOptionSection}>
+              {form.options.map(option => (
+                <View style={style.previewOptionCard}>
+                  <Text style={style.previewOptionText}>{option.text}</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
       </BaseModalContent>
       <BaseModalActions>

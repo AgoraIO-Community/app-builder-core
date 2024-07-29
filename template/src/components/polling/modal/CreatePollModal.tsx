@@ -63,98 +63,113 @@ export default function CreatePollModal({visible}) {
             </View>
           </View>
           {/* Options section */}
-          <View style={style.pFormSection}>
-            <FormTitle title="Responses" />
-            <View style={style.pFormOptions}>
-              {form.type === PollKind.MCQ ? (
-                <>
-                  {form.options.map((option, index) => (
-                    <View style={style.pFormOptionCard} key={index}>
-                      <Text style={style.pFormOptionPrefix}>{index + 1}</Text>
-                      <TextInput
-                        autoComplete="off"
-                        id="input"
-                        style={style.pFormInput}
-                        value={option.text}
-                        onChangeText={text => {
-                          dispatch({
-                            type: PollActionKind.UPDATE_FORM_OPTION,
-                            payload: {
-                              value: text,
-                              index: index,
-                            },
-                          });
-                        }}
-                        placeholder="Add text here..."
-                        placeholderTextColor={
-                          $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
-                        }
-                      />
-                      <View>
-                        <IconButton
-                          iconProps={{
-                            iconType: 'plain',
-                            iconContainerStyle: {
-                              padding: 5,
-                            },
-                            iconSize: 20,
-                            name: 'close',
-                            tintColor: $config.CARD_LAYER_5_COLOR,
-                          }}
-                          onPress={() => {
+          {form.type === PollKind.MCQ || form.type === PollKind.YES_NO ? (
+            <View style={style.pFormSection}>
+              <FormTitle title="Responses" />
+              <View style={style.pFormOptions}>
+                {form.type === PollKind.MCQ ? (
+                  <>
+                    {form.options.map((option, index) => (
+                      <View style={style.pFormOptionCard} key={index}>
+                        <Text style={style.pFormOptionPrefix}>{index + 1}</Text>
+                        <TextInput
+                          autoComplete="off"
+                          id="input"
+                          style={style.pFormInput}
+                          value={option.text}
+                          onChangeText={text => {
                             dispatch({
-                              type: PollActionKind.DELETE_FORM_OPTION,
+                              type: PollActionKind.UPDATE_FORM_OPTION,
                               payload: {
+                                value: text,
                                 index: index,
                               },
                             });
                           }}
+                          placeholder="Add text here..."
+                          placeholderTextColor={
+                            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
+                          }
                         />
+                        <View>
+                          <IconButton
+                            iconProps={{
+                              iconType: 'plain',
+                              iconContainerStyle: {
+                                padding: 5,
+                              },
+                              iconSize: 20,
+                              name: 'close',
+                              tintColor: $config.CARD_LAYER_5_COLOR,
+                            }}
+                            onPress={() => {
+                              dispatch({
+                                type: PollActionKind.DELETE_FORM_OPTION,
+                                payload: {
+                                  index: index,
+                                },
+                              });
+                            }}
+                          />
+                        </View>
                       </View>
+                    ))}
+                    <View style={style.pFormAddOptionLinkSection}>
+                      <LinkButton
+                        text="Add option"
+                        textStyle={style.pFormOptionLink}
+                        onPress={() => {
+                          dispatch({
+                            type: PollActionKind.ADD_FORM_OPTION,
+                          });
+                        }}
+                      />
                     </View>
-                  ))}
-                  <View style={style.pFormAddOptionLinkSection}>
-                    <LinkButton
-                      text="Add option"
-                      textStyle={style.pFormOptionLink}
-                      onPress={() => {
-                        dispatch({
-                          type: PollActionKind.ADD_FORM_OPTION,
-                        });
-                      }}
-                    />
-                  </View>
-                </>
-              ) : (
-                <>
-                  <View style={[style.pFormOptionCard, style.verticalPadding]}>
-                    <Text style={style.pFormOptionText}>Yes</Text>
-                  </View>
-                  <View style={[style.pFormOptionCard, style.verticalPadding]}>
-                    <Text style={style.pFormOptionText}>No</Text>
-                  </View>
-                </>
-              )}
+                  </>
+                ) : (
+                  <></>
+                )}
+                {form.type === PollKind.YES_NO ? (
+                  <>
+                    <View
+                      style={[style.pFormOptionCard, style.verticalPadding]}>
+                      <Text style={style.pFormOptionText}>Yes</Text>
+                    </View>
+                    <View
+                      style={[style.pFormOptionCard, style.verticalPadding]}>
+                      <Text style={style.pFormOptionText}>No</Text>
+                    </View>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </View>
             </View>
-          </View>
+          ) : (
+            <></>
+          )}
           {/* Sections templete */}
           <View style={style.pFormSection}>
             <View>
               <View style={style.pFormCheckboxContainer}>
-                <Checkbox
-                  checked={form.multiple}
-                  label={'Allow mutiple selections'}
-                  labelStye={style.pFormOptionText}
-                  onChange={() =>
-                    dispatch({
-                      type: PollActionKind.UPDATE_FORM_FIELD,
-                      payload: {
-                        field: 'multiple',
-                        value: !form.multiple,
-                      },
-                    })
-                  }
-                />
+                {form.type === PollKind.MCQ ? (
+                  <Checkbox
+                    checked={form.multiple}
+                    label={'Allow mutiple selections'}
+                    labelStye={style.pFormOptionText}
+                    onChange={() =>
+                      dispatch({
+                        type: PollActionKind.UPDATE_FORM_FIELD,
+                        payload: {
+                          field: 'multiple',
+                          value: !form.multiple,
+                        },
+                      })
+                    }
+                  />
+                ) : (
+                  <></>
+                )}
               </View>
               <View style={style.pFormCheckboxContainer}>
                 <Checkbox
