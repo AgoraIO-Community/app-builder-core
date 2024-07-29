@@ -763,7 +763,23 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (!hasUserJoinedRTM) {
       return;
     }
-    const areUsersInChannel = hostUids?.length > 0 || audienceUids?.length > 0;
+
+    /**
+     * The below check makes sure we are only looking at hostuids
+     * It fixes the below issue
+     * In case of screenshare it so happens sometimes that in
+     * initial render for the bot - the hostuid contains the uid which is
+     * actually a screenshare uid. The data is yet not populated whether
+     * its pure host or screenshare uid
+     * To only consider uids which are purely host we filter the uids as below
+     */
+
+    const areHostsInChannel = hostUids.filter(
+      n => !Object.keys(screenShareData).includes(String(n)),
+    );
+
+    const areUsersInChannel =
+      areHostsInChannel.length > 0 || audienceUids?.length > 0;
 
     if (areUsersInChannel) {
       /**
@@ -801,6 +817,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     hostUids,
     audienceUids,
     _stopRecording,
+    screenShareData,
   ]);
 
   // useEffect(() => { //
