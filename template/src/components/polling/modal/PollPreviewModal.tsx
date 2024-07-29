@@ -8,7 +8,7 @@ import {
 } from './BaseModal';
 import ThemeConfig from '../../../theme';
 import TertiaryButton from '../../../atoms/TertiaryButton';
-import {PollActionKind, usePollForm} from '../context/poll-form-context';
+import {PollFormActionKind, usePollForm} from '../context/poll-form-context';
 
 export default function PollPreviewModal({visible}) {
   const {state, dispatch} = usePollForm();
@@ -42,7 +42,7 @@ export default function PollPreviewModal({visible}) {
             <TertiaryButton
               onPress={() => {
                 dispatch({
-                  type: PollActionKind.UPDATE_FORM,
+                  type: PollFormActionKind.UPDATE_FORM,
                 });
               }}
               text="Edit"
@@ -53,7 +53,10 @@ export default function PollPreviewModal({visible}) {
               text="Save for later"
               onPress={() => {
                 dispatch({
-                  type: PollActionKind.SAVE_FORM,
+                  type: PollFormActionKind.SAVE_FORM,
+                  payload: {
+                    launch: false,
+                  },
                 });
               }}
             />
@@ -63,7 +66,10 @@ export default function PollPreviewModal({visible}) {
               text="Launch Now"
               onPress={() => {
                 dispatch({
-                  type: PollActionKind.LAUNCH_FORM,
+                  type: PollFormActionKind.SAVE_FORM,
+                  payload: {
+                    launch: true,
+                  },
                 });
               }}
             />

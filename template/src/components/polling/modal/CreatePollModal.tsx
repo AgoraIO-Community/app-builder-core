@@ -12,7 +12,7 @@ import Checkbox from '../../../atoms/Checkbox';
 import IconButton from '../../../atoms/IconButton';
 import PrimaryButton from '../../../atoms/PrimaryButton';
 import {
-  PollActionKind,
+  PollFormActionKind,
   PollKind,
   usePollForm,
 } from '../context/poll-form-context';
@@ -48,7 +48,7 @@ export default function CreatePollModal({visible}) {
                     return;
                   }
                   dispatch({
-                    type: PollActionKind.UPDATE_FORM_FIELD,
+                    type: PollFormActionKind.UPDATE_FORM_FIELD,
                     payload: {
                       field: 'question',
                       value: text,
@@ -79,7 +79,7 @@ export default function CreatePollModal({visible}) {
                           value={option.text}
                           onChangeText={text => {
                             dispatch({
-                              type: PollActionKind.UPDATE_FORM_OPTION,
+                              type: PollFormActionKind.UPDATE_FORM_OPTION,
                               payload: {
                                 value: text,
                                 index: index,
@@ -104,7 +104,7 @@ export default function CreatePollModal({visible}) {
                             }}
                             onPress={() => {
                               dispatch({
-                                type: PollActionKind.DELETE_FORM_OPTION,
+                                type: PollFormActionKind.DELETE_FORM_OPTION,
                                 payload: {
                                   index: index,
                                 },
@@ -120,7 +120,7 @@ export default function CreatePollModal({visible}) {
                         textStyle={style.pFormOptionLink}
                         onPress={() => {
                           dispatch({
-                            type: PollActionKind.ADD_FORM_OPTION,
+                            type: PollFormActionKind.ADD_FORM_OPTION,
                           });
                         }}
                       />
@@ -159,7 +159,7 @@ export default function CreatePollModal({visible}) {
                     labelStye={style.pFormOptionText}
                     onChange={() =>
                       dispatch({
-                        type: PollActionKind.UPDATE_FORM_FIELD,
+                        type: PollFormActionKind.UPDATE_FORM_FIELD,
                         payload: {
                           field: 'multiple',
                           value: !form.multiple,
@@ -178,7 +178,7 @@ export default function CreatePollModal({visible}) {
                   labelStye={style.pFormOptionText}
                   onChange={() =>
                     dispatch({
-                      type: PollActionKind.UPDATE_FORM_FIELD,
+                      type: PollFormActionKind.UPDATE_FORM_FIELD,
                       payload: {
                         field: 'share',
                         value: !form.share,
@@ -194,7 +194,7 @@ export default function CreatePollModal({visible}) {
                   labelStye={style.pFormOptionText}
                   onChange={() =>
                     dispatch({
-                      type: PollActionKind.UPDATE_FORM_FIELD,
+                      type: PollFormActionKind.UPDATE_FORM_FIELD,
                       payload: {
                         field: 'duration',
                         value: !form.duration,
@@ -214,7 +214,7 @@ export default function CreatePollModal({visible}) {
             textStyle={style.btnText}
             onPress={() => {
               dispatch({
-                type: PollActionKind.PREVIEW_FORM,
+                type: PollFormActionKind.PREVIEW_FORM,
               });
             }}
             text="Preview"

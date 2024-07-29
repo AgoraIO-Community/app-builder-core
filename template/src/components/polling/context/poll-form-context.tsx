@@ -16,19 +16,6 @@ enum PollKind {
   YES_NO = 'YES_NO',
 }
 
-enum PollActionKind {
-  START_POLL = 'START_POLL',
-  SELECT_POLL = 'SELECT_POLL',
-  UPDATE_FORM_FIELD = 'UPDATE_FORM_FIELD',
-  UPDATE_FORM_OPTION = 'UPDATE_FORM_OPTION',
-  ADD_FORM_OPTION = 'ADD_FORM_OPTION',
-  DELETE_FORM_OPTION = 'DELETE_FORM_OPTION',
-  PREVIEW_FORM = 'PREVIEW_FORM',
-  UPDATE_FORM = 'UPDATE_FORM',
-  SAVE_FORM = 'SAVE_FORM',
-  LAUNCH_FORM = 'LAUNCH_FORM',
-}
-
 interface PollItem {
   type: PollKind;
   access: PollAccess;
@@ -47,50 +34,62 @@ interface PollItem {
   createdBy: number;
 }
 
+enum PollFormActionKind {
+  START_POLL = 'START_POLL',
+  SELECT_POLL = 'SELECT_POLL',
+  UPDATE_FORM_FIELD = 'UPDATE_FORM_FIELD',
+  UPDATE_FORM_OPTION = 'UPDATE_FORM_OPTION',
+  ADD_FORM_OPTION = 'ADD_FORM_OPTION',
+  DELETE_FORM_OPTION = 'DELETE_FORM_OPTION',
+  PREVIEW_FORM = 'PREVIEW_FORM',
+  UPDATE_FORM = 'UPDATE_FORM',
+  SAVE_FORM = 'SAVE_FORM',
+}
+
 type PollFormAction =
   | {
-      type: PollActionKind.START_POLL;
+      type: PollFormActionKind.START_POLL;
     }
   | {
-      type: PollActionKind.SELECT_POLL;
+      type: PollFormActionKind.SELECT_POLL;
       payload: {
         pollType: PollKind;
       };
     }
   | {
-      type: PollActionKind.UPDATE_FORM_FIELD;
+      type: PollFormActionKind.UPDATE_FORM_FIELD;
       payload: {
         field: string;
         value: string | boolean;
       };
     }
   | {
-      type: PollActionKind.ADD_FORM_OPTION;
+      type: PollFormActionKind.ADD_FORM_OPTION;
     }
   | {
-      type: PollActionKind.UPDATE_FORM_OPTION;
+      type: PollFormActionKind.UPDATE_FORM_OPTION;
       payload: {
         index: number;
         value: string;
       };
     }
   | {
-      type: PollActionKind.DELETE_FORM_OPTION;
+      type: PollFormActionKind.DELETE_FORM_OPTION;
       payload: {
         index: number;
       };
     }
   | {
-      type: PollActionKind.PREVIEW_FORM;
+      type: PollFormActionKind.PREVIEW_FORM;
     }
   | {
-      type: PollActionKind.SAVE_FORM;
+      type: PollFormActionKind.SAVE_FORM;
+      payload: {
+        launch: boolean;
+      };
     }
   | {
-      type: PollActionKind.UPDATE_FORM;
-    }
-  | {
-      type: PollActionKind.LAUNCH_FORM;
+      type: PollFormActionKind.UPDATE_FORM;
     };
 
 const initPollForm = (kind: PollKind): PollItem => {
@@ -168,6 +167,13 @@ const initPollForm = (kind: PollKind): PollItem => {
   }
 };
 
+const getPollTimer = (isDurationEnabled: boolean) => {
+  if (isDurationEnabled) {
+    return 10000;
+  }
+  return -1;
+};
+
 interface PollFormState {
   form: PollItem;
   currentStep: 'START_POLL' | 'SELECT_POLL' | 'CREATE_POLL' | 'PREVIEW_POLL';
@@ -178,30 +184,33 @@ function pollFormReducer(
   action: PollFormAction,
 ): PollFormState {
   switch (action.type) {
-    case PollActionKind.START_POLL: {
+    case PollFormActionKind.START_POLL: {
       return {
         ...state,
         form: null,
         currentStep: 'SELECT_POLL',
       };
     }
-    case PollActionKind.SELECT_POLL: {
+    case PollFormActionKind.SELECT_POLL: {
       return {
         ...state,
         currentStep: 'CREATE_POLL',
         form: initPollForm(action.payload.pollType),
       };
     }
-    case PollActionKind.UPDATE_FORM_FIELD: {
+    case PollFormActionKind.UPDATE_FORM_FIELD: {
       return {
         ...state,
         form: {
           ...state.form,
           [action.payload.field]: action.payload.value,
+          ...(action.payload.field === 'duration' && {
+            timer: getPollTimer(action.payload.value as boolean),
+          }),
         },
       };
     }
-    case PollActionKind.ADD_FORM_OPTION: {
+    case PollFormActionKind.ADD_FORM_OPTION: {
       return {
         ...state,
         form: {
@@ -217,7 +226,7 @@ function pollFormReducer(
         },
       };
     }
-    case PollActionKind.UPDATE_FORM_OPTION: {
+    case PollFormActionKind.UPDATE_FORM_OPTION: {
       return {
         ...state,
         form: {
@@ -239,7 +248,7 @@ function pollFormReducer(
         },
       };
     }
-    case PollActionKind.DELETE_FORM_OPTION: {
+    case PollFormActionKind.DELETE_FORM_OPTION: {
       return {
         ...state,
         form: {
@@ -250,34 +259,24 @@ function pollFormReducer(
         },
       };
     }
-    case PollActionKind.PREVIEW_FORM: {
+    case PollFormActionKind.PREVIEW_FORM: {
       return {
         ...state,
         currentStep: 'PREVIEW_POLL',
       };
     }
-    case PollActionKind.UPDATE_FORM: {
+    case PollFormActionKind.UPDATE_FORM: {
       return {
         ...state,
         currentStep: 'CREATE_POLL',
       };
     }
-    case PollActionKind.SAVE_FORM: {
+    case PollFormActionKind.SAVE_FORM: {
       return {
         ...state,
         form: {
           ...state.form,
-          status: PollStatus.LATER,
-        },
-        currentStep: null,
-      };
-    }
-    case PollActionKind.LAUNCH_FORM: {
-      return {
-        ...state,
-        form: {
-          ...state.form,
-          status: PollStatus.ACTIVE,
+          status: action.payload.launch ? PollStatus.ACTIVE : PollStatus.LATER,
         },
         currentStep: null,
       };
@@ -299,7 +298,7 @@ PollFormContext.displayName = 'PollFormContext';
 function PollFormProvider({children}: {children?: React.ReactNode}) {
   const [state, dispatch] = useReducer(pollFormReducer, {
     form: null,
-    currentStep: null,
+    currentStep: 'SELECT_POLL',
   });
 
   const value = {state, dispatch};
@@ -319,5 +318,5 @@ function usePollForm() {
   return context;
 }
 
-export {PollFormProvider, usePollForm, PollActionKind, PollKind};
+export {PollFormProvider, usePollForm, PollFormActionKind, PollKind};
 export type {PollItem};

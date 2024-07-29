@@ -3,7 +3,7 @@ import React from 'react';
 import {BaseModal, BaseModalTitle, BaseModalContent} from './BaseModal';
 import ThemeConfig from '../../../theme';
 import {
-  PollActionKind,
+  PollFormActionKind,
   PollKind,
   usePollForm,
 } from '../context/poll-form-context';
@@ -49,7 +49,7 @@ export default function SelectNewPollTypeModal({visible}) {
               key={item.key}
               onPress={() => {
                 dispatch({
-                  type: PollActionKind.SELECT_POLL,
+                  type: PollFormActionKind.SELECT_POLL,
                   payload: {pollType: item.key},
                 });
               }}>
