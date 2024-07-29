@@ -233,12 +233,23 @@ const RtmConfigure = (props: any) => {
       }
       timerValueRef.current = 5;
       await getMembers();
+      const channelAttr = await engine.current.getChannelAttributes(
+        rtcProps.channel,
+      );
+      const channelAttrByKeys = await engine.current.getChannelAttributesByKeys(
+        rtcProps.channel,
+        ['poll'],
+      );
+      console.log('supriya getChannelAttributes', channelAttr);
+      console.log('supriya getChannelAttributesByKeys', channelAttrByKeys);
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM getMembers done');
     } catch (error) {
+      console.log('supriya error: ', error);
       logger.error(
         LogSource.AgoraSDK,
         'Log',
         'RTM joinChannel failed..Trying again',
+        error,
       );
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -580,6 +591,11 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
+
+    engine.current.on('channelAttributesUpdated', (data: any) => {
+      console.log('supriya channel attributes receivwd', data);
+    });
+
     await doLoginAndSetupRTM();
   };
 
