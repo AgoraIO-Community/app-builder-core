@@ -2,7 +2,11 @@ import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {BaseModal, BaseModalTitle, BaseModalContent} from './BaseModal';
 import ThemeConfig from '../../../theme';
-import {PollActionKind, PollKind, usePollForm} from '../context/poll-form';
+import {
+  PollActionKind,
+  PollKind,
+  usePollForm,
+} from '../context/poll-form-context';
 
 interface newPollType {
   key: PollKind;

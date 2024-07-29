@@ -29,6 +29,24 @@ enum PollActionKind {
   LAUNCH_FORM = 'LAUNCH_FORM',
 }
 
+interface PollItem {
+  type: PollKind;
+  access: PollAccess;
+  status: PollStatus;
+  title: string;
+  question: string;
+  options: Array<{
+    text: string;
+    value: string;
+    votes: [];
+  }> | null;
+  multiple: boolean;
+  share: boolean;
+  duration: boolean;
+  timer: number;
+  createdBy: number;
+}
+
 type PollFormAction =
   | {
       type: PollActionKind.START_POLL;
@@ -75,30 +93,7 @@ type PollFormAction =
       type: PollActionKind.LAUNCH_FORM;
     };
 
-interface Poll {
-  type: PollKind;
-  access: PollAccess;
-  status: PollStatus;
-  title: string;
-  question: string;
-  options: Array<{
-    text: string;
-    value: string;
-    votes: [];
-  }> | null;
-  multiple: boolean;
-  share: boolean;
-  duration: boolean;
-  timer: number;
-  createdBy: number;
-}
-
-interface PollFormState {
-  form: Poll;
-  currentStep: 'START_POLL' | 'SELECT_POLL' | 'CREATE_POLL' | 'PREVIEW_POLL';
-}
-
-const initPollForm = (kind: PollKind): Poll => {
+const initPollForm = (kind: PollKind): PollItem => {
   if (kind === PollKind.OPEN_ENDED) {
     return {
       type: PollKind.OPEN_ENDED,
@@ -172,6 +167,11 @@ const initPollForm = (kind: PollKind): Poll => {
     };
   }
 };
+
+interface PollFormState {
+  form: PollItem;
+  currentStep: 'START_POLL' | 'SELECT_POLL' | 'CREATE_POLL' | 'PREVIEW_POLL';
+}
 
 function pollFormReducer(
   state: PollFormState,
@@ -320,3 +320,4 @@ function usePollForm() {
 }
 
 export {PollFormProvider, usePollForm, PollActionKind, PollKind};
+export type {PollItem};

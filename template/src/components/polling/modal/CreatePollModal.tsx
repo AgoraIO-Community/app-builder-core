@@ -11,7 +11,11 @@ import LinkButton from '../../../atoms/LinkButton';
 import Checkbox from '../../../atoms/Checkbox';
 import IconButton from '../../../atoms/IconButton';
 import PrimaryButton from '../../../atoms/PrimaryButton';
-import {PollActionKind, PollKind, usePollForm} from '../context/poll-form';
+import {
+  PollActionKind,
+  PollKind,
+  usePollForm,
+} from '../context/poll-form-context';
 
 function FormTitle({title}: {title: string}) {
   return (

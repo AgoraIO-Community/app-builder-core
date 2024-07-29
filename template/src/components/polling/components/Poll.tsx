@@ -1,6 +1,6 @@
 import React from 'react';
 import {PollProvider} from '../context';
-import {PollFormProvider, usePollForm} from '../context/poll-form';
+import {PollFormProvider, usePollForm} from '../context/poll-form-context';
 import SelectNewPollTypeModal from '../modal/SelectNewPollTypeModal';
 import CreatePollModal from '../modal/CreatePollModal';
 import PollPreviewModal from '../modal/PollPreviewModal';

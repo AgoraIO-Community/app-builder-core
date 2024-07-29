@@ -8,7 +8,7 @@ import {
 } from './BaseModal';
 import ThemeConfig from '../../../theme';
 import TertiaryButton from '../../../atoms/TertiaryButton';
-import {PollActionKind, usePollForm} from '../context/poll-form';
+import {PollActionKind, usePollForm} from '../context/poll-form-context';
 
 export default function PollPreviewModal({visible}) {
   const {state, dispatch} = usePollForm();
