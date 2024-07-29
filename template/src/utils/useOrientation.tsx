@@ -1,46 +1,58 @@
-import {useState, useLayoutEffect} from 'react';
-import {Dimensions} from 'react-native';
-
-// const isPortrait = () => {
-//   const dim = Dimensions.get('window');
-
-//   // This 20 is added to adjust for keyboard autocomplete suggestion area height
-//   return dim.height + 20 >= dim.width;
-// };
+import {useState, useEffect} from 'react';
 
 const isPortrait = () => {
-  console.log('window dimensions, ', window.innerHeight, window.innerWidth);
-  // We use window size instead of dimension API as dimension API takes the keybaord
-  // open height into consideration
-  return window.innerHeight >= window.innerWidth;
+  try {
+    if (
+      window?.screen?.orientation?.type === 'portrait-primary' ||
+      window?.screen?.orientation?.type === 'portrait-secondary'
+    ) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log('screen orientation window api not supported error: ', error);
+    return true;
+  }
 };
+
 /**
  * A React Hook which updates when the orientation changes
  * @returns whether the user is in 'PORTRAIT' or 'LANDSCAPE'
  */
+
 export function useOrientation(): 'PORTRAIT' | 'LANDSCAPE' {
   const [orientation, setOrientation] = useState<'PORTRAIT' | 'LANDSCAPE'>(
     isPortrait() ? 'PORTRAIT' : 'LANDSCAPE',
   );
 
-  // const onResize = () => {
-  //   setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
-  // };
+  const onOrientationChange = (event: any) => {
+    try {
+      if (
+        event?.target?.type === 'portrait-primary' ||
+        event?.target?.type === 'portrait-secondary'
+      ) {
+        setOrientation('PORTRAIT');
+      } else {
+        setOrientation('LANDSCAPE');
+      }
+    } catch (error) {
+      console.log('screen orientation window api not supported error: ', error);
+      setOrientation('PORTRAIT');
+    }
+  };
 
-  useLayoutEffect(() => {
-    const subscription = Dimensions.addEventListener('change', () => {
-      setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
-    });
-
-    return () => subscription?.remove();
+  useEffect(() => {
+    window?.screen?.orientation?.addEventListener(
+      'change',
+      onOrientationChange,
+    );
+    return () => {
+      window?.screen.orientation?.removeEventListener(
+        'change',
+        onOrientationChange,
+      );
+    };
   }, []);
-
-  // useEffect(() => {
-  //   window.visualViewport.addEventListener('resize', onResize);
-  //   return () => {
-  //     window.visualViewport.removeEventListener('resize', onResize);
-  //   };
-  // }, []);
 
   return orientation;
 }
