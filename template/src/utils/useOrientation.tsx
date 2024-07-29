@@ -27,6 +27,7 @@ export function useOrientation(): 'PORTRAIT' | 'LANDSCAPE' {
 
   const onOrientationChange = (event: any) => {
     try {
+      console.log('screen orientation changed to -> ', event?.target?.type);
       if (
         event?.target?.type === 'portrait-primary' ||
         event?.target?.type === 'portrait-secondary'
