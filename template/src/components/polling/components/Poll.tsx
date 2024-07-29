@@ -1,35 +1,38 @@
 import React from 'react';
-import {PollProvider, usePoll} from '../context';
+import {PollProvider} from '../context';
+import {PollFormProvider, usePollForm} from '../context/poll-form';
 import SelectNewPollTypeModal from '../modal/SelectNewPollTypeModal';
 import CreatePollModal from '../modal/CreatePollModal';
 import PollPreviewModal from '../modal/PollPreviewModal';
-import SharePollModal from '../modal/SharePollModal';
 
 function Poll() {
   return (
     <PollProvider>
-      <PollModals />
+      <PollFormProvider>
+        <PollForms />
+      </PollFormProvider>
     </PollProvider>
   );
 }
 
-function PollModals() {
-  const {state} = usePoll();
-  const {nextUserActivity} = state;
-
-  const openSelectNewPollTypeModal = nextUserActivity === 'SELECT_NEW_POLL';
-  const openCreatePollModal = nextUserActivity === 'CREATE_POLL';
-  const openPreviewModal = nextUserActivity === 'PREVIEW_POLL';
-  return (
-    <>
-      {openSelectNewPollTypeModal && (
-        <SelectNewPollTypeModal visible={openSelectNewPollTypeModal} />
-      )}
-      {openCreatePollModal && <CreatePollModal visible={openCreatePollModal} />}
-      {openPreviewModal && <PollPreviewModal visible={openPreviewModal} />}
-      {/* <SharePollModal /> */}
-    </>
-  );
-}
-
 export default Poll;
+
+function PollForms() {
+  const {state} = usePollForm();
+  const {currentStep} = state;
+
+  function renderSwitch() {
+    switch (currentStep) {
+      case 'SELECT_POLL':
+        return <SelectNewPollTypeModal visible={true} />;
+      case 'CREATE_POLL':
+        return <CreatePollModal visible={true} />;
+      case 'PREVIEW_POLL':
+        return <PollPreviewModal visible={true} />;
+      default:
+        return <></>;
+    }
+  }
+
+  return <>{renderSwitch()}</>;
+}

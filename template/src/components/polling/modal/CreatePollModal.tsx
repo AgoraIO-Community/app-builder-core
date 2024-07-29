@@ -1,5 +1,5 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
-import React, {useState} from 'react';
+import React from 'react';
 import {
   BaseModal,
   BaseModalTitle,
@@ -7,12 +7,11 @@ import {
   BaseModalActions,
 } from './BaseModal';
 import ThemeConfig from '../../../theme';
-import {PollKind, usePoll} from '../context';
 import LinkButton from '../../../atoms/LinkButton';
 import Checkbox from '../../../atoms/Checkbox';
 import IconButton from '../../../atoms/IconButton';
-import TertiaryButton from '../../../atoms/TertiaryButton';
 import PrimaryButton from '../../../atoms/PrimaryButton';
+import {PollActionKind, PollKind, usePollForm} from '../context/poll-form';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -22,9 +21,8 @@ function FormTitle({title}: {title: string}) {
   );
 }
 export default function CreatePollModal({visible}) {
-  const {state, dispatch} = usePoll();
+  const {state, dispatch} = usePollForm();
   const {form} = state;
-  console.log('supriya form', state);
 
   return (
     <BaseModal visible={visible}>
@@ -46,7 +44,7 @@ export default function CreatePollModal({visible}) {
                     return;
                   }
                   dispatch({
-                    type: 'EDIT_POLL_FORM_FIELD',
+                    type: PollActionKind.UPDATE_FORM_FIELD,
                     payload: {
                       field: 'question',
                       value: text,
@@ -76,10 +74,10 @@ export default function CreatePollModal({visible}) {
                         value={option.text}
                         onChangeText={text => {
                           dispatch({
-                            type: 'EDIT_POLL_FORM_OPTION',
+                            type: PollActionKind.UPDATE_FORM_OPTION,
                             payload: {
                               value: text,
-                              key: index,
+                              index: index,
                             },
                           });
                         }}
@@ -101,10 +99,9 @@ export default function CreatePollModal({visible}) {
                           }}
                           onPress={() => {
                             dispatch({
-                              type: 'DELETE_POLL_FORM_OPTION',
+                              type: PollActionKind.DELETE_FORM_OPTION,
                               payload: {
-                                value: '',
-                                key: index,
+                                index: index,
                               },
                             });
                           }}
@@ -118,7 +115,7 @@ export default function CreatePollModal({visible}) {
                       textStyle={style.pFormOptionLink}
                       onPress={() => {
                         dispatch({
-                          type: 'ADD_POLL_FORM_OPTION',
+                          type: PollActionKind.ADD_FORM_OPTION,
                         });
                       }}
                     />
@@ -146,7 +143,7 @@ export default function CreatePollModal({visible}) {
                   labelStye={style.pFormOptionText}
                   onChange={() =>
                     dispatch({
-                      type: 'EDIT_POLL_FORM',
+                      type: PollActionKind.UPDATE_FORM_FIELD,
                       payload: {
                         field: 'multiple',
                         value: !form.multiple,
@@ -162,7 +159,7 @@ export default function CreatePollModal({visible}) {
                   labelStye={style.pFormOptionText}
                   onChange={() =>
                     dispatch({
-                      type: 'EDIT_POLL_FORM',
+                      type: PollActionKind.UPDATE_FORM_FIELD,
                       payload: {
                         field: 'share',
                         value: !form.share,
@@ -178,7 +175,7 @@ export default function CreatePollModal({visible}) {
                   labelStye={style.pFormOptionText}
                   onChange={() =>
                     dispatch({
-                      type: 'EDIT_POLL_FORM',
+                      type: PollActionKind.UPDATE_FORM_FIELD,
                       payload: {
                         field: 'duration',
                         value: !form.duration,
@@ -198,7 +195,7 @@ export default function CreatePollModal({visible}) {
             textStyle={style.btnText}
             onPress={() => {
               dispatch({
-                type: 'PREVIEW_POLL_FORM',
+                type: PollActionKind.PREVIEW_FORM,
               });
             }}
             text="Preview"
