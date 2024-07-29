@@ -33,11 +33,12 @@ import {ClientRoleType} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
-  CustomToolbarSort,
   isWeb,
   isWebInternal,
-  useIsDesktop,
-  updateToolbarDefaultConfig,
+  CustomToolbarMerge,
+  CustomToolbarSorting,
+  MergeMoreButtonFields,
+  CustomToolbarSort,
 } from '../utils/common';
 import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
@@ -71,11 +72,8 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {
   ToolbarBottomPresetProps,
-  ToolbarCustomItem,
-  ToolbarDefaultItem,
-  ToolbarDefaultItemConfig,
   ToolbarItemHide,
-  ToolbarMoreMenuCustomItem,
+  ToolbarMoreButtonFields,
 } from '../atoms/ToolbarPreset';
 
 import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
@@ -111,6 +109,7 @@ import {
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
 import ViewRecordingsModal from './recordings/ViewRecordingsModal';
+import {filterObject} from '../utils/index';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -253,12 +252,7 @@ export const WhiteboardListener = () => {
   return null;
 };
 
-const MoreButton = (props: {
-  defaultItemsConfig: ToolbarBottomPresetProps['defaultItemsConfig'];
-  customActionMenuItems: ToolbarMoreMenuCustomItem[];
-}) => {
-  const defaultItemsConfig = props?.defaultItemsConfig || {};
-  const defaultMoreItemsConfig = props?.defaultItemsConfig?.more?.fields || {};
+const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -768,17 +762,26 @@ const MoreButton = (props: {
     }
   };
 
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
 
-  const CustomActionMenuItems = props?.customActionMenuItems || [];
+  const moreButtonFields = props?.fields || {};
 
-  const ActionMenuItems = CustomActionMenuItems?.concat(
-    updateToolbarDefaultConfig(actionMenuitems, {
-      ...defaultItemsConfig,
-      ...defaultMoreItemsConfig,
-    }),
+  const ActionMenuItems = MergeMoreButtonFields(
+    actionMenuitems,
+    moreButtonFields,
   )
     ?.filter(i => !isHidden(i))
     ?.sort(CustomToolbarSort);
@@ -941,8 +944,7 @@ export const RecordingToolbarItem = () => {
 };
 
 export const MoreButtonToolbarItem = (props?: {
-  defaultItemsConfig?: ToolbarBottomPresetProps['defaultItemsConfig'];
-  customMoreItems?: ToolbarMoreMenuCustomItem[];
+  fields?: ToolbarMoreButtonFields;
 }) => {
   const {width} = useWindowDimensions();
   const {
@@ -969,10 +971,7 @@ export const MoreButtonToolbarItem = (props?: {
       ) : (
         <></>
       )}
-      <MoreButton
-        defaultItemsConfig={props?.defaultItemsConfig}
-        customActionMenuItems={props?.customMoreItems}
-      />
+      <MoreButton fields={props?.fields} />
     </ToolbarItem>
   ) : (
     <WhiteboardListener />
@@ -992,94 +991,77 @@ export const LocalEndcallToolbarItem = (
   );
 };
 
-const defaultItems: ToolbarDefaultItem[] = [
-  {
+const defaultItems: ToolbarBottomPresetProps['items'] = {
+  layout: {
     align: 'start',
     component: LayoutToolbarItem,
-    componentName: 'layout',
     order: 0,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;
     },
   },
-  {
+  invite: {
     align: 'start',
     component: InviteToolbarItem,
-    componentName: 'invite',
     order: 1,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;
     },
   },
-  {
+  'raise-hand': {
     align: 'center',
     component: RaiseHandToolbarItem,
-    componentName: 'raise-hand',
     order: 0,
   },
-  {
+  'local-audio': {
     align: 'center',
     component: LocalAudioToolbarItem,
-    componentName: 'local-audio',
     order: 1,
   },
-  {
+  'local-video': {
     align: 'center',
     component: LocalVideoToolbarItem,
-    componentName: 'local-video',
     order: 2,
   },
-  {
+  'switch-camera': {
     align: 'center',
     component: SwitchCameraToolbarItem,
-    componentName: 'switch-camera',
     order: 3,
   },
-  {
+  screenshare: {
     align: 'center',
     component: ScreenShareToolbarItem,
-    componentName: 'screenshare',
     order: 4,
     hide: w => {
       return w < BREAKPOINTS.sm ? true : false;
     },
   },
-  {
+  recording: {
     align: 'center',
     component: RecordingToolbarItem,
-    componentName: 'recording',
     order: 5,
     hide: w => {
       return w < BREAKPOINTS.sm ? true : false;
     },
   },
-  {
+  more: {
     align: 'center',
     component: MoreButtonToolbarItem,
-    componentName: 'more',
     order: 6,
   },
-  {
+  'end-call': {
     align: 'center',
     component: LocalEndcallToolbarItem,
-    componentName: 'end-call',
     order: 7,
   },
-];
+};
 
 export interface ControlsProps {
-  customItems?: ToolbarCustomItem[];
-  customMoreItems?: ToolbarMoreMenuCustomItem[];
+  items?: ToolbarBottomPresetProps['items'];
   includeDefaultItems?: boolean;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
 }
 const Controls = (props: ControlsProps) => {
-  const {
-    customItems = [],
-    includeDefaultItems = true,
-    defaultItemsConfig = {},
-    customMoreItems = [],
-  } = props;
+  const {items = {}, includeDefaultItems = true} = props;
   const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
@@ -1184,64 +1166,77 @@ const Controls = (props: ControlsProps) => {
     }
   };
 
-  const customStartItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i?.align === 'start' && !isHidden(i?.hide))
-    ?.sort(CustomToolbarSort);
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
+  );
 
-  const customCenterItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i?.align === 'center' && !isHidden(i?.hide))
-    ?.sort(CustomToolbarSort);
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+  const centerItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'center' && !isHidden(v?.hide),
+  );
+  const endItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'end' && !isHidden(v?.hide),
+  );
 
-  const customEndItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i?.align === 'end' && !isHidden(i?.hide))
-    ?.sort(CustomToolbarSort);
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+  const centerItemsOrdered = CustomToolbarSorting(centerItems);
+  const endItemsOrdered = CustomToolbarSorting(endItems);
 
   const renderContent = (
-    items: ToolbarCustomItem[],
+    orderedKeys: string[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return (
-          <ToolbarItem
-            key={`bottom-toolbar-${type}` + index}
-            //@ts-ignore
-            defaultItemsConfig={defaultItemsConfig}
-            //@ts-ignore
-            customMoreItems={customMoreItems}
-          />
-        );
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      let ToolbarComponentProps = {};
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+        if (keyName === 'more') {
+          ToolbarComponentProps = startItems[keyName]?.fields;
+        }
+      } else if (type === 'center') {
+        ToolbarComponent = centerItems[keyName]?.component;
+        if (keyName === 'more') {
+          ToolbarComponentProps = centerItems[keyName]?.fields;
+        }
       } else {
-        return null;
+        ToolbarComponent = endItems[keyName]?.component;
+        if (keyName === 'more') {
+          ToolbarComponentProps = endItems[keyName]?.fields;
+        }
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent
+            key={`top-toolbar-${type}` + index}
+            fields={ToolbarComponentProps}
+          />,
+        );
       }
     });
+
+    return renderContentItem;
   };
+
   return (
     <Toolbar>
-      <View style={[style.startContent]}>
-        {renderContent(customStartItems, 'start')}
+      <View style={style.startContent}>
+        {renderContent(startItemsOrdered, 'start')}
       </View>
-      <View style={[style.centerContent]}>
-        {renderContent(customCenterItems, 'center')}
+      <View style={style.centerContent}>
+        {renderContent(centerItemsOrdered, 'center')}
       </View>
       <View style={style.endContent}>
-        {renderContent(customEndItems, 'end')}
+        {renderContent(endItemsOrdered, 'end')}
       </View>
     </Toolbar>
   );

@@ -264,6 +264,37 @@ const CustomToolbarSort = (a, b) =>
   (a.hasOwnProperty('order') ? a.order : 999999) -
   (b.hasOwnProperty('order') ? b.order : 999999);
 
+const CustomToolbarSorting = sourceObject => {
+  try {
+    return Object.keys(sourceObject).sort((a, b) => {
+      return (
+        (sourceObject[a].hasOwnProperty('order')
+          ? sourceObject[a].order
+          : 999999) -
+        (sourceObject[b].hasOwnProperty('order')
+          ? sourceObject[b].order
+          : 999999)
+      );
+    });
+  } catch (error) {
+    console.error('CustomSortingToolbarObject Failed', error);
+    return [];
+  }
+};
+
+function CustomToolbarMerge(obj1, obj2) {
+  let merged = {...obj1};
+  for (let key in obj2) {
+    if (obj2.hasOwnProperty(key)) {
+      merged[key] =
+        obj1[key] && obj1[key].toString() === '[object Object]'
+          ? CustomToolbarMerge(obj1[key], obj2[key])
+          : obj2[key];
+    }
+  }
+  return merged;
+}
+
 const randomString = (
   length = 5,
   chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -327,6 +358,20 @@ const updateToolbarDefaultConfig = (data, defaultItemsConfig) => {
   });
 };
 
+const MergeMoreButtonFields = (data, customizedData) => {
+  const keys = Object.keys(customizedData);
+  return data?.map(i => {
+    if (i?.componentName && keys?.indexOf(i?.componentName) !== -1) {
+      return {
+        ...i,
+        ...customizedData[i?.componentName],
+      };
+    } else {
+      return i;
+    }
+  });
+};
+
 export {
   getSessionId,
   updateToolbarDefaultConfig,
@@ -357,4 +402,7 @@ export {
   randomIntFromInterval,
   getOS,
   hexToRgb,
+  CustomToolbarSorting,
+  CustomToolbarMerge,
+  MergeMoreButtonFields,
 };

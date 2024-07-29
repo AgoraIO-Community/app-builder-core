@@ -10,74 +10,93 @@
 *********************************************
 */
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import Toolbar from '../atoms/Toolbar';
-import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
-import {CustomToolbarSort} from '../utils/common';
+import {CustomToolbarMerge, CustomToolbarSorting} from '../utils/common';
+import {ToolbarItemHide, ToolbarLeftPresetProps} from '../atoms/ToolbarPreset';
+import {filterObject} from '../utils';
 
-const defaultStartItems: ToolbarCustomItem[] = [];
-const defaultCenterItems: ToolbarCustomItem[] = [];
-const defaultEndItems: ToolbarCustomItem[] = [];
+const defaultItems: ToolbarLeftPresetProps['items'] = {};
 
 export interface LeftbarProps {
-  customItems?: ToolbarCustomItem[];
+  items?: ToolbarLeftPresetProps['items'];
   includeDefaultItems?: boolean;
 }
 const Leftbar = (props: LeftbarProps) => {
-  const {customItems = [], includeDefaultItems = true} = props;
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const {includeDefaultItems = true, items = {}} = props;
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
-  const customStartItems = customItems
-    ?.filter(i => i?.align === 'start' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultStartItems : [])
-    ?.sort(CustomToolbarSort);
 
-  const customCenterItems = customItems
-    ?.filter(i => i?.align === 'center' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultCenterItems : [])
-    ?.sort(CustomToolbarSort);
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
+  );
 
-  const customEndItems = customItems
-    ?.filter(i => i?.align === 'end' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultEndItems : [])
-    ?.sort(CustomToolbarSort);
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+  const centerItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'center' && !isHidden(v?.hide),
+  );
+  const endItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'end' && !isHidden(v?.hide),
+  );
+
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+  const centerItemsOrdered = CustomToolbarSorting(centerItems);
+  const endItemsOrdered = CustomToolbarSorting(endItems);
 
   const renderContent = (
-    items: ToolbarCustomItem[],
+    orderedKeys: string[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return <ToolbarItem key={`left-toolbar-${type}` + index} />;
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+      } else if (type === 'center') {
+        ToolbarComponent = centerItems[keyName]?.component;
       } else {
-        return null;
+        ToolbarComponent = endItems[keyName]?.component;
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent key={`top-toolbar-${type}` + index} />,
+        );
       }
     });
+
+    return renderContentItem;
   };
+
   return (
     <Toolbar>
       <View style={style.startContent}>
-        {customStartItems && customStartItems?.length ? (
-          renderContent(customStartItems, 'start')
-        ) : (
-          <></>
-        )}
+        {renderContent(startItemsOrdered, 'start')}
       </View>
       <View style={style.centerContent}>
-        {customCenterItems && customCenterItems?.length ? (
-          renderContent(customCenterItems, 'center')
-        ) : (
-          <></>
-        )}
+        {renderContent(centerItemsOrdered, 'center')}
       </View>
       <View style={style.endContent}>
-        {customEndItems && customEndItems?.length ? (
-          renderContent(customEndItems, 'end')
-        ) : (
-          <></>
-        )}
+        {renderContent(endItemsOrdered, 'end')}
       </View>
     </Toolbar>
   );
