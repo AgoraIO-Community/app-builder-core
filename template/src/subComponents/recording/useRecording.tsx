@@ -822,7 +822,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     hostUids,
     audienceUids,
     _stopRecording,
-    screenShareData,
   ]);
 
   // useEffect(() => { //
