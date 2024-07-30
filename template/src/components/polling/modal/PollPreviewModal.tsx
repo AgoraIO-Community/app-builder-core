@@ -1,5 +1,5 @@
 import {Text, StyleSheet, View} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   BaseModal,
   BaseModalTitle,
@@ -8,11 +8,39 @@ import {
 } from './BaseModal';
 import ThemeConfig from '../../../theme';
 import TertiaryButton from '../../../atoms/TertiaryButton';
-import {PollFormActionKind, usePollForm} from '../context/poll-form-context';
+import {
+  PollFormActionKind,
+  PollStatus,
+  usePollForm,
+} from '../context/poll-form-context';
+import {usePoll} from '../context/poll-context';
+import {PollActionKind} from '../context/poll-context';
+import {useLocalUid} from 'agora-rn-uikit';
 
 export default function PollPreviewModal({visible}) {
-  const {state, dispatch} = usePollForm();
+  const {state, dispatch: pollFormDispatch} = usePollForm();
+  const {dispatch: pollDispatch} = usePoll();
+  const localUid = useLocalUid();
+
   const {form} = state;
+
+  const onSave = (launch: boolean) => {
+    pollDispatch({
+      type: PollActionKind.ADD_FINAL_POLL_ITEM,
+      payload: {
+        item: {
+          [localUid]: {
+            ...form,
+            status: launch ? PollStatus.LATER : PollStatus.ACTIVE,
+            createdBy: localUid,
+          },
+        },
+      },
+    });
+    pollFormDispatch({
+      type: PollFormActionKind.POLL_FORM_CLOSE,
+    });
+  };
 
   return (
     <BaseModal visible={visible}>
@@ -41,7 +69,7 @@ export default function PollPreviewModal({visible}) {
           <View style={style.btnContainer}>
             <TertiaryButton
               onPress={() => {
-                dispatch({
+                pollFormDispatch({
                   type: PollFormActionKind.UPDATE_FORM,
                 });
               }}
@@ -52,12 +80,7 @@ export default function PollPreviewModal({visible}) {
             <TertiaryButton
               text="Save for later"
               onPress={() => {
-                dispatch({
-                  type: PollFormActionKind.SAVE_FORM,
-                  payload: {
-                    launch: false,
-                  },
-                });
+                onSave(false);
               }}
             />
           </View>
@@ -65,12 +88,7 @@ export default function PollPreviewModal({visible}) {
             <TertiaryButton
               text="Launch Now"
               onPress={() => {
-                dispatch({
-                  type: PollFormActionKind.SAVE_FORM,
-                  payload: {
-                    launch: true,
-                  },
-                });
+                onSave(true);
               }}
             />
           </View>

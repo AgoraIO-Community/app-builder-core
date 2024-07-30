@@ -1,22 +1,44 @@
-import React, {createContext, useState} from 'react';
+import React, {createContext, useReducer, Dispatch} from 'react';
 import {type PollItem} from './poll-form-context';
 
 interface Poll {
   [key: string]: PollItem;
 }
 
-const PollContext = createContext(null);
+enum PollActionKind {
+  ADD_FINAL_POLL_ITEM = 'ADD_FINAL_POLL_ITEM',
+}
+
+type PollAction = {
+  type: PollActionKind.ADD_FINAL_POLL_ITEM;
+  payload: {item: Poll};
+};
+
+function pollReducer(state: Poll, action: PollAction): Poll {
+  switch (action.type) {
+    case PollActionKind.ADD_FINAL_POLL_ITEM: {
+      return {
+        ...state,
+        ...action.payload.item,
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+
+interface PollContextValue {
+  polls: Poll;
+  dispatch: Dispatch<PollAction>;
+}
+
+const PollContext = createContext<PollContextValue | null>(null);
 PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
-  // const [state, dispatch] = React.useReducer(pollReducer, {
-  //   form: null,
-  //   nextUserActivity: 'SELECT_NEW_POLL',
-  //   poll: {},
-  // });
-  const [polls, setPolls] = useState(null);
-
-  const value = {polls, setPolls};
+  const [polls, dispatch] = useReducer(pollReducer, {});
+  const value = {polls, dispatch};
   return <PollContext.Provider value={value}>{children}</PollContext.Provider>;
 }
 
@@ -28,4 +50,4 @@ function usePoll() {
   return context;
 }
 
-export {PollProvider, usePoll};
+export {PollProvider, usePoll, PollActionKind};

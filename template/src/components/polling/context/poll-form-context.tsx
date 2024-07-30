@@ -44,6 +44,7 @@ enum PollFormActionKind {
   PREVIEW_FORM = 'PREVIEW_FORM',
   UPDATE_FORM = 'UPDATE_FORM',
   SAVE_FORM = 'SAVE_FORM',
+  POLL_FORM_CLOSE = 'POLL_FORM_CLOSE',
 }
 
 type PollFormAction =
@@ -86,10 +87,14 @@ type PollFormAction =
       type: PollFormActionKind.SAVE_FORM;
       payload: {
         launch: boolean;
+        createdBy: number;
       };
     }
   | {
       type: PollFormActionKind.UPDATE_FORM;
+    }
+  | {
+      type: PollFormActionKind.POLL_FORM_CLOSE;
     };
 
 const initPollForm = (kind: PollKind): PollItem => {
@@ -271,13 +276,19 @@ function pollFormReducer(
         currentStep: 'CREATE_POLL',
       };
     }
-    case PollFormActionKind.SAVE_FORM: {
+    // case PollFormActionKind.SAVE_FORM: {
+    //   return {
+    //     ...state,
+    //     form: {
+    //       ...state.form,
+    //       status: action.payload.launch ? PollStatus.ACTIVE : PollStatus.LATER,
+    //     },
+    //     currentStep: null,
+    //   };
+    // }
+    case PollFormActionKind.POLL_FORM_CLOSE: {
       return {
-        ...state,
-        form: {
-          ...state.form,
-          status: action.payload.launch ? PollStatus.ACTIVE : PollStatus.LATER,
-        },
+        form: null,
         currentStep: null,
       };
     }
@@ -318,5 +329,11 @@ function usePollForm() {
   return context;
 }
 
-export {PollFormProvider, usePollForm, PollFormActionKind, PollKind};
+export {
+  PollFormProvider,
+  usePollForm,
+  PollFormActionKind,
+  PollKind,
+  PollStatus,
+};
 export type {PollItem};
