@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {useEffect, useRef} from 'react';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import BeautyExtension from 'agora-extension-beauty-effect';
-import {useRtc} from 'customization-api';
+import {useRoomInfo, useRtc} from 'customization-api';
 import {useVB} from '../virtual-background/useVB';
 
 export type BeautyEffects = {
@@ -71,23 +71,26 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   const [sharpnessLevel, setSharpnessLevel] = useState<number>(0.5);
   const [rednessLevel, setRednessLevel] = useState<number>(0.5);
 
+  const {roomPreference} = useRoomInfo();
+
   const {vbProcessor} = useVB();
 
   const {RtcEngineUnsafe} = useRtc();
   //@ts-ignore
   const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
 
-  // TODO: should be done from room pref for sdk
-  // if ($config.ENABLE_VIRTUAL_BACKGROUND) {
-  //   localVideoTrack
-  //     ?.pipe(beautyProcessor)
-  //     .pipe(vbProcessor)
-  //     .pipe(localVideoTrack?.processorDestination);
-  // } else {
-  //   localVideoTrack
-  //     ?.pipe(beautyProcessor)
-  //     .pipe(localVideoTrack?.processorDestination);
-  // }
+  if (!roomPreference?.disableVideoProcessors) {
+    if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+      localVideoTrack
+        ?.pipe(beautyProcessor)
+        .pipe(vbProcessor)
+        .pipe(localVideoTrack?.processorDestination);
+    } else {
+      localVideoTrack
+        ?.pipe(beautyProcessor)
+        .pipe(localVideoTrack?.processorDestination);
+    }
+  }
 
   useEffect(() => {
     if (beautyEffectsOn) {

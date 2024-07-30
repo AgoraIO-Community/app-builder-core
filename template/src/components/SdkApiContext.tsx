@@ -29,6 +29,7 @@ type SdkApiContextInterface = {
         skipPrecall: boolean;
         preference: {
           disableShareTile: boolean;
+          disableVideoProcessors: boolean;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
