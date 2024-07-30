@@ -130,10 +130,6 @@ const VBProvider: React.FC = ({children}) => {
   let processor =
     useRef<ReturnType<VirtualBackgroundExtension['_createProcessor']>>(null);
 
-  useEffect(() => {
-    initializeProcessors();
-  }, []);
-
   //if vitrual got closed by some other settings/chat panel then update the state
   //ex: user open vitrual background using more menu and then open chat will hide the vitrual background panel
   //so we need to update the state
@@ -142,6 +138,10 @@ const VBProvider: React.FC = ({children}) => {
       setIsVBActive(false);
     }
   }, [sidePanel]);
+
+  React.useEffect(() => {
+    initializeProcessors();
+  }, []);
 
   /* VB Change modes */
   React.useEffect(() => {

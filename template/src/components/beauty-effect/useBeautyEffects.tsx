@@ -77,16 +77,17 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   //@ts-ignore
   const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
 
-  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
-    localVideoTrack
-      ?.pipe(beautyProcessor)
-      .pipe(vbProcessor)
-      .pipe(localVideoTrack?.processorDestination);
-  } else {
-    localVideoTrack
-      ?.pipe(beautyProcessor)
-      .pipe(localVideoTrack?.processorDestination);
-  }
+  // TODO: should be done from room pref for sdk
+  // if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+  //   localVideoTrack
+  //     ?.pipe(beautyProcessor)
+  //     .pipe(vbProcessor)
+  //     .pipe(localVideoTrack?.processorDestination);
+  // } else {
+  //   localVideoTrack
+  //     ?.pipe(beautyProcessor)
+  //     .pipe(localVideoTrack?.processorDestination);
+  // }
 
   useEffect(() => {
     if (beautyEffectsOn) {
