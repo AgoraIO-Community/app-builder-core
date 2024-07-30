@@ -40,6 +40,11 @@ import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
 import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
 import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
+import {
+  type VideoEncoderConfigurationPreset,
+  type ScreenEncoderConfigurationPreset,
+  type VideoEncoderConfiguration,
+} from '../../../src/app-state/useVideoQuality';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -232,7 +237,12 @@ export default class RtcEngine {
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
   private inScreenshare: Boolean = false;
-  private videoProfile: VideoProfile = '480p_9';
+  private videoProfile:
+    | VideoEncoderConfigurationPreset
+    | VideoEncoderConfiguration;
+  private screenShareProfile:
+    | ScreenEncoderConfigurationPreset
+    | VideoEncoderConfiguration;
   private isPublished = false;
   private isAudioEnabled = false;
   private isVideoEnabled = false;
@@ -252,6 +262,25 @@ export default class RtcEngine {
     logger.log(LogSource.AgoraSDK, 'Log', 'RTC engine initialized');
     this.appId = appId;
   }
+  getLocalVideoStats() {
+    try {
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [getLocalVideoStats] getting local video stats',
+      );
+      const data = this.client?.getLocalVideoStats();
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        'RTC [getLocalVideoStats] got local video stats successfully',
+        data,
+      );
+      return data;
+    } catch (error) {
+      return error;
+    }
+  }
 
   getRemoteVideoStats(id: string) {
     try {
@@ -261,7 +290,7 @@ export default class RtcEngine {
         'RTC [getRemoteVideoStats] getting remote video stats',
       );
       const data = this.client.getRemoteVideoStats();
-      logger.debug(
+      logger.log(
         LogSource.AgoraSDK,
         'API',
         'RTC [getRemoteVideoStats] got remote video stats successfully',
@@ -279,25 +308,57 @@ export default class RtcEngine {
     }
   }
 
-  async setVideoProfile(profile: VideoProfile): Promise<void> {
+  async setVideoProfile(
+    profile: VideoEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ): Promise<void> {
     try {
       this.videoProfile = profile;
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] setting video profile to - ${profile}`,
+        `RTC [setEncoderConfiguration] setting video profile.`,
+        profile,
       );
-      this.localStream?.video?.setEncoderConfiguration(profile);
+      await this.localStream?.video?.setEncoderConfiguration(profile);
       logger.log(
         LogSource.AgoraSDK,
         'API',
-        `RTC [setEncoderConfiguration] set video profile to - ${profile} successfully`,
+        `RTC [setEncoderConfiguration] video profile is set successfully`,
+        profile,
       );
     } catch (error) {
       logger.error(
         LogSource.AgoraSDK,
         'API',
-        'RTC [setEncoderConfiguration] Error while setting video profile',
+        `RTC [setEncoderConfiguration] Error while setting video profile.`,
+        error,
+      );
+    }
+  }
+
+  async setScreenShareProfile(
+    profile: ScreenEncoderConfigurationPreset | VideoEncoderConfiguration,
+  ): Promise<void> {
+    try {
+      this.screenShareProfile = profile;
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        `RTC [setEncoderConfiguration] set screen share profile.`,
+        profile,
+      );
+      await this.screenStream?.video?.setEncoderConfiguration(profile);
+      logger.log(
+        LogSource.AgoraSDK,
+        'API',
+        `RTC [setEncoderConfiguration] screen share profile is set successfully.`,
+        profile,
+      );
+    } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'API',
+        `RTC [setEncoderConfiguration] Error while setting screen share profile.`,
         error,
       );
     }
@@ -357,6 +418,7 @@ export default class RtcEngine {
       bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
       microphoneId: preferredMicrophoneId,
     };
+
     const videoConfig: CameraVideoTrackInitConfig = {
       encoderConfig: this.videoProfile,
       cameraId: preferredCameraId,
@@ -1512,9 +1574,15 @@ export default class RtcEngine {
       mode: RnEncryptionEnum;
       salt: string;
     },
-    config: ScreenVideoTrackInitConfig = {},
+    screenShareConfig: ScreenVideoTrackInitConfig = {
+      encoderConfig: this.screenShareProfile,
+    },
     audio: 'enable' | 'disable' | 'auto' = 'auto',
   ): Promise<void> {
+    const config: ScreenVideoTrackInitConfig = {
+      ...screenShareConfig,
+      encoderConfig: this.screenShareProfile,
+    };
     if (!this.inScreenshare) {
       try {
         logger.debug(

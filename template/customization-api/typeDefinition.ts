@@ -21,6 +21,7 @@ import {I18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../src/atoms/CustomIcon';
 import {ToolbarCustomItem} from './sub-components';
 import {TextDataInterface} from '../src/language/default-labels';
+import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -57,10 +58,6 @@ export interface LayoutItem {
   translationKey?: keyof TextDataInterface;
   icon: string;
   component: LayoutComponent;
-}
-
-export interface VBPanelProps {
-  isOnPrecall?: boolean;
 }
 
 export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;

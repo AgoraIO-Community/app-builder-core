@@ -26,7 +26,7 @@ const RecordingBotRoute: React.FC<RecordingBotRouteProps> = props => {
   const [ready, setReady] = useState(false);
   const {recordingBotToken} = useIsRecordingBot();
   useEffect(() => {
-    logger.debug(
+    logger.log(
       LogSource.Internals,
       'RECORDING',
       'Inside the bot route wrapper',

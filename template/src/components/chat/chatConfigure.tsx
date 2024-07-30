@@ -18,6 +18,7 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {err} from 'react-native-svg/lib/typescript/xml';
 
 export interface FileObj {
   url: string;
@@ -434,7 +435,12 @@ const ChatConfigure = ({children}) => {
         setUploadStatus(UploadStatus.SUCCESS);
       },
       onFileUploadError: (error: any) => {
-        logger.error(LogSource.Internals, 'CHAT', 'Attachment upload failed');
+        logger.error(
+          LogSource.Internals,
+          'CHAT',
+          'Attachment upload failed',
+          error,
+        );
         setUploadStatus(UploadStatus.FAILURE);
       },
       onFileUploadCanceled: () => {

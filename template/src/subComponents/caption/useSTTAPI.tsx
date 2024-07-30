@@ -45,10 +45,18 @@ const useSTTAPI = (): IuseSTTAPI => {
   }, [language]);
 
   const apiCall = async (method: string, lang: LanguageType[] = []) => {
+    const requestId = getUniqueID();
+    const startReqTs = Date.now();
     logger.log(
       LogSource.NetworkRest,
       'stt',
       `Trying to ${method} stt for lang ${lang}`,
+      {
+        method,
+        lang,
+        requestId,
+        startReqTs,
+      },
     );
     try {
       const response = await fetch(`${STT_API_URL}/${method}`, {
@@ -56,7 +64,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         headers: {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
-          'X-Request-Id': getUniqueID(),
+          'X-Request-Id': requestId,
         },
         body: JSON.stringify({
           passphrase: roomId?.host || '',
@@ -68,9 +76,37 @@ const useSTTAPI = (): IuseSTTAPI => {
         }),
       });
       const res = await response.json();
-
+      const endReqTs = Date.now();
+      const latency = endReqTs - startReqTs;
+      logger.log(
+        LogSource.NetworkRest,
+        'stt',
+        `STT API Success - Called ${method} on stt with lang ${lang}`,
+        {
+          responseData: res,
+          requestId,
+          startReqTs,
+          endReqTs,
+          latency,
+        },
+      );
       return res;
-    } catch (error) {}
+    } catch (error) {
+      const endReqTs = Date.now();
+      const latency = endReqTs - startReqTs;
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        `STT API Failure - Called ${method} on stt with lang ${lang}`,
+        error,
+        {
+          requestId,
+          startReqTs,
+          endReqTs,
+          latency,
+        },
+      );
+    }
   };
 
   const startWithDelay = (lang: LanguageType[]): Promise<string> =>
@@ -97,7 +133,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           LogSource.NetworkRest,
           'stt',
           `start stt for lang ${lang} failed`,
-          res?.error?.message,
+          res?.error,
         );
       } else {
         logger.log(

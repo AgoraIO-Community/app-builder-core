@@ -30,12 +30,39 @@ export function getCircularReplacer() {
   //   return value;
   // };
 }
+
+function getTopLevels(obj, level = 1, maxLevel = 4) {
+  if (level > maxLevel || typeof obj !== 'object' || obj === null) {
+    return ['MaxLevelExceeds'];
+  }
+  const result = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        if (key === 'logContent') {
+          result[key] = [obj[key]];
+        } else {
+          result[key] = getTopLevels(obj[key], level + 1, maxLevel);
+        }
+      } else {
+        result[key] = obj[key];
+      }
+    }
+  }
+  return result;
+}
+
 const getSafeBody = (p: any[]) => {
   try {
-    return JSON.stringify(p, getCircularReplacer());
+    const logResult = [];
+    for (let index = 0; index < p.length; index++) {
+      const element = p[index];
+      logResult.push(getTopLevels(element));
+    }
+    return JSON.stringify(logResult);
   } catch (error) {
-    console.error('there was an error converting this object', p);
-    return [' object convertion error'];
+    console.error('there was an error converting this object', error, p);
+    return ['object convertion error'];
   }
 };
 
@@ -52,7 +79,7 @@ const fetchRetry = createRetryFetch(fetch, {
   },
 });
 
-const sendLogs = (p: any[]) => {
+export const sendLogs = (p: any[]) => {
   if (p && p?.length) {
     fetchRetry(
       'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
@@ -113,13 +140,17 @@ export const createAxiomLogger = () => {
 export const initTransportLayerForCustomers = () => {
   const [log, flush] = createAxiomLogger();
 
-  const printLogs = (...args: any[]) => {
+  const printLogs = (logMessage, logType, columns, contextInfo, logContent) => {
     log({
-      data: args,
       _time: Date.now(),
       projectId: $config.PROJECT_ID,
       appId: $config.APP_ID,
       service: 'app-builder-core-frontend-customer',
+      logType,
+      logMessage,
+      logContent: getTopLevels(logContent),
+      contextInfo,
+      ...columns,
     });
 
     isWeb() &&

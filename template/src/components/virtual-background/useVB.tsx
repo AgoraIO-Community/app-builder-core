@@ -17,6 +17,7 @@ import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
 import {retrieveImagesFromStorage} from './VButils';
 import imagePathsArray from './imagePaths';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
@@ -38,17 +39,26 @@ let previewViewProcessor: ReturnType<
 
 // fn to initialize processors
 const initializeProcessors = () => {
-  const mainViewExtension = new VirtualBackgroundExtension();
-  AgoraRTC.registerExtensions([mainViewExtension]);
-  mainViewProcessor = mainViewExtension.createProcessor();
-  mainViewProcessor.init(wasm1).then(() => {
-    mainViewProcessor.disable();
-  });
+  try {
+    const mainViewExtension = new VirtualBackgroundExtension();
+    AgoraRTC.registerExtensions([mainViewExtension]);
+    mainViewProcessor = mainViewExtension.createProcessor();
+    mainViewProcessor.init(wasm1).then(() => {
+      mainViewProcessor.disable();
+    });
 
-  previewViewProcessor = mainViewExtension.createProcessor();
-  previewViewProcessor.init(wasm1).then(() => {
-    previewViewProcessor.disable();
-  });
+    previewViewProcessor = mainViewExtension.createProcessor();
+    previewViewProcessor.init(wasm1).then(() => {
+      previewViewProcessor.disable();
+    });
+  } catch (error) {
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Failed to initiate VirtualBackgroundExtension',
+      error,
+    );
+  }
 };
 
 type VirtualBackgroundConfig = {
@@ -72,6 +82,9 @@ type VBContextValue = {
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
   applyVirtualBackgroundToMainView;
   applyVirtualBackgroundToPreviewView;
+  vbProcessor: ReturnType<
+    VirtualBackgroundExtension['_createProcessor']
+  > | null;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -89,6 +102,7 @@ export const VBContext = React.createContext<VBContextValue>({
   setOptions: () => {},
   applyVirtualBackgroundToMainView: () => {},
   applyVirtualBackgroundToPreviewView: () => {},
+  vbProcessor: null,
 });
 
 const VBProvider: React.FC = ({children}) => {
@@ -177,9 +191,9 @@ const VBProvider: React.FC = ({children}) => {
     //@ts-ignore
     const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
     //  mainViewProcessor && (await mainViewProcessor.disable()); // Disable the old processor
-    localVideoTrack
-      ?.pipe(mainViewProcessor)
-      .pipe(localVideoTrack?.processorDestination);
+    // localVideoTrack
+    //   ?.pipe(mainViewProcessor)
+    //   .pipe(localVideoTrack?.processorDestination);
     mainViewProcessor.setOptions(config);
     await mainViewProcessor.enable();
   };
@@ -267,6 +281,7 @@ const VBProvider: React.FC = ({children}) => {
         setOptions,
         applyVirtualBackgroundToMainView,
         applyVirtualBackgroundToPreviewView,
+        vbProcessor: mainViewProcessor,
       }}>
       {children}
     </VBContext.Provider>

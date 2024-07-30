@@ -39,6 +39,7 @@ import {
 } from '../language/default-labels/commonLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from '../utils/getUniqueID';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export const GET_USER = gql`
   query getUser {
@@ -83,7 +84,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const location = useLocation();
   // client
   const apolloClient = useApolloClient();
-
+  const {isRecordingBot} = useIsRecordingBot();
   const indexesOf = (arr, item) =>
     arr.reduce((acc, v, i) => (v === item && acc.push(i), acc), []);
   const nonprodenv = ['dev', 'staging', 'preprod', 'test'];
@@ -289,17 +290,55 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, [authenticated, authError]);
 
   async function getUserDetails() {
+    const requestId = getUniqueID();
+    const startReqTs = Date.now();
     try {
-      await apolloClient.query({
+      //fetch user details
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API fetching user_details, to check if user is authenticated',
+        {
+          requestId,
+          startReqTs,
+        },
+      );
+      const res = await apolloClient.query({
         query: GET_USER,
         fetchPolicy: 'network-only',
         context: {
           headers: {
-            'X-Request-Id': getUniqueID(),
+            'X-Request-Id': requestId,
           },
         },
       });
+      const endRequestTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API user_details query succesful. User is authenticated',
+        {
+          responseData: res,
+          startReqTs,
+          endRequestTs,
+          latency: endRequestTs - startReqTs,
+          requestId,
+        },
+      );
     } catch (error) {
+      const endRequestTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API user details query failed. User is un-authenticated. Will Login in the user',
+        {
+          error,
+          startReqTs,
+          endRequestTs,
+          latency: endRequestTs - startReqTs,
+          requestId,
+        },
+      );
       throw new Error(error);
     } finally {
       setLoading(false);
@@ -310,6 +349,16 @@ const AuthProvider = (props: AuthProviderProps) => {
     // Ignore if on sdk since IDP flow is not supported
     // For unauthenticated flow authLogin should be called to get the token
     logger.log(LogSource.Internals, 'AUTH', 'App loaded');
+    if (isRecordingBot) {
+      logger.debug(
+        LogSource.Internals,
+        'AUTH',
+        'skip app authentication as it is a bot',
+      );
+      setIsAuthenticated(true);
+      setLoading(false);
+      return;
+    }
     if (isSDK() && ENABLE_AUTH) {
       setIsAuthenticated(true);
       setLoading(false);
@@ -328,23 +377,12 @@ const AuthProvider = (props: AuthProviderProps) => {
       //login link expiry fix
       location?.search?.indexOf('msg') === -1
     ) {
-      //fetch user details
-      logger.log(
-        LogSource.NetworkRest,
-        'user_details',
-        'API fetching user_details, to check if user is authenticated',
-      );
       getUserDetails()
         .then(_ => {
           //Each time user refresh the page we have to redirect the user to IDP login.then only we can able to refresh the token
           //because we can't read the cookie so we don't know expirytime.
           //so each time page refresh will get new token
           //then only
-          logger.log(
-            LogSource.NetworkRest,
-            'user_details',
-            'API user_details query succesful. User is authenticated',
-          );
           if (isWeb() && $config.ENABLE_IDP_AUTH) {
             //authLogin();this is for cookie based authentication
             setIsAuthenticated(true);
@@ -352,13 +390,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             setIsAuthenticated(true);
           }
         })
-        .catch(error => {
-          logger.log(
-            LogSource.NetworkRest,
-            'user_details',
-            'API user details query failed. User is un-authenticated. Will Login in the user',
-            error,
-          );
+        .catch(() => {
           setIsAuthenticated(false);
           authLogin();
         });
@@ -380,7 +412,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         setLoading(false);
       }
     }
-  }, []);
+  }, [isRecordingBot]);
 
   const authLogin = () => {
     // Authenticated login flow
@@ -470,34 +502,51 @@ const AuthProvider = (props: AuthProviderProps) => {
         'AUTH',
         'Project has No auth(token or idp) enabled',
       );
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
       logger.log(
         LogSource.NetworkRest,
         'unauth_login',
         'API unauth_login Trying to authenticate user',
+        {requestId: requestId, startReqTs},
       );
+
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
         headers: {
-          'X-Request-Id': getUniqueID(),
+          'X-Request-Id': requestId,
         },
       })
         .then(response => response.json())
         .then(response => {
+          const endReqTs = Date.now();
+          const latency = endReqTs - startReqTs;
           // unauthenticated flow all platform we will have to handle the token manually
           // we need to store token manually
           logger.log(
             LogSource.NetworkRest,
             'unauth_login',
             'API unauth_login authentication successful. User is logged in.',
-            response.token,
+            {
+              responseData: response,
+              token: response.token,
+              startReqTs,
+              endReqTs,
+              latency,
+              requestId,
+            },
           );
           if (!response.token) {
             logger.error(
               LogSource.NetworkRest,
               'unauth_login',
               'API unauth_login failed. There was an error',
+              new Error('Token not received'),
               {
-                data: 'Token not received',
+                requestId,
+                startReqTs,
+                endReqTs,
+                latency,
               },
             );
             throw new Error('Token not received');
@@ -522,11 +571,19 @@ const AuthProvider = (props: AuthProviderProps) => {
           }
         })
         .catch(error => {
+          const endReqTs = Date.now();
+          const latency = endReqTs - startReqTs;
           logger.error(
             LogSource.NetworkRest,
             'unauth_login',
             'API unauth_login failed. There was an error',
             error,
+            {
+              requestId,
+              startReqTs,
+              endReqTs,
+              latency,
+            },
           );
           if (error instanceof Error) {
             setAuthError(error.message);

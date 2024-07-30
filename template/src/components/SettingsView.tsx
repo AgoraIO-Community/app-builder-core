@@ -281,6 +281,7 @@ const SettingsView = props => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
+  const {roomPreference} = useRoomInfo();
 
   return (
     <View
@@ -312,6 +313,12 @@ const SettingsView = props => {
 const style = StyleSheet.create({
   contentContainer: {
     padding: 20,
+  },
+  panelContainer: {
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
   },
 });
 
