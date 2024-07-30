@@ -774,12 +774,17 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * To only consider uids which are purely host we filter the uids as below
      */
 
-    const areHostsInChannel = hostUids.filter(
-      n => !Object.keys(screenShareData).includes(String(n)),
+    const areUsersInChannel = hostUids.length > 0 || audienceUids.length > 0;
+    logger.debug(
+      LogSource.Internals,
+      'RECORDING',
+      'Recording-bot: areUsersInChannel',
+      areUsersInChannel,
     );
-
-    const areUsersInChannel =
-      areHostsInChannel.length > 0 || audienceUids?.length > 0;
+    // console.log('supriya bot hostUids', hostUids);
+    // console.log('supriya bot audienceUids', audienceUids);
+    // const areUsersInChannel =
+    // areHostsInChannel.length > 0 || audienceUids?.length > 0;
 
     if (areUsersInChannel) {
       /**
