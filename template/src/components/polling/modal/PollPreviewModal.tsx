@@ -15,7 +15,7 @@ import {
 } from '../context/poll-form-context';
 import {usePoll} from '../context/poll-context';
 import {PollActionKind} from '../context/poll-context';
-import {useLocalUid} from 'agora-rn-uikit';
+import {useLocalUid} from '../../../../agora-rn-uikit';
 
 export default function PollPreviewModal({visible}) {
   const {state, dispatch: pollFormDispatch} = usePollForm();
