@@ -42,10 +42,19 @@ export function NoiseSupressionProvider(props) {
 
   useEffect(() => {
     if ($config.ENABLE_NOISE_CANCELLATION) {
-      const denoiserExtension = new AIDenoiserExtension({assetsPath: 'wasm'});
-      AgoraRTC.registerExtensions([denoiserExtension]);
-      processor.current = denoiserExtension.createProcessor();
-      processor.current.disable();
+      try {
+        const denoiserExtension = new AIDenoiserExtension({assetsPath: 'wasm'});
+        AgoraRTC.registerExtensions([denoiserExtension]);
+        processor.current = denoiserExtension.createProcessor();
+        processor.current.disable();
+      } catch (error) {
+        logger.error(
+          LogSource.Internals,
+          'NOISE_CANCELLATION',
+          'Failed to initiate AIDenoiserExtension',
+          error,
+        );
+      }
     }
   }, []);
 
@@ -56,27 +65,45 @@ export function NoiseSupressionProvider(props) {
     //@ts-ignore
     const localAudioTrack = RtcEngineUnsafe?.localStream?.audio;
 
-    if (processor?.current) {
-      localAudioTrack
-        ?.pipe(processor.current)
-        .pipe(localAudioTrack?.processorDestination);
+    try {
+      if (processor?.current) {
+        localAudioTrack
+          ?.pipe(processor.current)
+          .pipe(localAudioTrack?.processorDestination);
 
-      await processor?.current?.enable();
-      logger.log(
+        await processor?.current?.enable();
+        logger.log(
+          LogSource.Internals,
+          'NOISE_CANCELLATION',
+          'noise suppression enabled',
+        );
+      }
+    } catch (error) {
+      logger.error(
         LogSource.Internals,
         'NOISE_CANCELLATION',
-        'noise suppression enabled',
+        'Failed to enable noise suppression',
+        error,
       );
     }
   };
 
   const disableNoiseSuppression = async () => {
-    if (processor?.current) {
-      await processor?.current?.disable();
-      logger.log(
+    try {
+      if (processor?.current) {
+        await processor?.current?.disable();
+        logger.log(
+          LogSource.Internals,
+          'NOISE_CANCELLATION',
+          'noise suppression disabled',
+        );
+      }
+    } catch (error) {
+      logger.error(
         LogSource.Internals,
         'NOISE_CANCELLATION',
-        'noise suppression disabled',
+        'Failed to disable noise suppression',
+        error,
       );
     }
   };

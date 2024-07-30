@@ -29,8 +29,6 @@ type SdkApiContextInterface = {
         skipPrecall: boolean;
         preference: {
           disableShareTile: boolean;
-          showBeautyControls: boolean;
-          showQualityControls: boolean;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }

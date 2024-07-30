@@ -86,7 +86,7 @@ const AppWrapper = (props: AppWrapperProps) => {
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-          <BlockUI />
+          {/* <BlockUI /> */}
           <StorageProvider>
             <LanguageProvider>
               <GraphQLProvider>
