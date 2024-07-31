@@ -71,15 +71,8 @@ export default ParticipantsCount;
 const styles = StyleSheet.create({
   participantCountView: {
     flexDirection: 'row',
-    padding: 12,
-    paddingVertical: isMobileUA() ? 5 : 8,
-    backgroundColor: $config.ICON_BG_COLOR,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
   },
 });

@@ -1,85 +1,90 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import Toolbar from '../atoms/Toolbar';
-import {
-  ToolbarCustomItem,
-  ToolbarDefaultItem,
-  ToolbarDefaultItemConfig,
-} from '../atoms/ToolbarPreset';
+import {ToolbarItemHide, ToolbarTopPresetProps} from '../atoms/ToolbarPreset';
 import {
   MeetingTitleToolbarItem,
   ParticipantCountToolbarItem,
   RecordingStatusToolbarItem,
 } from './Navbar';
 import {useRecording} from '../subComponents/recording/useRecording';
-import {CustomToolbarSort, updateToolbarDefaultConfig} from '../utils/common';
+import {CustomToolbarMerge, CustomToolbarSorting} from '../utils/common';
+import {filterObject} from '../utils';
 
 export interface NavbarProps {
-  customItems?: ToolbarCustomItem[];
   includeDefaultItems?: boolean;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
+  items?: ToolbarTopPresetProps['items'];
 }
 
 const NavbarMobile = (props: NavbarProps) => {
   const {isRecordingActive} = useRecording();
-  const defaultItems: ToolbarDefaultItem[] = [
-    {
+  const defaultItems: NavbarProps['items'] = {
+    'meeting-title': {
       align: 'start',
-      componentName: 'meeting-title',
       component: MeetingTitleToolbarItem,
       order: 0,
-      hide: 'no',
     },
-    {
+    'participant-count': {
       align: 'start',
-      componentName: 'participant-count',
       component: ParticipantCountToolbarItem,
       order: 1,
-      hide: 'no',
     },
-    {
+    'recording-status': {
       align: 'start',
-      componentName: 'recording-status',
       component: isRecordingActive ? RecordingStatusToolbarItem : null,
       order: 2,
-      hide: 'no',
     },
-  ];
-  const {
-    customItems = [],
-    includeDefaultItems = true,
-    defaultItemsConfig = {},
-  } = props;
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  };
+  const {items = {}, includeDefaultItems = true} = props;
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
 
-  const customTopBarItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => !isHidden(i) && i?.component)
-    ?.sort(CustomToolbarSort);
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
+  );
 
-  const renderContent = (
-    items: ToolbarCustomItem[],
-    type: 'start' | 'center' | 'end',
-  ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return <ToolbarItem key={`top-toolbar-${type}` + index} />;
-      } else {
-        return null;
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+
+  const renderContent = (orderedKeys: string[], type: 'start') => {
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent key={`top-toolbar-${type}` + index} />,
+        );
       }
     });
+
+    return renderContentItem;
   };
   return (
     <Toolbar>
       <View style={style.startContent}>
-        {renderContent(customTopBarItems, 'start')}
+        {renderContent(startItemsOrdered, 'start')}
       </View>
     </Toolbar>
   );

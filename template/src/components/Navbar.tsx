@@ -26,13 +26,15 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import LiveStreamContext from './livestream';
-import {numFormatter} from '../utils/index';
+import {filterObject, numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   BREAKPOINTS,
+  CustomToolbarMerge,
   CustomToolbarSort,
+  CustomToolbarSorting,
   isAndroid,
   isIOS,
   isMobileUA,
@@ -62,11 +64,7 @@ import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
-import {
-  ToolbarCustomItem,
-  ToolbarDefaultItem,
-  ToolbarDefaultItemConfig,
-} from '../atoms/ToolbarPreset';
+import {ToolbarTopPresetProps, ToolbarItemHide} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
@@ -470,123 +468,128 @@ export const SettingsToobarItem = () => {
   );
 };
 
-const defaultItems: ToolbarDefaultItem[] = [
-  {
+const defaultItems: ToolbarTopPresetProps['items'] = {
+  'meeting-title': {
     align: 'start',
-    componentName: 'meeting-title',
     component: MeetingTitleToolbarItem,
     order: 0,
-    hide: 'no',
   },
-  {
+  'participant-count': {
     align: 'start',
-    componentName: 'participant-count',
     component: ParticipantCountToolbarItem,
     order: 1,
-    hide: 'no',
   },
-  {
+  'recording-status': {
     align: 'start',
-    componentName: 'recording-status',
     component: RecordingStatusToolbarItem,
     order: 2,
-    hide: 'no',
   },
-  {
+  participant: {
     align: 'end',
-    componentName: 'participant',
     component: ParticipantToolbarItem,
     order: 0,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-  {
+  chat: {
     align: 'end',
-    componentName: 'chat',
     component: ChatToolbarItem,
     order: 1,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-  {
+  settings: {
     align: 'end',
-    componentName: 'settings',
     component: SettingsToobarItem,
     order: 2,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-];
+};
 
 export interface NavbarProps {
-  customItems?: ToolbarCustomItem[];
+  items?: ToolbarTopPresetProps['items'];
   includeDefaultItems?: boolean;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
 }
 const Navbar = (props: NavbarProps) => {
-  const {
-    customItems = [],
-    includeDefaultItems = true,
-    defaultItemsConfig = {},
-  } = props;
-  const {width} = useWindowDimensions();
+  const {includeDefaultItems = true, items = {}} = props;
+  const {width, height} = useWindowDimensions();
 
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
 
-  const customStartItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i.align === 'start' && !isHidden(i))
-    ?.sort(CustomToolbarSort);
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
+  );
 
-  const customCenterItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i.align === 'center' && !isHidden(i))
-    ?.sort(CustomToolbarSort);
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+  const centerItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'center' && !isHidden(v?.hide),
+  );
+  const endItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'end' && !isHidden(v?.hide),
+  );
 
-  const customEndItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i.align === 'end' && !isHidden(i))
-    ?.sort(CustomToolbarSort);
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+  const centerItemsOrdered = CustomToolbarSorting(centerItems);
+  const endItemsOrdered = CustomToolbarSorting(endItems);
 
   const renderContent = (
-    items: ToolbarCustomItem[],
+    orderedKeys: string[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return <ToolbarItem key={`top-toolbar-${type}` + index} />;
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+      } else if (type === 'center') {
+        ToolbarComponent = centerItems[keyName]?.component;
       } else {
-        return null;
+        ToolbarComponent = endItems[keyName]?.component;
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent key={`top-toolbar-${type}` + index} />,
+        );
       }
     });
+
+    return renderContentItem;
   };
+
   return (
     <Toolbar>
       <View style={style.startContent}>
-        {renderContent(customStartItems, 'start')}
+        {renderContent(startItemsOrdered, 'start')}
       </View>
       <View style={style.centerContent}>
-        {renderContent(customCenterItems, 'center')}
+        {renderContent(centerItemsOrdered, 'center')}
       </View>
-      {width > BREAKPOINTS.sm || isMobileUA() ? (
-        <View style={style.endContent}>
-          {renderContent(customEndItems, 'end')}
-        </View>
-      ) : (
-        <></>
-      )}
+      <View style={style.endContent}>
+        {renderContent(endItemsOrdered, 'end')}
+      </View>
     </Toolbar>
   );
 };

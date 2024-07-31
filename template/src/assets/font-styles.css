@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-recording-status:before {
+  content: '\e99f';
+  color: #ff414d;
+}
 .icon-copy-link:before {
   content: '\e99e';
   color: #fff;

@@ -65,11 +65,17 @@ export {default as ToolbarMenu} from '../src/atoms/ToolbarMenu';
 export type {
   ToolbarPresetAlign,
   ToolbarDefaultItem,
-  ToolbarDefaultItemConfig,
+  ToolbarDefaultItemsConfig,
+  ToolbarHideCallback,
+  ToolbarMoreButtonFields,
+  ToolbarMoreDefaultItem,
+  ToolbarItemsConfig,
+  TopToolbarItemsConfig,
+  BottomToolbarItemsConfig,
+  TopToolbarDefaultKeys,
+  BottomToolbarDefaultKeys,
   ToolbarItemAlign,
   ToolbarItemHide,
-  ToolbarDefaultItemName,
-  ToolbarCustomItem,
   ToolbarPresetProps,
 } from '../src/atoms/ToolbarPreset';
 export {default as TranscriptPanel} from '../src/subComponents/caption/Transcript';
