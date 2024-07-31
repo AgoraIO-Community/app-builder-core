@@ -137,7 +137,6 @@ const ActionSheet = props => {
       default:
     }
   };
-
   return (
     <>
       {showOverlay && (
