@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {useEffect, useRef} from 'react';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import BeautyExtension from 'agora-extension-beauty-effect';
-import {useRtc} from 'customization-api';
+import {useRoomInfo, useRtc} from 'customization-api';
 import {useVB} from '../virtual-background/useVB';
 
 export type BeautyEffects = {
@@ -13,6 +13,10 @@ export type BeautyEffects = {
   sharpnessLevel?: Number;
   rednessLevel?: Number;
 };
+
+export type BeautyProcessorType = ReturnType<
+  BeautyExtension['_createProcessor']
+> | null;
 
 const extension = new BeautyExtension();
 AgoraRTC.registerExtensions([extension]);
@@ -35,6 +39,7 @@ type BeautyEffectContextValue = {
   setRednessLevel: React.Dispatch<React.SetStateAction<number>>;
   applyBeautyEffect: (config?: BeautyEffects) => void;
   removeBeautyEffect: () => void;
+  beautyProcessor: BeautyProcessorType;
 };
 export type LighteningContrastLevel = 0 | 1 | 2;
 
@@ -54,6 +59,7 @@ export const BeautyEffectsContext =
     setRednessLevel: () => {},
     applyBeautyEffect: () => {},
     removeBeautyEffect: () => {},
+    beautyProcessor: null,
   });
 
 const BeautyEffectProvider: React.FC = ({children}) => {
@@ -65,21 +71,25 @@ const BeautyEffectProvider: React.FC = ({children}) => {
   const [sharpnessLevel, setSharpnessLevel] = useState<number>(0.5);
   const [rednessLevel, setRednessLevel] = useState<number>(0.5);
 
+  const {roomPreference} = useRoomInfo();
+
   const {vbProcessor} = useVB();
 
   const {RtcEngineUnsafe} = useRtc();
   //@ts-ignore
   const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
 
-  if ($config.ENABLE_VIRTUAL_BACKGROUND) {
-    localVideoTrack
-      ?.pipe(beautyProcessor)
-      .pipe(vbProcessor)
-      .pipe(localVideoTrack?.processorDestination);
-  } else {
-    localVideoTrack
-      ?.pipe(beautyProcessor)
-      .pipe(localVideoTrack?.processorDestination);
+  if (!roomPreference?.disableVideoProcessors) {
+    if ($config.ENABLE_VIRTUAL_BACKGROUND) {
+      localVideoTrack
+        ?.pipe(beautyProcessor)
+        .pipe(vbProcessor)
+        .pipe(localVideoTrack?.processorDestination);
+    } else {
+      localVideoTrack
+        ?.pipe(beautyProcessor)
+        .pipe(localVideoTrack?.processorDestination);
+    }
   }
 
   useEffect(() => {
@@ -130,6 +140,7 @@ const BeautyEffectProvider: React.FC = ({children}) => {
         setRednessLevel,
         applyBeautyEffect,
         removeBeautyEffect,
+        beautyProcessor,
       }}>
       {children}
     </BeautyEffectsContext.Provider>

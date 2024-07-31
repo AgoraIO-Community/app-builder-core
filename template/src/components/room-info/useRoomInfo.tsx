@@ -116,6 +116,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   },
   roomPreference: {
     disableShareTile: false,
+    disableVideoProcessors: false,
   },
 };
 
