@@ -68,56 +68,34 @@ export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
 
 export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
 
-export interface ToolbarMoreMenuCustomItem {
-  componentName: string;
-  title: string;
-  onPress: () => void;
-  iconBase64?: string;
-  hide?: ToolbarItemHide;
-  order?: number;
-}
-export interface ToolbarBottomPresetProps {
-  align: 'bottom';
-  items?:
-    | {
-        [key: string]: ToolbarDefaultItem;
-      }
-    | {
-        ['more']?: ToolbarMoreDefaultItem;
-      }
-    | {
-        [key in BottomToolbarDefaultKeys]?: ToolbarDefaultItem;
-      };
-  snapPointsMinMax?: [number, number];
-}
-export interface ToolbarTopPresetProps {
-  align: 'top';
-  items?:
-    | {
-        [key in TopToolbarDefaultKeys]?: ToolbarDefaultItem;
-      }
-    | {
-        [key: string]: ToolbarDefaultItem;
-      };
-}
-export interface ToolbarRightPresetProps {
-  align: 'right';
-  items?: {
-    [key in TopToolbarDefaultKeys]?: ToolbarDefaultItem;
-  };
-}
-export interface ToolbarLeftPresetProps {
-  align: 'left';
-  items?: {
-    [key in TopToolbarDefaultKeys]?: ToolbarDefaultItem;
-  };
-}
+export type ToolbarDefaultItemsConfig = {
+  [key: string]: ToolbarDefaultItem;
+};
 
-export type ToolbarPresetProps =
-  | ToolbarBottomPresetProps
-  | ToolbarTopPresetProps
-  | ToolbarLeftPresetProps
-  | ToolbarRightPresetProps;
+export type TopToolbarItemsConfig =
+  | {
+      [key in TopToolbarDefaultKeys]?: ToolbarDefaultItem;
+    };
+
+export type BottomToolbarItemsConfig =
+  | {
+      [key in BottomToolbarDefaultKeys]?: ToolbarDefaultItem;
+    }
+  | {
+      ['more']?: ToolbarMoreDefaultItem;
+    };
+
+export type ToolbarItemsConfig =
+  | TopToolbarItemsConfig
+  | BottomToolbarItemsConfig
+  | ToolbarDefaultItemsConfig;
+
+export type ToolbarPresetProps = {
+  align: 'top' | 'bottom' | 'left' | 'right';
+  items?: ToolbarItemsConfig;
+  //applicable only for bottom bar
+  snapPointsMinMax?: [number, number];
+};
 
 const ToolbarPreset = (props: ToolbarPresetProps) => {
   const {align} = props;

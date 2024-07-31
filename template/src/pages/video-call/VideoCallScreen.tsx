@@ -26,12 +26,7 @@ import {videoView} from '../../../theme.json';
 import {ToolbarProvider, ToolbarPosition} from '../../utils/useToolbar';
 import SDKEvents from '../../utils/SdkEvents';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
-import {
-  ToolbarCustomItem,
-  controlMessageEnum,
-  useCaption,
-  useUserName,
-} from 'customization-api';
+import {controlMessageEnum, useCaption, useUserName} from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
