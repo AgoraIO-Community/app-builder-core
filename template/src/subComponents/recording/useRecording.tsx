@@ -781,8 +781,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       'Recording-bot: areUsersInChannel',
       areUsersInChannel,
     );
-    // console.log('supriya bot hostUids', hostUids);
-    // console.log('supriya bot audienceUids', audienceUids);
+
+    // console.log('bot hostUids', hostUids);
+    // console.log('bot audienceUids', audienceUids);
+    // old code
     // const areUsersInChannel =
     // areHostsInChannel.length > 0 || audienceUids?.length > 0;
 
