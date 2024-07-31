@@ -137,10 +137,6 @@ const ActionSheet = props => {
       default:
     }
   };
-  // const orientation = useOrientation();
-  // if (orientation === 'LANDSCAPE') {
-  //   return <></>;
-  // }
   return (
     <>
       {showOverlay && (

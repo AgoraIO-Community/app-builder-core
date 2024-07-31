@@ -4,9 +4,16 @@ import {useOrientation} from '../utils/useOrientation';
 import ThemeConfig from '../theme';
 import {isMobileUA} from '../utils/common';
 import Popup from './../atoms/Popup';
+import {useString} from '../utils/useString';
+import {blockLandscapeModeMessageText} from '../language/default-labels/videoCallScreenLabels';
 
 export default function BlockUI() {
+  const blockLandscapeModeMessageTextLabel = useString(
+    blockLandscapeModeMessageText,
+  )();
+
   const [isBlockModalVisible, setBlockModalVisible] = useState(true);
+
   const orientation = useOrientation();
   if (!isMobileUA()) {
     return <></>;
@@ -25,7 +32,7 @@ export default function BlockUI() {
       <View style={styles.blockui__wrapper}>
         <View style={styles.blockui__body}>
           <Text style={styles.blockui__content}>
-            Please change to portrait mode to further access our application.
+            {blockLandscapeModeMessageTextLabel}
           </Text>
         </View>
       </View>
