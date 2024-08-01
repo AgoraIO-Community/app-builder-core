@@ -141,6 +141,19 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const viewinlargeLabel = useString(moreBtnViewInLarge)();
   const viewwhiteboardlabel = useString(moreBtnViewWhiteboard)();
 
+  const setScreenShareFullScreen = () => {
+    setScreenShareOnFullView(!screenShareData[user.uid]?.isExpanded);
+    setScreenShareData(prevState => {
+      return {
+        ...prevState,
+        [user.uid]: {
+          ...prevState[user.uid],
+          isExpanded: !prevState[user.uid]?.isExpanded,
+        },
+      };
+    });
+  };
+
   return (
     <>
       <UserActionMenuOptionsOptions
@@ -241,18 +254,57 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 if (user?.type == 'whiteboard') {
                   setWhiteboardOnFullScreen(!isWhiteboardOnFullScreen);
                 } else {
-                  setScreenShareOnFullView(
-                    !screenShareData[user.uid]?.isExpanded,
-                  );
-                  setScreenShareData(prevState => {
-                    return {
-                      ...prevState,
-                      [user.uid]: {
-                        ...prevState[user.uid],
-                        isExpanded: !prevState[user.uid]?.isExpanded,
-                      },
-                    };
-                  });
+                  if (isMobileUA()) {
+                    try {
+                      /**
+                       * Agora assign user uid in the video tag container element
+                       * 0 - local user
+                       * 1 - local screen
+                       * actual user uid - for rest of remote stream
+                       *
+                       * this button only visible for remote screenshare in mobile web
+                       * so we don't need to compare 0 and 1
+                       *
+                       * agora assign uid to parent div of video element
+                       * so that's reason we are access children element to get the video element
+                       *
+                       * we can requestFullScreen for parent div
+                       * but it won't have auto rotate as soon fullscreen enabled and timer/exit full screen buttons
+                       *
+                       * Sample structure
+                       * <div id="0" >
+                       *   <div>
+                       *    <video />
+                       *   </div>
+                       * </div>
+                       *  */
+                      const fullScreenElement = document.getElementById(
+                        user.uid,
+                      )?.children[0]?.children[0];
+                      if (
+                        !document.fullscreenElement &&
+                        fullScreenElement?.requestFullscreen
+                      ) {
+                        //without settimeout its making whole application into full screen not the video element
+                        setTimeout(() => {
+                          fullScreenElement?.requestFullscreen();
+                        }, 100);
+                      } else {
+                        if (!fullScreenElement?.requestFullscreen) {
+                          setScreenShareFullScreen();
+                        }
+                      }
+                    } catch (error) {
+                      logger.error(
+                        LogSource.Internals,
+                        'SCREENSHARE',
+                        'Error on requesting screenshare on fullscreen',
+                        error,
+                      );
+                    }
+                  } else {
+                    setScreenShareFullScreen();
+                  }
                 }
               }}
               iconProps={{
