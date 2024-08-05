@@ -1,49 +1,19 @@
 import {Text, StyleSheet, View} from 'react-native';
-import React, {useEffect} from 'react';
-import {
-  BaseModal,
-  BaseModalTitle,
-  BaseModalContent,
-  BaseModalActions,
-} from './BaseModal';
+import React from 'react';
+import {BaseModalTitle, BaseModalContent, BaseModalActions} from './BaseModal';
 import ThemeConfig from '../../../theme';
 import TertiaryButton from '../../../atoms/TertiaryButton';
-import {
-  PollFormActionKind,
-  PollStatus,
-  usePollForm,
-} from '../context/poll-form-context';
-import {usePoll} from '../context/poll-context';
-import {PollActionKind} from '../context/poll-context';
-import {useLocalUid} from '../../../../agora-rn-uikit';
+import {PollItem} from '../context/poll-context';
 
-export default function PollPreviewModal({visible}) {
-  const {state, dispatch: pollFormDispatch} = usePollForm();
-  const {dispatch: pollDispatch} = usePoll();
-  const localUid = useLocalUid();
+interface Props {
+  form: PollItem;
+  onEdit: () => void;
+  onSave: (launch: boolean) => void;
+}
 
-  const {form} = state;
-
-  const onSave = (launch: boolean) => {
-    pollDispatch({
-      type: PollActionKind.ADD_FINAL_POLL_ITEM,
-      payload: {
-        item: {
-          [localUid]: {
-            ...form,
-            status: launch ? PollStatus.LATER : PollStatus.ACTIVE,
-            createdBy: localUid,
-          },
-        },
-      },
-    });
-    pollFormDispatch({
-      type: PollFormActionKind.POLL_FORM_CLOSE,
-    });
-  };
-
+export default function PollPreviewModal({form, onEdit, onSave}: Props) {
   return (
-    <BaseModal visible={visible}>
+    <>
       <BaseModalTitle title="Poll Preview" />
       <BaseModalContent>
         <View style={style.previewContainer}>
@@ -53,8 +23,8 @@ export default function PollPreviewModal({visible}) {
           <Text style={style.previewQuestion}>{form.question}</Text>
           {form?.options ? (
             <View style={style.previewOptionSection}>
-              {form.options.map(option => (
-                <View style={style.previewOptionCard}>
+              {form.options.map((option, index) => (
+                <View style={style.previewOptionCard} key={index}>
                   <Text style={style.previewOptionText}>{option.text}</Text>
                 </View>
               ))}
@@ -69,9 +39,7 @@ export default function PollPreviewModal({visible}) {
           <View style={style.btnContainer}>
             <TertiaryButton
               onPress={() => {
-                pollFormDispatch({
-                  type: PollFormActionKind.UPDATE_FORM,
-                });
+                onEdit();
               }}
               text="Edit"
             />
@@ -94,7 +62,7 @@ export default function PollPreviewModal({visible}) {
           </View>
         </View>
       </BaseModalActions>
-    </BaseModal>
+    </>
   );
 }
 

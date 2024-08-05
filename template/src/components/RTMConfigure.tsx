@@ -236,15 +236,10 @@ const RtmConfigure = (props: any) => {
       const channelAttr = await engine.current.getChannelAttributes(
         rtcProps.channel,
       );
-      const channelAttrByKeys = await engine.current.getChannelAttributesByKeys(
-        rtcProps.channel,
-        ['poll'],
-      );
       console.log('supriya getChannelAttributes', channelAttr);
-      console.log('supriya getChannelAttributesByKeys', channelAttrByKeys);
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM getMembers done');
     } catch (error) {
-      console.log('supriya error: ', error);
+      console.log('error: ', error);
       logger.error(
         LogSource.AgoraSDK,
         'Log',
@@ -593,7 +588,20 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelAttributesUpdated', (data: any) => {
-      console.log('supriya channel attributes receivwd', data);
+      console.log('supriya 2  channel attributes receivwd', data);
+      try {
+        // const {uid, channelId, text, ts} = evt;
+        // const timestamp = getMessageTime(ts);
+        // const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId);
+        // eventDispatcher(data, sender, timestamp);
+      } catch (error) {
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'error while dispatching through eventDispatcher',
+          error,
+        );
+      }
     });
 
     await doLoginAndSetupRTM();

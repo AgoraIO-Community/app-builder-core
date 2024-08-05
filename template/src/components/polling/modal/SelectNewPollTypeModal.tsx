@@ -1,12 +1,8 @@
 import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {BaseModal, BaseModalTitle, BaseModalContent} from './BaseModal';
+import {BaseModalTitle, BaseModalContent} from './BaseModal';
 import ThemeConfig from '../../../theme';
-import {
-  PollFormActionKind,
-  PollKind,
-  usePollForm,
-} from '../context/poll-form-context';
+import {PollKind} from '../context/poll-context';
 
 interface newPollType {
   key: PollKind;
@@ -36,10 +32,13 @@ const newPollTypeConfig: newPollType[] = [
   },
 ];
 
-export default function SelectNewPollTypeModal({visible}) {
-  const {dispatch} = usePollForm();
+export default function SelectNewPollTypeModal({
+  setType,
+}: {
+  setType: React.Dispatch<React.SetStateAction<PollKind>>;
+}) {
   return (
-    <BaseModal visible={visible}>
+    <>
       <BaseModalTitle title="New Poll" />
       <BaseModalContent>
         <View style={style.section}>
@@ -48,10 +47,7 @@ export default function SelectNewPollTypeModal({visible}) {
               style={{outlineStyle: 'none'}}
               key={item.key}
               onPress={() => {
-                dispatch({
-                  type: PollFormActionKind.SELECT_POLL,
-                  payload: {pollType: item.key},
-                });
+                setType(item.key);
               }}>
               <View style={style.card}>
                 <View style={style.cardImage} />
@@ -64,7 +60,7 @@ export default function SelectNewPollTypeModal({visible}) {
           ))}
         </View>
       </BaseModalContent>
-    </BaseModal>
+    </>
   );
 }
 

@@ -1,21 +1,13 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
 import React from 'react';
-import {
-  BaseModal,
-  BaseModalTitle,
-  BaseModalContent,
-  BaseModalActions,
-} from './BaseModal';
+import {BaseModalTitle, BaseModalContent, BaseModalActions} from './BaseModal';
 import ThemeConfig from '../../../theme';
 import LinkButton from '../../../atoms/LinkButton';
 import Checkbox from '../../../atoms/Checkbox';
 import IconButton from '../../../atoms/IconButton';
 import PrimaryButton from '../../../atoms/PrimaryButton';
-import {
-  PollFormActionKind,
-  PollKind,
-  usePollForm,
-} from '../context/poll-form-context';
+import {PollCurrentStep, PollItem, PollKind} from '../context/poll-context';
+import {getDefaultPollTimer} from '../form-config';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -24,13 +16,92 @@ function FormTitle({title}: {title: string}) {
     </View>
   );
 }
-export default function CreatePollModal({visible}) {
-  const {state, dispatch} = usePollForm();
-  const {form} = state;
+interface Props {
+  form: PollItem;
+  setForm: React.Dispatch<React.SetStateAction<PollItem>>;
+  setCurrentStep: React.Dispatch<React.SetStateAction<PollCurrentStep>>;
+}
+
+export default function CreatePollModal({
+  form,
+  setForm,
+  setCurrentStep,
+}: Props) {
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setForm({
+      ...form,
+      [field]: value,
+    });
+  };
+
+  const handleCheckboxChange = (field: string, value: boolean) => {
+    setForm({
+      ...form,
+      [field]: value,
+      ...(field === 'duration' && {
+        timer: getDefaultPollTimer(value as boolean),
+      }),
+    });
+  };
+
+  const updateFormOption = (
+    action: 'update' | 'delete' | 'add',
+    value: string,
+    index: number,
+  ) => {
+    if (action === 'add') {
+      setForm({
+        ...form,
+        options: [
+          ...form.options,
+          {
+            text: '',
+            value: '',
+            votes: null,
+          },
+        ],
+      });
+    }
+    if (action === 'update') {
+      setForm({
+        ...form,
+        options: form.options.map((option, i) => {
+          if (i === index) {
+            const lowerText = value.replace(/\s+/g, '-').toLowerCase();
+            return {
+              ...option,
+              text: value,
+              value: lowerText,
+              votes: null,
+            };
+          }
+          return option;
+        }),
+      });
+    }
+    if (action === 'delete') {
+      setForm({
+        ...form,
+        options: form.options.filter((option, i) => i !== index),
+      });
+    }
+  };
+
+  const getTitle = (type: PollKind) => {
+    if (type === PollKind.MCQ) {
+      return 'Multiple Choice';
+    }
+    if (type === PollKind.OPEN_ENDED) {
+      return 'Open Ended Poll';
+    }
+    if (type === PollKind.YES_NO) {
+      return 'Yes/No';
+    }
+  };
 
   return (
-    <BaseModal visible={visible}>
-      <BaseModalTitle title={form.title} />
+    <>
+      <BaseModalTitle title={getTitle(form.type)} />
       <BaseModalContent>
         {/* Question section */}
         <View style={style.createPollBox}>
@@ -44,16 +115,7 @@ export default function CreatePollModal({visible}) {
                 numberOfLines={4}
                 value={form.question}
                 onChangeText={text => {
-                  if (text.trim() === '') {
-                    return;
-                  }
-                  dispatch({
-                    type: PollFormActionKind.UPDATE_FORM_FIELD,
-                    payload: {
-                      field: 'question',
-                      value: text,
-                    },
-                  });
+                  handleInputChange('question', text);
                 }}
                 placeholder="Enter poll question here..."
                 placeholderTextColor={
@@ -78,13 +140,7 @@ export default function CreatePollModal({visible}) {
                           style={style.pFormInput}
                           value={option.text}
                           onChangeText={text => {
-                            dispatch({
-                              type: PollFormActionKind.UPDATE_FORM_OPTION,
-                              payload: {
-                                value: text,
-                                index: index,
-                              },
-                            });
+                            updateFormOption('update', text, index);
                           }}
                           placeholder="Add text here..."
                           placeholderTextColor={
@@ -103,12 +159,7 @@ export default function CreatePollModal({visible}) {
                               tintColor: $config.CARD_LAYER_5_COLOR,
                             }}
                             onPress={() => {
-                              dispatch({
-                                type: PollFormActionKind.DELETE_FORM_OPTION,
-                                payload: {
-                                  index: index,
-                                },
-                              });
+                              updateFormOption('delete', option.text, index);
                             }}
                           />
                         </View>
@@ -119,9 +170,7 @@ export default function CreatePollModal({visible}) {
                         text="Add option"
                         textStyle={style.pFormOptionLink}
                         onPress={() => {
-                          dispatch({
-                            type: PollFormActionKind.ADD_FORM_OPTION,
-                          });
+                          updateFormOption('add', null, null);
                         }}
                       />
                     </View>
@@ -154,18 +203,12 @@ export default function CreatePollModal({visible}) {
               <View style={style.pFormCheckboxContainer}>
                 {form.type === PollKind.MCQ ? (
                   <Checkbox
-                    checked={form.multiple}
+                    checked={form.multiple_response}
                     label={'Allow mutiple selections'}
                     labelStye={style.pFormOptionText}
-                    onChange={() =>
-                      dispatch({
-                        type: PollFormActionKind.UPDATE_FORM_FIELD,
-                        payload: {
-                          field: 'multiple',
-                          value: !form.multiple,
-                        },
-                      })
-                    }
+                    onChange={() => {
+                      handleCheckboxChange('multiple', !form.multiple_response);
+                    }}
                   />
                 ) : (
                   <></>
@@ -176,15 +219,9 @@ export default function CreatePollModal({visible}) {
                   checked={form.share}
                   label={'Share results with the respondants'}
                   labelStye={style.pFormOptionText}
-                  onChange={() =>
-                    dispatch({
-                      type: PollFormActionKind.UPDATE_FORM_FIELD,
-                      payload: {
-                        field: 'share',
-                        value: !form.share,
-                      },
-                    })
-                  }
+                  onChange={() => {
+                    handleCheckboxChange('share', !form.share);
+                  }}
                 />
               </View>
               <View style={style.pFormCheckboxContainer}>
@@ -192,15 +229,9 @@ export default function CreatePollModal({visible}) {
                   checked={form.duration}
                   label={'Set Timer Duration'}
                   labelStye={style.pFormOptionText}
-                  onChange={() =>
-                    dispatch({
-                      type: PollFormActionKind.UPDATE_FORM_FIELD,
-                      payload: {
-                        field: 'duration',
-                        value: !form.duration,
-                      },
-                    })
-                  }
+                  onChange={() => {
+                    handleCheckboxChange('duration', !form.duration);
+                  }}
                 />
               </View>
             </View>
@@ -213,15 +244,13 @@ export default function CreatePollModal({visible}) {
             containerStyle={style.btnContainer}
             textStyle={style.btnText}
             onPress={() => {
-              dispatch({
-                type: PollFormActionKind.PREVIEW_FORM,
-              });
+              setCurrentStep('PREVIEW_POLL');
             }}
             text="Preview"
           />
         </View>
       </BaseModalActions>
-    </BaseModal>
+    </>
   );
 }
 
