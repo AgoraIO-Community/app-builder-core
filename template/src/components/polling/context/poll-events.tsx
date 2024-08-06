@@ -14,6 +14,9 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     events.on('polls', data => {
       console.log('supriya poll event received data', data);
     });
+    return () => {
+      events.off('polls');
+    };
   }, []);
 
   const launchPollEvent = async (poll: PollItem) => {

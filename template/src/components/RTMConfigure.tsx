@@ -11,7 +11,7 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine from 'agora-react-native-rtm';
+import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
 import {
   ContentInterface,
   DispatchContext,
@@ -587,22 +587,36 @@ const RtmConfigure = (props: any) => {
       }
     });
 
-    engine.current.on('channelAttributesUpdated', (data: any) => {
-      console.log('supriya 2  channel attributes receivwd', data);
-      try {
-        // const {uid, channelId, text, ts} = evt;
-        // const timestamp = getMessageTime(ts);
-        // const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId);
-        // eventDispatcher(data, sender, timestamp);
-      } catch (error) {
-        logger.error(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'error while dispatching through eventDispatcher',
-          error,
-        );
-      }
-    });
+    engine.current.on(
+      'channelAttributesUpdated',
+      (attributeList: RtmChannelAttribute[]) => {
+        console.log('supriya 2  channel attributes received', attributeList);
+        try {
+          attributeList.map((attribute: RtmChannelAttribute) => {
+            const {key, value, lastUpdateTs, lastUpdateUserId} = attribute;
+            const timestamp = getMessageTime(lastUpdateTs);
+            const sender = Platform.OS
+              ? get32BitUid(lastUpdateUserId)
+              : parseInt(lastUpdateUserId);
+            eventDispatcher(
+              {
+                evt: key,
+                value,
+              },
+              sender,
+              timestamp,
+            );
+          });
+        } catch (error) {
+          logger.error(
+            LogSource.Events,
+            'CUSTOM_EVENTS',
+            'error while dispatching through eventDispatcher',
+            error,
+          );
+        }
+      },
+    );
 
     await doLoginAndSetupRTM();
   };
