@@ -56,13 +56,23 @@ const CaptionContainer = () => {
       <View
         style={[
           {
-            paddingLeft: isMobileUA() ? 0 : isDesktop() ? 32 : 10,
+            paddingLeft: isMobileUA()
+              ? 0
+              : isDesktop()
+              ? $config.ICON_TEXT
+                ? 32
+                : 0
+              : 10,
             paddingRight: isMobileUA()
               ? 0
               : isDesktop()
               ? globalWidth > 1700 && isCaptionNotFullWidth
-                ? 20
-                : 32
+                ? $config.ICON_TEXT
+                  ? 20
+                  : 0
+                : $config.ICON_TEXT
+                ? 32
+                : 0
               : 10,
           },
           //@ts-ignore
@@ -308,7 +318,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
-    marginTop: 8,
+    marginTop: $config.ICON_TEXT ? 8 : 0,
   },
   mobileContainer: {
     paddingVertical: 4,
