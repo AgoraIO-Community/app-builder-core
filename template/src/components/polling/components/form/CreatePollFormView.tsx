@@ -1,13 +1,17 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
 import React from 'react';
-import {BaseModalTitle, BaseModalContent, BaseModalActions} from './BaseModal';
-import ThemeConfig from '../../../theme';
-import LinkButton from '../../../atoms/LinkButton';
-import Checkbox from '../../../atoms/Checkbox';
-import IconButton from '../../../atoms/IconButton';
-import PrimaryButton from '../../../atoms/PrimaryButton';
-import {PollCurrentStep, PollItem, PollKind} from '../context/poll-context';
-import {getDefaultPollTimer} from '../form-config';
+import {
+  BaseModalTitle,
+  BaseModalContent,
+  BaseModalActions,
+} from '../../ui/BaseModal';
+import ThemeConfig from '../../../../theme';
+import LinkButton from '../../../../atoms/LinkButton';
+import Checkbox from '../../../../atoms/Checkbox';
+import IconButton from '../../../../atoms/IconButton';
+import PrimaryButton from '../../../../atoms/PrimaryButton';
+import {PollCurrentStep, PollItem, PollKind} from '../../context/poll-context';
+import {getDefaultPollTimer} from './form-config';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -22,7 +26,7 @@ interface Props {
   setCurrentStep: React.Dispatch<React.SetStateAction<PollCurrentStep>>;
 }
 
-export default function CreatePollModal({
+export default function CreatePollFormView({
   form,
   setForm,
   setCurrentStep,

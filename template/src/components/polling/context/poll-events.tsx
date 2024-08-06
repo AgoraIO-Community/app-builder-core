@@ -2,8 +2,13 @@ import React, {createContext, useContext, useEffect} from 'react';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
 import {PollItem} from './poll-context';
 
+export enum PollEventsEnum {
+  POLLS = 'POLLS',
+  POLL_LAUNCHED = 'POLL_LAUNCHED',
+}
+
 interface PollEventsContextValue {
-  launchPollEvent: (poll: PollItem) => void;
+  sendPoll: (poll: PollItem) => void;
 }
 
 const PollEventsContext = createContext<PollEventsContextValue | null>(null);
@@ -11,20 +16,28 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
   useEffect(() => {
-    events.on('polls', data => {
-      console.log('supriya poll event received data', data);
+    events.on(PollEventsEnum.POLLS, data => {
+      console.log('supriya POLLS event received data', data);
+    });
+    events.on(PollEventsEnum.POLL_LAUNCHED, data => {
+      console.log('supriya POLL_LAUNCHED event received data', data);
     });
     return () => {
-      events.off('polls');
+      events.off(PollEventsEnum.POLLS);
+      events.off(PollEventsEnum.POLL_LAUNCHED);
     };
   }, []);
 
-  const launchPollEvent = async (poll: PollItem) => {
-    events.send('polls', JSON.stringify({...poll}), PersistanceLevel.Channel);
+  const sendPoll = async (poll: PollItem) => {
+    events.send(
+      PollEventsEnum.POLL_LAUNCHED,
+      JSON.stringify({...poll}),
+      PersistanceLevel.Channel,
+    );
   };
 
   const value = {
-    launchPollEvent,
+    sendPoll,
   };
 
   return (

@@ -1,5 +1,6 @@
 import React, {createContext, useReducer, Dispatch, useState} from 'react';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
+import {usePollEvents} from './poll-events';
 
 enum PollAccess {
   PUBLIC = 'PUBLIC',
@@ -101,6 +102,7 @@ PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
   const [currentStep, setCurrentStep] = useState<PollCurrentStep>(null);
+  const {sendPoll} = usePollEvents();
   const [polls, dispatch] = useReducer(pollReducer, {});
   console.log('supriya polls state: ', polls);
 
@@ -125,16 +127,6 @@ function PollProvider({children}: {children: React.ReactNode}) {
         },
       });
     }
-  };
-
-  const sendPoll = async (poll: PollItem) => {
-    // const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
-    // const channelId = RTMEngine.getInstance().channelUid;
-    // const rtmAttribute = {key: 'poll', value: JSON.stringify({...poll})};
-    // await rtmEngine.addOrUpdateChannelAttributes(channelId, [rtmAttribute], {
-    //   enableNotificationToChannelMembers: true,
-    // });
-    events.send('polls', JSON.stringify({...poll}), PersistanceLevel.Channel);
   };
 
   const value = {

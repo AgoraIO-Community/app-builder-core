@@ -1,9 +1,13 @@
 import {Text, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {BaseModalTitle, BaseModalContent, BaseModalActions} from './BaseModal';
-import ThemeConfig from '../../../theme';
-import TertiaryButton from '../../../atoms/TertiaryButton';
-import {PollItem} from '../context/poll-context';
+import {
+  BaseModalTitle,
+  BaseModalContent,
+  BaseModalActions,
+} from '../../ui/BaseModal';
+import ThemeConfig from '../../../../theme';
+import TertiaryButton from '../../../../atoms/TertiaryButton';
+import {PollItem} from '../../context/poll-context';
 
 interface Props {
   form: PollItem;
@@ -11,7 +15,7 @@ interface Props {
   onSave: (launch: boolean) => void;
 }
 
-export default function PollPreviewModal({form, onEdit, onSave}: Props) {
+export default function PollPreviewFormView({form, onEdit, onSave}: Props) {
   return (
     <>
       <BaseModalTitle title="Poll Preview" />

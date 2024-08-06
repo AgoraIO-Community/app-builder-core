@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {BaseModal} from './BaseModal';
-import SelectNewPollTypeModal from './SelectNewPollTypeModal';
-import CreatePollModal from './CreatePollModal';
-import PollPreviewModal from './PollPreviewModal';
-import {PollItem, PollKind, PollStatus} from '../context/poll-context';
-import {useLocalUid} from '../../../../agora-rn-uikit';
-import {usePoll} from '../context/poll-context';
-import {initPollForm} from '../form-config';
+import {BaseModal} from '../../ui/BaseModal';
+import SelectNewPollTypeFormView from '../form/SelectNewPollTypeFormView';
+import CreatePollFormView from '../form/CreatePollFormView';
+import PollPreviewFormView from '../form/PollPreviewFormView';
+import {PollItem, PollKind, PollStatus} from '../../context/poll-context';
+import {useLocalUid} from '../../../../../agora-rn-uikit/src';
+import {usePoll} from '../../context/poll-context';
+import {initPollForm} from '../form/form-config';
 
 export default function PollFormModal() {
   const {savePollItem, currentStep, setCurrentStep} = usePoll();
@@ -48,17 +48,19 @@ export default function PollFormModal() {
   function renderSwitch(step) {
     switch (step) {
       case 'SELECT_POLL':
-        return <SelectNewPollTypeModal setType={setType} />;
+        return <SelectNewPollTypeFormView setType={setType} />;
       case 'CREATE_POLL':
         return (
-          <CreatePollModal
+          <CreatePollFormView
             form={form}
             setForm={setForm}
             setCurrentStep={setCurrentStep}
           />
         );
       case 'PREVIEW_POLL':
-        return <PollPreviewModal form={form} onEdit={onEdit} onSave={onSave} />;
+        return (
+          <PollPreviewFormView form={form} onEdit={onEdit} onSave={onSave} />
+        );
       default:
         return <></>;
     }

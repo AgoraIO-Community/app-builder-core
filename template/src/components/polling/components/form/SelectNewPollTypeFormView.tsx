@@ -1,8 +1,8 @@
 import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {BaseModalTitle, BaseModalContent} from './BaseModal';
-import ThemeConfig from '../../../theme';
-import {PollKind} from '../context/poll-context';
+import {BaseModalTitle, BaseModalContent} from '../../ui/BaseModal';
+import ThemeConfig from '../../../../theme';
+import {PollKind} from '../../context/poll-context';
 
 interface newPollType {
   key: PollKind;
@@ -32,7 +32,7 @@ const newPollTypeConfig: newPollType[] = [
   },
 ];
 
-export default function SelectNewPollTypeModal({
+export default function SelectNewPollTypeFormView({
   setType,
 }: {
   setType: React.Dispatch<React.SetStateAction<PollKind>>;

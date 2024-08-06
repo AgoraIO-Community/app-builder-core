@@ -4,7 +4,7 @@ import {
   PollItem,
   PollAccess,
   PollStatus,
-} from './context/poll-context';
+} from '../../context/poll-context';
 
 const getDefaultPollTimer = (isDurationEnabled: boolean) => {
   if (isDurationEnabled) {

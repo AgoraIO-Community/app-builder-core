@@ -1,8 +1,8 @@
 import {Text, StyleSheet, View} from 'react-native';
 import React from 'react';
-import {BaseModal, BaseModalTitle, BaseModalContent} from './BaseModal';
-import ThemeConfig from '../../../theme';
-import UserAvatar from '../../../atoms/UserAvatar';
+import {BaseModal, BaseModalTitle, BaseModalContent} from '../../ui/BaseModal';
+import ThemeConfig from '../../../../theme';
+import UserAvatar from '../../../../atoms/UserAvatar';
 
 export default function SharePollModal() {
   return (

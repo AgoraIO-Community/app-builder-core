@@ -1,6 +1,6 @@
 import React from 'react';
 import {PollProvider} from '../context/poll-context';
-import PollFormModal from '../modal/PollFormModal';
+import PollFormModal from './modals/PollFormModal';
 import {PollEventsProvider} from '../context/poll-events';
 
 function Poll({children}: {children?: React.ReactNode}) {
