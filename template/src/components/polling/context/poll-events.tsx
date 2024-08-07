@@ -1,43 +1,51 @@
 import React, {createContext, useContext, useEffect} from 'react';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
-import {PollItem} from './poll-context';
+import {PollItem, usePoll} from './poll-context';
 
-export enum PollEventsEnum {
-  POLLS = 'POLLS',
-  POLL_LAUNCHED = 'POLL_LAUNCHED',
+const POLL_ATTRIBUTE = 'polls';
+enum PollEventActions {
+  sendPoll = 'SEND_POLL',
+  sendPollResponse = 'SEND_POLL_RESPONSE',
 }
 
 interface PollEventsContextValue {
-  sendPoll: (poll: PollItem) => void;
+  sendPollEvt: (poll: PollItem) => void;
+  sendPollResponseEvt: (poll: PollItem) => void;
 }
 
 const PollEventsContext = createContext<PollEventsContextValue | null>(null);
 PollEventsContext.displayName = 'PollEventsContext';
 
+// Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  useEffect(() => {
-    events.on(PollEventsEnum.POLLS, data => {
-      console.log('supriya POLLS event received data', data);
-    });
-    events.on(PollEventsEnum.POLL_LAUNCHED, data => {
-      console.log('supriya POLL_LAUNCHED event received data', data);
-    });
-    return () => {
-      events.off(PollEventsEnum.POLLS);
-      events.off(PollEventsEnum.POLL_LAUNCHED);
-    };
-  }, []);
-
-  const sendPoll = async (poll: PollItem) => {
+  const sendPollEvt = async (poll: PollItem) => {
+    console.log('supriya poll to be sent in channel poll: ', poll);
     events.send(
-      PollEventsEnum.POLL_LAUNCHED,
-      JSON.stringify({...poll}),
+      POLL_ATTRIBUTE,
+      JSON.stringify({
+        action: PollEventActions.sendPoll,
+        item: {...poll},
+        activePollId: poll.id,
+      }),
+      PersistanceLevel.Channel,
+    );
+  };
+  const sendPollResponseEvt = async (poll: PollItem) => {
+    console.log('supriya poll to be sent in channel poll: ', poll);
+    events.send(
+      POLL_ATTRIBUTE,
+      JSON.stringify({
+        action: PollEventActions.sendPollResponse,
+        item: {...poll},
+        activePollId: poll.id,
+      }),
       PersistanceLevel.Channel,
     );
   };
 
   const value = {
-    sendPoll,
+    sendPollEvt,
+    sendPollResponseEvt,
   };
 
   return (
@@ -55,4 +63,47 @@ function usePollEvents() {
   return context;
 }
 
-export {usePollEvents, PollEventsProvider};
+// Event Subscriber
+const PollEventsSubscriberContext = createContext<null>(null);
+PollEventsSubscriberContext.displayName = 'PollEventsContext';
+
+function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
+  const {savePollForm, launchPollForm} = usePoll();
+
+  useEffect(() => {
+    events.on(POLL_ATTRIBUTE, args => {
+      const {payload, sender, ts} = args;
+      const data = JSON.parse(payload);
+      const {action, item, activePollId} = data;
+      console.log(
+        'supriya POLLS event received data',
+        args,
+        data,
+        item,
+        activePollId,
+      );
+      switch (action) {
+        case PollEventActions.sendPoll:
+          launchPollForm(item, activePollId);
+          break;
+        case PollEventActions.sendPollResponse:
+          savePollForm(item);
+          break;
+        default:
+          break;
+      }
+    });
+
+    return () => {
+      events.off(POLL_ATTRIBUTE);
+    };
+  }, [launchPollForm, savePollForm]);
+
+  return (
+    <PollEventsSubscriberContext.Provider value={null}>
+      {children}
+    </PollEventsSubscriberContext.Provider>
+  );
+}
+
+export {usePollEvents, PollEventsProvider, PollEventsSubscriber};

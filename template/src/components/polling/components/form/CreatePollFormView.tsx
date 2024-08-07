@@ -10,7 +10,7 @@ import LinkButton from '../../../../atoms/LinkButton';
 import Checkbox from '../../../../atoms/Checkbox';
 import IconButton from '../../../../atoms/IconButton';
 import PrimaryButton from '../../../../atoms/PrimaryButton';
-import {PollCurrentStep, PollItem, PollKind} from '../../context/poll-context';
+import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {getDefaultPollTimer} from './form-config';
 
 function FormTitle({title}: {title: string}) {
@@ -23,13 +23,15 @@ function FormTitle({title}: {title: string}) {
 interface Props {
   form: PollItem;
   setForm: React.Dispatch<React.SetStateAction<PollItem>>;
-  setCurrentStep: React.Dispatch<React.SetStateAction<PollCurrentStep>>;
+  onPreview: () => void;
+  errors: Partial<PollFormErrors>;
 }
 
 export default function CreatePollFormView({
   form,
   setForm,
-  setCurrentStep,
+  onPreview,
+  errors,
 }: Props) {
   const handleInputChange = (field: string, value: string | boolean) => {
     setForm({
@@ -126,6 +128,9 @@ export default function CreatePollFormView({
                   $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
                 }
               />
+              {errors?.question && (
+                <Text style={style.errorText}>{errors.question.message}</Text>
+              )}
             </View>
           </View>
           {/* Options section */}
@@ -178,6 +183,11 @@ export default function CreatePollFormView({
                         }}
                       />
                     </View>
+                    {errors?.options && (
+                      <Text style={style.errorText}>
+                        {errors.options.message}
+                      </Text>
+                    )}
                   </>
                 ) : (
                   <></>
@@ -248,7 +258,7 @@ export default function CreatePollFormView({
             containerStyle={style.btnContainer}
             textStyle={style.btnText}
             onPress={() => {
-              setCurrentStep('PREVIEW_POLL');
+              onPreview();
             }}
             text="Preview"
           />
@@ -362,5 +372,12 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  errorText: {
+    color: $config.SEMANTIC_ERROR,
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    paddingLeft: 5,
+    paddingTop: 5,
   },
 });

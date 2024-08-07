@@ -3,15 +3,26 @@ import {BaseModal} from '../../ui/BaseModal';
 import SelectNewPollTypeFormView from '../form/SelectNewPollTypeFormView';
 import CreatePollFormView from '../form/CreatePollFormView';
 import PollPreviewFormView from '../form/PollPreviewFormView';
-import {PollItem, PollKind, PollStatus} from '../../context/poll-context';
+import {
+  PollItem,
+  PollKind,
+  PollStatus,
+  PollFormErrors,
+} from '../../context/poll-context';
 import {useLocalUid} from '../../../../../agora-rn-uikit/src';
 import {usePoll} from '../../context/poll-context';
 import {initPollForm} from '../form/form-config';
+import {filterObject} from '../../../../utils';
 
 export default function PollFormModal() {
-  const {savePollItem, currentStep, setCurrentStep} = usePoll();
+  const {polls, savePollForm, sendPollForm, currentStep, setCurrentStep} =
+    usePoll();
   const [form, setForm] = useState<PollItem>(null);
+  const [formErrors, setFormErrors] = useState<PollFormErrors>(null);
+
+  console.log('supriya poll formErrors: ', formErrors);
   console.log('supriya poll form: ', form);
+
   const [type, setType] = useState<PollKind>(null);
   const localUid = useLocalUid();
 
@@ -25,24 +36,62 @@ export default function PollFormModal() {
 
   const onSave = (launch?: boolean) => {
     if (launch) {
-      savePollItem({
-        ...form,
-        status: PollStatus.ACTIVE,
-        createdBy: localUid,
-      });
-    } else {
-      savePollItem({
-        ...form,
-        status: PollStatus.LATER,
-        createdBy: localUid,
-      });
+      // check if there is an already launched poll
+      const isAnyPollActive = Object.keys(
+        filterObject(polls, ([_, v]) => v.status === PollStatus.ACTIVE),
+      );
+      if (isAnyPollActive.length > 0) {
+        console.error(
+          'Cannot publish poll now as there is already one poll active',
+        );
+        return;
+      }
+    }
+    const payload = {
+      ...form,
+      status: launch ? PollStatus.ACTIVE : PollStatus.LATER,
+      createdBy: localUid,
+    };
+    savePollForm(payload);
+    if (launch) {
+      sendPollForm(payload);
     }
     setType(null);
     setCurrentStep(null);
+    setForm(null);
   };
 
   const onEdit = () => {
     setCurrentStep('CREATE_POLL');
+  };
+
+  const onPreview = () => {
+    if (validateForm()) {
+      setCurrentStep('PREVIEW_POLL');
+    }
+  };
+
+  const validateForm = () => {
+    setFormErrors(null);
+    if (form.question.trim() === '') {
+      setFormErrors({
+        ...formErrors,
+        question: {message: 'Cannot be blank'},
+      });
+      return false;
+    }
+    if (
+      form.type === PollKind.MCQ &&
+      form.options &&
+      form.options.length === 0
+    ) {
+      setFormErrors({
+        ...formErrors,
+        options: {message: 'Cannot be empty'},
+      });
+      return false;
+    }
+    return true;
   };
 
   function renderSwitch(step) {
@@ -54,7 +103,8 @@ export default function PollFormModal() {
           <CreatePollFormView
             form={form}
             setForm={setForm}
-            setCurrentStep={setCurrentStep}
+            onPreview={onPreview}
+            errors={formErrors}
           />
         );
       case 'PREVIEW_POLL':

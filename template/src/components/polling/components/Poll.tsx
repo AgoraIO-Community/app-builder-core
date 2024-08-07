@@ -1,17 +1,27 @@
 import React from 'react';
-import {PollProvider} from '../context/poll-context';
+import {PollProvider, usePoll} from '../context/poll-context';
 import PollFormModal from './modals/PollFormModal';
-import {PollEventsProvider} from '../context/poll-events';
+import {PollEventsProvider, PollEventsSubscriber} from '../context/poll-events';
+import PollResponseFormModal from './modals/PollResponseFormModal';
 
 function Poll({children}: {children?: React.ReactNode}) {
   return (
-    <PollProvider>
-      <PollEventsProvider>
-        {children}
-        <PollFormModal />
-      </PollEventsProvider>
-    </PollProvider>
+    <PollEventsProvider>
+      <PollProvider>
+        <PollEventsSubscriber>{children}</PollEventsSubscriber>
+        <PollModals />
+      </PollProvider>
+    </PollEventsProvider>
   );
 }
 
+function PollModals() {
+  const {currentStep} = usePoll();
+  return (
+    <>
+      <PollFormModal />
+      {currentStep === 'RESPONSE_POLL' && <PollResponseFormModal />}
+    </>
+  );
+}
 export default Poll;
