@@ -16,11 +16,13 @@ function Poll({children}: {children?: React.ReactNode}) {
 }
 
 function PollModals() {
-  const {currentStep} = usePoll();
+  const {currentStep, launchPollId} = usePoll();
   return (
     <>
       <PollFormModal />
-      {currentStep === 'RESPONSE_POLL' && <PollResponseFormModal />}
+      {currentStep === 'RESPONSE_POLL' && launchPollId && (
+        <PollResponseFormModal />
+      )}
     </>
   );
 }

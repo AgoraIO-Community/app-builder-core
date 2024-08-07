@@ -136,15 +136,6 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const {sendPollEvt, sendPollResponseEvt} = usePollEvents();
 
-  useEffect(() => {
-    if (!launchPollId) {
-      return;
-    }
-    if (launchPollId && polls.hasOwnProperty(launchPollId)) {
-      setCurrentStep('RESPONSE_POLL');
-    }
-  }, [launchPollId, polls]);
-
   const startPollForm = () => {
     setCurrentStep('SELECT_POLL');
   };
@@ -175,22 +166,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
     if (audienceUids.includes(localUid)) {
       setLaunchPollId(launchId);
+      setCurrentStep('RESPONSE_POLL');
     }
   };
 
   const onSubmitPollResponse = (item: PollItem, response: any) => {
     if (item.type === PollKind.OPEN_ENDED) {
-      // dispatch({
-      //   type: PollActionKind.SUBMIT_POLL_OPEN_ENDED_RESPONSE,
-      //   payload: {
-      //     pollId: id,
-      //     answerItem: {
-      //       uid: localUid,
-      //       response,
-      //       timestamp: Date.now(),
-      //     },
-      //   },
-      // });
       sendPollResponseEvt({
         ...item,
         answers: [
