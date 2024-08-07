@@ -434,7 +434,17 @@ export const RecordingStatusToolbarItem = () => {
   const {isRecordingActive} = useRecording();
   return isRecordingActive ? (
     <ToolbarItem>
-      <RecordingInfo recordingLabel={recordingLabel} />
+      <View
+        style={{
+          width: 45,
+          height: 35,
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignSelf: 'center',
+          zIndex: isWebInternal() ? 3 : 0,
+        }}>
+        <RecordingInfo recordingLabel={recordingLabel} />
+      </View>
     </ToolbarItem>
   ) : (
     <></>
