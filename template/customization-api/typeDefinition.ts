@@ -12,14 +12,9 @@
 import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
-import {
-  ContentInterface,
-  ContentStateInterface,
-  UidType,
-} from '../agora-rn-uikit';
+import {ContentStateInterface} from '../agora-rn-uikit';
 import {I18nInterface} from '../src/language/i18nTypes';
-import {IconsInterface} from '../src/atoms/CustomIcon';
-import {ToolbarCustomItem} from './sub-components';
+import {ToolbarPresetProps} from './sub-components';
 import {TextDataInterface} from '../src/language/default-labels';
 import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
 
@@ -60,7 +55,7 @@ export interface LayoutItem {
   component: LayoutComponent;
 }
 
-export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
+export type ToolbarType = React.ComponentType | ToolbarPresetProps['items'];
 export type CustomLogger = (
   message: string,
   data: any,

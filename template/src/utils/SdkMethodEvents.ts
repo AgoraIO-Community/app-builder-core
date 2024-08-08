@@ -13,6 +13,7 @@ export interface SdkMethodEvents {
     username?: string,
     preference?: {
       disableShareTile: boolean;
+      disableVideoProcessors: boolean;
     },
   ): RoomInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;

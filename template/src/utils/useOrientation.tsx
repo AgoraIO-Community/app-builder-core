@@ -1,28 +1,59 @@
-import {useState, useLayoutEffect} from 'react';
-import {Dimensions} from 'react-native';
+import {useState, useEffect} from 'react';
 
 const isPortrait = () => {
-  const dim = Dimensions.get('window');
-  // This 20 is added to adjust for keyboard autocomplete suggestion area height
-  return dim.height + 20 >= dim.width;
+  try {
+    if (
+      window?.screen?.orientation?.type === 'portrait-primary' ||
+      window?.screen?.orientation?.type === 'portrait-secondary'
+    ) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log('screen orientation window api not supported error: ', error);
+    return true;
+  }
 };
 
 /**
  * A React Hook which updates when the orientation changes
  * @returns whether the user is in 'PORTRAIT' or 'LANDSCAPE'
  */
+
 export function useOrientation(): 'PORTRAIT' | 'LANDSCAPE' {
-  // State to hold the connection status
   const [orientation, setOrientation] = useState<'PORTRAIT' | 'LANDSCAPE'>(
     isPortrait() ? 'PORTRAIT' : 'LANDSCAPE',
   );
 
-  useLayoutEffect(() => {
-    const subscription = Dimensions.addEventListener('change', () => {
-      setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
-    });
+  const onOrientationChange = (event: any) => {
+    try {
+      console.log('screen orientation changed to -> ', event?.target?.type);
+      if (
+        event?.target?.type === 'portrait-primary' ||
+        event?.target?.type === 'portrait-secondary'
+      ) {
+        setOrientation('PORTRAIT');
+      } else {
+        setOrientation('LANDSCAPE');
+      }
+    } catch (error) {
+      console.log('screen orientation window api not supported error: ', error);
+      setOrientation('PORTRAIT');
+    }
+  };
 
-    return () => subscription?.remove();
+  useEffect(() => {
+    window?.screen?.orientation?.addEventListener(
+      'change',
+      onOrientationChange,
+    );
+    return () => {
+      window?.screen.orientation?.removeEventListener(
+        'change',
+        onOrientationChange,
+      );
+    };
   }, []);
+
   return orientation;
 }

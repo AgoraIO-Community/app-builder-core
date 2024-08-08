@@ -2,15 +2,7 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useToolbar, ToolbarPosition} from '../utils/useToolbar';
 import {isMobileUA, isWebInternal, useIsDesktop} from '../utils/common';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {ToolbarCustomItem} from './ToolbarPreset';
 import ActionSheet from '../pages/video-call/ActionSheet';
-
-// export interface ToolbarProps {
-//   children: React.ReactNode;
-//   bottomSheetOnMobile?: boolean;
-//   customItems?: ToolbarCustomItem[];
-// }
 
 export interface ToolbarPropsBase {
   children: React.ReactNode;
