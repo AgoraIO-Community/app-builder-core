@@ -1,6 +1,6 @@
 import React from 'react';
 import {PollProvider, usePoll} from '../context/poll-context';
-import PollFormModal from './modals/PollFormModal';
+import PollFormWizardModal from './modals/PollFormWizardModal';
 import {PollEventsProvider, PollEventsSubscriber} from '../context/poll-events';
 import PollResponseFormModal from './modals/PollResponseFormModal';
 
@@ -19,8 +19,8 @@ function PollModals() {
   const {currentStep, launchPollId} = usePoll();
   return (
     <>
-      <PollFormModal />
-      {currentStep === 'RESPONSE_POLL' && launchPollId && (
+      {currentStep === 'CREATE_POLL' && <PollFormWizardModal />}
+      {currentStep === 'RESPOND_TO_POLL' && launchPollId && (
         <PollResponseFormModal />
       )}
     </>

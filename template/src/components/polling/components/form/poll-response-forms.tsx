@@ -5,12 +5,72 @@ import ThemeConfig from '../../../../theme';
 import PrimaryButton from '../../../../atoms/PrimaryButton';
 import {PollItem, usePoll} from '../../context/poll-context';
 import PollTimer from '../PollTimer';
+import {videoRoomUserFallbackText} from '../../../../language/default-labels/videoCallScreenLabels';
+import {useContent} from 'customization-api';
+import {UidType} from '../../../../../agora-rn-uikit/src';
+import {useString} from '../../../../utils/useString';
+import UserAvatar from '../../../../atoms/UserAvatar';
+import ImageIcon from '../../../../atoms/ImageIcon';
 
 interface Props {
   pollItem: PollItem;
 }
 
-function PollResponseQuestionForm({pollItem}: Props) {
+function PollResponseFormModalTitle({pollItem}: Props) {
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
+  const {defaultContent} = useContent();
+  const getPollCreaterName = (uid: UidType) => {
+    return defaultContent[uid]?.name || remoteUserDefaultLabel;
+  };
+
+  return (
+    <View style={style.titleCard}>
+      <View style={style.titleAvatar}>
+        <UserAvatar
+          name={getPollCreaterName(pollItem.createdBy)}
+          containerStyle={style.titleAvatarContainer}
+          textStyle={style.titleAvatarContainerText}
+        />
+      </View>
+      <View style={style.title}>
+        <Text style={style.titleText}>
+          {getPollCreaterName(pollItem.createdBy)}
+        </Text>
+        <Text style={style.titleSubtext}>{pollItem.type}</Text>
+      </View>
+    </View>
+  );
+}
+
+function PollResponseFormComplete() {
+  return (
+    <BaseModalContent>
+      <View style={[style.centerAlign, style.mediumHeight]}>
+        <View>
+          <ImageIcon
+            iconType="plain"
+            name="tick-fill"
+            tintColor={$config.SEMANTIC_SUCCESS}
+            iconSize={24}
+          />
+        </View>
+        <View>
+          <Text style={style.heading4}>Thank you for your response</Text>
+        </View>
+      </View>
+    </BaseModalContent>
+  );
+}
+
+interface PollResponseFormProps {
+  pollItem: PollItem;
+  onComplete: () => void;
+}
+
+function PollResponseQuestionForm({
+  pollItem,
+  onComplete,
+}: PollResponseFormProps) {
   const [answer, setAnswer] = useState('');
   const {onSubmitPollResponse} = usePoll();
 
@@ -18,7 +78,7 @@ function PollResponseQuestionForm({pollItem}: Props) {
     <>
       <BaseModalContent>
         <PollTimer expiresAt={pollItem.expiresAt} />
-        <Text style={style.questionText}>{pollItem.question}</Text>
+        <Text style={style.heading4}>{pollItem.question}</Text>
         <View>
           <TextInput
             autoComplete="off"
@@ -40,7 +100,12 @@ function PollResponseQuestionForm({pollItem}: Props) {
             containerStyle={style.btnContainer}
             textStyle={style.btnText}
             onPress={() => {
-              onSubmitPollResponse(pollItem, answer);
+              try {
+                onSubmitPollResponse(pollItem, answer);
+                onComplete();
+              } catch (error) {
+                console.error('error: ', error);
+              }
             }}
             text="Submit"
           />
@@ -50,16 +115,53 @@ function PollResponseQuestionForm({pollItem}: Props) {
   );
 }
 
-export {PollResponseQuestionForm};
+export {
+  PollResponseQuestionForm,
+  PollResponseFormModalTitle,
+  PollResponseFormComplete,
+};
+
 export const style = StyleSheet.create({
-  timer: {
-    color: $config.SEMANTIC_WARNING,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 16,
-    lineHeight: 20,
-    paddingBottom: 12,
+  titleCard: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 12,
   },
-  questionText: {
+  title: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+  },
+  titleAvatar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleAvatarContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+  },
+  titleAvatarContainerText: {
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 16,
+    fontWeight: '600',
+    color: $config.VIDEO_AUDIO_TILE_COLOR,
+  },
+  titleText: {
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.normal,
+    fontWeight: '700',
+    lineHeight: 20,
+  },
+  titleSubtext: {
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontWeight: '400',
+    lineHeight: 16,
+  },
+  heading4: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.medium,
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -128,6 +230,16 @@ export const style = StyleSheet.create({
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderRadius: 9,
     paddingVertical: 12,
+  },
+  centerAlign: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  mediumHeight: {
+    height: 272,
   },
   //   pFormOptionCard: {
   //     display: 'flex',

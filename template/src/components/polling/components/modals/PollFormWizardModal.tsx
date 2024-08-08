@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {BaseModal} from '../../ui/BaseModal';
 import SelectNewPollTypeFormView from '../form/SelectNewPollTypeFormView';
-import CreatePollFormView from '../form/CreatePollFormView';
-import PollPreviewFormView from '../form/PollPreviewFormView';
+import DraftPollFormView from '../form/DraftPollFormView';
+import PreviewPollFormView from '../form/PreviewPollFormView';
 import {
   PollItem,
   PollKind,
@@ -14,16 +14,15 @@ import {usePoll} from '../../context/poll-context';
 import {initPollForm} from '../form/form-config';
 import {filterObject} from '../../../../utils';
 
-export default function PollFormModal() {
-  const {polls, savePollForm, sendPollForm, currentStep, setCurrentStep} =
-    usePoll();
+type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
+
+export default function PollFormWizardModal() {
+  const {polls, savePollForm, sendPollForm} = usePoll();
+  const [step, setStep] = useState<FormWizardStep>('SELECT');
+  const [type, setType] = useState<PollKind>(null);
   const [form, setForm] = useState<PollItem>(null);
   const [formErrors, setFormErrors] = useState<PollFormErrors>(null);
 
-  console.log('supriya poll formErrors: ', formErrors);
-  console.log('supriya poll form: ', form);
-
-  const [type, setType] = useState<PollKind>(null);
   const localUid = useLocalUid();
 
   useEffect(() => {
@@ -31,8 +30,8 @@ export default function PollFormModal() {
       return;
     }
     setForm(initPollForm(type));
-    setCurrentStep('CREATE_POLL');
-  }, [type, setCurrentStep]);
+    setStep('DRAFT');
+  }, [type]);
 
   const onSave = (launch?: boolean) => {
     if (launch) {
@@ -56,18 +55,15 @@ export default function PollFormModal() {
     if (launch) {
       sendPollForm(payload);
     }
-    setType(null);
-    setCurrentStep(null);
-    setForm(null);
   };
 
   const onEdit = () => {
-    setCurrentStep('CREATE_POLL');
+    setStep('DRAFT');
   };
 
   const onPreview = () => {
     if (validateForm()) {
-      setCurrentStep('PREVIEW_POLL');
+      setStep('PREVIEW');
     }
   };
 
@@ -94,31 +90,27 @@ export default function PollFormModal() {
     return true;
   };
 
-  function renderSwitch(step) {
+  function renderSwitch() {
     switch (step) {
-      case 'SELECT_POLL':
+      case 'SELECT':
         return <SelectNewPollTypeFormView setType={setType} />;
-      case 'CREATE_POLL':
+      case 'DRAFT':
         return (
-          <CreatePollFormView
+          <DraftPollFormView
             form={form}
             setForm={setForm}
             onPreview={onPreview}
             errors={formErrors}
           />
         );
-      case 'PREVIEW_POLL':
+      case 'PREVIEW':
         return (
-          <PollPreviewFormView form={form} onEdit={onEdit} onSave={onSave} />
+          <PreviewPollFormView form={form} onEdit={onEdit} onSave={onSave} />
         );
       default:
         return <></>;
     }
   }
 
-  return (
-    <BaseModal visible={currentStep !== null}>
-      {renderSwitch(currentStep)}
-    </BaseModal>
-  );
+  return <BaseModal visible={step !== null}>{renderSwitch()}</BaseModal>;
 }

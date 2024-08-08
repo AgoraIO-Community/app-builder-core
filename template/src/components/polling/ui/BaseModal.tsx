@@ -7,11 +7,10 @@ import {isMobileUA} from '../../../utils/common';
 
 interface TitleProps {
   title?: string;
-  close?: boolean;
   children?: ReactNode | ReactNode[];
 }
 
-function BaseModalTitle({title, close = false, children}: TitleProps) {
+function BaseModalTitle({title, children}: TitleProps) {
   return (
     <View style={style.header}>
       {title && (
@@ -20,23 +19,6 @@ function BaseModalTitle({title, close = false, children}: TitleProps) {
         </View>
       )}
       {children}
-      {close && (
-        <View>
-          <IconButton
-            iconProps={{
-              iconType: 'plain',
-              iconContainerStyle: {
-                padding: isMobileUA() ? 0 : 5,
-              },
-              name: 'close',
-              tintColor: $config.SECONDARY_ACTION_COLOR,
-            }}
-            onPress={() => {
-              //set close
-            }}
-          />
-        </View>
-      )}
     </View>
   );
 }
@@ -73,7 +55,32 @@ const BaseModal = ({children, visible = false}: BaseModalProps) => {
   );
 };
 
-export {BaseModal, BaseModalTitle, BaseModalContent, BaseModalActions};
+type BaseModalCloseIconProps = {
+  onClose: () => void;
+};
+
+const BaseModalCloseIcon = ({onClose}: BaseModalCloseIconProps) => {
+  <View>
+    <IconButton
+      iconProps={{
+        iconType: 'plain',
+        iconContainerStyle: {
+          padding: isMobileUA() ? 0 : 5,
+        },
+        name: 'close',
+        tintColor: $config.SECONDARY_ACTION_COLOR,
+      }}
+      onPress={onClose}
+    />
+  </View>;
+};
+export {
+  BaseModal,
+  BaseModalTitle,
+  BaseModalContent,
+  BaseModalActions,
+  BaseModalCloseIcon,
+};
 
 const style = StyleSheet.create({
   baseModalBackDrop: {

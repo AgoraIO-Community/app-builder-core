@@ -6,7 +6,7 @@ import {
   PollStatus,
 } from '../../context/poll-context';
 
-const POLL_DURATION = 10;
+const POLL_DURATION = 600; // takes seconds
 
 const getPollExpiresAtTime = (interval: number): number => {
   const t = new Date();

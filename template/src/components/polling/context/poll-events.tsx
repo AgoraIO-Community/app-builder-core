@@ -19,7 +19,6 @@ PollEventsContext.displayName = 'PollEventsContext';
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
   const sendPollEvt = async (poll: PollItem) => {
-    console.log('supriya poll to be sent in channel poll: ', poll);
     events.send(
       POLL_ATTRIBUTE,
       JSON.stringify({
@@ -31,7 +30,6 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     );
   };
   const sendPollResponseEvt = async (poll: PollItem) => {
-    console.log('supriya poll to be sent in channel poll: ', poll);
     events.send(
       POLL_ATTRIBUTE,
       JSON.stringify({
@@ -75,13 +73,13 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       const {payload, sender, ts} = args;
       const data = JSON.parse(payload);
       const {action, item, activePollId} = data;
-      console.log(
-        'supriya POLLS event received data',
-        args,
-        data,
-        item,
-        activePollId,
-      );
+      // console.log(
+      //   'supriya POLLS event received data',
+      //   args,
+      //   data,
+      //   item,
+      //   activePollId,
+      // );
       switch (action) {
         case PollEventActions.sendPoll:
           launchPollForm(item, activePollId);

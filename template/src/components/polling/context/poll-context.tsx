@@ -23,12 +23,7 @@ enum PollKind {
   YES_NO = 'YES_NO',
 }
 
-type PollCurrentStep =
-  | 'START_POLL'
-  | 'SELECT_POLL'
-  | 'CREATE_POLL'
-  | 'PREVIEW_POLL'
-  | 'RESPONSE_POLL';
+type PollCurrentStep = 'CREATE_POLL' | 'RESPOND_TO_POLL' | 'SHARE_POLL';
 
 interface PollItem {
   id: string;
@@ -67,19 +62,21 @@ interface PollFormErrors {
 }
 
 enum PollActionKind {
-  ADD_POLL_ITEM = 'ADD_POLL_ITEM',
+  ADD_OR_UPDATE_POLL_ITEM = 'ADD_OR_UPDATE_POLL_ITEM',
   LAUNCH_POLL_ITEM = 'LAUNCH_POLL_ITEM',
   SUBMIT_POLL_OPEN_ENDED_RESPONSE = 'SUBMIT_POLL_OPEN_ENDED_RESPONSE',
+  START_POLL_TIMER = 'START_POLL_TIMER',
 }
 
-type PollAction = {
-  type: PollActionKind.ADD_POLL_ITEM;
-  payload: {item: PollItem};
-};
-// | {
-//     type: PollActionKind.LAUNCH_POLL_ITEM;
-//     payload: {pollID: string};
-//   }
+type PollAction =
+  | {
+      type: PollActionKind.ADD_OR_UPDATE_POLL_ITEM;
+      payload: {item: PollItem; pollId?: string};
+    }
+  | {
+      type: PollActionKind.START_POLL_TIMER;
+      payload: {item: PollItem};
+    };
 // | {
 //     type: PollActionKind.SUBMIT_POLL_OPEN_ENDED_RESPONSE;
 //     payload: {
@@ -94,14 +91,13 @@ type PollAction = {
 
 function pollReducer(state: Poll, action: PollAction): Poll {
   switch (action.type) {
-    case PollActionKind.ADD_POLL_ITEM: {
+    case PollActionKind.ADD_OR_UPDATE_POLL_ITEM: {
       const pollId = action.payload.item.id;
       return {
         ...state,
         [pollId]: {...action.payload.item},
       };
     }
-
     default: {
       return state;
     }
@@ -115,10 +111,10 @@ interface PollContextValue {
   savePollForm: (item: PollItem) => void;
   sendPollForm: (item: PollItem) => void;
   currentStep: PollCurrentStep;
-  setCurrentStep: (item: PollCurrentStep) => void;
   launchPollForm: (item: PollItem, launchId: string) => void;
   launchPollId: string;
   onSubmitPollResponse: (item: PollItem, response: any) => void;
+  goToShareResponseModal: () => void;
 }
 
 const PollContext = createContext<PollContextValue | null>(null);
@@ -126,7 +122,6 @@ PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
-  console.log('supriya polls: ', polls);
   const [currentStep, setCurrentStep] = useState<PollCurrentStep>(null);
   const [launchPollId, setLaunchPollId] = useState<string>(null);
   const localUid = useLocalUid();
@@ -135,37 +130,29 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const {sendPollEvt, sendPollResponseEvt} = usePollEvents();
 
   const startPollForm = () => {
-    setCurrentStep('SELECT_POLL');
+    setCurrentStep('CREATE_POLL');
   };
 
   const savePollForm = (item: PollItem) => {
-    dispatch({
-      type: PollActionKind.ADD_POLL_ITEM,
-      payload: {
-        item: {...item},
-      },
-    });
+    addOrUpdatePollItem(item);
+    setCurrentStep(null);
   };
 
   const sendPollForm = (item: PollItem) => {
     if (item.status === PollStatus.ACTIVE) {
       item.expiresAt = getPollExpiresAtTime(POLL_DURATION);
       sendPollEvt(item);
+      setCurrentStep(null);
     } else {
       console.error('Poll: Cannot send poll as the status is not active');
     }
   };
 
   const launchPollForm = (item: PollItem, launchId: string) => {
-    dispatch({
-      type: PollActionKind.ADD_POLL_ITEM,
-      payload: {
-        item: {...item},
-      },
-    });
+    addOrUpdatePollItem(item);
     if (audienceUids.includes(localUid)) {
       setLaunchPollId(launchId);
-      setCurrentStep('RESPONSE_POLL');
+      setCurrentStep('RESPOND_TO_POLL');
     }
   };
 
@@ -178,9 +165,21 @@ function PollProvider({children}: {children: React.ReactNode}) {
           {uid: localUid, response, timestamp: Date.now()},
         ],
       });
-      setCurrentStep(null);
-      setLaunchPollId(null);
+      // setLaunchPollId(null);
     }
+  };
+
+  const addOrUpdatePollItem = (item: PollItem) => {
+    dispatch({
+      type: PollActionKind.ADD_OR_UPDATE_POLL_ITEM,
+      payload: {
+        item: {...item},
+      },
+    });
+  };
+
+  const goToShareResponseModal = () => {
+    setCurrentStep('SHARE_POLL');
   };
 
   const value = {
@@ -191,9 +190,9 @@ function PollProvider({children}: {children: React.ReactNode}) {
     sendPollForm,
     launchPollForm,
     currentStep,
-    setCurrentStep,
     launchPollId,
     onSubmitPollResponse,
+    goToShareResponseModal,
   };
 
   return <PollContext.Provider value={value}>{children}</PollContext.Provider>;

@@ -11,7 +11,6 @@ import Checkbox from '../../../../atoms/Checkbox';
 import IconButton from '../../../../atoms/IconButton';
 import PrimaryButton from '../../../../atoms/PrimaryButton';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
-import {getDefaultPollTimer} from './form-config';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -27,7 +26,7 @@ interface Props {
   errors: Partial<PollFormErrors>;
 }
 
-export default function CreatePollFormView({
+export default function DraftPollFormView({
   form,
   setForm,
   onPreview,

@@ -15,7 +15,7 @@ interface Props {
   onSave: (launch: boolean) => void;
 }
 
-export default function PollPreviewFormView({form, onEdit, onSave}: Props) {
+export default function PreviewPollFormView({form, onEdit, onSave}: Props) {
   return (
     <>
       <BaseModalTitle title="Poll Preview" />
