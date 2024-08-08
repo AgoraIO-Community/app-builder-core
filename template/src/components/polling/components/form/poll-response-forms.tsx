@@ -4,20 +4,20 @@ import {BaseModalContent, BaseModalActions} from '../../ui/BaseModal';
 import ThemeConfig from '../../../../theme';
 import PrimaryButton from '../../../../atoms/PrimaryButton';
 import {PollItem, usePoll} from '../../context/poll-context';
+import PollTimer from '../PollTimer';
 
 interface Props {
   pollItem: PollItem;
 }
 
 function PollResponseQuestionForm({pollItem}: Props) {
-  console.log('supriya pollItem: ', pollItem);
   const [answer, setAnswer] = useState('');
   const {onSubmitPollResponse} = usePoll();
 
   return (
     <>
       <BaseModalContent>
-        <Text style={style.timer}>{'2.45'}</Text>
+        <PollTimer expiresAt={pollItem.expiresAt} />
         <Text style={style.questionText}>{pollItem.question}</Text>
         <View>
           <TextInput

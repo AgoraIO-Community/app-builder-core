@@ -44,9 +44,6 @@ export default function CreatePollFormView({
     setForm({
       ...form,
       [field]: value,
-      ...(field === 'duration' && {
-        timer: getDefaultPollTimer(value as boolean),
-      }),
     });
   };
 

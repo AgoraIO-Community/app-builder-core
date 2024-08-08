@@ -6,11 +6,12 @@ import {
   PollStatus,
 } from '../../context/poll-context';
 
-const getDefaultPollTimer = (isDurationEnabled: boolean) => {
-  if (isDurationEnabled) {
-    return 10000;
-  }
-  return -1;
+const POLL_DURATION = 10;
+
+const getPollExpiresAtTime = (interval: number): number => {
+  const t = new Date();
+  const expiresAT = t.setSeconds(t.getSeconds() + interval);
+  return expiresAT;
 };
 
 const initPollForm = (kind: PollKind): PollItem => {
@@ -26,7 +27,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       multiple_response: false,
       share: false,
       duration: false,
-      timer: -1,
+      expiresAt: null,
       createdBy: -1,
     };
   }
@@ -58,7 +59,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       multiple_response: true,
       share: false,
       duration: false,
-      timer: -1,
+      expiresAt: null,
       createdBy: -1,
     };
   }
@@ -85,10 +86,28 @@ const initPollForm = (kind: PollKind): PollItem => {
       multiple_response: false,
       share: false,
       duration: false,
-      timer: -1,
+      expiresAt: null,
       createdBy: -1,
     };
   }
 };
 
-export {getDefaultPollTimer, initPollForm};
+const getAttributeLengthInKb = (attribute: string): string => {
+  const b = attribute.length * 2;
+  const kb = (b / 1024).toFixed(2);
+  return kb;
+};
+
+const isAttributeLengthValid = (attribute: string) => {
+  if (getAttributeLengthInKb(attribute) > '8') {
+    return false;
+  }
+  return true;
+};
+
+export {
+  getPollExpiresAtTime,
+  initPollForm,
+  isAttributeLengthValid,
+  POLL_DURATION,
+};

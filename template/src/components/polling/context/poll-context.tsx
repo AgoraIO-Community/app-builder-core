@@ -1,13 +1,11 @@
-import React, {
-  createContext,
-  useReducer,
-  Dispatch,
-  useState,
-  useEffect,
-} from 'react';
+import React, {createContext, useReducer, Dispatch, useState} from 'react';
 import {usePollEvents} from './poll-events';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useLiveStreamDataContext} from '../../../components/contexts/LiveStreamDataContext';
+import {
+  getPollExpiresAtTime,
+  POLL_DURATION,
+} from '../components/form/form-config';
 
 enum PollAccess {
   PUBLIC = 'PUBLIC',
@@ -53,7 +51,7 @@ interface PollItem {
   multiple_response: boolean;
   share: boolean;
   duration: boolean;
-  timer: number;
+  expiresAt: number;
   createdBy: number;
 }
 
@@ -151,6 +149,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const sendPollForm = (item: PollItem) => {
     if (item.status === PollStatus.ACTIVE) {
+      item.expiresAt = getPollExpiresAtTime(POLL_DURATION);
       sendPollEvt(item);
     } else {
       console.error('Poll: Cannot send poll as the status is not active');
