@@ -17,7 +17,7 @@ import {filterObject} from '../../../../utils';
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
 export default function PollFormWizardModal() {
-  const {polls, savePollForm, sendPollForm} = usePoll();
+  const {polls, savePoll, sendPoll} = usePoll();
   const [step, setStep] = useState<FormWizardStep>('SELECT');
   const [type, setType] = useState<PollKind>(null);
   const [form, setForm] = useState<PollItem>(null);
@@ -51,9 +51,9 @@ export default function PollFormWizardModal() {
       status: launch ? PollStatus.ACTIVE : PollStatus.LATER,
       createdBy: localUid,
     };
-    savePollForm(payload);
+    savePoll(payload);
     if (launch) {
-      sendPollForm(payload);
+      sendPoll(payload);
     }
   };
 

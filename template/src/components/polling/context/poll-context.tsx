@@ -106,12 +106,12 @@ function pollReducer(state: Poll, action: PollAction): Poll {
 
 interface PollContextValue {
   polls: Poll;
+  currentStep: PollCurrentStep;
   dispatch: Dispatch<PollAction>;
   startPollForm: () => void;
-  savePollForm: (item: PollItem) => void;
-  sendPollForm: (item: PollItem) => void;
-  currentStep: PollCurrentStep;
-  launchPollForm: (item: PollItem, launchId: string) => void;
+  savePoll: (item: PollItem) => void;
+  sendPoll: (item: PollItem) => void;
+  onPollReceived: (item: PollItem, launchId: string) => void;
   launchPollId: string;
   onSubmitPollResponse: (item: PollItem, response: any) => void;
   goToShareResponseModal: () => void;
@@ -133,12 +133,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
     setCurrentStep('CREATE_POLL');
   };
 
-  const savePollForm = (item: PollItem) => {
+  const savePoll = (item: PollItem) => {
     addOrUpdatePollItem(item);
     setCurrentStep(null);
   };
 
-  const sendPollForm = (item: PollItem) => {
+  const sendPoll = (item: PollItem) => {
     if (item.status === PollStatus.ACTIVE) {
       item.expiresAt = getPollExpiresAtTime(POLL_DURATION);
       sendPollEvt(item);
@@ -148,7 +148,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     }
   };
 
-  const launchPollForm = (item: PollItem, launchId: string) => {
+  const onPollReceived = (item: PollItem, launchId: string) => {
     addOrUpdatePollItem(item);
     if (audienceUids.includes(localUid)) {
       setLaunchPollId(launchId);
@@ -186,9 +186,9 @@ function PollProvider({children}: {children: React.ReactNode}) {
     polls,
     dispatch,
     startPollForm,
-    savePollForm,
-    sendPollForm,
-    launchPollForm,
+    savePoll,
+    sendPoll,
+    onPollReceived,
     currentStep,
     launchPollId,
     onSubmitPollResponse,

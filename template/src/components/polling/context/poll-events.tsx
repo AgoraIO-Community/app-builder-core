@@ -66,26 +66,19 @@ const PollEventsSubscriberContext = createContext<null>(null);
 PollEventsSubscriberContext.displayName = 'PollEventsContext';
 
 function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
-  const {savePollForm, launchPollForm} = usePoll();
+  const {savePoll, onPollReceived} = usePoll();
 
   useEffect(() => {
     events.on(POLL_ATTRIBUTE, args => {
       const {payload, sender, ts} = args;
       const data = JSON.parse(payload);
       const {action, item, activePollId} = data;
-      // console.log(
-      //   'supriya POLLS event received data',
-      //   args,
-      //   data,
-      //   item,
-      //   activePollId,
-      // );
       switch (action) {
         case PollEventActions.sendPoll:
-          launchPollForm(item, activePollId);
+          onPollReceived(item, activePollId);
           break;
         case PollEventActions.sendPollResponse:
-          savePollForm(item);
+          savePoll(item);
           break;
         default:
           break;
@@ -95,7 +88,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
     return () => {
       events.off(POLL_ATTRIBUTE);
     };
-  }, [launchPollForm, savePollForm]);
+  }, [onPollReceived, savePoll]);
 
   return (
     <PollEventsSubscriberContext.Provider value={null}>
