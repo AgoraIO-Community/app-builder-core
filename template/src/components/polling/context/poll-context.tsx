@@ -127,7 +127,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const localUid = useLocalUid();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
 
-  const {sendPollEvt, sendPollResponseEvt} = usePollEvents();
+  const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   const startPollForm = () => {
     setCurrentStep('CREATE_POLL');
@@ -158,7 +158,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const onSubmitPollResponse = (item: PollItem, response: any) => {
     if (item.type === PollKind.OPEN_ENDED) {
-      sendPollResponseEvt({
+      sendResponseToPollEvt({
         ...item,
         answers: [
           ...(Array.isArray(item.answers) ? item.answers : []),

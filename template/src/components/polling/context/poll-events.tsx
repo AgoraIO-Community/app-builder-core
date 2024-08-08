@@ -5,12 +5,12 @@ import {PollItem, usePoll} from './poll-context';
 const POLL_ATTRIBUTE = 'polls';
 enum PollEventActions {
   sendPoll = 'SEND_POLL',
-  sendPollResponse = 'SEND_POLL_RESPONSE',
+  sendResponseToPoll = 'SEND_RESONSE_TO_POLL',
 }
 
 interface PollEventsContextValue {
   sendPollEvt: (poll: PollItem) => void;
-  sendPollResponseEvt: (poll: PollItem) => void;
+  sendResponseToPollEvt: (poll: PollItem) => void;
 }
 
 const PollEventsContext = createContext<PollEventsContextValue | null>(null);
@@ -29,11 +29,11 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
       PersistanceLevel.Channel,
     );
   };
-  const sendPollResponseEvt = async (poll: PollItem) => {
+  const sendResponseToPollEvt = async (poll: PollItem) => {
     events.send(
       POLL_ATTRIBUTE,
       JSON.stringify({
-        action: PollEventActions.sendPollResponse,
+        action: PollEventActions.sendResponseToPoll,
         item: {...poll},
         activePollId: poll.id,
       }),
@@ -43,7 +43,7 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
 
   const value = {
     sendPollEvt,
-    sendPollResponseEvt,
+    sendResponseToPollEvt,
   };
 
   return (
@@ -77,7 +77,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
         case PollEventActions.sendPoll:
           onPollReceived(item, activePollId);
           break;
-        case PollEventActions.sendPollResponse:
+        case PollEventActions.sendResponseToPoll:
           savePoll(item);
           break;
         default:
