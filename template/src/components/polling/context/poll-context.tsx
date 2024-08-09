@@ -29,6 +29,7 @@ interface PollItemOptionItem {
   text: string;
   value: string;
   votes: Array<{uid: number; access: PollAccess; timestamp: number}> | [];
+  percent: string;
 }
 interface PollItem {
   id: string;
@@ -99,32 +100,39 @@ type PollAction =
 //     };
 //   };
 
+function addVote(
+  responses: string[],
+  options: PollItemOptionItem[],
+  uid: number,
+  timestamp: number,
+): PollItemOptionItem[] {
+  return options.map((option: PollItemOptionItem) => {
+    // Count how many times the value appears in the strings array
+    const exists = responses.findIndex(str => str === option.value);
+    if (exists > 0) {
+      // Return a new object with an updated votes array
+      const totalVotes =
+        options.reduce((total, item) => total + item.votes.length, 0) + 1;
+      const optionVotes = option.votes.length + 1;
+      return {
+        ...option,
+        votes: [
+          ...option.votes,
+          {
+            uid,
+            access: PollAccess.PUBLIC,
+            timestamp,
+          },
+        ],
+        percent: ((optionVotes / totalVotes) * 100).toFixed(2),
+      };
+    }
+    // If no matches, return the option as is
+    return option;
+  });
+}
+
 function pollReducer(state: Poll, action: PollAction): Poll {
-  function addVote(
-    responses: string[],
-    options: PollItemOptionItem[],
-  ): PollItemOptionItem[] {
-    return options.map((option: PollItemOptionItem) => {
-      // Count how many times the value appears in the strings array
-      const exists = responses.findIndex(str => str === option.value);
-      if (exists > 0) {
-        // Return a new object with an updated votes array
-        return {
-          ...option,
-          votes: [
-            ...option.votes,
-            {
-              uid: 123,
-              access: PollAccess.PUBLIC,
-              timestamp: Date.now(),
-            },
-          ],
-        };
-      }
-      // If no matches, return the option as is
-      return option;
-    });
-  }
   switch (action.type) {
     case PollActionKind.ADD_POLL_ITEM: {
       const pollId = action.payload.item.id;
@@ -157,7 +165,12 @@ function pollReducer(state: Poll, action: PollAction): Poll {
             ...state,
             [pollId]: {
               ...state[pollId],
-              options: addVote(responses, state[pollId].options),
+              options: addVote(
+                responses,
+                state[pollId].options,
+                uid,
+                timestamp,
+              ),
             },
           };
         }
