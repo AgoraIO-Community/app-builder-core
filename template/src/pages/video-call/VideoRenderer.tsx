@@ -38,6 +38,7 @@ import {
   moreBtnViewWhiteboard,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {useFullScreen} from '../../utils/useFullScreen';
 export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -49,6 +50,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   CustomChild,
 }) => {
   const {height, width} = useWindowDimensions();
+  const {requestFullscreen} = useFullScreen();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
   const {pinnedUid, secondaryPinnedUid} = useContent();
@@ -244,7 +246,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                         pinnedUid &&
                         pinnedUid == user.uid &&
                         !isScreenShareOnFullView
-                          ? 160 + (isAndroid() ? 15 : 0)
+                          ? //160 + (isAndroid() ? 15 : 0)
+                            8
                           : 8,
                       zIndex: 999,
                       elevation: 999,
@@ -255,53 +258,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                   setWhiteboardOnFullScreen(!isWhiteboardOnFullScreen);
                 } else {
                   if (isMobileUA()) {
-                    try {
-                      /**
-                       * Agora assign user uid in the video tag container element
-                       * 0 - local user
-                       * 1 - local screen
-                       * actual user uid - for rest of remote stream
-                       *
-                       * this button only visible for remote screenshare in mobile web
-                       * so we don't need to compare 0 and 1
-                       *
-                       * agora assign uid to parent div of video element
-                       * so that's reason we are access children element to get the video element
-                       *
-                       * we can requestFullScreen for parent div
-                       * but it won't have auto rotate as soon fullscreen enabled and timer/exit full screen buttons
-                       *
-                       * Sample structure
-                       * <div id="0" >
-                       *   <div>
-                       *    <video />
-                       *   </div>
-                       * </div>
-                       *  */
-                      const fullScreenElement = document.getElementById(
-                        user.uid,
-                      )?.children[0]?.children[0];
-                      if (
-                        !document.fullscreenElement &&
-                        fullScreenElement?.requestFullscreen
-                      ) {
-                        //without settimeout its making whole application into full screen not the video element
-                        setTimeout(() => {
-                          fullScreenElement?.requestFullscreen();
-                        }, 100);
-                      } else {
-                        if (!fullScreenElement?.requestFullscreen) {
-                          setScreenShareFullScreen();
-                        }
-                      }
-                    } catch (error) {
-                      logger.error(
-                        LogSource.Internals,
-                        'SCREENSHARE',
-                        'Error on requesting screenshare on fullscreen',
-                        error,
-                      );
-                    }
+                    requestFullscreen(user.uid).catch(() => {
+                      setScreenShareFullScreen();
+                    });
                   } else {
                     setScreenShareFullScreen();
                   }
