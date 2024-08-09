@@ -3,6 +3,7 @@ import {PollProvider, usePoll} from '../context/poll-context';
 import PollFormWizardModal from './modals/PollFormWizardModal';
 import {PollEventsProvider, PollEventsSubscriber} from '../context/poll-events';
 import PollResponseFormModal from './modals/PollResponseFormModal';
+import SharePollModal from './modals/SharePollModal';
 
 function Poll({children}: {children?: React.ReactNode}) {
   return (
@@ -23,6 +24,7 @@ function PollModals() {
       {currentStep === 'RESPOND_TO_POLL' && launchPollId && (
         <PollResponseFormModal />
       )}
+      {currentStep === 'SHARE_POLL' && <SharePollModal />}
     </>
   );
 }

@@ -4,20 +4,25 @@ import {
   PollResponseFormComplete,
   PollResponseFormModalTitle,
   PollResponseQuestionForm,
+  PollResponseMCQForm,
 } from '../form/poll-response-forms';
 import {PollKind, usePoll} from '../../context/poll-context';
 
 export default function PollResponseFormModal() {
-  const {polls, launchPollId, goToShareResponseModal} = usePoll();
+  const {polls, launchPollId, sendResponseToPoll} = usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
+
   const pollItem = polls[launchPollId];
 
-  const onFormComplete = () => {
-    if (pollItem.share) {
-      goToShareResponseModal();
-    } else {
-      setHasResponded(true);
-    }
+  const onFormComplete = (responses: string | string[]) => {
+    // console.log('response: ', response);
+    // sendResponseToPoll(pollItem, response);
+    //   if (pollItem.share) {
+    //     // goToShareResponseModal();
+    //   } else {
+    //     setHasResponded(true);
+    //   }
+    // }
   };
 
   function renderForm(type: PollKind) {
@@ -25,6 +30,13 @@ export default function PollResponseFormModal() {
       case PollKind.OPEN_ENDED:
         return (
           <PollResponseQuestionForm
+            pollItem={pollItem}
+            onComplete={onFormComplete}
+          />
+        );
+      case PollKind.MCQ:
+        return (
+          <PollResponseMCQForm
             pollItem={pollItem}
             onComplete={onFormComplete}
           />

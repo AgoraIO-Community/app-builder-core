@@ -8,6 +8,9 @@ import {
 import ThemeConfig from '../../../../theme';
 import TertiaryButton from '../../../../atoms/TertiaryButton';
 import {PollItem} from '../../context/poll-context';
+import {POLL_DURATION} from './form-config';
+import RadioButton from '../../ui/RadioButton';
+import Checkbox from '../../../../atoms/Checkbox';
 
 interface Props {
   form: PollItem;
@@ -22,16 +25,38 @@ export default function PreviewPollFormView({form, onEdit, onSave}: Props) {
       <BaseModalContent>
         <View style={style.previewContainer}>
           {form.duration && (
-            <Text style={style.previewTimer}>{form.timer}</Text>
+            <Text style={style.previewTimer}>{POLL_DURATION}</Text>
           )}
           <Text style={style.previewQuestion}>{form.question}</Text>
           {form?.options ? (
             <View style={style.previewOptionSection}>
-              {form.options.map((option, index) => (
-                <View style={style.previewOptionCard} key={index}>
-                  <Text style={style.previewOptionText}>{option.text}</Text>
-                </View>
-              ))}
+              {form.multiple_response
+                ? form.options.map((option, index) => (
+                    <View style={style.previewOptionCard} key={index}>
+                      <Checkbox
+                        key={index}
+                        checked={false}
+                        disabled={true}
+                        label={option.text}
+                        labelStye={style.previewOptionText}
+                        onChange={() => {}}
+                      />
+                    </View>
+                  ))
+                : form.options.map((option, index) => (
+                    <View style={style.previewOptionCard} key={index}>
+                      <RadioButton
+                        disabled
+                        option={{
+                          label: option.text,
+                          value: option.value,
+                        }}
+                        labelStyle={style.previewOptionText}
+                        checked={false}
+                        onChange={() => {}}
+                      />
+                    </View>
+                  ))}
             </View>
           ) : (
             <></>

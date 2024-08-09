@@ -44,7 +44,8 @@ export default function SelectNewPollTypeFormView({
         <View style={style.section}>
           {newPollTypeConfig.map((item: newPollType) => (
             <TouchableOpacity
-              style={{outlineStyle: 'none'}}
+              importantForAccessibility="no"
+              accessibilityRole="button"
               key={item.key}
               onPress={() => {
                 setType(item.key);

@@ -11,6 +11,7 @@ import Checkbox from '../../../../atoms/Checkbox';
 import IconButton from '../../../../atoms/IconButton';
 import PrimaryButton from '../../../../atoms/PrimaryButton';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
+import {nanoid} from 'nanoid';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -39,7 +40,7 @@ export default function DraftPollFormView({
     });
   };
 
-  const handleCheckboxChange = (field: string, value: boolean) => {
+  const handleCheckboxChange = (field: keyof typeof form, value: boolean) => {
     setForm({
       ...form,
       [field]: value,
@@ -69,7 +70,11 @@ export default function DraftPollFormView({
         ...form,
         options: form.options.map((option, i) => {
           if (i === index) {
-            const lowerText = value.replace(/\s+/g, '-').toLowerCase();
+            const lowerText = value
+              .replace(/\s+/g, '-')
+              .toLowerCase()
+              .concat('-')
+              .concat(nanoid(2));
             return {
               ...option,
               text: value,
@@ -217,7 +222,10 @@ export default function DraftPollFormView({
                     label={'Allow mutiple selections'}
                     labelStye={style.pFormOptionText}
                     onChange={() => {
-                      handleCheckboxChange('multiple', !form.multiple_response);
+                      handleCheckboxChange(
+                        'multiple_response',
+                        !form.multiple_response,
+                      );
                     }}
                   />
                 ) : (

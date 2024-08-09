@@ -2,7 +2,7 @@ import {useEffect, useState, useRef} from 'react';
 
 const useCountdown = (targetDate: number) => {
   const countDownDate = new Date(targetDate).getTime();
-  const intervalRef = useRef(null); // Add a ref to store the interval id
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Add a ref to store the interval id
 
   const [countDown, setCountDown] = useState(
     countDownDate - new Date().getTime(),
@@ -10,19 +10,22 @@ const useCountdown = (targetDate: number) => {
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      setCountDown(countDownDate - new Date().getTime());
+      setCountDown(_ => {
+        const newCountDown = countDownDate - new Date().getTime();
+        if (newCountDown <= 0) {
+          clearInterval(intervalRef.current!);
+          return 0;
+        }
+        return newCountDown;
+      });
     }, 1000);
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [countDownDate]);
-
-  useEffect(() => {
-    const time = getReturnValues(countDown);
-    const isAllZero = time.every(item => item === 0);
-    if (isAllZero) {
-      clearInterval(intervalRef.current);
-    }
-  }, [countDown]);
 
   return getReturnValues(countDown);
 };

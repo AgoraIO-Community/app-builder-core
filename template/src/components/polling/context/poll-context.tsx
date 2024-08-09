@@ -25,24 +25,23 @@ enum PollKind {
 
 type PollCurrentStep = 'CREATE_POLL' | 'RESPOND_TO_POLL' | 'SHARE_POLL';
 
+interface PollItemOptionItem {
+  text: string;
+  value: string;
+  votes: Array<{uid: number; access: PollAccess; timestamp: number}> | [];
+}
 interface PollItem {
   id: string;
   type: PollKind;
   access: PollAccess; // remove it as poll are not private or public but the response will be public or private
   status: PollStatus;
   question: string;
-  answers:
-    | {
-        uid: number;
-        response: string;
-        timestamp: number;
-      }[]
-    | null;
-  options: Array<{
-    text: string;
-    value: string;
-    votes: [{uid: number; access: PollAccess; timestamp: number}];
+  answers: Array<{
+    uid: number;
+    response: string;
+    timestamp: number;
   }> | null;
+  options: Array<PollItemOptionItem> | null;
   multiple_response: boolean;
   share: boolean;
   duration: boolean;
@@ -62,7 +61,8 @@ interface PollFormErrors {
 }
 
 enum PollActionKind {
-  ADD_OR_UPDATE_POLL_ITEM = 'ADD_OR_UPDATE_POLL_ITEM',
+  ADD_POLL_ITEM = 'ADD_POLL_ITEM',
+  UPDATE_POLL_ITEM_RESPONSES = 'UPDATE_POLL_ITEM_RESPONSES',
   LAUNCH_POLL_ITEM = 'LAUNCH_POLL_ITEM',
   SUBMIT_POLL_OPEN_ENDED_RESPONSE = 'SUBMIT_POLL_OPEN_ENDED_RESPONSE',
   START_POLL_TIMER = 'START_POLL_TIMER',
@@ -70,12 +70,22 @@ enum PollActionKind {
 
 type PollAction =
   | {
-      type: PollActionKind.ADD_OR_UPDATE_POLL_ITEM;
-      payload: {item: PollItem; pollId?: string};
+      type: PollActionKind.ADD_POLL_ITEM;
+      payload: {item: PollItem};
     }
   | {
       type: PollActionKind.START_POLL_TIMER;
       payload: {item: PollItem};
+    }
+  | {
+      type: PollActionKind.UPDATE_POLL_ITEM_RESPONSES;
+      payload: {
+        id: string;
+        type: PollKind;
+        responses: string | string[];
+        uid: number;
+        timestamp: number;
+      };
     };
 // | {
 //     type: PollActionKind.SUBMIT_POLL_OPEN_ENDED_RESPONSE;
@@ -90,14 +100,69 @@ type PollAction =
 //   };
 
 function pollReducer(state: Poll, action: PollAction): Poll {
+  function addVote(
+    responses: string[],
+    options: PollItemOptionItem[],
+  ): PollItemOptionItem[] {
+    return options.map((option: PollItemOptionItem) => {
+      // Count how many times the value appears in the strings array
+      const exists = responses.findIndex(str => str === option.value);
+      if (exists > 0) {
+        // Return a new object with an updated votes array
+        return {
+          ...option,
+          votes: [
+            ...option.votes,
+            {
+              uid: 123,
+              access: PollAccess.PUBLIC,
+              timestamp: Date.now(),
+            },
+          ],
+        };
+      }
+      // If no matches, return the option as is
+      return option;
+    });
+  }
   switch (action.type) {
-    case PollActionKind.ADD_OR_UPDATE_POLL_ITEM: {
+    case PollActionKind.ADD_POLL_ITEM: {
       const pollId = action.payload.item.id;
       return {
         ...state,
         [pollId]: {...action.payload.item},
       };
     }
+    case PollActionKind.UPDATE_POLL_ITEM_RESPONSES:
+      {
+        const {id: pollId, uid, responses, type, timestamp} = action.payload;
+        if (type === PollKind.OPEN_ENDED && typeof responses === 'string') {
+          return {
+            ...state,
+            [pollId]: {
+              ...state[pollId],
+              answers: [
+                ...state[pollId].answers,
+                {
+                  uid,
+                  response: responses,
+                  timestamp,
+                },
+              ],
+            },
+          };
+        }
+        if (type === PollKind.MCQ && Array.isArray(responses)) {
+          return {
+            ...state,
+            [pollId]: {
+              ...state[pollId],
+              options: addVote(responses, state[pollId].options),
+            },
+          };
+        }
+      }
+      break;
     default: {
       return state;
     }
@@ -112,8 +177,15 @@ interface PollContextValue {
   savePoll: (item: PollItem) => void;
   sendPoll: (item: PollItem) => void;
   onPollReceived: (item: PollItem, launchId: string) => void;
+  onPollResponseReceived: (
+    id: string,
+    type: PollKind,
+    responses: string | string[],
+    sender: number,
+    ts: number,
+  ) => void;
   launchPollId: string;
-  onSubmitPollResponse: (item: PollItem, response: any) => void;
+  sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
   goToShareResponseModal: () => void;
 }
 
@@ -125,7 +197,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const [currentStep, setCurrentStep] = useState<PollCurrentStep>(null);
   const [launchPollId, setLaunchPollId] = useState<string>(null);
   const localUid = useLocalUid();
-  const {audienceUids, hostUids} = useLiveStreamDataContext();
+  const {audienceUids} = useLiveStreamDataContext();
 
   const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
 
@@ -134,7 +206,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const savePoll = (item: PollItem) => {
-    addOrUpdatePollItem(item);
+    addPollItem(item);
     setCurrentStep(null);
   };
 
@@ -149,29 +221,48 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const onPollReceived = (item: PollItem, launchId: string) => {
-    addOrUpdatePollItem(item);
+    addPollItem(item);
     if (audienceUids.includes(localUid)) {
       setLaunchPollId(launchId);
       setCurrentStep('RESPOND_TO_POLL');
     }
   };
 
-  const onSubmitPollResponse = (item: PollItem, response: any) => {
-    if (item.type === PollKind.OPEN_ENDED) {
-      sendResponseToPollEvt({
-        ...item,
-        answers: [
-          ...(Array.isArray(item.answers) ? item.answers : []),
-          {uid: localUid, response, timestamp: Date.now()},
-        ],
-      });
-      // setLaunchPollId(null);
+  const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
+    if (
+      (item.type === PollKind.OPEN_ENDED && typeof responses === 'string') ||
+      (item.type === PollKind.MCQ && Array.isArray(responses))
+    ) {
+      sendResponseToPollEvt(item, responses);
+    } else {
+      throw new Error(
+        'sendResponseToPoll received incorrect type response. Unable to send poll response',
+      );
     }
   };
 
-  const addOrUpdatePollItem = (item: PollItem) => {
+  const onPollResponseReceived = (
+    id: string,
+    type: PollKind,
+    responses: string | string[],
+    sender: number,
+    ts: number,
+  ) => {
     dispatch({
-      type: PollActionKind.ADD_OR_UPDATE_POLL_ITEM,
+      type: PollActionKind.UPDATE_POLL_ITEM_RESPONSES,
+      payload: {
+        id,
+        type,
+        responses,
+        uid: sender,
+        timestamp: ts,
+      },
+    });
+  };
+
+  const addPollItem = (item: PollItem) => {
+    dispatch({
+      type: PollActionKind.ADD_POLL_ITEM,
       payload: {
         item: {...item},
       },
@@ -189,9 +280,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
     savePoll,
     sendPoll,
     onPollReceived,
+    onPollResponseReceived,
     currentStep,
     launchPollId,
-    onSubmitPollResponse,
+    sendResponseToPoll,
     goToShareResponseModal,
   };
 
@@ -215,4 +307,4 @@ export {
   PollAccess,
 };
 
-export type {PollItem, PollCurrentStep, PollFormErrors};
+export type {PollItem, PollCurrentStep, PollFormErrors, PollItemOptionItem};

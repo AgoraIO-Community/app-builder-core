@@ -43,17 +43,17 @@ const initPollForm = (kind: PollKind): PollItem => {
         {
           text: '',
           value: '',
-          votes: null,
+          votes: [],
         },
         {
           text: '',
           value: '',
-          votes: null,
+          votes: [],
         },
         {
           text: '',
           value: '',
-          votes: null,
+          votes: [],
         },
       ],
       multiple_response: true,
@@ -75,12 +75,12 @@ const initPollForm = (kind: PollKind): PollItem => {
         {
           text: 'YES',
           value: 'yes',
-          votes: null,
+          votes: [],
         },
         {
           text: 'No',
           value: 'no',
-          votes: null,
+          votes: [],
         },
       ],
       multiple_response: false,

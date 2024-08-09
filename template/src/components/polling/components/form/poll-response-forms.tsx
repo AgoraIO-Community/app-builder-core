@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {BaseModalContent, BaseModalActions} from '../../ui/BaseModal';
 import ThemeConfig from '../../../../theme';
 import PrimaryButton from '../../../../atoms/PrimaryButton';
-import {PollItem, usePoll} from '../../context/poll-context';
+import {PollItem} from '../../context/poll-context';
 import PollTimer from '../PollTimer';
 import {videoRoomUserFallbackText} from '../../../../language/default-labels/videoCallScreenLabels';
 import {useContent} from 'customization-api';
@@ -11,6 +11,9 @@ import {UidType} from '../../../../../agora-rn-uikit/src';
 import {useString} from '../../../../utils/useString';
 import UserAvatar from '../../../../atoms/UserAvatar';
 import ImageIcon from '../../../../atoms/ImageIcon';
+import Checkbox from '../../../../atoms/Checkbox';
+import RadioButton from '../../ui/RadioButton';
+import Spacer from '../../../../atoms/Spacer';
 
 interface Props {
   pollItem: PollItem;
@@ -64,7 +67,7 @@ function PollResponseFormComplete() {
 
 interface PollResponseFormProps {
   pollItem: PollItem;
-  onComplete: () => void;
+  onComplete: (responses: string | string[]) => void;
 }
 
 function PollResponseQuestionForm({
@@ -72,15 +75,19 @@ function PollResponseQuestionForm({
   onComplete,
 }: PollResponseFormProps) {
   const [answer, setAnswer] = useState('');
-  const {onSubmitPollResponse} = usePoll();
+  const [isFormFreezed, setFreezeForm] = useState<boolean>(false);
 
   return (
     <>
       <BaseModalContent>
-        <PollTimer expiresAt={pollItem.expiresAt} />
+        <PollTimer
+          expiresAt={pollItem.expiresAt}
+          setFreezeForm={setFreezeForm}
+        />
         <Text style={style.heading4}>{pollItem.question}</Text>
         <View>
           <TextInput
+            editable={!isFormFreezed}
             autoComplete="off"
             style={style.pFormTextarea}
             multiline={true}
@@ -97,15 +104,14 @@ function PollResponseQuestionForm({
       <BaseModalActions>
         <View style={style.responseActions}>
           <PrimaryButton
+            disabled={isFormFreezed}
             containerStyle={style.btnContainer}
             textStyle={style.btnText}
             onPress={() => {
-              try {
-                onSubmitPollResponse(pollItem, answer);
-                onComplete();
-              } catch (error) {
-                console.error('error: ', error);
+              if (!answer || answer.trim() === '') {
+                return;
               }
+              onComplete(answer);
             }}
             text="Submit"
           />
@@ -115,8 +121,91 @@ function PollResponseQuestionForm({
   );
 }
 
+function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
+  const [isFormFreezed, setFreezeForm] = useState<boolean>(false);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleCheckboxToggle = (value: string) => {
+    setSelectedOptions(prevSelectedOptions => {
+      if (prevSelectedOptions.includes(value)) {
+        return prevSelectedOptions.filter(option => option !== value);
+      } else {
+        return [...prevSelectedOptions, value];
+      }
+    });
+  };
+
+  const handleRadioSelect = (option: string) => {
+    setSelectedOption(option);
+  };
+
+  const handleSubmit = () => {
+    if (selectedOptions.length === 0 || !selectedOption) {
+      return;
+    }
+    if (pollItem.multiple_response) {
+      onComplete(selectedOption);
+    } else {
+      onComplete(selectedOptions);
+    }
+  };
+
+  return (
+    <BaseModalContent>
+      <View>
+        <PollTimer
+          expiresAt={pollItem.expiresAt}
+          setFreezeForm={setFreezeForm}
+        />
+        <Spacer horizontal={true} size={8} />
+        <Text style={style.heading4}>{pollItem.question}</Text>
+      </View>
+      <View>
+        <View style={style.optionsSection}>
+          {pollItem.multiple_response
+            ? pollItem.options.map((option, index) => (
+                <View style={style.optionCard} key={index}>
+                  <Checkbox
+                    key={index}
+                    checked={selectedOptions.includes(option.value)}
+                    label={option.text}
+                    labelStye={style.optionCardText}
+                    onChange={() => handleCheckboxToggle(option.value)}
+                  />
+                </View>
+              ))
+            : pollItem.options.map((option, index) => (
+                <View style={style.optionCard} key={index}>
+                  <RadioButton
+                    option={{
+                      label: option.text,
+                      value: option.value,
+                    }}
+                    labelStyle={style.optionCardText}
+                    checked={selectedOption === option.value}
+                    onChange={handleRadioSelect}
+                  />
+                </View>
+              ))}
+        </View>
+        <View style={style.responseActions}>
+          <PrimaryButton
+            disabled={isFormFreezed}
+            containerStyle={style.btnContainer}
+            textStyle={style.btnText}
+            onPress={handleSubmit}
+            text="Submit"
+          />
+        </View>
+      </View>
+    </BaseModalContent>
+  );
+}
+
 export {
   PollResponseQuestionForm,
+  PollResponseMCQForm,
   PollResponseFormModalTitle,
   PollResponseFormComplete,
 };
@@ -199,6 +288,29 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  optionsSection: {
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    borderRadius: 9,
+    marginBottom: 32,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    paddingVertical: 8,
+  },
+  optionCard: {
+    display: 'flex',
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  optionCardText: {
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.normal,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    lineHeight: 24,
   },
   //   pFormOptionText: {
   //     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
