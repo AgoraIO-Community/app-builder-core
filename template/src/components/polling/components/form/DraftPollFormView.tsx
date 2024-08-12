@@ -60,7 +60,8 @@ export default function DraftPollFormView({
           {
             text: '',
             value: '',
-            votes: null,
+            votes: [],
+            percent: '',
           },
         ],
       });
@@ -79,7 +80,7 @@ export default function DraftPollFormView({
               ...option,
               text: value,
               value: lowerText,
-              votes: null,
+              votes: [],
             };
           }
           return option;

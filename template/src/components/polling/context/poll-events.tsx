@@ -84,7 +84,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       const {payload} = args;
       const data = JSON.parse(payload);
       const {action, item, activePollId} = data;
-      console.log('supriya event received args: ', action, item);
+      console.log('supriya poll received', data);
       switch (action) {
         case PollEventActions.sendPoll:
           onPollReceived(item, activePollId);
@@ -97,6 +97,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
     events.on(PollEventNames.pollResponse, args => {
       const {payload, sender, ts} = args;
       const data = JSON.parse(payload);
+      console.log('supriya poll response received', data);
       const {type, id, responses} = data;
       onPollResponseReceived(id, type, responses, sender, ts);
     });

@@ -17,7 +17,8 @@ function Poll({children}: {children?: React.ReactNode}) {
 }
 
 function PollModals() {
-  const {currentStep, launchPollId} = usePoll();
+  const {currentStep, launchPollId, polls} = usePoll();
+  console.log('supriya polls data chnaged: ', polls);
   return (
     <>
       {currentStep === 'CREATE_POLL' && <PollFormWizardModal />}

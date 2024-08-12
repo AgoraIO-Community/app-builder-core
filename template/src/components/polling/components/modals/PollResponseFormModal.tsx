@@ -9,20 +9,19 @@ import {
 import {PollKind, usePoll} from '../../context/poll-context';
 
 export default function PollResponseFormModal() {
-  const {polls, launchPollId, sendResponseToPoll} = usePoll();
+  const {polls, launchPollId, sendResponseToPoll, goToShareResponseModal} =
+    usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
 
   const pollItem = polls[launchPollId];
 
   const onFormComplete = (responses: string | string[]) => {
-    // console.log('response: ', response);
-    // sendResponseToPoll(pollItem, response);
-    //   if (pollItem.share) {
-    //     // goToShareResponseModal();
-    //   } else {
-    //     setHasResponded(true);
-    //   }
-    // }
+    sendResponseToPoll(pollItem, responses);
+    if (pollItem.share) {
+      goToShareResponseModal();
+    } else {
+      setHasResponded(true);
+    }
   };
 
   function renderForm(type: PollKind) {

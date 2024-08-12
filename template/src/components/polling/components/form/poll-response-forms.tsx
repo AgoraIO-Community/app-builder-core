@@ -80,10 +80,14 @@ function PollResponseQuestionForm({
   return (
     <>
       <BaseModalContent>
-        <PollTimer
-          expiresAt={pollItem.expiresAt}
-          setFreezeForm={setFreezeForm}
-        />
+        {pollItem.duration ? (
+          <PollTimer
+            expiresAt={pollItem.expiresAt}
+            setFreezeForm={setFreezeForm}
+          />
+        ) : (
+          <></>
+        )}
         <Text style={style.heading4}>{pollItem.question}</Text>
         <View>
           <TextInput
@@ -141,13 +145,13 @@ function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
   };
 
   const handleSubmit = () => {
-    if (selectedOptions.length === 0 || !selectedOption) {
+    if (selectedOptions.length === 0 && !selectedOption) {
       return;
     }
     if (pollItem.multiple_response) {
-      onComplete(selectedOption);
-    } else {
       onComplete(selectedOptions);
+    } else {
+      onComplete(selectedOption);
     }
   };
 

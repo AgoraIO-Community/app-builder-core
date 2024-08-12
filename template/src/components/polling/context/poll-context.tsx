@@ -108,12 +108,8 @@ function addVote(
 ): PollItemOptionItem[] {
   return options.map((option: PollItemOptionItem) => {
     // Count how many times the value appears in the strings array
-    const exists = responses.findIndex(str => str === option.value);
-    if (exists > 0) {
-      // Return a new object with an updated votes array
-      const totalVotes =
-        options.reduce((total, item) => total + item.votes.length, 0) + 1;
-      const optionVotes = option.votes.length + 1;
+    const exists = responses.includes(option.value);
+    if (exists) {
       return {
         ...option,
         votes: [
@@ -124,7 +120,6 @@ function addVote(
             timestamp,
           },
         ],
-        percent: ((optionVotes / totalVotes) * 100).toFixed(2),
       };
     }
     // If no matches, return the option as is
@@ -132,6 +127,29 @@ function addVote(
   });
 }
 
+function calculatePercentage(
+  options: PollItemOptionItem[],
+): PollItemOptionItem[] {
+  const totalVotes = options.reduce(
+    (total, item) => total + item.votes.length,
+    0,
+  );
+  if (totalVotes === 0) {
+    // As none of the users have voted, there is no need to calulate the percentage,
+    // we can return the options as it is
+    return options;
+  }
+  return options.map((option: PollItemOptionItem) => {
+    let percentage = 0;
+    if (option.votes.length > 0) {
+      percentage = (option.votes.length / totalVotes) * 100;
+    }
+    return {
+      ...option,
+      percentage: percentage.toFixed(2), // Format to 2 decimal places
+    };
+  });
+}
 function pollReducer(state: Poll, action: PollAction): Poll {
   switch (action.type) {
     case PollActionKind.ADD_POLL_ITEM: {
@@ -161,16 +179,19 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           };
         }
         if (type === PollKind.MCQ && Array.isArray(responses)) {
+          const newCopyOptions = state[pollId].options.map(item => ({...item}));
+          const withVotesOptions = addVote(
+            responses,
+            newCopyOptions,
+            uid,
+            timestamp,
+          );
+          const withPercentOptions = calculatePercentage(withVotesOptions);
           return {
             ...state,
             [pollId]: {
               ...state[pollId],
-              options: addVote(
-                responses,
-                state[pollId].options,
-                uid,
-                timestamp,
-              ),
+              options: [...withPercentOptions],
             },
           };
         }
