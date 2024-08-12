@@ -92,17 +92,6 @@ type PollAction =
         timestamp: number;
       };
     };
-// | {
-//     type: PollActionKind.SUBMIT_POLL_OPEN_ENDED_RESPONSE;
-//     payload: {
-//       pollId: string;
-//       answerItem: {
-//         uid: number;
-//         response: string;
-//         timestamp: number;
-//       };
-//     };
-//   };
 
 function addVote(
   responses: string[],
@@ -114,7 +103,9 @@ function addVote(
     // Count how many times the value appears in the strings array
     const exists = responses.includes(option.value);
     if (exists) {
-      return {
+      // Creating a new object explicitly
+      const newOption: PollItemOptionItem = {
+        ...option,
         ...option,
         votes: [
           ...option.votes,
@@ -125,6 +116,7 @@ function addVote(
           },
         ],
       };
+      return newOption;
     }
     // If no matches, return the option as is
     return option;
@@ -148,11 +140,13 @@ function calculatePercentage(
     if (option.votes.length > 0) {
       percentage = (option.votes.length / totalVotes) * 100;
     }
-    return {
+    // Creating a new object explicitly
+    const newOption: PollItemOptionItem = {
       ...option,
-      percentage: percentage.toFixed(2), // Format to 2 decimal places
+      percent: percentage.toFixed(2),
     };
-  });
+    return newOption;
+  }) as PollItemOptionItem[];
 }
 function pollReducer(state: Poll, action: PollAction): Poll {
   switch (action.type) {
