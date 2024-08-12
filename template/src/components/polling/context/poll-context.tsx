@@ -23,7 +23,11 @@ enum PollKind {
   YES_NO = 'YES_NO',
 }
 
-type PollCurrentStep = 'CREATE_POLL' | 'RESPOND_TO_POLL' | 'SHARE_POLL';
+enum PollModalState {
+  DRAFT_POLL = 'DRAFT_POLL',
+  RESPOND_TO_POLL = 'RESPOND_TO_POLL',
+  SHARE_POLL_RESULTS = 'SHARE_POLL_RESULTS',
+}
 
 interface PollItemOptionItem {
   text: string;
@@ -205,7 +209,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
 
 interface PollContextValue {
   polls: Poll;
-  currentStep: PollCurrentStep;
+  currentStep: PollModalState;
   dispatch: Dispatch<PollAction>;
   startPollForm: () => void;
   savePoll: (item: PollItem) => void;
@@ -228,7 +232,7 @@ PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
-  const [currentStep, setCurrentStep] = useState<PollCurrentStep>(null);
+  const [currentStep, setCurrentStep] = useState<PollModalState>(null);
   const [launchPollId, setLaunchPollId] = useState<string>(null);
   const localUid = useLocalUid();
   const {audienceUids} = useLiveStreamDataContext();
@@ -236,7 +240,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   const startPollForm = () => {
-    setCurrentStep('CREATE_POLL');
+    setCurrentStep(PollModalState.DRAFT_POLL);
   };
 
   const savePoll = (item: PollItem) => {
@@ -258,7 +262,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     addPollItem(item);
     if (audienceUids.includes(localUid)) {
       setLaunchPollId(launchId);
-      setCurrentStep('RESPOND_TO_POLL');
+      setCurrentStep(PollModalState.RESPOND_TO_POLL);
     }
   };
 
@@ -304,7 +308,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const goToShareResponseModal = () => {
-    setCurrentStep('SHARE_POLL');
+    setCurrentStep(PollModalState.SHARE_POLL_RESULTS);
   };
 
   const value = {
@@ -339,6 +343,7 @@ export {
   PollKind,
   PollStatus,
   PollAccess,
+  PollModalState,
 };
 
-export type {PollItem, PollCurrentStep, PollFormErrors, PollItemOptionItem};
+export type {PollItem, PollFormErrors, PollItemOptionItem};
