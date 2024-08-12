@@ -19,7 +19,7 @@ interface Props {
   labelStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
 }
-export default function RadioButton(props: Props) {
+export default function BaseRadioButton(props: Props) {
   const {option, checked, onChange, disabled, labelStyle = {}} = props;
   return (
     <View>

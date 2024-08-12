@@ -12,7 +12,7 @@ import {useString} from '../../../../utils/useString';
 import UserAvatar from '../../../../atoms/UserAvatar';
 import ImageIcon from '../../../../atoms/ImageIcon';
 import Checkbox from '../../../../atoms/Checkbox';
-import RadioButton from '../../ui/RadioButton';
+import BaseRadioButton from '../../ui/BaseRadioButton';
 import Spacer from '../../../../atoms/Spacer';
 
 interface Props {
@@ -181,7 +181,7 @@ function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
               ))
             : pollItem.options.map((option, index) => (
                 <View style={style.optionCard} key={index}>
-                  <RadioButton
+                  <BaseRadioButton
                     option={{
                       label: option.text,
                       value: option.value,

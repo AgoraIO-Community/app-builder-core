@@ -9,7 +9,7 @@ import ThemeConfig from '../../../../theme';
 import TertiaryButton from '../../../../atoms/TertiaryButton';
 import {PollItem} from '../../context/poll-context';
 import {POLL_DURATION} from './form-config';
-import RadioButton from '../../ui/RadioButton';
+import BaseRadioButton from '../../ui/BaseRadioButton';
 import Checkbox from '../../../../atoms/Checkbox';
 
 interface Props {
@@ -45,7 +45,7 @@ export default function PreviewPollFormView({form, onEdit, onSave}: Props) {
                   ))
                 : form.options.map((option, index) => (
                     <View style={style.previewOptionCard} key={index}>
-                      <RadioButton
+                      <BaseRadioButton
                         disabled
                         option={{
                           label: option.text,
