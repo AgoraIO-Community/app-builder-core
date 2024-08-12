@@ -21,16 +21,24 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import useCaptionWidth from '../subComponents/caption/useCaptionWidth';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {CustomSidePanelHeader} from '../pages/video-call/SidePanelHeader';
 
 export interface CustomSidePanelViewInterface {
   name: string;
-  title: string;
+  title?: string;
   content: React.ComponentType;
-  onClose: () => void;
+  onClose?: () => void;
+  showHeader?: boolean;
 }
 
 const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
-  const {name, title, content: CustomSidePanelContent, onClose} = props;
+  const {
+    content: CustomSidePanelContent,
+    showHeader = true,
+    name,
+    title,
+    onClose,
+  } = props;
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
   const {setSidePanel} = useSidePanel();
@@ -54,20 +62,9 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
         //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
-      <SidePanelHeader
-        centerComponent={<Text style={SidePanelStyles.heading}>{title}</Text>}
-        trailingIconName="close"
-        trailingIconOnPress={() => {
-          setSidePanel(SidePanelType.None);
-          try {
-            onClose && onClose();
-          } catch (error) {
-            console.error(
-              `Error on calling onClose in custom side panel ${name}`,
-            );
-          }
-        }}
-      />
+      {showHeader && (
+        <CustomSidePanelHeader name={name} title={title} onClose={onClose} />
+      )}
       <ScrollView style={[style.bodyContainer]}>
         {CustomSidePanelContent ? <CustomSidePanelContent /> : <></>}
       </ScrollView>

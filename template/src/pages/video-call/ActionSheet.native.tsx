@@ -24,10 +24,30 @@ import {isAndroid, isIOS} from '../../utils/common';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
 import Transcript from '../../subComponents/caption/Transcript';
+import {useCustomization} from 'customization-implementation';
+import CustomSidePanelView from '../../components/CustomSidePanel';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
 const ActionSheet = props => {
+  const [showCustomSidePanel, setShowCustomSidePanel] = useState(false);
+  const [customSidePanelIndex, setCustomSidePanelIndex] = useState<
+    undefined | number
+  >(undefined);
+  const sidePanelArray = useCustomization(data => {
+    if (
+      data?.components &&
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.customSidePanel &&
+        typeof data?.components?.videoCall?.customSidePanel === 'function'
+      ) {
+        return data?.components?.videoCall?.customSidePanel();
+      }
+    }
+  });
   const {snapPointsMinMax = [100, 400]} = props;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {sidePanel, setSidePanel} = useSidePanel();
@@ -36,6 +56,7 @@ const ActionSheet = props => {
   const participantsSheetRef = useRef<BottomSheetModal>(null);
   const settingsSheetRef = useRef<BottomSheetModal>(null);
   const transcriptSheetRef = useRef<BottomSheetModal>(null);
+  const customActionSheetRef = useRef<BottomSheetModal>(null);
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
@@ -47,49 +68,74 @@ const ActionSheet = props => {
     bottomSheetRef?.current.present();
   }, []);
 
+  React.useEffect(() => {
+    if (showCustomSidePanel) {
+      customActionSheetRef?.current.present();
+    } else {
+      customActionSheetRef?.current.close();
+    }
+  }, [showCustomSidePanel]);
+
   // updating on sidepanel changes
   React.useEffect(() => {
     let timeout;
-    switch (sidePanel) {
-      case SidePanelType.Participants: {
-        participantsSheetRef?.current.present();
-        break;
+
+    const selectedIndex = sidePanelArray?.findIndex(item => {
+      if (item?.name === sidePanel && item?.component) {
+        return true;
+      } else {
+        return false;
       }
-      case SidePanelType.Chat: {
-        chatSheetRef?.current.present();
-        break;
-      }
-      case SidePanelType.Settings: {
-        settingsSheetRef?.current.present();
-        break;
-      }
-      case SidePanelType.Transcript: {
-        transcriptSheetRef?.current.present();
-        break;
-      }
-      case SidePanelType.None: {
-        if (isAndroid()) {
-          timeout = setTimeout(() => {
-            // Code to be executed after the timeout until https://github.com/gorhom/react-native-bottom-sheet/pull/1164/files is merged
-            chatSheetRef?.current.close();
+    });
+    if (selectedIndex < 0) {
+      setShowCustomSidePanel(false);
+      setCustomSidePanelIndex(undefined);
+      switch (sidePanel) {
+        case SidePanelType.Participants: {
+          participantsSheetRef?.current.present();
+          break;
+        }
+        case SidePanelType.Chat: {
+          chatSheetRef?.current.present();
+          break;
+        }
+        case SidePanelType.Settings: {
+          settingsSheetRef?.current.present();
+          break;
+        }
+        case SidePanelType.Transcript: {
+          transcriptSheetRef?.current.present();
+          break;
+        }
+        case SidePanelType.None: {
+          if (isAndroid()) {
+            timeout = setTimeout(() => {
+              // Code to be executed after the timeout until https://github.com/gorhom/react-native-bottom-sheet/pull/1164/files is merged
+              chatSheetRef?.current.close();
+              participantsSheetRef?.current.close();
+              settingsSheetRef?.current.close();
+              transcriptSheetRef?.current.close();
+              customActionSheetRef?.current.close();
+              bottomSheetRef?.current.present();
+            }, 200);
+          } else {
+            // Code to be executed immediately without a timer
+            chatSheetRef?.current.dismiss();
             participantsSheetRef?.current.close();
             settingsSheetRef?.current.close();
             transcriptSheetRef?.current.close();
-            bottomSheetRef?.current.present();
-          }, 200);
-        } else {
-          // Code to be executed immediately without a timer
-          chatSheetRef?.current.dismiss();
-          participantsSheetRef?.current.close();
-          settingsSheetRef?.current.close();
-          transcriptSheetRef?.current.close();
-        }
+            customActionSheetRef?.current.close();
+          }
 
-        handleSheetChanges(0);
-        break;
+          handleSheetChanges(0);
+          break;
+        }
+        default:
+          bottomSheetRef?.current.present();
       }
-      default:
-        bottomSheetRef?.current.present();
+    } else {
+      setShowCustomSidePanel(true);
+      setCustomSidePanelIndex(selectedIndex);
     }
     return () => {
       clearTimeout(timeout);
@@ -215,6 +261,36 @@ const ActionSheet = props => {
         stackBehavior="push">
         <BottomSheetView>
           <Transcript showHeader={false} />
+        </BottomSheetView>
+      </BottomSheetModal>
+
+      {/* Custom Action Sheet  */}
+      <BottomSheetModal
+        snapPoints={['100%']}
+        ref={customActionSheetRef}
+        name="CustomSheet"
+        onDismiss={onDismiss}
+        style={styles.container}
+        backgroundStyle={styles.backgroundStyle}
+        handleIndicatorStyle={styles.handleIndicatorStyle}
+        enableContentPanningGesture={false}
+        handleComponent={() => (
+          <ActionSheetHandle
+            isCustomSidePanel={true}
+            customSidePanelProps={{
+              title: sidePanelArray[customSidePanelIndex]?.title,
+              onClose: sidePanelArray[customSidePanelIndex]?.onClose,
+              name: sidePanelArray[customSidePanelIndex]?.name,
+            }}
+          />
+        )}
+        stackBehavior="push">
+        <BottomSheetView>
+          <CustomSidePanelView
+            showHeader={false}
+            content={sidePanelArray[customSidePanelIndex]?.component}
+            name={sidePanelArray[customSidePanelIndex]?.name}
+          />
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>
