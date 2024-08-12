@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useEffect} from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
@@ -26,14 +26,8 @@ import {LogSource, logger} from './logger/AppBuilderLogger';
 import {isValidReactComponent} from './utils/common';
 
 function VideoCallWrapper(props) {
-  const {isRecordingBotRoute} = useIsRecordingBot();
-  logger.debug(
-    LogSource.Internals,
-    'RECORDING',
-    'Check if this is a recording bot route',
-    isRecordingBotRoute,
-  );
-  return isRecordingBotRoute ? (
+  const {isRecordingBot} = useIsRecordingBot();
+  return isRecordingBot ? (
     <RecordingBotRoute history={props.history}>
       <VideoCall />
     </RecordingBotRoute>

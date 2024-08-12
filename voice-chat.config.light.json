@@ -23,7 +23,8 @@
   "MICROSOFT_CLIENT_ID": "",
   "SLACK_CLIENT_ID": "",
   "APPLE_CLIENT_ID": "",
-  "PROFILE": "720p_7",
+  "PROFILE": "720p_3",
+  "SCREEN_SHARE_PROFILE": "1080p_2",
   "EVENT_MODE": false,
   "RAISE_HAND": false,
   "LOG_ENABLED": true,
@@ -72,5 +73,6 @@
   "CHAT_ORG_NAME": "41754367",
   "CHAT_APP_NAME": "1042822",
   "CHAT_URL": "https://a41.chat.agora.io",
-  "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true
+  "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true,
+  "DISABLE_LANDSCAPE_MODE": false
 }

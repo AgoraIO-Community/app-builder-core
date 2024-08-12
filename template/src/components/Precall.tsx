@@ -49,7 +49,7 @@ import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
-import VBPanel from './virtual-background/VBPanel';
+import VBPanel, {VBPanelProps} from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
 import {DeviceSelectProps} from './precall/selectDevice';
@@ -245,6 +245,7 @@ const Precall = () => {
     VideoPreview,
     MeetingName,
     DeviceSelect,
+    VirtualBackgroundComponent,
     PrecallAfterView,
     PrecallBeforeView,
   } = useCustomization(data => {
@@ -252,6 +253,7 @@ const Precall = () => {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType<DeviceSelectProps>;
+      VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       VideoPreview: React.ComponentType;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
@@ -260,6 +262,7 @@ const Precall = () => {
       MeetingName: PreCallMeetingTitle,
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
+      VirtualBackgroundComponent: VBPanel,
     };
     // commented for v1 release
     // if (
@@ -306,6 +309,15 @@ const Precall = () => {
     //     }
     //   }
     // }
+
+    if (
+      data?.components?.precall?.virtualBackgroundPanel &&
+      typeof data?.components?.precall.virtualBackgroundPanel !== 'object' &&
+      isValidReactComponent(data?.components?.precall.virtualBackgroundPanel)
+    ) {
+      components.VirtualBackgroundComponent =
+        data?.components?.precall.virtualBackgroundPanel;
+    }
     return components;
   });
   const {
@@ -491,25 +503,27 @@ const Precall = () => {
                       marginVertical: 0,
                     }
               }>
-              <View style={style.settingHeaderContainer}>
-                <View style={style.settingIconContainer}>
-                  <ImageIcon
-                    name="settings"
-                    iconSize={24}
-                    tintColor={$config.SECONDARY_ACTION_COLOR}
-                    iconType="plain"
-                  />
+              <ScrollView>
+                <View style={style.settingHeaderContainer}>
+                  <View style={style.settingIconContainer}>
+                    <ImageIcon
+                      name="settings"
+                      iconSize={24}
+                      tintColor={$config.SECONDARY_ACTION_COLOR}
+                      iconType="plain"
+                    />
+                  </View>
+                  <Text style={style.settingTextStyle}>{settingsLabel}</Text>
                 </View>
-                <Text style={style.settingTextStyle}>{settingsLabel}</Text>
-              </View>
-              <View style={style.deviceSelectContainer}>
-                <DeviceSelect isOnPrecall={true} />
-              </View>
-              {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
-                <ScrollView style={style.vbPanelContainer}>
-                  <VBPanel isOnPrecall={true} />
-                </ScrollView>
-              )}
+                <View style={style.deviceSelectContainer}>
+                  <DeviceSelect isOnPrecall={true} />
+                </View>
+                {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
+                  <ScrollView style={style.panelContainer}>
+                    <VirtualBackgroundComponent isOnPrecall={true} />
+                  </ScrollView>
+                )}
+              </ScrollView>
             </Card>
           </ScrollView>
         </View>
@@ -530,6 +544,15 @@ const style = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
   },
+  panelContainer: {
+    margin: 24,
+    marginTop: 0,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+  },
   settingTextStyle: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -540,15 +563,7 @@ const style = StyleSheet.create({
   deviceSelectContainer: {
     paddingHorizontal: 24,
   },
-  vbPanelContainer: {
-    margin: 24,
-    marginTop: 0,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
-    borderRadius: 8,
-    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-  },
+
   labelStyle: {
     paddingLeft: 8,
   },

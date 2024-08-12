@@ -149,4 +149,5 @@ export interface IconsInterface {
   'play-circle': string;
   'copy-link': string;
   clipboard_outlined: string;
+  'recording-status': string;
 }

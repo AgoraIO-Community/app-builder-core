@@ -331,9 +331,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     try {
       const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
-      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room', {
-        data: {},
-      });
+      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
       whiteWebSdkClient.current
         .joinRoom({
           cursorAdapter: cursorAdapter,
@@ -349,14 +347,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           },
         })
         .then(room => {
-          logger.log(
-            LogSource.Internals,
-            'WHITEBOARD',
-            'Join room successful',
-            {
-              data: {},
-            },
-          );
+          logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
@@ -429,7 +420,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     } else if (whiteboardActive) {
       join();
     } else {
-      if (whiteboardRoom.current) {
+      if (
+        whiteboardRoom.current &&
+        Object.keys(whiteboardRoom.current)?.length
+      ) {
         leave();
       }
     }

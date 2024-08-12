@@ -61,7 +61,7 @@ const ImagePopup = (props: ImagePopupProps) => {
     React.useState(false);
   const {privateChatUser} = useChatUIControls();
   const {
-    data: {isHost, chat, channel},
+    data: {isHost, chat},
   } = useRoomInfo();
   const {downloadAttachment, deleteAttachment} = useChatConfigure();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
@@ -289,13 +289,7 @@ const ImagePopup = (props: ImagePopupProps) => {
           confirmLabel={confirmLabel}
           confirmLabelStyle={{color: $config.SEMANTIC_ERROR}}
           onConfirmClick={() => {
-            deleteAttachment(
-              msgId,
-              privateChatUser
-                ? channel + '_' + recallFromUser
-                : recallFromUser.toString(),
-              chatType,
-            );
+            deleteAttachment(msgId, recallFromUser.toString(), chatType);
             if (chatType === SDKChatType.SINGLE_CHAT) {
               removeMessageFromPrivateStore(msgId, isLocal);
             }

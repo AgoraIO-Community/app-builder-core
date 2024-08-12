@@ -48,6 +48,8 @@ import {
   whiteboardWidgetZoomInText,
   whiteboardWidgetZoomOutText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import getUniqueID from '../../utils/getUniqueID';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const Seperator = () => {
   return (
@@ -100,7 +102,24 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
     return null;
   }
 
-  const showWhiteboardError = () => {
+  const showWhiteboardError = (
+    error: any,
+    startReqTs: number,
+    endReqTs: number,
+    requestId: string,
+  ) => {
+    logger.error(
+      LogSource.NetworkRest,
+      'whiteboard_screenshot',
+      'API whiteboard_screenshot failed to generated screenshot URL',
+      error,
+      {
+        startReqTs,
+        endReqTs,
+        latency: endReqTs - startReqTs,
+        requestId,
+      },
+    );
     setIsInProgress(false);
     Toast.show({
       leadingIconName: 'alert',
@@ -113,6 +132,8 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
   };
 
   const exportWhiteboard = () => {
+    const startReqTs = Date.now();
+    const requestId = getUniqueID();
     try {
       setIsInProgress(true);
       Toast.show({
@@ -126,21 +147,41 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       const myHeaders2 = new Headers();
       myHeaders2.append('Content-Type', 'application/json');
       myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+      myHeaders2.append('X-Request-Id', requestId);
       const body = JSON.stringify({
         room_uuid: room_uuid,
         path: '/init',
         width: 3840,
         height: 2160,
       });
+      logger.log(
+        LogSource.NetworkRest,
+        'whiteboard_screenshot',
+        'API whiteboard_screenshot trying to send request to server',
+        {body, requestId, startReqTs},
+      );
       fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/screenshot`, {
         method: 'POST',
         headers: myHeaders2,
         body: body,
       })
         .then(async res2 => {
+          const endReqTs = Date.now();
           const data = await res2.json();
           const parsedUrl = data?.url?.replaceAll('\u0026', '&');
           if (parsedUrl) {
+            logger.log(
+              LogSource.NetworkRest,
+              'whiteboard_screenshot',
+              'API whiteboard_screenshot successfully generated screenshot URL',
+              {
+                responseData: res2,
+                start: startReqTs,
+                end: endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
             Toast.show({
               leadingIconName: 'tick-fill',
               type: 'success',
@@ -155,14 +196,16 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
             });
             setIsInProgress(false);
           } else {
-            showWhiteboardError();
+            showWhiteboardError({}, startReqTs, endReqTs, requestId);
           }
         })
-        .catch(() => {
-          showWhiteboardError();
+        .catch(error => {
+          const endReqTs = Date.now();
+          showWhiteboardError(error, startReqTs, endReqTs, requestId);
         });
     } catch (error) {
-      showWhiteboardError();
+      const endReqTs = Date.now();
+      showWhiteboardError(error, startReqTs, endReqTs, requestId);
     }
 
     /* local download file

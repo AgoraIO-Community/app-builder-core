@@ -1,5 +1,6 @@
 import {ClientRoleType} from '../../../agora-rn-uikit';
 import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
+import {VBMode} from '../../components/virtual-background/useVB';
 
 export interface PrecallJoinBtnTextInterface {
   ready: boolean;
@@ -45,9 +46,8 @@ export const precallInputGettingName = 'precallInputGettingName';
 
 export const vbPanelHeading = 'vbPanelHeading';
 export const vbPanelInfo = 'vbPanelInfo';
-export const vbPanelOptionNoneText = 'vbPanelOptionNoneText';
-export const vbPanelOptionBlurText = 'vbPanelOptionBlurText';
-export const vbPanelOptionCustomText = 'vbPanelOptionCustomText';
+
+export const vbOptionText = 'vbOptionText';
 
 export interface I18nPrecallScreenLabelsInterface {
   [permissionPopupHeading]?: I18nBaseType;
@@ -81,9 +81,8 @@ export interface I18nPrecallScreenLabelsInterface {
 
   [vbPanelHeading]?: I18nBaseType;
   [vbPanelInfo]?: I18nConditionalType;
-  [vbPanelOptionNoneText]?: I18nBaseType;
-  [vbPanelOptionBlurText]?: I18nBaseType;
-  [vbPanelOptionCustomText]?: I18nBaseType;
+
+  [vbOptionText]?: I18nBaseType<VBMode>;
 
   [precallInputGettingName]?: I18nBaseType;
 }
@@ -151,7 +150,17 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
     isCamOn
       ? 'Camera is currently off. Selected background will be applied as soon as your camera turns on.'
       : 'Your camera is switched off. Save a background to apply once it’s turned on.',
-  [vbPanelOptionNoneText]: 'None',
-  [vbPanelOptionBlurText]: 'Blur',
-  [vbPanelOptionCustomText]: 'Custom',
+
+  [vbOptionText]: mode => {
+    switch (mode) {
+      case 'none':
+        return 'None';
+      case 'custom':
+        return 'Custom';
+      case 'blur':
+        return 'Blur';
+      default:
+        return '';
+    }
+  },
 };

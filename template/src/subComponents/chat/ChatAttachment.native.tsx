@@ -128,13 +128,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         const option = {
           type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
           url: filePath,
-          to: privateChatUser
-            ? data.channel + '_' + privateChatUser.toString()
-            : groupID,
+          to: privateChatUser ? privateChatUser.toString() : groupID,
           chatType: privateChatUser
             ? SDKChatType.SINGLE_CHAT
             : SDKChatType.GROUP_CHAT,
-          from: data.channel + '_' + data.uid.toString(),
+          from: data.uid.toString(),
           fileName: result[0].name,
           ext: {
             file_length: result[0].size,
@@ -173,13 +171,9 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
 
           // this is local user messages
           if (message.chatType === ChatMessageChatType.PeerChat) {
-            addMessageToPrivateStore(
-              Number(message.to.split('_')[1]),
-              messageData,
-              true,
-            );
+            addMessageToPrivateStore(Number(message.to), messageData, true);
           } else {
-            addMessageToStore(Number(message.from.split('_')[1]), messageData);
+            addMessageToStore(Number(message.from), messageData);
           }
 
           setUploadStatus(UploadStatus.SUCCESS);

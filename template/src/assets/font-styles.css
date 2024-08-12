@@ -46,6 +46,10 @@
   margin-left: -1em;
   color: rgb(0, 0, 0);
 }
+.icon-recording-status:before {
+  content: '\e99f';
+  color: #ff414d;
+}
 .icon-copy-link:before {
   content: '\e99e';
   color: #fff;

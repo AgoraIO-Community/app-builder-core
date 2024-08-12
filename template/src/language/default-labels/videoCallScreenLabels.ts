@@ -76,6 +76,8 @@ export enum I18nDeviceStatus {
   ON = 1,
 }
 
+export const blockLandscapeModeMessageText = 'blockLandscapeModeMessageText';
+
 export const toolbarItemPeopleText = 'toolbarItemPeopleText';
 export const toolbarItemChatText = 'toolbarItemChatText';
 export const toolbarItemSettingText = 'toolbarItemSettingText';
@@ -529,6 +531,8 @@ export const videoRoomPeopleCountTooltipAttendeeText =
   `video${room}PeopleCountTooltipAttendeeText` as const;
 
 export interface I18nVideoCallScreenLabelsInterface {
+  [blockLandscapeModeMessageText]?: I18nBaseType;
+
   [toolbarItemPeopleText]?: I18nBaseType;
   [toolbarItemChatText]?: I18nBaseType;
   [toolbarItemSettingText]?: I18nBaseType;
@@ -840,6 +844,9 @@ export interface I18nVideoCallScreenLabelsInterface {
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
+  [blockLandscapeModeMessageText]:
+    'Please change to portrait mode to further access our application.',
+
   [toolbarItemPeopleText]: 'People',
   [toolbarItemChatText]: 'Chat',
   [toolbarItemSettingText]: 'Settings',
@@ -1254,8 +1261,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [waitingRoomApprovalRejectionToastSubHeading]:
     'Permission to enter the meeting was denied by the host',
 
-  [videoRoomRecordingText]: mode =>
-    mode === 'MIX' ? 'Cloud recording' : 'Web recording',
+  [videoRoomRecordingText]: 'REC',
 
   [videoRoomGoToActiveSpeakerText]: 'Go To Active Speaker',
   [videoRoomScreenshareText]: username => `${username}'s screenshare`,

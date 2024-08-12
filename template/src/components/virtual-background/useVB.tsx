@@ -1,32 +1,37 @@
 import {createHook} from 'customization-implementation';
 import React, {useContext} from 'react';
 import {useEffect, useRef} from 'react';
-import {SidePanelType, useRtc, useSidePanel} from 'customization-api';
+import {
+  SidePanelType,
+  useLocalUserInfo,
+  useRtc,
+  useSidePanel,
+} from 'customization-api';
 import AgoraRTC, {ILocalVideoTrack} from 'agora-rtc-sdk-ng';
 import Image from 'react-native';
 import VirtualBackgroundExtension from 'agora-extension-virtual-background';
 //@ts-ignore
 import wasm1 from '../../wasms/agora-virtual-background.wasm';
 import {IconsInterface} from '../../atoms/CustomIcon';
-import {PropsContext} from '../../../agora-rn-uikit';
+import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {isMobileUA} from '../../utils/common';
-import {retrieveImagesFromIndexDB} from './VButils';
+import {retrieveImagesFromStorage} from './VButils';
 import imagePathsArray from './imagePaths';
-import getUniqueID from '../../../src/utils/getUniqueID';
-import {TextDataInterface} from '../../../src/language/default-labels';
-//@ts-ignore
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export type VBMode = 'blur' | 'image' | 'custom' | 'none';
 
 export type Option = {
   type: VBMode;
-  icon: keyof IconsInterface;
+  icon?: keyof IconsInterface;
   path?: string & {default?: string};
   label?: string;
-  id?: string;
-  translationKey?: keyof TextDataInterface;
+  isSelected?: boolean;
 };
 
+export type VBProcessorType = ReturnType<
+  VirtualBackgroundExtension['_createProcessor']
+> | null;
 // processors for the main view and preview view
 let mainViewProcessor: ReturnType<
   VirtualBackgroundExtension['_createProcessor']
@@ -37,17 +42,26 @@ let previewViewProcessor: ReturnType<
 
 // fn to initialize processors
 const initializeProcessors = () => {
-  const mainViewExtension = new VirtualBackgroundExtension();
-  AgoraRTC.registerExtensions([mainViewExtension]);
-  mainViewProcessor = mainViewExtension.createProcessor();
-  mainViewProcessor.init(wasm1).then(() => {
-    mainViewProcessor.disable();
-  });
+  try {
+    const mainViewExtension = new VirtualBackgroundExtension();
+    AgoraRTC.registerExtensions([mainViewExtension]);
+    mainViewProcessor = mainViewExtension.createProcessor();
+    mainViewProcessor.init(wasm1).then(() => {
+      mainViewProcessor.disable();
+    });
 
-  previewViewProcessor = mainViewExtension.createProcessor();
-  previewViewProcessor.init(wasm1).then(() => {
-    previewViewProcessor.disable();
-  });
+    previewViewProcessor = mainViewExtension.createProcessor();
+    previewViewProcessor.init(wasm1).then(() => {
+      previewViewProcessor.disable();
+    });
+  } catch (error) {
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Failed to initiate VirtualBackgroundExtension',
+      error,
+    );
+  }
 };
 
 type VirtualBackgroundConfig = {
@@ -69,6 +83,9 @@ type VBContextValue = {
   setSaveVB: React.Dispatch<React.SetStateAction<boolean>>;
   options: Option[];
   setOptions: React.Dispatch<React.SetStateAction<Option[]>>;
+  applyVirtualBackgroundToMainView;
+  applyVirtualBackgroundToPreviewView;
+  vbProcessor: VBProcessorType;
 };
 
 export const VBContext = React.createContext<VBContextValue>({
@@ -84,6 +101,9 @@ export const VBContext = React.createContext<VBContextValue>({
   setSaveVB: () => {},
   options: [],
   setOptions: () => {},
+  applyVirtualBackgroundToMainView: () => {},
+  applyVirtualBackgroundToPreviewView: () => {},
+  vbProcessor: null,
 });
 
 const VBProvider: React.FC = ({children}) => {
@@ -97,6 +117,8 @@ const VBProvider: React.FC = ({children}) => {
     React.useState<ILocalVideoTrack | null>(null);
   const {sidePanel} = useSidePanel();
   const [options, setOptions] = React.useState<Option[]>(imagePathsArray);
+  const {video: localVideoStatus} = useLocalUserInfo();
+  const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
   const {
     rtcProps: {callActive},
@@ -108,10 +130,6 @@ const VBProvider: React.FC = ({children}) => {
   let processor =
     useRef<ReturnType<VirtualBackgroundExtension['_createProcessor']>>(null);
 
-  useEffect(() => {
-    initializeProcessors();
-  }, []);
-
   //if vitrual got closed by some other settings/chat panel then update the state
   //ex: user open vitrual background using more menu and then open chat will hide the vitrual background panel
   //so we need to update the state
@@ -121,15 +139,62 @@ const VBProvider: React.FC = ({children}) => {
     }
   }, [sidePanel]);
 
+  React.useEffect(() => {
+    initializeProcessors();
+  }, []);
+
+  /* VB Change modes */
+  React.useEffect(() => {
+    if (!isLocalVideoON) {
+      return;
+    }
+    switch (vbMode) {
+      case 'blur':
+        blurVB();
+        break;
+      case 'image':
+        imageVB();
+        break;
+      case 'none':
+        disableVB();
+        break;
+    }
+  }, [vbMode, selectedImage, saveVB, previewVideoTrack, isLocalVideoON]);
+
+  /* Fetch Saved Images from IndexDB to show in VBPanel */
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const customImages = await retrieveImagesFromStorage();
+        setOptions((prevOptions: Option[]) => [
+          ...prevOptions,
+          ...(customImages?.map(
+            base64Data =>
+              ({
+                type: 'image',
+                icon: 'vb',
+                path: base64Data,
+              } as Option),
+          ) || []),
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle the error as needed
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const applyVirtualBackgroundToMainView = async (
     config: VirtualBackgroundConfig,
   ) => {
     //@ts-ignore
     const localVideoTrack = RtcEngineUnsafe?.localStream?.video;
     //  mainViewProcessor && (await mainViewProcessor.disable()); // Disable the old processor
-    localVideoTrack
-      ?.pipe(mainViewProcessor)
-      .pipe(localVideoTrack?.processorDestination);
+    // localVideoTrack
+    //   ?.pipe(mainViewProcessor)
+    //   .pipe(localVideoTrack?.processorDestination);
     mainViewProcessor.setOptions(config);
     await mainViewProcessor.enable();
   };
@@ -147,47 +212,6 @@ const VBProvider: React.FC = ({children}) => {
     previewViewProcessor.setOptions(config);
     await previewViewProcessor.enable();
   };
-
-  /* VB Change modes */
-  React.useEffect(() => {
-    switch (vbMode) {
-      case 'blur':
-        blurVB();
-        break;
-      case 'image':
-        imageVB();
-        break;
-      case 'none':
-        disableVB();
-        break;
-    }
-  }, [vbMode, selectedImage, saveVB, previewVideoTrack]);
-
-  /* Fetch Saved Images from IndexDB to show in VBPanel */
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const customImages = await retrieveImagesFromIndexDB();
-        setOptions((prevOptions: Option[]) => [
-          ...prevOptions,
-          ...(customImages?.map(
-            base64Data =>
-              ({
-                type: 'image',
-                icon: 'vb',
-                path: base64Data,
-                id: getUniqueID(),
-              } as Option),
-          ) || []),
-        ]);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // Handle the error as needed
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const blurVB = async () => {
     const blurConfig: VirtualBackgroundConfig = {blurDegree: 3, type: 'blur'};
@@ -256,6 +280,9 @@ const VBProvider: React.FC = ({children}) => {
         setSaveVB,
         options,
         setOptions,
+        applyVirtualBackgroundToMainView,
+        applyVirtualBackgroundToPreviewView,
+        vbProcessor: mainViewProcessor,
       }}>
       {children}
     </VBContext.Provider>

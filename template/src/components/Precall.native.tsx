@@ -42,7 +42,7 @@ import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 import JoinWaitingRoomBtn from './precall/joinWaitingRoomBtn.native';
 import {DeviceSelectProps} from './precall/selectDevice';
 import PreCallSettings from './precall/PreCallSettings';
-import VBPanel from './virtual-background/VBPanel';
+import VBPanel, {VBPanelProps} from './virtual-background/VBPanel';
 import {useVB} from './virtual-background/useVB';
 import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
 import {useString} from '../../src/utils/useString';
@@ -224,6 +224,7 @@ const Precall = (props: any) => {
     VideoPreview,
     MeetingName,
     DeviceSelect,
+    VirtualBackgroundComponent,
     PrecallAfterView,
     PrecallBeforeView,
   } = useCustomization(data => {
@@ -232,6 +233,7 @@ const Precall = (props: any) => {
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType<DeviceSelectProps>;
       VideoPreview: React.ComponentType;
+      VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
       PrecallAfterView: React.Fragment,
@@ -239,6 +241,7 @@ const Precall = (props: any) => {
       MeetingName: PreCallMeetingTitle,
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
+      VirtualBackgroundComponent: VBPanel,
     };
     // commented for v1 release
     // if (
@@ -285,6 +288,15 @@ const Precall = (props: any) => {
     //     }
     //   }
     // }
+    if (
+      data?.components?.precall?.virtualBackgroundPanel &&
+      typeof data?.components?.precall.virtualBackgroundPanel !== 'object' &&
+      isValidReactComponent(data?.components?.precall.virtualBackgroundPanel)
+    ) {
+      components.VirtualBackgroundComponent =
+        data?.components?.precall.virtualBackgroundPanel;
+    }
+
     return components;
   });
   const {
@@ -338,7 +350,7 @@ const Precall = (props: any) => {
   const loading = useString(loadingText)();
 
   if (isVBAvaialble) {
-    return <VBPanel isOnPrecall={true} />;
+    return <VirtualBackgroundComponent isOnPrecall={true} />;
   }
 
   if (!isJoinDataFetched) return <Text style={style.titleFont}>{loading}</Text>;

@@ -21,13 +21,19 @@ export interface AppBuilderSdkApiInterface {
   joinRoom: (
     roomDetails: string | meetingData,
     userName?: string,
-    preference?: {disableShareTile: boolean},
+    preference?: {
+      disableShareTile: boolean;
+      disableVideoProcessors: boolean;
+    },
   ) => Promise<meetingData>;
   joinPrecall: (
     roomDetails: string | meetingData,
     userName?: string,
     skipPrecall?: boolean,
-    preference?: {disableShareTile: boolean},
+    preference?: {
+      disableShareTile: boolean;
+      disableVideoProcessors: boolean;
+    },
   ) => Promise<
     [
       meetingData,
@@ -73,7 +79,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     logger.log(LogSource.SDK, 'Event', 'emiting event for joinRoom - join', {
       room: roomDetails,
       userName: userName,
-      preference: preference
+      preference: preference,
     });
     return await SDKMethodEventsManager.emit(
       'join',
@@ -87,7 +93,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     logger.log(LogSource.SDK, 'Event', 'emiting event for joinPrecall - join', {
       room: roomDetails,
       userName: userName,
-      preference: preference
+      preference: preference,
     });
     if (!$config.PRECALL) {
       logger.error(

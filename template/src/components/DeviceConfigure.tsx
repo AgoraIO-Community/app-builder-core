@@ -80,6 +80,8 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const speakerSelectInProgress = useRef(false);
   const speakerSelectQueue = useRef([]);
 
+  const muteRefreshDeviceList = useRef(false);
+
   const {primaryColor} = useContext(ColorContext);
 
   const {store, setStore} = useContext(StorageContext);
@@ -160,49 +162,52 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const {localStream} = RtcEngineUnsafe;
 
   const refreshDeviceList = useCallback(async (noEmitLog?: boolean) => {
-    let updatedDeviceList: MediaDeviceInfo[];
-    await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
-      !noEmitLog &&
-        console.debug(
-          LogSource.Internals,
-          'DEVICE_CONFIGURE',
-          'Fetching all devices: ',
-          devices,
+    if (!muteRefreshDeviceList.current) {
+      muteRefreshDeviceList.current = true;
+      let updatedDeviceList: MediaDeviceInfo[];
+      await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
+        !noEmitLog &&
+          logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            'Fetching all devices: ',
+            devices,
+          );
+        /**
+         * Some browsers list the same microphone twice with different Id's,
+         * their group Id's match as they are the same physical device.
+         * deviceId == default is an oddity in chrome which stores the user
+         * preference
+         */
+        /**
+         *  1. Fetch devices and filter so the deviceId with empty
+         *     values are exluded
+         *  2. Store only unique devices with unique groupIds
+         */
+
+        updatedDeviceList = devices.filter(
+          (device: deviceInfo) =>
+            // device?.deviceId !== 'default' &&
+            device?.deviceId !== '' &&
+            (device.kind == 'audioinput' ||
+              device.kind == 'videoinput' ||
+              device.kind == 'audiooutput'),
         );
-      /**
-       * Some browsers list the same microphone twice with different Id's,
-       * their group Id's match as they are the same physical device.
-       * deviceId == default is an oddity in chrome which stores the user
-       * preference
-       */
-      /**
-       *  1. Fetch devices and filter so the deviceId with empty
-       *     values are exluded
-       *  2. Store only unique devices with unique groupIds
-       */
 
-      updatedDeviceList = devices.filter(
-        (device: deviceInfo) =>
-          // device?.deviceId !== 'default' &&
-          device?.deviceId !== '' &&
-          (device.kind == 'audioinput' ||
-            device.kind == 'videoinput' ||
-            device.kind == 'audiooutput'),
-      );
-
-      !noEmitLog &&
-        console.debug(
-          LogSource.Internals,
-          'DEVICE_CONFIGURE',
-          'Setting unique devices',
-          updatedDeviceList,
-        );
-      if (updatedDeviceList.length > 0) {
-        setDeviceList(updatedDeviceList);
-      }
-    });
-
-    return updatedDeviceList;
+        !noEmitLog &&
+          logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            'Setting unique devices',
+            updatedDeviceList,
+          );
+        if (updatedDeviceList.length > 0) {
+          setDeviceList(updatedDeviceList);
+        }
+      });
+      muteRefreshDeviceList.current = false;
+      return updatedDeviceList;
+    }
   }, []);
 
   const getAgoraTrackDeviceId = (type: 'audio' | 'video') => {
@@ -224,20 +229,22 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             RtcEngineUnsafe.audioDeviceId
           : //@ts-ignore
             RtcEngineUnsafe.videoDeviceId;
-      console.debug(
-        LogSource.Internals,
-        'DEVICE_CONFIGURE',
-        `Agora ${type} Engine is using ${currentDevice}`,
-      );
+      currentDevice &&
+        logger.log(
+          LogSource.Internals,
+          'DEVICE_CONFIGURE',
+          `Agora ${type} Engine is using ${currentDevice}`,
+        );
     } else {
       currentDevice = localStream[type]
         ?.getMediaStreamTrack()
         .getSettings().deviceId;
-      console.debug(
-        LogSource.Internals,
-        'DEVICE_CONFIGURE',
-        `Agora ${type} Track is using ${currentDevice}`,
-      );
+      currentDevice &&
+        logger.log(
+          LogSource.Internals,
+          'DEVICE_CONFIGURE',
+          `Agora ${type} Track is using ${currentDevice}`,
+        );
     }
     return currentDevice ?? '';
   };
@@ -249,10 +256,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
    * truth.
    */
   const syncSelectedDeviceUi = (kind?: deviceKind) => {
-    console.debug(
+    logger.log(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
-      'Refreshing',
+      'Refreshing UI for selected device',
       kind ?? 'all',
     );
     switch (kind) {
@@ -388,7 +395,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       let count = 0;
       const interval = setInterval(() => {
         count = count + 1;
-        refreshDeviceList(count % 10 !== 0);
+        refreshDeviceList(true);
       }, 2000);
       return () => {
         clearInterval(interval);
@@ -489,12 +496,6 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           },
         }[kind];
 
-        logger.debug(
-          LogSource.Internals,
-          'DEVICE_CONFIGURE',
-          `${logTag} ${deviceLogTag} Device list populated but none selected`,
-        );
-
         if (sdkDevice?.deviceId && currentDevice) {
           if (checkDeviceExists(sdkDevice.deviceId, deviceList)) {
             applySdkDeviceChangeRequest(kind);
@@ -507,17 +508,17 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           currentDevice !== storedDevice &&
           checkDeviceExists(storedDevice, deviceList)
         ) {
-          logger.debug(
+          logger.log(
             LogSource.Internals,
             'DEVICE_CONFIGURE',
             `${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
           );
-          setDevice(storedDevice).catch((e: Error) => {
+          setDevice(storedDevice).catch((error: Error) => {
             logger.error(
               LogSource.Internals,
               'DEVICE_CONFIGURE',
               `ERROR: ${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
-              e.message,
+              error,
             );
           });
         } else {
@@ -536,12 +537,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       deviceList.length === 0 ||
       deviceList.find((device: MediaDeviceInfo) => device.label === '')
     ) {
-      logger.debug(
+      logger.log(
         LogSource.Internals,
         'DEVICE_CONFIGURE',
         `${logTag} Empty device list`,
       );
-      refreshDeviceList();
+      refreshDeviceList(false);
     }
   }, [rtc, store, deviceList]);
 
@@ -549,7 +550,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     // Extracted devicelist because we want to perform fallback with
     // the most current version.
     const previousDeviceList = deviceList;
-    const updatedDeviceList = await refreshDeviceList();
+    const updatedDeviceList = await refreshDeviceList(false);
     const changedDevice = changedDeviceData.device;
 
     const {logTag, currentDevice, setCurrentDevice} = {
@@ -570,7 +571,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       },
     }[changedDevice.kind];
 
-    logger.debug(
+    logger.log(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
       `${logTag}`,
@@ -699,7 +700,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       },
     }[kind];
 
-    logger.debug(
+    logger.log(
       LogSource.Internals,
       'DEVICE_CONFIGURE',
       `${logtag} ${kind} setting to ${deviceId}`,
@@ -718,11 +719,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     return new Promise<void>((res, rej) => {
       if (mutexRef.current) {
         const e = new Error(logtag + ' Change already in progress');
-        logger.debug(
+        logger.error(
           LogSource.Internals,
           'DEVICE_CONFIGURE',
           `${logtag} Error setting ${kind}`,
-          e.message,
+          e,
         );
         rej(e);
         return;
@@ -739,7 +740,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         },
         (e: any) => {
           mutexRef.current = false;
-          console.error('DeviceConfigure:', logtag, 'Error setting', kind, e);
+          logger.error(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            `${logtag} Error setting ${kind}`,
+            e,
+          );
           rej(e);
           handleQueue();
         },

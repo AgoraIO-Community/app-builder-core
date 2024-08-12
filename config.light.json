@@ -47,7 +47,8 @@
   "RAISE_HAND": false,
   "AUDIO_ROOM": false,
   "BG": "https://dbudicf5k4as1.cloudfront.net/10/Artboard.png",
-  "PROFILE": "720p_7",
+  "PROFILE": "720p_3",
+  "SCREEN_SHARE_PROFILE": "1080p_2",
   "PRIMARY_ACTION_BRAND_COLOR": "#099DFD",
   "PRIMARY_ACTION_TEXT_COLOR": "#FFFFFF",
   "SECONDARY_ACTION_COLOR": "#19394D",
@@ -88,5 +89,6 @@
   "CHAT_ORG_NAME": "41754367",
   "CHAT_APP_NAME": "1042822",
   "CHAT_URL": "https://a41.chat.agora.io",
-  "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true
+  "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true,
+  "DISABLE_LANDSCAPE_MODE": false
 }

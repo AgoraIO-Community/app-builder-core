@@ -3,29 +3,66 @@ import {isWeb} from '../../utils/common';
 
 /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cyclic_object_value#examples */
 export function getCircularReplacer() {
-  const ancestors = [];
-  return function (key, value) {
-    if (typeof value !== 'object' || value === null) {
-      return value;
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
     }
-    // `this` is the object that value is contained in,
-    // i.e., its direct parent.
-    while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
-      ancestors.pop();
-    }
-    if (ancestors.includes(value)) {
-      return '[Circular]';
-    }
-    ancestors.push(value);
     return value;
   };
+  // const ancestors = [];
+  // return function (key, value) {
+  //   if (typeof value !== 'object' || value === null) {
+  //     return value;
+  //   }
+  //   // `this` is the object that value is contained in,
+  //   // i.e., its direct parent.
+  //   while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
+  //     ancestors.pop();
+  //   }
+  //   if (ancestors.includes(value)) {
+  //     return '[Circular]';
+  //   }
+  //   ancestors.push(value);
+  //   return value;
+  // };
 }
+
+function getTopLevels(obj, level = 1, maxLevel = 4) {
+  if (level > maxLevel || typeof obj !== 'object' || obj === null) {
+    return ['MaxLevelExceeds'];
+  }
+  const result = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        if (key === 'logContent') {
+          result[key] = [obj[key]];
+        } else {
+          result[key] = getTopLevels(obj[key], level + 1, maxLevel);
+        }
+      } else {
+        result[key] = obj[key];
+      }
+    }
+  }
+  return result;
+}
+
 const getSafeBody = (p: any[]) => {
   try {
-    return JSON.stringify(p, getCircularReplacer());
+    const logResult = [];
+    for (let index = 0; index < p.length; index++) {
+      const element = p[index];
+      logResult.push(getTopLevels(element));
+    }
+    return JSON.stringify(logResult);
   } catch (error) {
-    console.error('there was an error converting this object');
-    return '';
+    console.error('there was an error converting this object', error, p);
+    return ['object convertion error'];
   }
 };
 
@@ -42,20 +79,24 @@ const fetchRetry = createRetryFetch(fetch, {
   },
 });
 
-const sendLogs = (p: any[]) => {
-  fetchRetry(
-    'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
-    // "&strategy=queue", // to send logs to a specific dataset [default: queue]
-    {
-      method: 'POST',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      body: getSafeBody(p),
-    },
-  ).catch(err => {
-    console.log('error ocuured while replacing circular reference', p, err);
-  });
+export const sendLogs = (p: any[]) => {
+  if (p && p?.length) {
+    fetchRetry(
+      'https://axiom-queue.appbuilder.workers.dev?dataset=app-builder-core-frontend-customer',
+      // "&strategy=queue", // to send logs to a specific dataset [default: queue]
+      {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        body: getSafeBody(p),
+      },
+    ).catch(err => {
+      console.log('error ocuured while replacing circular reference', p, err);
+    });
+  } else {
+    console.log('queue is empty, no logs available to send');
+  }
 };
 
 export const createAxiomLogger = () => {
@@ -63,14 +104,16 @@ export const createAxiomLogger = () => {
   let batchId = 0;
   let timeout: number | null = null;
 
-  const sendInterval = 45000; // 45s
+  const sendInterval = 30000; // 30s
 
   const flush = () => {
     if (timeout !== null) {
       clearTimeout(timeout);
       timeout = null;
     }
-    if (queue.length === 0) return;
+    if (queue.length === 0) {
+      return;
+    }
     sendLogs(queue);
     queue.length = 0;
     batchId = batchId + 1;
@@ -79,7 +122,7 @@ export const createAxiomLogger = () => {
   const log = (logContent: {[key: string]: any}) => {
     logContent.batchId = batchId;
     queue.push(logContent);
-    if (queue.length >= 1000) {
+    if (queue.length >= 500) {
       flush();
     } else {
       if (timeout === null) {
@@ -97,13 +140,17 @@ export const createAxiomLogger = () => {
 export const initTransportLayerForCustomers = () => {
   const [log, flush] = createAxiomLogger();
 
-  const printLogs = (...args: any[]) => {
+  const printLogs = (logMessage, logType, columns, contextInfo, logContent) => {
     log({
-      data: args,
       _time: Date.now(),
       projectId: $config.PROJECT_ID,
       appId: $config.APP_ID,
       service: 'app-builder-core-frontend-customer',
+      logType,
+      logMessage,
+      logContent: getTopLevels(logContent),
+      contextInfo,
+      ...columns,
     });
 
     isWeb() &&

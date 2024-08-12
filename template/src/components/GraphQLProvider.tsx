@@ -19,6 +19,7 @@ import {
   // from,
 } from '@apollo/client';
 import React, {createContext, useContext, useEffect, useState} from 'react';
+import getUniqueID from '../../src/utils/getUniqueID';
 import StorageContext from './StorageContext';
 
 export const GraphQLContext = createContext<{

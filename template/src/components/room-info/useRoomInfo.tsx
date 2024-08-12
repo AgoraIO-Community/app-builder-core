@@ -69,7 +69,7 @@ export interface RoomInfoContextInterface {
     prevLang?: LanguageType[];
     newLang?: LanguageType[];
     uid?: UidType;
-    langChanged?: Boolean;
+    langChanged?: boolean;
   };
   isSTTActive?: boolean;
   roomPreference?: joinRoomPreference;
@@ -116,6 +116,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   },
   roomPreference: {
     disableShareTile: false,
+    disableVideoProcessors: false,
   },
 };
 

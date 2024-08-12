@@ -66,7 +66,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
   const {defaultContent} = useContent();
 
   const {
-    data: {isHost, chat, channel},
+    data: {isHost, chat},
   } = useRoomInfo();
 
   const groupID = chat.group_id;
@@ -181,13 +181,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
           confirmLabel={confirmLabel}
           confirmLabelStyle={{color: $config.SEMANTIC_ERROR}}
           onConfirmClick={() => {
-            deleteAttachment(
-              msgId,
-              privateChatUser
-                ? channel + '_' + recallFromUser
-                : recallFromUser.toString(),
-              chatType,
-            );
+            deleteAttachment(msgId, recallFromUser.toString(), chatType);
             if (chatType === SDKChatType.SINGLE_CHAT) {
               removeMessageFromPrivateStore(msgId, isLocal);
             }
