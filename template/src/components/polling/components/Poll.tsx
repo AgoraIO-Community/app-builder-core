@@ -20,15 +20,15 @@ function Poll({children}: {children?: React.ReactNode}) {
 }
 
 function PollModals() {
-  const {currentStep, launchPollId, polls} = usePoll();
+  const {currentModal, launchPollId, polls} = usePoll();
   console.log('supriya polls data chnaged: ', polls);
   return (
     <>
-      {currentStep === PollModalState.DRAFT_POLL && <PollFormWizardModal />}
-      {currentStep === PollModalState.RESPOND_TO_POLL && launchPollId && (
+      {currentModal === PollModalState.DRAFT_POLL && <PollFormWizardModal />}
+      {currentModal === PollModalState.RESPOND_TO_POLL && launchPollId && (
         <PollResponseFormModal />
       )}
-      {currentStep === PollModalState.SHARE_POLL_RESULTS && <SharePollModal />}
+      {currentModal === PollModalState.SHARE_POLL_RESULTS && <SharePollModal />}
     </>
     //    <Suspense fallback={<div>Loading...</div>}>
     //    {activePollModal === PollAction.DraftPoll && <DraftPollModal />}

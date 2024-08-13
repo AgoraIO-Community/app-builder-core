@@ -203,7 +203,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
 
 interface PollContextValue {
   polls: Poll;
-  currentStep: PollModalState;
+  currentModal: PollModalState;
   dispatch: Dispatch<PollAction>;
   startPollForm: () => void;
   savePoll: (item: PollItem) => void;
@@ -226,7 +226,7 @@ PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
-  const [currentStep, setCurrentStep] = useState<PollModalState>(null);
+  const [currentModal, setCurrentModal] = useState<PollModalState>(null);
   const [launchPollId, setLaunchPollId] = useState<string>(null);
   const localUid = useLocalUid();
   const {audienceUids} = useLiveStreamDataContext();
@@ -234,19 +234,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   const startPollForm = () => {
-    setCurrentStep(PollModalState.DRAFT_POLL);
+    setCurrentModal(PollModalState.DRAFT_POLL);
   };
 
   const savePoll = (item: PollItem) => {
     addPollItem(item);
-    setCurrentStep(null);
+    setCurrentModal(null);
   };
 
   const sendPoll = (item: PollItem) => {
     if (item.status === PollStatus.ACTIVE) {
       item.expiresAt = getPollExpiresAtTime(POLL_DURATION);
       sendPollEvt(item);
-      setCurrentStep(null);
+      setCurrentModal(null);
     } else {
       console.error('Poll: Cannot send poll as the status is not active');
     }
@@ -256,7 +256,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     addPollItem(item);
     if (audienceUids.includes(localUid)) {
       setLaunchPollId(launchId);
-      setCurrentStep(PollModalState.RESPOND_TO_POLL);
+      setCurrentModal(PollModalState.RESPOND_TO_POLL);
     }
   };
 
@@ -302,7 +302,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const goToShareResponseModal = () => {
-    setCurrentStep(PollModalState.SHARE_POLL_RESULTS);
+    setCurrentModal(PollModalState.SHARE_POLL_RESULTS);
   };
 
   const value = {
@@ -313,7 +313,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     sendPoll,
     onPollReceived,
     onPollResponseReceived,
-    currentStep,
+    currentModal,
     launchPollId,
     sendResponseToPoll,
     goToShareResponseModal,
