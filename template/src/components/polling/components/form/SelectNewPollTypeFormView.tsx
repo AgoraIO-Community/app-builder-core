@@ -70,6 +70,7 @@ export const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     gap: 20,
+    justifyContent: 'space-between',
   },
   card: {
     flexDirection: 'column',

@@ -112,5 +112,9 @@ export default function PollFormWizardModal() {
     }
   }
 
-  return <BaseModal visible={step !== null}>{renderSwitch()}</BaseModal>;
+  return (
+    <BaseModal width={600} visible={step !== null}>
+      {renderSwitch()}
+    </BaseModal>
+  );
 }

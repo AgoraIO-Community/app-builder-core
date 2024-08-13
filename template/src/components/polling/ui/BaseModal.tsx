@@ -41,13 +41,18 @@ function BaseModalActions({children}: ActionProps) {
 type BaseModalProps = {
   visible?: boolean;
   children: ReactNode;
+  width?: number;
 };
 
-const BaseModal = ({children, visible = false}: BaseModalProps) => {
+const BaseModal = ({
+  children,
+  visible = false,
+  width = 650,
+}: BaseModalProps) => {
   return (
     <Modal animationType="none" transparent={true} visible={visible}>
       <View style={style.baseModalBackDrop}>
-        <View style={style.baseModal}>
+        <View style={[style.baseModal, {width: width}]}>
           <View style={style.scrollView}>{children}</View>
         </View>
       </View>
@@ -105,7 +110,7 @@ const style = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    maxWidth: 800,
+    maxWidth: '90%',
     maxHeight: 800,
     overflow: 'scroll',
   },

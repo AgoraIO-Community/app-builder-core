@@ -275,7 +275,6 @@ export default function DraftPollFormView({
 
 export const style = StyleSheet.create({
   createPollBox: {
-    width: 620,
     display: 'flex',
     flexDirection: 'column',
     gap: 20,
