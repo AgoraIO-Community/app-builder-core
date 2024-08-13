@@ -74,7 +74,6 @@ import {
   toolbarItemPeopleText,
   videoRoomRecordingText,
 } from '../language/default-labels/videoCallScreenLabels';
-import RTMEngine from '../rtm/RTMEngine';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -136,7 +135,6 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   } = useRoomInfo();
 
   const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
-  const {engine} = useContext(ChatContext);
 
   const onPress = () => {
     isPanelActive
@@ -192,23 +190,6 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           <View>
             <IconButton {...iconButtonProps} />
           </View>
-          {/* <View>
-            <Text
-              style={{
-                fontSize: 40,
-              }}
-              onPress={() => {
-                console.log('supriya pressed');
-                const channelId = RTMEngine.getInstance().channelUid;
-                engine.addOrUpdateChannelAttributes(
-                  channelId,
-                  [{key: 'poll', value: 'text'}],
-                  {enableNotificationToChannelMembers: true},
-                );
-              }}>
-              Dummy Tesyting
-            </Text>
-          </View> */}
           {isPendingWaitingRoomApproval ||
           ($config.EVENT_MODE &&
             $config.RAISE_HAND &&
