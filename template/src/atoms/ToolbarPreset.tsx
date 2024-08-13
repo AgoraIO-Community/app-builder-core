@@ -45,10 +45,20 @@ export type TopToolbarDefaultKeys =
   | 'participant'
   | 'settings';
 
-export type ToolbarMoreButtonFields = {
+export type ToolbarMoreButtonDefaultFields = {
   [key in MoreButtonDefaultKeys]?: {
     hide?: ToolbarItemHide;
     order?: number;
+    component?: React.ComponentType;
+    onPress?: () => void;
+  };
+};
+export type ToolbarMoreButtonCustomFields = {
+  [key: string]: {
+    hide?: ToolbarItemHide;
+    order?: number;
+    component?: React.ComponentType;
+    onPress?: () => void;
   };
 };
 
@@ -63,7 +73,7 @@ export interface ToolbarDefaultItem {
   order?: number;
 }
 export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
-  fields?: ToolbarMoreButtonFields;
+  fields?: ToolbarMoreButtonDefaultFields | ToolbarMoreButtonCustomFields;
 }
 
 export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
