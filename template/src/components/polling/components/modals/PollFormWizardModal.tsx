@@ -17,7 +17,7 @@ import {filterObject} from '../../../../utils';
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
 export default function PollFormWizardModal() {
-  const {polls, savePoll, sendPoll} = usePoll();
+  const {polls, savePoll, sendPoll, closeCurrentModal} = usePoll();
   const [step, setStep] = useState<FormWizardStep>('SELECT');
   const [type, setType] = useState<PollKind>(null);
   const [form, setForm] = useState<PollItem>(null);
@@ -90,10 +90,19 @@ export default function PollFormWizardModal() {
     return true;
   };
 
+  const onClose = () => {
+    setFormErrors(null);
+    setForm(null);
+    setType(null);
+    closeCurrentModal();
+  };
+
   function renderSwitch() {
     switch (step) {
       case 'SELECT':
-        return <SelectNewPollTypeFormView setType={setType} />;
+        return (
+          <SelectNewPollTypeFormView setType={setType} onClose={onClose} />
+        );
       case 'DRAFT':
         return (
           <DraftPollFormView
@@ -101,11 +110,17 @@ export default function PollFormWizardModal() {
             setForm={setForm}
             onPreview={onPreview}
             errors={formErrors}
+            onClose={onClose}
           />
         );
       case 'PREVIEW':
         return (
-          <PreviewPollFormView form={form} onEdit={onEdit} onSave={onSave} />
+          <PreviewPollFormView
+            form={form}
+            onEdit={onEdit}
+            onSave={onSave}
+            onClose={onClose}
+          />
         );
       default:
         return <></>;

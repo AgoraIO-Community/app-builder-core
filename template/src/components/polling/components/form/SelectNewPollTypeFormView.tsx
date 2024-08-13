@@ -1,6 +1,10 @@
 import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {BaseModalTitle, BaseModalContent} from '../../ui/BaseModal';
+import {
+  BaseModalTitle,
+  BaseModalContent,
+  BaseModalCloseIcon,
+} from '../../ui/BaseModal';
 import ThemeConfig from '../../../../theme';
 import {PollKind} from '../../context/poll-context';
 
@@ -34,12 +38,16 @@ const newPollTypeConfig: newPollType[] = [
 
 export default function SelectNewPollTypeFormView({
   setType,
+  onClose,
 }: {
   setType: React.Dispatch<React.SetStateAction<PollKind>>;
+  onClose: () => void;
 }) {
   return (
     <>
-      <BaseModalTitle title="New Poll" />
+      <BaseModalTitle title="New Poll">
+        <BaseModalCloseIcon onClose={onClose} />
+      </BaseModalTitle>
       <BaseModalContent>
         <View style={style.section}>
           {newPollTypeConfig.map((item: newPollType) => (

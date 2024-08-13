@@ -4,6 +4,7 @@ import {
   BaseModalTitle,
   BaseModalContent,
   BaseModalActions,
+  BaseModalCloseIcon,
 } from '../../ui/BaseModal';
 import ThemeConfig from '../../../../theme';
 import LinkButton from '../../../../atoms/LinkButton';
@@ -25,6 +26,7 @@ interface Props {
   setForm: React.Dispatch<React.SetStateAction<PollItem>>;
   onPreview: () => void;
   errors: Partial<PollFormErrors>;
+  onClose: () => void;
 }
 
 export default function DraftPollFormView({
@@ -32,6 +34,7 @@ export default function DraftPollFormView({
   setForm,
   onPreview,
   errors,
+  onClose,
 }: Props) {
   const handleInputChange = (field: string, value: string | boolean) => {
     setForm({
@@ -109,7 +112,9 @@ export default function DraftPollFormView({
 
   return (
     <>
-      <BaseModalTitle title={getTitle(form.type)} />
+      <BaseModalTitle title={getTitle(form.type)}>
+        <BaseModalCloseIcon onClose={onClose} />
+      </BaseModalTitle>
       <BaseModalContent>
         {/* Question section */}
         <View style={style.createPollBox}>

@@ -4,6 +4,7 @@ import {
   BaseModalTitle,
   BaseModalContent,
   BaseModalActions,
+  BaseModalCloseIcon,
 } from '../../ui/BaseModal';
 import ThemeConfig from '../../../../theme';
 import TertiaryButton from '../../../../atoms/TertiaryButton';
@@ -16,12 +17,20 @@ interface Props {
   form: PollItem;
   onEdit: () => void;
   onSave: (launch: boolean) => void;
+  onClose: () => void;
 }
 
-export default function PreviewPollFormView({form, onEdit, onSave}: Props) {
+export default function PreviewPollFormView({
+  form,
+  onEdit,
+  onSave,
+  onClose,
+}: Props) {
   return (
     <>
-      <BaseModalTitle title="Poll Preview" />
+      <BaseModalTitle title="Poll Preview">
+        <BaseModalCloseIcon onClose={onClose} />
+      </BaseModalTitle>
       <BaseModalContent>
         <View style={style.previewContainer}>
           {form.duration && (

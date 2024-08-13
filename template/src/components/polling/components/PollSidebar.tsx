@@ -13,7 +13,7 @@ import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import ThemeConfig from '../../../theme';
 import PrimaryButton from '../../../atoms/PrimaryButton';
-import {PollResultCard} from './cards';
+import {PollCard} from './PollCard';
 
 const PollSidebar = () => {
   return (
@@ -41,7 +41,7 @@ const PollSidebar = () => {
           <Text style={style.bodySectionTitleText}>Past Polls (01)</Text>
         </View>
         <View style={style.pollList}>
-          <PollResultCard />
+          <PollCard />
         </View>
       </View>
     </View>

@@ -65,19 +65,22 @@ type BaseModalCloseIconProps = {
 };
 
 const BaseModalCloseIcon = ({onClose}: BaseModalCloseIconProps) => {
-  <View>
-    <IconButton
-      iconProps={{
-        iconType: 'plain',
-        iconContainerStyle: {
-          padding: isMobileUA() ? 0 : 5,
-        },
-        name: 'close',
-        tintColor: $config.SECONDARY_ACTION_COLOR,
-      }}
-      onPress={onClose}
-    />
-  </View>;
+  return (
+    <View>
+      <IconButton
+        iconProps={{
+          iconType: 'plain',
+          iconSize: 24,
+          iconContainerStyle: {
+            padding: isMobileUA() ? 0 : 5,
+          },
+          name: 'close',
+          tintColor: $config.SECONDARY_ACTION_COLOR,
+        }}
+        onPress={onClose}
+      />
+    </View>
+  );
 };
 export {
   BaseModal,

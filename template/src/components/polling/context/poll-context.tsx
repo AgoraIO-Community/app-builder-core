@@ -219,6 +219,7 @@ interface PollContextValue {
   launchPollId: string;
   sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
   goToShareResponseModal: () => void;
+  closeCurrentModal: () => void;
 }
 
 const PollContext = createContext<PollContextValue | null>(null);
@@ -305,6 +306,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
     setCurrentModal(PollModalState.SHARE_POLL_RESULTS);
   };
 
+  const closeCurrentModal = () => {
+    setCurrentModal(null);
+  };
+
   const value = {
     polls,
     dispatch,
@@ -317,6 +322,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     launchPollId,
     sendResponseToPoll,
     goToShareResponseModal,
+    closeCurrentModal,
   };
 
   return <PollContext.Provider value={value}>{children}</PollContext.Provider>;
