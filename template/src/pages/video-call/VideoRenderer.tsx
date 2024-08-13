@@ -81,12 +81,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
     isAndroid() || isIOS() ? true : false,
   );
   const landscapeModeRef = useRef({landscapeMode});
-  const {
-    screenShareData,
-    setScreenShareData,
-    isScreenShareOnFullView,
-    setScreenShareOnFullView,
-  } = useScreenContext();
+  const {screenShareData, setScreenShareData} = useScreenContext();
+  const [isScreenShareOnFullView, setScreenShareOnFullView] = useState(false);
 
   const {isScreenshareActive} = useScreenshare();
 
