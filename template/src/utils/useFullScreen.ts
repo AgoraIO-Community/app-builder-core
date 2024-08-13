@@ -13,6 +13,35 @@ export const useFullScreen = () => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
+  const onFullScreenChange = () => {
+    try {
+      if (document.fullscreenElement) {
+        console.log('debugging entry');
+        //@ts-ignore
+        screen?.orientation?.lock &&
+          //@ts-ignore
+          screen?.orientation?.lock('landscape')?.catch(e => {
+            console.error('debugging error on lock', e);
+          });
+      } else {
+        console.log('debugging exit');
+        screen.orientation?.unlock();
+      }
+    } catch (error) {
+      console.error('debugging error on onFullScreenChange', error);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      document.addEventListener('fullscreenchange', onFullScreenChange);
+    } catch (error) {}
+
+    return () => {
+      document.removeEventListener('fullscreenchange', onFullScreenChange);
+    };
+  }, []);
+
   const requestFullscreen = async (uid: UidType) => {
     if (!document?.fullscreenEnabled) {
       console.error('Full screen API - Not supported');
