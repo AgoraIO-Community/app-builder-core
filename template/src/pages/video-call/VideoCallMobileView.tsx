@@ -42,7 +42,12 @@ import WhiteboardView from '../../components/whiteboard/WhiteboardView';
 const VideoCallMobileView = props => {
   const {native = true} = props;
   const {customContent} = useContent();
-  const {isScreenShareOnFullView, screenShareData} = useScreenContext();
+  const {
+    isScreenShareOnFullView,
+    screenShareData,
+    setScreenShareData,
+    setScreenShareOnFullView,
+  } = useScreenContext();
   const {getWhiteboardUid, isWhiteboardOnFullScreen} = useWhiteboard();
 
   const {RtcEngineUnsafe} = useContext(RtcContext);
@@ -65,6 +70,25 @@ const VideoCallMobileView = props => {
   const {isVBActive, setIsVBActive} = useVB();
   const isVBAvaialble =
     $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
+
+  useEffect(() => {
+    if (
+      isScreenShareOnFullView &&
+      defaultContent &&
+      !defaultContent[maxScreenShareUid]?.video
+    ) {
+      setScreenShareOnFullView(false);
+      setScreenShareData(prevState => {
+        return {
+          ...prevState,
+          [maxScreenShareUid]: {
+            ...prevState[maxScreenShareUid],
+            isExpanded: !prevState[maxScreenShareUid]?.isExpanded,
+          },
+        };
+      });
+    }
+  }, [defaultContent, maxScreenShareUid, isScreenShareOnFullView]);
 
   useEffect(() => {
     // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
