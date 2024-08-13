@@ -33,6 +33,7 @@ export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
 export {default as useLocalAudio} from '../src/utils/useLocalAudio';
 export {default as useLocalVideo} from '../src/utils/useLocalVideo';
+export {useString} from '../src/utils/useString';
 export type {LanguageType} from '../src/subComponents/caption/utils';
 export {default as useSpeechToText} from '../src/utils/useSpeechToText';
 export {isMobileUA} from '../src/utils/common';

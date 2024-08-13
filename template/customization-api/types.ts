@@ -8,6 +8,7 @@ export type {
   ContentStateInterface,
   ExtenedContentInterface,
   UidType,
+  useLocalUid,
 } from '../agora-rn-uikit';
 export {
   I18nDeviceStatus,
@@ -23,6 +24,7 @@ export type {
   publicChatToastSubHeadingDataInterface,
   privateChatToastHeadingDataInterface,
   publicAndPrivateChatToastSubHeadingDataInterface,
+  videoRoomUserFallbackText,
 } from '../src/language/default-labels/videoCallScreenLabels';
 export type {TextDataInterface} from '../src/language/default-labels';
 export {
