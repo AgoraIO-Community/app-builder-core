@@ -13,8 +13,11 @@ import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {PollCard} from './PollCard';
 import {PrimaryButton, ThemeConfig} from 'customization-api';
+import {usePoll} from '../context/poll-context';
 
 const PollSidebar = () => {
+  const {polls, startPollForm} = usePoll();
+  console.log('supriya polls: ', polls);
   return (
     <View style={style.pollSidebar}>
       {/* Header */}
@@ -28,7 +31,7 @@ const PollSidebar = () => {
             <PrimaryButton
               containerStyle={style.btnContainer}
               textStyle={style.btnText}
-              onPress={() => {}}
+              onPress={() => startPollForm()}
               text="Create Poll"
             />
           </View>
@@ -40,7 +43,13 @@ const PollSidebar = () => {
           <Text style={style.bodySectionTitleText}>Past Polls (01)</Text>
         </View>
         <View style={style.pollList}>
-          <PollCard />
+          {polls && Object.keys(polls).length > 0 ? (
+            Object.keys(polls).map((key: string) => (
+              <PollCard key={key} pollItem={polls[key]} />
+            ))
+          ) : (
+            <></>
+          )}
         </View>
       </View>
     </View>
@@ -56,7 +65,6 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
   },
   headerCard: {
     display: 'flex',
@@ -92,13 +100,10 @@ const style = StyleSheet.create({
   separator: {
     paddingVertical: 24,
     height: 1,
-    marginHorizontal: 16,
     display: 'flex',
     background: $config.INPUT_FIELD_BORDER_COLOR,
   },
-  bodySection: {
-    paddingHorizontal: 16,
-  },
+  bodySection: {},
   bodySectionTitleText: {
     color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.tiny,
