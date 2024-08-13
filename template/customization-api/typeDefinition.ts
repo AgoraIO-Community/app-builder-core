@@ -12,14 +12,9 @@
 import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
-import {
-  ContentInterface,
-  ContentStateInterface,
-  UidType,
-} from '../agora-rn-uikit';
+import {ContentStateInterface} from '../agora-rn-uikit';
 import {I18nInterface} from '../src/language/i18nTypes';
-import {IconsInterface} from '../src/atoms/CustomIcon';
-import {ToolbarCustomItem} from './sub-components';
+import {ToolbarPresetProps} from './sub-components';
 import {TextDataInterface} from '../src/language/default-labels';
 import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
 
@@ -52,6 +47,13 @@ export type LayoutComponent = React.ComponentType<{
   renderData: ContentStateInterface['activeUids'];
 }>;
 
+export interface SidePanelItem {
+  name: string;
+  title: string;
+  component: React.ComponentType;
+  onClose?: () => void;
+}
+
 export interface LayoutItem {
   name: string;
   label: string;
@@ -60,7 +62,7 @@ export interface LayoutItem {
   component: LayoutComponent;
 }
 
-export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
+export type ToolbarType = React.ComponentType | ToolbarPresetProps['items'];
 export type CustomLogger = (
   message: string,
   data: any,
@@ -81,6 +83,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
+  customSidePanel?: () => SidePanelItem[];
   invitePopup?: {
     title: string;
     renderComponent?: React.ComponentType;

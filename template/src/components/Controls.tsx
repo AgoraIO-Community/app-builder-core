@@ -33,11 +33,12 @@ import {ClientRoleType} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
-  CustomToolbarSort,
   isWeb,
   isWebInternal,
-  useIsDesktop,
-  updateToolbarDefaultConfig,
+  CustomToolbarMerge,
+  CustomToolbarSorting,
+  MergeMoreButtonFields,
+  CustomToolbarSort,
 } from '../utils/common';
 import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
@@ -70,9 +71,9 @@ import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {
-  ToolbarCustomItem,
-  ToolbarDefaultItem,
-  ToolbarDefaultItemConfig,
+  ToolbarBottomPresetProps,
+  ToolbarItemHide,
+  ToolbarMoreButtonFields,
 } from '../atoms/ToolbarPreset';
 
 import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
@@ -108,6 +109,7 @@ import {
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
 import ViewRecordingsModal from './recordings/ViewRecordingsModal';
+import {filterObject} from '../utils/index';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -250,7 +252,7 @@ export const WhiteboardListener = () => {
   return null;
 };
 
-const MoreButton = () => {
+const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -317,6 +319,8 @@ const MoreButton = () => {
   //AINS
   if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
+      componentName: 'noise-cancellation',
+      order: 0,
       toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
         isNoiseSupressionEnabled === ToggleState.disabling ||
@@ -349,6 +353,8 @@ const MoreButton = () => {
   };
   if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
     actionMenuitems.push({
+      componentName: 'virtual-background',
+      order: 1,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'vb',
@@ -449,6 +455,8 @@ const MoreButton = () => {
 
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
+      componentName: 'whiteboard',
+      order: 2,
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
       //@ts-ignore
@@ -467,6 +475,8 @@ const MoreButton = () => {
 
   if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
+      componentName: 'caption',
+      order: 3,
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -495,6 +505,8 @@ const MoreButton = () => {
 
     if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
+        componentName: 'transcript',
+        order: 4,
         icon: 'transcript',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.FONT_COLOR,
@@ -531,6 +543,8 @@ const MoreButton = () => {
 
   if (isHost && $config.CLOUD_RECORDING && isWeb()) {
     actionMenuitems.push({
+      componentName: 'view-recordings',
+      order: 5,
       icon: 'play-circle',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -541,134 +555,165 @@ const MoreButton = () => {
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.sm) {
-    actionMenuitems.push({
-      icon: 'participants',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: peopleLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Participants);
-      },
-    });
-    actionMenuitems.push({
-      icon: 'chat-nav',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: chatLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setChatType(ChatType.Group);
-        setSidePanel(SidePanelType.Chat);
-      },
-    });
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'participant',
+    order: 6,
+    icon: 'participants',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: peopleLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.Participants);
+    },
+  });
 
-    if ($config.SCREEN_SHARING) {
-      if (
-        !(
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'chat',
+    order: 7,
+    icon: 'chat-nav',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: chatLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setChatType(ChatType.Group);
+      setSidePanel(SidePanelType.Chat);
+    },
+  });
+
+  if ($config.SCREEN_SHARING) {
+    if (
+      !(
+        rtcProps.role == ClientRoleType.ClientRoleAudience &&
+        $config.EVENT_MODE &&
+        !$config.RAISE_HAND
+      )
+    ) {
+      actionMenuitems.push({
+        hide: w => {
+          return w >= BREAKPOINTS.sm ? true : false;
+        },
+        componentName: 'screenshare',
+        order: 8,
+        disabled:
           rtcProps.role == ClientRoleType.ClientRoleAudience &&
           $config.EVENT_MODE &&
-          !$config.RAISE_HAND
-        )
-      ) {
-        actionMenuitems.push({
-          disabled:
-            rtcProps.role == ClientRoleType.ClientRoleAudience &&
-            $config.EVENT_MODE &&
-            $config.RAISE_HAND &&
-            !isHost,
-          icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
-          iconColor: isScreenshareActive
-            ? $config.SEMANTIC_ERROR
-            : $config.SECONDARY_ACTION_COLOR,
-          textColor: isScreenshareActive
-            ? $config.SEMANTIC_ERROR
-            : $config.FONT_COLOR,
-          title: screenShareButton(isScreenshareActive),
-          callback: () => {
-            setActionMenuVisible(false);
-            isScreenshareActive ? stopScreenshare() : startScreenshare();
-          },
-        });
-      }
-    }
-    if (isHost && $config.CLOUD_RECORDING) {
-      actionMenuitems.push({
-        disabled: inProgress,
-        icon: isRecordingActive ? 'stop-recording' : 'recording',
-        iconColor: isRecordingActive
+          $config.RAISE_HAND &&
+          !isHost,
+        icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
+        iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
           : $config.SECONDARY_ACTION_COLOR,
-        textColor: isRecordingActive
+        textColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
           : $config.FONT_COLOR,
-        title: recordingButton(isRecordingActive),
+        title: screenShareButton(isScreenshareActive),
         callback: () => {
           setActionMenuVisible(false);
-          if (!isRecordingActive) {
-            startRecording();
-          } else {
-            setShowStopRecordingPopup(true);
-          }
+          isScreenshareActive ? stopScreenshare() : startScreenshare();
         },
       });
     }
   }
-
-  if (globalWidth <= BREAKPOINTS.md) {
+  if (isHost && $config.CLOUD_RECORDING) {
     actionMenuitems.push({
-      //below icon key is dummy value
-      icon: 'grid',
-      externalIconString: layouts[layout]?.icon,
-      isExternalIcon: true,
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: layoutLabel,
-      callback: () => {
-        //setShowLayoutOption(true);
+      hide: w => {
+        return w >= BREAKPOINTS.sm ? true : false;
       },
-      onHoverCallback: isHovered => {
-        setShowLayoutOption(isHovered);
-      },
-      onHoverContent: (
-        <LayoutIconDropdown
-          onHoverPlaceHolder="vertical"
-          setShowDropdown={() => {}}
-          showDropdown={true}
-          modalPosition={
-            globalWidth <= BREAKPOINTS.sm
-              ? {bottom: 65, left: -150}
-              : {bottom: 20, left: -150}
-          }
-          caretPosition={{bottom: 45, right: -10}}
-        />
-      ),
-    });
-    actionMenuitems.push({
-      icon: 'share',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: inviteLabel,
+      componentName: 'recording',
+      order: 9,
+      disabled: inProgress,
+      icon: isRecordingActive ? 'stop-recording' : 'recording',
+      iconColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.SECONDARY_ACTION_COLOR,
+      textColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.FONT_COLOR,
+      title: recordingButton(isRecordingActive),
       callback: () => {
         setActionMenuVisible(false);
-        setShowInvitePopup(true);
+        if (!isRecordingActive) {
+          startRecording();
+        } else {
+          setShowStopRecordingPopup(true);
+        }
       },
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.sm) {
-    actionMenuitems.push({
-      icon: 'settings',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: settingsLabel,
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Settings);
-      },
-    });
-  }
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'layout',
+    order: 10,
+    //below icon key is dummy value
+    icon: 'grid',
+    externalIconString: layouts[layout]?.icon,
+    isExternalIcon: true,
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: layoutLabel,
+    callback: () => {
+      //setShowLayoutOption(true);
+    },
+    onHoverCallback: isHovered => {
+      setShowLayoutOption(isHovered);
+    },
+    onHoverContent: (
+      <LayoutIconDropdown
+        onHoverPlaceHolder="vertical"
+        setShowDropdown={() => {}}
+        showDropdown={true}
+        modalPosition={
+          globalWidth <= BREAKPOINTS.lg
+            ? {bottom: 65, left: -150}
+            : {bottom: 20, left: -150}
+        }
+        caretPosition={{bottom: 45, right: -10}}
+      />
+    ),
+  });
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'invite',
+    order: 11,
+    icon: 'share',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: inviteLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setShowInvitePopup(true);
+    },
+  });
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'settings',
+    order: 12,
+    icon: 'settings',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: settingsLabel,
+    callback: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.Settings);
+    },
+  });
 
   useEffect(() => {
     if (isHovered) {
@@ -717,6 +762,30 @@ const MoreButton = () => {
     }
   };
 
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
+  };
+
+  const moreButtonFields = props?.fields || {};
+
+  const ActionMenuItems = MergeMoreButtonFields(
+    actionMenuitems,
+    moreButtonFields,
+  )
+    ?.filter(i => !isHidden(i))
+    ?.sort(CustomToolbarSort);
+
   return (
     <>
       <LanguageSelectorPopup
@@ -739,7 +808,7 @@ const MoreButton = () => {
           bottom: 8,
           left: 0,
         }}
-        items={actionMenuitems}
+        items={ActionMenuItems}
       />
       <div
         onMouseEnter={() => {
@@ -851,9 +920,7 @@ export const SwitchCameraToolbarItem = () => {
 };
 
 export const ScreenShareToolbarItem = () => {
-  const {width} = useWindowDimensions();
   return (
-    width > BREAKPOINTS.sm &&
     $config.SCREEN_SHARING &&
     !isMobileOrTablet() && (
       <ToolbarItem testID="screenShare-btn">
@@ -863,12 +930,10 @@ export const ScreenShareToolbarItem = () => {
   );
 };
 export const RecordingToolbarItem = () => {
-  const {width} = useWindowDimensions();
   const {
     data: {isHost},
   } = useRoomInfo();
   return (
-    width > BREAKPOINTS.sm &&
     isHost &&
     $config.CLOUD_RECORDING && (
       <ToolbarItem testID="recording-btn">
@@ -878,7 +943,9 @@ export const RecordingToolbarItem = () => {
   );
 };
 
-export const MoreButtonToolbarItem = () => {
+export const MoreButtonToolbarItem = (props?: {
+  fields?: ToolbarMoreButtonFields;
+}) => {
   const {width} = useWindowDimensions();
   const {
     data: {isHost},
@@ -890,7 +957,7 @@ export const MoreButtonToolbarItem = () => {
     forceUpdate();
   }, [isHost]);
 
-  return width < BREAKPOINTS.md ||
+  return width < BREAKPOINTS.lg ||
     ($config.ENABLE_STT &&
       $config.ENABLE_CAPTION &&
       (isHost || (!isHost && isSTTActive))) ||
@@ -904,7 +971,7 @@ export const MoreButtonToolbarItem = () => {
       ) : (
         <></>
       )}
-      <MoreButton />
+      <MoreButton fields={props?.fields} />
     </ToolbarItem>
   ) : (
     <WhiteboardListener />
@@ -924,91 +991,78 @@ export const LocalEndcallToolbarItem = (
   );
 };
 
-const defaultItems: ToolbarDefaultItem[] = [
-  {
+const defaultItems: ToolbarBottomPresetProps['items'] = {
+  layout: {
     align: 'start',
     component: LayoutToolbarItem,
-    componentName: 'layout',
     order: 0,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-  {
+  invite: {
     align: 'start',
     component: InviteToolbarItem,
-    componentName: 'invite',
     order: 1,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-  {
+  'raise-hand': {
     align: 'center',
     component: RaiseHandToolbarItem,
-    componentName: 'raise-hand',
     order: 0,
-    hide: 'no',
   },
-  {
+  'local-audio': {
     align: 'center',
     component: LocalAudioToolbarItem,
-    componentName: 'local-audio',
     order: 1,
-    hide: 'no',
   },
-  {
+  'local-video': {
     align: 'center',
     component: LocalVideoToolbarItem,
-    componentName: 'local-video',
     order: 2,
-    hide: 'no',
   },
-  {
+  'switch-camera': {
     align: 'center',
     component: SwitchCameraToolbarItem,
-    componentName: 'switch-camera',
     order: 3,
-    hide: 'no',
   },
-  {
+  screenshare: {
     align: 'center',
     component: ScreenShareToolbarItem,
-    componentName: 'screenshare',
     order: 4,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.sm ? true : false;
+    },
   },
-  {
+  recording: {
     align: 'center',
     component: RecordingToolbarItem,
-    componentName: 'recording',
     order: 5,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.sm ? true : false;
+    },
   },
-  {
+  more: {
     align: 'center',
     component: MoreButtonToolbarItem,
-    componentName: 'more',
     order: 6,
-    hide: 'no',
   },
-  {
+  'end-call': {
     align: 'center',
-    componentName: 'end-call',
     component: LocalEndcallToolbarItem,
     order: 7,
-    hide: 'no',
   },
-];
+};
 
 export interface ControlsProps {
-  customItems?: ToolbarCustomItem[];
+  items?: ToolbarBottomPresetProps['items'];
   includeDefaultItems?: boolean;
-  defaultItemsConfig?: ToolbarDefaultItemConfig;
 }
 const Controls = (props: ControlsProps) => {
-  const {
-    customItems = [],
-    includeDefaultItems = true,
-    defaultItemsConfig = {},
-  } = props;
-  const {width} = useWindowDimensions();
+  const {items = {}, includeDefaultItems = true} = props;
+  const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
@@ -1021,11 +1075,7 @@ const Controls = (props: ControlsProps) => {
     username: string;
   }>(sttSpokenLanguageToastSubHeading);
 
-  const {
-    data: {isHost},
-    sttLanguage,
-    isSTTActive,
-  } = useRoomInfo();
+  const {sttLanguage, isSTTActive} = useRoomInfo();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -1103,70 +1153,91 @@ const Controls = (props: ControlsProps) => {
     setIsSTTActive(isSTTActive);
   }, [isSTTActive]);
 
-  const ToastIcon = ({color}) => (
-    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
-      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
-    </View>
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
+  };
+
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
   );
 
-  const isHidden = i => {
-    return i?.hide === 'yes';
-  };
-  const customStartItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i?.align === 'start' && !isHidden(i))
-    ?.sort(CustomToolbarSort);
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+  const centerItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'center' && !isHidden(v?.hide),
+  );
+  const endItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'end' && !isHidden(v?.hide),
+  );
 
-  const customCenterItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i?.align === 'center' && !isHidden(i))
-    ?.sort(CustomToolbarSort);
-
-  const customEndItems = customItems
-    ?.concat(
-      includeDefaultItems
-        ? updateToolbarDefaultConfig(defaultItems, defaultItemsConfig)
-        : [],
-    )
-    ?.filter(i => i?.align === 'end' && !isHidden(i))
-    ?.sort(CustomToolbarSort);
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+  const centerItemsOrdered = CustomToolbarSorting(centerItems);
+  const endItemsOrdered = CustomToolbarSorting(endItems);
 
   const renderContent = (
-    items: ToolbarCustomItem[],
+    orderedKeys: string[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      let ToolbarComponentProps = {};
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+        if (keyName === 'more') {
+          ToolbarComponentProps = startItems[keyName]?.fields;
+        }
+      } else if (type === 'center') {
+        ToolbarComponent = centerItems[keyName]?.component;
+        if (keyName === 'more') {
+          ToolbarComponentProps = centerItems[keyName]?.fields;
+        }
       } else {
-        return null;
+        ToolbarComponent = endItems[keyName]?.component;
+        if (keyName === 'more') {
+          ToolbarComponentProps = endItems[keyName]?.fields;
+        }
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent
+            key={`top-toolbar-${type}` + index}
+            fields={ToolbarComponentProps}
+          />,
+        );
       }
     });
+
+    return renderContentItem;
   };
+
   return (
     <Toolbar>
-      {width >= BREAKPOINTS.md && (
-        <View style={[style.startContent]}>
-          {renderContent(customStartItems, 'start')}
-        </View>
-      )}
-      <View style={[style.centerContent]}>
-        {renderContent(customCenterItems, 'center')}
+      <View style={style.startContent}>
+        {renderContent(startItemsOrdered, 'start')}
       </View>
-      {width >= BREAKPOINTS.md && (
-        <View style={style.endContent}>
-          {renderContent(customEndItems, 'end')}
-        </View>
-      )}
+      <View style={style.centerContent}>
+        {renderContent(centerItemsOrdered, 'center')}
+      </View>
+      <View style={style.endContent}>
+        {renderContent(endItemsOrdered, 'end')}
+      </View>
     </Toolbar>
   );
 };

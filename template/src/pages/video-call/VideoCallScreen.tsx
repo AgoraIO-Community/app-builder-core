@@ -27,8 +27,8 @@ import {ToolbarProvider, ToolbarPosition} from '../../utils/useToolbar';
 import SDKEvents from '../../utils/SdkEvents';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
-  ToolbarCustomItem,
   controlMessageEnum,
+  SidePanelItem,
   useCaption,
   useUserName,
 } from 'customization-api';
@@ -40,18 +40,33 @@ import Transcript, {
 } from '../../subComponents/caption/Transcript';
 
 import Spacer from '../../atoms/Spacer';
-import Leftbar, {LeftbarProps} from '../../components/Leftbar';
-import Rightbar, {RightbarProps} from '../../components/Rightbar';
+import Leftbar, {
+  LeftbarProps as LeftbarPropsInterface,
+} from '../../components/Leftbar';
+import Rightbar, {
+  RightbarProps as RightbarInterface,
+} from '../../components/Rightbar';
 import useFindActiveSpeaker from '../../utils/useFindActiveSpeaker';
 import VBPanel, {
   VBPanelProps,
 } from '../../components/virtual-background/VBPanel';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
+import {
+  ToolbarBottomPresetProps,
+  ToolbarLeftPresetProps,
+  ToolbarRightPresetProps,
+  ToolbarTopPresetProps,
+} from '../../atoms/ToolbarPreset';
+import CustomSidePanelView from '../../components/CustomSidePanel';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
   const {sidePanel} = useSidePanel();
+  const [showCustomSidePanel, setShowCustomSidePanel] = useState(false);
+  const [customSidePanelIndex, setCustomSidePanelIndex] = useState<
+    undefined | number
+  >(undefined);
   const [name] = useUserName();
   const {
     data: {meetingTitle, isHost},
@@ -76,6 +91,7 @@ const VideoCallScreen = () => {
     LeftbarProps,
     RightbarProps,
     VideocallWrapper,
+    SidePanelArray,
   } = useCustomization(data => {
     let components: {
       VideocallWrapper: React.ComponentType;
@@ -90,12 +106,13 @@ const VideoCallScreen = () => {
       TopbarComponent: React.ComponentType<NavbarProps>;
       VideocallBeforeView: React.ComponentType;
       VideocallAfterView: React.ComponentType;
-      LeftbarComponent: React.ComponentType<LeftbarProps>;
-      RightbarComponent: React.ComponentType<RightbarProps>;
-      BottombarProps?: ToolbarCustomItem[];
-      TopbarProps?: ToolbarCustomItem[];
-      LeftbarProps?: ToolbarCustomItem[];
-      RightbarProps?: ToolbarCustomItem[];
+      LeftbarComponent: React.ComponentType<LeftbarPropsInterface>;
+      RightbarComponent: React.ComponentType<RightbarInterface>;
+      BottombarProps?: any;
+      TopbarProps?: any;
+      LeftbarProps?: any;
+      RightbarProps?: any;
+      SidePanelArray?: SidePanelItem[];
     } = {
       BottombarComponent: Controls,
       TopbarComponent: Navbar,
@@ -110,10 +127,11 @@ const VideoCallScreen = () => {
       VideocallWrapper: React.Fragment,
       LeftbarComponent: Leftbar,
       RightbarComponent: Rightbar,
-      BottombarProps: [],
-      TopbarProps: [],
-      LeftbarProps: [],
-      RightbarProps: [],
+      BottombarProps: {},
+      TopbarProps: {},
+      LeftbarProps: {},
+      RightbarProps: {},
+      SidePanelArray: [],
     };
     if (
       data?.components?.videoCall &&
@@ -187,28 +205,28 @@ const VideoCallScreen = () => {
       if (
         data?.components?.videoCall.bottomToolBar &&
         typeof data?.components?.videoCall.bottomToolBar === 'object' &&
-        data?.components?.videoCall.bottomToolBar.length
+        Object.keys(data?.components?.videoCall.bottomToolBar)?.length
       ) {
         components.BottombarProps = data?.components?.videoCall.bottomToolBar;
       }
       if (
         data?.components?.videoCall.topToolBar &&
         typeof data?.components?.videoCall.topToolBar === 'object' &&
-        data?.components?.videoCall.topToolBar.length
+        Object.keys(data?.components?.videoCall.topToolBar)?.length
       ) {
         components.TopbarProps = data?.components?.videoCall.topToolBar;
       }
       if (
         data?.components?.videoCall.rightToolBar &&
         typeof data?.components?.videoCall.rightToolBar === 'object' &&
-        data?.components?.videoCall.rightToolBar.length
+        Object.keys(data?.components?.videoCall.rightToolBar)?.length
       ) {
         components.RightbarProps = data?.components?.videoCall.rightToolBar;
       }
       if (
         data?.components?.videoCall.leftToolBar &&
         typeof data?.components?.videoCall.leftToolBar === 'object' &&
-        data?.components?.videoCall.leftToolBar.length
+        Object.keys(data?.components?.videoCall.leftToolBar)?.length
       ) {
         components.LeftbarProps = data?.components?.videoCall.leftToolBar;
       }
@@ -260,6 +278,14 @@ const VideoCallScreen = () => {
         components.VideocallWrapper = data?.components?.videoCall.wrapper;
       }
 
+      if (
+        data?.components?.videoCall.customSidePanel &&
+        typeof data?.components?.videoCall.customSidePanel === 'function'
+      ) {
+        components.SidePanelArray =
+          data?.components?.videoCall?.customSidePanel();
+      }
+
       // commented for v1 release
       // if (
       //   data?.components?.videoCall.settingsPanel &&
@@ -275,7 +301,6 @@ const VideoCallScreen = () => {
   });
 
   const isDesktop = useIsDesktop();
-  const isSmall = useIsSmall();
 
   useEffect(() => {
     logger.log(
@@ -284,6 +309,24 @@ const VideoCallScreen = () => {
       'User has landed on video call room',
     );
   }, []);
+
+  useEffect(() => {
+    const selectedIndex = SidePanelArray?.findIndex(item => {
+      if (item?.name === sidePanel && item?.component) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    if (selectedIndex < 0) {
+      setShowCustomSidePanel(false);
+      setCustomSidePanelIndex(undefined);
+    } else {
+      setShowCustomSidePanel(true);
+      setCustomSidePanelIndex(selectedIndex);
+    }
+  }, [sidePanel, SidePanelArray]);
+
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
 
   return VideocallComponent ? (
@@ -302,7 +345,7 @@ const VideoCallScreen = () => {
           <ToolbarProvider value={{position: ToolbarPosition.left}}>
             {LeftbarProps?.length ? (
               <LeftbarComponent
-                customItems={LeftbarProps}
+                items={LeftbarProps}
                 includeDefaultItems={false}
               />
             ) : (
@@ -319,7 +362,7 @@ const VideoCallScreen = () => {
               <ToolbarProvider value={{position: ToolbarPosition.top}}>
                 {TopbarProps?.length ? (
                   <TopbarComponent
-                    customItems={TopbarProps}
+                    items={TopbarProps}
                     includeDefaultItems={false}
                   />
                 ) : (
@@ -339,6 +382,27 @@ const VideoCallScreen = () => {
                   : {marginVertical: 20},
               ]}>
               <VideoComponent />
+              {/**
+               * To display custom side panel
+               * it will be shown when customer inject the custom side panel content
+               * and call setSidePanel using the name they given
+               */}
+              {showCustomSidePanel && customSidePanelIndex !== undefined ? (
+                SidePanelArray &&
+                SidePanelArray?.length &&
+                SidePanelArray[customSidePanelIndex]?.component ? (
+                  <CustomSidePanelView
+                    content={SidePanelArray[customSidePanelIndex]?.component}
+                    title={SidePanelArray[customSidePanelIndex]?.title}
+                    name={SidePanelArray[customSidePanelIndex]?.name}
+                    onClose={SidePanelArray[customSidePanelIndex]?.onClose}
+                  />
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
               {sidePanel === SidePanelType.Participants ? (
                 <ParticipantsComponent />
               ) : (
@@ -379,7 +443,7 @@ const VideoCallScreen = () => {
               <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
                 {BottombarProps?.length ? (
                   <BottombarComponent
-                    customItems={BottombarProps}
+                    items={BottombarProps}
                     includeDefaultItems={false}
                   />
                 ) : (
@@ -402,7 +466,7 @@ const VideoCallScreen = () => {
           <ToolbarProvider value={{position: ToolbarPosition.right}}>
             {RightbarProps?.length ? (
               <RightbarComponent
-                customItems={RightbarProps}
+                items={RightbarProps}
                 includeDefaultItems={false}
               />
             ) : (

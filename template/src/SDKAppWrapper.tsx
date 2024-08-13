@@ -23,6 +23,7 @@ export interface AppBuilderSdkApiInterface {
     userName?: string,
     preference?: {
       disableShareTile: boolean;
+      disableVideoProcessors: boolean;
     },
   ) => Promise<meetingData>;
   joinPrecall: (
@@ -31,6 +32,7 @@ export interface AppBuilderSdkApiInterface {
     skipPrecall?: boolean,
     preference?: {
       disableShareTile: boolean;
+      disableVideoProcessors: boolean;
     },
   ) => Promise<
     [

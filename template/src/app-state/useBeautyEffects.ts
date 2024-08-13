@@ -1,38 +1,30 @@
 import {type BeautyEffects} from 'customization-api';
-import {useBeautyEffect} from '../components/beauty-effect/useBeautyEffects';
-import {isWeb} from '../utils/common';
+import {
+  useBeautyEffect,
+  type BeautyProcessorType,
+} from '../components/beauty-effect/useBeautyEffects';
 
 export interface BeautyEffectInterface {
-  isBeautyEffectsON: boolean;
-  beautyEffects: BeautyEffects;
   applyBeautyEffect: (config: BeautyEffects) => void;
   removeBeautyEffect: () => void;
+  beautyProcessor: BeautyProcessorType;
 }
 
 export const useBeautyEffects: () => BeautyEffectInterface = () => {
-  const {
-    rednessLevel,
-    lighteningContrastLevel,
-    lighteningLevel,
-    smoothnessLevel,
-    sharpnessLevel,
-    applyBeautyEffect,
-    removeBeautyEffect,
-    beautyEffectsOn,
-  } = useBeautyEffect();
+  const {applyBeautyEffect, removeBeautyEffect, beautyProcessor} =
+    useBeautyEffect();
 
-  const beautyEffects = {
-    lighteningContrastLevel,
-    lighteningLevel,
-    smoothnessLevel,
-    sharpnessLevel,
-    rednessLevel,
-  };
+  // const beautyEffects = {
+  //   lighteningContrastLevel,
+  //   lighteningLevel,
+  //   smoothnessLevel,
+  //   sharpnessLevel,
+  //   rednessLevel,
+  // };
 
   return {
-    isBeautyEffectsON: beautyEffectsOn,
-    beautyEffects,
     applyBeautyEffect,
     removeBeautyEffect,
+    beautyProcessor,
   };
 };

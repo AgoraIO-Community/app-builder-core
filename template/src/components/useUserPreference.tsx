@@ -188,6 +188,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
         if (value?.screenShareUid) {
           updateRenderListState(value?.screenShareUid, {
             name: getScreenShareName(value?.name || userText),
+            type: 'screenshare',
           });
         }
       }
@@ -210,6 +211,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
     updateRenderListState(localUid, {name: displayName || userText});
     updateRenderListState(screenShareUid, {
       name: getScreenShareName(displayName || userText),
+      type: 'screenshare',
     });
 
     if (hasUserJoinedRTM) {

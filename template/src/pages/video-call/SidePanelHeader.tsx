@@ -188,6 +188,32 @@ export const VBHeader = () => {
   );
 };
 
+export const CustomSidePanelHeader = (props: {
+  title: string;
+  onClose?: () => void;
+  name: string;
+}) => {
+  const {setSidePanel} = useSidePanel();
+  return (
+    <SidePanelHeader
+      centerComponent={
+        <Text style={SidePanelStyles.heading}>{props?.title}</Text>
+      }
+      trailingIconName="close"
+      trailingIconOnPress={() => {
+        setSidePanel(SidePanelType.None);
+        try {
+          props?.onClose && props?.onClose();
+        } catch (error) {
+          console.error(
+            `Error on calling onClose in custom side panel ${name}`,
+          );
+        }
+      }}
+    />
+  );
+};
+
 export const TranscriptHeader = props => {
   const {setSidePanel} = useSidePanel();
   const moreIconRef = React.useRef<View>(null);

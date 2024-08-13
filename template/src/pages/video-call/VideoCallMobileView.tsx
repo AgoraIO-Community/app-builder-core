@@ -21,7 +21,7 @@ import {DispatchContext, RtcContext} from '../../../agora-rn-uikit';
 import {
   useLocalUserInfo,
   useContent,
-  ToolbarCustomItem,
+  ToolbarPresetProps,
 } from 'customization-api';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
@@ -32,7 +32,7 @@ import useAppState from '../../utils/useAppState';
 import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useCustomization} from 'customization-implementation';
-import NavbarMobile from '../../components/NavbarMobile';
+import NavbarMobile, {NavbarProps} from '../../components/NavbarMobile';
 import {useVB} from '../../components/virtual-background/useVB';
 import VBPanel from '../../components/virtual-background/VBPanel';
 import {WhiteboardListener} from '../../components/Controls';
@@ -163,23 +163,22 @@ const VideoCallView = React.memo(() => {
   const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
     useCustomization(data => {
       let components: {
-        BottombarComponent: React.ComponentType;
-        BottombarProps?: ToolbarCustomItem[];
-        TopbarComponent: React.ComponentType;
-        TopbarProps?: ToolbarCustomItem[];
+        BottombarComponent: React.ComponentType<any>;
+        BottombarProps?: ToolbarPresetProps['items'];
+        TopbarComponent: React.ComponentType<NavbarProps>;
+        TopbarProps?: ToolbarPresetProps['items'];
       } = {
         BottombarComponent: ActionSheet,
-        BottombarProps: [],
-        //@ts-ignore
+        BottombarProps: {},
         TopbarComponent: NavbarMobile,
-        TopbarProps: [],
+        TopbarProps: {},
       };
       if (
         data?.components?.videoCall &&
         typeof data?.components?.videoCall === 'object'
       ) {
         if (
-          data?.components?.videoCall.bottomToolBar &&
+          data?.components?.videoCall?.bottomToolBar &&
           typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
           isValidReactComponent(data?.components?.videoCall.bottomToolBar)
         ) {
@@ -187,25 +186,25 @@ const VideoCallView = React.memo(() => {
             data?.components?.videoCall.bottomToolBar;
         }
         if (
-          data?.components?.videoCall.bottomToolBar &&
-          typeof data?.components?.videoCall.bottomToolBar === 'object' &&
-          data?.components?.videoCall.bottomToolBar.length
+          data?.components?.videoCall?.bottomToolBar &&
+          typeof data?.components?.videoCall?.bottomToolBar === 'object' &&
+          Object.keys(data?.components?.videoCall.bottomToolBar)?.length
         ) {
           components.BottombarProps = data?.components?.videoCall.bottomToolBar;
         }
 
         if (
-          data?.components?.videoCall.topToolBar &&
-          typeof data?.components?.videoCall.topToolBar !== 'object' &&
+          data?.components?.videoCall?.topToolBar &&
+          typeof data?.components?.videoCall?.topToolBar !== 'object' &&
           isValidReactComponent(data?.components?.videoCall.topToolBar)
         ) {
           components.TopbarComponent = data?.components?.videoCall.topToolBar;
         }
 
         if (
-          data?.components?.videoCall.topToolBar &&
-          typeof data?.components?.videoCall.topToolBar === 'object' &&
-          data?.components?.videoCall.topToolBar.length
+          data?.components?.videoCall?.topToolBar &&
+          typeof data?.components?.videoCall?.topToolBar === 'object' &&
+          Object.keys(data?.components?.videoCall.topToolBar).length
         ) {
           components.TopbarProps = data?.components?.videoCall.topToolBar;
         }
@@ -218,12 +217,8 @@ const VideoCallView = React.memo(() => {
     <View style={styles.container}>
       <>
         <ToolbarProvider value={{position: ToolbarPosition.top}}>
-          {TopbarProps?.length ? (
-            <TopbarComponent
-              //@ts-ignore
-              customItems={TopbarProps}
-              includeDefaultItems={false}
-            />
+          {Object.keys(TopbarProps)?.length ? (
+            <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
           ) : (
             <TopbarComponent />
           )}
@@ -234,10 +229,9 @@ const VideoCallView = React.memo(() => {
         </View>
         <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
           <ActionSheetProvider>
-            {BottombarProps?.length ? (
+            {Object.keys(BottombarProps)?.length ? (
               <BottombarComponent
-                //@ts-ignore
-                customItems={BottombarProps}
+                items={BottombarProps}
                 includeDefaultItems={false}
               />
             ) : (
