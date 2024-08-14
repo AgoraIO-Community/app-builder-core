@@ -6,11 +6,11 @@ import {
 } from '../../ui/BaseModal';
 import {
   PollResponseFormComplete,
-  PollResponseFormModalTitle,
   PollResponseQuestionForm,
   PollResponseMCQForm,
 } from '../form/poll-response-forms';
 import {PollKind, usePoll} from '../../context/poll-context';
+import PollAvatarHeader from '../PollAvatarHeader';
 
 export default function PollResponseFormModal() {
   const {
@@ -58,7 +58,7 @@ export default function PollResponseFormModal() {
   return (
     <BaseModal visible={true}>
       <BaseModalTitle>
-        <PollResponseFormModalTitle pollItem={pollItem} />
+        <PollAvatarHeader pollItem={pollItem} />
         {hasResponded && <BaseModalCloseIcon onClose={closeCurrentModal} />}
       </BaseModalTitle>
       {hasResponded ? <PollResponseFormComplete /> : renderForm(pollItem.type)}

@@ -4,48 +4,13 @@ import {BaseModalContent, BaseModalActions} from '../../ui/BaseModal';
 import {PollItem} from '../../context/poll-context';
 import PollTimer from '../PollTimer';
 import {
-  useContent,
-  UserAvatar,
   ImageIcon,
   Checkbox,
   Spacer,
   PrimaryButton,
   ThemeConfig,
-  useString,
-  videoRoomUserFallbackText,
-  UidType,
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
-
-interface Props {
-  pollItem: PollItem;
-}
-
-function PollResponseFormModalTitle({pollItem}: Props) {
-  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
-  const {defaultContent} = useContent();
-  const getPollCreaterName = (uid: UidType) => {
-    return defaultContent[uid]?.name || remoteUserDefaultLabel;
-  };
-
-  return (
-    <View style={style.titleCard}>
-      <View style={style.titleAvatar}>
-        <UserAvatar
-          name={getPollCreaterName(pollItem.createdBy)}
-          containerStyle={style.titleAvatarContainer}
-          textStyle={style.titleAvatarContainerText}
-        />
-      </View>
-      <View style={style.title}>
-        <Text style={style.titleText}>
-          {getPollCreaterName(pollItem.createdBy)}
-        </Text>
-        <Text style={style.titleSubtext}>{pollItem.type}</Text>
-      </View>
-    </View>
-  );
-}
 
 function PollResponseFormComplete() {
   return (
@@ -212,7 +177,6 @@ function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
 export {
   PollResponseQuestionForm,
   PollResponseMCQForm,
-  PollResponseFormModalTitle,
   PollResponseFormComplete,
 };
 

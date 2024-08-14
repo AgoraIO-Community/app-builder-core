@@ -13,6 +13,7 @@ export type {
 export {
   I18nDeviceStatus,
   I18nMuteType,
+  videoRoomUserFallbackText,
 } from '../src/language/default-labels/videoCallScreenLabels';
 export type {
   NetworkQualities,
@@ -24,7 +25,6 @@ export type {
   publicChatToastSubHeadingDataInterface,
   privateChatToastHeadingDataInterface,
   publicAndPrivateChatToastSubHeadingDataInterface,
-  videoRoomUserFallbackText,
 } from '../src/language/default-labels/videoCallScreenLabels';
 export type {TextDataInterface} from '../src/language/default-labels';
 export {

@@ -1,29 +1,19 @@
 import {Text, StyleSheet, View} from 'react-native';
 import React from 'react';
 import {BaseModal, BaseModalTitle, BaseModalContent} from '../../ui/BaseModal';
-import {ThemeConfig, UserAvatar} from 'customization-api';
+import {ThemeConfig} from 'customization-api';
+import {PollItem} from '../../context/poll-context';
+import PollAvatarHeader from '../PollAvatarHeader';
 
-export default function SharePollModal() {
+export default function SharePollModal({pollItem}: {pollItem: PollItem}) {
   return (
-    <BaseModal visible={false}>
+    <BaseModal visible={true}>
       <BaseModalTitle>
-        <View style={style.titleCard}>
-          <View style={style.titleAvatar}>
-            <UserAvatar
-              name="Supriya Adep"
-              containerStyle={style.titleAvatarContainer}
-              textStyle={style.titleAvatarContainerText}
-            />
-          </View>
-          <View style={style.title}>
-            <Text style={style.titleText}>Elanor Pena</Text>
-            <Text style={style.titleSubtext}>2:30 pm MCQ</Text>
-          </View>
-        </View>
+        <PollAvatarHeader pollItem={pollItem} />
       </BaseModalTitle>
       <BaseModalContent>
         <View style={style.shareBox}>
-          <Text style={style.questionText}>How was today's session?</Text>
+          <Text style={style.questionText}>{pollItem.question}</Text>
           <View style={style.responseSection}>
             <View style={style.responseCard}>
               <View style={style.responseCardBody}>
@@ -44,46 +34,6 @@ export default function SharePollModal() {
                   ]}
                 />
               </View>
-            </View>
-            <View style={style.responseCard}>
-              <View style={style.responseCardBody}>
-                <Text style={style.responseText}>Okay</Text>
-                <Text style={style.yourResponseText}>Your Response</Text>
-                <Text style={[style.responseText, style.pushRight]}>
-                  75% (15)
-                </Text>
-              </View>
-              <View style={style.progressBar}>
-                <View
-                  style={[
-                    StyleSheet.absoluteFill,
-                    style.progressBarFill,
-                    {
-                      width: '20%',
-                    },
-                  ]}
-                />
-              </View>
-            </View>
-            <View style={style.responseCard}>
-              <View style={style.responseCardBody}>
-                <Text style={style.responseText}>Could be better</Text>
-                <Text style={style.yourResponseText}>Your Response</Text>
-                <Text style={[style.responseText, style.pushRight]}>
-                  75% (15)
-                </Text>
-              </View>
-            </View>
-            <View style={style.progressBar}>
-              <View
-                style={[
-                  StyleSheet.absoluteFill,
-                  style.progressBarFill,
-                  {
-                    width: '90%',
-                  },
-                ]}
-              />
             </View>
           </View>
         </View>
