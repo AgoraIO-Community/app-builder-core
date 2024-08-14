@@ -76,14 +76,15 @@ export default function DraftPollFormView({
         ...form,
         options: form.options.map((option, i) => {
           if (i === index) {
-            const lowerText = value
+            const text = value.trim();
+            const lowerText = text
               .replace(/\s+/g, '-')
               .toLowerCase()
               .concat('-')
               .concat(nanoid(2));
             return {
               ...option,
-              text: value,
+              text: text,
               value: lowerText,
               votes: [],
             };
@@ -130,7 +131,7 @@ export default function DraftPollFormView({
                 numberOfLines={4}
                 value={form.question}
                 onChangeText={text => {
-                  handleInputChange('question', text.trim());
+                  handleInputChange('question', text);
                 }}
                 placeholder="Enter poll question here..."
                 placeholderTextColor={
@@ -158,7 +159,7 @@ export default function DraftPollFormView({
                           style={style.pFormInput}
                           value={option.text}
                           onChangeText={text => {
-                            updateFormOption('update', text.trim(), index);
+                            updateFormOption('update', text, index);
                           }}
                           placeholder="Add text here..."
                           placeholderTextColor={

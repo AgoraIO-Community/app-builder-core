@@ -13,10 +13,15 @@ import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {PollCard} from './PollCard';
 import {PrimaryButton, ThemeConfig} from 'customization-api';
-import {usePoll} from '../context/poll-context';
+import {PollItem, usePoll} from '../context/poll-context';
 
 const PollSidebar = () => {
-  const {polls, startPollForm, isHost} = usePoll();
+  const {polls, startPollForm, isHost, sendPollResults} = usePoll();
+
+  const onPublish = (item: PollItem) => {
+    sendPollResults({...item});
+  };
+
   console.log('supriya polls: ', polls);
   return (
     <View style={style.pollSidebar}>
@@ -53,7 +58,12 @@ const PollSidebar = () => {
         <View style={style.pollList}>
           {polls && Object.keys(polls).length > 0 ? (
             Object.keys(polls).map((key: string) => (
-              <PollCard key={key} isHost={isHost()} pollItem={polls[key]} />
+              <PollCard
+                key={key}
+                isHost={isHost()}
+                onPublish={onPublish}
+                pollItem={polls[key]}
+              />
             ))
           ) : (
             <></>

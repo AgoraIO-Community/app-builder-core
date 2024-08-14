@@ -1,5 +1,9 @@
 import React, {useState} from 'react';
-import {BaseModal, BaseModalTitle} from '../../ui/BaseModal';
+import {
+  BaseModal,
+  BaseModalCloseIcon,
+  BaseModalTitle,
+} from '../../ui/BaseModal';
 import {
   PollResponseFormComplete,
   PollResponseFormModalTitle,
@@ -9,8 +13,13 @@ import {
 import {PollKind, usePoll} from '../../context/poll-context';
 
 export default function PollResponseFormModal() {
-  const {polls, launchPollId, sendResponseToPoll, goToShareResponseModal} =
-    usePoll();
+  const {
+    polls,
+    launchPollId,
+    sendResponseToPoll,
+    goToShareResponseModal,
+    closeCurrentModal,
+  } = usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
 
   const pollItem = polls[launchPollId];
@@ -50,6 +59,7 @@ export default function PollResponseFormModal() {
     <BaseModal visible={true}>
       <BaseModalTitle>
         <PollResponseFormModalTitle pollItem={pollItem} />
+        {hasResponded && <BaseModalCloseIcon onClose={closeCurrentModal} />}
       </BaseModalTitle>
       {hasResponded ? <PollResponseFormComplete /> : renderForm(pollItem.type)}
     </BaseModal>

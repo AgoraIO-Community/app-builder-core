@@ -5,10 +5,12 @@ import {customEvents as events, PersistanceLevel} from 'customization-api';
 enum PollEventNames {
   polls = 'POLLS',
   pollResponse = 'POLL_RESPONSE',
+  pollResults = 'POLL_RESULTS',
 }
 enum PollEventActions {
   sendPoll = 'SEND_POLL',
   sendResponseToPoll = 'SEND_RESONSE_TO_POLL',
+  sendPollResults = 'SEND_POLL_RESULTS',
 }
 
 type sendResponseToPollEvtFunction = (
@@ -18,6 +20,7 @@ type sendResponseToPollEvtFunction = (
 interface PollEventsContextValue {
   sendPollEvt: (poll: PollItem) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
+  sendPollResultsEvt: (poll: PollItem) => void;
 }
 
 const PollEventsContext = createContext<PollEventsContextValue | null>(null);
@@ -25,7 +28,7 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  const sendPollEvt = async (poll: PollItem) => {
+  const sendPollEvt = (poll: PollItem) => {
     events.send(
       PollEventNames.polls,
       JSON.stringify({
@@ -51,9 +54,22 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     );
   };
 
+  const sendPollResultsEvt = (item: PollItem) => {
+    events.send(
+      PollEventNames.polls,
+      JSON.stringify({
+        action: PollEventActions.sendPollResults,
+        item: {...item},
+        activePollId: '',
+      }),
+      PersistanceLevel.Channel,
+    );
+  };
+
   const value = {
     sendPollEvt,
     sendResponseToPollEvt,
+    sendPollResultsEvt,
   };
 
   return (
@@ -76,7 +92,12 @@ const PollEventsSubscriberContext = createContext<null>(null);
 PollEventsSubscriberContext.displayName = 'PollEventsContext';
 
 function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
-  const {savePoll, onPollReceived, onPollResponseReceived} = usePoll();
+  const {
+    savePoll,
+    onPollReceived,
+    onPollResponseReceived,
+    onPollResultsReceived,
+  } = usePoll();
 
   useEffect(() => {
     events.on(PollEventNames.polls, args => {
@@ -89,7 +110,9 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
         case PollEventActions.sendPoll:
           onPollReceived(item, activePollId);
           break;
-
+        case PollEventActions.sendPollResults:
+          onPollResultsReceived(item);
+          break;
         default:
           break;
       }
@@ -106,7 +129,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       events.off(PollEventNames.polls);
       events.off(PollEventNames.pollResponse);
     };
-  }, [onPollReceived, onPollResponseReceived, savePoll]);
+  }, [onPollReceived, onPollResponseReceived, savePoll, onPollResultsReceived]);
 
   return (
     <PollEventsSubscriberContext.Provider value={null}>

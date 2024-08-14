@@ -67,15 +67,18 @@ interface PollFormErrors {
 
 enum PollActionKind {
   ADD_POLL_ITEM = 'ADD_POLL_ITEM',
+  UPDATE_POLL_ITEM = 'UPDATE_POLL_ITEM',
   UPDATE_POLL_ITEM_RESPONSES = 'UPDATE_POLL_ITEM_RESPONSES',
-  LAUNCH_POLL_ITEM = 'LAUNCH_POLL_ITEM',
-  SUBMIT_POLL_OPEN_ENDED_RESPONSE = 'SUBMIT_POLL_OPEN_ENDED_RESPONSE',
   START_POLL_TIMER = 'START_POLL_TIMER',
 }
 
 type PollAction =
   | {
       type: PollActionKind.ADD_POLL_ITEM;
+      payload: {item: PollItem};
+    }
+  | {
+      type: PollActionKind.UPDATE_POLL_ITEM;
       payload: {item: PollItem};
     }
   | {
@@ -143,7 +146,7 @@ function calculatePercentage(
     // Creating a new object explicitly
     const newOption: PollItemOptionItem = {
       ...option,
-      percent: percentage.toFixed(2),
+      percent: percentage.toFixed(0),
     };
     return newOption;
   }) as PollItemOptionItem[];
@@ -151,6 +154,13 @@ function calculatePercentage(
 function pollReducer(state: Poll, action: PollAction): Poll {
   switch (action.type) {
     case PollActionKind.ADD_POLL_ITEM: {
+      const pollId = action.payload.item.id;
+      return {
+        ...state,
+        [pollId]: {...action.payload.item},
+      };
+    }
+    case PollActionKind.UPDATE_POLL_ITEM: {
       const pollId = action.payload.item.id;
       return {
         ...state,
@@ -209,6 +219,7 @@ interface PollContextValue {
   savePoll: (item: PollItem) => void;
   sendPoll: (item: PollItem) => void;
   onPollReceived: (item: PollItem, launchId: string) => void;
+  sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
   onPollResponseReceived: (
     id: string,
     type: PollKind,
@@ -217,7 +228,8 @@ interface PollContextValue {
     ts: number,
   ) => void;
   launchPollId: string;
-  sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
+  sendPollResults: (item: PollItem) => void;
+  onPollResultsReceived: (item: PollItem) => void;
   goToShareResponseModal: () => void;
   closeCurrentModal: () => void;
   isHost: () => boolean;
@@ -233,7 +245,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const localUid = useLocalUid();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
 
-  const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
+  const {sendPollEvt, sendResponseToPollEvt, sendPollResultsEvt} =
+    usePollEvents();
   const isHost = () => {
     if (hostUids.includes(localUid)) {
       return true;
@@ -310,9 +323,26 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
+  const sendPollResults = (item: PollItem) => {
+    sendPollResultsEvt(item);
+  };
+
+  const onPollResultsReceived = (item: PollItem) => {
+    updatePollItem(item);
+  };
+
   const addPollItem = (item: PollItem) => {
     dispatch({
       type: PollActionKind.ADD_POLL_ITEM,
+      payload: {
+        item: {...item},
+      },
+    });
+  };
+
+  const updatePollItem = (item: PollItem) => {
+    dispatch({
+      type: PollActionKind.UPDATE_POLL_ITEM,
       payload: {
         item: {...item},
       },
@@ -338,6 +368,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
     currentModal,
     launchPollId,
     sendResponseToPoll,
+    sendPollResults,
+    onPollResultsReceived,
     goToShareResponseModal,
     closeCurrentModal,
     isHost,

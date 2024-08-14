@@ -47,7 +47,15 @@ function PollListItemWithInput({optionItem}: PollListItemWithResultProps) {
   // Later
 }
 // {pollItem}: {pollItem: PollItem}
-function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
+function PollCard({
+  pollItem,
+  isHost,
+  onPublish,
+}: {
+  pollItem: PollItem;
+  isHost: boolean;
+  onPublish: (item: PollItem) => void;
+}) {
   return (
     <View style={style.pollItem}>
       <View style={style.pollCard}>
@@ -57,7 +65,11 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
           </Text>
           <View>
             {isHost ? (
-              <Text style={style.pollCardHeaderText}>More</Text>
+              <Text
+                onPress={() => onPublish(pollItem)}
+                style={style.pollCardHeaderText}>
+                Publish
+              </Text>
             ) : (
               <></>
             )}
