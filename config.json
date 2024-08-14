@@ -92,5 +92,5 @@
   "CHAT_APP_NAME": "1042822",
   "CHAT_URL": "https://a41.chat.agora.io",
   "ENABLE_NOISE_CANCELLATION_BY_DEFAULT": true,
-  "DISABLE_LANDSCAPE_MODE": false
+  "DISABLE_LANDSCAPE_MODE": true
 }
