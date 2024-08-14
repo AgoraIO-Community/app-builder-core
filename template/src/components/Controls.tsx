@@ -332,7 +332,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       textColor: $config.FONT_COLOR,
       title: noiseCancellationLabel,
       //isNoiseSupressionEnabled === ToggleState.enabled
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setNoiseSupression(p => !p);
       },
@@ -362,7 +362,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       textColor: $config.FONT_COLOR,
       //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
       title: virtualBackgroundLabel,
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         toggleVB();
       },
@@ -464,7 +464,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: whiteboardLabel(whiteboardActive),
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
       },
@@ -486,7 +486,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
         (isHost || (!isHost && isSTTActive))
       ),
       title: captionLabel(isCaptionON),
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
         if (isSTTError) {
@@ -517,7 +517,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
           (isHost || (!isHost && isSTTActive))
         ),
         title: transcriptLabel(isTranscriptON),
-        callback: () => {
+        onPress: () => {
           setActionMenuVisible(false);
           STT_clicked.current = !isTranscriptON ? 'transcript' : null;
           if (isSTTError) {
@@ -549,7 +549,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: viewRecordingsLabel,
-      callback: () => {
+      onPress: () => {
         toggleVRModal();
       },
     });
@@ -565,7 +565,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: peopleLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setSidePanel(SidePanelType.Participants);
     },
@@ -581,7 +581,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: chatLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setChatType(ChatType.Group);
       setSidePanel(SidePanelType.Chat);
@@ -615,7 +615,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
           ? $config.SEMANTIC_ERROR
           : $config.FONT_COLOR,
         title: screenShareButton(isScreenshareActive),
-        callback: () => {
+        onPress: () => {
           setActionMenuVisible(false);
           isScreenshareActive ? stopScreenshare() : startScreenshare();
         },
@@ -638,7 +638,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
         ? $config.SEMANTIC_ERROR
         : $config.FONT_COLOR,
       title: recordingButton(isRecordingActive),
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         if (!isRecordingActive) {
           startRecording();
@@ -662,7 +662,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: layoutLabel,
-    callback: () => {
+    onPress: () => {
       //setShowLayoutOption(true);
     },
     onHoverCallback: isHovered => {
@@ -693,7 +693,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: inviteLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setShowInvitePopup(true);
     },
@@ -709,7 +709,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: settingsLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setSidePanel(SidePanelType.Settings);
     },

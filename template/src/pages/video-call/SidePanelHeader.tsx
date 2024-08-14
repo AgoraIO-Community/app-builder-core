@@ -281,7 +281,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       textColor: $config.FONT_COLOR,
       title: changeSpokenLanguage + ' ',
       disabled: isLangChangeInProgress,
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setLanguagePopup(true);
       },
@@ -293,7 +293,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     textColor: $config.FONT_COLOR,
     title: downloadTranscriptLabel,
     disabled: meetingTranscript.length === 0,
-    callback: () => {
+    onPress: () => {
       downloadTranscript();
       setActionMenuVisible(false);
     },
