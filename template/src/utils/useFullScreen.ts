@@ -3,17 +3,11 @@ import {useContent, useLocalUserInfo} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
 import {isWebInternal} from '../utils/common';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
-import {useOrientation} from './useOrientation';
 
 export const useFullScreen = () => {
   const {uid: localUid, screenUid: localScreenUid} = useLocalUserInfo();
   const {defaultContent} = useContent();
   const defaultContentRef = useRef(defaultContent);
-  const orientation = useOrientation();
-  const orientationRef = useRef(orientation);
-  useEffect(() => {
-    orientationRef.current = orientation;
-  }, [orientation]);
 
   useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -24,7 +18,7 @@ export const useFullScreen = () => {
       try {
         if (
           document.fullscreenElement &&
-          orientationRef.current !== 'LANDSCAPE'
+          screen?.orientation?.type?.startsWith('portrait')
         ) {
           //@ts-ignore
           screen?.orientation?.lock &&
@@ -41,11 +35,11 @@ export const useFullScreen = () => {
 
   useEffect(() => {
     try {
-      document.addEventListener('fullscreenchange', onFullScreenChange);
+      document?.addEventListener('fullscreenchange', onFullScreenChange);
     } catch (error) {}
 
     return () => {
-      document.removeEventListener('fullscreenchange', onFullScreenChange);
+      document?.removeEventListener('fullscreenchange', onFullScreenChange);
     };
   }, []);
 
