@@ -51,13 +51,12 @@ const style = StyleSheet.create({
   optionsList: {
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderRadius: 9,
-    paddingTop: 12,
+    paddingTop: 8,
+    paddingHorizontal: 12,
     paddingBottom: 32,
-    paddingVertical: 8,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
-    marginVertical: 12,
   },
   optionListItem: {
     display: 'flex',
