@@ -20,23 +20,23 @@ export const useFullScreen = () => {
   }, [defaultContent]);
 
   const onFullScreenChange = () => {
-    try {
-      if (
-        document.fullscreenElement &&
-        orientationRef.current !== 'LANDSCAPE'
-      ) {
-        //@ts-ignore
-        screen?.orientation?.lock &&
+    setTimeout(() => {
+      try {
+        if (
+          document.fullscreenElement &&
+          orientationRef.current !== 'LANDSCAPE'
+        ) {
           //@ts-ignore
-          screen?.orientation?.lock('landscape')?.catch(e => {
-            console.error('debugging error on lock', e);
-          });
-      } else {
-        screen.orientation?.unlock();
+          screen?.orientation?.lock &&
+            //@ts-ignore
+            screen?.orientation?.lock('landscape')?.catch(e => {
+              console.error('debugging error on lock', e);
+            });
+        }
+      } catch (error) {
+        console.error('debugging error on onFullScreenChange', error);
       }
-    } catch (error) {
-      console.error('debugging error on onFullScreenChange', error);
-    }
+    }, 500);
   };
 
   useEffect(() => {
