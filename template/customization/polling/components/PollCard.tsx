@@ -1,52 +1,9 @@
 import React from 'react';
-import {Text, View, StyleSheet, DimensionValue} from 'react-native';
+import {Text, View, StyleSheet} from 'react-native';
 import {PollItem, PollItemOptionItem} from '../context/poll-context';
-import {ThemeConfig, TertiaryButton, useLocalUid} from 'customization-api';
+import {ThemeConfig, TertiaryButton} from 'customization-api';
+import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 
-interface PollListItemWithResultProps {
-  optionItem: PollItemOptionItem;
-  showYourVote?: boolean;
-}
-
-function PollListItemWithResult({
-  optionItem,
-  showYourVote = false,
-}: PollListItemWithResultProps) {
-  const localUid = useLocalUid();
-  return (
-    <View style={style.optionListItem}>
-      <View style={style.optionListItemHeader}>
-        <Text style={style.optionText}>{optionItem.text}</Text>
-        {showYourVote &&
-          optionItem.votes.find(item => item.uid === localUid) && (
-            <Text style={style.yourResponseText}>Your Response</Text>
-          )}
-        <Text style={[style.optionText, style.pushRight]}>
-          {optionItem.percent}% ({optionItem.votes.length})
-        </Text>
-      </View>
-      <View style={style.optionListItemFooter}>
-        <View style={style.progressBar}>
-          <View
-            key={optionItem.percent}
-            style={[
-              StyleSheet.absoluteFill,
-              style.progressBarFill,
-              {
-                width: `${optionItem.percent}%` as DimensionValue,
-              },
-            ]}
-          />
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function PollListItemWithInput({optionItem}: PollListItemWithResultProps) {
-  // Later
-}
-// {pollItem}: {pollItem: PollItem}
 function PollCard({
   pollItem,
   isHost,
@@ -82,14 +39,14 @@ function PollCard({
             </Text>
           </View>
           <View style={style.fullWidth}>
-            <View style={[style.optionsList, style.extraBottomPadding]}>
+            <PollOptionList>
               {pollItem.options.map((item: PollItemOptionItem) => (
-                <PollListItemWithResult
+                <PollOptionListItemResult
                   optionItem={item}
                   showYourVote={!isHost}
                 />
               ))}
-            </View>
+            </PollOptionList>
           </View>
         </View>
         <View style={style.pollCardFooter}>

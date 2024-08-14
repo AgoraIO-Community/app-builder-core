@@ -28,7 +28,7 @@ function PollModals() {
       {currentModal === PollModalState.RESPOND_TO_POLL && launchPollId && (
         <PollResponseFormModal />
       )}
-      {currentModal === PollModalState.SHARE_POLL_RESULTS && <SharePollModal />}
+      {/* {currentModal === PollModalState.SHARE_POLL_RESULTS && <SharePollModal />} */}
     </>
     //    <Suspense fallback={<div>Loading...</div>}>
     //    {activePollModal === PollAction.DraftPoll && <DraftPollModal />}
