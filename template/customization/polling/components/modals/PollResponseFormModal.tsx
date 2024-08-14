@@ -27,7 +27,7 @@ export default function PollResponseFormModal() {
   const onFormComplete = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
     if (pollItem.share) {
-      goToShareResponseModal();
+      goToShareResponseModal(pollItem.id);
     } else {
       setHasResponded(true);
     }

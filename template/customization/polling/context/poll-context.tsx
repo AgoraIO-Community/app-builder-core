@@ -228,9 +228,10 @@ interface PollContextValue {
     ts: number,
   ) => void;
   launchPollId: string;
+  viewResultPollId: string;
   sendPollResults: (item: PollItem) => void;
   onPollResultsReceived: (item: PollItem) => void;
-  goToShareResponseModal: () => void;
+  goToShareResponseModal: (pollId: string) => void;
   closeCurrentModal: () => void;
   isHost: () => boolean;
 }
@@ -242,6 +243,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
   const [currentModal, setCurrentModal] = useState<PollModalState>(null);
   const [launchPollId, setLaunchPollId] = useState<string>(null);
+  const [viewResultPollId, setViewResultPollId] = useState<string>(null);
+
   const localUid = useLocalUid();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
 
@@ -349,11 +352,18 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const goToShareResponseModal = () => {
+  const goToShareResponseModal = (pollId: string) => {
+    setViewResultPollId(pollId);
     setCurrentModal(PollModalState.SHARE_POLL_RESULTS);
   };
 
   const closeCurrentModal = () => {
+    if (currentModal === PollModalState.RESPOND_TO_POLL) {
+      setLaunchPollId(null);
+    }
+    if (currentModal === PollModalState.SHARE_POLL_RESULTS) {
+      setViewResultPollId(null);
+    }
     setCurrentModal(null);
   };
 
@@ -367,6 +377,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     onPollResponseReceived,
     currentModal,
     launchPollId,
+    viewResultPollId,
     sendResponseToPoll,
     sendPollResults,
     onPollResultsReceived,
