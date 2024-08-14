@@ -78,7 +78,7 @@ export default function PollFormWizardModal() {
     if (
       form.type === PollKind.MCQ &&
       form.options &&
-      form.options.length === 0
+      (form.options.length === 0 || form.options.find(item => item.text === ''))
     ) {
       setFormErrors({
         ...formErrors,

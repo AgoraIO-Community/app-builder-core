@@ -130,7 +130,7 @@ export default function DraftPollFormView({
                 numberOfLines={4}
                 value={form.question}
                 onChangeText={text => {
-                  handleInputChange('question', text);
+                  handleInputChange('question', text.trim());
                 }}
                 placeholder="Enter poll question here..."
                 placeholderTextColor={
@@ -158,29 +158,33 @@ export default function DraftPollFormView({
                           style={style.pFormInput}
                           value={option.text}
                           onChangeText={text => {
-                            updateFormOption('update', text, index);
+                            updateFormOption('update', text.trim(), index);
                           }}
                           placeholder="Add text here..."
                           placeholderTextColor={
                             $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
                           }
                         />
-                        <View>
-                          <IconButton
-                            iconProps={{
-                              iconType: 'plain',
-                              iconContainerStyle: {
-                                padding: 5,
-                              },
-                              iconSize: 20,
-                              name: 'close',
-                              tintColor: $config.CARD_LAYER_5_COLOR,
-                            }}
-                            onPress={() => {
-                              updateFormOption('delete', option.text, index);
-                            }}
-                          />
-                        </View>
+                        {index > 1 ? (
+                          <View>
+                            <IconButton
+                              iconProps={{
+                                iconType: 'plain',
+                                iconContainerStyle: {
+                                  padding: 5,
+                                },
+                                iconSize: 20,
+                                name: 'close',
+                                tintColor: $config.CARD_LAYER_5_COLOR,
+                              }}
+                              onPress={() => {
+                                updateFormOption('delete', option.text, index);
+                              }}
+                            />
+                          </View>
+                        ) : (
+                          <></>
+                        )}
                       </View>
                     ))}
                     <View style={style.pFormAddOptionLinkSection}>
