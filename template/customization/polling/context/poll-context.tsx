@@ -220,6 +220,7 @@ interface PollContextValue {
   sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
   goToShareResponseModal: () => void;
   closeCurrentModal: () => void;
+  isHost: () => boolean;
 }
 
 const PollContext = createContext<PollContextValue | null>(null);
@@ -230,9 +231,15 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const [currentModal, setCurrentModal] = useState<PollModalState>(null);
   const [launchPollId, setLaunchPollId] = useState<string>(null);
   const localUid = useLocalUid();
-  const {audienceUids} = useLiveStreamDataContext();
+  const {audienceUids, hostUids} = useLiveStreamDataContext();
 
   const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
+  const isHost = () => {
+    if (hostUids.includes(localUid)) {
+      return true;
+    }
+    return false;
+  };
 
   const startPollForm = () => {
     setCurrentModal(PollModalState.DRAFT_POLL);
@@ -255,7 +262,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const onPollReceived = (item: PollItem, launchId: string) => {
     addPollItem(item);
-    if (audienceUids.includes(localUid)) {
+    if (!isHost()) {
       setLaunchPollId(launchId);
       setCurrentModal(PollModalState.RESPOND_TO_POLL);
     }
@@ -266,6 +273,16 @@ function PollProvider({children}: {children: React.ReactNode}) {
       (item.type === PollKind.OPEN_ENDED && typeof responses === 'string') ||
       (item.type === PollKind.MCQ && Array.isArray(responses))
     ) {
+      dispatch({
+        type: PollActionKind.UPDATE_POLL_ITEM_RESPONSES,
+        payload: {
+          id: item.id,
+          type: item.type,
+          responses,
+          uid: localUid,
+          timestamp: Date.now(),
+        },
+      });
       sendResponseToPollEvt(item, responses);
     } else {
       throw new Error(
@@ -323,6 +340,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     sendResponseToPoll,
     goToShareResponseModal,
     closeCurrentModal,
+    isHost,
   };
 
   return <PollContext.Provider value={value}>{children}</PollContext.Provider>;

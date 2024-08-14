@@ -66,7 +66,7 @@ export default function DraftPollFormView({
             text: '',
             value: '',
             votes: [],
-            percent: '',
+            percent: '0',
           },
         ],
       });
@@ -244,7 +244,7 @@ export default function DraftPollFormView({
                   <></>
                 )}
               </View>
-              <View style={style.pFormCheckboxContainer}>
+              {/* <View style={style.pFormCheckboxContainer}>
                 <Checkbox
                   checked={form.share}
                   label={'Share results with the respondants'}
@@ -253,8 +253,8 @@ export default function DraftPollFormView({
                     handleCheckboxChange('share', !form.share);
                   }}
                 />
-              </View>
-              <View style={style.pFormCheckboxContainer}>
+              </View> */}
+              {/* <View style={style.pFormCheckboxContainer}>
                 <Checkbox
                   checked={form.duration}
                   label={'Set Timer Duration'}
@@ -263,7 +263,7 @@ export default function DraftPollFormView({
                     handleCheckboxChange('duration', !form.duration);
                   }}
                 />
-              </View>
+              </View> */}
             </View>
           </View>
         </View>

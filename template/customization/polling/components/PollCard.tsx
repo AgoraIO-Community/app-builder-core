@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, View, StyleSheet, DimensionValue} from 'react-native';
 import {PollItem, PollItemOptionItem} from '../context/poll-context';
-import {ThemeConfig, TertiaryButton} from 'customization-api';
+import {ThemeConfig, TertiaryButton, useLocalUid} from 'customization-api';
 
 interface PollListItemWithResultProps {
   optionItem: PollItemOptionItem;
@@ -12,25 +12,28 @@ function PollListItemWithResult({
   optionItem,
   showYourVote = false,
 }: PollListItemWithResultProps) {
+  const localUid = useLocalUid();
   return (
     <View style={style.optionListItem}>
       <View style={style.optionListItemHeader}>
         <Text style={style.optionText}>{optionItem.text}</Text>
-        {showYourVote && (
-          <Text style={style.yourResponseText}>Your Response</Text>
-        )}
+        {showYourVote &&
+          optionItem.votes.find(item => item.uid === localUid) && (
+            <Text style={style.yourResponseText}>Your Response</Text>
+          )}
         <Text style={[style.optionText, style.pushRight]}>
-          {optionItem.percent} {optionItem.votes.length}
+          {optionItem.percent}% ({optionItem.votes.length})
         </Text>
       </View>
       <View style={style.optionListItemFooter}>
         <View style={style.progressBar}>
           <View
+            key={optionItem.percent}
             style={[
               StyleSheet.absoluteFill,
               style.progressBarFill,
               {
-                width: optionItem.percent as DimensionValue,
+                width: `${optionItem.percent}%` as DimensionValue,
               },
             ]}
           />
@@ -44,14 +47,20 @@ function PollListItemWithInput({optionItem}: PollListItemWithResultProps) {
   // Later
 }
 // {pollItem}: {pollItem: PollItem}
-function PollCard({pollItem}: {pollItem: PollItem}) {
+function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
   return (
     <View style={style.pollItem}>
       <View style={style.pollCard}>
         <View style={style.pollCardHeader}>
-          <Text style={style.pollCardHeaderText}>Active</Text>
+          <Text style={style.pollCardHeaderText}>
+            {pollItem.status.toLowerCase()}
+          </Text>
           <View>
-            <Text style={style.pollCardHeaderText}>More</Text>
+            {isHost ? (
+              <Text style={style.pollCardHeaderText}>More</Text>
+            ) : (
+              <></>
+            )}
           </View>
         </View>
         <View style={style.pollCardContent}>
@@ -63,7 +72,10 @@ function PollCard({pollItem}: {pollItem: PollItem}) {
           <View style={style.fullWidth}>
             <View style={[style.optionsList, style.extraBottomPadding]}>
               {pollItem.options.map((item: PollItemOptionItem) => (
-                <PollListItemWithResult optionItem={item} showYourVote={true} />
+                <PollListItemWithResult
+                  optionItem={item}
+                  showYourVote={!isHost}
+                />
               ))}
             </View>
           </View>
@@ -137,7 +149,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
-    marginVertical: 20,
+    marginVertical: 12,
   },
   extraBottomPadding: {
     paddingBottom: 32,

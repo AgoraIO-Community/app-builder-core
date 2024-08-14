@@ -16,36 +16,44 @@ import {PrimaryButton, ThemeConfig} from 'customization-api';
 import {usePoll} from '../context/poll-context';
 
 const PollSidebar = () => {
-  const {polls, startPollForm} = usePoll();
+  const {polls, startPollForm, isHost} = usePoll();
   console.log('supriya polls: ', polls);
   return (
     <View style={style.pollSidebar}>
       {/* Header */}
-      <View style={style.headerSection}>
-        <View style={style.headerCard}>
-          <Text style={style.bodyXSmallText}>
-            Create a new poll and boost interaction with your audience members
-            now!
-          </Text>
-          <View>
-            <PrimaryButton
-              containerStyle={style.btnContainer}
-              textStyle={style.btnText}
-              onPress={() => startPollForm()}
-              text="Create Poll"
-            />
+      {isHost() ? (
+        <>
+          <View style={style.headerSection}>
+            <View style={style.headerCard}>
+              <Text style={style.bodyXSmallText}>
+                Create a new poll and boost interaction with your audience
+                members now!
+              </Text>
+              <View>
+                <PrimaryButton
+                  containerStyle={style.btnContainer}
+                  textStyle={style.btnText}
+                  onPress={() => startPollForm()}
+                  text="Create Poll"
+                />
+              </View>
+            </View>
           </View>
-        </View>
-      </View>
-      <View style={style.separator} />
+          <View style={style.separator} />
+        </>
+      ) : (
+        <></>
+      )}
       <View style={style.bodySection}>
         <View>
-          <Text style={style.bodySectionTitleText}>Past Polls (01)</Text>
+          <Text style={style.bodySectionTitleText}>
+            Past Polls ({Object.keys(polls).length})
+          </Text>
         </View>
         <View style={style.pollList}>
           {polls && Object.keys(polls).length > 0 ? (
             Object.keys(polls).map((key: string) => (
-              <PollCard key={key} pollItem={polls[key]} />
+              <PollCard key={key} isHost={isHost()} pollItem={polls[key]} />
             ))
           ) : (
             <></>
@@ -98,10 +106,10 @@ const style = StyleSheet.create({
     textTransform: 'capitalize',
   },
   separator: {
-    paddingVertical: 24,
+    marginVertical: 24,
     height: 1,
     display: 'flex',
-    background: $config.INPUT_FIELD_BORDER_COLOR,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
   bodySection: {},
   bodySectionTitleText: {
