@@ -28,7 +28,7 @@ function PollModals() {
       {currentModal === PollModalState.RESPOND_TO_POLL && launchPollId && (
         <PollResponseFormModal />
       )}
-      {currentModal === PollModalState.SHARE_POLL_RESULTS &&
+      {currentModal === PollModalState.VIEW_POLL_RESULTS &&
         viewResultPollId && <PollResultModal />}
     </>
     //    <Suspense fallback={<div>Loading...</div>}>

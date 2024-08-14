@@ -26,7 +26,7 @@ enum PollKind {
 enum PollModalState {
   DRAFT_POLL = 'DRAFT_POLL',
   RESPOND_TO_POLL = 'RESPOND_TO_POLL',
-  SHARE_POLL_RESULTS = 'SHARE_POLL_RESULTS',
+  VIEW_POLL_RESULTS = 'VIEW_POLL_RESULTS',
 }
 
 interface PollItemOptionItem {
@@ -231,7 +231,7 @@ interface PollContextValue {
   viewResultPollId: string;
   sendPollResults: (item: PollItem) => void;
   onPollResultsReceived: (item: PollItem) => void;
-  goToShareResponseModal: (pollId: string) => void;
+  goToViewPollResultsModal: (pollId: string) => void;
   closeCurrentModal: () => void;
   isHost: () => boolean;
 }
@@ -352,16 +352,16 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const goToShareResponseModal = (pollId: string) => {
+  const goToViewPollResultsModal = (pollId: string) => {
     setViewResultPollId(pollId);
-    setCurrentModal(PollModalState.SHARE_POLL_RESULTS);
+    setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
   };
 
   const closeCurrentModal = () => {
     if (currentModal === PollModalState.RESPOND_TO_POLL) {
       setLaunchPollId(null);
     }
-    if (currentModal === PollModalState.SHARE_POLL_RESULTS) {
+    if (currentModal === PollModalState.VIEW_POLL_RESULTS) {
       setViewResultPollId(null);
     }
     setCurrentModal(null);
@@ -381,7 +381,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     sendResponseToPoll,
     sendPollResults,
     onPollResultsReceived,
-    goToShareResponseModal,
+    goToViewPollResultsModal,
     closeCurrentModal,
     isHost,
   };

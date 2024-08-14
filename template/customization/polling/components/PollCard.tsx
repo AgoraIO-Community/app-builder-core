@@ -8,10 +8,12 @@ function PollCard({
   pollItem,
   isHost,
   onPublish,
+  onViewDetails,
 }: {
   pollItem: PollItem;
   isHost: boolean;
   onPublish: (item: PollItem) => void;
+  onViewDetails: (id: string) => void;
 }) {
   return (
     <View style={style.pollItem}>
@@ -53,9 +55,7 @@ function PollCard({
           <View style={style.pollCardFooterActions}>
             <TertiaryButton
               text="View Details"
-              onPress={() => {
-                // show poll share modal
-              }}
+              onPress={() => onViewDetails(pollItem.id)}
             />
           </View>
         </View>
@@ -109,60 +109,6 @@ const style = StyleSheet.create({
   pollCardFooter: {},
   pollCardFooterActions: {
     alignSelf: 'flex-start',
-  },
-  optionsList: {
-    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    borderRadius: 9,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    marginVertical: 12,
-  },
-  extraBottomPadding: {
-    paddingBottom: 32,
-  },
-  optionListItem: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-  },
-  optionListItemHeader: {
-    display: 'flex',
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  optionListItemFooter: {},
-  optionText: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.normal,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    lineHeight: 24,
-  },
-  yourResponseText: {
-    color: $config.SEMANTIC_SUCCESS,
-    fontSize: ThemeConfig.FontSize.tiny,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    lineHeight: 12,
-    paddingLeft: 16,
-  },
-  pushRight: {
-    marginLeft: 'auto',
-  },
-  progressBar: {
-    height: 4,
-    borderRadius: 8,
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
-    width: '100%',
-  },
-  progressBarFill: {
-    borderRadius: 8,
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
 });
 

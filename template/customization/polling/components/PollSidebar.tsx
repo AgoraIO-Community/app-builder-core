@@ -16,7 +16,13 @@ import {PrimaryButton, ThemeConfig} from 'customization-api';
 import {PollItem, usePoll} from '../context/poll-context';
 
 const PollSidebar = () => {
-  const {polls, startPollForm, isHost, sendPollResults} = usePoll();
+  const {
+    polls,
+    startPollForm,
+    isHost,
+    sendPollResults,
+    goToViewPollResultsModal,
+  } = usePoll();
 
   const onPublish = (item: PollItem) => {
     sendPollResults({...item});
@@ -63,6 +69,7 @@ const PollSidebar = () => {
                 isHost={isHost()}
                 onPublish={onPublish}
                 pollItem={polls[key]}
+                onViewDetails={(id: string) => goToViewPollResultsModal(id)}
               />
             ))
           ) : (

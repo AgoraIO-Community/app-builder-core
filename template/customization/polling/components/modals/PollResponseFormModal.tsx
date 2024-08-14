@@ -17,7 +17,7 @@ export default function PollResponseFormModal() {
     polls,
     launchPollId,
     sendResponseToPoll,
-    goToShareResponseModal,
+    goToViewPollResultsModal,
     closeCurrentModal,
   } = usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
@@ -27,7 +27,7 @@ export default function PollResponseFormModal() {
   const onFormComplete = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
     if (pollItem.share) {
-      goToShareResponseModal(pollItem.id);
+      goToViewPollResultsModal(pollItem.id);
     } else {
       setHasResponded(true);
     }
