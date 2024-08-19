@@ -20,7 +20,7 @@ import {
   Text,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {useContent} from 'customization-api';
+import {useContent, useLocalUserInfo} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -36,9 +36,12 @@ import {
   moreBtnRemoveFromLarge,
   videoRoomGoToActiveSpeakerText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {useFullScreen} from '..//utils/useFullScreen';
 const {topPinned} = layoutProps;
 
 const PinnedVideo = ({renderData}) => {
+  const {screenUid} = useLocalUserInfo();
+  const {requestFullscreen} = useFullScreen();
   const removeFromLargeText = useString(moreBtnRemoveFromLarge)();
   const goToASText = useString(videoRoomGoToActiveSpeakerText)();
   const [isOnTop, setIsOnTop] = useState(true);
@@ -52,6 +55,7 @@ const PinnedVideo = ({renderData}) => {
   const {dispatch} = useContext(DispatchContext);
   const {videoTileInViewPortState} = useVideoCall();
   const {getWhiteboardUid = () => 0} = useWhiteboard();
+  const {defaultContent, customContent} = useContent();
   useEffect(() => {
     if (activeSpeaker && !videoTileInViewPortState[activeSpeaker] && isOnTop) {
       dispatch({
@@ -80,6 +84,14 @@ const PinnedVideo = ({renderData}) => {
       !isOnTop && setIsOnTop(true);
     }
   };
+
+  const isWhiteboard = customContent && customContent[pinnedUid || maxUid];
+  const isRemoteScreenshare =
+    (pinnedUid || maxUid) != screenUid &&
+    defaultContent &&
+    defaultContent[pinnedUid || maxUid]?.video &&
+    defaultContent[pinnedUid || maxUid]?.type === 'screenshare';
+
   return (
     <View
       style={{
@@ -248,7 +260,7 @@ const PinnedVideo = ({renderData}) => {
               : style.flex8
           }>
           <View style={style.flex1} key={'maxVideo' + (pinnedUid || maxUid)}>
-            {isSidePinnedlayout && (
+            {isSidePinnedlayout && (isWhiteboard || isRemoteScreenshare) ? (
               <IconButton
                 containerStyle={{
                   position: 'absolute',
@@ -257,7 +269,16 @@ const PinnedVideo = ({renderData}) => {
                   zIndex: 999,
                   elevation: 999,
                 }}
-                onPress={() => setCollapse(!collapse)}
+                onPress={() => {
+                  if (
+                    defaultContent &&
+                    defaultContent[pinnedUid || maxUid]?.video
+                  ) {
+                    requestFullscreen(pinnedUid || maxUid);
+                  } else if (customContent[pinnedUid || maxUid]) {
+                    setCollapse(!collapse);
+                  }
+                }}
                 iconProps={{
                   iconContainerStyle: {
                     padding: 8,
@@ -265,13 +286,19 @@ const PinnedVideo = ({renderData}) => {
                       $config.CARD_LAYER_5_COLOR +
                       hexadecimalTransparency['10%'],
                   },
-                  name: collapse ? 'collapse' : 'expand',
+                  name: isRemoteScreenshare
+                    ? 'fullscreen'
+                    : isWhiteboard && collapse
+                    ? 'collapse'
+                    : 'expand',
                   tintColor: $config.SECONDARY_ACTION_COLOR,
                   iconSize: 24,
                 }}
               />
+            ) : (
+              <></>
             )}
-            {pinnedUid && pinnedUid !== getWhiteboardUid() ? (
+            {/* {pinnedUid && pinnedUid !== getWhiteboardUid() ? (
               <IconButton
                 containerStyle={{
                   paddingHorizontal: 8,
@@ -310,7 +337,7 @@ const PinnedVideo = ({renderData}) => {
               />
             ) : (
               <></>
-            )}
+            )} */}
             {/** Render the maximized view */}
             <RenderComponent uid={pinnedUid || maxUid} isMax={true} />
           </View>

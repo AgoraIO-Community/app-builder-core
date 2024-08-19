@@ -473,11 +473,7 @@ const ActionSheetContent = props => {
     ([_, v]) => !isHidden(v?.hide) && v?.component,
   );
 
-  console.log('debugging displayItems', displayItems);
-
   const displayItemsOrdered = CustomToolbarSorting(displayItems);
-
-  console.log('debugging displayItemsOrdered', displayItemsOrdered);
 
   if (displayCustomBottomSheetContent) {
     return <View>{customBottomSheetContent}</View>;
