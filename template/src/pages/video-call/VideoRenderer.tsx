@@ -257,7 +257,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 if (user?.type == 'whiteboard') {
                   setWhiteboardOnFullScreen(!isWhiteboardOnFullScreen);
                 } else {
-                  if (isMobileUA()) {
+                  if (isMobileUA() && !(isAndroid() || isIOS())) {
                     requestFullscreen(user.uid).catch(() => {
                       setScreenShareFullScreen();
                     });
