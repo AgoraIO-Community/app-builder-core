@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -21,50 +21,37 @@ import Settings, {
   SettingsWithViewWrapper,
   SettingsIconButtonProps,
 } from './Settings';
-import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import LiveStreamContext from './livestream';
 import {filterObject, numFormatter} from '../utils/index';
-import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   BREAKPOINTS,
   CustomToolbarMerge,
-  CustomToolbarSort,
   CustomToolbarSorting,
-  isAndroid,
   isIOS,
-  isMobileUA,
-  isValidReactComponent,
   isWebInternal,
   trimText,
-  updateToolbarDefaultConfig,
-  useIsDesktop,
 } from '../utils/common';
-import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
-import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import {useString} from '../utils/useString';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
-import LayoutIconButton from '../subComponents/LayoutIconButton';
-import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
-import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import Spacer from '../atoms/Spacer';
-import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import ParticipantsCount from '../atoms/ParticipantsCount';
-import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
-import ToolbarItem from '../atoms/ToolbarItem';
-import {ToolbarTopPresetProps, ToolbarItemHide} from '../atoms/ToolbarPreset';
+import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
+import {
+  ToolbarItemHide,
+  ToolbarItemLabel,
+  TopToolbarItemsConfig,
+  ToolbarPresetProps,
+} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
@@ -74,6 +61,7 @@ import {
   toolbarItemPeopleText,
   videoRoomRecordingText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {useLanguage} from '../language/useLanguage';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -113,6 +101,7 @@ export interface ParticipantsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {
     liveStreamingRequestAlertIconPosition = {
@@ -124,8 +113,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   } = props;
   const {isOnActionSheet, showLabel} = useActionSheet();
   const {sidePanel, setSidePanel} = useSidePanel();
-  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
-    useContext(LiveStreamContext);
+  const {isPendingRequestToReview} = useContext(LiveStreamContext);
 
   const {waitingRoomUids} = useWaitingRoomContext();
   const participantsLabel = useString(toolbarItemPeopleText)();
@@ -144,7 +132,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     //setLastCheckedRequestTimestamp(new Date().getTime());
   };
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       name: 'participants',
       tintColor: isPanelActive
@@ -155,7 +143,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: showLabel ? participantsLabel : '',
+      text: showLabel ? label || participantsLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
@@ -232,6 +220,7 @@ export interface ChatIconButtonProps {
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {
@@ -242,13 +231,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       bottom: undefined,
       zIndex: 999,
     },
-    badgeTextStyle = {
-      color: $config.PRIMARY_ACTION_TEXT_COLOR,
-      fontSize: 12,
-      textAlign: 'center',
-    },
   } = props;
-  const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
+  const {totalUnreadCount} = useChatNotification();
   const {setChatType, setPrivateChatUser} = useChatUIControls();
 
   const chatLabel = useString(toolbarItemChatText)();
@@ -280,7 +264,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   };
   const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       name: 'chat-nav',
       tintColor: isPanelActive
@@ -291,20 +275,12 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: showLabel ? chatLabel : '',
+      text: showLabel ? label || chatLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
 
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
     iconButtonProps.btnTextProps.textStyle = {
       color: $config.FONT_COLOR,
       marginTop: 8,
@@ -316,30 +292,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  // const renderBadgeOld = (badgeCount: any) => {
-  //   return (
-  //     <View
-  //       style={{
-  //         position: 'absolute',
-  //         top: badgeContainerPosition?.top,
-  //         bottom: badgeContainerPosition?.bottom,
-  //         left: badgeContainerPosition?.left,
-  //         right: badgeContainerPosition?.right,
-  //         borderRadius: 10,
-  //         width: 20,
-  //         height: 20,
-  //         backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-  //         justifyContent: 'center',
-  //       }}>
-  //       <Text
-  //         style={{
-  //           ...badgeTextStyle,
-  //         }}>
-  //         {numFormatter(badgeCount)}
-  //       </Text>
-  //     </View>
-  //   );
-  // };
   const renderUnreadMessageIndicator = () => {
     return (
       <View
@@ -353,7 +305,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           width: 12,
           height: 12,
           backgroundColor: $config.SEMANTIC_ERROR,
-        }}></View>
+        }}
+      />
     );
   };
   return props?.render ? (
@@ -373,17 +326,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     </>
   );
 };
-
-interface LayoutIconButtonProps {
-  modalPosition?: {
-    top?: number;
-    right?: number;
-    left?: number;
-    bottom?: number;
-  };
-
-  render?: (onPress: () => void) => JSX.Element;
-}
 
 export const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
@@ -451,34 +393,34 @@ export const RecordingStatusToolbarItem = () => {
   );
 };
 
-export const ParticipantToolbarItem = () => {
+export const ParticipantToolbarItem = props => {
   return (
-    <ToolbarItem testID="videocall-participantsicon">
+    <ToolbarItem testID="videocall-participantsicon" toolbarProps={props}>
       <ParticipantsIconButton />
     </ToolbarItem>
   );
 };
 
-export const ChatToolbarItem = () => {
+export const ChatToolbarItem = props => {
   return (
     $config.CHAT && (
       <>
-        <ToolbarItem testID="videocall-chaticon">
+        <ToolbarItem testID="videocall-chaticon" toolbarProps={props}>
           <ChatIconButton />
         </ToolbarItem>
       </>
     )
   );
 };
-export const SettingsToobarItem = () => {
+export const SettingsToobarItem = props => {
   return (
-    <ToolbarItem testID="videocall-settingsicon">
+    <ToolbarItem testID="videocall-settingsicon" toolbarProps={props}>
       <SettingsIconButtonWithWrapper />
     </ToolbarItem>
   );
 };
 
-const defaultItems: ToolbarTopPresetProps['items'] = {
+const defaultItems: TopToolbarItemsConfig = {
   'meeting-title': {
     align: 'start',
     component: MeetingTitleToolbarItem,
@@ -521,12 +463,13 @@ const defaultItems: ToolbarTopPresetProps['items'] = {
 };
 
 export interface NavbarProps {
-  items?: ToolbarTopPresetProps['items'];
+  items?: ToolbarPresetProps['items'];
   includeDefaultItems?: boolean;
 }
 const Navbar = (props: NavbarProps) => {
   const {includeDefaultItems = true, items = {}} = props;
   const {width, height} = useWindowDimensions();
+  const {languageCode} = useLanguage();
 
   const isHidden = (hide: ToolbarItemHide = false) => {
     try {
@@ -563,6 +506,16 @@ const Navbar = (props: NavbarProps) => {
   const centerItemsOrdered = CustomToolbarSorting(centerItems);
   const endItemsOrdered = CustomToolbarSorting(endItems);
 
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
+
   const renderContent = (
     orderedKeys: string[],
     type: 'start' | 'center' | 'end',
@@ -572,16 +525,28 @@ const Navbar = (props: NavbarProps) => {
     orderedKeys.forEach(keyName => {
       index = index + 1;
       let ToolbarComponent = null;
+      let label = null;
+      let onPress = null;
       if (type === 'start') {
         ToolbarComponent = startItems[keyName]?.component;
+        label = startItems[keyName]?.label;
+        onPress = startItems[keyName]?.onPress;
       } else if (type === 'center') {
         ToolbarComponent = centerItems[keyName]?.component;
+        label = centerItems[keyName]?.label;
+        onPress = centerItems[keyName]?.onPress;
       } else {
         ToolbarComponent = endItems[keyName]?.component;
+        label = endItems[keyName]?.label;
+        onPress = endItems[keyName]?.onPress;
       }
       if (ToolbarComponent) {
         renderContentItem.push(
-          <ToolbarComponent key={`top-toolbar-${type}` + index} />,
+          <ToolbarComponent
+            key={`top-toolbar-${type}` + index}
+            label={customLabel(label)}
+            onPress={onPress}
+          />,
         );
       }
     });

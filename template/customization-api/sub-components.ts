@@ -67,7 +67,8 @@ export type {
   ToolbarDefaultItem,
   ToolbarDefaultItemsConfig,
   ToolbarHideCallback,
-  ToolbarMoreButtonFields,
+  ToolbarMoreButtonDefaultFields,
+  ToolbarMoreButtonCustomFields,
   ToolbarMoreDefaultItem,
   ToolbarItemsConfig,
   TopToolbarItemsConfig,
@@ -77,6 +78,8 @@ export type {
   ToolbarItemAlign,
   ToolbarItemHide,
   ToolbarPresetProps,
+  ToolbarItemLabel,
+  ToolbarItemLabelCallback,
 } from '../src/atoms/ToolbarPreset';
 export {default as TranscriptPanel} from '../src/subComponents/caption/Transcript';
 export type {TranscriptProps} from '../src/subComponents/caption/Transcript';

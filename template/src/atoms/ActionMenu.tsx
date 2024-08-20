@@ -32,6 +32,7 @@ export interface ActionMenuItem {
   iconColor: string;
   textColor: string;
   title: string;
+  label?: string;
   toggleStatus?: boolean;
   onPress: () => void;
   onHoverCallback?: (isHovered: boolean) => void;
@@ -81,6 +82,7 @@ const ActionMenu = (props: ActionMenuProps) => {
 
       const {
         title,
+        label = null,
         component: CustomActionItem = null,
         icon = '',
         onHoverIcon,
@@ -174,7 +176,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                   </View>
                   <Text
                     style={[styles.text, textColor ? {color: textColor} : {}]}>
-                    {title}
+                    {label || title}
                   </Text>
                   {toggleStatus !== undefined && toggleStatus !== null ? (
                     <View style={styles.toggleContainer}>

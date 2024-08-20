@@ -10,12 +10,9 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import ThemeConfig from '../../theme';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
-import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {PropsContext, ClientRoleType} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import useIsHandRaised from '../../utils/useIsHandRaised';
@@ -27,6 +24,7 @@ import {
   livestreamingShareTooltipText,
   toolbarItemShareText,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../../atoms/ToolbarItem';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -40,6 +38,7 @@ export interface ScreenshareButtonProps {
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {showLabel = $config.ICON_TEXT || false, isOnActionSheet = false} =
@@ -75,9 +74,11 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
     },
-    onPress,
+    onPress: onPressCustom || onPress,
     btnTextProps: {
-      text: showLabel ? screenShareButtonLabel(isScreenshareActive) : '',
+      text: showLabel
+        ? label || screenShareButtonLabel(isScreenshareActive)
+        : '',
       textColor: $config.FONT_COLOR,
     },
   };
