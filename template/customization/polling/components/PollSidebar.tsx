@@ -11,24 +11,13 @@
 */
 import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
-import {PollCard} from './PollCard';
 import {PrimaryButton, ThemeConfig} from 'customization-api';
-import {PollItem, usePoll} from '../context/poll-context';
+import {usePoll} from '../context/poll-context';
+import PollList from './PollList';
 
 const PollSidebar = () => {
-  const {
-    polls,
-    startPollForm,
-    isHost,
-    sendPollResults,
-    goToViewPollResultsModal,
-  } = usePoll();
+  const {startPollForm, isHost} = usePoll();
 
-  const onPublish = (item: PollItem) => {
-    sendPollResults({...item});
-  };
-
-  console.log('supriya polls: ', polls);
   return (
     <View style={style.pollSidebar}>
       {/* Header */}
@@ -55,28 +44,7 @@ const PollSidebar = () => {
       ) : (
         <></>
       )}
-      <View style={style.bodySection}>
-        <View>
-          <Text style={style.bodySectionTitleText}>
-            Past Polls ({Object.keys(polls).length})
-          </Text>
-        </View>
-        <View style={style.pollList}>
-          {polls && Object.keys(polls).length > 0 ? (
-            Object.keys(polls).map((key: string) => (
-              <PollCard
-                key={key}
-                isHost={isHost()}
-                onPublish={onPublish}
-                pollItem={polls[key]}
-                onViewDetails={(id: string) => goToViewPollResultsModal(id)}
-              />
-            ))
-          ) : (
-            <></>
-          )}
-        </View>
-      </View>
+      <PollList />
     </View>
   );
 };
@@ -128,15 +96,6 @@ const style = StyleSheet.create({
     display: 'flex',
     backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
-  bodySection: {},
-  bodySectionTitleText: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.tiny,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    lineHeight: 12,
-  },
-  pollList: {},
 });
 
 export default PollSidebar;

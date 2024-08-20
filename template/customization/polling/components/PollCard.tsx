@@ -3,18 +3,22 @@ import {Text, View, StyleSheet} from 'react-native';
 import {PollItem, PollItemOptionItem} from '../context/poll-context';
 import {ThemeConfig, TertiaryButton} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
+import {BaseMoreButton} from '../ui/BaseMoreButton';
+import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
 
 function PollCard({
   pollItem,
   isHost,
-  onPublish,
-  onViewDetails,
+  handleSelect,
 }: {
   pollItem: PollItem;
   isHost: boolean;
-  onPublish: (item: PollItem) => void;
-  onViewDetails: (id: string) => void;
+  handleSelect: (action: PollTaskRequestTypes, pollId: string) => void;
 }) {
+  const moreBtnRef = React.useRef<View>(null);
+  const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+
   return (
     <View style={style.pollItem}>
       <View style={style.pollCard}>
@@ -24,11 +28,20 @@ function PollCard({
           </Text>
           <View>
             {isHost ? (
-              <Text
-                onPress={() => onPublish(pollItem)}
-                style={style.pollCardHeaderText}>
-                Publish
-              </Text>
+              <>
+                <BaseMoreButton
+                  ref={moreBtnRef}
+                  setActionMenuVisible={setActionMenuVisible}
+                />
+                <PollCardMoreActions
+                  moreBtnRef={moreBtnRef}
+                  actionMenuVisible={actionMenuVisible}
+                  setActionMenuVisible={setActionMenuVisible}
+                  onCardActionSelect={action => {
+                    handleSelect(action, pollItem.id);
+                  }}
+                />
+              </>
             ) : (
               <></>
             )}
@@ -42,12 +55,15 @@ function PollCard({
           </View>
           <View style={style.fullWidth}>
             <PollOptionList>
-              {pollItem.options.map((item: PollItemOptionItem) => (
-                <PollOptionListItemResult
-                  optionItem={item}
-                  showYourVote={!isHost}
-                />
-              ))}
+              {pollItem.options.map(
+                (item: PollItemOptionItem, index: number) => (
+                  <PollOptionListItemResult
+                    key={index}
+                    optionItem={item}
+                    showYourVote={!isHost}
+                  />
+                ),
+              )}
             </PollOptionList>
           </View>
         </View>
@@ -55,7 +71,9 @@ function PollCard({
           <View style={style.pollCardFooterActions}>
             <TertiaryButton
               text="View Details"
-              onPress={() => onViewDetails(pollItem.id)}
+              onPress={() =>
+                handleSelect(PollTaskRequestTypes.VIEW_DETAILS, pollItem.id)
+              }
             />
           </View>
         </View>

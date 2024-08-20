@@ -45,3 +45,4 @@ export {
   type ScreenEncoderConfigurationPreset,
   type VideoEncoderConfiguration,
 } from '../src/app-state/useVideoQuality';
+export {type ActionMenuItem} from '../src/atoms/ActionMenu';

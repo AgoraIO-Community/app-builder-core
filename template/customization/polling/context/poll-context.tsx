@@ -6,6 +6,7 @@ import {
   getPollExpiresAtTime,
   POLL_DURATION,
 } from '../components/form/form-config';
+import {PollTaskRequestTypes} from '../components/PollCardMoreActions';
 
 enum PollAccess {
   PUBLIC = 'PUBLIC',
@@ -231,9 +232,9 @@ interface PollContextValue {
   viewResultPollId: string;
   sendPollResults: (item: PollItem) => void;
   onPollResultsReceived: (item: PollItem) => void;
-  goToViewPollResultsModal: (pollId: string) => void;
   closeCurrentModal: () => void;
   isHost: () => boolean;
+  handlePollTaskRequest: (task: PollTaskRequestTypes, pollId: string) => void;
 }
 
 const PollContext = createContext<PollContextValue | null>(null);
@@ -352,9 +353,30 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const goToViewPollResultsModal = (pollId: string) => {
-    setViewResultPollId(pollId);
-    setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
+  const handlePollTaskRequest = (
+    task: PollTaskRequestTypes,
+    pollId: string,
+  ) => {
+    switch (task) {
+      case PollTaskRequestTypes.PUBLISH:
+        sendPollResults({...polls[pollId]});
+        break;
+      case PollTaskRequestTypes.SHARE:
+        // No user case so far
+        break;
+      case PollTaskRequestTypes.VIEW_DETAILS:
+        setViewResultPollId(pollId);
+        setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
+        break;
+      case PollTaskRequestTypes.DELETE:
+        break;
+      case PollTaskRequestTypes.CLOSE:
+        break;
+      case PollTaskRequestTypes.EXPORT:
+        break;
+      default:
+        break;
+    }
   };
 
   const closeCurrentModal = () => {
@@ -381,7 +403,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     sendResponseToPoll,
     sendPollResults,
     onPollResultsReceived,
-    goToViewPollResultsModal,
+    handlePollTaskRequest,
     closeCurrentModal,
     isHost,
   };

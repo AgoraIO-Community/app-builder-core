@@ -44,6 +44,9 @@ export default function PollResultModal() {
 export const style = StyleSheet.create({
   shareBox: {
     width: 550,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
   },
   titleCard: {
     display: 'flex',

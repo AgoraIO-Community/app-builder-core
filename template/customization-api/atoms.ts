@@ -5,3 +5,4 @@ export {default as Spacer} from '../src/atoms/Spacer';
 export {default as LinkButton} from '../src/atoms/LinkButton';
 export {default as PrimaryButton} from '../src/atoms/PrimaryButton';
 export {default as TertiaryButton} from '../src/atoms/TertiaryButton';
+export {default as ActionMenu} from '../src/atoms/ActionMenu';

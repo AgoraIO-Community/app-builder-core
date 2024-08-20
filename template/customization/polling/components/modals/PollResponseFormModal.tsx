@@ -11,13 +11,14 @@ import {
 } from '../form/poll-response-forms';
 import {PollKind, usePoll} from '../../context/poll-context';
 import PollAvatarHeader from '../PollAvatarHeader';
+import {PollTaskRequestTypes} from '../PollCardMoreActions';
 
 export default function PollResponseFormModal() {
   const {
     polls,
     launchPollId,
     sendResponseToPoll,
-    goToViewPollResultsModal,
+    handlePollTaskRequest,
     closeCurrentModal,
   } = usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
@@ -27,7 +28,7 @@ export default function PollResponseFormModal() {
   const onFormComplete = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
     if (pollItem.share) {
-      goToViewPollResultsModal(pollItem.id);
+      handlePollTaskRequest(PollTaskRequestTypes.VIEW_DETAILS, pollItem.id);
     } else {
       setHasResponded(true);
     }
