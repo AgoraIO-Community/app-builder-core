@@ -73,6 +73,7 @@ function downloadCsv(data: string, filename: string = 'data.csv'): void {
 
   link.setAttribute('href', url);
   link.setAttribute('download', filename);
+  link.setAttribute('target', '_blank');
   link.style.visibility = 'hidden';
 
   document.body.appendChild(link);

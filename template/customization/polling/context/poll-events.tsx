@@ -39,6 +39,7 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
       PersistanceLevel.Channel,
     );
   };
+
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
     item,
     responses,
