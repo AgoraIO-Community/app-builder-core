@@ -38,7 +38,7 @@ enum PollModalState {
 interface PollItemOptionItem {
   text: string;
   value: string;
-  votes: Array<{uid: number; access: PollAccess; timestamp: number}> | [];
+  votes: Array<{uid: number; access: PollAccess; timestamp: number}>;
   percent: string;
 }
 interface PollItem {
@@ -131,24 +131,27 @@ function pollReducer(state: Poll, action: PollAction): Poll {
     case PollActionKind.UPDATE_POLL_ITEM_RESPONSES:
       {
         const {id: pollId, uid, responses, type, timestamp} = action.payload;
+        const poll = state[pollId];
         if (type === PollKind.OPEN_ENDED && typeof responses === 'string') {
           return {
             ...state,
             [pollId]: {
-              ...state[pollId],
-              answers: [
-                ...state[pollId].answers,
-                {
-                  uid,
-                  response: responses,
-                  timestamp,
-                },
-              ],
+              ...poll,
+              answers: poll.answers
+                ? [
+                    ...poll.answers,
+                    {
+                      uid,
+                      response: responses,
+                      timestamp,
+                    },
+                  ]
+                : [{uid, response: responses, timestamp}],
             },
           };
         }
         if (type === PollKind.MCQ && Array.isArray(responses)) {
-          const newCopyOptions = state[pollId].options.map(item => ({...item}));
+          const newCopyOptions = poll.options?.map(item => ({...item})) || [];
           const withVotesOptions = addVote(
             responses,
             newCopyOptions,
@@ -159,8 +162,8 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           return {
             ...state,
             [pollId]: {
-              ...state[pollId],
-              options: [...withPercentOptions],
+              ...poll,
+              options: withPercentOptions,
             },
           };
         }
@@ -190,6 +193,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
       {
         const pollId = action.payload.pollId;
         if (pollId) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const {[pollId]: _, ...newItems} = state;
           return {
             ...newItems,
@@ -238,7 +242,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const [viewResultPollId, setViewResultPollId] = useState<string>(null);
 
   const localUid = useLocalUid();
-  const {audienceUids, hostUids} = useLiveStreamDataContext();
+  const {hostUids} = useLiveStreamDataContext();
 
   const {sendPollEvt, sendResponseToPollEvt, sendPollResultsEvt} =
     usePollEvents();
