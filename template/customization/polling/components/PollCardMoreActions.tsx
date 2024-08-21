@@ -10,7 +10,7 @@ import {
 export enum PollTaskRequestTypes {
   PUBLISH = 'PUBLISH',
   EXPORT = 'EXPORT',
-  CLOSE = 'CLOSE',
+  FINISH = 'FINISH',
   VIEW_DETAILS = 'VIEW_DETAILS',
   DELETE = 'DELETE',
   SHARE = 'SHARE',
@@ -67,12 +67,12 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     icon: 'close',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Close Poll',
+    title: 'Finish Poll',
     titleStyle: {
       fontSize: ThemeConfig.FontSize.small,
     },
     onPress: () => {
-      onCardActionSelect(PollTaskRequestTypes.CLOSE);
+      onCardActionSelect(PollTaskRequestTypes.FINISH);
       setActionMenuVisible(false);
     },
   });

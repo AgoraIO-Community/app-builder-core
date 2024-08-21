@@ -5,6 +5,7 @@ import {ThemeConfig, TertiaryButton} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
+import {capitalizeFirstLetter} from '../../../src/utils/common';
 
 function PollCard({
   pollItem,
@@ -24,7 +25,7 @@ function PollCard({
       <View style={style.pollCard}>
         <View style={style.pollCardHeader}>
           <Text style={style.pollCardHeaderText}>
-            {pollItem.status.toLowerCase()}
+            {capitalizeFirstLetter(pollItem.status)}
           </Text>
           <View>
             {isHost ? (

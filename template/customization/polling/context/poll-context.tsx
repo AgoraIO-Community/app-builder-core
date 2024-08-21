@@ -7,6 +7,7 @@ import {
   POLL_DURATION,
 } from '../components/form/form-config';
 import {PollTaskRequestTypes} from '../components/PollCardMoreActions';
+import {addVote, arrayToCsv, calculatePercentage, downloadCsv} from '../utils';
 
 enum PollAccess {
   PUBLIC = 'PUBLIC',
@@ -70,7 +71,10 @@ enum PollActionKind {
   ADD_POLL_ITEM = 'ADD_POLL_ITEM',
   UPDATE_POLL_ITEM = 'UPDATE_POLL_ITEM',
   UPDATE_POLL_ITEM_RESPONSES = 'UPDATE_POLL_ITEM_RESPONSES',
-  START_POLL_TIMER = 'START_POLL_TIMER',
+  DELETE_POLL_ITEM = 'DELETE_POLL_ITEM',
+  EXPORT_POLL_ITEM = 'EXPORT_POLL_ITEM',
+  FINISH_POLL_ITEM = 'FINISH_POLL_ITEM',
+  PUBLISH_POLL_ITEM_RESULTS = 'PUBLISH_POLL_ITEM_RESULTS',
 }
 
 type PollAction =
@@ -83,10 +87,6 @@ type PollAction =
       payload: {item: PollItem};
     }
   | {
-      type: PollActionKind.START_POLL_TIMER;
-      payload: {item: PollItem};
-    }
-  | {
       type: PollActionKind.UPDATE_POLL_ITEM_RESPONSES;
       payload: {
         id: string;
@@ -95,63 +95,24 @@ type PollAction =
         uid: number;
         timestamp: number;
       };
+    }
+  | {
+      type: PollActionKind.FINISH_POLL_ITEM;
+      payload: {pollId: string};
+    }
+  | {
+      type: PollActionKind.EXPORT_POLL_ITEM;
+      payload: {pollId: string};
+    }
+  | {
+      type: PollActionKind.PUBLISH_POLL_ITEM_RESULTS;
+      payload: {pollId: string};
+    }
+  | {
+      type: PollActionKind.DELETE_POLL_ITEM;
+      payload: {pollId: string};
     };
 
-function addVote(
-  responses: string[],
-  options: PollItemOptionItem[],
-  uid: number,
-  timestamp: number,
-): PollItemOptionItem[] {
-  return options.map((option: PollItemOptionItem) => {
-    // Count how many times the value appears in the strings array
-    const exists = responses.includes(option.value);
-    if (exists) {
-      // Creating a new object explicitly
-      const newOption: PollItemOptionItem = {
-        ...option,
-        ...option,
-        votes: [
-          ...option.votes,
-          {
-            uid,
-            access: PollAccess.PUBLIC,
-            timestamp,
-          },
-        ],
-      };
-      return newOption;
-    }
-    // If no matches, return the option as is
-    return option;
-  });
-}
-
-function calculatePercentage(
-  options: PollItemOptionItem[],
-): PollItemOptionItem[] {
-  const totalVotes = options.reduce(
-    (total, item) => total + item.votes.length,
-    0,
-  );
-  if (totalVotes === 0) {
-    // As none of the users have voted, there is no need to calulate the percentage,
-    // we can return the options as it is
-    return options;
-  }
-  return options.map((option: PollItemOptionItem) => {
-    let percentage = 0;
-    if (option.votes.length > 0) {
-      percentage = (option.votes.length / totalVotes) * 100;
-    }
-    // Creating a new object explicitly
-    const newOption: PollItemOptionItem = {
-      ...option,
-      percent: percentage.toFixed(0),
-    };
-    return newOption;
-  }) as PollItemOptionItem[];
-}
 function pollReducer(state: Poll, action: PollAction): Poll {
   switch (action.type) {
     case PollActionKind.ADD_POLL_ITEM: {
@@ -204,6 +165,42 @@ function pollReducer(state: Poll, action: PollAction): Poll {
             },
           };
         }
+      }
+      break;
+    case PollActionKind.FINISH_POLL_ITEM:
+      {
+        const pollId = action.payload.pollId;
+        if (pollId) {
+          return {
+            ...state,
+            [pollId]: {...state[pollId], status: PollStatus.FINISHED},
+          };
+        }
+      }
+      break;
+    case PollActionKind.EXPORT_POLL_ITEM:
+      {
+        const pollId = action.payload.pollId;
+        if (pollId) {
+          let csv = arrayToCsv(state[pollId].options);
+          downloadCsv(csv, 'polls.csv');
+        }
+      }
+      break;
+    case PollActionKind.DELETE_POLL_ITEM:
+      {
+        const pollId = action.payload.pollId;
+        if (pollId) {
+          const {[pollId]: _, ...newItems} = state;
+          return {
+            ...state,
+            ...newItems,
+          };
+        }
+      }
+      break;
+    case PollActionKind.PUBLISH_POLL_ITEM_RESULTS:
+      {
       }
       break;
     default: {
@@ -369,10 +366,28 @@ function PollProvider({children}: {children: React.ReactNode}) {
         setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
         break;
       case PollTaskRequestTypes.DELETE:
+        dispatch({
+          type: PollActionKind.DELETE_POLL_ITEM,
+          payload: {
+            pollId,
+          },
+        });
         break;
-      case PollTaskRequestTypes.CLOSE:
+      case PollTaskRequestTypes.FINISH:
+        dispatch({
+          type: PollActionKind.FINISH_POLL_ITEM,
+          payload: {
+            pollId,
+          },
+        });
         break;
       case PollTaskRequestTypes.EXPORT:
+        dispatch({
+          type: PollActionKind.EXPORT_POLL_ITEM,
+          payload: {
+            pollId,
+          },
+        });
         break;
       default:
         break;
