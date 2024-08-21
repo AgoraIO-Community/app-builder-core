@@ -5,7 +5,7 @@ import {ThemeConfig, TertiaryButton} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
-import {capitalizeFirstLetter} from '../../../src/utils/common';
+import {capitalizeFirstLetter} from '../helpers';
 
 function PollCard({
   pollItem,
@@ -35,6 +35,7 @@ function PollCard({
                   setActionMenuVisible={setActionMenuVisible}
                 />
                 <PollCardMoreActions
+                  status={pollItem.status}
                   moreBtnRef={moreBtnRef}
                   actionMenuVisible={actionMenuVisible}
                   setActionMenuVisible={setActionMenuVisible}

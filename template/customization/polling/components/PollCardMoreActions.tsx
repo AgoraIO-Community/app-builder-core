@@ -6,6 +6,7 @@ import {
   calculatePosition,
   ThemeConfig,
 } from 'customization-api';
+import {PollStatus} from '../context/poll-context';
 
 export enum PollTaskRequestTypes {
   PUBLISH = 'PUBLISH',
@@ -17,6 +18,7 @@ export enum PollTaskRequestTypes {
 }
 
 interface PollCardMoreActionsMenuProps {
+  status: PollStatus;
   moreBtnRef: React.RefObject<View>;
   actionMenuVisible: boolean;
   setActionMenuVisible: Dispatch<SetStateAction<boolean>>;
@@ -28,6 +30,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     setActionMenuVisible,
     moreBtnRef,
     onCardActionSelect,
+    status,
   } = props;
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -42,7 +45,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     titleStyle: {
       fontSize: ThemeConfig.FontSize.small,
     },
-    disabled: false,
+    disabled: status === PollStatus.LATER,
     onPress: () => {
       onCardActionSelect(PollTaskRequestTypes.PUBLISH);
       setActionMenuVisible(false);
@@ -71,6 +74,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     titleStyle: {
       fontSize: ThemeConfig.FontSize.small,
     },
+    disabled: status === PollStatus.LATER || status === PollStatus.FINISHED,
     onPress: () => {
       onCardActionSelect(PollTaskRequestTypes.FINISH);
       setActionMenuVisible(false);

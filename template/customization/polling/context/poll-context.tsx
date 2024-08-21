@@ -1,13 +1,17 @@
 import React, {createContext, useReducer, Dispatch, useState} from 'react';
 import {usePollEvents} from './poll-events';
 import {useLocalUid, useLiveStreamDataContext} from 'customization-api';
-
 import {
   getPollExpiresAtTime,
   POLL_DURATION,
 } from '../components/form/form-config';
 import {PollTaskRequestTypes} from '../components/PollCardMoreActions';
-import {addVote, arrayToCsv, calculatePercentage, downloadCsv} from '../utils';
+import {
+  addVote,
+  arrayToCsv,
+  calculatePercentage,
+  downloadCsv,
+} from '../helpers';
 
 enum PollAccess {
   PUBLIC = 'PUBLIC',
@@ -74,7 +78,6 @@ enum PollActionKind {
   DELETE_POLL_ITEM = 'DELETE_POLL_ITEM',
   EXPORT_POLL_ITEM = 'EXPORT_POLL_ITEM',
   FINISH_POLL_ITEM = 'FINISH_POLL_ITEM',
-  PUBLISH_POLL_ITEM_RESULTS = 'PUBLISH_POLL_ITEM_RESULTS',
 }
 
 type PollAction =
@@ -102,10 +105,6 @@ type PollAction =
     }
   | {
       type: PollActionKind.EXPORT_POLL_ITEM;
-      payload: {pollId: string};
-    }
-  | {
-      type: PollActionKind.PUBLISH_POLL_ITEM_RESULTS;
       payload: {pollId: string};
     }
   | {
@@ -193,14 +192,9 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         if (pollId) {
           const {[pollId]: _, ...newItems} = state;
           return {
-            ...state,
             ...newItems,
           };
         }
-      }
-      break;
-    case PollActionKind.PUBLISH_POLL_ITEM_RESULTS:
-      {
       }
       break;
     default: {
