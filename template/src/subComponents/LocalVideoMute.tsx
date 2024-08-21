@@ -9,26 +9,21 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useContext} from 'react';
 import {
   ToggleState,
   PermissionState,
-  ImageIcon as UIKitImageIcon,
   ClientRoleType,
   PropsContext,
-  RtcContext,
-  DispatchContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
-import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useScreenshare} from './screenshare/useScreenshare';
-import {isAndroid, isWebInternal} from '../utils/common';
+import {isAndroid} from '../utils/common';
 import {isIOS} from '../utils/common';
 import {useVideoCall} from '../components/useVideoCall';
 import {useToolbarMenu} from '../utils/useMenu';
@@ -43,6 +38,7 @@ import {
   toolbarItemCameraTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 /**
  * A component to mute / unmute the local video
  */
@@ -59,6 +55,8 @@ export interface LocalVideoMuteProps {
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
+
   const {rtcProps} = useContext(PropsContext);
   const {isScreenshareActive} = useScreenshare();
   const {setShowStopScreenSharePopup} = useVideoCall();
@@ -71,7 +69,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
-  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {position} = useToolbar();
   const {
     rtcProps: {callActive},
@@ -150,24 +148,16 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     hoverEffectStyle: props?.plainIconHoverEffect
       ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
       : {},
-    onPress,
+    onPress: onPressCustom || onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel && callActive && !isMobileUA() ? videoLabel : '',
+      text: showLabel && callActive && !isMobileUA() ? label || videoLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,
   };
 
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
     const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
     const isBroadCasting =
       rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;

@@ -52,12 +52,7 @@ import VBPanel, {
 } from '../../components/virtual-background/VBPanel';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
-import {
-  ToolbarBottomPresetProps,
-  ToolbarLeftPresetProps,
-  ToolbarRightPresetProps,
-  ToolbarTopPresetProps,
-} from '../../atoms/ToolbarPreset';
+import {ToolbarPresetProps} from '../../atoms/ToolbarPreset';
 import CustomSidePanelView from '../../components/CustomSidePanel';
 
 const VideoCallScreen = () => {
@@ -108,10 +103,10 @@ const VideoCallScreen = () => {
       VideocallAfterView: React.ComponentType;
       LeftbarComponent: React.ComponentType<LeftbarPropsInterface>;
       RightbarComponent: React.ComponentType<RightbarInterface>;
-      BottombarProps?: any;
-      TopbarProps?: any;
-      LeftbarProps?: any;
-      RightbarProps?: any;
+      BottombarProps?: ToolbarPresetProps['items'];
+      TopbarProps?: ToolbarPresetProps['items'];
+      LeftbarProps?: ToolbarPresetProps['items'];
+      RightbarProps?: ToolbarPresetProps['items'];
       SidePanelArray?: SidePanelItem[];
     } = {
       BottombarComponent: Controls,
@@ -343,7 +338,7 @@ const VideoCallScreen = () => {
         <View
           style={$config.ICON_TEXT ? style.fullRow : style.fullRowWithoutIcon}>
           <ToolbarProvider value={{position: ToolbarPosition.left}}>
-            {LeftbarProps?.length ? (
+            {Object.keys(LeftbarProps)?.length ? (
               <LeftbarComponent
                 items={LeftbarProps}
                 includeDefaultItems={false}
@@ -360,7 +355,7 @@ const VideoCallScreen = () => {
                 style.zeroHeight
               }>
               <ToolbarProvider value={{position: ToolbarPosition.top}}>
-                {TopbarProps?.length ? (
+                {Object.keys(TopbarProps)?.length ? (
                   <TopbarComponent
                     items={TopbarProps}
                     includeDefaultItems={false}
@@ -441,7 +436,7 @@ const VideoCallScreen = () => {
               <></>
             ) : (
               <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-                {BottombarProps?.length ? (
+                {Object.keys(BottombarProps)?.length ? (
                   <BottombarComponent
                     items={BottombarProps}
                     includeDefaultItems={false}
@@ -464,7 +459,7 @@ const VideoCallScreen = () => {
             )}
           </View>
           <ToolbarProvider value={{position: ToolbarPosition.right}}>
-            {RightbarProps?.length ? (
+            {Object.keys(RightbarProps)?.length ? (
               <RightbarComponent
                 items={RightbarProps}
                 includeDefaultItems={false}

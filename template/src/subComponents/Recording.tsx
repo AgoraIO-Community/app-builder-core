@@ -18,6 +18,7 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useString} from '../utils/useString';
 import {toolbarItemRecordingText} from '../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface RecordingButtonProps {
   showLabel?: boolean;
@@ -25,6 +26,7 @@ export interface RecordingButtonProps {
 }
 
 const Recording = (props: RecordingButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {startRecording, inProgress, isRecordingActive} = useRecording();
   const recordingButton = useString<boolean>(toolbarItemRecordingText);
@@ -45,23 +47,15 @@ const Recording = (props: RecordingButtonProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
-      text: showLabel ? recordingButton(isRecordingActive) : '',
+      text: showLabel ? label || recordingButton(isRecordingActive) : '',
       textColor: $config.FONT_COLOR,
     },
-    onPress,
+    onPress: onPressCustom || onPress,
     disabled: inProgress,
     containerStyle: inProgress ? {opacity: 0.6} : {},
   };
 
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
     iconButtonProps.btnTextProps.textStyle = {
       color: $config.FONT_COLOR,
       marginTop: 8,

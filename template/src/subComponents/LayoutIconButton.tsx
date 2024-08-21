@@ -12,20 +12,20 @@ import {useContent} from 'customization-api';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useString} from '../utils/useString';
 import {toolbarItemLayoutText} from '../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const {activeUids, customContent} = useContent();
-  //const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
+  const {activeUids} = useContent();
+  const {label} = useToolbarProps();
   const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
-  const isMobileView = isMobileUA();
   const {isOnActionSheet} = useActionSheet();
   const showLabel = $config.ICON_TEXT ? true : false;
   const setIsHovered = (hovered: boolean) => {
@@ -45,7 +45,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const layoutLabel = useString(toolbarItemLayoutText)('');
   const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
-  const {currentLayout, setLayout} = useLayout();
+  const {currentLayout} = useLayout();
 
   const layout = layouts.findIndex(item => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
@@ -66,20 +66,12 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
     let iconButtonProps: Partial<IconButtonProps> = {
       onPress: onPress,
       btnTextProps: {
-        text: showLabel ? layoutLabel : '',
+        text: showLabel ? label || layoutLabel : '',
         textColor: $config.FONT_COLOR,
       },
     };
     iconButtonProps.isOnActionSheet = isOnActionSheet;
     if (isOnActionSheet) {
-      // iconButtonProps.containerStyle = {
-      //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-      //   width: 52,
-      //   height: 52,
-      //   borderRadius: 26,
-      //   justifyContent: 'center',
-      //   alignItems: 'center',
-      // };
       iconButtonProps.btnTextProps.textStyle = {
         color: $config.FONT_COLOR,
         marginTop: 8,
@@ -89,7 +81,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         textAlign: 'center',
       };
     }
-    const iconName = renderContent.push(
+    renderContent.push(
       props?.render ? (
         props.render(onPress)
       ) : (

@@ -1,12 +1,11 @@
-import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {ToolbarItem} from 'customization-api';
 import ToolbarMenuItem from '../../atoms/ToolbarMenuItem';
 import {useToolbarMenu} from '../../utils/useMenu';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useActionSheet} from '../../utils/useActionSheet';
 import {useString} from '../../utils/useString';
 import {toolbarItemVirtualBackgroundText} from '../../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../../atoms/ToolbarItem';
 
 interface VBButtonProps {
   isVBOpen: boolean;
@@ -16,7 +15,8 @@ interface VBButtonProps {
 }
 
 const VBButton = (props: VBButtonProps) => {
-  const {isVBOpen, setIsVBOpen, showLabel = false} = props;
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
+  const {setIsVBOpen, showLabel = false} = props;
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet} = useActionSheet();
   const vbLabel = useString(toolbarItemVirtualBackgroundText)();
@@ -26,14 +26,14 @@ const VBButton = (props: VBButtonProps) => {
   };
 
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       tintColor: $config.SECONDARY_ACTION_COLOR,
       name: 'vb',
     },
 
     btnTextProps: {
-      text: showLabel ? vbLabel?.replace(' ', '\n') : '',
+      text: showLabel ? label || vbLabel?.replace(' ', '\n') : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,
@@ -60,5 +60,3 @@ const VBButton = (props: VBButtonProps) => {
 };
 
 export default VBButton;
-
-const styles = StyleSheet.create({});
