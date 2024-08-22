@@ -92,6 +92,15 @@ const PinnedVideo = ({renderData}) => {
     defaultContent[pinnedUid || maxUid]?.video &&
     defaultContent[pinnedUid || maxUid]?.type === 'screenshare';
 
+  //fixed issue on expand/collapse for screenshare
+  //screen will have the fullscreen functionality
+  useEffect(() => {
+    const maximizedUid = pinnedUid || maxUid;
+    if (getWhiteboardUid() != maximizedUid && collapse) {
+      setCollapse(false);
+    }
+  }, [isWhiteboard, collapse, pinnedUid, maxUid, getWhiteboardUid]);
+
   return (
     <View
       style={{
