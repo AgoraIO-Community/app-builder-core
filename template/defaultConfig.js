@@ -76,8 +76,8 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.0.27',
-  CORE_VERSION: '4.0.27',
+  CLI_VERSION: '3.0.27-1',
+  CORE_VERSION: '4.0.27-1',
   DISABLE_LANDSCAPE_MODE: false,
 };
 
