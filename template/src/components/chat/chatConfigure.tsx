@@ -107,6 +107,7 @@ const ChatConfigure = ({children}) => {
             );
           },
 
+          /* All images and files messages will be received here  */
           onFileMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -117,54 +118,50 @@ const ChatConfigure = ({children}) => {
               `Received File Message`,
               message,
             );
-            const fileUrl =
-              message.ext?.from_platform === 'native'
-                ? message.url
-                : message.ext.file_url;
-
             const fromUser = message?.from;
 
-            if (message.chatType === SDKChatType.GROUP_CHAT) {
-              showMessageNotification(
-                message.ext.file_name,
-                fromUser,
-                false,
-                message.type,
-              );
+            // Iterate over the files in message.ext.files
+            message.ext.files.forEach(file => {
+              const fileUrl =
+                message.ext?.from_platform === 'native'
+                  ? message.url
+                  : file.file_url;
 
-              addMessageToStore(Number(fromUser), {
+              const messageData = {
                 msg: '',
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
                 type: ChatMessageType.FILE,
                 url: fileUrl,
-                ext: message.ext.file_ext,
-                fileName: message.ext.file_name,
-              });
-            }
-            if (message.chatType === SDKChatType.SINGLE_CHAT) {
-              showMessageNotification(
-                message.ext.file_name,
-                fromUser,
-                true,
-                message.type,
-              );
-              addMessageToPrivateStore(
-                Number(fromUser),
-                {
-                  msg: '',
-                  createdTimestamp: message.time,
-                  msgId: message.id,
-                  isDeleted: false,
-                  type: ChatMessageType.FILE,
-                  url: fileUrl,
-                  ext: message.ext.file_ext,
-                  fileName: message.ext.file_name,
-                },
-                false,
-              );
-            }
+                ext: file.file_ext,
+                fileName: file.file_name,
+                fileType: file.file_type,
+                thumb: file.file_url + '&thumbnail=true',
+              };
+
+              // Handle GROUP_CHAT type messages
+              if (message.chatType === SDKChatType.GROUP_CHAT) {
+                showMessageNotification(
+                  file.file_name,
+                  fromUser,
+                  false,
+                  message.type,
+                );
+                addMessageToStore(Number(fromUser), messageData);
+              }
+
+              // Handle SINGLE_CHAT type messages
+              if (message.chatType === SDKChatType.SINGLE_CHAT) {
+                showMessageNotification(
+                  file.file_name,
+                  fromUser,
+                  true,
+                  message.type,
+                );
+                addMessageToPrivateStore(Number(fromUser), messageData, false);
+              }
+            });
           },
           onImageMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
@@ -325,7 +322,6 @@ const ChatConfigure = ({children}) => {
   ) => {
     if (connRef.current) {
       //TODO thumb and url of actual image uploaded available in file upload complete
-      const localFileUrl = option?.ext?.file_url || '';
       //add channel name so to prevent cross channel message mixup when same user joins two diff channels
       // this is filtered on msgRecived event
       option.ext = {...option?.ext, channel: data?.channel};
@@ -341,26 +337,67 @@ const ChatConfigure = ({children}) => {
             option,
           );
 
-          // update local messagre store
-          const messageData = {
+          const baseMessageData = {
             msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
             createdTimestamp: timeNow(),
             msgId: res?.serverMsgId,
             isDeleted: false,
             type: option.type,
-            thumb: option?.ext?.file_url + '&thumbnail=true',
-            url: option?.ext?.file_url,
-            ext: option?.ext?.file_ext,
-            fileName: option?.ext?.file_name,
           };
-          //todo chattype as per natue type
-          // this is local user messages
-          if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(Number(option?.to), messageData, true);
+
+          // Check if there are files in option.ext and if it's non-empty
+          if (option?.ext?.files?.length) {
+            option.ext.files.forEach(file => {
+              const messageData = {
+                ...baseMessageData, // Include the base message data
+                thumb: file.file_url + '&thumbnail=true',
+                url: file.file_url,
+                ext: file.file_ext,
+                fileName: file.file_name,
+                fileType: file.file_type,
+              };
+
+              // Store the message based on the chat type
+              if (option.chatType === SDKChatType.SINGLE_CHAT) {
+                addMessageToPrivateStore(Number(option?.to), messageData, true);
+              } else {
+                addMessageToStore(Number(option?.from), messageData);
+              }
+            });
           } else {
-            addMessageToStore(Number(option?.from), messageData);
+            // If no files, just push the base message data
+            if (option.chatType === SDKChatType.SINGLE_CHAT) {
+              addMessageToPrivateStore(
+                Number(option?.to),
+                baseMessageData,
+                true,
+              );
+            } else {
+              addMessageToStore(Number(option?.from), baseMessageData);
+            }
           }
         })
+
+        //   // update local messagre store
+        //   const messageData = {
+        //     msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
+        //     createdTimestamp: timeNow(),
+        //     msgId: res?.serverMsgId,
+        //     isDeleted: false,
+        //     type: option.type,
+        //     thumb: option?.ext?.file_url + '&thumbnail=true',
+        //     url: option?.ext?.file_url,
+        //     ext: option?.ext?.file_ext,
+        //     fileName: option?.ext?.file_name,
+        //   };
+        //   //todo chattype as per natue type
+        //   // this is local user messages
+        //   if (option.chatType === SDKChatType.SINGLE_CHAT) {
+        //     addMessageToPrivateStore(Number(option?.to), messageData, true);
+        //   } else {
+        //     addMessageToStore(Number(option?.from), messageData);
+        //   }
+        // })
         .catch(error => {
           logger.debug(
             LogSource.Internals,
@@ -424,15 +461,30 @@ const ChatConfigure = ({children}) => {
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
     const uploadObj = {
       onFileUploadProgress: (data: ProgressEvent) => {
-        setUploadStatus(UploadStatus.IN_PROGRESS);
+        // setUploadStatus(UploadStatus.IN_PROGRESS);
+
+        setUploadedFiles(prev => {
+          const updatedFiles = [...prev];
+          updatedFiles[updatedFiles.length - 1] = {
+            ...updatedFiles[updatedFiles.length - 1],
+            upload_status: UploadStatus.IN_PROGRESS,
+          };
+          return updatedFiles;
+        });
       },
       onFileUploadComplete: (data: any) => {
         const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
         //TODO: handle for multiple uploads
         setUploadedFiles(prev => {
-          return [{...prev[0], file_url: url}];
+          const updatedFiles = [...prev];
+          updatedFiles[updatedFiles.length - 1] = {
+            ...updatedFiles[updatedFiles.length - 1],
+            file_url: url,
+            upload_status: UploadStatus.SUCCESS,
+          };
+          return updatedFiles;
         });
-        setUploadStatus(UploadStatus.SUCCESS);
+        //  setUploadStatus(UploadStatus.SUCCESS);
       },
       onFileUploadError: (error: any) => {
         logger.error(
@@ -441,7 +493,15 @@ const ChatConfigure = ({children}) => {
           'Attachment upload failed',
           error,
         );
-        setUploadStatus(UploadStatus.FAILURE);
+        //setUploadStatus(UploadStatus.FAILURE);
+        setUploadedFiles(prev => {
+          const updatedFiles = [...prev];
+          updatedFiles[updatedFiles.length - 1] = {
+            ...updatedFiles[updatedFiles.length - 1],
+            upload_status: UploadStatus.FAILURE,
+          };
+          return updatedFiles;
+        });
       },
       onFileUploadCanceled: () => {
         //setUploadStatus(UploadStatus.NOT_STARTED);

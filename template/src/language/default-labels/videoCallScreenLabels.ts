@@ -239,6 +239,7 @@ export const chatPrivateMessageDeletePopupText =
   'chatPrivateMessageDeletePopupText';
 export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
 export const chatUploadStatusFailure = 'chatUploadStatusFailure';
+export const chatUploadMaxLimit = 'chatUploadMaxLimit';
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -651,6 +652,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatUploadErrorFileTypeToastSubHeading]?: I18nBaseType;
   [chatUploadStatusInProgress]?: I18nBaseType;
   [chatUploadStatusFailure]?: I18nBaseType;
+  [chatUploadMaxLimit]?: I18nBaseType;
 
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
@@ -1044,6 +1046,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
   [chatUploadStatusInProgress]: `Uploading... Please wait`,
   [chatUploadStatusFailure]: `Something went wrong while sharing.Let'as try again`,
+  [chatUploadMaxLimit]: `Up to 5 files can be uploaded at a time`,
   [chatMessageDeleteConfirmBtnText]: `Delete`,
   [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
   [chatPrivateMessageDeletePopupText]: (name: string) =>

@@ -41,9 +41,11 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
   } = useChatUIControls();
 
   const {data} = useRoomInfo();
-  const isValidMsg =
-    message.length > 0 ||
-    (uploadedFiles.length > 0 && uploadStatus === UploadStatus.SUCCESS);
+  const isAllFilesUploaded =
+    uploadedFiles.length > 0 &&
+    uploadedFiles.every(file => file.upload_status === UploadStatus.SUCCESS);
+
+  const isValidMsg = message.length > 0 || isAllFilesUploaded;
   const toastHeadingSize = useString(chatSendErrorTextSizeToastHeading)();
   const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
@@ -63,16 +65,19 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     }
     const groupID = data.chat.group_id;
     const msgType =
-      uploadedFiles.length > 0
-        ? uploadedFiles[0].file_type
-        : ChatMessageType.TXT;
+      uploadedFiles.length > 0 ? ChatMessageType.FILE : ChatMessageType.TXT;
+    // if combined msg => uploadFiles.length > 0 && message.length > 0 ==> ChatMessageType.Custom
 
-    const {
-      file_ext = '',
-      file_length = 0,
-      file_name = '',
-      file_url = '',
-    } = uploadedFiles[0] || {};
+    const messageExt = {
+      from_platform: isWeb() ? 'web' : 'native',
+      files: uploadedFiles.map(file => ({
+        file_ext: file.file_ext || '',
+        file_length: file.file_length || 0,
+        file_name: file.file_name || '',
+        file_url: file.file_url || '',
+        file_type: file.file_type || '',
+      })),
+    };
 
     const option = {
       chatType: selectedUserId
@@ -82,13 +87,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       msg: msgType === ChatMessageType.TXT ? message : '', // currenlt not supporting combinarion msg (file+txt)
       from: data.uid.toString(),
       to: selectedUserId ? selectedUserId.toString() : groupID,
-      ext: {
-        file_length,
-        file_ext,
-        file_url,
-        file_name,
-        from_platform: isWeb() ? 'web' : 'native',
-      },
+      ext: messageExt,
     };
     sendChatSDKMessage(option);
     setMessage && setMessage('');

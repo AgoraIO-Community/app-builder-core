@@ -7,6 +7,7 @@ import {useChatConfigure} from '../../components/chat/chatConfigure';
 import Toast from '../../../react-native-toast-message';
 import {
   File,
+  MAX_FILES_UPLOAD,
   MAX_UPLOAD_SIZE,
   UploadStatus,
   useChatUIControls,
@@ -19,6 +20,7 @@ import {
   chatUploadErrorFileTypeToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../utils/useString';
+import getUniqueID from '../../utils/getUniqueID';
 
 export interface ChatAttachmentButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -27,8 +29,13 @@ export interface ChatAttachmentButtonProps {
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const {data} = useRoomInfo();
-  const {privateChatUser, setUploadStatus, setUploadedFiles, uploadStatus} =
-    useChatUIControls();
+  const {
+    privateChatUser,
+    setUploadStatus,
+    setUploadedFiles,
+    uploadStatus,
+    uploadedFiles,
+  } = useChatUIControls();
   const {uploadAttachment} = useChatConfigure();
   const toastHeadingType = useString(chatUploadErrorToastHeading)();
   const toastHeadingSize = useString(chatUploadErrorFileSizeToastHeading)();
@@ -92,16 +99,18 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     if (!selectedFile) return;
 
     const uploadedFile: File = {
+      file_id: getUniqueID(),
       file_name: file.filename,
       file_ext: uploadedFileType,
       file_url: '',
       file_length: 0,
       file_type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
       file_obj: file,
+      upload_status: UploadStatus.IN_PROGRESS,
     };
     // currently supporting only 1 upload
     // setUploadedFiles(prev => [...prev, uploadedFile]);
-    setUploadedFiles(prev => [uploadedFile]);
+    setUploadedFiles(prev => [...prev, uploadedFile]);
 
     uploadAttachment(uploadedFile);
   };
@@ -109,6 +118,8 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     fileInputRef.current.value = null;
     fileInputRef.current.click();
   };
+
+  const isMaxFilesUploaded = uploadedFiles.length === MAX_FILES_UPLOAD;
   return props?.render ? (
     props.render(onPress)
   ) : (
@@ -127,7 +138,11 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 24,
         }}
-        disabled={uploadStatus === UploadStatus.IN_PROGRESS ? true : false}
+        disabled={
+          uploadStatus === UploadStatus.IN_PROGRESS || isMaxFilesUploaded
+            ? true
+            : false
+        }
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {
@@ -136,7 +151,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           iconSize: 24,
           name: 'chat_attachment',
           tintColor:
-            uploadStatus === UploadStatus.IN_PROGRESS
+            uploadStatus === UploadStatus.IN_PROGRESS || isMaxFilesUploaded
               ? $config.SEMANTIC_NEUTRAL
               : $config.SECONDARY_ACTION_COLOR,
         }}

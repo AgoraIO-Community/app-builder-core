@@ -95,6 +95,7 @@ export interface messageInterface {
   thumb?: string;
   url?: string;
   fileName?: string;
+  fileType?: string;
   ext?: string;
 }
 
@@ -111,11 +112,15 @@ export interface ChatOption {
   msg?: string;
   file?: object;
   ext?: {
-    file_length: number;
-    file_ext: string;
-    file_name: string;
-    file_url: string;
+    files?: Array<{
+      file_length: number;
+      file_ext: string;
+      file_name: string;
+      file_url: string;
+      file_type: string;
+    }>;
     from_platform?: string;
+    channel?: string;
   };
   url?: string;
 }
@@ -326,6 +331,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           url: body?.url,
           ext: body?.ext,
           fileName: body?.fileName,
+          fileType: body?.fileType,
         },
       ];
     });
@@ -352,6 +358,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
               url: body?.url,
               ext: body?.ext,
               fileName: body?.fileName,
+              fileType: body?.fileType,
             },
           ])
         : (newState = {
@@ -368,6 +375,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 url: body.url,
                 ext: body?.ext,
                 fileName: body?.fileName,
+                fileType: body?.fileType,
               },
             ],
           });
