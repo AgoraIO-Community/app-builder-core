@@ -249,6 +249,44 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   {message}
                 </Text>
               )}
+              {
+                // msg from native can be send as img type only , for web img , files will be send as file type
+                type === ChatMessageType.IMAGE && (
+                  <View>
+                    <TouchableOpacity
+                      style={{justifyContent: 'center', alignItems: 'center'}}
+                      onPress={() => {
+                        !isLoading && setLightboxVisible(true);
+                      }}>
+                      {isLoading ? (
+                        <View style={style.spinnerContainer}>
+                          <ActivityIndicator
+                            size="small"
+                            color={$config.PRIMARY_ACTION_BRAND_COLOR}
+                          />
+                        </View>
+                      ) : null}
+                      <Image
+                        source={{uri: thumb}}
+                        style={style.previewImg}
+                        onLoad={handleImageLoad}
+                      />
+                    </TouchableOpacity>
+                    {lightboxVisible ? (
+                      <ImagePopup
+                        modalVisible={lightboxVisible}
+                        setModalVisible={setLightboxVisible}
+                        imageUrl={url}
+                        msgId={msgId}
+                        fileName={fileName}
+                        senderName={isLocal ? 'You' : defaultContent[uid]?.name}
+                        timestamp={createdTimestamp}
+                        isLocal={isLocal}
+                      />
+                    ) : null}
+                  </View>
+                )
+              }
               {type === ChatMessageType.FILE &&
                 fileType === ChatMessageType.IMAGE && (
                   <View>

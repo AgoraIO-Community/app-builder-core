@@ -23,12 +23,21 @@ import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {PlatformColor} from 'react-native/types';
 
 interface ChatMessageAttributes {
   file_ext?: string;
   file_name?: string;
   file_url?: string;
   from_platform?: string;
+  file_type?: string;
+  files?: Array<{
+    file_length: number;
+    file_ext: string;
+    file_name: string;
+    file_url: string;
+    file_type: string;
+  }>;
   channel?: string;
 }
 interface chatConfigureContextInterface {
@@ -121,13 +130,18 @@ const ChatConfigure = ({children}) => {
           const {msgId, from, body, localTime} = messages[0];
           const chatType = body.type;
           const fromUser = from;
-          const {file_ext, file_name, file_url, from_platform, channel} =
-            messages[0].attributes as ChatMessageAttributes;
+          const {channel} = messages[0].attributes as ChatMessageAttributes;
 
           // prevent cross channel msgs
           if (channel !== data.channel) {
             return;
           }
+
+          const {files, from_platform, file_name, file_type, file_ext} =
+            messages[0].attributes as ChatMessageAttributes;
+
+          const normalizedFiles =
+            typeof files === 'string' ? JSON.parse(files) : files;
 
           switch (chatType) {
             case ChatMessageType.TXT:
@@ -158,99 +172,99 @@ const ChatConfigure = ({children}) => {
                 );
               }
               break;
-            case ChatMessageType.IMAGE:
-              const thumb =
-                from_platform === 'web'
-                  ? file_url + '&thumbnail=true'
-                  : (body as {thumbnailRemotePath?: string})
-                      .thumbnailRemotePath;
-              //@ts-ignore
-              const url = from_platform === 'web' ? file_url : body.remotePath;
-              console.warn('url ==>', url);
-              if (isGroupChat) {
-                showMessageNotification(
-                  file_name,
-                  fromUser,
-                  false,
-                  ChatMessageType.IMAGE,
-                );
-                addMessageToStore(Number(fromUser), {
-                  msg: '',
-                  createdTimestamp: localTime,
-                  msgId: msgId,
-                  isDeleted: false,
-                  type: ChatMessageType.IMAGE,
-                  thumb: thumb,
-                  url: url,
-                  fileName: file_name,
-                });
-              }
-              if (isPeerChat) {
-                showMessageNotification(
-                  'You got private image msg',
-                  fromUser,
-                  true,
-                  ChatMessageType.IMAGE,
-                );
-                addMessageToPrivateStore(
-                  Number(fromUser),
-                  {
-                    msg: '',
-                    createdTimestamp: localTime,
-                    msgId: msgId,
-                    isDeleted: false,
-                    type: ChatMessageType.IMAGE,
-                    thumb: thumb,
-                    url: url,
-                    fileName: file_name,
-                  },
-                  false,
-                );
-              }
-              break;
-            case ChatMessageType.FILE:
-              //@ts-ignore
 
-              console.warn('message', JSON.stringify(messages, null, 2));
-              if (isGroupChat) {
-                showMessageNotification(
-                  file_name,
-                  fromUser,
-                  false,
-                  ChatMessageType.FILE,
-                );
-                addMessageToStore(Number(fromUser), {
-                  msg: '',
-                  createdTimestamp: localTime,
-                  msgId: msgId,
-                  isDeleted: false,
-                  type: ChatMessageType.FILE,
-                  url: file_url,
-                  ext: file_ext,
-                  fileName: file_name,
-                });
-              }
-              if (isPeerChat) {
-                showMessageNotification(
-                  file_name,
-                  fromUser,
-                  true,
-                  ChatMessageType.FILE,
-                );
-                addMessageToPrivateStore(
-                  Number(fromUser),
-                  {
+            case ChatMessageType.IMAGE:
+            case ChatMessageType.FILE:
+              // All multiple attachments from web will be received here.
+              if (from_platform === 'web') {
+                normalizedFiles.forEach(file => {
+                  const thumbImg =
+                    from_platform === 'web'
+                      ? file.file_url + '&thumbnail=true'
+                      : (body as {thumbnailRemotePath?: string})
+                          .thumbnailRemotePath;
+                  const messageData = {
                     msg: '',
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.FILE,
-                    url: file_url,
-                    ext: file_ext,
-                    fileName: file_name,
-                  },
-                  false,
-                );
+                    fileName: file.file_name,
+                    fileType: file.file_type,
+                    url: file.file_url,
+                    ext: file.file_ext,
+                    thumb: thumbImg,
+                  };
+                  console.warn(
+                    'message file',
+                    JSON.stringify(messageData, null, 2),
+                  );
+
+                  if (isGroupChat) {
+                    showMessageNotification(
+                      file.file_name,
+                      fromUser,
+                      false,
+                      file.file_type as ChatMessageType,
+                    );
+                    addMessageToStore(Number(fromUser), messageData);
+                  }
+                  if (isPeerChat) {
+                    showMessageNotification(
+                      file.file_name,
+                      fromUser,
+                      true,
+                      file.file_type as ChatMessageType,
+                    );
+                    addMessageToPrivateStore(
+                      Number(fromUser),
+                      messageData,
+                      false,
+                    );
+                  }
+                });
+              }
+
+              // single attachment from native will be received here.
+              if (from_platform === 'native') {
+                const thumbImg =
+                  (body as {thumbnailRemotePath?: string})
+                    ?.thumbnailRemotePath + '?thumbnail=true';
+                const fileUrl = (body as {remotePath?: string})?.remotePath;
+                const messageData = {
+                  msg: '',
+                  createdTimestamp: localTime,
+                  msgId: msgId,
+                  isDeleted: false,
+                  type: ChatMessageType.FILE,
+                  fileName: file_name,
+                  fileType: file_type,
+                  url: fileUrl,
+                  ext: file_ext,
+                  thumb: thumbImg,
+                };
+                if (isGroupChat) {
+                  showMessageNotification(
+                    file_name,
+                    fromUser,
+                    false,
+                    file_type as ChatMessageType,
+                  );
+                  addMessageToStore(Number(fromUser), messageData);
+                }
+                if (isPeerChat) {
+                  showMessageNotification(
+                    file_name,
+                    fromUser,
+                    true,
+                    file_type as ChatMessageType,
+                  );
+                  addMessageToPrivateStore(
+                    Number(fromUser),
+                    messageData,
+                    false,
+                  );
+                }
               }
 
               break;
@@ -350,10 +364,11 @@ const ChatConfigure = ({children}) => {
       case ChatMessageType.IMAGE:
         chatMsg = ChatMessage.createImageMessage(to, url, chatMsgChatType);
         chatMsg.attributes = {
-          file_length: option?.ext?.file_length,
-          file_ext: option?.ext?.file_ext,
-          file_name: option?.ext?.file_name,
-          file_url: option?.ext?.file_url, // this local url , when upload util is available for native then will use it
+          file_length: option?.ext?.files[0].file_length,
+          file_ext: option?.ext?.files[0].file_ext,
+          file_name: option?.ext?.files[0].file_name,
+          file_url: option?.ext?.files[0].file_url, // this local url , when upload util is available for native then will use it
+          file_type: option?.ext?.files[0].file_type, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
           channel: data.channel,
         };
@@ -361,15 +376,17 @@ const ChatConfigure = ({children}) => {
         console.warn('Image msg to be sent', chatMsg);
         break;
       case ChatMessageType.FILE:
-        file_ext = option?.ext?.file_ext.split('/')[1];
+        file_ext = option?.ext.files[0].file_ext.split('/')[1];
         chatMsg = ChatMessage.createFileMessage(to, url, chatMsgChatType, {
-          displayName: option?.ext?.file_name,
+          displayName: option?.ext?.files[0].file_name,
         });
+        console.warn('option', option);
         chatMsg.attributes = {
-          file_length: option?.ext?.file_length,
-          file_ext: option?.ext?.file_ext,
-          file_name: option?.ext?.file_name,
-          file_url: option?.url, // this local url , when upload util is available for native then will use it
+          file_length: option?.ext?.files[0].file_length,
+          file_ext: option?.ext?.files[0].file_ext,
+          file_name: option?.ext?.files[0].file_name,
+          file_url: option?.ext?.files[0].file_url, // this local url , when upload util is available for native then will use it
+          file_type: option?.ext?.files[0].file_type,
           from_platform: 'native',
           channel: data.channel,
         };

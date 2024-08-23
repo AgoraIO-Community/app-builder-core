@@ -107,7 +107,7 @@ const ChatConfigure = ({children}) => {
             );
           },
 
-          /* All images and files messages will be received here  */
+          /* All images and files messages from web will be received here  */
           onFileMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -120,13 +120,9 @@ const ChatConfigure = ({children}) => {
             );
             const fromUser = message?.from;
 
-            // Iterate over the files in message.ext.files
-            message.ext.files.forEach(file => {
-              const fileUrl =
-                message.ext?.from_platform === 'native'
-                  ? message.url
-                  : file.file_url;
-
+            if (message?.ext?.from_platform === 'native') {
+              // single attachment from native
+              const fileUrl = message.url;
               const messageData = {
                 msg: '',
                 createdTimestamp: message.time,
@@ -134,35 +130,80 @@ const ChatConfigure = ({children}) => {
                 isDeleted: false,
                 type: ChatMessageType.FILE,
                 url: fileUrl,
-                ext: file.file_ext,
-                fileName: file.file_name,
-                fileType: file.file_type,
-                thumb: file.file_url + '&thumbnail=true',
+                ext: message.ext.file_ext,
+                fileName: message.ext.file_name,
+                fileType: message.ext.file_type,
               };
 
-              // Handle GROUP_CHAT type messages
               if (message.chatType === SDKChatType.GROUP_CHAT) {
                 showMessageNotification(
-                  file.file_name,
+                  message.ext.file_name,
                   fromUser,
                   false,
                   message.type,
                 );
                 addMessageToStore(Number(fromUser), messageData);
               }
-
-              // Handle SINGLE_CHAT type messages
               if (message.chatType === SDKChatType.SINGLE_CHAT) {
                 showMessageNotification(
-                  file.file_name,
+                  message.ext.file_name,
                   fromUser,
                   true,
                   message.type,
                 );
+
                 addMessageToPrivateStore(Number(fromUser), messageData, false);
               }
-            });
+            } else {
+              // Iterate over multiple attachments from web
+              message.ext.files.forEach(file => {
+                const fileUrl =
+                  message.ext?.from_platform === 'native'
+                    ? message.url
+                    : file.file_url;
+
+                const messageData = {
+                  msg: '',
+                  createdTimestamp: message.time,
+                  msgId: message.id,
+                  isDeleted: false,
+                  type: ChatMessageType.FILE,
+                  url: fileUrl,
+                  ext: file.file_ext,
+                  fileName: file.file_name,
+                  fileType: file.file_type,
+                  thumb: file.file_url + '&thumbnail=true',
+                };
+
+                // Handle GROUP_CHAT type messages
+                if (message.chatType === SDKChatType.GROUP_CHAT) {
+                  showMessageNotification(
+                    file.file_name,
+                    fromUser,
+                    false,
+                    message.type,
+                  );
+                  addMessageToStore(Number(fromUser), messageData);
+                }
+
+                // Handle SINGLE_CHAT type messages
+                if (message.chatType === SDKChatType.SINGLE_CHAT) {
+                  showMessageNotification(
+                    file.file_name,
+                    fromUser,
+                    true,
+                    message.type,
+                  );
+                  addMessageToPrivateStore(
+                    Number(fromUser),
+                    messageData,
+                    false,
+                  );
+                }
+              });
+            }
           },
+          /* Native img messages will be recived here */
           onImageMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -173,10 +214,7 @@ const ChatConfigure = ({children}) => {
               `Received Img Message`,
               message,
             );
-            const fileUrl =
-              message.ext?.from_platform === 'native'
-                ? message.url
-                : message.ext.file_url;
+            const fileUrl = message?.url;
 
             const fromUser = message?.from;
 
@@ -196,6 +234,7 @@ const ChatConfigure = ({children}) => {
                 thumb: fileUrl + '&thumbnail=true',
                 url: fileUrl,
                 fileName: message.ext?.file_name,
+                fileType: message.ext?.file_type,
               });
             }
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
