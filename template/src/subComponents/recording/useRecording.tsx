@@ -143,7 +143,7 @@ const showErrorToast = (text1: string, text2?: string) => {
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
   const {
-    data: {isHost, roomId},
+    data: {isHost, roomId, channel},
   } = useRoomInfo();
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
@@ -508,7 +508,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         EventNames.RECORDING_STATE_ATTRIBUTE,
         JSON.stringify({
           action: RecordingActions.REQUEST_TO_STOP_RECORDING,
-          value: `${localUid}`,
+          value: `${channel}`,
         }),
         PersistanceLevel.None,
         RECORDING_BOT_UID, // bot uid
@@ -700,6 +700,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             LogSource.NetworkRest,
             'recording_stop',
             'recording_state -> REQUEST_TO_STOP_RECORDING',
+            payload?.value,
           );
           _stopRecording('bot');
           break;
