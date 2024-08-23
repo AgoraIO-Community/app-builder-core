@@ -700,7 +700,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             LogSource.NetworkRest,
             'recording_stop',
             'recording_state -> REQUEST_TO_STOP_RECORDING',
-            payload?.value,
+            {
+              channelId: payload?.value,
+              isSameChannel: payload?.value == channel,
+            },
           );
           _stopRecording('bot');
           break;
