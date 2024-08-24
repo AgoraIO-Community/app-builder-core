@@ -28,6 +28,7 @@ import {
   MAX_HEIGHT,
   LINE_HEIGHT,
   MAX_TEXT_MESSAGE_SIZE,
+  MAX_FILES_UPLOAD,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
@@ -114,7 +115,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       file =>
         file.upload_status === UploadStatus.IN_PROGRESS ||
         file.upload_status === UploadStatus.FAILURE,
-    ).length > 0;
+    ).length > 0 || uploadedFiles.length === MAX_FILES_UPLOAD;
 
   const groupChatInputPlaceHolder = $config.EVENT_MODE
     ? useString(groupChatLiveInputPlaceHolderText)
@@ -246,6 +247,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
                   </View>
                 ) : null
               }
+              containerStyle={{
+                marginBottom: index !== uploadedFiles.length - 1 ? 6 : 0,
+              }}
             />
           ))}
         </View>
