@@ -75,6 +75,7 @@ export default ClipboardIconButton;
 export const style = StyleSheet.create({
   iconContainer: {
     flexBasis: 60,
+    height: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',

@@ -454,7 +454,8 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   iconContainer: {
-    flexBasis: 60,
+    width: 60,
+    height: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
