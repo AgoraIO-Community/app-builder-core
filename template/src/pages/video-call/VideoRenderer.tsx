@@ -38,6 +38,7 @@ import {
   moreBtnViewWhiteboard,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {useFullScreen} from '../../utils/useFullScreen';
 export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -49,6 +50,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   CustomChild,
 }) => {
   const {height, width} = useWindowDimensions();
+  const {requestFullscreen} = useFullScreen();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
   const {pinnedUid, secondaryPinnedUid} = useContent();
@@ -141,6 +143,19 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const viewinlargeLabel = useString(moreBtnViewInLarge)();
   const viewwhiteboardlabel = useString(moreBtnViewWhiteboard)();
 
+  const setScreenShareFullScreen = () => {
+    setScreenShareOnFullView(!screenShareData[user.uid]?.isExpanded);
+    setScreenShareData(prevState => {
+      return {
+        ...prevState,
+        [user.uid]: {
+          ...prevState[user.uid],
+          isExpanded: !prevState[user.uid]?.isExpanded,
+        },
+      };
+    });
+  };
+
   return (
     <>
       <UserActionMenuOptionsOptions
@@ -231,7 +246,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                         pinnedUid &&
                         pinnedUid == user.uid &&
                         !isScreenShareOnFullView
-                          ? 160 + (isAndroid() ? 15 : 0)
+                          ? //160 + (isAndroid() ? 15 : 0)
+                            8
                           : 8,
                       zIndex: 999,
                       elevation: 999,
@@ -241,18 +257,13 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 if (user?.type == 'whiteboard') {
                   setWhiteboardOnFullScreen(!isWhiteboardOnFullScreen);
                 } else {
-                  setScreenShareOnFullView(
-                    !screenShareData[user.uid]?.isExpanded,
-                  );
-                  setScreenShareData(prevState => {
-                    return {
-                      ...prevState,
-                      [user.uid]: {
-                        ...prevState[user.uid],
-                        isExpanded: !prevState[user.uid]?.isExpanded,
-                      },
-                    };
-                  });
+                  if (isMobileUA() && !(isAndroid() || isIOS())) {
+                    requestFullscreen(user.uid).catch(() => {
+                      setScreenShareFullScreen();
+                    });
+                  } else {
+                    setScreenShareFullScreen();
+                  }
                 }
               }}
               iconProps={{
