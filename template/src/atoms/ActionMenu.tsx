@@ -290,8 +290,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
     flexDirection: 'row',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   iconContainer: {
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
