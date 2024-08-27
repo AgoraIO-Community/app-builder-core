@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    lineHeight: 14,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantNameText: {
