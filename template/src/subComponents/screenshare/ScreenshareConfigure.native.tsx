@@ -9,10 +9,21 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {Platform} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
-import {DispatchContext, UidType} from '../../../agora-rn-uikit';
+import {
+  ClientRoleType,
+  DispatchContext,
+  PropsContext,
+  UidType,
+} from '../../../agora-rn-uikit';
 import {
   getGridLayoutName,
   getPinnedLayoutName,
@@ -22,26 +33,35 @@ import {
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useLayout, useContent, useRtc} from 'customization-api';
+import {useLayout, useContent, useRtc, useRoomInfo} from 'customization-api';
 import {filterObject} from '../../utils';
 import {ScreenshareContext} from './useScreenshare';
 import useMuteToggleLocal, {
   MUTE_LOCAL_TYPE,
 } from '../../utils/useMuteToggleLocal';
 import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
-import {LocalVideoStreamError} from 'react-native-agora';
-import useAppState from '../../utils/useAppState';
+import {
+  LocalVideoStreamState,
+  PermissionType,
+  showRPSystemBroadcastPickerView,
+  VideoSourceType,
+} from 'react-native-agora';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {controlMessageEnum} from '../../components/ChatContext';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+  const {
+    data: {channel: channelId},
+  } = useRoomInfo();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
-  const isAndroidScreenShareStarted = useRef(false);
-  const appState = useAppState();
+  const {
+    rtcProps: {screenShareUid, screenShareToken},
+  } = useContext(PropsContext);
   const processRef = useRef(false);
-  const enableVideoRef = useRef(false);
   const {RtcEngineUnsafe} = useRtc();
+  const engine = useRef(RtcEngineUnsafe);
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
     useContent();
@@ -141,31 +161,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    RtcEngineUnsafe?.addListener(
-      'LocalVideoStateChanged',
-      (localVideoState, error) => {
-        if (Platform.OS === 'android') {
-          switch (error) {
-            case LocalVideoStreamError.ScreenCapturePermissionDenied:
-              isAndroidScreenShareStarted.current = false;
-              break;
-          }
-        } else {
-          switch (error) {
-            case LocalVideoStreamError.ExtensionCaptureStarted:
-              processRef.current = true;
-              setScreenshareActive(true);
-              break;
-            case LocalVideoStreamError.ExtensionCaptureStoped:
-            case LocalVideoStreamError.ExtensionCaptureDisconnected:
-            case LocalVideoStreamError.ScreenCapturePermissionDenied:
-              processRef.current = true;
-              setScreenshareActive(false);
-              break;
-            default:
-              break;
-          }
-        }
+    /**
+     * When host removed the screenshare
+     */
+    const unsubKickScreenshare = events.on(
+      controlMessageEnum.kickScreenshare,
+      () => {
+        stopScreenshare(false, true);
       },
     );
     const unsubScreenShareAttribute = events.on(
@@ -238,70 +240,143 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
     return () => {
       unsubScreenShareAttribute();
+      unsubKickScreenshare();
     };
   }, []);
 
-  const startScreenshare = async (captureAudio: boolean = false) => {
-    if (!isScreenshareActive) {
-      // either user can publish local video or screenshare stream
-      // so if user video is turned on then we are turning off video before screenshare
-      logger.log(LogSource.Internals, 'SCREENSHARE', 'starting screenshare');
-      await RtcEngineUnsafe?.startScreenCapture({
-        captureVideo: true,
-        captureAudio,
-      });
-      /**
-       * android -> user will see the confirmation popup from the system,
-       * if user denied permission we will update isAndroidScreenShareStarted.current as false in the video state change callback
-       * if user allowed permission we will update screenshare as active in appState useeffect
-       */
-      if (Platform.OS === 'android') {
-        isAndroidScreenShareStarted.current = true;
-      }
-      //For ios will update state in the video state changed callback
-    } else {
-      logger.debug(
-        LogSource.Internals,
-        'SCREENSHARE',
-        'screenshare is already active',
-      );
+  const log = console;
+
+  const publishScreenshare = useCallback(() => {
+    if (!channelId) {
+      log.error('channelId is invalid');
+      return;
     }
-  };
+    if (screenShareUid <= 0) {
+      log.error('uid2 is invalid');
+      return;
+    }
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (
-        appState === 'active' &&
-        isAndroidScreenShareStarted.current === true
-      ) {
-        isAndroidScreenShareStarted.current = false;
-        processRef.current = true;
-        setScreenshareActive(true);
+    // publish screen share stream
+    //@ts-ignore
+    engine.current.joinChannelEx(
+      screenShareToken,
+      {channelId, localUid: screenShareUid},
+      {
+        autoSubscribeAudio: false,
+        autoSubscribeVideo: false,
+        publishMicrophoneTrack: false,
+        publishCameraTrack: false,
+        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+        publishScreenCaptureAudio: true,
+        publishScreenCaptureVideo: true,
+      },
+    );
+  }, [engine, screenShareToken, screenShareUid, channelId, log]);
+
+  const unpublishScreenshare = useCallback(() => {
+    //@ts-ignore
+    engine.current.leaveChannelEx({channelId, localUid: screenShareUid});
+  }, [engine, channelId, screenShareUid]);
+
+  const startScreenshare = useCallback(
+    async (captureAudio: boolean = false) => {
+      if (!isScreenshareActive) {
+        logger.log(LogSource.Internals, 'SCREENSHARE', 'starting screenshare');
+        if (video) {
+          localMute(MUTE_LOCAL_TYPE.video);
+        }
+        await engine.current.startScreenCapture({
+          captureVideo: true,
+          captureAudio,
+        });
+        if (Platform.OS === 'ios') {
+          // Show the picker view for screen share, ⚠️ only support for iOS 12+
+          await showRPSystemBroadcastPickerView(true);
+        }
+      } else {
+        logger.debug(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'screenshare is already active',
+        );
       }
-    }, 1000);
-  }, [appState]);
+    },
+    [isScreenshareActive, video, localMute],
+  );
 
-  const stopScreenshare = async (
-    enableVideo: boolean = false,
-    forceStop: boolean = false,
-  ) => {
-    if (isScreenshareActive || forceStop) {
-      enableVideoRef.current = enableVideo;
-      logger.log(LogSource.Internals, 'SCREENSHARE', 'stopping screenshare');
-      await RtcEngineUnsafe?.stopScreenCapture();
-      if (Platform.OS === 'android') {
+  const stopScreenshare = useCallback(
+    async (enableVideo: boolean = false, forceStop: boolean = false) => {
+      if (isScreenshareActive || forceStop) {
+        logger.log(LogSource.Internals, 'SCREENSHARE', 'stopping screenshare');
+        engine.current.stopScreenCapture();
         processRef.current = true;
         setScreenshareActive(false);
+        unpublishScreenshare();
+      } else {
+        logger.debug(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'no screenshare is active',
+        );
       }
-      //For ios will update state in the video state changed callback
-    } else {
-      logger.debug(
-        LogSource.Internals,
-        'SCREENSHARE',
-        'no screenshare is active',
+    },
+    [engine, isScreenshareActive, unpublishScreenshare],
+  );
+
+  const onLocalVideoStateChanged = useCallback(
+    (source: VideoSourceType, state: LocalVideoStreamState, error) => {
+      log.info(
+        'onLocalVideoStateChanged',
+        'source',
+        source,
+        'state',
+        state,
+        'error',
+        error,
       );
-    }
-  };
+      if (source === VideoSourceType.VideoSourceScreen) {
+        switch (state) {
+          case LocalVideoStreamState.LocalVideoStreamStateStopped:
+          case LocalVideoStreamState.LocalVideoStreamStateFailed:
+            break;
+          case LocalVideoStreamState.LocalVideoStreamStateCapturing:
+          case LocalVideoStreamState.LocalVideoStreamStateEncoding:
+            publishScreenshare();
+            processRef.current = true;
+            setScreenshareActive(true);
+            break;
+        }
+      }
+    },
+    [log, publishScreenshare],
+  );
+
+  const onPermissionError = useCallback(
+    (permissionType: PermissionType) => {
+      log.info('onPermissionError', 'permissionType', permissionType);
+      // ⚠️ You should call stopScreenCapture if received the event with permissionType ScreenCapture,
+      // otherwise you can not startScreenCapture again
+      stopScreenshare();
+    },
+    [stopScreenshare, log],
+  );
+
+  useEffect(() => {
+    engine.current.addListener(
+      'onLocalVideoStateChanged',
+      onLocalVideoStateChanged,
+    );
+    engine.current.addListener('onPermissionError', onPermissionError);
+
+    const engineCopy = engine.current;
+    return () => {
+      engineCopy.removeListener(
+        'onLocalVideoStateChanged',
+        onLocalVideoStateChanged,
+      );
+      engineCopy.removeListener('onPermissionError', onPermissionError);
+    };
+  }, [engine, onLocalVideoStateChanged, onPermissionError]);
 
   useEffect(() => {
     if (processRef.current) {
@@ -319,13 +394,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           'muting all remote video streams[muteAllRemoteVideoStreams(true)] to increase the performance',
         );
         RtcEngineUnsafe.muteAllRemoteVideoStreams(true);
-
-        //since native screenshare uses local user video
-        //we need to turn on video if its off.
-        //otherwise remote user can't see the screen shared from the mobile
-        if (!video) {
-          localMute(MUTE_LOCAL_TYPE.video);
-        }
       }
       //native screenshare is stopped
       else {
@@ -341,28 +409,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           'resume all remote video streams[muteAllRemoteVideoStreams(false)]',
         );
         RtcEngineUnsafe.muteAllRemoteVideoStreams(false);
-
-        //edge case - if screenshare is going on and user want to enable the video
-        //then we will inform the user to stop screenshare and start camera
-        //in that case if video is off then turned it on.
-        //if video is on - that's fine
-        if (enableVideoRef.current) {
-          enableVideoRef.current = false;
-          if (!video) {
-            localMute(MUTE_LOCAL_TYPE.video);
-          }
-        }
-        //regular usecase - once screenshare stopped will stop user video - since screenshare uses local user video
-        else {
-          //
-          if (video) {
-            localMute(MUTE_LOCAL_TYPE.video);
-          }
-        }
       }
       processRef.current = false;
     }
-  }, [isScreenshareActive]);
+  }, [isScreenshareActive, RtcEngineUnsafe]);
 
   const ScreenshareStoppedCallback = () => {};
 

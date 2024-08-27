@@ -60,8 +60,6 @@ export interface LocalVideoMuteProps {
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const {rtcProps} = useContext(PropsContext);
-  const {isScreenshareActive} = useScreenshare();
-  const {setShowStopScreenSharePopup} = useVideoCall();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {
     data: {isHost},
@@ -95,23 +93,9 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
         permissionDenied,
       },
     );
-    if ((isAndroid() || isIOS()) && isScreenshareActive) {
-      logger.log(
-        LogSource.Internals,
-        'LOCAL_MUTE',
-        'Screenshare is active. To turn on video screenshare should be turn off',
-      );
-      setShowStopScreenSharePopup(true);
-    } else {
-      localMute(MUTE_LOCAL_TYPE.video);
-    }
+    localMute(MUTE_LOCAL_TYPE.video);
   };
-  //native screen share uses same local uid to publish the screenshare steam
-  //so if screenshare active on native then its means local video is turned off
-  const isVideoEnabled =
-    (isAndroid() || isIOS()) && isScreenshareActive
-      ? false
-      : local.video === ToggleState.enabled;
+  const isVideoEnabled = local.video === ToggleState.enabled;
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||

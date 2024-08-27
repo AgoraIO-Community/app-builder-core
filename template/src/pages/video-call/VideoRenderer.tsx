@@ -217,6 +217,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           {(enableExpandButton &&
             screenShareData &&
             screenShareData?.[user.uid] &&
+            user.uid !== rtcProps?.screenShareUid &&
             isMobileUA()) ||
           (isMobileUA() && enableExpandButton && user?.type == 'whiteboard') ? (
             <IconButton
