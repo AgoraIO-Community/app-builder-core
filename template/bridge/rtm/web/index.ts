@@ -37,13 +37,13 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
+    ['channelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
     ['messageReceived', () => null],
     ['remoteInvitationReceived', () => null],
     ['tokenExpired', () => null],
-    ['channelAttributesUpdated', () => null],
   ]);
   public localInvitationEventsMap = new Map<string, any>([
     ['localInvitationAccepted', () => null],
@@ -67,15 +67,15 @@ export default class RtmEngine {
     if (
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
-      event === 'channelMemberLeft'
+      event === 'channelMemberLeft' ||
+      event === 'channelAttributesUpdated'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
       event === 'connectionStateChanged' ||
       event === 'messageReceived' ||
       event === 'remoteInvitationReceived' ||
-      event === 'tokenExpired' ||
-      event === 'channelAttributesUpdated'
+      event === 'tokenExpired'
     ) {
       this.clientEventsMap.set(event, listener);
     } else if (
@@ -253,7 +253,9 @@ export default class RtmEngine {
           return acc;
         }, []);
 
-        this.clientEventsMap.get('channelAttributesUpdated')(channelAttributes); //RN expect evt: any
+        this.channelEventsMap.get('channelAttributesUpdated')(
+          channelAttributes,
+        );
       });
 
     return this.channelMap.get(channelId).join();
