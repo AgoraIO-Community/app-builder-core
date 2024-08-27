@@ -12,6 +12,11 @@ export enum PersistanceLevel {
   'None' = 1,
   'Sender',
   'Session',
+  'Channel',
+}
+export interface RTMAttributePayload {
+  evt: string;
+  value: string;
 }
 interface EventCallbackPayload {
   payload: string;
