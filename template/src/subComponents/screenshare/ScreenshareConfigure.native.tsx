@@ -31,7 +31,7 @@ import {
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import events from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
 import {useLayout, useContent, useRtc, useRoomInfo} from 'customization-api';
 import {filterObject} from '../../utils';
@@ -48,6 +48,7 @@ import {
 } from 'react-native-agora';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {controlMessageEnum} from '../../components/ChatContext';
+import {timeNow} from '../../rtm/utils';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -100,6 +101,40 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     currentLayoutRef.current.currentLayout = currentLayout;
   }, [currentLayout]);
 
+  const triggerChangeLayout = useCallback(
+    (pinned: boolean, screenShareUid?: UidType, parentUid?: UidType) => {
+      let layout = currentLayoutRef.current.currentLayout;
+      //screenshare is started set the layout to Pinned View
+      if (pinned && screenShareUid) {
+        isPinned.current = screenShareUid;
+        dispatch({
+          type: 'UserPin',
+          value: [screenShareUid],
+        });
+        if (parentUid && !secondaryPinnedUidRef.current.secondaryPinnedUid) {
+          dispatch({
+            type: 'UserSecondaryPin',
+            value: [parentUid],
+          });
+        } else if (
+          parentUid &&
+          secondaryPinnedUidRef.current.secondaryPinnedUid
+        ) {
+          dispatch({
+            type: 'ActiveSpeaker',
+            value: [parentUid],
+          });
+        }
+        layout !== getPinnedLayoutName() && setPinnedLayout();
+      } else {
+        isPinned.current = 0;
+        //screenshare is stopped set the layout Grid View
+        layout !== getGridLayoutName() && changeLayout();
+      }
+    },
+    [changeLayout, dispatch, setPinnedLayout],
+  );
+
   useEffect(() => {
     const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
     if (data) {
@@ -123,42 +158,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         }
       }
     }
-  }, [activeUids, screenShareData]);
-
-  const triggerChangeLayout = (
-    pinned: boolean,
-    screenShareUid?: UidType,
-    parentUid?: UidType,
-  ) => {
-    let layout = currentLayoutRef.current.currentLayout;
-    //screenshare is started set the layout to Pinned View
-    if (pinned && screenShareUid) {
-      isPinned.current = screenShareUid;
-      dispatch({
-        type: 'UserPin',
-        value: [screenShareUid],
-      });
-      if (parentUid && !secondaryPinnedUidRef.current.secondaryPinnedUid) {
-        dispatch({
-          type: 'UserSecondaryPin',
-          value: [parentUid],
-        });
-      } else if (
-        parentUid &&
-        secondaryPinnedUidRef.current.secondaryPinnedUid
-      ) {
-        dispatch({
-          type: 'ActiveSpeaker',
-          value: [parentUid],
-        });
-      }
-      layout !== getPinnedLayoutName() && setPinnedLayout();
-    } else {
-      isPinned.current = 0;
-      //screenshare is stopped set the layout Grid View
-      layout !== getGridLayoutName() && changeLayout();
-    }
-  };
+  }, [activeUids, screenShareData, triggerChangeLayout]);
 
   useEffect(() => {
     /**
@@ -244,121 +244,240 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     };
   }, []);
 
-  const log = console;
-
   const publishScreenshare = useCallback(() => {
     if (!channelId) {
-      log.error('channelId is invalid');
+      console.error('channelId is invalid');
       return;
     }
     if (screenShareUid <= 0) {
-      log.error('uid2 is invalid');
+      console.error('uid2 is invalid');
       return;
     }
 
-    // publish screen share stream
-    //@ts-ignore
-    engine.current.joinChannelEx(
-      screenShareToken,
-      {channelId, localUid: screenShareUid},
-      {
-        autoSubscribeAudio: false,
-        autoSubscribeVideo: false,
-        publishMicrophoneTrack: false,
-        publishCameraTrack: false,
-        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
-        publishScreenCaptureAudio: true,
-        publishScreenCaptureVideo: true,
-      },
-    );
-  }, [engine, screenShareToken, screenShareUid, channelId, log]);
+    try {
+      // publish screen share stream
+      //@ts-ignore
+      engine?.current?.joinChannelEx(
+        screenShareToken,
+        {channelId, localUid: screenShareUid},
+        {
+          autoSubscribeAudio: false,
+          autoSubscribeVideo: false,
+          publishMicrophoneTrack: false,
+          publishCameraTrack: false,
+          clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+          publishScreenCaptureAudio: true,
+          publishScreenCaptureVideo: true,
+        },
+      );
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare Error on joinChannelEx',
+        error,
+      );
+    }
+  }, [engine, screenShareToken, screenShareUid, channelId]);
 
   const unpublishScreenshare = useCallback(() => {
-    //@ts-ignore
-    engine.current.leaveChannelEx({channelId, localUid: screenShareUid});
+    try {
+      //@ts-ignore
+      engine?.current?.leaveChannelEx({channelId, localUid: screenShareUid});
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare Error on leaveChannelEx',
+        error,
+      );
+    }
   }, [engine, channelId, screenShareUid]);
 
   const startScreenshare = useCallback(
     async (captureAudio: boolean = false) => {
       if (!isScreenshareActive) {
-        logger.log(LogSource.Internals, 'SCREENSHARE', 'starting screenshare');
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'Trying to start native screenshare',
+        );
         if (video) {
           localMute(MUTE_LOCAL_TYPE.video);
         }
-        await engine.current.startScreenCapture({
-          captureVideo: true,
-          captureAudio,
-        });
-        if (Platform.OS === 'ios') {
-          // Show the picker view for screen share, ⚠️ only support for iOS 12+
-          await showRPSystemBroadcastPickerView(true);
+        try {
+          await engine.current.startScreenCapture({
+            captureVideo: true,
+            captureAudio,
+          });
+          if (Platform.OS === 'ios') {
+            // Show the picker view for screen share, ⚠️ only support for iOS 12+
+            await showRPSystemBroadcastPickerView(true);
+          }
+        } catch (error) {
+          logger.error(
+            LogSource.Internals,
+            'SCREENSHARE',
+            'native screenshare error on -> startScreenCapture',
+            error,
+          );
         }
       } else {
         logger.debug(
           LogSource.Internals,
           'SCREENSHARE',
-          'screenshare is already active',
+          'native screenshare is already active',
         );
       }
     },
     [isScreenshareActive, video, localMute],
   );
 
+  const ScreenshareStartedCallback = useCallback(() => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      'native screenshare started.',
+    );
+    publishScreenshare();
+    processRef.current = true;
+    setScreenshareActive(true);
+    // 1. Set local state
+    setScreenShareData(prevState => {
+      return {
+        ...prevState,
+        [screenShareUid]: {
+          name: defaultContentRef.current.defaultContent[screenShareUid]?.name,
+          isActive: true,
+          ts: timeNow(),
+        },
+      };
+    });
+    // 2. Inform everyone in the channel screenshare is actice
+    events.send(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      JSON.stringify({
+        action: EventActions.SCREENSHARE_STARTED,
+        value: timeNow(),
+        screenUidOfUser: screenShareUid,
+      }),
+      PersistanceLevel.Sender,
+    );
+  }, [publishScreenshare, screenShareUid, setScreenShareData]);
+
+  const ScreenshareStoppedCallback = useCallback(() => {
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      'native screenshare stopped.',
+    );
+    processRef.current = true;
+    setScreenshareActive(false);
+    unpublishScreenshare();
+    events.send(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      JSON.stringify({
+        action: EventActions.SCREENSHARE_STOPPED,
+        value: 0,
+      }),
+      PersistanceLevel.Sender,
+    );
+    setScreenShareData(prevState => {
+      return {
+        ...prevState,
+        [screenShareUid]: {
+          ...prevState[screenShareUid],
+          isActive: false,
+          ts: 0,
+        },
+      };
+    });
+    //if local user stopped the screenshare then change layout to grid
+    //if user pinned somebody then don't triggerlayout change
+    if (!pinnedUidRef.current.pinnedUid) {
+      triggerChangeLayout(false);
+    }
+    if (screenShareUid === pinnedUidRef.current.pinnedUid) {
+      triggerChangeLayout(false);
+      dispatch({
+        type: 'UserPin',
+        value: [0],
+      });
+    }
+  }, [
+    screenShareUid,
+    dispatch,
+    triggerChangeLayout,
+    setScreenShareData,
+    unpublishScreenshare,
+  ]);
+
   const stopScreenshare = useCallback(
     async (enableVideo: boolean = false, forceStop: boolean = false) => {
       if (isScreenshareActive || forceStop) {
-        logger.log(LogSource.Internals, 'SCREENSHARE', 'stopping screenshare');
-        engine.current.stopScreenCapture();
-        processRef.current = true;
-        setScreenshareActive(false);
-        unpublishScreenshare();
+        logger.log(
+          LogSource.Internals,
+          'SCREENSHARE',
+          'Trying to stop native screenshare',
+        );
+        try {
+          engine?.current?.stopScreenCapture();
+        } catch (error) {
+          logger.error(
+            LogSource.Internals,
+            'SCREENSHARE',
+            'native screenshare error on -> stopScreenCapture',
+            error,
+          );
+        }
       } else {
         logger.debug(
           LogSource.Internals,
           'SCREENSHARE',
-          'no screenshare is active',
+          'native screenshare -> no screenshare is active',
         );
       }
     },
-    [engine, isScreenshareActive, unpublishScreenshare],
+    [engine, isScreenshareActive],
   );
 
   const onLocalVideoStateChanged = useCallback(
     (source: VideoSourceType, state: LocalVideoStreamState, error) => {
-      log.info(
-        'onLocalVideoStateChanged',
-        'source',
-        source,
-        'state',
-        state,
-        'error',
-        error,
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare -> onLocalVideoStateChanged',
+        {source, state, error},
       );
       if (source === VideoSourceType.VideoSourceScreen) {
         switch (state) {
           case LocalVideoStreamState.LocalVideoStreamStateStopped:
           case LocalVideoStreamState.LocalVideoStreamStateFailed:
+            ScreenshareStoppedCallback();
             break;
           case LocalVideoStreamState.LocalVideoStreamStateCapturing:
           case LocalVideoStreamState.LocalVideoStreamStateEncoding:
-            publishScreenshare();
-            processRef.current = true;
-            setScreenshareActive(true);
+            ScreenshareStartedCallback();
             break;
         }
       }
     },
-    [log, publishScreenshare],
+    [ScreenshareStoppedCallback, ScreenshareStartedCallback],
   );
 
   const onPermissionError = useCallback(
     (permissionType: PermissionType) => {
-      log.info('onPermissionError', 'permissionType', permissionType);
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'native screenshare -> onPermissionError',
+        permissionType,
+      );
       // ⚠️ You should call stopScreenCapture if received the event with permissionType ScreenCapture,
       // otherwise you can not startScreenCapture again
       stopScreenshare();
     },
-    [stopScreenshare, log],
+    [stopScreenshare],
   );
 
   useEffect(() => {
@@ -379,13 +498,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, [engine, onLocalVideoStateChanged, onPermissionError]);
 
   useEffect(() => {
-    if (processRef.current) {
-      //native screenshare is started
-      logger.log(
-        LogSource.Internals,
-        'SCREENSHARE',
-        'native screenshare is started',
-      );
+    if (processRef?.current) {
       if (isScreenshareActive) {
         //to increase the performance - stop incoming video stream
         logger.log(
@@ -393,28 +506,19 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           'SCREENSHARE',
           'muting all remote video streams[muteAllRemoteVideoStreams(true)] to increase the performance',
         );
-        RtcEngineUnsafe.muteAllRemoteVideoStreams(true);
-      }
-      //native screenshare is stopped
-      else {
-        logger.log(
-          LogSource.Internals,
-          'SCREENSHARE',
-          'native screenshare is stopped',
-        );
+        RtcEngineUnsafe?.muteAllRemoteVideoStreams(true);
+      } else {
         //resume the incoming video stream
         logger.log(
           LogSource.Internals,
           'SCREENSHARE',
           'resume all remote video streams[muteAllRemoteVideoStreams(false)]',
         );
-        RtcEngineUnsafe.muteAllRemoteVideoStreams(false);
+        RtcEngineUnsafe?.muteAllRemoteVideoStreams(false);
       }
       processRef.current = false;
     }
   }, [isScreenshareActive, RtcEngineUnsafe]);
-
-  const ScreenshareStoppedCallback = () => {};
 
   return (
     <ScreenshareContext.Provider
