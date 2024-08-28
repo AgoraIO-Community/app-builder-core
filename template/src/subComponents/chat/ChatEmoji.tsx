@@ -129,7 +129,8 @@ export interface ChatEmojiButtonProps {
 }
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
-  const {setShowEmojiPicker} = useChatUIControls();
+  const {setShowEmojiPicker, uploadedFiles} = useChatUIControls();
+  const isBtnDisabled = uploadedFiles.length > 0;
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
   };
@@ -142,17 +143,20 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
         backgroundColor: $config.ICON_BG_COLOR,
         borderRadius: 24,
       }}
+      disabled={isBtnDisabled}
       iconProps={{
         iconType: 'plain',
         base64: false,
-        hoverBase64: true,
+        hoverBase64: isBtnDisabled ? false : true,
         iconContainerStyle: {
           padding: 4,
         },
         iconSize: 24,
         name: 'chat_emoji',
-        hoverIconName: 'chat_emoji_fill',
-        tintColor: $config.SECONDARY_ACTION_COLOR,
+        hoverIconName: isBtnDisabled ? 'chat_emoji' : 'chat_emoji_fill',
+        tintColor: isBtnDisabled
+          ? $config.SEMANTIC_NEUTRAL
+          : $config.SECONDARY_ACTION_COLOR,
       }}
       onPress={onPress}
     />
