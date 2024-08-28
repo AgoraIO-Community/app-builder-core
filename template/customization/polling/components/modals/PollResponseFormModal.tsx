@@ -50,6 +50,13 @@ export default function PollResponseFormModal() {
             onComplete={onFormComplete}
           />
         );
+      case PollKind.YES_NO:
+        return (
+          <PollResponseMCQForm
+            pollItem={pollItem}
+            onComplete={onFormComplete}
+          />
+        );
 
       default:
         return <></>;

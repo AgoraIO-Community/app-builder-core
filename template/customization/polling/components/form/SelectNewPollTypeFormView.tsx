@@ -22,12 +22,12 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Multiple Choice',
     description: 'Quick stand-alone question with different options',
   },
-  {
-    key: PollKind.OPEN_ENDED,
-    image: null,
-    title: 'Open Ended',
-    description: 'Question with a descriptive, open text response',
-  },
+  // {
+  //   key: PollKind.OPEN_ENDED,
+  //   image: null,
+  //   title: 'Open Ended',
+  //   description: 'Question with a descriptive, open text response',
+  // },
   {
     key: PollKind.YES_NO,
     image: null,
@@ -78,7 +78,7 @@ export const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     gap: 20,
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   card: {
     flexDirection: 'column',

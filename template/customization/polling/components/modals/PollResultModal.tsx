@@ -29,6 +29,7 @@ export default function PollResultModal() {
             <PollOptionList>
               {pollItem.options.map((item: PollItemOptionItem) => (
                 <PollOptionListItemResult
+                  key={item.value}
                   optionItem={item}
                   showYourVote={!isHost()}
                 />

@@ -76,7 +76,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       answers: null,
       options: [
         {
-          text: 'YES',
+          text: 'Yes',
           value: 'yes',
           votes: [],
           percent: '0',

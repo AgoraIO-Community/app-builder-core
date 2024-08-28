@@ -7,7 +7,7 @@ import {
   TextStyle,
 } from 'react-native';
 import React from 'react';
-import {ThemeConfig} from 'customization-api';
+import {hexadecimalTransparency, ThemeConfig} from 'customization-api';
 
 interface Props {
   option: {
@@ -27,13 +27,9 @@ export default function BaseRadioButton(props: Props) {
         id={option.value}
         style={[style.optionsContainer, disabled && style.disabledContainer]}
         onPress={() => !disabled && onChange(option.value)}>
-        <View
-          style={[
-            style.radioCircle,
-            checked && style.radioFilled,
-            disabled && style.disabledCircle,
-          ]}
-        />
+        <View style={[style.radioCircle, disabled && style.disabledCircle]}>
+          {checked && <View style={[style.radioFilled]} />}
+        </View>
         <Text style={[style.optionText, labelStyle]}>{option.label}</Text>
       </TouchableOpacity>
     </View>
@@ -59,12 +55,12 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   disabledCircle: {
-    // borderColor: $config.FONT_COLOR,
+    borderColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
   },
   radioFilled: {
-    height: 14,
-    width: 14,
-    borderRadius: 7,
+    height: 12,
+    width: 12,
+    borderRadius: 6,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   optionText: {
