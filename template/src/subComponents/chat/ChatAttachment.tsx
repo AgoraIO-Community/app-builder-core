@@ -70,6 +70,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     if (files) {
       const fileArray = Array.from(files);
       let localUploadCount = uploadedFiles.length; // to track uploads
+      const oversizedFileNames: string[] = []; // file names exceeding limit
 
       for (const file of fileArray) {
         if (localUploadCount >= MAX_FILES_UPLOAD) {
@@ -91,15 +92,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         const isFileUploaded = uploadedFileType in fileAllowedTypes;
 
         if (file.size > MAX_UPLOAD_SIZE * 1024 * 1024) {
-          Toast.show({
-            leadingIconName: 'alert',
-            type: 'error',
-            text1: toastHeadingSize,
-            text2: errorSubHeadingSize(MAX_UPLOAD_SIZE.toString(), file.name),
-            visibilityTime: 3000,
-            primaryBtn: null,
-            secondaryBtn: null,
-          });
+          oversizedFileNames.push(file.name);
           continue;
         }
         if (!(isImageUploaded || isFileUploaded)) {
@@ -142,6 +135,21 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             return updatedFiles;
           });
         }
+      }
+      // Show the toast notification for oversized files, if any
+      if (oversizedFileNames.length > 0) {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text1: toastHeadingSize,
+          text2: errorSubHeadingSize(
+            MAX_UPLOAD_SIZE.toString(),
+            oversizedFileNames.join(', '),
+          ),
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+        });
       }
     }
   };
