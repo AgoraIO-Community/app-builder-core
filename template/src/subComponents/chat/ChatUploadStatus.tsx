@@ -25,7 +25,7 @@ const ChatUploadStatus = () => {
       ? uploadedFiles[uploadedFiles.length - 1].upload_status
       : null;
 
-  const isMaxFilesUploaded = uploadedFiles.length === MAX_FILES_UPLOAD;
+  const isMaxFilesUploaded = uploadedFiles.length >= MAX_FILES_UPLOAD;
 
   let text = '';
   switch (lastFileStatus) {

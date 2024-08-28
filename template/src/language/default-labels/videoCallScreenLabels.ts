@@ -65,6 +65,10 @@ export interface I18nRequestConfirmation {
   name: string;
   type: I18nMuteType;
 }
+export interface I18nFileSize {
+  name: string;
+  size: number;
+}
 export interface I18nMuteConfirmation {
   name: string;
   type: I18nMuteType;
@@ -1039,8 +1043,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatUploadErrorToastHeading]: 'Attachment Upload Error',
   [chatUploadErrorFileSizeToastHeading]: 'File size is too large',
   [chatSendErrorTextSizeToastHeading]: 'Text size is too large',
-  [chatUploadErrorFileSizeToastSubHeading]: size =>
-    `You can send attachments upto ${size}MB in size`,
+  [chatUploadErrorFileSizeToastSubHeading]: (size, fileName) =>
+    ` ${fileName} exceeds ${size}MB  size limit`,
   [chatSendErrorTextSizeToastSubHeading]: size =>
     `You can send text message upto ${size}KB in size`,
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,

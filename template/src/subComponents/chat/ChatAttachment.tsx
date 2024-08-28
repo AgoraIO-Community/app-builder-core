@@ -28,6 +28,7 @@ export interface ChatAttachmentButtonProps {
 
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
   const {data} = useRoomInfo();
   const {
     privateChatUser,
@@ -63,63 +64,94 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     bmp: true,
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files && e.target.files[0];
-    const file = AgoraChat.utils.getFileUrl(e.target);
-    const uploadedFileType = file.filetype.toLowerCase();
-    const isImageUploaded = uploadedFileType in imageAllowedTypes;
-    const isFileUploaded = uploadedFileType in fileAllowedTypes;
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
 
-    if (file.data.size > MAX_UPLOAD_SIZE * 1024 * 1024) {
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: toastHeadingSize,
-        text2: errorSubHeadingSize(MAX_UPLOAD_SIZE.toString()),
-        visibilityTime: 3000,
-        primaryBtn: null,
-        secondaryBtn: null,
-      });
-      return;
+    if (files) {
+      const fileArray = Array.from(files);
+      let localUploadCount = uploadedFiles.length; // to track uploads
+
+      for (const file of fileArray) {
+        if (localUploadCount >= MAX_FILES_UPLOAD) {
+          return;
+        }
+        //  temporary input element as upload utils requires it
+        const tempInput = document.createElement('input');
+        tempInput.type = 'file';
+        tempInput.style.display = 'none';
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        tempInput.files = dataTransfer.files;
+
+        const fileObj = AgoraChat.utils.getFileUrl(tempInput);
+
+        const uploadedFileType = fileObj.filetype.toLowerCase();
+        const isImageUploaded = uploadedFileType in imageAllowedTypes;
+        const isFileUploaded = uploadedFileType in fileAllowedTypes;
+
+        if (file.size > MAX_UPLOAD_SIZE * 1024 * 1024) {
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: toastHeadingSize,
+            text2: errorSubHeadingSize(MAX_UPLOAD_SIZE.toString(), file.name),
+            visibilityTime: 3000,
+            primaryBtn: null,
+            secondaryBtn: null,
+          });
+          continue;
+        }
+        if (!(isImageUploaded || isFileUploaded)) {
+          return;
+        }
+
+        const uploadedFile: File = {
+          file_id: getUniqueID(),
+          file_name: file.name,
+          file_ext: uploadedFileType,
+          file_url: '',
+          file_length: file.size,
+          file_type: isImageUploaded
+            ? ChatMessageType.IMAGE
+            : ChatMessageType.FILE,
+          file_obj: fileObj,
+          upload_status: UploadStatus.IN_PROGRESS,
+        };
+
+        localUploadCount++;
+        // Add the uploaded file to the state
+        setUploadedFiles(prev => [...prev, uploadedFile]);
+
+        try {
+          // Start uploading the file and wait for it to complete
+          await uploadAttachment(uploadedFile);
+        } catch (error) {
+          console.error(
+            'Upload failed for file:',
+            uploadedFile.file_name,
+            error,
+          );
+          // Update the file status to FAILURE
+          setUploadedFiles(prev => {
+            const updatedFiles = prev.map(f =>
+              f.file_id === uploadedFile.file_id
+                ? {...f, upload_status: UploadStatus.FAILURE}
+                : f,
+            );
+            return updatedFiles;
+          });
+        }
+      }
     }
-    if (!(isImageUploaded || isFileUploaded)) {
-      // Toast.show({
-      //   leadingIconName: 'chat_attachment_unknown',
-      //   type: 'info',
-      //   text1: toastHeadingType,
-      //   text2: errorSubHeadingType(file.filetype),
-      //   visibilityTime: 3000,
-      //   primaryBtn: null,
-      //   secondaryBtn: null,
-      // });
-
-      return;
-    }
-
-    if (!selectedFile) return;
-
-    const uploadedFile: File = {
-      file_id: getUniqueID(),
-      file_name: file.filename,
-      file_ext: uploadedFileType,
-      file_url: '',
-      file_length: 0,
-      file_type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
-      file_obj: file,
-      upload_status: UploadStatus.IN_PROGRESS,
-    };
-    // currently supporting only 1 upload
-    // setUploadedFiles(prev => [...prev, uploadedFile]);
-    setUploadedFiles(prev => [...prev, uploadedFile]);
-
-    uploadAttachment(uploadedFile);
   };
+
   const onPress = () => {
     fileInputRef.current.value = null;
     fileInputRef.current.click();
   };
 
-  const isMaxFilesUploaded = uploadedFiles.length === MAX_FILES_UPLOAD;
+  const isMaxFilesUploaded = uploadedFiles.length >= MAX_FILES_UPLOAD;
   return props?.render ? (
     props.render(onPress)
   ) : (
@@ -131,6 +163,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
         style={{display: 'none'}}
         id={`file-input-`}
         ref={fileInputRef}
+        multiple
       />
       <IconButton
         hoverEffect={true}

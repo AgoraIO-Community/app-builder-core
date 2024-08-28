@@ -41,23 +41,25 @@ export function usei18nData(
   }
 }
 
-export function useString<T = string>(
+export function useString<T = any>(
   keyName: keyof TextDataInterface,
-): (input?: T) => string {
+): (...args: T[]) => string {
   const lanCode = useLanguage(data => data.languageCode);
   const textData = usei18nData(lanCode);
-  const getString = (input?: T) => {
+
+  const getString = (...args: T[]) => {
     let keyValue = textData ? textData[keyName] : undefined;
     if (!keyValue) {
       return '';
     } else if (typeof keyValue === 'function') {
-      return keyValue(input);
+      return keyValue(...args);
     } else if (typeof keyValue === 'string') {
       return keyValue;
     } else {
       return '';
     }
   };
+
   return getString;
 }
 

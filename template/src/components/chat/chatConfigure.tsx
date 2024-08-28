@@ -494,74 +494,65 @@ const ChatConfigure = ({children}) => {
     anchor.remove();
   };
 
-  const uploadAttachment = uploadFiles => {
-    const {file_type, file_length, file_name, file_url, file_obj, file_ext} =
-      uploadFiles;
+  const uploadAttachment = async uploadFiles => {
+    const {file_obj} = uploadFiles;
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
-    const uploadObj = {
-      onFileUploadProgress: (data: ProgressEvent) => {
-        // setUploadStatus(UploadStatus.IN_PROGRESS);
 
-        setUploadedFiles(prev => {
-          const updatedFiles = [...prev];
-          updatedFiles[updatedFiles.length - 1] = {
-            ...updatedFiles[updatedFiles.length - 1],
-            upload_status: UploadStatus.IN_PROGRESS,
-          };
-          return updatedFiles;
-        });
-      },
-      onFileUploadComplete: (data: any) => {
-        const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
-        //TODO: handle for multiple uploads
-        setUploadedFiles(prev => {
-          const updatedFiles = [...prev];
-          updatedFiles[updatedFiles.length - 1] = {
-            ...updatedFiles[updatedFiles.length - 1],
-            file_url: url,
-            upload_status: UploadStatus.SUCCESS,
-          };
-          return updatedFiles;
-        });
-        //  setUploadStatus(UploadStatus.SUCCESS);
-      },
-      onFileUploadError: (error: any) => {
-        logger.error(
-          LogSource.Internals,
-          'CHAT',
-          'Attachment upload failed',
-          error,
-        );
-        //setUploadStatus(UploadStatus.FAILURE);
-        setUploadedFiles(prev => {
-          const updatedFiles = [...prev];
-          updatedFiles[updatedFiles.length - 1] = {
-            ...updatedFiles[updatedFiles.length - 1],
-            upload_status: UploadStatus.FAILURE,
-          };
-          return updatedFiles;
-        });
-      },
-      onFileUploadCanceled: () => {
-        //setUploadStatus(UploadStatus.NOT_STARTED);
-      },
-      accessToken: data?.chat?.user_token,
-      appKey: CHAT_APP_KEY,
-      file: file_obj,
-      apiUrl: $config.CHAT_URL,
-    };
+    return new Promise((resolve, reject) => {
+      const uploadObj = {
+        onFileUploadProgress: (data: ProgressEvent) => {
+          setUploadedFiles(prev => {
+            const updatedFiles = [...prev];
+            updatedFiles[updatedFiles.length - 1] = {
+              ...updatedFiles[updatedFiles.length - 1],
+              upload_status: UploadStatus.IN_PROGRESS,
+            };
+            return updatedFiles;
+          });
+        },
+        onFileUploadComplete: (data: any) => {
+          const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
 
-    try {
+          setUploadedFiles(prev => {
+            const updatedFiles = [...prev];
+            updatedFiles[updatedFiles.length - 1] = {
+              ...updatedFiles[updatedFiles.length - 1],
+              file_url: url,
+              upload_status: UploadStatus.SUCCESS,
+            };
+            return updatedFiles;
+          });
+          resolve(url);
+        },
+        onFileUploadError: (error: any) => {
+          logger.error(
+            LogSource.Internals,
+            'CHAT',
+            'Attachment upload failed',
+            error,
+          );
+          //setUploadStatus(UploadStatus.FAILURE);
+          setUploadedFiles(prev => {
+            const updatedFiles = [...prev];
+            updatedFiles[updatedFiles.length - 1] = {
+              ...updatedFiles[updatedFiles.length - 1],
+              upload_status: UploadStatus.FAILURE,
+            };
+            return updatedFiles;
+          });
+          reject(error);
+        },
+        onFileUploadCanceled: () => {
+          //setUploadStatus(UploadStatus.NOT_STARTED);
+        },
+        accessToken: data?.chat?.user_token,
+        appKey: CHAT_APP_KEY,
+        file: file_obj,
+        apiUrl: $config.CHAT_URL,
+      };
+
       AgoraChat.utils.uploadFile(uploadObj);
-    } catch (error) {
-      logger.debug(
-        LogSource.Internals,
-        'CHAT',
-        'Attachment upload failed',
-        error,
-      );
-      console.error(error);
-    }
+    });
   };
 
   const deleteAttachment = (
