@@ -1,67 +1,55 @@
 import {useState, useEffect} from 'react';
+import {Keyboard, Platform} from 'react-native';
 
-const isPortrait = () => {
-  try {
-    if (
-      window?.screen?.orientation?.type === 'portrait-primary' ||
-      window?.screen?.orientation?.type === 'portrait-secondary'
-    ) {
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.log('screen orientation window api not supported error: ', error);
-    return true;
-  }
-};
-
-/**
- * A React Hook which updates when the orientation changes
- * @returns whether the user is in 'PORTRAIT' or 'LANDSCAPE'
- */
-
-export function useOrientation(): 'PORTRAIT' | 'LANDSCAPE' {
+export function useOrientation() {
   const [orientation, setOrientation] = useState<'PORTRAIT' | 'LANDSCAPE'>(
-    isPortrait() ? 'PORTRAIT' : 'LANDSCAPE',
+    window.matchMedia('(orientation: portrait)').matches
+      ? 'PORTRAIT'
+      : 'LANDSCAPE',
   );
-
-  const onOrientationChange = (event: any) => {
-    try {
-      console.log('screen orientation changed to -> ', event?.target?.type);
-      if (
-        event?.target?.type === 'portrait-primary' ||
-        event?.target?.type === 'portrait-secondary'
-      ) {
-        setOrientation('PORTRAIT');
-      } else {
-        setOrientation('LANDSCAPE');
-      }
-    } catch (error) {
-      console.log('screen orientation window api not supported error: ', error);
-      setOrientation('PORTRAIT');
-    }
-  };
-
-  const checkOrientation = () => {
-    console.log('screen visibility changed');
-    setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
-  };
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
-    window?.screen?.orientation?.addEventListener(
-      'change',
-      onOrientationChange,
+    const handleOrientationChange = () => {
+      if (keyboardVisible && Platform.OS === 'ios') {
+        return; // Avoid changing orientation if the keyboard is visible on iOS
+      }
+      setOrientation(
+        window.matchMedia('(orientation: portrait)').matches
+          ? 'PORTRAIT'
+          : 'LANDSCAPE',
+      );
+    };
+
+    const handleResize = () => {
+      if (!keyboardVisible) {
+        handleOrientationChange();
+      }
+    };
+
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      },
     );
-    document.addEventListener('visibilitychange', checkOrientation);
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+        handleOrientationChange(); // Recheck orientation after the keyboard is hidden
+      },
+    );
+
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window?.screen.orientation?.removeEventListener(
-        'change',
-        onOrientationChange,
-      );
-      document.removeEventListener('visibilitychange', checkOrientation);
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+      window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [keyboardVisible]);
 
   return orientation;
 }
