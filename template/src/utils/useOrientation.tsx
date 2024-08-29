@@ -10,6 +10,10 @@ export function useOrientation() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
+    console.log('screen orientation changed', orientation);
+  }, [orientation]);
+
+  useEffect(() => {
     const handleOrientationChange = () => {
       if (keyboardVisible && Platform.OS === 'ios') {
         return; // Avoid changing orientation if the keyboard is visible on iOS
