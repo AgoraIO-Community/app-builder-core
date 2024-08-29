@@ -1,67 +1,53 @@
 import {useState, useEffect} from 'react';
+import {Dimensions, Keyboard, Platform} from 'react-native';
 
-const isPortrait = () => {
-  try {
-    if (
-      window?.screen?.orientation?.type === 'portrait-primary' ||
-      window?.screen?.orientation?.type === 'portrait-secondary'
-    ) {
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.log('screen orientation window api not supported error: ', error);
-    return true;
-  }
-};
-
-/**
- * A React Hook which updates when the orientation changes
- * @returns whether the user is in 'PORTRAIT' or 'LANDSCAPE'
- */
+const isPortrait = (width, height) => height >= width;
 
 export function useOrientation(): 'PORTRAIT' | 'LANDSCAPE' {
   const [orientation, setOrientation] = useState<'PORTRAIT' | 'LANDSCAPE'>(
-    isPortrait() ? 'PORTRAIT' : 'LANDSCAPE',
+    isPortrait(Dimensions.get('window').width, Dimensions.get('window').height)
+      ? 'PORTRAIT'
+      : 'LANDSCAPE',
   );
-
-  const onOrientationChange = (event: any) => {
-    try {
-      console.log('screen orientation changed to -> ', event?.target?.type);
-      if (
-        event?.target?.type === 'portrait-primary' ||
-        event?.target?.type === 'portrait-secondary'
-      ) {
-        setOrientation('PORTRAIT');
-      } else {
-        setOrientation('LANDSCAPE');
-      }
-    } catch (error) {
-      console.log('screen orientation window api not supported error: ', error);
-      setOrientation('PORTRAIT');
-    }
-  };
-
-  const checkOrientation = () => {
-    console.log('screen visibility changed');
-    setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
-  };
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
-    window?.screen?.orientation?.addEventListener(
+    const updateOrientation = () => {
+      const {width, height} = Dimensions.get('window');
+      const isPortraitMode = isPortrait(width, height);
+
+      if (keyboardVisible && Platform.OS === 'ios') {
+        return; // On iOS, avoid changing orientation if the keyboard is visible
+      }
+
+      setOrientation(isPortraitMode ? 'PORTRAIT' : 'LANDSCAPE');
+    };
+
+    const dimensionListener = Dimensions.addEventListener(
       'change',
-      onOrientationChange,
+      updateOrientation,
     );
-    document.addEventListener('visibilitychange', checkOrientation);
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => setKeyboardVisible(true),
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+        updateOrientation(); // Recheck orientation after keyboard is hidden
+      },
+    );
+
+    // Initial check
+    updateOrientation();
 
     return () => {
-      window?.screen.orientation?.removeEventListener(
-        'change',
-        onOrientationChange,
-      );
-      document.removeEventListener('visibilitychange', checkOrientation);
+      dimensionListener?.remove();
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
     };
-  }, []);
+  }, [keyboardVisible]);
 
   return orientation;
 }
