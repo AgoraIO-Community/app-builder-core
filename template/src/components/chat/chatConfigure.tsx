@@ -107,7 +107,6 @@ const ChatConfigure = ({children}) => {
             );
           },
 
-          /* All images and files messages from web will be received here  */
           onFileMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -118,12 +117,22 @@ const ChatConfigure = ({children}) => {
               `Received File Message`,
               message,
             );
+            const fileUrl =
+              message.ext?.from_platform === 'native'
+                ? message.url
+                : message.ext.file_url;
+
             const fromUser = message?.from;
 
-            if (message?.ext?.from_platform === 'native') {
-              // single attachment from native
-              const fileUrl = message.url;
-              const messageData = {
+            if (message.chatType === SDKChatType.GROUP_CHAT) {
+              showMessageNotification(
+                message.ext.file_name,
+                fromUser,
+                false,
+                message.type,
+              );
+
+              addMessageToStore(Number(fromUser), {
                 msg: '',
                 createdTimestamp: message.time,
                 msgId: message.id,
@@ -132,78 +141,32 @@ const ChatConfigure = ({children}) => {
                 url: fileUrl,
                 ext: message.ext.file_ext,
                 fileName: message.ext.file_name,
-                fileType: message.ext.file_type,
-              };
-
-              if (message.chatType === SDKChatType.GROUP_CHAT) {
-                showMessageNotification(
-                  message.ext.file_name,
-                  fromUser,
-                  false,
-                  message.type,
-                );
-                addMessageToStore(Number(fromUser), messageData);
-              }
-              if (message.chatType === SDKChatType.SINGLE_CHAT) {
-                showMessageNotification(
-                  message.ext.file_name,
-                  fromUser,
-                  true,
-                  message.type,
-                );
-
-                addMessageToPrivateStore(Number(fromUser), messageData, false);
-              }
-            } else {
-              // Iterate over multiple attachments from web
-              message.ext.files.forEach(file => {
-                const fileUrl =
-                  message.ext?.from_platform === 'native'
-                    ? message.url
-                    : file.file_url;
-
-                const messageData = {
+              });
+            }
+            if (message.chatType === SDKChatType.SINGLE_CHAT) {
+              showMessageNotification(
+                message.ext.file_name,
+                fromUser,
+                true,
+                message.type,
+              );
+              addMessageToPrivateStore(
+                Number(fromUser),
+                {
                   msg: '',
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
                   type: ChatMessageType.FILE,
                   url: fileUrl,
-                  ext: file.file_ext,
-                  fileName: file.file_name,
-                  fileType: file.file_type,
-                  thumb: file.file_url + '&thumbnail=true',
-                };
-
-                // Handle GROUP_CHAT type messages
-                if (message.chatType === SDKChatType.GROUP_CHAT) {
-                  showMessageNotification(
-                    file.file_name,
-                    fromUser,
-                    false,
-                    message.type,
-                  );
-                  addMessageToStore(Number(fromUser), messageData);
-                }
-
-                // Handle SINGLE_CHAT type messages
-                if (message.chatType === SDKChatType.SINGLE_CHAT) {
-                  showMessageNotification(
-                    file.file_name,
-                    fromUser,
-                    true,
-                    message.type,
-                  );
-                  addMessageToPrivateStore(
-                    Number(fromUser),
-                    messageData,
-                    false,
-                  );
-                }
-              });
+                  ext: message.ext.file_ext,
+                  fileName: message.ext.file_name,
+                },
+                false,
+              );
             }
           },
-          /* Native img messages will be recived here */
+
           onImageMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -214,7 +177,10 @@ const ChatConfigure = ({children}) => {
               `Received Img Message`,
               message,
             );
-            const fileUrl = message?.url;
+            const fileUrl =
+              message.ext?.from_platform === 'native'
+                ? message.url
+                : message.ext.file_url;
 
             const fromUser = message?.from;
 
@@ -234,7 +200,6 @@ const ChatConfigure = ({children}) => {
                 thumb: fileUrl + '&thumbnail=true',
                 url: fileUrl,
                 fileName: message.ext?.file_name,
-                fileType: message.ext?.file_type,
               });
             }
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
@@ -376,67 +341,25 @@ const ChatConfigure = ({children}) => {
             option,
           );
 
-          const baseMessageData = {
+          const messageData = {
             msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
             createdTimestamp: timeNow(),
             msgId: res?.serverMsgId,
             isDeleted: false,
             type: option.type,
+            thumb: option?.ext?.file_url + '&thumbnail=true',
+            url: option?.ext?.file_url,
+            ext: option?.ext?.file_ext,
+            fileName: option?.ext?.file_name,
           };
 
-          // Check if there are files in option.ext and if it's non-empty
-          if (option?.ext?.files?.length) {
-            option.ext.files.forEach(file => {
-              const messageData = {
-                ...baseMessageData, // Include the base message data
-                thumb: file.file_url + '&thumbnail=true',
-                url: file.file_url,
-                ext: file.file_ext,
-                fileName: file.file_name,
-                fileType: file.file_type,
-              };
-
-              // Store the message based on the chat type
-              if (option.chatType === SDKChatType.SINGLE_CHAT) {
-                addMessageToPrivateStore(Number(option?.to), messageData, true);
-              } else {
-                addMessageToStore(Number(option?.from), messageData);
-              }
-            });
+          // update local user message store
+          if (option.chatType === SDKChatType.SINGLE_CHAT) {
+            addMessageToPrivateStore(Number(option?.to), messageData, true);
           } else {
-            // If no files, just push the base message data
-            if (option.chatType === SDKChatType.SINGLE_CHAT) {
-              addMessageToPrivateStore(
-                Number(option?.to),
-                baseMessageData,
-                true,
-              );
-            } else {
-              addMessageToStore(Number(option?.from), baseMessageData);
-            }
+            addMessageToStore(Number(option?.from), messageData);
           }
         })
-
-        //   // update local messagre store
-        //   const messageData = {
-        //     msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
-        //     createdTimestamp: timeNow(),
-        //     msgId: res?.serverMsgId,
-        //     isDeleted: false,
-        //     type: option.type,
-        //     thumb: option?.ext?.file_url + '&thumbnail=true',
-        //     url: option?.ext?.file_url,
-        //     ext: option?.ext?.file_ext,
-        //     fileName: option?.ext?.file_name,
-        //   };
-        //   //todo chattype as per natue type
-        //   // this is local user messages
-        //   if (option.chatType === SDKChatType.SINGLE_CHAT) {
-        //     addMessageToPrivateStore(Number(option?.to), messageData, true);
-        //   } else {
-        //     addMessageToStore(Number(option?.from), messageData);
-        //   }
-        // })
         .catch(error => {
           logger.debug(
             LogSource.Internals,

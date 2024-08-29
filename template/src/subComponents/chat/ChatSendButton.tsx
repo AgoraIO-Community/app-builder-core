@@ -64,32 +64,55 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       return;
     }
     const groupID = data.chat.group_id;
-    const msgType =
-      uploadedFiles.length > 0 ? ChatMessageType.FILE : ChatMessageType.TXT;
-    // if combined msg => uploadFiles.length > 0 && message.length > 0 ==> ChatMessageType.Custom
 
-    const messageExt = {
-      from_platform: isWeb() ? 'web' : 'native',
-      files: uploadedFiles.map(file => ({
-        file_ext: file.file_ext || '',
-        file_length: file.file_length || 0,
-        file_name: file.file_name || '',
-        file_url: file.file_url || '',
-        file_type: file.file_type || '',
-      })),
-    };
+    //TODO: for text msg
 
-    const option = {
-      chatType: selectedUserId
-        ? SDKChatType.SINGLE_CHAT
-        : SDKChatType.GROUP_CHAT,
-      type: msgType as ChatMessageType,
-      msg: msgType === ChatMessageType.TXT ? message : '', // currenlt not supporting combinarion msg (file+txt)
-      from: data.uid.toString(),
-      to: selectedUserId ? selectedUserId.toString() : groupID,
-      ext: messageExt,
-    };
-    sendChatSDKMessage(option);
+    if (uploadedFiles.length > 0) {
+      uploadedFiles.forEach(file => {
+        // send all the attachment one by one
+        const msgType = file.file_type;
+        const {
+          file_ext = '',
+          file_length = 0,
+          file_name = '',
+          file_url = '',
+        } = file;
+
+        const option = {
+          chatType: selectedUserId
+            ? SDKChatType.SINGLE_CHAT
+            : SDKChatType.GROUP_CHAT,
+          type: msgType as ChatMessageType,
+          msg: '', // currenlt not supporting combinarion msg (file+txt)
+          from: data.uid.toString(),
+          to: selectedUserId ? selectedUserId.toString() : groupID,
+          ext: {
+            file_length,
+            file_ext,
+            file_url,
+            file_name,
+            from_platform: isWeb() ? 'web' : 'native',
+          },
+        };
+        sendChatSDKMessage(option);
+      });
+    } else {
+      // send Text Message
+      const option = {
+        chatType: selectedUserId
+          ? SDKChatType.SINGLE_CHAT
+          : SDKChatType.GROUP_CHAT,
+        type: ChatMessageType.TXT,
+        msg: message,
+        from: data.uid.toString(),
+        to: selectedUserId ? selectedUserId.toString() : groupID,
+        ext: {
+          from_platform: isWeb() ? 'web' : 'native',
+        },
+      };
+      sendChatSDKMessage(option);
+    }
+
     setMessage && setMessage('');
     setInputHeight && setInputHeight(MIN_HEIGHT);
     setUploadedFiles && setUploadedFiles(prev => []);

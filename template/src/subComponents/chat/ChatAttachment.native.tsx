@@ -43,8 +43,6 @@ interface ExtendedChatMessage extends ChatMessage {
   attributes: {
     file_ext?: string;
     file_name?: string;
-    file_type?: ChatMessageType;
-    file_url?: string;
   };
 }
 
@@ -136,23 +134,15 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             : SDKChatType.GROUP_CHAT,
           from: data.uid.toString(),
           fileName: result[0].name,
-          // When upload util is available for native then we can save the uploaded files and send multiple files
           ext: {
+            file_length: result[0].size,
+            file_ext: uploadedFileType.split('/')[1],
+            file_name: result[0].name,
+            file_url: filePath,
             from_platform: 'native',
-            files: [
-              {
-                file_length: result[0].size,
-                file_ext: uploadedFileType.split('/')[1],
-                file_name: result[0].name,
-                file_url: filePath,
-                file_type: isImageUploaded
-                  ? ChatMessageType.IMAGE
-                  : ChatMessageType.FILE,
-              },
-            ],
           },
         };
-        console.warn('chatOPtion =>', option);
+        console.warn('chatOPtion', option);
         const onProgress = (localMsgId: string, progress: number) => {
           // always gives 100 , its in WIP for agoar-chat-native-sdk
           console.warn('upload in progress', progress);
@@ -176,7 +166,6 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             url: message.body?.remotePath,
             ext: message.attributes?.file_ext,
             fileName: message.attributes?.file_name,
-            fileType: message.attributes?.file_type,
           };
           console.warn('message data', messageData);
 
