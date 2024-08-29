@@ -49,6 +49,9 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {controlMessageEnum} from '../../components/ChatContext';
 import {timeNow} from '../../rtm/utils';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -162,6 +165,15 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     /**
+     * When user kicked off by remote host then stop the screenshare
+     */
+    const unsubKickUser = LocalEventEmitter.on(
+      LocalEventsEnum.USER_KICKED_OFF_BY_REMOTE_HOST,
+      () => {
+        stopScreenshare(false, true);
+      },
+    );
+    /**
      * When host removed the screenshare
      */
     const unsubKickScreenshare = events.on(
@@ -241,6 +253,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     return () => {
       unsubScreenShareAttribute();
       unsubKickScreenshare();
+      unsubKickUser.removeListener(
+        LocalEventsEnum.USER_KICKED_OFF_BY_REMOTE_HOST,
+        () => {},
+      );
     };
   }, []);
 
