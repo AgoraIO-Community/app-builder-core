@@ -42,16 +42,24 @@ export function useOrientation(): 'PORTRAIT' | 'LANDSCAPE' {
     }
   };
 
+  const checkOrientation = () => {
+    console.log('screen visibility changed');
+    setOrientation(isPortrait() ? 'PORTRAIT' : 'LANDSCAPE');
+  };
+
   useEffect(() => {
     window?.screen?.orientation?.addEventListener(
       'change',
       onOrientationChange,
     );
+    document.addEventListener('visibilitychange', checkOrientation);
+
     return () => {
       window?.screen.orientation?.removeEventListener(
         'change',
         onOrientationChange,
       );
+      document.removeEventListener('visibilitychange', checkOrientation);
     };
   }, []);
 
