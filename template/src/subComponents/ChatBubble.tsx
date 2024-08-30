@@ -19,6 +19,8 @@ import {
   Pressable,
   TouchableOpacity,
   ActivityIndicator,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
@@ -38,18 +40,29 @@ import {
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
 
-export const AttachmentBubble = ({
+type AttachmentBubbleProps = {
+  fileName: string;
+  fileExt: string;
+  isFullWidth?: boolean;
+  fileType?: string;
+  secondaryComponent?: React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>; // Accepting external styles
+};
+
+export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   fileName,
   fileExt,
   isFullWidth = false,
   fileType = '',
   secondaryComponent,
+  containerStyle,
 }) => {
   const {uploadStatus} = useChatUIControls();
 
   return (
     <View
       style={[
+        containerStyle,
         style.fileContainer,
         isFullWidth && {width: '100%'},
         uploadStatus === UploadStatus.FAILURE && {
@@ -104,6 +117,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     url,
     thumb,
     fileName,
+    fileType,
     ext,
   } = props;
 
