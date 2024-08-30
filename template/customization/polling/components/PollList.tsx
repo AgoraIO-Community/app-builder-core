@@ -5,7 +5,7 @@ import {usePoll} from '../context/poll-context';
 import {ThemeConfig} from 'customization-api';
 
 export default function PollList() {
-  const {polls, isHost, handlePollTaskRequest} = usePoll();
+  const {polls, isHost} = usePoll();
 
   return (
     <View>
@@ -17,12 +17,7 @@ export default function PollList() {
       <View>
         {polls && Object.keys(polls).length > 0 ? (
           Object.keys(polls).map((key: string) => (
-            <PollCard
-              key={key}
-              isHost={isHost()}
-              pollItem={polls[key]}
-              handleSelect={handlePollTaskRequest}
-            />
+            <PollCard key={key} isHost={isHost()} pollItem={polls[key]} />
           ))
         ) : (
           <></>

@@ -37,6 +37,31 @@ interface PollResponseFormProps {
   onComplete: (responses: string | string[]) => void;
 }
 
+function PollRenderResponseForm({
+  pollItem,
+  onFormComplete,
+}: {
+  pollItem: PollItem;
+  onFormComplete: (responses: string | string[]) => void;
+}): JSX.Element {
+  switch (pollItem.type) {
+    case 'OPEN_ENDED':
+      return (
+        <PollResponseQuestionForm
+          pollItem={pollItem}
+          onComplete={onFormComplete}
+        />
+      );
+    case 'MCQ':
+    case 'YES_NO':
+      return (
+        <PollResponseMCQForm pollItem={pollItem} onComplete={onFormComplete} />
+      );
+    default:
+      return <></>;
+  }
+}
+
 function PollResponseQuestionForm({
   pollItem,
   onComplete,
@@ -178,6 +203,7 @@ export {
   PollResponseQuestionForm,
   PollResponseMCQForm,
   PollResponseFormComplete,
+  PollRenderResponseForm,
 };
 
 export const style = StyleSheet.create({
