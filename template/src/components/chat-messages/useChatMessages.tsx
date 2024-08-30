@@ -111,10 +111,10 @@ export interface ChatOption {
   msg?: string;
   file?: object;
   ext?: {
-    file_length: number;
-    file_ext: string;
-    file_name: string;
-    file_url: string;
+    file_length?: number;
+    file_ext?: string;
+    file_name?: string;
+    file_url?: string;
     from_platform?: string;
     channel?: string;
   };
