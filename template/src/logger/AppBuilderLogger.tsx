@@ -80,7 +80,8 @@ type LogType = {
     | 'RECORDING'
     | 'STORE'
     | 'GET_MEETING_PHRASE'
-    | 'MUTE_PSTN';
+    | 'MUTE_PSTN'
+    | 'FULL_SCREEN';
   [LogSource.NetworkRest]:
     | 'idp_login'
     | 'token_login'

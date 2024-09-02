@@ -2,42 +2,68 @@ PODS:
   - agora-react-native-rtm (1.5.1):
     - AgoraRtm_iOS (= 1.5.1)
     - React-Core
-  - AgoraIrisRTC_iOS (4.2.6.3-build.1)
-  - AgoraRtcEngine_iOS (4.3.0):
-    - AgoraRtcEngine_iOS/AIAEC (= 4.3.0)
-    - AgoraRtcEngine_iOS/AINS (= 4.3.0)
-    - AgoraRtcEngine_iOS/AudioBeauty (= 4.3.0)
-    - AgoraRtcEngine_iOS/ClearVision (= 4.3.0)
-    - AgoraRtcEngine_iOS/ContentInspect (= 4.3.0)
-    - AgoraRtcEngine_iOS/FaceCapture (= 4.3.0)
-    - AgoraRtcEngine_iOS/FaceDetection (= 4.3.0)
-    - AgoraRtcEngine_iOS/ReplayKit (= 4.3.0)
-    - AgoraRtcEngine_iOS/RtcBasic (= 4.3.0)
-    - AgoraRtcEngine_iOS/SpatialAudio (= 4.3.0)
-    - AgoraRtcEngine_iOS/VideoAv1CodecDec (= 4.3.0)
-    - AgoraRtcEngine_iOS/VideoCodecDec (= 4.3.0)
-    - AgoraRtcEngine_iOS/VideoCodecEnc (= 4.3.0)
-    - AgoraRtcEngine_iOS/VirtualBackground (= 4.3.0)
-    - AgoraRtcEngine_iOS/VQA (= 4.3.0)
-  - AgoraRtcEngine_iOS/AIAEC (4.3.0)
-  - AgoraRtcEngine_iOS/AINS (4.3.0)
-  - AgoraRtcEngine_iOS/AudioBeauty (4.3.0)
-  - AgoraRtcEngine_iOS/ClearVision (4.3.0)
-  - AgoraRtcEngine_iOS/ContentInspect (4.3.0)
-  - AgoraRtcEngine_iOS/FaceCapture (4.3.0)
-  - AgoraRtcEngine_iOS/FaceDetection (4.3.0)
-  - AgoraRtcEngine_iOS/ReplayKit (4.3.0)
-  - AgoraRtcEngine_iOS/RtcBasic (4.3.0)
-  - AgoraRtcEngine_iOS/SpatialAudio (4.3.0)
-  - AgoraRtcEngine_iOS/VideoAv1CodecDec (4.3.0)
-  - AgoraRtcEngine_iOS/VideoCodecDec (4.3.0)
-  - AgoraRtcEngine_iOS/VideoCodecEnc (4.3.0)
-  - AgoraRtcEngine_iOS/VirtualBackground (4.3.0)
-  - AgoraRtcEngine_iOS/VQA (4.3.0)
-  - AgoraRtcEngine_Special_iOS (4.2.6.3)
+  - AgoraIrisRTC_iOS (4.3.2-build.1)
+  - AgoraRtcEngine_iOS (4.3.2):
+    - AgoraRtcEngine_iOS/AIAEC (= 4.3.2)
+    - AgoraRtcEngine_iOS/AINS (= 4.3.2)
+    - AgoraRtcEngine_iOS/AudioBeauty (= 4.3.2)
+    - AgoraRtcEngine_iOS/ClearVision (= 4.3.2)
+    - AgoraRtcEngine_iOS/ContentInspect (= 4.3.2)
+    - AgoraRtcEngine_iOS/FaceCapture (= 4.3.2)
+    - AgoraRtcEngine_iOS/FaceDetection (= 4.3.2)
+    - AgoraRtcEngine_iOS/LipSync (= 4.3.2)
+    - AgoraRtcEngine_iOS/ReplayKit (= 4.3.2)
+    - AgoraRtcEngine_iOS/RtcBasic (= 4.3.2)
+    - AgoraRtcEngine_iOS/SpatialAudio (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoAv1CodecDec (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoAv1CodecEnc (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoCodecDec (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoCodecEnc (= 4.3.2)
+    - AgoraRtcEngine_iOS/VirtualBackground (= 4.3.2)
+    - AgoraRtcEngine_iOS/VQA (= 4.3.2)
+  - AgoraRtcEngine_iOS/AIAEC (4.3.2)
+  - AgoraRtcEngine_iOS/AINS (4.3.2)
+  - AgoraRtcEngine_iOS/AudioBeauty (4.3.2)
+  - AgoraRtcEngine_iOS/ClearVision (4.3.2)
+  - AgoraRtcEngine_iOS/ContentInspect (4.3.2)
+  - AgoraRtcEngine_iOS/FaceCapture (4.3.2)
+  - AgoraRtcEngine_iOS/FaceDetection (4.3.2)
+  - AgoraRtcEngine_iOS/LipSync (4.3.2)
+  - AgoraRtcEngine_iOS/ReplayKit (4.3.2)
+  - AgoraRtcEngine_iOS/RtcBasic (4.3.2)
+  - AgoraRtcEngine_iOS/SpatialAudio (4.3.2)
+  - AgoraRtcEngine_iOS/VideoAv1CodecDec (4.3.2)
+  - AgoraRtcEngine_iOS/VideoAv1CodecEnc (4.3.2)
+  - AgoraRtcEngine_iOS/VideoCodecDec (4.3.2)
+  - AgoraRtcEngine_iOS/VideoCodecEnc (4.3.2)
+  - AgoraRtcEngine_iOS/VirtualBackground (4.3.2)
+  - AgoraRtcEngine_iOS/VQA (4.3.2)
   - AgoraRtm_iOS (1.5.1)
   - BEMCheckBox (1.4.1)
   - boost (1.76.0)
+  - CocoaAsyncSocket (7.6.5)
+  - DatadogCore (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogCrashReporting (2.7.1):
+    - DatadogInternal (= 2.7.1)
+    - PLCrashReporter (~> 1.11.1)
+  - DatadogInternal (2.7.1)
+  - DatadogLogs (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogRUM (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogSDKReactNative (2.3.2):
+    - DatadogCore (~> 2.7.1)
+    - DatadogCrashReporting (~> 2.7.1)
+    - DatadogLogs (~> 2.7.1)
+    - DatadogRUM (~> 2.7.1)
+    - DatadogTrace (~> 2.7.1)
+    - DatadogWebViewTracking (~> 2.7.1)
+    - React-Core
+  - DatadogTrace (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogWebViewTracking (2.7.1):
+    - DatadogInternal (= 2.7.1)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.72.4)
   - FBReactNativeSpec (0.72.4):
@@ -47,6 +73,64 @@ PODS:
     - React-Core (= 0.72.4)
     - React-jsi (= 0.72.4)
     - ReactCommon/turbomodule/core (= 0.72.4)
+  - Flipper (0.182.0):
+    - Flipper-Folly (~> 2.6)
+  - Flipper-Boost-iOSX (1.76.0.1.11)
+  - Flipper-DoubleConversion (3.2.0.1)
+  - Flipper-Fmt (7.1.7)
+  - Flipper-Folly (2.6.10):
+    - Flipper-Boost-iOSX
+    - Flipper-DoubleConversion
+    - Flipper-Fmt (= 7.1.7)
+    - Flipper-Glog
+    - libevent (~> 2.1.12)
+    - OpenSSL-Universal (= 1.1.1100)
+  - Flipper-Glog (0.5.0.5)
+  - Flipper-PeerTalk (0.0.4)
+  - FlipperKit (0.182.0):
+    - FlipperKit/Core (= 0.182.0)
+  - FlipperKit/Core (0.182.0):
+    - Flipper (~> 0.182.0)
+    - FlipperKit/CppBridge
+    - FlipperKit/FBCxxFollyDynamicConvert
+    - FlipperKit/FBDefines
+    - FlipperKit/FKPortForwarding
+    - SocketRocket (~> 0.6.0)
+  - FlipperKit/CppBridge (0.182.0):
+    - Flipper (~> 0.182.0)
+  - FlipperKit/FBCxxFollyDynamicConvert (0.182.0):
+    - Flipper-Folly (~> 2.6)
+  - FlipperKit/FBDefines (0.182.0)
+  - FlipperKit/FKPortForwarding (0.182.0):
+    - CocoaAsyncSocket (~> 7.6)
+    - Flipper-PeerTalk (~> 0.0.4)
+  - FlipperKit/FlipperKitHighlightOverlay (0.182.0)
+  - FlipperKit/FlipperKitLayoutHelpers (0.182.0):
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitHighlightOverlay
+    - FlipperKit/FlipperKitLayoutTextSearchable
+  - FlipperKit/FlipperKitLayoutIOSDescriptors (0.182.0):
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitHighlightOverlay
+    - FlipperKit/FlipperKitLayoutHelpers
+    - YogaKit (~> 1.18)
+  - FlipperKit/FlipperKitLayoutPlugin (0.182.0):
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitHighlightOverlay
+    - FlipperKit/FlipperKitLayoutHelpers
+    - FlipperKit/FlipperKitLayoutIOSDescriptors
+    - FlipperKit/FlipperKitLayoutTextSearchable
+    - YogaKit (~> 1.18)
+  - FlipperKit/FlipperKitLayoutTextSearchable (0.182.0)
+  - FlipperKit/FlipperKitNetworkPlugin (0.182.0):
+    - FlipperKit/Core
+  - FlipperKit/FlipperKitReactPlugin (0.182.0):
+    - FlipperKit/Core
+  - FlipperKit/FlipperKitUserDefaultsPlugin (0.182.0):
+    - FlipperKit/Core
+  - FlipperKit/SKIOSNetworkPlugin (0.182.0):
+    - FlipperKit/Core
+    - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
   - hermes-engine (0.72.4):
@@ -55,6 +139,8 @@ PODS:
   - HyphenateChat (4.1.1)
   - IQKeyboardManagerSwift (6.5.4)
   - libevent (2.1.12)
+  - OpenSSL-Universal (1.1.1100)
+  - PLCrashReporter (1.11.2)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -355,15 +441,17 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
-  - react-native-agora (4.2.6-build.3-rc.1):
-    - AgoraIrisRTC_iOS (= 4.2.6.3-build.1)
-    - AgoraRtcEngine_Special_iOS (= 4.2.6.3)
+  - react-native-agora (4.3.2):
+    - AgoraIrisRTC_iOS (= 4.3.2-build.1)
+    - AgoraRtcEngine_iOS (= 4.3.2)
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-chat-sdk (1.2.1):
     - HyphenateChat (= 4.1.1)
     - React-Core
   - react-native-document-picker (9.1.1):
+    - React-Core
+  - react-native-get-random-values (1.11.0):
     - React-Core
   - react-native-keep-awake (4.0.0):
     - React
@@ -541,17 +629,41 @@ PODS:
   - SocketRocket (0.6.1)
   - TrustKit (3.0.4)
   - Yoga (1.14.0)
+  - YogaKit (1.18.1):
+    - Yoga (~> 1.14)
 
 DEPENDENCIES:
   - agora-react-native-rtm (from `../node_modules/agora-react-native-rtm`)
-  - AgoraRtcEngine_iOS (= 4.3.0)
+  - AgoraRtcEngine_iOS (= 4.3.2)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - "DatadogSDKReactNative (from `../node_modules/@datadog/mobile-react-native`)"
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
+  - Flipper (= 0.182.0)
+  - Flipper-Boost-iOSX (= 1.76.0.1.11)
+  - Flipper-DoubleConversion (= 3.2.0.1)
+  - Flipper-Fmt (= 7.1.7)
+  - Flipper-Folly (= 2.6.10)
+  - Flipper-Glog (= 0.5.0.5)
+  - Flipper-PeerTalk (= 0.0.4)
+  - FlipperKit (= 0.182.0)
+  - FlipperKit/Core (= 0.182.0)
+  - FlipperKit/CppBridge (= 0.182.0)
+  - FlipperKit/FBCxxFollyDynamicConvert (= 0.182.0)
+  - FlipperKit/FBDefines (= 0.182.0)
+  - FlipperKit/FKPortForwarding (= 0.182.0)
+  - FlipperKit/FlipperKitHighlightOverlay (= 0.182.0)
+  - FlipperKit/FlipperKitLayoutPlugin (= 0.182.0)
+  - FlipperKit/FlipperKitLayoutTextSearchable (= 0.182.0)
+  - FlipperKit/FlipperKitNetworkPlugin (= 0.182.0)
+  - FlipperKit/FlipperKitReactPlugin (= 0.182.0)
+  - FlipperKit/FlipperKitUserDefaultsPlugin (= 0.182.0)
+  - FlipperKit/SKIOSNetworkPlugin (= 0.182.0)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
+  - OpenSSL-Universal (= 1.1.1100)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -559,6 +671,7 @@ DEPENDENCIES:
   - React-callinvoker (from `../node_modules/react-native/ReactCommon/callinvoker`)
   - React-Codegen (from `build/generated/ios`)
   - React-Core (from `../node_modules/react-native/`)
+  - React-Core/DevSupport (from `../node_modules/react-native/`)
   - React-Core/RCTWebSocket (from `../node_modules/react-native/`)
   - React-CoreModules (from `../node_modules/react-native/React/CoreModules`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -571,6 +684,7 @@ DEPENDENCIES:
   - react-native-agora (from `../node_modules/react-native-agora`)
   - react-native-chat-sdk (from `../node_modules/react-native-agora-chat`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-keep-awake (from `../node_modules/react-native-keep-awake`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - "react-native-whiteboard (from `../node_modules/@netless/react-native-whiteboard`)"
@@ -611,21 +725,41 @@ SPEC REPOS:
   trunk:
     - AgoraIrisRTC_iOS
     - AgoraRtcEngine_iOS
-    - AgoraRtcEngine_Special_iOS
     - AgoraRtm_iOS
     - BEMCheckBox
+    - CocoaAsyncSocket
+    - DatadogCore
+    - DatadogCrashReporting
+    - DatadogInternal
+    - DatadogLogs
+    - DatadogRUM
+    - DatadogTrace
+    - DatadogWebViewTracking
+    - Flipper
+    - Flipper-Boost-iOSX
+    - Flipper-DoubleConversion
+    - Flipper-Fmt
+    - Flipper-Folly
+    - Flipper-Glog
+    - Flipper-PeerTalk
+    - FlipperKit
     - fmt
     - HyphenateChat
     - IQKeyboardManagerSwift
     - libevent
+    - OpenSSL-Universal
+    - PLCrashReporter
     - SocketRocket
     - TrustKit
+    - YogaKit
 
 EXTERNAL SOURCES:
   agora-react-native-rtm:
     :path: "../node_modules/agora-react-native-rtm"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  DatadogSDKReactNative:
+    :path: "../node_modules/@datadog/mobile-react-native"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   FBLazyVector:
@@ -673,6 +807,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-agora-chat"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-get-random-values:
+    :path: "../node_modules/react-native-get-random-values"
   react-native-keep-awake:
     :path: "../node_modules/react-native-keep-awake"
   react-native-webview:
@@ -744,21 +880,39 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   agora-react-native-rtm: 20cd594088d33caa46c75f2d079efbac62848cec
-  AgoraIrisRTC_iOS: ee4eab41999febb67bc21539741b95d9577725a9
-  AgoraRtcEngine_iOS: 267c0980c1fb97e056d05b850f8629b05b6e467a
-  AgoraRtcEngine_Special_iOS: 3b515beaee084fc27a8cac8415fc346d609af269
+  AgoraIrisRTC_iOS: 3cb15344a503a1a35ab6d60481732a8beeda98fe
+  AgoraRtcEngine_iOS: eaa97751fcfe1b50d9b067e0df92752a6a5f899f
   AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  DatadogCore: 4a4cdf7beca3aa12b7095bebd926acea1a865a99
+  DatadogCrashReporting: f8b4ea638acaf58b68bbc51cb62a2d876f763241
+  DatadogInternal: b9217da25018284c087a2ed4b9bb3b0f26c767c0
+  DatadogLogs: 3b4132eefa67f196bb3ab2d603c1a2acd1292615
+  DatadogRUM: 8845815ba89f5ab8ceee765ee268f7de36f3e35d
+  DatadogSDKReactNative: 4367bbafa363ab39112c8e273ad79e1d46c3d9fa
+  DatadogTrace: a63da746c609bd4c683bca61a94429889e33b11e
+  DatadogWebViewTracking: 713f862ddd89173e0a3f5342cefa23def40f0f48
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 5d4a3b7f411219a45a6d952f77d2c0a6c9989da5
   FBReactNativeSpec: 3fc2d478e1c4b08276f9dd9128f80ec6d5d85c1f
+  Flipper: 6edb735e6c3e332975d1b17956bcc584eccf5818
+  Flipper-Boost-iOSX: fd1e2b8cbef7e662a122412d7ac5f5bea715403c
+  Flipper-DoubleConversion: 2dc99b02f658daf147069aad9dbd29d8feb06d30
+  Flipper-Fmt: 60cbdd92fc254826e61d669a5d87ef7015396a9b
+  Flipper-Folly: 584845625005ff068a6ebf41f857f468decd26b3
+  Flipper-Glog: 70c50ce58ddaf67dc35180db05f191692570f446
+  Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
+  FlipperKit: 2efad7007d6745a3f95e4034d547be637f89d3f6
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
   HyphenateChat: 95aa4abbad0e763f513acbe21ff9543f50b886cd
   IQKeyboardManagerSwift: 2dde0fc70110e8eac7ccce2a46fdbec6a850b414
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
+  PLCrashReporter: 499c53b0104f95c302d94fd723ebb03c56d9bac8
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c0569ecc035894e4a68baecb30fe6a7ea6e399f9
   RCTTypeSafety: e90354072c21236e0bcf1699011e39acd25fea2f
@@ -774,9 +928,10 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: 0d623411f75a126e6d5f6a41761df9ef74da87e6
+  react-native-agora: 4079dd4ceb688d085e68a4aa1148f323dbd3d0eb
   react-native-chat-sdk: 8a4969c99fc27019042acc48e78f469947813fbc
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
+  react-native-get-random-values: 21325b2244dfa6b58878f51f9aa42821e7ba3d06
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
   react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
   react-native-whiteboard: d56d2ffa0392b8572bfc613954845e48c6dfd38e
@@ -813,7 +968,8 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   TrustKit: 403e8d2cfbff2abfc37cd41acc558dab8ec78e59
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
+  YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 1a042be2d7f2bdbb4f21393f3709284412a6e2df
+PODFILE CHECKSUM: 57b34b9da94eb79d062e45a0320883b1ca549f00
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.11.2

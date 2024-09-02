@@ -28,6 +28,7 @@ import {
   MAX_HEIGHT,
   LINE_HEIGHT,
   MAX_TEXT_MESSAGE_SIZE,
+  MAX_FILES_UPLOAD,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
@@ -110,8 +111,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
   const isUploadStatusShown =
-    uploadStatus === UploadStatus.IN_PROGRESS ||
-    uploadStatus === UploadStatus.FAILURE;
+    uploadedFiles.filter(
+      file =>
+        file.upload_status === UploadStatus.IN_PROGRESS ||
+        file.upload_status === UploadStatus.FAILURE,
+    ).length > 0 || uploadedFiles.length === MAX_FILES_UPLOAD;
 
   const groupChatInputPlaceHolder = $config.EVENT_MODE
     ? useString(groupChatLiveInputPlaceHolderText)
@@ -201,19 +205,19 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
           ]}>
           {uploadedFiles.map((file, index) => (
             <AttachmentBubble
-              key={index}
+              key={file.file_id}
               fileName={file.file_name}
               fileExt={file.file_ext}
               isFullWidth={true}
               fileType={file.file_type}
               secondaryComponent={
-                uploadStatus === UploadStatus.IN_PROGRESS ? (
+                file.upload_status === UploadStatus.IN_PROGRESS ? (
                   <ActivityIndicator />
-                ) : uploadStatus === UploadStatus.FAILURE ? (
+                ) : file.upload_status === UploadStatus.FAILURE ? (
                   <TouchableOpacity onPress={handleUploadRetry}>
                     <Text style={style.btnRetry}>{'Retry'}</Text>
                   </TouchableOpacity>
-                ) : uploadStatus === UploadStatus.SUCCESS ? (
+                ) : file.upload_status === UploadStatus.SUCCESS ? (
                   <View>
                     <IconButton
                       hoverEffect={true}
@@ -233,12 +237,19 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
                         tintColor: $config.SECONDARY_ACTION_COLOR,
                       }}
                       onPress={() => {
-                        setUploadedFiles(prev => []);
+                        setUploadedFiles(files =>
+                          files.filter(uploadedFile => {
+                            return uploadedFile.file_id !== file.file_id;
+                          }),
+                        );
                       }}
                     />
                   </View>
                 ) : null
               }
+              containerStyle={{
+                marginBottom: index !== uploadedFiles.length - 1 ? 6 : 0,
+              }}
             />
           ))}
         </View>

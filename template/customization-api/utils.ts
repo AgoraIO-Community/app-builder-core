@@ -46,3 +46,4 @@ export {isMobileUA} from '../src/utils/common';
 export {getSessionId} from '../src/utils/common';
 export {default as ThemeConfig} from '../src/theme';
 export {default as hexadecimalTransparency} from '../src/utils/hexadecimalTransparency';
+export {useFullScreen} from '../src/utils/useFullScreen';

@@ -39,7 +39,7 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
-import {calculatePosition, trimText} from '../../utils/common';
+import {calculatePosition, isMobileUA, trimText} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {customEvents} from 'customization-api';
 import {useDisableChat} from '../disable-chat/useDisableChat';
@@ -63,6 +63,7 @@ import {
   moreBtnViewWhiteboard,
   userRemovedFromTheRoomToastHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
+import {isAndroid, isIOS} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -154,23 +155,23 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        //if (pinnedUid !== user.uid) {
-        items.push({
-          //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
-          disabled: activeUids?.length === 1,
-          icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-          onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: pinnedUid
-            ? user.uid === pinnedUid
-              ? removeFromLargeLabel
+        if (pinnedUid !== user.uid) {
+          items.push({
+            //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+            disabled: activeUids?.length === 1,
+            icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+            onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: pinnedUid
+              ? user.uid === pinnedUid
+                ? removeFromLargeLabel
+                : user.uid === getWhiteboardUid()
+                ? viewWhiteboardLabel
+                : viewInLargeLabel
               : user.uid === getWhiteboardUid()
               ? viewWhiteboardLabel
-              : viewInLargeLabel
-            : user.uid === getWhiteboardUid()
-            ? viewWhiteboardLabel
-            : viewInLargeLabel,
+              : viewInLargeLabel,
           onPress: () => {
             setActionMenuVisible(false);
             dispatch({
@@ -180,6 +181,7 @@ export default function UserActionMenuOptionsOptions(
             setLayout(getPinnedLayoutName());
           },
         });
+
         if (currentLayout === DefaultLayouts[1].name) {
           items.push({
             // disabled:
@@ -207,7 +209,6 @@ export default function UserActionMenuOptionsOptions(
             },
           });
         }
-        //}
       }
     }
 

@@ -33,9 +33,10 @@ const useEndCall = () => {
 
   return async () => {
     try {
-      await beforeEndCall(isHost, history as unknown as History);
+      beforeEndCall &&
+        (await beforeEndCall(isHost, history as unknown as History));
     } catch (error) {
-      console.log('debugging error on beforeEndCall');
+      console.log('debugging error on beforeEndCall', error);
     }
 
     setTimeout(() => {
@@ -62,9 +63,10 @@ const useEndCall = () => {
     }
 
     try {
-      await afterEndCall(isHost, history as unknown as History);
+      afterEndCall &&
+        (await afterEndCall(isHost, history as unknown as History));
     } catch (error) {
-      console.log('debugging error on afterEndCall');
+      console.log('debugging error on afterEndCall', error);
     }
   };
 };

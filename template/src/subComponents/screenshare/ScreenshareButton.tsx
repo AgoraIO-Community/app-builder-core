@@ -58,8 +58,8 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
       stopScreenshare();
     } else {
       if (isAndroid() || isIOS()) {
-        //native screen we need to stop user video before proceeding the screenshare
-        //so showing confirm popup to stop camera(if cam on ) and option to share audio
+        //native screen we need to ask user to stop all coming video before proceeding the screenshare
+        //so showing confirm popup to stop incoming video and option to share audio
         setShowStartScreenSharePopup(true);
       } else {
         startScreenshare();
