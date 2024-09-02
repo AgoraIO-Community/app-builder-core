@@ -98,8 +98,6 @@ const ChatIcon = props => {
 
 //Icon for Participants
 const ParticipantsIcon = props => {
-  console.log('debugging props', props);
-
   return (
     <ToolbarItem toolbarProps={props}>
       <ParticipantsIconButton />

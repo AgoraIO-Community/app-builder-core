@@ -87,7 +87,7 @@ const ActionSheet = props => {
         return false;
       }
     });
-    if (selectedIndex < 0) {
+    if (selectedIndex < 0 || selectedIndex === undefined) {
       setShowCustomSidePanel(false);
       setCustomSidePanelIndex(undefined);
       switch (sidePanel) {

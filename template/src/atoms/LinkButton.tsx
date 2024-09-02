@@ -11,7 +11,7 @@ interface LinkButtonProps {
 const LinkButton = ({onPress, text, textStyle = {}}: LinkButtonProps) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <Text style={(styles.text, textStyle)}> {text} </Text>
+      <Text style={[styles.text, textStyle]}> {text} </Text>
     </TouchableOpacity>
   );
 };
