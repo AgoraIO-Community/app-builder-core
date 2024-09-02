@@ -24,6 +24,7 @@ import {
   videoRoomScreenshareOverlayText,
   videoRoomScreenshareStopSharingBtnText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {isAndroid, isIOS} from '../utils/common';
 /**
  *
  * @param uid - uid of the user
@@ -52,6 +53,8 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
         {screensharingActiveOverlayLabel}
       </Text>
       {!isMax && currentLayout === getPinnedLayoutName() ? (
+        <></>
+      ) : isAndroid() || isIOS() ? (
         <></>
       ) : (
         <TouchableOpacity

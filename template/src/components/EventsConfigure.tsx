@@ -221,18 +221,12 @@ const EventsConfigure: React.FC<Props> = props => {
       waitingRoomApprovalRequiredSecondaryBtnTextTT;
   }, [waitingRoomApprovalRequiredSecondaryBtnTextTT]);
 
-  //@ts-ignore
-  const {isScreenshareActive, ScreenshareStoppedCallback, stopScreenshare} =
-    useScreenshare();
   const isLiveStream = $config.EVENT_MODE;
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useContext(RtcContext);
   const {defaultContent, activeUids} = useContent();
   const defaultContentRef = useRef({defaultContent});
-  const isScreenshareActiveRef = useRef({isScreenshareActive});
-  useEffect(() => {
-    isScreenshareActiveRef.current.isScreenshareActive = isScreenshareActive;
-  }, [isScreenshareActive]);
+
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
@@ -288,23 +282,15 @@ const EventsConfigure: React.FC<Props> = props => {
         secondaryBtn: null,
         leadingIcon: null,
       });
-      if (
-        (isAndroid() || isIOS()) &&
-        isScreenshareActiveRef.current.isScreenshareActive
-      ) {
-        //@ts-ignore
-        stopScreenshare(false, true);
-      } else {
-        isWebInternal()
-          ? await RtcEngineUnsafe.muteLocalVideoStream(true)
-          : //@ts-ignore
-            await RtcEngineUnsafe.enableLocalVideo(false);
-        await updateVideoStream(true);
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [0],
-        });
-      }
+      isWebInternal()
+        ? await RtcEngineUnsafe.muteLocalVideoStream(true)
+        : //@ts-ignore
+          await RtcEngineUnsafe.enableLocalVideo(false);
+      await updateVideoStream(true);
+      dispatch({
+        type: 'LocalMuteVideo',
+        value: [0],
+      });
     });
     events.on(controlMessageEnum.muteAudio, async ({sender}) => {
       Toast.show({
@@ -332,9 +318,7 @@ const EventsConfigure: React.FC<Props> = props => {
       //before kickoff the user we have check whether screenshare on/off
       //if its on then stop screenshare and emit event for screensharing is stopped
       try {
-        if (isScreenshareActiveRef?.current?.isScreenshareActive) {
-          ScreenshareStoppedCallback && ScreenshareStoppedCallback();
-        }
+        LocalEventEmitter.emit(LocalEventsEnum.USER_KICKED_OFF_BY_REMOTE_HOST);
       } catch (error) {
         console.log('error on stop the screeshare', error);
       }

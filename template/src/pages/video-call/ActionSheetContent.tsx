@@ -156,12 +156,9 @@ const ShareIcon = () => {
 };
 const ScreenshareIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <ScreenshareButton showLabel={false} isOnActionSheet={true} />
-      </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Screen Share</Text>}
-    </View>
+    <ToolbarItem>
+      <ScreenshareButton />
+    </ToolbarItem>
   );
 };
 
@@ -246,7 +243,6 @@ const ActionSheetContent = props => {
   } = props;
 
   const {localUid} = useContext(ChatContext);
-  const {isScreenshareActive} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
   const {setRoomInfo} = useSetRoomInfo();
   const {
@@ -356,14 +352,6 @@ const ActionSheetContent = props => {
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
 
-  const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
-
-  const localUser = useLocalUserInfo();
-
-  const isVideoDisabled = native
-    ? localUser.video === ToggleState.disabled || isScreenshareActive
-    : localUser.video === ToggleState.disabled;
-
   const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
   const defaultItems = {
@@ -429,6 +417,10 @@ const ActionSheetContent = props => {
       order: 10,
       component: SettingsIcon,
     },
+    screenshare: {
+      order: 10,
+      component: ScreenshareIcon,
+    },
     invite: {
       order: 11,
       component: ShareIcon,
@@ -473,11 +465,7 @@ const ActionSheetContent = props => {
     ([_, v]) => !isHidden(v?.hide) && v?.component,
   );
 
-  console.log('debugging displayItems', displayItems);
-
   const displayItemsOrdered = CustomToolbarSorting(displayItems);
-
-  console.log('debugging displayItemsOrdered', displayItemsOrdered);
 
   if (displayCustomBottomSheetContent) {
     return <View>{customBottomSheetContent}</View>;
