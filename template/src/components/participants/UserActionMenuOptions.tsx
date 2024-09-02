@@ -172,16 +172,16 @@ export default function UserActionMenuOptionsOptions(
               : user.uid === getWhiteboardUid()
               ? viewWhiteboardLabel
               : viewInLargeLabel,
-          onPress: () => {
-            setActionMenuVisible(false);
-            dispatch({
-              type: 'UserPin',
-              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
-            });
-            setLayout(getPinnedLayoutName());
-          },
-        });
-
+            onPress: () => {
+              setActionMenuVisible(false);
+              dispatch({
+                type: 'UserPin',
+                value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+              });
+              setLayout(getPinnedLayoutName());
+            },
+          });
+        }
         if (currentLayout === DefaultLayouts[1].name) {
           items.push({
             // disabled:

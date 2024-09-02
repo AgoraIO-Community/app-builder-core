@@ -117,6 +117,7 @@ export interface ChatOption {
     file_url?: string;
     from_platform?: string;
     channel?: string;
+    msg?: string;
   };
   url?: string;
 }
