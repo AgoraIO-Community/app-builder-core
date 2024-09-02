@@ -167,7 +167,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         icon: 'delete',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 24,
-        callback: () => {
+        onPress: () => {
           if (isLocal) {
             setShowDeleteMessageModal(true);
           } else {
@@ -184,7 +184,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         icon: 'download',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 24,
-        callback: () => {
+        onPress: () => {
           downloadAttachment(fileName, imageUrl);
         },
       },
@@ -192,7 +192,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         icon: 'close',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 20,
-        callback: () => {
+        onPress: () => {
           setModalVisible(false);
         },
       },
@@ -221,7 +221,7 @@ const ImagePopup = (props: ImagePopupProps) => {
                 name: obj.icon as keyof IconsInterface,
                 tintColor: obj.iconColor,
               }}
-              onPress={obj.callback}
+              onPress={obj.onPress}
             />
           </View>
         ))}

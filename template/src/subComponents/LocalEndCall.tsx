@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {isAndroid, isIOS, useContent, useRoomInfo} from 'customization-api';
+import React, {useEffect, useState} from 'react';
+import {isAndroid, isIOS} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import {Prompt} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
@@ -13,6 +13,7 @@ import {useString} from '../../src/utils/useString';
 import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import useEndCall from '../utils/useEndCall';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -32,6 +33,7 @@ export const stopForegroundService = () => {
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isScreenshareActive, stopScreenshare} = useScreenshare();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {isOnActionSheet, showLabel} = useActionSheet();
@@ -73,9 +75,9 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         height: $config.ICON_TEXT ? 52 : 48,
       },
     },
-    onPress,
+    onPress: onPressCustom || onPress,
     btnTextProps: {
-      text: showLabel ? endCallLabel : '',
+      text: showLabel ? label || endCallLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };

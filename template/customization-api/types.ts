@@ -8,10 +8,12 @@ export type {
   ContentStateInterface,
   ExtenedContentInterface,
   UidType,
+  useLocalUid,
 } from '../agora-rn-uikit';
 export {
   I18nDeviceStatus,
   I18nMuteType,
+  videoRoomUserFallbackText,
 } from '../src/language/default-labels/videoCallScreenLabels';
 export type {
   NetworkQualities,
@@ -43,3 +45,4 @@ export {
   type ScreenEncoderConfigurationPreset,
   type VideoEncoderConfiguration,
 } from '../src/app-state/useVideoQuality';
+export {type ActionMenuItem} from '../src/atoms/ActionMenu';

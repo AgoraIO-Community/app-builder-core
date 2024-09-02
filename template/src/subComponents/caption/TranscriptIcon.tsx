@@ -7,6 +7,7 @@ import {useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
 import {useString} from '../../utils/useString';
 import {toolbarItemTranscriptText} from '../../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../../atoms/ToolbarItem';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -18,6 +19,8 @@ interface TranscriptIconProps {
 }
 
 const TranscriptIcon = (props: TranscriptIconProps) => {
+  const {label: labelCustom = null, onPress: onPressCustom = null} =
+    useToolbarProps();
   const {setSidePanel, sidePanel} = useSidePanel();
   const {
     showToolTip = false,
@@ -54,7 +57,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   const label = useString<boolean>(toolbarItemTranscriptText);
   const iconButtonProps: IconButtonProps = {
-    onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       name: 'transcript',
       iconBackgroundColor: isTranscriptON
@@ -70,8 +73,8 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     btnTextProps: {
       text: showLabel
         ? isOnActionSheet
-          ? label(isTranscriptON)?.replace(' ', '\n')
-          : label(isTranscriptON)
+          ? labelCustom || label(isTranscriptON)?.replace(' ', '\n')
+          : labelCustom || label(isTranscriptON)
         : '',
       textColor: $config.FONT_COLOR,
       numberOfLines: 2,

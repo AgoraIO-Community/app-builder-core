@@ -28,25 +28,21 @@ import {
   ParticipantsIconButton,
 } from '../../../src/components/Navbar';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
-import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useSidePanel} from '../../utils/useSidePanel';
 import {
   useContent,
   useLocalUserInfo,
   ToolbarItem,
   ToolbarItemHide,
+  ToolbarItemLabel,
 } from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
-import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
 import Settings from '../../components/Settings';
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import {EventNames} from '../../rtm-events';
-import events from '../../rtm-events-api';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
 import {CustomToolbarMerge, CustomToolbarSorting} from '../../utils/common';
@@ -61,6 +57,7 @@ import {
   sttSpokenLanguageToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {filterObject} from '../../utils/index';
+import {useLanguage} from '../../language/useLanguage';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -85,24 +82,26 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
 };
 
 //Icon for Live Streaming Controls
-const LiveStreamIcon = () => {
+const LiveStreamIcon = props => {
   //toolbaritem wrapped in the LiveStreamControls
-  return <LiveStreamControls showControls={true} />;
+  return <LiveStreamControls showControls={true} customProps={props} />;
 };
 
 //Icon for Chat
-const ChatIcon = () => {
+const ChatIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <ChatIconButton />
     </ToolbarItem>
   );
 };
 
 //Icon for Participants
-const ParticipantsIcon = () => {
+const ParticipantsIcon = props => {
+  console.log('debugging props', props);
+
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <ParticipantsIconButton />
     </ToolbarItem>
   );
@@ -110,18 +109,18 @@ const ParticipantsIcon = () => {
 
 //Icon for Recording
 
-const RecordingIcon = () => {
+const RecordingIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <Recording />
     </ToolbarItem>
   );
 };
 
-const VBIcon = () => {
+const VBIcon = props => {
   const {isVBActive, setIsVBActive} = useVB();
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <VBButton
         isVBOpen={isVBActive}
         setIsVBOpen={setIsVBActive}
@@ -131,25 +130,25 @@ const VBIcon = () => {
   );
 };
 
-const SwitchCameraIcon = () => {
+const SwitchCameraIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalSwitchCamera />
     </ToolbarItem>
   );
 };
 
-const SettingsIcon = () => {
+const SettingsIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <Settings />
     </ToolbarItem>
   );
 };
 
-const ShareIcon = () => {
+const ShareIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <CopyJoinInfo />
     </ToolbarItem>
   );
@@ -162,33 +161,33 @@ const ScreenshareIcon = () => {
   );
 };
 
-const AudioIcon = () => {
+const AudioIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalAudioMute />
     </ToolbarItem>
   );
 };
 
-const CamIcon = () => {
+const CamIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalVideoMute />
     </ToolbarItem>
   );
 };
 
-const EndCallIcon = () => {
+const EndCallIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalEndcall />
     </ToolbarItem>
   );
 };
 
-const LayoutIcon = () => {
+const LayoutIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LayoutIconButton />
     </ToolbarItem>
   );
@@ -202,7 +201,7 @@ interface CaptionIconBtnProps {
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   const {onPress = () => {}} = props;
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <CaptionIcon
         isOnActionSheet={true}
         showLabel={$config.ICON_TEXT}
@@ -212,12 +211,12 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   );
 };
 
-const TranscriptIconBtn = () => {
+const TranscriptIconBtn = props => {
   if (!$config.ENABLE_MEETING_TRANSCRIPT) {
     return null;
   }
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <TranscriptIcon isOnActionSheet={true} showLabel={$config.ICON_TEXT} />
     </ToolbarItem>
   );
@@ -460,6 +459,17 @@ const ActionSheetContent = props => {
     combinedData,
   );
 
+  const {languageCode} = useLanguage();
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
+
   const displayItems = filterObject(
     mergedItems,
     ([_, v]) => !isHidden(v?.hide) && v?.component,
@@ -486,8 +496,12 @@ const ActionSheetContent = props => {
             ?.map(i => {
               try {
                 const Component = displayItems[i]?.component;
+                const label = displayItems[i]?.label;
+                const onPress = displayItems[i]?.onPress;
                 if (Component) {
-                  return <Component />;
+                  return (
+                    <Component label={customLabel(label)} onPress={onPress} />
+                  );
                 } else {
                   return null;
                 }
@@ -523,6 +537,16 @@ const ActionSheetContent = props => {
   );
 };
 const CarouselWrapper = ({data, dataObject}) => {
+  const {languageCode} = useLanguage();
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
   const createSlides = () => {
     const slides = [];
     const items = data || [];
@@ -531,8 +555,10 @@ const CarouselWrapper = ({data, dataObject}) => {
       const slideItems = items.slice(i, i + 8).map(item => {
         try {
           const Component = dataObject[item]?.component;
+          const label = dataObject[item]?.label;
+          const onPress = dataObject[item]?.onPress;
           if (Component) {
-            return <Component />;
+            return <Component label={customLabel(label)} onPress={onPress} />;
           } else {
             return null;
           }

@@ -172,16 +172,16 @@ export default function UserActionMenuOptionsOptions(
               : user.uid === getWhiteboardUid()
               ? viewWhiteboardLabel
               : viewInLargeLabel,
-            callback: () => {
-              setActionMenuVisible(false);
-              dispatch({
-                type: 'UserPin',
-                value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
-              });
-              setLayout(getPinnedLayoutName());
-            },
-          });
-        }
+          onPress: () => {
+            setActionMenuVisible(false);
+            dispatch({
+              type: 'UserPin',
+              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+            });
+            setLayout(getPinnedLayoutName());
+          },
+        });
+
         if (currentLayout === DefaultLayouts[1].name) {
           items.push({
             // disabled:
@@ -196,7 +196,7 @@ export default function UserActionMenuOptionsOptions(
                 ? removeFromTopLabel
                 : pinToTopLabel
               : pinToTopLabel,
-            callback: () => {
+            onPress: () => {
               setActionMenuVisible(false);
               dispatch({
                 type: 'UserSecondaryPin',
@@ -226,7 +226,7 @@ export default function UserActionMenuOptionsOptions(
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
           title: messagePrivatelyLabel,
-          callback: () => {
+          onPress: () => {
             setActionMenuVisible(false);
             openPrivateChat(user.uid);
           },
@@ -257,7 +257,7 @@ export default function UserActionMenuOptionsOptions(
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
             title: audioLabel(user.audio),
-            callback: () => {
+            onPress: () => {
               setActionMenuVisible(false);
               user.audio
                 ? setShowAudioMuteModal(true)
@@ -271,7 +271,7 @@ export default function UserActionMenuOptionsOptions(
               iconColor: $config.SECONDARY_ACTION_COLOR,
               textColor: $config.SECONDARY_ACTION_COLOR,
               title: videoLabel(user.video),
-              callback: () => {
+              onPress: () => {
                 setActionMenuVisible(false);
                 user.video
                   ? setShowVideoMuteModal(true)
@@ -295,7 +295,7 @@ export default function UserActionMenuOptionsOptions(
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
             title: addAsPresenterLabel,
-            callback: () => {
+            onPress: () => {
               setActionMenuVisible(false);
               promoteAudienceAsCoHost(user.uid);
             },
@@ -314,7 +314,7 @@ export default function UserActionMenuOptionsOptions(
               iconColor: $config.SECONDARY_ACTION_COLOR,
               textColor: $config.SECONDARY_ACTION_COLOR,
               title: removeAsPresenterLabel,
-              callback: () => {
+              onPress: () => {
                 setActionMenuVisible(false);
                 events.send(
                   LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -332,7 +332,7 @@ export default function UserActionMenuOptionsOptions(
           iconColor: $config.SEMANTIC_ERROR,
           textColor: $config.SEMANTIC_ERROR,
           title: removeFromRoomLabel,
-          callback: () => {
+          onPress: () => {
             setActionMenuVisible(false);
             setRemoveMeetingPopupVisible(true);
           },
@@ -350,7 +350,7 @@ export default function UserActionMenuOptionsOptions(
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: changeNameLabel,
-        callback: () => {
+        onPress: () => {
           setFocus(prevState => {
             return {
               ...prevState,
@@ -376,7 +376,7 @@ export default function UserActionMenuOptionsOptions(
           localuid === user?.parentUid
             ? stopScreenShareLabel
             : removeScreenShareLabel,
-        callback: () => {
+        onPress: () => {
           setActionMenuVisible(false);
           //for local user directly stop the screenshare
           if (localuid === user.parentUid) {

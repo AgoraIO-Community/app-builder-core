@@ -9,9 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {StyleSheet, View} from 'react-native';
-import ColorContext from './ColorContext';
+import React from 'react';
+import {View} from 'react-native';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useString} from '../utils/useString';
@@ -20,15 +19,16 @@ import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {toolbarItemSettingText} from '../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 
 const Settings = (props: SettingsIconButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
-  //commented for v1 release
   const settingsLabel = useString(toolbarItemSettingText)();
 
   const isPanelActive = sidePanel === SidePanelType.Settings;
@@ -39,7 +39,7 @@ const Settings = (props: SettingsIconButtonProps) => {
   };
   const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
 
     iconProps: {
       name: 'settings',
@@ -51,21 +51,12 @@ const Settings = (props: SettingsIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: showLabel ? settingsLabel : '',
+      text: showLabel ? label || settingsLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
-
     iconButtonProps.btnTextProps.textStyle = {
       color: $config.FONT_COLOR,
       marginTop: 8,
@@ -93,19 +84,5 @@ const Settings = (props: SettingsIconButtonProps) => {
 export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
 };
-
-const style = StyleSheet.create({
-  localButton: {
-    borderRadius: 2,
-    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    width: 30,
-    height: 30,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    resizeMode: 'contain',
-  },
-});
 
 export default Settings;
