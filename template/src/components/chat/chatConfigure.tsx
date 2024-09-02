@@ -133,7 +133,7 @@ const ChatConfigure = ({children}) => {
               );
 
               addMessageToStore(Number(fromUser), {
-                msg: '',
+                msg: message?.ext?.msg,
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
@@ -153,7 +153,7 @@ const ChatConfigure = ({children}) => {
               addMessageToPrivateStore(
                 Number(fromUser),
                 {
-                  msg: '',
+                  msg: message?.ext?.msg,
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
@@ -192,7 +192,7 @@ const ChatConfigure = ({children}) => {
                 message.type,
               );
               addMessageToStore(Number(fromUser), {
-                msg: '',
+                msg: message?.ext?.msg,
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
@@ -214,7 +214,7 @@ const ChatConfigure = ({children}) => {
               addMessageToPrivateStore(
                 Number(fromUser),
                 {
-                  msg: '',
+                  msg: message?.ext?.msg,
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
@@ -342,7 +342,9 @@ const ChatConfigure = ({children}) => {
           );
 
           const messageData = {
-            msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
+            msg:
+              option?.msg?.replace(/^(\n)+|(\n)+$/g, '') ||
+              option?.ext?.msg?.replace(/^(\n)+|(\n)+$/g, ''),
             createdTimestamp: timeNow(),
             msgId: res?.serverMsgId,
             isDeleted: false,

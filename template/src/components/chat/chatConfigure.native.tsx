@@ -30,6 +30,7 @@ interface ChatMessageAttributes {
   file_url?: string;
   from_platform?: string;
   channel?: string;
+  msg?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -123,7 +124,7 @@ const ChatConfigure = ({children}) => {
             const {msgId, from, body, localTime} = message;
             const chatType = body.type;
             const fromUser = from;
-            const {file_ext, file_name, file_url, from_platform, channel} =
+            const {file_ext, file_name, file_url, from_platform, channel, msg} =
               message.attributes as ChatMessageAttributes;
 
             // prevent cross-channel messages
@@ -169,7 +170,9 @@ const ChatConfigure = ({children}) => {
                         .thumbnailRemotePath;
                 //@ts-ignore
                 const url =
-                  from_platform === 'web' ? file_url : body.remotePath;
+                  from_platform === 'web'
+                    ? file_url
+                    : (body as {remotePath?: string})?.remotePath;
                 console.warn('url ==>', url);
                 if (isGroupChat) {
                   showMessageNotification(
@@ -179,7 +182,7 @@ const ChatConfigure = ({children}) => {
                     ChatMessageType.IMAGE,
                   );
                   addMessageToStore(Number(fromUser), {
-                    msg: '',
+                    msg: msg,
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
@@ -199,7 +202,7 @@ const ChatConfigure = ({children}) => {
                   addMessageToPrivateStore(
                     Number(fromUser),
                     {
-                      msg: '',
+                      msg: msg,
                       createdTimestamp: localTime,
                       msgId: msgId,
                       isDeleted: false,
@@ -224,7 +227,7 @@ const ChatConfigure = ({children}) => {
                     ChatMessageType.FILE,
                   );
                   addMessageToStore(Number(fromUser), {
-                    msg: '',
+                    msg: msg,
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
@@ -244,7 +247,7 @@ const ChatConfigure = ({children}) => {
                   addMessageToPrivateStore(
                     Number(fromUser),
                     {
-                      msg: '',
+                      msg: msg,
                       createdTimestamp: localTime,
                       msgId: msgId,
                       isDeleted: false,
