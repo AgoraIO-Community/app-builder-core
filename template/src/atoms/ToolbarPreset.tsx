@@ -45,10 +45,21 @@ export type TopToolbarDefaultKeys =
   | 'participant'
   | 'settings';
 
-export type ToolbarMoreButtonFields = {
+export type ToolbarMoreButtonDefaultFields = {
   [key in MoreButtonDefaultKeys]?: {
     hide?: ToolbarItemHide;
     order?: number;
+    component?: React.ComponentType;
+    label?: ToolbarItemLabel;
+    onPress?: () => void;
+  };
+};
+export type ToolbarMoreButtonCustomFields = {
+  [key: string]: {
+    hide?: ToolbarItemHide;
+    order?: number;
+    component?: React.ComponentType;
+    onPress?: () => void;
   };
 };
 
@@ -56,14 +67,18 @@ export type ToolbarItemAlign = 'start' | 'center' | 'end';
 export type ToolbarHideCallback = (width: number, height: number) => boolean;
 export type ToolbarItemHide = boolean | ToolbarHideCallback;
 
+export type ToolbarItemLabelCallback = (languageCode: string) => string;
+export type ToolbarItemLabel = string | ToolbarItemLabelCallback;
 export interface ToolbarDefaultItem {
-  component?: () => JSX.Element;
+  component?: (props?: any) => JSX.Element;
   align?: ToolbarItemAlign;
   hide?: ToolbarItemHide;
   order?: number;
+  label?: ToolbarItemLabel;
+  onPress?: () => void;
 }
 export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
-  fields?: ToolbarMoreButtonFields;
+  fields?: ToolbarMoreButtonDefaultFields | ToolbarMoreButtonCustomFields;
 }
 
 export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';

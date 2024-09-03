@@ -16,8 +16,8 @@ import {createHook} from 'customization-implementation';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export interface SidePanelContextInterface {
-  sidePanel: SidePanelType;
-  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
+  sidePanel: SidePanelType | string;
+  setSidePanel: React.Dispatch<SetStateAction<SidePanelType | string>>;
 }
 
 const SidePanelContext = React.createContext<SidePanelContextInterface>({

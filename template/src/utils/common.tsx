@@ -358,19 +358,32 @@ const updateToolbarDefaultConfig = (data, defaultItemsConfig) => {
   });
 };
 
-const MergeMoreButtonFields = (data, customizedData) => {
-  const keys = Object.keys(customizedData);
-  return data?.map(i => {
-    if (i?.componentName && keys?.indexOf(i?.componentName) !== -1) {
-      return {
+function MergeMoreButtonFields(sourceArray, updateObject) {
+  const updateKeys = Object.keys(updateObject);
+  let result = [];
+  let sourceKeys = [];
+  sourceArray.forEach(i => {
+    sourceKeys.push(i?.componentName);
+    if (updateKeys?.indexOf(i?.componentName) !== -1) {
+      result.push({
         ...i,
-        ...customizedData[i?.componentName],
-      };
+        ...updateObject[i?.componentName],
+      });
     } else {
-      return i;
+      result.push(i);
     }
   });
-};
+  //inject new value
+  updateKeys.forEach(i => {
+    if (sourceKeys?.indexOf(i) === -1) {
+      result.push({
+        ...updateObject[i],
+        componentName: i,
+      });
+    }
+  });
+  return result;
+}
 
 export {
   getSessionId,

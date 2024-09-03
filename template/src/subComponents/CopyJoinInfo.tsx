@@ -9,9 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
-import {useParams} from '../components/Router';
-import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
+import React from 'react';
 import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useVideoCall} from '../components/useVideoCall';
@@ -20,6 +18,7 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useString} from '../utils/useString';
 import {toolbarItemInviteText} from '../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface CopyJoinInfoProps {
   showTeritaryButton?: boolean;
@@ -27,6 +26,7 @@ export interface CopyJoinInfoProps {
 }
 
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isOnActionSheet, showLabel} = useActionSheet();
   const {isToolbarMenuItem} = useToolbarMenu();
 
@@ -38,26 +38,18 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     setShowInvitePopup(true);
   };
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       name: 'share',
       tintColor: $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
       textColor: $config.FONT_COLOR,
-      text: showLabel ? copyMeetingInviteButton : '',
+      text: showLabel ? label || copyMeetingInviteButton : '',
     },
   };
 
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
     iconButtonProps.btnTextProps.textStyle = {
       color: $config.FONT_COLOR,
       marginTop: 8,

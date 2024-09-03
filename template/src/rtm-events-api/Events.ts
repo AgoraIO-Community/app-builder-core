@@ -19,6 +19,7 @@ import {
   EventCallback,
   EventSource,
   PersistanceLevel,
+  RTMAttributePayload,
 } from './types';
 import {adjustUID} from '../rtm/utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
@@ -98,7 +99,10 @@ class Events {
    * @param {ReceiverUid} toUid uid or uids[] of user
    * @api private
    */
-  private _send = async (rtmPayload: any, toUid?: ReceiverUid) => {
+  private _send = async (
+    rtmPayload: RTMAttributePayload,
+    toUid?: ReceiverUid,
+  ) => {
     const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
 
@@ -177,6 +181,32 @@ class Events {
         );
         throw error;
       }
+    }
+  };
+
+  private _sendAsChannelAttribute = async (rtmPayload: RTMAttributePayload) => {
+    // Case 1: send to channel
+    logger.debug(
+      LogSource.Events,
+      'CUSTOM_EVENTS',
+      'updating channel attributes',
+    );
+    try {
+      const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+      const channelId = RTMEngine.getInstance().channelUid;
+      const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
+      // Step 1: Call RTM API to update local attributes
+      await rtmEngine.addOrUpdateChannelAttributes(channelId, rtmAttribute, {
+        enableNotificationToChannelMembers: true,
+      });
+    } catch (error) {
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'updating channel attributes error',
+        error,
+      );
+      throw error;
     }
   };
 
@@ -275,7 +305,7 @@ class Events {
       source: this.source,
     });
 
-    const rtmPayload = {
+    const rtmPayload: RTMAttributePayload = {
       evt: eventName,
       value: persistValue,
     };
@@ -297,7 +327,11 @@ class Events {
         `sending event -> ${eventName}`,
         persistValue,
       );
-      await this._send(rtmPayload, receiver);
+      if (persistLevel === PersistanceLevel.Channel) {
+        await this._sendAsChannelAttribute(rtmPayload);
+      } else {
+        await this._send(rtmPayload, receiver);
+      }
     } catch (error) {
       logger.error(
         LogSource.Events,

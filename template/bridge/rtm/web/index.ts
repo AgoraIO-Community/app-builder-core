@@ -29,7 +29,7 @@ type callbackType = (args?: any) => void;
 
 export default class RtmEngine {
   public appId: string;
-  public client: any;
+  public client: RtmClient;
   public channelMap = new Map<string, any>([]);
   public remoteInvititations = new Map<string, any>([]);
   public localInvititations = new Map<string, any>([]);
@@ -37,7 +37,7 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
-    ['ChannelAttributesUpdated', () => null],
+    ['channelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -68,7 +68,7 @@ export default class RtmEngine {
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
       event === 'channelMemberLeft' ||
-      event === 'ChannelAttributesUpdated'
+      event === 'channelAttributesUpdated'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
@@ -235,16 +235,27 @@ export default class RtmEngine {
       .get(channelId)
       .on('AttributesUpdated', (attributes: RtmChannelAttribute) => {
         /**
-         * a) The following piece of code is commented for future reference.
-         * b) To be used in future implementations of channel attributes
-         * c) Kindly note the below event listener 'ChannelAttributesUpdated' expects type
+         * a) Kindly note the below event listener 'channelAttributesUpdated' expects type
          *    RtmChannelAttribute[] (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
          *    whereas the above listener 'AttributesUpdated' receives attributes in object form
          *    {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
-         * d) Hence in this bridge the data should be modified to keep in sync with both the
+         * b) Hence in this bridge the data should be modified to keep in sync with both the
          *    listeners for web and listener for native
          */
-        // this.channelEventsMap.get('ChannelAttributesUpdated')(attributes); //RN expect evt: any
+        /**
+         * 1. Loop through object
+         * 2. Create a object {key: "", value: ""} and push into array
+         * 3. Return the Array
+         */
+        const channelAttributes = Object.keys(attributes).reduce((acc, key) => {
+          const {value, lastUpdateTs, lastUpdateUserId} = attributes[key];
+          acc.push({key, value, lastUpdateTs, lastUpdateUserId});
+          return acc;
+        }, []);
+
+        this.channelEventsMap.get('channelAttributesUpdated')(
+          channelAttributes,
+        );
       });
 
     return this.channelMap.get(channelId).join();
@@ -327,6 +338,19 @@ export default class RtmEngine {
     return response;
   }
 
+  async getChannelAttributes(channelId: string) {
+    let response = {};
+    await this.client
+      .getChannelAttributes(channelId)
+      .then((attributes: string) => {
+        response = {attributes};
+      })
+      .catch((e: any) => {
+        Promise.reject(e);
+      });
+    return response;
+  }
+
   async removeAllLocalUserAttributes() {
     return this.client.clearLocalUserAttributes();
   }
@@ -366,28 +390,22 @@ export default class RtmEngine {
     return this.client.addOrUpdateLocalUserAttributes({...formattedAttributes});
   }
 
-  addOrUpdateChannelAttributes(
+  async addOrUpdateChannelAttributes(
     channelId: string,
     attributes: RtmChannelAttribute[],
     option: ChannelAttributeOptions,
   ): Promise<void> {
-    /**
-     * The following piece of code is commented and not deleted
-     * to be used in future implementations of channel attributes
-     */
-
-    // let formattedAttributes: any = {};
-    // attributes.map((attribute) => {
-    //   let key = Object.values(attribute)[0];
-    //   let value = Object.values(attribute)[1];
-    //   formattedAttributes[key] = value;
-    // });
-    // return this.client.addOrUpdateChannelAttributes(
-    //   channelId,
-    //   {...formattedAttributes},
-    //   option,
-    // );
-    return Promise.resolve(); // remove this line when functionality is added to the above function
+    let formattedAttributes: any = {};
+    attributes.map(attribute => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
+    return this.client.addOrUpdateChannelAttributes(
+      channelId,
+      {...formattedAttributes},
+      option,
+    );
   }
 
   async sendLocalInvitation(invitationProps: any) {
