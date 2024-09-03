@@ -70,9 +70,9 @@ const ActionSheet = props => {
 
   React.useEffect(() => {
     if (showCustomSidePanel) {
-      customActionSheetRef?.current.present();
+      customActionSheetRef?.current?.present();
     } else {
-      customActionSheetRef?.current.close();
+      customActionSheetRef?.current?.close();
     }
   }, [showCustomSidePanel]);
 
@@ -115,7 +115,7 @@ const ActionSheet = props => {
               participantsSheetRef?.current.close();
               settingsSheetRef?.current.close();
               transcriptSheetRef?.current.close();
-              customActionSheetRef?.current.close();
+              customActionSheetRef?.current?.close();
               bottomSheetRef?.current.present();
             }, 200);
           } else {
@@ -124,7 +124,7 @@ const ActionSheet = props => {
             participantsSheetRef?.current.close();
             settingsSheetRef?.current.close();
             transcriptSheetRef?.current.close();
-            customActionSheetRef?.current.close();
+            customActionSheetRef?.current?.close();
           }
 
           handleSheetChanges(0);
@@ -265,34 +265,38 @@ const ActionSheet = props => {
       </BottomSheetModal>
 
       {/* Custom Action Sheet  */}
-      <BottomSheetModal
-        snapPoints={['100%']}
-        ref={customActionSheetRef}
-        name="CustomSheet"
-        onDismiss={onDismiss}
-        style={styles.container}
-        backgroundStyle={styles.backgroundStyle}
-        handleIndicatorStyle={styles.handleIndicatorStyle}
-        enableContentPanningGesture={false}
-        handleComponent={() => (
-          <ActionSheetHandle
-            isCustomSidePanel={true}
-            customSidePanelProps={{
-              title: sidePanelArray[customSidePanelIndex]?.title,
-              onClose: sidePanelArray[customSidePanelIndex]?.onClose,
-              name: sidePanelArray[customSidePanelIndex]?.name,
-            }}
-          />
-        )}
-        stackBehavior="push">
-        <BottomSheetView>
-          <CustomSidePanelView
-            showHeader={false}
-            content={sidePanelArray[customSidePanelIndex]?.component}
-            name={sidePanelArray[customSidePanelIndex]?.name}
-          />
-        </BottomSheetView>
-      </BottomSheetModal>
+      {sidePanelArray && sidePanelArray?.length ? (
+        <BottomSheetModal
+          snapPoints={['100%']}
+          ref={customActionSheetRef}
+          name="CustomSheet"
+          onDismiss={onDismiss}
+          style={styles.container}
+          backgroundStyle={styles.backgroundStyle}
+          handleIndicatorStyle={styles.handleIndicatorStyle}
+          enableContentPanningGesture={false}
+          handleComponent={() => (
+            <ActionSheetHandle
+              isCustomSidePanel={true}
+              customSidePanelProps={{
+                title: sidePanelArray[customSidePanelIndex]?.title,
+                onClose: sidePanelArray[customSidePanelIndex]?.onClose,
+                name: sidePanelArray[customSidePanelIndex]?.name,
+              }}
+            />
+          )}
+          stackBehavior="push">
+          <BottomSheetView>
+            <CustomSidePanelView
+              showHeader={false}
+              content={sidePanelArray[customSidePanelIndex]?.component}
+              name={sidePanelArray[customSidePanelIndex]?.name}
+            />
+          </BottomSheetView>
+        </BottomSheetModal>
+      ) : (
+        <></>
+      )}
     </BottomSheetModalProvider>
   );
 };
