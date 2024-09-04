@@ -82,10 +82,6 @@ function downloadCsv(data: string, filename: string = 'data.csv'): void {
 }
 
 function capitalizeFirstLetter(string: string): string {
-  console.log(
-    'supriya name',
-    string.charAt(0).toUpperCase() + string.slice(1).toLowerCase(),
-  );
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
