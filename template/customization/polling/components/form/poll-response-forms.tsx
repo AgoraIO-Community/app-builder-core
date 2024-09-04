@@ -150,11 +150,17 @@ function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
   return (
     <BaseModalContent>
       <View>
-        <PollTimer
-          expiresAt={pollItem.expiresAt}
-          setFreezeForm={setFreezeForm}
-        />
-        <Spacer horizontal={true} size={8} />
+        {pollItem.duration ? (
+          <>
+            <PollTimer
+              expiresAt={pollItem.expiresAt}
+              setFreezeForm={setFreezeForm}
+            />
+            <Spacer horizontal={true} size={8} />
+          </>
+        ) : (
+          <></>
+        )}
         <Text style={style.heading4}>{pollItem.question}</Text>
       </View>
       <View>

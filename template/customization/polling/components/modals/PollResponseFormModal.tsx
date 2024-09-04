@@ -37,7 +37,7 @@ export default function PollResponseFormModal() {
     <BaseModal visible={true}>
       <BaseModalTitle>
         <PollAvatarHeader pollItem={pollItem} />
-        {hasResponded && <BaseModalCloseIcon onClose={closeCurrentModal} />}
+        <BaseModalCloseIcon onClose={closeCurrentModal} />
       </BaseModalTitle>
       {hasResponded ? (
         <PollResponseFormComplete />
