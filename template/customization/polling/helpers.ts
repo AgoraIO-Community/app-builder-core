@@ -89,7 +89,14 @@ function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
+function iVoted(options: PollItemOptionItem[], myUid: number): boolean {
+  return options.some(optionItem =>
+    optionItem.votes.some(item => item.uid === myUid),
+  );
+}
+
 export {
+  iVoted,
   downloadCsv,
   arrayToCsv,
   addVote,

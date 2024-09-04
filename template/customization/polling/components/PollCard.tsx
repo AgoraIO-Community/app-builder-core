@@ -6,19 +6,25 @@ import {
   PollStatus,
   usePoll,
 } from '../context/poll-context';
-import {ThemeConfig, TertiaryButton} from 'customization-api';
+import {ThemeConfig, TertiaryButton, useLocalUid} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
-import {capitalizeFirstLetter} from '../helpers';
+import {capitalizeFirstLetter, iVoted} from '../helpers';
 import {PollRenderResponseForm} from './form/poll-response-forms';
 
 function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
   const {sendResponseToPoll, handlePollTaskRequest} = usePoll();
+  const localUid = useLocalUid();
 
   const moreBtnRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
+
+  const resultView =
+    isHost ||
+    pollItem.status === PollStatus.FINISHED ||
+    iVoted(pollItem.options, localUid);
 
   return (
     <View style={style.pollItem}>
@@ -56,31 +62,35 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
             </Text>
           </View>
           <View style={style.fullWidth}>
-            <PollOptionList>
-              {pollItem.options.map((item: PollItemOptionItem, index: number) =>
-                pollItem.status === PollStatus.FINISHED ? (
-                  <PollOptionListItemResult
-                    key={index}
-                    optionItem={item}
-                    showYourVote={!isHost}
-                  />
-                ) : pollItem.status === PollStatus.ACTIVE ? (
-                  <PollRenderResponseForm
-                    pollItem={pollItem}
-                    onFormComplete={(responses: string | string[]) => {
-                      sendResponseToPoll(pollItem, responses);
-                    }}
-                  />
-                ) : (
-                  <Text>Form not published yet. Incorrect state</Text>
-                ),
-              )}
-            </PollOptionList>
+            {resultView ? (
+              <PollOptionList>
+                {pollItem.options.map(
+                  (item: PollItemOptionItem, index: number) => (
+                    <PollOptionListItemResult
+                      key={index}
+                      optionItem={item}
+                      showYourVote={!isHost}
+                    />
+                  ),
+                )}
+              </PollOptionList>
+            ) : pollItem.status === PollStatus.ACTIVE ? (
+              <View style={style.pollResponseFormView}>
+                <PollRenderResponseForm
+                  pollItem={pollItem}
+                  onFormComplete={(responses: string | string[]) => {
+                    sendResponseToPoll(pollItem, responses);
+                  }}
+                />
+              </View>
+            ) : (
+              <Text>Form not published yet. Incorrect state</Text>
+            )}
           </View>
         </View>
         <View style={style.pollCardFooter}>
           <View style={style.pollCardFooterActions}>
-            {pollItem.status === PollStatus.FINISHED ? (
+            {resultView ? (
               <TertiaryButton
                 text="View Details"
                 onPress={() =>
@@ -145,6 +155,10 @@ const style = StyleSheet.create({
   pollCardFooter: {},
   pollCardFooterActions: {
     alignSelf: 'flex-start',
+  },
+  pollResponseFormView: {
+    display: 'flex',
+    gap: 20,
   },
 });
 

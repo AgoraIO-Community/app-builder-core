@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {
   BaseModal,
   BaseModalCloseIcon,
+  BaseModalContent,
   BaseModalTitle,
 } from '../../ui/BaseModal';
 import {
@@ -39,16 +40,18 @@ export default function PollResponseFormModal() {
         <PollAvatarHeader pollItem={pollItem} />
         <BaseModalCloseIcon onClose={closeCurrentModal} />
       </BaseModalTitle>
-      {hasResponded ? (
-        <PollResponseFormComplete />
-      ) : (
-        <>
-          <PollRenderResponseForm
-            onFormComplete={onFormComplete}
-            pollItem={pollItem}
-          />
-        </>
-      )}
+      <BaseModalContent>
+        {hasResponded ? (
+          <PollResponseFormComplete />
+        ) : (
+          <>
+            <PollRenderResponseForm
+              onFormComplete={onFormComplete}
+              pollItem={pollItem}
+            />
+          </>
+        )}
+      </BaseModalContent>
     </BaseModal>
   );
 }

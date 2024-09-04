@@ -22,7 +22,7 @@ function PollOptionListItemResult({
       <View style={style.optionListItemHeader}>
         <Text style={style.optionText}>{optionItem.text}</Text>
         {showYourVote &&
-          optionItem.votes.find(item => item.uid === localUid) && (
+          optionItem.votes.some(item => item.uid === localUid) && (
             <Text style={style.yourResponseText}>Your Response</Text>
           )}
         <Text style={[style.optionText, style.pushRight]}>

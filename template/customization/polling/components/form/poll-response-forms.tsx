@@ -1,12 +1,10 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
 import React, {useState} from 'react';
-import {BaseModalContent, BaseModalActions} from '../../ui/BaseModal';
 import {PollItem} from '../../context/poll-context';
 import PollTimer from '../PollTimer';
 import {
   ImageIcon,
   Checkbox,
-  Spacer,
   PrimaryButton,
   ThemeConfig,
 } from 'customization-api';
@@ -14,26 +12,25 @@ import BaseRadioButton from '../../ui/BaseRadioButton';
 
 function PollResponseFormComplete() {
   return (
-    <BaseModalContent>
-      <View style={[style.centerAlign, style.mediumHeight]}>
-        <View>
-          <ImageIcon
-            iconType="plain"
-            name="tick-fill"
-            tintColor={$config.SEMANTIC_SUCCESS}
-            iconSize={24}
-          />
-        </View>
-        <View>
-          <Text style={style.heading4}>Thank you for your response</Text>
-        </View>
+    <View style={[style.centerAlign, style.mediumHeight]}>
+      <View>
+        <ImageIcon
+          iconType="plain"
+          name="tick-fill"
+          tintColor={$config.SEMANTIC_SUCCESS}
+          iconSize={24}
+        />
       </View>
-    </BaseModalContent>
+      <View>
+        <Text style={style.heading4}>Thank you for your response</Text>
+      </View>
+    </View>
   );
 }
 
 interface PollResponseFormProps {
   pollItem: PollItem;
+  isFormFreezed: boolean;
   onComplete: (responses: string | string[]) => void;
 }
 
@@ -44,81 +41,92 @@ function PollRenderResponseForm({
   pollItem: PollItem;
   onFormComplete: (responses: string | string[]) => void;
 }): JSX.Element {
-  switch (pollItem.type) {
-    case 'OPEN_ENDED':
-      return (
-        <PollResponseQuestionForm
-          pollItem={pollItem}
-          onComplete={onFormComplete}
-        />
-      );
-    case 'MCQ':
-    case 'YES_NO':
-      return (
-        <PollResponseMCQForm pollItem={pollItem} onComplete={onFormComplete} />
-      );
-    default:
-      return <></>;
-  }
-}
-
-function PollResponseQuestionForm({
-  pollItem,
-  onComplete,
-}: PollResponseFormProps) {
-  const [answer, setAnswer] = useState('');
   const [isFormFreezed, setFreezeForm] = useState<boolean>(false);
 
+  const renderSwitch = () => {
+    switch (pollItem.type) {
+      case 'OPEN_ENDED':
+        return (
+          <PollResponseQuestionForm
+            isFormFreezed={isFormFreezed}
+            pollItem={pollItem}
+            onComplete={onFormComplete}
+          />
+        );
+      case 'MCQ':
+      case 'YES_NO':
+        return (
+          <PollResponseMCQForm
+            isFormFreezed={isFormFreezed}
+            pollItem={pollItem}
+            onComplete={onFormComplete}
+          />
+        );
+      default:
+        return <Text>Unknown type</Text>;
+    }
+  };
   return (
     <>
-      <BaseModalContent>
-        {pollItem.duration ? (
-          <PollTimer
-            expiresAt={pollItem.expiresAt}
-            setFreezeForm={setFreezeForm}
-          />
-        ) : (
-          <></>
-        )}
-        <Text style={style.heading4}>{pollItem.question}</Text>
-        <View>
-          <TextInput
-            editable={!isFormFreezed}
-            autoComplete="off"
-            style={style.pFormTextarea}
-            multiline={true}
-            numberOfLines={4}
-            value={answer}
-            onChangeText={setAnswer}
-            placeholder="Enter your response..."
-            placeholderTextColor={
-              $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
-            }
-          />
-        </View>
-      </BaseModalContent>
-      <BaseModalActions>
-        <View style={style.responseActions}>
-          <PrimaryButton
-            disabled={isFormFreezed}
-            containerStyle={style.btnContainer}
-            textStyle={style.btnText}
-            onPress={() => {
-              if (!answer || answer.trim() === '') {
-                return;
-              }
-              onComplete(answer);
-            }}
-            text="Submit"
-          />
-        </View>
-      </BaseModalActions>
+      {pollItem.duration ? (
+        <PollTimer
+          expiresAt={pollItem.expiresAt}
+          setFreezeForm={setFreezeForm}
+        />
+      ) : null}
+      <Text style={style.heading4}>{pollItem.question}</Text>
+      {renderSwitch()}
     </>
   );
 }
 
-function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
-  const [isFormFreezed, setFreezeForm] = useState<boolean>(false);
+function PollResponseQuestionForm({
+  pollItem,
+  isFormFreezed,
+  onComplete,
+}: PollResponseFormProps) {
+  const [answer, setAnswer] = useState('');
+
+  return (
+    <View>
+      <View>
+        <TextInput
+          editable={!isFormFreezed}
+          autoComplete="off"
+          style={style.pFormTextarea}
+          multiline={true}
+          numberOfLines={4}
+          value={answer}
+          onChangeText={setAnswer}
+          placeholder="Enter your response..."
+          placeholderTextColor={
+            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
+          }
+        />
+      </View>
+      <View style={style.responseActions}>
+        <PrimaryButton
+          disabled={isFormFreezed}
+          containerStyle={style.btnContainer}
+          textStyle={style.btnText}
+          onPress={() => {
+            if (!answer || answer.trim() === '') {
+              return;
+            }
+            onComplete(answer);
+          }}
+          text="Submit"
+        />
+      </View>
+    </View>
+  );
+}
+
+function PollResponseMCQForm({
+  pollItem,
+  isFormFreezed,
+  onComplete,
+}: PollResponseFormProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
 
@@ -148,60 +156,44 @@ function PollResponseMCQForm({pollItem, onComplete}: PollResponseFormProps) {
   };
 
   return (
-    <BaseModalContent>
-      <View>
-        {pollItem.duration ? (
-          <>
-            <PollTimer
-              expiresAt={pollItem.expiresAt}
-              setFreezeForm={setFreezeForm}
-            />
-            <Spacer horizontal={true} size={8} />
-          </>
-        ) : (
-          <></>
-        )}
-        <Text style={style.heading4}>{pollItem.question}</Text>
+    <View>
+      <View style={style.optionsSection}>
+        {pollItem.multiple_response
+          ? pollItem.options.map((option, index) => (
+              <View style={style.optionCard} key={index}>
+                <Checkbox
+                  key={index}
+                  checked={selectedOptions.includes(option.value)}
+                  label={option.text}
+                  labelStye={style.optionCardText}
+                  onChange={() => handleCheckboxToggle(option.value)}
+                />
+              </View>
+            ))
+          : pollItem.options.map((option, index) => (
+              <View style={style.optionCard} key={index}>
+                <BaseRadioButton
+                  option={{
+                    label: option.text,
+                    value: option.value,
+                  }}
+                  labelStyle={style.optionCardText}
+                  checked={selectedOption === option.value}
+                  onChange={handleRadioSelect}
+                />
+              </View>
+            ))}
       </View>
-      <View>
-        <View style={style.optionsSection}>
-          {pollItem.multiple_response
-            ? pollItem.options.map((option, index) => (
-                <View style={style.optionCard} key={index}>
-                  <Checkbox
-                    key={index}
-                    checked={selectedOptions.includes(option.value)}
-                    label={option.text}
-                    labelStye={style.optionCardText}
-                    onChange={() => handleCheckboxToggle(option.value)}
-                  />
-                </View>
-              ))
-            : pollItem.options.map((option, index) => (
-                <View style={style.optionCard} key={index}>
-                  <BaseRadioButton
-                    option={{
-                      label: option.text,
-                      value: option.value,
-                    }}
-                    labelStyle={style.optionCardText}
-                    checked={selectedOption === option.value}
-                    onChange={handleRadioSelect}
-                  />
-                </View>
-              ))}
-        </View>
-        <View style={style.responseActions}>
-          <PrimaryButton
-            disabled={isFormFreezed}
-            containerStyle={style.btnContainer}
-            textStyle={style.btnText}
-            onPress={handleSubmit}
-            text="Submit"
-          />
-        </View>
+      <View style={style.responseActions}>
+        <PrimaryButton
+          disabled={isFormFreezed}
+          containerStyle={style.btnContainer}
+          textStyle={style.btnText}
+          onPress={handleSubmit}
+          text="Submit"
+        />
       </View>
-    </BaseModalContent>
+    </View>
   );
 }
 
