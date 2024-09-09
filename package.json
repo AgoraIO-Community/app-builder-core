@@ -1,6 +1,6 @@
 {
   "name": "agora-appbuilder-core",
-  "version": "4.0.27-1",
+  "version": "4.0.28",
   "description": "React Native template for RTE app builder",
   "main": "index.js",
   "files": [
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "vercel-build": "npm run dev-setup && cd template && npm run web:build && cd .. && npm run copy-vercel",
-    "uikit": "rm -rf template/agora-rn-uikit && git clone https://github.com/AgoraIO-Community/ReactNative-UIKit.git template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout appbuilder-uikit-next",
+    "uikit": "rm -rf template/agora-rn-uikit && git clone https://github.com/AgoraIO-Community/ReactNative-UIKit.git template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout appbuilder-uikit-3.0.28",
     "deps": "cd template && npm i --force",
     "dev-setup": "npm run uikit && npm run deps && node devSetup.js",
     "web-build": "cd template && npm run web:build && cd .. && npm run copy-vercel",
