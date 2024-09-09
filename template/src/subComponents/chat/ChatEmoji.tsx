@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import EmojiPicker, {
   EmojiStyle,
   SuggestionMode,
@@ -7,6 +7,8 @@ import EmojiPicker, {
 } from 'emoji-picker-react';
 import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import IconButton from '../../../src/atoms/IconButton';
+import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
+import {MoreMessageOptions} from './ChatQuickActionsMenu';
 
 const css = `
 .chatEmojiPicker .epr-emoji-category-label {
@@ -73,8 +75,22 @@ export const ChatEmojiPicker: React.FC = () => {
     );
     // setShowEmojiPicker(false);
   };
+  const handleEmojiClose = () => {
+    setShowEmojiPicker(false);
+  };
   return (
     <View style={styles.emojiContainer} testID={'emoji-container'}>
+      <CustomEmojiPicker
+        handleEmojiClick={handleEmojiClick}
+        handleEmojiClose={handleEmojiClose}
+      />
+    </View>
+  );
+};
+
+const CustomEmojiPicker = ({handleEmojiClick, handleEmojiClose}) => {
+  return (
+    <>
       <style type="text/css">{css}</style>
       <EmojiPicker
         style={styles.emojiPicker}
@@ -116,10 +132,91 @@ export const ChatEmojiPicker: React.FC = () => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           onPress={() => {
-            setShowEmojiPicker(false);
+            handleEmojiClose();
+            // setShowEmojiPicker(false);
           }}
         />
       </View>
+    </>
+  );
+};
+
+export const ReactionPicker: React.FC = () => {
+  const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
+
+  //	Controls the reactions to display in the reactions picker. Takes unified emoji ids
+  const reactions = [
+    {emoji: '❤️', unified: '2665-fe0f'},
+    {emoji: '👍', unified: '1f44d'},
+    {emoji: '🎉', unified: '1f389'},
+    {
+      emoji: '🤣',
+      unified: '1f923',
+    },
+  ];
+
+  const handleReactionClick = (emojiObject: {
+    emoji: string;
+    names: string[];
+  }) => {
+    setMessage(prev =>
+      prev ? prev + '  ' + emojiObject.emoji : emojiObject.emoji,
+    );
+    // setShowEmojiPicker(false);
+  };
+
+  const CustomReactioPicker = () => {
+    const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
+    return (
+      <>
+        {' '}
+        <IconButton
+          hoverEffect={true}
+          hoverEffectStyle={{
+            backgroundColor: $config.ICON_BG_COLOR,
+            borderRadius: 24,
+          }}
+          iconProps={{
+            iconType: 'plain',
+            base64: false,
+            iconContainerStyle: {
+              padding: 0,
+            },
+            iconSize: 20,
+            name: 'add_reaction',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          }}
+          onPress={() => {
+            setIsEmojiPickerOpen(true);
+          }}
+        />
+        {isEmojiPickerOpen && (
+          <CustomEmojiPicker
+            handleEmojiClick={handleReactionClick}
+            handleEmojiClose={() => {
+              setIsEmojiPickerOpen(false);
+            }}
+          />
+        )}
+      </>
+    );
+  };
+
+  return (
+    <View style={styles.reactionsContainer} testID={'reaction-container'}>
+      {reactions.map((emojiObject, index) => (
+        <React.Fragment key={emojiObject.unified}>
+          <View style={styles.emojiWrapper}>
+            <Text style={{fontSize: 16}}>{emojiObject.emoji}</Text>
+          </View>
+          {index === reactions.length - 1 && (
+            <>
+              <CustomReactioPicker />
+              <MoreMessageOptions />
+            </>
+          )}
+        </React.Fragment>
+      ))}
     </View>
   );
 };
@@ -169,6 +266,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     position: 'relative',
   },
+  reactionsContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: '100%',
+    paddingLeft: 8,
+    paddingRight: 4,
+    paddingVertical: 4,
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
+    borderRadius: 8,
+    boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
+    left: -140,
+    gap: 8,
+  },
   emojiPicker: {
     width: '100%',
     borderWidth: 1,
@@ -176,6 +290,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+  },
+  emojiWrapper: {
+    width: 16,
+    height: 16,
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
   },
 });
 
