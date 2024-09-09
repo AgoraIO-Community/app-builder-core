@@ -5,15 +5,24 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 
 import {
   ChatHeader,
+  CustomSidePanelHeader,
   PeopleHeader,
   SettingsHeader,
   TranscriptHeader,
 } from './SidePanelHeader';
 
-const ActionSheetHandle = (props: {sidePanel: SidePanelType}) => {
+const ActionSheetHandle = (props: {
+  sidePanel?: SidePanelType | string;
+  isCustomSidePanel?: boolean;
+  customSidePanelProps?: {
+    title: string;
+    onClose?: () => void;
+    name: string;
+  };
+}) => {
   const Header = null;
 
-  const {sidePanel} = props;
+  const {sidePanel, isCustomSidePanel = false, customSidePanelProps} = props;
 
   return (
     <View style={styles.container}>
@@ -23,6 +32,7 @@ const ActionSheetHandle = (props: {sidePanel: SidePanelType}) => {
       {sidePanel === SidePanelType.Chat && <ChatHeader />}
       {sidePanel === SidePanelType.Settings && <SettingsHeader />}
       {sidePanel === SidePanelType.Transcript && <TranscriptHeader />}
+      {isCustomSidePanel && <CustomSidePanelHeader {...customSidePanelProps} />}
     </View>
   );
 };

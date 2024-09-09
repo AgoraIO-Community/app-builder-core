@@ -66,23 +66,22 @@ import {EventNames} from '../rtm-events';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
 import {getLanguageLabel} from '../../src/subComponents/caption/utils';
-import ImageIcon from '../atoms/ImageIcon';
-import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
-import ToolbarItem from '../atoms/ToolbarItem';
+import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
 import {
-  ToolbarBottomPresetProps,
+  ToolbarPresetProps,
   ToolbarItemHide,
-  ToolbarMoreButtonFields,
+  ToolbarItemLabel,
+  ToolbarMoreButtonDefaultFields,
+  ToolbarMoreButtonCustomFields,
 } from '../atoms/ToolbarPreset';
 
-import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
 import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
-import isSDK from '../utils/isSDK';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
@@ -110,6 +109,7 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
 import ViewRecordingsModal from './recordings/ViewRecordingsModal';
 import {filterObject} from '../utils/index';
+import {useLanguage} from '../language/useLanguage';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -252,7 +252,8 @@ export const WhiteboardListener = () => {
   return null;
 };
 
-const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
+const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
+  const {label} = useToolbarProps();
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -332,7 +333,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       textColor: $config.FONT_COLOR,
       title: noiseCancellationLabel,
       //isNoiseSupressionEnabled === ToggleState.enabled
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setNoiseSupression(p => !p);
       },
@@ -362,7 +363,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       textColor: $config.FONT_COLOR,
       //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
       title: virtualBackgroundLabel,
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         toggleVB();
       },
@@ -464,7 +465,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: whiteboardLabel(whiteboardActive),
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         toggleWhiteboard(whiteboardActive, true);
       },
@@ -486,7 +487,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
         (isHost || (!isHost && isSTTActive))
       ),
       title: captionLabel(isCaptionON),
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
         if (isSTTError) {
@@ -517,7 +518,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
           (isHost || (!isHost && isSTTActive))
         ),
         title: transcriptLabel(isTranscriptON),
-        callback: () => {
+        onPress: () => {
           setActionMenuVisible(false);
           STT_clicked.current = !isTranscriptON ? 'transcript' : null;
           if (isSTTError) {
@@ -549,7 +550,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: viewRecordingsLabel,
-      callback: () => {
+      onPress: () => {
         toggleVRModal();
       },
     });
@@ -565,7 +566,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: peopleLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setSidePanel(SidePanelType.Participants);
     },
@@ -581,7 +582,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: chatLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setChatType(ChatType.Group);
       setSidePanel(SidePanelType.Chat);
@@ -615,7 +616,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
           ? $config.SEMANTIC_ERROR
           : $config.FONT_COLOR,
         title: screenShareButton(isScreenshareActive),
-        callback: () => {
+        onPress: () => {
           setActionMenuVisible(false);
           isScreenshareActive ? stopScreenshare() : startScreenshare();
         },
@@ -638,7 +639,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
         ? $config.SEMANTIC_ERROR
         : $config.FONT_COLOR,
       title: recordingButton(isRecordingActive),
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         if (!isRecordingActive) {
           startRecording();
@@ -662,7 +663,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: layoutLabel,
-    callback: () => {
+    onPress: () => {
       //setShowLayoutOption(true);
     },
     onHoverCallback: isHovered => {
@@ -693,7 +694,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: inviteLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setShowInvitePopup(true);
     },
@@ -709,7 +710,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: settingsLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setSidePanel(SidePanelType.Settings);
     },
@@ -840,7 +841,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           btnTextProps={{
-            text: $config.ICON_TEXT ? moreButtonLabel : '',
+            text: $config.ICON_TEXT ? label || moreButtonLabel : '',
             textColor: $config.FONT_COLOR,
           }}
         />
@@ -848,8 +849,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonFields}) => {
     </>
   );
 };
-export const LayoutToolbarItem = () => (
-  <ToolbarItem testID="layout-btn" collapsable={false}>
+export const LayoutToolbarItem = props => (
+  <ToolbarItem testID="layout-btn" collapsable={false} toolbarProps={props}>
     {/**
      * .measure returns undefined on Android unless collapsable=false or onLayout are specified
      * so added collapsable property
@@ -858,15 +859,15 @@ export const LayoutToolbarItem = () => (
     <LayoutIconButton />
   </ToolbarItem>
 );
-export const InviteToolbarItem = () => {
+export const InviteToolbarItem = props => {
   return (
-    <ToolbarItem testID="invite-btn">
+    <ToolbarItem testID="invite-btn" toolbarProps={props}>
       <CopyJoinInfo />
     </ToolbarItem>
   );
 };
 
-export const RaiseHandToolbarItem = () => {
+export const RaiseHandToolbarItem = props => {
   const {rtcProps} = useContext(PropsContext);
   // attendee can view option if any host has started STT
   const {
@@ -874,14 +875,14 @@ export const RaiseHandToolbarItem = () => {
   } = useRoomInfo();
   return $config.EVENT_MODE ? (
     rtcProps.role == ClientRoleType.ClientRoleAudience ? (
-      <LiveStreamControls showControls={true} />
+      <LiveStreamControls showControls={true} customProps={props} />
     ) : rtcProps?.role == ClientRoleType.ClientRoleBroadcaster ? (
       /**
        * In event mode when raise hand feature is active
        * and audience is promoted to host, the audience can also
        * demote himself
        */
-      <LiveStreamControls showControls={!isHost} />
+      <LiveStreamControls showControls={!isHost} customProps={props} />
     ) : (
       <></>
     )
@@ -890,53 +891,53 @@ export const RaiseHandToolbarItem = () => {
   );
 };
 
-export const LocalAudioToolbarItem = () => {
+export const LocalAudioToolbarItem = props => {
   return (
-    <ToolbarItem testID="localAudio-btn">
+    <ToolbarItem testID="localAudio-btn" toolbarProps={props}>
       <LocalAudioMute showToolTip={true} />
     </ToolbarItem>
   );
 };
 
-export const LocalVideoToolbarItem = () => {
+export const LocalVideoToolbarItem = props => {
   return (
     !$config.AUDIO_ROOM && (
-      <ToolbarItem testID="localVideo-btn">
+      <ToolbarItem testID="localVideo-btn" toolbarProps={props}>
         <LocalVideoMute showToolTip={true} />
       </ToolbarItem>
     )
   );
 };
 
-export const SwitchCameraToolbarItem = () => {
+export const SwitchCameraToolbarItem = props => {
   return (
     !$config.AUDIO_ROOM &&
     isMobileOrTablet() && (
-      <ToolbarItem testID="switchCamera-btn">
+      <ToolbarItem testID="switchCamera-btn" toolbarProps={props}>
         <LocalSwitchCamera />
       </ToolbarItem>
     )
   );
 };
 
-export const ScreenShareToolbarItem = () => {
+export const ScreenShareToolbarItem = props => {
   return (
     $config.SCREEN_SHARING &&
     !isMobileOrTablet() && (
-      <ToolbarItem testID="screenShare-btn">
+      <ToolbarItem testID="screenShare-btn" toolbarProps={props}>
         <ScreenshareButton />
       </ToolbarItem>
     )
   );
 };
-export const RecordingToolbarItem = () => {
+export const RecordingToolbarItem = props => {
   const {
     data: {isHost},
   } = useRoomInfo();
   return (
     isHost &&
     $config.CLOUD_RECORDING && (
-      <ToolbarItem testID="recording-btn">
+      <ToolbarItem testID="recording-btn" toolbarProps={props}>
         <Recording />
       </ToolbarItem>
     )
@@ -944,7 +945,7 @@ export const RecordingToolbarItem = () => {
 };
 
 export const MoreButtonToolbarItem = (props?: {
-  fields?: ToolbarMoreButtonFields;
+  fields?: ToolbarMoreButtonCustomFields;
 }) => {
   const {width} = useWindowDimensions();
   const {
@@ -965,7 +966,7 @@ export const MoreButtonToolbarItem = (props?: {
     (isHost && $config.CLOUD_RECORDING && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
     (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
-    <ToolbarItem testID="more-btn">
+    <ToolbarItem testID="more-btn" toolbarProps={props}>
       {!isHost && $config.ENABLE_WHITEBOARD && isWebInternal() ? (
         <WhiteboardListener />
       ) : (
@@ -985,13 +986,14 @@ export const LocalEndcallToolbarItem = (
 ) => {
   return (
     <ToolbarItem
-      testID={props?.customExit ? 'endCall-btn-custom' : 'endCall-btn'}>
+      testID={props?.customExit ? 'endCall-btn-custom' : 'endCall-btn'}
+      toolbarProps={props}>
       <LocalEndcall {...props} />
     </ToolbarItem>
   );
 };
 
-const defaultItems: ToolbarBottomPresetProps['items'] = {
+const defaultItems: ToolbarPresetProps['items'] = {
   layout: {
     align: 'start',
     component: LayoutToolbarItem,
@@ -1057,10 +1059,11 @@ const defaultItems: ToolbarBottomPresetProps['items'] = {
 };
 
 export interface ControlsProps {
-  items?: ToolbarBottomPresetProps['items'];
+  items?: ToolbarPresetProps['items'];
   includeDefaultItems?: boolean;
 }
 const Controls = (props: ControlsProps) => {
+  const {languageCode} = useLanguage();
   const {items = {}, includeDefaultItems = true} = props;
   const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
@@ -1188,6 +1191,16 @@ const Controls = (props: ControlsProps) => {
   const centerItemsOrdered = CustomToolbarSorting(centerItems);
   const endItemsOrdered = CustomToolbarSorting(endItems);
 
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
+
   const renderContent = (
     orderedKeys: string[],
     type: 'start' | 'center' | 'end',
@@ -1197,28 +1210,38 @@ const Controls = (props: ControlsProps) => {
     orderedKeys.forEach(keyName => {
       index = index + 1;
       let ToolbarComponent = null;
-      let ToolbarComponentProps = {};
+      let label = null;
+      let onPress = null;
+      let fieldsProps = null;
       if (type === 'start') {
         ToolbarComponent = startItems[keyName]?.component;
+        label = startItems[keyName]?.label;
+        onPress = startItems[keyName]?.onPress;
         if (keyName === 'more') {
-          ToolbarComponentProps = startItems[keyName]?.fields;
+          fieldsProps = startItems[keyName]?.fields;
         }
       } else if (type === 'center') {
         ToolbarComponent = centerItems[keyName]?.component;
+        label = centerItems[keyName]?.label;
+        onPress = centerItems[keyName]?.onPress;
         if (keyName === 'more') {
-          ToolbarComponentProps = centerItems[keyName]?.fields;
+          fieldsProps = centerItems[keyName]?.fields;
         }
       } else {
         ToolbarComponent = endItems[keyName]?.component;
+        label = endItems[keyName]?.label;
+        onPress = endItems[keyName]?.onPress;
         if (keyName === 'more') {
-          ToolbarComponentProps = endItems[keyName]?.fields;
+          fieldsProps = endItems[keyName]?.fields;
         }
       }
       if (ToolbarComponent) {
         renderContentItem.push(
           <ToolbarComponent
             key={`top-toolbar-${type}` + index}
-            fields={ToolbarComponentProps}
+            fields={fieldsProps}
+            label={customLabel(label)}
+            onPress={onPress}
           />,
         );
       }

@@ -1,8 +1,7 @@
 import React, {useContext} from 'react';
-import {Text, ViewStyle} from 'react-native';
+import {ViewStyle} from 'react-native';
 import {useString} from '../utils/useString';
 import {ClientRoleType, PropsContext, ToggleState} from '../../agora-rn-uikit';
-import Styles from '../components/styles';
 import {isAndroid, isIOS, useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useScreenshare} from './screenshare/useScreenshare';
@@ -10,6 +9,7 @@ import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {toolbarItemSwitchCameraText} from '../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface LocalSwitchCameraProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
@@ -20,6 +20,7 @@ export interface LocalSwitchCameraProps {
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {callbacks} = useContext(PropsContext);
   const {isScreenshareActive} = useScreenshare();
@@ -64,9 +65,9 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
       iconContainerStyle: iconContainerStyle,
     },
     disabled: disabled,
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     btnTextProps: {
-      text: showTitle ? switchCameraText?.replace(' ', '\n') : '',
+      text: showTitle ? label || switchCameraText?.replace(' ', '\n') : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,

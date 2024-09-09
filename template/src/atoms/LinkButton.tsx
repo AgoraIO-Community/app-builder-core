@@ -1,16 +1,17 @@
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, TextStyle} from 'react-native';
 import React from 'react';
 import ThemeConfig from '../theme';
 
 interface LinkButtonProps {
   onPress: () => void;
   text: string;
+  textStyle?: TextStyle;
 }
 
-const LinkButton = ({onPress, text}: LinkButtonProps) => {
+const LinkButton = ({onPress, text, textStyle = {}}: LinkButtonProps) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <Text style={styles.text}> {text} </Text>
+      <Text style={[styles.text, textStyle]}> {text} </Text>
     </TouchableOpacity>
   );
 };

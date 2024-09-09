@@ -11,7 +11,7 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine from 'agora-react-native-rtm';
+import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
 import {
   ContentInterface,
   DispatchContext,
@@ -233,6 +233,7 @@ const RtmConfigure = (props: any) => {
       }
       timerValueRef.current = 5;
       await getMembers();
+      await readAllChannelAttributes();
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM getMembers done');
     } catch (error) {
       logger.error(
@@ -385,6 +386,42 @@ const RtmConfigure = (props: any) => {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
         await getMembers();
+      }, timerValueRef.current * 1000);
+    }
+  };
+
+  const readAllChannelAttributes = async () => {
+    try {
+      await engine.current
+        .getChannelAttributes(rtcProps.channel)
+        .then(async data => {
+          for (const [key, value] of Object.entries(data?.attributes)) {
+            const {lastUpdateTs, lastUpdateUserId, value: payloadValue} = value;
+            if (hasJsonStructure(payloadValue as string)) {
+              const data = {
+                evt: key,
+                value: payloadValue,
+              };
+              // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+              EventsQueue.enqueue({
+                data: data,
+                uid: lastUpdateUserId,
+                ts: lastUpdateTs,
+              });
+            }
+          }
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            'RTM getChannelAttributes data received',
+            data,
+          );
+        });
+      timerValueRef.current = 5;
+    } catch (error) {
+      setTimeout(async () => {
+        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        await readAllChannelAttributes();
       }, timerValueRef.current * 1000);
     }
   };
@@ -580,6 +617,37 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
+
+    engine.current.on(
+      'channelAttributesUpdated',
+      (attributeList: RtmChannelAttribute[]) => {
+        console.log('channel attributes updated', attributeList);
+        try {
+          attributeList.map((attribute: RtmChannelAttribute) => {
+            const {key, value, lastUpdateTs, lastUpdateUserId} = attribute;
+            const timestamp = getMessageTime(lastUpdateTs);
+            const sender = Platform.OS
+              ? get32BitUid(lastUpdateUserId)
+              : parseInt(lastUpdateUserId);
+            eventDispatcher(
+              {
+                evt: key,
+                value,
+              },
+              sender,
+              timestamp,
+            );
+          });
+        } catch (error) {
+          logger.error(
+            LogSource.Events,
+            'CUSTOM_EVENTS',
+            'error while dispatching through eventDispatcher',
+            error,
+          );
+        }
+      },
+    );
     await doLoginAndSetupRTM();
   };
 

@@ -47,6 +47,13 @@ export type LayoutComponent = React.ComponentType<{
   renderData: ContentStateInterface['activeUids'];
 }>;
 
+export interface SidePanelItem {
+  name: string;
+  title: string;
+  component: React.ComponentType;
+  onClose?: () => void;
+}
+
 export interface LayoutItem {
   name: string;
   label: string;
@@ -76,6 +83,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
+  customSidePanel?: () => SidePanelItem[];
   invitePopup?: {
     title: string;
     renderComponent?: React.ComponentType;

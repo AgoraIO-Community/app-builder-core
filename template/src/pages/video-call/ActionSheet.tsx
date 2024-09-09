@@ -1,5 +1,11 @@
 import {StyleSheet, Text, View, TouchableWithoutFeedback} from 'react-native';
-import React, {useRef, useCallback, useLayoutEffect, useEffect} from 'react';
+import React, {
+  useRef,
+  useCallback,
+  useLayoutEffect,
+  useEffect,
+  useState,
+} from 'react';
 import {BottomSheet, BottomSheetRef} from 'react-spring-bottom-sheet';
 import './ActionSheetStyles.css';
 import ActionSheetContent from './ActionSheetContent';
@@ -19,8 +25,28 @@ import Transcript from '../../subComponents/caption/Transcript';
 import {ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useOrientation} from '../../utils/useOrientation';
+import {useCustomization} from 'customization-implementation';
+import CustomSidePanelView from '../../components/CustomSidePanel';
 
 const ActionSheet = props => {
+  const [showCustomSidePanel, setShowCustomSidePanel] = useState(false);
+  const [customSidePanelIndex, setCustomSidePanelIndex] = useState<
+    undefined | number
+  >(undefined);
+  const sidePanelArray = useCustomization(data => {
+    if (
+      data?.components &&
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.customSidePanel &&
+        typeof data?.components?.videoCall?.customSidePanel === 'function'
+      ) {
+        return data?.components?.videoCall?.customSidePanel();
+      }
+    }
+  });
   const {snapPointsMinMax = [100, 400]} = props;
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -32,10 +58,15 @@ const ActionSheet = props => {
   const chatSheetRef = useRef<BottomSheetRef>(null);
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
+  const customActionSheetRef = useRef<BottomSheetRef>(null);
   const transcriptSheetRef = useRef<BottomSheetRef>(null);
   const ToastComponentRender =
     isMobileUA() &&
-    (isChatOpen || isSettingsOpen || isParticipantsOpen || isTranscriptOpen) ? (
+    (isChatOpen ||
+      isSettingsOpen ||
+      isParticipantsOpen ||
+      isTranscriptOpen ||
+      showCustomSidePanel) ? (
       <ToastComponent />
     ) : (
       <></>
@@ -59,41 +90,63 @@ const ActionSheet = props => {
       isChatOpen ||
       isSettingsOpen ||
       isParticipantsOpen ||
-      isTranscriptOpen
+      isTranscriptOpen ||
+      showCustomSidePanel
     ) {
       setActionSheetVisible(true);
     } else {
       setActionSheetVisible(false);
     }
-  }, [isChatOpen, isSettingsOpen, isParticipantsOpen, isTranscriptOpen]);
+  }, [
+    isChatOpen,
+    isSettingsOpen,
+    isParticipantsOpen,
+    isTranscriptOpen,
+    showCustomSidePanel,
+    setActionSheetVisible,
+  ]);
 
   // updating on sidepanel changes
   useEffect(() => {
-    switch (sidePanel) {
-      case SidePanelType.Participants: {
-        setIsParticipantsOpen(true);
-        break;
+    const selectedIndex = sidePanelArray?.findIndex(item => {
+      if (item?.name === sidePanel && item?.component) {
+        return true;
+      } else {
+        return false;
       }
-      case SidePanelType.Chat: {
-        setIsChatOpen(true);
-        break;
+    });
+    if (selectedIndex < 0 || selectedIndex === undefined) {
+      setShowCustomSidePanel(false);
+      setCustomSidePanelIndex(undefined);
+      switch (sidePanel) {
+        case SidePanelType.Participants: {
+          setIsParticipantsOpen(true);
+          break;
+        }
+        case SidePanelType.Chat: {
+          setIsChatOpen(true);
+          break;
+        }
+        case SidePanelType.Settings: {
+          setIsSettingsOpen(true);
+          break;
+        }
+        case SidePanelType.Transcript: {
+          setIsTranscriptOpen(true);
+          break;
+        }
+        case SidePanelType.None: {
+          setIsChatOpen(false);
+          setIsParticipantsOpen(false);
+          setIsSettingsOpen(false);
+          setIsTranscriptOpen(false);
+          handleSheetChanges(0);
+        }
+        default:
       }
-      case SidePanelType.Settings: {
-        setIsSettingsOpen(true);
-        break;
-      }
-      case SidePanelType.Transcript: {
-        setIsTranscriptOpen(true);
-        break;
-      }
-      case SidePanelType.None: {
-        setIsChatOpen(false);
-        setIsParticipantsOpen(false);
-        setIsSettingsOpen(false);
-        setIsTranscriptOpen(false);
-        handleSheetChanges(0);
-      }
-      default:
+    } else {
+      setShowCustomSidePanel(true);
+      setCustomSidePanelIndex(selectedIndex);
     }
   }, [sidePanel]);
 
@@ -238,6 +291,35 @@ const ActionSheet = props => {
           blocking={false}>
           <Transcript showHeader={false} />
         </BottomSheet>
+        {showCustomSidePanel && customSidePanelIndex !== undefined ? (
+          <BottomSheet
+            sibling={ToastComponentRender}
+            ref={customActionSheetRef}
+            onDismiss={onDismiss}
+            open={showCustomSidePanel}
+            expandOnContentDrag={false}
+            snapPoints={({maxHeight}) => [1 * maxHeight]}
+            defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+            header={
+              <ActionSheetHandle
+                isCustomSidePanel={true}
+                customSidePanelProps={{
+                  title: sidePanelArray[customSidePanelIndex]?.title,
+                  onClose: sidePanelArray[customSidePanelIndex]?.onClose,
+                  name: sidePanelArray[customSidePanelIndex]?.name,
+                }}
+              />
+            }
+            blocking={false}>
+            <CustomSidePanelView
+              showHeader={false}
+              content={sidePanelArray[customSidePanelIndex]?.component}
+              name={sidePanelArray[customSidePanelIndex]?.name}
+            />
+          </BottomSheet>
+        ) : (
+          <></>
+        )}
       </View>
     </>
   );

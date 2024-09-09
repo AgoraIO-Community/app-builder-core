@@ -23,8 +23,8 @@ import {useToggleWhiteboard} from '../src/components/Controls';
 import {ShowInputURL} from '../src/components/Share';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../src/utils/useRemoteMute';
 import getCustomRoute from '../src/utils/getCustomRoute';
-import TertiaryButton from '../src/atoms/TertiaryButton';
 import useEndCall from '../src/utils/useEndCall';
+
 export {
   VideoRenderer,
   DispatchContext,
@@ -47,6 +47,5 @@ export {
   useRemoteMute,
   MUTE_REMOTE_TYPE,
   getCustomRoute,
-  TertiaryButton,
   useEndCall,
 };
