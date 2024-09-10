@@ -9,7 +9,8 @@ function addVote(
   return options.map((option: PollItemOptionItem) => {
     // Count how many times the value appears in the strings array
     const exists = responses.includes(option.value);
-    if (exists) {
+    const isVoted = option.votes.find(item => item.uid === uid);
+    if (exists && !isVoted) {
       // Creating a new object explicitly
       const newOption: PollItemOptionItem = {
         ...option,

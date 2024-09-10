@@ -77,6 +77,7 @@ enum PollActionKind {
   UPDATE_POLL_ITEM = 'UPDATE_POLL_ITEM',
   SUBMIT_POLL_ITEM_RESPONSES = 'SUBMIT_POLL_ITEM_RESPONSES',
   RECEIVE_POLL_ITEM_RESPONSES = 'RECEIVE_POLL_ITEM_RESPONSES',
+  PUBLISH_POLL_ITEM = 'PUBLISH_POLL_ITEM',
   DELETE_POLL_ITEM = 'DELETE_POLL_ITEM',
   EXPORT_POLL_ITEM = 'EXPORT_POLL_ITEM',
   FINISH_POLL_ITEM = 'FINISH_POLL_ITEM',
@@ -112,6 +113,10 @@ type PollAction =
         uid: number;
         timestamp: number;
       };
+    }
+  | {
+      type: PollActionKind.PUBLISH_POLL_ITEM;
+      payload: {pollId: string};
     }
   | {
       type: PollActionKind.FINISH_POLL_ITEM;
@@ -241,6 +246,9 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         }
       }
       break;
+    case PollActionKind.PUBLISH_POLL_ITEM:
+      // No action neeed
+      break;
     case PollActionKind.FINISH_POLL_ITEM:
       {
         const pollId = action.payload.pollId;
@@ -296,7 +304,6 @@ interface PollContextValue {
   launchPollId: string;
   viewResultPollId: string;
   sendPollResults: (pollId: string) => void;
-  onPollResultsReceived: (polls: Poll, resultPollId: string) => void;
   closeCurrentModal: () => void;
   isHost: boolean;
   handlePollTaskRequest: (task: PollTaskRequestTypes, pollId: string) => void;
@@ -322,8 +329,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const localUid = useLocalUid();
 
-  const {sendPollEvt, sendResponseToPollEvt, sendPollResultsEvt} =
-    usePollEvents();
+  const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   useEffect(() => {
     if (lastAction) {
@@ -334,13 +340,23 @@ function PollProvider({children}: {children: React.ReactNode}) {
           }
           break;
         case PollActionKind.SEND_POLL_ITEM:
-          const {pollId} = lastAction.payload;
-          sendPollEvt(polls, pollId);
-          setCurrentModal(null);
+          {
+            const {pollId} = lastAction.payload;
+            sendPollEvt(polls, pollId);
+            setCurrentModal(null);
+          }
           break;
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
           const {id, responses, uid, timestamp} = lastAction.payload;
           sendResponseToPollEvt(id, responses, uid, timestamp);
+          break;
+        case PollActionKind.PUBLISH_POLL_ITEM:
+        case PollActionKind.FINISH_POLL_ITEM:
+        case PollActionKind.DELETE_POLL_ITEM:
+          {
+            const {pollId} = lastAction.payload;
+            sendPollEvt(polls, pollId);
+          }
           break;
         default:
           break;
@@ -438,20 +454,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const sendPollResults = (pollId: string) => {
-    sendPollResultsEvt(polls, pollId);
-  };
-
-  const onPollResultsReceived = (pollsState: Poll, pollId: string) => {
-    if (isHost) {
-      return;
-    }
-    enhancedDispatch({
-      type: PollActionKind.UPDATE_POLL_ITEM,
-      payload: {
-        pollId: pollId,
-        partialItem: {...pollsState[pollId]},
-      },
-    });
+    sendPollEvt(polls, pollId);
   };
 
   const handlePollTaskRequest = (
@@ -462,9 +465,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
       case PollTaskRequestTypes.SEND:
         sendPoll(pollId);
         break;
-      case PollTaskRequestTypes.PUBLISH:
-        sendPollResults(pollId);
-        break;
+
       case PollTaskRequestTypes.SHARE:
         // No user case so far
         break;
@@ -472,8 +473,15 @@ function PollProvider({children}: {children: React.ReactNode}) {
         setViewResultPollId(pollId);
         setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
         break;
+      case PollTaskRequestTypes.PUBLISH:
+        enhancedDispatch({
+          type: PollActionKind.PUBLISH_POLL_ITEM,
+          payload: {
+            pollId,
+          },
+        });
+        break;
       case PollTaskRequestTypes.DELETE:
-        // TODO:SUP delete from channel attributes as well
         enhancedDispatch({
           type: PollActionKind.DELETE_POLL_ITEM,
           payload: {
@@ -482,7 +490,6 @@ function PollProvider({children}: {children: React.ReactNode}) {
         });
         break;
       case PollTaskRequestTypes.FINISH:
-        // TODO:SUP update channel attributes as well
         enhancedDispatch({
           type: PollActionKind.FINISH_POLL_ITEM,
           payload: {
@@ -525,7 +532,6 @@ function PollProvider({children}: {children: React.ReactNode}) {
     viewResultPollId,
     sendResponseToPoll,
     sendPollResults,
-    onPollResultsReceived,
     handlePollTaskRequest,
     closeCurrentModal,
     isHost,
