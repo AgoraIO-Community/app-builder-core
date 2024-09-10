@@ -28,12 +28,12 @@ const newPollTypeConfig: newPollType[] = [
   //   title: 'Open Ended',
   //   description: 'Question with a descriptive, open text response',
   // },
-  {
-    key: PollKind.YES_NO,
-    image: null,
-    title: 'Yes / No',
-    description: 'A simple question with a binary Yes or No response',
-  },
+  // {
+  //   key: PollKind.YES_NO,
+  //   image: null,
+  //   title: 'Yes / No',
+  //   description: 'A simple question with a binary Yes or No response',
+  // },
 ];
 
 export default function SelectNewPollTypeFormView({

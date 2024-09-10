@@ -228,7 +228,7 @@ export default function DraftPollFormView({
           {/* Sections templete */}
           <View style={style.pFormSection}>
             <View>
-              <View style={style.pFormCheckboxContainer}>
+              {/* <View style={style.pFormCheckboxContainer}>
                 {form.type === PollKind.MCQ ? (
                   <Checkbox
                     checked={form.multiple_response}
@@ -244,7 +244,7 @@ export default function DraftPollFormView({
                 ) : (
                   <></>
                 )}
-              </View>
+              </View> */}
               {/* <View style={style.pFormCheckboxContainer}>
                 <Checkbox
                   checked={form.share}
