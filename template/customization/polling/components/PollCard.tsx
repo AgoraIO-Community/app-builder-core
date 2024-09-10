@@ -10,7 +10,7 @@ import {ThemeConfig, TertiaryButton, useLocalUid} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
-import {capitalizeFirstLetter, iVoted} from '../helpers';
+import {capitalizeFirstLetter, hasUserVoted} from '../helpers';
 import {PollRenderResponseForm} from './form/poll-response-forms';
 
 function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
@@ -24,7 +24,7 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
   const resultView =
     isHost ||
     pollItem.status === PollStatus.FINISHED ||
-    iVoted(pollItem.options, localUid);
+    hasUserVoted(pollItem.options, localUid);
 
   return (
     <View style={style.pollItem}>

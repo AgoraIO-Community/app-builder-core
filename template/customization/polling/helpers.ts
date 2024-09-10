@@ -86,14 +86,13 @@ function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-function iVoted(options: PollItemOptionItem[], myUid: number): boolean {
-  return options.some(optionItem =>
-    optionItem.votes.some(item => item.uid === myUid),
-  );
+function hasUserVoted(options: PollItemOptionItem[], uid: number): boolean {
+  // Loop through each option and check the votes array
+  return options.some(option => option.votes.some(vote => vote.uid === uid));
 }
 
 export {
-  iVoted,
+  hasUserVoted,
   downloadCsv,
   arrayToCsv,
   addVote,

@@ -11,6 +11,7 @@ import {
   arrayToCsv,
   calculatePercentage,
   downloadCsv,
+  hasUserVoted,
 } from '../helpers';
 
 enum PollAccess {
@@ -407,6 +408,11 @@ function PollProvider({children}: {children: React.ReactNode}) {
           savePoll(pollItem);
         }
         if (pollItem.status === PollStatus.ACTIVE) {
+          // If status is active but voted
+          if (hasUserVoted(pollItem.options, localUid)) {
+            return;
+          }
+          // if status is active but not voted
           savePoll(pollItem);
           setLaunchPollId(pollId);
           setCurrentModal(PollModalState.RESPOND_TO_POLL);
