@@ -9,6 +9,7 @@ import {
 import {PollStatus} from '../context/poll-context';
 
 export enum PollTaskRequestTypes {
+  SEND = 'SEND',
   PUBLISH = 'PUBLISH',
   EXPORT = 'EXPORT',
   FINISH = 'FINISH',
@@ -36,6 +37,21 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+
+  actionMenuitems.push({
+    icon: 'send',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Send Poll',
+    titleStyle: {
+      fontSize: ThemeConfig.FontSize.small,
+    },
+    disabled: status !== PollStatus.LATER,
+    onPress: () => {
+      onCardActionSelect(PollTaskRequestTypes.SEND);
+      setActionMenuVisible(false);
+    },
+  });
 
   actionMenuitems.push({
     icon: 'share',

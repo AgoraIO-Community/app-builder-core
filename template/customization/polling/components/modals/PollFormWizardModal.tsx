@@ -52,7 +52,7 @@ export default function PollFormWizardModal() {
     };
     savePoll(payload);
     if (launch) {
-      sendPoll(payload);
+      sendPoll(payload.id);
     }
   };
 
