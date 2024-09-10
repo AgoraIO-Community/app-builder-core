@@ -1,6 +1,6 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
 import React, {useState} from 'react';
-import {PollItem} from '../../context/poll-context';
+import {PollItem, PollKind} from '../../context/poll-context';
 import PollTimer from '../PollTimer';
 import {
   ImageIcon,
@@ -34,50 +34,49 @@ interface PollResponseFormProps {
   onComplete: (responses: string | string[]) => void;
 }
 
-function PollRenderResponseForm({
+function PollRenderResponseFormHeader({
+  pollItem,
+}: {
+  pollItem: PollItem;
+}): JSX.Element {
+  return (
+    <>
+      {pollItem.duration ? <PollTimer expiresAt={pollItem.expiresAt} /> : null}
+      <Text style={style.heading4}>{pollItem.question}</Text>
+    </>
+  );
+}
+
+function PollRenderResponseFormBody({
   pollItem,
   onFormComplete,
 }: {
   pollItem: PollItem;
   onFormComplete: (responses: string | string[]) => void;
 }): JSX.Element {
-  const [isFormFreezed, setFreezeForm] = useState<boolean>(false);
-
-  const renderSwitch = () => {
-    switch (pollItem.type) {
-      case 'OPEN_ENDED':
-        return (
-          <PollResponseQuestionForm
-            isFormFreezed={isFormFreezed}
-            pollItem={pollItem}
-            onComplete={onFormComplete}
-          />
-        );
-      case 'MCQ':
-      case 'YES_NO':
-        return (
-          <PollResponseMCQForm
-            isFormFreezed={isFormFreezed}
-            pollItem={pollItem}
-            onComplete={onFormComplete}
-          />
-        );
-      default:
-        return <Text>Unknown type</Text>;
-    }
-  };
-  return (
-    <>
-      {pollItem.duration ? (
-        <PollTimer
-          expiresAt={pollItem.expiresAt}
-          setFreezeForm={setFreezeForm}
+  // Directly use switch case logic inside the render
+  switch (pollItem.type) {
+    case PollKind.OPEN_ENDED:
+      return (
+        <PollResponseQuestionForm
+          isFormFreezed={false} // TODO:SUP Based on poll timer
+          pollItem={pollItem}
+          onComplete={onFormComplete}
         />
-      ) : null}
-      <Text style={style.heading4}>{pollItem.question}</Text>
-      {renderSwitch()}
-    </>
-  );
+      );
+    case PollKind.MCQ:
+    case PollKind.YES_NO:
+      return (
+        <PollResponseMCQForm
+          isFormFreezed={false} // TODO:SUP Based on poll timer
+          pollItem={pollItem}
+          onComplete={onFormComplete}
+        />
+      );
+    default:
+      console.error('Unknown poll type:', pollItem.type);
+      return <Text>Unknown poll type</Text>;
+  }
 }
 
 function PollResponseQuestionForm({
@@ -201,7 +200,8 @@ export {
   PollResponseQuestionForm,
   PollResponseMCQForm,
   PollResponseFormComplete,
-  PollRenderResponseForm,
+  PollRenderResponseFormHeader,
+  PollRenderResponseFormBody,
 };
 
 export const style = StyleSheet.create({

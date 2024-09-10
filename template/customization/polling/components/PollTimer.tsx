@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {useCountdown} from '../hook/useCountdownTimer';
 import {ThemeConfig} from 'customization-api';
@@ -12,8 +12,9 @@ const padZero = (value: number) => {
   return value.toString().padStart(2, '0');
 };
 
-export default function PollTimer({expiresAt, setFreezeForm}: Props) {
+export default function PollTimer({expiresAt}: Props) {
   const [days, hours, minutes, seconds] = useCountdown(expiresAt);
+  const [freeze, setFreeze] = useState<boolean>(false);
 
   const getTime = () => {
     if (days) {
@@ -32,9 +33,9 @@ export default function PollTimer({expiresAt, setFreezeForm}: Props) {
 
   useEffect(() => {
     if (days + hours + minutes + seconds === 0) {
-      setFreezeForm(true);
+      setFreeze(true);
     }
-  }, [days, hours, minutes, seconds, setFreezeForm]);
+  }, [days, hours, minutes, seconds, freeze]);
 
   return (
     <View>
