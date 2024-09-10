@@ -11,12 +11,12 @@ import {
 } from '../../context/poll-context';
 import {usePoll} from '../../context/poll-context';
 import {initPollForm} from '../form/form-config';
-import {useLocalUid, filterObject} from 'customization-api';
+import {useLocalUid} from 'customization-api';
 
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
 export default function PollFormWizardModal() {
-  const {polls, savePoll, sendPoll, closeCurrentModal} = usePoll();
+  const {savePoll, sendPoll, closeCurrentModal} = usePoll();
   const [step, setStep] = useState<FormWizardStep>('SELECT');
   const [type, setType] = useState<PollKind>(null);
   const [form, setForm] = useState<PollItem>(null);
@@ -33,18 +33,6 @@ export default function PollFormWizardModal() {
   }, [type]);
 
   const onSave = (launch?: boolean) => {
-    if (launch) {
-      // check if there is an already launched poll
-      const isAnyPollActive = Object.keys(
-        filterObject(polls, ([_, v]) => v.status === PollStatus.ACTIVE),
-      );
-      if (isAnyPollActive.length > 0) {
-        console.error(
-          'Cannot publish poll now as there is already one poll active',
-        );
-        return;
-      }
-    }
     const payload = {
       ...form,
       status: launch ? PollStatus.ACTIVE : PollStatus.LATER,

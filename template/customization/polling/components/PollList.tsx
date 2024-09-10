@@ -17,7 +17,7 @@ export default function PollList() {
       <View>
         {polls && Object.keys(polls).length > 0 ? (
           Object.keys(polls).map((key: string) => (
-            <PollCard key={key} isHost={isHost()} pollItem={polls[key]} />
+            <PollCard key={key} isHost={isHost} pollItem={polls[key]} />
           ))
         ) : (
           <></>

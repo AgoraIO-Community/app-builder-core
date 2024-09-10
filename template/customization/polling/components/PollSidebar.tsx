@@ -21,7 +21,7 @@ const PollSidebar = () => {
   return (
     <View style={style.pollSidebar}>
       {/* Header */}
-      {isHost() ? (
+      {isHost ? (
         <>
           <View style={style.headerSection}>
             <View style={style.headerCard}>

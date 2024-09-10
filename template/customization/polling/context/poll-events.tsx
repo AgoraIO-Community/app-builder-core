@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect} from 'react';
-import {PollItem, usePoll} from './poll-context';
+import {Poll, PollItem, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
 
 enum PollEventNames {
@@ -14,13 +14,15 @@ enum PollEventActions {
 }
 
 type sendResponseToPollEvtFunction = (
-  poll: PollItem,
+  id: string,
   responses: string | string[],
+  uid: number,
+  timestamp: number,
 ) => void;
 interface PollEventsContextValue {
-  sendPollEvt: (poll: PollItem) => void;
+  sendPollEvt: (polls: Poll, pollId: string) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
-  sendPollResultsEvt: (poll: PollItem) => void;
+  sendPollResultsEvt: (polls: Poll, pollId: string) => void;
 }
 
 const PollEventsContext = createContext<PollEventsContextValue | null>(null);
@@ -28,40 +30,45 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  const sendPollEvt = (poll: PollItem) => {
+  const sendPollEvt = (polls: Poll, pollId: string) => {
     events.send(
       PollEventNames.polls,
       JSON.stringify({
+        state: {...polls},
         action: PollEventActions.sendPoll,
-        item: {...poll},
-        activePollId: poll.id,
+        activePollId: pollId,
+        resultPollId: null,
       }),
       PersistanceLevel.Channel,
     );
   };
 
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
-    item,
+    id,
     responses,
+    uid,
+    timestamp,
   ) => {
     events.send(
       PollEventNames.pollResponse,
       JSON.stringify({
-        type: item.type,
-        id: item.id,
+        id,
         responses,
+        uid,
+        timestamp,
       }),
       PersistanceLevel.None,
     );
   };
 
-  const sendPollResultsEvt = (item: PollItem) => {
+  const sendPollResultsEvt = (polls: Poll, pollId: string) => {
     events.send(
       PollEventNames.polls,
       JSON.stringify({
         action: PollEventActions.sendPollResults,
-        item: {...item},
+        state: {...polls},
         activePollId: '',
+        resultPollId: pollId,
       }),
       PersistanceLevel.Channel,
     );
@@ -105,25 +112,25 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       // const {payload, sender, ts} = args;
       const {payload} = args;
       const data = JSON.parse(payload);
-      const {action, item, activePollId} = data;
-      console.log('supriya poll received', data);
+      const {action, state, activePollId, resultPollId} = data;
+      console.log('supriya poll state received', data);
       switch (action) {
         case PollEventActions.sendPoll:
-          onPollReceived(item, activePollId);
+          onPollReceived(state, activePollId);
           break;
         case PollEventActions.sendPollResults:
-          onPollResultsReceived(item);
+          onPollResultsReceived(state, resultPollId);
           break;
         default:
           break;
       }
     });
     events.on(PollEventNames.pollResponse, args => {
-      const {payload, sender, ts} = args;
+      const {payload} = args;
       const data = JSON.parse(payload);
       console.log('supriya poll response received', data);
-      const {type, id, responses} = data;
-      onPollResponseReceived(id, type, responses, sender, ts);
+      const {id, responses, uid, timestamp} = data;
+      onPollResponseReceived(id, responses, uid, timestamp);
     });
 
     return () => {

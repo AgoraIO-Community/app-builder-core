@@ -151,7 +151,7 @@ function PollResponseMCQForm({
     if (pollItem.multiple_response) {
       onComplete(selectedOptions);
     } else {
-      onComplete(selectedOption);
+      onComplete([selectedOption]);
     }
   };
 

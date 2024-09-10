@@ -31,7 +31,7 @@ export default function PollResultModal() {
                 <PollOptionListItemResult
                   key={item.value}
                   optionItem={item}
-                  showYourVote={!isHost()}
+                  showYourVote={!isHost}
                 />
               ))}
             </PollOptionList>
