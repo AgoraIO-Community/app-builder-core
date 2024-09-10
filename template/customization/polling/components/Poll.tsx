@@ -22,7 +22,7 @@ function Poll({children}: {children?: React.ReactNode}) {
 
 function PollModals() {
   const {currentModal, launchPollId, viewResultPollId, polls} = usePoll();
-  console.log('supriya polls data chnaged: ', polls);
+  console.log('supriya polls data changed: ', polls);
   return (
     <>
       {currentModal === PollModalState.DRAFT_POLL && <PollFormWizardModal />}

@@ -248,8 +248,8 @@ function pollReducer(state: Poll, action: PollAction): Poll {
       }
       break;
     case PollActionKind.PUBLISH_POLL_ITEM:
-      // No action neeed
-      break;
+      // No action need just return the state
+      return state;
     case PollActionKind.FINISH_POLL_ITEM:
       {
         const pollId = action.payload.pollId;
@@ -404,16 +404,16 @@ function PollProvider({children}: {children: React.ReactNode}) {
       });
     } else {
       Object.entries(pollsState).forEach(([_, pollItem]) => {
-        if (pollItem.status === PollStatus.FINISHED) {
-          savePoll(pollItem);
+        if (pollItem.status === PollStatus.LATER) {
+          return;
         }
+        savePoll(pollItem);
         if (pollItem.status === PollStatus.ACTIVE) {
           // If status is active but voted
           if (hasUserVoted(pollItem.options, localUid)) {
             return;
           }
           // if status is active but not voted
-          savePoll(pollItem);
           setLaunchPollId(pollId);
           setCurrentModal(PollModalState.RESPOND_TO_POLL);
         }
