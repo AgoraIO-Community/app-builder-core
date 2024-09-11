@@ -6,17 +6,7 @@ import {
   calculatePosition,
   ThemeConfig,
 } from 'customization-api';
-import {PollStatus} from '../context/poll-context';
-
-export enum PollTaskRequestTypes {
-  SEND = 'SEND',
-  PUBLISH = 'PUBLISH',
-  EXPORT = 'EXPORT',
-  FINISH = 'FINISH',
-  VIEW_DETAILS = 'VIEW_DETAILS',
-  DELETE = 'DELETE',
-  SHARE = 'SHARE',
-}
+import {PollStatus, PollTaskRequestTypes} from '../context/poll-context';
 
 interface PollCardMoreActionsMenuProps {
   status: PollStatus;

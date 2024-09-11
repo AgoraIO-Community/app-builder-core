@@ -4,12 +4,13 @@ import {
   PollItem,
   PollItemOptionItem,
   PollStatus,
+  PollTaskRequestTypes,
   usePoll,
 } from '../context/poll-context';
 import {ThemeConfig, TertiaryButton, useLocalUid} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
-import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
+import {PollCardMoreActions} from './PollCardMoreActions';
 import {capitalizeFirstLetter, hasUserVoted} from '../helpers';
 import {PollRenderResponseFormBody} from './form/poll-response-forms';
 

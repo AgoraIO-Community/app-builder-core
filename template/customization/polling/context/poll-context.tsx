@@ -1,17 +1,17 @@
 import React, {createContext, useReducer, useEffect, useState} from 'react';
 import {usePollEvents} from './poll-events';
-import {useLocalUid, useRoomInfo, filterObject} from 'customization-api';
+import {useLocalUid, useRoomInfo, filterObject, Toast} from 'customization-api';
 import {
   getPollExpiresAtTime,
   POLL_DURATION,
 } from '../components/form/form-config';
-import {PollTaskRequestTypes} from '../components/PollCardMoreActions';
 import {
   addVote,
   arrayToCsv,
   calculatePercentage,
   downloadCsv,
   hasUserVoted,
+  mergePolls,
 } from '../helpers';
 
 enum PollAccess {
@@ -34,6 +34,16 @@ enum PollModalState {
   DRAFT_POLL = 'DRAFT_POLL',
   RESPOND_TO_POLL = 'RESPOND_TO_POLL',
   VIEW_POLL_RESULTS = 'VIEW_POLL_RESULTS',
+}
+
+enum PollTaskRequestTypes {
+  SEND = 'SEND',
+  PUBLISH = 'PUBLISH',
+  EXPORT = 'EXPORT',
+  FINISH = 'FINISH',
+  VIEW_DETAILS = 'VIEW_DETAILS',
+  DELETE = 'DELETE',
+  SHARE = 'SHARE',
 }
 
 interface PollItemOptionItem {
@@ -384,9 +394,13 @@ function PollProvider({children}: {children: React.ReactNode}) {
       filterObject(polls, ([_, v]) => v.status === PollStatus.ACTIVE),
     );
     if (isAnyPollActive.length > 0) {
-      console.error(
-        'Cannot publish poll now as there is already one poll active',
-      );
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'Cannot publish poll now as there is already one poll active',
+        text2: '',
+        visibilityTime: 1000 * 3,
+      });
       return;
     }
     enhancedDispatch({
@@ -397,13 +411,15 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const onPollReceived = (pollsState: Poll, pollId: string) => {
+  const onPollReceived = (newPoll: Poll, pollId: string) => {
     if (isHost) {
-      Object.entries(pollsState).forEach(([_, pollItem]) => {
+      const mergedPolls = mergePolls(newPoll, polls);
+      Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         savePoll(pollItem);
       });
     } else {
-      Object.entries(pollsState).forEach(([_, pollItem]) => {
+      const mergedPolls = mergePolls(newPoll, polls);
+      Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         if (pollItem.status === PollStatus.LATER) {
           return;
         }
@@ -562,6 +578,7 @@ export {
   PollStatus,
   PollAccess,
   PollModalState,
+  PollTaskRequestTypes,
 };
 
 export type {Poll, PollItem, PollFormErrors, PollItemOptionItem};

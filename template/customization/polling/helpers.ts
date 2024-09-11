@@ -1,4 +1,4 @@
-import {PollAccess, PollItemOptionItem} from './context/poll-context';
+import {Poll, PollAccess, PollItemOptionItem} from './context/poll-context';
 
 function addVote(
   responses: string[],
@@ -91,7 +91,27 @@ function hasUserVoted(options: PollItemOptionItem[], uid: number): boolean {
   return options.some(option => option.votes.some(vote => vote.uid === uid));
 }
 
+function mergePolls(newPoll: Poll, oldPoll: Poll) {
+  // Merge and discard absent properties
+
+  // 1. Start with a copy of the current polls state
+  const mergedPolls: Poll = {...oldPoll};
+  // 2. Add or update polls from newPolls
+  Object.keys(newPoll).forEach(pollId => {
+    mergedPolls[pollId] = newPoll[pollId]; // Add or update each poll from newPolls
+  });
+  // 3. Remove polls that are not in newPolls
+  Object.keys(mergedPolls).forEach(pollId => {
+    if (!(pollId in newPoll)) {
+      delete mergedPolls[pollId]; // Delete polls that are no longer present in newPolls
+    }
+  });
+
+  return mergedPolls;
+}
+
 export {
+  mergePolls,
   hasUserVoted,
   downloadCsv,
   arrayToCsv,

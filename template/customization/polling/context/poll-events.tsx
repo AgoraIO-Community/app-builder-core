@@ -10,7 +10,6 @@ enum PollEventActions {
   sendPoll = 'SEND_POLL',
   sendResponseToPoll = 'SEND_RESONSE_TO_POLL',
   sendPollResults = 'SEND_POLL_RESULTS',
-  finishPoll = 'FINISH_POLL',
 }
 
 type sendResponseToPollEvtFunction = (

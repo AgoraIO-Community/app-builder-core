@@ -9,9 +9,8 @@ import {
   PollResponseFormComplete,
   PollRenderResponseForm,
 } from '../form/poll-response-forms';
-import {usePoll} from '../../context/poll-context';
+import {usePoll, PollTaskRequestTypes} from '../../context/poll-context';
 import PollAvatarHeader from '../PollAvatarHeader';
-import {PollTaskRequestTypes} from '../PollCardMoreActions';
 
 export default function PollResponseFormModal() {
   const {
