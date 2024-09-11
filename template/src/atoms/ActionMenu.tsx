@@ -9,8 +9,6 @@ import {
   TouchableOpacity,
   ViewStyle,
   useWindowDimensions,
-  StyleProp,
-  TextStyle,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 

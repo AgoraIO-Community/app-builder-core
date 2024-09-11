@@ -24,9 +24,4 @@ interface EventCallbackPayload {
   sender: UidType;
   ts: number;
 }
-export interface RTMAttributePayload {
-  evt: string;
-  value: string;
-}
-
 export type EventCallback = (args: EventCallbackPayload) => void;
