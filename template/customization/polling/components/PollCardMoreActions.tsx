@@ -126,6 +126,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
         },
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionMenuVisible]);
 
   return (
