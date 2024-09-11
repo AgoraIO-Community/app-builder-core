@@ -11,7 +11,7 @@ import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions, PollTaskRequestTypes} from './PollCardMoreActions';
 import {capitalizeFirstLetter, hasUserVoted} from '../helpers';
-import {PollRenderResponseForm} from './form/poll-response-forms';
+import {PollRenderResponseFormBody} from './form/poll-response-forms';
 
 function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
   const {sendResponseToPoll, handlePollTaskRequest} = usePoll();
@@ -76,7 +76,7 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
               </PollOptionList>
             ) : pollItem.status === PollStatus.ACTIVE ? (
               <View style={style.pollResponseFormView}>
-                <PollRenderResponseForm
+                <PollRenderResponseFormBody
                   pollItem={pollItem}
                   onFormComplete={(responses: string | string[]) => {
                     sendResponseToPoll(pollItem, responses);

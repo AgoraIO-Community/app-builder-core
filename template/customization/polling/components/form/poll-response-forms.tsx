@@ -34,6 +34,24 @@ interface PollResponseFormProps {
   onComplete: (responses: string | string[]) => void;
 }
 
+function PollRenderResponseForm({
+  pollItem,
+  onFormComplete,
+}: {
+  pollItem: PollItem;
+  onFormComplete: (responses: string | string[]) => void;
+}): JSX.Element {
+  return (
+    <>
+      <PollRenderResponseFormHeader pollItem={pollItem} />
+      <PollRenderResponseFormBody
+        pollItem={pollItem}
+        onFormComplete={onFormComplete}
+      />
+    </>
+  );
+}
+
 function PollRenderResponseFormHeader({
   pollItem,
 }: {
@@ -200,7 +218,7 @@ export {
   PollResponseQuestionForm,
   PollResponseMCQForm,
   PollResponseFormComplete,
-  PollRenderResponseFormHeader,
+  PollRenderResponseForm,
   PollRenderResponseFormBody,
 };
 

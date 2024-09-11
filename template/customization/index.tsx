@@ -1,4 +1,3 @@
-import React from 'react';
 import {customize} from 'customization-api';
 import PollSidebar from './polling/components/PollSidebar';
 import Poll from './polling/components/Poll';
