@@ -47,7 +47,11 @@ import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
+import {
+  messageInterface,
+  messageStoreInterface,
+  useChatMessages,
+} from '../components/chat-messages/useChatMessages';
 import {
   chatPanelUnreadMessageText,
   chatPanelUserOfflineText,
@@ -208,7 +212,7 @@ const ChatContainer = (props?: {
                 {info1(messageStore?.length ? false : true)}
               </Text>
             </View>
-            {messageStore.map((message: any, index) => (
+            {messageStore.map((message: messageStoreInterface, index) => (
               <>
                 {messageStoreLengthRef.current === messageStore.length &&
                 grpUnreadCount &&
@@ -248,6 +252,7 @@ const ChatContainer = (props?: {
                   thumb={message?.thumb}
                   fileName={message?.fileName}
                   ext={message?.ext}
+                  reactions={message?.reactions}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -264,53 +269,57 @@ const ChatContainer = (props?: {
         privateChatUser &&
         privateMessageStore[privateChatUser] ? (
           <>
-            {privateMessageStore[privateChatUser].map((message: any, index) => (
-              <>
-                {privateMessageStoreRef.current ===
-                  privateMessageStore[privateChatUser]?.length &&
-                privateUnreadCount &&
-                privateMessageStore[privateChatUser]?.length -
-                  privateUnreadCount ===
+            {privateMessageStore[privateChatUser].map(
+              (message: messageStoreInterface, index) => (
+                <>
+                  {privateMessageStoreRef.current ===
+                    privateMessageStore[privateChatUser]?.length &&
+                  privateUnreadCount &&
+                  privateMessageStore[privateChatUser]?.length -
+                    privateUnreadCount ===
+                    index ? (
+                    <View
+                      style={style.unreadMessageContainer}
+                      onLayout={unreadViewOnLayout}>
+                      <Text style={style.unreadMessageText}>
+                        {privateUnreadCount} {unreadMessageLabel}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                  <ChatBubbleComponent
+                    isLocal={localUid === message.uid}
+                    isSameUser={
+                      index !== 0 &&
+                      privateMessageStore[privateChatUser][index - 1].uid ===
+                        message.uid
+                        ? true
+                        : false
+                    }
+                    message={message.msg}
+                    createdTimestamp={message.createdTimestamp}
+                    updatedTimestamp={message.updatedTimestamp}
+                    uid={message.uid}
+                    key={message.msgId}
+                    msgId={message.msgId}
+                    isDeleted={message.isDeleted}
+                    type={message.type}
+                    url={message?.url}
+                    thumb={message?.thumb}
+                    fileName={message?.fileName}
+                    ext={message?.ext}
+                    reactions={message?.reactions}
+                  />
+                  {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (
-                  <View
-                    style={style.unreadMessageContainer}
-                    onLayout={unreadViewOnLayout}>
-                    <Text style={style.unreadMessageText}>
-                      {privateUnreadCount} {unreadMessageLabel}
-                    </Text>
-                  </View>
-                ) : (
-                  <></>
-                )}
-                <ChatBubbleComponent
-                  isLocal={localUid === message.uid}
-                  isSameUser={
-                    index !== 0 &&
-                    privateMessageStore[privateChatUser][index - 1].uid ===
-                      message.uid
-                      ? true
-                      : false
-                  }
-                  message={message.msg}
-                  createdTimestamp={message.createdTimestamp}
-                  updatedTimestamp={message.updatedTimestamp}
-                  uid={message.uid}
-                  key={message.ts}
-                  msgId={message.msgId}
-                  isDeleted={message.isDeleted}
-                  type={message.type}
-                  url={message?.url}
-                  thumb={message?.thumb}
-                  fileName={message?.fileName}
-                  ext={message?.ext}
-                />
-                {privateMessageStore[privateChatUser]?.length - 1 === index ? (
-                  <Spacer size={10} />
-                ) : (
-                  <></>
-                )}
-              </>
-            ))}
+                    <Spacer size={10} />
+                  ) : (
+                    <></>
+                  )}
+                </>
+              ),
+            )}
           </>
         ) : (
           <></>

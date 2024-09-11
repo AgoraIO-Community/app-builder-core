@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import EmojiPicker, {
   EmojiStyle,
   SuggestionMode,
@@ -9,6 +9,7 @@ import {useChatUIControls} from '../../components/chat-ui/useChatUIControls';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {MoreMessageOptions} from './ChatQuickActionsMenu';
+import {useChatConfigure} from '../../../src/components/chat/chatConfigure';
 
 const css = `
 .chatEmojiPicker .epr-emoji-category-label {
@@ -141,8 +142,10 @@ const CustomEmojiPicker = ({handleEmojiClick, handleEmojiClose}) => {
   );
 };
 
-export const ReactionPicker: React.FC = () => {
+export const ReactionPicker = props => {
   const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
+  const {addReaction} = useChatConfigure();
+  const {messageId} = props;
 
   //	Controls the reactions to display in the reactions picker. Takes unified emoji ids
   const reactions = [
@@ -155,7 +158,7 @@ export const ReactionPicker: React.FC = () => {
     },
   ];
 
-  const handleReactionClick = (emojiObject: {
+  const handleCustomReactionClick = (emojiObject: {
     emoji: string;
     names: string[];
   }) => {
@@ -169,7 +172,6 @@ export const ReactionPicker: React.FC = () => {
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
     return (
       <>
-        {' '}
         <IconButton
           hoverEffect={true}
           hoverEffectStyle={{
@@ -192,7 +194,7 @@ export const ReactionPicker: React.FC = () => {
         />
         {isEmojiPickerOpen && (
           <CustomEmojiPicker
-            handleEmojiClick={handleReactionClick}
+            handleEmojiClick={handleCustomReactionClick}
             handleEmojiClose={() => {
               setIsEmojiPickerOpen(false);
             }}
@@ -202,13 +204,20 @@ export const ReactionPicker: React.FC = () => {
     );
   };
 
+  const handleReactionClick = emoji => {
+    console.log('on reaction', emoji);
+    addReaction(messageId, emoji);
+  };
+
   return (
     <View style={styles.reactionsContainer} testID={'reaction-container'}>
       {reactions.map((emojiObject, index) => (
         <React.Fragment key={emojiObject.unified}>
-          <View style={styles.emojiWrapper}>
+          <TouchableOpacity
+            style={styles.emojiWrapper}
+            onPress={() => handleReactionClick(emojiObject.emoji)}>
             <Text style={{fontSize: 16}}>{emojiObject.emoji}</Text>
-          </View>
+          </TouchableOpacity>
           {index === reactions.length - 1 && (
             <>
               <CustomReactioPicker />
@@ -279,8 +288,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
     borderRadius: 8,
-    boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
-    left: -140,
+    boxShadow: `0px 4px 10px 0px ${$config.SECONDARY_ACTION_COLOR} + hexadecimalTransparency['35%'] `,
+    left: -50, //todo: fix
     gap: 8,
   },
   emojiPicker: {

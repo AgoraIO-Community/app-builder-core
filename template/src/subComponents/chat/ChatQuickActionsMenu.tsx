@@ -142,7 +142,7 @@ export const MoreMessageOptions = () => {
           hoverEffectStyle={{
             backgroundColor:
               $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-            borderRadius: 20,
+            borderRadius: 4,
             padding: 2,
           }}
           iconProps={{

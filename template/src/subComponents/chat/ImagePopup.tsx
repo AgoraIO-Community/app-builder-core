@@ -39,7 +39,7 @@ interface ImagePopupProps {
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
   imageUrl: string;
   fileName: string;
-  timestamp: string;
+  timestamp: number;
   senderName: string;
   msgId: string;
   isLocal: boolean;

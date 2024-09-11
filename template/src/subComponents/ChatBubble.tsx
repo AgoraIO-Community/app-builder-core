@@ -125,9 +125,10 @@ const ChatBubble = (props: ChatBubbleProps) => {
     thumb,
     fileName,
     ext,
+    reactions,
   } = props;
 
-  let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+  let time = formatAMPM(new Date(createdTimestamp));
 
   const chatMsgDeletedTxt = useString(chatMsgDeletedText);
 
@@ -137,8 +138,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //then show the user and timestamp again even if same user
   if (previousMessageCreatedTimestamp && createdTimestamp) {
     try {
-      const startTime = new Date(parseInt(previousMessageCreatedTimestamp));
-      const endTime = new Date(parseInt(createdTimestamp));
+      const startTime = new Date(previousMessageCreatedTimestamp);
+      const endTime = new Date(createdTimestamp);
       let resultInMinutes = 0;
       if (startTime && endTime) {
         const difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
@@ -182,6 +183,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
       fileName,
       ext,
       previousMessageCreatedTimestamp,
+      reactions,
     )
   ) : (
     <>
@@ -230,7 +232,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   : style.chatBubbleRemoteView,
                 isURL(message) ? {maxWidth: '88%'} : {},
               ]}>
-              {isHovered && <ReactionPicker />}
+              {isHovered && <ReactionPicker messageId={msgId} />}
               <View
                 style={[
                   isLocal
@@ -354,6 +356,20 @@ const ChatBubble = (props: ChatBubbleProps) => {
           );
         }}
       </PlatformWrapper>
+      <View
+        style={[
+          style.reactionContainer,
+          isLocal ? style.reactionLocalView : style.reactionRemoteView,
+        ]}>
+        {reactions?.map((reactionObj, index) => {
+          return (
+            <TouchableOpacity style={style.reactionWrapper} onPress={() => {}}>
+              <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
+              <Text style={style.reactionCount}>{reactionObj.count}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </>
   );
 };
@@ -439,6 +455,28 @@ const style = StyleSheet.create({
     maxWidth: '88%',
     position: 'relative',
   },
+  reactionLocalView: {
+    alignSelf: 'flex-end',
+    marginVertical: 2,
+    marginHorizontal: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 0,
+    maxWidth: '88%',
+    position: 'relative',
+  },
+  reactionRemoteView: {
+    alignSelf: 'flex-start',
+    marginVertical: 2,
+    marginHorizontal: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 8,
+    maxWidth: '88%',
+    position: 'relative',
+  },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
@@ -510,6 +548,28 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  reactionWrapper: {
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    borderRadius: 12,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
+  reactionCount: {
+    fontSize: 10,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['40%'],
+    marginLeft: 2,
+  },
+  reactionContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
   },
 });
 
