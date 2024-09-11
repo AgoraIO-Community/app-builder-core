@@ -234,7 +234,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   : style.chatBubbleRemoteView,
                 isURL(message) ? {maxWidth: '88%'} : {},
               ]}>
-              {isHovered && <ReactionPicker messageId={msgId} />}
+              {isHovered && (
+                <ReactionPicker messageId={msgId} isLocal={isLocal} />
+              )}
               <View
                 style={[
                   isLocal

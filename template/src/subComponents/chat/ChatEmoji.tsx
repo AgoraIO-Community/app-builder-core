@@ -145,7 +145,7 @@ const CustomEmojiPicker = ({handleEmojiClick, handleEmojiClose}) => {
 export const ReactionPicker = props => {
   const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
   const {addReaction} = useChatConfigure();
-  const {messageId} = props;
+  const {messageId, isLocal} = props;
 
   //	Controls the reactions to display in the reactions picker. Takes unified emoji ids
   const reactions = [
@@ -162,9 +162,7 @@ export const ReactionPicker = props => {
     emoji: string;
     names: string[];
   }) => {
-    setMessage(prev =>
-      prev ? prev + '  ' + emojiObject.emoji : emojiObject.emoji,
-    );
+    addReaction(messageId, emojiObject.emoji);
     // setShowEmojiPicker(false);
   };
 
@@ -210,7 +208,9 @@ export const ReactionPicker = props => {
   };
 
   return (
-    <View style={styles.reactionsContainer} testID={'reaction-container'}>
+    <View
+      style={[styles.reactionsContainer, isLocal ? {right: 0} : {left: 0}]}
+      testID={'reaction-container'}>
       {reactions.map((emojiObject, index) => (
         <React.Fragment key={emojiObject.unified}>
           <TouchableOpacity
@@ -289,7 +289,6 @@ const styles = StyleSheet.create({
     borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
     borderRadius: 8,
     boxShadow: `0px 4px 10px 0px ${$config.SECONDARY_ACTION_COLOR} + hexadecimalTransparency['35%'] `,
-    left: -50, //todo: fix
     gap: 8,
   },
   emojiPicker: {
