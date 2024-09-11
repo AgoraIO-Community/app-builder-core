@@ -41,6 +41,7 @@ interface chatConfigureContextInterface {
     chatType?: SDKChatType,
   ) => void;
   addReaction: (messageId: string, reaction: string) => void;
+  removeReaction: (messageId: string, reaction: string) => void;
 }
 
 export const chatConfigureContext =
@@ -53,6 +54,7 @@ export const chatConfigureContext =
     uploadAttachment: () => {},
     deleteAttachment: () => {},
     addReaction: () => {},
+    removeReaction: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -542,16 +544,43 @@ const ChatConfigure = ({children}) => {
           );
         })
         .catch(err => {
+          if (err.type === 1101) {
+            // If user already added reaction then remove it
+            removeReaction(messageId, reaction);
+          } else {
+            logger.debug(
+              LogSource.Internals,
+              'CHAT',
+              `Chat Reaction Addition Failed for mid ${messageId} - ${err?.message}`,
+              err,
+            );
+          }
+        });
+    }
+  };
+
+  const removeReaction = (messageId: string, reaction: string) => {
+    if (connRef.current) {
+      connRef.current
+        .deleteReaction({messageId, reaction})
+        .then(res => {
           logger.debug(
             LogSource.Internals,
             'CHAT',
-            `Chat Reaction Addition Failed for mid ${messageId}`,
+            `Chat Reaction Removed to mid ${messageId}`,
+            res,
+          );
+        })
+        .catch(err => {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Chat Reaction Removal Failed for mid ${messageId}`,
             err,
           );
         });
     }
   };
-
   return (
     <chatConfigureContext.Provider
       value={{
@@ -563,6 +592,7 @@ const ChatConfigure = ({children}) => {
         uploadAttachment,
         deleteAttachment,
         addReaction,
+        removeReaction,
       }}>
       {children}
     </chatConfigureContext.Provider>

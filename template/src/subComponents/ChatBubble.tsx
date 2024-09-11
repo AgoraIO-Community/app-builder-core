@@ -40,6 +40,7 @@ import {
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {ReactionPicker} from './chat/ChatEmoji';
+import {useChatConfigure} from '../../src/components/chat/chatConfigure';
 
 type AttachmentBubbleProps = {
   fileName: string;
@@ -109,6 +110,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   const [lightboxVisible, setLightboxVisible] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const moreIconRef = React.useRef<View>(null);
+  const {removeReaction} = useChatConfigure();
 
   let {
     isLocal,
@@ -362,11 +364,17 @@ const ChatBubble = (props: ChatBubbleProps) => {
           isLocal ? style.reactionLocalView : style.reactionRemoteView,
         ]}>
         {reactions?.map((reactionObj, index) => {
-          return (
-            <TouchableOpacity style={style.reactionWrapper} onPress={() => {}}>
+          return reactionObj.count > 0 ? (
+            <TouchableOpacity
+              style={style.reactionWrapper}
+              onPress={() => {
+                removeReaction(msgId, reactionObj.reaction);
+              }}>
               <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
               <Text style={style.reactionCount}>{reactionObj.count}</Text>
             </TouchableOpacity>
+          ) : (
+            <></>
           );
         })}
       </View>
