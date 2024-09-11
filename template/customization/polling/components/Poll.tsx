@@ -4,6 +4,7 @@ import PollFormWizardModal from './modals/PollFormWizardModal';
 import {PollEventsProvider, PollEventsSubscriber} from '../context/poll-events';
 import PollResponseFormModal from './modals/PollResponseFormModal';
 import PollResultModal from './modals/PollResultModal';
+import {log} from '../helpers';
 // TODO:SUP
 // const DraftPollModal = React.lazy(() => import('./DraftPollModal'));
 // const RespondToPollModal = React.lazy(() => import('./RespondToPollModal'));
@@ -22,7 +23,7 @@ function Poll({children}: {children?: React.ReactNode}) {
 
 function PollModals() {
   const {currentModal, launchPollId, viewResultPollId, polls} = usePoll();
-  console.log('supriya polls data changed: ', polls);
+  log('polls data changed: ', polls);
   return (
     <>
       {currentModal === PollModalState.DRAFT_POLL && <PollFormWizardModal />}

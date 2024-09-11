@@ -304,7 +304,11 @@ interface PollContextValue {
   startPollForm: () => void;
   savePoll: (item: PollItem) => void;
   sendPoll: (pollId: string) => void;
-  onPollReceived: (polls: Poll, launchId: string) => void;
+  onPollReceived: (
+    polls: Poll,
+    pollId: string,
+    task: PollTaskRequestTypes,
+  ) => void;
   sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
   onPollResponseReceived: (
     pollId: string,
@@ -353,7 +357,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
         case PollActionKind.SEND_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
-            sendPollEvt(polls, pollId);
+            sendPollEvt(polls, pollId, PollTaskRequestTypes.SEND);
             setCurrentModal(null);
           }
           break;
@@ -362,11 +366,21 @@ function PollProvider({children}: {children: React.ReactNode}) {
           sendResponseToPollEvt(id, responses, uid, timestamp);
           break;
         case PollActionKind.PUBLISH_POLL_ITEM:
+          {
+            const {pollId} = lastAction.payload;
+            sendPollEvt(polls, pollId, PollTaskRequestTypes.PUBLISH);
+          }
+          break;
         case PollActionKind.FINISH_POLL_ITEM:
+          {
+            const {pollId} = lastAction.payload;
+            sendPollEvt(polls, pollId, PollTaskRequestTypes.FINISH);
+          }
+          break;
         case PollActionKind.DELETE_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
-            sendPollEvt(polls, pollId);
+            sendPollEvt(polls, pollId, PollTaskRequestTypes.DELETE);
           }
           break;
         default:
@@ -411,7 +425,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const onPollReceived = (newPoll: Poll, pollId: string) => {
+  const onPollReceived = (
+    newPoll: Poll,
+    pollId: string,
+    task: PollTaskRequestTypes,
+  ) => {
+    console.log('onPollReceived task', task);
     if (isHost) {
       const mergedPolls = mergePolls(newPoll, polls);
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
@@ -476,7 +495,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const sendPollResults = (pollId: string) => {
-    sendPollEvt(polls, pollId);
+    sendPollEvt(polls, pollId, PollTaskRequestTypes.SHARE);
   };
 
   const handlePollTaskRequest = (

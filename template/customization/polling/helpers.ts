@@ -1,5 +1,9 @@
 import {Poll, PollAccess, PollItemOptionItem} from './context/poll-context';
 
+function log(...args: any[]) {
+  console.log('[CustomPolling::] ', ...args);
+}
+
 function addVote(
   responses: string[],
   options: PollItemOptionItem[],
@@ -111,6 +115,7 @@ function mergePolls(newPoll: Poll, oldPoll: Poll) {
 }
 
 export {
+  log,
   mergePolls,
   hasUserVoted,
   downloadCsv,

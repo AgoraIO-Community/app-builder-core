@@ -1,6 +1,7 @@
 import React, {createContext, useContext, useEffect} from 'react';
-import {Poll, usePoll} from './poll-context';
+import {Poll, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
+import {log} from '../helpers';
 
 enum PollEventNames {
   polls = 'POLLS',
@@ -20,7 +21,11 @@ type sendResponseToPollEvtFunction = (
 ) => void;
 
 interface PollEventsContextValue {
-  sendPollEvt: (polls: Poll, pollId: string) => void;
+  sendPollEvt: (
+    polls: Poll,
+    pollId: string,
+    task?: PollTaskRequestTypes,
+  ) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
 }
 
@@ -29,13 +34,18 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  const sendPollEvt = (polls: Poll, pollId: string) => {
+  const sendPollEvt = (
+    polls: Poll,
+    pollId: string,
+    task: PollTaskRequestTypes,
+  ) => {
     events.send(
       PollEventNames.polls,
       JSON.stringify({
         state: {...polls},
         action: PollEventActions.sendPoll,
         pollId: pollId,
+        task,
       }),
       PersistanceLevel.Channel,
     );
@@ -91,11 +101,11 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       // const {payload, sender, ts} = args;
       const {payload} = args;
       const data = JSON.parse(payload);
-      const {action, state, pollId} = data;
-      console.log('supriya poll state received', data);
+      const {action, state, pollId, task} = data;
+      log('poll channel state received', data);
       switch (action) {
         case PollEventActions.sendPoll:
-          onPollReceived(state, pollId);
+          onPollReceived(state, pollId, task);
           break;
         default:
           break;
@@ -104,7 +114,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
     events.on(PollEventNames.pollResponse, args => {
       const {payload} = args;
       const data = JSON.parse(payload);
-      console.log('supriya poll response received', data);
+      log('poll response received', data);
       const {id, responses, uid, timestamp} = data;
       onPollResponseReceived(id, responses, uid, timestamp);
     });
