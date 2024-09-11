@@ -440,17 +440,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
   ) => {
     log('onPollReceived task', task);
     const mergedPolls = mergePolls(newPoll, polls);
-    if (Object.keys(mergePolls).length === 0) {
+    if (Object.keys(mergedPolls).length === 0) {
       enhancedDispatch({
         type: PollActionKind.RESET,
       });
       return;
     }
     if (isHost) {
+      log('i am host');
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         savePoll(pollItem);
       });
     } else {
+      log('i am attendee');
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         if (pollItem.status === PollStatus.LATER) {
           return;
