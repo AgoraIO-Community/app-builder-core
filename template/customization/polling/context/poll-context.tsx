@@ -11,6 +11,7 @@ import {
   calculatePercentage,
   downloadCsv,
   hasUserVoted,
+  log,
   mergePolls,
 } from '../helpers';
 
@@ -92,6 +93,7 @@ enum PollActionKind {
   DELETE_POLL_ITEM = 'DELETE_POLL_ITEM',
   EXPORT_POLL_ITEM = 'EXPORT_POLL_ITEM',
   FINISH_POLL_ITEM = 'FINISH_POLL_ITEM',
+  RESET = 'RESET',
 }
 
 type PollAction =
@@ -140,6 +142,9 @@ type PollAction =
   | {
       type: PollActionKind.DELETE_POLL_ITEM;
       payload: {pollId: string};
+    }
+  | {
+      type: PollActionKind.RESET;
     };
 
 function pollReducer(state: Poll, action: PollAction): Poll {
@@ -292,6 +297,9 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         }
       }
       break;
+    case PollActionKind.RESET: {
+      return {};
+    }
     default: {
       return state;
     }
@@ -430,14 +438,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
     pollId: string,
     task: PollTaskRequestTypes,
   ) => {
-    console.log('onPollReceived task', task);
+    log('onPollReceived task', task);
+    const mergedPolls = mergePolls(newPoll, polls);
+    if (Object.keys(mergePolls).length === 0) {
+      enhancedDispatch({
+        type: PollActionKind.RESET,
+      });
+      return;
+    }
     if (isHost) {
-      const mergedPolls = mergePolls(newPoll, polls);
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         savePoll(pollItem);
       });
     } else {
-      const mergedPolls = mergePolls(newPoll, polls);
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         if (pollItem.status === PollStatus.LATER) {
           return;
