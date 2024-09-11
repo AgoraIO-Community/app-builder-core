@@ -338,10 +338,6 @@ export default class RtmEngine {
     return response;
   }
 
-  async removeAllLocalUserAttributes() {
-    return this.client.clearLocalUserAttributes();
-  }
-
   async getChannelAttributes(channelId: string) {
     let response = {};
     await this.client
@@ -355,17 +351,8 @@ export default class RtmEngine {
     return response;
   }
 
-  async getChannelAttributesByKeys(channelId: string, attributeKeys: string[]) {
-    let response = {};
-    await this.client
-      .getChannelAttributesByKeys(channelId, attributeKeys)
-      .then((attributes: string) => {
-        response = {attributes};
-      })
-      .catch((e: any) => {
-        Promise.reject(e);
-      });
-    return response;
+  async removeAllLocalUserAttributes() {
+    return this.client.clearLocalUserAttributes();
   }
 
   async removeLocalUserAttributesByKeys(keys: string[]) {
@@ -408,11 +395,6 @@ export default class RtmEngine {
     attributes: RtmChannelAttribute[],
     option: ChannelAttributeOptions,
   ): Promise<void> {
-    /**
-     * The following piece of code is commented and not deleted
-     * to be used in future implementations of channel attributes
-     */
-
     let formattedAttributes: any = {};
     attributes.map(attribute => {
       let key = Object.values(attribute)[0];

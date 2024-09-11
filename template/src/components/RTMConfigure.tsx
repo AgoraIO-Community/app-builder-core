@@ -428,6 +428,42 @@ const RtmConfigure = (props: any) => {
     }
   };
 
+  const readAllChannelAttributes = async () => {
+    try {
+      await engine.current
+        .getChannelAttributes(rtcProps.channel)
+        .then(async data => {
+          for (const [key, value] of Object.entries(data?.attributes)) {
+            const {lastUpdateTs, lastUpdateUserId, value: payloadValue} = value;
+            if (hasJsonStructure(payloadValue as string)) {
+              const data = {
+                evt: key,
+                value: payloadValue,
+              };
+              // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+              EventsQueue.enqueue({
+                data: data,
+                uid: lastUpdateUserId,
+                ts: lastUpdateTs,
+              });
+            }
+          }
+          logger.log(
+            LogSource.AgoraSDK,
+            'API',
+            'RTM getChannelAttributes data received',
+            data,
+          );
+        });
+      timerValueRef.current = 5;
+    } catch (error) {
+      setTimeout(async () => {
+        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        await readAllChannelAttributes();
+      }, timerValueRef.current * 1000);
+    }
+  };
+
   const init = async () => {
     logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
     engine.current = RTMEngine.getInstance().engine;
@@ -623,7 +659,7 @@ const RtmConfigure = (props: any) => {
     engine.current.on(
       'channelAttributesUpdated',
       (attributeList: RtmChannelAttribute[]) => {
-        console.log('supriya 2  channel attributes received', attributeList);
+        console.log('channel attributes updated', attributeList);
         try {
           attributeList.map((attribute: RtmChannelAttribute) => {
             const {key, value, lastUpdateTs, lastUpdateUserId} = attribute;
@@ -650,7 +686,6 @@ const RtmConfigure = (props: any) => {
         }
       },
     );
-
     await doLoginAndSetupRTM();
   };
 

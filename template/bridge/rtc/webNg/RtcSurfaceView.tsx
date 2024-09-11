@@ -30,7 +30,6 @@ export interface StyleProps {
 interface SurfaceViewInterface extends RtcSurfaceViewProps, StyleProps {}
 
 const RtcSurfaceView = (props: SurfaceViewInterface) => {
-  console.debug('Rtc Surface View props', props);
   const {uid, renderMode} = props.canvas;
   const stream: ILocalVideoTrack | IRemoteVideoTrack =
     uid === 0
@@ -38,7 +37,6 @@ const RtcSurfaceView = (props: SurfaceViewInterface) => {
       : uid === 1
       ? window.engine.screenStream.video
       : window.engine.remoteStreams.get(uid)?.video;
-  // console.log(props, window.engine, stream);
   useEffect(
     function () {
       if (stream?.play) {

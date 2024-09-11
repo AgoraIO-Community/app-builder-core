@@ -34,7 +34,6 @@ export interface ActionMenuItem {
   iconColor: string;
   textColor: string;
   title: string;
-  titleStyle?: StyleProp<TextStyle>;
   label?: string;
   toggleStatus?: boolean;
   onPress: () => void;
@@ -100,7 +99,6 @@ const ActionMenu = (props: ActionMenuProps) => {
         onHoverCallback = undefined,
         onHoverContent = undefined,
         iconSize = 20,
-        titleStyle = {},
       } = item;
       return (
         <PlatformWrapper key={props.from + '_' + title + index}>
@@ -179,11 +177,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                     )}
                   </View>
                   <Text
-                    style={[
-                      styles.text,
-                      titleStyle,
-                      textColor ? {color: textColor} : {},
-                    ]}>
+                    style={[styles.text, textColor ? {color: textColor} : {}]}>
                     {label || title}
                   </Text>
                   {toggleStatus !== undefined && toggleStatus !== null ? (

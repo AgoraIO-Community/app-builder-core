@@ -28,12 +28,14 @@ export enum UploadStatus {
 }
 
 export interface File {
+  file_id: string;
   file_length: number;
   file_ext: string;
   file_url: string;
   file_name: string;
   file_type: string;
   file_obj: object;
+  upload_status: UploadStatus;
 }
 
 export interface ChatUIControlsInterface {
@@ -49,7 +51,7 @@ export interface ChatUIControlsInterface {
   setInputHeight: React.Dispatch<SetStateAction<number>>;
   showEmojiPicker: boolean;
   setShowEmojiPicker: React.Dispatch<SetStateAction<boolean>>;
-  uploadStatus: UploadStatus;
+  uploadStatus: UploadStatus; // for mobile, where only one attchment per message sent
   setUploadStatus: React.Dispatch<SetStateAction<UploadStatus>>;
   uploadedFiles: File[];
   setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
@@ -83,6 +85,7 @@ export const MAX_HEIGHT = 92;
 export const LINE_HEIGHT = 17;
 export const MAX_UPLOAD_SIZE = 10; //MB
 export const MAX_TEXT_MESSAGE_SIZE = 5; //KB
+export const MAX_FILES_UPLOAD = 5;
 
 const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [chatType, setChatType] = useState<ChatType>(ChatType.Group);

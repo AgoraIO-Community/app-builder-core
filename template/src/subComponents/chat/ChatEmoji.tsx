@@ -129,7 +129,7 @@ export interface ChatEmojiButtonProps {
 }
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
-  const {setShowEmojiPicker} = useChatUIControls();
+  const {setShowEmojiPicker, uploadedFiles} = useChatUIControls();
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
   };

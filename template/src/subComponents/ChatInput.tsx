@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
@@ -28,6 +29,7 @@ import {
   MAX_HEIGHT,
   LINE_HEIGHT,
   MAX_TEXT_MESSAGE_SIZE,
+  MAX_FILES_UPLOAD,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent, useRoomInfo, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
@@ -36,7 +38,7 @@ import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
 import {useChatConfigure} from '../components/chat/chatConfigure';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ChatAttachmentButton} from './chat/ChatAttachment';
-import ChatSendButton from './chat/ChatSendButton';
+import ChatSendButton, {handleChatSend} from './chat/ChatSendButton';
 import {
   ChatMessageType,
   SDKChatType,
@@ -75,7 +77,7 @@ export interface ChatTextInputProps {
 export const ChatTextInput = (props: ChatTextInputProps) => {
   let chatInputRef = useRef(null);
   const {
-    privateChatUser,
+    privateChatUser: selectedUserId,
     message,
     setMessage,
     inputActive,
@@ -86,6 +88,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setUploadedFiles,
     inputHeight,
     setInputHeight,
+    setShowEmojiPicker,
+    showEmojiPicker,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
@@ -110,8 +114,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
 
   const isUploadStatusShown =
-    uploadStatus === UploadStatus.IN_PROGRESS ||
-    uploadStatus === UploadStatus.FAILURE;
+    uploadedFiles.filter(
+      file =>
+        file.upload_status === UploadStatus.IN_PROGRESS ||
+        file.upload_status === UploadStatus.FAILURE,
+    ).length > 0 || uploadedFiles.length === MAX_FILES_UPLOAD;
 
   const groupChatInputPlaceHolder = $config.EVENT_MODE
     ? useString(groupChatLiveInputPlaceHolderText)
@@ -122,41 +129,29 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
-      ? privateChatInputPlaceHolder(defaultContent[privateChatUser]?.name)
+      ? privateChatInputPlaceHolder(defaultContent[selectedUserId]?.name)
       : groupChatInputPlaceHolder(name);
 
   const onChangeText = (text: string) => {
     setMessage(text);
   };
+
   const onSubmitEditing = () => {
-    if (message.length === 0) return;
-    const groupID = data.chat.group_id;
-
-    if (message.length >= MAX_TEXT_MESSAGE_SIZE * 1024) {
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: toastHeadingSize,
-        text2: errorSubHeadingSize(MAX_TEXT_MESSAGE_SIZE.toString()),
-        visibilityTime: 3000,
-        primaryBtn: null,
-        secondaryBtn: null,
-      });
-      return;
-    }
-
-    const option = {
-      chatType: privateChatUser
-        ? SDKChatType.SINGLE_CHAT
-        : SDKChatType.GROUP_CHAT,
-      type: ChatMessageType.TXT,
-      from: data.uid.toString(),
-      to: privateChatUser ? privateChatUser.toString() : groupID,
-      msg: message,
-    };
-    sendChatSDKMessage(option);
-    setInputHeight(MIN_HEIGHT);
-    setMessage('');
+    handleChatSend({
+      sendChatSDKMessage,
+      selectedUserId,
+      message,
+      setMessage,
+      inputActive,
+      uploadStatus,
+      uploadedFiles,
+      setUploadedFiles,
+      setInputHeight,
+      data,
+      setShowEmojiPicker,
+      toastHeadingSize,
+      errorSubHeadingSize,
+    });
   };
 
   // with multiline textinput enter prints /n
@@ -178,6 +173,96 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     uploadAttachment(uploadedFiles[0]);
   };
 
+  const renderTextInput = (style = {}) => (
+    <TextInput
+      setRef={ref => (chatInputRef.current = ref)}
+      onFocus={() => setInputActive(true)}
+      onBlur={() => setInputActive(false)}
+      value={message}
+      multiline={true}
+      onChangeText={onChangeText}
+      textAlignVertical="top"
+      scrollEnabled={true}
+      style={{
+        color: $config.FONT_COLOR,
+        textAlign: 'left',
+        width: '100%',
+        alignSelf: 'center',
+        fontFamily: ThemeConfig.FontFamily.sansPro,
+        fontWeight: '400',
+        height: inputHeight,
+        padding: 12,
+        fontSize: ThemeConfig.FontSize.small,
+        lineHeight: LINE_HEIGHT,
+        borderWidth: 1,
+        borderColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
+        backgroundColor: $config.CARD_LAYER_2_COLOR,
+        borderRadius: 8,
+        borderTopRightRadius: isUploadStatusShown ? 0 : 8,
+        borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
+        maxHeight: MAX_HEIGHT,
+        ...style,
+      }}
+      blurOnSubmit={false}
+      onSubmitEditing={onSubmitEditing}
+      placeholder={chatMessageInputPlaceholder}
+      placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
+      autoCorrect={false}
+      onKeyPress={handleKeyPress}
+      onContentSizeChange={handleContentSizeChange}
+    />
+  );
+
+  const renderAttachmentBubble = (file, index) => (
+    <AttachmentBubble
+      key={file.file_id}
+      fileName={file.file_name}
+      fileExt={file.file_ext}
+      isFullWidth={true}
+      fileType={file.file_type}
+      secondaryComponent={
+        file.upload_status === UploadStatus.IN_PROGRESS ? (
+          <ActivityIndicator />
+        ) : file.upload_status === UploadStatus.FAILURE ? (
+          <TouchableOpacity onPress={handleUploadRetry}>
+            <Text style={style.btnRetry}>{'Retry'}</Text>
+          </TouchableOpacity>
+        ) : file.upload_status === UploadStatus.SUCCESS ? (
+          <View>
+            <IconButton
+              hoverEffect={true}
+              hoverEffectStyle={{
+                backgroundColor:
+                  $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+                borderRadius: 20,
+              }}
+              iconProps={{
+                iconType: 'plain',
+                iconSize: 20,
+                iconContainerStyle: {
+                  padding: 2,
+                },
+                name: 'close',
+                tintColor: $config.SECONDARY_ACTION_COLOR,
+              }}
+              onPress={() => {
+                setUploadedFiles(files =>
+                  files.filter(uploadedFile => {
+                    return uploadedFile.file_id !== file.file_id;
+                  }),
+                );
+              }}
+            />
+          </View>
+        ) : null
+      }
+      containerStyle={{
+        marginBottom: index !== uploadedFiles.length - 1 ? 6 : 0,
+      }}
+    />
+  );
+
   return props?.render ? (
     props.render(
       message,
@@ -191,6 +276,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         <View
           style={[
             style.attachmentContainer,
+
             isUploadStatusShown
               ? {
                   borderTopLeftRadius: 0,
@@ -199,89 +285,13 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
                 }
               : {borderRadius: 8, borderTopWidth: 1},
           ]}>
-          {uploadedFiles.map((file, index) => (
-            <AttachmentBubble
-              key={index}
-              fileName={file.file_name}
-              fileExt={file.file_ext}
-              isFullWidth={true}
-              fileType={file.file_type}
-              secondaryComponent={
-                uploadStatus === UploadStatus.IN_PROGRESS ? (
-                  <ActivityIndicator />
-                ) : uploadStatus === UploadStatus.FAILURE ? (
-                  <TouchableOpacity onPress={handleUploadRetry}>
-                    <Text style={style.btnRetry}>{'Retry'}</Text>
-                  </TouchableOpacity>
-                ) : uploadStatus === UploadStatus.SUCCESS ? (
-                  <View>
-                    <IconButton
-                      hoverEffect={true}
-                      hoverEffectStyle={{
-                        backgroundColor:
-                          $config.CARD_LAYER_5_COLOR +
-                          hexadecimalTransparency['20%'],
-                        borderRadius: 20,
-                      }}
-                      iconProps={{
-                        iconType: 'plain',
-                        iconSize: 20,
-                        iconContainerStyle: {
-                          padding: 2,
-                        },
-                        name: 'close',
-                        tintColor: $config.SECONDARY_ACTION_COLOR,
-                      }}
-                      onPress={() => {
-                        setUploadedFiles(prev => []);
-                      }}
-                    />
-                  </View>
-                ) : null
-              }
-            />
-          ))}
+          <ScrollView style={{maxHeight: showEmojiPicker ? 120 : '100%'}}>
+            {uploadedFiles.map(renderAttachmentBubble)}
+            {renderTextInput({borderWidth: 0, padddingLeft: 0})}
+          </ScrollView>
         </View>
       ) : (
-        <TextInput
-          setRef={ref => (chatInputRef.current = ref)}
-          onFocus={() => setInputActive(true)}
-          onBlur={() => setInputActive(false)}
-          value={message}
-          multiline={true}
-          onChangeText={onChangeText}
-          textAlignVertical="top"
-          scrollEnabled={true}
-          style={{
-            color: $config.FONT_COLOR,
-            textAlign: 'left',
-            width: '100%',
-            alignSelf: 'center',
-            fontFamily: ThemeConfig.FontFamily.sansPro,
-            fontWeight: '400',
-            height: inputHeight,
-            padding: 12,
-            fontSize: ThemeConfig.FontSize.small,
-            lineHeight: LINE_HEIGHT,
-            borderWidth: 1,
-            borderColor:
-              $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
-            backgroundColor: $config.CARD_LAYER_2_COLOR,
-            borderRadius: 8,
-            borderTopRightRadius: isUploadStatusShown ? 0 : 8,
-            borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
-            maxHeight: MAX_HEIGHT,
-          }}
-          blurOnSubmit={false}
-          onSubmitEditing={onSubmitEditing}
-          placeholder={chatMessageInputPlaceholder}
-          placeholderTextColor={
-            $config.FONT_COLOR + hexadecimalTransparency['40%']
-          }
-          autoCorrect={false}
-          onKeyPress={handleKeyPress}
-          onContentSizeChange={handleContentSizeChange}
-        />
+        renderTextInput()
       )}
     </>
   );
@@ -320,7 +330,7 @@ const style = StyleSheet.create({
   attachmentContainer: {
     paddingHorizontal: 12,
     paddingTop: 12,
-    paddingBottom: 40,
+
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
