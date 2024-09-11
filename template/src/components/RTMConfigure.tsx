@@ -236,12 +236,10 @@ const RtmConfigure = (props: any) => {
       await readAllChannelAttributes();
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM getMembers done');
     } catch (error) {
-      console.log('error: ', error);
       logger.error(
         LogSource.AgoraSDK,
         'Log',
         'RTM joinChannel failed..Trying again',
-        error,
       );
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
