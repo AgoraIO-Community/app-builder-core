@@ -7,6 +7,7 @@ import {
   Checkbox,
   PrimaryButton,
   ThemeConfig,
+  $config,
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
 

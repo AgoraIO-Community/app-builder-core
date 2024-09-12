@@ -7,7 +7,12 @@ import {
   PollTaskRequestTypes,
   usePoll,
 } from '../context/poll-context';
-import {ThemeConfig, TertiaryButton, useLocalUid} from 'customization-api';
+import {
+  ThemeConfig,
+  TertiaryButton,
+  useLocalUid,
+  $config,
+} from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions} from './PollCardMoreActions';

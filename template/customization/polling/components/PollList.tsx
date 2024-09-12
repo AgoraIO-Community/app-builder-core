@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {PollCard} from './PollCard';
 import {usePoll} from '../context/poll-context';
-import {ThemeConfig} from 'customization-api';
+import {ThemeConfig, $config} from 'customization-api';
 
 export default function PollList() {
   const {polls, isHost} = usePoll();

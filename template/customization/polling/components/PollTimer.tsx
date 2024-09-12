@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {useCountdown} from '../hook/useCountdownTimer';
-import {ThemeConfig} from 'customization-api';
+import {ThemeConfig, $config} from 'customization-api';
 
 interface Props {
   expiresAt: number;

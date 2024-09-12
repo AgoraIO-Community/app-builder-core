@@ -5,6 +5,7 @@ import {
   ActionMenuItem,
   calculatePosition,
   ThemeConfig,
+  $config,
 } from 'customization-api';
 import {PollStatus, PollTaskRequestTypes} from '../context/poll-context';
 

@@ -7,7 +7,7 @@ import {
   TextStyle,
 } from 'react-native';
 import React from 'react';
-import {hexadecimalTransparency, ThemeConfig} from 'customization-api';
+import {hexadecimalTransparency, ThemeConfig, $config} from 'customization-api';
 
 interface Props {
   option: {

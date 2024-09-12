@@ -5,6 +5,7 @@ import {
   hexadecimalTransparency,
   IconButton,
   isMobileUA,
+  $config,
 } from 'customization-api';
 
 interface TitleProps {

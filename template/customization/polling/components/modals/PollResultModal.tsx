@@ -6,7 +6,7 @@ import {
   BaseModalContent,
   BaseModalCloseIcon,
 } from '../../ui/BaseModal';
-import {ThemeConfig} from 'customization-api';
+import {ThemeConfig, $config} from 'customization-api';
 import PollAvatarHeader from '../PollAvatarHeader';
 import {PollItemOptionItem, usePoll} from '../../context/poll-context';
 import {PollOptionList, PollOptionListItemResult} from '../poll-option-item-ui';

@@ -6,7 +6,7 @@ import {
   BaseModalCloseIcon,
 } from '../../ui/BaseModal';
 import {PollKind} from '../../context/poll-context';
-import {ThemeConfig} from 'customization-api';
+import {ThemeConfig, $config} from 'customization-api';
 
 interface newPollType {
   key: PollKind;

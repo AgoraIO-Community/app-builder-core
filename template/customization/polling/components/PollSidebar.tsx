@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
-import {PrimaryButton, ThemeConfig} from 'customization-api';
+import {PrimaryButton, ThemeConfig, $config} from 'customization-api';
 import {usePoll} from '../context/poll-context';
 import PollList from './PollList';
 

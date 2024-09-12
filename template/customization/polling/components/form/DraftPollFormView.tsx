@@ -12,6 +12,7 @@ import {
   IconButton,
   PrimaryButton,
   ThemeConfig,
+  $config,
 } from 'customization-api';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';

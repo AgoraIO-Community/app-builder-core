@@ -8,6 +8,7 @@ import {
   useString,
   videoRoomUserFallbackText,
   UidType,
+  $config,
 } from 'customization-api';
 
 interface Props {

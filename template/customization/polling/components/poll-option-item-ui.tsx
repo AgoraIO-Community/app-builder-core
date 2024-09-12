@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, View, StyleSheet, DimensionValue} from 'react-native';
 import {PollItemOptionItem} from '../context/poll-context';
-import {ThemeConfig, useLocalUid} from 'customization-api';
+import {ThemeConfig, useLocalUid, $config} from 'customization-api';
 
 interface PollOptionListItem {
   optionItem: PollItemOptionItem;

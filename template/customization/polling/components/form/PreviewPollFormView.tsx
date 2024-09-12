@@ -9,7 +9,12 @@ import {
 import {PollItem} from '../../context/poll-context';
 import {POLL_DURATION} from './form-config';
 import BaseRadioButton from '../../ui/BaseRadioButton';
-import {TertiaryButton, Checkbox, ThemeConfig} from 'customization-api';
+import {
+  TertiaryButton,
+  Checkbox,
+  ThemeConfig,
+  $config,
+} from 'customization-api';
 
 interface Props {
   form: PollItem;
