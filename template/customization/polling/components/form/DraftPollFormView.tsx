@@ -26,7 +26,7 @@ function FormTitle({title}: {title: string}) {
 }
 interface Props {
   form: PollItem;
-  setForm: React.Dispatch<React.SetStateAction<PollItem>>;
+  setForm: React.Dispatch<React.SetStateAction<PollItem | null>>;
   onPreview: () => void;
   errors: Partial<PollFormErrors>;
   onClose: () => void;
@@ -62,7 +62,7 @@ export default function DraftPollFormView({
       setForm({
         ...form,
         options: [
-          ...form.options,
+          ...(form.options || []),
           {
             text: '',
             value: '',
@@ -75,7 +75,7 @@ export default function DraftPollFormView({
     if (action === 'update') {
       setForm({
         ...form,
-        options: form.options.map((option, i) => {
+        options: form.options?.map((option, i) => {
           if (i === index) {
             const text = value.trim();
             const lowerText = text
@@ -97,7 +97,7 @@ export default function DraftPollFormView({
     if (action === 'delete') {
       setForm({
         ...form,
-        options: form.options.filter((option, i) => i !== index),
+        options: form.options?.filter((option, i) => i !== index) || [],
       });
     }
   };
@@ -112,6 +112,7 @@ export default function DraftPollFormView({
     if (type === PollKind.YES_NO) {
       return 'Yes/No';
     }
+    return 'Poll';
   };
 
   return (
@@ -151,7 +152,7 @@ export default function DraftPollFormView({
               <View style={style.pFormOptions}>
                 {form.type === PollKind.MCQ ? (
                   <>
-                    {form.options.map((option, index) => (
+                    {form.options?.map((option, index) => (
                       <View style={style.pFormOptionCard} key={index}>
                         <Text style={style.pFormOptionPrefix}>{index + 1}</Text>
                         <TextInput
@@ -194,7 +195,7 @@ export default function DraftPollFormView({
                         text="Add option"
                         textStyle={style.pFormOptionLink}
                         onPress={() => {
-                          updateFormOption('add', null, null);
+                          updateFormOption('add', '', -1);
                         }}
                       />
                     </View>

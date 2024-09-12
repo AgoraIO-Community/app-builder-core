@@ -14,7 +14,22 @@ import {PollOptionList, PollOptionListItemResult} from '../poll-option-item-ui';
 export default function PollResultModal() {
   const {polls, viewResultPollId, isHost, closeCurrentModal} = usePoll();
 
-  const pollItem = polls[viewResultPollId];
+  // Check if viewResultPollId is valid and if the poll exists in the polls object
+  const pollItem = viewResultPollId ? polls[viewResultPollId] : null;
+
+  if (!pollItem) {
+    return (
+      <BaseModal visible={true}>
+        <BaseModalTitle>
+          <p>No poll available</p>
+          <BaseModalCloseIcon onClose={closeCurrentModal} />
+        </BaseModalTitle>
+        <BaseModalContent>
+          <p>Poll data is not available or invalid.</p>
+        </BaseModalContent>
+      </BaseModal>
+    );
+  }
 
   return (
     <BaseModal visible={true}>
@@ -27,7 +42,7 @@ export default function PollResultModal() {
           <Text style={style.questionText}>{pollItem.question}</Text>
           <View>
             <PollOptionList>
-              {pollItem.options.map((item: PollItemOptionItem) => (
+              {pollItem.options?.map((item: PollItemOptionItem) => (
                 <PollOptionListItemResult
                   key={item.value}
                   optionItem={item}

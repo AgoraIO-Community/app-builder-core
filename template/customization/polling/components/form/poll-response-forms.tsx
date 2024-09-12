@@ -146,7 +146,7 @@ function PollResponseMCQForm({
   onComplete,
 }: PollResponseFormProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
   const handleCheckboxToggle = (value: string) => {
     setSelectedOptions(prevSelectedOptions => {
@@ -163,12 +163,15 @@ function PollResponseMCQForm({
   };
 
   const handleSubmit = () => {
-    if (selectedOptions.length === 0 && !selectedOption) {
-      return;
-    }
     if (pollItem.multiple_response) {
+      if (selectedOptions.length === 0) {
+        return;
+      }
       onComplete(selectedOptions);
     } else {
+      if (!selectedOption) {
+        return;
+      }
       onComplete([selectedOption]);
     }
   };
@@ -177,18 +180,18 @@ function PollResponseMCQForm({
     <View>
       <View style={style.optionsSection}>
         {pollItem.multiple_response
-          ? pollItem.options.map((option, index) => (
+          ? pollItem.options?.map((option, index) => (
               <View style={style.optionCard} key={index}>
                 <Checkbox
                   key={index}
-                  checked={selectedOptions.includes(option.value)}
+                  checked={selectedOptions.includes(option?.value)}
                   label={option.text}
                   labelStye={style.optionCardText}
-                  onChange={() => handleCheckboxToggle(option.value)}
+                  onChange={() => handleCheckboxToggle(option?.value)}
                 />
               </View>
             ))
-          : pollItem.options.map((option, index) => (
+          : pollItem.options?.map((option, index) => (
               <View style={style.optionCard} key={index}>
                 <BaseRadioButton
                   option={{

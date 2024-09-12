@@ -24,7 +24,7 @@ interface PollEventsContextValue {
   sendPollEvt: (
     polls: Poll,
     pollId: string,
-    task?: PollTaskRequestTypes,
+    task: PollTaskRequestTypes,
   ) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
 }

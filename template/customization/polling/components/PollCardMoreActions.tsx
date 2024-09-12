@@ -24,12 +24,12 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     onCardActionSelect,
     status,
   } = props;
-  const actionMenuitems: ActionMenuItem[] = [];
+  const actionMenuItems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
-  actionMenuitems.push({
+  actionMenuItems.push({
     icon: 'send',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -44,7 +44,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     },
   });
 
-  actionMenuitems.push({
+  actionMenuItems.push({
     icon: 'share',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -59,7 +59,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     },
   });
 
-  actionMenuitems.push({
+  actionMenuItems.push({
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -73,7 +73,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     },
   });
 
-  actionMenuitems.push({
+  actionMenuItems.push({
     icon: 'close',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -88,7 +88,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     },
   });
 
-  actionMenuitems.push({
+  actionMenuItems.push({
     icon: 'delete',
     iconColor: $config.SEMANTIC_ERROR,
     textColor: $config.SEMANTIC_ERROR,
@@ -103,7 +103,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
   });
 
   React.useEffect(() => {
-    if (actionMenuVisible) {
+    if (actionMenuVisible && moreBtnRef.current) {
       //getting btnRef x,y
       moreBtnRef?.current?.measure(
         (
@@ -137,7 +137,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
         actionMenuVisible={actionMenuVisible && isPosCalculated}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={modalPosition}
-        items={actionMenuitems}
+        items={actionMenuItems}
       />
     </>
   );

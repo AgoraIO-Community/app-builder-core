@@ -12,35 +12,47 @@ import {
 import {usePoll} from '../../context/poll-context';
 import {initPollForm} from '../form/form-config';
 import {useLocalUid} from 'customization-api';
+import {log} from '../../helpers';
 
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
 export default function PollFormWizardModal() {
   const {savePoll, sendPoll, closeCurrentModal} = usePoll();
   const [step, setStep] = useState<FormWizardStep>('SELECT');
-  const [type, setType] = useState<PollKind>(null);
-  const [form, setForm] = useState<PollItem>(null);
-  const [formErrors, setFormErrors] = useState<PollFormErrors>(null);
+  const [type, setType] = useState<PollKind>(PollKind.NONE);
+  const [form, setForm] = useState<PollItem | null>(null);
+  const [formErrors, setFormErrors] = useState<Partial<PollFormErrors>>({});
 
   const localUid = useLocalUid();
 
   useEffect(() => {
-    if (!type) {
-      return;
+    try {
+      if (type === PollKind.NONE) {
+        return;
+      }
+      setForm(initPollForm(type));
+      setStep('DRAFT');
+    } catch (error) {
+      log('error while initializing form: ', error);
     }
-    setForm(initPollForm(type));
-    setStep('DRAFT');
   }, [type]);
 
   const onSave = (launch?: boolean) => {
-    const payload = {
-      ...form,
-      status: launch ? PollStatus.ACTIVE : PollStatus.LATER,
-      createdBy: localUid,
-    };
-    savePoll(payload);
-    if (launch) {
-      sendPoll(payload.id);
+    try {
+      if (!form) {
+        throw new Error("Form cannot be saved. It's empty");
+      }
+      const payload = {
+        ...form,
+        status: launch ? PollStatus.ACTIVE : PollStatus.LATER,
+        createdBy: localUid,
+      };
+      savePoll(payload);
+      if (launch) {
+        sendPoll(payload.id);
+      }
+    } catch (error) {
+      log('error while saving form: ', error);
     }
   };
 
@@ -55,7 +67,11 @@ export default function PollFormWizardModal() {
   };
 
   const validateForm = () => {
-    setFormErrors(null);
+    if (!form) {
+      // Check if form is null
+      return false;
+    }
+    setFormErrors({});
     if (form.question.trim() === '') {
       setFormErrors({
         ...formErrors,
@@ -79,9 +95,9 @@ export default function PollFormWizardModal() {
   };
 
   const onClose = () => {
-    setFormErrors(null);
+    setFormErrors({});
     setForm(null);
-    setType(null);
+    setType(PollKind.NONE);
     closeCurrentModal();
   };
 
@@ -93,22 +109,26 @@ export default function PollFormWizardModal() {
         );
       case 'DRAFT':
         return (
-          <DraftPollFormView
-            form={form}
-            setForm={setForm}
-            onPreview={onPreview}
-            errors={formErrors}
-            onClose={onClose}
-          />
+          form && (
+            <DraftPollFormView
+              form={form}
+              setForm={setForm}
+              onPreview={onPreview}
+              errors={formErrors}
+              onClose={onClose}
+            />
+          )
         );
       case 'PREVIEW':
         return (
-          <PreviewPollFormView
-            form={form}
-            onEdit={onEdit}
-            onSave={onSave}
-            onClose={onClose}
-          />
+          form && (
+            <PreviewPollFormView
+              form={form}
+              onEdit={onEdit}
+              onSave={onSave}
+              onClose={onClose}
+            />
+          )
         );
       default:
         return <></>;

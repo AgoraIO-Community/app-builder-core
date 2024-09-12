@@ -30,7 +30,7 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
   const resultView =
     isHost ||
     pollItem.status === PollStatus.FINISHED ||
-    hasUserVoted(pollItem.options, localUid);
+    (pollItem.options && hasUserVoted(pollItem.options, localUid));
 
   return (
     <View style={style.pollItem}>
@@ -70,7 +70,7 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
           <View style={style.fullWidth}>
             {resultView ? (
               <PollOptionList>
-                {pollItem.options.map(
+                {pollItem.options?.map(
                   (item: PollItemOptionItem, index: number) => (
                     <PollOptionListItemResult
                       key={index}

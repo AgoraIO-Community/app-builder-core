@@ -29,6 +29,7 @@ enum PollKind {
   OPEN_ENDED = 'OPEN_ENDED',
   MCQ = 'MCQ',
   YES_NO = 'YES_NO',
+  NONE = 'NONE',
 }
 
 enum PollModalState {
@@ -174,94 +175,86 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         [pollId]: {...state[pollId], ...action.payload.partialItem},
       };
     }
-    case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
-      {
-        const {id: pollId, uid, responses, timestamp} = action.payload;
-        const poll = state[pollId];
-        if (
-          poll.type === PollKind.OPEN_ENDED &&
-          typeof responses === 'string'
-        ) {
-          return {
-            ...state,
-            [pollId]: {
-              ...poll,
-              answers: poll.answers
-                ? [
-                    ...poll.answers,
-                    {
-                      uid,
-                      response: responses,
-                      timestamp,
-                    },
-                  ]
-                : [{uid, response: responses, timestamp}],
-            },
-          };
-        }
-        if (poll.type === PollKind.MCQ && Array.isArray(responses)) {
-          const newCopyOptions = poll.options?.map(item => ({...item})) || [];
-          const withVotesOptions = addVote(
-            responses,
-            newCopyOptions,
-            uid,
-            timestamp,
-          );
-          const withPercentOptions = calculatePercentage(withVotesOptions);
-          return {
-            ...state,
-            [pollId]: {
-              ...poll,
-              options: withPercentOptions,
-            },
-          };
-        }
+    case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES: {
+      const {id: pollId, uid, responses, timestamp} = action.payload;
+      const poll = state[pollId];
+      if (poll.type === PollKind.OPEN_ENDED && typeof responses === 'string') {
+        return {
+          ...state,
+          [pollId]: {
+            ...poll,
+            answers: poll.answers
+              ? [
+                  ...poll.answers,
+                  {
+                    uid,
+                    response: responses,
+                    timestamp,
+                  },
+                ]
+              : [{uid, response: responses, timestamp}],
+          },
+        };
       }
-      break;
-    case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:
-      {
-        const {id: pollId, uid, responses, timestamp} = action.payload;
-        const poll = state[pollId];
-        if (
-          poll.type === PollKind.OPEN_ENDED &&
-          typeof responses === 'string'
-        ) {
-          return {
-            ...state,
-            [pollId]: {
-              ...poll,
-              answers: poll.answers
-                ? [
-                    ...poll.answers,
-                    {
-                      uid,
-                      response: responses,
-                      timestamp,
-                    },
-                  ]
-                : [{uid, response: responses, timestamp}],
-            },
-          };
-        }
-        if (poll.type === PollKind.MCQ && Array.isArray(responses)) {
-          const newCopyOptions = poll.options?.map(item => ({...item})) || [];
-          const withVotesOptions = addVote(
-            responses,
-            newCopyOptions,
-            uid,
-            timestamp,
-          );
-          const withPercentOptions = calculatePercentage(withVotesOptions);
-          return {
-            ...state,
-            [pollId]: {
-              ...poll,
-              options: withPercentOptions,
-            },
-          };
-        }
+      if (poll.type === PollKind.MCQ && Array.isArray(responses)) {
+        const newCopyOptions = poll.options?.map(item => ({...item})) || [];
+        const withVotesOptions = addVote(
+          responses,
+          newCopyOptions,
+          uid,
+          timestamp,
+        );
+        const withPercentOptions = calculatePercentage(withVotesOptions);
+        return {
+          ...state,
+          [pollId]: {
+            ...poll,
+            options: withPercentOptions,
+          },
+        };
       }
-      break;
+      return state;
+    }
+    case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES: {
+      const {id: pollId, uid, responses, timestamp} = action.payload;
+      const poll = state[pollId];
+      if (poll.type === PollKind.OPEN_ENDED && typeof responses === 'string') {
+        return {
+          ...state,
+          [pollId]: {
+            ...poll,
+            answers: poll.answers
+              ? [
+                  ...poll.answers,
+                  {
+                    uid,
+                    response: responses,
+                    timestamp,
+                  },
+                ]
+              : [{uid, response: responses, timestamp}],
+          },
+        };
+      }
+      if (poll.type === PollKind.MCQ && Array.isArray(responses)) {
+        const newCopyOptions = poll.options?.map(item => ({...item})) || [];
+        const withVotesOptions = addVote(
+          responses,
+          newCopyOptions,
+          uid,
+          timestamp,
+        );
+        const withPercentOptions = calculatePercentage(withVotesOptions);
+        return {
+          ...state,
+          [pollId]: {
+            ...poll,
+            options: withPercentOptions,
+          },
+        };
+      }
+      return state;
+    }
     case PollActionKind.PUBLISH_POLL_ITEM:
       // No action need just return the state
       return state;
@@ -275,16 +268,17 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           };
         }
       }
-      break;
+      return state;
     case PollActionKind.EXPORT_POLL_ITEM:
       {
         const pollId = action.payload.pollId;
-        if (pollId) {
-          let csv = arrayToCsv(state[pollId].options);
+        if (pollId && state[pollId]) {
+          const data = state[pollId].options || []; // Provide a fallback in case options is null
+          let csv = arrayToCsv(data);
           downloadCsv(csv, 'polls.csv');
         }
       }
-      break;
+      return state;
     case PollActionKind.DELETE_POLL_ITEM:
       {
         const pollId = action.payload.pollId;
@@ -296,7 +290,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           };
         }
       }
-      break;
+      return state;
     case PollActionKind.RESET: {
       return {};
     }
@@ -308,7 +302,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
 
 interface PollContextValue {
   polls: Poll;
-  currentModal: PollModalState;
+  currentModal: PollModalState | null;
   startPollForm: () => void;
   savePoll: (item: PollItem) => void;
   sendPoll: (pollId: string) => void;
@@ -324,8 +318,8 @@ interface PollContextValue {
     uid: number,
     timestamp: number,
   ) => void;
-  launchPollId: string;
-  viewResultPollId: string;
+  launchPollId: string | null;
+  viewResultPollId: string | null;
   sendPollResults: (pollId: string) => void;
   closeCurrentModal: () => void;
   isHost: boolean;
@@ -337,9 +331,9 @@ PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
-  const [currentModal, setCurrentModal] = useState<PollModalState>(null);
-  const [launchPollId, setLaunchPollId] = useState<string>(null);
-  const [viewResultPollId, setViewResultPollId] = useState<string>(null);
+  const [currentModal, setCurrentModal] = useState<PollModalState | null>(null);
+  const [launchPollId, setLaunchPollId] = useState<string | null>(null);
+  const [viewResultPollId, setViewResultPollId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<PollAction | null>(null);
   const {
     data: {isHost},
@@ -460,7 +454,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
         savePoll(pollItem);
         if (pollItem.status === PollStatus.ACTIVE) {
           // If status is active but voted
-          if (hasUserVoted(pollItem.options, localUid)) {
+          if (hasUserVoted(pollItem?.options || [], localUid)) {
             return;
           }
           // if status is active but not voted

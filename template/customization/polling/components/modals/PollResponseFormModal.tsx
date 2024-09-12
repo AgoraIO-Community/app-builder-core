@@ -22,8 +22,6 @@ export default function PollResponseFormModal() {
   } = usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
 
-  const pollItem = polls[launchPollId];
-
   const onFormComplete = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
     if (pollItem.share) {
@@ -33,6 +31,22 @@ export default function PollResponseFormModal() {
     }
   };
 
+  // Check if launchPollId is valid and if the poll exists in the polls object
+  const pollItem = launchPollId ? polls[launchPollId] : null;
+
+  if (!pollItem) {
+    return (
+      <BaseModal visible={true}>
+        <BaseModalTitle>
+          <p>No poll available</p>
+          <BaseModalCloseIcon onClose={closeCurrentModal} />
+        </BaseModalTitle>
+        <BaseModalContent>
+          <p>Poll data is not available or invalid.</p>
+        </BaseModalContent>
+      </BaseModal>
+    );
+  }
   return (
     <BaseModal visible={true}>
       <BaseModalTitle>

@@ -27,7 +27,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       multiple_response: false,
       share: false,
       duration: false,
-      expiresAt: null,
+      expiresAt: 0,
       createdBy: -1,
     };
   }
@@ -62,7 +62,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       multiple_response: true,
       share: false,
       duration: false,
-      expiresAt: null,
+      expiresAt: 0,
       createdBy: -1,
     };
   }
@@ -91,10 +91,12 @@ const initPollForm = (kind: PollKind): PollItem => {
       multiple_response: false,
       share: false,
       duration: false,
-      expiresAt: null,
+      expiresAt: 0,
       createdBy: -1,
     };
   }
+  // If none of the above conditions are met, throw an error or return a default value
+  throw new Error(`Unknown PollKind: ${kind}`);
 };
 
 const getAttributeLengthInKb = (attribute: string): string => {
