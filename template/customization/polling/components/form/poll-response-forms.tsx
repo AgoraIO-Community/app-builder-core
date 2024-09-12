@@ -227,45 +227,6 @@ export {
 };
 
 export const style = StyleSheet.create({
-  titleCard: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 12,
-  },
-  title: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 2,
-  },
-  titleAvatar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titleAvatarContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
-  },
-  titleAvatarContainerText: {
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 16,
-    fontWeight: '600',
-    color: $config.VIDEO_AUDIO_TILE_COLOR,
-  },
-  titleText: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.normal,
-    fontWeight: '700',
-    lineHeight: 20,
-  },
-  titleSubtext: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.tiny,
-    fontWeight: '400',
-    lineHeight: 16,
-  },
   heading4: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.medium,
