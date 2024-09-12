@@ -65,6 +65,13 @@ border:1px solid ${$config.PRIMARY_ACTION_BRAND_COLOR}
   font-weight:400
 }
 
+.reactionPicker.epr-dark-theme, .reactionPicker.epr-light-theme {
+  --epr-emoji-size: 25px;
+}
+.reactionPicker .epr-emoji-category-label {
+  font-size:14px
+}
+
 `;
 
 export const ChatEmojiPicker: React.FC = () => {
@@ -89,12 +96,17 @@ export const ChatEmojiPicker: React.FC = () => {
   );
 };
 
-const CustomEmojiPicker = ({handleEmojiClick, handleEmojiClose}) => {
+const CustomEmojiPicker = ({
+  handleEmojiClick,
+  isReactionPicker = false,
+  handleEmojiClose,
+  containerStyle = {},
+}) => {
   return (
-    <>
+    <View style={[{width: '100%'}, containerStyle]}>
       <style type="text/css">{css}</style>
       <EmojiPicker
-        style={styles.emojiPicker}
+        style={{...styles.emojiPicker}}
         onEmojiClick={handleEmojiClick}
         theme={
           $config.INPUT_FIELD_BACKGROUND_COLOR === '#FFFFFF'
@@ -102,13 +114,16 @@ const CustomEmojiPicker = ({handleEmojiClick, handleEmojiClose}) => {
             : Theme.DARK
         }
         suggestedEmojisMode={SuggestionMode.RECENT}
-        className="chatEmojiPicker"
+        className={`chatEmojiPicker ${
+          isReactionPicker ? 'reactionPicker' : ''
+        }`}
         lazyLoadEmojis={true}
         previewConfig={{showPreview: false}}
         height={370}
         autoFocusSearch={false}
         emojiStyle={EmojiStyle.NATIVE}
       />
+      {/* Close btn for emoji picker */}
       <View
         style={{
           width: 30,
@@ -138,7 +153,7 @@ const CustomEmojiPicker = ({handleEmojiClick, handleEmojiClose}) => {
           }}
         />
       </View>
-    </>
+    </View>
   );
 };
 
@@ -166,7 +181,7 @@ export const ReactionPicker = props => {
     // setShowEmojiPicker(false);
   };
 
-  const CustomReactioPicker = () => {
+  const CustomReactioPicker = ({isLocal}) => {
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
     return (
       <>
@@ -192,6 +207,11 @@ export const ReactionPicker = props => {
         />
         {isEmojiPickerOpen && (
           <CustomEmojiPicker
+            containerStyle={[
+              styles.customEmojiPickerContainer,
+              isLocal ? {right: 0} : {left: 0},
+            ]}
+            isReactionPicker={true}
             handleEmojiClick={handleCustomReactionClick}
             handleEmojiClose={() => {
               setIsEmojiPickerOpen(false);
@@ -220,7 +240,7 @@ export const ReactionPicker = props => {
           </TouchableOpacity>
           {index === reactions.length - 1 && (
             <>
-              <CustomReactioPicker />
+              <CustomReactioPicker isLocal={isLocal} />
               <MoreMessageOptions />
             </>
           )}
@@ -290,6 +310,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     boxShadow: `0px 4px 10px 0px ${$config.SECONDARY_ACTION_COLOR} + hexadecimalTransparency['35%'] `,
     gap: 8,
+    zIndex: 1,
   },
   emojiPicker: {
     width: '100%',
@@ -306,6 +327,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     display: 'flex',
+  },
+  customEmojiPickerContainer: {
+    position: 'absolute',
+    top: 30,
+    right: 0,
+    width: 350,
   },
 });
 
