@@ -18,6 +18,7 @@ import {
   ChatOption,
   SDKChatType,
   useChatMessages,
+  type Reaction,
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
@@ -80,6 +81,8 @@ const ChatConfigure = ({children}) => {
     addMessageToStore,
     removeMessageFromStore,
     removeMessageFromPrivateStore,
+    addReactionToPrivateStore,
+    addReactionToStore,
   } = useChatMessages();
 
   React.useEffect(() => {
@@ -266,6 +269,21 @@ const ChatConfigure = ({children}) => {
                 break;
             }
           });
+        },
+        onMessageReactionDidChange: list => {
+          const reactionMsg = list[0];
+          const {convId, msgId, reactions, operations} = reactionMsg;
+
+          if (convId === data.chat.group_id) {
+            addReactionToStore(msgId, reactions as unknown as Reaction[]);
+          } else {
+            const userId = operations[0].userId;
+            addReactionToPrivateStore(
+              Number(userId),
+              msgId,
+              reactions as unknown as Reaction[],
+            );
+          }
         },
       };
       console.warn('setup listener');
