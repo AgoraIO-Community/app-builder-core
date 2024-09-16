@@ -236,7 +236,7 @@ export const ReactionPicker = props => {
           <TouchableOpacity
             style={styles.emojiWrapper}
             onPress={() => handleReactionClick(emojiObject.emoji)}>
-            <Text style={{fontSize: 16}}>{emojiObject.emoji}</Text>
+            <Text style={{fontSize: 14}}>{emojiObject.emoji}</Text>
           </TouchableOpacity>
           {index === reactions.length - 1 && (
             <>

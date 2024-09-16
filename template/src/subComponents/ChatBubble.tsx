@@ -111,7 +111,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   const [lightboxVisible, setLightboxVisible] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const moreIconRef = React.useRef<View>(null);
-  const {removeReaction} = useChatConfigure();
+  const {removeReaction, addReaction} = useChatConfigure();
 
   let {
     isLocal,
@@ -416,7 +416,11 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   <TouchableOpacity
                     style={style.reactionWrapper}
                     onPress={() => {
-                      removeReaction(msgId, reactionObj.reaction);
+                      if (reactionObj.userList.includes(localUid.toString())) {
+                        removeReaction(msgId, reactionObj.reaction);
+                      } else {
+                        addReaction(msgId, reactionObj.reaction);
+                      }
                     }}>
                     <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
                     <Text style={style.reactionCount}>{reactionObj.count}</Text>
