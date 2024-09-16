@@ -534,6 +534,7 @@ const style = StyleSheet.create({
     borderTopRightRadius: 0,
     maxWidth: '88%',
     position: 'relative',
+    zIndex: -1,
   },
   reactionRemoteView: {
     alignSelf: 'flex-start',
@@ -545,6 +546,7 @@ const style = StyleSheet.create({
     borderTopRightRadius: 8,
     maxWidth: '88%',
     position: 'relative',
+    zIndex: -1,
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

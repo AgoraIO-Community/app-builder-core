@@ -513,8 +513,51 @@ const ChatConfigure = ({children}) => {
       });
   };
 
-  const addReaction = (msgId, reaction) => {};
-  const removeReaction = (msgId, reaction) => {};
+  const addReaction = (msgId: string, reaction: string) => {
+    chatClient.chatManager
+      .addReaction(reaction, msgId)
+      .then(res => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Chat Native Reaction Added to mid ${msgId}`,
+          res,
+        );
+      })
+      .catch(err => {
+        if (err.type === 1101) {
+          // If user already added reaction then remove it
+          removeReaction(msgId, reaction);
+        } else {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Chat Native Reaction Addition Failed for mid ${msgId} - ${err?.message}`,
+            err,
+          );
+        }
+      });
+  };
+  const removeReaction = (msgId: string, reaction: string) => {
+    chatClient.chatManager
+      .removeReaction(reaction, msgId)
+      .then(res => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Chat Native Reaction Removed to mid ${msgId}`,
+          res,
+        );
+      })
+      .catch(err => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Chat Native Reaction Removal Failed for mid ${msgId}`,
+          err,
+        );
+      });
+  };
 
   return (
     <chatConfigureContext.Provider
