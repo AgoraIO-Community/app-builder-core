@@ -46,6 +46,8 @@ interface chatConfigureContextInterface {
     privateChatUser: string,
     chatType: string,
   ) => void;
+  addReaction: (msgId: string, reaction: string) => void;
+  removeReaction: (msgId: string, reaction: string) => void;
 }
 
 export const chatConfigureContext =
@@ -56,6 +58,8 @@ export const chatConfigureContext =
     deleteChatUser: () => {},
     downloadAttachment: () => {},
     deleteAttachment: () => {},
+    addReaction: () => {},
+    removeReaction: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -491,6 +495,9 @@ const ChatConfigure = ({children}) => {
       });
   };
 
+  const addReaction = (msgId, reaction) => {};
+  const removeReaction = (msgId, reaction) => {};
+
   return (
     <chatConfigureContext.Provider
       value={{
@@ -500,6 +507,8 @@ const ChatConfigure = ({children}) => {
         sendChatSDKMessage,
         downloadAttachment,
         deleteAttachment,
+        addReaction,
+        removeReaction,
       }}>
       {children}
     </chatConfigureContext.Provider>
