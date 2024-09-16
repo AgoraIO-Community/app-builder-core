@@ -45,7 +45,12 @@ import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
-import {CustomToolbarMerge, CustomToolbarSorting} from '../../utils/common';
+import {
+  CustomToolbarMerge,
+  CustomToolbarSorting,
+  isIOS,
+  isAndroid,
+} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
@@ -98,8 +103,6 @@ const ChatIcon = props => {
 
 //Icon for Participants
 const ParticipantsIcon = props => {
-  console.log('debugging props', props);
-
   return (
     <ToolbarItem toolbarProps={props}>
       <ParticipantsIconButton />
@@ -195,17 +198,17 @@ const LayoutIcon = props => {
 
 interface CaptionIconBtnProps {
   showLabel?: boolean;
-  onPress?: () => void;
+  onPressCallback?: () => void;
 }
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
-  const {onPress = () => {}} = props;
+  const {onPressCallback = () => {}} = props;
   return (
     <ToolbarItem toolbarProps={props}>
       <CaptionIcon
         isOnActionSheet={true}
         showLabel={$config.ICON_TEXT}
-        closeActionSheet={onPress}
+        closeActionSheet={onPressCallback}
       />
     </ToolbarItem>
   );
@@ -418,7 +421,7 @@ const ActionSheetContent = props => {
     },
     screenshare: {
       order: 10,
-      component: ScreenshareIcon,
+      component: isAndroid() || isIOS() ? ScreenshareIcon : null,
     },
     invite: {
       order: 11,
@@ -428,7 +431,9 @@ const ActionSheetContent = props => {
       order: 12,
       component: CaptionIconBtn,
       props: {
-        onPress: () => handleSheetChanges(isExpanded ? 0 : 1),
+        onPressCallback: () => {
+          handleSheetChanges(isExpanded ? 0 : 1);
+        },
       },
     },
     transcript: {
@@ -498,9 +503,14 @@ const ActionSheetContent = props => {
                 const Component = displayItems[i]?.component;
                 const label = displayItems[i]?.label;
                 const onPress = displayItems[i]?.onPress;
+                const extraProps = displayItems[i]?.props;
                 if (Component) {
                   return (
-                    <Component label={customLabel(label)} onPress={onPress} />
+                    <Component
+                      label={customLabel(label)}
+                      onPress={onPress}
+                      {...extraProps}
+                    />
                   );
                 } else {
                   return null;
@@ -557,8 +567,15 @@ const CarouselWrapper = ({data, dataObject}) => {
           const Component = dataObject[item]?.component;
           const label = dataObject[item]?.label;
           const onPress = dataObject[item]?.onPress;
+          const extraProps = dataObject[item]?.props;
           if (Component) {
-            return <Component label={customLabel(label)} onPress={onPress} />;
+            return (
+              <Component
+                label={customLabel(label)}
+                onPress={onPress}
+                {...extraProps}
+              />
+            );
           } else {
             return null;
           }

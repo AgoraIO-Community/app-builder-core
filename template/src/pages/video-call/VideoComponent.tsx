@@ -5,7 +5,7 @@ import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
 import {PropsContext, ClientRoleType} from '../../../agora-rn-uikit';
 import {useLayout} from '../../utils/useLayout';
 import {useContent, useRoomInfo} from 'customization-api';
-import {getGridLayoutName} from './DefaultLayouts';
+import {DefaultLayouts, getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
 import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
 import Spacer from '../../atoms/Spacer';
@@ -84,9 +84,11 @@ const VideoComponent = () => {
             justifyContent: 'space-between',
           }}>
           <CurrentLayout renderData={activeUids} />
-          {(!$config.EVENT_MODE && activeUids.length === 1) ||
-          ($config.EVENT_MODE &&
-            hostUids.concat(audienceUids)?.length === 1) ? (
+          {((!$config.EVENT_MODE && activeUids.length === 1) ||
+            ($config.EVENT_MODE &&
+              hostUids.concat(audienceUids)?.length === 1)) &&
+          (layoutsData[layout].name === DefaultLayouts[0].name ||
+            layoutsData[layout].name === DefaultLayouts[1].name) ? (
             <>
               <Spacer size={8} horizontal={isDesktop() ? true : false} />
               <MeetingInfoGridTile />
