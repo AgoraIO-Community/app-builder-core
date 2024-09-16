@@ -173,16 +173,16 @@ export const ReactionPicker = props => {
     },
   ];
 
-  const handleCustomReactionClick = (emojiObject: {
-    emoji: string;
-    names: string[];
-  }) => {
-    addReaction(messageId, emojiObject.emoji);
-    // setShowEmojiPicker(false);
-  };
-
   const CustomReactioPicker = ({isLocal}) => {
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
+    const handleCustomReactionClick = (emojiObject: {
+      emoji: string;
+      names: string[];
+    }) => {
+      addReaction(messageId, emojiObject.emoji);
+      setIsEmojiPickerOpen(false);
+    };
+
     return (
       <>
         <IconButton

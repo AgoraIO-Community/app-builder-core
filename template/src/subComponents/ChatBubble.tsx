@@ -26,7 +26,7 @@ import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import {isMobileUA, isWebInternal, trimText} from '../utils/common';
-import {useChatUIControls, useContent} from 'customization-api';
+import {useChatUIControls, useContent, useLocalUid} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {containsOnlyEmojis, formatAMPM, isURL} from '../utils';
@@ -41,6 +41,7 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {ReactionPicker} from './chat/ChatEmoji';
 import {useChatConfigure} from '../../src/components/chat/chatConfigure';
+import Tooltip from '../../src/atoms/Tooltip';
 
 type AttachmentBubbleProps = {
   fileName: string;
@@ -129,6 +130,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
     ext,
     reactions,
   } = props;
+
+  const localUid = useLocalUid();
 
   let time = formatAMPM(new Date(createdTimestamp));
 
@@ -366,15 +369,61 @@ const ChatBubble = (props: ChatBubbleProps) => {
           isLocal ? style.reactionLocalView : style.reactionRemoteView,
         ]}>
         {reactions?.map((reactionObj, index) => {
+          const msg =
+            reactionObj.userList.length > 3
+              ? `${reactionObj.userList
+                  .slice(0, 2)
+                  .map(uid => {
+                    return Number(uid) === localUid
+                      ? 'You(click to remove)'
+                      : defaultContent[uid]?.name || 'User';
+                  })
+                  .join(', ')} and ${reactionObj.userList.length - 2} others`
+              : `${reactionObj.userList
+                  .map(uid => {
+                    return Number(uid) === localUid
+                      ? 'You(click to remove)'
+                      : defaultContent[uid]?.name || 'User';
+                  })
+                  .join(', ')}`;
+
           return reactionObj.count > 0 ? (
-            <TouchableOpacity
-              style={style.reactionWrapper}
-              onPress={() => {
-                removeReaction(msgId, reactionObj.reaction);
-              }}>
-              <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
-              <Text style={style.reactionCount}>{reactionObj.count}</Text>
-            </TouchableOpacity>
+            <Tooltip
+              key={reactionObj.reaction}
+              // toolTipMessage={msg}
+              toolTipMessage={
+                <Text>
+                  <Text style={{color: $config.FONT_COLOR, fontSize: 12}}>
+                    {msg}
+                  </Text>
+                  <Text
+                    style={{
+                      color:
+                        $config.FONT_COLOR + hexadecimalTransparency['40%'],
+                      fontSize: 12,
+                    }}>
+                    {' '}
+                    reacted with{' '}
+                  </Text>
+                  <Text>{reactionObj.reaction}</Text>
+                </Text>
+              }
+              containerStyle={`max-width:120px;z-index:100000;`}
+              placement={`${isLocal ? 'left' : 'right'}`}
+              fontSize={12}
+              renderContent={(isToolTipVisible, setToolTipVisible) => {
+                return (
+                  <TouchableOpacity
+                    style={style.reactionWrapper}
+                    onPress={() => {
+                      removeReaction(msgId, reactionObj.reaction);
+                    }}>
+                    <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
+                    <Text style={style.reactionCount}>{reactionObj.count}</Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
           ) : (
             <></>
           );
@@ -384,7 +433,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   );
 };
 
-const PlatformWrapper = ({children, isLocal}) => {
+const PlatformWrapper = ({children, isLocal, isChatBubble = true}) => {
   const [isHovered, setIsHovered] = React.useState(false);
 
   const handleMouseEnter = () => setIsHovered(true);
@@ -394,7 +443,11 @@ const PlatformWrapper = ({children, isLocal}) => {
     React.cloneElement(children(isHovered), {
       style: {
         cursor: isHovered ? 'pointer' : 'auto',
-        ...(isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView),
+        ...(isChatBubble
+          ? isLocal
+            ? style.chatBubbleLocalView
+            : style.chatBubbleRemoteView
+          : {}),
       },
 
       onMouseEnter: handleMouseEnter,
@@ -430,6 +483,7 @@ const style = StyleSheet.create({
     borderTopRightRadius: 8,
     maxWidth: '88%',
     position: 'relative',
+    zIndex: 0,
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
@@ -464,6 +518,7 @@ const style = StyleSheet.create({
     borderTopRightRadius: 0,
     maxWidth: '88%',
     position: 'relative',
+    zIndex: 0,
   },
   reactionLocalView: {
     alignSelf: 'flex-end',
@@ -580,6 +635,9 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     gap: 4,
+  },
+  reactionUserList: {
+    position: 'absolute',
   },
 });
 
