@@ -10,6 +10,7 @@ import {DispatchContext} from '../../../agora-rn-uikit';
 import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
 import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
+import {useCustomization} from 'customization-implementation';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -21,6 +22,15 @@ const VideoComponent = () => {
   const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const [showNoUserInfo, setShowNoUserInfo] = useState(false);
+  const isCustomLayoutUsed = useCustomization(config => {
+    if (
+      typeof config?.components?.videoCall === 'object' &&
+      config?.components?.videoCall?.customLayout
+    ) {
+      return true;
+    }
+    return false;
+  });
 
   const {roomPreference} = useRoomInfo();
 
@@ -37,7 +47,7 @@ const VideoComponent = () => {
   const currentLayoutRef = useRef(currentLayout);
   const gridLayoutName = getGridLayoutName();
   useEffect(() => {
-    if (activeUids && activeUids.length === 1) {
+    if (activeUids && activeUids.length === 1 && !isCustomLayoutUsed) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
         dispatch({type: 'UserSecondaryPin', value: [0]});
@@ -46,7 +56,7 @@ const VideoComponent = () => {
         setLayout(gridLayoutName);
       }
     }
-  }, [activeUids]);
+  }, [activeUids, isCustomLayoutUsed]);
 
   useEffect(() => {
     currentLayoutRef.current = currentLayout;

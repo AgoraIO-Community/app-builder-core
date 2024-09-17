@@ -13,6 +13,7 @@ import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
 import {ChatMessageType} from './chat-messages/useChatMessages';
+import {createHook} from 'customization-implementation';
 
 export interface ChatBubbleProps {
   isLocal: boolean;
@@ -82,4 +83,7 @@ export enum controlMessageEnum {
 
 const ChatContext = createContext(null as unknown as chatContext);
 
+const useChatContext = createHook(ChatContext);
+
+export {useChatContext};
 export default ChatContext;
