@@ -11,6 +11,7 @@ import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInf
 import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {useCustomization} from 'customization-implementation';
+import useMount from '../../components/useMount';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -35,12 +36,22 @@ const VideoComponent = () => {
   const {roomPreference} = useRoomInfo();
 
   const disableShareTile = roomPreference?.disableShareTile;
+  const disableShareTileRef = useRef(disableShareTile);
+
+  useMount(() => {
+    //show share tile after 2.5 seconds because RTC user join take few seconds.
+    //meanwhile we don't want to show the share tile
+    setTimeout(() => {
+      if (!disableShareTileRef.current) {
+        setShowNoUserInfo(true);
+      }
+    }, 2500);
+  });
 
   useEffect(() => {
-    if (!disableShareTile) {
-      setTimeout(() => {
-        setShowNoUserInfo(true);
-      }, 2500);
+    disableShareTileRef.current = disableShareTile;
+    if (disableShareTile) {
+      setShowNoUserInfo(false);
     }
   }, [disableShareTile]);
 
