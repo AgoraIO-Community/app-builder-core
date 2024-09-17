@@ -7,7 +7,4 @@ export {default as useRemoteEndcall} from '../src/utils/useRemoteEndCall';
 //switch camera
 export {default as useSwitchCamera} from '../src/utils/useSwitchCamera';
 
-export {
-  controlMessageEnum,
-  useChatContext,
-} from '../src/components/ChatContext';
+export {controlMessageEnum} from '../src/components/ChatContext';

@@ -83,7 +83,7 @@ export enum controlMessageEnum {
 
 const ChatContext = createContext(null as unknown as chatContext);
 
-const useChatContext = createHook(ChatContext);
+const useRtmContext = createHook(ChatContext);
 
-export {useChatContext};
+export {useRtmContext};
 export default ChatContext;
