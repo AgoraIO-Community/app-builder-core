@@ -244,16 +244,18 @@ export const MoreMessageOptions = ({
     React.useState(false);
   return (
     <>
-      <ChatQuickActionsMenu
-        actionMenuVisible={messageOptionsMenuVisible}
-        setActionMenuVisible={setMessageOptionsMenuVisible}
-        btnRef={moreIconRef}
-        userId={userId}
-        isLocal={isLocal}
-        messageId={messageId}
-        type={type}
-        message={message}
-      />
+      <View style={{position: 'absolute'}}>
+        <ChatQuickActionsMenu
+          actionMenuVisible={messageOptionsMenuVisible}
+          setActionMenuVisible={setMessageOptionsMenuVisible}
+          btnRef={moreIconRef}
+          userId={userId}
+          isLocal={isLocal}
+          messageId={messageId}
+          type={type}
+          message={message}
+        />
+      </View>
       <View
         ref={moreIconRef}
         collapsable={false}

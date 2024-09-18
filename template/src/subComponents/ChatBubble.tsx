@@ -240,7 +240,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   : style.chatBubbleRemoteView,
                 isURL(message) ? {maxWidth: '88%'} : {},
               ]}>
-              {isHovered && (
+              {isHovered && !isDeleted && (
                 <ReactionPicker
                   messageId={msgId}
                   isLocal={isLocal}
@@ -418,7 +418,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   <Text>{reactionObj.reaction}</Text>
                 </Text>
               }
-              containerStyle={`max-width:120px;z-index:100000;`}
+              containerStyle={`max-width:200px;z-index:100000;`}
               placement={`${isLocal ? 'left' : 'right'}`}
               fontSize={12}
               renderContent={(isToolTipVisible, setToolTipVisible) => {
