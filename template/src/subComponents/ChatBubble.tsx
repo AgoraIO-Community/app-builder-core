@@ -238,7 +238,13 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 isURL(message) ? {maxWidth: '88%'} : {},
               ]}>
               {isHovered && (
-                <ReactionPicker messageId={msgId} isLocal={isLocal} />
+                <ReactionPicker
+                  messageId={msgId}
+                  isLocal={isLocal}
+                  userId={uid}
+                  type={type}
+                  message={message}
+                />
               )}
               <View
                 style={[
