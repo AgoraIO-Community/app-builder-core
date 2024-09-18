@@ -160,7 +160,7 @@ const CustomEmojiPicker = ({
 export const ReactionPicker = props => {
   const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
   const {addReaction} = useChatConfigure();
-  const {messageId, isLocal, userId, type, message} = props;
+  const {messageId, isLocal, userId, type, message, setIsHovered} = props;
 
   //	Controls the reactions to display in the reactions picker. Takes unified emoji ids
   const reactions = [
@@ -181,6 +181,7 @@ export const ReactionPicker = props => {
     }) => {
       addReaction(messageId, emojiObject.emoji);
       setIsEmojiPickerOpen(false);
+      setIsHovered(false);
     };
 
     return (
@@ -215,6 +216,7 @@ export const ReactionPicker = props => {
             handleEmojiClick={handleCustomReactionClick}
             handleEmojiClose={() => {
               setIsEmojiPickerOpen(false);
+              setIsHovered(false);
             }}
           />
         )}

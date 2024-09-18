@@ -228,7 +228,10 @@ const ChatBubble = (props: ChatBubbleProps) => {
         <></>
       )}
       <PlatformWrapper isLocal={isLocal}>
-        {(isHovered: boolean) => {
+        {(
+          isHovered: boolean,
+          setIsHovered: React.Dispatch<React.SetStateAction<boolean>>,
+        ) => {
           return (
             <View
               style={[
@@ -244,6 +247,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                   userId={uid}
                   type={type}
                   message={message}
+                  setIsHovered={setIsHovered}
                 />
               )}
               <View
@@ -450,7 +454,7 @@ const PlatformWrapper = ({children, isLocal, isChatBubble = true}) => {
   const handleMouseLeave = () => setIsHovered(false);
 
   return isWebInternal() && !isMobileUA() ? (
-    React.cloneElement(children(isHovered), {
+    React.cloneElement(children(isHovered, setIsHovered), {
       style: {
         cursor: isHovered ? 'pointer' : 'auto',
         ...(isChatBubble
