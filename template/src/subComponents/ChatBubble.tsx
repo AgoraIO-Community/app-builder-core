@@ -373,76 +373,82 @@ const ChatBubble = (props: ChatBubbleProps) => {
           );
         }}
       </PlatformWrapper>
-      <View
-        style={[
-          style.reactionContainer,
-          isLocal ? style.reactionLocalView : style.reactionRemoteView,
-        ]}>
-        {reactions?.map((reactionObj, index) => {
-          const msg =
-            reactionObj.userList.length > 3
-              ? `${reactionObj.userList
-                  .slice(0, 2)
-                  .map(uid => {
-                    return Number(uid) === localUid
-                      ? 'You(click to remove)'
-                      : defaultContent[uid]?.name || 'User';
-                  })
-                  .join(', ')} and ${reactionObj.userList.length - 2} others`
-              : `${reactionObj.userList
-                  .map(uid => {
-                    return Number(uid) === localUid
-                      ? 'You(click to remove)'
-                      : defaultContent[uid]?.name || 'User';
-                  })
-                  .join(', ')}`;
+      {!isDeleted && (
+        <View
+          style={[
+            style.reactionContainer,
+            isLocal ? style.reactionLocalView : style.reactionRemoteView,
+          ]}>
+          {reactions?.map((reactionObj, index) => {
+            const msg =
+              reactionObj.userList.length > 3
+                ? `${reactionObj.userList
+                    .slice(0, 2)
+                    .map(uid => {
+                      return Number(uid) === localUid
+                        ? 'You(click to remove)'
+                        : defaultContent[uid]?.name || 'User';
+                    })
+                    .join(', ')} and ${reactionObj.userList.length - 2} others`
+                : `${reactionObj.userList
+                    .map(uid => {
+                      return Number(uid) === localUid
+                        ? 'You(click to remove)'
+                        : defaultContent[uid]?.name || 'User';
+                    })
+                    .join(', ')}`;
 
-          return reactionObj.count > 0 ? (
-            <Tooltip
-              key={reactionObj.reaction}
-              // toolTipMessage={msg}
-              toolTipMessage={
-                <Text>
-                  <Text style={{color: $config.FONT_COLOR, fontSize: 12}}>
-                    {msg}
+            return reactionObj.count > 0 ? (
+              <Tooltip
+                key={reactionObj.reaction}
+                // toolTipMessage={msg}
+                toolTipMessage={
+                  <Text>
+                    <Text style={{color: $config.FONT_COLOR, fontSize: 12}}>
+                      {msg}
+                    </Text>
+                    <Text
+                      style={{
+                        color:
+                          $config.FONT_COLOR + hexadecimalTransparency['40%'],
+                        fontSize: 12,
+                      }}>
+                      {' '}
+                      reacted with{' '}
+                    </Text>
+                    <Text>{reactionObj.reaction}</Text>
                   </Text>
-                  <Text
-                    style={{
-                      color:
-                        $config.FONT_COLOR + hexadecimalTransparency['40%'],
-                      fontSize: 12,
-                    }}>
-                    {' '}
-                    reacted with{' '}
-                  </Text>
-                  <Text>{reactionObj.reaction}</Text>
-                </Text>
-              }
-              containerStyle={`max-width:200px;z-index:100000;`}
-              placement={`${isLocal ? 'left' : 'right'}`}
-              fontSize={12}
-              renderContent={(isToolTipVisible, setToolTipVisible) => {
-                return (
-                  <TouchableOpacity
-                    style={style.reactionWrapper}
-                    onPress={() => {
-                      if (reactionObj.userList.includes(localUid.toString())) {
-                        removeReaction(msgId, reactionObj.reaction);
-                      } else {
-                        addReaction(msgId, reactionObj.reaction);
-                      }
-                    }}>
-                    <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
-                    <Text style={style.reactionCount}>{reactionObj.count}</Text>
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          ) : (
-            <></>
-          );
-        })}
-      </View>
+                }
+                containerStyle={`max-width:200px;z-index:100000;`}
+                placement={`${isLocal ? 'left' : 'right'}`}
+                fontSize={12}
+                renderContent={(isToolTipVisible, setToolTipVisible) => {
+                  return (
+                    <TouchableOpacity
+                      style={style.reactionWrapper}
+                      onPress={() => {
+                        if (
+                          reactionObj.userList.includes(localUid.toString())
+                        ) {
+                          removeReaction(msgId, reactionObj.reaction);
+                        } else {
+                          addReaction(msgId, reactionObj.reaction);
+                        }
+                      }}>
+                      <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
+                      <Text style={style.reactionCount}>
+                        {reactionObj.count}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            ) : (
+              <></>
+            );
+          })}
+        </View>
+      )}
     </>
   );
 };
