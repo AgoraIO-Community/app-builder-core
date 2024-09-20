@@ -202,7 +202,7 @@ const VideoCallView = React.memo(() => {
       BottombarProps: {},
       TopbarComponent: NavbarMobile,
       TopbarProps: {},
-      VideocallWrapper: React.Fragment,
+      VideocallWrapper: ContainerView,
     };
     if (
       data?.components?.videoCall &&
@@ -253,33 +253,31 @@ const VideoCallView = React.memo(() => {
   });
 
   return (
-    <View style={styles.container}>
-      <VideocallWrapper>
-        <ToolbarProvider value={{position: ToolbarPosition.top}}>
-          {Object.keys(TopbarProps)?.length ? (
-            <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
+    <VideocallWrapper>
+      <ToolbarProvider value={{position: ToolbarPosition.top}}>
+        {Object.keys(TopbarProps)?.length ? (
+          <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
+        ) : (
+          <TopbarComponent />
+        )}
+      </ToolbarProvider>
+      <View style={styles.videoView}>
+        <VideoComponent />
+        <CaptionContainer />
+      </View>
+      <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+        <ActionSheetProvider>
+          {Object.keys(BottombarProps)?.length ? (
+            <BottombarComponent
+              items={BottombarProps}
+              includeDefaultItems={false}
+            />
           ) : (
-            <TopbarComponent />
+            <BottombarComponent />
           )}
-        </ToolbarProvider>
-        <View style={styles.videoView}>
-          <VideoComponent />
-          <CaptionContainer />
-        </View>
-        <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-          <ActionSheetProvider>
-            {Object.keys(BottombarProps)?.length ? (
-              <BottombarComponent
-                items={BottombarProps}
-                includeDefaultItems={false}
-              />
-            ) : (
-              <BottombarComponent />
-            )}
-          </ActionSheetProvider>
-        </ToolbarProvider>
-      </VideocallWrapper>
-    </View>
+        </ActionSheetProvider>
+      </ToolbarProvider>
+    </VideocallWrapper>
   );
 });
 
@@ -312,3 +310,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 });
+
+const ContainerView = props => {
+  return <View style={styles.container}>{props.children}</View>;
+};
