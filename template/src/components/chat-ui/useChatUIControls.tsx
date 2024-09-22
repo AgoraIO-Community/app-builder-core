@@ -47,6 +47,8 @@ export interface ChatUIControlsInterface {
   setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
+  replyToMsgId: string;
+  setReplyToMsgId:React.Dispatch<SetStateAction<string>>;
   inputHeight: number;
   setInputHeight: React.Dispatch<SetStateAction<number>>;
   showEmojiPicker: boolean;
@@ -64,6 +66,8 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setChatType: () => {},
   setPrivateChatUser: () => {},
   setMessage: () => {},
+  replyToMsgId:'',
+  setReplyToMsgId:() => {},
   inputActive: false,
   inputHeight: 0,
   setInputHeight: () => {},
@@ -98,6 +102,7 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   );
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [inputHeight, setInputHeight] = React.useState(MIN_HEIGHT);
+  const [replyToMsgId,setReplyToMsgId] = useState('');
 
   return (
     <ChatUIControlsContext.Provider
@@ -118,6 +123,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setUploadStatus,
         uploadedFiles,
         setUploadedFiles,
+        replyToMsgId,
+        setReplyToMsgId
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

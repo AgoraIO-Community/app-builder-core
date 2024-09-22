@@ -30,6 +30,7 @@ export interface ChatBubbleProps {
   ext?: string;
   previousMessageCreatedTimestamp?: string;
   reactions?: Reaction[];
+  replyToMsgId?: string;
 
   render?: (
     isLocal: boolean,
@@ -47,6 +48,7 @@ export interface ChatBubbleProps {
     ext?: string,
     previousMessageCreatedTimestamp?: string,
     reactions?: Reaction[],
+    replyToMsgId?: string,
   ) => JSX.Element;
 }
 
