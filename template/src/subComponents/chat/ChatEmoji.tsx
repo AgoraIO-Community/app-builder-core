@@ -187,7 +187,7 @@ export const ReactionPicker = props => {
     return (
       <>
         <IconButton
-          hoverEffect={true}
+          hoverEffect={false}
           hoverEffectStyle={{
             backgroundColor: $config.ICON_BG_COLOR,
             borderRadius: 24,
@@ -197,10 +197,12 @@ export const ReactionPicker = props => {
             base64: false,
             iconContainerStyle: {
               padding: 0,
+              marginHorizontal: 4,
             },
             iconSize: 20,
             name: 'add_reaction',
-            tintColor: $config.SECONDARY_ACTION_COLOR,
+            tintColor:
+              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['75%'],
           }}
           onPress={() => {
             setIsEmojiPickerOpen(true);
@@ -238,7 +240,7 @@ export const ReactionPicker = props => {
           <TouchableOpacity
             style={styles.emojiWrapper}
             onPress={() => handleReactionClick(emojiObject.emoji)}>
-            <Text style={{fontSize: 14}}>{emojiObject.emoji}</Text>
+            <Text style={{fontSize: 16}}>{emojiObject.emoji}</Text>
           </TouchableOpacity>
           {index === reactions.length - 1 && (
             <>
@@ -307,18 +309,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     position: 'absolute',
     bottom: '100%',
-    paddingLeft: 8,
-    paddingRight: 4,
-    paddingVertical: 4,
+    padding: 4,
     justifyContent: 'space-evenly',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
-    borderRadius: 8,
-    boxShadow: `0px 4px 10px 0px ${$config.SECONDARY_ACTION_COLOR} + hexadecimalTransparency['35%'] `,
-    gap: 8,
+    borderRadius: 4,
     zIndex: 1,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 5,
   },
   emojiPicker: {
     width: '100%',
@@ -331,7 +337,7 @@ const styles = StyleSheet.create({
   emojiWrapper: {
     width: 16,
     height: 16,
-    padding: 4,
+    marginHorizontal: 4,
     justifyContent: 'center',
     alignItems: 'center',
     display: 'flex',

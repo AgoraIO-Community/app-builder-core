@@ -242,6 +242,9 @@ export const MoreMessageOptions = ({
   const moreIconRef = React.useRef(null);
   const [messageOptionsMenuVisible, setMessageOptionsMenuVisible] =
     React.useState(false);
+  if (type === ChatMessageType.FILE) {
+    return <></>;
+  }
   return (
     <>
       <View style={{position: 'absolute'}}>
@@ -276,11 +279,13 @@ export const MoreMessageOptions = ({
             borderRadius: 4,
             padding: 2,
           }}
+          containerStyle={{margin: 4}}
           iconProps={{
             iconType: 'plain',
             name: 'more-menu',
             iconSize: 20,
-            tintColor: $config.SECONDARY_ACTION_COLOR,
+            tintColor:
+              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['75%'],
           }}
           onPress={() => {
             setMessageOptionsMenuVisible(true);

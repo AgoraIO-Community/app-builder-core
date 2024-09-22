@@ -81,8 +81,8 @@ interface ChatUIControlsProviderProps {
 }
 
 export const MIN_HEIGHT = 43;
-export const MAX_HEIGHT = 92;
-export const LINE_HEIGHT = 17;
+export const MAX_HEIGHT = 97;
+export const LINE_HEIGHT = 20;
 export const MAX_UPLOAD_SIZE = 10; //MB
 export const MAX_TEXT_MESSAGE_SIZE = 5; //KB
 export const MAX_FILES_UPLOAD = 5;
