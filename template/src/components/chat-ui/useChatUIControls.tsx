@@ -54,6 +54,7 @@ export interface ChatUIControlsInterface {
   uploadedFiles: File[];
   setUploadedFiles: React.Dispatch<SetStateAction<File[]>>;
   _resetTextareaHeight: () => void;
+  _handleHeightChange: () => void;
   chatInputRef: any;
 }
 
@@ -75,6 +76,7 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   uploadedFiles: [],
   setUploadedFiles: () => {},
   _resetTextareaHeight: () => {},
+  _handleHeightChange: () => {},
   chatInputRef: null,
 });
 
@@ -110,6 +112,27 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
     }
   };
 
+  const _handleHeightChange = () => {
+    if (!chatInputRef.current) {
+      return;
+    }
+    chatInputRef.current.style.height = 0;
+    if (chatInputRef.current.scrollHeight <= MIN_HEIGHT) {
+      chatInputRef.current.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
+    } else {
+      chatInputRef.current.style.lineHeight = `${LINE_HEIGHT}px`;
+    }
+    const DIV_HEIGHT = chatInputRef.current.scrollHeight;
+    chatInputRef.current.style.height = `${
+      DIV_HEIGHT < MIN_HEIGHT ? MIN_HEIGHT : DIV_HEIGHT
+    }px`;
+    chatInputRef.current.style.overflow = 'hidden';
+    // Handle scroll when content increase the div height
+    if (DIV_HEIGHT > MAX_HEIGHT) {
+      chatInputRef.current.style.overflow = 'auto';
+    }
+  };
+
   return (
     <ChatUIControlsContext.Provider
       value={{
@@ -131,6 +154,7 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setUploadedFiles,
         chatInputRef,
         _resetTextareaHeight,
+        _handleHeightChange,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

@@ -88,6 +88,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setInputHeight,
     setShowEmojiPicker,
     _resetTextareaHeight,
+    _handleHeightChange,
     chatInputRef,
   } = useChatUIControls();
   const {defaultContent} = useContent();
@@ -171,24 +172,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       onSubmitEditing();
       setShowEmojiPicker(false); // This will close emoji picker on enter
       _resetTextareaHeight();
-    }
-  };
-
-  const _handleHeightChange = e => {
-    e.target.style.height = 0;
-    if (e.target.scrollHeight <= MIN_HEIGHT) {
-      e.target.style.lineHeight = `${INITIAL_LINE_HEIGHT}px`;
-    } else {
-      e.target.style.lineHeight = `${LINE_HEIGHT}px`;
-    }
-    const DIV_HEIGHT = e.target.scrollHeight;
-    e.target.style.height = `${
-      DIV_HEIGHT < MIN_HEIGHT ? MIN_HEIGHT : DIV_HEIGHT
-    }px`;
-    e.target.style.overflow = 'hidden';
-    // Handle scroll when content increase the div height
-    if (DIV_HEIGHT > MAX_HEIGHT) {
-      e.target.style.overflow = 'auto';
     }
   };
 

@@ -64,9 +64,7 @@ border:1px solid ${$config.PRIMARY_ACTION_BRAND_COLOR}
   left:8px
 }
 
-.chatEmojiPicker .epr-icn-clear-search {
-  visibility:hidden
-}
+
 .chatEmojiPicker .epr-search-container input {
   font-family:'Source Sans Pro' !important;
   font-size:14px;
@@ -76,14 +74,17 @@ border:1px solid ${$config.PRIMARY_ACTION_BRAND_COLOR}
 `;
 
 export const ChatEmojiPicker: React.FC = () => {
-  const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
+  const {setMessage, showEmojiPicker, setShowEmojiPicker, _handleHeightChange} =
+    useChatUIControls();
 
   const handleEmojiClick = (emojiObject: {emoji: string; names: string[]}) => {
     setMessage(prev =>
       prev ? prev + ' ' + emojiObject.emoji : emojiObject.emoji,
     );
+    _handleHeightChange();
     // setShowEmojiPicker(false);
   };
+
   return (
     <View style={styles.emojiContainer} testID={'emoji-container'}>
       <style type="text/css">{css}</style>
