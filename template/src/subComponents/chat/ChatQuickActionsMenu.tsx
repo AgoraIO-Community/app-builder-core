@@ -105,7 +105,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       icon: 'reply_all',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      iconSize: 12,
+      iconSize: 14,
       title: 'Private Reply',
       onPress: () => {
         setPrivateChatUser(userId);
