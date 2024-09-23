@@ -97,7 +97,13 @@ function RTableBody({status, recordings}) {
                 </Text>
               </View>
               <View style={style.td}>
-                {item?.download_url?.length > 0 ? (
+                {!item.download_url ? (
+                  <View style={(style.tactions, {marginTop: 0})}>
+                    <Text style={style.placeHolder}>
+                      {item?.error || 'No recording found'}
+                    </Text>
+                  </View>
+                ) : item?.download_url?.length > 0 ? (
                   item?.download_url?.map((link: string, i: number) => (
                     <View style={style.tactions} key={i}>
                       <View>
