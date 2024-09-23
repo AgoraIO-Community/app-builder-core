@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 14,
+    lineHeight: 21,
     fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },

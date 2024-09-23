@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   textStyle: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 14,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 21,
     fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   userInfoContainer: {
