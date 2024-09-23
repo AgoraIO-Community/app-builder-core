@@ -1050,7 +1050,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     `Are you sure you want to delete this message for ${name}`,
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
-  [peoplePanelMuteAllMicBtnText]: 'Mute All',
+  [peoplePanelMuteAllMicBtnText]: 'Mute Everyone',
 
   [peoplePanelHostSectionHeaderText]: 'HOST',
   [peoplePanelAudienceSectionHeaderText]: 'AUDIENCE',
@@ -1086,7 +1086,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [muteConfirmationPopoverContent]: ({name, type}: I18nMuteConfirmation) =>
     `Mute ${name}'s ${type} for everyone on the call? Only ${name} can unmute themselves.`,
 
-  [muteAllConfirmationPopoverPrimaryBtnText]: 'Mute All',
+  [muteAllConfirmationPopoverPrimaryBtnText]: 'Mute Everyone',
   [muteConfirmationPopoverPrimaryBtnText]: 'Mute',
   [requestConfirmationPopoverPrimaryBtnText]: 'Request',
 
