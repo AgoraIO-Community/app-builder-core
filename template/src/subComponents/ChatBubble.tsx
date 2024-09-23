@@ -463,6 +463,7 @@ const PlatformWrapper = ({children, isLocal, isChatBubble = true}) => {
     React.cloneElement(children(isHovered, setIsHovered), {
       style: {
         cursor: isHovered ? 'pointer' : 'auto',
+        zIndex: isHovered ? 99999 : -1,
         ...(isChatBubble
           ? isLocal
             ? style.chatBubbleLocalView
@@ -503,7 +504,6 @@ const style = StyleSheet.create({
     borderTopRightRadius: 8,
     maxWidth: '88%',
     position: 'relative',
-    zIndex: 0,
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
@@ -538,7 +538,6 @@ const style = StyleSheet.create({
     borderTopRightRadius: 0,
     maxWidth: '88%',
     position: 'relative',
-    zIndex: 0,
   },
   reactionLocalView: {
     alignSelf: 'flex-end',
@@ -550,7 +549,6 @@ const style = StyleSheet.create({
     borderTopRightRadius: 0,
     maxWidth: '88%',
     position: 'relative',
-    zIndex: -1,
   },
   reactionRemoteView: {
     alignSelf: 'flex-start',
@@ -562,7 +560,6 @@ const style = StyleSheet.create({
     borderTopRightRadius: 8,
     maxWidth: '88%',
     position: 'relative',
-    zIndex: -1,
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -657,6 +654,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     gap: 4,
+    zIndex: 5,
   },
   reactionUserList: {
     position: 'absolute',
