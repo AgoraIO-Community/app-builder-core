@@ -13,6 +13,7 @@ import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
 import {ChatMessageType} from './chat-messages/useChatMessages';
+import {createHook} from 'customization-implementation';
 
 export interface ChatBubbleProps {
   isLocal: boolean;
@@ -60,7 +61,7 @@ export enum messageActionType {
   Normal = '1',
 }
 
-export interface chatContext {
+export interface RtmContextInterface {
   hasUserJoinedRTM: boolean;
   rtmInitTimstamp: number;
   engine: RtmEngine;
@@ -80,6 +81,9 @@ export enum controlMessageEnum {
   kickScreenshare = '9',
 }
 
-const ChatContext = createContext(null as unknown as chatContext);
+const RtmContext = createContext(null as unknown as RtmContextInterface);
 
-export default ChatContext;
+const useRtm = createHook(RtmContext);
+
+export {useRtm};
+export default RtmContext;
