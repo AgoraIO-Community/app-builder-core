@@ -154,6 +154,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       setShowEmojiPicker,
       toastHeadingSize,
       errorSubHeadingSize,
+      _resetTextareaHeight,
     });
   };
 
