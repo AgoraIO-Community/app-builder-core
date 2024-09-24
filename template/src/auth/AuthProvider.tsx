@@ -510,8 +510,15 @@ const AuthProvider = (props: AuthProviderProps) => {
         'API unauth_login Trying to authenticate user',
         {requestId: requestId, startReqTs},
       );
+      let user_id_unauth = null;
+      try {
+        if (isWeb()) {
+          const urlParams = new URLSearchParams(window?.location?.search);
+          user_id_unauth = urlParams.get('user_id');
+        }
+      } catch (error) {}
 
-      fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
+      fetch(GET_UNAUTH_FLOW_API_ENDPOINT(user_id_unauth), {
         credentials: 'include',
         headers: {
           'X-Request-Id': requestId,
