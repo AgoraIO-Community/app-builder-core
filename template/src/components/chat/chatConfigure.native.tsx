@@ -18,6 +18,7 @@ import {
   ChatOption,
   SDKChatType,
   useChatMessages,
+  type Reaction,
 } from '../chat-messages/useChatMessages';
 import {timeNow} from '../../rtm/utils';
 import Share from 'react-native-share';
@@ -46,6 +47,8 @@ interface chatConfigureContextInterface {
     privateChatUser: string,
     chatType: string,
   ) => void;
+  addReaction: (msgId: string, reaction: string) => void;
+  removeReaction: (msgId: string, reaction: string) => void;
 }
 
 export const chatConfigureContext =
@@ -56,6 +59,8 @@ export const chatConfigureContext =
     deleteChatUser: () => {},
     downloadAttachment: () => {},
     deleteAttachment: () => {},
+    addReaction: () => {},
+    removeReaction: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -76,6 +81,8 @@ const ChatConfigure = ({children}) => {
     addMessageToStore,
     removeMessageFromStore,
     removeMessageFromPrivateStore,
+    addReactionToPrivateStore,
+    addReactionToStore,
   } = useChatMessages();
 
   React.useEffect(() => {
@@ -262,6 +269,21 @@ const ChatConfigure = ({children}) => {
                 break;
             }
           });
+        },
+        onMessageReactionDidChange: list => {
+          const reactionMsg = list[0];
+          const {convId, msgId, reactions, operations} = reactionMsg;
+
+          if (convId === data.chat.group_id) {
+            addReactionToStore(msgId, reactions as unknown as Reaction[]);
+          } else {
+            const userId = operations[0].userId;
+            addReactionToPrivateStore(
+              Number(userId),
+              msgId,
+              reactions as unknown as Reaction[],
+            );
+          }
         },
       };
       console.warn('setup listener');
@@ -491,6 +513,52 @@ const ChatConfigure = ({children}) => {
       });
   };
 
+  const addReaction = (msgId: string, reaction: string) => {
+    chatClient.chatManager
+      .addReaction(reaction, msgId)
+      .then(res => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Chat Native Reaction Added to mid ${msgId}`,
+          res,
+        );
+      })
+      .catch(err => {
+        if (err.type === 1101) {
+          // If user already added reaction then remove it
+          removeReaction(msgId, reaction);
+        } else {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Chat Native Reaction Addition Failed for mid ${msgId} - ${err?.message}`,
+            err,
+          );
+        }
+      });
+  };
+  const removeReaction = (msgId: string, reaction: string) => {
+    chatClient.chatManager
+      .removeReaction(reaction, msgId)
+      .then(res => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Chat Native Reaction Removed to mid ${msgId}`,
+          res,
+        );
+      })
+      .catch(err => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Chat Native Reaction Removal Failed for mid ${msgId}`,
+          err,
+        );
+      });
+  };
+
   return (
     <chatConfigureContext.Provider
       value={{
@@ -500,6 +568,8 @@ const ChatConfigure = ({children}) => {
         sendChatSDKMessage,
         downloadAttachment,
         deleteAttachment,
+        addReaction,
+        removeReaction,
       }}>
       {children}
     </chatConfigureContext.Provider>
