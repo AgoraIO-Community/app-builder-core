@@ -337,7 +337,6 @@ const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
     borderRadius: 8,
-    paddingBottom: 40,
   },
   inputView: {
     flex: 1,
