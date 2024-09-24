@@ -30,6 +30,7 @@ interface ChatMessageAttributes {
   file_url?: string;
   from_platform?: string;
   channel?: string;
+  msg?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -112,90 +113,76 @@ const ChatConfigure = ({children}) => {
           }
         },
         onMessagesReceived: (messages: ChatMessage[]) => {
-          // all types of msg recivied : text, image, video etc..
-          console.warn('on msg rcvd : Native101', messages);
-          const isGroupChat =
-            messages[0].chatType === ChatMessageChatType.GroupChat;
-          const isPeerChat =
-            messages[0].chatType === ChatMessageChatType.PeerChat;
-          const {msgId, from, body, localTime} = messages[0];
-          const chatType = body.type;
-          const fromUser = from;
-          const {file_ext, file_name, file_url, from_platform, channel} =
-            messages[0].attributes as ChatMessageAttributes;
+          // all types of msg received: text, image, video, etc.
+          console.warn('on msg rcvd: Native', messages);
 
-          // prevent cross channel msgs
-          if (channel !== data.channel) {
-            return;
-          }
+          messages.forEach(message => {
+            const isGroupChat =
+              message.chatType === ChatMessageChatType.GroupChat;
+            const isPeerChat =
+              message.chatType === ChatMessageChatType.PeerChat;
+            const {msgId, from, body, localTime} = message;
+            const chatType = body.type;
+            const fromUser = from;
+            const {file_ext, file_name, file_url, from_platform, channel, msg} =
+              message.attributes as ChatMessageAttributes;
 
-          switch (chatType) {
-            case ChatMessageType.TXT:
-              //@ts-ignore
-              const chatContent = body.content;
-              if (isGroupChat) {
-                showMessageNotification(chatContent, fromUser, false);
-                addMessageToStore(Number(fromUser), {
-                  msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
-                  createdTimestamp: localTime,
-                  msgId: msgId,
-                  isDeleted: false,
-                  type: ChatMessageType.TXT,
-                });
-              }
-              if (isPeerChat) {
-                showMessageNotification(chatContent, fromUser, true);
-                addMessageToPrivateStore(
-                  Number(fromUser),
-                  {
+            // prevent cross-channel messages
+            if (channel !== data.channel) {
+              return;
+            }
+
+            switch (chatType) {
+              case ChatMessageType.TXT:
+                //@ts-ignore
+                const chatContent = body.content;
+                if (isGroupChat) {
+                  showMessageNotification(chatContent, fromUser, false);
+                  addMessageToStore(Number(fromUser), {
                     msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.TXT,
-                  },
-                  false,
-                );
-              }
-              break;
-            case ChatMessageType.IMAGE:
-              const thumb =
-                from_platform === 'web'
-                  ? file_url + '&thumbnail=true'
-                  : (body as {thumbnailRemotePath?: string})
-                      .thumbnailRemotePath;
-              //@ts-ignore
-              const url = from_platform === 'web' ? file_url : body.remotePath;
-              console.warn('url ==>', url);
-              if (isGroupChat) {
-                showMessageNotification(
-                  file_name,
-                  fromUser,
-                  false,
-                  ChatMessageType.IMAGE,
-                );
-                addMessageToStore(Number(fromUser), {
-                  msg: '',
-                  createdTimestamp: localTime,
-                  msgId: msgId,
-                  isDeleted: false,
-                  type: ChatMessageType.IMAGE,
-                  thumb: thumb,
-                  url: url,
-                  fileName: file_name,
-                });
-              }
-              if (isPeerChat) {
-                showMessageNotification(
-                  'You got private image msg',
-                  fromUser,
-                  true,
-                  ChatMessageType.IMAGE,
-                );
-                addMessageToPrivateStore(
-                  Number(fromUser),
-                  {
-                    msg: '',
+                  });
+                }
+                if (isPeerChat) {
+                  showMessageNotification(chatContent, fromUser, true);
+                  addMessageToPrivateStore(
+                    Number(fromUser),
+                    {
+                      msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
+                      createdTimestamp: localTime,
+                      msgId: msgId,
+                      isDeleted: false,
+                      type: ChatMessageType.TXT,
+                    },
+                    false,
+                  );
+                }
+                break;
+
+              case ChatMessageType.IMAGE:
+                const thumb =
+                  from_platform === 'web'
+                    ? file_url + '&thumbnail=true'
+                    : (body as {thumbnailRemotePath?: string})
+                        .thumbnailRemotePath;
+                //@ts-ignore
+                const url =
+                  from_platform === 'web'
+                    ? file_url
+                    : (body as {remotePath?: string})?.remotePath;
+                console.warn('url ==>', url);
+                if (isGroupChat) {
+                  showMessageNotification(
+                    file_name,
+                    fromUser,
+                    false,
+                    ChatMessageType.IMAGE,
+                  );
+                  addMessageToStore(Number(fromUser), {
+                    msg: msg,
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
@@ -203,44 +190,44 @@ const ChatConfigure = ({children}) => {
                     thumb: thumb,
                     url: url,
                     fileName: file_name,
-                  },
-                  false,
-                );
-              }
-              break;
-            case ChatMessageType.FILE:
-              //@ts-ignore
+                  });
+                }
+                if (isPeerChat) {
+                  showMessageNotification(
+                    'You got a private image message',
+                    fromUser,
+                    true,
+                    ChatMessageType.IMAGE,
+                  );
+                  addMessageToPrivateStore(
+                    Number(fromUser),
+                    {
+                      msg: msg,
+                      createdTimestamp: localTime,
+                      msgId: msgId,
+                      isDeleted: false,
+                      type: ChatMessageType.IMAGE,
+                      thumb: thumb,
+                      url: url,
+                      fileName: file_name,
+                    },
+                    false,
+                  );
+                }
+                break;
 
-              console.warn('message', JSON.stringify(messages, null, 2));
-              if (isGroupChat) {
-                showMessageNotification(
-                  file_name,
-                  fromUser,
-                  false,
-                  ChatMessageType.FILE,
-                );
-                addMessageToStore(Number(fromUser), {
-                  msg: '',
-                  createdTimestamp: localTime,
-                  msgId: msgId,
-                  isDeleted: false,
-                  type: ChatMessageType.FILE,
-                  url: file_url,
-                  ext: file_ext,
-                  fileName: file_name,
-                });
-              }
-              if (isPeerChat) {
-                showMessageNotification(
-                  file_name,
-                  fromUser,
-                  true,
-                  ChatMessageType.FILE,
-                );
-                addMessageToPrivateStore(
-                  Number(fromUser),
-                  {
-                    msg: '',
+              case ChatMessageType.FILE:
+                //@ts-ignore
+                console.warn('message', JSON.stringify(message, null, 2));
+                if (isGroupChat) {
+                  showMessageNotification(
+                    file_name,
+                    fromUser,
+                    false,
+                    ChatMessageType.FILE,
+                  );
+                  addMessageToStore(Number(fromUser), {
+                    msg: msg,
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
@@ -248,13 +235,33 @@ const ChatConfigure = ({children}) => {
                     url: file_url,
                     ext: file_ext,
                     fileName: file_name,
-                  },
-                  false,
-                );
-              }
-
-              break;
-          }
+                  });
+                }
+                if (isPeerChat) {
+                  showMessageNotification(
+                    file_name,
+                    fromUser,
+                    true,
+                    ChatMessageType.FILE,
+                  );
+                  addMessageToPrivateStore(
+                    Number(fromUser),
+                    {
+                      msg: msg,
+                      createdTimestamp: localTime,
+                      msgId: msgId,
+                      isDeleted: false,
+                      type: ChatMessageType.FILE,
+                      url: file_url,
+                      ext: file_ext,
+                      fileName: file_name,
+                    },
+                    false,
+                  );
+                }
+                break;
+            }
+          });
         },
       };
       console.warn('setup listener');

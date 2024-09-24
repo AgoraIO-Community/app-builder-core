@@ -1,7 +1,11 @@
 import React from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import Toolbar from '../atoms/Toolbar';
-import {ToolbarItemHide, ToolbarTopPresetProps} from '../atoms/ToolbarPreset';
+import {
+  ToolbarItemHide,
+  ToolbarItemLabel,
+  ToolbarPresetProps,
+} from '../atoms/ToolbarPreset';
 import {
   MeetingTitleToolbarItem,
   ParticipantCountToolbarItem,
@@ -10,10 +14,11 @@ import {
 import {useRecording} from '../subComponents/recording/useRecording';
 import {CustomToolbarMerge, CustomToolbarSorting} from '../utils/common';
 import {filterObject} from '../utils';
+import {useLanguage} from '../language/useLanguage';
 
 export interface NavbarProps {
   includeDefaultItems?: boolean;
-  items?: ToolbarTopPresetProps['items'];
+  items?: ToolbarPresetProps['items'];
 }
 
 const NavbarMobile = (props: NavbarProps) => {
@@ -37,6 +42,7 @@ const NavbarMobile = (props: NavbarProps) => {
   };
   const {items = {}, includeDefaultItems = true} = props;
   const {width, height} = useWindowDimensions();
+  const {languageCode} = useLanguage();
 
   const isHidden = (hide: ToolbarItemHide = false) => {
     try {
@@ -63,18 +69,36 @@ const NavbarMobile = (props: NavbarProps) => {
 
   const startItemsOrdered = CustomToolbarSorting(startItems);
 
+  const getCustomLabel = (label: ToolbarItemLabel) => {
+    if (label && typeof label === 'string') {
+      return label;
+    } else if (label && typeof label === 'function') {
+      return label(languageCode);
+    } else {
+      return null;
+    }
+  };
+
   const renderContent = (orderedKeys: string[], type: 'start') => {
     const renderContentItem = [];
     let index = 0;
     orderedKeys.forEach(keyName => {
       index = index + 1;
       let ToolbarComponent = null;
+      let label = null;
+      let onPress = null;
       if (type === 'start') {
         ToolbarComponent = startItems[keyName]?.component;
+        label = startItems[keyName]?.label;
+        onPress = startItems[keyName]?.onPress;
       }
       if (ToolbarComponent) {
         renderContentItem.push(
-          <ToolbarComponent key={`top-toolbar-${type}` + index} />,
+          <ToolbarComponent
+            key={`top-toolbar-${type}` + index}
+            label={getCustomLabel(label)}
+            onPress={onPress}
+          />,
         );
       }
     });

@@ -94,7 +94,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: useString(chatActionMenuDownloadText)(),
-    callback: () => {
+    onPress: () => {
       downloadAttachment(fileName, fileUrl);
       setActionMenuVisible(false);
     },
@@ -106,7 +106,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: useString(chatActionMenuCopyLinkText)(),
-    callback: () => {
+    onPress: () => {
       Clipboard.setString(fileUrl);
       setActionMenuVisible(false);
       Toast.show({
@@ -125,7 +125,7 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     textColor: $config.SEMANTIC_ERROR,
     iconSize: 24,
     title: useString(chatActionMenuDeleteText)(),
-    callback: () => {
+    onPress: () => {
       if (isLocal) {
         // confirm dialog : user is deleting for all
         setShowDeleteMessageModal(true);

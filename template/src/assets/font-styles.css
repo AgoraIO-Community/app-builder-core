@@ -24,8 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-clipboard_outlined:before {
+.icon-fullscreen:before {
   content: '\e9a0';
+  color: #fff;
 }
 .icon-recording-status:before {
   content: '\e99f';

@@ -28,12 +28,23 @@ export {default as useActiveSpeaker} from '../src/utils/useActiveSpeaker';
 export {useHistory, useParams} from '../src/components/Router';
 
 //export common function
-export {isWeb, isIOS, isAndroid, isDesktop} from '../src/utils/common';
+export {
+  isWeb,
+  isIOS,
+  isAndroid,
+  isDesktop,
+  calculatePosition,
+} from '../src/utils/common';
 export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
 export {default as useLocalAudio} from '../src/utils/useLocalAudio';
 export {default as useLocalVideo} from '../src/utils/useLocalVideo';
+export {useString} from '../src/utils/useString';
 export type {LanguageType} from '../src/subComponents/caption/utils';
 export {default as useSpeechToText} from '../src/utils/useSpeechToText';
 export {isMobileUA} from '../src/utils/common';
 export {getSessionId} from '../src/utils/common';
+export {default as ThemeConfig} from '../src/theme';
+export {default as hexadecimalTransparency} from '../src/utils/hexadecimalTransparency';
+export {useFullScreen} from '../src/utils/useFullScreen';
+export {useHideShareTitle} from '../src/utils/useHideShareTile';

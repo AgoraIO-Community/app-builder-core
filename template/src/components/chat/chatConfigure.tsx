@@ -133,7 +133,7 @@ const ChatConfigure = ({children}) => {
               );
 
               addMessageToStore(Number(fromUser), {
-                msg: '',
+                msg: message?.ext?.msg,
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
@@ -153,7 +153,7 @@ const ChatConfigure = ({children}) => {
               addMessageToPrivateStore(
                 Number(fromUser),
                 {
-                  msg: '',
+                  msg: message?.ext?.msg,
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
@@ -166,6 +166,7 @@ const ChatConfigure = ({children}) => {
               );
             }
           },
+
           onImageMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -191,7 +192,7 @@ const ChatConfigure = ({children}) => {
                 message.type,
               );
               addMessageToStore(Number(fromUser), {
-                msg: '',
+                msg: message?.ext?.msg,
                 createdTimestamp: message.time,
                 msgId: message.id,
                 isDeleted: false,
@@ -213,7 +214,7 @@ const ChatConfigure = ({children}) => {
               addMessageToPrivateStore(
                 Number(fromUser),
                 {
-                  msg: '',
+                  msg: message?.ext?.msg,
                   createdTimestamp: message.time,
                   msgId: message.id,
                   isDeleted: false,
@@ -325,7 +326,6 @@ const ChatConfigure = ({children}) => {
   ) => {
     if (connRef.current) {
       //TODO thumb and url of actual image uploaded available in file upload complete
-      const localFileUrl = option?.ext?.file_url || '';
       //add channel name so to prevent cross channel message mixup when same user joins two diff channels
       // this is filtered on msgRecived event
       option.ext = {...option?.ext, channel: data?.channel};
@@ -341,9 +341,10 @@ const ChatConfigure = ({children}) => {
             option,
           );
 
-          // update local messagre store
           const messageData = {
-            msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
+            msg:
+              option?.msg?.replace(/^(\n)+|(\n)+$/g, '') ||
+              option?.ext?.msg?.replace(/^(\n)+|(\n)+$/g, ''),
             createdTimestamp: timeNow(),
             msgId: res?.serverMsgId,
             isDeleted: false,
@@ -353,8 +354,8 @@ const ChatConfigure = ({children}) => {
             ext: option?.ext?.file_ext,
             fileName: option?.ext?.file_name,
           };
-          //todo chattype as per natue type
-          // this is local user messages
+
+          // update local user message store
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
             addMessageToPrivateStore(Number(option?.to), messageData, true);
           } else {
@@ -418,51 +419,65 @@ const ChatConfigure = ({children}) => {
     anchor.remove();
   };
 
-  const uploadAttachment = uploadFiles => {
-    const {file_type, file_length, file_name, file_url, file_obj, file_ext} =
-      uploadFiles;
+  const uploadAttachment = async uploadFiles => {
+    const {file_obj} = uploadFiles;
     const CHAT_APP_KEY = `${$config.CHAT_ORG_NAME}#${$config.CHAT_APP_NAME}`;
-    const uploadObj = {
-      onFileUploadProgress: (data: ProgressEvent) => {
-        setUploadStatus(UploadStatus.IN_PROGRESS);
-      },
-      onFileUploadComplete: (data: any) => {
-        const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
-        //TODO: handle for multiple uploads
-        setUploadedFiles(prev => {
-          return [{...prev[0], file_url: url}];
-        });
-        setUploadStatus(UploadStatus.SUCCESS);
-      },
-      onFileUploadError: (error: any) => {
-        logger.error(
-          LogSource.Internals,
-          'CHAT',
-          'Attachment upload failed',
-          error,
-        );
-        setUploadStatus(UploadStatus.FAILURE);
-      },
-      onFileUploadCanceled: () => {
-        //setUploadStatus(UploadStatus.NOT_STARTED);
-      },
-      accessToken: data?.chat?.user_token,
-      appKey: CHAT_APP_KEY,
-      file: file_obj,
-      apiUrl: $config.CHAT_URL,
-    };
 
-    try {
+    return new Promise((resolve, reject) => {
+      const uploadObj = {
+        onFileUploadProgress: (data: ProgressEvent) => {
+          setUploadedFiles(prev => {
+            const updatedFiles = [...prev];
+            updatedFiles[updatedFiles.length - 1] = {
+              ...updatedFiles[updatedFiles.length - 1],
+              upload_status: UploadStatus.IN_PROGRESS,
+            };
+            return updatedFiles;
+          });
+        },
+        onFileUploadComplete: (data: any) => {
+          const url = `${data.uri}/${data.entities[0].uuid}?em-redirect=true&share-secret=${data.entities[0]['share-secret']}`;
+
+          setUploadedFiles(prev => {
+            const updatedFiles = [...prev];
+            updatedFiles[updatedFiles.length - 1] = {
+              ...updatedFiles[updatedFiles.length - 1],
+              file_url: url,
+              upload_status: UploadStatus.SUCCESS,
+            };
+            return updatedFiles;
+          });
+          resolve(url);
+        },
+        onFileUploadError: (error: any) => {
+          logger.error(
+            LogSource.Internals,
+            'CHAT',
+            'Attachment upload failed',
+            error,
+          );
+          //setUploadStatus(UploadStatus.FAILURE);
+          setUploadedFiles(prev => {
+            const updatedFiles = [...prev];
+            updatedFiles[updatedFiles.length - 1] = {
+              ...updatedFiles[updatedFiles.length - 1],
+              upload_status: UploadStatus.FAILURE,
+            };
+            return updatedFiles;
+          });
+          reject(error);
+        },
+        onFileUploadCanceled: () => {
+          //setUploadStatus(UploadStatus.NOT_STARTED);
+        },
+        accessToken: data?.chat?.user_token,
+        appKey: CHAT_APP_KEY,
+        file: file_obj,
+        apiUrl: $config.CHAT_URL,
+      };
+
       AgoraChat.utils.uploadFile(uploadObj);
-    } catch (error) {
-      logger.debug(
-        LogSource.Internals,
-        'CHAT',
-        'Attachment upload failed',
-        error,
-      );
-      console.error(error);
-    }
+    });
   };
 
   const deleteAttachment = (

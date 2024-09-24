@@ -10,10 +10,10 @@
 *********************************************
 */
 export enum SidePanelType {
-  None,
-  Participants,
-  Chat,
-  Settings,
-  Transcript,
-  VirtualBackground,
+  None = 'None',
+  Participants = 'Participants',
+  Chat = 'Chat',
+  Settings = 'Settings',
+  Transcript = 'Transcript',
+  VirtualBackground = 'VirtualBackground',
 }

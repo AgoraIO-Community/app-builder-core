@@ -2,11 +2,21 @@ import React from 'react';
 import {View, ViewProps, ViewStyle, StyleSheet} from 'react-native';
 import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
 import {isMobileUA, isWebInternal} from '../utils/common';
+import {createHook} from 'customization-implementation';
 
 export interface ToolbarItemProps extends ViewProps {
   style?: ViewStyle;
   children: React.ReactNode;
+  toolbarProps?: {
+    [key: string]: any;
+  };
 }
+
+export const ToolbarPropsContext = React.createContext<
+  ToolbarItemProps['toolbarProps']
+>({});
+export const useToolbarProps = createHook(ToolbarPropsContext);
+
 const ToolbarItem = (props: ToolbarItemProps) => {
   const {isHorizontal, position} = useToolbar();
   //isHorizontal true -> top/bottom bar
@@ -17,31 +27,35 @@ const ToolbarItem = (props: ToolbarItemProps) => {
   //action sheet
   if (isMobileUA() && position === ToolbarPosition.bottom) {
     return (
-      <View {...props} style={[props?.style, toolbarItemStyles.iconWithText]}>
-        {props?.children}
-      </View>
+      <ToolbarPropsContext.Provider value={props?.toolbarProps || {}}>
+        <View {...props} style={[props?.style, toolbarItemStyles.iconWithText]}>
+          {props?.children}
+        </View>
+      </ToolbarPropsContext.Provider>
     );
   } else {
     return (
-      <View
-        {...props}
-        style={[
-          props?.style,
-          // isHorizontal ? {flexDirection: 'column'} : {flexDirection: 'row'},
-          position === ToolbarPosition.left
-            ? toolbarItemStyles.leftBarItemStyle
-            : position === ToolbarPosition.right
-            ? toolbarItemStyles.rightBarItemStyle
-            : position === ToolbarPosition.bottom
-            ? toolbarItemStyles.bottomBarItemStyle
-            : isWebInternal() && position === ToolbarPosition.top
-            ? toolbarItemStyles.topBarItemNonNativeStyle
-            : !isWebInternal() && position === ToolbarPosition.top
-            ? toolbarItemStyles.topBarItemNativeStyle
-            : {},
-        ]}>
-        {props?.children}
-      </View>
+      <ToolbarPropsContext.Provider value={props?.toolbarProps || {}}>
+        <View
+          {...props}
+          style={[
+            props?.style,
+            // isHorizontal ? {flexDirection: 'column'} : {flexDirection: 'row'},
+            position === ToolbarPosition.left
+              ? toolbarItemStyles.leftBarItemStyle
+              : position === ToolbarPosition.right
+              ? toolbarItemStyles.rightBarItemStyle
+              : position === ToolbarPosition.bottom
+              ? toolbarItemStyles.bottomBarItemStyle
+              : isWebInternal() && position === ToolbarPosition.top
+              ? toolbarItemStyles.topBarItemNonNativeStyle
+              : !isWebInternal() && position === ToolbarPosition.top
+              ? toolbarItemStyles.topBarItemNativeStyle
+              : {},
+          ]}>
+          {props?.children}
+        </View>
+      </ToolbarPropsContext.Provider>
     );
   }
 };

@@ -150,4 +150,5 @@ export interface IconsInterface {
   'copy-link': string;
   clipboard_outlined: string;
   'recording-status': string;
+  fullscreen: string;
 }

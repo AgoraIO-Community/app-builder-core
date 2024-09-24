@@ -35,6 +35,7 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
+  wrapper?: React.ComponentType;
 }
 export interface ChatCmpInterface {
   //commented for v1 release
@@ -46,6 +47,13 @@ export interface ChatCmpInterface {
 export type LayoutComponent = React.ComponentType<{
   renderData: ContentStateInterface['activeUids'];
 }>;
+
+export interface SidePanelItem {
+  name: string;
+  title: string;
+  component: React.ComponentType;
+  onClose?: () => void;
+}
 
 export interface LayoutItem {
   name: string;
@@ -76,6 +84,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
+  customSidePanel?: () => SidePanelItem[];
   invitePopup?: {
     title: string;
     renderComponent?: React.ComponentType;

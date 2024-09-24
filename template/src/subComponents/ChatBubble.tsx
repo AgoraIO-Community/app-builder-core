@@ -19,6 +19,8 @@ import {
   Pressable,
   TouchableOpacity,
   ActivityIndicator,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
@@ -38,46 +40,63 @@ import {
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
 
-export const AttachmentBubble = ({
+type AttachmentBubbleProps = {
+  fileName: string;
+  fileExt: string;
+  isFullWidth?: boolean;
+  fileType?: string;
+  msg?: string;
+  secondaryComponent?: React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>; // Accepting external styles
+};
+
+export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   fileName,
   fileExt,
   isFullWidth = false,
   fileType = '',
   secondaryComponent,
+  containerStyle,
+  msg,
 }) => {
   const {uploadStatus} = useChatUIControls();
 
   return (
-    <View
-      style={[
-        style.fileContainer,
-        isFullWidth && {width: '100%'},
-        uploadStatus === UploadStatus.FAILURE && {
-          borderColor: $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
-        },
-      ]}>
-      <View style={[style.fileBlock]}>
-        <ImageIcon
-          base64={true}
-          iconSize={24}
-          iconType="plain"
-          name={
-            fileType === ChatMessageType.IMAGE
-              ? 'chat_attachment_image'
-              : fileExt === 'pdf'
-              ? 'chat_attachment_pdf'
-              : fileExt === 'doc' || fileExt === 'docx'
-              ? 'chat_attachment_doc'
-              : 'chat_attachment_unknown'
-          }
-          tintColor={$config.SEMANTIC_NEUTRAL}
-        />
-        <Text style={style.fileName} numberOfLines={1} ellipsizeMode="tail">
-          {fileName}
-        </Text>
+    <>
+      <View
+        style={[
+          containerStyle,
+          style.fileContainer,
+          isFullWidth && {width: '100%'},
+          uploadStatus === UploadStatus.FAILURE && {
+            borderColor:
+              $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
+          },
+        ]}>
+        <View style={[style.fileBlock]}>
+          <ImageIcon
+            base64={true}
+            iconSize={24}
+            iconType="plain"
+            name={
+              fileType === ChatMessageType.IMAGE
+                ? 'chat_attachment_image'
+                : fileExt === 'pdf'
+                ? 'chat_attachment_pdf'
+                : fileExt === 'doc' || fileExt === 'docx'
+                ? 'chat_attachment_doc'
+                : 'chat_attachment_unknown'
+            }
+            tintColor={$config.SEMANTIC_NEUTRAL}
+          />
+          <Text style={style.bubbleText} numberOfLines={1} ellipsizeMode="tail">
+            {fileName}
+          </Text>
+        </View>
+        {secondaryComponent}
       </View>
-      {secondaryComponent}
-    </View>
+      {msg && <Text style={[style.bubbleText, style.fileText]}>{msg}</Text>}
+    </>
   );
 };
 
@@ -262,12 +281,19 @@ const ChatBubble = (props: ChatBubbleProps) => {
                         />
                       </View>
                     ) : null}
-                    <Image
-                      source={{uri: thumb}}
-                      style={style.previewImg}
-                      onLoad={handleImageLoad}
-                    />
+                    <>
+                      <Image
+                        source={{uri: thumb}}
+                        style={style.previewImg}
+                        onLoad={handleImageLoad}
+                      />
+                    </>
                   </TouchableOpacity>
+                  {message && (
+                    <Text style={[style.captionText, style.bubbleText]}>
+                      {message}
+                    </Text>
+                  )}
                   {lightboxVisible ? (
                     <ImagePopup
                       modalVisible={lightboxVisible}
@@ -286,6 +312,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                 <AttachmentBubble
                   fileName={fileName}
                   fileExt={ext}
+                  msg={message}
                   secondaryComponent={
                     <View>
                       <MoreMenu
@@ -391,11 +418,21 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  fileName: {
+  bubbleText: {
     color: $config.FONT_COLOR,
     fontSize: 14,
     lineHeight: 20,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  fileText: {
+    paddingLeft: 8,
+    paddingTop: 8,
+    maxWidth: 240,
+  },
+  captionText: {
+    maxWidth: 240,
+    paddingLeft: 6,
+    paddingTop: 8,
   },
   fileContainer: {
     flexDirection: 'row',

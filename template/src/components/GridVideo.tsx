@@ -77,17 +77,21 @@ const GridVideo: LayoutComponent = ({renderData}) => {
               disabled={renderData.length === 1}
               onPress={() => {
                 //if (!(ridx === 0 && cidx === 0)) {
-                const currentUid = renderData[ridx * dims.c + cidx];
-                if (
-                  currentUid !== pinnedUid &&
-                  currentUid !== secondaryPinnedUid
-                ) {
-                  dispatch({
-                    type: 'ActiveSpeaker',
-                    value: [renderData[ridx * dims.c + cidx]],
-                  });
-                }
+                //const currentUid = renderData[ridx * dims.c + cidx];
+                // if (
+                //   currentUid !== pinnedUid &&
+                //   currentUid !== secondaryPinnedUid
+                // ) {
+                //   dispatch({
+                //     type: 'ActiveSpeaker',
+                //     value: [renderData[ridx * dims.c + cidx]],
+                //   });
+                // }
                 //}
+                dispatch({
+                  type: 'UserPin',
+                  value: [renderData[ridx * dims.c + cidx]],
+                });
                 setPinnedLayout();
               }}
               style={{

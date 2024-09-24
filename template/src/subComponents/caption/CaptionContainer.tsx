@@ -218,7 +218,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
       textColor: $config.FONT_COLOR,
       title: changeSpokenLangLabel + ' ',
       disabled: isLangChangeInProgress,
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setLanguagePopup(true);
       },
@@ -229,7 +229,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: hideCaptionLabel,
-    callback: () => {
+    onPress: () => {
       setActionMenuVisible(false);
       setIsCaptionON(false);
     },

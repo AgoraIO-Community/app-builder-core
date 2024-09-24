@@ -65,6 +65,10 @@ export interface I18nRequestConfirmation {
   name: string;
   type: I18nMuteType;
 }
+export interface I18nFileSize {
+  name: string;
+  size: number;
+}
 export interface I18nMuteConfirmation {
   name: string;
   type: I18nMuteType;
@@ -239,6 +243,7 @@ export const chatPrivateMessageDeletePopupText =
   'chatPrivateMessageDeletePopupText';
 export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
 export const chatUploadStatusFailure = 'chatUploadStatusFailure';
+export const chatUploadMaxLimit = 'chatUploadMaxLimit';
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -651,6 +656,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatUploadErrorFileTypeToastSubHeading]?: I18nBaseType;
   [chatUploadStatusInProgress]?: I18nBaseType;
   [chatUploadStatusFailure]?: I18nBaseType;
+  [chatUploadMaxLimit]?: I18nBaseType;
 
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
@@ -1037,13 +1043,14 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatUploadErrorToastHeading]: 'Attachment Upload Error',
   [chatUploadErrorFileSizeToastHeading]: 'File size is too large',
   [chatSendErrorTextSizeToastHeading]: 'Text size is too large',
-  [chatUploadErrorFileSizeToastSubHeading]: size =>
-    `You can send attachments upto ${size}MB in size`,
+  [chatUploadErrorFileSizeToastSubHeading]: (size, fileName) =>
+    ` ${fileName} exceeds ${size}MB  size limit`,
   [chatSendErrorTextSizeToastSubHeading]: size =>
     `You can send text message upto ${size}KB in size`,
   [chatUploadErrorFileTypeToastSubHeading]: type => `${type} is not supported`,
   [chatUploadStatusInProgress]: `Uploading... Please wait`,
   [chatUploadStatusFailure]: `Something went wrong while sharing.Let'as try again`,
+  [chatUploadMaxLimit]: `Up to 5 files can be uploaded at a time`,
   [chatMessageDeleteConfirmBtnText]: `Delete`,
   [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
   [chatPrivateMessageDeletePopupText]: (name: string) =>

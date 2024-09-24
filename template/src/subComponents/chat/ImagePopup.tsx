@@ -167,7 +167,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         icon: 'delete',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 24,
-        callback: () => {
+        onPress: () => {
           if (isLocal) {
             setShowDeleteMessageModal(true);
           } else {
@@ -184,7 +184,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         icon: 'download',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 24,
-        callback: () => {
+        onPress: () => {
           downloadAttachment(fileName, imageUrl);
         },
       },
@@ -192,7 +192,7 @@ const ImagePopup = (props: ImagePopupProps) => {
         icon: 'close',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         iconSize: 20,
-        callback: () => {
+        onPress: () => {
           setModalVisible(false);
         },
       },
@@ -212,20 +212,28 @@ const ImagePopup = (props: ImagePopupProps) => {
                   hexadecimalTransparency['20%'],
               }}>
               <IconButton
-                hoverEffect={true}
+                hoverEffect={false}
                 hoverEffectStyle={{
                   borderRadius: 4,
                   backgroundColor:
-                    $config.CARD_LAYER_2_COLOR + hexadecimalTransparency['30%'],
+                    $config.ICON_BG_COLOR + hexadecimalTransparency['50%'],
                 }}
                 iconProps={{
                   iconType: 'plain',
-                  iconContainerStyle: styles.iconContainerStyle,
+                  iconContainerStyle: {
+                    backgroundColor: 'transparent',
+                    paddingHorizontal: 8,
+                    borderRightWidth: index === menuItems.length - 1 ? 0 : 1,
+                    borderRightColor:
+                      $config.SECONDARY_ACTION_COLOR +
+                      hexadecimalTransparency['20%'],
+                    ...styles.iconContainerStyle,
+                  },
                   iconSize: obj.iconSize,
                   name: obj.icon as keyof IconsInterface,
                   tintColor: obj.iconColor,
                 }}
-                onPress={obj.callback}
+                onPress={obj.onPress}
               />
             </View>
           ))}

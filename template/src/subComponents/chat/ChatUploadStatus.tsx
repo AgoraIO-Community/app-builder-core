@@ -3,22 +3,32 @@ import React from 'react';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ThemeConfig from '../../../src/theme';
 import {
+  MAX_FILES_UPLOAD,
   UploadStatus,
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {
   chatUploadStatusFailure,
   chatUploadStatusInProgress,
+  chatUploadMaxLimit,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../utils/useString';
 
 const ChatUploadStatus = () => {
-  const {uploadStatus} = useChatUIControls();
+  const {uploadedFiles} = useChatUIControls();
   const inProgressText = useString(chatUploadStatusInProgress)();
   const failureText = useString(chatUploadStatusFailure)();
+  const maxUploadText = useString(chatUploadMaxLimit)();
+
+  const lastFileStatus =
+    uploadedFiles.length > 0
+      ? uploadedFiles[uploadedFiles.length - 1].upload_status
+      : null;
+
+  const isMaxFilesUploaded = uploadedFiles.length >= MAX_FILES_UPLOAD;
 
   let text = '';
-  switch (uploadStatus) {
+  switch (lastFileStatus) {
     case UploadStatus.IN_PROGRESS:
       text = inProgressText;
       break;
@@ -26,13 +36,22 @@ const ChatUploadStatus = () => {
       text = failureText;
       break;
   }
+
+  if (isMaxFilesUploaded) {
+    text = maxUploadText;
+  }
+
   return text.length > 0 ? (
     <View
       style={[
         styles.chatStatusContainer,
-        uploadStatus === UploadStatus.FAILURE && {
+        lastFileStatus === UploadStatus.FAILURE && {
           backgroundColor:
             $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
+        },
+        isMaxFilesUploaded && {
+          backgroundColor:
+            $config.SEMANTIC_WARNING + hexadecimalTransparency['40%'],
         },
       ]}>
       <Text style={styles.chatStatusText}>{text}</Text>

@@ -9,28 +9,22 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext} from 'react';
 import {
   ToggleState,
   PermissionState,
-  ImageIcon as UIKitImageIcon,
   ClientRoleType,
   PropsContext,
-  useLocalUid,
-  DispatchContext,
-  RtcContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
-import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
-import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
+import {useToolbar} from '../utils/useToolbar';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
 import {
@@ -40,6 +34,7 @@ import {
   toolbarItemMicrophoneTooltipText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 /**
  * A component to mute / unmute the local audio
@@ -57,6 +52,7 @@ export interface LocalAudioMuteProps {
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {
@@ -67,7 +63,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
-  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
   const micButtonLabel = useString<I18nDeviceStatus>(toolbarItemMicrophoneText);
   const micButtonTooltip = useString<I18nDeviceStatus>(
@@ -132,10 +128,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     hoverEffectStyle: props?.plainIconHoverEffect
       ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
       : {},
-    onPress,
+    onPress: onPressCustom || onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel && callActive && !isMobileUA() ? audioLabel : '',
+      text: showLabel && callActive && !isMobileUA() ? label || audioLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,

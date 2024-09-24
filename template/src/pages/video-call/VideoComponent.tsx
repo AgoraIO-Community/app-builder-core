@@ -5,11 +5,13 @@ import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
 import {PropsContext, ClientRoleType} from '../../../agora-rn-uikit';
 import {useLayout} from '../../utils/useLayout';
 import {useContent, useRoomInfo} from 'customization-api';
-import {getGridLayoutName} from './DefaultLayouts';
+import {DefaultLayouts, getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
 import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
 import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
+import {useCustomization} from 'customization-implementation';
+import useMount from '../../components/useMount';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -21,23 +23,42 @@ const VideoComponent = () => {
   const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const [showNoUserInfo, setShowNoUserInfo] = useState(false);
+  const isCustomLayoutUsed = useCustomization(config => {
+    if (
+      typeof config?.components?.videoCall === 'object' &&
+      config?.components?.videoCall?.customLayout
+    ) {
+      return true;
+    }
+    return false;
+  });
 
   const {roomPreference} = useRoomInfo();
 
   const disableShareTile = roomPreference?.disableShareTile;
+  const disableShareTileRef = useRef(disableShareTile);
+
+  useMount(() => {
+    //show share tile after 2.5 seconds because RTC user join take few seconds.
+    //meanwhile we don't want to show the share tile
+    setTimeout(() => {
+      if (!disableShareTileRef.current) {
+        setShowNoUserInfo(true);
+      }
+    }, 2500);
+  });
 
   useEffect(() => {
-    if (!disableShareTile) {
-      setTimeout(() => {
-        setShowNoUserInfo(true);
-      }, 2500);
+    disableShareTileRef.current = disableShareTile;
+    if (disableShareTile) {
+      setShowNoUserInfo(false);
     }
   }, [disableShareTile]);
 
   const currentLayoutRef = useRef(currentLayout);
   const gridLayoutName = getGridLayoutName();
   useEffect(() => {
-    if (activeUids && activeUids.length === 1) {
+    if (activeUids && activeUids.length === 1 && !isCustomLayoutUsed) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
         dispatch({type: 'UserSecondaryPin', value: [0]});
@@ -46,7 +67,7 @@ const VideoComponent = () => {
         setLayout(gridLayoutName);
       }
     }
-  }, [activeUids]);
+  }, [activeUids, isCustomLayoutUsed]);
 
   useEffect(() => {
     currentLayoutRef.current = currentLayout;
@@ -84,9 +105,11 @@ const VideoComponent = () => {
             justifyContent: 'space-between',
           }}>
           <CurrentLayout renderData={activeUids} />
-          {(!$config.EVENT_MODE && activeUids.length === 1) ||
-          ($config.EVENT_MODE &&
-            hostUids.concat(audienceUids)?.length === 1) ? (
+          {((!$config.EVENT_MODE && activeUids.length === 1) ||
+            ($config.EVENT_MODE &&
+              hostUids.concat(audienceUids)?.length === 1)) &&
+          (layoutsData[layout].name === DefaultLayouts[0].name ||
+            layoutsData[layout].name === DefaultLayouts[1].name) ? (
             <>
               <Spacer size={8} horizontal={isDesktop() ? true : false} />
               <MeetingInfoGridTile />
