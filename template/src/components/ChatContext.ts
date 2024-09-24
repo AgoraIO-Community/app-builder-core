@@ -30,6 +30,7 @@ export interface ChatBubbleProps {
   ext?: string;
   previousMessageCreatedTimestamp?: string;
   reactions?: Reaction[];
+  scrollOffset?: number;
 
   render?: (
     isLocal: boolean,

@@ -17,6 +17,7 @@ interface TooltipProps {
   showTooltipArrow?: boolean;
   fontSize?: number;
   onPress?: () => void;
+  scrollY?: number;
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
@@ -25,6 +26,7 @@ const Tooltip = (props: TooltipProps) => {
     placement = 'top',
     showTooltipArrow = true,
     containerStyle = '',
+    scrollY = 0,
   } = props;
   const css = showTooltipArrow
     ? `
@@ -100,7 +102,15 @@ const Tooltip = (props: TooltipProps) => {
         className="custom-tool-tip"
         place={placement}
         type="dark"
-        effect="solid">
+        effect="solid"
+        overridePosition={({left, top}, currentEvent, currentTarget, node) => {
+          const d = document.documentElement;
+          left = Math.min(d.clientWidth - node.clientWidth, left);
+          top = Math.min(d.clientHeight - node.clientHeight, top);
+          left = Math.max(0, left);
+          top = Math.max(0, top);
+          return {top: top + scrollY, left};
+        }}>
         <style type="text/css">{css}</style>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           {props?.toolTipIcon ? props.toolTipIcon : null}

@@ -80,6 +80,8 @@ const ChatContainer = (props?: {
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
   );
+
+  const [scrollOffset, setScrollOffset] = useState(0);
   const {
     setUnreadGroupMessageCount,
     unreadGroupMessageCount,
@@ -116,6 +118,10 @@ const ChatContainer = (props?: {
     data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  };
+
+  const onScroll = event => {
+    setScrollOffset(event.nativeEvent.contentOffset.y);
   };
 
   const {ChatBubbleComponent} = useCustomization(data => {
@@ -204,7 +210,10 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
-      <ScrollView ref={scrollViewRef} onContentSizeChange={onContentSizeChange}>
+      <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={onContentSizeChange}
+        onScroll={onScroll}>
         {chatType === ChatType.Group ? (
           <>
             <View style={style.defaultMessageContainer}>
@@ -253,6 +262,7 @@ const ChatContainer = (props?: {
                   fileName={message?.fileName}
                   ext={message?.ext}
                   reactions={message?.reactions}
+                  scrollOffset={scrollOffset}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />

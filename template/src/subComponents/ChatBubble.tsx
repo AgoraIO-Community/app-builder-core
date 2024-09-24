@@ -129,6 +129,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     fileName,
     ext,
     reactions,
+    scrollOffset,
   } = props;
 
   const localUid = useLocalUid();
@@ -401,7 +402,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
 
             return reactionObj.count > 0 ? (
               <Tooltip
-                key={reactionObj.reaction}
+                scrollY={scrollOffset}
+                key={`${uid}-${reactionObj.reaction}`}
                 // toolTipMessage={msg}
                 toolTipMessage={
                   <Text>
