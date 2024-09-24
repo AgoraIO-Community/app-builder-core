@@ -157,6 +157,60 @@ const CustomEmojiPicker = ({
   );
 };
 
+const CustomReactioPicker = ({isLocal, setIsHovered, messageId}) => {
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
+  const {addReaction} = useChatConfigure();
+  const handleCustomReactionClick = (emojiObject: {
+    emoji: string;
+    names: string[];
+  }) => {
+    addReaction(messageId, emojiObject.emoji);
+    setIsEmojiPickerOpen(false);
+    setIsHovered(false);
+  };
+
+  return (
+    <>
+      <IconButton
+        hoverEffect={false}
+        hoverEffectStyle={{
+          backgroundColor: $config.ICON_BG_COLOR,
+          borderRadius: 24,
+        }}
+        iconProps={{
+          iconType: 'plain',
+          base64: false,
+          iconContainerStyle: {
+            padding: 0,
+            marginHorizontal: 4,
+          },
+          iconSize: 20,
+          name: 'add_reaction',
+          tintColor:
+            $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['75%'],
+        }}
+        onPress={() => {
+          setIsEmojiPickerOpen(true);
+        }}
+      />
+      {isEmojiPickerOpen && (
+        <CustomEmojiPicker
+          containerStyle={[
+            styles.customEmojiPickerContainer,
+            isLocal ? {right: 0} : {left: 0},
+          ]}
+          isReactionPicker={true}
+          handleEmojiClick={handleCustomReactionClick}
+          handleEmojiClose={() => {
+            setIsEmojiPickerOpen(false);
+            setIsHovered(false);
+          }}
+        />
+      )}
+    </>
+  );
+};
+
 export const ReactionPicker = props => {
   const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
   const {addReaction} = useChatConfigure();
@@ -172,59 +226,6 @@ export const ReactionPicker = props => {
       unified: '1f923',
     },
   ];
-
-  const CustomReactioPicker = ({isLocal}) => {
-    const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
-    const handleCustomReactionClick = (emojiObject: {
-      emoji: string;
-      names: string[];
-    }) => {
-      addReaction(messageId, emojiObject.emoji);
-      setIsEmojiPickerOpen(false);
-      setIsHovered(false);
-    };
-
-    return (
-      <>
-        <IconButton
-          hoverEffect={false}
-          hoverEffectStyle={{
-            backgroundColor: $config.ICON_BG_COLOR,
-            borderRadius: 24,
-          }}
-          iconProps={{
-            iconType: 'plain',
-            base64: false,
-            iconContainerStyle: {
-              padding: 0,
-              marginHorizontal: 4,
-            },
-            iconSize: 20,
-            name: 'add_reaction',
-            tintColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['75%'],
-          }}
-          onPress={() => {
-            setIsEmojiPickerOpen(true);
-          }}
-        />
-        {isEmojiPickerOpen && (
-          <CustomEmojiPicker
-            containerStyle={[
-              styles.customEmojiPickerContainer,
-              isLocal ? {right: 0} : {left: 0},
-            ]}
-            isReactionPicker={true}
-            handleEmojiClick={handleCustomReactionClick}
-            handleEmojiClose={() => {
-              setIsEmojiPickerOpen(false);
-              setIsHovered(false);
-            }}
-          />
-        )}
-      </>
-    );
-  };
 
   const handleReactionClick = emoji => {
     console.log('on reaction', emoji);
@@ -244,7 +245,11 @@ export const ReactionPicker = props => {
           </TouchableOpacity>
           {index === reactions.length - 1 && (
             <>
-              <CustomReactioPicker isLocal={isLocal} />
+              <CustomReactioPicker
+                isLocal={isLocal}
+                messageId={messageId}
+                setIsHovered={setIsHovered}
+              />
               <MoreMessageOptions
                 userId={userId}
                 isLocal={isLocal}
@@ -337,7 +342,7 @@ const styles = StyleSheet.create({
   emojiWrapper: {
     width: 16,
     height: 16,
-    marginHorizontal: 4,
+    marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
     display: 'flex',
