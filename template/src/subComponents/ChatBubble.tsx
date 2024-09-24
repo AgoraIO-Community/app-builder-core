@@ -361,6 +361,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                               msgId={msgId}
                               privateChatUser={privateChatUser}
                               isLocal={isLocal}
+                              userId={uid}
                             />
                           </View>
                         }
