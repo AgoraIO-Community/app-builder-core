@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-clipboard_outlined:before {
+  content: '\e9a2';
+}
 .icon-add_reaction:before {
   content: '\e9a1';
   color: #fff;
