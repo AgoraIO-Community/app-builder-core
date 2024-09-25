@@ -298,7 +298,7 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
       focusEffect={showEmojiPicker}
       iconProps={{
         iconType: 'plain',
-        base64: true,
+        base64: showEmojiPicker ? true : false,
         hoverBase64: true,
         iconContainerStyle: {
           padding: 4,
