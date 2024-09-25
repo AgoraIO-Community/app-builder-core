@@ -130,7 +130,7 @@ const CustomEmojiPicker = ({
         }`}
         lazyLoadEmojis={true}
         previewConfig={{showPreview: false}}
-        height={370}
+        height={350}
         autoFocusSearch={false}
         emojiStyle={EmojiStyle.NATIVE}
       />
@@ -140,7 +140,7 @@ const CustomEmojiPicker = ({
           width: 30,
           height: 30,
           position: 'absolute',
-          top: -355,
+          top: 20,
           right: 5,
         }}>
         <IconButton
@@ -351,10 +351,6 @@ const styles = StyleSheet.create({
     // marginBottom: 12,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    position: 'absolute',
-    bottom: 0,
-    borderLeftWidth: 0,
-    borderRightWidth: 0,
   },
   emojiWrapper: {
     width: 16,
