@@ -99,7 +99,7 @@ template/theme-transparent.json
 template/theme-dark.json
 
 #lock file
-#template/package-lock.json
+template/package-lock.json
 
 # vscode
 .vscode
