@@ -6,11 +6,12 @@ interface TooltipProps {
   activeBgStyle?: ViewStyle;
   defaultBgStyle?: ViewStyle;
   rootTooltipContainer?: React.CSSProperties;
+  containerStyle?: string;
   renderContent: (
     isToolTipVisible: boolean,
     setToolTipVisible: React.Dispatch<React.SetStateAction<boolean>>,
   ) => React.ReactNode;
-  toolTipMessage: string;
+  toolTipMessage: string | React.ReactNode;
   toolTipIcon?: React.ReactNode;
   isClickable?: boolean;
   placement?: 'top' | 'bottom' | 'left' | 'right';
@@ -18,6 +19,7 @@ interface TooltipProps {
   fontSize?: number;
   onPress?: () => void;
   disabled?: boolean;
+  scrollY?: number;
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
@@ -27,17 +29,21 @@ const Tooltip = (props: TooltipProps) => {
     showTooltipArrow = true,
     rootTooltipContainer = {},
     disabled = false,
+    containerStyle = '',
+    scrollY = 0,
   } = props;
   const css = showTooltipArrow
     ? `
   .custom-tool-tip{
     padding:8px;
     border-radius: 8px;
+    ${containerStyle}
   }
   .custom-tool-tip div{
     font-family: "Source Sans Pro";
     font-weight: 400;
     font-size: ${props.fontSize ? props.fontSize : 16}px;
+    
   }
   .__react_component_tooltip.show{
     opacity:1;
@@ -104,7 +110,15 @@ const Tooltip = (props: TooltipProps) => {
         className="custom-tool-tip"
         place={placement}
         type="dark"
-        effect="solid">
+        effect="solid"
+        overridePosition={({left, top}, currentEvent, currentTarget, node) => {
+          const d = document.documentElement;
+          left = Math.min(d.clientWidth - node.clientWidth, left);
+          top = Math.min(d.clientHeight - node.clientHeight, top);
+          left = Math.max(0, left);
+          top = Math.max(0, top);
+          return {top: top + scrollY, left};
+        }}>
         <style type="text/css">{css}</style>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           {props?.toolTipIcon ? props.toolTipIcon : null}

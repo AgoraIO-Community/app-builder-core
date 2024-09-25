@@ -151,4 +151,5 @@ export interface IconsInterface {
   clipboard_outlined: string;
   'recording-status': string;
   fullscreen: string;
+  add_reaction: string;
 }

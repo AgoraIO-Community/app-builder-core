@@ -86,6 +86,10 @@ interface ChatUIControlsProviderProps {
   children: React.ReactNode;
 }
 
+// export const MIN_HEIGHT = 43;
+// export const MAX_HEIGHT = 97;
+// export const LINE_HEIGHT = 20;
+
 export const MIN_HEIGHT = 48;
 export const MAX_HEIGHT = 92;
 export const LINE_HEIGHT = 17;

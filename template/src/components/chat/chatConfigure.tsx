@@ -2,6 +2,7 @@ import {createHook} from 'customization-implementation';
 import React, {createContext, useState, useEffect} from 'react';
 import AgoraChat from 'agora-chat';
 import {useRoomInfo} from '../room-info/useRoomInfo';
+import {useLocalUid} from '../../../agora-rn-uikit';
 
 import {UidType, useContent} from 'customization-api';
 import {
@@ -39,6 +40,8 @@ interface chatConfigureContextInterface {
     recallFromUser?: string,
     chatType?: SDKChatType,
   ) => void;
+  addReaction: (messageId: string, reaction: string) => void;
+  removeReaction: (messageId: string, reaction: string) => void;
 }
 
 export const chatConfigureContext =
@@ -50,6 +53,8 @@ export const chatConfigureContext =
     downloadAttachment: () => {},
     uploadAttachment: () => {},
     deleteAttachment: () => {},
+    addReaction: () => {},
+    removeReaction: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -59,6 +64,7 @@ const ChatConfigure = ({children}) => {
   const {defaultContent} = useContent();
   const {privateChatUser, setUploadStatus, setUploadedFiles, uploadedFiles} =
     useChatUIControls();
+  const localUid = useLocalUid();
   const defaultContentRef = React.useRef(defaultContent);
   const {
     addMessageToPrivateStore,
@@ -66,6 +72,8 @@ const ChatConfigure = ({children}) => {
     addMessageToStore,
     removeMessageFromPrivateStore,
     removeMessageFromStore,
+    addReactionToStore,
+    addReactionToPrivateStore,
   } = useChatMessages();
   const {store} = React.useContext(StorageContext);
 
@@ -297,6 +305,21 @@ const ChatConfigure = ({children}) => {
             logger.error(LogSource.Internals, 'CHAT', 'ChatSDK Error', error);
           },
         });
+
+        newConn.addEventHandler('REACTION', {
+          onReactionChange: reactionMsg => {
+            const {chatType, messageId, to, reactions, from} = reactionMsg;
+            if (chatType === SDKChatType.GROUP_CHAT) {
+              addReactionToStore(messageId, reactions);
+            }
+            if (chatType === SDKChatType.SINGLE_CHAT) {
+              const uid = localUid === Number(from) ? to : from;
+              addReactionToPrivateStore(uid, messageId, reactions);
+            }
+
+            console.log(reactionMsg);
+          },
+        });
         connRef.current = newConn;
       } catch (error) {
         logger.error(
@@ -508,6 +531,56 @@ const ChatConfigure = ({children}) => {
     }
   };
 
+  const addReaction = (messageId: string, reaction: string) => {
+    if (connRef.current) {
+      connRef.current
+        .addReaction({messageId, reaction})
+        .then(res => {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Chat Reaction Added to mid ${messageId}`,
+            res,
+          );
+        })
+        .catch(err => {
+          if (err.type === 1101) {
+            // If user already added reaction then remove it
+            removeReaction(messageId, reaction);
+          } else {
+            logger.debug(
+              LogSource.Internals,
+              'CHAT',
+              `Chat Reaction Addition Failed for mid ${messageId} - ${err?.message}`,
+              err,
+            );
+          }
+        });
+    }
+  };
+
+  const removeReaction = (messageId: string, reaction: string) => {
+    if (connRef.current) {
+      connRef.current
+        .deleteReaction({messageId, reaction})
+        .then(res => {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Chat Reaction Removed to mid ${messageId}`,
+            res,
+          );
+        })
+        .catch(err => {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Chat Reaction Removal Failed for mid ${messageId}`,
+            err,
+          );
+        });
+    }
+  };
   return (
     <chatConfigureContext.Provider
       value={{
@@ -518,6 +591,8 @@ const ChatConfigure = ({children}) => {
         downloadAttachment,
         uploadAttachment,
         deleteAttachment,
+        addReaction,
+        removeReaction,
       }}>
       {children}
     </chatConfigureContext.Provider>

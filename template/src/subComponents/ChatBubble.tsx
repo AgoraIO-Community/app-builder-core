@@ -25,8 +25,8 @@ import {
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
-import {isWebInternal, trimText} from '../utils/common';
-import {useChatUIControls, useContent} from 'customization-api';
+import {isMobileUA, isWebInternal, trimText} from '../utils/common';
+import {useChatUIControls, useContent, useLocalUid} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {containsOnlyEmojis, formatAMPM, isURL} from '../utils';
@@ -39,6 +39,9 @@ import {
   chatMsgDeletedText,
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {ReactionPicker} from './chat/ChatEmoji';
+import {useChatConfigure} from '../../src/components/chat/chatConfigure';
+import Tooltip from '../../src/atoms/Tooltip';
 
 type AttachmentBubbleProps = {
   fileName: string;
@@ -108,6 +111,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   const [lightboxVisible, setLightboxVisible] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const moreIconRef = React.useRef<View>(null);
+  const {removeReaction, addReaction} = useChatConfigure();
 
   let {
     isLocal,
@@ -124,9 +128,13 @@ const ChatBubble = (props: ChatBubbleProps) => {
     thumb,
     fileName,
     ext,
+    reactions,
+    scrollOffset,
   } = props;
 
-  let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+  const localUid = useLocalUid();
+
+  let time = formatAMPM(new Date(createdTimestamp));
 
   const chatMsgDeletedTxt = useString(chatMsgDeletedText);
 
@@ -136,8 +144,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //then show the user and timestamp again even if same user
   if (previousMessageCreatedTimestamp && createdTimestamp) {
     try {
-      const startTime = new Date(parseInt(previousMessageCreatedTimestamp));
-      const endTime = new Date(parseInt(createdTimestamp));
+      const startTime = new Date(previousMessageCreatedTimestamp);
+      const endTime = new Date(createdTimestamp);
       let resultInMinutes = 0;
       if (startTime && endTime) {
         const difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
@@ -181,6 +189,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
       fileName,
       ext,
       previousMessageCreatedTimestamp,
+      reactions,
     )
   ) : (
     <>
@@ -219,125 +228,257 @@ const ChatBubble = (props: ChatBubbleProps) => {
       ) : (
         <></>
       )}
-      <View
-        style={[
-          isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView,
-          //isURL(message) ? {maxWidth: '88%'} : {},
-        ]}>
-        <View
-          style={[
-            isLocal
-              ? style.chatBubbleLocalViewLayer2
-              : style.chatBubbleRemoteViewLayer2,
-            type === ChatMessageType.IMAGE && style.chatBubbleViewImg,
-          ]}>
-          {isDeleted ? (
-            <View style={style.deleteMsgContainer}>
-              <ImageIcon
-                iconSize={18}
-                iconType="plain"
-                name="remove"
-                tintColor={$config.SEMANTIC_NEUTRAL}
-              />
-              <Text
-                style={[
-                  style.messageStyle,
-                  {color: $config.SEMANTIC_NEUTRAL, marginLeft: 5},
-                ]}>
-                {chatMsgDeletedTxt(isLocal ? 'You' : defaultContent[uid]?.name)}
-              </Text>
-            </View>
-          ) : (
-            <Hyperlink
-              onPress={handleUrl}
-              linkStyle={{
-                color: $config.FONT_COLOR,
-                textDecorationLine: 'underline',
-              }}>
-              {type === ChatMessageType.TXT && (
-                <Text
-                  style={[
-                    style.messageStyle,
-                    containsOnlyEmojis(message)
-                      ? {fontSize: 24, lineHeight: 32}
-                      : {fontSize: 14, lineHeight: 20},
-                  ]}
-                  selectable={true}>
-                  {message}
-                </Text>
-              )}
-              {type === ChatMessageType.IMAGE && (
-                <View>
-                  <TouchableOpacity
-                    style={{justifyContent: 'center', alignItems: 'center'}}
-                    onPress={() => {
-                      !isLoading && setLightboxVisible(true);
-                    }}>
-                    {isLoading ? (
-                      <View style={style.spinnerContainer}>
-                        <ActivityIndicator
-                          size="small"
-                          color={$config.PRIMARY_ACTION_BRAND_COLOR}
-                        />
-                      </View>
-                    ) : null}
-                    <>
-                      <Image
-                        source={{uri: thumb}}
-                        style={style.previewImg}
-                        onLoad={handleImageLoad}
-                      />
-                    </>
-                  </TouchableOpacity>
-                  {message && (
-                    <Text style={[style.captionText, style.bubbleText]}>
-                      {message}
-                    </Text>
-                  )}
-                  {lightboxVisible ? (
-                    <ImagePopup
-                      modalVisible={lightboxVisible}
-                      setModalVisible={setLightboxVisible}
-                      imageUrl={url}
-                      msgId={msgId}
-                      fileName={fileName}
-                      senderName={isLocal ? 'You' : defaultContent[uid]?.name}
-                      timestamp={createdTimestamp}
-                      isLocal={isLocal}
-                    />
-                  ) : null}
-                </View>
-              )}
-              {type === ChatMessageType.FILE && (
-                <AttachmentBubble
-                  fileName={fileName}
-                  fileExt={ext}
-                  msg={message}
-                  secondaryComponent={
-                    <View>
-                      <MoreMenu
-                        ref={moreIconRef}
-                        setActionMenuVisible={setActionMenuVisible}
-                      />
-                      <ChatActionMenu
-                        actionMenuVisible={actionMenuVisible}
-                        setActionMenuVisible={setActionMenuVisible}
-                        btnRef={moreIconRef}
-                        fileName={fileName}
-                        fileUrl={url}
-                        msgId={msgId}
-                        privateChatUser={privateChatUser}
-                        isLocal={isLocal}
-                      />
-                    </View>
-                  }
+      <PlatformWrapper isLocal={isLocal}>
+        {(
+          isHovered: boolean,
+          setIsHovered: React.Dispatch<React.SetStateAction<boolean>>,
+        ) => {
+          return (
+            <View
+              style={[
+                isLocal
+                  ? style.chatBubbleLocalView
+                  : style.chatBubbleRemoteView,
+                isURL(message) ? {maxWidth: '88%'} : {},
+              ]}>
+              {isHovered && !isDeleted && (
+                <ReactionPicker
+                  messageId={msgId}
+                  isLocal={isLocal}
+                  userId={uid}
+                  type={type}
+                  message={message}
+                  setIsHovered={setIsHovered}
                 />
               )}
-            </Hyperlink>
-          )}
+              <View
+                style={[
+                  isLocal
+                    ? style.chatBubbleLocalViewLayer2
+                    : style.chatBubbleRemoteViewLayer2,
+                  type === ChatMessageType.IMAGE && style.chatBubbleViewImg,
+                ]}>
+                {isDeleted ? (
+                  <View style={style.deleteMsgContainer}>
+                    <ImageIcon
+                      iconSize={18}
+                      iconType="plain"
+                      name="remove"
+                      tintColor={$config.SEMANTIC_NEUTRAL}
+                    />
+                    <Text
+                      style={[
+                        style.messageStyle,
+                        {color: $config.SEMANTIC_NEUTRAL, marginLeft: 5},
+                      ]}>
+                      {chatMsgDeletedTxt(
+                        isLocal ? 'You' : defaultContent[uid]?.name,
+                      )}
+                    </Text>
+                  </View>
+                ) : (
+                  <Hyperlink
+                    onPress={handleUrl}
+                    linkStyle={{
+                      color: $config.FONT_COLOR,
+                      textDecorationLine: 'underline',
+                    }}>
+                    {type === ChatMessageType.TXT && (
+                      <Text
+                        style={[
+                          style.messageStyle,
+                          containsOnlyEmojis(message)
+                            ? {fontSize: 24, lineHeight: 32}
+                            : {fontSize: 14, lineHeight: 20},
+                        ]}
+                        selectable={true}>
+                        {message}
+                      </Text>
+                    )}
+                    {type === ChatMessageType.IMAGE && (
+                      <View>
+                        <TouchableOpacity
+                          style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                          onPress={() => {
+                            !isLoading && setLightboxVisible(true);
+                          }}>
+                          {isLoading ? (
+                            <View style={style.spinnerContainer}>
+                              <ActivityIndicator
+                                size="small"
+                                color={$config.PRIMARY_ACTION_BRAND_COLOR}
+                              />
+                            </View>
+                          ) : null}
+                          <>
+                            <Image
+                              source={{uri: thumb}}
+                              style={style.previewImg}
+                              onLoad={handleImageLoad}
+                            />
+                          </>
+                        </TouchableOpacity>
+                        {message && (
+                          <Text style={[style.captionText, style.bubbleText]}>
+                            {message}
+                          </Text>
+                        )}
+                        {lightboxVisible ? (
+                          <ImagePopup
+                            modalVisible={lightboxVisible}
+                            setModalVisible={setLightboxVisible}
+                            imageUrl={url}
+                            msgId={msgId}
+                            fileName={fileName}
+                            senderName={
+                              isLocal ? 'You' : defaultContent[uid]?.name
+                            }
+                            timestamp={createdTimestamp}
+                            isLocal={isLocal}
+                          />
+                        ) : null}
+                      </View>
+                    )}
+                    {type === ChatMessageType.FILE && (
+                      <AttachmentBubble
+                        fileName={fileName}
+                        fileExt={ext}
+                        msg={message}
+                        secondaryComponent={
+                          <View>
+                            <MoreMenu
+                              ref={moreIconRef}
+                              setActionMenuVisible={setActionMenuVisible}
+                            />
+                            <ChatActionMenu
+                              actionMenuVisible={actionMenuVisible}
+                              setActionMenuVisible={setActionMenuVisible}
+                              btnRef={moreIconRef}
+                              fileName={fileName}
+                              fileUrl={url}
+                              msgId={msgId}
+                              privateChatUser={privateChatUser}
+                              isLocal={isLocal}
+                              userId={uid}
+                            />
+                          </View>
+                        }
+                      />
+                    )}
+                  </Hyperlink>
+                )}
+              </View>
+            </View>
+          );
+        }}
+      </PlatformWrapper>
+      {!isDeleted && (
+        <View
+          style={[
+            style.reactionContainer,
+            isLocal ? style.reactionLocalView : style.reactionRemoteView,
+          ]}>
+          {reactions?.map((reactionObj, index) => {
+            const msg =
+              reactionObj.userList.length > 3
+                ? `${reactionObj.userList
+                    .slice(0, 2)
+                    .map(uid => {
+                      return Number(uid) === localUid
+                        ? 'You(click to remove)'
+                        : defaultContent[uid]?.name || 'User';
+                    })
+                    .join(', ')} and ${reactionObj.userList.length - 2} others`
+                : `${reactionObj.userList
+                    .map(uid => {
+                      return Number(uid) === localUid
+                        ? 'You(click to remove)'
+                        : defaultContent[uid]?.name || 'User';
+                    })
+                    .join(', ')}`;
+
+            return reactionObj.count > 0 ? (
+              <Tooltip
+                scrollY={scrollOffset}
+                key={`${uid}-${reactionObj.reaction}`}
+                // toolTipMessage={msg}
+                toolTipMessage={
+                  <Text>
+                    <Text style={{color: $config.FONT_COLOR, fontSize: 12}}>
+                      {msg}
+                    </Text>
+                    <Text
+                      style={{
+                        color:
+                          $config.FONT_COLOR + hexadecimalTransparency['40%'],
+                        fontSize: 12,
+                      }}>
+                      {' '}
+                      reacted with{' '}
+                    </Text>
+                    <Text>{reactionObj.reaction}</Text>
+                  </Text>
+                }
+                containerStyle={`max-width:200px;z-index:100000;`}
+                placement={`${isLocal ? 'left' : 'right'}`}
+                fontSize={12}
+                renderContent={(isToolTipVisible, setToolTipVisible) => {
+                  return (
+                    <TouchableOpacity
+                      style={style.reactionWrapper}
+                      onPress={() => {
+                        if (
+                          reactionObj.userList.includes(localUid.toString())
+                        ) {
+                          removeReaction(msgId, reactionObj.reaction);
+                        } else {
+                          addReaction(msgId, reactionObj.reaction);
+                        }
+                      }}>
+                      <Text style={{fontSize: 10}}>{reactionObj.reaction}</Text>
+                      <Text style={style.reactionCount}>
+                        {reactionObj.count}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            ) : (
+              <></>
+            );
+          })}
         </View>
-      </View>
+      )}
     </>
+  );
+};
+
+const PlatformWrapper = ({children, isLocal, isChatBubble = true}) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+
+  return isWebInternal() && !isMobileUA() ? (
+    React.cloneElement(children(isHovered, setIsHovered), {
+      style: {
+        cursor: isHovered ? 'pointer' : 'auto',
+        zIndex: isHovered ? 99999 : -1,
+        ...(isChatBubble
+          ? isLocal
+            ? style.chatBubbleLocalView
+            : style.chatBubbleRemoteView
+          : {}),
+      },
+
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+    })
+  ) : (
+    <>{children(false)}</>
   );
 };
 
@@ -365,6 +506,7 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 0,
     borderTopRightRadius: 8,
     maxWidth: '88%',
+    position: 'relative',
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
@@ -398,6 +540,29 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 8,
     borderTopRightRadius: 0,
     maxWidth: '88%',
+    position: 'relative',
+  },
+  reactionLocalView: {
+    alignSelf: 'flex-end',
+    marginVertical: 2,
+    marginHorizontal: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 0,
+    maxWidth: '88%',
+    position: 'relative',
+  },
+  reactionRemoteView: {
+    alignSelf: 'flex-start',
+    marginVertical: 2,
+    marginHorizontal: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 8,
+    maxWidth: '88%',
+    position: 'relative',
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -473,6 +638,32 @@ const style = StyleSheet.create({
   },
   mtZero: {
     marginTop: 0,
+  },
+  reactionWrapper: {
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    borderRadius: 12,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
+  reactionCount: {
+    fontSize: 10,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['40%'],
+    marginLeft: 2,
+  },
+  reactionContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
+    zIndex: 5,
+  },
+  reactionUserList: {
+    position: 'absolute',
   },
 });
 

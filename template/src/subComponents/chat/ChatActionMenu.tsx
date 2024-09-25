@@ -25,13 +25,17 @@ import {
   cancelText,
   copiedToClipboardText,
 } from '../../language/default-labels/commonLabels';
-import {useContent} from 'customization-api';
 import Toast from '../../../react-native-toast-message';
+import {useContent, UidType} from 'customization-api';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../../../src/components/chat-ui/useChatUIControls';
 
 interface MoreMenuProps {
   setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
-interface CaptionsActionMenuProps {
+interface ChatActionMenuProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: React.RefObject<View>;
@@ -40,9 +44,10 @@ interface CaptionsActionMenuProps {
   msgId: string;
   privateChatUser: number;
   isLocal: boolean;
+  userId?: UidType;
 }
 
-export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
+export const ChatActionMenu = (props: ChatActionMenuProps) => {
   const {
     actionMenuVisible,
     setActionMenuVisible,
@@ -52,7 +57,10 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     msgId,
     privateChatUser,
     isLocal,
+    userId,
   } = props;
+
+  const {setChatType, setPrivateChatUser} = useChatUIControls();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -88,6 +96,21 @@ export const ChatActionMenu = (props: CaptionsActionMenuProps) => {
     );
   }
   const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
+
+  !isLocal &&
+    chatType == SDKChatType.GROUP_CHAT &&
+    actionMenuitems.push({
+      icon: 'reply_all',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      iconSize: 14,
+      title: 'Private Reply',
+      onPress: () => {
+        setPrivateChatUser(userId);
+        setChatType(ChatType.Private);
+        setActionMenuVisible(false);
+      },
+    });
 
   actionMenuitems.push({
     icon: 'download',
