@@ -50,8 +50,8 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     borderRadius: 18,
   };
   const textStyle = {
-    fontSize: 12,
-    fontWeight: '400',
+    fontSize: 14,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   };
   const [showRequestSection, setShowRequestSection] = useState(true);

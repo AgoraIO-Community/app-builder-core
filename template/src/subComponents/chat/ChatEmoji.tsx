@@ -27,8 +27,11 @@ const css = `
   --epr-category-label-height:24px;
   --epr-search-input-border-radius:4px;
   --epr-search-bar-inner-padding:8px;
-  --epr-search-input-text-color:${$config.FONT_COLOR}
-
+  --epr-search-input-text-color:${$config.FONT_COLOR};
+  --epr-search-input-bg-color:${$config.INPUT_FIELD_BACKGROUND_COLOR};
+  --epr-search-input-bg-color-active:${$config.INPUT_FIELD_BACKGROUND_COLOR};
+  --epr-bg-color:${$config.CARD_LAYER_2_COLOR};
+  --epr-category-label-bg-color:${$config.CARD_LAYER_2_COLOR};
 }
 .chatEmojiPicker.epr-light-theme{
   --epr-emoji-size: 32px;
@@ -39,11 +42,19 @@ const css = `
    --epr-category-label-height:24px;
    --epr-search-input-border-radius:4px;
    --epr-search-bar-inner-padding:8px;
-   --epr-search-input-text-color:${$config.FONT_COLOR}
+   --epr-search-input-text-color:${$config.FONT_COLOR};
+   --epr-search-input-bg-color:${$config.INPUT_FIELD_BACKGROUND_COLOR};
+   --epr-search-input-bg-color-active:${$config.INPUT_FIELD_BACKGROUND_COLOR};
+   --epr-bg-color:${$config.CARD_LAYER_2_COLOR};
+   --epr-category-label-bg-color:${$config.CARD_LAYER_2_COLOR};
 }
 .chatEmojiPicker .epr-category-nav {
-  padding-top:0 !important
+  // padding-top:0 !important
 }
+.chatEmojiPicker .epr-header > div:first-child {
+  border-bottom: 1px solid ${$config.CARD_LAYER_4_COLOR}
+}
+
 .chatEmojiPicker .epr-skin-tones {
   visibility:hidden
 }
@@ -56,9 +67,7 @@ border:1px solid ${$config.PRIMARY_ACTION_BRAND_COLOR}
   left:8px
 }
 
-.chatEmojiPicker .epr-icn-clear-search {
-  visibility:hidden
-}
+
 .chatEmojiPicker .epr-search-container input {
   font-family:'Source Sans Pro' !important;
   font-size:14px;
@@ -75,12 +84,14 @@ border:1px solid ${$config.PRIMARY_ACTION_BRAND_COLOR}
 `;
 
 export const ChatEmojiPicker: React.FC = () => {
-  const {setMessage, showEmojiPicker, setShowEmojiPicker} = useChatUIControls();
+  const {setMessage, showEmojiPicker, setShowEmojiPicker, _handleHeightChange} =
+    useChatUIControls();
 
   const handleEmojiClick = (emojiObject: {emoji: string; names: string[]}) => {
     setMessage(prev =>
-      prev ? prev + '  ' + emojiObject.emoji : emojiObject.emoji,
+      prev ? prev + ' ' + emojiObject.emoji : emojiObject.emoji,
     );
+    _handleHeightChange();
     // setShowEmojiPicker(false);
   };
   const handleEmojiClose = () => {
@@ -119,7 +130,7 @@ const CustomEmojiPicker = ({
         }`}
         lazyLoadEmojis={true}
         previewConfig={{showPreview: false}}
-        height={370}
+        height={350}
         autoFocusSearch={false}
         emojiStyle={EmojiStyle.NATIVE}
       />
@@ -130,7 +141,7 @@ const CustomEmojiPicker = ({
           height: 30,
           position: 'absolute',
           top: 20,
-          right: 8,
+          right: 5,
         }}>
         <IconButton
           hoverEffect={false}
@@ -270,7 +281,8 @@ export interface ChatEmojiButtonProps {
 }
 
 export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
-  const {setShowEmojiPicker, uploadedFiles} = useChatUIControls();
+  const {showEmojiPicker, setShowEmojiPicker, uploadedFiles} =
+    useChatUIControls();
   const onPress = () => {
     setShowEmojiPicker(prev => !prev);
   };
@@ -283,17 +295,18 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
         backgroundColor: $config.ICON_BG_COLOR,
         borderRadius: 24,
       }}
+      focusEffect={showEmojiPicker}
       iconProps={{
         iconType: 'plain',
-        base64: false,
+        base64: true,
         hoverBase64: true,
         iconContainerStyle: {
           padding: 4,
         },
         iconSize: 24,
-        name: 'chat_emoji',
+        name: showEmojiPicker ? 'chat_emoji_fill' : 'chat_emoji',
         hoverIconName: 'chat_emoji_fill',
-        tintColor: $config.SECONDARY_ACTION_COLOR,
+        tintColor: $config.SEMANTIC_NEUTRAL,
       }}
       onPress={onPress}
     />
@@ -335,7 +348,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
-    marginBottom: 16,
+    // marginBottom: 12,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
   },

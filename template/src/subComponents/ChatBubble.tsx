@@ -499,7 +499,7 @@ const style = StyleSheet.create({
   chatBubbleRemoteView: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     alignSelf: 'flex-start',
-    marginVertical: 2,
+    marginBottom: 2,
     marginHorizontal: 12,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
@@ -533,7 +533,7 @@ const style = StyleSheet.create({
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     alignSelf: 'flex-end',
-    marginVertical: 2,
+    marginBottom: 2,
     marginHorizontal: 12,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
@@ -575,7 +575,7 @@ const style = StyleSheet.create({
     width: 256,
     height: 160,
     resizeMode: 'cover',
-    borderRadius: 8,
+    borderRadius: 4,
   },
   chatBubbleViewImg: {
     paddingHorizontal: 6,
@@ -635,6 +635,9 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  mtZero: {
+    marginTop: 0,
   },
   reactionWrapper: {
     paddingHorizontal: 6,

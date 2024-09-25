@@ -101,7 +101,8 @@ export const ChatHeader = () => {
   const groupChatLabel = useString(chatPanelGroupTabText)();
   const privateChatLabel = useString(chatPanelPrivateTabText)();
 
-  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
+  const {chatType, setChatType, setPrivateChatUser, showEmojiPicker} =
+    useChatUIControls();
 
   const selectGroup = () => {
     setChatType(ChatType.Group);
@@ -118,6 +119,7 @@ export const ChatHeader = () => {
   return (
     <SidePanelHeader
       isChat={true}
+      showTintedOverlay={showEmojiPicker}
       leadingIconName={isPrivateActive ? 'back-btn' : null}
       leadingIconOnPress={
         isPrivateActive
@@ -389,7 +391,7 @@ const styles = StyleSheet.create({
   },
   activeContainer: {
     margin: 2,
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 11,
     alignSelf: 'center',
   },

@@ -21,7 +21,11 @@ import {
   useChatMessages,
 } from '../../components/chat-messages/useChatMessages';
 import InlinePopup from '../../../src/atoms/InlinePopup';
-import {cancelText} from '../../language/default-labels/commonLabels';
+import {
+  cancelText,
+  copiedToClipboardText,
+} from '../../language/default-labels/commonLabels';
+import Toast from '../../../react-native-toast-message';
 import {useContent, UidType} from 'customization-api';
 import {
   ChatType,
@@ -91,6 +95,7 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
       trimText(defaultContent[recallFromUser]?.name),
     );
   }
+  const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
 
   !isLocal &&
     chatType == SDKChatType.GROUP_CHAT &&
@@ -119,13 +124,22 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
   });
 
   actionMenuitems.push({
-    icon: 'clipboard',
+    icon: 'clipboard_outlined',
+    onHoverIcon: 'clipboard',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: useString(chatActionMenuCopyLinkText)(),
     onPress: () => {
       Clipboard.setString(fileUrl);
       setActionMenuVisible(false);
+      Toast.show({
+        leadingIconName: 'tick-fill',
+        type: 'success',
+        text1: copiedToClipboardTextLabel,
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
     },
   });
   actionMenuitems.push({

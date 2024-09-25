@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useRef, useState} from 'react';
-import {useWindowDimensions} from 'react-native';
+import {useWindowDimensions, ViewStyle} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/useIsPSTN';
 import useMutePSTN from '../utils/useMutePSTN';
@@ -26,6 +26,7 @@ export interface RemoteAudioMuteProps {
   audio: boolean;
   isHost: boolean;
   userContainerRef: any;
+  iconContainerStyle?: ViewStyle;
 }
 /**
  * Component to mute / unmute remote audio.
@@ -34,7 +35,7 @@ export interface RemoteAudioMuteProps {
  */
 const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const btnRef = useRef(null);
-  const {isHost = false, userContainerRef} = props;
+  const {isHost = false, userContainerRef, iconContainerStyle = {}} = props;
   const muteRemoteAudio = useRemoteMute();
   const requestRemoteAudio = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
@@ -100,7 +101,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
           borderRadius: 20,
         }}
         iconProps={{
-          iconContainerStyle: {padding: 8},
+          iconContainerStyle: {...iconContainerStyle},
           iconSize: 20,
           iconType: 'plain',
           name: props.audio ? 'mic-on' : 'mic-off',

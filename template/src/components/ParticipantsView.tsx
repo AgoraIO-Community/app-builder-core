@@ -95,7 +95,7 @@ const ParticipantView = props => {
           : // desktop maximized
             CommonStyles.sidePanelContainerWeb,
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
-          ? {marginVertical: 4}
+          ? {marginTop: 4}
           : {},
         //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},

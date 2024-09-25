@@ -35,6 +35,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
     setUploadStatus,
     setUploadedFiles,
     uploadStatus,
+    setShowEmojiPicker,
     uploadedFiles,
   } = useChatUIControls();
   const {uploadAttachment} = useChatConfigure();
@@ -65,6 +66,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowEmojiPicker(false); // This will close emoji picker on when file is uplaoded
     const files = e.target.files;
 
     if (files) {
