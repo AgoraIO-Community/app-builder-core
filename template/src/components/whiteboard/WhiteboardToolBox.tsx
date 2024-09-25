@@ -1285,11 +1285,14 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     padding: 4,
     borderRadius: 4,
+    width: 32,
+    height: 32,
   },
-
   itemDefaultStyle: {
     padding: 4,
     borderRadius: 4,
+    width: 32,
+    height: 32,
   },
   itemHoverStyle: {
     backgroundColor: $config.CARD_LAYER_4_COLOR,

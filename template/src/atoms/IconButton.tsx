@@ -36,6 +36,7 @@ export interface IconButtonProps {
   isOnActionSheet?: boolean;
   hoverEffect?: boolean;
   hoverEffectStyle?: ViewStyle;
+  focusEffect?: boolean;
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
   showTooltipArrow?: boolean;
   isClickable?: boolean;
@@ -96,6 +97,7 @@ const ButtonWrapper = ({children, ...props}) => {
           props?.hoverEffect && props?.isToolTipVisible
             ? props?.hoverEffectStyle
             : {},
+          props?.focusEffect ? props?.hoverEffectStyle : {},
         ]
       }
       onPress={props.onPress}
@@ -112,6 +114,7 @@ const ButtonWrapper = ({children, ...props}) => {
           props?.hoverEffect && props?.isToolTipVisible
             ? props?.hoverEffectStyle
             : {},
+          props?.focusEffect ? props?.hoverEffectStyle : {},
         ]
       }
       onPress={props.onPress}
@@ -152,12 +155,14 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
     placement = 'top',
     isClickable = false,
     showTooltipArrow = true,
+    disabled = false,
   } = props;
   if (props?.toolTipMessage) {
     return (
       <ToolTip
         isClickable={isClickable}
         toolTipMessage={props.toolTipMessage}
+        disabled={disabled}
         //@ts-ignore
         placement={placement}
         showTooltipArrow={showTooltipArrow}

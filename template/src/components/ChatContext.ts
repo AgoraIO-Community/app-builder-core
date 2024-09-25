@@ -12,14 +12,16 @@
 import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
-import {ChatMessageType} from './chat-messages/useChatMessages';
+
+import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
 import {createHook} from 'customization-implementation';
+
 
 export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
-  createdTimestamp: string;
-  updatedTimestamp?: string;
+  createdTimestamp: number;
+  updatedTimestamp?: number;
   uid: UidType;
   msgId: string;
   isDeleted: boolean;
@@ -30,15 +32,17 @@ export interface ChatBubbleProps {
   fileName?: string;
   ext?: string;
   previousMessageCreatedTimestamp?: string;
+  reactions?: Reaction[];
+  scrollOffset?: number;
 
   render?: (
     isLocal: boolean,
     message: string,
-    createdTimestamp: string,
+    createdTimestamp: number,
     uid: UidType,
     msgId: string,
     isDeleted: boolean,
-    updatedTimestamp: string,
+    updatedTimestamp: number,
     isSameUser: boolean,
     type: ChatMessageType,
     thumb?: string,
@@ -46,12 +50,13 @@ export interface ChatBubbleProps {
     fileName?: string,
     ext?: string,
     previousMessageCreatedTimestamp?: string,
+    reactions?: Reaction[],
   ) => JSX.Element;
 }
 
 export interface messageStoreInterface {
-  createdTimestamp: string;
-  updatedTimestamp?: string;
+  createdTimestamp: number;
+  updatedTimestamp?: number;
   uid: UidType;
   msg: string;
 }
