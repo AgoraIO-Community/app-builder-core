@@ -132,14 +132,14 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     onPress: () => {
       Clipboard.setString(fileUrl);
       setActionMenuVisible(false);
-      Toast.show({
-        leadingIconName: 'tick-fill',
-        type: 'success',
-        text1: copiedToClipboardTextLabel,
-        visibilityTime: 3000,
-        primaryBtn: null,
-        secondaryBtn: null,
-      });
+      // Toast.show({
+      //   leadingIconName: 'tick-fill',
+      //   type: 'success',
+      //   text1: copiedToClipboardTextLabel,
+      //   visibilityTime: 3000,
+      //   primaryBtn: null,
+      //   secondaryBtn: null,
+      // });
     },
   });
   actionMenuitems.push({
