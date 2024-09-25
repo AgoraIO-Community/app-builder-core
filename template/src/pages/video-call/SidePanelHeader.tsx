@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
-    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    color: $config.FONT_COLOR,
   },
   nonActiveText: {
     paddingHorizontal: 24,
