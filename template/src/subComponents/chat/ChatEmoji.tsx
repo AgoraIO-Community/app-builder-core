@@ -18,7 +18,7 @@ const css = `
   font-family:'Source Sans Pro';
   font-weight:600;
 }
-.chatEmojiPicker.epr-dark-theme{
+.chatEmojiPicker.epr-main {
   --epr-emoji-size: 32px;
   --epr-emoji-gap:4px;
   --epr-emoji-padding:4px;
@@ -33,21 +33,10 @@ const css = `
   --epr-bg-color:${$config.CARD_LAYER_2_COLOR};
   --epr-category-label-bg-color:${$config.CARD_LAYER_2_COLOR};
 }
-.chatEmojiPicker.epr-light-theme{
-  --epr-emoji-size: 32px;
-  --epr-emoji-gap:4px;
-   --epr-emoji-padding:4px;
-   --epr-header-padding:12px;
-   --epr-horizontal-padding:12px;
-   --epr-category-label-height:24px;
-   --epr-search-input-border-radius:4px;
-   --epr-search-bar-inner-padding:8px;
-   --epr-search-input-text-color:${$config.FONT_COLOR};
-   --epr-search-input-bg-color:${$config.INPUT_FIELD_BACKGROUND_COLOR};
-   --epr-search-input-bg-color-active:${$config.INPUT_FIELD_BACKGROUND_COLOR};
-   --epr-bg-color:${$config.CARD_LAYER_2_COLOR};
-   --epr-category-label-bg-color:${$config.CARD_LAYER_2_COLOR};
+.chatEmojiPicker.epr-dark-theme{
+  // Add any specific overrides for dark theme 
 }
+
 .chatEmojiPicker .epr-category-nav {
   // padding-top:0 !important
 }
@@ -298,7 +287,7 @@ export const ChatEmojiButton = (props: ChatEmojiButtonProps) => {
       focusEffect={showEmojiPicker}
       iconProps={{
         iconType: 'plain',
-        base64: true,
+        base64: showEmojiPicker ? true : false,
         hoverBase64: true,
         iconContainerStyle: {
           padding: 4,
