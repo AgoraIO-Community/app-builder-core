@@ -227,6 +227,7 @@ const Precall = (props: any) => {
     VirtualBackgroundComponent,
     PrecallAfterView,
     PrecallBeforeView,
+    wrapper: PrecallWrapper,
   } = useCustomization(data => {
     const components: {
       PrecallAfterView: React.ComponentType;
@@ -235,6 +236,7 @@ const Precall = (props: any) => {
       VideoPreview: React.ComponentType;
       VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       MeetingName: React.ComponentType<MeetingTitleProps>;
+      wrapper: React.ComponentType;
     } = {
       PrecallAfterView: React.Fragment,
       PrecallBeforeView: React.Fragment,
@@ -242,6 +244,7 @@ const Precall = (props: any) => {
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
       VirtualBackgroundComponent: VBPanel,
+      wrapper: React.Fragment,
     };
     // commented for v1 release
     // if (
@@ -288,6 +291,14 @@ const Precall = (props: any) => {
     //     }
     //   }
     // }
+    if (
+      data?.components?.precall?.wrapper &&
+      typeof data?.components?.precall?.wrapper !== 'object'
+    ) {
+      if (isValidReactComponent(data?.components?.precall?.wrapper)) {
+        components.wrapper = data?.components?.precall?.wrapper;
+      }
+    }
     if (
       data?.components?.precall?.virtualBackgroundPanel &&
       typeof data?.components?.precall.virtualBackgroundPanel !== 'object' &&
@@ -357,7 +368,7 @@ const Precall = (props: any) => {
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
-    <>
+    <PrecallWrapper>
       <PrecallBeforeView />
       <View style={{flex: 1}}>
         <ScrollView
@@ -454,7 +465,7 @@ const Precall = (props: any) => {
         </ScrollView>
       </View>
       <PrecallAfterView />
-    </>
+    </PrecallWrapper>
   );
 };
 

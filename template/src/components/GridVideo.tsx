@@ -142,6 +142,8 @@ const style = StyleSheet.create({
     //borderRadius: 12,
     flex: 1,
     overflow: 'hidden',
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    borderRadius: 4,
   },
   infoTextContainer: {
     flex: 1,

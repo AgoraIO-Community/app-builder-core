@@ -8,7 +8,7 @@ const EmphasisOpacity = {
 };
 const EmphasisPlus = {
   high: '',
-  medium: hexadecimalTransparency['85%'],
+  medium: hexadecimalTransparency['70%'],
   low: hexadecimalTransparency['40%'],
   disabled: hexadecimalTransparency['40%'],
 };
