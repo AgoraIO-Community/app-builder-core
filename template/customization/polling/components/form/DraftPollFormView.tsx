@@ -16,6 +16,7 @@ import {
 } from 'customization-api';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
+import Toggle from '../../../../src/atoms/Toggle';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -102,27 +103,14 @@ export default function DraftPollFormView({
     }
   };
 
-  const getTitle = (type: PollKind) => {
-    if (type === PollKind.MCQ) {
-      return 'Multiple Choice';
-    }
-    if (type === PollKind.OPEN_ENDED) {
-      return 'Open Ended Poll';
-    }
-    if (type === PollKind.YES_NO) {
-      return 'Yes/No';
-    }
-    return 'Poll';
-  };
-
   return (
     <>
-      <BaseModalTitle title={getTitle(form.type)}>
+      <BaseModalTitle title={'Create Poll'}>
         <BaseModalCloseIcon onClose={onClose} />
       </BaseModalTitle>
       <BaseModalContent>
-        {/* Question section */}
-        <View style={style.createPollBox}>
+        <View style={style.pForm}>
+          {/* Question section */}
           <View style={style.pFormSection}>
             <FormTitle title="Question" />
             <View>
@@ -135,7 +123,7 @@ export default function DraftPollFormView({
                 onChangeText={text => {
                   handleInputChange('question', text);
                 }}
-                placeholder="Enter poll question here..."
+                placeholder="Enter your question here..."
                 placeholderTextColor={
                   $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
                 }
@@ -145,128 +133,152 @@ export default function DraftPollFormView({
               )}
             </View>
           </View>
-          {/* Options section */}
-          {form.type === PollKind.MCQ || form.type === PollKind.YES_NO ? (
+          {/* MCQ  section */}
+          {form.type === PollKind.MCQ ? (
             <View style={style.pFormSection}>
-              <FormTitle title="Responses" />
+              <View>
+                <FormTitle title="Responses" />
+                <View style={style.pushRight}>
+                  <View style={style.pFormToggle}>
+                    <Text style={style.pFormSettingsText}>
+                      Allow Multiple Selections
+                    </Text>
+                    <Toggle
+                      isEnabled={form.multiple_response}
+                      toggleSwitch={value => {
+                        handleCheckboxChange('multiple_response', value);
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
               <View style={style.pFormOptions}>
-                {form.type === PollKind.MCQ ? (
-                  <>
-                    {form.options?.map((option, index) => (
-                      <View style={style.pFormOptionCard} key={index}>
-                        <Text style={style.pFormOptionPrefix}>{index + 1}</Text>
-                        <TextInput
-                          autoComplete="off"
-                          id="input"
-                          style={style.pFormInput}
-                          value={option.text}
-                          onChangeText={text => {
-                            updateFormOption('update', text, index);
+                {form.options?.map((option, index) => (
+                  <View style={style.pFormOptionCard} key={index}>
+                    <Text style={style.pFormOptionPrefix}>{index + 1}</Text>
+                    <TextInput
+                      autoComplete="off"
+                      id="input"
+                      style={style.pFormInput}
+                      value={option.text}
+                      onChangeText={text => {
+                        updateFormOption('update', text, index);
+                      }}
+                      placeholder={`Option ${index + 1}`}
+                      placeholderTextColor={
+                        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
+                      }
+                    />
+                    {index > 1 ? (
+                      <View>
+                        <IconButton
+                          iconProps={{
+                            iconType: 'plain',
+                            iconContainerStyle: {
+                              padding: 5,
+                            },
+                            iconSize: 20,
+                            name: 'close',
+                            tintColor: $config.CARD_LAYER_5_COLOR,
                           }}
-                          placeholder="Add text here..."
-                          placeholderTextColor={
-                            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
-                          }
+                          onPress={() => {
+                            updateFormOption('delete', option.text, index);
+                          }}
                         />
-                        {index > 1 ? (
-                          <View>
-                            <IconButton
-                              iconProps={{
-                                iconType: 'plain',
-                                iconContainerStyle: {
-                                  padding: 5,
-                                },
-                                iconSize: 20,
-                                name: 'close',
-                                tintColor: $config.CARD_LAYER_5_COLOR,
-                              }}
-                              onPress={() => {
-                                updateFormOption('delete', option.text, index);
-                              }}
-                            />
-                          </View>
-                        ) : (
-                          <></>
-                        )}
                       </View>
-                    ))}
-                    <View style={style.pFormAddOptionLinkSection}>
-                      <LinkButton
-                        text="Add option"
-                        textStyle={style.pFormOptionLink}
-                        onPress={() => {
-                          updateFormOption('add', '', -1);
-                        }}
-                      />
-                    </View>
-                    {errors?.options && (
-                      <Text style={style.errorText}>
-                        {errors.options.message}
-                      </Text>
+                    ) : (
+                      <></>
                     )}
-                  </>
-                ) : (
-                  <></>
-                )}
-                {form.type === PollKind.YES_NO ? (
-                  <>
-                    <View
-                      style={[style.pFormOptionCard, style.verticalPadding]}>
-                      <Text style={style.pFormOptionText}>Yes</Text>
-                    </View>
-                    <View
-                      style={[style.pFormOptionCard, style.verticalPadding]}>
-                      <Text style={style.pFormOptionText}>No</Text>
-                    </View>
-                  </>
-                ) : (
-                  <></>
+                  </View>
+                ))}
+                <View style={style.pFormOptionCard}>
+                  <LinkButton
+                    text="+ Add option"
+                    textStyle={{
+                      ...style.pFormOptionText,
+                      ...style.pFormOptionLink,
+                    }}
+                    onPress={() => {
+                      updateFormOption('add', '', -1);
+                    }}
+                  />
+                </View>
+                {errors?.options && (
+                  <Text style={style.errorText}>{errors.options.message}</Text>
                 )}
               </View>
             </View>
           ) : (
             <></>
           )}
-          {/* Sections templete */}
-          <View style={style.pFormSection}>
-            <View>
-              {/* <View style={style.pFormCheckboxContainer}>
-                {form.type === PollKind.MCQ ? (
-                  <Checkbox
-                    checked={form.multiple_response}
-                    label={'Allow mutiple selections'}
-                    labelStye={style.pFormOptionText}
-                    onChange={() => {
-                      handleCheckboxChange(
-                        'multiple_response',
-                        !form.multiple_response,
-                      );
+          {/* Yes / No section */}
+          {form.type === PollKind.YES_NO ? (
+            <View style={style.pFormSection}>
+              <FormTitle title="Responses" />
+              <View style={style.pFormOptions}>
+                <View style={[style.pFormOptionCard, style.verticalPadding]}>
+                  <Text style={style.pFormOptionText}>Yes</Text>
+                </View>
+                <View style={[style.pFormOptionCard, style.verticalPadding]}>
+                  <Text style={style.pFormOptionText}>No</Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <></>
+          )}
+          {/* Advanced settings section */}
+          <View style={[style.pFormSection]}>
+            <FormTitle title="Advance Settings" />
+            <View style={style.pFormSettings}>
+              <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <Text style={style.pFormSettingsText}>Set Poll Timer</Text>
+                  <Toggle
+                    isEnabled={form.duration}
+                    toggleSwitch={value => {
+                      handleCheckboxChange('duration', value);
                     }}
                   />
-                ) : (
-                  <></>
-                )}
-              </View> */}
-              {/* <View style={style.pFormCheckboxContainer}>
-                <Checkbox
-                  checked={form.share}
-                  label={'Share results with the respondants'}
-                  labelStye={style.pFormOptionText}
-                  onChange={() => {
-                    handleCheckboxChange('share', !form.share);
-                  }}
-                />
-              </View> */}
-              {/* <View style={style.pFormCheckboxContainer}>
-                <Checkbox
-                  checked={form.duration}
-                  label={'Set Timer Duration'}
-                  labelStye={style.pFormOptionText}
-                  onChange={() => {
-                    handleCheckboxChange('duration', !form.duration);
-                  }}
-                />
-              </View> */}
+                </View>
+              </View>
+              <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <Text style={style.pFormSettingsText}>
+                    Result visible to attendees
+                  </Text>
+                  <Toggle
+                    isEnabled={form.share}
+                    toggleSwitch={value => {
+                      handleCheckboxChange('share', value);
+                    }}
+                  />
+                </View>
+              </View>
+              <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <Text style={style.pFormSettingsText}>
+                    Result visible to cohosts
+                  </Text>
+                  <Toggle
+                    isEnabled={form.share}
+                    toggleSwitch={value => {
+                      handleCheckboxChange('share', value);
+                    }}
+                  />
+                </View>
+              </View>
+              <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <Text style={style.pFormSettingsText}>Anonymous Results</Text>
+                  <Toggle
+                    isEnabled={form.share}
+                    toggleSwitch={value => {
+                      handleCheckboxChange('share', value);
+                    }}
+                  />
+                </View>
+              </View>
             </View>
           </View>
         </View>
@@ -288,19 +300,22 @@ export default function DraftPollFormView({
 }
 
 export const style = StyleSheet.create({
-  createPollBox: {
+  pForm: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 20,
+    gap: 24,
   },
   pFormSection: {
-    gap: 12,
+    gap: 8,
   },
-  pFormAddOptionLinkSection: {
-    marginTop: -8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    alignItems: 'flex-start',
+  pFormSettings: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_2_COLOR,
   },
   pFormTitle: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
@@ -311,7 +326,7 @@ export const style = StyleSheet.create({
   },
   pFormTextarea: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 16,
     fontWeight: '400',
@@ -319,15 +334,15 @@ export const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    height: 110,
+    height: 60,
     outlineStyle: 'none',
     padding: 20,
   },
   pFormOptionText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    lineHeight: 16,
+    lineHeight: 24,
     fontWeight: '400',
   },
   pFormOptionPrefix: {
@@ -335,41 +350,59 @@ export const style = StyleSheet.create({
     paddingRight: 4,
   },
   pFormOptionLink: {
-    fontWeight: '400',
-    lineHeight: 24,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    height: 48,
+    paddingVertical: 12,
   },
   pFormOptions: {
-    paddingVertical: 8,
     gap: 8,
   },
   pFormInput: {
     flex: 1,
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    lineHeight: 16,
+    lineHeight: 24,
     fontWeight: '400',
     outlineStyle: 'none',
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    borderRadius: 9,
+    borderRadius: 8,
     paddingVertical: 12,
+    height: 48,
+  },
+  pFormSettingsText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    lineHeight: 12,
+    fontWeight: '400',
   },
   pFormOptionCard: {
     display: 'flex',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
     alignSelf: 'stretch',
-    gap: 8,
+    gap: 4,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    borderRadius: 9,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  pFormToggle: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
   },
   verticalPadding: {
     paddingVertical: 12,
   },
   pFormCheckboxContainer: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 12,
     paddingVertical: 8,
   },
   previewActions: {
@@ -395,7 +428,11 @@ export const style = StyleSheet.create({
     color: $config.SEMANTIC_ERROR,
     fontSize: ThemeConfig.FontSize.tiny,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    paddingLeft: 5,
+    lineHeight: 12,
+    fontWeight: '400',
     paddingTop: 5,
+  },
+  pushRight: {
+    marginLeft: 'auto',
   },
 });
