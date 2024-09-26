@@ -248,9 +248,9 @@ export default function DraftPollFormView({
                     Result visible to attendees
                   </Text>
                   <Toggle
-                    isEnabled={form.share}
+                    isEnabled={form.share_attendee}
                     toggleSwitch={value => {
-                      handleCheckboxChange('share', value);
+                      handleCheckboxChange('share_attendee', value);
                     }}
                   />
                 </View>
@@ -261,9 +261,9 @@ export default function DraftPollFormView({
                     Result visible to cohosts
                   </Text>
                   <Toggle
-                    isEnabled={form.share}
+                    isEnabled={form.share_host}
                     toggleSwitch={value => {
-                      handleCheckboxChange('share', value);
+                      handleCheckboxChange('share_host', value);
                     }}
                   />
                 </View>
@@ -272,9 +272,9 @@ export default function DraftPollFormView({
                 <View style={style.pFormToggle}>
                   <Text style={style.pFormSettingsText}>Anonymous Results</Text>
                   <Toggle
-                    isEnabled={form.share}
+                    isEnabled={form.anonymous}
                     toggleSwitch={value => {
-                      handleCheckboxChange('share', value);
+                      handleCheckboxChange('anonymous', value);
                     }}
                   />
                 </View>

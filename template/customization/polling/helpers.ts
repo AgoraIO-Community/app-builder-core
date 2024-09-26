@@ -1,4 +1,4 @@
-import {Poll, PollAccess, PollItemOptionItem} from './context/poll-context';
+import {Poll, PollItemOptionItem} from './context/poll-context';
 
 function log(...args: any[]) {
   console.log('[CustomPolling::] ', ...args);
@@ -23,7 +23,6 @@ function addVote(
           ...option.votes,
           {
             uid,
-            access: PollAccess.PUBLIC,
             timestamp,
           },
         ],

@@ -1,10 +1,5 @@
 import {nanoid} from 'nanoid';
-import {
-  PollKind,
-  PollItem,
-  PollAccess,
-  PollStatus,
-} from '../../context/poll-context';
+import {PollKind, PollItem, PollStatus} from '../../context/poll-context';
 
 const POLL_DURATION = 600; // takes seconds
 
@@ -19,13 +14,14 @@ const initPollForm = (kind: PollKind): PollItem => {
     return {
       id: nanoid(4),
       type: PollKind.OPEN_ENDED,
-      access: PollAccess.PUBLIC,
       status: PollStatus.LATER,
       question: '',
       answers: null,
       options: null,
       multiple_response: false,
-      share: false,
+      share_attendee: true,
+      share_host: true,
+      anonymous: false,
       duration: false,
       expiresAt: 0,
       createdBy: -1,
@@ -35,7 +31,6 @@ const initPollForm = (kind: PollKind): PollItem => {
     return {
       id: nanoid(4),
       type: PollKind.MCQ,
-      access: PollAccess.PUBLIC,
       status: PollStatus.LATER,
       question: '',
       answers: null,
@@ -60,7 +55,9 @@ const initPollForm = (kind: PollKind): PollItem => {
         },
       ],
       multiple_response: true,
-      share: false,
+      share_attendee: true,
+      share_host: true,
+      anonymous: false,
       duration: false,
       expiresAt: 0,
       createdBy: -1,
@@ -70,7 +67,6 @@ const initPollForm = (kind: PollKind): PollItem => {
     return {
       id: nanoid(4),
       type: PollKind.YES_NO,
-      access: PollAccess.PUBLIC,
       status: PollStatus.LATER,
       question: '',
       answers: null,
@@ -89,7 +85,9 @@ const initPollForm = (kind: PollKind): PollItem => {
         },
       ],
       multiple_response: false,
-      share: false,
+      share_attendee: true,
+      share_host: true,
+      anonymous: false,
       duration: false,
       expiresAt: 0,
       createdBy: -1,

@@ -15,10 +15,6 @@ import {
   mergePolls,
 } from '../helpers';
 
-enum PollAccess {
-  PUBLIC = 'PUBLIC',
-}
-
 enum PollStatus {
   ACTIVE = 'ACTIVE',
   FINISHED = 'FINISHED',
@@ -51,13 +47,12 @@ enum PollTaskRequestTypes {
 interface PollItemOptionItem {
   text: string;
   value: string;
-  votes: Array<{uid: number; access: PollAccess; timestamp: number}>;
+  votes: Array<{uid: number; timestamp: number}>;
   percent: string;
 }
 interface PollItem {
   id: string;
   type: PollKind;
-  access: PollAccess; // remove it as poll are not private or public but the response will be public or private
   status: PollStatus;
   question: string;
   answers: Array<{
@@ -67,7 +62,9 @@ interface PollItem {
   }> | null;
   options: Array<PollItemOptionItem> | null;
   multiple_response: boolean;
-  share: boolean;
+  share_attendee: boolean;
+  share_host: boolean;
+  anonymous: boolean;
   duration: boolean;
   expiresAt: number;
   createdBy: number;
@@ -604,7 +601,6 @@ export {
   PollActionKind,
   PollKind,
   PollStatus,
-  PollAccess,
   PollModalState,
   PollTaskRequestTypes,
 };
