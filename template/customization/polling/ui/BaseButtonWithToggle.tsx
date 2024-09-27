@@ -6,7 +6,7 @@ import Tooltip from '../../../src/atoms/Tooltip';
 import PlatformWrapper from '../../../src/utils/PlatformWrapper';
 
 interface Props {
-  btnText: string;
+  text: string;
   tooltip?: boolean;
   tooltTipText?: string;
   onPress: (value: boolean) => void;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const BaseButtonWithToggle = ({
-  btnText,
+  text,
   tooltTipText,
   onPress,
   hoverEffect = false,
@@ -41,7 +41,7 @@ const BaseButtonWithToggle = ({
                 toggleSwitch(prev => !prev);
               }}>
               {/* Container to hold text and switch side by side */}
-              <Text style={[styles.text]}>{btnText}</Text>
+              <Text style={[styles.text]}>{text}</Text>
               <View>
                 <Toggle isEnabled={toggle} toggleSwitch={toggleSwitch} />
               </View>

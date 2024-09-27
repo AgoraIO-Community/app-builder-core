@@ -35,12 +35,15 @@ function BaseModalTitle({title, children}: TitleProps) {
 
 interface ContentProps {
   children: ReactNode;
+  noPadding?: boolean;
 }
 
-function BaseModalContent({children}: ContentProps) {
+function BaseModalContent({children, noPadding}: ContentProps) {
   return (
     <ScrollView contentContainerStyle={style.scrollgrow}>
-      <View style={style.content}>{children}</View>
+      <View style={[style.content, noPadding ? style.noPadding : {}]}>
+        {children}
+      </View>
     </ScrollView>
   );
 }
@@ -162,11 +165,11 @@ const style = StyleSheet.create({
   },
   header: {
     display: 'flex',
-    paddingHorizontal: 32,
-    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     alignItems: 'center',
     gap: 20,
-    minHeight: 72,
+    height: 60,
     justifyContent: 'space-between',
     flexDirection: 'row',
     borderBottomWidth: 1,
@@ -184,6 +187,9 @@ const style = StyleSheet.create({
     padding: 32,
     gap: 20,
     display: 'flex',
+  },
+  noPadding: {
+    padding: 0,
   },
   actions: {
     display: 'flex',

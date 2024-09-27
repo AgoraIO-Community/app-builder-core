@@ -154,7 +154,7 @@ export default function DraftPollFormView({
                   <View style={style.pFormToggle}>
                     <BaseButtonWithToggle
                       key="multiple-response-toggle"
-                      btnText="Allow Multiple Selections"
+                      text="Allow Multiple Selections"
                       onPress={value => {
                         handleCheckboxChange('multiple_response', value);
                       }}
@@ -257,7 +257,7 @@ export default function DraftPollFormView({
                 <View style={style.pFormToggle}>
                   <BaseButtonWithToggle
                     key="timer-toggle"
-                    btnText="Set Poll Timer"
+                    text="Set Poll Timer"
                     tooltTipText="Co-hosts will have access to view the poll results"
                     onPress={value => {
                       handleCheckboxChange('duration', value);
@@ -270,7 +270,7 @@ export default function DraftPollFormView({
                   <BaseButtonWithToggle
                     hoverEffect
                     key="attendee-toggle"
-                    btnText="Result visible to attendees"
+                    text="Result visible to attendees"
                     tooltTipText="Participants can view the aggregated poll results"
                     onPress={value => {
                       handleCheckboxChange('share_attendee', value);
@@ -296,7 +296,7 @@ export default function DraftPollFormView({
                   <BaseButtonWithToggle
                     hoverEffect
                     key="cohost-toggle"
-                    btnText="Result visible to cohosts"
+                    text="Result visible to cohosts"
                     tooltTipText="Co-hosts will have access to view the poll results"
                     onPress={value => {
                       handleCheckboxChange('share_host', value);
@@ -322,7 +322,7 @@ export default function DraftPollFormView({
                   <BaseButtonWithToggle
                     hoverEffect
                     key="anonymous-toggle"
-                    btnText="Anonymous Results"
+                    text="Anonymous Results"
                     tooltTipText="Anonymous results mean that: You, co-hosts and attendees won’t know who voted for which option."
                     onPress={value => {
                       handleCheckboxChange('anonymous', value);
