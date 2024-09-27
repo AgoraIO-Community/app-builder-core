@@ -39,8 +39,8 @@ export default function PollFormWizardModal() {
 
   const onSave = (launch?: boolean) => {
     try {
-      if (!form) {
-        throw new Error("Form cannot be saved. It's empty");
+      if (!validateForm()) {
+        return;
       }
       const payload = {
         ...form,
@@ -67,31 +67,38 @@ export default function PollFormWizardModal() {
   };
 
   const validateForm = () => {
+    // 1. Check if form is null
     if (!form) {
-      // Check if form is null
       return false;
     }
-    setFormErrors({});
+    // 2. Start with an empty errors object
+    let errors: Partial<PollFormErrors> = {};
+
+    // 3. Validate the question field
     if (form.question.trim() === '') {
-      setFormErrors({
-        ...formErrors,
-        question: {message: 'Cannot be blank'},
-      });
-      return false;
+      errors = {
+        ...errors,
+        question: {message: 'This field cannot be empty.'},
+      };
     }
+
+    // 4. Validate the options for MCQ type poll
     if (
       form.type === PollKind.MCQ &&
       form.options &&
       (form.options.length === 0 ||
-        form.options.find(item => item.text.trim() === ''))
+        form.options.some(item => item.text.trim() === ''))
     ) {
-      setFormErrors({
-        ...formErrors,
-        options: {message: 'Cannot be empty'},
-      });
-      return false;
+      errors = {
+        ...errors,
+        options: {message: 'Option can’t be empty.'},
+      };
     }
-    return true;
+    // 5. Set formErrors to the collected errors
+    setFormErrors(errors);
+
+    // 6. If there are no errors, return true, otherwise return false
+    return Object.keys(errors).length === 0;
   };
 
   const onClose = () => {
@@ -114,6 +121,7 @@ export default function PollFormWizardModal() {
               form={form}
               setForm={setForm}
               onPreview={onPreview}
+              onSave={onSave}
               errors={formErrors}
               onClose={onClose}
             />
@@ -136,7 +144,7 @@ export default function PollFormWizardModal() {
   }
 
   return (
-    <BaseModal width={600} visible={step !== null}>
+    <BaseModal width={600} visible={step !== null} onClose={onClose}>
       {renderSwitch()}
     </BaseModal>
   );

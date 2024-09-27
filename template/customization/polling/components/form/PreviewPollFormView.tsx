@@ -6,12 +6,10 @@ import {
   BaseModalActions,
   BaseModalCloseIcon,
 } from '../../ui/BaseModal';
-import {PollItem} from '../../context/poll-context';
-import BaseRadioButton from '../../ui/BaseRadioButton';
+import {PollItem, PollKind} from '../../context/poll-context';
 import {
   PrimaryButton,
   TertiaryButton,
-  Checkbox,
   ThemeConfig,
   $config,
 } from 'customization-api';
@@ -56,35 +54,13 @@ export default function PreviewPollFormView({
               <View>
                 <Text style={style.previewQuestion}>{form.question}</Text>
               </View>
-              {form?.options ? (
+              {form.type === PollKind.MCQ || form.type === PollKind.YES_NO ? (
                 <View style={style.previewOptionSection}>
-                  {form.multiple_response
-                    ? form.options.map((option, index) => (
-                        <View style={style.previewOptionCard} key={index}>
-                          <Checkbox
-                            key={index}
-                            checked={false}
-                            disabled={true}
-                            label={option.text}
-                            labelStye={style.previewOptionText}
-                            onChange={() => {}}
-                          />
-                        </View>
-                      ))
-                    : form.options.map((option, index) => (
-                        <View style={style.previewOptionCard} key={index}>
-                          <BaseRadioButton
-                            disabled
-                            option={{
-                              label: option.text,
-                              value: option.value,
-                            }}
-                            labelStyle={style.previewOptionText}
-                            checked={false}
-                            onChange={() => {}}
-                          />
-                        </View>
-                      ))}
+                  {form.options?.map((option, index) => (
+                    <View style={style.previewOptionCard} key={index}>
+                      <Text style={style.previewOptionText}>{option.text}</Text>
+                    </View>
+                  ))}
                 </View>
               ) : (
                 <></>
@@ -158,7 +134,7 @@ export const style = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
   previewQuestion: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
