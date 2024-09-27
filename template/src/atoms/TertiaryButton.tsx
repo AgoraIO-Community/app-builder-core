@@ -31,6 +31,7 @@ const TertiaryButton = (props: ButtonProps) => {
     iconName,
     iconSize = 26,
     iconColor = $config.PRIMARY_ACTION_TEXT_COLOR,
+    disabled = false,
     ...rest
   } = props;
   const [isHovered, setIsHovered] = useState(false);
@@ -38,16 +39,18 @@ const TertiaryButton = (props: ButtonProps) => {
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <TouchableOpacity
-        ref={(ref) => props?.setRef && props.setRef(ref)}
+        disabled={disabled}
+        ref={ref => props?.setRef && props.setRef(ref)}
         style={[
           styles.container,
-          isHovered
+          isHovered && !disabled
             ? {
                 backgroundColor:
                   $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
               }
             : {},
           props?.containerStyle,
+          disabled ? styles.disabledContainer : {},
         ]}
         {...rest}>
         <View style={styles.flexRow}>
@@ -57,11 +60,18 @@ const TertiaryButton = (props: ButtonProps) => {
                 iconSize={iconSize}
                 iconType="plain"
                 name={iconName}
-                tintColor={iconColor}
+                tintColor={disabled ? $config.SEMANTIC_NEUTRAL : iconColor}
               />
             </View>
           )}
-          <Text style={[styles.text, props?.textStyle]}>{text}</Text>
+          <Text
+            style={[
+              styles.text,
+              props?.textStyle,
+              disabled ? styles.disabledText : {},
+            ]}>
+            {text}
+          </Text>
         </View>
       </TouchableOpacity>
     </PlatformWrapper>
@@ -104,5 +114,12 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.small,
     fontWeight: '600',
+  },
+  disabledContainer: {
+    borderColor: $config.SEMANTIC_NEUTRAL,
+    cursor: 'default',
+  },
+  disabledText: {
+    color: $config.SEMANTIC_NEUTRAL,
   },
 });

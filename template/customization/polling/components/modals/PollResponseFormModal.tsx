@@ -36,7 +36,7 @@ export default function PollResponseFormModal() {
 
   if (!pollItem) {
     return (
-      <BaseModal visible={true}>
+      <BaseModal visible={true} onClose={closeCurrentModal}>
         <BaseModalTitle>
           <p>No poll available</p>
           <BaseModalCloseIcon onClose={closeCurrentModal} />
@@ -48,7 +48,7 @@ export default function PollResponseFormModal() {
     );
   }
   return (
-    <BaseModal visible={true}>
+    <BaseModal visible={true} onClose={closeCurrentModal}>
       <BaseModalTitle>
         <PollAvatarHeader pollItem={pollItem} />
         <BaseModalCloseIcon onClose={closeCurrentModal} />

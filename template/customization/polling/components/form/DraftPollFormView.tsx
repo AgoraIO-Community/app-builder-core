@@ -1,4 +1,10 @@
-import {Text, View, StyleSheet, TextInput} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import React from 'react';
 import {
   BaseModalTitle,
@@ -7,16 +13,16 @@ import {
   BaseModalCloseIcon,
 } from '../../ui/BaseModal';
 import {
-  LinkButton,
-  Checkbox,
   IconButton,
   PrimaryButton,
   ThemeConfig,
   $config,
+  TertiaryButton,
 } from 'customization-api';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
-import Toggle from '../../../../src/atoms/Toggle';
+import BaseButtonWithToggle from '../../ui/BaseButtonWithToggle';
+import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -29,6 +35,7 @@ interface Props {
   form: PollItem;
   setForm: React.Dispatch<React.SetStateAction<PollItem | null>>;
   onPreview: () => void;
+  onSave: () => void;
   errors: Partial<PollFormErrors>;
   onClose: () => void;
 }
@@ -39,6 +46,7 @@ export default function DraftPollFormView({
   onPreview,
   errors,
   onClose,
+  onSave,
 }: Props) {
   const handleInputChange = (field: string, value: string | boolean) => {
     setForm({
@@ -115,8 +123,12 @@ export default function DraftPollFormView({
             <FormTitle title="Question" />
             <View>
               <TextInput
+                id="question"
                 autoComplete="off"
-                style={style.pFormTextarea}
+                style={[
+                  style.pFormTextarea,
+                  errors?.question ? style.errorBorder : {},
+                ]}
                 multiline={true}
                 numberOfLines={4}
                 value={form.question}
@@ -136,16 +148,14 @@ export default function DraftPollFormView({
           {/* MCQ  section */}
           {form.type === PollKind.MCQ ? (
             <View style={style.pFormSection}>
-              <View>
+              <View style={style.pFormTitleRow}>
                 <FormTitle title="Responses" />
                 <View style={style.pushRight}>
                   <View style={style.pFormToggle}>
-                    <Text style={style.pFormSettingsText}>
-                      Allow Multiple Selections
-                    </Text>
-                    <Toggle
-                      isEnabled={form.multiple_response}
-                      toggleSwitch={value => {
+                    <BaseButtonWithToggle
+                      key="multiple-response-toggle"
+                      btnText="Allow Multiple Selections"
+                      onPress={value => {
                         handleCheckboxChange('multiple_response', value);
                       }}
                     />
@@ -191,18 +201,30 @@ export default function DraftPollFormView({
                     )}
                   </View>
                 ))}
-                <View style={style.pFormOptionCard}>
-                  <LinkButton
-                    text="+ Add option"
-                    textStyle={{
-                      ...style.pFormOptionText,
-                      ...style.pFormOptionLink,
-                    }}
-                    onPress={() => {
-                      updateFormOption('add', '', -1);
-                    }}
-                  />
-                </View>
+                {form.options?.length < 5 ? (
+                  <PlatformWrapper>
+                    {(isHovered: boolean) => (
+                      <TouchableOpacity
+                        style={[
+                          style.pFormOptionCard,
+                          isHovered ? style.hoverBorder : {},
+                        ]}
+                        onPress={() => {
+                          updateFormOption('add', '', -1);
+                        }}>
+                        <Text
+                          style={{
+                            ...style.pFormOptionText,
+                            ...style.pFormOptionLink,
+                          }}>
+                          + Add option
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </PlatformWrapper>
+                ) : (
+                  <></>
+                )}
                 {errors?.options && (
                   <Text style={style.errorText}>{errors.options.message}</Text>
                 )}
@@ -233,16 +255,30 @@ export default function DraftPollFormView({
             <View style={style.pFormSettings}>
               <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
-                  <Text style={style.pFormSettingsText}>Set Poll Timer</Text>
-                  <Toggle
-                    isEnabled={form.duration}
-                    toggleSwitch={value => {
+                  <BaseButtonWithToggle
+                    key="timer-toggle"
+                    btnText="Set Poll Timer"
+                    tooltTipText="Co-hosts will have access to view the poll results"
+                    onPress={value => {
                       handleCheckboxChange('duration', value);
                     }}
                   />
                 </View>
               </View>
               <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <BaseButtonWithToggle
+                    hoverEffect
+                    key="attendee-toggle"
+                    btnText="Result visible to attendees"
+                    tooltTipText="Participants can view the aggregated poll results"
+                    onPress={value => {
+                      handleCheckboxChange('share_attendee', value);
+                    }}
+                  />
+                </View>
+              </View>
+              {/* <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <Text style={style.pFormSettingsText}>
                     Result visible to attendees
@@ -254,8 +290,21 @@ export default function DraftPollFormView({
                     }}
                   />
                 </View>
-              </View>
+              </View> */}
               <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <BaseButtonWithToggle
+                    hoverEffect
+                    key="cohost-toggle"
+                    btnText="Result visible to cohosts"
+                    tooltTipText="Co-hosts will have access to view the poll results"
+                    onPress={value => {
+                      handleCheckboxChange('share_host', value);
+                    }}
+                  />
+                </View>
+              </View>
+              {/* <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <Text style={style.pFormSettingsText}>
                     Result visible to cohosts
@@ -267,8 +316,21 @@ export default function DraftPollFormView({
                     }}
                   />
                 </View>
-              </View>
+              </View> */}
               <View style={style.pFormCheckboxContainer}>
+                <View style={style.pFormToggle}>
+                  <BaseButtonWithToggle
+                    hoverEffect
+                    key="anonymous-toggle"
+                    btnText="Anonymous Results"
+                    tooltTipText="Anonymous results mean that: You, co-hosts and attendees won’t know who voted for which option."
+                    onPress={value => {
+                      handleCheckboxChange('anonymous', value);
+                    }}
+                  />
+                </View>
+              </View>
+              {/* <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <Text style={style.pFormSettingsText}>Anonymous Results</Text>
                   <Toggle
@@ -278,21 +340,34 @@ export default function DraftPollFormView({
                     }}
                   />
                 </View>
-              </View>
+              </View> */}
             </View>
           </View>
         </View>
       </BaseModalContent>
       <BaseModalActions>
         <View style={style.previewActions}>
-          <PrimaryButton
-            containerStyle={style.btnContainer}
-            textStyle={style.btnText}
-            onPress={() => {
-              onPreview();
-            }}
-            text="Preview"
-          />
+          <View>
+            <TertiaryButton
+              containerStyle={style.btnContainer}
+              text="Save for later"
+              disabled={!form.question?.trim()}
+              onPress={() => {
+                onSave();
+              }}
+            />
+          </View>
+          <View>
+            <PrimaryButton
+              containerStyle={style.btnContainer}
+              text="Preview"
+              disabled={!form.question?.trim()}
+              textStyle={style.btnText}
+              onPress={() => {
+                onPreview();
+              }}
+            />
+          </View>
         </View>
       </BaseModalActions>
     </>
@@ -323,6 +398,11 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 16,
     fontWeight: '600',
+  },
+  pFormTitleRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   pFormTextarea: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
@@ -384,7 +464,6 @@ export const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    alignSelf: 'stretch',
     gap: 4,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
@@ -397,20 +476,19 @@ export const style = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     justifyContent: 'space-between',
+    position: 'relative',
   },
   verticalPadding: {
     paddingVertical: 12,
   },
-  pFormCheckboxContainer: {
-    // paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
+  pFormCheckboxContainer: {},
   previewActions: {
     flex: 1,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
+    gap: 16,
   },
   btnContainer: {
     minWidth: 150,
@@ -424,13 +502,20 @@ export const style = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'capitalize',
   },
+  errorBorder: {
+    borderColor: $config.SEMANTIC_ERROR,
+  },
+  hoverBorder: {
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
   errorText: {
     color: $config.SEMANTIC_ERROR,
     fontSize: ThemeConfig.FontSize.tiny,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 12,
     fontWeight: '400',
-    paddingTop: 5,
+    paddingTop: 8,
+    paddingLeft: 8,
   },
   pushRight: {
     marginLeft: 'auto',
