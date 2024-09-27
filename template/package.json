@@ -59,7 +59,7 @@
     "@react-native-community/clipboard": "1.5.1",
     "@supersami/rn-foreground-service": "^1.1.1",
     "add": "^2.0.6",
-    "agora-chat": "^1.2.1",
+    "agora-chat": "1.2.2-3",
     "agora-extension-ai-denoiser": "1.1.0",
     "agora-extension-beauty-effect": "^1.0.2-beta",
     "agora-extension-virtual-background": "^1.1.3",
