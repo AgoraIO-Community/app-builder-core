@@ -155,6 +155,7 @@ export default function DraftPollFormView({
                     <BaseButtonWithToggle
                       key="multiple-response-toggle"
                       text="Allow Multiple Selections"
+                      value={form.multiple_response}
                       onPress={value => {
                         handleCheckboxChange('multiple_response', value);
                       }}
@@ -259,6 +260,7 @@ export default function DraftPollFormView({
                     key="timer-toggle"
                     text="Set Poll Timer"
                     tooltTipText="Co-hosts will have access to view the poll results"
+                    value={form.duration}
                     onPress={value => {
                       handleCheckboxChange('duration', value);
                     }}
@@ -272,6 +274,7 @@ export default function DraftPollFormView({
                     key="attendee-toggle"
                     text="Result visible to attendees"
                     tooltTipText="Participants can view the aggregated poll results"
+                    value={form.share_attendee}
                     onPress={value => {
                       handleCheckboxChange('share_attendee', value);
                     }}
@@ -298,6 +301,7 @@ export default function DraftPollFormView({
                     key="cohost-toggle"
                     text="Result visible to cohosts"
                     tooltTipText="Co-hosts will have access to view the poll results"
+                    value={form.share_host}
                     onPress={value => {
                       handleCheckboxChange('share_host', value);
                     }}
@@ -324,6 +328,7 @@ export default function DraftPollFormView({
                     key="anonymous-toggle"
                     text="Anonymous Results"
                     tooltTipText="Anonymous results mean that: You, co-hosts and attendees won’t know who voted for which option."
+                    value={form.anonymous}
                     onPress={value => {
                       handleCheckboxChange('anonymous', value);
                     }}

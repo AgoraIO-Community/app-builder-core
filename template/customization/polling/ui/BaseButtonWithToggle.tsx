@@ -7,20 +7,19 @@ import PlatformWrapper from '../../../src/utils/PlatformWrapper';
 
 interface Props {
   text: string;
+  value: boolean;
+  onPress: (value: boolean) => void;
   tooltip?: boolean;
   tooltTipText?: string;
-  onPress: (value: boolean) => void;
   hoverEffect?: boolean;
 }
 
 const BaseButtonWithToggle = ({
   text,
-  tooltTipText,
+  value,
   onPress,
   hoverEffect = false,
 }: Props) => {
-  const [toggle, toggleSwitch] = useState<boolean>(false);
-
   return (
     <View style={styles.toggleButton}>
       {/* <Tooltip
@@ -38,12 +37,17 @@ const BaseButtonWithToggle = ({
                 hoverEffect && isHovered ? styles.hover : {},
               ]}
               onPress={() => {
-                toggleSwitch(prev => !prev);
+                onPress(value);
               }}>
               {/* Container to hold text and switch side by side */}
               <Text style={[styles.text]}>{text}</Text>
               <View>
-                <Toggle isEnabled={toggle} toggleSwitch={toggleSwitch} />
+                <Toggle
+                  isEnabled={value}
+                  toggleSwitch={(toggle: boolean) => {
+                    onPress(toggle);
+                  }}
+                />
               </View>
             </TouchableOpacity>
           );
