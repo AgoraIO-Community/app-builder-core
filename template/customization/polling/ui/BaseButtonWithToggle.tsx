@@ -43,6 +43,7 @@ const BaseButtonWithToggle = ({
               <Text style={[styles.text]}>{text}</Text>
               <View>
                 <Toggle
+                  circleColor={'#fff'}
                   isEnabled={value}
                   toggleSwitch={(toggle: boolean) => {
                     onPress(toggle);
