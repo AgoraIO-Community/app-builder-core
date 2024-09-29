@@ -1,62 +1,74 @@
 import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {View, StyleSheet, ScrollView, Text} from 'react-native';
 import {PrimaryButton, ThemeConfig, $config} from 'customization-api';
 import {usePoll} from '../context/poll-context';
 import PollList from './PollList';
 
 const PollSidebar = () => {
-  const {startPollForm, isHost} = usePoll();
+  const {startPollForm, isHost, polls} = usePoll();
 
   return (
     <View style={style.pollSidebar}>
-      {/* Header */}
-      {isHost ? (
-        <>
-          <View style={style.headerSection}>
-            <View style={style.headerCard}>
-              <Text style={style.bodyXSmallText}>
-                Create a new poll and boost interaction with your audience
-                members now!
-              </Text>
-              <View>
-                <PrimaryButton
-                  containerStyle={style.btnContainer}
-                  textStyle={style.btnText}
-                  onPress={() => startPollForm()}
-                  text="Create Poll"
-                />
-              </View>
-            </View>
+      {Object.keys(polls).length === 0 ? (
+        <View style={style.emptyView}>
+          <View style={style.emptyCard}>
+            <Text style={style.emptyText}>
+              Create a new poll and boost interaction with your audience.
+            </Text>
           </View>
-          <View style={style.separator} />
-        </>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={style.scrollViewContent}>
+          <PollList />
+        </ScrollView>
+      )}
+      {isHost ? (
+        <View style={style.pollFooter}>
+          <PrimaryButton
+            containerStyle={style.btnContainer}
+            textStyle={style.btnText}
+            onPress={() => startPollForm()}
+            text="Create Poll"
+          />
+        </View>
       ) : (
         <></>
       )}
-      <PollList />
     </View>
   );
 };
 
 const style = StyleSheet.create({
   pollSidebar: {
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
-  },
-  headerSection: {
     display: 'flex',
-    flexDirection: 'column',
+    flex: 1,
+  },
+  pollFooter: {
+    padding: 12,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+  },
+  emptyCard: {
+    maxWidth: 220,
+  },
+  emptyIcon: {},
+  emptyView: {
+    display: 'flex',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 8,
   },
-  headerCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    gap: 16,
-    padding: 20,
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
-    borderRadius: 15,
+  emptyText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+    fontSize: ThemeConfig.FontSize.small,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  scrollViewContent: {
+    paddingHorizontal: 12, // Padding inside ScrollView
+    paddingVertical: 20, // Padding inside ScrollView
   },
   bodyXSmallText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
@@ -78,12 +90,6 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     textTransform: 'capitalize',
-  },
-  separator: {
-    marginVertical: 24,
-    height: 1,
-    display: 'flex',
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
 });
 
