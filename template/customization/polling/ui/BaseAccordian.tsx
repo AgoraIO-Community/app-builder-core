@@ -1,4 +1,4 @@
-import React, {useState, ReactNode} from 'react';
+import React, {useState, ReactNode, useEffect} from 'react';
 import {
   View,
   Text,
@@ -40,8 +40,15 @@ const BaseAccordion: React.FC<BaseAccordionProps> = ({children}) => {
 };
 
 // AccordionItem Component to manage isOpen state
-const BaseAccordionItem: React.FC<{children: ReactNode}> = ({children}) => {
-  const [isOpen, setIsOpen] = useState(false);
+const BaseAccordionItem: React.FC<{children: ReactNode; open?: boolean}> = ({
+  children,
+  open = false,
+}) => {
+  const [isOpen, setIsOpen] = useState(open);
+
+  useEffect(() => {
+    setIsOpen(open);
+  }, [open]);
 
   const toggleAccordion = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
