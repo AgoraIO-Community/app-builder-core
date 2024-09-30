@@ -20,96 +20,147 @@ import {PollCardMoreActions} from './PollCardMoreActions';
 import {getPollTypeDesc, hasUserVoted} from '../helpers';
 import {PollRenderResponseFormBody} from './form/poll-response-forms';
 
-function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
-  const {sendResponseToPoll, handlePollTaskRequest} = usePoll();
-  const localUid = useLocalUid();
-
+const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
   const moreBtnRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
-
-  const resultView =
-    pollItem.status === PollStatus.FINISHED ||
-    (pollItem.options && hasUserVoted(pollItem.options, localUid));
+  const {handlePollTaskRequest} = usePoll();
 
   return (
-    <View style={style.pollItem}>
-      <View style={style.pollCard}>
-        <View style={style.pollCardHeader}>
-          <Text style={style.pollCardHeaderText}>
-            {getPollTypeDesc(pollItem.type)}
-          </Text>
-          <View>
-            <BaseMoreButton
-              ref={moreBtnRef}
-              setActionMenuVisible={setActionMenuVisible}
+    <View style={style.pollCardHeader}>
+      <View style={style.row}>
+        <Text style={style.pollCardHeaderText}>
+          {getPollTypeDesc(pollItem.type)}
+        </Text>
+        {pollItem.status === PollStatus.LATER && (
+          <>
+            <View style={style.space} />
+            <Text style={style.pollCardHeaderText}>Draft</Text>
+          </>
+        )}
+      </View>
+      <View style={style.row}>
+        {pollItem.status === PollStatus.LATER && (
+          <>
+            <LinkButton
+              text="Edit"
+              textStyle={style.linkText}
+              onPress={() => {}}
             />
-            <PollCardMoreActions
-              status={pollItem.status}
-              moreBtnRef={moreBtnRef}
-              actionMenuVisible={actionMenuVisible}
-              setActionMenuVisible={setActionMenuVisible}
-              onCardActionSelect={action => {
-                handlePollTaskRequest(action, pollItem.id);
-              }}
-            />
-          </View>
+            <View style={style.space} />
+          </>
+        )}
+        <BaseMoreButton
+          ref={moreBtnRef}
+          setActionMenuVisible={setActionMenuVisible}
+        />
+        <PollCardMoreActions
+          status={pollItem.status}
+          moreBtnRef={moreBtnRef}
+          actionMenuVisible={actionMenuVisible}
+          setActionMenuVisible={setActionMenuVisible}
+          onCardActionSelect={action => {
+            handlePollTaskRequest(action, pollItem.id);
+            setActionMenuVisible(false);
+          }}
+        />
+      </View>
+    </View>
+  );
+};
+
+const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
+  const {sendResponseToPoll} = usePoll();
+  const localUid = useLocalUid();
+
+  const voted = pollItem.options && hasUserVoted(pollItem.options, localUid);
+
+  return (
+    <View style={style.pollCardContent}>
+      <Text
+        style={style.pollCardContentQuestionText}
+        numberOfLines={pollItem.status === PollStatus.LATER ? 1 : undefined}
+        ellipsizeMode="tail">
+        {pollItem.question} khd kjhalkdh alksd askjdha skjdh alskjdh laskd
+        alksjdh
+      </Text>
+      {pollItem.status !== PollStatus.LATER ? (
+        pollItem.status === PollStatus.FINISHED || voted ? (
+          <PollOptionList>
+            {pollItem.options?.map(
+              (item: PollItemOptionItem, index: number) => (
+                <PollOptionListItemResult
+                  key={index}
+                  index={index}
+                  optionItem={item}
+                />
+              ),
+            )}
+          </PollOptionList>
+        ) : pollItem.status === PollStatus.ACTIVE ? (
+          <PollRenderResponseFormBody
+            pollItem={pollItem}
+            onFormComplete={(responses: string | string[]) => {
+              sendResponseToPoll(pollItem, responses);
+            }}
+          />
+        ) : (
+          <Text>Form not published yet. Incorrect state</Text>
+        )
+      ) : (
+        <></>
+      )}
+    </View>
+  );
+};
+
+const PollCardFooter = ({pollItem}: {pollItem: PollItem}) => {
+  const {handlePollTaskRequest} = usePoll();
+
+  return (
+    <View style={style.pollCardFooter}>
+      {pollItem.status === PollStatus.ACTIVE ? (
+        <View>
+          <TertiaryButton text="End Poll" onPress={() => {}} />
         </View>
-        <View style={style.pollCardContent}>
-          <Text style={style.pollCardContentQuestionText}>
-            {pollItem.question}
-          </Text>
-          {resultView ? (
-            <PollOptionList>
-              {pollItem.options?.map(
-                (item: PollItemOptionItem, index: number) => (
-                  <PollOptionListItemResult
-                    key={index}
-                    index={index}
-                    optionItem={item}
-                    showYourVote={!isHost}
-                  />
-                ),
-              )}
-            </PollOptionList>
-          ) : pollItem.status === PollStatus.ACTIVE ? (
-            <PollRenderResponseFormBody
-              pollItem={pollItem}
-              onFormComplete={(responses: string | string[]) => {
-                sendResponseToPoll(pollItem, responses);
-              }}
-            />
-          ) : (
-            <Text>Form not published yet. Incorrect state</Text>
-          )}
-        </View>
-        <View style={style.pollCardFooter}>
-          {pollItem.status === PollStatus.ACTIVE ? (
-            <View>
-              <TertiaryButton text="End Poll" onPress={() => {}} />
-            </View>
-          ) : (
-            <></>
-          )}
-          <View>
-            <View style={style.linkBtnContainer}>
-              <LinkButton
-                text="View Details"
-                textStyle={style.linkText}
-                onPress={() =>
-                  handlePollTaskRequest(
-                    PollTaskRequestTypes.VIEW_DETAILS,
-                    pollItem.id,
-                  )
-                }
-              />
-            </View>
-          </View>
+      ) : (
+        <></>
+      )}
+      <View>
+        <View style={style.linkBtnContainer}>
+          <LinkButton
+            text="View Details"
+            textStyle={style.linkText}
+            onPress={() =>
+              handlePollTaskRequest(
+                PollTaskRequestTypes.VIEW_DETAILS,
+                pollItem.id,
+              )
+            }
+          />
         </View>
       </View>
     </View>
   );
+};
+
+function PollCard({pollItem}: {pollItem: PollItem}) {
+  return (
+    <View style={style.pollItem}>
+      <View style={style.pollCard}>
+        <PollCardHeader pollItem={pollItem} />
+        <PollCardContent pollItem={pollItem} />
+        {pollItem.status !== PollStatus.LATER && (
+          <>
+            <PollCardFooter pollItem={pollItem} />
+          </>
+        )}
+      </View>
+    </View>
+  );
 }
+export {PollCard};
+
 const style = StyleSheet.create({
   fullWidth: {
     alignSelf: 'stretch',
@@ -174,6 +225,12 @@ const style = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 16,
   },
+  space: {
+    marginHorizontal: 8,
+  },
+  row: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });
-
-export {PollCard};

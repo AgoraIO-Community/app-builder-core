@@ -11,22 +11,16 @@ import {
 interface PollOptionListItem {
   index: number;
   optionItem: PollItemOptionItem;
-  showYourVote?: boolean;
 }
 
 function PollOptionList({children}: {children: React.ReactNode}) {
   return <View style={style.optionsList}>{children}</View>;
 }
 
-function PollOptionListItemResult({
-  index,
-  optionItem,
-  showYourVote,
-}: PollOptionListItem) {
+function PollOptionListItemResult({index, optionItem}: PollOptionListItem) {
   const localUid = useLocalUid();
 
-  const hasVoted =
-    showYourVote && optionItem.votes.some(item => item.uid === localUid);
+  const hasVoted = optionItem.votes.some(item => item.uid === localUid);
   return (
     <View style={[style.optionListItem]}>
       {/* Background fill according to vote percentage */}
