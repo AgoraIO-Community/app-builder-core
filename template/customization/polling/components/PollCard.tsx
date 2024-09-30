@@ -12,6 +12,7 @@ import {
   TertiaryButton,
   useLocalUid,
   $config,
+  LinkButton,
 } from 'customization-api';
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
@@ -28,7 +29,6 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
     React.useState<boolean>(false);
 
   const resultView =
-    isHost ||
     pollItem.status === PollStatus.FINISHED ||
     (pollItem.options && hasUserVoted(pollItem.options, localUid));
 
@@ -40,65 +40,62 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
             {getPollTypeDesc(pollItem.type)}
           </Text>
           <View>
-            {isHost ? (
-              <>
-                <BaseMoreButton
-                  ref={moreBtnRef}
-                  setActionMenuVisible={setActionMenuVisible}
-                />
-                <PollCardMoreActions
-                  status={pollItem.status}
-                  moreBtnRef={moreBtnRef}
-                  actionMenuVisible={actionMenuVisible}
-                  setActionMenuVisible={setActionMenuVisible}
-                  onCardActionSelect={action => {
-                    handlePollTaskRequest(action, pollItem.id);
-                  }}
-                />
-              </>
-            ) : (
-              <></>
-            )}
+            <BaseMoreButton
+              ref={moreBtnRef}
+              setActionMenuVisible={setActionMenuVisible}
+            />
+            <PollCardMoreActions
+              status={pollItem.status}
+              moreBtnRef={moreBtnRef}
+              actionMenuVisible={actionMenuVisible}
+              setActionMenuVisible={setActionMenuVisible}
+              onCardActionSelect={action => {
+                handlePollTaskRequest(action, pollItem.id);
+              }}
+            />
           </View>
         </View>
         <View style={style.pollCardContent}>
-          <View style={style.fullWidth}>
-            <Text style={style.pollCardContentQuestionText}>
-              {pollItem.question}
-            </Text>
-          </View>
-          <View style={style.fullWidth}>
-            {resultView ? (
-              <PollOptionList>
-                {pollItem.options?.map(
-                  (item: PollItemOptionItem, index: number) => (
-                    <PollOptionListItemResult
-                      key={index}
-                      optionItem={item}
-                      showYourVote={!isHost}
-                    />
-                  ),
-                )}
-              </PollOptionList>
-            ) : pollItem.status === PollStatus.ACTIVE ? (
-              <View style={style.pollResponseFormView}>
-                <PollRenderResponseFormBody
-                  pollItem={pollItem}
-                  onFormComplete={(responses: string | string[]) => {
-                    sendResponseToPoll(pollItem, responses);
-                  }}
-                />
-              </View>
-            ) : (
-              <Text>Form not published yet. Incorrect state</Text>
-            )}
-          </View>
+          <Text style={style.pollCardContentQuestionText}>
+            {pollItem.question}
+          </Text>
+          {resultView ? (
+            <PollOptionList>
+              {pollItem.options?.map(
+                (item: PollItemOptionItem, index: number) => (
+                  <PollOptionListItemResult
+                    key={index}
+                    index={index}
+                    optionItem={item}
+                    showYourVote={!isHost}
+                  />
+                ),
+              )}
+            </PollOptionList>
+          ) : pollItem.status === PollStatus.ACTIVE ? (
+            <PollRenderResponseFormBody
+              pollItem={pollItem}
+              onFormComplete={(responses: string | string[]) => {
+                sendResponseToPoll(pollItem, responses);
+              }}
+            />
+          ) : (
+            <Text>Form not published yet. Incorrect state</Text>
+          )}
         </View>
         <View style={style.pollCardFooter}>
-          <View style={style.pollCardFooterActions}>
-            {resultView ? (
-              <TertiaryButton
+          {pollItem.status === PollStatus.ACTIVE ? (
+            <View>
+              <TertiaryButton text="End Poll" onPress={() => {}} />
+            </View>
+          ) : (
+            <></>
+          )}
+          <View>
+            <View style={style.linkBtnContainer}>
+              <LinkButton
                 text="View Details"
+                textStyle={style.linkText}
                 onPress={() =>
                   handlePollTaskRequest(
                     PollTaskRequestTypes.VIEW_DETAILS,
@@ -106,9 +103,7 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
                   )
                 }
               />
-            ) : (
-              <></>
-            )}
+            </View>
           </View>
         </View>
       </View>
@@ -123,11 +118,10 @@ const style = StyleSheet.create({
     marginVertical: 12,
   },
   pollCard: {
-    padding: 12,
     display: 'flex',
     flexDirection: 'column',
-    gap: 20,
-    alignSelf: 'stretch',
+    gap: 8,
+    padding: 12,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -138,6 +132,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   pollCardHeaderText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
@@ -160,13 +155,24 @@ const style = StyleSheet.create({
     fontWeight: '700',
     lineHeight: 19,
   },
-  pollCardFooter: {},
-  pollCardFooterActions: {
-    alignSelf: 'flex-start',
-  },
-  pollResponseFormView: {
+  pollCardFooter: {
     display: 'flex',
-    gap: 20,
+    flexDirection: 'column',
+    gap: 8,
+  },
+  linkBtnContainer: {
+    height: 36,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  linkText: {
+    textAlign: 'center',
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    lineHeight: 16,
   },
 });
 

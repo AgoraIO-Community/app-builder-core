@@ -10,6 +10,7 @@ import {
   $config,
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
+import {PollOptionList, PollOptionInputListItem} from '../poll-option-item-ui';
 
 function PollResponseFormComplete() {
   return (
@@ -44,24 +45,11 @@ function PollRenderResponseForm({
 }): JSX.Element {
   return (
     <>
-      <PollRenderResponseFormHeader pollItem={pollItem} />
+      <Text style={style.heading4}>{pollItem.question}</Text>
       <PollRenderResponseFormBody
         pollItem={pollItem}
         onFormComplete={onFormComplete}
       />
-    </>
-  );
-}
-
-function PollRenderResponseFormHeader({
-  pollItem,
-}: {
-  pollItem: PollItem;
-}): JSX.Element {
-  return (
-    <>
-      {pollItem.duration ? <PollTimer expiresAt={pollItem.expiresAt} /> : null}
-      <Text style={style.heading4}>{pollItem.question}</Text>
     </>
   );
 }
@@ -122,7 +110,7 @@ function PollResponseQuestionForm({
           }
         />
       </View>
-      <View style={style.responseActions}>
+      <View>
         <PrimaryButton
           disabled={isFormFreezed}
           containerStyle={style.btnContainer}
@@ -177,34 +165,34 @@ function PollResponseMCQForm({
   };
 
   return (
-    <View>
-      <View style={style.optionsSection}>
+    <View style={style.optionsForm}>
+      <PollOptionList>
         {pollItem.multiple_response
           ? pollItem.options?.map((option, index) => (
-              <View style={style.optionCard} key={index}>
+              <PollOptionInputListItem index={index} key={index}>
                 <Checkbox
                   key={index}
                   checked={selectedOptions.includes(option?.value)}
                   label={option.text}
-                  labelStye={style.optionCardText}
+                  labelStye={style.optionText}
                   onChange={() => handleCheckboxToggle(option?.value)}
                 />
-              </View>
+              </PollOptionInputListItem>
             ))
           : pollItem.options?.map((option, index) => (
-              <View style={style.optionCard} key={index}>
+              <PollOptionInputListItem index={index} key={index}>
                 <BaseRadioButton
                   option={{
                     label: option.text,
                     value: option.value,
                   }}
-                  labelStyle={style.optionCardText}
+                  labelStyle={style.optionText}
                   checked={selectedOption === option.value}
                   onChange={handleRadioSelect}
                 />
-              </View>
+              </PollOptionInputListItem>
             ))}
-      </View>
+      </PollOptionList>
       <View style={style.responseActions}>
         <PrimaryButton
           disabled={isFormFreezed}
@@ -227,6 +215,12 @@ export {
 };
 
 export const style = StyleSheet.create({
+  optionsForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+    width: '100%',
+  },
   heading4: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.medium,
@@ -255,7 +249,7 @@ export const style = StyleSheet.create({
     alignItems: 'center',
   },
   btnContainer: {
-    minWidth: 150,
+    width: '100%',
     height: 36,
     borderRadius: 4,
   },
@@ -266,25 +260,16 @@ export const style = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'capitalize',
   },
-  optionsSection: {
-    borderRadius: 9,
-    marginBottom: 32,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    paddingVertical: 8,
-  },
-  optionCard: {
+  optionListItem: {
     display: 'flex',
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    padding: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
     backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
-  optionCardText: {
+  optionText: {
     color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
