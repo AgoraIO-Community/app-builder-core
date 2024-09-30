@@ -1,38 +1,30 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View} from 'react-native';
 import {PollCard} from './PollCard';
 import {usePoll} from '../context/poll-context';
-import {ThemeConfig, $config} from 'customization-api';
+import {
+  BaseAccordion,
+  BaseAccordionItem,
+  BaseAccordionHeader,
+  BaseAccordionContent,
+} from '../ui/BaseAccordian';
 
 export default function PollList() {
   const {polls, isHost} = usePoll();
+  console.log('supriya polls: ', polls);
 
   return (
     <View>
-      <View>
-        <Text style={style.titleText}>
-          Past Polls ({Object.keys(polls).length})
-        </Text>
-      </View>
-      <View>
-        {polls && Object.keys(polls).length > 0 ? (
-          Object.keys(polls).map((key: string) => (
-            <PollCard key={key} isHost={isHost} pollItem={polls[key]} />
-          ))
-        ) : (
-          <></>
-        )}
-      </View>
+      <BaseAccordion>
+        <BaseAccordionItem>
+          <BaseAccordionHeader title="Active (1)" id="active-accordian" />
+          <BaseAccordionContent>
+            {Object.keys(polls).map((key: string) => (
+              <PollCard key={key} isHost={isHost} pollItem={polls[key]} />
+            ))}
+          </BaseAccordionContent>
+        </BaseAccordionItem>
+      </BaseAccordion>
     </View>
   );
 }
-
-const style = StyleSheet.create({
-  titleText: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.tiny,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    lineHeight: 12,
-  },
-});

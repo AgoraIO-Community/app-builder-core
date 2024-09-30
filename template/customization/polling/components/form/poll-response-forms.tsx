@@ -267,7 +267,6 @@ export const style = StyleSheet.create({
     textTransform: 'capitalize',
   },
   optionsSection: {
-    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderRadius: 9,
     marginBottom: 32,
     display: 'flex',
@@ -281,6 +280,9 @@ export const style = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
   optionCardText: {
     color: $config.FONT_COLOR,
@@ -289,25 +291,6 @@ export const style = StyleSheet.create({
     fontWeight: '400',
     lineHeight: 24,
   },
-  //   pFormOptionText: {
-  //     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
-  //     fontSize: ThemeConfig.FontSize.small,
-  //     fontFamily: ThemeConfig.FontFamily.sansPro,
-  //     lineHeight: 16,
-  //     fontWeight: '400',
-  //   },
-  //   pFormOptionPrefix: {
-  //     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
-  //     paddingRight: 4,
-  //   },
-  //   pFormOptionLink: {
-  //     fontWeight: '400',
-  //     lineHeight: 24,
-  //   },
-  //   pFormOptions: {
-  //     paddingVertical: 8,
-  //     gap: 8,
-  //   },
   pFormInput: {
     flex: 1,
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
@@ -330,41 +313,4 @@ export const style = StyleSheet.create({
   mediumHeight: {
     height: 272,
   },
-  //   pFormOptionCard: {
-  //     display: 'flex',
-  //     paddingHorizontal: 16,
-  //     flexDirection: 'row',
-  //     justifyContent: 'flex-start',
-  //     alignItems: 'center',
-  //     alignSelf: 'stretch',
-  //     gap: 8,
-  //     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-  //     borderRadius: 9,
-  //   },
-  //   verticalPadding: {
-  //     paddingVertical: 12,
-  //   },
-  //   pFormCheckboxContainer: {
-  //     paddingHorizontal: 16,
-  //     paddingVertical: 8,
-  //   },
-  //   previewActions: {
-  //     flex: 1,
-  //     display: 'flex',
-  //     flexDirection: 'row',
-  //     alignItems: 'center',
-  //     justifyContent: 'flex-end',
-  //   },
-  //   btnContainer: {
-  //     minWidth: 150,
-  //     height: 36,
-  //     borderRadius: 4,
-  //   },
-  //   btnText: {
-  //     color: $config.FONT_COLOR,
-  //     fontSize: ThemeConfig.FontSize.small,
-  //     fontFamily: ThemeConfig.FontFamily.sansPro,
-  //     fontWeight: '600',
-  //     textTransform: 'capitalize',
-  //   },
 });

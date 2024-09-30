@@ -28,7 +28,7 @@ const PollSidebar = () => {
             containerStyle={style.btnContainer}
             textStyle={style.btnText}
             onPress={() => startPollForm()}
-            text="Create Poll"
+            text="+ Create Poll"
           />
         </View>
       ) : (
@@ -66,10 +66,7 @@ const style = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
-  scrollViewContent: {
-    paddingHorizontal: 12, // Padding inside ScrollView
-    paddingVertical: 20, // Padding inside ScrollView
-  },
+  scrollViewContent: {},
   bodyXSmallText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
     fontSize: ThemeConfig.FontSize.small,

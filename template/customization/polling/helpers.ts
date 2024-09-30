@@ -1,4 +1,4 @@
-import {Poll, PollItemOptionItem} from './context/poll-context';
+import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 
 function log(...args: any[]) {
   console.log('[CustomPolling::] ', ...args);
@@ -113,6 +113,19 @@ function mergePolls(newPoll: Poll, oldPoll: Poll) {
   return mergedPolls;
 }
 
+function getPollTypeDesc(type: PollKind): string {
+  if (type === PollKind.OPEN_ENDED) {
+    return 'Open Ended';
+  }
+  if (type === PollKind.YES_NO) {
+    return 'Select Any One';
+  }
+  if (type === PollKind.MCQ) {
+    return 'Select One or More';
+  }
+  return 'None';
+}
+
 export {
   log,
   mergePolls,
@@ -122,4 +135,5 @@ export {
   addVote,
   calculatePercentage,
   capitalizeFirstLetter,
+  getPollTypeDesc,
 };

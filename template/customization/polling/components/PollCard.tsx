@@ -16,7 +16,7 @@ import {
 import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions} from './PollCardMoreActions';
-import {capitalizeFirstLetter, hasUserVoted} from '../helpers';
+import {getPollTypeDesc, hasUserVoted} from '../helpers';
 import {PollRenderResponseFormBody} from './form/poll-response-forms';
 
 function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
@@ -37,7 +37,7 @@ function PollCard({pollItem, isHost}: {pollItem: PollItem; isHost: boolean}) {
       <View style={style.pollCard}>
         <View style={style.pollCardHeader}>
           <Text style={style.pollCardHeaderText}>
-            {capitalizeFirstLetter(pollItem.status)}
+            {getPollTypeDesc(pollItem.type)}
           </Text>
           <View>
             {isHost ? (
@@ -126,10 +126,12 @@ const style = StyleSheet.create({
     padding: 12,
     display: 'flex',
     flexDirection: 'column',
-    gap: 12,
+    gap: 20,
     alignSelf: 'stretch',
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
-    borderRadius: 15,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
   pollCardHeader: {
     height: 24,
@@ -138,7 +140,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   pollCardHeaderText: {
-    color: '#04D000',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
     fontSize: ThemeConfig.FontSize.tiny,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
@@ -152,11 +154,11 @@ const style = StyleSheet.create({
     alignItems: 'flex-start',
   },
   pollCardContentQuestionText: {
-    color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    fontSize: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    lineHeight: 16,
+    fontWeight: '700',
+    lineHeight: 19,
   },
   pollCardFooter: {},
   pollCardFooterActions: {
