@@ -41,14 +41,11 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
       </View>
       <View style={style.row}>
         {pollItem.status === PollStatus.LATER && (
-          <>
-            <LinkButton
-              text="Edit"
-              textStyle={style.linkText}
-              onPress={() => {}}
-            />
-            <View style={style.space} />
-          </>
+          <LinkButton
+            text="Edit"
+            textStyle={style.linkText}
+            onPress={() => {}}
+          />
         )}
         <BaseMoreButton
           ref={moreBtnRef}

@@ -94,7 +94,7 @@ function PollResponseQuestionForm({
   const [answer, setAnswer] = useState('');
 
   return (
-    <View>
+    <View style={style.optionsForm}>
       <View>
         <TextInput
           editable={!isFormFreezed}
@@ -168,30 +168,42 @@ function PollResponseMCQForm({
     <View style={style.optionsForm}>
       <PollOptionList>
         {pollItem.multiple_response
-          ? pollItem.options?.map((option, index) => (
-              <PollOptionInputListItem index={index} key={index}>
-                <Checkbox
+          ? pollItem.options?.map((option, index) => {
+              const checked = selectedOptions.includes(option?.value);
+              return (
+                <PollOptionInputListItem
+                  index={index}
                   key={index}
-                  checked={selectedOptions.includes(option?.value)}
-                  label={option.text}
-                  labelStye={style.optionText}
-                  onChange={() => handleCheckboxToggle(option?.value)}
-                />
-              </PollOptionInputListItem>
-            ))
-          : pollItem.options?.map((option, index) => (
-              <PollOptionInputListItem index={index} key={index}>
-                <BaseRadioButton
-                  option={{
-                    label: option.text,
-                    value: option.value,
-                  }}
-                  labelStyle={style.optionText}
-                  checked={selectedOption === option.value}
-                  onChange={handleRadioSelect}
-                />
-              </PollOptionInputListItem>
-            ))}
+                  checked={checked}>
+                  <Checkbox
+                    key={index}
+                    checked={selectedOptions.includes(option?.value)}
+                    label={option.text}
+                    labelStye={style.optionText}
+                    onChange={() => handleCheckboxToggle(option?.value)}
+                  />
+                </PollOptionInputListItem>
+              );
+            })
+          : pollItem.options?.map((option, index) => {
+              const checked = selectedOption === option.value;
+              return (
+                <PollOptionInputListItem
+                  index={index}
+                  key={index}
+                  checked={checked}>
+                  <BaseRadioButton
+                    option={{
+                      label: option.text,
+                      value: option.value,
+                    }}
+                    labelStyle={style.optionText}
+                    checked={checked}
+                    onChange={handleRadioSelect}
+                  />
+                </PollOptionInputListItem>
+              );
+            })}
       </PollOptionList>
       <View style={style.responseActions}>
         <PrimaryButton

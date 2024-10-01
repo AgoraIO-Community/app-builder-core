@@ -50,12 +50,19 @@ function PollOptionListItemResult({index, optionItem}: PollOptionListItem) {
 
 interface PollOptionInputListItem {
   index: number;
+  checked: boolean;
   children: React.ReactChild;
 }
 
-function PollOptionInputListItem({index, children}: PollOptionInputListItem) {
+function PollOptionInputListItem({
+  index,
+  checked,
+  children,
+}: PollOptionInputListItem) {
   return (
-    <View style={style.optionListItem} key={index}>
+    <View
+      style={[style.optionListItem, checked ? style.optionListItemChecked : {}]}
+      key={index}>
       {children}
     </View>
   );
@@ -80,6 +87,9 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     overflow: 'hidden',
   },
+  optionListItemChecked: {
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
   optionBackground: {
     position: 'absolute',
     top: 0,
@@ -92,14 +102,6 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     lineHeight: 24,
-  },
-  yourResponseText: {
-    color: $config.SEMANTIC_SUCCESS,
-    fontSize: ThemeConfig.FontSize.tiny,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    lineHeight: 12,
-    paddingLeft: 16,
   },
   pushRight: {
     marginLeft: 'auto',
