@@ -343,13 +343,15 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const localUid = useLocalUid();
 
-  const {sendPollEvt, sendResponseToPollEvt} = usePollEvents();
+  const {sendPollEvt, sendResponseToPollEvt, savePollEvt} = usePollEvents();
 
   useEffect(() => {
     if (lastAction) {
       switch (lastAction.type) {
         case PollActionKind.SAVE_POLL_ITEM:
           if (lastAction.payload.item.status === PollStatus.LATER) {
+            const {id: pollId} = lastAction.payload.item;
+            savePollEvt(polls, pollId);
             setCurrentModal(null);
           }
           break;
@@ -386,7 +388,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
           break;
       }
     }
-  }, [lastAction, sendPollEvt, polls, sendResponseToPollEvt]);
+  }, [lastAction, polls, sendPollEvt, savePollEvt, sendResponseToPollEvt]);
 
   const startPollForm = () => {
     setCurrentModal(PollModalState.DRAFT_POLL);
@@ -465,7 +467,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
     if (
       (item.type === PollKind.OPEN_ENDED && typeof responses === 'string') ||
-      (item.type === PollKind.MCQ && Array.isArray(responses))
+      (item.type !== PollKind.OPEN_ENDED && Array.isArray(responses))
     ) {
       enhancedDispatch({
         type: PollActionKind.SUBMIT_POLL_ITEM_RESPONSES,

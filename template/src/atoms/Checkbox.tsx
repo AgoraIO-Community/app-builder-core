@@ -6,6 +6,7 @@ import {
   Platform,
   StyleSheet,
   TextStyle,
+  ViewStyle,
 } from 'react-native';
 
 import ThemeConfig from '../theme';
@@ -17,6 +18,7 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
   labelStye?: TextStyle;
   disabled?: boolean;
+  containerStyle?: ViewStyle;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -25,6 +27,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   onChange,
   disabled = false,
   labelStye = {},
+  containerStyle = {},
 }) => {
   const [isChecked, setIsChecked] = useState(checked);
 
@@ -40,7 +43,9 @@ const Checkbox: React.FC<CheckboxProps> = ({
   };
 
   return (
-    <TouchableOpacity onPress={handleCheckboxToggle} style={styles.container}>
+    <TouchableOpacity
+      onPress={handleCheckboxToggle}
+      style={(styles.container, containerStyle)}>
       <View
         style={[styles.checkboxContainer, isChecked && styles.fillSelected]}>
         {isChecked && (

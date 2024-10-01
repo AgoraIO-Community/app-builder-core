@@ -8,17 +8,25 @@ import {
   BaseAccordionHeader,
   BaseAccordionContent,
 } from '../ui/BaseAccordian';
+import {useLocalUid} from 'customization-api';
 
 type PollsGrouped = Array<{key: string; poll: PollItem}>;
 
 export default function PollList() {
   const {polls} = usePoll();
+  const localUid = useLocalUid();
+
   // State to keep track of the currently open accordion
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
   // Group polls by their status
   const groupedPolls = Object.entries(polls).reduce(
     (acc, [key, poll]) => {
+      // Check if the poll should be included in the LATER group based on creator
+      if (poll.status === PollStatus.LATER && poll.createdBy !== localUid) {
+        return acc; // Skip this poll if it doesn't match the localUid
+      }
+      // Otherwise, add the poll to the corresponding group
       acc[poll.status].push({key, poll});
       return acc;
     },
@@ -53,17 +61,21 @@ export default function PollList() {
   };
 
   //  Render a section with its corresponding Accordion
-  const renderPollList = (polls: PollsGrouped, title: string, id: string) => {
-    return polls.length ? (
+  const renderPollList = (
+    pollsGrouped: PollsGrouped,
+    title: string,
+    id: string,
+  ) => {
+    return pollsGrouped.length ? (
       <BaseAccordion>
         <BaseAccordionItem open={openAccordion === id}>
           <BaseAccordionHeader
-            title={`${title} (${polls.length})`}
+            title={`${title} (${pollsGrouped.length})`}
             id={id}
             onPress={() => handleAccordionToggle(id)}
           />
           <BaseAccordionContent>
-            {polls.map(({key, poll}) => (
+            {pollsGrouped.map(({key, poll}) => (
               <PollCard key={key} pollItem={poll} />
             ))}
           </BaseAccordionContent>

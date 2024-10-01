@@ -22,17 +22,15 @@ interface Props {
 export default function BaseRadioButton(props: Props) {
   const {option, checked, onChange, disabled, labelStyle = {}} = props;
   return (
-    <View>
-      <TouchableOpacity
-        id={option.value}
-        style={[style.optionsContainer, disabled && style.disabledContainer]}
-        onPress={() => !disabled && onChange(option.value)}>
-        <View style={[style.radioCircle, disabled && style.disabledCircle]}>
-          {checked && <View style={[style.radioFilled]} />}
-        </View>
-        <Text style={[style.optionText, labelStyle]}>{option.label}</Text>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity
+      id={option.value}
+      style={[style.optionsContainer, disabled && style.disabledContainer]}
+      onPress={() => !disabled && onChange(option.value)}>
+      <View style={[style.radioCircle, disabled && style.disabledCircle]}>
+        {checked && <View style={[style.radioFilled]} />}
+      </View>
+      <Text style={[style.optionText, labelStyle]}>{option.label}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -40,7 +38,8 @@ const style = StyleSheet.create({
   optionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    width: '100%',
+    padding: 12,
   },
   disabledContainer: {
     opacity: 0.5,

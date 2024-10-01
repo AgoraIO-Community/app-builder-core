@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {BaseModal} from '../../ui/BaseModal';
 import SelectNewPollTypeFormView from '../form/SelectNewPollTypeFormView';
 import DraftPollFormView from '../form/DraftPollFormView';
@@ -24,13 +24,14 @@ export default function PollFormWizardModal() {
   const [formErrors, setFormErrors] = useState<Partial<PollFormErrors>>({});
 
   const localUid = useLocalUid();
+  const localUidRef = useRef(localUid);
 
   useEffect(() => {
     try {
       if (type === PollKind.NONE) {
         return;
       }
-      setForm(initPollForm(type));
+      setForm(initPollForm(type, localUidRef.current));
       setStep('DRAFT');
     } catch (error) {
       log('error while initializing form: ', error);
@@ -45,7 +46,6 @@ export default function PollFormWizardModal() {
       const payload = {
         ...form,
         status: launch ? PollStatus.ACTIVE : PollStatus.LATER,
-        createdBy: localUid,
       };
       savePoll(payload);
       if (launch) {

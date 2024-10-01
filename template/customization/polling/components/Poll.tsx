@@ -14,8 +14,10 @@ function Poll({children}: {children?: React.ReactNode}) {
   return (
     <PollEventsProvider>
       <PollProvider>
-        <PollEventsSubscriber>{children}</PollEventsSubscriber>
-        <PollModals />
+        <PollEventsSubscriber>
+          {children}
+          <PollModals />
+        </PollEventsSubscriber>
       </PollProvider>
     </PollEventsProvider>
   );

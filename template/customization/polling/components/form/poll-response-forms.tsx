@@ -12,6 +12,8 @@ import {
 import BaseRadioButton from '../../ui/BaseRadioButton';
 import {PollOptionList, PollOptionInputListItem} from '../poll-option-item-ui';
 import {getPollTypeDesc} from '../../helpers';
+import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
+import {useButtonState} from '../../hook/useButtonState';
 
 function PollResponseFormComplete() {
   return (
@@ -140,6 +142,8 @@ function PollResponseMCQForm({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
+  const {buttonText, isSubmitting, handleSubmit} = useButtonState();
+
   const handleCheckboxToggle = (value: string) => {
     setSelectedOptions(prevSelectedOptions => {
       if (prevSelectedOptions.includes(value)) {
@@ -154,7 +158,7 @@ function PollResponseMCQForm({
     setSelectedOption(option);
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (pollItem.multiple_response) {
       if (selectedOptions.length === 0) {
         return;
@@ -169,6 +173,7 @@ function PollResponseMCQForm({
   };
 
   const submitDisabled =
+    isSubmitting ||
     (pollItem.multiple_response && selectedOptions.length === 0) ||
     !selectedOption;
 
@@ -179,47 +184,61 @@ function PollResponseMCQForm({
           ? pollItem.options?.map((option, index) => {
               const checked = selectedOptions.includes(option?.value);
               return (
-                <PollOptionInputListItem
-                  index={index}
-                  key={index}
-                  checked={checked}>
-                  <Checkbox
-                    key={index}
-                    checked={selectedOptions.includes(option?.value)}
-                    label={option.text}
-                    labelStye={style.optionText}
-                    onChange={() => handleCheckboxToggle(option?.value)}
-                  />
-                </PollOptionInputListItem>
+                <PlatformWrapper key={index}>
+                  {(isHovered: boolean) => (
+                    <PollOptionInputListItem
+                      index={index}
+                      hovered={isHovered}
+                      checked={checked}>
+                      <Checkbox
+                        key={index}
+                        checked={selectedOptions.includes(option?.value)}
+                        label={option.text}
+                        labelStye={style.optionText}
+                        containerStyle={style.checkboxContainer}
+                        onChange={() => handleCheckboxToggle(option?.value)}
+                      />
+                    </PollOptionInputListItem>
+                  )}
+                </PlatformWrapper>
               );
             })
           : pollItem.options?.map((option, index) => {
               const checked = selectedOption === option.value;
               return (
-                <PollOptionInputListItem
-                  index={index}
-                  key={index}
-                  checked={checked}>
-                  <BaseRadioButton
-                    option={{
-                      label: option.text,
-                      value: option.value,
-                    }}
-                    labelStyle={style.optionText}
-                    checked={checked}
-                    onChange={handleRadioSelect}
-                  />
-                </PollOptionInputListItem>
+                <PlatformWrapper key={index}>
+                  {(isHovered: boolean) => (
+                    <PollOptionInputListItem
+                      index={index}
+                      checked={checked}
+                      hovered={isHovered}>
+                      <BaseRadioButton
+                        option={{
+                          label: option.text,
+                          value: option.value,
+                        }}
+                        labelStyle={style.optionText}
+                        checked={checked}
+                        onChange={handleRadioSelect}
+                      />
+                    </PollOptionInputListItem>
+                  )}
+                </PlatformWrapper>
               );
             })}
       </PollOptionList>
       <View style={style.responseActions}>
         <PrimaryButton
           disabled={submitDisabled}
-          containerStyle={style.btnContainer}
+          containerStyle={[
+            style.btnContainer,
+            buttonText === 'Submitted' ? style.submittedBtn : {},
+          ]}
           textStyle={style.btnText}
-          onPress={handleSubmit}
-          text="Submit"
+          onPress={() => {
+            handleSubmit(onSubmit);
+          }}
+          text={buttonText}
         />
       </View>
     </View>
@@ -280,6 +299,10 @@ export const style = StyleSheet.create({
     height: 36,
     borderRadius: 4,
   },
+
+  submittedBtn: {
+    backgroundColor: $config.SEMANTIC_SUCCESS,
+  },
   btnText: {
     color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
@@ -324,5 +347,12 @@ export const style = StyleSheet.create({
   },
   mediumHeight: {
     height: 272,
+  },
+  checkboxContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    width: '100%',
   },
 });

@@ -9,6 +9,7 @@ enum PollEventNames {
 }
 enum PollEventActions {
   sendPoll = 'SEND_POLL',
+  savePoll = 'SAVE_POLL',
   sendResponseToPoll = 'SEND_RESONSE_TO_POLL',
   sendPollResults = 'SEND_POLL_RESULTS',
 }
@@ -26,6 +27,7 @@ interface PollEventsContextValue {
     pollId: string,
     task: PollTaskRequestTypes,
   ) => void;
+  savePollEvt: (polls: Poll, pollId: string) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
 }
 
@@ -51,12 +53,26 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     );
   };
 
+  const savePollEvt = (polls: Poll, pollId: string) => {
+    events.send(
+      PollEventNames.polls,
+      JSON.stringify({
+        state: {...polls},
+        action: PollEventActions.savePoll,
+        pollId: pollId,
+        task: '',
+      }),
+      PersistanceLevel.Channel,
+    );
+  };
+
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
     id,
     responses,
     uid,
     timestamp,
   ) => {
+    console.log('supriya here, poll response');
     events.send(
       PollEventNames.pollResponse,
       JSON.stringify({
@@ -71,6 +87,7 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
 
   const value = {
     sendPollEvt,
+    savePollEvt,
     sendResponseToPollEvt,
   };
 

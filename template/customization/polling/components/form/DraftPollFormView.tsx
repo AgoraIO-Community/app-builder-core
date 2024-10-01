@@ -254,7 +254,7 @@ export default function DraftPollFormView({
           <View style={[style.pFormSection]}>
             <FormTitle title="Advance Settings" />
             <View style={style.pFormSettings}>
-              <View style={style.pFormCheckboxContainer}>
+              {/* <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <BaseButtonWithToggle
                     key="timer-toggle"
@@ -266,7 +266,7 @@ export default function DraftPollFormView({
                     }}
                   />
                 </View>
-              </View>
+              </View> */}
               <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <BaseButtonWithToggle

@@ -126,6 +126,10 @@ function getPollTypeDesc(type: PollKind): string {
   return 'None';
 }
 
+function getCreatedTime(timestamp: number): string {
+  return timestamp.toString();
+}
+
 export {
   log,
   mergePolls,
@@ -136,4 +140,5 @@ export {
   calculatePercentage,
   capitalizeFirstLetter,
   getPollTypeDesc,
+  getCreatedTime,
 };

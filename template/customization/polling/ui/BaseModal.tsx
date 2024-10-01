@@ -50,9 +50,14 @@ function BaseModalContent({children, noPadding}: ContentProps) {
 
 interface ActionProps {
   children: ReactNode;
+  alignRight?: boolean;
 }
-function BaseModalActions({children}: ActionProps) {
-  return <View style={style.actions}>{children}</View>;
+function BaseModalActions({children, alignRight}: ActionProps) {
+  return (
+    <View style={[style.actions, alignRight ? style.alignRight : {}]}>
+      {children}
+    </View>
+  );
 }
 
 type BaseModalProps = {
@@ -203,5 +208,8 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: $config.CARD_LAYER_3_COLOR,
     backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
+  alignRight: {
+    justifyContent: 'flex-end',
   },
 });

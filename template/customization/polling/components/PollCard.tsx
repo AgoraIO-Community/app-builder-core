@@ -19,12 +19,15 @@ import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions} from './PollCardMoreActions';
 import {getPollTypeDesc, hasUserVoted} from '../helpers';
 import {PollRenderResponseFormBody} from './form/poll-response-forms';
+import {usePollPermissions} from '../hook/usePollPermissions';
 
 const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
   const moreBtnRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const {handlePollTaskRequest} = usePoll();
+  const {canEdit} = usePollPermissions({pollItem});
+  console.log('supriya permission canEdit: ', canEdit);
 
   return (
     <View style={style.pollCardHeader}>
@@ -40,27 +43,33 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
         )}
       </View>
       <View style={style.row}>
-        {pollItem.status === PollStatus.LATER && (
-          <LinkButton
-            text="Edit"
-            textStyle={style.linkText}
-            onPress={() => {}}
-          />
+        {canEdit ? (
+          <>
+            {pollItem.status === PollStatus.LATER && (
+              <LinkButton
+                text="Edit"
+                textStyle={style.linkText}
+                onPress={() => {}}
+              />
+            )}
+            <BaseMoreButton
+              ref={moreBtnRef}
+              setActionMenuVisible={setActionMenuVisible}
+            />
+            <PollCardMoreActions
+              status={pollItem.status}
+              moreBtnRef={moreBtnRef}
+              actionMenuVisible={actionMenuVisible}
+              setActionMenuVisible={setActionMenuVisible}
+              onCardActionSelect={action => {
+                handlePollTaskRequest(action, pollItem.id);
+                setActionMenuVisible(false);
+              }}
+            />
+          </>
+        ) : (
+          <></>
         )}
-        <BaseMoreButton
-          ref={moreBtnRef}
-          setActionMenuVisible={setActionMenuVisible}
-        />
-        <PollCardMoreActions
-          status={pollItem.status}
-          moreBtnRef={moreBtnRef}
-          actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={setActionMenuVisible}
-          onCardActionSelect={action => {
-            handlePollTaskRequest(action, pollItem.id);
-            setActionMenuVisible(false);
-          }}
-        />
       </View>
     </View>
   );
@@ -78,8 +87,7 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
         style={style.pollCardContentQuestionText}
         numberOfLines={pollItem.status === PollStatus.LATER ? 1 : undefined}
         ellipsizeMode="tail">
-        {pollItem.question} khd kjhalkdh alksd askjdha skjdh alskjdh laskd
-        alksjdh
+        {pollItem.question}
       </Text>
       {pollItem.status !== PollStatus.LATER ? (
         pollItem.status === PollStatus.FINISHED || voted ? (
@@ -113,15 +121,14 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
 
 const PollCardFooter = ({pollItem}: {pollItem: PollItem}) => {
   const {handlePollTaskRequest} = usePoll();
+  const {canEnd} = usePollPermissions({pollItem});
 
   return (
     <View style={style.pollCardFooter}>
-      {pollItem.status === PollStatus.ACTIVE ? (
+      {canEnd && (
         <View>
           <TertiaryButton text="End Poll" onPress={() => {}} />
         </View>
-      ) : (
-        <></>
       )}
       <View>
         <View style={style.linkBtnContainer}>

@@ -9,7 +9,7 @@ const getPollExpiresAtTime = (interval: number): number => {
   return expiresAT;
 };
 
-const initPollForm = (kind: PollKind): PollItem => {
+const initPollForm = (kind: PollKind, localUid: number): PollItem => {
   if (kind === PollKind.OPEN_ENDED) {
     return {
       id: nanoid(4),
@@ -24,7 +24,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       anonymous: false,
       duration: false,
       expiresAt: 0,
-      createdBy: -1,
+      createdBy: localUid,
     };
   }
   if (kind === PollKind.MCQ) {
@@ -60,7 +60,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       anonymous: false,
       duration: false,
       expiresAt: 0,
-      createdBy: -1,
+      createdBy: localUid,
     };
   }
   if (kind === PollKind.YES_NO) {
@@ -90,7 +90,7 @@ const initPollForm = (kind: PollKind): PollItem => {
       anonymous: false,
       duration: false,
       expiresAt: 0,
-      createdBy: -1,
+      createdBy: localUid,
     };
   }
   // If none of the above conditions are met, throw an error or return a default value

@@ -51,17 +51,24 @@ function PollOptionListItemResult({index, optionItem}: PollOptionListItem) {
 interface PollOptionInputListItem {
   index: number;
   checked: boolean;
+  hovered: boolean;
   children: React.ReactChild;
 }
 
 function PollOptionInputListItem({
   index,
   checked,
+  hovered,
   children,
 }: PollOptionInputListItem) {
   return (
     <View
-      style={[style.optionListItem, checked ? style.optionListItemChecked : {}]}
+      style={[
+        style.optionListItem,
+        style.optionListItemInput,
+        checked ? style.optionListItemChecked : {},
+        !checked && hovered ? style.optionListItemHovered : {},
+      ]}
       key={index}>
       {children}
     </View>
@@ -86,9 +93,17 @@ const style = StyleSheet.create({
     borderColor: $config.CARD_LAYER_3_COLOR,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     overflow: 'hidden',
+    width: '100%',
+  },
+  optionListItemInput: {
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    padding: 0,
   },
   optionListItemChecked: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
+  optionListItemHovered: {
+    borderColor: 'rgba(128, 128, 128, 0.25)',
   },
   optionBackground: {
     position: 'absolute',
