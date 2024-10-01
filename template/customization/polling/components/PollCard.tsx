@@ -2,7 +2,6 @@ import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {
   PollItem,
-  PollItemOptionItem,
   PollStatus,
   PollTaskRequestTypes,
   usePoll,
@@ -14,7 +13,6 @@ import {
   $config,
   LinkButton,
 } from 'customization-api';
-import {PollOptionList, PollOptionListItemResult} from './poll-option-item-ui';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions} from './PollCardMoreActions';
 import {getPollTypeDesc, hasUserVoted} from '../helpers';
@@ -27,7 +25,6 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
     React.useState<boolean>(false);
   const {handlePollTaskRequest} = usePoll();
   const {canEdit} = usePollPermissions({pollItem});
-  console.log('supriya permission canEdit: ', canEdit);
 
   return (
     <View style={style.pollCardHeader}>
@@ -77,10 +74,7 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
 
 const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
   const {sendResponseToPoll} = usePoll();
-  const localUid = useLocalUid();
-
-  const voted = pollItem.options && hasUserVoted(pollItem.options, localUid);
-
+  console.log('supriya card');
   return (
     <View style={style.pollCardContent}>
       <Text
@@ -90,29 +84,12 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
         {pollItem.question}
       </Text>
       {pollItem.status !== PollStatus.LATER ? (
-        pollItem.status === PollStatus.FINISHED || voted ? (
-          <PollOptionList>
-            {pollItem.options?.map(
-              (item: PollItemOptionItem, index: number) => (
-                <PollOptionListItemResult
-                  key={index}
-                  index={index}
-                  pollItem={pollItem}
-                  optionItem={item}
-                />
-              ),
-            )}
-          </PollOptionList>
-        ) : pollItem.status === PollStatus.ACTIVE ? (
-          <PollRenderResponseFormBody
-            pollItem={pollItem}
-            onFormComplete={(responses: string | string[]) => {
-              sendResponseToPoll(pollItem, responses);
-            }}
-          />
-        ) : (
-          <Text>Form not published yet. Incorrect state</Text>
-        )
+        <PollRenderResponseFormBody
+          pollItem={pollItem}
+          onFormComplete={(responses: string | string[]) => {
+            sendResponseToPoll(pollItem, responses);
+          }}
+        />
       ) : (
         <></>
       )}

@@ -1,18 +1,12 @@
 import React from 'react';
 import {Text, View, StyleSheet, DimensionValue} from 'react-native';
-import {PollItem, PollItemOptionItem} from '../context/poll-context';
-import {
-  ThemeConfig,
-  useLocalUid,
-  $config,
-  hexadecimalTransparency,
-} from 'customization-api';
-import {usePollPermissions} from '../hook/usePollPermissions';
+import {PollItemOptionItem} from '../context/poll-context';
+import {ThemeConfig, $config, hexadecimalTransparency} from 'customization-api';
 
 interface PollOptionListItem {
-  index: number;
-  pollItem: PollItem;
   optionItem: PollItemOptionItem;
+  iVoted: boolean;
+  canViewWhoVoted: boolean;
 }
 
 function PollOptionList({children}: {children: React.ReactNode}) {
@@ -20,15 +14,10 @@ function PollOptionList({children}: {children: React.ReactNode}) {
 }
 
 function PollOptionListItemResult({
-  index,
-  pollItem,
+  iVoted,
+  canViewWhoVoted,
   optionItem,
 }: PollOptionListItem) {
-  const localUid = useLocalUid();
-
-  const iVoted = optionItem.votes.some(item => item.uid === localUid);
-  const {canViewWhoVoted} = usePollPermissions({pollItem});
-
   return (
     <View style={[style.optionListItem]}>
       {/* Background fill according to vote percentage */}

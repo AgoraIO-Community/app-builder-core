@@ -469,12 +469,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
-    console.log('supriya here 9');
     if (
       (item.type === PollKind.OPEN_ENDED && typeof responses === 'string') ||
       (item.type !== PollKind.OPEN_ENDED && Array.isArray(responses))
     ) {
-      console.log('supriya here 10');
       enhancedDispatch({
         type: PollActionKind.SUBMIT_POLL_ITEM_RESPONSES,
         payload: {

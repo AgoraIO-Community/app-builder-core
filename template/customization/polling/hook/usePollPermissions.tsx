@@ -18,7 +18,6 @@ export const usePollPermissions = ({
   pollItem,
 }: UsePollPermissionsProps): PollPermissions => {
   const localUid = useLocalUid();
-  console.log('supriya localUid: ', localUid);
   const {
     data: {isHost},
   } = useRoomInfo();

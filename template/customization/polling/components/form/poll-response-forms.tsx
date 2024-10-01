@@ -1,19 +1,24 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {PollItem, PollKind} from '../../context/poll-context';
-import PollTimer from '../PollTimer';
 import {
   ImageIcon,
   Checkbox,
   PrimaryButton,
   ThemeConfig,
   $config,
+  useLocalUid,
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
-import {PollOptionList, PollOptionInputListItem} from '../poll-option-item-ui';
+import {
+  PollOptionList,
+  PollOptionInputListItem,
+  PollOptionListItemResult,
+} from '../poll-option-item-ui';
 import {getPollTypeDesc} from '../../helpers';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import {useButtonState} from '../../hook/useButtonState';
+import {usePollPermissions} from '../../hook/usePollPermissions';
 
 function PollResponseFormComplete() {
   return (
@@ -141,9 +146,25 @@ function PollResponseMCQForm({
 }: PollResponseFormProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const {canViewWhoVoted} = usePollPermissions({pollItem});
+  const {buttonText, isSubmitting, submitted, handleSubmit} = useButtonState();
+  const [responseComplete, setResponseComplete] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const {buttonText, isSubmitting, handleSubmit} = useButtonState();
+  useEffect(() => {
+    if (!submitted) {
+      return;
+    }
+    timeoutRef.current = setTimeout(() => {
+      setResponseComplete(true);
+    }, 2000);
 
+    return () => {
+      clearTimeout(timeoutRef.current);
+    };
+  }, [submitted]);
+
+  const localUid = useLocalUid();
   const handleCheckboxToggle = (value: string) => {
     setSelectedOptions(prevSelectedOptions => {
       if (prevSelectedOptions.includes(value)) {
@@ -183,6 +204,17 @@ function PollResponseMCQForm({
         {pollItem.multiple_response
           ? pollItem.options?.map((option, index) => {
               const checked = selectedOptions.includes(option?.value);
+              const iVoted = option.votes.some(item => item.uid === localUid);
+              if (submitted) {
+                return (
+                  <PollOptionListItemResult
+                    key={index}
+                    iVoted={iVoted}
+                    optionItem={option}
+                    canViewWhoVoted={canViewWhoVoted}
+                  />
+                );
+              }
               return (
                 <PlatformWrapper key={index}>
                   {(isHovered: boolean) => (
@@ -205,6 +237,17 @@ function PollResponseMCQForm({
             })
           : pollItem.options?.map((option, index) => {
               const checked = selectedOption === option.value;
+              const iVoted = option.votes.some(item => item.uid === localUid);
+              if (submitted) {
+                return (
+                  <PollOptionListItemResult
+                    key={index}
+                    iVoted={iVoted}
+                    optionItem={option}
+                    canViewWhoVoted={canViewWhoVoted}
+                  />
+                );
+              }
               return (
                 <PlatformWrapper key={index}>
                   {(isHovered: boolean) => (
@@ -227,20 +270,27 @@ function PollResponseMCQForm({
               );
             })}
       </PollOptionList>
-      <View style={style.responseActions}>
-        <PrimaryButton
-          disabled={submitDisabled}
-          containerStyle={[
-            style.btnContainer,
-            buttonText === 'Submitted' ? style.submittedBtn : {},
-          ]}
-          textStyle={style.btnText}
-          onPress={() => {
-            handleSubmit(onSubmit);
-          }}
-          text={buttonText}
-        />
-      </View>
+      {responseComplete ? (
+        <></>
+      ) : (
+        <View style={style.responseActions}>
+          <PrimaryButton
+            disabled={submitDisabled}
+            containerStyle={[
+              style.btnContainer,
+              submitted ? style.submittedBtn : {},
+            ]}
+            textStyle={style.btnText}
+            onPress={() => {
+              if (submitted) {
+                return;
+              }
+              handleSubmit(onSubmit);
+            }}
+            text={buttonText}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -299,9 +349,9 @@ export const style = StyleSheet.create({
     height: 36,
     borderRadius: 4,
   },
-
   submittedBtn: {
     backgroundColor: $config.SEMANTIC_SUCCESS,
+    cursor: 'default',
   },
   btnText: {
     color: $config.FONT_COLOR,

@@ -4,6 +4,7 @@ import {useState, useCallback, useRef, useEffect} from 'react';
 interface useButtonStateReturn {
   buttonText: string;
   isSubmitting: boolean;
+  submitted: boolean;
   handleSubmit: (submitFunction?: () => Promise<void> | void) => void;
   resetState: () => void;
 }
@@ -15,6 +16,7 @@ export function useButtonState(
 ): useButtonStateReturn {
   const [buttonText, setButtonText] = useState(initialText);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setIsSubmitted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Reference to store timeout ID
 
   // Handles the submission process
@@ -26,13 +28,14 @@ export function useButtonState(
       try {
         // Execute the submit function if provided
         if (submitFunction) {
-          // await submitFunction();
+          await submitFunction();
         }
 
         // After submission, update the text to "Submitted" with delay
         timeoutRef.current = setTimeout(() => {
+          setIsSubmitted(true);
           setButtonText(submittedText);
-        }, 2000);
+        }, 1000);
       } catch (error) {
         // Handle error (e.g., reset button text or show error)
         setButtonText(initialText);
@@ -40,7 +43,7 @@ export function useButtonState(
         // Restore the submit state after completion
         timeoutRef.current = setTimeout(() => {
           setIsSubmitting(false);
-        }, 2000);
+        }, 1000);
       }
     },
     [initialText, submittingText, submittedText],
@@ -61,5 +64,5 @@ export function useButtonState(
     setIsSubmitting(false);
   };
 
-  return {buttonText, isSubmitting, handleSubmit, resetState};
+  return {buttonText, isSubmitting, submitted, handleSubmit, resetState};
 }
