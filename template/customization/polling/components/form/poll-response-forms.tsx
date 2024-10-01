@@ -175,7 +175,7 @@ function PollResponseMCQForm({
   const submitDisabled =
     isSubmitting ||
     (pollItem.multiple_response && selectedOptions.length === 0) ||
-    !selectedOption;
+    (!pollItem.multiple_response && !selectedOption);
 
   return (
     <View style={style.optionsForm}>
