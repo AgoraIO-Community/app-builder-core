@@ -11,6 +11,7 @@ import {
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
 import {PollOptionList, PollOptionInputListItem} from '../poll-option-item-ui';
+import {getPollTypeDesc} from '../../helpers';
 
 function PollResponseFormComplete() {
   return (
@@ -45,6 +46,7 @@ function PollRenderResponseForm({
 }): JSX.Element {
   return (
     <>
+      <Text style={style.heading5}>{getPollTypeDesc(pollItem.type)}</Text>
       <Text style={style.heading4}>{pollItem.question}</Text>
       <PollRenderResponseFormBody
         pollItem={pollItem}
@@ -93,6 +95,8 @@ function PollResponseQuestionForm({
 }: PollResponseFormProps) {
   const [answer, setAnswer] = useState('');
 
+  const submitDisabled = answer?.trim() === '';
+
   return (
     <View style={style.optionsForm}>
       <View>
@@ -112,7 +116,7 @@ function PollResponseQuestionForm({
       </View>
       <View>
         <PrimaryButton
-          disabled={isFormFreezed}
+          disabled={submitDisabled}
           containerStyle={style.btnContainer}
           textStyle={style.btnText}
           onPress={() => {
@@ -164,6 +168,10 @@ function PollResponseMCQForm({
     }
   };
 
+  const submitDisabled =
+    (pollItem.multiple_response && selectedOptions.length === 0) ||
+    !selectedOption;
+
   return (
     <View style={style.optionsForm}>
       <PollOptionList>
@@ -207,7 +215,7 @@ function PollResponseMCQForm({
       </PollOptionList>
       <View style={style.responseActions}>
         <PrimaryButton
-          disabled={isFormFreezed}
+          disabled={submitDisabled}
           containerStyle={style.btnContainer}
           textStyle={style.btnText}
           onPress={handleSubmit}
@@ -239,6 +247,13 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 24,
     fontWeight: '600',
+  },
+  heading5: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    lineHeight: 12,
   },
   pFormTextarea: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,

@@ -10,7 +10,6 @@ import {
   PollRenderResponseForm,
 } from '../form/poll-response-forms';
 import {usePoll, PollTaskRequestTypes} from '../../context/poll-context';
-import PollAvatarHeader from '../PollAvatarHeader';
 
 export default function PollResponseFormModal() {
   const {
@@ -49,8 +48,7 @@ export default function PollResponseFormModal() {
   }
   return (
     <BaseModal visible={true} onClose={closeCurrentModal}>
-      <BaseModalTitle>
-        <PollAvatarHeader pollItem={pollItem} />
+      <BaseModalTitle title={'Here’s a poll for you'}>
         <BaseModalCloseIcon onClose={closeCurrentModal} />
       </BaseModalTitle>
       <BaseModalContent>
