@@ -126,10 +126,27 @@ function getPollTypeDesc(type: PollKind): string {
   return 'None';
 }
 
-function getCreatedTime(timestamp: number): string {
-  return timestamp.toString();
+function formatTimestampToTime(timestamp: number): string {
+  // Create a new Date object using the timestamp
+  const date = new Date(timestamp);
+  // Get hours and minutes from the Date object
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  // Determine if it's AM or PM
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  // Convert hours to 12-hour format
+  hours = hours % 12;
+  hours = hours ? hours : 12; // The hour '0' should be '12'
+  // Format minutes to always have two digits
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  // Construct the formatted time string
+  return `${hours}:${formattedMinutes} ${ampm}`;
 }
 
+function calculateTotalVotes(options: Array<PollItemOptionItem>): number {
+  // Use reduce to sum up the length of the votes array for each option
+  return options.reduce((total, option) => total + option.votes.length, 0);
+}
 export {
   log,
   mergePolls,
@@ -140,5 +157,6 @@ export {
   calculatePercentage,
   capitalizeFirstLetter,
   getPollTypeDesc,
-  getCreatedTime,
+  formatTimestampToTime,
+  calculateTotalVotes,
 };

@@ -24,6 +24,7 @@ const initPollForm = (kind: PollKind, localUid: number): PollItem => {
       anonymous: false,
       duration: false,
       expiresAt: 0,
+      createdAt: Date.now(),
       createdBy: localUid,
     };
   }
@@ -60,6 +61,7 @@ const initPollForm = (kind: PollKind, localUid: number): PollItem => {
       anonymous: false,
       duration: false,
       expiresAt: 0,
+      createdAt: Date.now(),
       createdBy: localUid,
     };
   }
@@ -90,6 +92,7 @@ const initPollForm = (kind: PollKind, localUid: number): PollItem => {
       anonymous: false,
       duration: false,
       expiresAt: 0,
+      createdAt: Date.now(),
       createdBy: localUid,
     };
   }

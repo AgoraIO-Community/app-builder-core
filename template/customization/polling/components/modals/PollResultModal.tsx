@@ -13,21 +13,31 @@ import {
   UserAvatar,
   TertiaryButton,
   useContent,
+  useLocalUid,
 } from 'customization-api';
 import {
   PollItemOptionItem,
   PollTaskRequestTypes,
   usePoll,
 } from '../../context/poll-context';
-import {getCreatedTime} from '../../helpers';
+import {
+  formatTimestampToTime,
+  calculateTotalVotes,
+  getPollTypeDesc,
+  capitalizeFirstLetter,
+} from '../../helpers';
+import {usePollPermissions} from '../../hook/usePollPermissions';
 
 export default function PollResultModal() {
   const {polls, viewResultPollId, closeCurrentModal, handlePollTaskRequest} =
     usePoll();
+  const localUid = useLocalUid();
   const {defaultContent} = useContent();
 
   // Check if viewResultPollId is valid and if the poll exists in the polls object
   const pollItem = viewResultPollId ? polls[viewResultPollId] : null;
+
+  const {canViewWhoVoted} = usePollPermissions({pollItem});
 
   if (!pollItem) {
     return (
@@ -52,20 +62,35 @@ export default function PollResultModal() {
         <View style={style.resultContainer}>
           <View style={style.resultInfoContainer}>
             <View style={style.rowSpaceBetween}>
-              <Text style={style.questionText}>{pollItem.question}</Text>
-              <Text style={style.totalText}>Total Responses (6)</Text>
+              <Text style={style.questionText}>
+                {capitalizeFirstLetter(pollItem.question)}
+              </Text>
+              <Text style={style.totalText}>
+                Total Responses {calculateTotalVotes(pollItem.options)}
+              </Text>
             </View>
             <View style={style.row}>
               <Text style={style.descriptionText}>
-                Created <Text style={style.bold}>9:48 AM</Text> by
-                <Text style={style.youText}> You </Text>
+                Created{' '}
+                <Text style={style.bold}>
+                  {formatTimestampToTime(pollItem.createdAt)}{' '}
+                </Text>
+                by{' '}
+                <Text style={style.youText}>
+                  {localUid === pollItem.createdBy
+                    ? 'You'
+                    : defaultContent[pollItem.createdBy]?.name || 'user'}
+                </Text>
               </Text>
-              <Text style={style.descriptionText}>Icon MCQ. Single Choice</Text>
+              <View style={style.dot} />
+              <Text style={style.descriptionText}>
+                {getPollTypeDesc(pollItem.type)}
+              </Text>
             </View>
           </View>
           <View style={style.resultSummaryContainer}>
             {pollItem.options?.map((option: PollItemOptionItem, index) => (
-              <View style={style.summaryCard}>
+              <View style={style.summaryCard} key={index}>
                 <View style={style.summaryCardHeader}>
                   <View>
                     <Text style={[style.smallText, style.light, style.bold]}>
@@ -75,37 +100,40 @@ export default function PollResultModal() {
                       {option.text}
                     </Text>
                   </View>
-                  <View>
+                  <View style={style.row}>
                     <Text
                       style={[style.smallText, style.light, style.alignRight]}>
-                      {option.percent}
+                      {option.percent}%
                     </Text>
+                    <View style={style.dot} />
                     <Text style={[style.smallText, style.bold]}>
                       {option.votes.length} votes
                     </Text>
                   </View>
                 </View>
-                <View style={style.summaryCardBody}>
-                  {option.votes.map((item, i) => (
-                    <View style={style.summaryItem} key={i}>
-                      <View style={style.titleAvatar}>
-                        <UserAvatar
-                          name={defaultContent[item.uid] || 'user'}
-                          containerStyle={style.titleAvatarContainer}
-                          textStyle={style.titleAvatarContainerText}
-                        />
-                        <Text style={style.username}>
-                          {defaultContent[item.uid] || 'user'}
-                        </Text>
+                {canViewWhoVoted && (
+                  <View style={style.summaryCardBody}>
+                    {option.votes.map((item, i) => (
+                      <View style={style.summaryItem} key={i}>
+                        <View style={style.titleAvatar}>
+                          <UserAvatar
+                            name={defaultContent[item.uid]?.name || 'user'}
+                            containerStyle={style.titleAvatarContainer}
+                            textStyle={style.titleAvatarContainerText}
+                          />
+                          <Text style={style.username}>
+                            {defaultContent[item.uid]?.name || 'user'}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text style={[style.smallText, style.light]}>
+                            Voted {formatTimestampToTime(item.timestamp)}
+                          </Text>
+                        </View>
                       </View>
-                      <View>
-                        <Text style={[style.smallText, style.light]}>
-                          Voted {getCreatedTime(item.timestamp)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -163,6 +191,7 @@ export const style = StyleSheet.create({
   resultSummaryContainer: {
     paddingVertical: 16,
     paddingHorizontal: 20,
+    gap: 16,
   },
   summaryCard: {
     display: 'flex',
@@ -263,5 +292,11 @@ export const style = StyleSheet.create({
     minWidth: 150,
     height: 36,
     borderRadius: 4,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#7D7D7D', // TODOSUP
   },
 });

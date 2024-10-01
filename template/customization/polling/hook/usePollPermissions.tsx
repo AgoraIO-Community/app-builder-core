@@ -24,19 +24,19 @@ export const usePollPermissions = ({
   } = useRoomInfo();
   // Calculate permissions using useMemo to optimize performance
   const permissions = useMemo(() => {
-    const isPollCreator = pollItem.createdBy === localUid;
+    const isPollCreator = pollItem?.createdBy === localUid || false;
     const isPollHost = isHost && isPollCreator;
     const isPollCoHost = isHost && !isPollCreator;
     const isPollAttendee = !isHost && !isPollCreator;
 
     // Determine if the user can edit the poll
     const canEdit = isPollHost;
-    const canEnd = isPollHost && pollItem.status === PollStatus.ACTIVE;
+    const canEnd = isPollHost && pollItem?.status === PollStatus.ACTIVE;
     const canViewResults =
-      (isPollAttendee && pollItem.share_attendee) ||
-      (isPollCoHost && pollItem.share_host);
+      (isPollAttendee && pollItem?.share_attendee) ||
+      (isPollCoHost && pollItem?.share_host);
 
-    const canViewWhoVoted = isPollCreator || !pollItem.anonymous;
+    const canViewWhoVoted = isPollCreator || !pollItem?.anonymous;
     // // Determine if the user can reply to the poll (e.g., if the poll is active)
     // const canReply = poll.status === PollStatus.ACTIVE;
 

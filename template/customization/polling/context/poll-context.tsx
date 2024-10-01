@@ -68,6 +68,7 @@ interface PollItem {
   duration: boolean;
   expiresAt: number;
   createdBy: number;
+  createdAt: number;
 }
 
 type Poll = Record<string, PollItem>;
@@ -193,7 +194,10 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           },
         };
       }
-      if (poll.type === PollKind.MCQ && Array.isArray(responses)) {
+      if (
+        (poll.type === PollKind.MCQ || poll.type === PollKind.YES_NO) &&
+        Array.isArray(responses)
+      ) {
         const newCopyOptions = poll.options?.map(item => ({...item})) || [];
         const withVotesOptions = addVote(
           responses,
@@ -465,10 +469,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
+    console.log('supriya here 9');
     if (
       (item.type === PollKind.OPEN_ENDED && typeof responses === 'string') ||
       (item.type !== PollKind.OPEN_ENDED && Array.isArray(responses))
     ) {
+      console.log('supriya here 10');
       enhancedDispatch({
         type: PollActionKind.SUBMIT_POLL_ITEM_RESPONSES,
         payload: {

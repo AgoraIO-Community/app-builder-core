@@ -1,15 +1,17 @@
 import React from 'react';
 import {Text, View, StyleSheet, DimensionValue} from 'react-native';
-import {PollItemOptionItem} from '../context/poll-context';
+import {PollItem, PollItemOptionItem} from '../context/poll-context';
 import {
   ThemeConfig,
   useLocalUid,
   $config,
   hexadecimalTransparency,
 } from 'customization-api';
+import {usePollPermissions} from '../hook/usePollPermissions';
 
 interface PollOptionListItem {
   index: number;
+  pollItem: PollItem;
   optionItem: PollItemOptionItem;
 }
 
@@ -17,33 +19,49 @@ function PollOptionList({children}: {children: React.ReactNode}) {
   return <View style={style.optionsList}>{children}</View>;
 }
 
-function PollOptionListItemResult({index, optionItem}: PollOptionListItem) {
+function PollOptionListItemResult({
+  index,
+  pollItem,
+  optionItem,
+}: PollOptionListItem) {
   const localUid = useLocalUid();
 
-  const hasVoted = optionItem.votes.some(item => item.uid === localUid);
+  const iVoted = optionItem.votes.some(item => item.uid === localUid);
+  const {canViewWhoVoted} = usePollPermissions({pollItem});
+
   return (
     <View style={[style.optionListItem]}>
       {/* Background fill according to vote percentage */}
       <View
         style={[
           style.optionBackground,
-          hasVoted
-            ? {
-                width: `${optionItem.percent}%` as DimensionValue,
-                backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-              }
-            : {
-                width: `${optionItem.percent}%` as DimensionValue,
-                backgroundColor:
-                  $config.PRIMARY_ACTION_BRAND_COLOR +
-                  hexadecimalTransparency['10%'],
-              },
+          canViewWhoVoted
+            ? iVoted
+              ? {
+                  width: `${optionItem.percent}%` as DimensionValue,
+                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                }
+              : {
+                  width: `${optionItem.percent}%` as DimensionValue,
+                  backgroundColor:
+                    $config.PRIMARY_ACTION_BRAND_COLOR +
+                    hexadecimalTransparency['10%'],
+                }
+            : {},
         ]}
       />
-      <Text style={style.optionText}>{optionItem.text}</Text>
-      <Text style={[style.optionText, style.pushRight]}>
-        {optionItem.percent}%
+      <Text
+        style={[
+          style.optionText,
+          !canViewWhoVoted && iVoted ? style.myVote : {},
+        ]}>
+        {optionItem.text}
       </Text>
+      {canViewWhoVoted && (
+        <Text style={[style.optionText, style.pushRight]}>
+          {optionItem.percent}%
+        </Text>
+      )}
     </View>
   );
 }
@@ -117,6 +135,9 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     lineHeight: 24,
+  },
+  myVote: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   pushRight: {
     marginLeft: 'auto',

@@ -97,6 +97,7 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
                 <PollOptionListItemResult
                   key={index}
                   index={index}
+                  pollItem={pollItem}
                   optionItem={item}
                 />
               ),
