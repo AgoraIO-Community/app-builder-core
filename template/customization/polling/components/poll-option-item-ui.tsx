@@ -15,24 +15,31 @@ function PollOptionList({children}: {children: React.ReactNode}) {
 
 function PollItemFill({canViewWhoVoted, iVoted, percent}) {
   return (
-    <View
-      style={[
-        style.optionFillBackground,
-        canViewWhoVoted
-          ? iVoted
-            ? {
-                width: `${percent}%` as DimensionValue,
-                backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-              }
-            : {
-                width: `${percent}%` as DimensionValue,
-                backgroundColor:
-                  $config.PRIMARY_ACTION_BRAND_COLOR +
-                  hexadecimalTransparency['10%'],
-              }
-          : {},
-      ]}
-    />
+    <>
+      <View
+        style={[
+          style.optionFillBackground,
+          canViewWhoVoted
+            ? iVoted
+              ? {
+                  width: `${percent}%` as DimensionValue,
+                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                }
+              : {
+                  width: `${percent}%` as DimensionValue,
+                  backgroundColor:
+                    $config.PRIMARY_ACTION_BRAND_COLOR +
+                    hexadecimalTransparency['10%'],
+                }
+            : {},
+        ]}
+      />
+      {canViewWhoVoted && (
+        <View style={[style.optionFillText]}>
+          <Text style={[style.optionText]}>{`${percent}%`}</Text>
+        </View>
+      )}
+    </>
   );
 }
 function PollOptionListItemResult({
@@ -55,11 +62,6 @@ function PollOptionListItemResult({
         ]}>
         {optionItem.text}
       </Text>
-      {canViewWhoVoted && (
-        <Text style={[style.optionText, style.pushRight]}>
-          {optionItem.percent}%
-        </Text>
-      )}
     </View>
   );
 }
@@ -91,6 +93,8 @@ function PollOptionInputListItem({
   );
 }
 
+const OPTION_LIST_ITEM_PADDING = 12;
+
 const style = StyleSheet.create({
   optionsList: {
     display: 'flex',
@@ -101,7 +105,7 @@ const style = StyleSheet.create({
   optionListItem: {
     display: 'flex',
     flexDirection: 'row',
-    padding: 12,
+    padding: OPTION_LIST_ITEM_PADDING,
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 8,
@@ -127,6 +131,12 @@ const style = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
+  },
+  optionFillText: {
+    position: 'absolute',
+    top: OPTION_LIST_ITEM_PADDING,
+    bottom: 0,
+    right: OPTION_LIST_ITEM_PADDING,
   },
   optionText: {
     color: $config.FONT_COLOR,
