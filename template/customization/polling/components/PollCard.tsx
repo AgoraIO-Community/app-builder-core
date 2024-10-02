@@ -74,6 +74,8 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
 
 const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
   const {sendResponseToPoll} = usePoll();
+  const localUid = useLocalUid();
+
   return (
     <View style={style.pollCardContent}>
       <Text
@@ -84,9 +86,9 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
       </Text>
       {pollItem.status !== PollStatus.LATER ? (
         <PollRenderResponseFormBody
+          hasUserResponded={hasUserVoted(pollItem.options, localUid)}
           pollItem={pollItem}
           onFormComplete={(responses: string | string[]) => {
-            console.log('supriya  sendResponseToPoll', responses);
             sendResponseToPoll(pollItem, responses);
           }}
         />

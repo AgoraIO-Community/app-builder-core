@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {Text, View, StyleSheet} from 'react-native';
 import {
   BaseModal,
   BaseModalCloseIcon,
@@ -7,9 +8,11 @@ import {
 } from '../../ui/BaseModal';
 import {
   PollResponseFormComplete,
-  PollRenderResponseForm,
+  PollRenderResponseFormBody,
 } from '../form/poll-response-forms';
 import {PollTaskRequestTypes, usePoll} from '../../context/poll-context';
+import {getPollTypeDesc, hasUserVoted} from '../../helpers';
+import {ThemeConfig, $config, useLocalUid} from 'customization-api';
 
 export default function PollResponseFormModal() {
   const {
@@ -20,6 +23,7 @@ export default function PollResponseFormModal() {
     handlePollTaskRequest,
   } = usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
+  const localUid = useLocalUid();
 
   const onFormComplete = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
@@ -61,9 +65,14 @@ export default function PollResponseFormModal() {
           <PollResponseFormComplete />
         ) : (
           <>
-            <PollRenderResponseForm
-              onFormComplete={onFormComplete}
+            <View>
+              <Text style={style.info}>{getPollTypeDesc(pollItem.type)}</Text>
+              <Text style={style.heading}>{pollItem.question}</Text>
+            </View>
+            <PollRenderResponseFormBody
+              hasUserResponded={hasUserVoted(pollItem.options, localUid)}
               pollItem={pollItem}
+              onFormComplete={onFormComplete}
             />
           </>
         )}
@@ -71,3 +80,19 @@ export default function PollResponseFormModal() {
     </BaseModal>
   );
 }
+export const style = StyleSheet.create({
+  heading: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    fontSize: ThemeConfig.FontSize.medium,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    lineHeight: 24,
+    fontWeight: '600',
+  },
+  info: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    lineHeight: 12,
+  },
+});

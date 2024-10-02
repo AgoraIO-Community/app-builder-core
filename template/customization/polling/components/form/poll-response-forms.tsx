@@ -14,8 +14,8 @@ import {
   PollOptionList,
   PollOptionInputListItem,
   PollOptionListItemResult,
+  PollItemFill,
 } from '../poll-option-item-ui';
-import {getPollTypeDesc} from '../../helpers';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import {useButtonState} from '../../hook/useButtonState';
 import {usePollPermissions} from '../../hook/usePollPermissions';
@@ -32,7 +32,7 @@ function PollResponseFormComplete() {
         />
       </View>
       <View>
-        <Text style={style.heading4}>Thank you for your response</Text>
+        <Text style={style.thankyouText}>Thank you for your response</Text>
       </View>
     </View>
   );
@@ -40,36 +40,16 @@ function PollResponseFormComplete() {
 
 interface PollResponseFormProps {
   pollItem: PollItem;
-  isFormFreezed: boolean;
-  onComplete: (responses: string | string[]) => void;
-}
-
-function PollRenderResponseForm({
-  pollItem,
-  onFormComplete,
-}: {
-  pollItem: PollItem;
   onFormComplete: (responses: string | string[]) => void;
-}): JSX.Element {
-  return (
-    <>
-      <Text style={style.heading5}>{getPollTypeDesc(pollItem.type)}</Text>
-      <Text style={style.heading4}>{pollItem.question}</Text>
-      <PollRenderResponseFormBody
-        pollItem={pollItem}
-        onFormComplete={onFormComplete}
-      />
-    </>
-  );
+  hasUserResponded: boolean;
+  isFormFreezed?: boolean;
 }
 
 function PollRenderResponseFormBody({
   pollItem,
   onFormComplete,
-}: {
-  pollItem: PollItem;
-  onFormComplete: (responses: string | string[]) => void;
-}): JSX.Element {
+  hasUserResponded,
+}: PollResponseFormProps): JSX.Element {
   // Directly use switch case logic inside the render
   switch (pollItem.type) {
     case PollKind.OPEN_ENDED:
@@ -77,7 +57,8 @@ function PollRenderResponseFormBody({
         <PollResponseQuestionForm
           isFormFreezed={false} // TODO:SUP Based on poll timer
           pollItem={pollItem}
-          onComplete={onFormComplete}
+          onFormComplete={onFormComplete}
+          hasUserResponded={hasUserResponded}
         />
       );
     case PollKind.MCQ:
@@ -86,7 +67,8 @@ function PollRenderResponseFormBody({
         <PollResponseMCQForm
           isFormFreezed={false} // TODO:SUP Based on poll timer
           pollItem={pollItem}
-          onComplete={onFormComplete}
+          onFormComplete={onFormComplete}
+          hasUserResponded={hasUserResponded}
         />
       );
     default:
@@ -98,7 +80,8 @@ function PollRenderResponseFormBody({
 function PollResponseQuestionForm({
   pollItem,
   isFormFreezed,
-  onComplete,
+  onFormComplete,
+  hasUserResponded,
 }: PollResponseFormProps) {
   const [answer, setAnswer] = useState('');
 
@@ -130,7 +113,7 @@ function PollResponseQuestionForm({
             if (!answer || answer.trim() === '') {
               return;
             }
-            onComplete(answer);
+            onFormComplete(answer);
           }}
           text="Submit"
         />
@@ -142,13 +125,15 @@ function PollResponseQuestionForm({
 function PollResponseMCQForm({
   pollItem,
   isFormFreezed,
-  onComplete,
+  onFormComplete,
+  hasUserResponded,
 }: PollResponseFormProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const {canViewWhoVoted} = usePollPermissions({pollItem});
   const {buttonText, isSubmitting, submitted, handleSubmit} = useButtonState();
-  const [responseComplete, setResponseComplete] = useState(false);
+  // Track the submission state to determine when to hide the button
+  const [buttonVisible, setButtonVisible] = useState(!hasUserResponded);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -156,7 +141,7 @@ function PollResponseMCQForm({
       return;
     }
     timeoutRef.current = setTimeout(() => {
-      setResponseComplete(true);
+      setButtonVisible(false);
     }, 2000);
 
     return () => {
@@ -184,12 +169,12 @@ function PollResponseMCQForm({
       if (selectedOptions.length === 0) {
         return;
       }
-      onComplete(selectedOptions);
+      onFormComplete(selectedOptions);
     } else {
       if (!selectedOption) {
         return;
       }
-      onComplete([selectedOption]);
+      onFormComplete([selectedOption]);
     }
   };
 
@@ -222,14 +207,22 @@ function PollResponseMCQForm({
                       index={index}
                       hovered={isHovered}
                       checked={checked}>
-                      <Checkbox
-                        key={index}
-                        checked={selectedOptions.includes(option?.value)}
-                        label={option.text}
-                        labelStye={style.optionText}
-                        containerStyle={style.checkboxContainer}
-                        onChange={() => handleCheckboxToggle(option?.value)}
-                      />
+                      <>
+                        {/* Background fill according to vote percentage */}
+                        <PollItemFill
+                          canViewWhoVoted={canViewWhoVoted}
+                          iVoted={iVoted}
+                          percent={option.percent}
+                        />
+                        <Checkbox
+                          key={index}
+                          checked={selectedOptions.includes(option?.value)}
+                          label={option.text}
+                          labelStye={style.optionText}
+                          containerStyle={style.checkboxContainer}
+                          onChange={() => handleCheckboxToggle(option?.value)}
+                        />
+                      </>
                     </PollOptionInputListItem>
                   )}
                 </PlatformWrapper>
@@ -255,24 +248,40 @@ function PollResponseMCQForm({
                       index={index}
                       checked={checked}
                       hovered={isHovered}>
-                      <BaseRadioButton
-                        option={{
-                          label: option.text,
-                          value: option.value,
-                        }}
-                        labelStyle={style.optionText}
-                        checked={checked}
-                        onChange={handleRadioSelect}
-                      />
+                      <>
+                        {/* Background fill according to vote percentage */}
+                        <PollItemFill
+                          canViewWhoVoted={canViewWhoVoted}
+                          iVoted={iVoted}
+                          percent={option.percent}
+                        />
+                        <BaseRadioButton
+                          option={{
+                            label: option.text,
+                            value: option.value,
+                          }}
+                          labelStyle={style.optionText}
+                          checked={checked}
+                          onChange={handleRadioSelect}
+                          filledColor={
+                            iVoted || submitted
+                              ? $config.FONT_COLOR
+                              : $config.PRIMARY_ACTION_BRAND_COLOR
+                          }
+                          tickColor={
+                            iVoted || submitted
+                              ? $config.PRIMARY_ACTION_BRAND_COLOR
+                              : $config.BACKGROUND_COLOR
+                          }
+                        />
+                      </>
                     </PollOptionInputListItem>
                   )}
                 </PlatformWrapper>
               );
             })}
       </PollOptionList>
-      {responseComplete ? (
-        <></>
-      ) : (
+      {buttonVisible ? (
         <View style={style.responseActions}>
           <PrimaryButton
             disabled={submitDisabled}
@@ -290,6 +299,8 @@ function PollResponseMCQForm({
             text={buttonText}
           />
         </View>
+      ) : (
+        <></>
       )}
     </View>
   );
@@ -299,7 +310,6 @@ export {
   PollResponseQuestionForm,
   PollResponseMCQForm,
   PollResponseFormComplete,
-  PollRenderResponseForm,
   PollRenderResponseFormBody,
 };
 
@@ -310,19 +320,12 @@ export const style = StyleSheet.create({
     gap: 20,
     width: '100%',
   },
-  heading4: {
+  thankyouText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.medium,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 24,
     fontWeight: '600',
-  },
-  heading5: {
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
-    fontSize: ThemeConfig.FontSize.tiny,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    lineHeight: 12,
   },
   pFormTextarea: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
