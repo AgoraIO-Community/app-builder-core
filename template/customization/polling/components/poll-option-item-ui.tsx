@@ -13,6 +13,28 @@ function PollOptionList({children}: {children: React.ReactNode}) {
   return <View style={style.optionsList}>{children}</View>;
 }
 
+function PollItemFill({canViewWhoVoted, iVoted, percent}) {
+  return (
+    <View
+      style={[
+        style.optionFillBackground,
+        canViewWhoVoted
+          ? iVoted
+            ? {
+                width: `${percent}%` as DimensionValue,
+                backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+              }
+            : {
+                width: `${percent}%` as DimensionValue,
+                backgroundColor:
+                  $config.PRIMARY_ACTION_BRAND_COLOR +
+                  hexadecimalTransparency['10%'],
+              }
+          : {},
+      ]}
+    />
+  );
+}
 function PollOptionListItemResult({
   iVoted,
   canViewWhoVoted,
@@ -21,23 +43,10 @@ function PollOptionListItemResult({
   return (
     <View style={[style.optionListItem]}>
       {/* Background fill according to vote percentage */}
-      <View
-        style={[
-          style.optionBackground,
-          canViewWhoVoted
-            ? iVoted
-              ? {
-                  width: `${optionItem.percent}%` as DimensionValue,
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                }
-              : {
-                  width: `${optionItem.percent}%` as DimensionValue,
-                  backgroundColor:
-                    $config.PRIMARY_ACTION_BRAND_COLOR +
-                    hexadecimalTransparency['10%'],
-                }
-            : {},
-        ]}
+      <PollItemFill
+        canViewWhoVoted={canViewWhoVoted}
+        iVoted={iVoted}
+        percent={optionItem.percent}
       />
       <Text
         style={[
@@ -101,6 +110,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     overflow: 'hidden',
     width: '100%',
+    position: 'relative',
   },
   optionListItemInput: {
     backgroundColor: $config.CARD_LAYER_3_COLOR,
@@ -112,7 +122,7 @@ const style = StyleSheet.create({
   optionListItemHovered: {
     borderColor: 'rgba(128, 128, 128, 0.25)',
   },
-  optionBackground: {
+  optionFillBackground: {
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -133,4 +143,9 @@ const style = StyleSheet.create({
   },
 });
 
-export {PollOptionList, PollOptionListItemResult, PollOptionInputListItem};
+export {
+  PollOptionList,
+  PollOptionListItemResult,
+  PollOptionInputListItem,
+  PollItemFill,
+};

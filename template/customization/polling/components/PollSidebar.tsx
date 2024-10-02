@@ -13,7 +13,9 @@ const PollSidebar = () => {
         <View style={style.emptyView}>
           <View style={style.emptyCard}>
             <Text style={style.emptyText}>
-              Create a new poll and boost interaction with your audience.
+              {isHost
+                ? 'Create a new poll and boost interaction with your audience.'
+                : 'No polls here yet...'}
             </Text>
           </View>
         </View>

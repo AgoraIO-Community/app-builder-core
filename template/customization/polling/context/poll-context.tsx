@@ -237,7 +237,10 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           },
         };
       }
-      if (poll.type === PollKind.MCQ && Array.isArray(responses)) {
+      if (
+        (poll.type === PollKind.MCQ || poll.type === PollKind.YES_NO) &&
+        Array.isArray(responses)
+      ) {
         const newCopyOptions = poll.options?.map(item => ({...item})) || [];
         const withVotesOptions = addVote(
           responses,

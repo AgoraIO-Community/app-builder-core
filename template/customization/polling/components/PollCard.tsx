@@ -74,7 +74,6 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
 
 const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
   const {sendResponseToPoll} = usePoll();
-  console.log('supriya card');
   return (
     <View style={style.pollCardContent}>
       <Text
@@ -87,6 +86,7 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
         <PollRenderResponseFormBody
           pollItem={pollItem}
           onFormComplete={(responses: string | string[]) => {
+            console.log('supriya  sendResponseToPoll', responses);
             sendResponseToPoll(pollItem, responses);
           }}
         />
