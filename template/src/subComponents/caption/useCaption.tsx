@@ -1,6 +1,7 @@
 import {createHook} from 'customization-implementation';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {LanguageType} from './utils';
+import {useRoomInfo, useSpeechToText} from 'customization-api';
 
 export type TranscriptItem = {
   uid: string;
@@ -71,7 +72,15 @@ export const CaptionContext = React.createContext<{
   prevSpeakerRef: {current: ''},
 });
 
-const CaptionProvider = ({children}) => {
+interface CaptionProviderProps {
+  callActive: boolean;
+  children: React.ReactNode;
+}
+
+const CaptionProvider: React.FC<CaptionProviderProps> = ({
+  callActive,
+  children,
+}) => {
   const [isSTTError, setIsSTTError] = React.useState<boolean>(false);
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
@@ -90,6 +99,18 @@ const CaptionProvider = ({children}) => {
 
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
+
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const {isSpeechToTextOn, startSpeechToText, showCaptionPanel} =
+    useSpeechToText();
+  useEffect(() => {
+    if (callActive && isHost && !isSpeechToTextOn) {
+      startSpeechToText(['en-US']);
+      showCaptionPanel(true);
+    }
+  }, [callActive, isHost, isSpeechToTextOn]);
 
   return (
     <CaptionContext.Provider

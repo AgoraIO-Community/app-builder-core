@@ -432,7 +432,8 @@ const VideoCall: React.FC = () => {
                                   <ScreenShareProvider>
                                     <RtmConfigure callActive={callActive}>
                                       <UserPreferenceProvider>
-                                        <CaptionProvider>
+                                        <CaptionProvider
+                                          callActive={callActive}>
                                           <WaitingRoomProvider>
                                             <EventsConfigure>
                                               <ScreenshareConfigure
