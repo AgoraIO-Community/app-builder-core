@@ -142,6 +142,7 @@ const showErrorToast = (text1: string, text2?: string) => {
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
+  const [autoStartCompleted, setAutoStartCompleted] = useState(false);
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
@@ -823,6 +824,33 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     hostUids,
     audienceUids,
     _stopRecording,
+  ]);
+
+  // auto start recording
+  useEffect(() => {
+    if (
+      $config.CLOUD_RECORDING &&
+      $config.CLOUD_RECORDING_AUTO_START &&
+      callActive &&
+      !isRecordingActive &&
+      isHost &&
+      hasUserJoinedRTM &&
+      !autoStartCompleted
+    ) {
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
+        'CLOUD_RECORDING_AUTO_START triggered',
+      );
+      startRecording();
+      setAutoStartCompleted(true);
+    }
+  }, [
+    isRecordingActive,
+    isHost,
+    callActive,
+    hasUserJoinedRTM,
+    autoStartCompleted,
   ]);
 
   // useEffect(() => { //

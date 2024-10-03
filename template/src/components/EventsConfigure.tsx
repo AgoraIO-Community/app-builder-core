@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {
   RtcContext,
@@ -19,10 +19,10 @@ import {
   PermissionState,
 } from '../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../rtm-events-api';
-import {controlMessageEnum} from '../components/ChatContext';
+import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
-import {useContent, useLocalUserInfo} from 'customization-api';
+import {useContent, useLocalUserInfo, useSpeechToText} from 'customization-api';
 import {isAndroid, isIOS, isWebInternal} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import {
@@ -53,12 +53,14 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 import useEndCall from '../utils/useEndCall';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 interface Props {
   children: React.ReactNode;
+  callActive: boolean;
 }
 
-const EventsConfigure: React.FC<Props> = props => {
+const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
   // mute user audio
   const hostMutedUserAudioToastHeadingTT = useString<I18nMuteType>(
     hostMutedUserToastHeading,
@@ -231,7 +233,7 @@ const EventsConfigure: React.FC<Props> = props => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
   const {
-    data: {isHost},
+    data: {isHost, roomId},
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
   const isHostRef = React.useRef(isHost);
@@ -254,6 +256,41 @@ const EventsConfigure: React.FC<Props> = props => {
   useEffect(() => {
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
+
+  const {hasUserJoinedRTM} = useContext(ChatContext);
+  const {startSpeechToText} = useSpeechToText();
+  const [autoStartCompleted, setAutoStartCompleted] = useState(false);
+
+  //auto start stt
+  useEffect(() => {
+    if (
+      $config.ENABLE_CAPTION &&
+      $config.STT_AUTO_START &&
+      callActive &&
+      hasUserJoinedRTM &&
+      !autoStartCompleted
+    ) {
+      //host will start the caption
+      if (isHost && roomId?.host) {
+        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered');
+        //start with default language
+        startSpeechToText(['en-US'])
+          .then(() => {
+            logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START success');
+            setAutoStartCompleted(true);
+          })
+          .catch(err => {
+            logger.log(
+              LogSource.Internals,
+              'RECORDING',
+              'STT_AUTO_START failed',
+              err,
+            );
+            setAutoStartCompleted(false);
+          });
+      }
+    }
+  }, [callActive, isHost, hasUserJoinedRTM, roomId, autoStartCompleted]);
 
   useEffect(() => {
     //user joined event listener
@@ -773,7 +810,7 @@ const EventsConfigure: React.FC<Props> = props => {
     };
   }, []);
 
-  return <>{props.children}</>;
+  return <>{children}</>;
 };
 
 export default EventsConfigure;
