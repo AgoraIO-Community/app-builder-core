@@ -71,7 +71,15 @@ export const CaptionContext = React.createContext<{
   prevSpeakerRef: {current: ''},
 });
 
-const CaptionProvider = ({children}) => {
+interface CaptionProviderProps {
+  callActive: boolean;
+  children: React.ReactNode;
+}
+
+const CaptionProvider: React.FC<CaptionProviderProps> = ({
+  callActive,
+  children,
+}) => {
   const [isSTTError, setIsSTTError] = React.useState<boolean>(false);
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);

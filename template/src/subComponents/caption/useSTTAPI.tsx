@@ -125,9 +125,11 @@ const useSTTAPI = (): IuseSTTAPI => {
       const isSTTAlreadyActive =
         res?.error?.message
           ?.toLowerCase()
-          .indexOf('current status is started') !== -1 || false;
+          .indexOf('current status is STARTED') !== -1 ||
+        res?.error?.code === 610 ||
+        false;
 
-      if (res?.error?.message) {
+      if (res?.error?.message && res?.error?.code !== 610) {
         setIsSTTError(true);
         logger.error(
           LogSource.NetworkRest,
