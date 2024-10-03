@@ -18,6 +18,7 @@ import {
   ThemeConfig,
   $config,
   TertiaryButton,
+  ImageIcon,
 } from 'customization-api';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
@@ -184,7 +185,14 @@ export default function DraftPollFormView({
               <View style={style.pFormOptions}>
                 {form.options?.map((option, index) => (
                   <View style={style.pFormOptionCard} key={index}>
-                    <Text style={style.pFormOptionPrefix}>{index + 1}</Text>
+                    <View style={style.pFormOptionPrefix}>
+                      <ImageIcon
+                        iconType="plain"
+                        name={form.multiple_response ? 'square' : 'circle'}
+                        iconSize={24}
+                        tintColor={$config.FONT_COLOR}
+                      />
+                    </View>
                     <TextInput
                       autoComplete="off"
                       id="input"
@@ -258,9 +266,25 @@ export default function DraftPollFormView({
               <FormTitle title="Responses" />
               <View style={style.pFormOptions}>
                 <View style={[style.pFormOptionCard, style.verticalPadding]}>
+                  <View style={style.pFormOptionPrefix}>
+                    <ImageIcon
+                      iconType="plain"
+                      name={'circle'}
+                      iconSize={24}
+                      tintColor={$config.FONT_COLOR}
+                    />
+                  </View>
                   <Text style={style.pFormOptionText}>Yes</Text>
                 </View>
                 <View style={[style.pFormOptionCard, style.verticalPadding]}>
+                  <View style={style.pFormOptionPrefix}>
+                    <ImageIcon
+                      iconType="plain"
+                      name={'circle'}
+                      iconSize={24}
+                      tintColor={$config.FONT_COLOR}
+                    />
+                  </View>
                   <Text style={style.pFormOptionText}>No</Text>
                 </View>
               </View>
