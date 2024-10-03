@@ -187,14 +187,18 @@ function PollResponseMCQForm({
                             checked={checked}
                             onChange={handleRadioSelect}
                             filledColor={
-                              checked || submitted
+                              submitted
                                 ? $config.FONT_COLOR
-                                : $config.PRIMARY_ACTION_BRAND_COLOR
+                                : checked
+                                ? $config.PRIMARY_ACTION_BRAND_COLOR
+                                : null
                             }
                             tickColor={
-                              checked || submitted
+                              submitted
                                 ? $config.PRIMARY_ACTION_BRAND_COLOR
-                                : $config.BACKGROUND_COLOR
+                                : checked
+                                ? $config.BACKGROUND_COLOR
+                                : null
                             }
                           />
                         </>
