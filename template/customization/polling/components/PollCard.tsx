@@ -87,6 +87,10 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
   const {sendResponseToPoll} = usePoll();
   const localUid = useLocalUid();
   const hasSubmitted = hasUserVoted(pollItem.options, localUid);
+  console.log(
+    'supriya poll card show submit button hasSubmitted: ',
+    hasSubmitted,
+  );
 
   const onFormSubmit = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
@@ -131,7 +135,7 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
             pollItem={pollItem}
             submitted={submitted}
           />
-          {hasSubmitted && (
+          {!hasSubmitted && (
             <View style={style.fullWidth}>
               <PollFormSubmitButton
                 submitDisabled={submitDisabled}
