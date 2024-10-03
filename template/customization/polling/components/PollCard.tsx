@@ -131,13 +131,17 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
             pollItem={pollItem}
             submitted={submitted}
           />
-          <PollFormSubmitButton
-            submitDisabled={submitDisabled}
-            hasResponded={false}
-            submitted={submitted}
-            onSubmit={onSubmit}
-            buttonText={buttonText}
-          />
+          {hasSubmitted && (
+            <View style={style.fullWidth}>
+              <PollFormSubmitButton
+                submitDisabled={submitDisabled}
+                hasResponded={false}
+                submitted={submitted}
+                onSubmit={onSubmit}
+                buttonText={buttonText}
+              />
+            </View>
+          )}
         </>
       )}
     </View>

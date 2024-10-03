@@ -164,8 +164,8 @@ function PollResponseMCQForm({
               const iVoted = option.votes.some(item => item.uid === localUid);
               const checked = selectedOption === option.value || iVoted;
               return (
-                <TouchableWithoutFeedback disabled={submitted}>
-                  <PlatformWrapper key={index}>
+                <TouchableWithoutFeedback disabled={submitted} key={index}>
+                  <PlatformWrapper>
                     {(isHovered: boolean) => (
                       <PollOptionInputListItem
                         index={index}
@@ -217,24 +217,22 @@ function PollFormSubmitButton({
   onSubmit,
 }) {
   return (
-    <View>
-      <PrimaryButton
-        disabled={submitDisabled || hasResponded}
-        containerStyle={[
-          style.btnContainer,
-          submitted && !hasResponded ? style.submittedBtn : {},
-        ]}
-        textStyle={style.btnText}
-        onPress={() => {
-          if (submitted) {
-            return;
-          } else {
-            onSubmit();
-          }
-        }}
-        text={buttonText}
-      />
-    </View>
+    <PrimaryButton
+      disabled={submitDisabled || hasResponded}
+      containerStyle={[
+        style.btnContainer,
+        submitted && !hasResponded ? style.submittedBtn : {},
+      ]}
+      textStyle={style.btnText}
+      onPress={() => {
+        if (submitted) {
+          return;
+        } else {
+          onSubmit();
+        }
+      }}
+      text={buttonText}
+    />
   );
 }
 
