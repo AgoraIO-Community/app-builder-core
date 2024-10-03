@@ -53,6 +53,7 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 import useEndCall from '../utils/useEndCall';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 interface Props {
   children: React.ReactNode;
@@ -271,9 +272,22 @@ const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
     ) {
       //host will start the caption
       if (isHost && roomId?.host) {
+        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered');
         //start with default language
-        startSpeechToText(['en-US']);
-        setAutoStartCompleted(true);
+        startSpeechToText(['en-US'])
+          .then(() => {
+            logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START success');
+            setAutoStartCompleted(true);
+          })
+          .catch(err => {
+            logger.log(
+              LogSource.Internals,
+              'RECORDING',
+              'STT_AUTO_START failed',
+              err,
+            );
+            setAutoStartCompleted(false);
+          });
       }
     }
   }, [callActive, isHost, hasUserJoinedRTM, roomId, autoStartCompleted]);

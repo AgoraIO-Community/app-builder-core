@@ -837,6 +837,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       hasUserJoinedRTM &&
       !autoStartCompleted
     ) {
+      logger.log(
+        LogSource.Internals,
+        'RECORDING',
+        'CLOUD_RECORDING_AUTO_START triggered',
+      );
       startRecording();
       setAutoStartCompleted(true);
     }
