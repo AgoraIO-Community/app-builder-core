@@ -5,9 +5,9 @@ import {PollItem, PollStatus} from '../context/poll-context';
 interface PollPermissions {
   canEdit: boolean;
   canEnd: boolean;
-  canViewResults: boolean;
   canViewWhoVoted: boolean;
-  // canReply: boolean;
+  canViewVotesPercent: boolean;
+  canViewPollDetails: boolean;
 }
 
 interface UsePollPermissionsProps {
@@ -23,26 +23,43 @@ export const usePollPermissions = ({
   } = useRoomInfo();
   // Calculate permissions using useMemo to optimize performance
   const permissions = useMemo(() => {
+    // Check if the current user is the creator of the poll
     const isPollCreator = pollItem?.createdBy === localUid || false;
+    // Determine if the user is both a host and the creator of the poll
     const isPollHost = isHost && isPollCreator;
+    // Determine if the user is a host but not the creator of the poll (co-host)
     const isPollCoHost = isHost && !isPollCreator;
+    // Determine if the user is an attendee (not a host and not the creator)
     const isPollAttendee = !isHost && !isPollCreator;
 
-    // Determine if the user can edit the poll
+    // Determine if the user can edit the poll (only the poll host can edit)
     const canEdit = isPollHost;
+    // Determine if the user can end the poll (only the poll host can end an active poll)
     const canEnd = isPollHost && pollItem?.status === PollStatus.ACTIVE;
-    const canViewResults =
-      (isPollAttendee && pollItem?.share_attendee) ||
-      (isPollCoHost && pollItem?.share_host);
 
-    const canViewWhoVoted = isPollCreator || !pollItem?.anonymous;
-    // // Determine if the user can reply to the poll (e.g., if the poll is active)
-    // const canReply = poll.status === PollStatus.ACTIVE;
+    // Determine if the user can view the percentage of votes
+    // - Hosts can always view the percentage of votes
+    // - Co-hosts and attendees can view it if share_host or share_attendee is true respectively
+    const canViewVotesPercent =
+      isPollHost ||
+      (isPollCoHost && pollItem.share_host) ||
+      (isPollAttendee && pollItem.share_attendee);
 
-    // // Determine if the user can view results (e.g., if they have replied to the poll or if the poll is finished)
-    // const canViewResults = isHost;
+    // Determine if the user can view poll details (all hosts can view details, attendees cannot)
+    const canViewPollDetails = isPollHost || isPollCoHost;
 
-    return {canEdit, canEnd, canViewResults, canViewWhoVoted};
+    // Determine if the user can view who voted
+    // - If `pollItem.anonymous` is true, no one can view who voted
+    // - If `pollItem.anonymous` is false, only hosts and co-hosts can view who voted, attendees cannot
+    const canViewWhoVoted = canViewPollDetails && !pollItem?.anonymous;
+
+    return {
+      canEdit,
+      canEnd,
+      canViewVotesPercent,
+      canViewWhoVoted,
+      canViewPollDetails,
+    };
   }, [localUid, pollItem, isHost]);
 
   return permissions;

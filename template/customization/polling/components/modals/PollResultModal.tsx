@@ -111,7 +111,7 @@ export default function PollResultModal() {
                     </Text>
                   </View>
                 </View>
-                {canViewWhoVoted && (
+                {canViewWhoVoted ? (
                   <View style={style.summaryCardBody}>
                     {option.votes.map((item, i) => (
                       <View style={style.summaryItem} key={i}>
@@ -132,6 +132,12 @@ export default function PollResultModal() {
                         </View>
                       </View>
                     ))}
+                  </View>
+                ) : (
+                  <View>
+                    <Text style={style.descriptionText}>
+                      Individual responses are anonymous
+                    </Text>
                   </View>
                 )}
               </View>

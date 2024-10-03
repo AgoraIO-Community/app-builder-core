@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {
   PollItem,
   PollStatus,
@@ -12,6 +12,7 @@ import {
   useLocalUid,
   $config,
   LinkButton,
+  ImageIcon,
 } from 'customization-api';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions} from './PollCardMoreActions';
@@ -27,7 +28,7 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
   const moreBtnRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
-  const {handlePollTaskRequest} = usePoll();
+  const {editPollForm, handlePollTaskRequest} = usePoll();
   const {canEdit} = usePollPermissions({pollItem});
 
   return (
@@ -47,11 +48,20 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
         {canEdit ? (
           <>
             {pollItem.status === PollStatus.LATER && (
-              <LinkButton
-                text="Edit"
-                textStyle={style.linkText}
-                onPress={() => {}}
-              />
+              <TouchableOpacity
+                onPress={() => {
+                  editPollForm(pollItem.id);
+                }}>
+                <View style={style.row}>
+                  <ImageIcon
+                    iconType="plain"
+                    name="pen"
+                    tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+                    iconSize={14}
+                  />
+                  <Text style={style.linkText}>Edit</Text>
+                </View>
+              </TouchableOpacity>
             )}
             <BaseMoreButton
               ref={moreBtnRef}
@@ -139,7 +149,7 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
 
 const PollCardFooter = ({pollItem}: {pollItem: PollItem}) => {
   const {handlePollTaskRequest} = usePoll();
-  const {canEnd} = usePollPermissions({pollItem});
+  const {canEnd, canViewPollDetails} = usePollPermissions({pollItem});
 
   return (
     <View style={style.pollCardFooter}>
@@ -148,20 +158,22 @@ const PollCardFooter = ({pollItem}: {pollItem: PollItem}) => {
           <TertiaryButton text="End Poll" onPress={() => {}} />
         </View>
       )}
-      <View>
-        <View style={style.linkBtnContainer}>
-          <LinkButton
-            text="View Details"
-            textStyle={style.linkText}
-            onPress={() =>
-              handlePollTaskRequest(
-                PollTaskRequestTypes.VIEW_DETAILS,
-                pollItem.id,
-              )
-            }
-          />
+      {canViewPollDetails && (
+        <View>
+          <View style={style.linkBtnContainer}>
+            <LinkButton
+              text="View Details"
+              textStyle={style.linkText}
+              onPress={() =>
+                handlePollTaskRequest(
+                  PollTaskRequestTypes.VIEW_DETAILS,
+                  pollItem.id,
+                )
+              }
+            />
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 };
@@ -254,5 +266,6 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
 });

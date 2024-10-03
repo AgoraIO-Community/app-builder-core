@@ -24,11 +24,14 @@ function Poll({children}: {children?: React.ReactNode}) {
 }
 
 function PollModals() {
-  const {currentModal, launchPollId, viewResultPollId, polls} = usePoll();
+  const {currentModal, launchPollId, viewResultPollId, polls, editFormObject} =
+    usePoll();
   log('polls data changed: ', polls);
   return (
     <>
-      {currentModal === PollModalState.DRAFT_POLL && <PollFormWizardModal />}
+      {currentModal === PollModalState.DRAFT_POLL && (
+        <PollFormWizardModal formObject={editFormObject} />
+      )}
       {currentModal === PollModalState.RESPOND_TO_POLL && launchPollId && (
         <PollResponseFormModal />
       )}

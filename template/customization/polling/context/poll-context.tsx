@@ -308,6 +308,8 @@ interface PollContextValue {
   polls: Poll;
   currentModal: PollModalState | null;
   startPollForm: () => void;
+  editFormObject: PollItem;
+  editPollForm: (pollId: string) => void;
   savePoll: (item: PollItem) => void;
   sendPoll: (pollId: string) => void;
   onPollReceived: (
@@ -336,6 +338,7 @@ PollContext.displayName = 'PollContext';
 function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
   const [currentModal, setCurrentModal] = useState<PollModalState | null>(null);
+  const [editFormObject, setEditFormObject] = useState<PollItem | null>(null);
   const [launchPollId, setLaunchPollId] = useState<string | null>(null);
   const [viewResultPollId, setViewResultPollId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<PollAction | null>(null);
@@ -399,6 +402,11 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const startPollForm = () => {
     setCurrentModal(PollModalState.DRAFT_POLL);
+  };
+
+  const editPollForm = (pollId: string) => {
+    setCurrentModal(PollModalState.DRAFT_POLL);
+    setEditFormObject({...polls[pollId]});
   };
 
   const savePoll = (item: PollItem) => {
@@ -580,6 +588,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const value = {
     polls,
     startPollForm,
+    editFormObject,
+    editPollForm,
     sendPoll,
     savePoll,
     onPollReceived,

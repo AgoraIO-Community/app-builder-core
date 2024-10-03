@@ -16,11 +16,21 @@ import {log} from '../../helpers';
 
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
-export default function PollFormWizardModal() {
+interface PollFormWizardModalProps {
+  formObject?: PollItem; // Optional prop to initialize form in edit mode
+}
+
+export default function PollFormWizardModal({
+  formObject,
+}: PollFormWizardModalProps) {
   const {savePoll, sendPoll, closeCurrentModal} = usePoll();
-  const [step, setStep] = useState<FormWizardStep>('SELECT');
-  const [type, setType] = useState<PollKind>(PollKind.NONE);
-  const [form, setForm] = useState<PollItem | null>(null);
+  const [step, setStep] = useState<FormWizardStep>(
+    formObject ? 'DRAFT' : 'SELECT',
+  );
+  const [type, setType] = useState<PollKind>(
+    formObject ? formObject.type : PollKind.NONE,
+  );
+  const [form, setForm] = useState<PollItem | null>(formObject || null);
   const [formErrors, setFormErrors] = useState<Partial<PollFormErrors>>({});
 
   const localUid = useLocalUid();
@@ -28,15 +38,19 @@ export default function PollFormWizardModal() {
 
   useEffect(() => {
     try {
-      if (type === PollKind.NONE) {
-        return;
+      if (formObject) {
+        // If formObject is passed, skip the SELECT step and initialize the form
+        setForm(formObject);
+        setStep('DRAFT');
+      } else if (type !== PollKind.NONE) {
+        // Initialize the form for a new poll based on the selected type
+        setForm(initPollForm(type, localUidRef.current));
+        setStep('DRAFT');
       }
-      setForm(initPollForm(type, localUidRef.current));
-      setStep('DRAFT');
     } catch (error) {
-      log('error while initializing form: ', error);
+      log('Error while initializing form: ', error);
     }
-  }, [type]);
+  }, [type, formObject]);
 
   const onSave = (launch?: boolean) => {
     try {
