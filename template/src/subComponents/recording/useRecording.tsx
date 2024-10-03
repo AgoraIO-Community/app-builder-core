@@ -831,11 +831,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       $config.CLOUD_RECORDING_AUTO_START &&
       callActive &&
       !isRecordingActive &&
-      isHost
+      isHost &&
+      hasUserJoinedRTM
     ) {
       startRecording();
     }
-  }, [isRecordingActive, isHost, callActive]);
+  }, [isRecordingActive, isHost, callActive, hasUserJoinedRTM]);
 
   // useEffect(() => { //
   //   if (hasUserJoinedRTM && isRecordingBot) {

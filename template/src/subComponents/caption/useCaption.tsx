@@ -1,7 +1,8 @@
 import {createHook} from 'customization-implementation';
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {LanguageType} from './utils';
 import {useRoomInfo, useSpeechToText} from 'customization-api';
+import ChatContext from '../../components/ChatContext';
 
 export type TranscriptItem = {
   uid: string;
@@ -100,17 +101,19 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
 
+  const {hasUserJoinedRTM} = useContext(ChatContext);
   const {
     data: {isHost},
   } = useRoomInfo();
   const {isSpeechToTextOn, startSpeechToText, showCaptionPanel} =
     useSpeechToText();
+
   useEffect(() => {
     if (callActive && isHost && !isSpeechToTextOn) {
       startSpeechToText(['en-US']);
       showCaptionPanel(true);
     }
-  }, [callActive, isHost, isSpeechToTextOn]);
+  }, [callActive, isHost, isSpeechToTextOn, hasUserJoinedRTM]);
 
   return (
     <CaptionContext.Provider
