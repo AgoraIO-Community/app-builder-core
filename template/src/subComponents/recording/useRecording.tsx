@@ -829,6 +829,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   // auto start recording
   useEffect(() => {
     if (
+      $config.CLOUD_RECORDING &&
       $config.CLOUD_RECORDING_AUTO_START &&
       callActive &&
       !isRecordingActive &&
