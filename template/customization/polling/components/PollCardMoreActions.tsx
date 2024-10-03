@@ -29,64 +29,66 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
-  actionMenuItems.push({
-    icon: 'send',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Send Poll',
-    titleStyle: {
-      fontSize: ThemeConfig.FontSize.small,
-    },
-    disabled: status !== PollStatus.LATER,
-    onPress: () => {
-      onCardActionSelect(PollTaskRequestTypes.SEND);
-      setActionMenuVisible(false);
-    },
-  });
+  status !== PollStatus.FINISHED &&
+    actionMenuItems.push({
+      icon: 'send',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Launch Poll',
+      titleStyle: {
+        fontSize: ThemeConfig.FontSize.small,
+      },
+      disabled: status !== PollStatus.LATER,
+      onPress: () => {
+        onCardActionSelect(PollTaskRequestTypes.SEND);
+        setActionMenuVisible(false);
+      },
+    });
 
-  actionMenuItems.push({
-    icon: 'share',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Publish Result',
-    titleStyle: {
-      fontSize: ThemeConfig.FontSize.small,
-    },
-    disabled: status === PollStatus.LATER,
-    onPress: () => {
-      onCardActionSelect(PollTaskRequestTypes.PUBLISH);
-      setActionMenuVisible(false);
-    },
-  });
+  status === PollStatus.ACTIVE &&
+    actionMenuItems.push({
+      icon: 'share',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Publish Result',
+      titleStyle: {
+        fontSize: ThemeConfig.FontSize.small,
+      },
+      onPress: () => {
+        onCardActionSelect(PollTaskRequestTypes.PUBLISH);
+        setActionMenuVisible(false);
+      },
+    });
 
-  actionMenuItems.push({
-    icon: 'download',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Export Resuts',
-    titleStyle: {
-      fontSize: ThemeConfig.FontSize.small,
-    },
-    onPress: () => {
-      onCardActionSelect(PollTaskRequestTypes.EXPORT);
-      setActionMenuVisible(false);
-    },
-  });
+  status !== PollStatus.LATER &&
+    actionMenuItems.push({
+      icon: 'download',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Export Resuts',
+      titleStyle: {
+        fontSize: ThemeConfig.FontSize.small,
+      },
+      onPress: () => {
+        onCardActionSelect(PollTaskRequestTypes.EXPORT);
+        setActionMenuVisible(false);
+      },
+    });
 
-  actionMenuItems.push({
-    icon: 'close',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Finish Poll',
-    titleStyle: {
-      fontSize: ThemeConfig.FontSize.small,
-    },
-    disabled: status === PollStatus.LATER || status === PollStatus.FINISHED,
-    onPress: () => {
-      onCardActionSelect(PollTaskRequestTypes.FINISH);
-      setActionMenuVisible(false);
-    },
-  });
+  // actionMenuItems.push({
+  //   icon: 'close',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: 'Finish Poll',
+  //   titleStyle: {
+  //     fontSize: ThemeConfig.FontSize.small,
+  //   },
+  //   disabled: status === PollStatus.LATER || status === PollStatus.FINISHED,
+  //   onPress: () => {
+  //     onCardActionSelect(PollTaskRequestTypes.FINISH);
+  //     setActionMenuVisible(false);
+  //   },
+  // });
 
   actionMenuItems.push({
     icon: 'delete',
