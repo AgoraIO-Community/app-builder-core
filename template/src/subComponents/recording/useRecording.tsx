@@ -825,6 +825,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     _stopRecording,
   ]);
 
+  // auto start recording
+  useEffect(() => {
+    if ($config.CLOUD_RECORDING_AUTO_START && !isRecordingActive) {
+      startRecording();
+    }
+  }, [isRecordingActive]);
+
   // useEffect(() => { //
   //   if (hasUserJoinedRTM && isRecordingBot) {
   //     log('Recording-bot: sending event that recording has started');
