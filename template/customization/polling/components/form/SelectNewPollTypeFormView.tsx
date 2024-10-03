@@ -31,13 +31,13 @@ const newPollTypeConfig: newPollType[] = [
     description:
       'A question with several predefined answer options, allowing users to select one or more responses.',
   },
-  {
-    key: PollKind.OPEN_ENDED,
-    image: null,
-    title: 'Open Ended Question',
-    description:
-      'A question that invites users to provide a detailed, free-form response, encouraging more in-depth feedback.',
-  },
+  // {
+  //   key: PollKind.OPEN_ENDED,
+  //   image: null,
+  //   title: 'Open Ended Question',
+  //   description:
+  //     'A question that invites users to provide a detailed, free-form response, encouraging more in-depth feedback.',
+  // },
 ];
 
 export default function SelectNewPollTypeFormView({

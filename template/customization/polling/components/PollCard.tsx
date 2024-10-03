@@ -33,55 +33,52 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
 
   return (
     <View style={style.pollCardHeader}>
-      <View style={style.row}>
+      <View style={[style.row, style.gap8]}>
         <Text style={style.pollCardHeaderText}>
           {getPollTypeDesc(pollItem.type)}
         </Text>
         {pollItem.status === PollStatus.LATER && (
           <>
-            <View style={style.space} />
+            <View style={style.dot} />
             <Text style={style.pollCardHeaderText}>Draft</Text>
           </>
         )}
       </View>
-      <View style={style.row}>
-        {canEdit ? (
-          <>
-            {pollItem.status === PollStatus.LATER && (
-              <TouchableOpacity
-                onPress={() => {
-                  editPollForm(pollItem.id);
-                }}>
-                <View style={style.row}>
-                  <ImageIcon
-                    iconType="plain"
-                    name="pen"
-                    tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-                    iconSize={14}
-                  />
-                  <Text style={style.linkText}>Edit</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            <BaseMoreButton
-              ref={moreBtnRef}
-              setActionMenuVisible={setActionMenuVisible}
-            />
-            <PollCardMoreActions
-              status={pollItem.status}
-              moreBtnRef={moreBtnRef}
-              actionMenuVisible={actionMenuVisible}
-              setActionMenuVisible={setActionMenuVisible}
-              onCardActionSelect={action => {
-                handlePollTaskRequest(action, pollItem.id);
-                setActionMenuVisible(false);
-              }}
-            />
-          </>
-        ) : (
-          <></>
-        )}
-      </View>
+      {canEdit && (
+        <View style={style.row}>
+          {pollItem.status === PollStatus.LATER && (
+            <TouchableOpacity
+              style={style.mr8}
+              onPress={() => {
+                editPollForm(pollItem.id);
+              }}>
+              <View style={[style.row, style.gap5]}>
+                <ImageIcon
+                  iconType="plain"
+                  name="pen"
+                  tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+                  iconSize={14}
+                />
+                <Text style={style.linkText}>Edit</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          <BaseMoreButton
+            ref={moreBtnRef}
+            setActionMenuVisible={setActionMenuVisible}
+          />
+          <PollCardMoreActions
+            status={pollItem.status}
+            moreBtnRef={moreBtnRef}
+            actionMenuVisible={actionMenuVisible}
+            setActionMenuVisible={setActionMenuVisible}
+            onCardActionSelect={action => {
+              handlePollTaskRequest(action, pollItem.id);
+              setActionMenuVisible(false);
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -267,5 +264,20 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  gap8: {
+    gap: 8,
+  },
+  gap5: {
+    gap: 5,
+  },
+  mr8: {
+    marginRight: 8,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#7D7D7D', // TODOSUP
   },
 });
