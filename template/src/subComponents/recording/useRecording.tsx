@@ -142,6 +142,7 @@ const showErrorToast = (text1: string, text2?: string) => {
 
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive, callActive} = props?.value;
+  const [autoStartCompleted, setAutoStartCompleted] = useState(false);
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
@@ -832,11 +833,19 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       callActive &&
       !isRecordingActive &&
       isHost &&
-      hasUserJoinedRTM
+      hasUserJoinedRTM &&
+      !autoStartCompleted
     ) {
       startRecording();
+      setAutoStartCompleted(true);
     }
-  }, [isRecordingActive, isHost, callActive, hasUserJoinedRTM]);
+  }, [
+    isRecordingActive,
+    isHost,
+    callActive,
+    hasUserJoinedRTM,
+    autoStartCompleted,
+  ]);
 
   // useEffect(() => { //
   //   if (hasUserJoinedRTM && isRecordingBot) {

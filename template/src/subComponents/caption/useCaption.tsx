@@ -1,5 +1,5 @@
 import {createHook} from 'customization-implementation';
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {LanguageType} from './utils';
 import {useRoomInfo, useSpeechToText} from 'customization-api';
 import ChatContext from '../../components/ChatContext';
@@ -106,13 +106,15 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
     data: {isHost, roomId},
   } = useRoomInfo();
   const {startSpeechToText} = useSpeechToText();
+  const [autoStartCompleted, setAutoStartCompleted] = useState(false);
 
   useEffect(() => {
     if (
       $config.ENABLE_CAPTION &&
       $config.STT_AUTO_START &&
       callActive &&
-      hasUserJoinedRTM
+      hasUserJoinedRTM &&
+      !autoStartCompleted
     ) {
       //host will start the caption
       if (isHost && roomId?.host) {
@@ -121,14 +123,24 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
           startSpeechToText(['en-US']);
           //display view caption panel
           setIsCaptionON(true);
+          setIsSTTActive(true);
+          setAutoStartCompleted(true);
         }
       } else {
         //display view caption panel
         !isCaptionON && setIsCaptionON(true);
+        setIsSTTActive(true);
+        setAutoStartCompleted(true);
       }
-    } else if ($config.STT_AUTO_START) {
     }
-  }, [callActive, isHost, isCaptionON, hasUserJoinedRTM, roomId]);
+  }, [
+    callActive,
+    isHost,
+    isCaptionON,
+    hasUserJoinedRTM,
+    roomId,
+    autoStartCompleted,
+  ]);
 
   return (
     <CaptionContext.Provider
