@@ -56,6 +56,24 @@ export default function DraftPollFormView({
   };
 
   const handleCheckboxChange = (field: keyof typeof form, value: boolean) => {
+    if (field === 'anonymous' && value) {
+      setForm({
+        ...form,
+        [field]: value,
+        share_attendee: false,
+        share_host: false,
+      });
+      return;
+    } else if (field === 'share_attendee' || field === 'share_host') {
+      if (value) {
+        setForm({
+          ...form,
+          [field]: value,
+          anonymous: false,
+        });
+        return;
+      }
+    }
     setForm({
       ...form,
       [field]: value,

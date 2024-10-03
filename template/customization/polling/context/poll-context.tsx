@@ -526,6 +526,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
         // No user case so far
         break;
       case PollTaskRequestTypes.VIEW_DETAILS:
+        closeCurrentModal();
         setViewResultPollId(pollId);
         setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
         break;

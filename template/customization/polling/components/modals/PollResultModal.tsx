@@ -175,6 +175,7 @@ export const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
+    minHeight: 68,
   },
   rowSpaceBetween: {
     display: 'flex',

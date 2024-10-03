@@ -85,8 +85,8 @@ function downloadCsv(data: string, filename: string = 'data.csv'): void {
   document.body.removeChild(link);
 }
 
-function capitalizeFirstLetter(string: string): string {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+function capitalizeFirstLetter(sentence: string): string {
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1).toLowerCase();
 }
 
 function hasUserVoted(options: PollItemOptionItem[], uid: number): boolean {

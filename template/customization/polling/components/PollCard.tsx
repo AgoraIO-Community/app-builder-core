@@ -15,9 +15,13 @@ import {
 } from 'customization-api';
 import {BaseMoreButton} from '../ui/BaseMoreButton';
 import {PollCardMoreActions} from './PollCardMoreActions';
-import {getPollTypeDesc, hasUserVoted} from '../helpers';
-import {PollRenderResponseFormBody} from './form/poll-response-forms';
+import {capitalizeFirstLetter, getPollTypeDesc, hasUserVoted} from '../helpers';
+import {
+  PollFormSubmitButton,
+  PollRenderResponseFormBody,
+} from './form/poll-response-forms';
 import {usePollPermissions} from '../hook/usePollPermissions';
+import {usePollForm} from '../hook/usePollForm';
 
 const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
   const moreBtnRef = React.useRef<View>(null);
@@ -75,6 +79,28 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
 const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
   const {sendResponseToPoll} = usePoll();
   const localUid = useLocalUid();
+  const hasSubmitted = hasUserVoted(pollItem.options, localUid);
+
+  const onFormSubmit = (responses: string | string[]) => {
+    sendResponseToPoll(pollItem, responses);
+  };
+
+  const {
+    onSubmit,
+    selectedOption,
+    handleRadioSelect,
+    selectedOptions,
+    handleCheckboxToggle,
+    answer,
+    setAnswer,
+    buttonText,
+    submitted,
+    submitDisabled,
+  } = usePollForm({
+    pollItem,
+    initialSubmitted: hasSubmitted,
+    onFormSubmit,
+  });
 
   return (
     <View style={style.pollCardContent}>
@@ -82,18 +108,30 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
         style={style.pollCardContentQuestionText}
         numberOfLines={pollItem.status === PollStatus.LATER ? 1 : undefined}
         ellipsizeMode="tail">
-        {pollItem.question}
+        {capitalizeFirstLetter(pollItem.question)}
       </Text>
-      {pollItem.status !== PollStatus.LATER ? (
-        <PollRenderResponseFormBody
-          hasUserResponded={hasUserVoted(pollItem.options, localUid)}
-          pollItem={pollItem}
-          onFormComplete={(responses: string | string[]) => {
-            sendResponseToPoll(pollItem, responses);
-          }}
-        />
-      ) : (
+      {pollItem.status === PollStatus.LATER ? (
         <></>
+      ) : (
+        <>
+          <PollRenderResponseFormBody
+            selectedOption={selectedOption}
+            selectedOptions={selectedOptions}
+            handleCheckboxToggle={handleCheckboxToggle}
+            handleRadioSelect={handleRadioSelect}
+            setAnswer={setAnswer}
+            answer={answer}
+            pollItem={pollItem}
+            submitted={submitted}
+          />
+          <PollFormSubmitButton
+            submitDisabled={submitDisabled}
+            hasResponded={false}
+            submitted={submitted}
+            onSubmit={onSubmit}
+            buttonText={buttonText}
+          />
+        </>
       )}
     </View>
   );

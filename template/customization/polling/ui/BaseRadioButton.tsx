@@ -31,7 +31,7 @@ export default function BaseRadioButton(props: Props) {
     option,
     checked,
     onChange,
-    disabled,
+    disabled = false,
     labelStyle = {},
     filledColor = '',
     tickColor = '',
@@ -40,7 +40,12 @@ export default function BaseRadioButton(props: Props) {
     <TouchableOpacity
       id={option.value}
       style={[style.optionsContainer, disabled && style.disabledContainer]}
-      onPress={() => !disabled && onChange(option.value)}>
+      onPress={() => {
+        if (disabled) {
+          return;
+        }
+        onChange(option.value);
+      }}>
       <View style={[style.radioCircle, disabled && style.disabledCircle]}>
         {checked && (
           <View

@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {
   BaseModal,
+  BaseModalActions,
   BaseModalCloseIcon,
   BaseModalContent,
   BaseModalTitle,
@@ -9,10 +10,12 @@ import {
 import {
   PollResponseFormComplete,
   PollRenderResponseFormBody,
+  PollFormSubmitButton,
 } from '../form/poll-response-forms';
 import {PollTaskRequestTypes, usePoll} from '../../context/poll-context';
-import {getPollTypeDesc, hasUserVoted} from '../../helpers';
-import {ThemeConfig, $config, useLocalUid} from 'customization-api';
+import {getPollTypeDesc} from '../../helpers';
+import {ThemeConfig, $config, TertiaryButton} from 'customization-api';
+import {usePollForm} from '../../hook/usePollForm';
 
 export default function PollResponseFormModal() {
   const {
@@ -22,11 +25,14 @@ export default function PollResponseFormModal() {
     closeCurrentModal,
     handlePollTaskRequest,
   } = usePoll();
-  const [hasResponded, setHasResponded] = useState<boolean>(false);
-  const localUid = useLocalUid();
 
-  const onFormComplete = (responses: string | string[]) => {
+  const [hasResponded, setHasResponded] = useState<boolean>(false);
+
+  const onFormSubmit = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
+  };
+
+  const onFormSubmitComplete = () => {
     if (pollItem.share_attendee || pollItem.share_host) {
       handlePollTaskRequest(PollTaskRequestTypes.VIEW_DETAILS, pollItem.id);
     } else {
@@ -36,6 +42,24 @@ export default function PollResponseFormModal() {
 
   // Check if launchPollId is valid and if the poll exists in the polls object
   const pollItem = launchPollId ? polls[launchPollId] : null;
+
+  const {
+    onSubmit,
+    selectedOption,
+    handleRadioSelect,
+    selectedOptions,
+    handleCheckboxToggle,
+    answer,
+    setAnswer,
+    buttonText,
+    submitted,
+    submitDisabled,
+  } = usePollForm({
+    pollItem,
+    initialSubmitted: hasResponded,
+    onFormSubmit,
+    onFormSubmitComplete,
+  });
 
   if (!pollItem) {
     return (
@@ -70,13 +94,36 @@ export default function PollResponseFormModal() {
               <Text style={style.heading}>{pollItem.question}</Text>
             </View>
             <PollRenderResponseFormBody
-              hasUserResponded={hasUserVoted(pollItem.options, localUid)}
+              selectedOption={selectedOption}
+              selectedOptions={selectedOptions}
+              handleCheckboxToggle={handleCheckboxToggle}
+              handleRadioSelect={handleRadioSelect}
+              setAnswer={setAnswer}
+              answer={answer}
               pollItem={pollItem}
-              onFormComplete={onFormComplete}
+              submitted={submitted}
             />
           </>
         )}
       </BaseModalContent>
+      <BaseModalActions alignRight>
+        {hasResponded && (
+          <View>
+            <TertiaryButton
+              containerStyle={style.btnContainer}
+              text="Close"
+              onPress={closeCurrentModal}
+            />
+          </View>
+        )}
+        <PollFormSubmitButton
+          submitDisabled={submitDisabled}
+          hasResponded={hasResponded}
+          submitted={submitted}
+          onSubmit={onSubmit}
+          buttonText={buttonText}
+        />
+      </BaseModalActions>
     </BaseModal>
   );
 }
@@ -94,5 +141,21 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     lineHeight: 12,
+  },
+  btnContainer: {
+    minWidth: 150,
+    height: 36,
+    borderRadius: 4,
+  },
+  submittedBtn: {
+    backgroundColor: $config.SEMANTIC_SUCCESS,
+    cursor: 'default',
+  },
+  btnText: {
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
 });
