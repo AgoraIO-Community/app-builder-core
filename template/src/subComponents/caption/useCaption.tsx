@@ -103,17 +103,32 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const {
-    data: {isHost},
+    data: {isHost, roomId},
   } = useRoomInfo();
-  const {isSpeechToTextOn, startSpeechToText, showCaptionPanel} =
-    useSpeechToText();
+  const {startSpeechToText} = useSpeechToText();
 
   useEffect(() => {
-    if (callActive && isHost && !isSpeechToTextOn) {
-      startSpeechToText(['en-US']);
-      showCaptionPanel(true);
+    if (
+      $config.ENABLE_CAPTION &&
+      $config.STT_AUTO_START &&
+      callActive &&
+      hasUserJoinedRTM
+    ) {
+      //host will start the caption
+      if (isHost && roomId?.host) {
+        if (!isCaptionON) {
+          //start with default language
+          startSpeechToText(['en-US']);
+          //display view caption panel
+          setIsCaptionON(true);
+        }
+      } else {
+        //display view caption panel
+        !isCaptionON && setIsCaptionON(true);
+      }
+    } else if ($config.STT_AUTO_START) {
     }
-  }, [callActive, isHost, isSpeechToTextOn, hasUserJoinedRTM]);
+  }, [callActive, isHost, isCaptionON, hasUserJoinedRTM, roomId]);
 
   return (
     <CaptionContext.Provider
