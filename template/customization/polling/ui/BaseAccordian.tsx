@@ -8,7 +8,7 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import {ThemeConfig, $config} from 'customization-api';
+import {ThemeConfig, $config, ImageIcon} from 'customization-api';
 
 // Enable Layout Animation for Android
 if (Platform.OS === 'android') {
@@ -89,17 +89,14 @@ const BaseAccordionHeader: React.FC<Partial<BaseAccordionHeaderProps>> = ({
         <Text style={styles.accordionTitle}>{title}</Text>
         {children && <View>{children}</View>}
       </View>
-      {/* <View style={styles.expandIcon}>
-        {expandIcon ? (
-          expandIcon
-        ) : (
-          <Ionicons
-            name={isOpen ? 'chevron-up-outline' : 'chevron-down-outline'}
-            size={24}
-            color="#333"
-          />
-        )}
-      </View> */}
+      <View style={styles.expandIcon}>
+        <ImageIcon
+          iconType="plain"
+          name={isOpen ? 'arrow-up' : 'arrow-down'}
+          iconSize={20}
+          tintColor={$config.FONT_COLOR}
+        />
+      </View>
     </TouchableOpacity>
   );
 };
