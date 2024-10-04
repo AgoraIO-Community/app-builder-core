@@ -165,46 +165,54 @@ function PollResponseMCQForm({
               const checked = selectedOption === option.value || iVoted;
               return (
                 <TouchableWithoutFeedback disabled={submitted} key={index}>
-                  <PlatformWrapper>
-                    {(isHovered: boolean) => (
-                      <PollOptionInputListItem
-                        index={index}
-                        checked={checked}
-                        hovered={submitted ? false : isHovered}>
-                        <>
-                          {/* Background fill according to vote percentage */}
-                          <PollItemFill
-                            canViewWhoVoted={canViewWhoVoted}
-                            iVoted={submitted && iVoted}
-                            percent={option.percent}
-                          />
-                          <BaseRadioButton
-                            option={{
-                              label: option.text,
-                              value: option.value,
-                            }}
-                            labelStyle={style.optionText}
-                            checked={checked}
-                            onChange={handleRadioSelect}
-                            filledColor={
-                              submitted
-                                ? $config.FONT_COLOR
-                                : checked
-                                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                                : null
-                            }
-                            tickColor={
-                              submitted
-                                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                                : checked
-                                ? $config.BACKGROUND_COLOR
-                                : null
-                            }
-                          />
-                        </>
-                      </PollOptionInputListItem>
-                    )}
-                  </PlatformWrapper>
+                  <View pointerEvents={submitted ? 'none' : 'auto'}>
+                    <PlatformWrapper>
+                      {(isHovered: boolean) => (
+                        <PollOptionInputListItem
+                          index={index}
+                          checked={checked}
+                          hovered={submitted ? false : isHovered}>
+                          <>
+                            {/* Background fill according to vote percentage */}
+                            {submitted && (
+                              <PollItemFill
+                                canViewWhoVoted={canViewWhoVoted}
+                                iVoted={checked}
+                                percent={option.percent}
+                              />
+                            )}
+                            <BaseRadioButton
+                              option={{
+                                label: option.text,
+                                value: option.value,
+                              }}
+                              labelStyle={style.optionText}
+                              checked={checked}
+                              onChange={handleRadioSelect}
+                              filledColor={
+                                submitted && checked
+                                  ? $config.FONT_COLOR
+                                  : submitted && !checked
+                                  ? null
+                                  : checked
+                                  ? $config.PRIMARY_ACTION_BRAND_COLOR
+                                  : null
+                              }
+                              tickColor={
+                                submitted && checked
+                                  ? $config.PRIMARY_ACTION_BRAND_COLOR
+                                  : submitted && !checked
+                                  ? null
+                                  : checked
+                                  ? $config.BACKGROUND_COLOR
+                                  : null
+                              }
+                            />
+                          </>
+                        </PollOptionInputListItem>
+                      )}
+                    </PlatformWrapper>
+                  </View>
                 </TouchableWithoutFeedback>
               );
             })}

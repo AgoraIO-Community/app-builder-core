@@ -19,19 +19,20 @@ function PollItemFill({canViewWhoVoted, iVoted, percent}) {
       <View
         style={[
           style.optionFillBackground,
-          canViewWhoVoted
-            ? iVoted
-              ? {
-                  width: `${percent}%` as DimensionValue,
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                }
-              : {
-                  width: `${percent}%` as DimensionValue,
-                  backgroundColor:
-                    $config.PRIMARY_ACTION_BRAND_COLOR +
-                    hexadecimalTransparency['10%'],
-                }
-            : {},
+          {
+            // Determine the width and background color based on canViewWhoVoted and iVoted
+            width: `${percent}%` as DimensionValue, // Always set the width based on the percentage value
+            backgroundColor: canViewWhoVoted
+              ? // If user can view who voted show their own vote and others vote
+                iVoted
+                ? $config.PRIMARY_ACTION_BRAND_COLOR // If the user voted, use the primary brand color
+                : $config.PRIMARY_ACTION_BRAND_COLOR +
+                  hexadecimalTransparency['10%'] // If not, use the brand color with reduced opacity
+              : // If user cannot view who voted, show their own vote only
+              iVoted
+              ? $config.PRIMARY_ACTION_BRAND_COLOR // If the user voted, show the primary brand color
+              : undefined, // Otherwise, leave the background color undefined
+          },
         ]}
       />
       {canViewWhoVoted && (
