@@ -1,8 +1,8 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {ThemeConfig, $config} from 'customization-api';
+import React from 'react';
+import {ThemeConfig, $config, ImageIcon} from 'customization-api';
 import Toggle from '../../../src/atoms/Toggle';
-import Tooltip from '../../../src/atoms/Tooltip';
+// import Tooltip from '../../../src/atoms/Tooltip';
 import PlatformWrapper from '../../../src/utils/PlatformWrapper';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
   tooltip?: boolean;
   tooltTipText?: string;
   hoverEffect?: boolean;
+  icon?: string;
 }
 
 const BaseButtonWithToggle = ({
@@ -19,6 +20,7 @@ const BaseButtonWithToggle = ({
   value,
   onPress,
   hoverEffect = false,
+  icon,
 }: Props) => {
   return (
     <View style={styles.toggleButton}>
@@ -39,8 +41,10 @@ const BaseButtonWithToggle = ({
               onPress={() => {
                 onPress(value);
               }}>
-              {/* Container to hold text and switch side by side */}
-              <Text style={[styles.text]}>{text}</Text>
+              <View style={styles.centerRow}>
+                <ImageIcon iconType="plain" iconSize={20} icon={icon} />
+                <Text style={[styles.text]}>{text}</Text>
+              </View>
               <View>
                 <Toggle
                   circleColor={'#fff'}
@@ -85,5 +89,11 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '400',
     marginRight: 12,
+  },
+  centerRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 });

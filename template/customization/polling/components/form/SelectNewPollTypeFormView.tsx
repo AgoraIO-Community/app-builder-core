@@ -6,14 +6,16 @@ import {
   BaseModalCloseIcon,
 } from '../../ui/BaseModal';
 import {PollKind} from '../../context/poll-context';
-import {ThemeConfig, $config} from 'customization-api';
+import {ThemeConfig, $config, ImageIcon} from 'customization-api';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
+import pollIcons, {PollIconsInterface} from '../../poll-icons';
 
 interface newPollType {
   key: PollKind;
   image: null;
   title: string;
   description: string;
+  icon: keyof PollIconsInterface;
 }
 
 const newPollTypeConfig: newPollType[] = [
@@ -23,6 +25,7 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Yes or No Question',
     description:
       'A straightforward question that requires a simple Yes or No answer.',
+    icon: 'like-dislike',
   },
   {
     key: PollKind.MCQ,
@@ -30,6 +33,7 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Multiple Choice Question',
     description:
       'A question with several predefined answer options, allowing users to select one or more responses.',
+    icon: 'mcq',
   },
   // {
   //   key: PollKind.OPEN_ENDED,
@@ -71,7 +75,14 @@ export default function SelectNewPollTypeFormView({
                         setType(item.key);
                       }}
                       style={[style.card, isHovered ? style.cardHover : {}]}>
-                      <View style={style.cardImage} />
+                      <View style={style.cardImage}>
+                        <ImageIcon
+                          iconType="plain"
+                          tintColor={$config.VIDEO_AUDIO_TILE_AVATAR_COLOR}
+                          iconSize={24}
+                          icon={pollIcons[item.icon]}
+                        />
+                      </View>
                       <View style={style.cardContent}>
                         <Text
                           style={style.cardContentTitle}

@@ -8,7 +8,7 @@ import {
 } from 'customization-api';
 import {usePoll} from '../context/poll-context';
 import PollList from './PollList';
-import icons from '../poll-icons';
+import pollIcons from '../poll-icons';
 
 const PollSidebar = () => {
   const {startPollForm, isHost, polls} = usePoll();
@@ -24,7 +24,7 @@ const PollSidebar = () => {
                   iconType="plain"
                   tintColor={$config.CARD_LAYER_1_COLOR}
                   iconSize={32}
-                  icon={icons['poll-bar']}
+                  icon={pollIcons['bar-chart']}
                 />
               </View>
             )}

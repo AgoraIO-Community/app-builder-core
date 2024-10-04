@@ -24,6 +24,7 @@ import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
 import BaseButtonWithToggle from '../../ui/BaseButtonWithToggle';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
+import pollIcons from '../../poll-icons';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -299,6 +300,7 @@ export default function DraftPollFormView({
               {/* <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <BaseButtonWithToggle
+                    icon={pollIcons['stop-watch']}
                     key="timer-toggle"
                     text="Set Poll Timer"
                     tooltTipText="Co-hosts will have access to view the poll results"
@@ -312,6 +314,7 @@ export default function DraftPollFormView({
               <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <BaseButtonWithToggle
+                    icon={pollIcons.group}
                     hoverEffect
                     key="attendee-toggle"
                     text="Result visible to attendees"
@@ -341,6 +344,7 @@ export default function DraftPollFormView({
                   <BaseButtonWithToggle
                     hoverEffect
                     key="cohost-toggle"
+                    icon={pollIcons['co-host']}
                     text="Result visible to cohosts"
                     tooltTipText="Co-hosts will have access to view the poll results"
                     value={form.share_host}
@@ -366,6 +370,7 @@ export default function DraftPollFormView({
               <View style={style.pFormCheckboxContainer}>
                 <View style={style.pFormToggle}>
                   <BaseButtonWithToggle
+                    icon={pollIcons.anonymous}
                     hoverEffect
                     key="anonymous-toggle"
                     text="Anonymous Results"
