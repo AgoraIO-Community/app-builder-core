@@ -115,11 +115,13 @@ export const ReplyMessageBubble = ({
   repliedMsgId,
   replyTxt,
   showCoseIcon = false,
+  showPreview = true,
 }) => {
   const {messageStore} = useChatMessages();
   const {defaultContent} = useContent();
   const {setReplyToMsgId} = useChatUIControls();
   const repliedMsg = messageStore.filter(msg => msg.msgId === repliedMsgId);
+  const isAttachMsg = repliedMsg[0].type !== ChatMessageType.TXT;
 
   let time = formatAMPM(new Date(repliedMsg[0]?.createdTimestamp));
   const name = trimText(defaultContent[repliedMsg[0]?.uid]?.name);
@@ -133,7 +135,22 @@ export const ReplyMessageBubble = ({
           <Text style={style.timestampStyle}>{time}</Text>
         </View>
         <View style={style.repliedMsgContent}>
-          <Text style={style.messageStyle}>{text}</Text>
+          {isAttachMsg ? (
+            showPreview && repliedMsg[0].type === ChatMessageType.IMAGE ? (
+              <Image
+                source={{uri: repliedMsg[0]?.thumb}}
+                style={style.previewImg}
+              />
+            ) : (
+              <AttachmentBubble
+                fileName={repliedMsg[0]?.fileName}
+                fileExt={repliedMsg[0].ext}
+                isFullWidth={true}
+              />
+            )
+          ) : (
+            <Text style={style.messageStyle}>{text}</Text>
+          )}
         </View>
       </View>
 
@@ -368,6 +385,12 @@ const ChatBubble = (props: ChatBubbleProps) => {
                     )}
                     {type === ChatMessageType.IMAGE && (
                       <View>
+                        {replyToMsgId && (
+                          <ReplyMessageBubble
+                            repliedMsgId={replyToMsgId}
+                            replyTxt={message}
+                          />
+                        )}
                         <TouchableOpacity
                           style={{
                             justifyContent: 'center',
@@ -414,30 +437,38 @@ const ChatBubble = (props: ChatBubbleProps) => {
                       </View>
                     )}
                     {type === ChatMessageType.FILE && (
-                      <AttachmentBubble
-                        fileName={fileName}
-                        fileExt={ext}
-                        msg={message}
-                        secondaryComponent={
-                          <View>
-                            <MoreMenu
-                              ref={moreIconRef}
-                              setActionMenuVisible={setActionMenuVisible}
-                            />
-                            <ChatActionMenu
-                              actionMenuVisible={actionMenuVisible}
-                              setActionMenuVisible={setActionMenuVisible}
-                              btnRef={moreIconRef}
-                              fileName={fileName}
-                              fileUrl={url}
-                              msgId={msgId}
-                              privateChatUser={privateChatUser}
-                              isLocal={isLocal}
-                              userId={uid}
-                            />
-                          </View>
-                        }
-                      />
+                      <>
+                        {replyToMsgId && (
+                          <ReplyMessageBubble
+                            repliedMsgId={replyToMsgId}
+                            replyTxt={message}
+                          />
+                        )}
+                        <AttachmentBubble
+                          fileName={fileName}
+                          fileExt={ext}
+                          msg={message}
+                          secondaryComponent={
+                            <View>
+                              <MoreMenu
+                                ref={moreIconRef}
+                                setActionMenuVisible={setActionMenuVisible}
+                              />
+                              <ChatActionMenu
+                                actionMenuVisible={actionMenuVisible}
+                                setActionMenuVisible={setActionMenuVisible}
+                                btnRef={moreIconRef}
+                                fileName={fileName}
+                                fileUrl={url}
+                                msgId={msgId}
+                                privateChatUser={privateChatUser}
+                                isLocal={isLocal}
+                                userId={uid}
+                              />
+                            </View>
+                          }
+                        />
+                      </>
                     )}
                   </Hyperlink>
                 )}

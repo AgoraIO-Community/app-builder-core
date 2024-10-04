@@ -279,6 +279,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         repliedMsgId={replyToMsgId}
         replyTxt={''}
         showCoseIcon={true}
+        showPreview={false}
       />
     );
   };
