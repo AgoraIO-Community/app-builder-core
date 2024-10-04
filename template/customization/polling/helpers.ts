@@ -94,23 +94,35 @@ function hasUserVoted(options: PollItemOptionItem[], uid: number): boolean {
   return options.some(option => option.votes.some(vote => vote.uid === uid));
 }
 
-function mergePolls(newPoll: Poll, oldPoll: Poll) {
+type MergePollsResult = {
+  mergedPolls: Poll;
+  deletedPollIds: string[];
+};
+
+function mergePolls(newPoll: Poll, oldPoll: Poll): MergePollsResult {
   // Merge and discard absent properties
 
   // 1. Start with a copy of the current polls state
   const mergedPolls: Poll = {...oldPoll};
-  // 2. Add or update polls from newPolls
+
+  // 2. Array to track deleted poll IDs
+  const deletedPollIds: string[] = [];
+
+  // 3. Add or update polls from newPolls
   Object.keys(newPoll).forEach(pollId => {
     mergedPolls[pollId] = newPoll[pollId]; // Add or update each poll from newPolls
   });
-  // 3. Remove polls that are not in newPolls
-  Object.keys(mergedPolls).forEach(pollId => {
+
+  // 4. Remove polls that are not in newPolls and track deleted poll IDs
+  Object.keys(oldPoll).forEach(pollId => {
     if (!(pollId in newPoll)) {
       delete mergedPolls[pollId]; // Delete polls that are no longer present in newPolls
+      deletedPollIds.push(pollId); // Track deleted poll ID
     }
   });
 
-  return mergedPolls;
+  // 5. Return the merged polls and deleted poll IDs
+  return {mergedPolls, deletedPollIds};
 }
 
 function getPollTypeDesc(type: PollKind): string {

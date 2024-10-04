@@ -32,11 +32,12 @@ function PollModals() {
       {currentModal === PollModalState.DRAFT_POLL && (
         <PollFormWizardModal formObject={editFormObject} />
       )}
-      {currentModal === PollModalState.RESPOND_TO_POLL && launchPollId && (
-        <PollResponseFormModal />
-      )}
+      {currentModal === PollModalState.RESPOND_TO_POLL &&
+        launchPollId &&
+        polls[launchPollId] && <PollResponseFormModal />}
       {currentModal === PollModalState.VIEW_POLL_RESULTS &&
-        viewResultPollId && <PollResultModal />}
+        viewResultPollId &&
+        polls[viewResultPollId] && <PollResultModal />}
     </>
     //  TODO:SUP  <Suspense fallback={<div>Loading...</div>}>
     //    {activePollModal === PollAction.DraftPoll && <DraftPollModal />}

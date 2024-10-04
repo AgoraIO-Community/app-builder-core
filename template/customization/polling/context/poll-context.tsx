@@ -1,6 +1,13 @@
 import React, {createContext, useReducer, useEffect, useState} from 'react';
 import {usePollEvents} from './poll-events';
-import {useLocalUid, useRoomInfo, filterObject, Toast} from 'customization-api';
+import {
+  useLocalUid,
+  useRoomInfo,
+  filterObject,
+  Toast,
+  useSidePanel,
+  SidePanelType,
+} from 'customization-api';
 import {
   getPollExpiresAtTime,
   POLL_DURATION,
@@ -99,7 +106,11 @@ enum PollActionKind {
 type PollAction =
   | {
       type: PollActionKind.ADD_POLL_ITEM;
-      payload: {item: PollItem};
+      payload: {
+        item: PollItem;
+        latestTask: PollTaskRequestTypes;
+        latestPollId: string;
+      };
     }
   | {
       type: PollActionKind.SAVE_POLL_ITEM;
@@ -354,6 +365,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const [launchPollId, setLaunchPollId] = useState<string | null>(null);
   const [viewResultPollId, setViewResultPollId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<PollAction | null>(null);
+  const {setSidePanel} = useSidePanel();
+
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -378,6 +391,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
           }
           break;
         case PollActionKind.ADD_POLL_ITEM:
+          const {latestTask, latestPollId} = lastAction.payload;
+          if (polls[latestPollId] && latestTask === PollTaskRequestTypes.SEND) {
+            setSidePanel(SidePanelType.None);
+            setLaunchPollId(latestPollId);
+            setCurrentModal(PollModalState.RESPOND_TO_POLL);
+          }
           break;
         case PollActionKind.SEND_POLL_ITEM:
           {
@@ -425,14 +444,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
           break;
       }
     }
-  }, [
-    lastAction,
-    localUid,
-    polls,
-    sendPollEvt,
-    savePollEvt,
-    sendResponseToPollEvt,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastAction]);
 
   const startPollForm = () => {
     setCurrentModal(PollModalState.DRAFT_POLL);
@@ -452,30 +465,36 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const addPoll = (item: PollItem) => {
+  const addPoll = (
+    item: PollItem,
+    latestTask: PollTaskRequestTypes,
+    latestPollId: string,
+  ) => {
     enhancedDispatch({
       type: PollActionKind.ADD_POLL_ITEM,
       payload: {
         item: {...item},
+        latestTask,
+        latestPollId,
       },
     });
   };
 
   const sendPoll = (pollId: string) => {
     // check if there is an already launched poll
-    const isAnyPollActive = Object.keys(
-      filterObject(polls, ([_, v]) => v.status === PollStatus.ACTIVE),
-    );
-    if (isAnyPollActive.length > 0) {
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: 'Cannot publish poll now as there is already one poll active',
-        text2: '',
-        visibilityTime: 1000 * 3,
-      });
-      return;
-    }
+    // const isAnyPollActive = Object.keys(
+    //   filterObject(polls, ([_, v]) => v.status === PollStatus.ACTIVE),
+    // );
+    // if (isAnyPollActive.length > 0) {
+    //   Toast.show({
+    //     leadingIconName: 'alert',
+    //     type: 'error',
+    //     text1: 'Cannot publish poll now as there is already one poll active',
+    //     text2: '',
+    //     visibilityTime: 1000 * 3,
+    //   });
+    //   return;
+    // }
     enhancedDispatch({
       type: PollActionKind.SEND_POLL_ITEM,
       payload: {
@@ -490,23 +509,39 @@ function PollProvider({children}: {children: React.ReactNode}) {
     task: PollTaskRequestTypes,
   ) => {
     log('onPollReceived', newPoll, pollId, task);
-    const mergedPolls = mergePolls(newPoll, polls);
+    const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
     if (Object.keys(mergedPolls).length === 0) {
       enhancedDispatch({
         type: PollActionKind.RESET,
       });
       return;
     }
-    if (localUid === newPoll[pollId].createdBy) {
+    if (localUid === newPoll[pollId]?.createdBy) {
       log('i am creator, i send the poll.');
       return;
     } else {
       log('i am attendee or co host');
+      // Update state to remove deleted polls
+      deletedPollIds?.map((id: string) => {
+        log('deleting id: ', id, polls[id]);
+        handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
+      });
+      // Update state with the latest state
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         if (pollItem.status === PollStatus.LATER) {
           return;
         }
-        addPoll(pollItem);
+        log(`adding poll id ${pollItem.id} into state`);
+        addPoll(pollItem, task, pollId);
+        if (pollItem.status === PollStatus.ACTIVE) {
+          log(`adding poll id ${pollItem.id} status is ${pollItem.status}`);
+          // If status is active but voted
+          if (hasUserVoted(pollItem?.options || [], localUid)) {
+            log(`user has voted this poll id ${pollItem.id}`);
+            return;
+          }
+          // if status is active but not voted
+        }
       });
     }
   };
