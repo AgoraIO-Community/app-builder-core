@@ -84,6 +84,7 @@ interface PollFormErrors {
 
 enum PollActionKind {
   SAVE_POLL_ITEM = 'SAVE_POLL_ITEM',
+  ADD_POLL_ITEM = 'ADD_POLL_ITEM',
   SEND_POLL_ITEM = 'SEND_POLL_ITEM',
   UPDATE_POLL_ITEM = 'UPDATE_POLL_ITEM',
   SUBMIT_POLL_ITEM_RESPONSES = 'SUBMIT_POLL_ITEM_RESPONSES',
@@ -96,6 +97,10 @@ enum PollActionKind {
 }
 
 type PollAction =
+  | {
+      type: PollActionKind.ADD_POLL_ITEM;
+      payload: {item: PollItem};
+    }
   | {
       type: PollActionKind.SAVE_POLL_ITEM;
       payload: {item: PollItem};
@@ -149,6 +154,13 @@ type PollAction =
 function pollReducer(state: Poll, action: PollAction): Poll {
   switch (action.type) {
     case PollActionKind.SAVE_POLL_ITEM: {
+      const pollId = action.payload.item.id;
+      return {
+        ...state,
+        [pollId]: {...action.payload.item},
+      };
+    }
+    case PollActionKind.ADD_POLL_ITEM: {
       const pollId = action.payload.item.id;
       return {
         ...state,
@@ -353,7 +365,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const localUid = useLocalUid();
 
-  const {sendPollEvt, sendResponseToPollEvt, savePollEvt} = usePollEvents();
+  const {savePollEvt, sendPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   useEffect(() => {
     if (lastAction) {
@@ -365,6 +377,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
             setCurrentModal(null);
           }
           break;
+        case PollActionKind.ADD_POLL_ITEM:
+          break;
         case PollActionKind.SEND_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
@@ -375,6 +389,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
           const {id, responses, uid, timestamp} = lastAction.payload;
           sendResponseToPollEvt(id, responses, uid, timestamp);
+          break;
+        case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:
+          {
+            const {id: pollId} = lastAction.payload;
+            const pollcreator = polls[pollId]?.createdBy;
+            log('i received the poll response');
+            if (localUid === pollcreator) {
+              log(
+                'i received the poll response and i am creator, saving in channel attributes',
+              );
+              savePollEvt(polls, pollId);
+            }
+          }
           break;
         case PollActionKind.PUBLISH_POLL_ITEM:
           {
@@ -398,7 +425,14 @@ function PollProvider({children}: {children: React.ReactNode}) {
           break;
       }
     }
-  }, [lastAction, polls, sendPollEvt, savePollEvt, sendResponseToPollEvt]);
+  }, [
+    lastAction,
+    localUid,
+    polls,
+    sendPollEvt,
+    savePollEvt,
+    sendResponseToPollEvt,
+  ]);
 
   const startPollForm = () => {
     setCurrentModal(PollModalState.DRAFT_POLL);
@@ -412,6 +446,15 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const savePoll = (item: PollItem) => {
     enhancedDispatch({
       type: PollActionKind.SAVE_POLL_ITEM,
+      payload: {
+        item: {...item},
+      },
+    });
+  };
+
+  const addPoll = (item: PollItem) => {
+    enhancedDispatch({
+      type: PollActionKind.ADD_POLL_ITEM,
       payload: {
         item: {...item},
       },
@@ -446,7 +489,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     pollId: string,
     task: PollTaskRequestTypes,
   ) => {
-    log('onPollReceived task', task);
+    log('onPollReceived', newPoll, pollId, task);
     const mergedPolls = mergePolls(newPoll, polls);
     if (Object.keys(mergedPolls).length === 0) {
       enhancedDispatch({
@@ -454,27 +497,16 @@ function PollProvider({children}: {children: React.ReactNode}) {
       });
       return;
     }
-    if (isHost) {
-      log('i am host');
-      Object.entries(mergedPolls).forEach(([_, pollItem]) => {
-        savePoll(pollItem);
-      });
+    if (localUid === newPoll[pollId].createdBy) {
+      log('i am creator, i send the poll.');
+      return;
     } else {
-      log('i am attendee');
+      log('i am attendee or co host');
       Object.entries(mergedPolls).forEach(([_, pollItem]) => {
         if (pollItem.status === PollStatus.LATER) {
           return;
         }
-        savePoll(pollItem);
-        if (pollItem.status === PollStatus.ACTIVE) {
-          // If status is active but voted
-          if (hasUserVoted(pollItem?.options || [], localUid)) {
-            return;
-          }
-          // if status is active but not voted
-          setLaunchPollId(pollId);
-          setCurrentModal(PollModalState.RESPOND_TO_POLL);
-        }
+        addPoll(pollItem);
       });
     }
   };

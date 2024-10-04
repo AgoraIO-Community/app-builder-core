@@ -7,13 +7,14 @@ interface PollOptionListItem {
   optionItem: PollItemOptionItem;
   iVoted: boolean;
   canViewWhoVoted: boolean;
+  canViewVotesPercent: boolean;
 }
 
 function PollOptionList({children}: {children: React.ReactNode}) {
   return <View style={style.optionsList}>{children}</View>;
 }
 
-function PollItemFill({canViewWhoVoted, iVoted, percent}) {
+function PollItemFill({canViewWhoVoted, canViewVotesPercent, iVoted, percent}) {
   return (
     <>
       <View
@@ -35,7 +36,7 @@ function PollItemFill({canViewWhoVoted, iVoted, percent}) {
           },
         ]}
       />
-      {canViewWhoVoted && (
+      {canViewVotesPercent && (
         <View style={[style.optionFillText]}>
           <Text style={[style.optionText]}>{`${percent}%`}</Text>
         </View>

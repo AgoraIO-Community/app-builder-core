@@ -36,6 +36,19 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
+  const savePollEvt = (polls: Poll, pollId: string) => {
+    events.send(
+      PollEventNames.polls,
+      JSON.stringify({
+        state: {...polls},
+        action: PollEventActions.savePoll,
+        pollId: pollId,
+        task: '',
+      }),
+      PersistanceLevel.Channel,
+    );
+  };
+
   const sendPollEvt = (
     polls: Poll,
     pollId: string,
@@ -53,26 +66,12 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     );
   };
 
-  const savePollEvt = (polls: Poll, pollId: string) => {
-    events.send(
-      PollEventNames.polls,
-      JSON.stringify({
-        state: {...polls},
-        action: PollEventActions.savePoll,
-        pollId: pollId,
-        task: '',
-      }),
-      PersistanceLevel.Channel,
-    );
-  };
-
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
     id,
     responses,
     uid,
     timestamp,
   ) => {
-    console.log('supriya here, poll response');
     events.send(
       PollEventNames.pollResponse,
       JSON.stringify({
@@ -121,7 +120,12 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       const {action, state, pollId, task} = data;
       log('poll channel state received', data);
       switch (action) {
+        case PollEventActions.savePoll:
+          log('on poll saved');
+          onPollReceived(state, pollId, task);
+          break;
         case PollEventActions.sendPoll:
+          log('on poll received');
           onPollReceived(state, pollId, task);
           break;
         default:

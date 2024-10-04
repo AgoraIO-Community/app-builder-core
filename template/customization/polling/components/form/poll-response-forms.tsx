@@ -103,7 +103,8 @@ function PollResponseMCQForm({
 }: Partial<PollFormInput> & {
   submitted: boolean;
 }) {
-  const {canViewWhoVoted} = usePollPermissions({pollItem});
+  const {isPollCreator, canViewVotesPercent, canViewWhoVoted} =
+    usePollPermissions({pollItem});
   const localUid = useLocalUid();
   return (
     <View style={style.optionsForm}>
@@ -123,9 +124,10 @@ function PollResponseMCQForm({
                           checked={checked}>
                           <>
                             {/* Background fill according to vote percentage */}
-                            {submitted && (
+                            {(isPollCreator || submitted) && (
                               <PollItemFill
                                 canViewWhoVoted={canViewWhoVoted}
+                                canViewVotesPercent={canViewVotesPercent}
                                 iVoted={iVoted}
                                 percent={option.percent}
                               />
@@ -180,9 +182,10 @@ function PollResponseMCQForm({
                           hovered={submitted ? false : isHovered}>
                           <>
                             {/* Background fill according to vote percentage */}
-                            {submitted && (
+                            {(isPollCreator || submitted) && (
                               <PollItemFill
                                 canViewWhoVoted={canViewWhoVoted}
+                                canViewVotesPercent={canViewVotesPercent}
                                 iVoted={checked}
                                 percent={option.percent}
                               />
