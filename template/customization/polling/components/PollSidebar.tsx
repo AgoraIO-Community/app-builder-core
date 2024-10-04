@@ -1,8 +1,14 @@
 import React from 'react';
 import {View, StyleSheet, ScrollView, Text} from 'react-native';
-import {PrimaryButton, ThemeConfig, $config} from 'customization-api';
+import {
+  PrimaryButton,
+  ThemeConfig,
+  $config,
+  ImageIcon,
+} from 'customization-api';
 import {usePoll} from '../context/poll-context';
 import PollList from './PollList';
+import icons from '../poll-icons';
 
 const PollSidebar = () => {
   const {startPollForm, isHost, polls} = usePoll();
@@ -12,6 +18,16 @@ const PollSidebar = () => {
       {Object.keys(polls).length === 0 ? (
         <View style={style.emptyView}>
           <View style={style.emptyCard}>
+            {isHost && (
+              <View style={style.emptyCardIcon}>
+                <ImageIcon
+                  iconType="plain"
+                  tintColor={$config.CARD_LAYER_1_COLOR}
+                  iconSize={32}
+                  icon={icons['poll-bar']}
+                />
+              </View>
+            )}
             <Text style={style.emptyText}>
               {isHost
                 ? 'Create a new poll and boost interaction with your audience.'
@@ -51,8 +67,20 @@ const style = StyleSheet.create({
   },
   emptyCard: {
     maxWidth: 220,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
   },
-  emptyIcon: {},
+  emptyCardIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+  },
   emptyView: {
     display: 'flex',
     flex: 1,
