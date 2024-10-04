@@ -3,6 +3,7 @@ import {useLocalUid, useRoomInfo} from 'customization-api';
 import {PollItem, PollStatus} from '../context/poll-context';
 
 interface PollPermissions {
+  isPollCreator: boolean;
   canEdit: boolean;
   canEnd: boolean;
   canViewWhoVoted: boolean;
@@ -54,6 +55,7 @@ export const usePollPermissions = ({
     const canViewWhoVoted = canViewPollDetails && !pollItem?.anonymous;
 
     return {
+      isPollCreator,
       canEdit,
       canEnd,
       canViewVotesPercent,

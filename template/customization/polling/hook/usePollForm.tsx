@@ -8,6 +8,7 @@ interface UsePollFormProps {
   onFormSubmit: (responses: string | string[]) => void;
   onFormSubmitComplete?: () => void;
 }
+
 interface PollFormInput {
   pollItem: PollItem;
   selectedOption: string | null;
@@ -16,16 +17,19 @@ interface PollFormInput {
   handleCheckboxToggle: (option: string) => void;
   answer: string;
   setAnswer: React.Dispatch<SetStateAction<string>>;
-  submitted: boolean;
 }
-
-interface UsePollFormReturn extends PollFormInput {
+interface PollFormButton {
   onSubmit: () => void;
   buttonVisible: boolean;
-  isSubmitting: boolean;
+  buttonStatus: ButtonStatus;
   buttonText: string;
   submitDisabled: boolean;
 }
+interface UsePollFormReturn
+  extends Omit<PollFormInput, 'pollItem'>,
+    PollFormButton {}
+
+type ButtonStatus = 'initial' | 'selected' | 'submitting' | 'submitted';
 
 export function usePollForm({
   pollItem,
@@ -35,11 +39,12 @@ export function usePollForm({
 }: UsePollFormProps): UsePollFormReturn {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(initialSubmitted);
   const [buttonVisible, setButtonVisible] = useState(!initialSubmitted);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [buttonText, setButtonText] = useState('Submit');
+
   const [answer, setAnswer] = useState('');
+  const [buttonStatus, setButtonStatus] = useState<ButtonStatus>(
+    initialSubmitted ? 'submitted' : 'initial',
+  );
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const localUid = useLocalUid();
@@ -47,23 +52,23 @@ export function usePollForm({
   // Set state for radio button selection
   const handleRadioSelect = useCallback((option: string) => {
     setSelectedOption(option);
+    setButtonStatus('selected'); // Mark the button state as selected
   }, []);
 
   // Set state for checkbox toggle
   const handleCheckboxToggle = useCallback((value: string) => {
     setSelectedOptions(prevSelectedOptions => {
-      if (prevSelectedOptions.includes(value)) {
-        return prevSelectedOptions.filter(option => option !== value);
-      } else {
-        return [...prevSelectedOptions, value];
-      }
+      const newSelectedOptions = prevSelectedOptions.includes(value)
+        ? prevSelectedOptions.filter(option => option !== value)
+        : [...prevSelectedOptions, value];
+      setButtonStatus(newSelectedOptions.length > 0 ? 'selected' : 'initial');
+      return newSelectedOptions;
     });
   }, []);
 
   // Handle form submission
   const onSubmit = useCallback(() => {
-    setIsSubmitting(true);
-    setButtonText('Submitting...');
+    setButtonStatus('submitting');
 
     // Logic to handle form submission
     if (pollItem.multiple_response) {
@@ -80,22 +85,20 @@ export function usePollForm({
 
     // Simulate submission delay and complete the process
     timeoutRef.current = setTimeout(() => {
-      setSubmitted(true);
-      setButtonText('Submitted');
-      setIsSubmitting(false);
+      setButtonStatus('submitted');
 
       // Trigger the form submit complete callback, if provided
       if (onFormSubmitComplete) {
         timeoutRef.current = setTimeout(() => {
           // Call the onFormSubmitComplete callback
           onFormSubmitComplete();
-
           // Hide the button after submission
           setButtonVisible(false);
-        }, 2000); // Time for displaying "Submitted" before calling onFormSubmitComplete and hiding the button
+        }, 2000);
       } else {
         // If no callback is provided, immediately hide the button without waiting
         setButtonVisible(false);
+        // Time for displaying "Submitted" before calling onFormSubmitComplete
       }
     }, 1000);
   }, [
@@ -114,9 +117,24 @@ export function usePollForm({
     };
   }, []);
 
+  // Derive button text from button status
+  const buttonText = (() => {
+    switch (buttonStatus) {
+      case 'initial':
+        return 'Submit';
+      case 'selected':
+        return 'Submit';
+      case 'submitting':
+        return 'Submitting...';
+      case 'submitted':
+        return 'Submitted';
+    }
+  })();
+
+  // Define when the submit button should be disabled
   const submitDisabled =
-    isSubmitting ||
-    submitted ||
+    buttonStatus === 'submitting' ||
+    buttonStatus === 'submitted' ||
     (pollItem.type === PollKind.OPEN_ENDED && answer?.trim() === '') ||
     (pollItem.type === PollKind.YES_NO && !selectedOption) ||
     (pollItem.type === PollKind.MCQ &&
@@ -133,13 +151,12 @@ export function usePollForm({
     handleCheckboxToggle,
     onSubmit,
     buttonVisible,
-    isSubmitting,
+    buttonStatus,
     buttonText,
-    submitted,
     answer,
     setAnswer,
     submitDisabled,
   };
 }
 
-export type {PollFormInput};
+export type {PollFormInput, PollFormButton};

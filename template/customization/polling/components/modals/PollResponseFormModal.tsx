@@ -52,11 +52,11 @@ export default function PollResponseFormModal() {
     answer,
     setAnswer,
     buttonText,
-    submitted,
+    buttonStatus,
     submitDisabled,
   } = usePollForm({
     pollItem,
-    initialSubmitted: hasResponded,
+    initialSubmitted: false,
     onFormSubmit,
     onFormSubmitComplete,
   });
@@ -101,7 +101,7 @@ export default function PollResponseFormModal() {
               setAnswer={setAnswer}
               answer={answer}
               pollItem={pollItem}
-              submitted={submitted}
+              submitted={buttonStatus === 'submitted'}
             />
           </>
         )}
@@ -116,13 +116,14 @@ export default function PollResponseFormModal() {
             />
           </View>
         )}
-        <PollFormSubmitButton
-          submitDisabled={submitDisabled}
-          hasResponded={hasResponded}
-          submitted={submitted}
-          onSubmit={onSubmit}
-          buttonText={buttonText}
-        />
+        <View>
+          <PollFormSubmitButton
+            buttonStatus={buttonStatus}
+            onSubmit={onSubmit}
+            submitDisabled={submitDisabled}
+            buttonText={buttonText}
+          />
+        </View>
       </BaseModalActions>
     </BaseModal>
   );

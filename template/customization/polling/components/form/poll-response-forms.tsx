@@ -23,7 +23,7 @@ import {
 } from '../poll-option-item-ui';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import {usePollPermissions} from '../../hook/usePollPermissions';
-import {PollFormInput} from '../../hook/usePollForm';
+import {PollFormButton, PollFormInput} from '../../hook/usePollForm';
 
 function PollResponseFormComplete() {
   return (
@@ -43,7 +43,11 @@ function PollResponseFormComplete() {
   );
 }
 
-function PollRenderResponseFormBody(props: PollFormInput): JSX.Element {
+function PollRenderResponseFormBody(
+  props: PollFormInput & {
+    submitted: boolean;
+  },
+): JSX.Element {
   // Directly use switch case logic inside the render
   switch (props.pollItem.type) {
     // case PollKind.OPEN_ENDED:
@@ -96,7 +100,9 @@ function PollResponseMCQForm({
   handleCheckboxToggle,
   selectedOption,
   handleRadioSelect,
-}: Partial<PollFormInput>) {
+}: Partial<PollFormInput> & {
+  submitted: boolean;
+}) {
   const {canViewWhoVoted} = usePollPermissions({pollItem});
   const localUid = useLocalUid();
   return (
@@ -224,20 +230,34 @@ function PollResponseMCQForm({
 function PollFormSubmitButton({
   buttonText,
   submitDisabled,
-  hasResponded,
-  submitted,
   onSubmit,
-}) {
+  buttonStatus,
+}: Partial<PollFormButton>) {
+  // Define the styles based on button states
+  const getButtonColor = () => {
+    switch (buttonStatus) {
+      case 'initial':
+        return {backgroundColor: $config.SEMANTIC_NEUTRAL};
+      case 'selected':
+        return {backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR};
+      case 'submitting':
+        return {
+          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+          opacity: 0.7,
+        };
+      case 'submitted':
+        return {backgroundColor: $config.SEMANTIC_SUCCESS};
+      default:
+        return {};
+    }
+  };
   return (
     <PrimaryButton
-      disabled={submitDisabled || hasResponded}
-      containerStyle={[
-        style.btnContainer,
-        submitted && !hasResponded ? style.submittedBtn : {},
-      ]}
+      disabled={submitDisabled}
+      containerStyle={[style.btnContainer, getButtonColor()]}
       textStyle={style.btnText}
       onPress={() => {
-        if (submitted) {
+        if (buttonStatus === 'submitted') {
           return;
         } else {
           onSubmit();
@@ -291,7 +311,7 @@ export const style = StyleSheet.create({
     alignItems: 'center',
   },
   btnContainer: {
-    width: '100%',
+    minWidth: 150,
     height: 36,
     borderRadius: 4,
   },

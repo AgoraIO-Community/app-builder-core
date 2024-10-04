@@ -85,15 +85,17 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
 
 const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
   const {sendResponseToPoll} = usePoll();
+  const {canViewPollDetails} = usePollPermissions({pollItem});
   const localUid = useLocalUid();
-  const hasSubmitted = hasUserVoted(pollItem.options, localUid);
-  console.log(
-    'supriya poll card show submit button hasSubmitted: ',
-    hasSubmitted,
-  );
+  const hasSubmittedResponse = hasUserVoted(pollItem.options, localUid);
 
   const onFormSubmit = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
+  };
+
+  const onFormSubmitComplete = () => {
+    //  console.log('supriya');
+    // Declaring this method just to have buttonVisible working
   };
 
   const {
@@ -105,12 +107,14 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
     answer,
     setAnswer,
     buttonText,
-    submitted,
     submitDisabled,
+    buttonStatus,
+    buttonVisible,
   } = usePollForm({
     pollItem,
-    initialSubmitted: hasSubmitted,
+    initialSubmitted: hasSubmittedResponse,
     onFormSubmit,
+    onFormSubmitComplete,
   });
 
   return (
@@ -133,15 +137,17 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
             setAnswer={setAnswer}
             answer={answer}
             pollItem={pollItem}
-            submitted={submitted}
+            submitted={buttonStatus === 'submitted'}
           />
-          {!hasSubmitted && (
-            <View style={style.fullWidth}>
+          {hasSubmittedResponse && !buttonVisible ? (
+            <></>
+          ) : (
+            <View
+              style={[canViewPollDetails ? style.fullWidth : style.alignRight]}>
               <PollFormSubmitButton
-                submitDisabled={submitDisabled}
-                hasResponded={false}
-                submitted={submitted}
+                buttonStatus={buttonStatus}
                 onSubmit={onSubmit}
+                submitDisabled={submitDisabled}
                 buttonText={buttonText}
               />
             </View>
@@ -287,5 +293,8 @@ const style = StyleSheet.create({
     height: 5,
     borderRadius: 3,
     backgroundColor: '#7D7D7D', // TODOSUP
+  },
+  alignRight: {
+    alignSelf: 'flex-end',
   },
 });
