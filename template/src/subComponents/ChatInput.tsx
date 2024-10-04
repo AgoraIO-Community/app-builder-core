@@ -52,7 +52,7 @@ import {
   chatSendErrorTextSizeToastSubHeading,
 } from '../language/default-labels/videoCallScreenLabels';
 import ChatUploadStatus from './chat/ChatUploadStatus';
-import {AttachmentBubble} from './ChatBubble';
+import {AttachmentBubble, ReplyMessageBubble} from './ChatBubble';
 import IconButton from '../atoms/IconButton';
 import Toast from '../../react-native-toast-message';
 
@@ -93,6 +93,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     _handleHeightChange,
     chatInputRef,
     showEmojiPicker,
+    replyToMsgId,
+    setReplyToMsgId,
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
@@ -155,6 +157,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       toastHeadingSize,
       errorSubHeadingSize,
       _resetTextareaHeight,
+      replyToMsgId,
+      setReplyToMsgId,
     });
   };
 
@@ -197,7 +201,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
         height: inputHeight,
-        padding: 12,
+        padding: replyToMsgId ? 0 : 12,
         fontSize: ThemeConfig.FontSize.small,
         lineHeight: LINE_HEIGHT,
         borderWidth: 1,
@@ -269,6 +273,16 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     />
   );
 
+  const renderReplyMsg = () => {
+    return (
+      <ReplyMessageBubble
+        repliedMsgId={replyToMsgId}
+        replyTxt={''}
+        showCoseIcon={true}
+      />
+    );
+  };
+
   return props?.render ? (
     props.render(
       message,
@@ -281,7 +295,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       {uploadedFiles.length > 0 ? (
         <View
           style={[
-            style.attachmentContainer,
+            style.inputWrapper,
             isUploadStatusShown
               ? {
                   borderTopLeftRadius: 0,
@@ -292,11 +306,28 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
           ]}>
           <ScrollView style={{maxHeight: showEmojiPicker ? 120 : '100%'}}>
             {uploadedFiles.map(renderAttachmentBubble)}
-            {renderTextInput({borderWidth: 0, padddingLeft: 0})}
+            {replyToMsgId && renderTextInput({borderWidth: 0, padddingLeft: 0})}
+            <View
+              style={
+                replyToMsgId
+                  ? [style.inputWrapper, {borderRadius: 8, borderTopWidth: 1}]
+                  : {}
+              }>
+              {replyToMsgId && <View>{renderReplyMsg()}</View>}
+              {renderTextInput({borderWidth: 0, padddingLeft: 0})}
+            </View>
           </ScrollView>
         </View>
       ) : (
-        renderTextInput()
+        <View
+          style={
+            replyToMsgId
+              ? [style.inputWrapper, {borderRadius: 8, borderTopWidth: 1}]
+              : {}
+          }>
+          {replyToMsgId && <View>{renderReplyMsg()}</View>}
+          {renderTextInput({borderWidth: 0, padddingLeft: 0})}
+        </View>
       )}
     </>
   );
@@ -330,7 +361,7 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
-  attachmentContainer: {
+  inputWrapper: {
     paddingHorizontal: 12,
     paddingTop: 12,
     backgroundColor: $config.CARD_LAYER_2_COLOR,

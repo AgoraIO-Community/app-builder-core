@@ -268,6 +268,7 @@ const ChatContainer = (props?: {
                   ext={message?.ext}
                   reactions={message?.reactions}
                   scrollOffset={scrollOffset}
+                  replyToMsgId={message?.replyToMsgId}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -328,6 +329,7 @@ const ChatContainer = (props?: {
                     fileName={message?.fileName}
                     ext={message?.ext}
                     reactions={message?.reactions}
+                    replyToMsgId={message?.replyToMsgId}
                   />
                   {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (

@@ -53,8 +53,14 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = React.useState({});
-  const {setChatType, setPrivateChatUser, showEmojiPicker, privateChatUser} =
-    useChatUIControls();
+  const {
+    setChatType,
+    setPrivateChatUser,
+    showEmojiPicker,
+    privateChatUser,
+    replyToMsgId,
+    setReplyToMsgId,
+  } = useChatUIControls();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
     useChatMessages();
   const [showDeleteMessageModal, setShowDeleteMessageModal] =
@@ -70,15 +76,16 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
 
   const groupID = chat.group_id;
 
-  // actionMenuitems.push({
-  //   icon: 'reply',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Reply',
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  actionMenuitems.push({
+    icon: 'reply',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Reply',
+    onPress: () => {
+      setReplyToMsgId(messageId);
+      setActionMenuVisible(false);
+    },
+  });
 
   const cancelTxt = useString(cancelText)();
   const cancelLabel =

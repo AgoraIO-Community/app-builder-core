@@ -26,7 +26,12 @@ import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import {isMobileUA, isWebInternal, trimText} from '../utils/common';
-import {useChatUIControls, useContent, useLocalUid} from 'customization-api';
+import {
+  useChatUIControls,
+  useContent,
+  useLocalUid,
+  IconButton,
+} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {containsOnlyEmojis, formatAMPM, isURL} from '../utils';
@@ -34,7 +39,10 @@ import {ChatType, UploadStatus} from '../components/chat-ui/useChatUIControls';
 import ImageIcon from '../atoms/ImageIcon';
 import {ChatActionMenu, MoreMenu} from './chat/ChatActionMenu';
 import ImagePopup from './chat/ImagePopup';
-import {ChatMessageType} from '../components/chat-messages/useChatMessages';
+import {
+  ChatMessageType,
+  useChatMessages,
+} from '../components/chat-messages/useChatMessages';
 import {
   chatMsgDeletedText,
   videoRoomUserFallbackText,
@@ -103,6 +111,59 @@ export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   );
 };
 
+export const ReplyMessageBubble = ({
+  repliedMsgId,
+  replyTxt,
+  showCoseIcon = false,
+}) => {
+  const {messageStore} = useChatMessages();
+  const {defaultContent} = useContent();
+  const {setReplyToMsgId} = useChatUIControls();
+  const repliedMsg = messageStore.filter(msg => msg.msgId === repliedMsgId);
+
+  let time = formatAMPM(new Date(repliedMsg[0]?.createdTimestamp));
+  const name = trimText(defaultContent[repliedMsg[0]?.uid]?.name);
+  const text = repliedMsg[0]?.msg;
+
+  return (
+    <View style={style.repliedMsgContainer}>
+      <View style={{flex: 1}}>
+        <View style={{display: 'flex', flexDirection: 'row'}}>
+          <Text style={style.userNameStyle}>{name}</Text>
+          <Text style={style.timestampStyle}>{time}</Text>
+        </View>
+        <View style={style.repliedMsgContent}>
+          <Text style={style.messageStyle}>{text}</Text>
+        </View>
+      </View>
+
+      {showCoseIcon && (
+        <IconButton
+          hoverEffect={false}
+          hoverEffectStyle={{
+            backgroundColor: $config.ICON_BG_COLOR,
+            borderRadius: 20,
+          }}
+          iconProps={{
+            iconType: 'plain',
+            iconContainerStyle: {
+              padding: 5,
+            },
+            iconSize: 20,
+            name: 'close',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          }}
+          onPress={() => {
+            // handleEmojiClose();
+            // setShowEmojiPicker(false);
+            setReplyToMsgId('');
+          }}
+        />
+      )}
+    </View>
+  );
+};
+
 const ChatBubble = (props: ChatBubbleProps) => {
   const {defaultContent} = useContent();
   const {chatType, privateChatUser} = useChatUIControls();
@@ -130,6 +191,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     ext,
     reactions,
     scrollOffset,
+    replyToMsgId,
   } = props;
 
   const localUid = useLocalUid();
@@ -190,6 +252,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
       ext,
       previousMessageCreatedTimestamp,
       reactions,
+      replyToMsgId,
     )
   ) : (
     <>
@@ -284,16 +347,24 @@ const ChatBubble = (props: ChatBubbleProps) => {
                       textDecorationLine: 'underline',
                     }}>
                     {type === ChatMessageType.TXT && (
-                      <Text
-                        style={[
-                          style.messageStyle,
-                          containsOnlyEmojis(message)
-                            ? {fontSize: 24, lineHeight: 32}
-                            : {fontSize: 14, lineHeight: 20},
-                        ]}
-                        selectable={true}>
-                        {message}
-                      </Text>
+                      <>
+                        {replyToMsgId && (
+                          <ReplyMessageBubble
+                            repliedMsgId={replyToMsgId}
+                            replyTxt={message}
+                          />
+                        )}
+                        <Text
+                          style={[
+                            style.messageStyle,
+                            containsOnlyEmojis(message)
+                              ? {fontSize: 24, lineHeight: 32}
+                              : {fontSize: 14, lineHeight: 20},
+                          ]}
+                          selectable={true}>
+                          {message}
+                        </Text>
+                      </>
                     )}
                     {type === ChatMessageType.IMAGE && (
                       <View>
@@ -664,6 +735,23 @@ const style = StyleSheet.create({
   },
   reactionUserList: {
     position: 'absolute',
+  },
+  repliedMsgContainer: {
+    backgroundColor:
+      $config.CARD_LAYER_1_COLOR + hexadecimalTransparency['45%'],
+    borderRadius: 4,
+    borderLeftWidth: 2,
+    padding: 8,
+    borderLeftColor: $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['80%'],
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  repliedMsgContent: {
+    maxHeight: 100,
+    overflow: 'scroll',
   },
 });
 

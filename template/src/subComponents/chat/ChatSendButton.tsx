@@ -41,6 +41,8 @@ export const handleChatSend = ({
   toastHeadingSize,
   errorSubHeadingSize,
   _resetTextareaHeight,
+  replyToMsgId,
+  setReplyToMsgId,
 }) => {
   const isAllFilesUploaded =
     uploadedFiles.length > 0 &&
@@ -76,6 +78,7 @@ export const handleChatSend = ({
       to: selectedUserId ? selectedUserId.toString() : groupID,
       ext: {
         from_platform: isWeb() ? 'web' : 'native',
+        replyToMsgId: replyToMsgId,
       },
     };
     sendChatSDKMessage(option);
@@ -106,6 +109,7 @@ export const handleChatSend = ({
           file_name,
           from_platform: isWeb() ? 'web' : 'native',
           msg: uploadedFiles.length === 1 ? message : '',
+          replyToMsgId: replyToMsgId,
         },
       };
       sendChatSDKMessage(option);
@@ -120,6 +124,7 @@ export const handleChatSend = ({
   }
 
   setMessage && setMessage('');
+  setReplyToMsgId('');
   setInputHeight && setInputHeight(MIN_HEIGHT);
   setUploadedFiles && setUploadedFiles(prev => []);
   isWeb() && setShowEmojiPicker(false);
@@ -138,6 +143,8 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     setUploadedFiles,
     setInputHeight,
     _resetTextareaHeight,
+    replyToMsgId,
+    setReplyToMsgId,
   } = useChatUIControls();
 
   const {data} = useRoomInfo();
@@ -166,6 +173,8 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       toastHeadingSize,
       errorSubHeadingSize,
       _resetTextareaHeight,
+      replyToMsgId,
+      setReplyToMsgId,
     });
 
   return props?.render ? (

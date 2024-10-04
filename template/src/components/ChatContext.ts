@@ -16,7 +16,6 @@ import {createContext, SetStateAction} from 'react';
 import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
 import {createHook} from 'customization-implementation';
 
-
 export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
@@ -34,6 +33,7 @@ export interface ChatBubbleProps {
   previousMessageCreatedTimestamp?: string;
   reactions?: Reaction[];
   scrollOffset?: number;
+  replyToMsgId?: string;
 
   render?: (
     isLocal: boolean,
@@ -51,6 +51,7 @@ export interface ChatBubbleProps {
     ext?: string,
     previousMessageCreatedTimestamp?: string,
     reactions?: Reaction[],
+    replyToMsgId?: string,
   ) => JSX.Element;
 }
 
