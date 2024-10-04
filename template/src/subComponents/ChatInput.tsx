@@ -296,6 +296,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         <View
           style={[
             style.inputWrapper,
+            {paddingBottom: replyToMsgId ? 12 : 0},
             isUploadStatusShown
               ? {
                   borderTopLeftRadius: 0,
@@ -305,16 +306,13 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
               : {borderRadius: 8, borderTopWidth: 1},
           ]}>
           <ScrollView style={{maxHeight: showEmojiPicker ? 120 : '100%'}}>
-            {uploadedFiles.map(renderAttachmentBubble)}
-            {replyToMsgId && renderTextInput({borderWidth: 0, padddingLeft: 0})}
-            <View
-              style={
-                replyToMsgId
-                  ? [style.inputWrapper, {borderRadius: 8, borderTopWidth: 1}]
-                  : {}
-              }>
+            {!replyToMsgId && uploadedFiles.map(renderAttachmentBubble)}
+            {/* {replyToMsgId && renderTextInput({borderWidth: 0, padddingLeft: 0})} */}
+            <View>
               {replyToMsgId && <View>{renderReplyMsg()}</View>}
-              {renderTextInput({borderWidth: 0, padddingLeft: 0})}
+              {replyToMsgId && uploadedFiles.map(renderAttachmentBubble)}
+              {!replyToMsgId &&
+                renderTextInput({borderWidth: 0, padddingLeft: 0})}
             </View>
           </ScrollView>
         </View>
