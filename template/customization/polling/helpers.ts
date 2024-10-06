@@ -1,7 +1,7 @@
 import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 
 function log(...args: any[]) {
-  console.log('[CustomPolling::] ', ...args);
+  console.log('[Custom-Polling::] ', ...args);
 }
 
 function addVote(
@@ -159,6 +159,20 @@ function calculateTotalVotes(options: Array<PollItemOptionItem>): number {
   // Use reduce to sum up the length of the votes array for each option
   return options.reduce((total, option) => total + option.votes.length, 0);
 }
+
+const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  delay: number = 300,
+) => {
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+};
+
 export {
   log,
   mergePolls,
@@ -171,4 +185,5 @@ export {
   getPollTypeDesc,
   formatTimestampToTime,
   calculateTotalVotes,
+  debounce,
 };

@@ -1,4 +1,10 @@
-import React, {createContext, useReducer, useEffect, useState} from 'react';
+import React, {
+  createContext,
+  useReducer,
+  useEffect,
+  useState,
+  useMemo,
+} from 'react';
 import {usePollEvents} from './poll-events';
 import {
   useLocalUid,
@@ -16,6 +22,7 @@ import {
   addVote,
   arrayToCsv,
   calculatePercentage,
+  debounce,
   downloadCsv,
   hasUserVoted,
   log,
@@ -385,14 +392,18 @@ function PollProvider({children}: {children: React.ReactNode}) {
       switch (lastAction.type) {
         case PollActionKind.SAVE_POLL_ITEM:
           if (lastAction.payload.item.status === PollStatus.LATER) {
-            const {id: pollId} = lastAction.payload.item;
-            savePollEvt(polls, pollId);
+            savePollEvt(polls);
             setCurrentModal(null);
           }
           break;
         case PollActionKind.ADD_POLL_ITEM:
           const {latestTask, latestPollId} = lastAction.payload;
-          if (polls[latestPollId] && latestTask === PollTaskRequestTypes.SEND) {
+          if (
+            latestPollId &&
+            latestTask &&
+            polls[latestPollId] &&
+            latestTask === PollTaskRequestTypes.SEND
+          ) {
             setSidePanel(SidePanelType.None);
             setLaunchPollId(latestPollId);
             setCurrentModal(PollModalState.RESPOND_TO_POLL);
@@ -407,7 +418,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
           break;
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
           const {id, responses, uid, timestamp} = lastAction.payload;
-          sendResponseToPollEvt(id, responses, uid, timestamp);
+          sendResponseToPollEvt(polls[id], responses, uid, timestamp);
           break;
         case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:
           {
@@ -416,9 +427,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
             log('i received the poll response');
             if (localUid === pollcreator) {
               log(
-                'i received the poll response and i am creator, saving in channel attributes',
+                `i received the poll response and i am creator, saving in 
+                channel attributes. postponing save channel attributes`,
               );
-              savePollEvt(polls, pollId);
+              callDebouncedSavePoll(polls);
             }
           }
           break;
@@ -509,41 +521,48 @@ function PollProvider({children}: {children: React.ReactNode}) {
     task: PollTaskRequestTypes,
   ) => {
     log('onPollReceived', newPoll, pollId, task);
+
+    // Merge new polls and track deleted poll IDs
     const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
+
+    // Reset state if no polls remain
     if (Object.keys(mergedPolls).length === 0) {
-      enhancedDispatch({
-        type: PollActionKind.RESET,
-      });
+      enhancedDispatch({type: PollActionKind.RESET});
       return;
     }
+
+    // Early exit if current user is the creator of the poll
     if (localUid === newPoll[pollId]?.createdBy) {
-      log('i am creator, i send the poll.');
+      log('I am the creator, no further action needed.');
       return;
-    } else {
-      log('i am attendee or co host');
-      // Update state to remove deleted polls
-      deletedPollIds?.map((id: string) => {
-        log('deleting id: ', id, polls[id]);
-        handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
-      });
-      // Update state with the latest state
-      Object.entries(mergedPolls).forEach(([_, pollItem]) => {
-        if (pollItem.status === PollStatus.LATER) {
-          return;
-        }
-        log(`adding poll id ${pollItem.id} into state`);
-        addPoll(pollItem, task, pollId);
-        if (pollItem.status === PollStatus.ACTIVE) {
-          log(`adding poll id ${pollItem.id} status is ${pollItem.status}`);
-          // If status is active but voted
-          if (hasUserVoted(pollItem?.options || [], localUid)) {
-            log(`user has voted this poll id ${pollItem.id}`);
-            return;
-          }
-          // if status is active but not voted
-        }
-      });
     }
+
+    // Process deleted polls
+    deletedPollIds?.forEach((id: string) => {
+      log(`Deleting poll ID: ${id}`);
+      handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
+    });
+
+    log('onPollReceived', newPoll, pollId, task);
+    // Update the state with merged polls
+    Object.values(mergedPolls)
+      .filter(pollItem => pollItem.status !== PollStatus.LATER) // Filter unnecessary items
+      .forEach(pollItem => {
+        log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
+
+        // Update the poll in state
+        addPoll(pollItem, task, pollId);
+
+        // Handle active poll status
+        // if (
+        //   pollItem.status === PollStatus.ACTIVE &&
+        //   !hasUserVoted(pollItem?.options || [], localUid)
+        // ) {
+        //   setSidePanel(SidePanelType.None);
+        //   setLaunchPollId(pollId);
+        //   setCurrentModal(PollModalState.RESPOND_TO_POLL);
+        // }
+      });
   };
 
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
@@ -641,6 +660,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
         break;
     }
   };
+
+  // Define the debounced function using useMemo or useCallback
+  const callDebouncedSavePoll = useMemo(
+    () => debounce(savePollEvt, 1000),
+    [savePollEvt],
+  );
 
   const closeCurrentModal = () => {
     if (currentModal === PollModalState.RESPOND_TO_POLL) {

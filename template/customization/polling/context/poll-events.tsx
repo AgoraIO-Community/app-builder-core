@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect} from 'react';
-import {Poll, PollTaskRequestTypes, usePoll} from './poll-context';
+import {Poll, PollItem, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
 import {log} from '../helpers';
 
@@ -15,7 +15,7 @@ enum PollEventActions {
 }
 
 type sendResponseToPollEvtFunction = (
-  id: string,
+  item: PollItem,
   responses: string | string[],
   uid: number,
   timestamp: number,
@@ -27,7 +27,7 @@ interface PollEventsContextValue {
     pollId: string,
     task: PollTaskRequestTypes,
   ) => void;
-  savePollEvt: (polls: Poll, pollId: string) => void;
+  savePollEvt: (polls: Poll) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
 }
 
@@ -36,14 +36,12 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  const savePollEvt = (polls: Poll, pollId: string) => {
+  const savePollEvt = (polls: Poll) => {
     events.send(
       PollEventNames.polls,
       JSON.stringify({
         state: {...polls},
         action: PollEventActions.savePoll,
-        pollId: pollId,
-        task: '',
       }),
       PersistanceLevel.Channel,
     );
@@ -67,7 +65,7 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
   };
 
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
-    id,
+    item,
     responses,
     uid,
     timestamp,
@@ -75,12 +73,13 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     events.send(
       PollEventNames.pollResponse,
       JSON.stringify({
-        id,
+        id: item.id,
         responses,
         uid,
         timestamp,
       }),
       PersistanceLevel.None,
+      item.createdBy,
     );
   };
 
@@ -119,18 +118,20 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       const data = JSON.parse(payload);
       const {action, state, pollId, task} = data;
       log('poll channel state received', data);
-      switch (action) {
-        case PollEventActions.savePoll:
-          log('on poll saved');
-          onPollReceived(state, pollId, task);
-          break;
-        case PollEventActions.sendPoll:
-          log('on poll received');
-          onPollReceived(state, pollId, task);
-          break;
-        default:
-          break;
-      }
+      onPollReceived(state, pollId, task);
+      // No difference of action needed
+      // switch (action) {
+      //   case PollEventActions.savePoll:
+      //     log('on poll saved');
+      //     onPollReceived(state, pollId, task);
+      //     break;
+      //   case PollEventActions.sendPoll:
+      //     log('on poll received');
+      //     onPollReceived(state, pollId, task);
+      //     break;
+      //   default:
+      //     break;
+      // }
     });
     events.on(PollEventNames.pollResponse, args => {
       const {payload} = args;
