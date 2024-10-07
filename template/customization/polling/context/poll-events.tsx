@@ -34,15 +34,19 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     pollId: string,
     task: PollTaskRequestTypes,
   ) => {
-    events.send(
-      PollEventNames.polls,
-      JSON.stringify({
-        state: {...polls},
-        pollId: pollId,
-        task,
-      }),
-      PersistanceLevel.Channel,
-    );
+    try {
+      events.send(
+        PollEventNames.polls,
+        JSON.stringify({
+          state: {...polls},
+          pollId: pollId,
+          task,
+        }),
+        PersistanceLevel.Channel,
+      );
+    } catch (error) {
+      console.log('error while syncing poll: ', error);
+    }
   };
 
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
@@ -51,17 +55,21 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
     uid,
     timestamp,
   ) => {
-    events.send(
-      PollEventNames.pollResponse,
-      JSON.stringify({
-        id: item.id,
-        responses,
-        uid,
-        timestamp,
-      }),
-      PersistanceLevel.None,
-      item.createdBy,
-    );
+    try {
+      events.send(
+        PollEventNames.pollResponse,
+        JSON.stringify({
+          id: item.id,
+          responses,
+          uid,
+          timestamp,
+        }),
+        PersistanceLevel.None,
+        item.createdBy,
+      );
+    } catch (error) {
+      console.log('error while sending a poll response level 1');
+    }
   };
 
   const value = {
