@@ -6,7 +6,12 @@ function PollOptionList({children}: {children: React.ReactNode}) {
   return <View style={style.optionsList}>{children}</View>;
 }
 
-function PollItemFill({checked, myVote, percent}) {
+interface Props {
+  submitting: boolean;
+  submittedMyVote: boolean;
+  percent: string;
+}
+function PollItemFill({submitting, submittedMyVote, percent}: Props) {
   return (
     <>
       <View
@@ -15,10 +20,12 @@ function PollItemFill({checked, myVote, percent}) {
           {
             // Determine the width and background color based on canViewWhoVoted and iVoted
             width: `${percent}%` as DimensionValue, // Always set the width based on the percentage value
-            backgroundColor: myVote
+            backgroundColor: submittedMyVote
               ? $config.PRIMARY_ACTION_BRAND_COLOR // If the user voted, use the primary brand color
-              : $config.PRIMARY_ACTION_BRAND_COLOR +
-                hexadecimalTransparency['10%'], // If not, use the brand color with reduced opacity
+              : !submitting
+              ? $config.PRIMARY_ACTION_BRAND_COLOR +
+                hexadecimalTransparency['10%'] // If not, use the brand color with reduced opacity
+              : '',
           },
         ]}
       />

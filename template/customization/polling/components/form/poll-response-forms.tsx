@@ -45,6 +45,7 @@ function PollResponseFormComplete() {
 function PollRenderResponseFormBody(
   props: PollFormInput & {
     submitted: boolean;
+    submitting: boolean;
   },
 ): JSX.Element {
   // Directly use switch case logic inside the render
@@ -99,8 +100,10 @@ function PollResponseMCQForm({
   handleCheckboxToggle,
   selectedOption,
   handleRadioSelect,
+  submitting,
 }: Partial<PollFormInput> & {
   submitted: boolean;
+  submitting: boolean;
 }) {
   const localUid = useLocalUid();
   return (
@@ -122,8 +125,8 @@ function PollResponseMCQForm({
                           checked={checked}>
                           <>
                             <PollItemFill
-                              checked={checked}
-                              myVote={submitted && myVote}
+                              submitting={submitting}
+                              submittedMyVote={submitted && myVote}
                               percent={option.percent}
                             />
                             <Checkbox
@@ -177,8 +180,8 @@ function PollResponseMCQForm({
                           hovered={submitted ? false : isHovered}>
                           <>
                             <PollItemFill
-                              checked={checked}
-                              myVote={submitted && myVote}
+                              submitting={checked}
+                              submittedMyVote={submitted && myVote}
                               percent={option.percent}
                             />
                             <BaseRadioButton

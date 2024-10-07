@@ -98,9 +98,21 @@ PollEventsSubscriberContext.displayName = 'PollEventsContext';
 
 function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
   const {onPollReceived, onPollResponseReceived} = usePoll();
-  const [isInitialized, setIsInitialized] = useState(false); // Track the initialization state
+  // State variable to track whether the initial load has occurred
+  // State variable to track whether the initial load has occurred
+  const [initialized, setInitialized] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
+    let initialLoadTimeout: ReturnType<typeof setTimeout>;
+    // Set initialLoadTimeout only if initialLoadComplete is false
+    if (!initialLoadComplete) {
+      initialLoadTimeout = setTimeout(() => {
+        log('Initial load timeout reached. Marking initial load as complete.');
+        setInitialLoadComplete(true);
+      }, 10000); // Adjust the timeout duration as necessary
+    }
+
     events.on(PollEventNames.polls, args => {
       // const {payload, sender, ts} = args;
       const {payload} = args;
@@ -108,8 +120,18 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       const {state, pollId, task} = data;
       log('poll channel state received', data);
       // Set the initialized flag to true after the first render
-      onPollReceived(state, pollId, task, isInitialized);
-      setIsInitialized(true);
+      // Determine if it's the initial load or a runtime update
+      if (!initialized && !initialLoadComplete) {
+        log('Initial load detected');
+        // Call onPollReceived with an additional parameter or flag for initial load
+        onPollReceived(state, pollId, task, true); // true indicates it's an initial load
+        setInitialized(true);
+        // Clear the initial load timeout since we have received the initial state
+        clearTimeout(initialLoadTimeout);
+      } else {
+        log('Runtime update detected');
+        onPollReceived(state, pollId, task, false); // false indicates it's a runtime update
+      }
       // switch (action) {
       //   case PollEventActions.savePoll:
       //     log('on poll saved');
@@ -134,8 +156,14 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
     return () => {
       events.off(PollEventNames.polls);
       events.off(PollEventNames.pollResponse);
+      clearTimeout(initialLoadTimeout);
     };
-  }, [onPollReceived, onPollResponseReceived, isInitialized]);
+  }, [
+    onPollReceived,
+    onPollResponseReceived,
+    initialized,
+    initialLoadComplete,
+  ]);
 
   return (
     <PollEventsSubscriberContext.Provider value={null}>
