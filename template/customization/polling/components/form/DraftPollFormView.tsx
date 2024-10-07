@@ -24,7 +24,6 @@ import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
 import BaseButtonWithToggle from '../../ui/BaseButtonWithToggle';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
-import pollIcons from '../../poll-icons';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -293,108 +292,6 @@ export default function DraftPollFormView({
           ) : (
             <></>
           )}
-          {/* Advanced settings section */}
-          <View style={[style.pFormSection]}>
-            <FormTitle title="Advance Settings" />
-            <View style={style.pFormSettings}>
-              {/* <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <BaseButtonWithToggle
-                    icon={pollIcons['stop-watch']}
-                    key="timer-toggle"
-                    text="Set Poll Timer"
-                    tooltTipText="Co-hosts will have access to view the poll results"
-                    value={form.duration}
-                    onPress={value => {
-                      handleCheckboxChange('duration', value);
-                    }}
-                  />
-                </View>
-              </View> */}
-              <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <BaseButtonWithToggle
-                    icon={pollIcons.group}
-                    hoverEffect
-                    key="attendee-toggle"
-                    text="Result visible to attendees"
-                    tooltTipText="Participants can view the aggregated poll results"
-                    value={form.share_attendee}
-                    onPress={value => {
-                      handleCheckboxChange('share_attendee', value);
-                    }}
-                  />
-                </View>
-              </View>
-              {/* <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <Text style={style.pFormSettingsText}>
-                    Result visible to attendees
-                  </Text>
-                  <Toggle
-                    isEnabled={form.share_attendee}
-                    toggleSwitch={value => {
-                      handleCheckboxChange('share_attendee', value);
-                    }}
-                  />
-                </View>
-              </View> */}
-              <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <BaseButtonWithToggle
-                    hoverEffect
-                    key="cohost-toggle"
-                    icon={pollIcons['co-host']}
-                    text="Result visible to cohosts"
-                    tooltTipText="Co-hosts will have access to view the poll results"
-                    value={form.share_host}
-                    onPress={value => {
-                      handleCheckboxChange('share_host', value);
-                    }}
-                  />
-                </View>
-              </View>
-              {/* <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <Text style={style.pFormSettingsText}>
-                    Result visible to cohosts
-                  </Text>
-                  <Toggle
-                    isEnabled={form.share_host}
-                    toggleSwitch={value => {
-                      handleCheckboxChange('share_host', value);
-                    }}
-                  />
-                </View>
-              </View> */}
-              <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <BaseButtonWithToggle
-                    icon={pollIcons.anonymous}
-                    hoverEffect
-                    key="anonymous-toggle"
-                    text="Anonymous Results"
-                    tooltTipText="Anonymous results mean that: You, co-hosts and attendees won’t know who voted for which option."
-                    value={form.anonymous}
-                    onPress={value => {
-                      handleCheckboxChange('anonymous', value);
-                    }}
-                  />
-                </View>
-              </View>
-              {/* <View style={style.pFormCheckboxContainer}>
-                <View style={style.pFormToggle}>
-                  <Text style={style.pFormSettingsText}>Anonymous Results</Text>
-                  <Toggle
-                    isEnabled={form.anonymous}
-                    toggleSwitch={value => {
-                      handleCheckboxChange('anonymous', value);
-                    }}
-                  />
-                </View>
-              </View> */}
-            </View>
-          </View>
         </View>
       </BaseModalContent>
       <BaseModalActions>
