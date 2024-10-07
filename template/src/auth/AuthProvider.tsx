@@ -40,7 +40,6 @@ import {
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from '../utils/getUniqueID';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
-import jwtDecode from 'jwt-decode';
 
 export const GET_USER = gql`
   query getUser {
@@ -62,13 +61,6 @@ interface AuthContextInterface {
   authLogin: () => void;
   authLogout: () => void;
   returnTo: string;
-}
-
-interface UnAuthLoginTokenJwtPayload {
-  user_id: string;
-  app_id: string;
-  project_id: string;
-  exp?: number;
 }
 
 const AuthContext = createContext<AuthContextInterface | null>(null);
@@ -523,9 +515,6 @@ const AuthProvider = (props: AuthProviderProps) => {
         if (isWeb()) {
           const urlParams = new URLSearchParams(window?.location?.search);
           user_id_unauth = urlParams.get('user_id');
-          if (!user_id_unauth && store?.jwtUserId) {
-            user_id_unauth = store?.jwtUserId;
-          }
         }
       } catch (error) {}
 
@@ -537,16 +526,6 @@ const AuthProvider = (props: AuthProviderProps) => {
       })
         .then(response => response.json())
         .then(response => {
-          if (response?.token) {
-            const {user_id} = jwtDecode<UnAuthLoginTokenJwtPayload>(
-              response?.token,
-            );
-            if (user_id && user_id?.trim() !== '') {
-              setStore(prevState => {
-                return {...prevState, jwtUserId: user_id};
-              });
-            }
-          }
           const endReqTs = Date.now();
           const latency = endReqTs - startReqTs;
           // unauthenticated flow all platform we will have to handle the token manually
