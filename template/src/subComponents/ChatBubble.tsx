@@ -61,6 +61,10 @@ type AttachmentBubbleProps = {
   containerStyle?: StyleProp<ViewStyle>; // Accepting external styles
 };
 
+type ReplyAttachmentBubbleProps = {
+  imgUrl?: string;
+} & AttachmentBubbleProps;
+
 export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   fileName,
   fileExt,
@@ -69,6 +73,57 @@ export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   secondaryComponent,
   containerStyle,
   msg,
+}) => {
+  const {uploadStatus} = useChatUIControls();
+
+  return (
+    <>
+      <View
+        style={[
+          containerStyle,
+          style.fileContainer,
+          isFullWidth && {width: '100%'},
+          uploadStatus === UploadStatus.FAILURE && {
+            borderColor:
+              $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
+          },
+        ]}>
+        <View style={[style.fileBlock]}>
+          <ImageIcon
+            base64={true}
+            iconSize={24}
+            iconType="plain"
+            name={
+              fileType === ChatMessageType.IMAGE
+                ? 'chat_attachment_image'
+                : fileExt === 'pdf'
+                ? 'chat_attachment_pdf'
+                : fileExt === 'doc' || fileExt === 'docx'
+                ? 'chat_attachment_doc'
+                : 'chat_attachment_unknown'
+            }
+            tintColor={$config.SEMANTIC_NEUTRAL}
+          />
+          <Text style={style.bubbleText} numberOfLines={1} ellipsizeMode="tail">
+            {fileName}
+          </Text>
+        </View>
+        {secondaryComponent}
+      </View>
+      {msg && <Text style={[style.bubbleText, style.fileText]}>{msg}</Text>}
+    </>
+  );
+};
+
+export const ReplyAttachmentBubble: React.FC<ReplyAttachmentBubbleProps> = ({
+  fileName,
+  fileExt,
+  isFullWidth = false,
+  fileType = '',
+  secondaryComponent,
+  containerStyle,
+  msg,
+  imgUrl,
 }) => {
   const {uploadStatus} = useChatUIControls();
 
@@ -120,40 +175,76 @@ export const ReplyMessageBubble = ({
   const {messageStore} = useChatMessages();
   const {defaultContent} = useContent();
   const {setReplyToMsgId} = useChatUIControls();
+  const localUid = useLocalUid();
   const repliedMsg = messageStore.filter(msg => msg.msgId === repliedMsgId);
   const isAttachMsg = repliedMsg[0].type !== ChatMessageType.TXT;
 
   let time = formatAMPM(new Date(repliedMsg[0]?.createdTimestamp));
-  const name = trimText(defaultContent[repliedMsg[0]?.uid]?.name);
+  const name =
+    localUid === repliedMsg[0]?.uid
+      ? 'You'
+      : trimText(defaultContent[repliedMsg[0]?.uid]?.name);
   const text = repliedMsg[0]?.msg;
+  const fileName = `[${repliedMsg[0]?.fileName}]`;
+  const fileExt = repliedMsg[0]?.ext;
 
   return (
     <View style={style.repliedMsgContainer}>
-      <View style={{flex: 1}}>
-        <View style={{display: 'flex', flexDirection: 'row'}}>
-          <Text style={style.userNameStyle}>{name}</Text>
-          <Text style={style.timestampStyle}>{time}</Text>
-        </View>
+      <View style={{flexDirection: 'row', gap: 8, alignItems: 'center'}}>
         <View style={style.repliedMsgContent}>
           {isAttachMsg ? (
-            showPreview && repliedMsg[0].type === ChatMessageType.IMAGE ? (
+            repliedMsg[0].type === ChatMessageType.IMAGE ? (
               <Image
                 source={{uri: repliedMsg[0]?.thumb}}
-                style={style.previewImg}
+                style={style.replyPreviewImg}
               />
             ) : (
-              <AttachmentBubble
-                fileName={repliedMsg[0]?.fileName}
-                fileExt={repliedMsg[0].ext}
-                isFullWidth={true}
+              <ImageIcon
+                base64={true}
+                iconSize={32}
+                iconType="plain"
+                name={
+                  fileExt === 'pdf'
+                    ? 'chat_attachment_pdf'
+                    : fileExt === 'doc' || fileExt === 'docx'
+                    ? 'chat_attachment_doc'
+                    : 'chat_attachment_unknown'
+                }
+                tintColor={$config.SEMANTIC_NEUTRAL}
               />
             )
+          ) : (
+            // <Text style={style.messageStyle}>{text}</Text>
+            <></>
+          )}
+        </View>
+        <View>
+          <View style={{display: 'flex', flexDirection: 'row'}}>
+            <Text
+              style={style.userNameStyle}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {name}
+            </Text>
+            <Text
+              style={style.timestampStyle}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {time}
+            </Text>
+          </View>
+          {isAttachMsg ? (
+            <Text
+              style={style.replyMessageStyle}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {fileName + ' ' + text}
+            </Text>
           ) : (
             <Text style={style.messageStyle}>{text}</Text>
           )}
         </View>
       </View>
-
       {showCoseIcon && (
         <IconButton
           hoverEffect={false}
@@ -673,12 +764,28 @@ const style = StyleSheet.create({
     lineHeight: ThemeConfig.FontSize.small * 1.45,
     color: $config.FONT_COLOR,
   },
+  replyMessageStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
+    marginTop: 4,
+    maxWidth: 200,
+  },
   previewImg: {
     width: 256,
     height: 160,
     resizeMode: 'cover',
     borderRadius: 4,
   },
+  replyPreviewImg: {
+    width: 36,
+    height: 36,
+    borderRadius: 2,
+    resizeMode: 'cover',
+  },
+
   chatBubbleViewImg: {
     paddingHorizontal: 6,
     paddingVertical: 6,
