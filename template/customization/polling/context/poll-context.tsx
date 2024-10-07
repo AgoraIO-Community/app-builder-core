@@ -9,8 +9,6 @@ import {usePollEvents} from './poll-events';
 import {
   useLocalUid,
   useRoomInfo,
-  filterObject,
-  Toast,
   useSidePanel,
   SidePanelType,
 } from 'customization-api';
@@ -24,7 +22,6 @@ import {
   calculatePercentage,
   debounce,
   downloadCsv,
-  hasUserVoted,
   log,
   mergePolls,
 } from '../helpers';
@@ -163,6 +160,7 @@ type PollAction =
     }
   | {
       type: PollActionKind.RESET;
+      payload: null;
     }
   | {
       type: PollActionKind.SYNC_COMPLETE;
@@ -386,11 +384,16 @@ function PollProvider({children}: {children: React.ReactNode}) {
   useEffect(() => {
     log('useEffect for lastAction triggered', lastAction);
 
-    if (lastAction) {
+    if (!lastAction) {
+      log('No last action to process. Exiting useEffect.');
+      return;
+    }
+
+    try {
       switch (lastAction.type) {
         case PollActionKind.SAVE_POLL_ITEM:
           log('Handling SAVE_POLL_ITEM');
-          if (lastAction.payload.item.status === PollStatus.LATER) {
+          if (lastAction?.payload?.item?.status === PollStatus.LATER) {
             const {item} = lastAction.payload;
             syncPollEvt(polls, item.id, PollTaskRequestTypes.SAVE);
             setCurrentModal(null);
@@ -400,8 +403,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
           {
             log('Handling SEND_POLL_ITEM');
             const {pollId} = lastAction.payload;
-            syncPollEvt(polls, pollId, PollTaskRequestTypes.SEND);
-            setCurrentModal(null);
+            if (pollId && polls[pollId]) {
+              syncPollEvt(polls, pollId, PollTaskRequestTypes.SEND);
+              setCurrentModal(null);
+            } else {
+              log('Invalid pollId or poll not found in state:', pollId);
+            }
           }
           break;
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
@@ -411,17 +418,23 @@ function PollProvider({children}: {children: React.ReactNode}) {
             log('No need to send event. User is the poll creator.');
             return;
           }
-          sendResponseToPollEvt(polls[id], responses, uid, timestamp);
+          if (localUid && uid && polls[id]) {
+            sendResponseToPollEvt(polls[id], responses, uid, timestamp);
+          } else {
+            log('Missing uid, localUid, or poll data for submit response.');
+          }
           break;
         case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:
-          {
-            log('Handling RECEIVE_POLL_ITEM_RESPONSES');
-            const {id: pollId} = lastAction.payload;
-            const pollCreator = polls[pollId]?.createdBy;
-            if (localUid === pollCreator) {
-              log('Received poll response, user is the creator. Syncing...');
-              callDebouncedSyncPoll(polls, pollId, PollTaskRequestTypes.SAVE);
-            }
+          log('Handling RECEIVE_POLL_ITEM_RESPONSES');
+          const {id: receivedPollId} = lastAction.payload;
+          const pollCreator = polls[receivedPollId]?.createdBy;
+          if (localUid === pollCreator) {
+            log('Received poll response, user is the creator. Syncing...');
+            callDebouncedSyncPoll(
+              polls,
+              receivedPollId,
+              PollTaskRequestTypes.SAVE,
+            );
           }
           break;
         case PollActionKind.PUBLISH_POLL_ITEM:
@@ -460,8 +473,11 @@ function PollProvider({children}: {children: React.ReactNode}) {
           }
           break;
         default:
+          log(`Unhandled action type: ${lastAction.type}`);
           break;
       }
+    } catch (error) {
+      log('Error processing last action:', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastAction]);
@@ -472,9 +488,13 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const editPollForm = (pollId: string) => {
-    log(`Editing poll form for pollId: ${pollId}`);
-    setCurrentModal(PollModalState.DRAFT_POLL);
-    setEditFormObject({...polls[pollId]});
+    if (polls[pollId]) {
+      log(`Editing poll form for pollId: ${pollId}`);
+      setCurrentModal(PollModalState.DRAFT_POLL);
+      setEditFormObject({...polls[pollId]});
+    } else {
+      log(`Poll not found for edit: ${pollId}`);
+    }
   };
 
   const savePoll = (item: PollItem) => {
@@ -494,6 +514,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const sendPoll = (pollId: string) => {
+    if (!pollId || !polls[pollId]) {
+      log('Invalid pollId or poll not found for sending:', pollId);
+      return;
+    }
     log(`Sending poll with id: ${pollId}`);
     enhancedDispatch({
       type: PollActionKind.SEND_POLL_ITEM,
@@ -509,6 +533,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
   ) => {
     log('onPollReceived', newPoll, pollId, task);
 
+    if (!newPoll || !pollId) {
+      log('Invalid newPoll or pollId in onPollReceived:', {newPoll, pollId});
+      return;
+    }
     const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
 
     log('Merged polls:', mergedPolls);
@@ -516,7 +544,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
     if (Object.keys(mergedPolls).length === 0) {
       log('No polls left after merge. Resetting state.');
-      enhancedDispatch({type: PollActionKind.RESET});
+      enhancedDispatch({type: PollActionKind.RESET, payload: null});
       return;
     }
 
