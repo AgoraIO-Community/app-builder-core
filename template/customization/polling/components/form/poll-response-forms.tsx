@@ -22,7 +22,6 @@ import {
   PollItemFill,
 } from '../poll-option-item-ui';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
-import {usePollPermissions} from '../../hook/usePollPermissions';
 import {PollFormButton, PollFormInput} from '../../hook/usePollForm';
 
 function PollResponseFormComplete() {
@@ -103,16 +102,15 @@ function PollResponseMCQForm({
 }: Partial<PollFormInput> & {
   submitted: boolean;
 }) {
-  const {isPollCreator, canViewVotesPercent, canViewWhoVoted} =
-    usePollPermissions({pollItem});
   const localUid = useLocalUid();
   return (
     <View style={style.optionsForm}>
       <PollOptionList>
         {pollItem.multiple_response
           ? pollItem.options?.map((option, index) => {
-              const iVoted = option.votes.some(item => item.uid === localUid);
-              const checked = selectedOptions.includes(option?.value) || iVoted;
+              const myVote = option.votes.some(item => item.uid === localUid);
+              const checked = selectedOptions.includes(option?.value) || myVote;
+
               return (
                 <TouchableWithoutFeedback disabled={submitted} key={index}>
                   <View pointerEvents={submitted ? 'none' : 'auto'}>
@@ -123,15 +121,11 @@ function PollResponseMCQForm({
                           hovered={submitted ? false : isHovered}
                           checked={checked}>
                           <>
-                            {/* Background fill according to vote percentage */}
-                            {(isPollCreator || submitted) && (
-                              <PollItemFill
-                                canViewWhoVoted={canViewWhoVoted}
-                                canViewVotesPercent={canViewVotesPercent}
-                                iVoted={iVoted}
-                                percent={option.percent}
-                              />
-                            )}
+                            <PollItemFill
+                              checked={checked}
+                              myVote={submitted && myVote}
+                              percent={option.percent}
+                            />
                             <Checkbox
                               key={index}
                               checked={checked}
@@ -169,8 +163,9 @@ function PollResponseMCQForm({
               );
             })
           : pollItem.options?.map((option, index) => {
-              const iVoted = option.votes.some(item => item.uid === localUid);
-              const checked = selectedOption === option.value || iVoted;
+              const myVote = option.votes.some(item => item.uid === localUid);
+              const checked = selectedOption === option.value || myVote;
+
               return (
                 <TouchableWithoutFeedback disabled={submitted} key={index}>
                   <View pointerEvents={submitted ? 'none' : 'auto'}>
@@ -181,15 +176,11 @@ function PollResponseMCQForm({
                           checked={checked}
                           hovered={submitted ? false : isHovered}>
                           <>
-                            {/* Background fill according to vote percentage */}
-                            {(isPollCreator || submitted) && (
-                              <PollItemFill
-                                canViewWhoVoted={canViewWhoVoted}
-                                canViewVotesPercent={canViewVotesPercent}
-                                iVoted={checked}
-                                percent={option.percent}
-                              />
-                            )}
+                            <PollItemFill
+                              checked={checked}
+                              myVote={submitted && myVote}
+                              percent={option.percent}
+                            />
                             <BaseRadioButton
                               option={{
                                 label: option.text,

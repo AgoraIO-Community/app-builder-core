@@ -1,20 +1,12 @@
 import React from 'react';
 import {Text, View, StyleSheet, DimensionValue} from 'react-native';
-import {PollItemOptionItem} from '../context/poll-context';
 import {ThemeConfig, $config, hexadecimalTransparency} from 'customization-api';
-
-interface PollOptionListItem {
-  optionItem: PollItemOptionItem;
-  iVoted: boolean;
-  canViewWhoVoted: boolean;
-  canViewVotesPercent: boolean;
-}
 
 function PollOptionList({children}: {children: React.ReactNode}) {
   return <View style={style.optionsList}>{children}</View>;
 }
 
-function PollItemFill({canViewWhoVoted, canViewVotesPercent, iVoted, percent}) {
+function PollItemFill({checked, myVote, percent}) {
   return (
     <>
       <View
@@ -23,48 +15,17 @@ function PollItemFill({canViewWhoVoted, canViewVotesPercent, iVoted, percent}) {
           {
             // Determine the width and background color based on canViewWhoVoted and iVoted
             width: `${percent}%` as DimensionValue, // Always set the width based on the percentage value
-            backgroundColor: canViewWhoVoted
-              ? // If user can view who voted show their own vote and others vote
-                iVoted
-                ? $config.PRIMARY_ACTION_BRAND_COLOR // If the user voted, use the primary brand color
-                : $config.PRIMARY_ACTION_BRAND_COLOR +
-                  hexadecimalTransparency['10%'] // If not, use the brand color with reduced opacity
-              : // If user cannot view who voted, show their own vote only
-              iVoted
-              ? $config.PRIMARY_ACTION_BRAND_COLOR // If the user voted, show the primary brand color
-              : undefined, // Otherwise, leave the background color undefined
+            backgroundColor: myVote
+              ? $config.PRIMARY_ACTION_BRAND_COLOR // If the user voted, use the primary brand color
+              : $config.PRIMARY_ACTION_BRAND_COLOR +
+                hexadecimalTransparency['10%'], // If not, use the brand color with reduced opacity
           },
         ]}
       />
-      {canViewVotesPercent && (
-        <View style={[style.optionFillText]}>
-          <Text style={[style.optionText]}>{`${percent}%`}</Text>
-        </View>
-      )}
+      <View style={[style.optionFillText]}>
+        <Text style={[style.optionText]}>{`${percent}%`}</Text>
+      </View>
     </>
-  );
-}
-function PollOptionListItemResult({
-  iVoted,
-  canViewWhoVoted,
-  optionItem,
-}: PollOptionListItem) {
-  return (
-    <View style={[style.optionListItem]}>
-      {/* Background fill according to vote percentage */}
-      <PollItemFill
-        canViewWhoVoted={canViewWhoVoted}
-        iVoted={iVoted}
-        percent={optionItem.percent}
-      />
-      <Text
-        style={[
-          style.optionText,
-          !canViewWhoVoted && iVoted ? style.myVote : {},
-        ]}>
-        {optionItem.text}
-      </Text>
-    </View>
   );
 }
 
@@ -155,9 +116,4 @@ const style = StyleSheet.create({
   },
 });
 
-export {
-  PollOptionList,
-  PollOptionListItemResult,
-  PollOptionInputListItem,
-  PollItemFill,
-};
+export {PollOptionList, PollOptionInputListItem, PollItemFill};

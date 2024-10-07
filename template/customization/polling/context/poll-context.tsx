@@ -403,6 +403,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
           break;
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
           const {id, responses, uid, timestamp} = lastAction.payload;
+          if (localUid === polls[id]?.createdBy) {
+            // Same user no need to send event
+            return;
+          }
           sendResponseToPollEvt(polls[id], responses, uid, timestamp);
           break;
         case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:

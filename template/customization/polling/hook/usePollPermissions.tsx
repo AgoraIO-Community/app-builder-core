@@ -41,18 +41,20 @@ export const usePollPermissions = ({
     // Determine if the user can view the percentage of votes
     // - Hosts can always view the percentage of votes
     // - Co-hosts and attendees can view it if share_host or share_attendee is true respectively
-    const canViewVotesPercent =
-      isPollHost ||
-      (isPollCoHost && pollItem.share_host) ||
-      (isPollAttendee && pollItem.share_attendee);
+    const canViewVotesPercent = true;
+    // isPollHost ||
+    // (isPollCoHost && pollItem.share_host) ||
+    // (isPollAttendee && pollItem.share_attendee);
 
     // Determine if the user can view poll details (all hosts can view details, attendees cannot)
-    const canViewPollDetails = isPollHost || isPollCoHost;
+    const canViewPollDetails = true;
+    // isPollHost || isPollCoHost;
 
     // Determine if the user can view who voted
     // - If `pollItem.anonymous` is true, no one can view who voted
     // - If `pollItem.anonymous` is false, only hosts and co-hosts can view who voted, attendees cannot
-    const canViewWhoVoted = canViewPollDetails && !pollItem?.anonymous;
+    const canViewWhoVoted = !isPollAttendee;
+    // canViewPollDetails && !pollItem?.anonymous;
 
     return {
       isPollCreator,
