@@ -30,6 +30,7 @@ export interface StoreInterface {
   >;
   activeDeviceId: Record<MediaDeviceInfo['kind'], string>;
   whiteboardNativeInfoToast?: boolean;
+  jwtUserId?: string;
 }
 
 export interface StorageContextInterface {
@@ -39,6 +40,7 @@ export interface StorageContextInterface {
 
 export const initStoreValue: StoreInterface = {
   whiteboardNativeInfoToast: false,
+  jwtUserId: null,
   token: null,
   displayName: '',
   selectedLanguageCode: '',
