@@ -49,6 +49,7 @@ enum PollModalState {
 }
 
 enum PollTaskRequestTypes {
+  SAVE = 'SAVE',
   SEND = 'SEND',
   PUBLISH = 'PUBLISH',
   EXPORT = 'EXPORT',
@@ -56,6 +57,7 @@ enum PollTaskRequestTypes {
   VIEW_DETAILS = 'VIEW_DETAILS',
   DELETE = 'DELETE',
   SHARE = 'SHARE',
+  SYNC_COMPLETE = 'SYNC_COMPLETE',
 }
 
 interface PollItemOptionItem {
@@ -100,7 +102,6 @@ enum PollActionKind {
   SAVE_POLL_ITEM = 'SAVE_POLL_ITEM',
   ADD_POLL_ITEM = 'ADD_POLL_ITEM',
   SEND_POLL_ITEM = 'SEND_POLL_ITEM',
-  UPDATE_POLL_ITEM = 'UPDATE_POLL_ITEM',
   SUBMIT_POLL_ITEM_RESPONSES = 'SUBMIT_POLL_ITEM_RESPONSES',
   RECEIVE_POLL_ITEM_RESPONSES = 'RECEIVE_POLL_ITEM_RESPONSES',
   PUBLISH_POLL_ITEM = 'PUBLISH_POLL_ITEM',
@@ -108,6 +109,7 @@ enum PollActionKind {
   EXPORT_POLL_ITEM = 'EXPORT_POLL_ITEM',
   FINISH_POLL_ITEM = 'FINISH_POLL_ITEM',
   RESET = 'RESET',
+  SYNC_COMPLETE = 'SYNC_COMPLETE',
 }
 
 type PollAction =
@@ -115,8 +117,6 @@ type PollAction =
       type: PollActionKind.ADD_POLL_ITEM;
       payload: {
         item: PollItem;
-        latestTask: PollTaskRequestTypes;
-        latestPollId: string;
       };
     }
   | {
@@ -126,10 +126,6 @@ type PollAction =
   | {
       type: PollActionKind.SEND_POLL_ITEM;
       payload: {pollId: string};
-    }
-  | {
-      type: PollActionKind.UPDATE_POLL_ITEM;
-      payload: {pollId: string; partialItem: Partial<PollItem>};
     }
   | {
       type: PollActionKind.SUBMIT_POLL_ITEM_RESPONSES;
@@ -167,6 +163,13 @@ type PollAction =
     }
   | {
       type: PollActionKind.RESET;
+    }
+  | {
+      type: PollActionKind.SYNC_COMPLETE;
+      payload: {
+        latestTask: PollTaskRequestTypes;
+        latestPollId: string;
+      };
     };
 
 function pollReducer(state: Poll, action: PollAction): Poll {
@@ -194,13 +197,6 @@ function pollReducer(state: Poll, action: PollAction): Poll {
           status: PollStatus.ACTIVE,
           expiresAt: getPollExpiresAtTime(POLL_DURATION),
         },
-      };
-    }
-    case PollActionKind.UPDATE_POLL_ITEM: {
-      const pollId = action.payload.pollId;
-      return {
-        ...state,
-        [pollId]: {...state[pollId], ...action.payload.partialItem},
       };
     }
     case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES: {
@@ -346,6 +342,7 @@ interface PollContextValue {
     polls: Poll,
     pollId: string,
     task: PollTaskRequestTypes,
+    isInitialized: boolean,
   ) => void;
   sendResponseToPoll: (item: PollItem, responses: string | string[]) => void;
   onPollResponseReceived: (
@@ -385,34 +382,22 @@ function PollProvider({children}: {children: React.ReactNode}) {
 
   const localUid = useLocalUid();
 
-  const {savePollEvt, sendPollEvt, sendResponseToPollEvt} = usePollEvents();
+  const {syncPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   useEffect(() => {
     if (lastAction) {
       switch (lastAction.type) {
         case PollActionKind.SAVE_POLL_ITEM:
           if (lastAction.payload.item.status === PollStatus.LATER) {
-            savePollEvt(polls);
+            const {item} = lastAction.payload;
+            syncPollEvt(polls, item.id, PollTaskRequestTypes.SAVE);
             setCurrentModal(null);
-          }
-          break;
-        case PollActionKind.ADD_POLL_ITEM:
-          const {latestTask, latestPollId} = lastAction.payload;
-          if (
-            latestPollId &&
-            latestTask &&
-            polls[latestPollId] &&
-            latestTask === PollTaskRequestTypes.SEND
-          ) {
-            setSidePanel(SidePanelType.None);
-            setLaunchPollId(latestPollId);
-            setCurrentModal(PollModalState.RESPOND_TO_POLL);
           }
           break;
         case PollActionKind.SEND_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
-            sendPollEvt(polls, pollId, PollTaskRequestTypes.SEND);
+            syncPollEvt(polls, pollId, PollTaskRequestTypes.SEND);
             setCurrentModal(null);
           }
           break;
@@ -430,26 +415,39 @@ function PollProvider({children}: {children: React.ReactNode}) {
                 `i received the poll response and i am creator, saving in 
                 channel attributes. postponing save channel attributes`,
               );
-              callDebouncedSavePoll(polls);
+              callDebouncedSyncPoll(polls, pollId, PollTaskRequestTypes.SAVE);
             }
           }
           break;
         case PollActionKind.PUBLISH_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
-            sendPollEvt(polls, pollId, PollTaskRequestTypes.PUBLISH);
+            syncPollEvt(polls, pollId, PollTaskRequestTypes.PUBLISH);
           }
           break;
         case PollActionKind.FINISH_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
-            sendPollEvt(polls, pollId, PollTaskRequestTypes.FINISH);
+            syncPollEvt(polls, pollId, PollTaskRequestTypes.FINISH);
           }
           break;
         case PollActionKind.DELETE_POLL_ITEM:
           {
             const {pollId} = lastAction.payload;
-            sendPollEvt(polls, pollId, PollTaskRequestTypes.DELETE);
+            syncPollEvt(polls, pollId, PollTaskRequestTypes.DELETE);
+          }
+          break;
+        case PollActionKind.SYNC_COMPLETE:
+          const {latestTask, latestPollId} = lastAction.payload;
+          if (
+            latestPollId &&
+            latestTask &&
+            polls[latestPollId] &&
+            latestTask === PollTaskRequestTypes.SEND
+          ) {
+            setSidePanel(SidePanelType.None);
+            setLaunchPollId(latestPollId);
+            setCurrentModal(PollModalState.RESPOND_TO_POLL);
           }
           break;
         default:
@@ -477,17 +475,11 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const addPoll = (
-    item: PollItem,
-    latestTask: PollTaskRequestTypes,
-    latestPollId: string,
-  ) => {
+  const addPoll = (item: PollItem) => {
     enhancedDispatch({
       type: PollActionKind.ADD_POLL_ITEM,
       payload: {
         item: {...item},
-        latestTask,
-        latestPollId,
       },
     });
   };
@@ -519,6 +511,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     newPoll: Poll,
     pollId: string,
     task: PollTaskRequestTypes,
+    initialized: boolean,
   ) => {
     log('onPollReceived', newPoll, pollId, task);
 
@@ -551,18 +544,20 @@ function PollProvider({children}: {children: React.ReactNode}) {
         log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
 
         // Update the poll in state
-        addPoll(pollItem, task, pollId);
-
-        // Handle active poll status
-        // if (
-        //   pollItem.status === PollStatus.ACTIVE &&
-        //   !hasUserVoted(pollItem?.options || [], localUid)
-        // ) {
-        //   setSidePanel(SidePanelType.None);
-        //   setLaunchPollId(pollId);
-        //   setCurrentModal(PollModalState.RESPOND_TO_POLL);
-        // }
+        addPoll(pollItem);
       });
+
+    // Show or hide respond to poll
+    log('initialized', initialized);
+    if (initialized) {
+      enhancedDispatch({
+        type: PollActionKind.SYNC_COMPLETE,
+        payload: {
+          latestTask: task,
+          latestPollId: pollId,
+        },
+      });
+    }
   };
 
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
@@ -604,7 +599,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   const sendPollResults = (pollId: string) => {
-    sendPollEvt(polls, pollId, PollTaskRequestTypes.SHARE);
+    syncPollEvt(polls, pollId, PollTaskRequestTypes.SHARE);
   };
 
   const handlePollTaskRequest = (
@@ -662,9 +657,9 @@ function PollProvider({children}: {children: React.ReactNode}) {
   };
 
   // Define the debounced function using useMemo or useCallback
-  const callDebouncedSavePoll = useMemo(
-    () => debounce(savePollEvt, 1000),
-    [savePollEvt],
+  const callDebouncedSyncPoll = useMemo(
+    () => debounce(syncPollEvt, 5000),
+    [syncPollEvt],
   );
 
   const closeCurrentModal = () => {

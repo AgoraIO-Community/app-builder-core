@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import {Poll, PollItem, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
 import {log} from '../helpers';
@@ -6,12 +6,6 @@ import {log} from '../helpers';
 enum PollEventNames {
   polls = 'POLLS',
   pollResponse = 'POLL_RESPONSE',
-}
-enum PollEventActions {
-  sendPoll = 'SEND_POLL',
-  savePoll = 'SAVE_POLL',
-  sendResponseToPoll = 'SEND_RESONSE_TO_POLL',
-  sendPollResults = 'SEND_POLL_RESULTS',
 }
 
 type sendResponseToPollEvtFunction = (
@@ -22,12 +16,11 @@ type sendResponseToPollEvtFunction = (
 ) => void;
 
 interface PollEventsContextValue {
-  sendPollEvt: (
+  syncPollEvt: (
     polls: Poll,
     pollId: string,
     task: PollTaskRequestTypes,
   ) => void;
-  savePollEvt: (polls: Poll) => void;
   sendResponseToPollEvt: sendResponseToPollEvtFunction;
 }
 
@@ -36,18 +29,7 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  const savePollEvt = (polls: Poll) => {
-    events.send(
-      PollEventNames.polls,
-      JSON.stringify({
-        state: {...polls},
-        action: PollEventActions.savePoll,
-      }),
-      PersistanceLevel.Channel,
-    );
-  };
-
-  const sendPollEvt = (
+  const syncPollEvt = (
     polls: Poll,
     pollId: string,
     task: PollTaskRequestTypes,
@@ -56,7 +38,6 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
       PollEventNames.polls,
       JSON.stringify({
         state: {...polls},
-        action: PollEventActions.sendPoll,
         pollId: pollId,
         task,
       }),
@@ -84,8 +65,7 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
   };
 
   const value = {
-    sendPollEvt,
-    savePollEvt,
+    syncPollEvt,
     sendResponseToPollEvt,
   };
 
@@ -110,16 +90,18 @@ PollEventsSubscriberContext.displayName = 'PollEventsContext';
 
 function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
   const {onPollReceived, onPollResponseReceived} = usePoll();
+  const [isInitialized, setIsInitialized] = useState(false); // Track the initialization state
 
   useEffect(() => {
     events.on(PollEventNames.polls, args => {
       // const {payload, sender, ts} = args;
       const {payload} = args;
       const data = JSON.parse(payload);
-      const {action, state, pollId, task} = data;
+      const {state, pollId, task} = data;
       log('poll channel state received', data);
-      onPollReceived(state, pollId, task);
-      // No difference of action needed
+      // Set the initialized flag to true after the first render
+      onPollReceived(state, pollId, task, isInitialized);
+      setIsInitialized(true);
       // switch (action) {
       //   case PollEventActions.savePoll:
       //     log('on poll saved');
@@ -145,7 +127,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       events.off(PollEventNames.polls);
       events.off(PollEventNames.pollResponse);
     };
-  }, [onPollReceived, onPollResponseReceived]);
+  }, [onPollReceived, onPollResponseReceived, isInitialized]);
 
   return (
     <PollEventsSubscriberContext.Provider value={null}>
