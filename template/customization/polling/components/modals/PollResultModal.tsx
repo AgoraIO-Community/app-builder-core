@@ -111,37 +111,42 @@ export default function PollResultModal() {
                     </Text>
                   </View>
                 </View>
-                {canViewWhoVoted ? (
+                {canViewWhoVoted && (
                   <View style={style.summaryCardBody}>
-                    {option.votes.map((item, i) => (
-                      <View style={style.summaryItem} key={i}>
-                        <View style={style.titleAvatar}>
-                          <UserAvatar
-                            name={defaultContent[item.uid]?.name || 'user'}
-                            containerStyle={style.titleAvatarContainer}
-                            textStyle={style.titleAvatarContainerText}
-                          />
-                          <Text style={style.username}>
-                            {defaultContent[item.uid]?.name || 'user'}
-                          </Text>
+                    {option.votes.length > 0 ? (
+                      option.votes.map((item, i) => (
+                        <View style={style.summaryItem} key={i}>
+                          <View style={style.titleAvatar}>
+                            <UserAvatar
+                              name={defaultContent[item.uid]?.name || 'user'}
+                              containerStyle={style.titleAvatarContainer}
+                              textStyle={style.titleAvatarContainerText}
+                            />
+                            <Text style={style.username}>
+                              {defaultContent[item.uid]?.name || 'user'}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text style={[style.smallText, style.light]}>
+                              Voted {formatTimestampToTime(item.timestamp)}
+                            </Text>
+                          </View>
                         </View>
-                        <View>
-                          <Text style={[style.smallText, style.light]}>
-                            Voted {formatTimestampToTime(item.timestamp)}
-                          </Text>
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                ) : (
-                  <View>
-                    <Text style={style.descriptionText}>
-                      Individual responses are anonymous
-                    </Text>
+                      ))
+                    ) : (
+                      <Text style={[style.descriptionText, style.textCenter]}>
+                        No votes here
+                      </Text>
+                    )}
                   </View>
                 )}
               </View>
             ))}
+            {!canViewWhoVoted && (
+              <Text style={[style.descriptionText, style.textCenter]}>
+                Individual responses are anonymous
+              </Text>
+            )}
           </View>
         </View>
       </BaseModalContent>
@@ -305,5 +310,8 @@ export const style = StyleSheet.create({
     height: 5,
     borderRadius: 3,
     backgroundColor: '#7D7D7D', // TODOSUP
+  },
+  textCenter: {
+    textAlign: 'center',
   },
 });
