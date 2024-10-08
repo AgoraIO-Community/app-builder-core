@@ -826,32 +826,33 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     _stopRecording,
   ]);
 
+  //commented auto start for cloud recording
   // auto start recording
-  useEffect(() => {
-    if (
-      $config.CLOUD_RECORDING &&
-      $config.CLOUD_RECORDING_AUTO_START &&
-      callActive &&
-      !isRecordingActive &&
-      isHost &&
-      hasUserJoinedRTM &&
-      !autoStartCompleted
-    ) {
-      logger.log(
-        LogSource.Internals,
-        'RECORDING',
-        'CLOUD_RECORDING_AUTO_START triggered',
-      );
-      startRecording();
-      setAutoStartCompleted(true);
-    }
-  }, [
-    isRecordingActive,
-    isHost,
-    callActive,
-    hasUserJoinedRTM,
-    autoStartCompleted,
-  ]);
+  // useEffect(() => {
+  //   if (
+  //     $config.CLOUD_RECORDING &&
+  //     $config.CLOUD_RECORDING_AUTO_START &&
+  //     callActive &&
+  //     !isRecordingActive &&
+  //     isHost &&
+  //     hasUserJoinedRTM &&
+  //     !autoStartCompleted
+  //   ) {
+  //     logger.log(
+  //       LogSource.Internals,
+  //       'RECORDING',
+  //       'CLOUD_RECORDING_AUTO_START triggered',
+  //     );
+  //     startRecording();
+  //     setAutoStartCompleted(true);
+  //   }
+  // }, [
+  //   isRecordingActive,
+  //   isHost,
+  //   callActive,
+  //   hasUserJoinedRTM,
+  //   autoStartCompleted,
+  // ]);
 
   // useEffect(() => { //
   //   if (hasUserJoinedRTM && isRecordingBot) {
