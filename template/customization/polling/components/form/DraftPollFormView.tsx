@@ -36,7 +36,7 @@ interface Props {
   form: PollItem;
   setForm: React.Dispatch<React.SetStateAction<PollItem | null>>;
   onPreview: () => void;
-  onSave: () => void;
+  onSave: (launch?: boolean) => void;
   errors: Partial<PollFormErrors>;
   onClose: () => void;
 }
@@ -348,7 +348,7 @@ export default function DraftPollFormView({
               disabled={!form.question?.trim()}
               onPress={() => {
                 try {
-                  onSave();
+                  onSave(false);
                 } catch (error) {
                   console.error('Error saving form:', error);
                 }

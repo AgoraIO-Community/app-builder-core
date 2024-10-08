@@ -5,6 +5,7 @@ import React, {
   useState,
   useMemo,
   useRef,
+  useCallback,
 } from 'react';
 import {usePollEvents} from './poll-events';
 import {
@@ -409,6 +410,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
         case PollActionKind.SAVE_POLL_ITEM:
           log('Handling SAVE_POLL_ITEM');
           if (lastAction?.payload?.item?.status === PollStatus.LATER) {
+            log('Handling SAVE_POLL_ITEM saving poll item and syncing states');
             const {item} = lastAction.payload;
             syncPollEvt(pollsRef.current, item.id, PollTaskRequestTypes.SAVE);
             setCurrentModal(null);
@@ -551,58 +553,61 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const onPollReceived = (
-    newPoll: Poll,
-    pollId: string,
-    task: PollTaskRequestTypes,
-    initialLoad: boolean,
-  ) => {
-    log('onPollReceived', newPoll, pollId, task);
+  const onPollReceived = useCallback(
+    (
+      newPoll: Poll,
+      pollId: string,
+      task: PollTaskRequestTypes,
+      initialLoad: boolean,
+    ) => {
+      log('onPollReceived', newPoll, pollId, task);
 
-    if (!newPoll || !pollId) {
-      log('Invalid newPoll or pollId in onPollReceived:', {newPoll, pollId});
-      return;
-    }
-    const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
+      if (!newPoll || !pollId) {
+        log('Invalid newPoll or pollId in onPollReceived:', {newPoll, pollId});
+        return;
+      }
+      const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
 
-    log('Merged polls:', mergedPolls);
-    log('Deleted poll IDs:', deletedPollIds);
+      log('Merged polls:', mergedPolls);
+      log('Deleted poll IDs:', deletedPollIds);
 
-    if (Object.keys(mergedPolls).length === 0) {
-      log('No polls left after merge. Resetting state.');
-      enhancedDispatch({type: PollActionKind.RESET, payload: null});
-      return;
-    }
+      if (Object.keys(mergedPolls).length === 0) {
+        log('No polls left after merge. Resetting state.');
+        enhancedDispatch({type: PollActionKind.RESET, payload: null});
+        return;
+      }
 
-    if (localUid === newPoll[pollId]?.createdBy) {
-      log('I am the creator, no further action needed.');
-      return;
-    }
+      if (localUid === newPoll[pollId]?.createdBy) {
+        log('I am the creator, no further action needed.');
+        return;
+      }
 
-    deletedPollIds?.forEach((id: string) => {
-      log(`Deleting poll ID: ${id}`);
-      handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
-    });
-
-    log('Updating state with merged polls.');
-    Object.values(mergedPolls)
-      .filter(pollItem => pollItem.status !== PollStatus.LATER)
-      .forEach(pollItem => {
-        log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
-        addPoll(pollItem);
+      deletedPollIds?.forEach((id: string) => {
+        log(`Deleting poll ID: ${id}`);
+        handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
       });
 
-    log('Is it an initial load ?:', initialLoad);
-    if (!initialLoad) {
-      enhancedDispatch({
-        type: PollActionKind.SYNC_COMPLETE,
-        payload: {
-          latestTask: task,
-          latestPollId: pollId,
-        },
-      });
-    }
-  };
+      log('Updating state with merged polls.');
+      Object.values(mergedPolls)
+        .filter(pollItem => pollItem.status !== PollStatus.LATER)
+        .forEach(pollItem => {
+          log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
+          addPoll(pollItem);
+        });
+
+      log('Is it an initial load ?:', initialLoad);
+      if (!initialLoad) {
+        enhancedDispatch({
+          type: PollActionKind.SYNC_COMPLETE,
+          payload: {
+            latestTask: task,
+            latestPollId: pollId,
+          },
+        });
+      }
+    },
+    [],
+  );
 
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
     log('Sending response to poll:', item, responses);
@@ -626,23 +631,26 @@ function PollProvider({children}: {children: React.ReactNode}) {
     }
   };
 
-  const onPollResponseReceived = (
-    pollId: string,
-    responses: string | string[],
-    uid: number,
-    timestamp: number,
-  ) => {
-    log('Received poll response:', {pollId, responses, uid, timestamp});
-    enhancedDispatch({
-      type: PollActionKind.RECEIVE_POLL_ITEM_RESPONSES,
-      payload: {
-        id: pollId,
-        responses,
-        uid,
-        timestamp,
-      },
-    });
-  };
+  const onPollResponseReceived = useCallback(
+    (
+      pollId: string,
+      responses: string | string[],
+      uid: number,
+      timestamp: number,
+    ) => {
+      log('Received poll response:', {pollId, responses, uid, timestamp});
+      enhancedDispatch({
+        type: PollActionKind.RECEIVE_POLL_ITEM_RESPONSES,
+        payload: {
+          id: pollId,
+          responses,
+          uid,
+          timestamp,
+        },
+      });
+    },
+    [],
+  );
 
   const sendPollResults = (pollId: string) => {
     log(`Sending poll results for pollId: ${pollId}`);

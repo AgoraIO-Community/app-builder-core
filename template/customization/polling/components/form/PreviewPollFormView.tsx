@@ -43,7 +43,11 @@ export default function PreviewPollFormView({
             <View>
               <TouchableOpacity
                 onPress={() => {
-                  onEdit();
+                  try {
+                    onEdit();
+                  } catch (error) {
+                    console.error('Error editing form:', error);
+                  }
                 }}>
                 <Text style={style.editText}>Edit</Text>
               </TouchableOpacity>
@@ -77,7 +81,11 @@ export default function PreviewPollFormView({
               text="Save for later"
               textStyle={style.btnText}
               onPress={() => {
-                onSave(false);
+                try {
+                  onSave(false);
+                } catch (error) {
+                  console.error('Error saving form:', error);
+                }
               }}
             />
           </View>
@@ -87,7 +95,11 @@ export default function PreviewPollFormView({
               text="Launch Now"
               textStyle={style.btnText}
               onPress={() => {
-                onSave(true);
+                try {
+                  onSave(true);
+                } catch (error) {
+                  console.error('Error launching form:', error);
+                }
               }}
             />
           </View>
