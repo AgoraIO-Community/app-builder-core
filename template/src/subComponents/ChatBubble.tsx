@@ -61,10 +61,6 @@ type AttachmentBubbleProps = {
   containerStyle?: StyleProp<ViewStyle>; // Accepting external styles
 };
 
-type ReplyAttachmentBubbleProps = {
-  imgUrl?: string;
-} & AttachmentBubbleProps;
-
 export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   fileName,
   fileExt,
@@ -73,57 +69,6 @@ export const AttachmentBubble: React.FC<AttachmentBubbleProps> = ({
   secondaryComponent,
   containerStyle,
   msg,
-}) => {
-  const {uploadStatus} = useChatUIControls();
-
-  return (
-    <>
-      <View
-        style={[
-          containerStyle,
-          style.fileContainer,
-          isFullWidth && {width: '100%'},
-          uploadStatus === UploadStatus.FAILURE && {
-            borderColor:
-              $config.SEMANTIC_ERROR + hexadecimalTransparency['40%'],
-          },
-        ]}>
-        <View style={[style.fileBlock]}>
-          <ImageIcon
-            base64={true}
-            iconSize={24}
-            iconType="plain"
-            name={
-              fileType === ChatMessageType.IMAGE
-                ? 'chat_attachment_image'
-                : fileExt === 'pdf'
-                ? 'chat_attachment_pdf'
-                : fileExt === 'doc' || fileExt === 'docx'
-                ? 'chat_attachment_doc'
-                : 'chat_attachment_unknown'
-            }
-            tintColor={$config.SEMANTIC_NEUTRAL}
-          />
-          <Text style={style.bubbleText} numberOfLines={1} ellipsizeMode="tail">
-            {fileName}
-          </Text>
-        </View>
-        {secondaryComponent}
-      </View>
-      {msg && <Text style={[style.bubbleText, style.fileText]}>{msg}</Text>}
-    </>
-  );
-};
-
-export const ReplyAttachmentBubble: React.FC<ReplyAttachmentBubbleProps> = ({
-  fileName,
-  fileExt,
-  isFullWidth = false,
-  fileType = '',
-  secondaryComponent,
-  containerStyle,
-  msg,
-  imgUrl,
 }) => {
   const {uploadStatus} = useChatUIControls();
 
