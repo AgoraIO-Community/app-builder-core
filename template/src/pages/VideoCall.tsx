@@ -249,6 +249,15 @@ const VideoCall: React.FC = () => {
       useJoin(phrase, RoomInfoDefaultValue.roomPreference)
         .then(() => {})
         .catch(error => {
+          logger.error(LogSource.Internals, 'JOIN_MEETING', error, {
+            networkError: {
+              name: error?.networkError?.name,
+              //@ts-ignore
+              code: error?.networkError?.result?.error?.code,
+              //@ts-ignore
+              message: error?.networkError?.result?.error?.message,
+            },
+          });
           setGlobalErrorMessage(error);
           history.push('/');
         });
@@ -287,6 +296,15 @@ const VideoCall: React.FC = () => {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
       useJoin(sdkMeetingPhrase, preference).catch(error => {
+        logger.error(LogSource.Internals, 'JOIN_MEETING', error, {
+          networkError: {
+            name: error?.networkError?.name,
+            //@ts-ignore
+            code: error?.networkError?.result?.error?.code,
+            //@ts-ignore
+            message: error?.networkError?.result?.error?.message,
+          },
+        });
         setGlobalErrorMessage(error);
         history.push('/');
         currentMeetingPhrase.current = '';
