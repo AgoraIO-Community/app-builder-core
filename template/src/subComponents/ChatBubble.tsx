@@ -117,11 +117,15 @@ export const ReplyMessageBubble = ({
   showCoseIcon = false,
   showPreview = true,
 }) => {
-  const {messageStore} = useChatMessages();
+  const {messageStore, privateMessageStore} = useChatMessages();
   const {defaultContent} = useContent();
-  const {setReplyToMsgId} = useChatUIControls();
+  const {setReplyToMsgId, chatType, privateChatUser} = useChatUIControls();
   const localUid = useLocalUid();
-  const repliedMsg = messageStore.filter(msg => msg.msgId === repliedMsgId);
+  const msgStore =
+    chatType === ChatType.Group
+      ? messageStore
+      : privateMessageStore[privateChatUser];
+  const repliedMsg = msgStore.filter(msg => msg.msgId === repliedMsgId);
   const isAttachMsg = repliedMsg[0].type !== ChatMessageType.TXT;
 
   let time = formatAMPM(new Date(repliedMsg[0]?.createdTimestamp));
