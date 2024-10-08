@@ -24,6 +24,8 @@ export default function PollFormWizardModal({
   formObject,
 }: PollFormWizardModalProps) {
   const {savePoll, sendPoll, closeCurrentModal} = usePoll();
+  const [savedPollId, setSavedPollId] = useState<string | null>(null);
+
   const [step, setStep] = useState<FormWizardStep>(
     formObject ? 'DRAFT' : 'SELECT',
   );
@@ -35,6 +37,14 @@ export default function PollFormWizardModal({
 
   const localUid = useLocalUid();
   const localUidRef = useRef(localUid);
+
+  // Monitor savedPollId to send poll when it's updated
+  useEffect(() => {
+    if (savedPollId) {
+      sendPoll(savedPollId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedPollId]);
 
   useEffect(() => {
     try {
@@ -63,7 +73,7 @@ export default function PollFormWizardModal({
       };
       savePoll(payload);
       if (launch) {
-        sendPoll(payload.id);
+        setSavedPollId(payload.id);
       }
     } catch (error) {
       log('error while saving form: ', error);

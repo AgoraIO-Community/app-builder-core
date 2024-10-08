@@ -408,7 +408,6 @@ function PollProvider({children}: {children: React.ReactNode}) {
     try {
       switch (lastAction.type) {
         case PollActionKind.SAVE_POLL_ITEM:
-          log('Handling SAVE_POLL_ITEM');
           if (lastAction?.payload?.item?.status === PollStatus.LATER) {
             log('Handling SAVE_POLL_ITEM saving poll item and syncing states');
             const {item} = lastAction.payload;
