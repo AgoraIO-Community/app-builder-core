@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useMemo,
 } from 'react';
 import {Poll, PollItem, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
@@ -35,9 +36,14 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
+  // Sync poll event handler
   const syncPollEvt = useCallback(
     (polls: Poll, pollId: string, task: PollTaskRequestTypes) => {
+      log('syncPollEvt called', {polls, pollId, task});
       try {
+        if (!polls || !pollId || !task) {
+          throw new Error('Invalid arguments provided to syncPollEvt.');
+        }
         events.send(
           PollEventNames.polls,
           JSON.stringify({
@@ -47,16 +53,29 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
           }),
           PersistanceLevel.Channel,
         );
+        log('Poll sync successful', {pollId, task});
       } catch (error) {
-        console.log('error while syncing poll: ', error);
+        console.error('Error while syncing poll: ', error);
       }
     },
     [],
   );
 
+  // Send response to poll handler
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = useCallback(
     (item, responses, uid, timestamp) => {
+      log('sendResponseToPollEvt called', {item, responses, uid, timestamp});
       try {
+        if (!item || !item.id || !responses || !uid) {
+          throw new Error(
+            'Invalid arguments provided to sendResponseToPollEvt.',
+          );
+        }
+        if (!item.createdBy) {
+          throw new Error(
+            'Poll createdBy is null, cannot send response to creator',
+          );
+        }
         events.send(
           PollEventNames.pollResponse,
           JSON.stringify({
@@ -68,17 +87,21 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
           PersistanceLevel.None,
           item.createdBy,
         );
+        log('Poll response sent successfully', {pollId: item.id});
       } catch (error) {
-        console.log('error while sending a poll response level 1');
+        console.error('Error while sending a poll response: ', error);
       }
     },
     [],
   );
 
-  const value = {
-    syncPollEvt,
-    sendResponseToPollEvt,
-  };
+  const value = useMemo(
+    () => ({
+      syncPollEvt,
+      sendResponseToPollEvt,
+    }),
+    [syncPollEvt, sendResponseToPollEvt],
+  );
 
   return (
     <PollEventsContext.Provider value={value}>
@@ -107,9 +130,12 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
+    log('PollEventsSubscriber useEffect triggered. Initializing...');
+
     let initialLoadTimeout: ReturnType<typeof setTimeout>;
     // Set initialLoadTimeout only if initialLoadComplete is false
     if (!initialLoadComplete) {
+      log('Setting initial load timeout.');
       initialLoadTimeout = setTimeout(() => {
         log('Initial load timeout reached. Marking initial load as complete.');
         setInitialLoadComplete(true);
@@ -117,46 +143,56 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
     }
 
     events.on(PollEventNames.polls, args => {
-      // const {payload, sender, ts} = args;
-      const {payload} = args;
-      const data = JSON.parse(payload);
-      const {state, pollId, task} = data;
-      log('poll channel state received', data);
-      // Set the initialized flag to true after the first render
-      // Determine if it's the initial load or a runtime update
-      if (!initialized && !initialLoadComplete) {
-        log('Initial load detected');
-        // Call onPollReceived with an additional parameter or flag for initial load
-        onPollReceived(state, pollId, task, true); // true indicates it's an initial load
-        setInitialized(true);
-        // Clear the initial load timeout since we have received the initial state
-        clearTimeout(initialLoadTimeout);
-      } else {
-        log('Runtime update detected');
-        onPollReceived(state, pollId, task, false); // false indicates it's a runtime update
+      try {
+        log('PollEventNames.polls event received', args);
+        const {payload} = args;
+        const data = JSON.parse(payload);
+        const {state, pollId, task} = data;
+        log('Poll data received and parsed successfully:', data);
+        // Determine if it's the initial load or a runtime update
+        if (!initialized && !initialLoadComplete) {
+          log('Initial load detected.');
+          // Call onPollReceived with an additional parameter or flag for initial load
+          onPollReceived(state, pollId, task, true); // true indicates it's an initial load
+          setInitialized(true);
+          // Clear the initial load timeout since we have received the initial state
+          clearTimeout(initialLoadTimeout);
+        } else {
+          log('Runtime update detected');
+          onPollReceived(state, pollId, task, false); // false indicates it's a runtime update
+        }
+        // switch (action) {
+        //   case PollEventActions.savePoll:
+        //     log('on poll saved');
+        //     onPollReceived(state, pollId, task);
+        //     break;
+        //   case PollEventActions.sendPoll:
+        //     log('on poll received');
+        //     onPollReceived(state, pollId, task);
+        //     break;
+        //   default:
+        //     break;
+        // }
+      } catch (error) {
+        log('Error handling poll event:', error);
       }
-      // switch (action) {
-      //   case PollEventActions.savePoll:
-      //     log('on poll saved');
-      //     onPollReceived(state, pollId, task);
-      //     break;
-      //   case PollEventActions.sendPoll:
-      //     log('on poll received');
-      //     onPollReceived(state, pollId, task);
-      //     break;
-      //   default:
-      //     break;
-      // }
     });
     events.on(PollEventNames.pollResponse, args => {
-      const {payload} = args;
-      const data = JSON.parse(payload);
-      log('poll response received', data);
-      const {id, responses, uid, timestamp} = data;
-      onPollResponseReceived(id, responses, uid, timestamp);
+      try {
+        log('PollEventNames.pollResponse event received', args);
+        const {payload} = args;
+        const data = JSON.parse(payload);
+        log('poll response received', data);
+        const {id, responses, uid, timestamp} = data;
+        log('Poll response data parsed successfully:', data);
+        onPollResponseReceived(id, responses, uid, timestamp);
+      } catch (error) {
+        log('Error handling poll response event:', error);
+      }
     });
 
     return () => {
+      log('Cleaning up PollEventsSubscriber event listeners.');
       events.off(PollEventNames.polls);
       events.off(PollEventNames.pollResponse);
       clearTimeout(initialLoadTimeout);

@@ -396,7 +396,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     log('useEffect for lastAction triggered', lastAction);
 
     if (!lastAction) {
-      log('No last action to process. Exiting useEffect.');
+      log('No lastAction to process. Exiting useEffect.');
       return;
     }
     if (!pollsRef?.current) {
