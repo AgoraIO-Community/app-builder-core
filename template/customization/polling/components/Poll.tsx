@@ -26,7 +26,10 @@ function Poll({children}: {children?: React.ReactNode}) {
 function PollModals() {
   const {currentModal, launchPollId, viewResultPollId, polls, editFormObject} =
     usePoll();
-  log('polls data changed: ', polls);
+  // Log only in development mode to prevent performance hits
+  if (process.env.NODE_ENV === 'development') {
+    log('polls data changed: ', polls);
+  }
   return (
     <>
       {currentModal === PollModalState.DRAFT_POLL && (

@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, {useCallback, useReducer, useEffect} from 'react';
 import {
   BaseModalTitle,
   BaseModalContent,
@@ -41,6 +41,43 @@ interface Props {
   onClose: () => void;
 }
 
+// Define the form action types and reducer for state management
+const formReducer = (
+  state: PollItem,
+  action: {type: string; payload?: any},
+) => {
+  switch (action.type) {
+    case 'UPDATE_FIELD':
+      return {...state, [action.payload.field]: action.payload.value};
+    case 'UPDATE_OPTION':
+      return {
+        ...state,
+        options: state.options?.map((option, index) =>
+          index === action.payload.index
+            ? {...option, ...action.payload.option}
+            : option,
+        ),
+      };
+    case 'ADD_OPTION':
+      return {
+        ...state,
+        options: [
+          ...(state.options || []),
+          {text: '', value: '', votes: [], percent: '0'},
+        ],
+      };
+    case 'DELETE_OPTION':
+      return {
+        ...state,
+        options:
+          state.options?.filter((_, index) => index !== action.payload.index) ||
+          [],
+      };
+    default:
+      return state;
+  }
+};
+
 export default function DraftPollFormView({
   form,
   setForm,
@@ -49,86 +86,94 @@ export default function DraftPollFormView({
   onClose,
   onSave,
 }: Props) {
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setForm({
-      ...form,
-      [field]: value,
-    });
-  };
+  // Create reducer for form state management
+  const [formState, dispatch] = useReducer(formReducer, form);
 
-  const handleCheckboxChange = (field: keyof typeof form, value: boolean) => {
-    if (field === 'anonymous' && value) {
-      setForm({
-        ...form,
-        [field]: value,
-        share_attendee: false,
-        share_host: false,
-      });
-      return;
-    } else if (field === 'share_attendee' || field === 'share_host') {
-      if (value) {
-        setForm({
-          ...form,
-          [field]: value,
-          anonymous: false,
-        });
-        return;
+  // Synchronize formState with the parent component using useEffect
+  useEffect(() => {
+    setForm(formState);
+  }, [formState, setForm]); // Ensure setForm and formState are dependencies
+
+  // Memoize input change handler to avoid re-creating on every render
+  const handleInputChange = useCallback(
+    (field: string, value: string | boolean) => {
+      try {
+        dispatch({type: 'UPDATE_FIELD', payload: {field, value}});
+      } catch (error) {
+        console.error(`Error updating field ${field}:`, error);
       }
-    }
-    setForm({
-      ...form,
-      [field]: value,
-    });
-  };
+    },
+    [dispatch],
+  );
 
-  const updateFormOption = (
-    action: 'update' | 'delete' | 'add',
-    value: string,
-    index: number,
-  ) => {
-    if (action === 'add') {
-      setForm({
-        ...form,
-        options: [
-          ...(form.options || []),
-          {
-            text: '',
-            value: '',
-            votes: [],
-            percent: '0',
-          },
-        ],
-      });
-    }
-    if (action === 'update') {
-      setForm({
-        ...form,
-        options: form.options?.map((option, i) => {
-          if (i === index) {
+  // Memoize checkbox change handler
+  const handleCheckboxChange = useCallback(
+    (field: keyof PollItem, value: boolean) => {
+      try {
+        if (field === 'anonymous' && value) {
+          dispatch({
+            type: 'UPDATE_FIELD',
+            payload: {field, value},
+          });
+          dispatch({
+            type: 'UPDATE_FIELD',
+            payload: {field: 'share_attendee', value: false},
+          });
+          dispatch({
+            type: 'UPDATE_FIELD',
+            payload: {field: 'share_host', value: false},
+          });
+        } else if (field === 'share_attendee' || field === 'share_host') {
+          if (value) {
+            dispatch({
+              type: 'UPDATE_FIELD',
+              payload: {field, value},
+            });
+            dispatch({
+              type: 'UPDATE_FIELD',
+              payload: {field: 'anonymous', value: false},
+            });
+          }
+        } else {
+          dispatch({type: 'UPDATE_FIELD', payload: {field, value}});
+        }
+      } catch (error) {
+        console.error('Error updating checkbox state:', error);
+      }
+    },
+    [dispatch],
+  );
+
+  // Memoize form option update handler
+  const updateFormOption = useCallback(
+    (action: 'update' | 'delete' | 'add', value: string, index: number) => {
+      try {
+        switch (action) {
+          case 'add':
+            dispatch({type: 'ADD_OPTION'});
+            break;
+          case 'update':
             const text = value.trim();
             const lowerText = text
               .replace(/\s+/g, '-')
               .toLowerCase()
               .concat('-')
               .concat(nanoid(2));
-            return {
-              ...option,
-              text: text,
-              value: lowerText,
-              votes: [],
-            };
-          }
-          return option;
-        }),
-      });
-    }
-    if (action === 'delete') {
-      setForm({
-        ...form,
-        options: form.options?.filter((option, i) => i !== index) || [],
-      });
-    }
-  };
+            dispatch({
+              type: 'UPDATE_OPTION',
+              payload: {index, option: {text, value: lowerText, votes: []}},
+            });
+            break;
+          case 'delete':
+            dispatch({type: 'DELETE_OPTION', payload: {index}});
+            break;
+        }
+      } catch (error) {
+        console.error('Error updating form options:', error);
+      }
+    },
+    [dispatch],
+  );
 
   return (
     <>
@@ -302,7 +347,11 @@ export default function DraftPollFormView({
               text="Save for later"
               disabled={!form.question?.trim()}
               onPress={() => {
-                onSave();
+                try {
+                  onSave();
+                } catch (error) {
+                  console.error('Error saving form:', error);
+                }
               }}
             />
           </View>
@@ -313,7 +362,11 @@ export default function DraftPollFormView({
               disabled={!form.question?.trim()}
               textStyle={style.btnText}
               onPress={() => {
-                onPreview();
+                try {
+                  onPreview();
+                } catch (error) {
+                  console.error('Error previewing form:', error);
+                }
               }}
             />
           </View>

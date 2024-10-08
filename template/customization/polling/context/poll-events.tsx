@@ -130,7 +130,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
-    log('PollEventsSubscriber useEffect triggered. Initializing...');
+    log('PollEventsSubscriber useEffect triggered.');
 
     let initialLoadTimeout: ReturnType<typeof setTimeout>;
     // Set initialLoadTimeout only if initialLoadComplete is false

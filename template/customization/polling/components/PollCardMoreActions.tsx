@@ -45,20 +45,20 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
       },
     });
 
-  status === PollStatus.ACTIVE &&
-    actionMenuItems.push({
-      icon: 'share',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Publish Result',
-      titleStyle: {
-        fontSize: ThemeConfig.FontSize.small,
-      },
-      onPress: () => {
-        onCardActionSelect(PollTaskRequestTypes.PUBLISH);
-        setActionMenuVisible(false);
-      },
-    });
+  // status === PollStatus.ACTIVE &&
+  //   actionMenuItems.push({
+  //     icon: 'share',
+  //     iconColor: $config.SECONDARY_ACTION_COLOR,
+  //     textColor: $config.FONT_COLOR,
+  //     title: 'Publish Result',
+  //     titleStyle: {
+  //       fontSize: ThemeConfig.FontSize.small,
+  //     },
+  //     onPress: () => {
+  //       onCardActionSelect(PollTaskRequestTypes.PUBLISH);
+  //       setActionMenuVisible(false);
+  //     },
+  //   });
 
   status !== PollStatus.LATER &&
     actionMenuItems.push({
@@ -129,8 +129,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
         },
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actionMenuVisible]);
+  }, [actionMenuVisible, globalWidth, globalHeight, moreBtnRef]);
 
   return (
     <>
