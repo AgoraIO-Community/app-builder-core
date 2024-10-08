@@ -58,6 +58,13 @@ export default function useGetMeetingPhrase() {
         'Query GET_MEETING_PHRASE failed',
         response.error,
         {
+          networkError: {
+            name: response?.error?.networkError?.name,
+            //@ts-ignore
+            code: response?.error?.networkError?.result?.error?.code,
+            //@ts-ignore
+            message: response?.error?.networkError?.result?.error?.message,
+          },
           requestId,
           startReqTs,
           endReqTs,

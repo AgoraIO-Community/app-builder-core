@@ -54,7 +54,19 @@ const useMutePSTN = () => {
           'MUTE_PSTN',
           'Mutation MUTE_PSTN success',
           error,
-          {startReqTs, endReqTs, latency: endReqTs - startReqTs, requestId},
+          {
+            networkError: {
+              name: error?.networkError?.name,
+              //@ts-ignore
+              code: error?.networkError?.result?.error?.code,
+              //@ts-ignore
+              message: error?.networkError?.result?.error?.message,
+            },
+            startReqTs,
+            endReqTs,
+            latency: endReqTs - startReqTs,
+            requestId,
+          },
         );
         throw error;
       } else {
