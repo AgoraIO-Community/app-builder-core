@@ -41,10 +41,17 @@ enum PollKind {
   NONE = 'NONE',
 }
 
-enum PollModalState {
+enum PollModalType {
+  NONE = 'NONE',
   DRAFT_POLL = 'DRAFT_POLL',
   RESPOND_TO_POLL = 'RESPOND_TO_POLL',
   VIEW_POLL_RESULTS = 'VIEW_POLL_RESULTS',
+  END_POLL_CONFIRMATION = 'END_POLL_CONFIRMATION',
+}
+
+interface PollModalState {
+  modalType: PollModalType;
+  id: string;
 }
 
 enum PollTaskRequestTypes {
@@ -53,6 +60,7 @@ enum PollTaskRequestTypes {
   PUBLISH = 'PUBLISH',
   EXPORT = 'EXPORT',
   FINISH = 'FINISH',
+  FINISH_CONFIRMATION = 'FINISH_CONFIRMATION',
   VIEW_DETAILS = 'VIEW_DETAILS',
   DELETE = 'DELETE',
   SHARE = 'SHARE',
@@ -332,9 +340,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
 
 interface PollContextValue {
   polls: Poll;
-  currentModal: PollModalState | null;
   startPollForm: () => void;
-  editFormObject: PollItem;
   editPollForm: (pollId: string) => void;
   savePoll: (item: PollItem) => void;
   sendPoll: (pollId: string) => void;
@@ -351,9 +357,8 @@ interface PollContextValue {
     uid: number,
     timestamp: number,
   ) => void;
-  launchPollId: string | null;
-  viewResultPollId: string | null;
   sendPollResults: (pollId: string) => void;
+  modalState: PollModalState;
   closeCurrentModal: () => void;
   isHost: boolean;
   handlePollTaskRequest: (task: PollTaskRequestTypes, pollId: string) => void;
@@ -364,10 +369,10 @@ PollContext.displayName = 'PollContext';
 
 function PollProvider({children}: {children: React.ReactNode}) {
   const [polls, dispatch] = useReducer(pollReducer, {});
-  const [currentModal, setCurrentModal] = useState<PollModalState | null>(null);
-  const [editFormObject, setEditFormObject] = useState<PollItem | null>(null);
-  const [launchPollId, setLaunchPollId] = useState<string | null>(null);
-  const [viewResultPollId, setViewResultPollId] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<PollModalState>({
+    modalType: PollModalType.NONE,
+    id: null,
+  });
   const [lastAction, setLastAction] = useState<PollAction | null>(null);
   const {setSidePanel} = useSidePanel();
   const {
@@ -393,6 +398,14 @@ function PollProvider({children}: {children: React.ReactNode}) {
     setLastAction(action);
   };
 
+  const closeCurrentModal = useCallback(() => {
+    log('Closing current modal.');
+    setModalState({
+      modalType: PollModalType.NONE,
+      id: null,
+    });
+  }, []);
+
   useEffect(() => {
     log('useEffect for lastAction triggered', lastAction);
 
@@ -412,7 +425,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
             log('Handling SAVE_POLL_ITEM saving poll item and syncing states');
             const {item} = lastAction.payload;
             syncPollEvt(pollsRef.current, item.id, PollTaskRequestTypes.SAVE);
-            setCurrentModal(null);
+            closeCurrentModal();
           }
           break;
         case PollActionKind.SEND_POLL_ITEM:
@@ -421,7 +434,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
             const {pollId} = lastAction.payload;
             if (pollId && pollsRef.current[pollId]) {
               syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.SEND);
-              setCurrentModal(null);
+              closeCurrentModal();
             } else {
               log('Invalid pollId or poll not found in state:', pollId);
             }
@@ -470,6 +483,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
           {
             const {pollId} = lastAction.payload;
             syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.FINISH);
+            closeCurrentModal();
           }
           break;
         case PollActionKind.DELETE_POLL_ITEM:
@@ -489,8 +503,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
             latestTask === PollTaskRequestTypes.SEND
           ) {
             setSidePanel(SidePanelType.None);
-            setLaunchPollId(latestPollId);
-            setCurrentModal(PollModalState.RESPOND_TO_POLL);
+            setModalState({
+              modalType: PollModalType.RESPOND_TO_POLL,
+              id: latestPollId,
+            });
           }
           break;
         default:
@@ -507,18 +523,24 @@ function PollProvider({children}: {children: React.ReactNode}) {
     syncPollEvt,
     sendResponseToPollEvt,
     callDebouncedSyncPoll,
+    closeCurrentModal,
   ]);
 
   const startPollForm = () => {
     log('Opening draft poll modal.');
-    setCurrentModal(PollModalState.DRAFT_POLL);
+    setModalState({
+      modalType: PollModalType.DRAFT_POLL,
+      id: null,
+    });
   };
 
   const editPollForm = (pollId: string) => {
     if (polls[pollId]) {
       log(`Editing poll form for pollId: ${pollId}`);
-      setCurrentModal(PollModalState.DRAFT_POLL);
-      setEditFormObject({...polls[pollId]});
+      setModalState({
+        modalType: PollModalType.DRAFT_POLL,
+        id: pollId,
+      });
     } else {
       log(`Poll not found for edit: ${pollId}`);
     }
@@ -552,61 +574,58 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
   };
 
-  const onPollReceived = useCallback(
-    (
-      newPoll: Poll,
-      pollId: string,
-      task: PollTaskRequestTypes,
-      initialLoad: boolean,
-    ) => {
-      log('onPollReceived', newPoll, pollId, task);
+  const onPollReceived = (
+    newPoll: Poll,
+    pollId: string,
+    task: PollTaskRequestTypes,
+    initialLoad: boolean,
+  ) => {
+    log('onPollReceived', newPoll, pollId, task);
 
-      if (!newPoll || !pollId) {
-        log('Invalid newPoll or pollId in onPollReceived:', {newPoll, pollId});
-        return;
-      }
-      const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
+    if (!newPoll || !pollId) {
+      log('Invalid newPoll or pollId in onPollReceived:', {newPoll, pollId});
+      return;
+    }
+    const {mergedPolls, deletedPollIds} = mergePolls(newPoll, polls);
 
-      log('Merged polls:', mergedPolls);
-      log('Deleted poll IDs:', deletedPollIds);
+    log('Merged polls:', mergedPolls);
+    log('Deleted poll IDs:', deletedPollIds);
 
-      if (Object.keys(mergedPolls).length === 0) {
-        log('No polls left after merge. Resetting state.');
-        enhancedDispatch({type: PollActionKind.RESET, payload: null});
-        return;
-      }
+    if (Object.keys(mergedPolls).length === 0) {
+      log('No polls left after merge. Resetting state.');
+      enhancedDispatch({type: PollActionKind.RESET, payload: null});
+      return;
+    }
 
-      if (localUid === newPoll[pollId]?.createdBy) {
-        log('I am the creator, no further action needed.');
-        return;
-      }
+    if (localUid === newPoll[pollId]?.createdBy) {
+      log('I am the creator, no further action needed.');
+      return;
+    }
 
-      deletedPollIds?.forEach((id: string) => {
-        log(`Deleting poll ID: ${id}`);
-        handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
+    deletedPollIds?.forEach((id: string) => {
+      log(`Deleting poll ID: ${id}`);
+      handlePollTaskRequest(PollTaskRequestTypes.DELETE, id);
+    });
+
+    log('Updating state with merged polls.');
+    Object.values(mergedPolls)
+      .filter(pollItem => pollItem.status !== PollStatus.LATER)
+      .forEach(pollItem => {
+        log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
+        addPoll(pollItem);
       });
 
-      log('Updating state with merged polls.');
-      Object.values(mergedPolls)
-        .filter(pollItem => pollItem.status !== PollStatus.LATER)
-        .forEach(pollItem => {
-          log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
-          addPoll(pollItem);
-        });
-
-      log('Is it an initial load ?:', initialLoad);
-      if (!initialLoad) {
-        enhancedDispatch({
-          type: PollActionKind.SYNC_COMPLETE,
-          payload: {
-            latestTask: task,
-            latestPollId: pollId,
-          },
-        });
-      }
-    },
-    [],
-  );
+    log('Is it an initial load ?:', initialLoad);
+    if (!initialLoad) {
+      enhancedDispatch({
+        type: PollActionKind.SYNC_COMPLETE,
+        payload: {
+          latestTask: task,
+          latestPollId: pollId,
+        },
+      });
+    }
+  };
 
   const sendResponseToPoll = (item: PollItem, responses: string | string[]) => {
     log('Sending response to poll:', item, responses);
@@ -630,26 +649,23 @@ function PollProvider({children}: {children: React.ReactNode}) {
     }
   };
 
-  const onPollResponseReceived = useCallback(
-    (
-      pollId: string,
-      responses: string | string[],
-      uid: number,
-      timestamp: number,
-    ) => {
-      log('Received poll response:', {pollId, responses, uid, timestamp});
-      enhancedDispatch({
-        type: PollActionKind.RECEIVE_POLL_ITEM_RESPONSES,
-        payload: {
-          id: pollId,
-          responses,
-          uid,
-          timestamp,
-        },
-      });
-    },
-    [],
-  );
+  const onPollResponseReceived = (
+    pollId: string,
+    responses: string | string[],
+    uid: number,
+    timestamp: number,
+  ) => {
+    log('Received poll response:', {pollId, responses, uid, timestamp});
+    enhancedDispatch({
+      type: PollActionKind.RECEIVE_POLL_ITEM_RESPONSES,
+      payload: {
+        id: pollId,
+        responses,
+        uid,
+        timestamp,
+      },
+    });
+  };
 
   const sendPollResults = (pollId: string) => {
     log(`Sending poll results for pollId: ${pollId}`);
@@ -660,6 +676,17 @@ function PollProvider({children}: {children: React.ReactNode}) {
     task: PollTaskRequestTypes,
     pollId: string,
   ) => {
+    if (!pollId || !polls[pollId]) {
+      log(
+        'handlePollTaskRequest: Invalid pollId  or poll not found for handling',
+        pollId,
+      );
+      return;
+    }
+    if (!(task in PollTaskRequestTypes)) {
+      log('handlePollTaskRequest: Invalid valid task', task);
+      return;
+    }
     log(`Handling poll task request: ${task} for pollId: ${pollId}`);
     switch (task) {
       case PollTaskRequestTypes.SEND:
@@ -668,9 +695,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
       case PollTaskRequestTypes.SHARE:
         break;
       case PollTaskRequestTypes.VIEW_DETAILS:
-        closeCurrentModal();
-        setViewResultPollId(pollId);
-        setCurrentModal(PollModalState.VIEW_POLL_RESULTS);
+        setModalState({
+          modalType: PollModalType.VIEW_POLL_RESULTS,
+          id: pollId,
+        });
         break;
       case PollTaskRequestTypes.PUBLISH:
         enhancedDispatch({
@@ -682,6 +710,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
         enhancedDispatch({
           type: PollActionKind.DELETE_POLL_ITEM,
           payload: {pollId},
+        });
+        break;
+      case PollTaskRequestTypes.FINISH_CONFIRMATION:
+        setModalState({
+          modalType: PollModalType.END_POLL_CONFIRMATION,
+          id: pollId,
         });
         break;
       case PollTaskRequestTypes.FINISH:
@@ -697,36 +731,23 @@ function PollProvider({children}: {children: React.ReactNode}) {
         });
         break;
       default:
+        log(`Unhandled task type: ${task}`);
         break;
     }
-  };
-
-  const closeCurrentModal = () => {
-    log('Closing current modal.');
-    if (currentModal === PollModalState.RESPOND_TO_POLL) {
-      setLaunchPollId(null);
-    }
-    if (currentModal === PollModalState.VIEW_POLL_RESULTS) {
-      setViewResultPollId(null);
-    }
-    setCurrentModal(null);
   };
 
   const value = {
     polls,
     startPollForm,
-    editFormObject,
     editPollForm,
     sendPoll,
     savePoll,
     onPollReceived,
     onPollResponseReceived,
-    currentModal,
-    launchPollId,
-    viewResultPollId,
     sendResponseToPoll,
     sendPollResults,
     handlePollTaskRequest,
+    modalState,
     closeCurrentModal,
     isHost,
   };
@@ -748,7 +769,7 @@ export {
   PollActionKind,
   PollKind,
   PollStatus,
-  PollModalState,
+  PollModalType,
   PollTaskRequestTypes,
 };
 

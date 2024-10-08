@@ -17,16 +17,12 @@ import {getPollTypeDesc} from '../../helpers';
 import {ThemeConfig, $config, TertiaryButton} from 'customization-api';
 import {usePollForm} from '../../hook/usePollForm';
 
-export default function PollResponseFormModal() {
-  const {
-    polls,
-    launchPollId,
-    sendResponseToPoll,
-    closeCurrentModal,
-    handlePollTaskRequest,
-  } = usePoll();
-
+export default function PollResponseFormModal({pollId}: {pollId: string}) {
+  const {polls, sendResponseToPoll, closeCurrentModal, handlePollTaskRequest} =
+    usePoll();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
+
+  const pollItem = polls[pollId];
 
   const onFormSubmit = (responses: string | string[]) => {
     sendResponseToPoll(pollItem, responses);
@@ -39,9 +35,6 @@ export default function PollResponseFormModal() {
       setHasResponded(true);
     }
   };
-
-  // Check if launchPollId is valid and if the poll exists in the polls object
-  const pollItem = launchPollId ? polls[launchPollId] : null;
 
   const {
     onSubmit,
@@ -61,19 +54,6 @@ export default function PollResponseFormModal() {
     onFormSubmitComplete,
   });
 
-  if (!pollItem) {
-    return (
-      <BaseModal visible={true} onClose={closeCurrentModal}>
-        <BaseModalTitle>
-          <p>No poll available</p>
-          <BaseModalCloseIcon onClose={closeCurrentModal} />
-        </BaseModalTitle>
-        <BaseModalContent>
-          <p>Poll data is not available or invalid.</p>
-        </BaseModalContent>
-      </BaseModal>
-    );
-  }
   return (
     <BaseModal visible={true} onClose={closeCurrentModal}>
       <BaseModalTitle
@@ -102,6 +82,7 @@ export default function PollResponseFormModal() {
               answer={answer}
               pollItem={pollItem}
               submitted={buttonStatus === 'submitted'}
+              submitting={buttonStatus === 'submitting'}
             />
           </>
         )}

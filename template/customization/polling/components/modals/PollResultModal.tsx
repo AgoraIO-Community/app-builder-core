@@ -28,30 +28,13 @@ import {
 } from '../../helpers';
 import {usePollPermissions} from '../../hook/usePollPermissions';
 
-export default function PollResultModal() {
-  const {polls, viewResultPollId, closeCurrentModal, handlePollTaskRequest} =
-    usePoll();
+export default function PollResultModal({pollId}: {pollId: string}) {
+  const {polls, closeCurrentModal, handlePollTaskRequest} = usePoll();
   const localUid = useLocalUid();
   const {defaultContent} = useContent();
 
-  // Check if viewResultPollId is valid and if the poll exists in the polls object
-  const pollItem = viewResultPollId ? polls[viewResultPollId] : null;
-
+  const pollItem = polls[pollId];
   const {canViewWhoVoted} = usePollPermissions({pollItem});
-
-  if (!pollItem) {
-    return (
-      <BaseModal visible={true} onClose={closeCurrentModal}>
-        <BaseModalTitle>
-          <p>No poll available</p>
-          <BaseModalCloseIcon onClose={closeCurrentModal} />
-        </BaseModalTitle>
-        <BaseModalContent>
-          <p>Poll data is not available or invalid.</p>
-        </BaseModalContent>
-      </BaseModal>
-    );
-  }
 
   return (
     <BaseModal visible={true} onClose={closeCurrentModal}>

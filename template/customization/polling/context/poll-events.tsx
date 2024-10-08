@@ -5,6 +5,7 @@ import React, {
   useState,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
 import {Poll, PollItem, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
@@ -129,9 +130,23 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
   const [initialized, setInitialized] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  useEffect(() => {
-    log('PollEventsSubscriber useEffect triggered.');
+  // Use refs to hold the stable references of callbacks
+  const onPollReceivedRef = useRef(onPollReceived);
+  const onPollResponseReceivedRef = useRef(onPollResponseReceived);
 
+  // Keep refs updated with latest callbacks
+  useEffect(() => {
+    onPollReceivedRef.current = onPollReceived;
+    onPollResponseReceivedRef.current = onPollResponseReceived;
+  }, [onPollReceived, onPollResponseReceived]);
+
+  useEffect(() => {
+    if (!onPollReceivedRef.current || !onPollResponseReceivedRef.current) {
+      log('PollEventsSubscriber ref not intialized.');
+      return;
+    }
+    log('PollEventsSubscriber useEffect triggered.');
+    log('PollEventsSubscriber is app initialized ?', initialized);
     let initialLoadTimeout: ReturnType<typeof setTimeout>;
     // Set initialLoadTimeout only if initialLoadComplete is false
     if (!initialLoadComplete) {
@@ -153,13 +168,13 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
         if (!initialized && !initialLoadComplete) {
           log('Initial load detected.');
           // Call onPollReceived with an additional parameter or flag for initial load
-          onPollReceived(state, pollId, task, true); // true indicates it's an initial load
+          onPollReceivedRef.current(state, pollId, task, true); // true indicates it's an initial load
           setInitialized(true);
           // Clear the initial load timeout since we have received the initial state
           clearTimeout(initialLoadTimeout);
         } else {
           log('Runtime update detected');
-          onPollReceived(state, pollId, task, false); // false indicates it's a runtime update
+          onPollReceivedRef.current(state, pollId, task, false); // false indicates it's a runtime update
         }
         // switch (action) {
         //   case PollEventActions.savePoll:
@@ -185,7 +200,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
         log('poll response received', data);
         const {id, responses, uid, timestamp} = data;
         log('Poll response data parsed successfully:', data);
-        onPollResponseReceived(id, responses, uid, timestamp);
+        onPollResponseReceivedRef.current(id, responses, uid, timestamp);
       } catch (error) {
         log('Error handling poll response event:', error);
       }
@@ -197,12 +212,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       events.off(PollEventNames.pollResponse);
       clearTimeout(initialLoadTimeout);
     };
-  }, [
-    onPollReceived,
-    onPollResponseReceived,
-    initialized,
-    initialLoadComplete,
-  ]);
+  }, [initialized, initialLoadComplete]);
 
   return (
     <PollEventsSubscriberContext.Provider value={null}>

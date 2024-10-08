@@ -75,20 +75,20 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
       },
     });
 
-  // actionMenuItems.push({
-  //   icon: 'close',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Finish Poll',
-  //   titleStyle: {
-  //     fontSize: ThemeConfig.FontSize.small,
-  //   },
-  //   disabled: status === PollStatus.LATER || status === PollStatus.FINISHED,
-  //   onPress: () => {
-  //     onCardActionSelect(PollTaskRequestTypes.FINISH);
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  actionMenuItems.push({
+    icon: 'close',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Finish Poll',
+    titleStyle: {
+      fontSize: ThemeConfig.FontSize.small,
+    },
+    disabled: status !== PollStatus.ACTIVE,
+    onPress: () => {
+      onCardActionSelect(PollTaskRequestTypes.FINISH_CONFIRMATION);
+      setActionMenuVisible(false);
+    },
+  });
 
   actionMenuItems.push({
     icon: 'delete',
