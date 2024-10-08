@@ -56,6 +56,7 @@ export default function useCreateRoom(): createRoomFun {
       context: {
         headers: {
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
       },
       variables: {

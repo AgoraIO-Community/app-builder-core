@@ -116,6 +116,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           context: {
             headers: {
               'X-Request-Id': requestId,
+              'X-Session-Id': logger.getSessionId(),
             },
           },
           variables: {

@@ -34,6 +34,7 @@ const useMutePSTN = () => {
           context: {
             headers: {
               'X-Request-Id': requestId,
+              'X-Session-Id': logger.getSessionId(),
             },
           },
           variables: {

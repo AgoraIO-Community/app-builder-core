@@ -309,6 +309,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         context: {
           headers: {
             'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
           },
         },
       });
@@ -515,6 +516,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         credentials: 'include',
         headers: {
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
       })
         .then(response => response.json())

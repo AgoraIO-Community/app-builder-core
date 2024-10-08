@@ -128,6 +128,7 @@ export default function useJoinRoom() {
           context: {
             headers: {
               'X-Request-Id': requestId,
+              'X-Session-Id': logger.getSessionId(),
             },
           },
           query:

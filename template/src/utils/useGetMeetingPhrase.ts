@@ -42,6 +42,7 @@ export default function useGetMeetingPhrase() {
       context: {
         headers: {
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
       },
       query: SHARE,
