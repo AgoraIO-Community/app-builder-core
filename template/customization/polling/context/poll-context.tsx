@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useMemo,
+  useRef,
 } from 'react';
 import {usePollEvents} from './poll-events';
 import {
@@ -368,12 +369,22 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const [viewResultPollId, setViewResultPollId] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<PollAction | null>(null);
   const {setSidePanel} = useSidePanel();
-
   const {
     data: {isHost},
   } = useRoomInfo();
   const localUid = useLocalUid();
   const {syncPollEvt, sendResponseToPollEvt} = usePollEvents();
+
+  const callDebouncedSyncPoll = useMemo(
+    () => debounce(syncPollEvt, 800),
+    [syncPollEvt],
+  );
+
+  const pollsRef = useRef(polls);
+
+  useEffect(() => {
+    pollsRef.current = polls; // Update the ref whenever polls changes
+  }, [polls]);
 
   const enhancedDispatch = (action: PollAction) => {
     log(`Dispatching action: ${action.type} with payload:`, action.payload);
@@ -388,6 +399,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
       log('No last action to process. Exiting useEffect.');
       return;
     }
+    if (!pollsRef?.current) {
+      log('PollsRef.current is undefined or null');
+      return;
+    }
 
     try {
       switch (lastAction.type) {
@@ -395,7 +410,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
           log('Handling SAVE_POLL_ITEM');
           if (lastAction?.payload?.item?.status === PollStatus.LATER) {
             const {item} = lastAction.payload;
-            syncPollEvt(polls, item.id, PollTaskRequestTypes.SAVE);
+            syncPollEvt(pollsRef.current, item.id, PollTaskRequestTypes.SAVE);
             setCurrentModal(null);
           }
           break;
@@ -403,8 +418,8 @@ function PollProvider({children}: {children: React.ReactNode}) {
           {
             log('Handling SEND_POLL_ITEM');
             const {pollId} = lastAction.payload;
-            if (pollId && polls[pollId]) {
-              syncPollEvt(polls, pollId, PollTaskRequestTypes.SEND);
+            if (pollId && pollsRef.current[pollId]) {
+              syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.SEND);
               setCurrentModal(null);
             } else {
               log('Invalid pollId or poll not found in state:', pollId);
@@ -414,12 +429,17 @@ function PollProvider({children}: {children: React.ReactNode}) {
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
           log('Handling SUBMIT_POLL_ITEM_RESPONSES');
           const {id, responses, uid, timestamp} = lastAction.payload;
-          if (localUid === polls[id]?.createdBy) {
+          if (localUid === pollsRef.current[id]?.createdBy) {
             log('No need to send event. User is the poll creator.');
             return;
           }
-          if (localUid && uid && polls[id]) {
-            sendResponseToPollEvt(polls[id], responses, uid, timestamp);
+          if (localUid && uid && pollsRef.current[id]) {
+            sendResponseToPollEvt(
+              pollsRef.current[id],
+              responses,
+              uid,
+              timestamp,
+            );
           } else {
             log('Missing uid, localUid, or poll data for submit response.');
           }
@@ -427,11 +447,11 @@ function PollProvider({children}: {children: React.ReactNode}) {
         case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:
           log('Handling RECEIVE_POLL_ITEM_RESPONSES');
           const {id: receivedPollId} = lastAction.payload;
-          const pollCreator = polls[receivedPollId]?.createdBy;
+          const pollCreator = pollsRef.current[receivedPollId]?.createdBy;
           if (localUid === pollCreator) {
             log('Received poll response, user is the creator. Syncing...');
             callDebouncedSyncPoll(
-              polls,
+              pollsRef.current,
               receivedPollId,
               PollTaskRequestTypes.SAVE,
             );
@@ -441,21 +461,21 @@ function PollProvider({children}: {children: React.ReactNode}) {
           log('Handling PUBLISH_POLL_ITEM');
           {
             const {pollId} = lastAction.payload;
-            syncPollEvt(polls, pollId, PollTaskRequestTypes.PUBLISH);
+            syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.PUBLISH);
           }
           break;
         case PollActionKind.FINISH_POLL_ITEM:
           log('Handling FINISH_POLL_ITEM');
           {
             const {pollId} = lastAction.payload;
-            syncPollEvt(polls, pollId, PollTaskRequestTypes.FINISH);
+            syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.FINISH);
           }
           break;
         case PollActionKind.DELETE_POLL_ITEM:
           log('Handling DELETE_POLL_ITEM');
           {
             const {pollId} = lastAction.payload;
-            syncPollEvt(polls, pollId, PollTaskRequestTypes.DELETE);
+            syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.DELETE);
           }
           break;
         case PollActionKind.SYNC_COMPLETE:
@@ -464,7 +484,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
           if (
             latestPollId &&
             latestTask &&
-            polls[latestPollId] &&
+            pollsRef.current[latestPollId] &&
             latestTask === PollTaskRequestTypes.SEND
           ) {
             setSidePanel(SidePanelType.None);
@@ -479,8 +499,14 @@ function PollProvider({children}: {children: React.ReactNode}) {
     } catch (error) {
       log('Error processing last action:', error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastAction]);
+  }, [
+    lastAction,
+    localUid,
+    setSidePanel,
+    syncPollEvt,
+    sendResponseToPollEvt,
+    callDebouncedSyncPoll,
+  ]);
 
   const startPollForm = () => {
     log('Opening draft poll modal.');
@@ -667,11 +693,6 @@ function PollProvider({children}: {children: React.ReactNode}) {
         break;
     }
   };
-
-  const callDebouncedSyncPoll = useMemo(
-    () => debounce(syncPollEvt, 2000),
-    [syncPollEvt],
-  );
 
   const closeCurrentModal = () => {
     log('Closing current modal.');

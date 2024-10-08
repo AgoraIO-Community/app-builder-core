@@ -1,4 +1,10 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import {Poll, PollItem, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
 import {log} from '../helpers';
@@ -29,48 +35,45 @@ PollEventsContext.displayName = 'PollEventsContext';
 
 // Event Dispatcher
 function PollEventsProvider({children}: {children?: React.ReactNode}) {
-  const syncPollEvt = (
-    polls: Poll,
-    pollId: string,
-    task: PollTaskRequestTypes,
-  ) => {
-    try {
-      events.send(
-        PollEventNames.polls,
-        JSON.stringify({
-          state: {...polls},
-          pollId: pollId,
-          task,
-        }),
-        PersistanceLevel.Channel,
-      );
-    } catch (error) {
-      console.log('error while syncing poll: ', error);
-    }
-  };
+  const syncPollEvt = useCallback(
+    (polls: Poll, pollId: string, task: PollTaskRequestTypes) => {
+      try {
+        events.send(
+          PollEventNames.polls,
+          JSON.stringify({
+            state: {...polls},
+            pollId: pollId,
+            task,
+          }),
+          PersistanceLevel.Channel,
+        );
+      } catch (error) {
+        console.log('error while syncing poll: ', error);
+      }
+    },
+    [],
+  );
 
-  const sendResponseToPollEvt: sendResponseToPollEvtFunction = (
-    item,
-    responses,
-    uid,
-    timestamp,
-  ) => {
-    try {
-      events.send(
-        PollEventNames.pollResponse,
-        JSON.stringify({
-          id: item.id,
-          responses,
-          uid,
-          timestamp,
-        }),
-        PersistanceLevel.None,
-        item.createdBy,
-      );
-    } catch (error) {
-      console.log('error while sending a poll response level 1');
-    }
-  };
+  const sendResponseToPollEvt: sendResponseToPollEvtFunction = useCallback(
+    (item, responses, uid, timestamp) => {
+      try {
+        events.send(
+          PollEventNames.pollResponse,
+          JSON.stringify({
+            id: item.id,
+            responses,
+            uid,
+            timestamp,
+          }),
+          PersistanceLevel.None,
+          item.createdBy,
+        );
+      } catch (error) {
+        console.log('error while sending a poll response level 1');
+      }
+    },
+    [],
+  );
 
   const value = {
     syncPollEvt,
