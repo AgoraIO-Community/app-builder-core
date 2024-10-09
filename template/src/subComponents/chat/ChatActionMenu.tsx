@@ -60,7 +60,8 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     userId,
   } = props;
 
-  const {setChatType, setPrivateChatUser} = useChatUIControls();
+  const {setChatType, setPrivateChatUser, setReplyToMsgId} =
+    useChatUIControls();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -96,6 +97,17 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     );
   }
   const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
+
+  actionMenuitems.push({
+    icon: 'reply',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Reply',
+    onPress: () => {
+      setReplyToMsgId(msgId);
+      setActionMenuVisible(false);
+    },
+  });
 
   !isLocal &&
     chatType == SDKChatType.GROUP_CHAT &&

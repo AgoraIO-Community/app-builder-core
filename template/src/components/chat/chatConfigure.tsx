@@ -149,6 +149,7 @@ const ChatConfigure = ({children}) => {
                 url: fileUrl,
                 ext: message.ext.file_ext,
                 fileName: message.ext.file_name,
+                replyToMsgId: message.ext?.replyToMsgId,
               });
             }
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
@@ -169,6 +170,7 @@ const ChatConfigure = ({children}) => {
                   url: fileUrl,
                   ext: message.ext.file_ext,
                   fileName: message.ext.file_name,
+                  replyToMsgId: message.ext?.replyToMsgId,
                 },
                 false,
               );
@@ -208,6 +210,7 @@ const ChatConfigure = ({children}) => {
                 thumb: fileUrl + '&thumbnail=true',
                 url: fileUrl,
                 fileName: message.ext?.file_name,
+                replyToMsgId: message.ext?.replyToMsgId,
               });
             }
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
@@ -230,6 +233,7 @@ const ChatConfigure = ({children}) => {
                   thumb: fileUrl + '&thumbnail=true',
                   url: fileUrl,
                   fileName: message.ext?.file_name,
+                  replyToMsgId: message.ext?.replyToMsgId,
                 },
                 false,
               );
@@ -263,6 +267,7 @@ const ChatConfigure = ({children}) => {
                 msgId: message.id,
                 isDeleted: false,
                 type: ChatMessageType.TXT,
+                replyToMsgId: message.ext?.replyToMsgId,
               });
             }
 
@@ -283,6 +288,7 @@ const ChatConfigure = ({children}) => {
                   msgId: message.id,
                   isDeleted: false,
                   type: ChatMessageType.TXT,
+                  replyToMsgId: message.ext?.replyToMsgId,
                 },
                 false,
               );
@@ -376,6 +382,7 @@ const ChatConfigure = ({children}) => {
             url: option?.ext?.file_url,
             ext: option?.ext?.file_ext,
             fileName: option?.ext?.file_name,
+            replyToMsgId: option?.ext?.replyToMsgId,
           };
 
           // update local user message store
