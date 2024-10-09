@@ -140,7 +140,8 @@ const PollCardContent = ({pollItem}: {pollItem: PollItem}) => {
             submitted={buttonStatus === 'submitted'}
             submitting={buttonStatus === 'submitting'}
           />
-          {hasSubmittedResponse && !buttonVisible ? (
+          {(hasSubmittedResponse && !buttonVisible) ||
+          pollItem.status === PollStatus.FINISHED ? (
             <></>
           ) : (
             <View
@@ -170,7 +171,10 @@ const PollCardFooter = ({pollItem}: {pollItem: PollItem}) => {
           <TertiaryButton
             text="End Poll"
             onPress={() => {
-              handlePollTaskRequest(PollTaskRequestTypes.DELETE, pollItem.id);
+              handlePollTaskRequest(
+                PollTaskRequestTypes.FINISH_CONFIRMATION,
+                pollItem.id,
+              );
             }}
           />
         </View>

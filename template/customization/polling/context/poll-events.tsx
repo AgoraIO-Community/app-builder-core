@@ -154,7 +154,7 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
       initialLoadTimeout = setTimeout(() => {
         log('Initial load timeout reached. Marking initial load as complete.');
         setInitialLoadComplete(true);
-      }, 10000); // Adjust the timeout duration as necessary
+      }, 3000); // Adjust the timeout duration as necessary
     }
 
     events.on(PollEventNames.polls, args => {

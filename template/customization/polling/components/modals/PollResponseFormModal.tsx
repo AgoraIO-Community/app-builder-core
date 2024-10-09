@@ -12,7 +12,11 @@ import {
   PollRenderResponseFormBody,
   PollFormSubmitButton,
 } from '../form/poll-response-forms';
-import {PollTaskRequestTypes, usePoll} from '../../context/poll-context';
+import {
+  PollStatus,
+  PollTaskRequestTypes,
+  usePoll,
+} from '../../context/poll-context';
 import {getPollTypeDesc} from '../../helpers';
 import {ThemeConfig, $config, TertiaryButton} from 'customization-api';
 import {usePollForm} from '../../hook/usePollForm';
@@ -69,6 +73,13 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
           <PollResponseFormComplete />
         ) : (
           <>
+            {pollItem.status === PollStatus.FINISHED && (
+              <View>
+                <Text style={style.warning}>
+                  This poll has ended. You can no longer submit the response
+                </Text>
+              </View>
+            )}
             <View>
               <Text style={style.info}>{getPollTypeDesc(pollItem.type)}</Text>
               <Text style={style.heading}>{pollItem.question}</Text>
@@ -101,7 +112,9 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
           <PollFormSubmitButton
             buttonStatus={buttonStatus}
             onSubmit={onSubmit}
-            submitDisabled={submitDisabled}
+            submitDisabled={
+              submitDisabled || pollItem.status === PollStatus.FINISHED
+            }
             buttonText={buttonText}
           />
         </View>
@@ -120,6 +133,13 @@ export const style = StyleSheet.create({
   info: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
     fontSize: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    lineHeight: 12,
+  },
+  warning: {
+    color: $config.SEMANTIC_ERROR,
+    fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     lineHeight: 12,

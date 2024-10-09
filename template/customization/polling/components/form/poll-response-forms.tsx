@@ -6,7 +6,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useState} from 'react';
-import {PollKind} from '../../context/poll-context';
+import {PollKind, PollStatus} from '../../context/poll-context';
 import {
   ImageIcon,
   Checkbox,
@@ -113,7 +113,7 @@ function PollResponseMCQForm({
           ? pollItem.options?.map((option, index) => {
               const myVote = option.votes.some(item => item.uid === localUid);
               const checked = selectedOptions.includes(option?.value) || myVote;
-
+              submitted = submitted || pollItem.status === PollStatus.FINISHED;
               return (
                 <TouchableWithoutFeedback disabled={submitted} key={index}>
                   <View pointerEvents={submitted ? 'none' : 'auto'}>
@@ -168,7 +168,7 @@ function PollResponseMCQForm({
           : pollItem.options?.map((option, index) => {
               const myVote = option.votes.some(item => item.uid === localUid);
               const checked = selectedOption === option.value || myVote;
-
+              submitted = submitted || pollItem.status === PollStatus.FINISHED;
               return (
                 <TouchableWithoutFeedback disabled={submitted} key={index}>
                   <View pointerEvents={submitted ? 'none' : 'auto'}>

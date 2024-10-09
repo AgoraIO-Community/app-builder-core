@@ -47,7 +47,7 @@ export default function PollEndConfirmModal({pollId}: {pollId: string}) {
             text="End for all"
             textStyle={style.btnText}
             onPress={() => {
-              handlePollTaskRequest(PollTaskRequestTypes.DELETE, pollId);
+              handlePollTaskRequest(PollTaskRequestTypes.FINISH, pollId);
             }}
           />
         </View>
