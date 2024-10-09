@@ -1,7 +1,7 @@
 import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 
 function log(...args: any[]) {
-  console.log('[Custom-Polling::] ', ...args);
+  console.log('[Custom-Polling::] supriya ', ...args);
 }
 
 function addVote(
@@ -61,10 +61,15 @@ function calculatePercentage(
 }
 
 function arrayToCsv(data: PollItemOptionItem[]): string {
-  const headers = ['text', 'value', 'votes', 'percent']; // Define the headers
+  const headers = ['Option', 'Votes', 'Percent']; // Define the headers
   const rows = data.map(item => {
-    const voteIds = item.votes.map(vote => vote.uid).join(', '); // Combine vote uids into a single string
-    return `${item.text},${voteIds}`;
+    const count = item.votes.length;
+    // Handle missing or undefined value
+    const voteText = item.text ? `"${item.text}"` : '""';
+    const votesCount = count !== undefined ? count : '0';
+    const votePercent = item.percent !== undefined ? `${item.percent}%` : '0%';
+
+    return `${voteText},${votesCount},${votePercent}`;
   });
 
   return [headers.join(','), ...rows].join('\n');
