@@ -18,12 +18,19 @@ import {
   usePoll,
 } from '../../context/poll-context';
 import {getPollTypeDesc} from '../../helpers';
-import {ThemeConfig, $config, TertiaryButton} from 'customization-api';
+import {
+  ThemeConfig,
+  $config,
+  TertiaryButton,
+  useSidePanel,
+} from 'customization-api';
 import {usePollForm} from '../../hook/usePollForm';
+import {POLL_SIDEBAR_NAME} from '../../../custom-ui';
 
 export default function PollResponseFormModal({pollId}: {pollId: string}) {
   const {polls, sendResponseToPoll, closeCurrentModal, handlePollTaskRequest} =
     usePoll();
+  const {setSidePanel} = useSidePanel();
   const [hasResponded, setHasResponded] = useState<boolean>(false);
 
   const pollItem = polls[pollId];
@@ -58,15 +65,24 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
     onFormSubmitComplete,
   });
 
+  const onClose = () => {
+    if (!hasResponded) {
+      setSidePanel(POLL_SIDEBAR_NAME);
+      closeCurrentModal();
+    } else {
+      closeCurrentModal();
+    }
+  };
+
   return (
-    <BaseModal visible={true} onClose={closeCurrentModal}>
+    <BaseModal visible={true} onClose={onClose}>
       <BaseModalTitle
         title={
           hasResponded
             ? 'Here are the poll results 🎉'
             : 'Here’s a poll for you'
         }>
-        <BaseModalCloseIcon onClose={closeCurrentModal} />
+        <BaseModalCloseIcon onClose={onClose} />
       </BaseModalTitle>
       <BaseModalContent>
         {hasResponded ? (

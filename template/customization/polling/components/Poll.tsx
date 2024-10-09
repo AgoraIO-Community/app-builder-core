@@ -51,6 +51,8 @@ function PollModals() {
           return <PollEndConfirmModal pollId={modalState.id} />;
         }
         return <PollItemNotFound />;
+      case PollModalType.NONE:
+        break;
       default:
         log('Unknown modal type: ', modalState);
         return <></>;

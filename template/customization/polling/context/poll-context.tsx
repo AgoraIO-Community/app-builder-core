@@ -444,7 +444,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
           log('Handling SUBMIT_POLL_ITEM_RESPONSES');
           const {id, responses, uid, timestamp} = lastAction.payload;
           if (localUid === pollsRef.current[id]?.createdBy) {
-            log('No need to send event. User is the poll creator.');
+            log(
+              'No need to send event. User is the poll creator. We only sync data',
+            );
+            syncPollEvt(pollsRef.current, id, PollTaskRequestTypes.SAVE);
             return;
           }
           if (localUid && uid && pollsRef.current[id]) {
