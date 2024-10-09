@@ -17,11 +17,6 @@ import {
 import Platform from '../subComponents/Platform';
 import * as ReactIs from 'react-is';
 
-const getSessionId = () => {
-  const {logger} = require('../logger/AppBuilderLogger');
-  return logger.getSessionId();
-};
-
 const trimText = (text: string, length: number = 25) => {
   if (!text) {
     return '';
@@ -386,7 +381,6 @@ function MergeMoreButtonFields(sourceArray, updateObject) {
 }
 
 export {
-  getSessionId,
   updateToolbarDefaultConfig,
   useIsDesktop,
   useIsSmall,

@@ -148,6 +148,7 @@ const WhiteboardWidget = ({whiteboardRoom}) => {
       myHeaders2.append('Content-Type', 'application/json');
       myHeaders2.append('Authorization', `Bearer ${store?.token}`);
       myHeaders2.append('X-Request-Id', requestId);
+      myHeaders2.append('X-Session-Id', logger.getSessionId());
       const body = JSON.stringify({
         room_uuid: room_uuid,
         path: '/init',

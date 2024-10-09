@@ -309,6 +309,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         context: {
           headers: {
             'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
           },
         },
       });
@@ -332,6 +333,11 @@ const AuthProvider = (props: AuthProviderProps) => {
         'user_details',
         'API user details query failed. User is un-authenticated. Will Login in the user',
         {
+          networkError: {
+            name: error?.networkError?.name,
+            code: error?.networkError?.result?.error?.code,
+            message: error?.networkError?.result?.error?.message,
+          },
           error,
           startReqTs,
           endRequestTs,
@@ -515,6 +521,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         credentials: 'include',
         headers: {
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
       })
         .then(response => response.json())

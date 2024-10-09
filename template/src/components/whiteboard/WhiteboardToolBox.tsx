@@ -359,6 +359,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
           myHeaders2.append('X-Request-Id', requestId);
+          myHeaders2.append('X-Session-Id', logger.getSessionId());
 
           const body = JSON.stringify({
             resource_url: url,
@@ -498,6 +499,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
           myHeaders2.append('X-Request-Id', requestId);
+          myHeaders2.append('X-Session-Id', logger.getSessionId());
           const body = JSON.stringify({
             resource_url: url,
           });
@@ -624,6 +626,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
             'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
           },
         })
           .then(async res => {

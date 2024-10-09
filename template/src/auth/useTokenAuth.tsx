@@ -57,6 +57,7 @@ const useTokenAuth = () => {
           authorization: store?.token ? `Bearer ${store.token}` : '',
           'X-Platform-ID': getPlatformId(),
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
       })
         .then(response => response.json())
@@ -213,6 +214,7 @@ const useTokenAuth = () => {
                     ? `Bearer ${tokenRef.current}`
                     : '',
                   'X-Request-Id': requestId,
+                  'X-Session-Id': logger.getSessionId(),
                 },
               },
         )

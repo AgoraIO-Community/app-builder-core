@@ -65,6 +65,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
         body: JSON.stringify({
           passphrase: roomId?.host || '',

@@ -56,6 +56,7 @@ export default function useCreateRoom(): createRoomFun {
       context: {
         headers: {
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
       },
       variables: {
@@ -75,7 +76,19 @@ export default function useCreateRoom(): createRoomFun {
         'createChannel',
         'API createChannel failed. There was an error',
         error,
-        {startReqTs, endReqTs, latency: latency, requestId},
+        {
+          networkError: {
+            name: error?.networkError?.name,
+            //@ts-ignore
+            code: error?.networkError?.result?.error?.code,
+            //@ts-ignore
+            message: error?.networkError?.result?.error?.message,
+          },
+          startReqTs,
+          endReqTs,
+          latency: latency,
+          requestId,
+        },
       );
       throw error;
     }
