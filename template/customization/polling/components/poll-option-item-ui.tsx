@@ -94,7 +94,7 @@ const style = StyleSheet.create({
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   optionListItemHovered: {
-    borderColor: 'rgba(128, 128, 128, 0.25)',
+    borderColor: $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['25%'],
   },
   optionFillBackground: {
     position: 'absolute',

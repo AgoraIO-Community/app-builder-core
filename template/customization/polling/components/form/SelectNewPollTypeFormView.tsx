@@ -6,7 +6,12 @@ import {
   BaseModalCloseIcon,
 } from '../../ui/BaseModal';
 import {PollKind} from '../../context/poll-context';
-import {ThemeConfig, $config, ImageIcon} from 'customization-api';
+import {
+  ThemeConfig,
+  $config,
+  ImageIcon,
+  hexadecimalTransparency,
+} from 'customization-api';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import pollIcons, {PollIconsInterface} from '../../poll-icons';
 
@@ -136,7 +141,7 @@ export const style = StyleSheet.create({
     width: '100%',
   },
   cardHover: {
-    backgroundColor: 'rgba(128, 128, 128, 0.10)',
+    backgroundColor: $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['10%'],
   },
   cardImage: {
     width: 100,

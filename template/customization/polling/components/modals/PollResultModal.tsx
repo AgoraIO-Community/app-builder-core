@@ -292,7 +292,7 @@ export const style = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#7D7D7D', // TODOSUP
+    backgroundColor: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
   textCenter: {
     textAlign: 'center',

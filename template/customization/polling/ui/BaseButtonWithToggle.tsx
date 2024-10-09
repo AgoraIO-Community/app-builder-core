@@ -1,6 +1,11 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {ThemeConfig, $config, ImageIcon} from 'customization-api';
+import {
+  ThemeConfig,
+  $config,
+  ImageIcon,
+  hexadecimalTransparency,
+} from 'customization-api';
 import Toggle from '../../../src/atoms/Toggle';
 // import Tooltip from '../../../src/atoms/Tooltip';
 import PlatformWrapper from '../../../src/utils/PlatformWrapper';
@@ -80,7 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   hover: {
-    backgroundColor: 'rgba(128, 128, 128, 0.25)',
+    backgroundColor: $config.SEMANTIC_NEUTRAL + hexadecimalTransparency['25%'],
   },
   text: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
