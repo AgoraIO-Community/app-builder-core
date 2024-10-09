@@ -34,6 +34,7 @@ export interface ChatBubbleProps {
   reactions?: Reaction[];
   scrollOffset?: number;
   replyToMsgId?: string;
+  isLastMsg?: boolean;
 
   render?: (
     isLocal: boolean,
