@@ -47,7 +47,7 @@ const BaseButtonWithToggle = ({
               </View>
               <View>
                 <Toggle
-                  circleColor={'#fff'}
+                  circleColor={$config.FONT_COLOR}
                   isEnabled={value}
                   toggleSwitch={(toggle: boolean) => {
                     onPress(toggle);

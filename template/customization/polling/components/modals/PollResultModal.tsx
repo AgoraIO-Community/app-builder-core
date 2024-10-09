@@ -228,7 +228,7 @@ export const style = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#BDCFDB', // TODOSUP
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
   },
   titleAvatarContainerText: {
     fontSize: ThemeConfig.FontSize.tiny,
@@ -263,7 +263,7 @@ export const style = StyleSheet.create({
     fontWeight: '600',
   },
   youText: {
-    color: '#BDCFDB', // TODO
+    color: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
   },
   light: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,

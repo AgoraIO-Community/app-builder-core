@@ -117,12 +117,6 @@ export {
 
 // Styles for Accordion Components
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#F5FCFF',
-  },
   accordionContainer: {
     // marginVertical: 10,
   },
@@ -159,9 +153,5 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     lineHeight: 12,
-  },
-  accordionContentText: {
-    fontSize: 14,
-    color: '#333',
   },
 });
