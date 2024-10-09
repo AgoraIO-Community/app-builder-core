@@ -150,6 +150,7 @@ export default function useJoinRoom() {
           `API ${
             isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
           } failed.`,
+          'Join Channel Failed',
           response?.error,
           {
             networkError: {
