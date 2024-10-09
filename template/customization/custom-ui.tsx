@@ -8,6 +8,7 @@ import {
   $config,
 } from 'customization-api';
 import {View, Text, StyleSheet} from 'react-native';
+import pollIcons from './polling/poll-icons';
 
 const POLL_SIDEBAR_NAME = 'side-panel-poll';
 
@@ -17,8 +18,8 @@ export const CustomMoreItem = () => {
       <View style={style.toolbarImg}>
         <ImageIcon
           iconType="plain"
-          iconSize={20}
-          name="pen"
+          iconSize={15}
+          icon={pollIcons['bar-chart']}
           tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </View>
@@ -55,12 +56,14 @@ const style = StyleSheet.create({
   toolbarItem: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   toolbarImg: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginLeft: 8,
   },
   toolbarText: {
     color: $config.SECONDARY_ACTION_COLOR,
