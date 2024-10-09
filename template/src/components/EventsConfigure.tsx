@@ -58,9 +58,17 @@ import {logger, LogSource} from '../logger/AppBuilderLogger';
 interface Props {
   children: React.ReactNode;
   callActive: boolean;
+  sttAutoStarted: boolean;
+  setSttAutoStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
+const EventsConfigure: React.FC<Props> = ({
+  callActive,
+  children,
+  setSttAutoStarted,
+  sttAutoStarted,
+}) => {
+  const isSTTAlreadyActiveRef = useRef(undefined);
   // mute user audio
   const hostMutedUserAudioToastHeadingTT = useString<I18nMuteType>(
     hostMutedUserToastHeading,
@@ -257,10 +265,8 @@ const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
     permissionStatusRef.current = permissionStatus;
   }, [permissionStatus]);
 
-  const {hasUserJoinedRTM} = useContext(ChatContext);
+  const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
   const {startSpeechToText} = useSpeechToText();
-  const [autoStartCompleted, setAutoStartCompleted] = useState(false);
-
   //auto start stt
   useEffect(() => {
     if (
@@ -268,16 +274,17 @@ const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
       $config.STT_AUTO_START &&
       callActive &&
       hasUserJoinedRTM &&
-      !autoStartCompleted
+      isInitialQueueCompleted &&
+      !sttAutoStarted
     ) {
       //host will start the caption
-      if (isHost && roomId?.host) {
+      if (isHost && roomId?.host && !isSTTAlreadyActiveRef.current) {
         logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered');
         //start with default language
         startSpeechToText(['en-US'])
           .then(() => {
             logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START success');
-            setAutoStartCompleted(true);
+            setSttAutoStarted(true);
           })
           .catch(err => {
             logger.log(
@@ -286,11 +293,28 @@ const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
               'STT_AUTO_START failed',
               err,
             );
-            setAutoStartCompleted(false);
+            setSttAutoStarted(false);
           });
       }
+
+      if (isHost && roomId?.host && isSTTAlreadyActiveRef.current) {
+        logger.log(
+          LogSource.Internals,
+          'STT',
+          'STT_AUTO_START triggered already by some other host success',
+        );
+        setSttAutoStarted(true);
+      }
     }
-  }, [callActive, isHost, hasUserJoinedRTM, roomId, autoStartCompleted]);
+  }, [
+    callActive,
+    isHost,
+    hasUserJoinedRTM,
+    roomId,
+    sttAutoStarted,
+    isInitialQueueCompleted,
+    isSTTAlreadyActiveRef.current,
+  ]);
 
   useEffect(() => {
     //user joined event listener
@@ -520,6 +544,11 @@ const EventsConfigure: React.FC<Props> = ({callActive, children}) => {
 
     events.on(EventNames.STT_ACTIVE, data => {
       const payload = JSON.parse(data?.payload);
+      if (payload.active) {
+        isSTTAlreadyActiveRef.current = true;
+      } else {
+        isSTTAlreadyActiveRef.current = false;
+      }
       setRoomInfo(prev => {
         return {
           ...prev,
