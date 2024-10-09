@@ -79,7 +79,6 @@ export default function PreviewPollFormView({
             <TertiaryButton
               containerStyle={style.btnContainer}
               text="Save for later"
-              textStyle={style.btnText}
               onPress={() => {
                 try {
                   onSave(false);
@@ -146,7 +145,7 @@ export const style = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
   },
   previewQuestion: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
@@ -189,7 +188,7 @@ export const style = StyleSheet.create({
     borderRadius: 4,
   },
   btnText: {
-    color: $config.FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',

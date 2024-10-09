@@ -151,6 +151,7 @@ const style = StyleSheet.create({
     minWidth: 520,
     maxWidth: '90%',
     maxHeight: '80%', // Set a maximum height for the modal
+    overflow: 'hidden',
   },
   baseModalBody: {
     flex: 1,

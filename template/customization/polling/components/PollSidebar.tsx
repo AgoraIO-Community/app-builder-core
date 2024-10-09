@@ -112,7 +112,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 8,
   },
   btnText: {
-    color: $config.FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',

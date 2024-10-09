@@ -279,6 +279,7 @@ export default function DraftPollFormView({
                       <TouchableOpacity
                         style={[
                           style.pFormOptionCard,
+                          style.noBorder,
                           isHovered ? style.hoverBorder : {},
                         ]}
                         onPress={() => {
@@ -472,6 +473,9 @@ export const style = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
   },
+  noBorder: {
+    borderColor: 'transparent',
+  },
   pFormToggle: {
     display: 'flex',
     alignItems: 'center',
@@ -498,7 +502,7 @@ export const style = StyleSheet.create({
     borderRadius: 4,
   },
   btnText: {
-    color: $config.FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',

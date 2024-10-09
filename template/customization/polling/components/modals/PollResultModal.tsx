@@ -193,6 +193,8 @@ export const style = StyleSheet.create({
     flexDirection: 'column',
     borderRadius: 8,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_2_COLOR,
   },
   summaryCardHeader: {
     display: 'flex',

@@ -80,7 +80,11 @@ export default function SelectNewPollTypeFormView({
                         setType(item.key);
                       }}
                       style={[style.card, isHovered ? style.cardHover : {}]}>
-                      <View style={style.cardImage}>
+                      <View
+                        style={[
+                          style.cardImage,
+                          isHovered ? style.cardImageHover : {},
+                        ]}>
                         <ImageIcon
                           iconType="plain"
                           tintColor={$config.VIDEO_AUDIO_TILE_AVATAR_COLOR}
@@ -151,6 +155,9 @@ export const style = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     backgroundColor: $config.CARD_LAYER_3_COLOR,
+  },
+  cardImageHover: {
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
   },
   cardContent: {
     display: 'flex',

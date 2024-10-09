@@ -74,7 +74,7 @@ export const style = StyleSheet.create({
     borderRadius: 4,
   },
   btnText: {
-    color: $config.FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
