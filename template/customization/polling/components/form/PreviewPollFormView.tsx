@@ -12,6 +12,7 @@ import {
   TertiaryButton,
   ThemeConfig,
   $config,
+  ImageIcon,
 } from 'customization-api';
 
 interface Props {
@@ -49,7 +50,15 @@ export default function PreviewPollFormView({
                     console.error('Error editing form:', error);
                   }
                 }}>
-                <Text style={style.editText}>Edit</Text>
+                <View style={[style.editSection]}>
+                  <ImageIcon
+                    iconType="plain"
+                    name="pen"
+                    tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+                    iconSize={14}
+                  />
+                  <Text style={style.editText}>Edit</Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -124,6 +133,12 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 20,
     fontWeight: '400',
+  },
+  editSection: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   editText: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
