@@ -85,3 +85,4 @@ export {default as TranscriptPanel} from '../src/subComponents/caption/Transcrip
 export type {TranscriptProps} from '../src/subComponents/caption/Transcript';
 export {default as CaptionPanel} from '../src/subComponents/caption/CaptionContainer';
 export {default as VBPreview} from '../src/components/virtual-background/VideoPreview';
+export {default as Toast} from '../react-native-toast-message';

@@ -24,8 +24,12 @@ import {ShowInputURL} from '../src/components/Share';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../src/utils/useRemoteMute';
 import getCustomRoute from '../src/utils/getCustomRoute';
 import useEndCall from '../src/utils/useEndCall';
+import ThemeConfig from '../src/theme';
+import hexadecimalTransparency from '../src/utils/hexadecimalTransparency';
 
 export {
+  hexadecimalTransparency,
+  ThemeConfig,
   VideoRenderer,
   DispatchContext,
   IconButton,

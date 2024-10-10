@@ -6,10 +6,16 @@ interface SwitchProps {
   isEnabled: boolean;
   disabled?: boolean;
   toggleSwitch: (isEnabled: boolean) => void;
+  circleColor?: string;
 }
 
 const Toggle = (props: SwitchProps) => {
-  const {isEnabled, toggleSwitch, disabled = false} = props;
+  const {
+    isEnabled,
+    toggleSwitch,
+    disabled = false,
+    circleColor = $config.CARD_LAYER_1_COLOR,
+  } = props;
   return (
     <View>
       <CustomSwitch
@@ -21,8 +27,8 @@ const Toggle = (props: SwitchProps) => {
         disabled={false}
         backgroundActive={$config.PRIMARY_ACTION_BRAND_COLOR}
         backgroundInactive={$config.SEMANTIC_NEUTRAL}
-        circleActiveColor={$config.CARD_LAYER_1_COLOR}
-        circleInActiveColor={$config.CARD_LAYER_1_COLOR}
+        circleActiveColor={circleColor}
+        circleInActiveColor={circleColor}
         // renderInsideCircle={() => <CustomComponent />} // custom component to render inside the Switch circle (Text, Image, etc.)
         changeValueImmediately={true} // if rendering inside circle, change state immediately or wait for animation to complete
         innerCircleStyle={{

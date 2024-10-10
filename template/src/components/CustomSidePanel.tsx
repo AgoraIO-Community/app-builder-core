@@ -65,7 +65,7 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
       {showHeader && (
         <CustomSidePanelHeader name={name} title={title} onClose={onClose} />
       )}
-      <ScrollView style={[style.bodyContainer]}>
+      <ScrollView contentContainerStyle={[style.bodyContainer]}>
         {CustomSidePanelContent ? <CustomSidePanelContent /> : <></>}
       </ScrollView>
     </View>
@@ -75,7 +75,6 @@ const CustomSidePanelView = (props: CustomSidePanelViewInterface) => {
 const style = StyleSheet.create({
   bodyContainer: {
     flex: 1,
-    padding: 20,
   },
 });
 
