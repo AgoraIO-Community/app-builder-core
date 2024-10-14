@@ -130,6 +130,21 @@ const Join = () => {
         history.push(phrase);
       })
       .catch(error => {
+        logger.error(
+          LogSource.Internals,
+          'JOIN_MEETING',
+          'Error on join room page',
+          error,
+          {
+            networkError: {
+              name: error?.networkError?.name,
+              //@ts-ignore
+              code: error?.networkError?.result?.error?.code,
+              //@ts-ignore
+              message: error?.networkError?.result?.error?.message,
+            },
+          },
+        );
         const isInvalidUrl =
           error?.message.toLowerCase().trim() === 'invalid passphrase' || false;
         Toast.show({

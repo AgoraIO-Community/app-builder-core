@@ -37,6 +37,7 @@ import {
   invitePopupHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -47,6 +48,21 @@ const InvitePopup = () => {
   const getMeeting = useGetMeetingPhrase();
   useEffect(() => {
     getMeeting(phrase).catch(error => {
+      logger.error(
+        LogSource.Internals,
+        'GET_MEETING_PHRASE',
+        'unable to fetch meeting details',
+        error,
+        {
+          networkError: {
+            name: error?.networkError?.name,
+            //@ts-ignore
+            code: error?.networkError?.result?.error?.code,
+            //@ts-ignore
+            message: error?.networkError?.result?.error?.message,
+          },
+        },
+      );
       setGlobalErrorMessage(error);
     });
   }, [phrase]);

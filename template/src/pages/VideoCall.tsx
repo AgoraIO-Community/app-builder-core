@@ -150,6 +150,7 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
+  const [sttAutoStarted, setSttAutoStarted] = useState(false);
 
   const {phrase} = useParams<{phrase: string}>();
 
@@ -249,6 +250,21 @@ const VideoCall: React.FC = () => {
       useJoin(phrase, RoomInfoDefaultValue.roomPreference)
         .then(() => {})
         .catch(error => {
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Join channel error',
+            error,
+            {
+              networkError: {
+                name: error?.networkError?.name,
+                //@ts-ignore
+                code: error?.networkError?.result?.error?.code,
+                //@ts-ignore
+                message: error?.networkError?.result?.error?.message,
+              },
+            },
+          );
           setGlobalErrorMessage(error);
           history.push('/');
         });
@@ -287,6 +303,21 @@ const VideoCall: React.FC = () => {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
       useJoin(sdkMeetingPhrase, preference).catch(error => {
+        logger.error(
+          LogSource.Internals,
+          'JOIN_MEETING',
+          'Join channel error',
+          error,
+          {
+            networkError: {
+              name: error?.networkError?.name,
+              //@ts-ignore
+              code: error?.networkError?.result?.error?.code,
+              //@ts-ignore
+              message: error?.networkError?.result?.error?.message,
+            },
+          },
+        );
         setGlobalErrorMessage(error);
         history.push('/');
         currentMeetingPhrase.current = '';
@@ -434,7 +465,12 @@ const VideoCall: React.FC = () => {
                                       <UserPreferenceProvider>
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
-                                            <EventsConfigure>
+                                            <EventsConfigure
+                                              setSttAutoStarted={
+                                                setSttAutoStarted
+                                              }
+                                              sttAutoStarted={sttAutoStarted}
+                                              callActive={callActive}>
                                               <ScreenshareConfigure
                                                 isRecordingActive={
                                                   isRecordingActive

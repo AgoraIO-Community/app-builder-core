@@ -16,7 +16,6 @@ import {createContext, SetStateAction} from 'react';
 import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
 import {createHook} from 'customization-implementation';
 
-
 export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
@@ -67,6 +66,7 @@ export enum messageActionType {
 }
 
 export interface RtmContextInterface {
+  isInitialQueueCompleted: boolean;
   hasUserJoinedRTM: boolean;
   rtmInitTimstamp: number;
   engine: RtmEngine;

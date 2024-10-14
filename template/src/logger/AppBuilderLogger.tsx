@@ -147,6 +147,11 @@ export default class AppBuilderLogger implements Logger {
     const rtcPkg = isWeb()
       ? pkg.dependencies['agora-rtc-sdk-ng']
       : pkg.dependencies['react-native-agora'];
+
+    const agoraChatPkg = isWeb()
+      ? pkg.dependencies['agora-chat']
+      : pkg.dependencies['react-native-agora-chat'];
+
     let roomInfo = {
       meeting_title: '',
       channel_id: '',
@@ -189,6 +194,8 @@ export default class AppBuilderLogger implements Logger {
             cli: cli_version,
             core: core_version,
           },
+          agora_chat_version: agoraChatPkg,
+          agora_chat_url: $config.CHAT_URL,
           meeting_title: roomInfo?.meeting_title,
         };
 
