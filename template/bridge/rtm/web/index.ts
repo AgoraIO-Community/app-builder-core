@@ -510,4 +510,20 @@ export default class RtmEngine {
   getSdkVersion(callback: (version: string) => void) {
     callback(VERSION);
   }
+
+  addListener<EventType extends keyof RtmClientEvents>(
+    event: EventType,
+    listener: RtmClientEvents[EventType],
+  ): Subscription {
+    if (event === 'ChannelAttributesUpdated') {
+      this.channelEventsMap.set(event, listener as callbackType);
+    }
+    return {
+      remove: () => {
+        console.log(
+          'Use destroy method to remove all the event listeners from the RtcEngine instead.',
+        );
+      },
+    };
+  }
 }
