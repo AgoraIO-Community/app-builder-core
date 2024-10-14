@@ -151,6 +151,7 @@ const VideoCall: React.FC = () => {
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
+  const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
 
   const {phrase} = useParams<{phrase: string}>();
 
@@ -489,6 +490,8 @@ const VideoCall: React.FC = () => {
                                                           setRecordingActive,
                                                           isRecordingActive,
                                                           callActive,
+                                                          recordingAutoStarted,
+                                                          setRecordingAutoStarted,
                                                         }}>
                                                         <NetworkQualityProvider>
                                                           {!isMobileUA() && (

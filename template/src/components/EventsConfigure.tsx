@@ -54,6 +54,7 @@ import {
 import {useString} from '../utils/useString';
 import useEndCall from '../utils/useEndCall';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 interface Props {
   children: React.ReactNode;
@@ -68,6 +69,7 @@ const EventsConfigure: React.FC<Props> = ({
   setSttAutoStarted,
   sttAutoStarted,
 }) => {
+  const {isRecordingBot} = useIsRecordingBot();
   const isSTTAlreadyActiveRef = useRef(undefined);
   // mute user audio
   const hostMutedUserAudioToastHeadingTT = useString<I18nMuteType>(
@@ -270,6 +272,7 @@ const EventsConfigure: React.FC<Props> = ({
   //auto start stt
   useEffect(() => {
     if (
+      !isRecordingBot &&
       $config.ENABLE_CAPTION &&
       $config.STT_AUTO_START &&
       callActive &&
@@ -307,6 +310,7 @@ const EventsConfigure: React.FC<Props> = ({
       }
     }
   }, [
+    isRecordingBot,
     callActive,
     isHost,
     hasUserJoinedRTM,
