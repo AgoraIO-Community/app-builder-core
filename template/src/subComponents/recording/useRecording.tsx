@@ -274,6 +274,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         'Content-Type': 'application/json',
         authorization: store.token ? `Bearer ${store.token}` : '',
         'X-Request-Id': requestId,
+        'X-Session-Id': logger.getSessionId(),
       },
       body: JSON.stringify({
         passphrase: roomId.host,
@@ -356,7 +357,19 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           'recording_start',
           'Error while start recording',
           err,
-          {startReqTs, endRequestTs, latency, requestId},
+          {
+            networkError: {
+              name: err?.networkError?.name,
+              //@ts-ignore
+              code: err?.networkError?.result?.error?.code,
+              //@ts-ignore
+              message: err?.networkError?.result?.error?.message,
+            },
+            startReqTs,
+            endRequestTs,
+            latency,
+            requestId,
+          },
         );
         setRecordingActive(false);
         setInProgress(false);
@@ -405,6 +418,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
         body: JSON.stringify({
           passphrase: roomId.host,
@@ -548,6 +562,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           'Content-Type': 'application/json',
           authorization: store.token ? `Bearer ${store.token}` : '',
           'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
         },
         body: JSON.stringify({
           passphrase: roomId?.host,

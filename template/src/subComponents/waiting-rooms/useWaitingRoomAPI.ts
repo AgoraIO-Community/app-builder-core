@@ -43,6 +43,7 @@ const useWaitingRoomAPI = (): IuseWaitingRoomAPI => {
         'Content-Type': 'application/json',
         authorization: store.token ? `Bearer ${store.token}` : '',
         'X-Request-Id': requestId,
+        'X-Session-Id': logger.getSessionId(),
       },
       body: payload,
     });

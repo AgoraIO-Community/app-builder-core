@@ -33,6 +33,7 @@ export const useIDPAuth = () => {
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
             'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
           },
         })
           .then(response => response.json())
