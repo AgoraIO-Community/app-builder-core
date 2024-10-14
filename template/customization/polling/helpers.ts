@@ -1,4 +1,5 @@
 import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
+import {PollIconsInterface} from './poll-icons';
 
 function log(...args: any[]) {
   console.log('[Custom-Polling::] supriya ', ...args);
@@ -130,7 +131,20 @@ function mergePolls(newPoll: Poll, oldPoll: Poll): MergePollsResult {
   return {mergedPolls, deletedPollIds};
 }
 
-function getPollTypeDesc(type: PollKind): string {
+function getPollTypeIcon(type: PollKind): keyof PollIconsInterface {
+  if (type === PollKind.OPEN_ENDED) {
+    return 'question';
+  }
+  if (type === PollKind.YES_NO) {
+    return 'like-dislike';
+  }
+  if (type === PollKind.MCQ) {
+    return 'mcq';
+  }
+  return 'question';
+}
+
+function getPollTypeDesc(type: PollKind, multiple_response?: boolean): string {
   if (type === PollKind.OPEN_ENDED) {
     return 'Open Ended';
   }
@@ -138,7 +152,10 @@ function getPollTypeDesc(type: PollKind): string {
     return 'Select Any One';
   }
   if (type === PollKind.MCQ) {
-    return 'Select One or More';
+    if (multiple_response) {
+      return 'Select One or More';
+    }
+    return 'Select Any One';
   }
   return 'None';
 }
@@ -191,4 +208,5 @@ export {
   formatTimestampToTime,
   calculateTotalVotes,
   debounce,
+  getPollTypeIcon,
 };

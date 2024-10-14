@@ -14,6 +14,7 @@ import {
 } from 'customization-api';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import pollIcons, {PollIconsInterface} from '../../poll-icons';
+import {getPollTypeIcon} from '../../helpers';
 
 interface newPollType {
   key: PollKind;
@@ -30,7 +31,7 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Yes or No Question',
     description:
       'A straightforward question that requires a simple Yes or No answer.',
-    icon: 'like-dislike',
+    icon: getPollTypeIcon(PollKind.YES_NO),
   },
   {
     key: PollKind.MCQ,
@@ -38,11 +39,11 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Multiple Choice Question',
     description:
       'A question with several predefined answer options, allowing users to select one or more responses.',
-    icon: 'mcq',
+    icon: getPollTypeIcon(PollKind.MCQ),
   },
   // {
   //   key: PollKind.OPEN_ENDED,
-  //   image: null,
+  //   image: 'question',
   //   title: 'Open Ended Question',
   //   description:
   //     'A question that invites users to provide a detailed, free-form response, encouraging more in-depth feedback.',
