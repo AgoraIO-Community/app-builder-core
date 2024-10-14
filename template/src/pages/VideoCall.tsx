@@ -150,6 +150,7 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [waitingRoomAttendeeJoined, setWaitingRoomAttendeeJoined] =
     useState(false);
+  const [sttAutoStarted, setSttAutoStarted] = useState(false);
 
   const {phrase} = useParams<{phrase: string}>();
 
@@ -465,6 +466,10 @@ const VideoCall: React.FC = () => {
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure
+                                              setSttAutoStarted={
+                                                setSttAutoStarted
+                                              }
+                                              sttAutoStarted={sttAutoStarted}
                                               callActive={callActive}>
                                               <ScreenshareConfigure
                                                 isRecordingActive={
