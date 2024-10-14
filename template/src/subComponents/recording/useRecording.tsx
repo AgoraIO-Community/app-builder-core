@@ -859,16 +859,27 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       isInitialQueueCompleted &&
       isHost &&
       !isRecordingBot &&
-      !isRecordingActive &&
       !recordingAutoStarted
     ) {
-      logger.log(
-        LogSource.Internals,
-        'RECORDING',
-        'CLOUD_RECORDING_AUTO_START triggered',
-      );
-      startRecording();
-      setRecordingAutoStarted(true);
+      if (!isRecordingActive) {
+        logger.log(
+          LogSource.Internals,
+          'RECORDING',
+          'CLOUD_RECORDING_AUTO_START triggered',
+          {
+            uidWhoTriggered: localUid,
+          },
+        );
+        startRecording();
+        setRecordingAutoStarted(true);
+      } else {
+        logger.log(
+          LogSource.Internals,
+          'RECORDING',
+          'CLOUD_RECORDING_AUTO_START already triggered by some other host',
+        );
+        setRecordingAutoStarted(true);
+      }
     }
   }, [
     callActive,
@@ -878,6 +889,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     isRecordingBot,
     isRecordingActive,
     recordingAutoStarted,
+    localUid,
   ]);
 
   // useEffect(() => { //

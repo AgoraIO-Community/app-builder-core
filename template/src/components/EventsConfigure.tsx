@@ -282,7 +282,9 @@ const EventsConfigure: React.FC<Props> = ({
     ) {
       //host will start the caption
       if (isHost && roomId?.host && !isSTTAlreadyActiveRef.current) {
-        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered');
+        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered', {
+          uidWhoTriggered: localUid,
+        });
         //start with default language
         startSpeechToText(['en-US'])
           .then(() => {
@@ -292,7 +294,7 @@ const EventsConfigure: React.FC<Props> = ({
           .catch(err => {
             logger.log(
               LogSource.Internals,
-              'RECORDING',
+              'STT',
               'STT_AUTO_START failed',
               err,
             );
@@ -304,7 +306,7 @@ const EventsConfigure: React.FC<Props> = ({
         logger.log(
           LogSource.Internals,
           'STT',
-          'STT_AUTO_START triggered already by some other host success',
+          'STT_AUTO_START already triggered by some other host',
         );
         setSttAutoStarted(true);
       }
