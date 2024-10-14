@@ -146,11 +146,19 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
 
 const HostControlView = () => {
   return (
-    <View style={style.container}>
-      {!$config.AUDIO_ROOM && <MuteAllVideoButton />}
+    // <View style={style.container}>
+    <>
+      {!$config.AUDIO_ROOM && (
+        <View style={{display: 'flex', flex: 1}}>
+          <MuteAllVideoButton />
+        </View>
+      )}
       <Spacer horizontal size={16} />
-      <MuteAllAudioButton />
-    </View>
+      <View style={{display: 'flex', flex: 1}}>
+        <MuteAllAudioButton />
+      </View>
+    </>
+    // </View>
   );
 };
 

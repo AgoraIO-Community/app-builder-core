@@ -529,6 +529,7 @@ const maxStyle = StyleSheet.create({
     borderRadius: ThemeConfig.BorderRadius.small,
     borderWidth: 2,
     borderColor: 'red',
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
   },
   activeContainerStyle: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,

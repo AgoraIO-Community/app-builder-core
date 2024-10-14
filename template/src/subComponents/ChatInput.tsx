@@ -28,6 +28,7 @@ import {
   MIN_HEIGHT,
   MAX_HEIGHT,
   LINE_HEIGHT,
+  INITIAL_LINE_HEIGHT,
   MAX_TEXT_MESSAGE_SIZE,
   MAX_FILES_UPLOAD,
 } from '../components/chat-ui/useChatUIControls';
@@ -75,7 +76,6 @@ export interface ChatTextInputProps {
   ) => JSX.Element;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
-  let chatInputRef = useRef(null);
   const {
     privateChatUser: selectedUserId,
     message,
@@ -89,6 +89,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     inputHeight,
     setInputHeight,
     setShowEmojiPicker,
+    _resetTextareaHeight,
+    _handleHeightChange,
+    chatInputRef,
     showEmojiPicker,
   } = useChatUIControls();
   const {defaultContent} = useContent();
@@ -151,14 +154,17 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       setShowEmojiPicker,
       toastHeadingSize,
       errorSubHeadingSize,
+      _resetTextareaHeight,
     });
   };
 
   // with multiline textinput enter prints /n
   const handleKeyPress = ({nativeEvent}) => {
     if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
-      onSubmitEditing();
       nativeEvent.preventDefault();
+      onSubmitEditing();
+      setShowEmojiPicker(false); // This will close emoji picker on enter
+      _resetTextareaHeight();
     }
   };
 
@@ -210,7 +216,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
       autoCorrect={false}
       onKeyPress={handleKeyPress}
-      onContentSizeChange={handleContentSizeChange}
+      onChange={_handleHeightChange}
     />
   );
 
@@ -276,7 +282,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         <View
           style={[
             style.attachmentContainer,
-
             isUploadStatusShown
               ? {
                   borderTopLeftRadius: 0,
@@ -306,11 +311,9 @@ export const ChatInput = () => {
   return (
     <View
       style={[
-        {flex: 1},
-        showEmojiPicker
-          ? {backgroundColor: 'transparent'}
-          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
-        // inputActive ? style.inputActiveView : {},
+        {
+          flex: 1,
+        },
       ]}>
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
@@ -330,7 +333,6 @@ const style = StyleSheet.create({
   attachmentContainer: {
     paddingHorizontal: 12,
     paddingTop: 12,
-
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
@@ -342,6 +344,7 @@ const style = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'transparent',
     paddingHorizontal: 12,
+    paddingTop: 12,
     paddingBottom: 8,
   },
   chatInputButton: {
@@ -359,7 +362,6 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingTop: 4,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
   chatPanel: {
     flexDirection: 'row',

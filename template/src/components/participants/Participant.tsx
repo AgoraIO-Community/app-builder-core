@@ -135,8 +135,8 @@ const Participant = (props: ParticipantInterface) => {
                 ref={moreIconRef}
                 collapsable={false}
                 style={{
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   alignSelf: 'center',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -184,18 +184,17 @@ const Participant = (props: ParticipantInterface) => {
             )}
             {showControls ? (
               <>
-                <Spacer horizontal={true} size={8} />
                 {!$config.AUDIO_ROOM &&
                   (isLocal
                     ? !isAudienceUser && (
-                        <View>
+                        <View style={styles.mlIcon}>
                           <LocalVideoMute
                             plainIconHoverEffect={true}
                             iconProps={(isVideoEnabled, isPermissionDenied) => {
                               return {
                                 iconSize: 20,
                                 iconType: 'plain',
-                                iconContainerStyle: {padding: 8},
+                                iconContainerStyle: styles.iconContainerStyle,
                                 showWarningIcon: false,
                                 tintColor: isVideoEnabled
                                   ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -208,25 +207,26 @@ const Participant = (props: ParticipantInterface) => {
                         </View>
                       )
                     : !isAudienceUser && (
-                        <View>
+                        <View style={styles.mlIcon}>
                           <RemoteVideoMute
                             uid={user.uid}
                             video={user.video}
                             isHost={isHost}
                             userContainerRef={usercontainerRef}
+                            iconContainerStyle={styles.iconContainerStyle}
                           />
                         </View>
                       ))}
                 {isLocal
                   ? !isAudienceUser && (
-                      <View>
+                      <View style={styles.mlIcon}>
                         <LocalAudioMute
                           plainIconHoverEffect={true}
                           iconProps={(isAudioEnabled, isPermissionDenied) => {
                             return {
                               iconSize: 20,
                               iconType: 'plain',
-                              iconContainerStyle: {padding: 8},
+                              iconContainerStyle: styles.iconContainerStyle,
                               showWarningIcon: false,
                               tintColor: isAudioEnabled
                                 ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -239,11 +239,12 @@ const Participant = (props: ParticipantInterface) => {
                       </View>
                     )
                   : !isAudienceUser && (
-                      <View>
+                      <View style={styles.mlIcon}>
                         <RemoteAudioMute
                           uid={user.uid}
                           audio={user.audio}
                           isHost={isHost}
+                          iconContainerStyle={styles.iconContainerStyle}
                           userContainerRef={usercontainerRef}
                         />
                       </View>
@@ -290,9 +291,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   textStyle: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 21,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantNameText: {
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   userInfoContainer: {
@@ -326,5 +327,15 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     backgroundColor: 'red',
+  },
+  iconContainerStyle: {
+    width: 30,
+    height: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mlIcon: {
+    marginLeft: 8,
   },
 });

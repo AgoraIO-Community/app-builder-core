@@ -96,6 +96,7 @@ export interface messageInterface {
   url?: string;
   fileName?: string;
   ext?: string;
+  reactions?: Reaction[];
 }
 
 export enum SDKChatType {
@@ -120,6 +121,12 @@ export interface ChatOption {
     msg?: string;
   };
   url?: string;
+}
+
+export interface Reaction {
+  count: number;
+  reaction: string; // emojis
+  userList: string[]; // list of user who gave reactions
 }
 
 interface ChatMessage {
@@ -175,6 +182,12 @@ interface ChatMessagesInterface {
     msgId: string,
     isMsgRecalled: boolean,
   ) => void;
+  addReactionToStore: (msgId: string, reaction: Reaction[]) => void;
+  addReactionToPrivateStore: (
+    uid: UidType,
+    msgId: string,
+    reaction: Reaction[],
+  ) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
@@ -186,6 +199,8 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   openPrivateChat: () => {},
   removeMessageFromStore: () => {},
   removeMessageFromPrivateStore: () => {},
+  addReactionToStore: () => {},
+  addReactionToPrivateStore: () => {},
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
@@ -431,6 +446,76 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     });
   };
 
+  const addReactionToStore = (msgId: string, newReactions: Reaction[]) => {
+    setMessageStore(prev => {
+      const msgIndex = prev.findIndex(msg => msg.msgId === msgId);
+      if (msgIndex !== -1) {
+        const updatedMessages = [...prev];
+        const message = updatedMessages[msgIndex];
+
+        // Merge reactions
+        const existingReactions = message.reactions || [];
+        newReactions.forEach(newReaction => {
+          const reactionIndex = existingReactions.findIndex(
+            r => r.reaction === newReaction.reaction,
+          );
+          if (reactionIndex !== -1) {
+            // Update existing reaction
+            existingReactions[reactionIndex] = newReaction;
+          } else {
+            // Add new reaction
+            existingReactions.push(newReaction);
+          }
+        });
+
+        // Update the message with merged reactions
+        message.reactions = [...existingReactions];
+        return updatedMessages;
+      }
+      return prev;
+    });
+  };
+
+  const addReactionToPrivateStore = (
+    uid: UidType,
+    msgId: string,
+    newReactions: Reaction[],
+  ) => {
+    setPrivateMessageStore(prev => {
+      const newState = {...prev};
+      const messages = newState[uid];
+
+      if (messages) {
+        const msgIndex = messages.findIndex(msg => msg.msgId === msgId);
+
+        if (msgIndex !== -1) {
+          const message = messages[msgIndex];
+          const existingReactions = message.reactions || [];
+
+          // Loop through each new reaction and merge with existing reactions
+          newReactions.forEach(newReaction => {
+            const reactionIndex = existingReactions.findIndex(
+              r => r.reaction === newReaction.reaction,
+            );
+
+            if (reactionIndex !== -1) {
+              // Update the existing reaction
+              existingReactions[reactionIndex] = newReaction;
+            } else {
+              // Add the new reaction
+              existingReactions.push(newReaction);
+            }
+          });
+
+          // Update the message with the merged reactions
+          message.reactions = [...existingReactions];
+          newState[uid] = [...messages];
+        }
+      }
+      return newState;
+    });
+  };
+
   const showMessageNotification = (
     msg: string,
     uid: string,
@@ -641,6 +726,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         removeMessageFromPrivateStore,
         showMessageNotification,
         openPrivateChat,
+        addReactionToStore,
+        addReactionToPrivateStore,
       }}>
       {props.children}
     </ChatMessagesContext.Provider>

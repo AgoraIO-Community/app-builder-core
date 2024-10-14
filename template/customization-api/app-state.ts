@@ -61,3 +61,5 @@ export type {ChatUIControlsInterface} from '../src/components/chat-ui/useChatUIC
 export {useVirtualBackground} from '../src/app-state/useVirtualBackground';
 export {useBeautyEffects} from '../src/app-state/useBeautyEffects';
 export {useLiveStreamDataContext} from '../src/components/contexts/LiveStreamDataContext';
+export {useRtm} from '../src/components/ChatContext';
+export {useGetHostIds} from '../src/utils/useGetHostUids';

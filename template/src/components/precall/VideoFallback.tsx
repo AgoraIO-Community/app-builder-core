@@ -145,8 +145,7 @@ const useStyles = () => {
       backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
       justifyContent: 'center',
       alignItems: 'center',
-      borderTopLeftRadius: 8,
-      borderTopRightRadius: 8,
+      borderRadius: 8,
     },
     fallbackContainer: {
       minHeight: 200,

@@ -46,7 +46,12 @@ export const getOriginURL = () => {
   return isWeb() ? `${window.location.origin}` : `${$config.FRONTEND_ENDPOINT}`;
 };
 
-export const GET_UNAUTH_FLOW_API_ENDPOINT = () => {
+export const GET_UNAUTH_FLOW_API_ENDPOINT = (user_id?: string) => {
+  if (user_id) {
+    return `${$config.BACKEND_ENDPOINT}/v1/login?project_id=${
+      $config.PROJECT_ID
+    }&platform_id=${getPlatformId()}&user_id=${user_id}`;
+  }
   return `${$config.BACKEND_ENDPOINT}/v1/login?project_id=${
     $config.PROJECT_ID
   }&platform_id=${getPlatformId()}`;
