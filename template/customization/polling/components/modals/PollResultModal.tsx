@@ -14,6 +14,7 @@ import {
   TertiaryButton,
   useContent,
   useLocalUid,
+  ImageIcon,
 } from 'customization-api';
 import {
   PollItemOptionItem,
@@ -25,6 +26,7 @@ import {
   calculateTotalVotes,
   getPollTypeDesc,
   capitalizeFirstLetter,
+  getPollTypeIcon,
 } from '../../helpers';
 import {usePollPermissions} from '../../hook/usePollPermissions';
 
@@ -66,9 +68,23 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                 </Text>
               </Text>
               <View style={style.dot} />
-              <Text style={style.descriptionText}>
-                {getPollTypeDesc(pollItem.type)}
-              </Text>
+              <View style={style.rowCenter}>
+                <View style={style.imageIconBox}>
+                  <ImageIcon
+                    iconType="plain"
+                    tintColor={
+                      $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
+                    }
+                    iconSize={15}
+                    icon={getPollTypeIcon(pollItem.type)}
+                  />
+                </View>
+                <View>
+                  <Text style={style.descriptionText}>
+                    {getPollTypeDesc(pollItem.type)}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
           <View style={style.resultSummaryContainer}>
@@ -176,6 +192,11 @@ export const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  rowCenter: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   row: {
     display: 'flex',
@@ -298,5 +319,13 @@ export const style = StyleSheet.create({
   },
   textCenter: {
     textAlign: 'center',
+  },
+  imageIconBox: {
+    width: 15,
+    height: 15,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 5,
   },
 });

@@ -13,7 +13,6 @@ import {
   hexadecimalTransparency,
 } from 'customization-api';
 import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
-import pollIcons, {PollIconsInterface} from '../../poll-icons';
 import {getPollTypeIcon} from '../../helpers';
 
 interface newPollType {
@@ -21,7 +20,6 @@ interface newPollType {
   image: null;
   title: string;
   description: string;
-  icon: keyof PollIconsInterface;
 }
 
 const newPollTypeConfig: newPollType[] = [
@@ -31,7 +29,6 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Yes or No Question',
     description:
       'A straightforward question that requires a simple Yes or No answer.',
-    icon: getPollTypeIcon(PollKind.YES_NO),
   },
   {
     key: PollKind.MCQ,
@@ -39,7 +36,6 @@ const newPollTypeConfig: newPollType[] = [
     title: 'Multiple Choice Question',
     description:
       'A question with several predefined answer options, allowing users to select one or more responses.',
-    icon: getPollTypeIcon(PollKind.MCQ),
   },
   // {
   //   key: PollKind.OPEN_ENDED,
@@ -90,7 +86,7 @@ export default function SelectNewPollTypeFormView({
                           iconType="plain"
                           tintColor={$config.VIDEO_AUDIO_TILE_AVATAR_COLOR}
                           iconSize={24}
-                          icon={pollIcons[item.icon]}
+                          icon={getPollTypeIcon(item.key)}
                         />
                       </View>
                       <View style={style.cardContent}>
