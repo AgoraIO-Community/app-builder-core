@@ -160,7 +160,7 @@ export const style = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
   previewQuestion: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
