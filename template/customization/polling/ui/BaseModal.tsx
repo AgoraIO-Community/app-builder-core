@@ -190,7 +190,7 @@ const style = StyleSheet.create({
     letterSpacing: -0.48,
   },
   content: {
-    padding: 32,
+    padding: 20,
     gap: 20,
     display: 'flex',
   },
