@@ -54,6 +54,7 @@ import {
 import {useString} from '../utils/useString';
 import useEndCall from '../utils/useEndCall';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 interface Props {
   children: React.ReactNode;
@@ -68,6 +69,7 @@ const EventsConfigure: React.FC<Props> = ({
   setSttAutoStarted,
   sttAutoStarted,
 }) => {
+  const {isRecordingBot} = useIsRecordingBot();
   const isSTTAlreadyActiveRef = useRef(undefined);
   // mute user audio
   const hostMutedUserAudioToastHeadingTT = useString<I18nMuteType>(
@@ -270,6 +272,7 @@ const EventsConfigure: React.FC<Props> = ({
   //auto start stt
   useEffect(() => {
     if (
+      !isRecordingBot &&
       $config.ENABLE_CAPTION &&
       $config.STT_AUTO_START &&
       callActive &&
@@ -279,7 +282,9 @@ const EventsConfigure: React.FC<Props> = ({
     ) {
       //host will start the caption
       if (isHost && roomId?.host && !isSTTAlreadyActiveRef.current) {
-        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered');
+        logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered', {
+          uidWhoTriggered: localUid,
+        });
         //start with default language
         startSpeechToText(['en-US'])
           .then(() => {
@@ -289,7 +294,7 @@ const EventsConfigure: React.FC<Props> = ({
           .catch(err => {
             logger.log(
               LogSource.Internals,
-              'RECORDING',
+              'STT',
               'STT_AUTO_START failed',
               err,
             );
@@ -301,12 +306,13 @@ const EventsConfigure: React.FC<Props> = ({
         logger.log(
           LogSource.Internals,
           'STT',
-          'STT_AUTO_START triggered already by some other host success',
+          'STT_AUTO_START already triggered by some other host',
         );
         setSttAutoStarted(true);
       }
     }
   }, [
+    isRecordingBot,
     callActive,
     isHost,
     hasUserJoinedRTM,
