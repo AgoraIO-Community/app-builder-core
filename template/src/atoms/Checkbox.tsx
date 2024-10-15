@@ -53,8 +53,8 @@ const Checkbox: React.FC<CheckboxProps> = ({
       <View
         style={[
           styles.checkboxContainer,
-          checkBoxStyle,
           isChecked && styles.fillSelected,
+          checkBoxStyle,
         ]}>
         {isChecked && (
           <ImageIcon
