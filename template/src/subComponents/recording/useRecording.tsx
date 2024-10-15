@@ -858,6 +858,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       hasUserJoinedRTM &&
       isInitialQueueCompleted &&
       isHost &&
+      roomId?.host &&
       !isRecordingBot &&
       !recordingAutoStarted
     ) {
@@ -890,6 +891,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     isRecordingActive,
     recordingAutoStarted,
     localUid,
+    roomId,
   ]);
 
   // useEffect(() => { //
