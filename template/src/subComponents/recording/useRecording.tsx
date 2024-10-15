@@ -104,6 +104,8 @@ interface RecordingProviderProps {
     setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
     isRecordingActive: boolean;
     callActive: boolean;
+    recordingAutoStarted: boolean;
+    setRecordingAutoStarted: React.Dispatch<React.SetStateAction<boolean>>;
   };
 }
 
@@ -141,8 +143,13 @@ const showErrorToast = (text1: string, text2?: string) => {
 };
 
 const RecordingProvider = (props: RecordingProviderProps) => {
-  const {setRecordingActive, isRecordingActive, callActive} = props?.value;
-  const [autoStartCompleted, setAutoStartCompleted] = useState(false);
+  const {
+    setRecordingActive,
+    isRecordingActive,
+    callActive,
+    recordingAutoStarted,
+    setRecordingAutoStarted,
+  } = props?.value;
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
@@ -167,7 +174,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   const userlabel = useString(videoRoomUserFallbackText)();
 
-  const {localUid, hasUserJoinedRTM} = useContext(ChatContext);
+  const {localUid, hasUserJoinedRTM, isInitialQueueCompleted} =
+    useContext(ChatContext);
   const {store} = React.useContext(StorageContext);
 
   const {setChatType} = useChatUIControls();
@@ -841,33 +849,50 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     _stopRecording,
   ]);
 
-  //commented auto start for cloud recording
   // auto start recording
-  // useEffect(() => {
-  //   if (
-  //     $config.CLOUD_RECORDING &&
-  //     $config.CLOUD_RECORDING_AUTO_START &&
-  //     callActive &&
-  //     !isRecordingActive &&
-  //     isHost &&
-  //     hasUserJoinedRTM &&
-  //     !autoStartCompleted
-  //   ) {
-  //     logger.log(
-  //       LogSource.Internals,
-  //       'RECORDING',
-  //       'CLOUD_RECORDING_AUTO_START triggered',
-  //     );
-  //     startRecording();
-  //     setAutoStartCompleted(true);
-  //   }
-  // }, [
-  //   isRecordingActive,
-  //   isHost,
-  //   callActive,
-  //   hasUserJoinedRTM,
-  //   autoStartCompleted,
-  // ]);
+  useEffect(() => {
+    if (
+      $config.CLOUD_RECORDING &&
+      $config.CLOUD_RECORDING_AUTO_START &&
+      callActive &&
+      hasUserJoinedRTM &&
+      isInitialQueueCompleted &&
+      isHost &&
+      roomId?.host &&
+      !isRecordingBot &&
+      !recordingAutoStarted
+    ) {
+      if (!isRecordingActive) {
+        logger.log(
+          LogSource.Internals,
+          'RECORDING',
+          'CLOUD_RECORDING_AUTO_START triggered',
+          {
+            uidWhoTriggered: localUid,
+          },
+        );
+        startRecording();
+        setRecordingAutoStarted(true);
+      } else {
+        logger.log(
+          LogSource.Internals,
+          'RECORDING',
+          'CLOUD_RECORDING_AUTO_START already triggered by some other host',
+        );
+        setRecordingAutoStarted(true);
+      }
+    }
+  }, [
+    callActive,
+    hasUserJoinedRTM,
+    isInitialQueueCompleted,
+    isHost,
+    isRecordingBot,
+    isRecordingActive,
+    recordingAutoStarted,
+    localUid,
+    roomId,
+  ]);
 
   // useEffect(() => { //
   //   if (hasUserJoinedRTM && isRecordingBot) {
