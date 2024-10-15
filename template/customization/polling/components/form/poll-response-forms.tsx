@@ -146,7 +146,7 @@ function PollResponseMCQForm({
                               }
                               tickColor={
                                 submitted && checked
-                                  ? $config.FONT_COLOR
+                                  ? $config.PRIMARY_ACTION_BRAND_COLOR
                                   : submitted && !checked
                                   ? $config.FONT_COLOR
                                   : checked
@@ -373,7 +373,7 @@ export const style = StyleSheet.create({
   },
   checkboxVoted: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    backgroundColor: $config.FONT_COLOR,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   checkboxSubmittedAndVoted: {
     borderColor: $config.FONT_COLOR,
