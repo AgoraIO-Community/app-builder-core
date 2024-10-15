@@ -96,7 +96,7 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
                 </Text>
               </View>
             )}
-            <View>
+            <View style={style.header}>
               <Text style={style.info}>
                 {getPollTypeDesc(pollItem.type, pollItem.multiple_response)}
               </Text>
@@ -141,6 +141,11 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
   );
 }
 export const style = StyleSheet.create({
+  header: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
   heading: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.medium,
