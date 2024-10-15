@@ -6,6 +6,7 @@ import {
   Platform,
   StyleSheet,
   TextStyle,
+  ViewStyle,
 } from 'react-native';
 
 import ThemeConfig from '../theme';
@@ -17,6 +18,9 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
   labelStye?: TextStyle;
   disabled?: boolean;
+  containerStyle?: ViewStyle;
+  checkBoxStyle?: ViewStyle;
+  tickColor?: string;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -25,6 +29,9 @@ const Checkbox: React.FC<CheckboxProps> = ({
   onChange,
   disabled = false,
   labelStye = {},
+  containerStyle = {},
+  checkBoxStyle = {},
+  tickColor = $config.FONT_COLOR,
 }) => {
   const [isChecked, setIsChecked] = useState(checked);
 
@@ -40,15 +47,21 @@ const Checkbox: React.FC<CheckboxProps> = ({
   };
 
   return (
-    <TouchableOpacity onPress={handleCheckboxToggle} style={styles.container}>
+    <TouchableOpacity
+      onPress={handleCheckboxToggle}
+      style={(styles.container, containerStyle)}>
       <View
-        style={[styles.checkboxContainer, isChecked && styles.fillSelected]}>
+        style={[
+          styles.checkboxContainer,
+          checkBoxStyle,
+          isChecked && styles.fillSelected,
+        ]}>
         {isChecked && (
           <ImageIcon
             iconType="plain"
             name={'tick'}
             iconSize={8}
-            tintColor={$config.FONT_COLOR}
+            tintColor={tickColor}
           />
         )}
       </View>
@@ -76,6 +89,7 @@ const styles = StyleSheet.create({
     borderColor: $config.SEMANTIC_NEUTRAL,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 1,
   },
   checkIcon: {
     position: 'absolute',
