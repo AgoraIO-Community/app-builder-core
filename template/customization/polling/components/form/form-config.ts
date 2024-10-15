@@ -55,7 +55,7 @@ const initPollForm = (kind: PollKind, localUid: number): PollItem => {
           percent: '0',
         },
       ],
-      multiple_response: true,
+      multiple_response: false,
       share_attendee: true,
       share_host: true,
       anonymous: false,

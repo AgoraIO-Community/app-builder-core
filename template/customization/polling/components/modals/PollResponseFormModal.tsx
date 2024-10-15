@@ -97,7 +97,9 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
               </View>
             )}
             <View>
-              <Text style={style.info}>{getPollTypeDesc(pollItem.type)}</Text>
+              <Text style={style.info}>
+                {getPollTypeDesc(pollItem.type, pollItem.multiple_response)}
+              </Text>
               <Text style={style.heading}>{pollItem.question}</Text>
             </View>
             <PollRenderResponseFormBody

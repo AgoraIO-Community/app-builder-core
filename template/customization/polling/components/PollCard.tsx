@@ -35,7 +35,7 @@ const PollCardHeader = ({pollItem}: {pollItem: PollItem}) => {
     <View style={style.pollCardHeader}>
       <View style={[style.row, style.gap8]}>
         <Text style={style.pollCardHeaderText}>
-          {getPollTypeDesc(pollItem.type)}
+          {getPollTypeDesc(pollItem.type, pollItem.multiple_response)}
         </Text>
         {pollItem.status === PollStatus.LATER && (
           <>

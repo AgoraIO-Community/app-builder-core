@@ -81,7 +81,7 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                 </View>
                 <View>
                   <Text style={style.descriptionText}>
-                    {getPollTypeDesc(pollItem.type)}
+                    {getPollTypeDesc(pollItem.type, pollItem.multiple_response)}
                   </Text>
                 </View>
               </View>
