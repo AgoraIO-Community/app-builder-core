@@ -6,13 +6,45 @@ import {
   ImageIcon,
   ThemeConfig,
   $config,
+  useActionSheet,
+  IconButton,
+  IconButtonProps,
 } from 'customization-api';
 import {View, Text, StyleSheet} from 'react-native';
 import pollIcons from './polling/poll-icons';
 
 const POLL_SIDEBAR_NAME = 'side-panel-poll';
 
-export const CustomMoreItem = () => {
+export const PollMoreItem = () => {
+  const {isOnActionSheet} = useActionSheet();
+  const {setSidePanel} = useSidePanel();
+
+  if (isOnActionSheet) {
+    const iconButtonProps: IconButtonProps = {
+      onPress: () => {
+        setSidePanel(POLL_SIDEBAR_NAME);
+      },
+      iconProps: {
+        icon: pollIcons['bar-chart'],
+        tintColor: $config.SECONDARY_ACTION_COLOR,
+      },
+      btnTextProps: {
+        text: 'Polls',
+        textColor: $config.FONT_COLOR,
+        numberOfLines: 1,
+        textStyle: {
+          marginTop: 8,
+        },
+      },
+      isOnActionSheet: isOnActionSheet,
+    };
+
+    return (
+      <ToolbarItem>
+        <IconButton {...iconButtonProps} />
+      </ToolbarItem>
+    );
+  }
   return (
     <ToolbarItem style={style.toolbarItem}>
       <View style={style.toolbarImg}>
@@ -37,8 +69,8 @@ const CustomBottomToolbar = () => {
       items={{
         more: {
           fields: {
-            test: {
-              component: CustomMoreItem,
+            poll: {
+              component: PollMoreItem,
               onPress: () => {
                 setSidePanel(POLL_SIDEBAR_NAME);
               },
