@@ -1,3 +1,4 @@
+import {isMobileUA, isWeb} from 'customization-api';
 import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 import pollIcons from './poll-icons';
 
@@ -195,6 +196,8 @@ const debounce = <T extends (...args: any[]) => void>(
   };
 };
 
+const isWebOnly = () => isWeb() && !isMobileUA();
+
 export {
   log,
   mergePolls,
@@ -209,4 +212,5 @@ export {
   calculateTotalVotes,
   debounce,
   getPollTypeIcon,
+  isWebOnly,
 };

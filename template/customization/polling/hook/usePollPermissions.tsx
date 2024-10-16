@@ -1,9 +1,10 @@
 import {useMemo} from 'react';
 import {useLocalUid, useRoomInfo} from 'customization-api';
 import {PollItem, PollStatus} from '../context/poll-context';
+import {isWebOnly} from '../helpers';
 
 interface PollPermissions {
-  isPollCreator: boolean;
+  canCreate: boolean;
   canEdit: boolean;
   canEnd: boolean;
   canViewWhoVoted: boolean;
@@ -12,7 +13,7 @@ interface PollPermissions {
 }
 
 interface UsePollPermissionsProps {
-  pollItem: PollItem; // The current poll object
+  pollItem?: PollItem; // The current poll object
 }
 
 export const usePollPermissions = ({
@@ -33,8 +34,10 @@ export const usePollPermissions = ({
     // Determine if the user is an attendee (not a host and not the creator)
     const isPollAttendee = !isHost && !isPollCreator;
 
+    // Determine if the user can create the poll (only the host can create)
+    const canCreate = isHost && isWebOnly();
     // Determine if the user can edit the poll (only the poll host can edit)
-    const canEdit = isPollHost;
+    const canEdit = isPollHost && isWebOnly();
     // Determine if the user can end the poll (only the poll host can end an active poll)
     const canEnd = isPollHost && pollItem?.status === PollStatus.ACTIVE;
 
@@ -57,7 +60,7 @@ export const usePollPermissions = ({
     // canViewPollDetails && !pollItem?.anonymous;
 
     return {
-      isPollCreator,
+      canCreate,
       canEdit,
       canEnd,
       canViewVotesPercent,

@@ -9,9 +9,12 @@ import {
 import {usePoll} from '../context/poll-context';
 import PollList from './PollList';
 import pollIcons from '../poll-icons';
+import {isWebOnly} from '../helpers';
+import {usePollPermissions} from '../hook/usePollPermissions';
 
 const PollSidebar = () => {
   const {startPollForm, isHost, polls} = usePoll();
+  const {canCreate} = usePollPermissions({});
 
   return (
     <View style={style.pollSidebar}>
@@ -30,7 +33,9 @@ const PollSidebar = () => {
             )}
             <Text style={style.emptyText}>
               {isHost
-                ? 'Create a new poll and boost interaction with your audience.'
+                ? isWebOnly
+                  ? 'Visit our web platform to create and manage polls.'
+                  : 'Create a new poll and boost interaction with your audience.'
                 : 'No polls here yet...'}
             </Text>
           </View>
@@ -40,7 +45,7 @@ const PollSidebar = () => {
           <PollList />
         </ScrollView>
       )}
-      {isHost ? (
+      {canCreate ? (
         <View style={style.pollFooter}>
           <PrimaryButton
             containerStyle={style.btnContainer}
