@@ -36,6 +36,17 @@ function PollModals() {
           return <PollFormWizardModal formObject={editFormObject} />;
         }
         return <PollFormWizardModal />;
+      case PollModalType.PREVIEW_POLL:
+        if (modalState.id && polls[modalState.id]) {
+          const previewFormObject = {...polls[modalState.id]};
+          return (
+            <PollFormWizardModal
+              formObject={previewFormObject}
+              formStep="PREVIEW"
+            />
+          );
+        }
+        break;
       case PollModalType.RESPOND_TO_POLL:
         if (modalState.id && polls[modalState.id]) {
           return <PollResponseFormModal pollId={modalState.id} />;

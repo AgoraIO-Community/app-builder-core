@@ -18,10 +18,12 @@ type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
 interface PollFormWizardModalProps {
   formObject?: PollItem; // Optional prop to initialize form in edit mode
+  formStep?: FormWizardStep;
 }
 
 export default function PollFormWizardModal({
   formObject,
+  formStep,
 }: PollFormWizardModalProps) {
   const {savePoll, sendPoll, closeCurrentModal} = usePoll();
   const [savedPollId, setSavedPollId] = useState<string | null>(null);
@@ -51,7 +53,11 @@ export default function PollFormWizardModal({
       if (formObject) {
         // If formObject is passed, skip the SELECT step and initialize the form
         setForm(formObject);
-        setStep('DRAFT');
+        if (formStep) {
+          setStep(formStep);
+        } else {
+          setStep('DRAFT');
+        }
       } else if (type !== PollKind.NONE) {
         // Initialize the form for a new poll based on the selected type
         setForm(initPollForm(type, localUidRef.current));
@@ -60,7 +66,7 @@ export default function PollFormWizardModal({
     } catch (error) {
       log('Error while initializing form: ', error);
     }
-  }, [type, formObject]);
+  }, [type, formObject, formStep]);
 
   const onSave = (launch?: boolean) => {
     try {

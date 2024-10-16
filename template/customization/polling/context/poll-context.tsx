@@ -44,6 +44,7 @@ enum PollKind {
 enum PollModalType {
   NONE = 'NONE',
   DRAFT_POLL = 'DRAFT_POLL',
+  PREVIEW_POLL = 'PREVIEW_POLL',
   RESPOND_TO_POLL = 'RESPOND_TO_POLL',
   VIEW_POLL_RESULTS = 'VIEW_POLL_RESULTS',
   END_POLL_CONFIRMATION = 'END_POLL_CONFIRMATION',
@@ -693,7 +694,14 @@ function PollProvider({children}: {children: React.ReactNode}) {
     log(`Handling poll task request: ${task} for pollId: ${pollId}`);
     switch (task) {
       case PollTaskRequestTypes.SEND:
-        sendPoll(pollId);
+        if (polls[pollId].status === PollStatus.LATER) {
+          setModalState({
+            modalType: PollModalType.PREVIEW_POLL,
+            id: pollId,
+          });
+        } else {
+          sendPoll(pollId);
+        }
         break;
       case PollTaskRequestTypes.SHARE:
         break;
