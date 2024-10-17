@@ -35,6 +35,7 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
+  wrapper?: React.ComponentType;
 }
 export interface ChatCmpInterface {
   //commented for v1 release

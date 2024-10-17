@@ -166,6 +166,8 @@ interface ConfigInterface {
   CLI_VERSION: string;
   CORE_VERSION: string;
   DISABLE_LANDSCAPE_MODE: boolean;
+  STT_AUTO_START: boolean;
+  CLOUD_RECORDING_AUTO_START: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

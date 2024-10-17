@@ -148,6 +148,8 @@ export interface IconsInterface {
   block_user: string;
   'play-circle': string;
   'copy-link': string;
+  clipboard_outlined: string;
   'recording-status': string;
   fullscreen: string;
+  add_reaction: string;
 }

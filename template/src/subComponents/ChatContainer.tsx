@@ -47,12 +47,17 @@ import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
+import {
+  messageInterface,
+  messageStoreInterface,
+  useChatMessages,
+} from '../components/chat-messages/useChatMessages';
 import {
   chatPanelUnreadMessageText,
   chatPanelUserOfflineText,
   groupChatWelcomeContent,
 } from '../language/default-labels/videoCallScreenLabels';
+import CommonStyles from '../components/CommonStyles';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -71,11 +76,13 @@ const ChatContainer = (props?: {
   const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
-  const {chatType, setChatType, privateChatUser, inputActive} =
+  const {chatType, setChatType, privateChatUser, inputActive, showEmojiPicker} =
     useChatUIControls();
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
   );
+
+  const [scrollOffset, setScrollOffset] = useState(0);
   const {
     setUnreadGroupMessageCount,
     unreadGroupMessageCount,
@@ -112,6 +119,10 @@ const ChatContainer = (props?: {
     data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  };
+
+  const onScroll = event => {
+    setScrollOffset(event.nativeEvent.contentOffset.y);
   };
 
   const {ChatBubbleComponent} = useCustomization(data => {
@@ -179,6 +190,7 @@ const ChatContainer = (props?: {
 
   return (
     <View style={style.containerView}>
+      {showEmojiPicker && <View style={CommonStyles.tintedOverlay} />}
       {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
@@ -200,7 +212,10 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
-      <ScrollView ref={scrollViewRef} onContentSizeChange={onContentSizeChange}>
+      <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={onContentSizeChange}
+        onScroll={onScroll}>
         {chatType === ChatType.Group ? (
           <>
             <View style={style.defaultMessageContainer}>
@@ -208,13 +223,16 @@ const ChatContainer = (props?: {
                 {info1(messageStore?.length ? false : true)}
               </Text>
             </View>
-            {messageStore.map((message: any, index) => (
+            {messageStore.map((message: messageStoreInterface, index) => (
               <>
                 {messageStoreLengthRef.current === messageStore.length &&
                 grpUnreadCount &&
                 messageStore.length - grpUnreadCount === index ? (
                   <View
-                    style={style.unreadMessageContainer}
+                    style={[
+                      style.unreadMessageContainer,
+                      index === 0 && {marginTop: 8, marginBottom: 0},
+                    ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {grpUnreadCount} {unreadMessageLabel}
@@ -248,6 +266,8 @@ const ChatContainer = (props?: {
                   thumb={message?.thumb}
                   fileName={message?.fileName}
                   ext={message?.ext}
+                  reactions={message?.reactions}
+                  scrollOffset={scrollOffset}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -264,53 +284,60 @@ const ChatContainer = (props?: {
         privateChatUser &&
         privateMessageStore[privateChatUser] ? (
           <>
-            {privateMessageStore[privateChatUser].map((message: any, index) => (
-              <>
-                {privateMessageStoreRef.current ===
-                  privateMessageStore[privateChatUser]?.length &&
-                privateUnreadCount &&
-                privateMessageStore[privateChatUser]?.length -
-                  privateUnreadCount ===
+            {privateMessageStore[privateChatUser].map(
+              (message: messageStoreInterface, index) => (
+                <>
+                  {privateMessageStoreRef.current ===
+                    privateMessageStore[privateChatUser]?.length &&
+                  privateUnreadCount &&
+                  privateMessageStore[privateChatUser]?.length -
+                    privateUnreadCount ===
+                    index ? (
+                    <View
+                      style={[
+                        style.unreadMessageContainer,
+                        index === 0 && {marginTop: 8, marginBottom: 0},
+                      ]}
+                      onLayout={unreadViewOnLayout}>
+                      <Text style={style.unreadMessageText}>
+                        {privateUnreadCount} {unreadMessageLabel}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                  <ChatBubbleComponent
+                    isLocal={localUid === message.uid}
+                    isSameUser={
+                      index !== 0 &&
+                      privateMessageStore[privateChatUser][index - 1].uid ===
+                        message.uid
+                        ? true
+                        : false
+                    }
+                    message={message.msg}
+                    createdTimestamp={message.createdTimestamp}
+                    updatedTimestamp={message.updatedTimestamp}
+                    uid={message.uid}
+                    key={message.msgId}
+                    msgId={message.msgId}
+                    isDeleted={message.isDeleted}
+                    type={message.type}
+                    url={message?.url}
+                    thumb={message?.thumb}
+                    fileName={message?.fileName}
+                    ext={message?.ext}
+                    reactions={message?.reactions}
+                  />
+                  {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (
-                  <View
-                    style={style.unreadMessageContainer}
-                    onLayout={unreadViewOnLayout}>
-                    <Text style={style.unreadMessageText}>
-                      {privateUnreadCount} {unreadMessageLabel}
-                    </Text>
-                  </View>
-                ) : (
-                  <></>
-                )}
-                <ChatBubbleComponent
-                  isLocal={localUid === message.uid}
-                  isSameUser={
-                    index !== 0 &&
-                    privateMessageStore[privateChatUser][index - 1].uid ===
-                      message.uid
-                      ? true
-                      : false
-                  }
-                  message={message.msg}
-                  createdTimestamp={message.createdTimestamp}
-                  updatedTimestamp={message.updatedTimestamp}
-                  uid={message.uid}
-                  key={message.ts}
-                  msgId={message.msgId}
-                  isDeleted={message.isDeleted}
-                  type={message.type}
-                  url={message?.url}
-                  thumb={message?.thumb}
-                  fileName={message?.fileName}
-                  ext={message?.ext}
-                />
-                {privateMessageStore[privateChatUser]?.length - 1 === index ? (
-                  <Spacer size={10} />
-                ) : (
-                  <></>
-                )}
-              </>
-            ))}
+                    <Spacer size={10} />
+                  ) : (
+                    <></>
+                  )}
+                </>
+              ),
+            )}
           </>
         ) : (
           <></>
@@ -369,9 +396,9 @@ const style = StyleSheet.create({
     borderRadius: 18,
   },
   userAvatarText: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 14,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
@@ -395,7 +422,10 @@ const style = StyleSheet.create({
     textAlign: 'left',
     flexShrink: 1,
   },
-  containerView: {flex: 8},
+  containerView: {
+    flex: 8,
+    position: 'relative',
+  },
   infoTextView: {
     marginVertical: 2,
     flexDirection: 'row',

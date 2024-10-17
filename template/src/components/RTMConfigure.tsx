@@ -93,6 +93,7 @@ const RtmConfigure = (props: any) => {
   }, [defaultContent]);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
+  const [isInitialQueueCompleted, setIsInitialQueueCompleted] = useState(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   let engine = useRef<RtmEngine>(null!);
@@ -181,6 +182,7 @@ const RtmConfigure = (props: any) => {
       });
       setHasUserJoinedRTM(true);
       await runQueuedEvents();
+      setIsInitialQueueCompleted(true);
       logger.log(
         LogSource.AgoraSDK,
         'Log',
@@ -811,6 +813,7 @@ const RtmConfigure = (props: any) => {
   return (
     <ChatContext.Provider
       value={{
+        isInitialQueueCompleted,
         rtmInitTimstamp,
         hasUserJoinedRTM,
         engine: engine.current,

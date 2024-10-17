@@ -156,8 +156,6 @@ const ChatParticipants = (props: any) => {
                           </View>
                           <Spacer size={20} horizontal={true} />
                         </>
-                      ) : isMobile || isHovered ? (
-                        <ChatIcon />
                       ) : (
                         <></>
                       )}
@@ -225,9 +223,9 @@ const style = StyleSheet.create({
     borderRadius: 18,
   },
   userAvatarText: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 21,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
@@ -246,7 +244,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 14,
-    lineHeight: 14,
+    lineHeight: 21,
     color: $config.FONT_COLOR,
     textAlign: 'left',
     flexShrink: 1,

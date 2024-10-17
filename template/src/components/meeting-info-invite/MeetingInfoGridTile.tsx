@@ -164,7 +164,7 @@ const style = StyleSheet.create({
   },
   scroll: {
     flexGrow: 1,
-    padding: 4,
+    paddingTop: 4,
   },
   inviteContainerTile: {
     flex: 1,

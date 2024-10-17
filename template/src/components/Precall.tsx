@@ -248,6 +248,7 @@ const Precall = () => {
     VirtualBackgroundComponent,
     PrecallAfterView,
     PrecallBeforeView,
+    wrapper: PrecallWrapper,
   } = useCustomization(data => {
     const components: {
       PrecallAfterView: React.ComponentType;
@@ -256,6 +257,7 @@ const Precall = () => {
       VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       VideoPreview: React.ComponentType;
       MeetingName: React.ComponentType<MeetingTitleProps>;
+      wrapper: React.ComponentType;
     } = {
       PrecallAfterView: React.Fragment,
       PrecallBeforeView: React.Fragment,
@@ -263,6 +265,7 @@ const Precall = () => {
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
       VirtualBackgroundComponent: VBPanel,
+      wrapper: React.Fragment,
     };
     // commented for v1 release
     // if (
@@ -309,6 +312,15 @@ const Precall = () => {
     //     }
     //   }
     // }
+
+    if (
+      data?.components?.precall?.wrapper &&
+      typeof data?.components?.precall?.wrapper !== 'object'
+    ) {
+      if (isValidReactComponent(data?.components?.precall?.wrapper)) {
+        components.wrapper = data?.components?.precall?.wrapper;
+      }
+    }
 
     if (
       data?.components?.precall?.virtualBackgroundPanel &&
@@ -388,7 +400,7 @@ const Precall = () => {
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
-    <>
+    <PrecallWrapper>
       <PrecallBeforeView />
       {$config.EVENT_MODE &&
       rtcProps.role == ClientRoleType.ClientRoleAudience ? (
@@ -529,7 +541,7 @@ const Precall = () => {
         </View>
       )}
       <PrecallAfterView />
-    </>
+    </PrecallWrapper>
   );
 };
 

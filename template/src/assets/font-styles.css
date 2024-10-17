@@ -24,6 +24,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-clipboard_outlined:before {
+  content: '\e9a2';
+}
+.icon-add_reaction:before {
+  content: '\e9a1';
+  color: #fff;
+}
 .icon-fullscreen:before {
   content: '\e9a0';
   color: #fff;
@@ -192,7 +199,7 @@
 .icon-chat_emoji_fill .path2:before {
   content: '\e996';
   margin-left: -1em;
-  color: rgb(17, 17, 17);
+  color: rgb(0, 0, 0);
 }
 .icon-chat_emoji_fill .path3:before {
   content: '\e997';
