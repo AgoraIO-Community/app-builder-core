@@ -48,7 +48,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   return (
     <TouchableOpacity
       onPress={handleCheckboxToggle}
-      style={(styles.container, containerStyle)}>
+      style={[styles.container, containerStyle]}>
       <View
         style={[
           styles.checkboxContainer,
