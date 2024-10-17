@@ -34,6 +34,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   tickColor = $config.FONT_COLOR,
 }) => {
   const [isChecked, setIsChecked] = useState(checked);
+
   React.useEffect(() => {
     setIsChecked(checked);
   }, [checked]);
