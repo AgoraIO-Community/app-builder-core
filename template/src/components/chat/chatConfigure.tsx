@@ -19,7 +19,6 @@ import {
   useChatUIControls,
 } from '../../components/chat-ui/useChatUIControls';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
-import {err} from 'react-native-svg/lib/typescript/xml';
 
 export interface FileObj {
   url: string;
@@ -42,6 +41,8 @@ interface chatConfigureContextInterface {
   ) => void;
   addReaction: (messageId: string, reaction: string) => void;
   removeReaction: (messageId: string, reaction: string) => void;
+  pinMessage: (messageId: string) => void;
+  unPinMessage: (messageId: string) => void;
 }
 
 export const chatConfigureContext =
@@ -55,6 +56,8 @@ export const chatConfigureContext =
     deleteAttachment: () => {},
     addReaction: () => {},
     removeReaction: () => {},
+    pinMessage: () => {},
+    unPinMessage: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -62,8 +65,14 @@ const ChatConfigure = ({children}) => {
   const {data} = useRoomInfo();
   const connRef = React.useRef(null);
   const {defaultContent} = useContent();
-  const {privateChatUser, setUploadStatus, setUploadedFiles, uploadedFiles} =
-    useChatUIControls();
+  const {
+    privateChatUser,
+    setUploadStatus,
+    setUploadedFiles,
+    uploadedFiles,
+    setPinMsgId,
+    setPinnedByUser,
+  } = useChatUIControls();
   const localUid = useLocalUid();
   const defaultContentRef = React.useRef(defaultContent);
   const {
@@ -92,6 +101,7 @@ const ChatConfigure = ({children}) => {
         // Initializes the Web client.
         newConn = new AgoraChat.connection({
           appKey: CHAT_APP_KEY,
+          isFixedDeviceId: false,
         });
         // Logs into Agora Chat.
         const result = await newConn.open({
@@ -306,6 +316,12 @@ const ChatConfigure = ({children}) => {
           // on token expired
           onTokenExpired: () => {
             logger.log(LogSource.Internals, 'CHAT', 'ChatSDK Token expired');
+          },
+          // to reciev pin message event
+          onMessagePinEvent: options => {
+            const {messageId, operation, operatorId} = options;
+            operation === 'pin' ? setPinMsgId(messageId) : setPinMsgId('');
+            setPinnedByUser(operatorId);
           },
           onError: error => {
             logger.error(LogSource.Internals, 'CHAT', 'ChatSDK Error', error);
@@ -588,6 +604,68 @@ const ChatConfigure = ({children}) => {
         });
     }
   };
+
+  const pinMessage = (messageId: string) => {
+    if (connRef.current) {
+      connRef.current
+        .pinMessage({
+          conversationId: data.chat.group_id,
+          conversationType: SDKChatType.GROUP_CHAT,
+          messageId,
+        })
+        .then(res => {
+          setPinMsgId(messageId);
+          setPinnedByUser(localUid);
+          //
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Successfully Pinned message with id ${messageId}`,
+            res,
+          );
+        })
+        .catch(err => {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Failed to Pin Message with id ${messageId}`,
+            err,
+          );
+        });
+    }
+  };
+
+  const unPinMessage = (messageId: string) => {
+    if (connRef.current) {
+      connRef.current
+        .unpinMessage({
+          conversationId: data.chat.group_id,
+          conversationType: SDKChatType.GROUP_CHAT,
+          messageId,
+        })
+        .then(res => {
+          setPinMsgId('');
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Successfully Pinned message with id ${messageId}`,
+            res,
+          );
+        })
+        .catch(err => {
+          logger.debug(
+            LogSource.Internals,
+            'CHAT',
+            `Failed to Pin Message with id ${messageId}`,
+            err,
+          );
+        });
+    }
+  };
+
+  const blockGroupMember = () => {};
+
+  const unBlockGroupMember = () => {};
   return (
     <chatConfigureContext.Provider
       value={{
@@ -600,6 +678,8 @@ const ChatConfigure = ({children}) => {
         deleteAttachment,
         addReaction,
         removeReaction,
+        pinMessage,
+        unPinMessage,
       }}>
       {children}
     </chatConfigureContext.Provider>

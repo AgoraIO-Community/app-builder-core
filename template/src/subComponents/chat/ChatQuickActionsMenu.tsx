@@ -61,13 +61,16 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     showEmojiPicker,
     privateChatUser,
     replyToMsgId,
+    pinMsgId,
+    setPinMsgId,
     setReplyToMsgId,
+    pinnedByUser,
   } = useChatUIControls();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
     useChatMessages();
   const [showDeleteMessageModal, setShowDeleteMessageModal] =
     React.useState(false);
-  const {deleteAttachment} = useChatConfigure();
+  const {deleteAttachment, pinMessage, unPinMessage} = useChatConfigure();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const {defaultContent} = useContent();
@@ -77,6 +80,8 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
   } = useRoomInfo();
 
   const groupID = chat.group_id;
+  const isGroupOwner = chat.is_group_owner;
+  const isMsgPinned = pinMsgId === messageId && pinnedByUser === userId;
 
   showReplyOption &&
     actionMenuitems.push({
@@ -135,26 +140,29 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         setActionMenuVisible(false);
       },
     });
-  // actionMenuitems.push({
-  //   icon: 'pin-outlined',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Pin Message',
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  actionMenuitems.push({
+    icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
+    onPress: () => {
+      isMsgPinned ? unPinMessage(messageId) : pinMessage(messageId);
+      setActionMenuVisible(false);
+    },
+  });
 
-  // actionMenuitems.push({
-  //   icon: 'block_user',
-  //   iconColor: $config.SEMANTIC_ERROR,
-  //   textColor: $config.SEMANTIC_ERROR,
-  //   title: 'Block User',
-  //   onPress: () => {
-  //     // block user can be done only by group owner and admins
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  //Only Chat Group Owner and Admin  can block a user
+  isGroupOwner &&
+    actionMenuitems.push({
+      icon: 'block_user',
+      iconColor: $config.SEMANTIC_ERROR,
+      textColor: $config.SEMANTIC_ERROR,
+      title: 'Block User',
+      onPress: () => {
+        // block user can be done only by group owner and admins
+        setActionMenuVisible(false);
+      },
+    });
 
   actionMenuitems.push({
     icon: 'delete',

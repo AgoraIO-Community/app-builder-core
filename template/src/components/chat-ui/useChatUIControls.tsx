@@ -59,7 +59,11 @@ export interface ChatUIControlsInterface {
   _handleHeightChange: () => void;
   chatInputRef: any;
   replyToMsgId: string;
-  setReplyToMsgId:React.Dispatch<SetStateAction<string>>;
+  setReplyToMsgId: React.Dispatch<SetStateAction<string>>;
+  pinMsgId: string;
+  setPinMsgId: React.Dispatch<SetStateAction<string>>;
+  pinnedByUser: UidType;
+  setPinnedByUser: React.Dispatch<SetStateAction<UidType>>;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -82,8 +86,12 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   _resetTextareaHeight: () => {},
   _handleHeightChange: () => {},
   chatInputRef: null,
-  replyToMsgId:'',
-  setReplyToMsgId:() => {},
+  replyToMsgId: '',
+  setReplyToMsgId: () => {},
+  pinMsgId: '',
+  setPinMsgId: () => {},
+  pinnedByUser: 0,
+  setPinnedByUser: () => {},
 });
 
 interface ChatUIControlsProviderProps {
@@ -114,7 +122,9 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [inputHeight, setInputHeight] = useState(MIN_HEIGHT);
   const chatInputRef = useRef(null);
-  const [replyToMsgId,setReplyToMsgId] = useState('');
+  const [replyToMsgId, setReplyToMsgId] = useState('');
+  const [pinMsgId, setPinMsgId] = useState('');
+  const [pinnedByUser, setPinnedByUser] = useState<UidType>(0);
 
   const _resetTextareaHeight = () => {
     if (chatInputRef?.current) {
@@ -168,7 +178,11 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         _resetTextareaHeight,
         _handleHeightChange,
         replyToMsgId,
-        setReplyToMsgId
+        setReplyToMsgId,
+        pinMsgId,
+        setPinMsgId,
+        pinnedByUser,
+        setPinnedByUser,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>
