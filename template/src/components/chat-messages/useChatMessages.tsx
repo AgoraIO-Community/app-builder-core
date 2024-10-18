@@ -97,6 +97,7 @@ export interface messageInterface {
   fileName?: string;
   ext?: string;
   reactions?: Reaction[];
+  replyToMsgId?: string;
 }
 
 export enum SDKChatType {
@@ -119,6 +120,7 @@ export interface ChatOption {
     from_platform?: string;
     channel?: string;
     msg?: string;
+    replyToMsgId?: string;
   };
   url?: string;
 }
@@ -343,6 +345,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           url: body?.url,
           ext: body?.ext,
           fileName: body?.fileName,
+          replyToMsgId: body?.replyToMsgId,
         },
       ];
     });
@@ -369,6 +372,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
               url: body?.url,
               ext: body?.ext,
               fileName: body?.fileName,
+              replyToMsgId: body?.replyToMsgId,
             },
           ])
         : (newState = {

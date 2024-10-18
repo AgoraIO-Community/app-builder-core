@@ -58,6 +58,7 @@ import {
   groupChatWelcomeContent,
 } from '../language/default-labels/videoCallScreenLabels';
 import CommonStyles from '../components/CommonStyles';
+import PinnedMessage from './chat/PinnedMessage';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -76,8 +77,15 @@ const ChatContainer = (props?: {
   const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
-  const {chatType, setChatType, privateChatUser, inputActive, showEmojiPicker} =
-    useChatUIControls();
+  const {
+    chatType,
+    setChatType,
+    privateChatUser,
+    inputActive,
+    showEmojiPicker,
+    pinMsgId,
+    pinnedByUser,
+  } = useChatUIControls();
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
   );
@@ -212,6 +220,9 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
+      {pinMsgId && (
+        <PinnedMessage pinMsgId={pinMsgId} pinnedByUser={pinnedByUser} />
+      )}
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={onContentSizeChange}
@@ -223,6 +234,7 @@ const ChatContainer = (props?: {
                 {info1(messageStore?.length ? false : true)}
               </Text>
             </View>
+
             {messageStore.map((message: messageStoreInterface, index) => (
               <>
                 {messageStoreLengthRef.current === messageStore.length &&
@@ -268,6 +280,8 @@ const ChatContainer = (props?: {
                   ext={message?.ext}
                   reactions={message?.reactions}
                   scrollOffset={scrollOffset}
+                  replyToMsgId={message?.replyToMsgId}
+                  isLastMsg={messageStore.length - 1 === index}
                 />
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
@@ -328,6 +342,10 @@ const ChatContainer = (props?: {
                     fileName={message?.fileName}
                     ext={message?.ext}
                     reactions={message?.reactions}
+                    replyToMsgId={message?.replyToMsgId}
+                    isLastMsg={
+                      privateMessageStore[privateChatUser].length - 1 === index
+                    }
                   />
                   {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (

@@ -37,6 +37,7 @@ interface ChatQuickActionsMenuProps {
   messageId?: string;
   type: ChatMessageType;
   message: string;
+  showReplyOption?: boolean;
 }
 
 const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
@@ -49,17 +50,27 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     messageId,
     type,
     message: msg,
+    showReplyOption,
   } = props;
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = React.useState({});
-  const {setChatType, setPrivateChatUser, showEmojiPicker, privateChatUser} =
-    useChatUIControls();
+  const {
+    setChatType,
+    setPrivateChatUser,
+    showEmojiPicker,
+    privateChatUser,
+    replyToMsgId,
+    pinMsgId,
+    setPinMsgId,
+    setReplyToMsgId,
+    pinnedByUser,
+  } = useChatUIControls();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
     useChatMessages();
   const [showDeleteMessageModal, setShowDeleteMessageModal] =
     React.useState(false);
-  const {deleteAttachment} = useChatConfigure();
+  const {deleteAttachment, pinMessage, unPinMessage} = useChatConfigure();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const {defaultContent} = useContent();
@@ -69,16 +80,20 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
   } = useRoomInfo();
 
   const groupID = chat.group_id;
+  const isGroupOwner = chat.is_group_owner;
+  const isMsgPinned = pinMsgId === messageId && pinnedByUser === userId;
 
-  // actionMenuitems.push({
-  //   icon: 'reply',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Reply',
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  showReplyOption &&
+    actionMenuitems.push({
+      icon: 'reply',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Reply',
+      onPress: () => {
+        setReplyToMsgId(messageId);
+        setActionMenuVisible(false);
+      },
+    });
 
   const cancelTxt = useString(cancelText)();
   const cancelLabel =
@@ -125,26 +140,29 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         setActionMenuVisible(false);
       },
     });
-  // actionMenuitems.push({
-  //   icon: 'pin-outlined',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Pin Message',
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  actionMenuitems.push({
+    icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
+    onPress: () => {
+      isMsgPinned ? unPinMessage(messageId) : pinMessage(messageId);
+      setActionMenuVisible(false);
+    },
+  });
 
-  // actionMenuitems.push({
-  //   icon: 'block_user',
-  //   iconColor: $config.SEMANTIC_ERROR,
-  //   textColor: $config.SEMANTIC_ERROR,
-  //   title: 'Block User',
-  //   onPress: () => {
-  //     // block user can be done only by group owner and admins
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  //Only Chat Group Owner and Admin  can block a user
+  isGroupOwner &&
+    actionMenuitems.push({
+      icon: 'block_user',
+      iconColor: $config.SEMANTIC_ERROR,
+      textColor: $config.SEMANTIC_ERROR,
+      title: 'Block User',
+      onPress: () => {
+        // block user can be done only by group owner and admins
+        setActionMenuVisible(false);
+      },
+    });
 
   actionMenuitems.push({
     icon: 'delete',
@@ -238,6 +256,7 @@ export const MoreMessageOptions = ({
   messageId,
   type,
   message,
+  showReplyOption = true,
 }) => {
   const moreIconRef = React.useRef(null);
   const [messageOptionsMenuVisible, setMessageOptionsMenuVisible] =
@@ -256,6 +275,7 @@ export const MoreMessageOptions = ({
         messageId={messageId}
         type={type}
         message={message}
+        showReplyOption={showReplyOption}
       />
 
       <View
