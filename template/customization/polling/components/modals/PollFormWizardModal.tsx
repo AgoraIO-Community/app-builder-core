@@ -11,7 +11,7 @@ import {
 } from '../../context/poll-context';
 import {usePoll} from '../../context/poll-context';
 import {initPollForm} from '../form/form-config';
-import {useLocalUid} from 'customization-api';
+import {useLocalUid, useContent} from 'customization-api';
 import {log} from '../../helpers';
 
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
@@ -39,6 +39,8 @@ export default function PollFormWizardModal({
 
   const localUid = useLocalUid();
   const localUidRef = useRef(localUid);
+  const {defaultContent} = useContent();
+  const defaultContentRef = useRef(defaultContent);
 
   // Monitor savedPollId to send poll when it's updated
   useEffect(() => {
@@ -60,7 +62,11 @@ export default function PollFormWizardModal({
         }
       } else if (type !== PollKind.NONE) {
         // Initialize the form for a new poll based on the selected type
-        setForm(initPollForm(type, localUidRef.current));
+        const user = {
+          uid: localUidRef.current,
+          name: defaultContentRef?.current[localUidRef.current]?.name || 'user',
+        };
+        setForm(initPollForm(type, user));
         setStep('DRAFT');
       }
     } catch (error) {
