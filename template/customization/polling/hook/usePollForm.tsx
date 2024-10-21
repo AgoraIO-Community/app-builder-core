@@ -1,6 +1,6 @@
 import {useState, useEffect, useRef, useCallback, SetStateAction} from 'react';
 import {PollItem, PollKind} from '../context/poll-context';
-import {useLocalUid} from 'customization-api';
+// import {useLocalUid} from 'customization-api';
 
 interface UsePollFormProps {
   pollItem: PollItem;
@@ -47,7 +47,7 @@ export function usePollForm({
   );
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const localUid = useLocalUid();
+  // const localUid = useLocalUid();
 
   // Set state for radio button selection
   const handleRadioSelect = useCallback((option: string) => {

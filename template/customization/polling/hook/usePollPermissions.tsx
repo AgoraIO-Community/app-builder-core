@@ -30,7 +30,7 @@ export const usePollPermissions = ({
     // Determine if the user is both a host and the creator of the poll
     const isPollHost = isHost && isPollCreator;
     // Determine if the user is a host but not the creator of the poll (co-host)
-    const isPollCoHost = isHost && !isPollCreator;
+    // const isPollCoHost = isHost && !isPollCreator;
     // Determine if the user is an attendee (not a host and not the creator)
     const isPollAttendee = !isHost && !isPollCreator;
 
