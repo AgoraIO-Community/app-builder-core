@@ -60,8 +60,13 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     userId,
   } = props;
 
-  const {setChatType, setPrivateChatUser, setReplyToMsgId} =
-    useChatUIControls();
+  const {
+    setChatType,
+    setPrivateChatUser,
+    setReplyToMsgId,
+    pinMsgId,
+    pinnedByUser,
+  } = useChatUIControls();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -69,7 +74,8 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
   const [showDeleteMessageModal, setShowDeleteMessageModal] =
     React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const {downloadAttachment, deleteAttachment} = useChatConfigure();
+  const {downloadAttachment, deleteAttachment, pinMessage, unPinMessage} =
+    useChatConfigure();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
     useChatMessages();
   const {defaultContent} = useContent();
@@ -97,6 +103,7 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     );
   }
   const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
+  const isMsgPinned = pinMsgId === msgId && pinnedByUser === userId;
 
   actionMenuitems.push({
     icon: 'reply',
@@ -105,6 +112,17 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     title: 'Reply',
     onPress: () => {
       setReplyToMsgId(msgId);
+      setActionMenuVisible(false);
+    },
+  });
+
+  actionMenuitems.push({
+    icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
+    onPress: () => {
+      isMsgPinned ? unPinMessage(msgId) : pinMessage(msgId);
       setActionMenuVisible(false);
     },
   });

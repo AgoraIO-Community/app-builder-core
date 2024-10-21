@@ -44,6 +44,8 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
       : trimText(defaultContent[pinnedByUser]?.name);
   let time = formatAMPM(new Date(pinnedMsg[0]?.createdTimestamp));
   const isAttachMsg = pinnedMsg[0].type !== ChatMessageType.TXT;
+  const fileExt = pinnedMsg[0].ext;
+  const fileName = pinnedMsg[0].fileName;
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -70,36 +72,64 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
         <Text style={styles.pinnedUser}> Pinned By {msgPinnedUser}</Text>
       </View>
 
-      {isAttachMsg ? (
-        <></>
-      ) : (
-        <Pressable style={styles.msgContainer} onPress={toggleExpanded}>
-          <>
-            {/* Hidden Text to Measure */}
-            <Text
-              style={[styles.messageText, {position: 'absolute', opacity: 0}]}
-              numberOfLines={0}
-              onLayout={handleTextLayout}>
-              {pinnedMsg[0].msg}
-            </Text>
-            <Text
-              style={styles.messageText}
-              numberOfLines={isExpanded ? 0 : 1}
-              ellipsizeMode={'tail'}>
-              {pinnedMsg[0].msg}
-            </Text>
-          </>
-
-          {showMoreIcon && (
+      <Pressable style={styles.msgContainer} onPress={toggleExpanded}>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 8,
+            alignItems: 'flex-start',
+            width: '90%',
+          }}>
+          {isAttachMsg && (
             <ImageIcon
-              iconType="plain"
-              name={isExpanded ? 'arrow-up' : 'arrow-down'}
+              base64={true}
               iconSize={20}
-              tintColor={$config.SECONDARY_ACTION_COLOR}
+              iconType="plain"
+              name={
+                fileExt === 'pdf'
+                  ? 'chat_attachment_pdf'
+                  : fileExt === 'doc' || fileExt === 'docx'
+                  ? 'chat_attachment_doc'
+                  : pinnedMsg[0].type === ChatMessageType.IMAGE
+                  ? 'chat_attachment_image'
+                  : 'chat_attachment_unknown'
+              }
+              tintColor={$config.SEMANTIC_NEUTRAL}
             />
           )}
-        </Pressable>
-      )}
+          {/* Hidden Text to Measure */}
+          <Text
+            style={[styles.messageText, {position: 'absolute', opacity: 0}]}
+            numberOfLines={0}
+            onLayout={handleTextLayout}>
+            {isAttachMsg
+              ? pinnedMsg[0].msg
+                ? pinnedMsg[0].msg
+                : fileName
+              : pinnedMsg[0].msg}
+          </Text>
+          <Text
+            style={styles.messageText}
+            numberOfLines={isExpanded ? 0 : 1}
+            ellipsizeMode={'tail'}>
+            {isAttachMsg
+              ? pinnedMsg[0].msg
+                ? pinnedMsg[0].msg
+                : fileName
+              : pinnedMsg[0].msg}
+          </Text>
+        </View>
+
+        {showMoreIcon && (
+          <ImageIcon
+            iconType="plain"
+            name={isExpanded ? 'arrow-up' : 'arrow-down'}
+            iconSize={20}
+            tintColor={$config.SECONDARY_ACTION_COLOR}
+          />
+        )}
+      </Pressable>
+
       <Text style={styles.user}>
         {name} <Text style={styles.pinnedUser}>sent at {time}</Text>
       </Text>
@@ -163,5 +193,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: 12,
   },
 });
