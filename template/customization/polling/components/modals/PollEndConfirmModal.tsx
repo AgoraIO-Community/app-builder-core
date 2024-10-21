@@ -15,19 +15,34 @@ import {
 } from 'customization-api';
 import {PollTaskRequestTypes, usePoll} from '../../context/poll-context';
 
-export default function PollEndConfirmModal({pollId}: {pollId: string}) {
+interface PollConfirmModalProps {
+  pollId: string;
+  actionType: 'end' | 'delete'; // Define the type of action (end or delete)
+}
+
+export default function PollConfirmModal({
+  pollId,
+  actionType,
+}: PollConfirmModalProps) {
   const {handlePollTaskRequest, closeCurrentModal} = usePoll();
+
+  const modalTitle = actionType === 'end' ? 'End Poll?' : 'Delete Poll?';
+  const description =
+    actionType === 'end'
+      ? 'This will stop the poll for everyone in this call.'
+      : 'This will permanently delete the poll and its results. This action cannot be undone.';
+
+  const confirmButtonText =
+    actionType === 'end' ? 'End for all' : 'Delete Poll';
 
   return (
     <BaseModal visible={true} onClose={closeCurrentModal}>
-      <BaseModalTitle title="End Poll?">
+      <BaseModalTitle title={modalTitle}>
         <BaseModalCloseIcon onClose={closeCurrentModal} />
       </BaseModalTitle>
       <BaseModalContent noPadding>
         <View style={style.section}>
-          <Text style={style.descriptionText}>
-            This will stop the poll for everyone in this call.
-          </Text>
+          <Text style={style.descriptionText}>{description}</Text>
         </View>
       </BaseModalContent>
       <BaseModalActions alignRight>
@@ -44,10 +59,15 @@ export default function PollEndConfirmModal({pollId}: {pollId: string}) {
               style.btnContainer,
               {backgroundColor: $config.SEMANTIC_ERROR},
             ]}
-            text="End for all"
+            text={confirmButtonText}
             textStyle={style.btnText}
             onPress={() => {
-              handlePollTaskRequest(PollTaskRequestTypes.FINISH, pollId);
+              if (actionType === 'delete') {
+                handlePollTaskRequest(PollTaskRequestTypes.DELETE, pollId);
+              }
+              if (actionType === 'end') {
+                handlePollTaskRequest(PollTaskRequestTypes.FINISH, pollId);
+              }
             }}
           />
         </View>

@@ -86,94 +86,85 @@ export default function DraftPollFormView({
   onClose,
   onSave,
 }: Props) {
-  // Create reducer for form state management
-  const [formState, dispatch] = useReducer(formReducer, form);
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setForm({
+      ...form,
+      [field]: value,
+    });
+  };
 
-  // Synchronize formState with the parent component using useEffect
-  useEffect(() => {
-    setForm(formState);
-  }, [formState, setForm]); // Ensure setForm and formState are dependencies
-
-  // Memoize input change handler to avoid re-creating on every render
-  const handleInputChange = useCallback(
-    (field: string, value: string | boolean) => {
-      try {
-        dispatch({type: 'UPDATE_FIELD', payload: {field, value}});
-      } catch (error) {
-        console.error(`Error updating field ${field}:`, error);
+  const handleCheckboxChange = (field: keyof PollItem, value: boolean) => {
+    if (field === 'anonymous' && value) {
+      setForm({
+        ...form,
+        [field]: value,
+        share_attendee: false,
+        share_host: false,
+      });
+      return;
+    } else if (field === 'share_attendee' || field === 'share_host') {
+      if (value) {
+        setForm({
+          ...form,
+          [field]: value,
+          anonymous: false,
+        });
+        return;
       }
-    },
-    [dispatch],
-  );
+    }
+    setForm({
+      ...form,
+      [field]: value,
+    });
+  };
 
-  // Memoize checkbox change handler
-  const handleCheckboxChange = useCallback(
-    (field: keyof PollItem, value: boolean) => {
-      try {
-        if (field === 'anonymous' && value) {
-          dispatch({
-            type: 'UPDATE_FIELD',
-            payload: {field, value},
-          });
-          dispatch({
-            type: 'UPDATE_FIELD',
-            payload: {field: 'share_attendee', value: false},
-          });
-          dispatch({
-            type: 'UPDATE_FIELD',
-            payload: {field: 'share_host', value: false},
-          });
-        } else if (field === 'share_attendee' || field === 'share_host') {
-          if (value) {
-            dispatch({
-              type: 'UPDATE_FIELD',
-              payload: {field, value},
-            });
-            dispatch({
-              type: 'UPDATE_FIELD',
-              payload: {field: 'anonymous', value: false},
-            });
-          }
-        } else {
-          dispatch({type: 'UPDATE_FIELD', payload: {field, value}});
-        }
-      } catch (error) {
-        console.error('Error updating checkbox state:', error);
-      }
-    },
-    [dispatch],
-  );
-
-  // Memoize form option update handler
-  const updateFormOption = useCallback(
-    (action: 'update' | 'delete' | 'add', value: string, index: number) => {
-      try {
-        switch (action) {
-          case 'add':
-            dispatch({type: 'ADD_OPTION'});
-            break;
-          case 'update':
+  const updateFormOption = (
+    action: 'update' | 'delete' | 'add',
+    value: string,
+    index: number,
+  ) => {
+    if (action === 'add') {
+      setForm({
+        ...form,
+        options: [
+          ...(form.options || []),
+          {
+            text: '',
+            value: '',
+            votes: [],
+            percent: '0',
+          },
+        ],
+      });
+    }
+    if (action === 'update') {
+      setForm(prevForm => ({
+        ...prevForm,
+        options: prevForm.options?.map((option, i) => {
+          if (i === index) {
             const text = value.trim();
             const lowerText = text
               .replace(/\s+/g, '-')
               .toLowerCase()
               .concat('-')
               .concat(nanoid(2));
-            dispatch({
-              type: 'UPDATE_OPTION',
-              payload: {index, option: {text, value: lowerText, votes: []}},
-            });
-            break;
-          case 'delete':
-            dispatch({type: 'DELETE_OPTION', payload: {index}});
-            break;
-        }
-      } catch (error) {
-        console.error('Error updating form options:', error);
-      }
-    },
-    [dispatch],
-  );
+            return {
+              ...option,
+              text: text,
+              value: lowerText,
+            };
+          }
+          return option;
+        }),
+      }));
+    }
+    if (action === 'delete') {
+      setForm({
+        ...form,
+        options: form.options?.filter((option, i) => i !== index) || [],
+      });
+    }
+  };
 
   return (
     <>
@@ -195,7 +186,7 @@ export default function DraftPollFormView({
                 ]}
                 multiline={true}
                 numberOfLines={4}
-                value={form.question}
+                value={form.question || ''}
                 onChangeText={text => {
                   handleInputChange('question', text);
                 }}
@@ -243,7 +234,7 @@ export default function DraftPollFormView({
                       id="input"
                       style={style.pFormInput}
                       value={option.text}
-                      onChangeText={text => {
+                      onChangeText={(text: string) => {
                         updateFormOption('update', text, index);
                       }}
                       placeholder={`Option ${index + 1}`}
@@ -264,7 +255,7 @@ export default function DraftPollFormView({
                             tintColor: $config.CARD_LAYER_5_COLOR,
                           }}
                           onPress={() => {
-                            updateFormOption('delete', option.text, index);
+                            updateFormOption('delete', '', index);
                           }}
                         />
                       </View>

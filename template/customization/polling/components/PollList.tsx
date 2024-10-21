@@ -23,7 +23,7 @@ export default function PollList() {
   const groupedPolls = Object.entries(polls).reduce(
     (acc, [key, poll]) => {
       // Check if the poll should be included in the LATER group based on creator
-      if (poll.status === PollStatus.LATER && poll.createdBy !== localUid) {
+      if (poll.status === PollStatus.LATER && poll.createdBy.uid !== localUid) {
         return acc; // Skip this poll if it doesn't match the localUid
       }
       // Otherwise, add the poll to the corresponding group

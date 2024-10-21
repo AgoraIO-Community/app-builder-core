@@ -79,7 +79,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
     icon: 'close',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Finish Poll',
+    title: 'End Poll',
     titleStyle: {
       fontSize: ThemeConfig.FontSize.small,
     },
@@ -99,7 +99,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
       fontSize: ThemeConfig.FontSize.small,
     },
     onPress: () => {
-      onCardActionSelect(PollTaskRequestTypes.DELETE);
+      onCardActionSelect(PollTaskRequestTypes.DELETE_CONFIRMATION);
       setActionMenuVisible(false);
     },
   });

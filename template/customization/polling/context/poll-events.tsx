@@ -19,7 +19,7 @@ enum PollEventNames {
 type sendResponseToPollEvtFunction = (
   item: PollItem,
   responses: string | string[],
-  uid: number,
+  user: {name: string; uid: number},
   timestamp: number,
 ) => void;
 
@@ -64,15 +64,15 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
 
   // Send response to poll handler
   const sendResponseToPollEvt: sendResponseToPollEvtFunction = useCallback(
-    (item, responses, uid, timestamp) => {
-      log('sendResponseToPollEvt called', {item, responses, uid, timestamp});
+    (item, responses, user, timestamp) => {
+      log('sendResponseToPollEvt called', {item, responses, user, timestamp});
       try {
-        if (!item || !item.id || !responses || !uid) {
+        if (!item || !item.id || !responses || !user.uid) {
           throw new Error(
             'Invalid arguments provided to sendResponseToPollEvt.',
           );
         }
-        if (!item.createdBy) {
+        if (!item?.createdBy?.uid) {
           throw new Error(
             'Poll createdBy is null, cannot send response to creator',
           );
@@ -82,11 +82,11 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
           JSON.stringify({
             id: item.id,
             responses,
-            uid,
+            user,
             timestamp,
           }),
           PersistanceLevel.None,
-          item.createdBy,
+          item.createdBy.uid,
         );
         log('Poll response sent successfully', {pollId: item.id});
       } catch (error) {

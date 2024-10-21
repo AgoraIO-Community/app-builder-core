@@ -150,6 +150,7 @@ const style = StyleSheet.create({
     elevation: 5,
     minWidth: 520,
     maxWidth: '90%',
+    minHeight: 220,
     maxHeight: '80%', // Set a maximum height for the modal
     overflow: 'hidden',
   },

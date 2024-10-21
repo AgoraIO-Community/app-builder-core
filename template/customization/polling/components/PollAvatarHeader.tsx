@@ -18,8 +18,9 @@ interface Props {
 function PollAvatarHeader({pollItem}: Props) {
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const {defaultContent} = useContent();
-  const getPollCreaterName = (uid: UidType) => {
-    return defaultContent[uid]?.name || remoteUserDefaultLabel;
+
+  const getPollCreaterName = ({uid, name}: {uid: UidType; name: string}) => {
+    return defaultContent[uid]?.name || name || remoteUserDefaultLabel;
   };
 
   return (

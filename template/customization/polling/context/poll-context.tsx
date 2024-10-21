@@ -13,6 +13,7 @@ import {
   useRoomInfo,
   useSidePanel,
   SidePanelType,
+  useContent,
 } from 'customization-api';
 import {
   getPollExpiresAtTime,
@@ -48,6 +49,7 @@ enum PollModalType {
   RESPOND_TO_POLL = 'RESPOND_TO_POLL',
   VIEW_POLL_RESULTS = 'VIEW_POLL_RESULTS',
   END_POLL_CONFIRMATION = 'END_POLL_CONFIRMATION',
+  DELETE_POLL_CONFIRMATION = 'DELETE_POLL_CONFIRMATION',
 }
 
 interface PollModalState {
@@ -60,10 +62,11 @@ enum PollTaskRequestTypes {
   SEND = 'SEND',
   PUBLISH = 'PUBLISH',
   EXPORT = 'EXPORT',
+  VIEW_DETAILS = 'VIEW_DETAILS',
   FINISH = 'FINISH',
   FINISH_CONFIRMATION = 'FINISH_CONFIRMATION',
-  VIEW_DETAILS = 'VIEW_DETAILS',
   DELETE = 'DELETE',
+  DELETE_CONFIRMATION = 'DELETE_CONFIRMATION',
   SHARE = 'SHARE',
   SYNC_COMPLETE = 'SYNC_COMPLETE',
 }
@@ -71,7 +74,7 @@ enum PollTaskRequestTypes {
 interface PollItemOptionItem {
   text: string;
   value: string;
-  votes: Array<{uid: number; timestamp: number}>;
+  votes: Array<{uid: number; name: string; timestamp: number}>;
   percent: string;
 }
 interface PollItem {
@@ -91,7 +94,7 @@ interface PollItem {
   anonymous: boolean;
   duration: boolean;
   expiresAt: number;
-  createdBy: number;
+  createdBy: {uid: number; name: string};
   createdAt: number;
 }
 
@@ -140,7 +143,7 @@ type PollAction =
       payload: {
         id: string;
         responses: string | string[];
-        uid: number;
+        user: {name: string; uid: number};
         timestamp: number;
       };
     }
@@ -149,7 +152,7 @@ type PollAction =
       payload: {
         id: string;
         responses: string | string[];
-        uid: number;
+        user: {name: string; uid: number};
         timestamp: number;
       };
     }
@@ -209,7 +212,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
       };
     }
     case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES: {
-      const {id: pollId, uid, responses, timestamp} = action.payload;
+      const {id: pollId, user, responses, timestamp} = action.payload;
       const poll = state[pollId];
       if (poll.type === PollKind.OPEN_ENDED && typeof responses === 'string') {
         return {
@@ -220,12 +223,12 @@ function pollReducer(state: Poll, action: PollAction): Poll {
               ? [
                   ...poll.answers,
                   {
-                    uid,
+                    ...user,
                     response: responses,
                     timestamp,
                   },
                 ]
-              : [{uid, response: responses, timestamp}],
+              : [{...user, response: responses, timestamp}],
           },
         };
       }
@@ -237,7 +240,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         const withVotesOptions = addVote(
           responses,
           newCopyOptions,
-          uid,
+          user,
           timestamp,
         );
         const withPercentOptions = calculatePercentage(withVotesOptions);
@@ -252,7 +255,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
       return state;
     }
     case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES: {
-      const {id: pollId, uid, responses, timestamp} = action.payload;
+      const {id: pollId, user, responses, timestamp} = action.payload;
       const poll = state[pollId];
       if (poll.type === PollKind.OPEN_ENDED && typeof responses === 'string') {
         return {
@@ -263,12 +266,12 @@ function pollReducer(state: Poll, action: PollAction): Poll {
               ? [
                   ...poll.answers,
                   {
-                    uid,
+                    ...user,
                     response: responses,
                     timestamp,
                   },
                 ]
-              : [{uid, response: responses, timestamp}],
+              : [{...user, response: responses, timestamp}],
           },
         };
       }
@@ -280,7 +283,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         const withVotesOptions = addVote(
           responses,
           newCopyOptions,
-          uid,
+          user,
           timestamp,
         );
         const withPercentOptions = calculatePercentage(withVotesOptions);
@@ -313,7 +316,7 @@ function pollReducer(state: Poll, action: PollAction): Poll {
         const pollId = action.payload.pollId;
         if (pollId && state[pollId]) {
           const data = state[pollId].options || []; // Provide a fallback in case options is null
-          let csv = arrayToCsv(data);
+          let csv = arrayToCsv(state[pollId].question, data);
           downloadCsv(csv, 'polls.csv');
         }
       }
@@ -355,7 +358,10 @@ interface PollContextValue {
   onPollResponseReceived: (
     pollId: string,
     responses: string | string[],
-    uid: number,
+    user: {
+      uid: number;
+      name: string;
+    },
     timestamp: number,
   ) => void;
   sendPollResults: (pollId: string) => void;
@@ -380,6 +386,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
     data: {isHost},
   } = useRoomInfo();
   const localUid = useLocalUid();
+  const {defaultContent} = useContent();
   const {syncPollEvt, sendResponseToPollEvt} = usePollEvents();
 
   const callDebouncedSyncPoll = useMemo(
@@ -443,19 +450,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
           break;
         case PollActionKind.SUBMIT_POLL_ITEM_RESPONSES:
           log('Handling SUBMIT_POLL_ITEM_RESPONSES');
-          const {id, responses, uid, timestamp} = lastAction.payload;
-          if (localUid === pollsRef.current[id]?.createdBy) {
+          const {id, responses, user, timestamp} = lastAction.payload;
+          if (localUid === pollsRef.current[id]?.createdBy.uid) {
             log(
               'No need to send event. User is the poll creator. We only sync data',
             );
             syncPollEvt(pollsRef.current, id, PollTaskRequestTypes.SAVE);
             return;
           }
-          if (localUid && uid && pollsRef.current[id]) {
+          if (localUid && user?.uid && pollsRef.current[id]) {
             sendResponseToPollEvt(
               pollsRef.current[id],
               responses,
-              uid,
+              user,
               timestamp,
             );
           } else {
@@ -465,7 +472,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
         case PollActionKind.RECEIVE_POLL_ITEM_RESPONSES:
           log('Handling RECEIVE_POLL_ITEM_RESPONSES');
           const {id: receivedPollId} = lastAction.payload;
-          const pollCreator = pollsRef.current[receivedPollId]?.createdBy;
+          const pollCreator = pollsRef.current[receivedPollId]?.createdBy.uid;
           if (localUid === pollCreator) {
             log('Received poll response, user is the creator. Syncing...');
             callDebouncedSyncPoll(
@@ -601,7 +608,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
       return;
     }
 
-    if (localUid === newPoll[pollId]?.createdBy) {
+    if (localUid === newPoll[pollId]?.createdBy.uid) {
       log('I am the creator, no further action needed.');
       return;
     }
@@ -642,7 +649,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
         payload: {
           id: item.id,
           responses,
-          uid: localUid,
+          user: {
+            uid: localUid,
+            name: defaultContent[localUid]?.name || 'user',
+          },
           timestamp: Date.now(),
         },
       });
@@ -656,16 +666,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
   const onPollResponseReceived = (
     pollId: string,
     responses: string | string[],
-    uid: number,
+    user: {
+      uid: number;
+      name: string;
+    },
     timestamp: number,
   ) => {
-    log('Received poll response:', {pollId, responses, uid, timestamp});
+    log('Received poll response:', {pollId, responses, user, timestamp});
     enhancedDispatch({
       type: PollActionKind.RECEIVE_POLL_ITEM_RESPONSES,
       payload: {
         id: pollId,
         responses,
-        uid,
+        user,
         timestamp,
       },
     });
@@ -715,6 +728,12 @@ function PollProvider({children}: {children: React.ReactNode}) {
         enhancedDispatch({
           type: PollActionKind.PUBLISH_POLL_ITEM,
           payload: {pollId},
+        });
+        break;
+      case PollTaskRequestTypes.DELETE_CONFIRMATION:
+        setModalState({
+          modalType: PollModalType.DELETE_POLL_CONFIRMATION,
+          id: pollId,
         });
         break;
       case PollTaskRequestTypes.DELETE:

@@ -62,9 +62,11 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                 </Text>
                 by{' '}
                 <Text style={style.youText}>
-                  {localUid === pollItem.createdBy
+                  {localUid === pollItem.createdBy.uid
                     ? 'You'
-                    : defaultContent[pollItem.createdBy]?.name || 'user'}
+                    : defaultContent[pollItem.createdBy.uid]?.name ||
+                      pollItem.createdBy?.name ||
+                      'user'}
                 </Text>
               </Text>
               <View style={style.dot} />
@@ -117,12 +119,18 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                         <View style={style.summaryItem} key={i}>
                           <View style={style.titleAvatar}>
                             <UserAvatar
-                              name={defaultContent[item.uid]?.name || 'user'}
+                              name={
+                                defaultContent[item.uid]?.name ||
+                                item?.name ||
+                                'user'
+                              }
                               containerStyle={style.titleAvatarContainer}
                               textStyle={style.titleAvatarContainerText}
                             />
                             <Text style={style.username}>
-                              {defaultContent[item.uid]?.name || 'user'}
+                              {defaultContent[item.uid]?.name ||
+                                item?.name ||
+                                'user'}
                             </Text>
                           </View>
                           <View>

@@ -14,12 +14,13 @@ export default function PollItemNotFound() {
 
   return (
     <BaseModal visible={true} onClose={closeCurrentModal}>
-      <BaseModalTitle title="No poll found">
+      <BaseModalTitle title="Poll Removed">
         <BaseModalCloseIcon onClose={closeCurrentModal} />
       </BaseModalTitle>
       <BaseModalContent>
         <Text style={{color: $config.FONT_COLOR}}>
-          Invalid pollId or Poll data is not available or invalid.
+          This poll has been deleted by the host. Your response was not
+          submitted.
         </Text>
       </BaseModalContent>
     </BaseModal>

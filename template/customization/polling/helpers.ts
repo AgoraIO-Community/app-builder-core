@@ -9,7 +9,7 @@ function log(...args: any[]) {
 function addVote(
   responses: string[],
   options: PollItemOptionItem[],
-  uid: number,
+  user: {name: string; uid: number},
   timestamp: number,
 ): PollItemOptionItem[] {
   return options.map((option: PollItemOptionItem) => {
@@ -24,7 +24,7 @@ function addVote(
         votes: [
           ...option.votes,
           {
-            uid,
+            ...user,
             timestamp,
           },
         ],
@@ -62,7 +62,7 @@ function calculatePercentage(
   }) as PollItemOptionItem[];
 }
 
-function arrayToCsv(data: PollItemOptionItem[]): string {
+function arrayToCsv(question: string, data: PollItemOptionItem[]): string {
   const headers = ['Option', 'Votes', 'Percent']; // Define the headers
   const rows = data.map(item => {
     const count = item.votes.length;
@@ -73,8 +73,9 @@ function arrayToCsv(data: PollItemOptionItem[]): string {
 
     return `${voteText},${votesCount},${votePercent}`;
   });
-
-  return [headers.join(','), ...rows].join('\n');
+  // Include poll question at the top
+  const pollQuestion = `Poll Question: "${question}"`;
+  return [pollQuestion, headers.join(','), ...rows].join('\n');
 }
 
 function downloadCsv(data: string, filename: string = 'data.csv'): void {

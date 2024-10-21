@@ -4,7 +4,7 @@ import PollFormWizardModal from './modals/PollFormWizardModal';
 import {PollEventsProvider, PollEventsSubscriber} from '../context/poll-events';
 import PollResponseFormModal from './modals/PollResponseFormModal';
 import PollResultModal from './modals/PollResultModal';
-import PollEndConfirmModal from './modals/PollEndConfirmModal';
+import PollConfirmModal from './modals/PollEndConfirmModal';
 import PollItemNotFound from './modals/PollItemNotFound';
 import {log} from '../helpers';
 
@@ -59,7 +59,14 @@ function PollModals() {
         return <PollItemNotFound />;
       case PollModalType.END_POLL_CONFIRMATION:
         if (modalState.id && polls[modalState.id]) {
-          return <PollEndConfirmModal pollId={modalState.id} />;
+          return <PollConfirmModal actionType="end" pollId={modalState.id} />;
+        }
+        return <PollItemNotFound />;
+      case PollModalType.DELETE_POLL_CONFIRMATION:
+        if (modalState.id && polls[modalState.id]) {
+          return (
+            <PollConfirmModal actionType="delete" pollId={modalState.id} />
+          );
         }
         return <PollItemNotFound />;
       case PollModalType.NONE:

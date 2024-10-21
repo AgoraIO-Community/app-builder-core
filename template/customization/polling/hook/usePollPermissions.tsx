@@ -26,7 +26,7 @@ export const usePollPermissions = ({
   // Calculate permissions using useMemo to optimize performance
   const permissions = useMemo(() => {
     // Check if the current user is the creator of the poll
-    const isPollCreator = pollItem?.createdBy === localUid || false;
+    const isPollCreator = pollItem?.createdBy.uid === localUid || false;
     // Determine if the user is both a host and the creator of the poll
     const isPollHost = isHost && isPollCreator;
     // Determine if the user is a host but not the creator of the poll (co-host)
