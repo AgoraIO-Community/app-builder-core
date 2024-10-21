@@ -1,5 +1,11 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useState} from 'react';
 import ImageIcon from '../../../src/atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ThemeConfig from '../../theme';
@@ -23,6 +29,8 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
   const {messageStore} = useChatMessages();
   const localUid = useLocalUid();
   const {defaultContent} = useContent();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showMoreIcon, setShowMoreIcon] = useState(false);
 
   const pinnedMsg = messageStore.filter(msg => msg.msgId === pinMsgId);
   if (pinnedMsg.length === 0) return null;
@@ -36,6 +44,19 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
       : trimText(defaultContent[pinnedByUser]?.name);
   let time = formatAMPM(new Date(pinnedMsg[0]?.createdTimestamp));
   const isAttachMsg = pinnedMsg[0].type !== ChatMessageType.TXT;
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+  const handleTextLayout = e => {
+    let textHeight = e.nativeEvent.layout?.height;
+    if (textHeight > 23) {
+      setShowMoreIcon(true);
+    } else {
+      setShowMoreIcon(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.pinUserContainer}>
@@ -52,12 +73,32 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
       {isAttachMsg ? (
         <></>
       ) : (
-        <Text
-          style={styles.messageText}
-          numberOfLines={1}
-          ellipsizeMode={'tail'}>
-          {pinnedMsg[0].msg}
-        </Text>
+        <Pressable style={styles.msgContainer} onPress={toggleExpanded}>
+          <>
+            {/* Hidden Text to Measure */}
+            <Text
+              style={[styles.messageText, {position: 'absolute', opacity: 0}]}
+              numberOfLines={0}
+              onLayout={handleTextLayout}>
+              {pinnedMsg[0].msg}
+            </Text>
+            <Text
+              style={styles.messageText}
+              numberOfLines={isExpanded ? 0 : 1}
+              ellipsizeMode={'tail'}>
+              {pinnedMsg[0].msg}
+            </Text>
+          </>
+
+          {showMoreIcon && (
+            <ImageIcon
+              iconType="plain"
+              name={isExpanded ? 'arrow-up' : 'arrow-down'}
+              iconSize={20}
+              tintColor={$config.SECONDARY_ACTION_COLOR}
+            />
+          )}
+        </Pressable>
       )}
       <Text style={styles.user}>
         {name} <Text style={styles.pinnedUser}>sent at {time}</Text>
@@ -87,6 +128,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 4,
     alignItems: 'flex-start',
+    maxHeight: 120,
+    overflow: 'scroll',
   },
   pinIcon: {
     transform: [{rotate: '-45deg'}],
@@ -114,5 +157,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     color: $config.FONT_COLOR,
+  },
+  msgContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
 });
