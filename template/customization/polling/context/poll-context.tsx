@@ -28,6 +28,7 @@ import {
   log,
   mergePolls,
 } from '../helpers';
+import {POLL_SIDEBAR_NAME} from '../../custom-ui';
 
 enum PollStatus {
   ACTIVE = 'ACTIVE',
@@ -635,6 +636,20 @@ function PollProvider({children}: {children: React.ReactNode}) {
           latestPollId: pollId,
         },
       });
+    } else {
+      if (Object.keys(mergedPolls).length > 0) {
+        // Check if there is an active poll
+        log('It is an initial load.');
+        const activePoll = Object.values(mergedPolls).find(
+          pollItem => pollItem.status === PollStatus.ACTIVE,
+        );
+        if (activePoll) {
+          log('It is an initial load. There is an active poll');
+          setSidePanel(POLL_SIDEBAR_NAME);
+        } else {
+          log('It is an initial load. There are no active poll');
+        }
+      }
     }
   };
 

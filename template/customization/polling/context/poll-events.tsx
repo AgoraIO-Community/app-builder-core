@@ -198,9 +198,9 @@ function PollEventsSubscriber({children}: {children?: React.ReactNode}) {
         const {payload} = args;
         const data = JSON.parse(payload);
         log('poll response received', data);
-        const {id, responses, uid, timestamp} = data;
+        const {id, responses, user, timestamp} = data;
         log('Poll response data parsed successfully:', data);
-        onPollResponseReceivedRef.current(id, responses, uid, timestamp);
+        onPollResponseReceivedRef.current(id, responses, user, timestamp);
       } catch (error) {
         log('Error handling poll response event:', error);
       }
