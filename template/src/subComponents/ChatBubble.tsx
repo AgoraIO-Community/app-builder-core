@@ -47,7 +47,7 @@ import {
   chatMsgDeletedText,
   videoRoomUserFallbackText,
 } from '../language/default-labels/videoCallScreenLabels';
-import {ReactionPicker, CustomReactioPicker} from './chat/ChatEmoji';
+import {ReactionPicker, CustomReactionPicker} from './chat/ChatEmoji';
 import {useChatConfigure} from '../../src/components/chat/chatConfigure';
 import Tooltip from '../../src/atoms/Tooltip';
 import {MoreMessageOptions} from './chat/ChatQuickActionsMenu';
@@ -129,7 +129,7 @@ export const ReplyMessageBubble = ({
       ? messageStore
       : privateMessageStore[privateChatUser];
   const repliedMsg = msgStore.filter(msg => msg.msgId === repliedMsgId);
-  const isAttachMsg = repliedMsg[0].type !== ChatMessageType.TXT;
+  const isAttachMsg = repliedMsg[0]?.type !== ChatMessageType.TXT;
 
   let time = formatAMPM(new Date(repliedMsg[0]?.createdTimestamp));
   const name =
@@ -142,10 +142,15 @@ export const ReplyMessageBubble = ({
 
   return (
     <View style={style.repliedMsgContainer}>
-      <View style={{flexDirection: 'row', gap: 8, alignItems: 'center'}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: 8,
+          alignItems: 'center',
+        }}>
         <View style={style.repliedMsgContent}>
           {isAttachMsg ? (
-            repliedMsg[0].type === ChatMessageType.IMAGE ? (
+            repliedMsg[0]?.type === ChatMessageType.IMAGE ? (
               <Image
                 source={{uri: repliedMsg[0]?.thumb}}
                 style={style.replyPreviewImg}
@@ -198,27 +203,29 @@ export const ReplyMessageBubble = ({
         </View>
       </View>
       {showCoseIcon && (
-        <IconButton
-          hoverEffect={false}
-          hoverEffectStyle={{
-            backgroundColor: $config.ICON_BG_COLOR,
-            borderRadius: 20,
-          }}
-          iconProps={{
-            iconType: 'plain',
-            iconContainerStyle: {
-              padding: 5,
-            },
-            iconSize: 20,
-            name: 'close',
-            tintColor: $config.SECONDARY_ACTION_COLOR,
-          }}
-          onPress={() => {
-            // handleEmojiClose();
-            // setShowEmojiPicker(false);
-            setReplyToMsgId('');
-          }}
-        />
+        <View>
+          <IconButton
+            hoverEffect={false}
+            hoverEffectStyle={{
+              backgroundColor: $config.ICON_BG_COLOR,
+              borderRadius: 20,
+            }}
+            iconProps={{
+              iconType: 'plain',
+              iconContainerStyle: {
+                padding: 5,
+              },
+              iconSize: 20,
+              name: 'close',
+              tintColor: $config.SECONDARY_ACTION_COLOR,
+            }}
+            onPress={() => {
+              // handleEmojiClose();
+              // setShowEmojiPicker(false);
+              setReplyToMsgId('');
+            }}
+          />
+        </View>
       )}
     </View>
   );
@@ -251,11 +258,13 @@ const ChatLastMsgOptions = ({msgId, isLocal, userId, type, message}) => {
           setReplyToMsgId(msgId);
         }}
       />
-      <CustomReactioPicker
-        isLocal={isLocal}
-        messageId={msgId}
-        setIsHovered={() => {}}
-      />
+      {isWebInternal() && (
+        <CustomReactionPicker
+          isLocal={isLocal}
+          messageId={msgId}
+          setIsHovered={() => {}}
+        />
+      )}
       <MoreMessageOptions
         userId={userId}
         isLocal={isLocal}

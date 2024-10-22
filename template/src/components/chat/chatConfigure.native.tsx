@@ -32,6 +32,7 @@ interface ChatMessageAttributes {
   from_platform?: string;
   channel?: string;
   msg?: string;
+  replyToMsgId?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -131,8 +132,15 @@ const ChatConfigure = ({children}) => {
             const {msgId, from, body, localTime} = message;
             const chatType = body.type;
             const fromUser = from;
-            const {file_ext, file_name, file_url, from_platform, channel, msg} =
-              message.attributes as ChatMessageAttributes;
+            const {
+              file_ext,
+              file_name,
+              file_url,
+              from_platform,
+              channel,
+              msg,
+              replyToMsgId,
+            } = message.attributes as ChatMessageAttributes;
 
             // prevent cross-channel messages
             if (channel !== data.channel) {
@@ -151,6 +159,7 @@ const ChatConfigure = ({children}) => {
                     msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.TXT,
+                    replyToMsgId,
                   });
                 }
                 if (isPeerChat) {
@@ -163,6 +172,7 @@ const ChatConfigure = ({children}) => {
                       msgId: msgId,
                       isDeleted: false,
                       type: ChatMessageType.TXT,
+                      replyToMsgId,
                     },
                     false,
                   );
@@ -197,6 +207,7 @@ const ChatConfigure = ({children}) => {
                     thumb: thumb,
                     url: url,
                     fileName: file_name,
+                    replyToMsgId,
                   });
                 }
                 if (isPeerChat) {
@@ -217,6 +228,7 @@ const ChatConfigure = ({children}) => {
                       thumb: thumb,
                       url: url,
                       fileName: file_name,
+                      replyToMsgId,
                     },
                     false,
                   );
@@ -242,6 +254,7 @@ const ChatConfigure = ({children}) => {
                     url: file_url,
                     ext: file_ext,
                     fileName: file_name,
+                    replyToMsgId,
                   });
                 }
                 if (isPeerChat) {
@@ -262,6 +275,7 @@ const ChatConfigure = ({children}) => {
                       url: file_url,
                       ext: file_ext,
                       fileName: file_name,
+                      replyToMsgId,
                     },
                     false,
                   );
@@ -372,8 +386,12 @@ const ChatConfigure = ({children}) => {
     switch (type) {
       case ChatMessageType.TXT:
         chatMsg = ChatMessage.createTextMessage(to, msg, chatMsgChatType);
+        console.warn('createTextMessage', chatMsg);
         chatMsg.attributes = {
           channel: data.channel,
+          replyToMsgId: option?.ext?.replyToMsgId,
+          nativeMsgId: chatMsg.msgId,
+          from_platform: 'native',
         };
         break;
       case ChatMessageType.IMAGE:
@@ -385,6 +403,8 @@ const ChatConfigure = ({children}) => {
           file_url: option?.ext?.file_url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
           channel: data.channel,
+          replyToMsgId: option?.ext?.replyToMsgId,
+          nativeMsgId: chatMsg.msgId,
         };
 
         console.warn('Image msg to be sent', chatMsg);
@@ -401,6 +421,8 @@ const ChatConfigure = ({children}) => {
           file_url: option?.url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
           channel: data.channel,
+          replyToMsgId: option?.ext?.replyToMsgId,
+          nativeMsgId: chatMsg.msgId,
         };
         console.warn('File msg to be sent', chatMsg);
         break;
@@ -410,7 +432,7 @@ const ChatConfigure = ({children}) => {
       .sendMessage(chatMsg, callback)
       .then(() => {
         // log here if the method call succeeds.
-        console.warn('send message success');
+
         // add to local store of sender
         // for image and file msgs we will update on upload success of chatAttachment.native
         if (type === ChatMessageType.TXT) {
@@ -420,6 +442,7 @@ const ChatConfigure = ({children}) => {
             msgId: chatMsg.msgId,
             isDeleted: false,
             type: option.type,
+            replyToMsgId: option?.ext?.replyToMsgId,
           };
 
           // this is local user messages

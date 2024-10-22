@@ -17,6 +17,7 @@ import {
   Image,
   Text,
   TextInput,
+  ViewStyle,
 } from 'react-native';
 import {useString} from '../utils/useString';
 import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
@@ -52,6 +53,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ChatUploadStatus from './chat/ChatUploadStatus';
 import {isAndroid} from '../utils/common';
 import Toast from '../../react-native-toast-message';
+import {ReplyMessageBubble} from './ChatBubble';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -76,6 +78,7 @@ export interface ChatTextInputProps {
     onSubmitEditing: () => void,
     chatMessageInputPlaceholder: string,
   ) => JSX.Element;
+  style?: ViewStyle;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
   const {
@@ -87,6 +90,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     uploadStatus,
     inputHeight,
     setInputHeight,
+    replyToMsgId,
   } = useChatUIControls();
 
   const {defaultContent} = useContent();
@@ -153,6 +157,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       from: data.uid.toString(),
       to: privateChatUser ? privateChatUser.toString() : groupID,
       msg: message,
+      ext: {
+        replyToMsgId,
+      },
     };
     sendChatSDKMessage(option);
     setInputHeight(MIN_HEIGHT);
@@ -199,6 +206,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         borderTopLeftRadius: isUploadStatusShown ? 0 : 8,
         maxHeight: MAX_HEIGHT,
         overflow: 'scroll',
+        ...props.style,
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
@@ -216,7 +224,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 const ChatInput = () => {
-  const {inputActive, showEmojiPicker} = useChatUIControls();
+  const {inputActive, showEmojiPicker, replyToMsgId} = useChatUIControls();
   return (
     <View
       style={[
@@ -229,7 +237,17 @@ const ChatInput = () => {
       {showEmojiPicker && <ChatEmojiPicker />}
       <View style={style.inputView}>
         <ChatUploadStatus />
-        <ChatTextInput />
+        <View style={replyToMsgId ? [style.inputWrapper, {}] : {}}>
+          {replyToMsgId && (
+            <ReplyMessageBubble
+              repliedMsgId={replyToMsgId}
+              replyTxt={''}
+              showCoseIcon={true}
+              showPreview={false}
+            />
+          )}
+          <ChatTextInput style={replyToMsgId ? {borderWidth: 0} : {}} />
+        </View>
         <ChatPanel />
       </View>
     </View>
@@ -264,6 +282,15 @@ const style = StyleSheet.create({
   },
   chatPanel: {
     flexDirection: 'row',
+  },
+  inputWrapper: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['40%'],
+    borderRadius: 8,
+    borderTopWidth: 1,
   },
 });
 export default ChatInput;

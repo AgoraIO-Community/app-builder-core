@@ -157,7 +157,7 @@ const CustomEmojiPicker = ({
   );
 };
 
-export const CustomReactioPicker = ({isLocal, setIsHovered, messageId}) => {
+export const CustomReactionPicker = ({isLocal, setIsHovered, messageId}) => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = React.useState(false);
   const {addReaction} = useChatConfigure();
   const handleCustomReactionClick = (emojiObject: {
@@ -245,7 +245,7 @@ export const ReactionPicker = props => {
           </TouchableOpacity>
           {index === reactions.length - 1 && (
             <>
-              <CustomReactioPicker
+              <CustomReactionPicker
                 isLocal={isLocal}
                 messageId={messageId}
                 setIsHovered={setIsHovered}

@@ -43,11 +43,13 @@ interface ExtendedChatMessage extends ChatMessage {
   attributes: {
     file_ext?: string;
     file_name?: string;
+    replyToMsgId?: string;
+    nativeMsgId?: string;
   };
 }
 
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
-  const {privateChatUser, setUploadStatus} = useChatUIControls();
+  const {privateChatUser, setUploadStatus, replyToMsgId} = useChatUIControls();
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
 
@@ -140,6 +142,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             file_name: result[0].name,
             file_url: filePath,
             from_platform: 'native',
+            replyToMsgId,
           },
         };
         console.warn('chatOPtion', option);
@@ -157,7 +160,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           const messageData = {
             msg: '',
             createdTimestamp: message.localTime,
-            msgId: message.msgId,
+            msgId: message.attributes.nativeMsgId,
             isDeleted: false,
             type: message.body.type,
             thumb: isAndroid()
@@ -166,6 +169,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             url: message.body?.remotePath,
             ext: message.attributes?.file_ext,
             fileName: message.attributes?.file_name,
+            replyToMsgId: message.attributes?.replyToMsgId,
           };
           console.warn('message data', messageData);
 

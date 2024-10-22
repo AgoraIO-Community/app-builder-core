@@ -141,6 +141,10 @@ const ChatConfigure = ({children}) => {
                 : message.ext.file_url;
 
             const fromUser = message?.from;
+            const msgId =
+              message?.ext.from_platform === 'native'
+                ? message?.ext.nativeMsgId
+                : message.id;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -153,7 +157,7 @@ const ChatConfigure = ({children}) => {
               addMessageToStore(Number(fromUser), {
                 msg: message?.ext?.msg,
                 createdTimestamp: message.time,
-                msgId: message.id,
+                msgId,
                 isDeleted: false,
                 type: ChatMessageType.FILE,
                 url: fileUrl,
@@ -174,7 +178,7 @@ const ChatConfigure = ({children}) => {
                 {
                   msg: message?.ext?.msg,
                   createdTimestamp: message.time,
-                  msgId: message.id,
+                  msgId,
                   isDeleted: false,
                   type: ChatMessageType.FILE,
                   url: fileUrl,
@@ -203,6 +207,10 @@ const ChatConfigure = ({children}) => {
                 : message.ext.file_url;
 
             const fromUser = message?.from;
+            const msgId =
+              message?.ext.from_platform === 'native'
+                ? message?.ext.nativeMsgId
+                : message.id;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -214,7 +222,7 @@ const ChatConfigure = ({children}) => {
               addMessageToStore(Number(fromUser), {
                 msg: message?.ext?.msg,
                 createdTimestamp: message.time,
-                msgId: message.id,
+                msgId,
                 isDeleted: false,
                 type: ChatMessageType.IMAGE,
                 thumb: fileUrl + '&thumbnail=true',
@@ -237,7 +245,7 @@ const ChatConfigure = ({children}) => {
                 {
                   msg: message?.ext?.msg,
                   createdTimestamp: message.time,
-                  msgId: message.id,
+                  msgId,
                   isDeleted: false,
                   type: ChatMessageType.IMAGE,
                   thumb: fileUrl + '&thumbnail=true',
@@ -262,6 +270,10 @@ const ChatConfigure = ({children}) => {
             );
 
             const fromUser = message?.from;
+            const msgId =
+              message?.ext.from_platform === 'native'
+                ? message?.ext.nativeMsgId
+                : message.id;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
@@ -274,7 +286,7 @@ const ChatConfigure = ({children}) => {
               addMessageToStore(Number(fromUser), {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                 createdTimestamp: message.time,
-                msgId: message.id,
+                msgId,
                 isDeleted: false,
                 type: ChatMessageType.TXT,
                 replyToMsgId: message.ext?.replyToMsgId,
@@ -295,7 +307,7 @@ const ChatConfigure = ({children}) => {
                 {
                   msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                   createdTimestamp: message.time,
-                  msgId: message.id,
+                  msgId,
                   isDeleted: false,
                   type: ChatMessageType.TXT,
                   replyToMsgId: message.ext?.replyToMsgId,
