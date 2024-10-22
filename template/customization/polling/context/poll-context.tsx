@@ -503,6 +503,7 @@ function PollProvider({children}: {children: React.ReactNode}) {
           {
             const {pollId} = lastAction.payload;
             syncPollEvt(pollsRef.current, pollId, PollTaskRequestTypes.DELETE);
+            closeCurrentModal();
           }
           break;
         case PollActionKind.SYNC_COMPLETE:

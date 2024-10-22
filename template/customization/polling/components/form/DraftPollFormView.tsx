@@ -142,7 +142,7 @@ export default function DraftPollFormView({
         ...prevForm,
         options: prevForm.options?.map((option, i) => {
           if (i === index) {
-            const text = value.trim();
+            const text = value;
             const lowerText = text
               .replace(/\s+/g, '-')
               .toLowerCase()

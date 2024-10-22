@@ -75,7 +75,7 @@ function arrayToCsv(question: string, data: PollItemOptionItem[]): string {
   });
   // Include poll question at the top
   const pollQuestion = `Poll Question: "${question}"`;
-  return [pollQuestion, headers.join(','), ...rows].join('\n');
+  return [pollQuestion, '', headers.join(','), ...rows].join('\n');
 }
 
 function downloadCsv(data: string, filename: string = 'data.csv'): void {
