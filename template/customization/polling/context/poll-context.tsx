@@ -14,6 +14,7 @@ import {
   useSidePanel,
   SidePanelType,
   useContent,
+  isWeb,
 } from 'customization-api';
 import {
   getPollExpiresAtTime,
@@ -400,6 +401,36 @@ function PollProvider({children}: {children: React.ReactNode}) {
   useEffect(() => {
     pollsRef.current = polls; // Update the ref whenever polls changes
   }, [polls]);
+
+  useEffect(() => {
+    // Delete polls created by the user
+    const deleteMyPolls = () => {
+      Object.values(pollsRef.current).forEach(poll => {
+        if (poll.createdBy.uid === localUid) {
+          enhancedDispatch({
+            type: PollActionKind.DELETE_POLL_ITEM,
+            payload: {pollId: poll.id},
+          });
+        }
+      });
+    };
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      deleteMyPolls();
+      event.returnValue = ''; // Chrome requires returnValue to be set
+    };
+    if (isWeb()) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    return () => {
+      if (isWeb()) {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      } else {
+        deleteMyPolls();
+      }
+    };
+  }, [localUid]);
 
   const enhancedDispatch = (action: PollAction) => {
     log(`Dispatching action: ${action.type} with payload:`, action.payload);
