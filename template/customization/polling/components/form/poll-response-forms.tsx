@@ -185,6 +185,7 @@ function PollResponseMCQForm({
                               percent={option.percent}
                             />
                             <BaseRadioButton
+                              disabled={submitted}
                               option={{
                                 label: option.text,
                                 value: option.value,
@@ -210,6 +211,7 @@ function PollResponseMCQForm({
                                   ? $config.BACKGROUND_COLOR
                                   : null
                               }
+                              customStyle={{opacity: 1}}
                             />
                           </>
                         </PollOptionInputListItem>

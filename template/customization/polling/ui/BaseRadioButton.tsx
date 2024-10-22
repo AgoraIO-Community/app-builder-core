@@ -5,14 +5,10 @@ import {
   Text,
   StyleProp,
   TextStyle,
+  ViewStyle,
 } from 'react-native';
 import React from 'react';
-import {
-  hexadecimalTransparency,
-  ThemeConfig,
-  $config,
-  ImageIcon,
-} from 'customization-api';
+import {ThemeConfig, $config, ImageIcon} from 'customization-api';
 
 interface Props {
   option: {
@@ -25,6 +21,7 @@ interface Props {
   disabled?: boolean;
   filledColor?: string;
   tickColor?: string;
+  customStyle?: StyleProp<ViewStyle>; // Type for custom style prop
 }
 export default function BaseRadioButton(props: Props) {
   const {
@@ -35,18 +32,24 @@ export default function BaseRadioButton(props: Props) {
     labelStyle = {},
     filledColor = '',
     tickColor = '',
+    customStyle, // Use custom style prop
   } = props;
   return (
     <TouchableOpacity
+      disabled={disabled}
       id={option.value}
-      style={[style.optionsContainer, disabled && style.disabledContainer]}
+      style={[
+        style.optionsContainer,
+        disabled && style.disabledContainer,
+        customStyle,
+      ]}
       onPress={() => {
         if (disabled) {
           return;
         }
         onChange(option.value);
       }}>
-      <View style={[style.radioCircle, disabled && style.disabledCircle]}>
+      <View style={[style.radioCircle]}>
         {checked && (
           <View
             style={[
@@ -90,9 +93,6 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  disabledCircle: {
-    borderColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
   },
   radioFilled: {
     height: 22,
