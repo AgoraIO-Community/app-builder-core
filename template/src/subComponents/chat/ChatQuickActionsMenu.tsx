@@ -1,7 +1,11 @@
 import {StyleSheet, Text, useWindowDimensions, View} from 'react-native';
 import React from 'react';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-import {calculatePosition, trimText} from '../../../src/utils/common';
+import {
+  calculatePosition,
+  isWebInternal,
+  trimText,
+} from '../../../src/utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {
@@ -140,16 +144,19 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         setActionMenuVisible(false);
       },
     });
-  actionMenuitems.push({
-    icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
-    onPress: () => {
-      isMsgPinned ? unPinMessage(messageId) : pinMessage(messageId);
-      setActionMenuVisible(false);
-    },
-  });
+
+  // native pin message to be released with 1.3.0 chat sdk
+  isWebInternal() &&
+    actionMenuitems.push({
+      icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
+      onPress: () => {
+        isMsgPinned ? unPinMessage(messageId) : pinMessage(messageId);
+        setActionMenuVisible(false);
+      },
+    });
 
   //Only Chat Group Owner and Admin  can block a user
   isGroupOwner &&

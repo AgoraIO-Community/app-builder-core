@@ -1,7 +1,7 @@
 import {createHook} from 'customization-implementation';
 import React, {createContext, useEffect, useState} from 'react';
 import {useRoomInfo} from '../room-info/useRoomInfo';
-import {useContent} from 'customization-api';
+import {useChatUIControls, useContent} from 'customization-api';
 import {
   ChatClient,
   ChatConnectEventListener,
@@ -50,6 +50,8 @@ interface chatConfigureContextInterface {
   ) => void;
   addReaction: (msgId: string, reaction: string) => void;
   removeReaction: (msgId: string, reaction: string) => void;
+  pinMessage: (messageId: string) => void;
+  unPinMessage: (messageId: string) => void;
 }
 
 export const chatConfigureContext =
@@ -62,6 +64,8 @@ export const chatConfigureContext =
     deleteAttachment: () => {},
     addReaction: () => {},
     removeReaction: () => {},
+    pinMessage: () => {},
+    unPinMessage: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -85,6 +89,7 @@ const ChatConfigure = ({children}) => {
     addReactionToPrivateStore,
     addReactionToStore,
   } = useChatMessages();
+  const {setPinMsgId, setPinnedByUser} = useChatUIControls();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -299,6 +304,9 @@ const ChatConfigure = ({children}) => {
             );
           }
         },
+        // onMessagePinChanged: data => {
+        //   console.warn('onMessagePinChanged', data);
+        // },
       };
       console.warn('setup listener');
       chatManager.removeAllMessageListener();
@@ -582,6 +590,54 @@ const ChatConfigure = ({children}) => {
       });
   };
 
+  const pinMessage = (messageId: string) => {
+    return;
+    // available in 1.3.0 chat sdk
+    chatClient.chatManager
+      .pinMessage(messageId)
+      .then(res => {
+        setPinMsgId(messageId);
+        setPinnedByUser(Number(localUid));
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Successfully Pinned message with id ${messageId}`,
+          res,
+        );
+      })
+      .catch(err => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Failed to Pin Message with id ${messageId}`,
+          err,
+        );
+      });
+  };
+
+  const unPinMessage = (messageId: string) => {
+    return; // available in 1.3.0 chat sdk
+    chatClient.chatManager
+      .unpinMessage(messageId)
+      .then(res => {
+        setPinMsgId('');
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Successfully Pinned message with id ${messageId}`,
+          res,
+        );
+      })
+      .catch(err => {
+        logger.debug(
+          LogSource.Internals,
+          'CHAT',
+          `Failed to Pin Message with id ${messageId}`,
+          err,
+        );
+      });
+  };
+
   return (
     <chatConfigureContext.Provider
       value={{
@@ -593,6 +649,8 @@ const ChatConfigure = ({children}) => {
         deleteAttachment,
         addReaction,
         removeReaction,
+        pinMessage,
+        unPinMessage,
       }}>
       {children}
     </chatConfigureContext.Provider>
