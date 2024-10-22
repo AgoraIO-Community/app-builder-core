@@ -298,7 +298,6 @@ export const MoreMessageOptions = ({
             borderRadius: 4,
             padding: 2,
           }}
-          containerStyle={{margin: 4}}
           iconProps={{
             iconType: 'plain',
             name: 'more-menu',

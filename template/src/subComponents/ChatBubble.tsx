@@ -239,25 +239,27 @@ const ChatLastMsgOptions = ({msgId, isLocal, userId, type, message}) => {
         style.chatLastMsgOptions,
         isLocal ? style.lastOptionsLocalView : style.lastOptionsRemoteView,
       ]}>
-      <IconButton
-        hoverEffect={false}
-        hoverEffectStyle={{
-          backgroundColor: $config.ICON_BG_COLOR,
-          borderRadius: 20,
-        }}
-        iconProps={{
-          iconType: 'plain',
-          iconContainerStyle: {
-            padding: 2,
-          },
-          iconSize: 20,
-          name: 'reply',
-          tintColor: $config.SECONDARY_ACTION_COLOR,
-        }}
-        onPress={() => {
-          setReplyToMsgId(msgId);
-        }}
-      />
+      <View>
+        <IconButton
+          hoverEffect={false}
+          hoverEffectStyle={{
+            backgroundColor: $config.ICON_BG_COLOR,
+            borderRadius: 20,
+          }}
+          iconProps={{
+            iconType: 'plain',
+            iconContainerStyle: {
+              padding: 2,
+            },
+            iconSize: 20,
+            name: 'reply',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          }}
+          onPress={() => {
+            setReplyToMsgId(msgId);
+          }}
+        />
+      </View>
       {isWebInternal() && (
         <CustomReactionPicker
           isLocal={isLocal}
@@ -655,6 +657,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
               );
             })}
           </View>
+
           {isLastMsg && (
             <ChatLastMsgOptions
               msgId={msgId}
