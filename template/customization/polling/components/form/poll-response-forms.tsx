@@ -130,6 +130,8 @@ function PollResponseMCQForm({
                               percent={option.percent}
                             />
                             <Checkbox
+                              disabled={submitted}
+                              ignoreDisabledStyle={true}
                               key={index}
                               checked={checked}
                               label={option.text}
