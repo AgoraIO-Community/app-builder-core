@@ -175,6 +175,25 @@
     "webpack-node-externals": "3.0.0",
     "yargs": "15.4.1"
   },
+  "overrides": {
+    "@netless/react-native-whiteboard": {
+      "react-native-webview": "13.8.1"
+    },
+    "agora-extension-ai-denoiser": {
+      "agora-rtc-sdk-ng": "4.20.1-1"
+    },
+    "agora-extension-virtual-background": {
+      "agora-rtc-sdk-ng": "4.20.1-1"
+    },
+    "@bam.tech/react-native-make": {
+      "sharp": "0.33.5"
+    },
+    "webpack-dev-server": {
+      "chokidar": {
+        "fsevents": "2.3.3"
+      }
+    }
+  },
   "engines": {
     "node": ">=18"
   }
