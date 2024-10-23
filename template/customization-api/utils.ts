@@ -48,3 +48,4 @@ export {default as hexadecimalTransparency} from '../src/utils/hexadecimalTransp
 export {useFullScreen} from '../src/utils/useFullScreen';
 export {useActionSheet} from '../src/utils/useActionSheet';
 export {useHideShareTitle} from '../src/utils/useHideShareTile';
+export {default as PlatformWrapper} from '../src/utils/PlatformWrapper';

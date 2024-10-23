@@ -14,6 +14,7 @@ import {
   ThemeConfig,
   $config,
   useLocalUid,
+  PlatformWrapper,
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
 import {
@@ -21,7 +22,6 @@ import {
   PollOptionInputListItem,
   PollItemFill,
 } from '../poll-option-item-ui';
-import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import {PollFormButton, PollFormInput} from '../../hook/usePollForm';
 
 function PollResponseFormComplete() {

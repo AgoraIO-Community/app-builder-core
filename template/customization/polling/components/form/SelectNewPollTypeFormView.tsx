@@ -11,8 +11,8 @@ import {
   $config,
   ImageIcon,
   hexadecimalTransparency,
+  PlatformWrapper,
 } from 'customization-api';
-import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 import {getPollTypeIcon} from '../../helpers';
 
 interface newPollType {

@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React, {useCallback, useReducer, useEffect} from 'react';
+import React from 'react';
 import {
   BaseModalTitle,
   BaseModalContent,
@@ -19,11 +19,11 @@ import {
   $config,
   TertiaryButton,
   ImageIcon,
+  PlatformWrapper,
 } from 'customization-api';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
 import BaseButtonWithToggle from '../../ui/BaseButtonWithToggle';
-import PlatformWrapper from '../../../../src/utils/PlatformWrapper';
 
 function FormTitle({title}: {title: string}) {
   return (
