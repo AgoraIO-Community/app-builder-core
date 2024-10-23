@@ -21,6 +21,7 @@ interface CheckboxProps {
   containerStyle?: ViewStyle;
   checkBoxStyle?: ViewStyle;
   tickColor?: string;
+  ignoreDisabledStyle?: boolean;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
@@ -32,6 +33,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   containerStyle = {},
   checkBoxStyle = {},
   tickColor = $config.FONT_COLOR,
+  ignoreDisabledStyle = false,
 }) => {
   const [isChecked, setIsChecked] = useState(checked);
 
@@ -69,7 +71,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         style={[
           styles.label,
           labelStye,
-          !isChecked && disabled && styles.disabledText,
+          !isChecked && disabled && !ignoreDisabledStyle && styles.disabledText,
         ]}>
         {label}
       </Text>
