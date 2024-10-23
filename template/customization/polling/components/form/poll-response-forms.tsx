@@ -188,6 +188,7 @@ function PollResponseMCQForm({
                             />
                             <BaseRadioButton
                               disabled={submitted}
+                              ignoreDisabledStyle={true}
                               option={{
                                 label: option.text,
                                 value: option.value,
