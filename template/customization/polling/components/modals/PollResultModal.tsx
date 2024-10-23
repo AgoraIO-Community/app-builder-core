@@ -15,6 +15,7 @@ import {
   useContent,
   useLocalUid,
   ImageIcon,
+  isMobileUA,
 } from 'customization-api';
 import {
   PollItemOptionItem,
@@ -45,8 +46,14 @@ export default function PollResultModal({pollId}: {pollId: string}) {
       </BaseModalTitle>
       <BaseModalContent noPadding>
         <View style={style.resultContainer}>
-          <View style={style.resultInfoContainer}>
-            <View style={style.rowSpaceBetween}>
+          <View
+            style={[
+              style.resultInfoContainer,
+              isMobileUA()
+                ? style.resultInfoContainerGapMobile
+                : style.resultInfoContainerGapWeb,
+            ]}>
+            <View style={isMobileUA() ? style.headerMobile : style.headerWeb}>
               <Text style={style.questionText}>
                 {capitalizeFirstLetter(pollItem.question)}
               </Text>
@@ -54,7 +61,10 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                 Total Responses {calculateTotalVotes(pollItem.options)}
               </Text>
             </View>
-            <View style={style.row}>
+            <View
+              style={[
+                isMobileUA() ? style.subheaderMobile : style.subheaderWeb,
+              ]}>
               <Text style={style.descriptionText}>
                 Created{' '}
                 <Text style={style.bold}>
@@ -69,7 +79,7 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                       'user'}
                 </Text>
               </Text>
-              <View style={style.dot} />
+              {!isMobileUA() && <View style={style.dot} />}
               <View style={style.rowCenter}>
                 <View style={style.imageIconBox}>
                   <ImageIcon
@@ -101,7 +111,7 @@ export default function PollResultModal({pollId}: {pollId: string}) {
                       {option.text}
                     </Text>
                   </View>
-                  <View style={style.row}>
+                  <View style={style.percentText}>
                     <Text
                       style={[style.smallText, style.light, style.alignRight]}>
                       {option.percent}%
@@ -192,25 +202,50 @@ export const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
     minHeight: 68,
   },
-  rowSpaceBetween: {
+  resultInfoContainerGapWeb: {
+    gap: 4,
+  },
+  resultInfoContainerGapMobile: {
+    gap: 10,
+  },
+  headerWeb: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 12,
+  },
+  headerMobile: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  subheaderWeb: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  subheaderMobile: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
+  },
+  percentText: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   rowCenter: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
   },
   resultSummaryContainer: {
     paddingVertical: 16,
@@ -267,13 +302,13 @@ export const style = StyleSheet.create({
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
   },
-
   questionText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.medium,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     lineHeight: 24,
     fontWeight: '600',
+    flexBasis: '75%',
   },
   totalText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
