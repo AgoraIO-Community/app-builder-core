@@ -148,7 +148,7 @@ const style = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    minWidth: 520,
+    minWidth: 340,
     maxWidth: '90%',
     minHeight: 220,
     maxHeight: '80%', // Set a maximum height for the modal
