@@ -489,7 +489,9 @@ export const style = StyleSheet.create({
   },
   btnContainer: {
     minWidth: 150,
-    height: 36,
+    minHeight: 36,
+    paddingVertical: 9,
+    paddingHorizontal: 8,
     borderRadius: 4,
   },
   btnText: {

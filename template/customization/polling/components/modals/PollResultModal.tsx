@@ -353,6 +353,9 @@ export const style = StyleSheet.create({
     minWidth: 150,
     height: 36,
     borderRadius: 4,
+    minHeight: 36,
+    paddingVertical: 9,
+    paddingHorizontal: 8,
   },
   dot: {
     width: 5,

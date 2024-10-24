@@ -90,8 +90,10 @@ export const style = StyleSheet.create({
   },
   btnContainer: {
     minWidth: 150,
-    height: 36,
+    minHeight: 36,
     borderRadius: 4,
+    paddingVertical: 9,
+    paddingHorizontal: 8,
   },
   btnText: {
     color: $config.PRIMARY_ACTION_TEXT_COLOR,

@@ -88,9 +88,7 @@ const BaseModal = ({
           }}>
           <View style={style.baseBackdrop} />
         </TouchableWithoutFeedback>
-        <View style={[style.baseModal, {width: width}]}>
-          <View style={style.baseModalBody}>{children}</View>
-        </View>
+        <View style={[style.baseModal, {width: width}]}>{children}</View>
       </View>
     </Modal>
   );

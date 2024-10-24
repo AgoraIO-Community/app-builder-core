@@ -169,6 +169,7 @@ const PollCardFooter = ({pollItem}: {pollItem: PollItem}) => {
       {canEnd && pollItem.status === PollStatus.ACTIVE && (
         <View>
           <TertiaryButton
+            containerStyle={style.btnContainer}
             text="End Poll"
             onPress={() => {
               handlePollTaskRequest(
@@ -223,6 +224,11 @@ const style = StyleSheet.create({
   pollItem: {
     marginVertical: 12,
   },
+  btnContainer: {
+    minHeight: 36,
+    paddingVertical: 9,
+    paddingHorizontal: 8,
+  },
   pollCard: {
     display: 'flex',
     flexDirection: 'column',
@@ -267,10 +273,12 @@ const style = StyleSheet.create({
     gap: 8,
   },
   linkBtnContainer: {
-    height: 36,
+    minHeight: 36,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 9,
+    paddingHorizontal: 8,
   },
   linkText: {
     textAlign: 'center',
