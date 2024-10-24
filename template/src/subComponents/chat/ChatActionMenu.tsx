@@ -1,6 +1,11 @@
 import {StyleSheet, Text, useWindowDimensions, View} from 'react-native';
 import React from 'react';
-import {calculatePosition, isMobileUA, trimText} from '../../utils/common';
+import {
+  calculatePosition,
+  isMobileUA,
+  isWebInternal,
+  trimText,
+} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
@@ -60,7 +65,13 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     userId,
   } = props;
 
-  const {setChatType, setPrivateChatUser} = useChatUIControls();
+  const {
+    setChatType,
+    setPrivateChatUser,
+    setReplyToMsgId,
+    pinMsgId,
+    pinnedByUser,
+  } = useChatUIControls();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -68,7 +79,8 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
   const [showDeleteMessageModal, setShowDeleteMessageModal] =
     React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const {downloadAttachment, deleteAttachment} = useChatConfigure();
+  const {downloadAttachment, deleteAttachment, pinMessage, unPinMessage} =
+    useChatConfigure();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
     useChatMessages();
   const {defaultContent} = useContent();
@@ -96,6 +108,31 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     );
   }
   const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
+  const isMsgPinned = pinMsgId === msgId && pinnedByUser === userId;
+
+  actionMenuitems.push({
+    icon: 'reply',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Reply',
+    onPress: () => {
+      setReplyToMsgId(msgId);
+      setActionMenuVisible(false);
+    },
+  });
+
+  // native pin message to be released with 1.3.0 chat sdk
+  isWebInternal() &&
+    actionMenuitems.push({
+      icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
+      onPress: () => {
+        isMsgPinned ? unPinMessage(msgId) : pinMessage(msgId);
+        setActionMenuVisible(false);
+      },
+    });
 
   !isLocal &&
     chatType == SDKChatType.GROUP_CHAT &&
