@@ -25,7 +25,7 @@ import {
   useSidePanel,
 } from 'customization-api';
 import {usePollForm} from '../../hook/usePollForm';
-import {POLL_SIDEBAR_NAME} from '../../../custom-ui';
+import {POLL_SIDEBAR_NAME} from '../PollButtonSidePanelTrigger';
 
 export default function PollResponseFormModal({pollId}: {pollId: string}) {
   const {polls, sendResponseToPoll, closeCurrentModal, handlePollTaskRequest} =
