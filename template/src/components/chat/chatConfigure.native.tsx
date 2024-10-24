@@ -593,49 +593,49 @@ const ChatConfigure = ({children}) => {
   const pinMessage = (messageId: string) => {
     return;
     // available in 1.3.0 chat sdk
-    chatClient.chatManager
-      .pinMessage(messageId)
-      .then(res => {
-        setPinMsgId(messageId);
-        setPinnedByUser(Number(localUid));
-        logger.debug(
-          LogSource.Internals,
-          'CHAT',
-          `Successfully Pinned message with id ${messageId}`,
-          res,
-        );
-      })
-      .catch(err => {
-        logger.debug(
-          LogSource.Internals,
-          'CHAT',
-          `Failed to Pin Message with id ${messageId}`,
-          err,
-        );
-      });
+    // chatClient.chatManager
+    //   .pinMessage(messageId)
+    //   .then(res => {
+    //     setPinMsgId(messageId);
+    //     setPinnedByUser(Number(localUid));
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Successfully Pinned message with id ${messageId}`,
+    //       res,
+    //     );
+    //   })
+    //   .catch(err => {
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Failed to Pin Message with id ${messageId}`,
+    //       err,
+    //     );
+    //   });
   };
 
   const unPinMessage = (messageId: string) => {
     return; // available in 1.3.0 chat sdk
-    chatClient.chatManager
-      .unpinMessage(messageId)
-      .then(res => {
-        setPinMsgId('');
-        logger.debug(
-          LogSource.Internals,
-          'CHAT',
-          `Successfully Pinned message with id ${messageId}`,
-          res,
-        );
-      })
-      .catch(err => {
-        logger.debug(
-          LogSource.Internals,
-          'CHAT',
-          `Failed to Pin Message with id ${messageId}`,
-          err,
-        );
-      });
+    // chatClient.chatManager
+    //   .unpinMessage(messageId)
+    //   .then(res => {
+    //     setPinMsgId('');
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Successfully Pinned message with id ${messageId}`,
+    //       res,
+    //     );
+    //   })
+    //   .catch(err => {
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Failed to Pin Message with id ${messageId}`,
+    //       err,
+    //     );
+    //   });
   };
 
   return (
