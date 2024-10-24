@@ -3,7 +3,7 @@ import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 import pollIcons from './poll-icons';
 
 function log(...args: any[]) {
-  console.log('[Custom-Polling::] supriya ', ...args);
+  console.log('[Custom-Polling::]', ...args);
 }
 
 function addVote(
