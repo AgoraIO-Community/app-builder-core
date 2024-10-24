@@ -40,7 +40,6 @@ export {
 } from '../src/components/virtual-background/useVB';
 export {type VBCardProps} from '../src/components/virtual-background/VBCard';
 export {type BeautyEffects} from '../src/components/beauty-effect/useBeautyEffects';
-
 export {
   type VideoEncoderConfigurationPreset,
   type ScreenEncoderConfigurationPreset,
