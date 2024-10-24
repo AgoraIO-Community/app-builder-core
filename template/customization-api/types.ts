@@ -46,3 +46,4 @@ export {
   type VideoEncoderConfiguration,
 } from '../src/app-state/useVideoQuality';
 export {type ActionMenuItem} from '../src/atoms/ActionMenu';
+export {type IconButtonProps} from '../src/atoms/IconButton';
