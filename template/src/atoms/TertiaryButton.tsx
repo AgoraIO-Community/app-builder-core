@@ -39,6 +39,7 @@ const TertiaryButton = (props: ButtonProps) => {
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <TouchableOpacity
+        disabled={disabled}
         ref={ref => props?.setRef && props.setRef(ref)}
         style={[
           styles.container,
