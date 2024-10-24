@@ -1,12 +1,14 @@
 import {customize} from 'customization-api';
+import NativeBottomToolbar from './bottombar-native';
 import PollSidebar from './polling/components/PollSidebar';
 import Poll from './polling/components/Poll';
-import {CustomBottomToolbar, POLL_SIDEBAR_NAME} from './custom-ui';
+import {POLL_SIDEBAR_NAME} from './polling/components/PollButtonSidePanelTrigger';
 
 const config = customize({
   components: {
     videoCall: {
       wrapper: Poll,
+      bottomToolBar: NativeBottomToolbar,
       customSidePanel: () => {
         return [
           {
@@ -17,7 +19,6 @@ const config = customize({
           },
         ];
       },
-      bottomToolBar: CustomBottomToolbar,
     },
   },
 });

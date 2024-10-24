@@ -29,7 +29,7 @@ import {
   log,
   mergePolls,
 } from '../helpers';
-import {POLL_SIDEBAR_NAME} from '../../custom-ui';
+import {POLL_SIDEBAR_NAME} from '../components/PollButtonSidePanelTrigger';
 
 enum PollStatus {
   ACTIVE = 'ACTIVE',

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  ToolbarPreset,
   useSidePanel,
   ToolbarItem,
   ImageIcon,
@@ -11,14 +10,15 @@ import {
   IconButtonProps,
 } from 'customization-api';
 import {View, Text, StyleSheet} from 'react-native';
-import pollIcons from './polling/poll-icons';
+import pollIcons from '../poll-icons';
 
 const POLL_SIDEBAR_NAME = 'side-panel-poll';
 
-export const PollMoreItem = () => {
+const PollButtonSidePanelTrigger = () => {
   const {isOnActionSheet} = useActionSheet();
   const {setSidePanel} = useSidePanel();
 
+  // On smaller screens
   if (isOnActionSheet) {
     const iconButtonProps: IconButtonProps = {
       onPress: () => {
@@ -45,8 +45,9 @@ export const PollMoreItem = () => {
       </ToolbarItem>
     );
   }
+  // On bigger screens
   return (
-    <ToolbarItem style={style.toolbarItem}>
+    <ToolbarItem style={{...style.toolbarItem, ...style.spacing}}>
       <View style={style.toolbarImg}>
         <ImageIcon
           iconType="plain"
@@ -60,47 +61,27 @@ export const PollMoreItem = () => {
   );
 };
 
-const CustomBottomToolbar = () => {
-  const {setSidePanel} = useSidePanel();
-
-  return (
-    <ToolbarPreset
-      align="bottom"
-      items={{
-        more: {
-          fields: {
-            poll: {
-              component: PollMoreItem,
-              onPress: () => {
-                setSidePanel(POLL_SIDEBAR_NAME);
-              },
-            },
-          },
-        },
-      }}
-    />
-  );
-};
-
-export {CustomBottomToolbar, POLL_SIDEBAR_NAME};
+export {PollButtonSidePanelTrigger, POLL_SIDEBAR_NAME};
 
 const style = StyleSheet.create({
   toolbarItem: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
   toolbarImg: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginRight: 8,
   },
   toolbarText: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  spacing: {
+    margin: 12,
+    marginLeft: 16,
   },
 });
