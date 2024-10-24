@@ -46,6 +46,6 @@ export {isMobileUA} from '../src/utils/common';
 export {default as ThemeConfig} from '../src/theme';
 export {default as hexadecimalTransparency} from '../src/utils/hexadecimalTransparency';
 export {useFullScreen} from '../src/utils/useFullScreen';
-export {useActionSheet} from '../src/utils/useActionSheet';
 export {useHideShareTitle} from '../src/utils/useHideShareTile';
+export {useActionSheet} from '../src/utils/useActionSheet';
 export {default as PlatformWrapper} from '../src/utils/PlatformWrapper';
