@@ -37,7 +37,6 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
-    ['channelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -67,8 +66,7 @@ export default class RtmEngine {
     if (
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
-      event === 'channelMemberLeft' ||
-      event === 'channelAttributesUpdated'
+      event === 'channelMemberLeft'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
@@ -253,7 +251,7 @@ export default class RtmEngine {
           return acc;
         }, []);
 
-        this.channelEventsMap.get('channelAttributesUpdated')(
+        this.channelEventsMap.get('ChannelAttributesUpdated')(
           channelAttributes,
         );
       });
@@ -342,8 +340,21 @@ export default class RtmEngine {
     let response = {};
     await this.client
       .getChannelAttributes(channelId)
-      .then((attributes: string) => {
-        response = {attributes};
+      .then((attributes: RtmChannelAttribute) => {
+        /**
+         *  Here the attributes received are in the format {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
+         *  We need to convert it into (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
+        /**
+         * 1. Loop through object
+         * 2. Create a object {key: "", value: ""} and push into array
+         * 3. Return the Array
+         */
+        const channelAttributes = Object.keys(attributes).reduce((acc, key) => {
+          const {value, lastUpdateTs, lastUpdateUserId} = attributes[key];
+          acc.push({key, value, lastUpdateTs, lastUpdateUserId});
+          return acc;
+        }, []);
+        response = channelAttributes;
       })
       .catch((e: any) => {
         Promise.reject(e);
