@@ -15,6 +15,7 @@ import {
   $config,
   useLocalUid,
   PlatformWrapper,
+  isMobileUA,
 } from 'customization-api';
 import BaseRadioButton from '../../ui/BaseRadioButton';
 import {
@@ -23,6 +24,7 @@ import {
   PollItemFill,
 } from '../poll-option-item-ui';
 import {PollFormButton, PollFormInput} from '../../hook/usePollForm';
+import CommonStyles from '../common-styles';
 
 function PollResponseFormComplete() {
   return (
@@ -256,7 +258,14 @@ function PollFormSubmitButton({
   return (
     <PrimaryButton
       disabled={submitDisabled}
-      containerStyle={[style.btnContainer, getButtonColor()]}
+      containerStyle={[
+        {
+          ...(isMobileUA()
+            ? CommonStyles.btnContainerNative
+            : CommonStyles.btnContainerWeb),
+        },
+        getButtonColor(),
+      ]}
       textStyle={style.btnText}
       onPress={() => {
         if (buttonStatus === 'submitted') {

@@ -12,8 +12,10 @@ import {
   $config,
   TertiaryButton,
   PrimaryButton,
+  isMobileUA,
 } from 'customization-api';
 import {PollTaskRequestTypes, usePoll} from '../../context/poll-context';
+import CommonStyles from '../common-styles';
 
 interface PollConfirmModalProps {
   pollId: string;
@@ -48,7 +50,11 @@ export default function PollConfirmModal({
       <BaseModalActions alignRight>
         <View>
           <TertiaryButton
-            containerStyle={style.btnContainer}
+            containerStyle={
+              isMobileUA()
+                ? CommonStyles.btnContainerNative
+                : CommonStyles.btnContainerWeb
+            }
             text="Close"
             onPress={closeCurrentModal}
           />
@@ -56,7 +62,9 @@ export default function PollConfirmModal({
         <View>
           <PrimaryButton
             containerStyle={[
-              style.btnContainer,
+              isMobileUA()
+                ? CommonStyles.btnContainerNative
+                : CommonStyles.btnContainerWeb,
               {backgroundColor: $config.SEMANTIC_ERROR},
             ]}
             text={confirmButtonText}

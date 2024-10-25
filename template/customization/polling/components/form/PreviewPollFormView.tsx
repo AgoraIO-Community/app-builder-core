@@ -13,7 +13,9 @@ import {
   ThemeConfig,
   $config,
   ImageIcon,
+  isMobileUA,
 } from 'customization-api';
+import CommonStyles from '../common-styles';
 
 interface Props {
   form: PollItem;
@@ -86,7 +88,11 @@ export default function PreviewPollFormView({
         <View style={style.previewActions}>
           <View>
             <TertiaryButton
-              containerStyle={style.btnContainer}
+              containerStyle={
+                isMobileUA()
+                  ? CommonStyles.btnContainerNative
+                  : CommonStyles.btnContainerWeb
+              }
               text="Save for later"
               onPress={() => {
                 try {
@@ -99,7 +105,11 @@ export default function PreviewPollFormView({
           </View>
           <View>
             <PrimaryButton
-              containerStyle={style.btnContainer}
+              containerStyle={
+                isMobileUA()
+                  ? CommonStyles.btnContainerNative
+                  : CommonStyles.btnContainerWeb
+              }
               text="Launch Now"
               textStyle={style.btnText}
               onPress={() => {

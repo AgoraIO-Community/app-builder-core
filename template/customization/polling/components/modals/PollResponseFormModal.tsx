@@ -23,9 +23,11 @@ import {
   $config,
   TertiaryButton,
   useSidePanel,
+  isMobileUA,
 } from 'customization-api';
 import {usePollForm} from '../../hook/usePollForm';
 import {POLL_SIDEBAR_NAME} from '../PollButtonSidePanelTrigger';
+import CommonStyles from '../common-styles';
 
 export default function PollResponseFormModal({pollId}: {pollId: string}) {
   const {polls, sendResponseToPoll, closeCurrentModal, handlePollTaskRequest} =
@@ -120,7 +122,11 @@ export default function PollResponseFormModal({pollId}: {pollId: string}) {
         {hasResponded && (
           <View>
             <TertiaryButton
-              containerStyle={style.btnContainer}
+              containerStyle={
+                isMobileUA()
+                  ? CommonStyles.btnContainerNative
+                  : CommonStyles.btnContainerWeb
+              }
               text="Close"
               onPress={closeCurrentModal}
             />

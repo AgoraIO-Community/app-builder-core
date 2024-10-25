@@ -30,6 +30,7 @@ import {
   getPollTypeIcon,
 } from '../../helpers';
 import {usePollPermissions} from '../../hook/usePollPermissions';
+import CommonStyles from '../common-styles';
 
 export default function PollResultModal({pollId}: {pollId: string}) {
   const {polls, closeCurrentModal, handlePollTaskRequest} = usePoll();
@@ -170,14 +171,22 @@ export default function PollResultModal({pollId}: {pollId: string}) {
       <BaseModalActions alignRight>
         <View>
           <TertiaryButton
-            containerStyle={style.btnContainer}
+            containerStyle={
+              isMobileUA()
+                ? CommonStyles.btnContainerNative
+                : CommonStyles.btnContainerWeb
+            }
             text="Close"
             onPress={closeCurrentModal}
           />
         </View>
         <View>
           <TertiaryButton
-            containerStyle={style.btnContainer}
+            containerStyle={
+              isMobileUA()
+                ? CommonStyles.btnContainerNative
+                : CommonStyles.btnContainerWeb
+            }
             text="Export Results"
             onPress={() => {
               handlePollTaskRequest(PollTaskRequestTypes.EXPORT, pollItem.id);

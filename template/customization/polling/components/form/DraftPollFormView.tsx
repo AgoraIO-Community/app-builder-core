@@ -20,10 +20,12 @@ import {
   TertiaryButton,
   ImageIcon,
   PlatformWrapper,
+  isMobileUA,
 } from 'customization-api';
 import {PollFormErrors, PollItem, PollKind} from '../../context/poll-context';
 import {nanoid} from 'nanoid';
 import BaseButtonWithToggle from '../../ui/BaseButtonWithToggle';
+import CommonStyles from '../common-styles';
 
 function FormTitle({title}: {title: string}) {
   return (
@@ -335,7 +337,11 @@ export default function DraftPollFormView({
         <View style={style.previewActions}>
           <View>
             <TertiaryButton
-              containerStyle={style.btnContainer}
+              containerStyle={
+                isMobileUA()
+                  ? CommonStyles.btnContainerNative
+                  : CommonStyles.btnContainerWeb
+              }
               text="Save for later"
               disabled={!form.question?.trim()}
               onPress={() => {
@@ -349,7 +355,11 @@ export default function DraftPollFormView({
           </View>
           <View>
             <PrimaryButton
-              containerStyle={style.btnContainer}
+              containerStyle={
+                isMobileUA()
+                  ? CommonStyles.btnContainerNative
+                  : CommonStyles.btnContainerWeb
+              }
               text="Preview"
               disabled={!form.question?.trim()}
               textStyle={style.btnText}
@@ -486,13 +496,6 @@ export const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 16,
-  },
-  btnContainer: {
-    minWidth: 150,
-    minHeight: 36,
-    paddingVertical: 9,
-    paddingHorizontal: 8,
-    borderRadius: 4,
   },
   btnText: {
     color: $config.PRIMARY_ACTION_TEXT_COLOR,
