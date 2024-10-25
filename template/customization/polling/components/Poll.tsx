@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo, useCallback} from 'react';
 import {PollModalType, PollProvider, usePoll} from '../context/poll-context';
 import PollFormWizardModal from './modals/PollFormWizardModal';
 import {PollEventsProvider, PollEventsSubscriber} from '../context/poll-events';
@@ -28,14 +28,16 @@ function PollModals() {
     log('polls data changed: ', polls);
   }
 
-  const renderModal = () => {
+  const renderModal = useCallback(() => {
     switch (modalState.modalType) {
       case PollModalType.DRAFT_POLL:
         if (modalState.id && polls[modalState.id]) {
           const editFormObject = {...polls[modalState.id]};
-          return <PollFormWizardModal formObject={editFormObject} />;
+          return (
+            <PollFormWizardModal formObject={editFormObject} formStep="DRAFT" />
+          );
         }
-        return <PollFormWizardModal />;
+        return <PollFormWizardModal formStep="SELECT" />;
       case PollModalType.PREVIEW_POLL:
         if (modalState.id && polls[modalState.id]) {
           const previewFormObject = {...polls[modalState.id]};
@@ -75,9 +77,11 @@ function PollModals() {
         log('Unknown modal type: ', modalState);
         return <></>;
     }
-  };
+  }, [modalState, polls]);
 
-  return <>{renderModal()}</>;
+  const memoizedModal = useMemo(() => renderModal(), [renderModal]);
+
+  return <>{memoizedModal}</>;
 }
 
 export default Poll;

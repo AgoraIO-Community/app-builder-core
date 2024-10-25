@@ -100,6 +100,8 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'baseline',
+    marginTop: 5,
   },
   disabledCircle: {
     borderColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],

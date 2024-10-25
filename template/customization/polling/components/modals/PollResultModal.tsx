@@ -104,7 +104,7 @@ export default function PollResultModal({pollId}: {pollId: string}) {
             {pollItem.options?.map((option: PollItemOptionItem, index) => (
               <View style={style.summaryCard} key={index}>
                 <View style={style.summaryCardHeader}>
-                  <View>
+                  <View style={style.optionText}>
                     <Text style={[style.smallText, style.light, style.bold]}>
                       {`Option ${index + 1}`}
                     </Text>
@@ -180,19 +180,21 @@ export default function PollResultModal({pollId}: {pollId: string}) {
             onPress={closeCurrentModal}
           />
         </View>
-        <View>
-          <TertiaryButton
-            containerStyle={
-              isMobileUA()
-                ? CommonStyles.btnContainerNative
-                : CommonStyles.btnContainerWeb
-            }
-            text="Export Results"
-            onPress={() => {
-              handlePollTaskRequest(PollTaskRequestTypes.EXPORT, pollItem.id);
-            }}
-          />
-        </View>
+        {!isMobileUA() && (
+          <View>
+            <TertiaryButton
+              containerStyle={
+                isMobileUA()
+                  ? CommonStyles.btnContainerNative
+                  : CommonStyles.btnContainerWeb
+              }
+              text="Export Results"
+              onPress={() => {
+                handlePollTaskRequest(PollTaskRequestTypes.EXPORT, pollItem.id);
+              }}
+            />
+          </View>
+        )}
       </BaseModalActions>
     </BaseModal>
   );
@@ -244,6 +246,10 @@ export const style = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: 4,
+  },
+  optionText: {
+    display: 'flex',
+    flex: 0.9,
   },
   percentText: {
     display: 'flex',

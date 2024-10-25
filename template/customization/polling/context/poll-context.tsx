@@ -652,12 +652,10 @@ function PollProvider({children}: {children: React.ReactNode}) {
     });
 
     log('Updating state with merged polls.');
-    Object.values(mergedPolls)
-      .filter(pollItem => pollItem.status !== PollStatus.LATER)
-      .forEach(pollItem => {
-        log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
-        addPoll(pollItem);
-      });
+    Object.values(mergedPolls).forEach(pollItem => {
+      log(`Adding poll ID ${pollItem.id} with status ${pollItem.status}`);
+      addPoll(pollItem);
+    });
 
     log('Is it an initial load ?:', initialLoad);
     if (!initialLoad) {

@@ -16,8 +16,9 @@ const POLL_SIDEBAR_NAME = 'side-panel-poll';
 
 const PollButtonSidePanelTrigger = () => {
   const {isOnActionSheet} = useActionSheet();
-  const {setSidePanel} = useSidePanel();
+  const {sidePanel, setSidePanel} = useSidePanel();
 
+  const isPollPanelActive = sidePanel === POLL_SIDEBAR_NAME;
   // On smaller screens
   if (isOnActionSheet) {
     const iconButtonProps: IconButtonProps = {
@@ -26,7 +27,12 @@ const PollButtonSidePanelTrigger = () => {
       },
       iconProps: {
         icon: pollIcons['bar-chart'],
-        tintColor: $config.SECONDARY_ACTION_COLOR,
+        tintColor: isPollPanelActive
+          ? $config.PRIMARY_ACTION_TEXT_COLOR
+          : $config.SECONDARY_ACTION_COLOR,
+        iconBackgroundColor: isPollPanelActive
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : '',
       },
       btnTextProps: {
         text: 'Polls',
@@ -51,7 +57,7 @@ const PollButtonSidePanelTrigger = () => {
       <View style={style.toolbarImg}>
         <ImageIcon
           iconType="plain"
-          iconSize={15}
+          iconSize={22}
           icon={pollIcons['bar-chart']}
           tintColor={$config.SECONDARY_ACTION_COLOR}
         />
@@ -82,6 +88,5 @@ const style = StyleSheet.create({
   },
   spacing: {
     margin: 12,
-    marginLeft: 16,
   },
 });

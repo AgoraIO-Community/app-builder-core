@@ -216,7 +216,6 @@ function PollResponseMCQForm({
                                   ? $config.BACKGROUND_COLOR
                                   : null
                               }
-                              customStyle={{opacity: 1}}
                             />
                           </>
                         </PollOptionInputListItem>
@@ -354,6 +353,7 @@ export const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     lineHeight: 24,
+    flexBasis: '73%',
   },
   pFormInput: {
     flex: 1,
@@ -386,6 +386,8 @@ export const style = StyleSheet.create({
   },
   checkBox: {
     borderColor: $config.FONT_COLOR,
+    alignSelf: 'baseline',
+    marginTop: 6,
   },
   checkboxVoted: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,

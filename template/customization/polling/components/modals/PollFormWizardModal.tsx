@@ -25,12 +25,9 @@ export default function PollFormWizardModal({
   formObject,
   formStep,
 }: PollFormWizardModalProps) {
-  const {savePoll, sendPoll, closeCurrentModal} = usePoll();
+  const {savePoll, sendPoll, closeCurrentModal, modalState} = usePoll();
   const [savedPollId, setSavedPollId] = useState<string | null>(null);
-
-  const [step, setStep] = useState<FormWizardStep>(
-    formObject ? 'DRAFT' : 'SELECT',
-  );
+  const [step, setStep] = useState<FormWizardStep>(formStep);
   const [type, setType] = useState<PollKind>(
     formObject ? formObject.type : PollKind.NONE,
   );
@@ -50,29 +47,30 @@ export default function PollFormWizardModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedPollId]);
 
+  // Only set form and step once when the component is mounted, not on every re-render.
   useEffect(() => {
-    try {
-      if (formObject) {
-        // If formObject is passed, skip the SELECT step and initialize the form
-        setForm(formObject);
-        if (formStep) {
-          setStep(formStep);
-        } else {
-          setStep('DRAFT');
-        }
-      } else if (type !== PollKind.NONE) {
-        // Initialize the form for a new poll based on the selected type
-        const user = {
-          uid: localUidRef.current,
-          name: defaultContentRef?.current[localUidRef.current]?.name || 'user',
-        };
-        setForm(initPollForm(type, user));
+    if (formObject) {
+      // If formObject is passed, skip the SELECT step and initialize the form
+      setForm(formObject);
+      if (formStep) {
+        setStep(formStep);
+      } else {
         setStep('DRAFT');
       }
-    } catch (error) {
-      log('Error while initializing form: ', error);
     }
-  }, [type, formObject, formStep]);
+  }, [formObject, formStep]);
+
+  // Initialize the form when the type is set
+  useEffect(() => {
+    if (!formObject && type !== PollKind.NONE) {
+      const user = {
+        uid: localUidRef.current,
+        name: defaultContentRef?.current[localUidRef.current]?.name || 'user',
+      };
+      setForm(initPollForm(type, user));
+      setStep('DRAFT');
+    }
+  }, [type, formObject]);
 
   const onSave = (launch?: boolean) => {
     try {

@@ -43,43 +43,6 @@ interface Props {
   onClose: () => void;
 }
 
-// Define the form action types and reducer for state management
-const formReducer = (
-  state: PollItem,
-  action: {type: string; payload?: any},
-) => {
-  switch (action.type) {
-    case 'UPDATE_FIELD':
-      return {...state, [action.payload.field]: action.payload.value};
-    case 'UPDATE_OPTION':
-      return {
-        ...state,
-        options: state.options?.map((option, index) =>
-          index === action.payload.index
-            ? {...option, ...action.payload.option}
-            : option,
-        ),
-      };
-    case 'ADD_OPTION':
-      return {
-        ...state,
-        options: [
-          ...(state.options || []),
-          {text: '', value: '', votes: [], percent: '0'},
-        ],
-      };
-    case 'DELETE_OPTION':
-      return {
-        ...state,
-        options:
-          state.options?.filter((_, index) => index !== action.payload.index) ||
-          [],
-      };
-    default:
-      return state;
-  }
-};
-
 export default function DraftPollFormView({
   form,
   setForm,

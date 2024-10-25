@@ -6,6 +6,7 @@ import {
   calculatePosition,
   ThemeConfig,
   $config,
+  isMobileUA,
 } from 'customization-api';
 import {PollStatus, PollTaskRequestTypes} from '../context/poll-context';
 
@@ -60,7 +61,9 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
   //     },
   //   });
 
-  status !== PollStatus.LATER &&
+  // Export is only on web
+  !isMobileUA() &&
+    status !== PollStatus.LATER &&
     actionMenuItems.push({
       icon: 'download',
       iconColor: $config.SECONDARY_ACTION_COLOR,

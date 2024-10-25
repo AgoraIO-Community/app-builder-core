@@ -5,20 +5,43 @@ import {
   ThemeConfig,
   $config,
   ImageIcon,
+  useLocalUid,
 } from 'customization-api';
-import {usePoll} from '../context/poll-context';
+import {Poll, PollStatus, usePoll} from '../context/poll-context';
 import PollList from './PollList';
 import pollIcons from '../poll-icons';
 import {isWebOnly} from '../helpers';
 import {usePollPermissions} from '../hook/usePollPermissions';
 
+function checkPolls(poll: Poll, localUid: number) {
+  // Check if there is any poll that is not in 'LATER' status
+  const nonLaterPollExists = Object.keys(poll).some(
+    pollId => poll[pollId].status !== PollStatus.LATER,
+  );
+  // If there is any poll that is not 'LATER', return "Poll exists"
+  if (nonLaterPollExists) {
+    return true;
+  }
+  // If all polls are 'LATER' status, check if any were created by the local user
+  const createdByLocalUser = Object.keys(poll).some(
+    pollId => poll[pollId].createdBy.uid === localUid,
+  );
+  // If all polls are 'LATER' status and none are created by the local user, return "There are no polls"
+  if (!createdByLocalUser) {
+    return false;
+  }
+  // Otherwise, some polls exist
+  return true;
+}
+
 const PollSidebar = () => {
   const {startPollForm, isHost, polls} = usePoll();
   const {canCreate} = usePollPermissions({});
+  const localUid = useLocalUid();
 
   return (
     <View style={style.pollSidebar}>
-      {Object.keys(polls).length === 0 ? (
+      {!checkPolls(polls, localUid) ? (
         <View style={style.emptyView}>
           <View style={style.emptyCard}>
             {isHost && (
