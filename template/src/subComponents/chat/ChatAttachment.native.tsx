@@ -44,7 +44,6 @@ interface ExtendedChatMessage extends ChatMessage {
     file_ext?: string;
     file_name?: string;
     replyToMsgId?: string;
-    nativeMsgId?: string;
   };
 }
 
@@ -160,7 +159,7 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           const messageData = {
             msg: '',
             createdTimestamp: message.localTime,
-            msgId: message.attributes.nativeMsgId,
+            msgId: message.msgId,
             isDeleted: false,
             type: message.body.type,
             thumb: isAndroid()
@@ -171,7 +170,6 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
             fileName: message.attributes?.file_name,
             replyToMsgId: message.attributes?.replyToMsgId,
           };
-          console.warn('message data', messageData);
 
           // this is local user messages
           if (message.chatType === ChatMessageChatType.PeerChat) {

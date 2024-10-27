@@ -398,7 +398,6 @@ const ChatConfigure = ({children}) => {
         chatMsg.attributes = {
           channel: data.channel,
           replyToMsgId: option?.ext?.replyToMsgId,
-          nativeMsgId: chatMsg.msgId,
           from_platform: 'native',
         };
         break;
@@ -412,7 +411,6 @@ const ChatConfigure = ({children}) => {
           from_platform: 'native',
           channel: data.channel,
           replyToMsgId: option?.ext?.replyToMsgId,
-          nativeMsgId: chatMsg.msgId,
         };
 
         console.warn('Image msg to be sent', chatMsg);
@@ -430,7 +428,6 @@ const ChatConfigure = ({children}) => {
           from_platform: 'native',
           channel: data.channel,
           replyToMsgId: option?.ext?.replyToMsgId,
-          nativeMsgId: chatMsg.msgId,
         };
         console.warn('File msg to be sent', chatMsg);
         break;
@@ -438,28 +435,30 @@ const ChatConfigure = ({children}) => {
     //
     chatClient.chatManager
       .sendMessage(chatMsg, callback)
-      .then(() => {
+      .then(data => {
         // log here if the method call succeeds.
-
+        console.warn('native', data);
         // add to local store of sender
         // for image and file msgs we will update on upload success of chatAttachment.native
-        if (type === ChatMessageType.TXT) {
-          const messageData = {
-            msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
-            createdTimestamp: timeNow(),
-            msgId: chatMsg.msgId,
-            isDeleted: false,
-            type: option.type,
-            replyToMsgId: option?.ext?.replyToMsgId,
-          };
 
-          // this is local user messages
-          if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(Number(option.to), messageData, true);
-          } else {
-            addMessageToStore(Number(option.from), messageData);
-          }
-        }
+        console.warn('send message successfull ');
+        // if (type === ChatMessageType.TXT) {
+        //   const messageData = {
+        //     msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
+        //     createdTimestamp: timeNow(),
+        //     msgId: chatMsg.msgId,
+        //     isDeleted: false,
+        //     type: option.type,
+        //     replyToMsgId: option?.ext?.replyToMsgId,
+        //   };
+
+        //   // this is local user messages
+        //   if (option.chatType === SDKChatType.SINGLE_CHAT) {
+        //     addMessageToPrivateStore(Number(option.to), messageData, true);
+        //   } else {
+        //     addMessageToStore(Number(option.from), messageData);
+        //   }
+        // }
       })
       .catch(reason => {
         //log here if the method call fails.
@@ -556,6 +555,7 @@ const ChatConfigure = ({children}) => {
         );
       })
       .catch(err => {
+        console.warn(err);
         if (err.type === 1101) {
           // If user already added reaction then remove it
           removeReaction(msgId, reaction);

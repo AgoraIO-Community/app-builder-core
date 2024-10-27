@@ -20,7 +20,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import {useString} from '../utils/useString';
-import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji';
+import {ChatEmojiPicker, ChatEmojiButton} from './chat/ChatEmoji.native';
 
 import {
   ChatType,
@@ -48,12 +48,31 @@ import {useChatConfigure} from '../components/chat/chatConfigure';
 import {
   ChatMessageType,
   SDKChatType,
+  useChatMessages,
 } from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ChatUploadStatus from './chat/ChatUploadStatus';
 import {isAndroid} from '../utils/common';
 import Toast from '../../react-native-toast-message';
 import {ReplyMessageBubble} from './ChatBubble';
+import {
+  ChatError,
+  ChatMessage,
+  ChatMessageChatType,
+} from 'react-native-agora-chat';
+
+interface ExtendedChatMessage extends ChatMessage {
+  body: {
+    localPath?: string;
+    remotePath?: string;
+    type: ChatMessageType;
+  };
+  attributes: {
+    file_ext?: string;
+    file_name?: string;
+    replyToMsgId?: string;
+  };
+}
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -64,7 +83,7 @@ const ChatPanel = () => {
     <View style={style.chatPanelContainer}>
       <View style={style.chatPanel}>
         <ChatAttachmentButton />
-        {/* <ChatEmojiButton /> */}
+        <ChatEmojiButton />
       </View>
       <ChatSendButton />
     </View>
@@ -103,6 +122,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const privateChatInputPlaceHolder = useString(
     privateChatInputPlaceHolderText,
   );
+
+  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
 
   // React.useEffect(() => {
   //   if (message.length === 0) {
@@ -161,7 +182,32 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         replyToMsgId,
       },
     };
-    sendChatSDKMessage(option);
+    const onProgress = (localMsgId: string, progress: number) => {
+      console.warn('chat msg in progress', progress);
+    };
+    const onError = (localMsgId: string, error: ChatError) => {
+      console.warn('chat msg in error', error);
+    };
+    const onSuccess = (message: ExtendedChatMessage) => {
+      console.warn('chat msg in success', message);
+      // Text message added here , attachments are added in ChatAttachment.native
+      const messageData = {
+        msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
+        createdTimestamp: message.localTime,
+        msgId: message.msgId,
+        isDeleted: false,
+        type: message.body.type,
+        replyToMsgId: message.attributes?.replyToMsgId,
+      };
+      console.warn('message data', messageData);
+      // this is local user messages
+      if (message.chatType === ChatMessageChatType.PeerChat) {
+        addMessageToPrivateStore(Number(message.to), messageData, true);
+      } else {
+        addMessageToStore(Number(message.from), messageData);
+      }
+    };
+    sendChatSDKMessage(option, {onProgress, onError, onSuccess});
     setInputHeight(MIN_HEIGHT);
     setMessage('');
   };
@@ -224,17 +270,23 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 const ChatInput = () => {
-  const {inputActive, showEmojiPicker, replyToMsgId} = useChatUIControls();
+  const {
+    inputActive,
+    showEmojiPicker,
+    replyToMsgId,
+    setShowEmojiPicker,
+    setMessage,
+  } = useChatUIControls();
   return (
-    <View
-      style={[
-        style.inputContainer,
-        showEmojiPicker
-          ? {backgroundColor: 'transparent'}
-          : {backgroundColor: $config.CARD_LAYER_1_COLOR},
-        // inputActive ? style.inputActiveView : {},
-      ]}>
-      {showEmojiPicker && <ChatEmojiPicker />}
+    <View style={[style.inputContainer]}>
+      {showEmojiPicker && (
+        <ChatEmojiPicker
+          isEmojiPickerOpen={true}
+          setIsEmojiPickerOpen={setShowEmojiPicker}
+          onEmojiSelect={emoji => setMessage(prev => prev + ' ' + emoji)}
+        />
+      )}
+
       <View style={style.inputView}>
         <ChatUploadStatus />
         <View style={replyToMsgId ? [style.inputWrapper, {}] : {}}>

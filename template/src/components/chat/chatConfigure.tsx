@@ -142,7 +142,7 @@ const ChatConfigure = ({children}) => {
 
             const fromUser = message?.from;
             const msgId =
-              message?.ext.from_platform === 'native'
+              message?.ext.from_platform === 'native1'
                 ? message?.ext.nativeMsgId
                 : message.id;
 
@@ -208,7 +208,7 @@ const ChatConfigure = ({children}) => {
 
             const fromUser = message?.from;
             const msgId =
-              message?.ext.from_platform === 'native'
+              message?.ext.from_platform === 'native1'
                 ? message?.ext.nativeMsgId
                 : message.id;
 
@@ -271,7 +271,7 @@ const ChatConfigure = ({children}) => {
 
             const fromUser = message?.from;
             const msgId =
-              message?.ext.from_platform === 'native'
+              message?.ext.from_platform === 'native1'
                 ? message?.ext.nativeMsgId
                 : message.id;
 

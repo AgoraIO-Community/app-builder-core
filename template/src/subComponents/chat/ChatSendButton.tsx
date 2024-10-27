@@ -12,6 +12,7 @@ import {useRoomInfo} from 'customization-api';
 import {
   ChatMessageType,
   SDKChatType,
+  useChatMessages,
 } from '../../components/chat-messages/useChatMessages';
 import {useString} from '../../utils/useString';
 import {
@@ -21,6 +22,7 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {isMobileUA, isWeb} from '../../utils/common';
 import Toast from '../../../react-native-toast-message';
+import {ChatMessageChatType} from 'react-native-agora-chat';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -43,6 +45,8 @@ export const handleChatSend = ({
   _resetTextareaHeight,
   replyToMsgId,
   setReplyToMsgId,
+  addMessageToStore,
+  addMessageToPrivateStore,
 }) => {
   const isAllFilesUploaded =
     uploadedFiles.length > 0 &&
@@ -81,7 +85,32 @@ export const handleChatSend = ({
         replyToMsgId: replyToMsgId,
       },
     };
-    sendChatSDKMessage(option);
+    const onProgress = (localMsgId: string, progress: number) => {
+      console.warn('chat msg in progress', progress);
+    };
+    const onError = (localMsgId: string, error: any) => {
+      console.warn('chat msg in error', error);
+    };
+    const onSuccess = (message: any) => {
+      console.warn('chat msg in success', message);
+      // Text message added here , attachments are added in ChatAttachment.native
+      const messageData = {
+        msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
+        createdTimestamp: message.localTime,
+        msgId: message.msgId,
+        isDeleted: false,
+        type: message.body.type,
+        replyToMsgId: message.attributes?.replyToMsgId,
+      };
+      console.warn('message data', messageData);
+      // this is local user messages
+      if (message.chatType === ChatMessageChatType.PeerChat) {
+        addMessageToPrivateStore(Number(message.to), messageData, true);
+      } else {
+        addMessageToStore(Number(message.from), messageData);
+      }
+    };
+    sendChatSDKMessage(option, {onProgress, onError, onSuccess});
   };
 
   if (uploadedFiles.length > 0) {
@@ -133,6 +162,7 @@ export const handleChatSend = ({
 const ChatSendButton = (props: ChatSendButtonProps) => {
   const {sendChatSDKMessage} = useChatConfigure();
   const {setShowEmojiPicker} = useChatUIControls();
+  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
   const {
     privateChatUser: selectedUserId,
     message,
@@ -175,6 +205,8 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       _resetTextareaHeight,
       replyToMsgId,
       setReplyToMsgId,
+      addMessageToPrivateStore,
+      addMessageToStore,
     });
 
   return props?.render ? (

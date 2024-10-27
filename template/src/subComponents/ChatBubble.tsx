@@ -51,8 +51,6 @@ import {ReactionPicker, CustomReactionPicker} from './chat/ChatEmoji';
 import {useChatConfigure} from '../../src/components/chat/chatConfigure';
 import Tooltip from '../../src/atoms/Tooltip';
 import {MoreMessageOptions} from './chat/ChatQuickActionsMenu';
-import styles from 'react-native-toast-message/src/styles';
-import {initTransportLayerForCustomers} from 'src/logger/transports/customer-transport';
 
 type AttachmentBubbleProps = {
   fileName: string;
@@ -260,13 +258,14 @@ const ChatLastMsgOptions = ({msgId, isLocal, userId, type, message}) => {
           }}
         />
       </View>
-      {isWebInternal() && (
+      <View>
         <CustomReactionPicker
           isLocal={isLocal}
           messageId={msgId}
           setIsHovered={() => {}}
         />
-      )}
+      </View>
+
       <MoreMessageOptions
         userId={userId}
         isLocal={isLocal}
@@ -695,7 +694,13 @@ const PlatformWrapper = ({children, isLocal, isChatBubble = true}) => {
       onMouseLeave: handleMouseLeave,
     })
   ) : (
-    <>{children(false)}</>
+    <Pressable
+      onPress={() => {
+        setIsHovered(prev => !prev);
+      }}
+      style={{}}>
+      {children(isHovered, setIsHovered)}
+    </Pressable>
   );
 };
 
