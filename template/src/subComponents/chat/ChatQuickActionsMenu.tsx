@@ -159,17 +159,17 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     });
 
   //Only Chat Group Owner and Admin  can block a user
-  isGroupOwner &&
-    actionMenuitems.push({
-      icon: 'block_user',
-      iconColor: $config.SEMANTIC_ERROR,
-      textColor: $config.SEMANTIC_ERROR,
-      title: 'Block User',
-      onPress: () => {
-        // block user can be done only by group owner and admins
-        setActionMenuVisible(false);
-      },
-    });
+  // isGroupOwner &&
+  //   actionMenuitems.push({
+  //     icon: 'block_user',
+  //     iconColor: $config.SEMANTIC_ERROR,
+  //     textColor: $config.SEMANTIC_ERROR,
+  //     title: 'Block User',
+  //     onPress: () => {
+  //       // block user can be done only by group owner and admins
+  //       setActionMenuVisible(false);
+  //     },
+  //   });
 
   actionMenuitems.push({
     icon: 'delete',

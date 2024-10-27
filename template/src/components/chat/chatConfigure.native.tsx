@@ -432,36 +432,15 @@ const ChatConfigure = ({children}) => {
         console.warn('File msg to be sent', chatMsg);
         break;
     }
-    //
+
     chatClient.chatManager
       .sendMessage(chatMsg, callback)
-      .then(data => {
-        // log here if the method call succeeds.
-        console.warn('native', data);
-        // add to local store of sender
+      .then(() => {
         // for image and file msgs we will update on upload success of chatAttachment.native
-
+        // for text msgs ChatInput.native
         console.warn('send message successfull ');
-        // if (type === ChatMessageType.TXT) {
-        //   const messageData = {
-        //     msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
-        //     createdTimestamp: timeNow(),
-        //     msgId: chatMsg.msgId,
-        //     isDeleted: false,
-        //     type: option.type,
-        //     replyToMsgId: option?.ext?.replyToMsgId,
-        //   };
-
-        //   // this is local user messages
-        //   if (option.chatType === SDKChatType.SINGLE_CHAT) {
-        //     addMessageToPrivateStore(Number(option.to), messageData, true);
-        //   } else {
-        //     addMessageToStore(Number(option.from), messageData);
-        //   }
-        // }
       })
       .catch(reason => {
-        //log here if the method call fails.
         console.warn('send message fail.', reason);
       });
   };

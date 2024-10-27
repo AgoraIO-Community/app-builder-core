@@ -141,10 +141,7 @@ const ChatConfigure = ({children}) => {
                 : message.ext.file_url;
 
             const fromUser = message?.from;
-            const msgId =
-              message?.ext.from_platform === 'native1'
-                ? message?.ext.nativeMsgId
-                : message.id;
+            const msgId = message.id;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -207,10 +204,7 @@ const ChatConfigure = ({children}) => {
                 : message.ext.file_url;
 
             const fromUser = message?.from;
-            const msgId =
-              message?.ext.from_platform === 'native1'
-                ? message?.ext.nativeMsgId
-                : message.id;
+            const msgId = message.id;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               showMessageNotification(
@@ -270,10 +264,7 @@ const ChatConfigure = ({children}) => {
             );
 
             const fromUser = message?.from;
-            const msgId =
-              message?.ext.from_platform === 'native1'
-                ? message?.ext.nativeMsgId
-                : message.id;
+            const msgId = message.id;
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
