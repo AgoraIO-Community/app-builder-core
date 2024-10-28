@@ -254,6 +254,7 @@ export const WhiteboardListener = () => {
 
 const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {label} = useToolbarProps();
+  const {data} = useRoomInfo();
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -452,13 +453,20 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     whiteboardRoomState === RoomPhase.Connecting ||
     whiteboardRoomState === RoomPhase.Disconnecting;
 
+  //Disable whiteboard button when backend sends error
+  const WhiteboardError =
+    data?.whiteboard?.error &&
+    (data?.whiteboard?.error?.code || data?.whiteboard?.error?.message)
+      ? true
+      : false;
+
   //whiteboard ends
 
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
       componentName: 'whiteboard',
       order: 2,
-      disabled: WhiteboardDisabled,
+      disabled: WhiteboardDisabled || WhiteboardError,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'whiteboard-new',

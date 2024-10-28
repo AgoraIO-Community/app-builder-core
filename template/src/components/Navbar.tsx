@@ -223,6 +223,12 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
+  const {data} = useRoomInfo();
+  //disable chat button when BE sends error on chat
+  const ChatError =
+    data?.chat?.error && (data?.chat?.error?.code || data?.chat?.error?.message)
+      ? true
+      : false;
   const {
     badgeContainerPosition = {
       top: 0,
@@ -264,6 +270,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   };
   const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
+    disabled: ChatError,
+    containerStyle: ChatError ? {opacity: 0.5} : {opacity: 1},
     onPress: onPressCustom || onPress,
     iconProps: {
       name: 'chat-nav',

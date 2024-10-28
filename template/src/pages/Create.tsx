@@ -28,7 +28,10 @@ import {useString} from '../utils/useString';
 import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
 import useJoinRoom from '../utils/useJoinRoom';
-import {RoomInfoDefaultValue} from '../components/room-info/useRoomInfo';
+import {
+  RoomInfoDefaultValue,
+  useRoomInfo,
+} from '../components/room-info/useRoomInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -59,6 +62,7 @@ import {
   createRoomSuccessToastSubHeading,
 } from '../language/default-labels/createScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {backendErrorCode} from 'src/utils/BackendErrorCode';
 
 const Create = () => {
   const {CreateComponent} = useCustomization(data => {
@@ -90,6 +94,7 @@ const Create = () => {
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateRoom();
+  const {data} = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
 
   const loadingText = useString('loadingText')();
@@ -151,6 +156,25 @@ const Create = () => {
   )();
 
   const isDesktop = !isMobileUA();
+
+  //Added error toast notification to inform PSTN is not enabled
+  useEffect(() => {
+    if (data && data?.pstn && data?.pstn?.error) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: data?.pstn?.error?.message,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+        leadingIcon: null,
+      });
+      logger.error(LogSource.Internals, 'CREATE_MEETING', 'PSTN Error', {
+        message: data?.pstn?.error?.message,
+        code: data?.pstn?.error?.code,
+      });
+    }
+  }, [data]);
 
   useEffect(() => {
     //Generating the random room title for placeholder
