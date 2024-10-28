@@ -535,7 +535,7 @@ const ChatConfigure = ({children}) => {
       })
       .catch(err => {
         console.warn(err);
-        if (err.type === 1101) {
+        if (err.code === 1301) {
           // If user already added reaction then remove it
           removeReaction(msgId, reaction);
         } else {

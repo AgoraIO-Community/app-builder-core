@@ -256,6 +256,7 @@ export const ReactionPicker = props => {
                 messageId={messageId}
                 type={type}
                 message={message}
+                setIsHovered={setIsHovered}
               />
             </>
           )}

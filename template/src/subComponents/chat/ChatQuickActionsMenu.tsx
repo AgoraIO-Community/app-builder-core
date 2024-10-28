@@ -42,6 +42,7 @@ interface ChatQuickActionsMenuProps {
   type: ChatMessageType;
   message: string;
   showReplyOption?: boolean;
+  setIsHovered?: (isHover: boolean) => void;
 }
 
 const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
@@ -55,6 +56,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     type,
     message: msg,
     showReplyOption,
+    setIsHovered,
   } = props;
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -96,6 +98,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       onPress: () => {
         setReplyToMsgId(messageId);
         setActionMenuVisible(false);
+        setIsHovered(false);
       },
     });
 
@@ -130,6 +133,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         setPrivateChatUser(userId);
         setChatType(ChatType.Private);
         setActionMenuVisible(false);
+        setIsHovered(false);
       },
     });
 
@@ -142,6 +146,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       onPress: () => {
         Clipboard.setString(msg);
         setActionMenuVisible(false);
+        setIsHovered(false);
       },
     });
 
@@ -155,6 +160,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       onPress: () => {
         isMsgPinned ? unPinMessage(messageId) : pinMessage(messageId);
         setActionMenuVisible(false);
+        setIsHovered(false);
       },
     });
 
@@ -191,6 +197,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         }
       }
       setActionMenuVisible(false);
+      setIsHovered(false);
     },
   });
 
@@ -264,6 +271,7 @@ export const MoreMessageOptions = ({
   type,
   message,
   showReplyOption = true,
+  setIsHovered,
 }) => {
   const moreIconRef = React.useRef(null);
   const [messageOptionsMenuVisible, setMessageOptionsMenuVisible] =
@@ -283,6 +291,7 @@ export const MoreMessageOptions = ({
         type={type}
         message={message}
         showReplyOption={showReplyOption}
+        setIsHovered={setIsHovered}
       />
 
       <View

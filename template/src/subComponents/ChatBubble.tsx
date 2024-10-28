@@ -273,6 +273,7 @@ const ChatLastMsgOptions = ({msgId, isLocal, userId, type, message}) => {
         type={type}
         message={message}
         showReplyOption={false}
+        setIsHovered={() => {}}
       />
     </View>
   );

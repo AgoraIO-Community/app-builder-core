@@ -92,6 +92,7 @@ export const ReactionPicker = props => {
 
   const handleReactionClick = emoji => {
     addReaction(messageId, emoji);
+    setIsHovered(false);
   };
 
   return (
@@ -119,6 +120,7 @@ export const ReactionPicker = props => {
                 messageId={messageId}
                 type={type}
                 message={message}
+                setIsHovered={setIsHovered}
               />
             </>
           )}
@@ -133,7 +135,7 @@ export const CustomReactionPicker = ({isLocal, setIsHovered, messageId}) => {
   const {addReaction} = useChatConfigure();
   const handleCustomReactionClick = (emoji: string) => {
     addReaction(messageId, emoji);
-    // setIsHovered(false);
+    setIsHovered(false);
   };
 
   return (
