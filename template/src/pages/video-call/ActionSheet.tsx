@@ -310,7 +310,8 @@ const ActionSheet = props => {
                 }}
               />
             }
-            blocking={false}>
+            blocking={false}
+            scrollLocking={false}>
             <CustomSidePanelView
               showHeader={false}
               content={sidePanelArray[customSidePanelIndex]?.component}
