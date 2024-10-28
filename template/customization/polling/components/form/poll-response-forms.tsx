@@ -386,18 +386,24 @@ export const style = StyleSheet.create({
   },
   checkBox: {
     borderColor: $config.FONT_COLOR,
-    alignSelf: 'baseline',
+    alignSelf: 'flex-start',
     marginTop: 6,
   },
   checkboxVoted: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    alignSelf: 'flex-start',
+    marginTop: 6,
   },
   checkboxSubmittedAndVoted: {
     borderColor: $config.FONT_COLOR,
     backgroundColor: $config.FONT_COLOR,
+    alignSelf: 'flex-start',
+    marginTop: 6,
   },
   checkboxSubmittedAndNotVoted: {
     borderColor: $config.FONT_COLOR,
+    alignSelf: 'flex-start',
+    marginTop: 6,
   },
 });

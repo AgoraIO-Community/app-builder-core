@@ -100,7 +100,7 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'baseline',
+    alignSelf: 'flex-start',
     marginTop: 5,
   },
   disabledCircle: {
