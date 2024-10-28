@@ -55,18 +55,19 @@ export const ChatEmojiPicker = ({
       <EmojiPicker
         onEmojiSelected={handleEmojiClick}
         open={isEmojiPickerOpen}
-        categoryPosition="floating" // floating' | 'top' | 'bottom'
+        categoryPosition="top" // floating' | 'top' | 'bottom'
         onClose={() => setIsEmojiPickerOpen(false)}
         theme={{
-          backdrop: '#16161888', // need design input
-          knob: $config.PRIMARY_ACTION_BRAND_COLOR,
+          backdrop:
+            $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'], // need design input
+          knob: $config.SECONDARY_ACTION_COLOR,
           container: $config.CARD_LAYER_3_COLOR,
           header: $config.FONT_COLOR,
           category: {
-            icon: $config.PRIMARY_ACTION_BRAND_COLOR,
+            icon: $config.SECONDARY_ACTION_COLOR,
             iconActive: $config.SECONDARY_ACTION_COLOR, // need design input
-            container: '#252427',
-            containerActive: '#766dfc', // need design input
+            container: $config.CARD_LAYER_2_COLOR,
+            containerActive: $config.PRIMARY_ACTION_BRAND_COLOR, // need design input
           },
         }}
       />
