@@ -171,7 +171,7 @@ export const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.small,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    lineHeight: 12,
+    lineHeight: 21,
   },
   btnContainer: {
     minWidth: 150,
