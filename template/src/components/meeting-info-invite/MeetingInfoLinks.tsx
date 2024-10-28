@@ -65,23 +65,6 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
 
   return (
     <>
-      {isSeparateHostLink ? (
-        <>
-          <MeetingLink
-            styleProps={{
-              size,
-              variant,
-            }}
-            label={getAttendeeLabel()}
-            link={getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
-            linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
-            helperText={showHelperText ? shareRoomAttendeeLinkSubTextLocal : ''}
-            gutterBottom
-          />
-        </>
-      ) : (
-        <></>
-      )}
       {isHost ? (
         <>
           <MeetingLink
@@ -93,6 +76,23 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
             link={getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.HOST}
             helperText={showHelperText ? shareRoomHostLinkSubTextLocal : ''}
+            gutterBottom
+          />
+        </>
+      ) : (
+        <></>
+      )}
+      {isSeparateHostLink ? (
+        <>
+          <MeetingLink
+            styleProps={{
+              size,
+              variant,
+            }}
+            label={getAttendeeLabel()}
+            link={getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+            linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
+            helperText={showHelperText ? shareRoomAttendeeLinkSubTextLocal : ''}
             gutterBottom
           />
         </>

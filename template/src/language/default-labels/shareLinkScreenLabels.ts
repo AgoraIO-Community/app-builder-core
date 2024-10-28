@@ -61,7 +61,7 @@ export const ShareLinkScreenLabels: I18nShareLinkScreenLabelsInterface = {
       if (isHost) {
         if (isSeparateHostLink) {
           //seperate link for host and attendee
-          inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nHost Link:\n${url?.host}\n\nAttendee Link:\n${url?.attendee}`;
         } else {
           //single link for everyone
           inviteContent += `Room: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
@@ -74,7 +74,7 @@ export const ShareLinkScreenLabels: I18nShareLinkScreenLabelsInterface = {
     } else {
       if (isHost) {
         if (isSeparateHostLink) {
-          inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}\n\nHost Room ID:\n${id?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nHost Room ID:\n${id?.host}\n\nAttendee Room ID:\n${id?.attendee}`;
         } else {
           inviteContent += `Room: ${meetingName}\n\nRoom ID:\n${id?.host}`;
         }
