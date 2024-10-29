@@ -28,6 +28,7 @@ import {
   downloadCsv,
   log,
   mergePolls,
+  shouldDeleteCreatorPolls,
 } from '../helpers';
 import {POLL_SIDEBAR_NAME} from '../components/PollButtonSidePanelTrigger';
 
@@ -422,15 +423,19 @@ function PollProvider({children}: {children: React.ReactNode}) {
       deleteMyPolls();
       event.returnValue = ''; // Chrome requires returnValue to be set
     };
-    if (isWeb()) {
-      window.addEventListener('beforeunload', handleBeforeUnload);
-    }
 
-    return () => {
+    if (shouldDeleteCreatorPolls) {
       if (isWeb()) {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      } else {
-        deleteMyPolls();
+        window.addEventListener('beforeunload', handleBeforeUnload);
+      }
+    }
+    return () => {
+      if (shouldDeleteCreatorPolls) {
+        if (isWeb()) {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        } else {
+          deleteMyPolls();
+        }
       }
     };
   }, [localUid]);

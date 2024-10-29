@@ -1,5 +1,5 @@
 import {Platform} from 'react-native';
-import {isMobileUA, isWeb} from 'customization-api';
+import {$config, isMobileUA, isWeb} from 'customization-api';
 import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 import pollIcons from './poll-icons';
 
@@ -220,6 +220,9 @@ const isAttributeLengthValid = (attribute: any) => {
   return true;
 };
 
+const shouldDeleteCreatorPolls =
+  !$config.ENABLE_IDP_AUTH && !$config.ENABLE_TOKEN_AUTH;
+
 export {
   log,
   mergePolls,
@@ -237,4 +240,5 @@ export {
   isWebOnly,
   getAttributeLengthInKb,
   isAttributeLengthValid,
+  shouldDeleteCreatorPolls,
 };

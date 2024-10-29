@@ -1,4 +1,4 @@
-import {customize} from 'customization-api';
+import {$config, customize} from 'customization-api';
 import NativeBottomToolbar from './bottombar-native';
 import PollSidebar from './polling/components/PollSidebar';
 import Poll from './polling/components/Poll';
@@ -23,4 +23,6 @@ const config = customize({
   },
 });
 
-export default config;
+const addPoll = !$config.AUDIO_ROOM && !$config.EVENT_MODE;
+
+export default addPoll ? config : {};
