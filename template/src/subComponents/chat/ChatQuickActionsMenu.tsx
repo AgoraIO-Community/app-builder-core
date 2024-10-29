@@ -130,6 +130,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       iconSize: 14,
       title: 'Private Reply',
       onPress: () => {
+        setReplyToMsgId(messageId);
         setPrivateChatUser(userId);
         setChatType(ChatType.Private);
         setActionMenuVisible(false);

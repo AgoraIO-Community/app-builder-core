@@ -43,6 +43,7 @@ import ChatSendButton, {handleChatSend} from './chat/ChatSendButton';
 import {
   ChatMessageType,
   SDKChatType,
+  useChatMessages,
 } from '../components/chat-messages/useChatMessages';
 import {
   groupChatLiveInputPlaceHolderText,
@@ -98,6 +99,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
+  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
 
   React.useEffect(() => {
     if (message.length === 0) {
@@ -159,6 +161,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       _resetTextareaHeight,
       replyToMsgId,
       setReplyToMsgId,
+      addMessageToStore,
+      addMessageToPrivateStore,
     });
   };
 

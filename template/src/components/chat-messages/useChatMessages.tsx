@@ -389,6 +389,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 url: body.url,
                 ext: body?.ext,
                 fileName: body?.fileName,
+                replyToMsgId: body?.replyToMsgId,
               },
             ],
           });
