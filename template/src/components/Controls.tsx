@@ -580,22 +580,24 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     },
   });
 
-  actionMenuitems.push({
-    hide: w => {
-      return w >= BREAKPOINTS.lg ? true : false;
-    },
-    componentName: 'chat',
-    order: 7,
-    icon: 'chat-nav',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: chatLabel,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setChatType(ChatType.Group);
-      setSidePanel(SidePanelType.Chat);
-    },
-  });
+  if ($config.CHAT) {
+    actionMenuitems.push({
+      hide: w => {
+        return w >= BREAKPOINTS.lg ? true : false;
+      },
+      componentName: 'chat',
+      order: 7,
+      icon: 'chat-nav',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: chatLabel,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setChatType(ChatType.Group);
+        setSidePanel(SidePanelType.Chat);
+      },
+    });
+  }
 
   if ($config.SCREEN_SHARING) {
     if (
