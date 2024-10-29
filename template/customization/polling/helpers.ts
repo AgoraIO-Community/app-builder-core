@@ -1,3 +1,4 @@
+import {Platform} from 'react-native';
 import {isMobileUA, isWeb} from 'customization-api';
 import {Poll, PollItemOptionItem, PollKind} from './context/poll-context';
 import pollIcons from './poll-icons';
@@ -199,6 +200,26 @@ const debounce = <T extends (...args: any[]) => void>(
 
 const isWebOnly = () => isWeb() && !isMobileUA();
 
+const getAttributeLengthInKb = (attribute: any): string => {
+  const jsonString = JSON.stringify(attribute);
+  let byteSize = 0;
+  if (Platform.OS === 'web') {
+    byteSize = new Blob([jsonString]).size;
+  } else {
+    // For iOS and Android
+    byteSize = jsonString.length * 2;
+  }
+  const kbSize = (byteSize / 1024).toFixed(2);
+  return kbSize;
+};
+
+const isAttributeLengthValid = (attribute: any) => {
+  if (getAttributeLengthInKb(attribute) > '8') {
+    return false;
+  }
+  return true;
+};
+
 export {
   log,
   mergePolls,
@@ -214,4 +235,6 @@ export {
   debounce,
   getPollTypeIcon,
   isWebOnly,
+  getAttributeLengthInKb,
+  isAttributeLengthValid,
 };

@@ -109,6 +109,9 @@ interface PollFormErrors {
   options?: {
     message: string;
   };
+  global?: {
+    message: string;
+  };
 }
 
 enum PollActionKind {

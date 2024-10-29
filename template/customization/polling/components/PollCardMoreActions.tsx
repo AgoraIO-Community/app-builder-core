@@ -68,7 +68,7 @@ const PollCardMoreActions = (props: PollCardMoreActionsMenuProps) => {
       icon: 'download',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Export Resuts',
+      title: 'Export Results',
       titleStyle: {
         fontSize: ThemeConfig.FontSize.small,
       },

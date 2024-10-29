@@ -140,6 +140,11 @@ export default function DraftPollFormView({
         <View style={style.pForm}>
           {/* Question section */}
           <View style={style.pFormSection}>
+            {errors?.global && (
+              <Text style={style.errorText}>{errors.global}</Text>
+            )}
+          </View>
+          <View style={style.pFormSection}>
             <FormTitle title="Question" />
             <View>
               <TextInput

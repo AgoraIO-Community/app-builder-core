@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import {Poll, PollItem, PollTaskRequestTypes, usePoll} from './poll-context';
 import {customEvents as events, PersistanceLevel} from 'customization-api';
-import {log} from '../helpers';
+import {getAttributeLengthInKb, log} from '../helpers';
 
 enum PollEventNames {
   polls = 'POLLS',
@@ -45,16 +45,24 @@ function PollEventsProvider({children}: {children?: React.ReactNode}) {
         if (!polls || !pollId || !task) {
           throw new Error('Invalid arguments provided to syncPollEvt.');
         }
-        events.send(
-          PollEventNames.polls,
-          JSON.stringify({
-            state: {...polls},
-            pollId: pollId,
-            task,
-          }),
-          PersistanceLevel.Channel,
-        );
-        log('Poll sync successful', {pollId, task});
+        const attributeLength = getAttributeLengthInKb(polls) || 0;
+        log('syncPollEvt check attribute length', attributeLength);
+        if (attributeLength <= '8') {
+          events.send(
+            PollEventNames.polls,
+            JSON.stringify({
+              state: {...polls},
+              pollId: pollId,
+              task,
+            }),
+            PersistanceLevel.Channel,
+          );
+          log('syncPollEvt: Poll sync successful', {pollId, task});
+        } else {
+          console.error(
+            'syncPollEvt: Error while syncin poll, attribute length exceeded',
+          );
+        }
       } catch (error) {
         console.error('Error while syncing poll: ', error);
       }

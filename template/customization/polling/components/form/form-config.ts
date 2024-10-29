@@ -103,22 +103,4 @@ const initPollForm = (
   throw new Error(`Unknown PollKind: ${kind}`);
 };
 
-const getAttributeLengthInKb = (attribute: string): string => {
-  const b = attribute.length * 2;
-  const kb = (b / 1024).toFixed(2);
-  return kb;
-};
-
-const isAttributeLengthValid = (attribute: string) => {
-  if (getAttributeLengthInKb(attribute) > '8') {
-    return false;
-  }
-  return true;
-};
-
-export {
-  getPollExpiresAtTime,
-  initPollForm,
-  isAttributeLengthValid,
-  POLL_DURATION,
-};
+export {getPollExpiresAtTime, initPollForm, POLL_DURATION};

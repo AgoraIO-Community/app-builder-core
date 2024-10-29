@@ -12,7 +12,7 @@ import {
 import {usePoll} from '../../context/poll-context';
 import {initPollForm} from '../form/form-config';
 import {useLocalUid, useContent} from 'customization-api';
-import {log} from '../../helpers';
+import {getAttributeLengthInKb, log} from '../../helpers';
 
 type FormWizardStep = 'SELECT' | 'DRAFT' | 'PREVIEW';
 
@@ -25,7 +25,7 @@ export default function PollFormWizardModal({
   formObject,
   formStep,
 }: PollFormWizardModalProps) {
-  const {savePoll, sendPoll, closeCurrentModal, modalState} = usePoll();
+  const {polls, savePoll, sendPoll, closeCurrentModal} = usePoll();
   const [savedPollId, setSavedPollId] = useState<string | null>(null);
   const [step, setStep] = useState<FormWizardStep>(formStep);
   const [type, setType] = useState<PollKind>(
@@ -126,6 +126,20 @@ export default function PollFormWizardModal({
       errors = {
         ...errors,
         options: {message: 'Option can’t be empty.'},
+      };
+    }
+    // Validate the attribute size
+    const formLength = getAttributeLengthInKb(form) || 0;
+    const pollLength = getAttributeLengthInKb(polls) || 0;
+    const attributeLength = +formLength + +pollLength;
+    log('current attributeLength is: ', attributeLength);
+    if (attributeLength > 8) {
+      errors = {
+        ...errors,
+        global: {
+          message:
+            'The poll size has exceeded the maximum allowable limit and cannot be saved. Please reduce the content or number of options and try again ',
+        },
       };
     }
     // 5. Set formErrors to the collected errors
