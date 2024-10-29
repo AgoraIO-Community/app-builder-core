@@ -141,7 +141,7 @@ export default function DraftPollFormView({
           {/* Question section */}
           <View style={style.pFormSection}>
             {errors?.global && (
-              <Text style={style.errorText}>{errors.global}</Text>
+              <Text style={style.errorText}>{errors.global.message}</Text>
             )}
           </View>
           <View style={style.pFormSection}>
