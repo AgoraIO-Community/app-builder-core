@@ -23,6 +23,6 @@ const config = customize({
   },
 });
 
-const addPoll = !$config.AUDIO_ROOM && !$config.EVENT_MODE;
+const isLiveMode = $config.AUDIO_ROOM || $config.EVENT_MODE;
 
-export default addPoll ? config : {};
+export default isLiveMode ? {} : config;
