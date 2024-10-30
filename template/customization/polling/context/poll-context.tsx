@@ -14,7 +14,6 @@ import {
   useSidePanel,
   SidePanelType,
   useContent,
-  isWeb,
 } from 'customization-api';
 import {
   getPollExpiresAtTime,
@@ -29,6 +28,7 @@ import {
   log,
   mergePolls,
   shouldDeleteCreatorPolls,
+  isWebOnly,
 } from '../helpers';
 import {POLL_SIDEBAR_NAME} from '../components/PollButtonSidePanelTrigger';
 
@@ -425,16 +425,14 @@ function PollProvider({children}: {children: React.ReactNode}) {
     };
 
     if (shouldDeleteCreatorPolls) {
-      if (isWeb()) {
+      if (isWebOnly()) {
         window.addEventListener('beforeunload', handleBeforeUnload);
       }
     }
     return () => {
       if (shouldDeleteCreatorPolls) {
-        if (isWeb()) {
+        if (isWebOnly()) {
           window.removeEventListener('beforeunload', handleBeforeUnload);
-        } else {
-          deleteMyPolls();
         }
       }
     };

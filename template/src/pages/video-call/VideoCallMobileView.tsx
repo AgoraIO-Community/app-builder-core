@@ -67,9 +67,9 @@ const VideoCallMobileView = props => {
   const appStateVisible = useAppState();
   const isCamON = useRef(local.video);
   const isScreenShareOn = useRef(isScreenshareActive);
-  const {isVBActive, setIsVBActive} = useVB();
-  const isVBAvaialble =
-    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
+  // const {isVBActive, setIsVBActive} = useVB();
+  // const isVBAvaialble =
+  //   $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
 
   useEffect(() => {
     if (
@@ -142,9 +142,9 @@ const VideoCallMobileView = props => {
     }
   }, [appStateVisible, isScreenshareActive]);
 
-  if (isVBAvaialble) {
-    return <VBPanel />;
-  }
+  // if (isVBAvaialble) {
+  //   return <VBPanel />;
+  // }
 
   if (isWhiteboardOnFullScreen) {
     return (
@@ -184,6 +184,10 @@ const VideoCallMobileView = props => {
 
 const VideoCallView = React.memo(() => {
   //toolbar changes
+  const {isVBActive} = useVB();
+  const isVBAvaialble =
+    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
+
   const {
     BottombarComponent,
     BottombarProps,
@@ -252,6 +256,13 @@ const VideoCallView = React.memo(() => {
     return components;
   });
 
+  if (isVBAvaialble) {
+    return (
+      <VideocallWrapper>
+        <VBPanel />
+      </VideocallWrapper>
+    );
+  }
   return (
     <VideocallWrapper>
       <ToolbarProvider value={{position: ToolbarPosition.top}}>
