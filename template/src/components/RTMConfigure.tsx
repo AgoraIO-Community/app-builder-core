@@ -397,16 +397,16 @@ const RtmConfigure = (props: any) => {
       await engine.current
         .getChannelAttributes(rtcProps.channel)
         .then(async data => {
-          for (const [key, value] of Object.entries(data?.attributes)) {
-            const {lastUpdateTs, lastUpdateUserId, value: payloadValue} = value;
-            if (hasJsonStructure(payloadValue as string)) {
-              const data = {
+          for (const item of data) {
+            const {key, value, lastUpdateTs, lastUpdateUserId} = item;
+            if (hasJsonStructure(value as string)) {
+              const evtData = {
                 evt: key,
-                value: payloadValue,
+                value,
               };
               // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
               EventsQueue.enqueue({
-                data: data,
+                data: evtData,
                 uid: lastUpdateUserId,
                 ts: lastUpdateTs,
               });
@@ -534,6 +534,36 @@ const RtmConfigure = (props: any) => {
       });
     });
 
+    engine.current.addListener(
+      'ChannelAttributesUpdated',
+      (attributeList: RtmChannelAttribute[]) => {
+        try {
+          attributeList.map((attribute: RtmChannelAttribute) => {
+            const {key, value, lastUpdateTs, lastUpdateUserId} = attribute;
+            const timestamp = getMessageTime(lastUpdateTs);
+            const sender = Platform.OS
+              ? get32BitUid(lastUpdateUserId)
+              : parseInt(lastUpdateUserId);
+            eventDispatcher(
+              {
+                evt: key,
+                value,
+              },
+              sender,
+              timestamp,
+            );
+          });
+        } catch (error) {
+          logger.error(
+            LogSource.Events,
+            'CUSTOM_EVENTS',
+            'error while dispatching through eventDispatcher',
+            error,
+          );
+        }
+      },
+    );
+
     engine.current.on('messageReceived', (evt: any) => {
       logger.debug(LogSource.Events, 'CUSTOM_EVENTS', 'messageReceived', evt);
       const {peerId, ts, text} = evt;
@@ -620,36 +650,6 @@ const RtmConfigure = (props: any) => {
       }
     });
 
-    engine.current.on(
-      'channelAttributesUpdated',
-      (attributeList: RtmChannelAttribute[]) => {
-        console.log('channel attributes updated', attributeList);
-        try {
-          attributeList.map((attribute: RtmChannelAttribute) => {
-            const {key, value, lastUpdateTs, lastUpdateUserId} = attribute;
-            const timestamp = getMessageTime(lastUpdateTs);
-            const sender = Platform.OS
-              ? get32BitUid(lastUpdateUserId)
-              : parseInt(lastUpdateUserId);
-            eventDispatcher(
-              {
-                evt: key,
-                value,
-              },
-              sender,
-              timestamp,
-            );
-          });
-        } catch (error) {
-          logger.error(
-            LogSource.Events,
-            'CUSTOM_EVENTS',
-            'error while dispatching through eventDispatcher',
-            error,
-          );
-        }
-      },
-    );
     await doLoginAndSetupRTM();
   };
 
