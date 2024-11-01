@@ -1,4 +1,10 @@
-import {Text, View, StyleSheet, LayoutChangeEvent} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  LayoutChangeEvent,
+  TextStyle,
+} from 'react-native';
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
@@ -14,6 +20,8 @@ interface CaptionTextProps {
   setActiveLinesAvailable?: React.Dispatch<React.SetStateAction<number>>;
   inActiveLinesAvailable?: number;
   setInActiveLinesAvaialble?: React.Dispatch<React.SetStateAction<number>>;
+  captionUserStyle?: TextStyle;
+  captionTextStyle?: TextStyle;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -29,6 +37,8 @@ const CaptionText = ({
   setActiveLinesAvailable,
   inActiveLinesAvailable,
   setInActiveLinesAvaialble,
+  captionUserStyle = {},
+  captionTextStyle = {},
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
 
@@ -95,6 +105,7 @@ const CaptionText = ({
         style={[
           styles.captionUserName,
           isMobile ? styles.mobileNameFontSize : styles.desktopNameFontSize,
+          captionUserStyle,
         ]}
         numberOfLines={1}
         textBreakStrategy="simple"
@@ -122,6 +133,7 @@ const CaptionText = ({
               ? styles.mobileCaptionFontSize
               : styles.desktopCaptionFontSize,
             isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+            captionTextStyle,
           ]}>
           {value}
         </Text>
