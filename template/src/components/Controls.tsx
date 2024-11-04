@@ -466,7 +466,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     actionMenuitems.push({
       componentName: 'whiteboard',
       order: 2,
-      disabled: WhiteboardDisabled || WhiteboardError,
+      disabled: WhiteboardDisabled,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'whiteboard-new',
@@ -474,8 +474,31 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       textColor: $config.FONT_COLOR,
       title: whiteboardLabel(whiteboardActive),
       onPress: () => {
-        setActionMenuVisible(false);
-        toggleWhiteboard(whiteboardActive, true);
+        if (WhiteboardError) {
+          setActionMenuVisible(false);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Failed to enable Whiteboard Service.',
+            text2: data?.whiteboard?.error?.message,
+            visibilityTime: 1000 * 10,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Failed to enable Whiteboard Service',
+            {
+              message: data?.whiteboard?.error?.message,
+              code: data?.whiteboard?.error?.code,
+            },
+          );
+        } else {
+          setActionMenuVisible(false);
+          toggleWhiteboard(whiteboardActive, true);
+        }
       },
     });
   }

@@ -76,7 +76,7 @@ import {useString} from '../utils/useString';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useCustomization} from 'customization-implementation';
 import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects';
-import Toast from '../../react-native-toast-message';
+
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -431,60 +431,6 @@ const VideoCall: React.FC = () => {
       }
     },
   };
-
-  //error handling
-  useEffect(() => {
-    //chat error toast
-    if (callActive && $config.CHAT && data && data?.chat && data?.chat?.error) {
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: 'Failed to enable Chat Service.',
-        text2: data?.chat?.error?.message,
-        visibilityTime: 1000 * 10,
-        primaryBtn: null,
-        secondaryBtn: null,
-        leadingIcon: null,
-      });
-      logger.error(
-        LogSource.Internals,
-        'JOIN_MEETING',
-        'Failed to enable Chat Service',
-        {
-          message: data?.chat?.error?.message,
-          code: data?.chat?.error?.code,
-        },
-      );
-    }
-    //whiteboard error toast
-    if (
-      callActive &&
-      $config.ENABLE_WHITEBOARD &&
-      data &&
-      data?.whiteboard &&
-      data?.whiteboard?.error
-    ) {
-      Toast.show({
-        leadingIconName: 'alert',
-        type: 'error',
-        text1: 'Failed to enable Whiteboard Service.',
-        text2: data?.whiteboard?.error?.message,
-        visibilityTime: 1000 * 10,
-        primaryBtn: null,
-        secondaryBtn: null,
-        leadingIcon: null,
-      });
-      logger.error(
-        LogSource.Internals,
-        'JOIN_MEETING',
-        'Failed to enable Whiteboard Service',
-        {
-          message: data?.whiteboard?.error?.message,
-          code: data?.whiteboard?.error?.code,
-        },
-      );
-    }
-  }, [data, callActive]);
 
   return (
     <>

@@ -62,6 +62,8 @@ import {
   videoRoomRecordingText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {useLanguage} from '../language/useLanguage';
+import Toast from '../../react-native-toast-message';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -255,7 +257,27 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   }, [sidePanel]);
 
   const onPress = () => {
-    {
+    if (ChatError) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'Failed to enable Chat Service.',
+        text2: data?.chat?.error?.message,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+        leadingIcon: null,
+      });
+      logger.error(
+        LogSource.Internals,
+        'JOIN_MEETING',
+        'Failed to enable Chat Service',
+        {
+          message: data?.chat?.error?.message,
+          code: data?.chat?.error?.code,
+        },
+      );
+    } else {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
         setChatType(ChatType.Group);
@@ -270,8 +292,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   };
   const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
-    disabled: ChatError,
-    containerStyle: ChatError ? {opacity: 0.5} : {opacity: 1},
     onPress: onPressCustom || onPress,
     iconProps: {
       name: 'chat-nav',
