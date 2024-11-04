@@ -131,40 +131,6 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   };
   return (
     <>
-      {isSeparateHostLink ? (
-        <>
-          <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
-          <Spacer size={11} />
-          <View style={style.container}>
-            <View style={style.urlContainer}>
-              <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={[
-                  style.url,
-                  style.urlPadding,
-                  //@ts-ignore
-                  isWebCheck ? urlWeb : {opacity: 1},
-                ]}>
-                {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
-              </Text>
-            </View>
-            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
-          </View>
-
-          {showSubLabel && (
-            <>
-              <Spacer size={14} />
-              <Text style={style.helpText}>
-                {shareRoomAttendeeLinkSubTextLocal}
-              </Text>
-            </>
-          )}
-          <Spacer size={25} />
-        </>
-      ) : (
-        <></>
-      )}
       {isHost ? (
         <>
           <Text style={style.urlTitle}>{getHostLabel()}</Text>
@@ -191,6 +157,40 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
               <Spacer size={14} />
               <Text style={style.helpText}>
                 {shareRoomHostLinkSubTextLocal}
+              </Text>
+            </>
+          )}
+          <Spacer size={25} />
+        </>
+      ) : (
+        <></>
+      )}
+      {isSeparateHostLink ? (
+        <>
+          <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={style.urlContainer}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[
+                  style.url,
+                  style.urlPadding,
+                  //@ts-ignore
+                  isWebCheck ? urlWeb : {opacity: 1},
+                ]}>
+                {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+              </Text>
+            </View>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+          </View>
+
+          {showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                {shareRoomAttendeeLinkSubTextLocal}
               </Text>
             </>
           )}

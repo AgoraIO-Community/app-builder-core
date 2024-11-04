@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, TextStyle, View} from 'react-native';
 import React from 'react';
 import {useContent, useRtc} from 'customization-api';
 import {useCaption} from './useCaption';
@@ -14,7 +14,15 @@ type WebStreamMessageArgs = [number, Uint8Array];
 type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
 type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
 
-const Caption: React.FC = () => {
+interface CaptionProps {
+  captionTextStyle?: TextStyle;
+  captionUserStyle?: TextStyle;
+}
+
+const Caption: React.FC<CaptionProps> = ({
+  captionTextStyle = {},
+  captionUserStyle = {},
+}) => {
   const {RtcEngineUnsafe} = useRtc();
   const {
     isLangChangeInProgress,
@@ -97,6 +105,8 @@ const Caption: React.FC = () => {
               setActiveLinesAvailable={setActiveLinesAvailable}
               inActiveLinesAvailable={inActiveLinesAvailable}
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
+              captionUserStyle={captionUserStyle}
+              captionTextStyle={captionTextStyle}
             />
           ) : (
             <></>
@@ -112,6 +122,8 @@ const Caption: React.FC = () => {
               setActiveLinesAvailable={setActiveLinesAvailable}
               inActiveLinesAvailable={inActiveLinesAvailable}
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
+              captionUserStyle={captionUserStyle}
+              captionTextStyle={captionTextStyle}
             />
           ) : (
             <></>
