@@ -1,4 +1,11 @@
-import {StyleSheet, Text, useWindowDimensions, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextStyle,
+  useWindowDimensions,
+  View,
+  ViewStyle,
+} from 'react-native';
 import React from 'react';
 
 import Caption from './Caption';
@@ -37,7 +44,17 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
-const CaptionContainer = () => {
+interface CaptionContainerProps {
+  containerStyle?: ViewStyle;
+  captionUserStyle?: TextStyle;
+  captionTextStyle?: TextStyle;
+}
+
+const CaptionContainer: React.FC<CaptionContainerProps> = ({
+  containerStyle = {},
+  captionUserStyle = {},
+  captionTextStyle = {},
+}) => {
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
@@ -90,6 +107,7 @@ const CaptionContainer = () => {
             isMobileUA() ? styles.mobileContainer : styles.container,
             isMobileUA() && {marginHorizontal: 0},
             !isMobileUA() && isSmall() && {marginTop: 0},
+            containerStyle,
           ]}>
           <CaptionsActionMenu
             actionMenuVisible={actionMenuVisible}
@@ -104,7 +122,10 @@ const CaptionContainer = () => {
             />
           )}
 
-          <Caption />
+          <Caption
+            captionUserStyle={captionUserStyle}
+            captionTextStyle={captionTextStyle}
+          />
         </View>
       </View>
     </PlatformWrapper>
