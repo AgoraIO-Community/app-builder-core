@@ -62,6 +62,8 @@ import {
   videoRoomRecordingText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {useLanguage} from '../language/useLanguage';
+import Toast from '../../react-native-toast-message';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -223,6 +225,12 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
+  const {data} = useRoomInfo();
+  //disable chat button when BE sends error on chat
+  const ChatError =
+    data?.chat?.error && (data?.chat?.error?.code || data?.chat?.error?.message)
+      ? true
+      : false;
   const {
     badgeContainerPosition = {
       top: 0,
@@ -249,7 +257,27 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   }, [sidePanel]);
 
   const onPress = () => {
-    {
+    if (ChatError) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'Failed to enable Chat Service.',
+        text2: data?.chat?.error?.message,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+        leadingIcon: null,
+      });
+      logger.error(
+        LogSource.Internals,
+        'JOIN_MEETING',
+        'Failed to enable Chat Service',
+        {
+          message: data?.chat?.error?.message,
+          code: data?.chat?.error?.code,
+        },
+      );
+    } else {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
         setChatType(ChatType.Group);

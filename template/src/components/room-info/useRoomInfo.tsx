@@ -33,15 +33,27 @@ export interface RoomData {
   pstn?: {
     number: string;
     pin: string;
+    error?: {
+      code?: number;
+      message?: string;
+    };
   };
   whiteboard?: {
     room_uuid: string;
     room_token: string;
+    error?: {
+      code?: number;
+      message?: string;
+    };
   };
   chat?: {
     user_token: string;
     group_id: string;
     is_group_owner: boolean;
+    error?: {
+      code?: number;
+      message?: string;
+    };
   };
   isSeparateHostLink: boolean;
   channel?: string;

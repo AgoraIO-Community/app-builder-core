@@ -18,6 +18,10 @@ const CREATE_CHANNEL = gql`
       pstn {
         number
         dtmf
+        error {
+          code
+          message
+        }
       }
     }
   }
@@ -118,10 +122,25 @@ export default function useCreateRoom(): createRoomFun {
         roomInfo.roomId.host = res.data.createChannel.passphrase.host;
       }
       if (enablePSTN === true && res?.data?.createChannel?.pstn) {
-        roomInfo.pstn = {
-          number: res.data.createChannel.pstn.number,
-          pin: res.data.createChannel.pstn.dtmf,
-        };
+        if (
+          res.data.createChannel.pstn?.error?.code ||
+          res.data.createChannel.pstn?.error?.message
+        ) {
+          roomInfo.pstn = {
+            number: '',
+            pin: '',
+            error: {
+              code: res.data.createChannel.pstn?.error?.code,
+              message: res.data.createChannel.pstn?.error?.message,
+            },
+          };
+        } else {
+          roomInfo.pstn = {
+            number: res.data.createChannel.pstn?.number,
+            pin: res.data.createChannel.pstn?.dtmf,
+            error: null,
+          };
+        }
       }
       logger.log(LogSource.Internals, 'CREATE_MEETING', 'Room created', {
         isHost: true,
