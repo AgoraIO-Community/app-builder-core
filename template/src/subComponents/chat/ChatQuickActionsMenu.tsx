@@ -87,7 +87,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
 
   const groupID = chat.group_id;
   const isGroupOwner = chat.is_group_owner;
-  const isMsgPinned = pinMsgId === messageId && pinnedByUser === userId;
+  const isMsgPinned = pinMsgId === messageId;
 
   showReplyOption &&
     actionMenuitems.push({
