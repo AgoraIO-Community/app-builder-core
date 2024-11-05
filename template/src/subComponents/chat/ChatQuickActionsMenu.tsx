@@ -198,7 +198,6 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         }
       }
       setActionMenuVisible(false);
-      setIsHovered(false);
     },
   });
 
