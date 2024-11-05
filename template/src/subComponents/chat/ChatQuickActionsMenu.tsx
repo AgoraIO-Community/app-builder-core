@@ -153,6 +153,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
 
   // native pin message to be released with 1.3.0 chat sdk
   isWebInternal() &&
+    chatType == SDKChatType.GROUP_CHAT &&
     actionMenuitems.push({
       icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
       iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -183,6 +184,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     iconColor: $config.SEMANTIC_ERROR,
     textColor: $config.SEMANTIC_ERROR,
     title: 'Delete Message',
+    disabled: isMsgPinned,
     onPress: () => {
       if (isLocal) {
         // confirm dialog : user is deleting for all
