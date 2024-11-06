@@ -191,7 +191,6 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         setShowDeleteMessageModal(true);
         //deleteAttachment(msgId, recallFromUser.toString(), chatType);
       } else {
-        debugger;
         if (chatType === SDKChatType.GROUP_CHAT) {
           removeMessageFromStore(messageId, isLocal);
         }

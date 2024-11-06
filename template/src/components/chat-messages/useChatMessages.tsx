@@ -98,6 +98,7 @@ export interface messageInterface {
   ext?: string;
   reactions?: Reaction[];
   replyToMsgId?: string;
+  hide?: boolean;
 }
 
 export enum SDKChatType {
@@ -346,6 +347,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           ext: body?.ext,
           fileName: body?.fileName,
           replyToMsgId: body?.replyToMsgId,
+          hide: false,
         },
       ];
     });
@@ -373,6 +375,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
               ext: body?.ext,
               fileName: body?.fileName,
               replyToMsgId: body?.replyToMsgId,
+              hide: false,
             },
           ])
         : (newState = {
@@ -390,6 +393,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 ext: body?.ext,
                 fileName: body?.fileName,
                 replyToMsgId: body?.replyToMsgId,
+                hide: false,
               },
             ],
           });
@@ -400,8 +404,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const removeMessageFromStore = (msgID, isMsgRecalled) => {
     console.warn('msg delete native', msgID);
     setMessageStore(prev => {
+      const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
       if (isMsgRecalled) {
-        const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
         if (recalledMsgIndex !== -1) {
           const updatedMessages = [...prev];
           updatedMessages[recalledMsgIndex].isDeleted = true;
@@ -410,7 +414,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           return prev;
         }
       } else {
-        return prev.filter(msg => msg.msgId !== msgID);
+        if (recalledMsgIndex !== -1) {
+          const updatedMessages = [...prev];
+          updatedMessages[recalledMsgIndex].hide = true;
+          return updatedMessages;
+        } else {
+          return prev;
+        }
       }
     });
   };
