@@ -97,7 +97,9 @@ export default function useGetMeetingPhrase() {
           if (data?.share?.passphrase?.host) {
             roomInfo.roomId.host = data.share.passphrase.host;
           }
-          if (data?.share?.pstn) {
+          //BE will send pstn.dtmf as 0 if pstn service is failed.
+          //so we should not display the PSTN details to user
+          if (data?.share?.pstn && data?.share?.pstn?.dtmf) {
             roomInfo.pstn = {
               number: data.share.pstn.number,
               pin: data.share.pstn.dtmf,
