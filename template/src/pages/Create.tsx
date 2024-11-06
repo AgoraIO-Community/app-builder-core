@@ -163,7 +163,8 @@ const Create = () => {
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: data?.pstn?.error?.message,
+        text1: 'Failed to enable PSTN Service',
+        text2: data?.pstn?.error?.message,
         visibilityTime: 1000 * 10,
         primaryBtn: null,
         secondaryBtn: null,
