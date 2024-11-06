@@ -48,7 +48,7 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
   const fileName = pinnedMsg[0].fileName;
 
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+    setIsExpanded(prev => !prev);
   };
   const handleTextLayout = e => {
     let textHeight = e.nativeEvent.layout?.height;
@@ -60,7 +60,8 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, {overflow: isExpanded ? 'scroll' : 'hidden'}]}>
       <View style={styles.pinUserContainer}>
         <ImageIcon
           iconType="plain"
@@ -72,7 +73,7 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
         <Text style={styles.pinnedUser}> Pinned By {msgPinnedUser}</Text>
       </View>
 
-      <Pressable style={styles.msgContainer} onPress={toggleExpanded}>
+      <View style={styles.msgContainer}>
         <View
           style={{
             flexDirection: 'row',
@@ -121,14 +122,16 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
         </View>
 
         {showMoreIcon && (
-          <ImageIcon
-            iconType="plain"
-            name={isExpanded ? 'arrow-up' : 'arrow-down'}
-            iconSize={20}
-            tintColor={$config.SECONDARY_ACTION_COLOR}
-          />
+          <Pressable onPress={toggleExpanded}>
+            <ImageIcon
+              iconType="plain"
+              name={isExpanded ? 'arrow-up' : 'arrow-down'}
+              iconSize={20}
+              tintColor={$config.SECONDARY_ACTION_COLOR}
+            />
+          </Pressable>
         )}
-      </Pressable>
+      </View>
 
       <Text style={styles.user}>
         {name} <Text style={styles.pinnedUser}>sent at {time}</Text>
@@ -159,7 +162,6 @@ const styles = StyleSheet.create({
     gap: 4,
     alignItems: 'flex-start',
     maxHeight: 120,
-    overflow: 'scroll',
   },
   pinIcon: {
     transform: [{rotate: '-45deg'}],
