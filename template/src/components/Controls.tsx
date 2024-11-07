@@ -604,6 +604,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   });
 
   if ($config.CHAT) {
+    //disable chat button when BE sends error on chat
+    const ChatError =
+      data?.chat?.error &&
+      (data?.chat?.error?.code || data?.chat?.error?.message)
+        ? true
+        : false;
     actionMenuitems.push({
       hide: w => {
         return w >= BREAKPOINTS.lg ? true : false;
@@ -615,9 +621,32 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       textColor: $config.FONT_COLOR,
       title: chatLabel,
       onPress: () => {
-        setActionMenuVisible(false);
-        setChatType(ChatType.Group);
-        setSidePanel(SidePanelType.Chat);
+        if (ChatError) {
+          setActionMenuVisible(false);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Failed to enable Chat Service.',
+            text2: data?.chat?.error?.message,
+            visibilityTime: 1000 * 10,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Failed to enable Chat Service',
+            {
+              message: data?.chat?.error?.message,
+              code: data?.chat?.error?.code,
+            },
+          );
+        } else {
+          setActionMenuVisible(false);
+          setChatType(ChatType.Group);
+          setSidePanel(SidePanelType.Chat);
+        }
       },
     });
   }

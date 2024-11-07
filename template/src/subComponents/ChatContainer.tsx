@@ -253,36 +253,38 @@ const ChatContainer = (props?: {
                 ) : (
                   <></>
                 )}
-                <ChatBubbleComponent
-                  isLocal={localUid === message.uid}
-                  isSameUser={
-                    index !== 0 && messageStore[index - 1].uid === message.uid
-                      ? true
-                      : false
-                  }
-                  previousMessageCreatedTimestamp={
-                    index !== 0
-                      ? (messageStore[index - 1]
-                          .createdTimestamp as unknown as string)
-                      : ''
-                  }
-                  message={message.msg}
-                  createdTimestamp={message.createdTimestamp}
-                  updatedTimestamp={message.updatedTimestamp}
-                  uid={message.uid}
-                  key={message.msgId}
-                  msgId={message.msgId}
-                  isDeleted={message.isDeleted}
-                  type={message.type}
-                  url={message?.url}
-                  thumb={message?.thumb}
-                  fileName={message?.fileName}
-                  ext={message?.ext}
-                  reactions={message?.reactions}
-                  scrollOffset={scrollOffset}
-                  replyToMsgId={message?.replyToMsgId}
-                  isLastMsg={messageStore.length - 1 === index}
-                />
+                {!message?.hide ? (
+                  <ChatBubbleComponent
+                    isLocal={localUid === message.uid}
+                    isSameUser={
+                      index !== 0 && messageStore[index - 1].uid === message.uid
+                        ? true
+                        : false
+                    }
+                    previousMessageCreatedTimestamp={
+                      index !== 0
+                        ? (messageStore[index - 1]
+                            .createdTimestamp as unknown as string)
+                        : ''
+                    }
+                    message={message.msg}
+                    createdTimestamp={message.createdTimestamp}
+                    updatedTimestamp={message.updatedTimestamp}
+                    uid={message.uid}
+                    key={message.msgId}
+                    msgId={message.msgId}
+                    isDeleted={message.isDeleted}
+                    type={message.type}
+                    url={message?.url}
+                    thumb={message?.thumb}
+                    fileName={message?.fileName}
+                    ext={message?.ext}
+                    reactions={message?.reactions}
+                    scrollOffset={scrollOffset}
+                    replyToMsgId={message?.replyToMsgId}
+                    isLastMsg={messageStore.length - 1 === index}
+                  />
+                ) : null}
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
                 ) : (
@@ -320,33 +322,36 @@ const ChatContainer = (props?: {
                   ) : (
                     <></>
                   )}
-                  <ChatBubbleComponent
-                    isLocal={localUid === message.uid}
-                    isSameUser={
-                      index !== 0 &&
-                      privateMessageStore[privateChatUser][index - 1].uid ===
-                        message.uid
-                        ? true
-                        : false
-                    }
-                    message={message.msg}
-                    createdTimestamp={message.createdTimestamp}
-                    updatedTimestamp={message.updatedTimestamp}
-                    uid={message.uid}
-                    key={message.msgId}
-                    msgId={message.msgId}
-                    isDeleted={message.isDeleted}
-                    type={message.type}
-                    url={message?.url}
-                    thumb={message?.thumb}
-                    fileName={message?.fileName}
-                    ext={message?.ext}
-                    reactions={message?.reactions}
-                    replyToMsgId={message?.replyToMsgId}
-                    isLastMsg={
-                      privateMessageStore[privateChatUser].length - 1 === index
-                    }
-                  />
+                  {!message?.hide ? (
+                    <ChatBubbleComponent
+                      isLocal={localUid === message.uid}
+                      isSameUser={
+                        index !== 0 &&
+                        privateMessageStore[privateChatUser][index - 1].uid ===
+                          message.uid
+                          ? true
+                          : false
+                      }
+                      message={message.msg}
+                      createdTimestamp={message.createdTimestamp}
+                      updatedTimestamp={message.updatedTimestamp}
+                      uid={message.uid}
+                      key={message.msgId}
+                      msgId={message.msgId}
+                      isDeleted={message.isDeleted}
+                      type={message.type}
+                      url={message?.url}
+                      thumb={message?.thumb}
+                      fileName={message?.fileName}
+                      ext={message?.ext}
+                      reactions={message?.reactions}
+                      replyToMsgId={message?.replyToMsgId}
+                      isLastMsg={
+                        privateMessageStore[privateChatUser].length - 1 ===
+                        index
+                      }
+                    />
+                  ) : null}
                   {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (
                     <Spacer size={10} />

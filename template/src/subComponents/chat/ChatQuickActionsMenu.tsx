@@ -87,7 +87,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
 
   const groupID = chat.group_id;
   const isGroupOwner = chat.is_group_owner;
-  const isMsgPinned = pinMsgId === messageId && pinnedByUser === userId;
+  const isMsgPinned = pinMsgId === messageId;
 
   showReplyOption &&
     actionMenuitems.push({
@@ -153,6 +153,7 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
 
   // native pin message to be released with 1.3.0 chat sdk
   isWebInternal() &&
+    chatType == SDKChatType.GROUP_CHAT &&
     actionMenuitems.push({
       icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
       iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -183,13 +184,13 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     iconColor: $config.SEMANTIC_ERROR,
     textColor: $config.SEMANTIC_ERROR,
     title: 'Delete Message',
+    disabled: isMsgPinned,
     onPress: () => {
       if (isLocal) {
         // confirm dialog : user is deleting for all
         setShowDeleteMessageModal(true);
         //deleteAttachment(msgId, recallFromUser.toString(), chatType);
       } else {
-        debugger;
         if (chatType === SDKChatType.GROUP_CHAT) {
           removeMessageFromStore(messageId, isLocal);
         }
@@ -198,7 +199,6 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
         }
       }
       setActionMenuVisible(false);
-      setIsHovered(false);
     },
   });
 
