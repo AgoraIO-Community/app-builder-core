@@ -132,12 +132,31 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
               token: mainUser.rtc,
               screenShareToken: screenShare.rtc,
               screenShareUid: screenShare.uid,
-              whiteboard,
-              chat: {
-                user_token: chat?.userToken,
-                group_id: chat?.groupId,
-                is_group_owner: chat?.isGroupOwner,
-              },
+              whiteboard: whiteboard?.error
+                ? {
+                    room_token: '',
+                    room_uuid: '',
+                    error: {
+                      code: whiteboard?.error?.code,
+                      message: whiteboard?.error?.message,
+                    },
+                  }
+                : whiteboard,
+              chat: chat?.error
+                ? {
+                    user_token: '',
+                    group_id: '',
+                    is_group_owner: false,
+                    error: {
+                      code: chat?.error?.code,
+                      message: chat?.error?.message,
+                    },
+                  }
+                : {
+                    user_token: chat?.userToken,
+                    group_id: chat?.groupId,
+                    is_group_owner: chat?.isGroupOwner,
+                  },
             },
           };
         });
