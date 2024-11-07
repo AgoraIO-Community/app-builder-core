@@ -98,6 +98,7 @@ export interface messageInterface {
   ext?: string;
   reactions?: Reaction[];
   replyToMsgId?: string;
+  hide?: boolean;
 }
 
 export enum SDKChatType {
@@ -346,6 +347,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           ext: body?.ext,
           fileName: body?.fileName,
           replyToMsgId: body?.replyToMsgId,
+          hide: false,
         },
       ];
     });
@@ -373,6 +375,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
               ext: body?.ext,
               fileName: body?.fileName,
               replyToMsgId: body?.replyToMsgId,
+              hide: false,
             },
           ])
         : (newState = {
@@ -390,6 +393,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 ext: body?.ext,
                 fileName: body?.fileName,
                 replyToMsgId: body?.replyToMsgId,
+                hide: false,
               },
             ],
           });
@@ -398,56 +402,40 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   };
 
   const removeMessageFromStore = (msgID, isMsgRecalled) => {
-    console.warn('msg delete native', msgID);
     setMessageStore(prev => {
-      if (isMsgRecalled) {
-        const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
-        if (recalledMsgIndex !== -1) {
-          const updatedMessages = [...prev];
-          updatedMessages[recalledMsgIndex].isDeleted = true;
-          return updatedMessages;
-        } else {
-          return prev;
-        }
-      } else {
-        return prev.filter(msg => msg.msgId !== msgID);
-      }
+      const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
+      if (recalledMsgIndex === -1) return prev;
+
+      const updatedMessages = [...prev];
+      updatedMessages[recalledMsgIndex][isMsgRecalled ? 'isDeleted' : 'hide'] =
+        true;
+      return updatedMessages;
     });
   };
-
-  // const removeMessageFromPrivateStore = (msgID, isMsgRecalled) => {
-  //   setPrivateMessageStore(prev => {
-  //     const state = {...prev};
-  //     const filteredData = prev[localUid].filter(msg => msg.msgId !== msgID);
-  //     const newState = {...state, [localUid]: filteredData};
-  //     return {...newState};
-  //   });
-  // };
 
   const removeMessageFromPrivateStore = (msgID, isMsgRecalled) => {
     setPrivateMessageStore(state => {
       const newState = {...state};
 
-      if (isMsgRecalled) {
-        Object.keys(newState).forEach(uid => {
-          const messages = newState[uid];
-          if (messages) {
-            const recalledMsg = messages.find(msg => msg.msgId === msgID);
-            if (recalledMsg) {
-              recalledMsg.isDeleted = true;
+      Object.keys(newState).forEach(uid => {
+        const messages = newState[uid];
+        if (messages) {
+          const recalledMsgIndex = messages.findIndex(
+            msg => msg.msgId === msgID,
+          );
+          if (recalledMsgIndex !== -1) {
+            const updatedMessages = [...messages];
+            if (isMsgRecalled) {
+              updatedMessages[recalledMsgIndex].isDeleted = true;
+            } else {
+              updatedMessages[recalledMsgIndex].hide = true;
             }
+            newState[uid] = updatedMessages;
           }
-        });
-      } else {
-        Object.keys(newState).forEach(uid => {
-          const messages = newState[uid];
-          if (messages) {
-            newState[uid] = messages.filter(msg => msg.msgId !== msgID);
-          }
-        });
-      }
+        }
+      });
 
-      return {...newState};
+      return newState;
     });
   };
 

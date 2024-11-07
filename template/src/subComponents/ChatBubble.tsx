@@ -200,7 +200,7 @@ export const ReplyMessageBubble = ({
               {fileName + ' ' + text}
             </Text>
           ) : (
-            <Text style={style.messageStyle}>{text}</Text>
+            <Text style={[style.messageStyle, {maxWidth: 265}]}>{text}</Text>
           )}
         </View>
       </View>
@@ -797,6 +797,7 @@ const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: ThemeConfig.FontSize.small * 1.45,
     color: $config.FONT_COLOR,
+    flexWrap: 'wrap',
   },
   replyMessageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

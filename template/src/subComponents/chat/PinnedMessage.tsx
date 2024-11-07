@@ -16,6 +16,7 @@ import {
 import {useContent, useLocalUid, UidType} from 'customization-api';
 import {trimText} from '../../../src/utils/common';
 import {formatAMPM} from '../../../src/utils';
+import {useChatConfigure} from '../../components/chat/chatConfigure';
 
 interface PinnedMessageProps {
   pinMsgId: string;
@@ -31,6 +32,7 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
   const {defaultContent} = useContent();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMoreIcon, setShowMoreIcon] = useState(false);
+  const {unPinMessage} = useChatConfigure();
 
   const pinnedMsg = messageStore.filter(msg => msg.msgId === pinMsgId);
   if (pinnedMsg.length === 0) return null;
@@ -48,7 +50,7 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
   const fileName = pinnedMsg[0].fileName;
 
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+    setIsExpanded(prev => !prev);
   };
   const handleTextLayout = e => {
     let textHeight = e.nativeEvent.layout?.height;
@@ -59,20 +61,26 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
     }
   };
 
+  const handleMessageUnpin = () => {
+    unPinMessage(pinMsgId);
+  };
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, {overflow: isExpanded ? 'scroll' : 'hidden'}]}>
       <View style={styles.pinUserContainer}>
-        <ImageIcon
-          iconType="plain"
-          name="pin-filled"
-          iconSize={20}
-          iconContainerStyle={styles.pinIcon}
-          tintColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
-        />
+        <Pressable onPress={handleMessageUnpin}>
+          <ImageIcon
+            iconType="plain"
+            name="unpin-filled"
+            iconSize={20}
+            tintColor={$config.FONT_COLOR + hexadecimalTransparency['40%']}
+          />
+        </Pressable>
         <Text style={styles.pinnedUser}> Pinned By {msgPinnedUser}</Text>
       </View>
 
-      <Pressable style={styles.msgContainer} onPress={toggleExpanded}>
+      <View style={styles.msgContainer}>
         <View
           style={{
             flexDirection: 'row',
@@ -121,14 +129,16 @@ const PinnedMessage: React.FC<PinnedMessageProps> = ({
         </View>
 
         {showMoreIcon && (
-          <ImageIcon
-            iconType="plain"
-            name={isExpanded ? 'arrow-up' : 'arrow-down'}
-            iconSize={20}
-            tintColor={$config.SECONDARY_ACTION_COLOR}
-          />
+          <Pressable onPress={toggleExpanded}>
+            <ImageIcon
+              iconType="plain"
+              name={isExpanded ? 'arrow-up' : 'arrow-down'}
+              iconSize={20}
+              tintColor={$config.SECONDARY_ACTION_COLOR}
+            />
+          </Pressable>
         )}
-      </Pressable>
+      </View>
 
       <Text style={styles.user}>
         {name} <Text style={styles.pinnedUser}>sent at {time}</Text>
@@ -159,7 +169,6 @@ const styles = StyleSheet.create({
     gap: 4,
     alignItems: 'flex-start',
     maxHeight: 120,
-    overflow: 'scroll',
   },
   pinIcon: {
     transform: [{rotate: '-45deg'}],
