@@ -346,6 +346,7 @@ const ChatContainer = (props?: {
                       ext={message?.ext}
                       reactions={message?.reactions}
                       replyToMsgId={message?.replyToMsgId}
+                      scrollOffset={scrollOffset}
                       isLastMsg={
                         privateMessageStore[privateChatUser].length - 1 ===
                         index
