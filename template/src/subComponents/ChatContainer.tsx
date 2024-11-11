@@ -220,7 +220,7 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
-      {pinMsgId && (
+      {pinMsgId && chatType === ChatType.Group && (
         <PinnedMessage pinMsgId={pinMsgId} pinnedByUser={pinnedByUser} />
       )}
       <ScrollView

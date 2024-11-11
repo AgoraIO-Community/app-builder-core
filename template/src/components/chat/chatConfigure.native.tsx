@@ -303,7 +303,9 @@ const ChatConfigure = ({children}) => {
           } else {
             const fromUserID = operations[0].userId;
             const uid =
-              localUid === fromUserID ? privateChatUserRef.current : fromUserID;
+              localUid === fromUserID
+                ? Number(privateChatUserRef.current)
+                : Number(fromUserID);
             addReactionToPrivateStore(
               uid,
               msgId,
