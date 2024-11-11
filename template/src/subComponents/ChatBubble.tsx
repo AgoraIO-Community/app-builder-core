@@ -703,7 +703,9 @@ const PlatformWrapper = ({children, isLocal, isChatBubble = true}) => {
       onPress={() => {
         setIsHovered(prev => !prev);
       }}
-      style={{}}>
+      style={{
+        alignSelf: isLocal ? 'flex-end' : 'flex-start',
+      }}>
       {children(isHovered, setIsHovered)}
     </Pressable>
   );
