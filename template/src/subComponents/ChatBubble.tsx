@@ -905,6 +905,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     gap: 4,
     zIndex: 5,
+    elevation: -1,
   },
   reactionUserList: {
     position: 'absolute',
