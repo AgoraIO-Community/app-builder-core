@@ -102,7 +102,8 @@ type LogType = {
     | 'whiteboard_screenshot'
     | 'recording_start'
     | 'recording_stop'
-    | 'recordings_get';
+    | 'recordings_get'
+    | 'recording_delete';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
   [LogSource.CustomizationAPI]: 'Log';
   [LogSource.SDK]: 'Log' | 'Event';
