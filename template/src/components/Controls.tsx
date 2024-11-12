@@ -254,6 +254,7 @@ export const WhiteboardListener = () => {
 
 const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {label} = useToolbarProps();
+  const {data} = useRoomInfo();
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
@@ -452,6 +453,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     whiteboardRoomState === RoomPhase.Connecting ||
     whiteboardRoomState === RoomPhase.Disconnecting;
 
+  //Disable whiteboard button when backend sends error
+  const WhiteboardError =
+    data?.whiteboard?.error &&
+    (data?.whiteboard?.error?.code || data?.whiteboard?.error?.message)
+      ? true
+      : false;
+
   //whiteboard ends
 
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
@@ -466,8 +474,31 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       textColor: $config.FONT_COLOR,
       title: whiteboardLabel(whiteboardActive),
       onPress: () => {
-        setActionMenuVisible(false);
-        toggleWhiteboard(whiteboardActive, true);
+        if (WhiteboardError) {
+          setActionMenuVisible(false);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Failed to enable Whiteboard Service.',
+            text2: data?.whiteboard?.error?.message,
+            visibilityTime: 1000 * 10,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Failed to enable Whiteboard Service',
+            {
+              message: data?.whiteboard?.error?.message,
+              code: data?.whiteboard?.error?.code,
+            },
+          );
+        } else {
+          setActionMenuVisible(false);
+          toggleWhiteboard(whiteboardActive, true);
+        }
       },
     });
   }
@@ -572,22 +603,53 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     },
   });
 
-  actionMenuitems.push({
-    hide: w => {
-      return w >= BREAKPOINTS.lg ? true : false;
-    },
-    componentName: 'chat',
-    order: 7,
-    icon: 'chat-nav',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: chatLabel,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setChatType(ChatType.Group);
-      setSidePanel(SidePanelType.Chat);
-    },
-  });
+  if ($config.CHAT) {
+    //disable chat button when BE sends error on chat
+    const ChatError =
+      data?.chat?.error &&
+      (data?.chat?.error?.code || data?.chat?.error?.message)
+        ? true
+        : false;
+    actionMenuitems.push({
+      hide: w => {
+        return w >= BREAKPOINTS.lg ? true : false;
+      },
+      componentName: 'chat',
+      order: 7,
+      icon: 'chat-nav',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: chatLabel,
+      onPress: () => {
+        if (ChatError) {
+          setActionMenuVisible(false);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Failed to enable Chat Service.',
+            text2: data?.chat?.error?.message,
+            visibilityTime: 1000 * 10,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Failed to enable Chat Service',
+            {
+              message: data?.chat?.error?.message,
+              code: data?.chat?.error?.code,
+            },
+          );
+        } else {
+          setActionMenuVisible(false);
+          setChatType(ChatType.Group);
+          setSidePanel(SidePanelType.Chat);
+        }
+      },
+    });
+  }
 
   if ($config.SCREEN_SHARING) {
     if (

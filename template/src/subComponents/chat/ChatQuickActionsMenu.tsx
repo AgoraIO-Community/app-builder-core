@@ -1,7 +1,11 @@
 import {StyleSheet, Text, useWindowDimensions, View} from 'react-native';
 import React from 'react';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-import {calculatePosition, trimText} from '../../../src/utils/common';
+import {
+  calculatePosition,
+  isWebInternal,
+  trimText,
+} from '../../../src/utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {
@@ -37,6 +41,8 @@ interface ChatQuickActionsMenuProps {
   messageId?: string;
   type: ChatMessageType;
   message: string;
+  showReplyOption?: boolean;
+  setIsHovered?: (isHover: boolean) => void;
 }
 
 const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
@@ -49,17 +55,28 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
     messageId,
     type,
     message: msg,
+    showReplyOption,
+    setIsHovered,
   } = props;
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = React.useState({});
-  const {setChatType, setPrivateChatUser, showEmojiPicker, privateChatUser} =
-    useChatUIControls();
+  const {
+    setChatType,
+    setPrivateChatUser,
+    showEmojiPicker,
+    privateChatUser,
+    replyToMsgId,
+    pinMsgId,
+    setPinMsgId,
+    setReplyToMsgId,
+    pinnedByUser,
+  } = useChatUIControls();
   const {removeMessageFromPrivateStore, removeMessageFromStore} =
     useChatMessages();
   const [showDeleteMessageModal, setShowDeleteMessageModal] =
     React.useState(false);
-  const {deleteAttachment} = useChatConfigure();
+  const {deleteAttachment, pinMessage, unPinMessage} = useChatConfigure();
 
   const actionMenuitems: ActionMenuItem[] = [];
   const {defaultContent} = useContent();
@@ -69,16 +86,21 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
   } = useRoomInfo();
 
   const groupID = chat.group_id;
+  const isGroupOwner = chat.is_group_owner;
+  const isMsgPinned = pinMsgId === messageId;
 
-  // actionMenuitems.push({
-  //   icon: 'reply',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Reply',
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  showReplyOption &&
+    actionMenuitems.push({
+      icon: 'reply',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Reply',
+      onPress: () => {
+        setReplyToMsgId(messageId);
+        setActionMenuVisible(false);
+        setIsHovered(false);
+      },
+    });
 
   const cancelTxt = useString(cancelText)();
   const cancelLabel =
@@ -108,9 +130,11 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       iconSize: 14,
       title: 'Private Reply',
       onPress: () => {
+        setReplyToMsgId(messageId);
         setPrivateChatUser(userId);
         setChatType(ChatType.Private);
         setActionMenuVisible(false);
+        setIsHovered(false);
       },
     });
 
@@ -123,41 +147,50 @@ const ChatQuickActionsMenu = (props: ChatQuickActionsMenuProps) => {
       onPress: () => {
         Clipboard.setString(msg);
         setActionMenuVisible(false);
+        setIsHovered(false);
       },
     });
-  // actionMenuitems.push({
-  //   icon: 'pin-outlined',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Pin Message',
-  //   onPress: () => {
-  //     setActionMenuVisible(false);
-  //   },
-  // });
 
-  // actionMenuitems.push({
-  //   icon: 'block_user',
-  //   iconColor: $config.SEMANTIC_ERROR,
-  //   textColor: $config.SEMANTIC_ERROR,
-  //   title: 'Block User',
-  //   onPress: () => {
-  //     // block user can be done only by group owner and admins
-  //     setActionMenuVisible(false);
-  //   },
-  // });
+  // native pin message to be released with 1.3.0 chat sdk
+  isWebInternal() &&
+    chatType == SDKChatType.GROUP_CHAT &&
+    actionMenuitems.push({
+      icon: isMsgPinned ? 'unpin-outlined' : 'pin-outlined',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: isMsgPinned ? 'UnPin Message' : 'Pin Message',
+      onPress: () => {
+        isMsgPinned ? unPinMessage(messageId) : pinMessage(messageId);
+        setActionMenuVisible(false);
+        setIsHovered(false);
+      },
+    });
+
+  //Only Chat Group Owner and Admin  can block a user
+  // isGroupOwner &&
+  //   actionMenuitems.push({
+  //     icon: 'block_user',
+  //     iconColor: $config.SEMANTIC_ERROR,
+  //     textColor: $config.SEMANTIC_ERROR,
+  //     title: 'Block User',
+  //     onPress: () => {
+  //       // block user can be done only by group owner and admins
+  //       setActionMenuVisible(false);
+  //     },
+  //   });
 
   actionMenuitems.push({
     icon: 'delete',
     iconColor: $config.SEMANTIC_ERROR,
     textColor: $config.SEMANTIC_ERROR,
     title: 'Delete Message',
+    disabled: isMsgPinned,
     onPress: () => {
       if (isLocal) {
         // confirm dialog : user is deleting for all
         setShowDeleteMessageModal(true);
         //deleteAttachment(msgId, recallFromUser.toString(), chatType);
       } else {
-        debugger;
         if (chatType === SDKChatType.GROUP_CHAT) {
           removeMessageFromStore(messageId, isLocal);
         }
@@ -238,6 +271,8 @@ export const MoreMessageOptions = ({
   messageId,
   type,
   message,
+  showReplyOption = true,
+  setIsHovered,
 }) => {
   const moreIconRef = React.useRef(null);
   const [messageOptionsMenuVisible, setMessageOptionsMenuVisible] =
@@ -256,6 +291,8 @@ export const MoreMessageOptions = ({
         messageId={messageId}
         type={type}
         message={message}
+        showReplyOption={showReplyOption}
+        setIsHovered={setIsHovered}
       />
 
       <View
@@ -278,7 +315,6 @@ export const MoreMessageOptions = ({
             borderRadius: 4,
             padding: 2,
           }}
-          containerStyle={{margin: 4}}
           iconProps={{
             iconType: 'plain',
             name: 'more-menu',

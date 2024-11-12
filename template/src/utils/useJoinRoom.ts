@@ -21,6 +21,10 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         groupId
         userToken
         isGroupOwner
+        error {
+          code
+          message
+        }
       }
       secretSalt
       mainUser {
@@ -31,6 +35,10 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
       whiteboard {
         room_uuid
         room_token
+        error {
+          code
+          message
+        }
       }
       screenShare {
         rtc
@@ -56,6 +64,10 @@ const JOIN_CHANNEL_PHRASE = gql`
         groupId
         userToken
         isGroupOwner
+        error {
+          code
+          message
+        }
       }
       secretSalt
       mainUser {
@@ -66,6 +78,10 @@ const JOIN_CHANNEL_PHRASE = gql`
       whiteboard {
         room_uuid
         room_token
+        error {
+          code
+          message
+        }
       }
       screenShare {
         rtc
@@ -236,19 +252,37 @@ export default function useJoinRoom() {
               : data.joinChannel.mainUser.rtm;
           }
           if (data?.joinChannel?.chat || data?.chat) {
-            const chat: RoomInfoContextInterface['data']['chat'] = {
-              user_token: isWaitingRoomEnabled
-                ? data.chat.userToken
-                : data?.joinChannel?.chat?.userToken,
-              group_id: isWaitingRoomEnabled
-                ? data.chat.groupId
-                : data?.joinChannel?.chat?.groupId,
-              is_group_owner: isWaitingRoomEnabled
-                ? data.chat.isGroupOwner
-                : data?.joinChannel?.chat?.isGroupOwner,
-            };
-
-            roomInfo.chat = chat;
+            const chatData = isWaitingRoomEnabled
+              ? data.chat
+              : data?.joinChannel?.chat;
+            if (
+              $config.CHAT &&
+              (chatData?.error?.code || chatData?.error?.message)
+            ) {
+              roomInfo.chat = {
+                user_token: '',
+                group_id: '',
+                is_group_owner: false,
+                error: {
+                  code: chatData?.error?.code,
+                  message: chatData?.error?.message,
+                },
+              };
+            } else {
+              const chat: RoomInfoContextInterface['data']['chat'] = {
+                user_token: isWaitingRoomEnabled
+                  ? data.chat.userToken
+                  : data?.joinChannel?.chat?.userToken,
+                group_id: isWaitingRoomEnabled
+                  ? data.chat.groupId
+                  : data?.joinChannel?.chat?.groupId,
+                is_group_owner: isWaitingRoomEnabled
+                  ? data.chat.isGroupOwner
+                  : data?.joinChannel?.chat?.isGroupOwner,
+                error: null,
+              };
+              roomInfo.chat = chat;
+            }
           }
 
           roomInfo.isHost = isWaitingRoomEnabled
@@ -261,16 +295,35 @@ export default function useJoinRoom() {
               : data.joinChannel.title;
           }
           if (data?.joinChannel?.whiteboard || data?.whiteboard) {
-            const whiteboard: RoomInfoContextInterface['data']['whiteboard'] = {
-              room_token: isWaitingRoomEnabled
-                ? data.whiteboard.room_token
-                : data?.joinChannel?.whiteboard?.room_token,
-              room_uuid: isWaitingRoomEnabled
-                ? data.whiteboard.room_uuid
-                : data?.joinChannel?.whiteboard?.room_uuid,
-            };
-            if (whiteboard?.room_token && whiteboard?.room_uuid) {
-              roomInfo.whiteboard = whiteboard;
+            const whiteboardData = isWaitingRoomEnabled
+              ? data.whiteboard
+              : data?.joinChannel?.whiteboard;
+            if (
+              $config.ENABLE_WHITEBOARD &&
+              (whiteboardData?.error?.code || whiteboardData?.error?.message)
+            ) {
+              roomInfo.whiteboard = {
+                room_token: '',
+                room_uuid: '',
+                error: {
+                  code: whiteboardData?.error?.code,
+                  message: whiteboardData?.error?.message,
+                },
+              };
+            } else {
+              const whiteboard: RoomInfoContextInterface['data']['whiteboard'] =
+                {
+                  room_token: isWaitingRoomEnabled
+                    ? data.whiteboard.room_token
+                    : data?.joinChannel?.whiteboard?.room_token,
+                  room_uuid: isWaitingRoomEnabled
+                    ? data.whiteboard.room_uuid
+                    : data?.joinChannel?.whiteboard?.room_uuid,
+                  error: null,
+                };
+              if (whiteboard?.room_token && whiteboard?.room_uuid) {
+                roomInfo.whiteboard = whiteboard;
+              }
             }
           }
           //getUser is not available from backend

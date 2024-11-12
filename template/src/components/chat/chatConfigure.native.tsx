@@ -1,7 +1,7 @@
 import {createHook} from 'customization-implementation';
 import React, {createContext, useEffect, useState} from 'react';
 import {useRoomInfo} from '../room-info/useRoomInfo';
-import {useContent} from 'customization-api';
+import {useChatUIControls, useContent} from 'customization-api';
 import {
   ChatClient,
   ChatConnectEventListener,
@@ -32,6 +32,7 @@ interface ChatMessageAttributes {
   from_platform?: string;
   channel?: string;
   msg?: string;
+  replyToMsgId?: string;
 }
 interface chatConfigureContextInterface {
   open: boolean;
@@ -49,6 +50,8 @@ interface chatConfigureContextInterface {
   ) => void;
   addReaction: (msgId: string, reaction: string) => void;
   removeReaction: (msgId: string, reaction: string) => void;
+  pinMessage: (messageId: string) => void;
+  unPinMessage: (messageId: string) => void;
 }
 
 export const chatConfigureContext =
@@ -61,6 +64,8 @@ export const chatConfigureContext =
     deleteAttachment: () => {},
     addReaction: () => {},
     removeReaction: () => {},
+    pinMessage: () => {},
+    unPinMessage: () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -84,10 +89,16 @@ const ChatConfigure = ({children}) => {
     addReactionToPrivateStore,
     addReactionToStore,
   } = useChatMessages();
+  const {setPinMsgId, setPinnedByUser, privateChatUser} = useChatUIControls();
+  const privateChatUserRef = React.useRef(privateChatUser);
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
+
+  React.useEffect(() => {
+    privateChatUserRef.current = privateChatUser;
+  }, [privateChatUser]);
 
   useEffect(() => {
     const logout = async () => {
@@ -131,8 +142,15 @@ const ChatConfigure = ({children}) => {
             const {msgId, from, body, localTime} = message;
             const chatType = body.type;
             const fromUser = from;
-            const {file_ext, file_name, file_url, from_platform, channel, msg} =
-              message.attributes as ChatMessageAttributes;
+            const {
+              file_ext,
+              file_name,
+              file_url,
+              from_platform,
+              channel,
+              msg,
+              replyToMsgId,
+            } = message.attributes as ChatMessageAttributes;
 
             // prevent cross-channel messages
             if (channel !== data.channel) {
@@ -151,6 +169,7 @@ const ChatConfigure = ({children}) => {
                     msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.TXT,
+                    replyToMsgId,
                   });
                 }
                 if (isPeerChat) {
@@ -163,6 +182,7 @@ const ChatConfigure = ({children}) => {
                       msgId: msgId,
                       isDeleted: false,
                       type: ChatMessageType.TXT,
+                      replyToMsgId,
                     },
                     false,
                   );
@@ -197,6 +217,7 @@ const ChatConfigure = ({children}) => {
                     thumb: thumb,
                     url: url,
                     fileName: file_name,
+                    replyToMsgId,
                   });
                 }
                 if (isPeerChat) {
@@ -217,6 +238,7 @@ const ChatConfigure = ({children}) => {
                       thumb: thumb,
                       url: url,
                       fileName: file_name,
+                      replyToMsgId,
                     },
                     false,
                   );
@@ -242,6 +264,7 @@ const ChatConfigure = ({children}) => {
                     url: file_url,
                     ext: file_ext,
                     fileName: file_name,
+                    replyToMsgId,
                   });
                 }
                 if (isPeerChat) {
@@ -262,6 +285,7 @@ const ChatConfigure = ({children}) => {
                       url: file_url,
                       ext: file_ext,
                       fileName: file_name,
+                      replyToMsgId,
                     },
                     false,
                   );
@@ -277,14 +301,21 @@ const ChatConfigure = ({children}) => {
           if (convId === data.chat.group_id) {
             addReactionToStore(msgId, reactions as unknown as Reaction[]);
           } else {
-            const userId = operations[0].userId;
+            const fromUserID = operations[0].userId;
+            const uid =
+              localUid === fromUserID
+                ? Number(privateChatUserRef.current)
+                : Number(fromUserID);
             addReactionToPrivateStore(
-              Number(userId),
+              uid,
               msgId,
               reactions as unknown as Reaction[],
             );
           }
         },
+        // onMessagePinChanged: data => {
+        //   console.warn('onMessagePinChanged', data);
+        // },
       };
       console.warn('setup listener');
       chatManager.removeAllMessageListener();
@@ -372,8 +403,11 @@ const ChatConfigure = ({children}) => {
     switch (type) {
       case ChatMessageType.TXT:
         chatMsg = ChatMessage.createTextMessage(to, msg, chatMsgChatType);
+        console.warn('createTextMessage', chatMsg);
         chatMsg.attributes = {
           channel: data.channel,
+          replyToMsgId: option?.ext?.replyToMsgId,
+          from_platform: 'native',
         };
         break;
       case ChatMessageType.IMAGE:
@@ -385,6 +419,7 @@ const ChatConfigure = ({children}) => {
           file_url: option?.ext?.file_url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
           channel: data.channel,
+          replyToMsgId: option?.ext?.replyToMsgId,
         };
 
         console.warn('Image msg to be sent', chatMsg);
@@ -401,37 +436,20 @@ const ChatConfigure = ({children}) => {
           file_url: option?.url, // this local url , when upload util is available for native then will use it
           from_platform: 'native',
           channel: data.channel,
+          replyToMsgId: option?.ext?.replyToMsgId,
         };
         console.warn('File msg to be sent', chatMsg);
         break;
     }
-    //
+
     chatClient.chatManager
       .sendMessage(chatMsg, callback)
       .then(() => {
-        // log here if the method call succeeds.
-        console.warn('send message success');
-        // add to local store of sender
         // for image and file msgs we will update on upload success of chatAttachment.native
-        if (type === ChatMessageType.TXT) {
-          const messageData = {
-            msg: option.msg.replace(/^(\n)+|(\n)+$/g, ''),
-            createdTimestamp: timeNow(),
-            msgId: chatMsg.msgId,
-            isDeleted: false,
-            type: option.type,
-          };
-
-          // this is local user messages
-          if (option.chatType === SDKChatType.SINGLE_CHAT) {
-            addMessageToPrivateStore(Number(option.to), messageData, true);
-          } else {
-            addMessageToStore(Number(option.from), messageData);
-          }
-        }
+        // for text msgs ChatInput.native
+        console.warn('send message successfull ');
       })
       .catch(reason => {
-        //log here if the method call fails.
         console.warn('send message fail.', reason);
       });
   };
@@ -525,7 +543,8 @@ const ChatConfigure = ({children}) => {
         );
       })
       .catch(err => {
-        if (err.type === 1101) {
+        console.warn(err);
+        if (err.code === 1301) {
           // If user already added reaction then remove it
           removeReaction(msgId, reaction);
         } else {
@@ -559,6 +578,54 @@ const ChatConfigure = ({children}) => {
       });
   };
 
+  const pinMessage = (messageId: string) => {
+    return;
+    // available in 1.3.0 chat sdk
+    // chatClient.chatManager
+    //   .pinMessage(messageId)
+    //   .then(res => {
+    //     setPinMsgId(messageId);
+    //     setPinnedByUser(Number(localUid));
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Successfully Pinned message with id ${messageId}`,
+    //       res,
+    //     );
+    //   })
+    //   .catch(err => {
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Failed to Pin Message with id ${messageId}`,
+    //       err,
+    //     );
+    //   });
+  };
+
+  const unPinMessage = (messageId: string) => {
+    return; // available in 1.3.0 chat sdk
+    // chatClient.chatManager
+    //   .unpinMessage(messageId)
+    //   .then(res => {
+    //     setPinMsgId('');
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Successfully Pinned message with id ${messageId}`,
+    //       res,
+    //     );
+    //   })
+    //   .catch(err => {
+    //     logger.debug(
+    //       LogSource.Internals,
+    //       'CHAT',
+    //       `Failed to Pin Message with id ${messageId}`,
+    //       err,
+    //     );
+    //   });
+  };
+
   return (
     <chatConfigureContext.Provider
       value={{
@@ -570,6 +637,8 @@ const ChatConfigure = ({children}) => {
         deleteAttachment,
         addReaction,
         removeReaction,
+        pinMessage,
+        unPinMessage,
       }}>
       {children}
     </chatConfigureContext.Provider>
