@@ -1,6 +1,6 @@
 {
   "name": "agora-appbuilder-core",
-  "version": "4.0.30-1",
+  "version": "4.0.31-1",
   "description": "React Native template for RTE app builder",
   "main": "index.js",
   "files": [
@@ -13,7 +13,8 @@
     "deps": "cd template && npm i --force",
     "dev-setup": "npm run uikit && npm run deps && node devSetup.js",
     "web-build": "cd template && npm run web:build && cd .. && npm run copy-vercel",
-    "copy-vercel": "cp -r Builds/web template/dist && cp vercel.json template/dist"
+    "copy-vercel": "cp -r Builds/web template/dist && cp vercel.json template/dist",
+    "pre-release": "cd template && cp _package-lock.json package-lock.json"
   },
   "author": {
     "email": "svineth.face@gmail.com",

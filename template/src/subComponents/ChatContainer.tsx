@@ -220,7 +220,7 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
-      {pinMsgId && (
+      {pinMsgId && chatType === ChatType.Group && (
         <PinnedMessage pinMsgId={pinMsgId} pinnedByUser={pinnedByUser} />
       )}
       <ScrollView
@@ -346,6 +346,7 @@ const ChatContainer = (props?: {
                       ext={message?.ext}
                       reactions={message?.reactions}
                       replyToMsgId={message?.replyToMsgId}
+                      scrollOffset={scrollOffset}
                       isLastMsg={
                         privateMessageStore[privateChatUser].length - 1 ===
                         index

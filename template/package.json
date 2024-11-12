@@ -187,11 +187,6 @@
     },
     "@bam.tech/react-native-make": {
       "sharp": "0.33.5"
-    },
-    "webpack-dev-server": {
-      "chokidar": {
-        "fsevents": "2.3.3"
-      }
     }
   },
   "engines": {

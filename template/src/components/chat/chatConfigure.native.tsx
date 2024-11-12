@@ -89,11 +89,16 @@ const ChatConfigure = ({children}) => {
     addReactionToPrivateStore,
     addReactionToStore,
   } = useChatMessages();
-  const {setPinMsgId, setPinnedByUser} = useChatUIControls();
+  const {setPinMsgId, setPinnedByUser, privateChatUser} = useChatUIControls();
+  const privateChatUserRef = React.useRef(privateChatUser);
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
+
+  React.useEffect(() => {
+    privateChatUserRef.current = privateChatUser;
+  }, [privateChatUser]);
 
   useEffect(() => {
     const logout = async () => {
@@ -296,9 +301,13 @@ const ChatConfigure = ({children}) => {
           if (convId === data.chat.group_id) {
             addReactionToStore(msgId, reactions as unknown as Reaction[]);
           } else {
-            const userId = operations[0].userId;
+            const fromUserID = operations[0].userId;
+            const uid =
+              localUid === fromUserID
+                ? Number(privateChatUserRef.current)
+                : Number(fromUserID);
             addReactionToPrivateStore(
-              Number(userId),
+              uid,
               msgId,
               reactions as unknown as Reaction[],
             );
