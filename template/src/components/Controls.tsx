@@ -55,6 +55,7 @@ import {
   useLayout,
   useRecording,
   useSidePanel,
+  useSpeechToText,
 } from 'customization-api';
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
@@ -1141,6 +1142,7 @@ const Controls = (props: ControlsProps) => {
   }>(sttSpokenLanguageToastSubHeading);
 
   const {sttLanguage, isSTTActive} = useRoomInfo();
+  const {addStreamMessageListener} = useSpeechToText();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -1212,6 +1214,8 @@ const Controls = (props: ControlsProps) => {
         },
       ];
     });
+    // start listening to stream Message callback
+    addStreamMessageListener();
   }, [sttLanguage]);
 
   React.useEffect(() => {
