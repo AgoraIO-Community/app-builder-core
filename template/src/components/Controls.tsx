@@ -110,6 +110,7 @@ import {useModal} from '../utils/useModal';
 import ViewRecordingsModal from './recordings/ViewRecordingsModal';
 import {filterObject} from '../utils/index';
 import {useLanguage} from '../language/useLanguage';
+import RecordingDeletePopup from './recordings/RecordingDeletePopup';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -253,6 +254,12 @@ export const WhiteboardListener = () => {
 };
 
 const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
+  //recording delete
+  const [isRecordingDeletePopupVisible, setRecordingDeletePopupVisible] =
+    React.useState<boolean>(false);
+  const [recordingIdToDelete, setRecordingIdToDelete] = useState(0);
+  //recording delete
+
   const {label} = useToolbarProps();
   const {data} = useRoomInfo();
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
@@ -312,7 +319,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     useVideoCall();
   const {isScreenshareActive, startScreenshare, stopScreenshare} =
     useScreenshare();
-  const {isRecordingActive, startRecording, inProgress} = useRecording();
+  const {isRecordingActive, startRecording, inProgress, deleteRecording} =
+    useRecording();
   const {setChatType} = useChatUIControls();
   const actionMenuitems: ActionMenuItem[] = [];
 
@@ -849,6 +857,40 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     ?.filter(i => !isHidden(i))
     ?.sort(CustomToolbarSort);
 
+  const onRecordingDeleteConfirmation = () => {
+    setRecordingDeletePopupVisible(false);
+    deleteRecording(recordingIdToDelete)
+      .then(() => {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'success',
+          text1: 'Recording has been deleted successfully.',
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+          leadingIcon: null,
+        });
+        setRecordingIdToDelete(0);
+      })
+      .catch(() => {
+        Toast.show({
+          leadingIconName: 'alert',
+          type: 'error',
+          text1: 'Failed to delete the recording. Please try again later',
+          visibilityTime: 1000 * 10,
+          primaryBtn: null,
+          secondaryBtn: null,
+          leadingIcon: null,
+        });
+        setRecordingIdToDelete(0);
+      });
+  };
+
+  const onRecordingDeleteCancel = () => {
+    setRecordingIdToDelete(0);
+    toggleVRModal();
+  };
+
   return (
     <>
       <LanguageSelectorPopup
@@ -857,8 +899,27 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         onConfirm={onConfirm}
         isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
-      {$config.CLOUD_RECORDING && isHost && isWeb() && isVRModalOpen && (
-        <ViewRecordingsModal setModalOpen={setVRModalOpen} />
+      {$config.CLOUD_RECORDING && isHost && isWeb() && (
+        <>
+          <RecordingDeletePopup
+            modalVisible={isRecordingDeletePopupVisible}
+            setModalVisible={setRecordingDeletePopupVisible}
+            onConfirm={onRecordingDeleteConfirmation}
+            onCancel={onRecordingDeleteCancel}
+          />
+          {isVRModalOpen ? (
+            <ViewRecordingsModal
+              setModalOpen={setVRModalOpen}
+              onDeleteAction={id => {
+                setRecordingIdToDelete(id);
+                toggleVRModal();
+                setRecordingDeletePopupVisible(true);
+              }}
+            />
+          ) : (
+            <></>
+          )}
+        </>
       )}
       <ActionMenu
         containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}

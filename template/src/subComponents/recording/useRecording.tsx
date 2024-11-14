@@ -76,6 +76,7 @@ export interface RecordingContextInterface {
   isRecordingActive: boolean;
   inProgress: boolean;
   fetchRecordings?: (page: number) => Promise<RecordingsData>;
+  deleteRecording?: (id: number) => Promise<boolean>;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
@@ -625,6 +626,85 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     [roomId?.host, store.token],
   );
 
+  const deleteRecording = useCallback(
+    (recordingId: number) => {
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
+      logger.debug(
+        LogSource.NetworkRest,
+        'recording_delete',
+        'Trying to delete recording recording id:' + recordingId,
+        {
+          recordingId,
+        },
+      );
+      return fetch(
+        `${$config.BACKEND_ENDPOINT}/v1/recording/${recordingId}?passphrase=${roomId?.host}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: store.token ? `Bearer ${store.token}` : '',
+            'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
+          },
+        },
+      )
+        .then(async response => {
+          const endReqTs = Date.now();
+          if (response.ok) {
+            logger.debug(
+              LogSource.NetworkRest,
+              'recording_delete',
+              'delete recording successfull',
+              response,
+              {
+                recordingId,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
+            return Promise.resolve(true);
+          } else {
+            logger.error(
+              LogSource.NetworkRest,
+              'recording_delete',
+              'Error while deleting recording',
+              response,
+              {
+                recordingId,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
+            return Promise.reject(false);
+          }
+        })
+        .catch(error => {
+          const endReqTs = Date.now();
+          logger.error(
+            LogSource.NetworkRest,
+            'recording_delete',
+            'Error while deleting recording',
+            error,
+            {
+              recordingId,
+              startReqTs,
+              endReqTs,
+              latency: endReqTs - startReqTs,
+              requestId,
+            },
+          );
+          return Promise.reject(false);
+        });
+    },
+    [roomId?.host, store.token],
+  );
+
   // Events
   useEffect(() => {
     events.on(EventNames.RECORDING_STATE_ATTRIBUTE, data => {
@@ -924,6 +1004,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         stopRecording,
         isRecordingActive,
         fetchRecordings,
+        deleteRecording,
       }}>
       {props.children}
     </RecordingContext.Provider>

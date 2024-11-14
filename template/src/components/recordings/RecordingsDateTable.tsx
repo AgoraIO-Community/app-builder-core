@@ -4,7 +4,7 @@ import {style} from './style';
 import {RTableHeader, RTableBody, RTableFooter} from './recording-table';
 import {useRecording} from '../../subComponents/recording/useRecording';
 
-function RecordingsDateTable() {
+function RecordingsDateTable(props) {
   const [state, setState] = React.useState({
     status: 'idle',
     data: {
@@ -49,7 +49,11 @@ function RecordingsDateTable() {
   return (
     <View style={style.ttable}>
       <RTableHeader />
-      <RTableBody status={status} recordings={recordings} />
+      <RTableBody
+        status={status}
+        recordings={recordings}
+        onDeleteAction={props?.onDeleteAction}
+      />
       <RTableFooter
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
