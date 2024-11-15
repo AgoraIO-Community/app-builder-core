@@ -3,6 +3,8 @@ import {View, Text} from 'react-native';
 import {style} from './style';
 import {RTableHeader, RTableBody, RTableFooter} from './recording-table';
 import {useRecording} from '../../subComponents/recording/useRecording';
+import events from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 function RecordingsDateTable(props) {
   const [state, setState] = React.useState({
@@ -21,11 +23,24 @@ function RecordingsDateTable(props) {
 
   const {fetchRecordings} = useRecording();
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const defaultPageNumber = 1;
+  const [currentPage, setCurrentPage] = useState(defaultPageNumber);
+
+  const onRecordingDeleteCallback = () => {
+    setCurrentPage(defaultPageNumber);
+    getRecordings(defaultPageNumber);
+  };
 
   useEffect(() => {
+    events.on(EventNames.RECORDING_DELETED, onRecordingDeleteCallback);
+    return () => {
+      events.off(EventNames.RECORDING_DELETED, onRecordingDeleteCallback);
+    };
+  }, []);
+
+  const getRecordings = pageNumber => {
     setState(prev => ({...prev, status: 'pending'}));
-    fetchRecordings(currentPage).then(
+    fetchRecordings(pageNumber).then(
       response =>
         setState(prev => ({
           ...prev,
@@ -37,7 +52,11 @@ function RecordingsDateTable(props) {
         })),
       error => setState(prev => ({...prev, status: 'rejected', error})),
     );
-  }, [fetchRecordings, currentPage]);
+  };
+
+  useEffect(() => {
+    getRecordings(currentPage);
+  }, [currentPage]);
 
   if (status === 'rejected') {
     return (
