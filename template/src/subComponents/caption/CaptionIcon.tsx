@@ -4,6 +4,9 @@ import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import {useCaption} from './useCaption';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
+import {useString} from '../../utils/useString';
+import {toolbarItemCaptionText} from '../../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../../atoms/ToolbarItem';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -16,6 +19,8 @@ interface CaptionIconProps {
 }
 
 const CaptionIcon = (props: CaptionIconProps) => {
+  const {label: labelCustom = null, onPress: onPressCustom = null} =
+    useToolbarProps();
   const {
     showLabel = $config.ICON_TEXT,
     isOnActionSheet = false,
@@ -29,23 +34,25 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const isDisabled = !isAuthorizedSTTUser();
-  const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
+  const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const label = captionLabel(isCaptionON);
+  const onPress = () => {
+    if (isSTTError) {
+      setIsCaptionON(prev => !prev);
+      closeActionSheet();
+      return;
+    }
+    if (isSTTActive) {
+      // is lang popup has been shown once for any user in meeting
+      setIsCaptionON(prev => !prev);
+      closeActionSheet();
+    } else {
+      isFirstTimePopupOpen.current = true;
+      setLanguagePopup(true);
+    }
+  };
   const iconButtonProps: IconButtonProps = {
-    onPress: () => {
-      if (isSTTError) {
-        setIsCaptionON(prev => !prev);
-        closeActionSheet();
-        return;
-      }
-      if (isSTTActive) {
-        // is lang popup has been shown once for any user in meeting
-        setIsCaptionON(prev => !prev);
-        closeActionSheet();
-      } else {
-        isFirstTimePopupOpen.current = true;
-        setLanguagePopup(true);
-      }
-    },
+    onPress: onPressCustom || onPress,
     disabled: isDisabled,
     iconProps: {
       name: isCaptionON ? 'captions-off' : 'captions',
@@ -59,8 +66,13 @@ const CaptionIcon = (props: CaptionIconProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
-      text: showLabel ? label : '',
+      text: showLabel
+        ? isOnActionSheet
+          ? labelCustom || label?.replace(' ', '\n')
+          : labelCustom || label
+        : '',
       textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;

@@ -13,32 +13,52 @@ import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
 
+import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
+import {createHook} from 'customization-implementation';
+
 export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
-  createdTimestamp: string;
-  updatedTimestamp?: string;
+  createdTimestamp: number;
+  updatedTimestamp?: number;
   uid: UidType;
   msgId: string;
   isDeleted: boolean;
   isSameUser: boolean;
+  type: ChatMessageType;
+  thumb?: string;
+  url?: string;
+  fileName?: string;
+  ext?: string;
   previousMessageCreatedTimestamp?: string;
+  reactions?: Reaction[];
+  scrollOffset?: number;
+  replyToMsgId?: string;
+  isLastMsg?: boolean;
+
   render?: (
     isLocal: boolean,
     message: string,
-    createdTimestamp: string,
+    createdTimestamp: number,
     uid: UidType,
     msgId: string,
     isDeleted: boolean,
-    updatedTimestamp: string,
+    updatedTimestamp: number,
     isSameUser: boolean,
+    type: ChatMessageType,
+    thumb?: string,
+    url?: string,
+    fileName?: string,
+    ext?: string,
     previousMessageCreatedTimestamp?: string,
+    reactions?: Reaction[],
+    replyToMsgId?: string,
   ) => JSX.Element;
 }
 
 export interface messageStoreInterface {
-  createdTimestamp: string;
-  updatedTimestamp?: string;
+  createdTimestamp: number;
+  updatedTimestamp?: number;
   uid: UidType;
   msg: string;
 }
@@ -48,7 +68,8 @@ export enum messageActionType {
   Normal = '1',
 }
 
-export interface chatContext {
+export interface RtmContextInterface {
+  isInitialQueueCompleted: boolean;
   hasUserJoinedRTM: boolean;
   rtmInitTimstamp: number;
   engine: RtmEngine;
@@ -68,6 +89,9 @@ export enum controlMessageEnum {
   kickScreenshare = '9',
 }
 
-const ChatContext = createContext(null as unknown as chatContext);
+const RtmContext = createContext(null as unknown as RtmContextInterface);
 
-export default ChatContext;
+const useRtm = createHook(RtmContext);
+
+export {useRtm};
+export default RtmContext;

@@ -83,5 +83,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>HostName</key>
+	<string>managedservices-prod.rteappbuilder.com</string>
+	<key>MainPublicKey</key>
+	<string>59d0kvzJLl7UOwYCl9KLk+Nzx9fD49Ah5qem+VGG8p8=</string>
+	<key>BackupPublicKey</key>
+	<string>++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</string>
 </dict>
 </plist>

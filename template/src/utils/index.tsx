@@ -1,3 +1,6 @@
+import {isWebInternal} from './common';
+
+const Buffer = require('buffer/').Buffer;
 type Entry<T> = {
   [K in keyof T]: [K, T[K]];
 }[keyof T];
@@ -83,3 +86,69 @@ export function isURL(str) {
   var url = new RegExp(urlRegex, 'i');
   return str.length < 2083 && url.test(str);
 }
+
+export const base64ToUint8Array = (base64Str: string) => {
+  let decodedData;
+
+  decodedData = Buffer.from(base64Str, 'base64').toString('binary');
+
+  if (isWebInternal()) {
+    const result: Uint8Array = new Uint8Array(
+      new ArrayBuffer(decodedData.length),
+    );
+    for (let i = 0; i < decodedData.length; i += 1) {
+      result[i] = decodedData.charCodeAt(i);
+    }
+    return result;
+  } else {
+    const result: number[] = [];
+    for (let i = 0; i < decodedData.length; i++) {
+      result.push(decodedData.charCodeAt(i));
+    }
+    return result;
+  }
+};
+
+export function timeAgo(timestamp: number) {
+  const now = new Date().getTime();
+  const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return days === 1 ? '1 day ago' : `${days} days ago`;
+  } else if (hours > 0) {
+    return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+  } else if (minutes > 0) {
+    return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
+  } else {
+    return 'just now';
+  }
+}
+
+export const containsOnlyEmojis = (text: string) => {
+  const stringToTest = text.replace(/ /g, ''); // remove all white spaces from the input
+  const regexForEmojis = /\p{Extended_Pictographic}/gu;
+  const regexForAlphaNums = /[\p{L}\p{N}]+/gu;
+
+  // check to see if the string contains emojis
+  if (regexForEmojis.test(stringToTest)) {
+    // check to see if it contains any alphanumerics
+    if (regexForAlphaNums.test(stringToTest)) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+
+  // const emojiRegex =
+  //   /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F191}-\u{1F251}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F251}\s]/gu;
+  // return (
+  //   emojiRegex.test(stringToTest) &&
+  //   !/[^\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F191}-\u{1F251}\u{1F004}\u{1F0CF}\u{1F170}-\u{1F251}\s]/gu.test(
+  //     text,
+  //   )
+  // );
+};

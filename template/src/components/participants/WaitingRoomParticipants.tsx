@@ -5,17 +5,27 @@ import {filterObject} from '../../utils';
 import Participant from './Participant';
 import ParticipantSectionTitle from './ParticipantSectionTitle';
 import {useWaitingRoomContext} from '../contexts/WaitingRoomContext';
+import {useString} from '../../utils/useString';
+import {
+  peoplePanelWaitingText,
+  peoplePanelWantToJoinText,
+  videoRoomUserFallbackText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const WaitingRoomParticipants = props => {
+  const wanttojoinLabel = useString(peoplePanelWantToJoinText)();
+  const waitingLabel = useString(peoplePanelWaitingText)();
   const {defaultContent} = useContent();
   const [showWaitingRoomSection, setShowWaitingRoomSection] = useState(true);
   const {isMobile = false, handleClose, updateActionSheet} = props;
   const WaitingRoomParticipantsLabel = $config.EVENT_MODE
-    ? 'WANT TO JOIN'
-    : 'WAITING';
+    ? wanttojoinLabel
+    : waitingLabel;
+
+  const videoRoomUserFallbackTextLabel = useString(videoRoomUserFallbackText)();
 
   const getParticipantName = uid => {
-    return defaultContent[uid]?.name || 'WRP';
+    return defaultContent[uid]?.name || videoRoomUserFallbackTextLabel;
   };
 
   const getScreenShareUid = uid => {

@@ -12,15 +12,23 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {isMobileUA, isValidReactComponent} from '../../utils/common';
 import Avatar from '../../atoms/Avatar';
 import {useCustomization} from 'customization-implementation';
+import {useString} from '../../utils/useString';
+import {
+  inviteTileCopyInviteBtnText,
+  inviteTileNoElseJoinedYetText,
+  inviteTileWelcomeText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const waveHandEmoji = '👋';
 
 export default function MeetingInfoGridTile() {
   const isMobile = isMobileUA();
-  const copyInviteButton = isMobile ? 'INVITE OTHERS' : 'COPY INVITATION';
+  const welcomeLabel = useString(inviteTileWelcomeText)();
+  const copyInviteButtonLabel = useString(inviteTileCopyInviteBtnText)();
+  const copyInviteButton = copyInviteButtonLabel;
   const {copyShareLinkToClipboard} = useShareLink();
   const username = useGetName();
-
+  const noOneElseJoinedYet = useString(inviteTileNoElseJoinedYetText)();
   const {InvitePopupContent, InvitePopupTitle} = useCustomization(data => {
     let components: {
       InvitePopupContent?: React.ComponentType;
@@ -34,17 +42,17 @@ export default function MeetingInfoGridTile() {
       typeof data?.components?.videoCall === 'object'
     ) {
       if (
-        data?.components?.videoCall.invitePopup.renderComponent &&
-        typeof data?.components?.videoCall.invitePopup.renderComponent !==
+        data?.components?.videoCall?.invitePopup?.renderComponent &&
+        typeof data?.components?.videoCall?.invitePopup?.renderComponent !==
           'object' &&
         isValidReactComponent(
-          data?.components?.videoCall.invitePopup.renderComponent,
+          data?.components?.videoCall?.invitePopup?.renderComponent,
         )
       ) {
         components.InvitePopupContent =
           data?.components?.videoCall.invitePopup.renderComponent;
       }
-      if (data?.components?.videoCall.invitePopup.title) {
+      if (data?.components?.videoCall?.invitePopup?.title) {
         components.InvitePopupTitle =
           data?.components?.videoCall.invitePopup.title;
       }
@@ -55,7 +63,10 @@ export default function MeetingInfoGridTile() {
   return (
     <View style={style.root}>
       <ScrollView
-        contentContainerStyle={[style.scroll, !isMobile && {paddingLeft: 0}]}>
+        contentContainerStyle={[
+          style.scroll,
+          !isMobile && {paddingLeft: 0, paddingRight: 0},
+        ]}>
         <View style={style.inviteContainerTile}>
           <View style={style.inviteTile}>
             <MeetingInfo
@@ -86,15 +97,13 @@ export default function MeetingInfoGridTile() {
                     <Text
                       style={[style.heading, {flexShrink: 1}]}
                       numberOfLines={1}>
-                      Welcome {username}
+                      {welcomeLabel} {username}
                     </Text>
                   </View>
                   {isMobile && <Spacer size={10} />}
                   <View style={{flexDirection: 'row'}}>
                     <Text style={[style.subheading, {flexShrink: 1}]}>
-                      {isMobile
-                        ? `No one else has joined yet, invite others?`
-                        : `No one else has joined yet`}
+                      {noOneElseJoinedYet}
                     </Text>
                   </View>
                 </>
@@ -155,7 +164,7 @@ const style = StyleSheet.create({
   },
   scroll: {
     flexGrow: 1,
-    padding: 4,
+    paddingTop: 4,
   },
   inviteContainerTile: {
     flex: 1,

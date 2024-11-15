@@ -29,14 +29,16 @@ import Recording from '../subComponents/Recording';
 import LocalSwitchCamera from '../subComponents/LocalSwitchCamera';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import {ClientRole} from '../../agora-rn-uikit';
+import {ClientRoleType} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {
   BREAKPOINTS,
-  CustomToolbarSort,
   isWeb,
   isWebInternal,
-  useIsDesktop,
+  CustomToolbarMerge,
+  CustomToolbarSorting,
+  MergeMoreButtonFields,
+  CustomToolbarSort,
 } from '../utils/common';
 import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
@@ -64,23 +66,50 @@ import {EventNames} from '../rtm-events';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
 import {getLanguageLabel} from '../../src/subComponents/caption/utils';
-import ImageIcon from '../atoms/ImageIcon';
-import useGetName from '../utils/useGetName';
 import Toolbar from '../atoms/Toolbar';
-import ToolbarItem from '../atoms/ToolbarItem';
-import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
+import {
+  ToolbarPresetProps,
+  ToolbarItemHide,
+  ToolbarItemLabel,
+  ToolbarMoreButtonDefaultFields,
+  ToolbarMoreButtonCustomFields,
+} from '../atoms/ToolbarPreset';
 
-import {BoardColor, whiteboardContext} from './whiteboard/WhiteboardConfigure';
+import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import {RoomPhase} from 'white-web-sdk';
 import {useNoiseSupression} from '../app-state/useNoiseSupression';
 
 import {useVB} from './virtual-background/useVB';
 import WhiteboardWrapper from './whiteboard/WhiteboardWrapper';
-import isSDK from '../utils/isSDK';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
 import {useSetRoomInfo} from './room-info/useSetRoomInfo';
+import {useString} from '../utils/useString';
+import {
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
+  toolbarItemCaptionText,
+  toolbarItemChatText,
+  toolbarItemInviteText,
+  toolbarItemLayoutText,
+  toolbarItemMoreText,
+  toolbarItemNoiseCancellationText,
+  toolbarItemPeopleText,
+  toolbarItemRecordingText,
+  toolbarItemViewRecordingText,
+  toolbarItemSettingText,
+  toolbarItemShareText,
+  toolbarItemTranscriptText,
+  toolbarItemVirtualBackgroundText,
+  toolbarItemWhiteboardText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useModal} from '../utils/useModal';
+import ViewRecordingsModal from './recordings/ViewRecordingsModal';
+import {filterObject} from '../utils/index';
+import {useLanguage} from '../language/useLanguage';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -223,13 +252,36 @@ export const WhiteboardListener = () => {
   return null;
 };
 
-const MoreButton = () => {
+const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
+  const {label} = useToolbarProps();
+  const {data} = useRoomInfo();
+  const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
+  const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
+  const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const transcriptLabel = useString<boolean>(toolbarItemTranscriptText);
+  const settingsLabel = useString(toolbarItemSettingText)();
+  const screenShareButton = useString<boolean>(toolbarItemShareText);
+  const recordingButton = useString<boolean>(toolbarItemRecordingText);
+  const viewRecordingsLabel = useString<boolean>(
+    toolbarItemViewRecordingText,
+  )();
+  const moreButtonLabel = useString(toolbarItemMoreText)();
+  const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
+  const chatLabel = useString(toolbarItemChatText)();
+  const inviteLabel = useString(toolbarItemInviteText)();
+  const peopleLabel = useString(toolbarItemPeopleText)();
+  const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
   const {setCustomContent} = useContent();
   const [_, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
+  const {
+    modalOpen: isVRModalOpen,
+    setModalOpen: setVRModalOpen,
+    toggle: toggleVRModal,
+  } = useModal();
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const layouts = useLayoutsData();
@@ -258,7 +310,7 @@ const MoreButton = () => {
   } = useRoomInfo();
   const {setShowInvitePopup, setShowStopRecordingPopup, setShowLayoutOption} =
     useVideoCall();
-  const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
+  const {isScreenshareActive, startScreenshare, stopScreenshare} =
     useScreenshare();
   const {isRecordingActive, startRecording, inProgress} = useRecording();
   const {setChatType} = useChatUIControls();
@@ -269,6 +321,8 @@ const MoreButton = () => {
   //AINS
   if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
+      componentName: 'noise-cancellation',
+      order: 0,
       toggleStatus: isNoiseSupressionEnabled === ToggleState.enabled,
       disabled:
         isNoiseSupressionEnabled === ToggleState.disabling ||
@@ -278,9 +332,9 @@ const MoreButton = () => {
       icon: 'noise-cancellation',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Noise Cancellation',
+      title: noiseCancellationLabel,
       //isNoiseSupressionEnabled === ToggleState.enabled
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setNoiseSupression(p => !p);
       },
@@ -301,14 +355,16 @@ const MoreButton = () => {
   };
   if ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) {
     actionMenuitems.push({
+      componentName: 'virtual-background',
+      order: 1,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'vb',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       //title: `${isVBActive ? 'Hide' : 'Show'} Virtual Background`,
-      title: 'Virtual Background',
-      callback: () => {
+      title: virtualBackgroundLabel,
+      onPress: () => {
         setActionMenuVisible(false);
         toggleVB();
       },
@@ -397,38 +453,72 @@ const MoreButton = () => {
     whiteboardRoomState === RoomPhase.Connecting ||
     whiteboardRoomState === RoomPhase.Disconnecting;
 
+  //Disable whiteboard button when backend sends error
+  const WhiteboardError =
+    data?.whiteboard?.error &&
+    (data?.whiteboard?.error?.code || data?.whiteboard?.error?.message)
+      ? true
+      : false;
+
   //whiteboard ends
 
-  if (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) {
+  if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
+      componentName: 'whiteboard',
+      order: 2,
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
       //@ts-ignore
       icon: 'whiteboard-new',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: whiteboardActive
-        ? 'Hide Whiteboard'
-        : whiteboardStartedFirst
-        ? 'Show Whiteboard'
-        : 'Start Whiteboard',
-      callback: () => {
-        setActionMenuVisible(false);
-        toggleWhiteboard(whiteboardActive, true);
+      title: whiteboardLabel(whiteboardActive),
+      onPress: () => {
+        if (WhiteboardError) {
+          setActionMenuVisible(false);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Failed to enable Whiteboard Service.',
+            text2: data?.whiteboard?.error?.message,
+            visibilityTime: 1000 * 10,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Failed to enable Whiteboard Service',
+            {
+              message: data?.whiteboard?.error?.message,
+              code: data?.whiteboard?.error?.code,
+            },
+          );
+        } else {
+          setActionMenuVisible(false);
+          toggleWhiteboard(whiteboardActive, true);
+        }
       },
     });
   }
 
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
 
-  if ($config.ENABLE_STT) {
+  if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
+      componentName: 'caption',
+      order: 3,
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
-      callback: () => {
+      disabled: !(
+        $config.ENABLE_STT &&
+        $config.ENABLE_CAPTION &&
+        (isHost || (!isHost && isSTTActive))
+      ),
+      title: captionLabel(isCaptionON),
+      onPress: () => {
         setActionMenuVisible(false);
         STT_clicked.current = !isCaptionON ? 'caption' : null;
         if (isSTTError) {
@@ -445,163 +535,248 @@ const MoreButton = () => {
       },
     });
 
-    actionMenuitems.push({
-      icon: 'transcript',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      disabled: !($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))),
-      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
-      callback: () => {
-        setActionMenuVisible(false);
-        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-        if (isSTTError) {
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-          return;
-        }
-        if (isSTTActive) {
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-        } else {
-          isFirstTimePopupOpen.current = true;
-          setLanguagePopup(true);
-        }
-      },
-    });
-  }
-
-  if (globalWidth <= BREAKPOINTS.sm) {
-    actionMenuitems.push({
-      icon: 'participants',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'People',
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Participants);
-      },
-    });
-    actionMenuitems.push({
-      icon: 'chat-nav',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Chat',
-      callback: () => {
-        setActionMenuVisible(false);
-        setChatType(ChatType.Group);
-        setSidePanel(SidePanelType.Chat);
-      },
-    });
-
-    if ($config.SCREEN_SHARING) {
-      if (
-        !(
-          rtcProps.role == ClientRole.Audience &&
-          $config.EVENT_MODE &&
-          !$config.RAISE_HAND
-        )
-      ) {
-        actionMenuitems.push({
-          disabled:
-            rtcProps.role == ClientRole.Audience &&
-            $config.EVENT_MODE &&
-            $config.RAISE_HAND &&
-            !isHost,
-          icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
-          iconColor: isScreenshareActive
-            ? $config.SEMANTIC_ERROR
-            : $config.SECONDARY_ACTION_COLOR,
-          textColor: isScreenshareActive
-            ? $config.SEMANTIC_ERROR
-            : $config.FONT_COLOR,
-          title: isScreenshareActive ? 'Stop Share' : 'Share',
-          callback: () => {
-            setActionMenuVisible(false);
-            isScreenshareActive
-              ? stopUserScreenShare()
-              : startUserScreenshare();
-          },
-        });
-      }
-    }
-    if (isHost && $config.CLOUD_RECORDING) {
+    if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
-        disabled: inProgress,
-        icon: isRecordingActive ? 'stop-recording' : 'recording',
-        iconColor: isRecordingActive
-          ? $config.SEMANTIC_ERROR
-          : $config.SECONDARY_ACTION_COLOR,
-        textColor: isRecordingActive
-          ? $config.SEMANTIC_ERROR
-          : $config.FONT_COLOR,
-        title: isRecordingActive ? 'Stop Recording' : 'Record',
-        callback: () => {
+        componentName: 'transcript',
+        order: 4,
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        disabled: !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          $config.ENABLE_MEETING_TRANSCRIPT &&
+          (isHost || (!isHost && isSTTActive))
+        ),
+        title: transcriptLabel(isTranscriptON),
+        onPress: () => {
           setActionMenuVisible(false);
-          if (!isRecordingActive) {
-            startRecording();
+          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+          if (isSTTError) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+            return;
+          }
+          if (isSTTActive) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
           } else {
-            setShowStopRecordingPopup(true);
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
           }
         },
       });
     }
   }
 
-  if (globalWidth <= BREAKPOINTS.md) {
+  // view recordings
+
+  if (isHost && $config.CLOUD_RECORDING && isWeb()) {
     actionMenuitems.push({
-      //below icon key is dummy value
-      icon: 'grid',
-      externalIconString: layouts[layout]?.icon,
-      isExternalIcon: true,
+      componentName: 'view-recordings',
+      order: 5,
+      icon: 'play-circle',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Layout',
-      callback: () => {
-        //setShowLayoutOption(true);
-      },
-      onHoverCallback: isHovered => {
-        setShowLayoutOption(isHovered);
-      },
-      onHoverContent: (
-        <LayoutIconDropdown
-          onHoverPlaceHolder="vertical"
-          setShowDropdown={() => {}}
-          showDropdown={true}
-          modalPosition={
-            globalWidth <= BREAKPOINTS.sm
-              ? {bottom: 65, left: -150}
-              : {bottom: 20, left: -150}
-          }
-          caretPosition={{bottom: 45, right: -10}}
-        />
-      ),
-    });
-    actionMenuitems.push({
-      icon: 'share',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Invite',
-      callback: () => {
-        setActionMenuVisible(false);
-        setShowInvitePopup(true);
+      title: viewRecordingsLabel,
+      onPress: () => {
+        toggleVRModal();
       },
     });
   }
 
-  if (globalWidth <= BREAKPOINTS.sm) {
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'participant',
+    order: 6,
+    icon: 'participants',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: peopleLabel,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.Participants);
+    },
+  });
+
+  if ($config.CHAT) {
+    //disable chat button when BE sends error on chat
+    const ChatError =
+      data?.chat?.error &&
+      (data?.chat?.error?.code || data?.chat?.error?.message)
+        ? true
+        : false;
     actionMenuitems.push({
-      icon: 'settings',
+      hide: w => {
+        return w >= BREAKPOINTS.lg ? true : false;
+      },
+      componentName: 'chat',
+      order: 7,
+      icon: 'chat-nav',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Settings',
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Settings);
+      title: chatLabel,
+      onPress: () => {
+        if (ChatError) {
+          setActionMenuVisible(false);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Failed to enable Chat Service.',
+            text2: data?.chat?.error?.message,
+            visibilityTime: 1000 * 10,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Failed to enable Chat Service',
+            {
+              message: data?.chat?.error?.message,
+              code: data?.chat?.error?.code,
+            },
+          );
+        } else {
+          setActionMenuVisible(false);
+          setChatType(ChatType.Group);
+          setSidePanel(SidePanelType.Chat);
+        }
       },
     });
   }
+
+  if ($config.SCREEN_SHARING) {
+    if (
+      !(
+        rtcProps.role == ClientRoleType.ClientRoleAudience &&
+        $config.EVENT_MODE &&
+        !$config.RAISE_HAND
+      )
+    ) {
+      actionMenuitems.push({
+        hide: w => {
+          return w >= BREAKPOINTS.sm ? true : false;
+        },
+        componentName: 'screenshare',
+        order: 8,
+        disabled:
+          rtcProps.role == ClientRoleType.ClientRoleAudience &&
+          $config.EVENT_MODE &&
+          $config.RAISE_HAND &&
+          !isHost,
+        icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
+        iconColor: isScreenshareActive
+          ? $config.SEMANTIC_ERROR
+          : $config.SECONDARY_ACTION_COLOR,
+        textColor: isScreenshareActive
+          ? $config.SEMANTIC_ERROR
+          : $config.FONT_COLOR,
+        title: screenShareButton(isScreenshareActive),
+        onPress: () => {
+          setActionMenuVisible(false);
+          isScreenshareActive ? stopScreenshare() : startScreenshare();
+        },
+      });
+    }
+  }
+  if (isHost && $config.CLOUD_RECORDING) {
+    actionMenuitems.push({
+      hide: w => {
+        return w >= BREAKPOINTS.sm ? true : false;
+      },
+      componentName: 'recording',
+      order: 9,
+      disabled: inProgress,
+      icon: isRecordingActive ? 'stop-recording' : 'recording',
+      iconColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.SECONDARY_ACTION_COLOR,
+      textColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.FONT_COLOR,
+      title: recordingButton(isRecordingActive),
+      onPress: () => {
+        setActionMenuVisible(false);
+        if (!isRecordingActive) {
+          startRecording();
+        } else {
+          setShowStopRecordingPopup(true);
+        }
+      },
+    });
+  }
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'layout',
+    order: 10,
+    //below icon key is dummy value
+    icon: 'grid',
+    externalIconString: layouts[layout]?.icon,
+    isExternalIcon: true,
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: layoutLabel,
+    onPress: () => {
+      //setShowLayoutOption(true);
+    },
+    onHoverCallback: isHovered => {
+      setShowLayoutOption(isHovered);
+    },
+    onHoverContent: (
+      <LayoutIconDropdown
+        onHoverPlaceHolder="vertical"
+        setShowDropdown={() => {}}
+        showDropdown={true}
+        modalPosition={
+          globalWidth <= BREAKPOINTS.lg
+            ? {bottom: 65, left: -150}
+            : {bottom: 20, left: -150}
+        }
+        caretPosition={{bottom: 45, right: -10}}
+      />
+    ),
+  });
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'invite',
+    order: 11,
+    icon: 'share',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: inviteLabel,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setShowInvitePopup(true);
+    },
+  });
+
+  actionMenuitems.push({
+    hide: w => {
+      return w >= BREAKPOINTS.lg ? true : false;
+    },
+    componentName: 'settings',
+    order: 12,
+    icon: 'settings',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: settingsLabel,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.Settings);
+    },
+  });
 
   useEffect(() => {
     if (isHovered) {
@@ -646,9 +821,33 @@ const MoreButton = () => {
         await restart(language);
       }
     } catch (error) {
-      console.log('eror in starting stt', error);
+      logger.error(LogSource.Internals, 'STT', 'error in starting stt', error);
     }
   };
+
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
+  };
+
+  const moreButtonFields = props?.fields || {};
+
+  const ActionMenuItems = MergeMoreButtonFields(
+    actionMenuitems,
+    moreButtonFields,
+  )
+    ?.filter(i => !isHidden(i))
+    ?.sort(CustomToolbarSort);
 
   return (
     <>
@@ -658,6 +857,9 @@ const MoreButton = () => {
         onConfirm={onConfirm}
         isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
+      {$config.CLOUD_RECORDING && isHost && isWeb() && isVRModalOpen && (
+        <ViewRecordingsModal setModalOpen={setVRModalOpen} />
+      )}
       <ActionMenu
         containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}
         hoverMode={true}
@@ -669,7 +871,7 @@ const MoreButton = () => {
           bottom: 8,
           left: 0,
         }}
-        items={actionMenuitems}
+        items={ActionMenuItems}
       />
       <div
         onMouseEnter={() => {
@@ -701,7 +903,7 @@ const MoreButton = () => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           btnTextProps={{
-            text: $config.ICON_TEXT ? 'More' : '',
+            text: $config.ICON_TEXT ? label || moreButtonLabel : '',
             textColor: $config.FONT_COLOR,
           }}
         />
@@ -709,8 +911,8 @@ const MoreButton = () => {
     </>
   );
 };
-export const LayoutToolbarItem = () => (
-  <ToolbarItem testID="layout-btn" collapsable={false}>
+export const LayoutToolbarItem = props => (
+  <ToolbarItem testID="layout-btn" collapsable={false} toolbarProps={props}>
     {/**
      * .measure returns undefined on Android unless collapsable=false or onLayout are specified
      * so added collapsable property
@@ -719,44 +921,30 @@ export const LayoutToolbarItem = () => (
     <LayoutIconButton />
   </ToolbarItem>
 );
-export const InviteToolbarItem = () => {
+export const InviteToolbarItem = props => {
   return (
-    <ToolbarItem testID="invite-btn">
+    <ToolbarItem testID="invite-btn" toolbarProps={props}>
       <CopyJoinInfo />
     </ToolbarItem>
   );
 };
-const defaultStartItems: Array<ToolbarCustomItem> = [
-  {
-    align: 'start',
-    component: LayoutToolbarItem,
-    order: 0,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: InviteToolbarItem,
-    order: 1,
-    hide: 'no',
-  },
-];
 
-export const RaiseHandToolbarItem = () => {
+export const RaiseHandToolbarItem = props => {
   const {rtcProps} = useContext(PropsContext);
   // attendee can view option if any host has started STT
   const {
     data: {isHost},
   } = useRoomInfo();
   return $config.EVENT_MODE ? (
-    rtcProps.role == ClientRole.Audience ? (
-      <LiveStreamControls showControls={true} />
-    ) : rtcProps?.role == ClientRole.Broadcaster ? (
+    rtcProps.role == ClientRoleType.ClientRoleAudience ? (
+      <LiveStreamControls showControls={true} customProps={props} />
+    ) : rtcProps?.role == ClientRoleType.ClientRoleBroadcaster ? (
       /**
        * In event mode when raise hand feature is active
        * and audience is promoted to host, the audience can also
        * demote himself
        */
-      <LiveStreamControls showControls={!isHost} />
+      <LiveStreamControls showControls={!isHost} customProps={props} />
     ) : (
       <></>
     )
@@ -765,64 +953,62 @@ export const RaiseHandToolbarItem = () => {
   );
 };
 
-export const LocalAudioToolbarItem = () => {
+export const LocalAudioToolbarItem = props => {
   return (
-    <ToolbarItem testID="localAudio-btn">
+    <ToolbarItem testID="localAudio-btn" toolbarProps={props}>
       <LocalAudioMute showToolTip={true} />
     </ToolbarItem>
   );
 };
 
-export const LocalVideoToolbarItem = () => {
+export const LocalVideoToolbarItem = props => {
   return (
     !$config.AUDIO_ROOM && (
-      <ToolbarItem testID="localVideo-btn">
+      <ToolbarItem testID="localVideo-btn" toolbarProps={props}>
         <LocalVideoMute showToolTip={true} />
       </ToolbarItem>
     )
   );
 };
 
-export const SwitchCameraToolbarItem = () => {
+export const SwitchCameraToolbarItem = props => {
   return (
     !$config.AUDIO_ROOM &&
     isMobileOrTablet() && (
-      <ToolbarItem testID="switchCamera-btn">
+      <ToolbarItem testID="switchCamera-btn" toolbarProps={props}>
         <LocalSwitchCamera />
       </ToolbarItem>
     )
   );
 };
 
-export const ScreenShareToolbarItem = () => {
-  const {width} = useWindowDimensions();
+export const ScreenShareToolbarItem = props => {
   return (
-    width > BREAKPOINTS.sm &&
     $config.SCREEN_SHARING &&
     !isMobileOrTablet() && (
-      <ToolbarItem testID="screenShare-btn">
+      <ToolbarItem testID="screenShare-btn" toolbarProps={props}>
         <ScreenshareButton />
       </ToolbarItem>
     )
   );
 };
-export const RecordingToolbarItem = () => {
-  const {width} = useWindowDimensions();
+export const RecordingToolbarItem = props => {
   const {
     data: {isHost},
   } = useRoomInfo();
   return (
-    width > BREAKPOINTS.sm &&
     isHost &&
     $config.CLOUD_RECORDING && (
-      <ToolbarItem testID="recording-btn">
+      <ToolbarItem testID="recording-btn" toolbarProps={props}>
         <Recording />
       </ToolbarItem>
     )
   );
 };
 
-export const MoreButtonToolbarItem = () => {
+export const MoreButtonToolbarItem = (props?: {
+  fields?: ToolbarMoreButtonCustomFields;
+}) => {
   const {width} = useWindowDimensions();
   const {
     data: {isHost},
@@ -834,18 +1020,21 @@ export const MoreButtonToolbarItem = () => {
     forceUpdate();
   }, [isHost]);
 
-  return width < BREAKPOINTS.md ||
-    ($config.ENABLE_STT && (isHost || (!isHost && isSTTActive))) ||
+  return width < BREAKPOINTS.lg ||
+    ($config.ENABLE_STT &&
+      $config.ENABLE_CAPTION &&
+      (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
+    (isHost && $config.CLOUD_RECORDING && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
-    (isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK())) ? (
-    <ToolbarItem testID="more-btn">
-      {!isHost && $config.ENABLE_WHITEBOARD && (isWeb() || isSDK()) ? (
+    (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
+    <ToolbarItem testID="more-btn" toolbarProps={props}>
+      {!isHost && $config.ENABLE_WHITEBOARD && isWebInternal() ? (
         <WhiteboardListener />
       ) : (
         <></>
       )}
-      <MoreButton />
+      <MoreButton fields={props?.fields} />
     </ToolbarItem>
   ) : (
     <WhiteboardListener />
@@ -859,82 +1048,99 @@ export const LocalEndcallToolbarItem = (
 ) => {
   return (
     <ToolbarItem
-      testID={props?.customExit ? 'endCall-btn-custom' : 'endCall-btn'}>
+      testID={props?.customExit ? 'endCall-btn-custom' : 'endCall-btn'}
+      toolbarProps={props}>
       <LocalEndcall {...props} />
     </ToolbarItem>
   );
 };
 
-const defaultCenterItems: ToolbarCustomItem[] = [
-  {
+const defaultItems: ToolbarPresetProps['items'] = {
+  layout: {
     align: 'start',
+    component: LayoutToolbarItem,
+    order: 0,
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
+  },
+  invite: {
+    align: 'start',
+    component: InviteToolbarItem,
+    order: 1,
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
+  },
+  'raise-hand': {
+    align: 'center',
     component: RaiseHandToolbarItem,
     order: 0,
-    hide: 'no',
   },
-  {
-    align: 'start',
+  'local-audio': {
+    align: 'center',
     component: LocalAudioToolbarItem,
     order: 1,
-    hide: 'no',
   },
-  {
-    align: 'start',
+  'local-video': {
+    align: 'center',
     component: LocalVideoToolbarItem,
     order: 2,
-    hide: 'no',
   },
-  {
-    align: 'start',
+  'switch-camera': {
+    align: 'center',
     component: SwitchCameraToolbarItem,
     order: 3,
-    hide: 'no',
   },
-  {
-    align: 'start',
+  screenshare: {
+    align: 'center',
     component: ScreenShareToolbarItem,
     order: 4,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.sm ? true : false;
+    },
   },
-  {
-    align: 'start',
+  recording: {
+    align: 'center',
     component: RecordingToolbarItem,
     order: 5,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.sm ? true : false;
+    },
   },
-  {
-    align: 'start',
+  more: {
+    align: 'center',
     component: MoreButtonToolbarItem,
     order: 6,
-    hide: 'no',
   },
-  {
-    align: 'start',
+  'end-call': {
+    align: 'center',
     component: LocalEndcallToolbarItem,
     order: 7,
-    hide: 'no',
   },
-];
-
-const defaultEndItems: ToolbarCustomItem[] = [];
+};
 
 export interface ControlsProps {
-  customItems?: ToolbarCustomItem[];
+  items?: ToolbarPresetProps['items'];
   includeDefaultItems?: boolean;
 }
 const Controls = (props: ControlsProps) => {
-  const {customItems = [], includeDefaultItems = true} = props;
-  const {width} = useWindowDimensions();
+  const {languageCode} = useLanguage();
+  const {items = {}, includeDefaultItems = true} = props;
+  const {width, height} = useWindowDimensions();
   const {defaultContent} = useContent();
   const {setLanguage, setMeetingTranscript, setIsSTTActive} = useCaption();
   const defaultContentRef = React.useRef(defaultContent);
   const {setRoomInfo} = useSetRoomInfo();
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
+  const subheading = useString<{
+    action: 'Set' | 'Changed';
+    newLanguage: string;
+    oldLanguage: string;
+    username: string;
+  }>(sttSpokenLanguageToastSubHeading);
 
-  const {
-    data: {isHost},
-    sttLanguage,
-    isSTTActive,
-  } = useRoomInfo();
+  const {sttLanguage, isSTTActive} = useRoomInfo();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -957,21 +1163,34 @@ const Controls = (props: ControlsProps) => {
         : `changed the spoken language from "${getLanguageLabel(
             prevLang,
           )}" to "${getLanguageLabel(newLang)}" `;
-    const msg = `${
-      //@ts-ignore
-      defaultContentRef.current[uid]?.name || username
-    } ${actionText} `;
+    // const msg = `${
+    //   //@ts-ignore
+    //   defaultContentRef.current[uid]?.name || username
+    // } ${actionText} `;
+    let subheadingObj: any = {};
+    if (prevLang.indexOf('') !== -1) {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+      };
+    } else {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+        oldLanguage: getLanguageLabel(prevLang),
+      };
+    }
 
     Toast.show({
       leadingIconName: 'lang-select',
       type: 'info',
-      text1: `Spoken Language ${
-        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-      }`,
+      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
-      text2: msg,
+      text2: subheading(subheadingObj),
     });
     setRoomInfo(prev => {
       return {
@@ -999,58 +1218,111 @@ const Controls = (props: ControlsProps) => {
     setIsSTTActive(isSTTActive);
   }, [isSTTActive]);
 
-  const ToastIcon = ({color}) => (
-    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
-      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
-    </View>
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
+  };
+
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
   );
 
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+  const centerItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'center' && !isHidden(v?.hide),
+  );
+  const endItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'end' && !isHidden(v?.hide),
+  );
+
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+  const centerItemsOrdered = CustomToolbarSorting(centerItems);
+  const endItemsOrdered = CustomToolbarSorting(endItems);
+
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
   };
-  const customStartItems = customItems
-    ?.filter(i => i?.align === 'start' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultStartItems : [])
-    ?.sort(CustomToolbarSort);
-
-  const customCenterItems = customItems
-    ?.filter(i => i?.align === 'center' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultCenterItems : [])
-    ?.sort(CustomToolbarSort);
-
-  const customEndItems = customItems
-    ?.filter(i => i?.align === 'end' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultEndItems : [])
-    ?.sort(CustomToolbarSort);
 
   const renderContent = (
-    items: ToolbarCustomItem[],
+    orderedKeys: string[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      let label = null;
+      let onPress = null;
+      let fieldsProps = null;
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+        label = startItems[keyName]?.label;
+        onPress = startItems[keyName]?.onPress;
+        if (keyName === 'more') {
+          fieldsProps = startItems[keyName]?.fields;
+        }
+      } else if (type === 'center') {
+        ToolbarComponent = centerItems[keyName]?.component;
+        label = centerItems[keyName]?.label;
+        onPress = centerItems[keyName]?.onPress;
+        if (keyName === 'more') {
+          fieldsProps = centerItems[keyName]?.fields;
+        }
       } else {
-        return null;
+        ToolbarComponent = endItems[keyName]?.component;
+        label = endItems[keyName]?.label;
+        onPress = endItems[keyName]?.onPress;
+        if (keyName === 'more') {
+          fieldsProps = endItems[keyName]?.fields;
+        }
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent
+            key={`top-toolbar-${type}` + index}
+            fields={fieldsProps}
+            label={customLabel(label)}
+            onPress={onPress}
+          />,
+        );
       }
     });
+
+    return renderContentItem;
   };
+
   return (
     <Toolbar>
-      {width >= BREAKPOINTS.md && (
-        <View style={[style.startContent]}>
-          {renderContent(customStartItems, 'start')}
-        </View>
-      )}
-      <View style={[style.centerContent]}>
-        {renderContent(customCenterItems, 'center')}
+      <View style={style.startContent}>
+        {renderContent(startItemsOrdered, 'start')}
       </View>
-      {width >= BREAKPOINTS.md && (
-        <View style={style.endContent}>
-          {renderContent(customEndItems, 'end')}
-        </View>
-      )}
+      <View style={style.centerContent}>
+        {renderContent(centerItemsOrdered, 'center')}
+      </View>
+      <View style={style.endContent}>
+        {renderContent(endItemsOrdered, 'end')}
+      </View>
     </Toolbar>
   );
 };

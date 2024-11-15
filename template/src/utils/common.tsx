@@ -15,7 +15,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import Platform from '../subComponents/Platform';
-
 import * as ReactIs from 'react-is';
 
 const trimText = (text: string, length: number = 25) => {
@@ -260,6 +259,37 @@ const CustomToolbarSort = (a, b) =>
   (a.hasOwnProperty('order') ? a.order : 999999) -
   (b.hasOwnProperty('order') ? b.order : 999999);
 
+const CustomToolbarSorting = sourceObject => {
+  try {
+    return Object.keys(sourceObject).sort((a, b) => {
+      return (
+        (sourceObject[a].hasOwnProperty('order')
+          ? sourceObject[a].order
+          : 999999) -
+        (sourceObject[b].hasOwnProperty('order')
+          ? sourceObject[b].order
+          : 999999)
+      );
+    });
+  } catch (error) {
+    console.error('CustomSortingToolbarObject Failed', error);
+    return [];
+  }
+};
+
+function CustomToolbarMerge(obj1, obj2) {
+  let merged = {...obj1};
+  for (let key in obj2) {
+    if (obj2.hasOwnProperty(key)) {
+      merged[key] =
+        obj1[key] && obj1[key].toString() === '[object Object]'
+          ? CustomToolbarMerge(obj1[key], obj2[key])
+          : obj2[key];
+    }
+  }
+  return merged;
+}
+
 const randomString = (
   length = 5,
   chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -306,8 +336,52 @@ function hexToRgb(hex: string): [number, number, number] {
       ]
     : [0, 0, 0];
 }
+const updateToolbarDefaultConfig = (data, defaultItemsConfig) => {
+  return data?.map(i => {
+    if (
+      i?.componentName &&
+      defaultItemsConfig &&
+      defaultItemsConfig[i?.componentName]
+    ) {
+      return {
+        ...i,
+        ...defaultItemsConfig[i?.componentName],
+      };
+    } else {
+      return i;
+    }
+  });
+};
+
+function MergeMoreButtonFields(sourceArray, updateObject) {
+  const updateKeys = Object.keys(updateObject);
+  let result = [];
+  let sourceKeys = [];
+  sourceArray.forEach(i => {
+    sourceKeys.push(i?.componentName);
+    if (updateKeys?.indexOf(i?.componentName) !== -1) {
+      result.push({
+        ...i,
+        ...updateObject[i?.componentName],
+      });
+    } else {
+      result.push(i);
+    }
+  });
+  //inject new value
+  updateKeys.forEach(i => {
+    if (sourceKeys?.indexOf(i) === -1) {
+      result.push({
+        ...updateObject[i],
+        componentName: i,
+      });
+    }
+  });
+  return result;
+}
 
 export {
+  updateToolbarDefaultConfig,
   useIsDesktop,
   useIsSmall,
   BREAKPOINTS,
@@ -335,4 +409,7 @@ export {
   randomIntFromInterval,
   getOS,
   hexToRgb,
+  CustomToolbarSorting,
+  CustomToolbarMerge,
+  MergeMoreButtonFields,
 };

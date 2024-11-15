@@ -48,9 +48,17 @@ import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 import {whiteboardContext} from './whiteboard/WhiteboardConfigure';
 import InlineNotification from '../../src/atoms/InlineNotification';
 import {useRoomInfo} from './room-info/useRoomInfo';
+import {useString} from '../../src/utils/useString';
+import {
+  settingPanelNameCantbeChangedInfo,
+  settingPanelNameInputLabel,
+} from '../../src/language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const yournameLabel = useString(settingPanelNameInputLabel)();
+  const nameCantbeChangedInfo = useString(settingPanelNameCantbeChangedInfo)();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -93,6 +101,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         setSaved(false);
       }, 2000);
       setEditable(false);
+      logger.log(LogSource.Internals, 'NAME', `Name changed ${newName}`);
       saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
@@ -119,12 +128,12 @@ const EditName: React.FC = (props?: EditNameProps) => {
 
   return (
     <>
-      <Text style={editNameStyle.yournameText}>Your name</Text>
+      <Text style={editNameStyle.yournameText}>{yournameLabel}</Text>
       <Spacer size={12} />
       {whiteboardActive && isHost ? (
         <>
           <InlineNotification
-            text="Name can't be changed while whiteboard is active"
+            text={nameCantbeChangedInfo}
             customStyle={{
               alignItems: 'center',
               backgroundColor: 'rgba(255, 171, 0, 0.15)',
@@ -270,10 +279,9 @@ const editNameStyle = StyleSheet.create({
 const SettingsView = props => {
   const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
-  const settingsLabel = 'Settings';
-  const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
+  const {roomPreference} = useRoomInfo();
 
   return (
     <View
@@ -287,7 +295,7 @@ const SettingsView = props => {
           : // desktop maximized
             CommonStyles.sidePanelContainerWeb,
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
-          ? {marginVertical: 4}
+          ? {marginTop: 4}
           : {},
         //@ts-ignore
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
@@ -305,6 +313,12 @@ const SettingsView = props => {
 const style = StyleSheet.create({
   contentContainer: {
     padding: 20,
+  },
+  panelContainer: {
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
   },
 });
 

@@ -2,34 +2,68 @@ PODS:
   - agora-react-native-rtm (1.5.1):
     - AgoraRtm_iOS (= 1.5.1)
     - React-Core
-  - AgoraRtcEngine_iOS (3.7.0.3):
-    - AgoraRtcEngine_iOS/AINS (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/AV1Dec (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/ContentInspect (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/FullAudioFormat (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/ReplayKit (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/ROIEnc (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/RtcBasic (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/SpatialAudio (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/SuperResolution (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/VideoPreprocess (= 3.7.0.3)
-    - AgoraRtcEngine_iOS/VirtualBackground (= 3.7.0.3)
-  - AgoraRtcEngine_iOS/AINS (3.7.0.3)
-  - AgoraRtcEngine_iOS/AV1Dec (3.7.0.3)
-  - AgoraRtcEngine_iOS/ContentInspect (3.7.0.3)
-  - AgoraRtcEngine_iOS/FullAudioFormat (3.7.0.3)
-  - AgoraRtcEngine_iOS/ReplayKit (3.7.0.3)
-  - AgoraRtcEngine_iOS/ROIEnc (3.7.0.3)
-  - AgoraRtcEngine_iOS/RtcBasic (3.7.0.3)
-  - AgoraRtcEngine_iOS/SpatialAudio (3.7.0.3)
-  - AgoraRtcEngine_iOS/SuperResolution (3.7.0.3)
-  - AgoraRtcEngine_iOS/VideoPreprocess (3.7.0.3)
-  - AgoraRtcEngine_iOS/VirtualBackground (3.7.0.3)
-  - AgoraRtcEngine_Special_iOS (3.7.2.4)
+  - AgoraIrisRTC_iOS (4.3.2-build.1)
+  - AgoraRtcEngine_iOS (4.3.2):
+    - AgoraRtcEngine_iOS/AIAEC (= 4.3.2)
+    - AgoraRtcEngine_iOS/AINS (= 4.3.2)
+    - AgoraRtcEngine_iOS/AudioBeauty (= 4.3.2)
+    - AgoraRtcEngine_iOS/ClearVision (= 4.3.2)
+    - AgoraRtcEngine_iOS/ContentInspect (= 4.3.2)
+    - AgoraRtcEngine_iOS/FaceCapture (= 4.3.2)
+    - AgoraRtcEngine_iOS/FaceDetection (= 4.3.2)
+    - AgoraRtcEngine_iOS/LipSync (= 4.3.2)
+    - AgoraRtcEngine_iOS/ReplayKit (= 4.3.2)
+    - AgoraRtcEngine_iOS/RtcBasic (= 4.3.2)
+    - AgoraRtcEngine_iOS/SpatialAudio (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoAv1CodecDec (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoAv1CodecEnc (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoCodecDec (= 4.3.2)
+    - AgoraRtcEngine_iOS/VideoCodecEnc (= 4.3.2)
+    - AgoraRtcEngine_iOS/VirtualBackground (= 4.3.2)
+    - AgoraRtcEngine_iOS/VQA (= 4.3.2)
+  - AgoraRtcEngine_iOS/AIAEC (4.3.2)
+  - AgoraRtcEngine_iOS/AINS (4.3.2)
+  - AgoraRtcEngine_iOS/AudioBeauty (4.3.2)
+  - AgoraRtcEngine_iOS/ClearVision (4.3.2)
+  - AgoraRtcEngine_iOS/ContentInspect (4.3.2)
+  - AgoraRtcEngine_iOS/FaceCapture (4.3.2)
+  - AgoraRtcEngine_iOS/FaceDetection (4.3.2)
+  - AgoraRtcEngine_iOS/LipSync (4.3.2)
+  - AgoraRtcEngine_iOS/ReplayKit (4.3.2)
+  - AgoraRtcEngine_iOS/RtcBasic (4.3.2)
+  - AgoraRtcEngine_iOS/SpatialAudio (4.3.2)
+  - AgoraRtcEngine_iOS/VideoAv1CodecDec (4.3.2)
+  - AgoraRtcEngine_iOS/VideoAv1CodecEnc (4.3.2)
+  - AgoraRtcEngine_iOS/VideoCodecDec (4.3.2)
+  - AgoraRtcEngine_iOS/VideoCodecEnc (4.3.2)
+  - AgoraRtcEngine_iOS/VirtualBackground (4.3.2)
+  - AgoraRtcEngine_iOS/VQA (4.3.2)
   - AgoraRtm_iOS (1.5.1)
   - BEMCheckBox (1.4.1)
   - boost (1.76.0)
   - CocoaAsyncSocket (7.6.5)
+  - DatadogCore (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogCrashReporting (2.7.1):
+    - DatadogInternal (= 2.7.1)
+    - PLCrashReporter (~> 1.11.1)
+  - DatadogInternal (2.7.1)
+  - DatadogLogs (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogRUM (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogSDKReactNative (2.3.2):
+    - DatadogCore (~> 2.7.1)
+    - DatadogCrashReporting (~> 2.7.1)
+    - DatadogLogs (~> 2.7.1)
+    - DatadogRUM (~> 2.7.1)
+    - DatadogTrace (~> 2.7.1)
+    - DatadogWebViewTracking (~> 2.7.1)
+    - React-Core
+  - DatadogTrace (2.7.1):
+    - DatadogInternal (= 2.7.1)
+  - DatadogWebViewTracking (2.7.1):
+    - DatadogInternal (= 2.7.1)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.72.4)
   - FBReactNativeSpec (0.72.4):
@@ -102,9 +136,11 @@ PODS:
   - hermes-engine (0.72.4):
     - hermes-engine/Pre-built (= 0.72.4)
   - hermes-engine/Pre-built (0.72.4)
+  - HyphenateChat (4.1.1)
   - IQKeyboardManagerSwift (6.5.4)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
+  - PLCrashReporter (1.11.2)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -405,11 +441,25 @@ PODS:
   - React-jsinspector (0.72.4)
   - React-logger (0.72.4):
     - glog
-  - react-native-agora (3.7.2-rc.3):
-    - AgoraRtcEngine_Special_iOS (= 3.7.2.4)
+  - react-native-agora (4.3.2):
+    - AgoraIrisRTC_iOS (= 4.3.2-build.1)
+    - AgoraRtcEngine_iOS (= 4.3.2)
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+  - react-native-chat-sdk (1.2.1):
+    - HyphenateChat (= 4.1.1)
+    - React-Core
+  - react-native-document-picker (9.1.1):
+    - React-Core
+  - react-native-get-random-values (1.11.0):
     - React-Core
   - react-native-keep-awake (4.0.0):
     - React
+  - react-native-webview (13.8.1):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+  - react-native-whiteboard (0.0.14):
+    - React-Core
   - React-NativeModulesApple (0.72.4):
     - hermes-engine
     - React-callinvoker
@@ -535,6 +585,8 @@ PODS:
     - React-Core
   - RNExitApp (1.1.0):
     - React
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (2.8.0):
     - React-Core
   - RNInAppBrowser (3.5.1):
@@ -568,21 +620,23 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (7.9.0):
+  - RNShare (10.0.2):
     - React-Core
   - RNSVG (13.6.0):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
   - SocketRocket (0.6.1)
+  - TrustKit (3.0.4)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
 
 DEPENDENCIES:
   - agora-react-native-rtm (from `../node_modules/agora-react-native-rtm`)
-  - AgoraRtcEngine_iOS (= 3.7.0.3)
+  - AgoraRtcEngine_iOS (= 4.3.2)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - "DatadogSDKReactNative (from `../node_modules/@datadog/mobile-react-native`)"
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
@@ -628,7 +682,12 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-agora (from `../node_modules/react-native-agora`)
+  - react-native-chat-sdk (from `../node_modules/react-native-agora-chat`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-keep-awake (from `../node_modules/react-native-keep-awake`)
+  - react-native-webview (from `../node_modules/react-native-webview`)
+  - "react-native-whiteboard (from `../node_modules/@netless/react-native-whiteboard`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -652,21 +711,30 @@ DEPENDENCIES:
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - RNExitApp (from `../node_modules/react-native-exit-app`)
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - TrustKit
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - AgoraIrisRTC_iOS
     - AgoraRtcEngine_iOS
-    - AgoraRtcEngine_Special_iOS
     - AgoraRtm_iOS
     - BEMCheckBox
     - CocoaAsyncSocket
+    - DatadogCore
+    - DatadogCrashReporting
+    - DatadogInternal
+    - DatadogLogs
+    - DatadogRUM
+    - DatadogTrace
+    - DatadogWebViewTracking
     - Flipper
     - Flipper-Boost-iOSX
     - Flipper-DoubleConversion
@@ -676,10 +744,13 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - FlipperKit
     - fmt
+    - HyphenateChat
     - IQKeyboardManagerSwift
     - libevent
     - OpenSSL-Universal
+    - PLCrashReporter
     - SocketRocket
+    - TrustKit
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -687,6 +758,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/agora-react-native-rtm"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  DatadogSDKReactNative:
+    :path: "../node_modules/@datadog/mobile-react-native"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   FBLazyVector:
@@ -730,8 +803,18 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-agora:
     :path: "../node_modules/react-native-agora"
+  react-native-chat-sdk:
+    :path: "../node_modules/react-native-agora-chat"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
+  react-native-get-random-values:
+    :path: "../node_modules/react-native-get-random-values"
   react-native-keep-awake:
     :path: "../node_modules/react-native-keep-awake"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
+  react-native-whiteboard:
+    :path: "../node_modules/@netless/react-native-whiteboard"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -778,6 +861,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/clipboard"
   RNExitApp:
     :path: "../node_modules/react-native-exit-app"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNInAppBrowser:
@@ -795,12 +880,20 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   agora-react-native-rtm: 20cd594088d33caa46c75f2d079efbac62848cec
-  AgoraRtcEngine_iOS: 549bb3853d5afb18fabca4197786f39f31141da8
-  AgoraRtcEngine_Special_iOS: 0ebb16a61343394538886b048ffced6b5497673a
+  AgoraIrisRTC_iOS: 3cb15344a503a1a35ab6d60481732a8beeda98fe
+  AgoraRtcEngine_iOS: eaa97751fcfe1b50d9b067e0df92752a6a5f899f
   AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  DatadogCore: 4a4cdf7beca3aa12b7095bebd926acea1a865a99
+  DatadogCrashReporting: f8b4ea638acaf58b68bbc51cb62a2d876f763241
+  DatadogInternal: b9217da25018284c087a2ed4b9bb3b0f26c767c0
+  DatadogLogs: 3b4132eefa67f196bb3ab2d603c1a2acd1292615
+  DatadogRUM: 8845815ba89f5ab8ceee765ee268f7de36f3e35d
+  DatadogSDKReactNative: 4367bbafa363ab39112c8e273ad79e1d46c3d9fa
+  DatadogTrace: a63da746c609bd4c683bca61a94429889e33b11e
+  DatadogWebViewTracking: 713f862ddd89173e0a3f5342cefa23def40f0f48
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 5d4a3b7f411219a45a6d952f77d2c0a6c9989da5
   FBReactNativeSpec: 3fc2d478e1c4b08276f9dd9128f80ec6d5d85c1f
@@ -815,9 +908,11 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
+  HyphenateChat: 95aa4abbad0e763f513acbe21ff9543f50b886cd
   IQKeyboardManagerSwift: 2dde0fc70110e8eac7ccce2a46fdbec6a850b414
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
+  PLCrashReporter: 499c53b0104f95c302d94fd723ebb03c56d9bac8
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c0569ecc035894e4a68baecb30fe6a7ea6e399f9
   RCTTypeSafety: e90354072c21236e0bcf1699011e39acd25fea2f
@@ -833,8 +928,13 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7f826e40fa9cab5d37cab6130b1af237332b594
   React-jsinspector: aaed4cf551c4a1c98092436518c2d267b13a673f
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
-  react-native-agora: 16de7d9657b24dcf1ea6edebb30d06fe3e050c68
+  react-native-agora: 4079dd4ceb688d085e68a4aa1148f323dbd3d0eb
+  react-native-chat-sdk: 8a4969c99fc27019042acc48e78f469947813fbc
+  react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
+  react-native-get-random-values: 21325b2244dfa6b58878f51f9aa42821e7ba3d06
   react-native-keep-awake: afad8a51dfef9fe9655a6344771be32c8596d774
+  react-native-webview: bdc091de8cf7f8397653e30182efcd9f772e03b3
+  react-native-whiteboard: d56d2ffa0392b8572bfc613954845e48c6dfd38e
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
   React-RCTActionSheet: 02904b932b50e680f4e26e7a686b33ebf7ef3c00
@@ -858,16 +958,18 @@ SPEC CHECKSUMS:
   RNCCheckbox: 75255b03e604bbcc26411eb31c4cbe3e3865f538
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
-  RNShare: be91a5c149585affb02c25b351bd07ba927c7006
+  RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: 3a79c0c4992213e4f06c08e62730c5e7b9e4dc17
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  TrustKit: 403e8d2cfbff2abfc37cd41acc558dab8ec78e59
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 95ab0379f9280b66124095c8e71af47dee6c741e
+PODFILE CHECKSUM: 57b34b9da94eb79d062e45a0320883b1ca549f00
 
 COCOAPODS: 1.11.2

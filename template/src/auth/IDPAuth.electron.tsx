@@ -3,12 +3,16 @@ import {useAuth} from './AuthProvider';
 import {useHistory, useParams} from '../components/Router';
 import Loading from '../subComponents/Loading';
 import useTokenAuth from './useTokenAuth';
+import {useString} from '../utils/useString';
+import {authAuthorizingApplicationText} from '../language/default-labels/commonLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 export const IDPAuth = () => {
   const {setIsAuthenticated} = useAuth();
   const {enableTokenAuth} = useTokenAuth();
   const history = useHistory();
   const {token}: {token: string} = useParams();
+  const text = useString(authAuthorizingApplicationText)();
 
   useEffect(() => {
     if (token) {
@@ -19,10 +23,10 @@ export const IDPAuth = () => {
         })
         .catch(() => {
           setIsAuthenticated(false);
-          console.log('debugging electron login failed');
+          logger.error(LogSource.Internals, 'AUTH', 'electron login failed');
         });
     }
   }, []);
 
-  return <Loading text={'Authorizing app...'} />;
+  return <Loading text={text} />;
 };

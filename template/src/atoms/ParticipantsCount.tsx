@@ -7,6 +7,11 @@ import ChatContext from '../components/ChatContext';
 import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
 import {useVideoMeetingData} from '../components/contexts/VideoMeetingDataContext';
 import {isMobileUA} from '../utils/common';
+import {useString} from '../utils/useString';
+import {
+  videoRoomPeopleCountTooltipAttendeeText,
+  videoRoomPeopleCountTooltipHostText,
+} from '../language/default-labels/videoCallScreenLabels';
 
 const ParticipantsCount = () => {
   const {onlineUsersCount} = useContext(ChatContext);
@@ -15,17 +20,22 @@ const ParticipantsCount = () => {
   const count = $config.EVENT_MODE
     ? hostUids.length + audienceUids.length
     : onlineUsersCount;
+
+  const hostlabel = useString(videoRoomPeopleCountTooltipHostText)();
+  const attendeelabel = useString<{eventMode: boolean}>(
+    videoRoomPeopleCountTooltipAttendeeText,
+  );
   return (
     <IconButton
       placement="right"
       isClickable={isMobileUA() ? true : false}
       toolTipMessage={
         $config.EVENT_MODE
-          ? `Host: ${
+          ? `${hostlabel}: ${
               $config.EVENT_MODE
                 ? hostUids?.length || 0
                 : hostUidsVM.length || 0
-            }\n${$config.EVENT_MODE ? 'Audience: ' : 'Attendee: '}${
+            }\n${attendeelabel({eventMode: $config.EVENT_MODE})}: ${
               $config.EVENT_MODE
                 ? audienceUids.length || 0
                 : attendeeUids?.length || 0
@@ -61,15 +71,8 @@ export default ParticipantsCount;
 const styles = StyleSheet.create({
   participantCountView: {
     flexDirection: 'row',
-    padding: 12,
-    paddingVertical: isMobileUA() ? 5 : 8,
-    backgroundColor: $config.ICON_BG_COLOR,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
   },
 });

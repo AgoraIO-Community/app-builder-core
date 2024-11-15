@@ -20,6 +20,11 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {useLayout} from 'customization-api';
 import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
+import {
+  videoRoomScreenshareOverlayText,
+  videoRoomScreenshareStopSharingBtnText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {isAndroid, isIOS} from '../utils/common';
 /**
  *
  * @param uid - uid of the user
@@ -28,13 +33,14 @@ import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
  *
  */
 function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
-  //commented for v1 release
-  // const screensharingActiveOverlayLabel = useString(
-  //   'screensharingActiveOverlayLabel',
-  // )();
+  const screensharingActiveOverlayLabel = useString(
+    videoRoomScreenshareOverlayText,
+  )();
+  const stopsharingbtnText = useString(
+    videoRoomScreenshareStopSharingBtnText,
+  )();
   const {currentLayout} = useLayout();
-  const {stopUserScreenShare} = useScreenshare();
-  const screensharingActiveOverlayLabel = 'You are sharing your screen';
+  const {stopScreenshare} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
   return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>
@@ -48,10 +54,12 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
       </Text>
       {!isMax && currentLayout === getPinnedLayoutName() ? (
         <></>
+      ) : isAndroid() || isIOS() ? (
+        <></>
       ) : (
         <TouchableOpacity
           style={styles.btnContainer}
-          onPress={() => stopUserScreenShare()}>
+          onPress={() => stopScreenshare()}>
           <View style={styles.iconContainer}>
             <ImageIcon
               iconType="plain"
@@ -61,7 +69,7 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
             />
           </View>
           <View style={styles.btnTextContainer}>
-            <Text style={styles.btnText}>Stop Sharing</Text>
+            <Text style={styles.btnText}>{stopsharingbtnText}</Text>
           </View>
         </TouchableOpacity>
       )}

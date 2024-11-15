@@ -2,7 +2,6 @@
 
 import VideoRenderer from '../src/pages/video-call/VideoRenderer';
 import {DispatchContext} from '../agora-rn-uikit';
-import IconButton from '../src/atoms/IconButton';
 import WhiteboardView from '../src/components/whiteboard/WhiteboardView';
 import {
   useWhiteboard,
@@ -21,10 +20,13 @@ import {useScreenContext} from '../src/components/contexts/ScreenShareContext';
 import {filterObject} from '../src/utils/index';
 import {useToggleWhiteboard} from '../src/components/Controls';
 import {ShowInputURL} from '../src/components/Share';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../src/utils/useRemoteMute';
+import getCustomRoute from '../src/utils/getCustomRoute';
+import useEndCall from '../src/utils/useEndCall';
+
 export {
   VideoRenderer,
   DispatchContext,
-  IconButton,
   WhiteboardView,
   whiteboardContext,
   useVideoCall,
@@ -40,4 +42,8 @@ export {
   filterObject,
   useToggleWhiteboard,
   ShowInputURL,
+  useRemoteMute,
+  MUTE_REMOTE_TYPE,
+  getCustomRoute,
+  useEndCall,
 };

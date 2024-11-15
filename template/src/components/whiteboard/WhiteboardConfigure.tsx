@@ -2,7 +2,12 @@ import {UidType, useContent, useLayout, useRoomInfo} from 'customization-api';
 import {createHook} from 'customization-implementation';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
-import {isWeb, randomIntFromInterval, randomString} from '../../utils/common';
+import {
+  isMobileUA,
+  isWebInternal,
+  randomIntFromInterval,
+  randomString,
+} from '../../utils/common';
 import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -12,8 +17,11 @@ import useUserName from '../../utils/useUserName';
 import {DefaultLayouts} from '../../pages/video-call/DefaultLayouts';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
-export const whiteboardPaper = isWeb() ? document.createElement('div') : null;
+export const whiteboardPaper = isWebInternal()
+  ? document.createElement('div')
+  : null;
 if (whiteboardPaper) {
   whiteboardPaper.className = 'whiteboardPaper';
   whiteboardPaper.setAttribute('style', 'height:100%');
@@ -86,6 +94,8 @@ export interface whiteboardContextInterface {
   getWhiteboardUid: () => number;
   whiteboardStartedFirst?: boolean;
   clearAllCallback?: () => void;
+  isWhiteboardOnFullScreen?: boolean;
+  setWhiteboardOnFullScreen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface WhiteboardPropsInterface {
@@ -94,6 +104,7 @@ export interface WhiteboardPropsInterface {
 
 const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   // Defines intent, whether whiteboard should be active or not
+  const [isWhiteboardOnFullScreen, setWhiteboardOnFullScreen] = useState(false);
   const [whiteboardActive, setWhiteboardActive] = useState(false);
   const [whiteboardStartedFirst, setWhiteboardStartedFirst] = useState(false);
   const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
@@ -134,7 +145,11 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
 
   useEffect(() => {
     try {
-      if (whiteboardRoomState === RoomPhase.Connected && isHost) {
+      if (
+        whiteboardRoomState === RoomPhase.Connected &&
+        isHost &&
+        !isMobileUA()
+      ) {
         if (
           currentLayout === DefaultLayouts[1].name &&
           activeUids &&
@@ -148,7 +163,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         }
       }
     } catch (error) {
-      console.log('debugging error on whiteboard setWritable ', error);
+      logger.error(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'error on whiteboard setWritable',
+        error,
+      );
     }
   }, [currentLayout, isHost, whiteboardRoomState, activeUids, pinnedUid]);
 
@@ -311,6 +331,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     try {
       const index = randomIntFromInterval(0, 9);
       setWhiteboardRoomState(RoomPhase.Connecting);
+      logger.log(LogSource.Internals, 'WHITEBOARD', 'Trying to join room');
       whiteWebSdkClient.current
         .joinRoom({
           cursorAdapter: cursorAdapter,
@@ -318,7 +339,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           uuid: room_uuid,
           roomToken: room_token,
           floatBar: true,
-          isWritable: isHost,
+          isWritable: isHost && !isMobileUA(),
           userPayload: {
             cursorName: name,
             cursorColor: CursorColor[index].cursorColor,
@@ -326,11 +347,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
           },
         })
         .then(room => {
+          logger.log(LogSource.Internals, 'WHITEBOARD', 'Join room successful');
           whiteboardRoom.current = room;
           cursorAdapter.setRoom(room);
           whiteboardRoom.current?.setViewMode(ViewMode.Freedom);
           whiteboardRoom.current?.bindHtmlElement(whiteboardPaper);
-          if (isHost) {
+          if (isHost && !isMobileUA()) {
             whiteboardRoom.current?.setMemberState({
               strokeColor: [0, 0, 0],
             });
@@ -339,11 +361,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
-          console.log(err);
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'Join room error',
+            err,
+          );
         });
     } catch (err) {
       setWhiteboardRoomState(InitState);
-      console.log(err);
+      logger.error(LogSource.Internals, 'WHITEBOARD', 'Join room error', err);
     }
   };
 
@@ -360,11 +387,16 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         })
         .catch(err => {
           setWhiteboardRoomState(InitState);
-          console.log(err);
+          logger.error(
+            LogSource.Internals,
+            'WHITEBOARD',
+            'leave room error',
+            err,
+          );
         });
     } catch (err) {
       setWhiteboardRoomState(InitState);
-      console.log(err);
+      logger.error(LogSource.Internals, 'WHITEBOARD', 'leave room error', err);
     }
   };
 
@@ -388,7 +420,10 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     } else if (whiteboardActive) {
       join();
     } else {
-      if (whiteboardRoom.current) {
+      if (
+        whiteboardRoom.current &&
+        Object.keys(whiteboardRoom.current)?.length
+      ) {
         leave();
       }
     }
@@ -402,6 +437,12 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     prevImageUploadHeightRef.current = 0;
     sendLastImageUploadPositionToRemoteUsers(0);
   };
+
+  useEffect(() => {
+    if (!whiteboardActive && isWhiteboardOnFullScreen) {
+      setWhiteboardOnFullScreen(false);
+    }
+  }, [whiteboardActive]);
 
   return (
     <whiteboardContext.Provider
@@ -419,6 +460,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         insertImageIntoWhiteboard,
         whiteboardStartedFirst,
         clearAllCallback,
+        isWhiteboardOnFullScreen,
+        setWhiteboardOnFullScreen,
       }}>
       {props.children}
     </whiteboardContext.Provider>

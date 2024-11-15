@@ -17,7 +17,7 @@ import React, {
   useRef,
   useContext,
 } from 'react';
-import {ClientRole, RtcContext} from '../../agora-rn-uikit';
+import {ClientRoleType, RtcContext} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
 import {useRtc} from 'customization-api';
@@ -33,6 +33,15 @@ import {getOS} from '../utils/common';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {useString} from '../utils/useString';
+import {
+  deviceDetectionSecondaryBtnText,
+  deviceDetectionCheckboxText,
+  deviceDetectionPrimaryBtnText,
+  deviceDetectionToastHeading,
+  deviceDetectionToastSubHeading,
+} from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const log = (...args: any[]) => {
   console.log('[DeviceConfigure] ', ...args);
@@ -41,7 +50,7 @@ const log = (...args: any[]) => {
 type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 interface Props {
-  userRole: ClientRole;
+  userRole: ClientRoleType;
 }
 export type deviceInfo = MediaDeviceInfo;
 export type deviceId = deviceInfo['deviceId'];
@@ -54,6 +63,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [uiSelectedSpeaker, setUiSelectedSpeaker] = useState('');
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
 
+  const toastHeading = useString(deviceDetectionToastHeading);
+  const toastSubHeading = useString<{name: string; label: string}>(
+    deviceDetectionToastSubHeading,
+  );
+  const toastPrimaryBtnText = useString(deviceDetectionPrimaryBtnText)();
+  const toastCancelBtnText = useString(deviceDetectionSecondaryBtnText)();
+  const toastCheckboxBtnText = useString(deviceDetectionCheckboxText)();
+
   const micSelectInProgress = useRef(false);
   const micSelectQueue = useRef([]);
 
@@ -62,6 +79,8 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   const speakerSelectInProgress = useRef(false);
   const speakerSelectQueue = useRef([]);
+
+  const muteRefreshDeviceList = useRef(false);
 
   const {primaryColor} = useContext(ColorContext);
 
@@ -143,37 +162,52 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const {localStream} = RtcEngineUnsafe;
 
   const refreshDeviceList = useCallback(async (noEmitLog?: boolean) => {
-    let updatedDeviceList: MediaDeviceInfo[];
-    await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
-      !noEmitLog && log('Fetching all devices: ', devices);
-      /**
-       * Some browsers list the same microphone twice with different Id's,
-       * their group Id's match as they are the same physical device.
-       * deviceId == default is an oddity in chrome which stores the user
-       * preference
-       */
-      /**
-       *  1. Fetch devices and filter so the deviceId with empty
-       *     values are exluded
-       *  2. Store only unique devices with unique groupIds
-       */
+    if (!muteRefreshDeviceList.current) {
+      muteRefreshDeviceList.current = true;
+      let updatedDeviceList: MediaDeviceInfo[];
+      await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
+        !noEmitLog &&
+          logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            'Fetching all devices: ',
+            devices,
+          );
+        /**
+         * Some browsers list the same microphone twice with different Id's,
+         * their group Id's match as they are the same physical device.
+         * deviceId == default is an oddity in chrome which stores the user
+         * preference
+         */
+        /**
+         *  1. Fetch devices and filter so the deviceId with empty
+         *     values are exluded
+         *  2. Store only unique devices with unique groupIds
+         */
 
-      updatedDeviceList = devices.filter(
-        (device: deviceInfo) =>
-          // device?.deviceId !== 'default' &&
-          device?.deviceId !== '' &&
-          (device.kind == 'audioinput' ||
-            device.kind == 'videoinput' ||
-            device.kind == 'audiooutput'),
-      );
+        updatedDeviceList = devices.filter(
+          (device: deviceInfo) =>
+            // device?.deviceId !== 'default' &&
+            device?.deviceId !== '' &&
+            (device.kind == 'audioinput' ||
+              device.kind == 'videoinput' ||
+              device.kind == 'audiooutput'),
+        );
 
-      !noEmitLog && log('Setting unique devices', updatedDeviceList);
-      if (updatedDeviceList.length > 0) {
-        setDeviceList(updatedDeviceList);
-      }
-    });
-
-    return updatedDeviceList;
+        !noEmitLog &&
+          logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            'Setting unique devices',
+            updatedDeviceList,
+          );
+        if (updatedDeviceList.length > 0) {
+          setDeviceList(updatedDeviceList);
+        }
+      });
+      muteRefreshDeviceList.current = false;
+      return updatedDeviceList;
+    }
   }, []);
 
   const getAgoraTrackDeviceId = (type: 'audio' | 'video') => {
@@ -195,12 +229,22 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             RtcEngineUnsafe.audioDeviceId
           : //@ts-ignore
             RtcEngineUnsafe.videoDeviceId;
-      log(`Agora ${type} Engine is using`, currentDevice);
+      currentDevice &&
+        logger.log(
+          LogSource.Internals,
+          'DEVICE_CONFIGURE',
+          `Agora ${type} Engine is using ${currentDevice}`,
+        );
     } else {
       currentDevice = localStream[type]
         ?.getMediaStreamTrack()
         .getSettings().deviceId;
-      log(`Agora ${type} Track is using`, currentDevice);
+      currentDevice &&
+        logger.log(
+          LogSource.Internals,
+          'DEVICE_CONFIGURE',
+          `Agora ${type} Track is using ${currentDevice}`,
+        );
     }
     return currentDevice ?? '';
   };
@@ -212,7 +256,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
    * truth.
    */
   const syncSelectedDeviceUi = (kind?: deviceKind) => {
-    log('Refreshing', kind ?? 'all');
+    logger.log(
+      LogSource.Internals,
+      'DEVICE_CONFIGURE',
+      'Refreshing UI for selected device',
+      kind ?? 'all',
+    );
     switch (kind) {
       case 'audioinput':
         let micId = getAgoraTrackDeviceId('audio');
@@ -346,7 +395,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       let count = 0;
       const interval = setInterval(() => {
         count = count + 1;
-        refreshDeviceList(count % 10 !== 0);
+        refreshDeviceList(true);
       }, 2000);
       return () => {
         clearInterval(interval);
@@ -447,8 +496,6 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           },
         }[kind];
 
-        log(logTag, deviceLogTag, 'Device list populated but none selected');
-
         if (sdkDevice?.deviceId && currentDevice) {
           if (checkDeviceExists(sdkDevice.deviceId, deviceList)) {
             applySdkDeviceChangeRequest(kind);
@@ -461,14 +508,17 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           currentDevice !== storedDevice &&
           checkDeviceExists(storedDevice, deviceList)
         ) {
-          log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
-          setDevice(storedDevice).catch((e: Error) => {
-            log(
-              logTag,
-              deviceLogTag,
-              'ERROR:Setting to active id',
-              storedDevice,
-              e.message,
+          logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            `${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
+          );
+          setDevice(storedDevice).catch((error: Error) => {
+            logger.error(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `ERROR: ${logTag} ${deviceLogTag} Setting to active id ${storedDevice}`,
+              error,
             );
           });
         } else {
@@ -487,8 +537,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       deviceList.length === 0 ||
       deviceList.find((device: MediaDeviceInfo) => device.label === '')
     ) {
-      log(logTag, 'Empty device list');
-      refreshDeviceList();
+      logger.log(
+        LogSource.Internals,
+        'DEVICE_CONFIGURE',
+        `${logTag} Empty device list`,
+      );
+      refreshDeviceList(false);
     }
   }, [rtc, store, deviceList]);
 
@@ -496,7 +550,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     // Extracted devicelist because we want to perform fallback with
     // the most current version.
     const previousDeviceList = deviceList;
-    const updatedDeviceList = await refreshDeviceList();
+    const updatedDeviceList = await refreshDeviceList(false);
     const changedDevice = changedDeviceData.device;
 
     const {logTag, currentDevice, setCurrentDevice} = {
@@ -517,8 +571,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       },
     }[changedDevice.kind];
 
-    log(logTag, changedDeviceData);
-
+    logger.log(
+      LogSource.Internals,
+      'DEVICE_CONFIGURE',
+      `${logTag}`,
+      changedDeviceData,
+    );
     if (currentDevice === 'default') {
       // const previousDefaultDevice = previousDeviceList.find(
       //   (device) => device.deviceId === 'default',
@@ -642,7 +700,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       },
     }[kind];
 
-    log(logtag, kind, 'setting to', deviceId);
+    logger.log(
+      LogSource.Internals,
+      'DEVICE_CONFIGURE',
+      `${logtag} ${kind} setting to ${deviceId}`,
+    );
 
     const handleQueue = () => {
       if (queueRef.current.length > 0) {
@@ -657,7 +719,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     return new Promise<void>((res, rej) => {
       if (mutexRef.current) {
         const e = new Error(logtag + ' Change already in progress');
-        log('DeviceConfigure:', logtag, 'Error setting', kind, e.message);
+        logger.error(
+          LogSource.Internals,
+          'DEVICE_CONFIGURE',
+          `${logtag} Error setting ${kind}`,
+          e,
+        );
         rej(e);
         return;
       }
@@ -673,7 +740,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         },
         (e: any) => {
           mutexRef.current = false;
-          console.error('DeviceConfigure:', logtag, 'Error setting', kind, e);
+          logger.error(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            `${logtag} Error setting ${kind}`,
+            e,
+          );
           rej(e);
           handleQueue();
         },
@@ -713,23 +785,25 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       type: 'checked',
       leadingIconName: 'mic-on',
       // leadingIcon: <CustomIcon name={'mic-on'} />,
-      text1: `New ${name} detected`,
+      text1: toastHeading(name),
+      text2: toastSubHeading({name, label: device?.label}),
       // @ts-ignore
-      text2: (
-        <Text>
-          <Text>New {name} named </Text>
-          <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
-          <Text> detected. Do you want to switch?</Text>
-        </Text>
-      ),
+      // text2: (
+      //   <Text>
+      //     <Text>New {name} named </Text>
+      //     <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
+      //     <Text> detected. Do you want to switch?</Text>
+      //   </Text>
+      // ),
       visibilityTime: 6000,
+      //@ts-ignore
       checkbox: {
         disabled: false,
         color: primaryColor,
-        text: 'Remember my choice',
+        text: toastCheckboxBtnText,
       },
       primaryBtn: {
-        text: 'SWITCH DEVICE',
+        text: toastPrimaryBtnText,
         onPress: (checked: boolean) => {
           setAction(device.deviceId);
           checked && updateRememberedDeviceList(device, true);
@@ -737,7 +811,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         },
       },
       secondaryBtn: {
-        text: 'IGNORE',
+        text: toastCancelBtnText,
         onPress: (checked: boolean) => {
           checked && updateRememberedDeviceList(device, false);
           Toast.hide();

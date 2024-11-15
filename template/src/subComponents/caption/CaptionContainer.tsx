@@ -1,4 +1,11 @@
-import {StyleSheet, Text, useWindowDimensions, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextStyle,
+  useWindowDimensions,
+  View,
+  ViewStyle,
+} from 'react-native';
 import React from 'react';
 
 import Caption from './Caption';
@@ -30,8 +37,24 @@ import {
 import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {useString} from '../../utils/useString';
+import {
+  sttChangeSpokenLanguageText,
+  toolbarItemCaptionText,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
-const CaptionContainer = () => {
+interface CaptionContainerProps {
+  containerStyle?: ViewStyle;
+  captionUserStyle?: TextStyle;
+  captionTextStyle?: TextStyle;
+}
+
+const CaptionContainer: React.FC<CaptionContainerProps> = ({
+  containerStyle = {},
+  captionUserStyle = {},
+  captionTextStyle = {},
+}) => {
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
@@ -50,19 +73,33 @@ const CaptionContainer = () => {
       <View
         style={[
           {
-            paddingLeft: isMobileUA() ? 0 : isDesktop() ? 32 : 10,
+            paddingLeft: isMobileUA()
+              ? 0
+              : isDesktop()
+              ? $config.ICON_TEXT
+                ? 32
+                : 0
+              : 10,
             paddingRight: isMobileUA()
               ? 0
               : isDesktop()
               ? globalWidth > 1700 && isCaptionNotFullWidth
-                ? 20
-                : 32
+                ? $config.ICON_TEXT
+                  ? 20
+                  : 0
+                : $config.ICON_TEXT
+                ? 32
+                : 0
               : 10,
           },
           //@ts-ignore
           isCaptionNotFullWidth && {
-            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
-            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
+            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${
+              SIDE_PANEL_GAP + 1
+            }px )`,
+            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${
+              SIDE_PANEL_GAP + 1
+            }px )`,
           },
         ]}>
         <View
@@ -70,6 +107,7 @@ const CaptionContainer = () => {
             isMobileUA() ? styles.mobileContainer : styles.container,
             isMobileUA() && {marginHorizontal: 0},
             !isMobileUA() && isSmall() && {marginTop: 0},
+            containerStyle,
           ]}>
           <CaptionsActionMenu
             actionMenuVisible={actionMenuVisible}
@@ -84,7 +122,10 @@ const CaptionContainer = () => {
             />
           )}
 
-          <Caption />
+          <Caption
+            captionUserStyle={captionUserStyle}
+            captionTextStyle={captionTextStyle}
+          />
         </View>
       </View>
     </PlatformWrapper>
@@ -184,15 +225,21 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     data: {isHost},
   } = useRoomInfo();
 
+  const changeSpokenLangLabel = useString<boolean>(
+    sttChangeSpokenLanguageText,
+  )();
+
+  const hideCaptionLabel = useString<boolean>(toolbarItemCaptionText)(true);
+
   // only Host is authorized to start/stop stt
   isHost &&
     actionMenuitems.push({
       icon: 'lang-select',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Change Spoken Language ',
+      title: changeSpokenLangLabel + ' ',
       disabled: isLangChangeInProgress,
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setLanguagePopup(true);
       },
@@ -202,8 +249,8 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'captions-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Hide Caption',
-    callback: () => {
+    title: hideCaptionLabel,
+    onPress: () => {
       setActionMenuVisible(false);
       setIsCaptionON(false);
     },
@@ -212,12 +259,26 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
+      logger.log(
+        LogSource.Internals,
+        'STT',
+        `Language changed to  ${language}. Restarting STT`,
+      );
       restart(language)
         .then(() => {
-          console.log('stt restarted successfully');
+          logger.debug(
+            LogSource.Internals,
+            'STT',
+            'stt restarted successfully',
+          );
         })
         .catch(error => {
-          console.log('Error in restarting', error);
+          logger.error(
+            LogSource.Internals,
+            'STT',
+            'Error in restarting',
+            error,
+          );
           // Handle the error case
         });
     }
@@ -278,7 +339,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
-    marginTop: 8,
+    marginTop: $config.ICON_TEXT ? 8 : 0,
   },
   mobileContainer: {
     paddingVertical: 4,

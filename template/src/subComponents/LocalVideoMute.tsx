@@ -13,16 +13,13 @@ import React, {useContext} from 'react';
 import {
   ToggleState,
   PermissionState,
-  ImageIcon as UIKitImageIcon,
-  ClientRole,
+  ClientRoleType,
   PropsContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
-import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useScreenshare} from './screenshare/useScreenshare';
@@ -34,6 +31,14 @@ import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
 import {useToolbar} from '../utils/useToolbar';
+import {
+  I18nDeviceStatus,
+  livestreamingCameraTooltipText,
+  toolbarItemCameraText,
+  toolbarItemCameraTooltipText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 /**
  * A component to mute / unmute the local video
  */
@@ -50,51 +55,55 @@ export interface LocalVideoMuteProps {
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
+
   const {rtcProps} = useContext(PropsContext);
-  const {isScreenshareActive} = useScreenshare();
-  const {setShowStopScreenSharePopup} = useVideoCall();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {
     data: {isHost},
   } = useRoomInfo();
+
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
-  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {position} = useToolbar();
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
 
-  //commented for v1 release
-  //const videoLabel = useString('toggleVideoButton')();
+  const videoButtonLabel = useString<I18nDeviceStatus>(toolbarItemCameraText);
+  const videoButtonTooltip = useString<I18nDeviceStatus>(
+    toolbarItemCameraTooltipText,
+  );
 
+  const lstooltip = useString<boolean>(livestreamingCameraTooltipText);
   const onPress = () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
     //show confirm popup to stop the screenshare
-    if ((isAndroid() || isIOS()) && isScreenshareActive) {
-      setShowStopScreenSharePopup(true);
-    } else {
-      localMute(MUTE_LOCAL_TYPE.video);
-    }
+    logger.log(
+      LogSource.Internals,
+      'LOCAL_MUTE',
+      'toggle mute/unmute local video',
+      {
+        isVideoEnabled,
+        permissionDenied,
+      },
+    );
+    localMute(MUTE_LOCAL_TYPE.video);
   };
-  //native screen share uses same local uid to publish the screenshare steam
-  //so if screenshare active on native then its means local video is turned off
-  const isVideoEnabled =
-    (isAndroid() || isIOS()) && isScreenshareActive
-      ? false
-      : local.video === ToggleState.enabled;
+  const isVideoEnabled = local.video === ToggleState.enabled;
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
 
   const videoLabel = permissionDenied
-    ? 'Video'
+    ? videoButtonLabel(I18nDeviceStatus.PERMISSION_DENIED)
     : isVideoEnabled
-    ? 'Video On'
-    : 'Video Off';
+    ? videoButtonLabel(I18nDeviceStatus.ON)
+    : videoButtonLabel(I18nDeviceStatus.OFF);
 
   let iconProps: IconButtonProps['iconProps'] = {
     showWarningIcon: permissionDenied && showWarningIcon ? true : false,
@@ -123,26 +132,19 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     hoverEffectStyle: props?.plainIconHoverEffect
       ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
       : {},
-    onPress,
+    onPress: onPressCustom || onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel && callActive && !isMobileUA() ? videoLabel : '',
+      text: showLabel && callActive && !isMobileUA() ? label || videoLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,
   };
 
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
-    const isAudience = rtcProps?.role == ClientRole.Audience;
-    const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+    const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
+    const isBroadCasting =
+      rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
     iconButtonProps.disabled =
       permissionDenied || ($config.EVENT_MODE && isAudience && !isBroadCasting)
@@ -162,10 +164,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
-        ? 'Give Permissions'
+        ? videoButtonTooltip(I18nDeviceStatus.PERMISSION_DENIED)
         : isVideoEnabled
-        ? 'Disable Camera'
-        : 'Enable Camera'
+        ? videoButtonTooltip(I18nDeviceStatus.ON)
+        : videoButtonTooltip(I18nDeviceStatus.OFF)
       : '';
     if (
       //precall mobile/mobile web UI - mute button should not show the label
@@ -178,7 +180,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
+    rtcProps.role == ClientRoleType.ClientRoleAudience &&
     $config.EVENT_MODE &&
     !$config.RAISE_HAND
   ) {
@@ -186,21 +188,21 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
-    $config.EVENT_MODE &&
-    $config.RAISE_HAND &&
-    !isHost
+    (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      !isHost) ||
+    local?.videoForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'video-off',
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
-    iconButtonProps.toolTipMessage = showToolTip
-      ? isHandRaised(local.uid)
-        ? 'Waiting for host to appove the request'
-        : 'Raise Hand in order to turn video on'
-      : '';
+    iconButtonProps.toolTipMessage =
+      showToolTip && !local?.videoForceDisabled
+        ? lstooltip(isHandRaised(local.uid))
+        : '';
     iconButtonProps.disabled = true;
   }
   return props?.render ? (

@@ -9,13 +9,12 @@ import Spacer from '../../atoms/Spacer';
 import {useVideoMeetingData} from '../contexts/VideoMeetingDataContext';
 import {useScreenContext} from '../contexts/ScreenShareContext';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {videoRoomUserFallbackText} from '../../language/default-labels/videoCallScreenLabels';
 
 export default function AllHostParticipants(props: any) {
   const localUid = useLocalUid();
   const {screenShareData} = useScreenContext();
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const {defaultContent} = useContent();
   const getParticipantName = (uid: UidType) => {
     return defaultContent[uid]?.name || remoteUserDefaultLabel;
@@ -67,7 +66,7 @@ export default function AllHostParticipants(props: any) {
         <>
           <Spacer size={4} />
           {/* User should see his name first */}
-          {uids.filter((uid) => uid === localUid).length > 0 ? (
+          {uids.filter(uid => uid === localUid).length > 0 ? (
             <>
               <Participant
                 isLocal={true}
@@ -89,10 +88,10 @@ export default function AllHostParticipants(props: any) {
           {/* Others Users in the call */}
           {uids
             .filter(
-              (uid) => uid !== localUid && defaultContent[uid].type === 'rtc',
+              uid => uid !== localUid && defaultContent[uid].type === 'rtc',
             )
             .map(
-              (uid) => (
+              uid => (
                 // defaultContent[uid]?.type === 'screenshare' ? (
                 //   <ScreenshareParticipants
                 //     name={getParticipantName(uid)}

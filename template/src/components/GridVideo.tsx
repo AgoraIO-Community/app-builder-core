@@ -15,7 +15,11 @@ import {View, StyleSheet, Pressable, Text} from 'react-native';
 import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
-import {ClientRole, DispatchContext, PropsContext} from '../../agora-rn-uikit';
+import {
+  ClientRoleType,
+  DispatchContext,
+  PropsContext,
+} from '../../agora-rn-uikit';
 import LiveStreamAttendeeLandingTile from './livestream/views/LiveStreamAttendeeLandingTile';
 
 const layout = (len: number, isDesktop: boolean = true) => {
@@ -53,7 +57,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
   //livestreaming audience will see this if no host joined the call
   if (
     $config.EVENT_MODE &&
-    rtcProps?.role === ClientRole.Audience &&
+    rtcProps?.role === ClientRoleType.ClientRoleAudience &&
     activeUids.filter(i => !customContent[i]).length === 0
   ) {
     return <LiveStreamAttendeeLandingTile />;
@@ -73,17 +77,21 @@ const GridVideo: LayoutComponent = ({renderData}) => {
               disabled={renderData.length === 1}
               onPress={() => {
                 //if (!(ridx === 0 && cidx === 0)) {
-                const currentUid = renderData[ridx * dims.c + cidx];
-                if (
-                  currentUid !== pinnedUid &&
-                  currentUid !== secondaryPinnedUid
-                ) {
-                  dispatch({
-                    type: 'ActiveSpeaker',
-                    value: [renderData[ridx * dims.c + cidx]],
-                  });
-                }
+                //const currentUid = renderData[ridx * dims.c + cidx];
+                // if (
+                //   currentUid !== pinnedUid &&
+                //   currentUid !== secondaryPinnedUid
+                // ) {
+                //   dispatch({
+                //     type: 'ActiveSpeaker',
+                //     value: [renderData[ridx * dims.c + cidx]],
+                //   });
+                // }
                 //}
+                dispatch({
+                  type: 'UserPin',
+                  value: [renderData[ridx * dims.c + cidx]],
+                });
                 setPinnedLayout();
               }}
               style={{
@@ -134,6 +142,8 @@ const style = StyleSheet.create({
     //borderRadius: 12,
     flex: 1,
     overflow: 'hidden',
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    borderRadius: 4,
   },
   infoTextContainer: {
     flex: 1,

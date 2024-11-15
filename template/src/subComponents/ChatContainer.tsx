@@ -42,12 +42,23 @@ import {
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
 import {useContent} from 'customization-api';
-import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
+import {
+  messageInterface,
+  messageStoreInterface,
+  useChatMessages,
+} from '../components/chat-messages/useChatMessages';
+import {
+  chatPanelUnreadMessageText,
+  chatPanelUserOfflineText,
+  groupChatWelcomeContent,
+} from '../language/default-labels/videoCallScreenLabels';
+import CommonStyles from '../components/CommonStyles';
+import PinnedMessage from './chat/PinnedMessage';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -57,19 +68,29 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const info1 = useString<boolean>(groupChatWelcomeContent);
   const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {defaultContent} = useContent();
-  const {messageStore, privateMessageStore} = useChatMessages();
+  const {privateMessageStore, messageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
-  const {chatType, setChatType, privateChatUser, inputActive} =
-    useChatUIControls();
+  const {
+    chatType,
+    setChatType,
+    privateChatUser,
+    inputActive,
+    showEmojiPicker,
+    pinMsgId,
+    pinnedByUser,
+  } = useChatUIControls();
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
   );
+
+  const [scrollOffset, setScrollOffset] = useState(0);
   const {
     setUnreadGroupMessageCount,
     unreadGroupMessageCount,
@@ -77,9 +98,6 @@ const ChatContainer = (props?: {
     setUnreadIndividualMessageCount,
   } = useChatNotification();
   const localUid = useLocalUid();
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -109,6 +127,10 @@ const ChatContainer = (props?: {
     data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  };
+
+  const onScroll = event => {
+    setScrollOffset(event.nativeEvent.contentOffset.y);
   };
 
   const {ChatBubbleComponent} = useCustomization(data => {
@@ -142,9 +164,9 @@ const ChatContainer = (props?: {
     }
     return components;
   });
-  //commented for v1 release
-  //const userOfflineLabel = useString('userOfflineLabel')();
-  const userOfflineLabel = 'User is offline';
+
+  const userOfflineLabel = useString(chatPanelUserOfflineText)();
+  const unreadMessageLabel = useString(chatPanelUnreadMessageText)();
 
   //if we don't have unread count then enable scroll to end
   useEffect(() => {
@@ -176,6 +198,7 @@ const ChatContainer = (props?: {
 
   return (
     <View style={style.containerView}>
+      {showEmojiPicker && <View style={CommonStyles.tintedOverlay} />}
       {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
@@ -197,52 +220,71 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
-      <ScrollView ref={scrollViewRef} onContentSizeChange={onContentSizeChange}>
+      {pinMsgId && chatType === ChatType.Group && (
+        <PinnedMessage pinMsgId={pinMsgId} pinnedByUser={pinnedByUser} />
+      )}
+      <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={onContentSizeChange}
+        onScroll={onScroll}>
         {chatType === ChatType.Group ? (
           <>
             <View style={style.defaultMessageContainer}>
               <Text style={style.defaultMessageText}>
-                {!messageStore?.length
-                  ? `Welcome to Chat! \nAll messages are deleted when call ends.`
-                  : 'All messages are deleted when call ends.'}
+                {info1(messageStore?.length ? false : true)}
               </Text>
             </View>
-            {messageStore.map((message: any, index) => (
+
+            {messageStore.map((message: messageStoreInterface, index) => (
               <>
                 {messageStoreLengthRef.current === messageStore.length &&
                 grpUnreadCount &&
                 messageStore.length - grpUnreadCount === index ? (
                   <View
-                    style={style.unreadMessageContainer}
+                    style={[
+                      style.unreadMessageContainer,
+                      index === 0 && {marginTop: 8, marginBottom: 0},
+                    ]}
                     onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
-                      {grpUnreadCount} Unread Message
+                      {grpUnreadCount} {unreadMessageLabel}
                     </Text>
                   </View>
                 ) : (
                   <></>
                 )}
-                <ChatBubbleComponent
-                  isLocal={localUid === message.uid}
-                  isSameUser={
-                    index !== 0 && messageStore[index - 1].uid === message.uid
-                      ? true
-                      : false
-                  }
-                  previousMessageCreatedTimestamp={
-                    index !== 0
-                      ? (messageStore[index - 1]
-                          .createdTimestamp as unknown as string)
-                      : ''
-                  }
-                  message={message.msg}
-                  createdTimestamp={message.createdTimestamp}
-                  updatedTimestamp={message.updatedTimestamp}
-                  uid={message.uid}
-                  key={message.ts}
-                  msgId={message.msgId}
-                  isDeleted={message.isDeleted}
-                />
+                {!message?.hide ? (
+                  <ChatBubbleComponent
+                    isLocal={localUid === message.uid}
+                    isSameUser={
+                      index !== 0 && messageStore[index - 1].uid === message.uid
+                        ? true
+                        : false
+                    }
+                    previousMessageCreatedTimestamp={
+                      index !== 0
+                        ? (messageStore[index - 1]
+                            .createdTimestamp as unknown as string)
+                        : ''
+                    }
+                    message={message.msg}
+                    createdTimestamp={message.createdTimestamp}
+                    updatedTimestamp={message.updatedTimestamp}
+                    uid={message.uid}
+                    key={message.msgId}
+                    msgId={message.msgId}
+                    isDeleted={message.isDeleted}
+                    type={message.type}
+                    url={message?.url}
+                    thumb={message?.thumb}
+                    fileName={message?.fileName}
+                    ext={message?.ext}
+                    reactions={message?.reactions}
+                    scrollOffset={scrollOffset}
+                    replyToMsgId={message?.replyToMsgId}
+                    isLastMsg={messageStore.length - 1 === index}
+                  />
+                ) : null}
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
                 ) : (
@@ -258,48 +300,68 @@ const ChatContainer = (props?: {
         privateChatUser &&
         privateMessageStore[privateChatUser] ? (
           <>
-            {privateMessageStore[privateChatUser].map((message: any, index) => (
-              <>
-                {privateMessageStoreRef.current ===
-                  privateMessageStore[privateChatUser]?.length &&
-                privateUnreadCount &&
-                privateMessageStore[privateChatUser]?.length -
-                  privateUnreadCount ===
+            {privateMessageStore[privateChatUser].map(
+              (message: messageStoreInterface, index) => (
+                <>
+                  {privateMessageStoreRef.current ===
+                    privateMessageStore[privateChatUser]?.length &&
+                  privateUnreadCount &&
+                  privateMessageStore[privateChatUser]?.length -
+                    privateUnreadCount ===
+                    index ? (
+                    <View
+                      style={[
+                        style.unreadMessageContainer,
+                        index === 0 && {marginTop: 8, marginBottom: 0},
+                      ]}
+                      onLayout={unreadViewOnLayout}>
+                      <Text style={style.unreadMessageText}>
+                        {privateUnreadCount} {unreadMessageLabel}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                  {!message?.hide ? (
+                    <ChatBubbleComponent
+                      isLocal={localUid === message.uid}
+                      isSameUser={
+                        index !== 0 &&
+                        privateMessageStore[privateChatUser][index - 1].uid ===
+                          message.uid
+                          ? true
+                          : false
+                      }
+                      message={message.msg}
+                      createdTimestamp={message.createdTimestamp}
+                      updatedTimestamp={message.updatedTimestamp}
+                      uid={message.uid}
+                      key={message.msgId}
+                      msgId={message.msgId}
+                      isDeleted={message.isDeleted}
+                      type={message.type}
+                      url={message?.url}
+                      thumb={message?.thumb}
+                      fileName={message?.fileName}
+                      ext={message?.ext}
+                      reactions={message?.reactions}
+                      replyToMsgId={message?.replyToMsgId}
+                      scrollOffset={scrollOffset}
+                      isLastMsg={
+                        privateMessageStore[privateChatUser].length - 1 ===
+                        index
+                      }
+                    />
+                  ) : null}
+                  {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (
-                  <View
-                    style={style.unreadMessageContainer}
-                    onLayout={unreadViewOnLayout}>
-                    <Text style={style.unreadMessageText}>
-                      {privateUnreadCount} Unread Message
-                    </Text>
-                  </View>
-                ) : (
-                  <></>
-                )}
-                <ChatBubbleComponent
-                  isLocal={localUid === message.uid}
-                  isSameUser={
-                    index !== 0 &&
-                    privateMessageStore[privateChatUser][index - 1].uid ===
-                      message.uid
-                      ? true
-                      : false
-                  }
-                  message={message.msg}
-                  createdTimestamp={message.createdTimestamp}
-                  updatedTimestamp={message.updatedTimestamp}
-                  uid={message.uid}
-                  key={message.ts}
-                  msgId={message.msgId}
-                  isDeleted={message.isDeleted}
-                />
-                {privateMessageStore[privateChatUser]?.length - 1 === index ? (
-                  <Spacer size={10} />
-                ) : (
-                  <></>
-                )}
-              </>
-            ))}
+                    <Spacer size={10} />
+                  ) : (
+                    <></>
+                  )}
+                </>
+              ),
+            )}
           </>
         ) : (
           <></>
@@ -332,7 +394,7 @@ const style = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginTop: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
     marginBottom: 0,
   },
   defaultMessageText: {
@@ -358,9 +420,9 @@ const style = StyleSheet.create({
     borderRadius: 18,
   },
   userAvatarText: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 14,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
@@ -384,7 +446,10 @@ const style = StyleSheet.create({
     textAlign: 'left',
     flexShrink: 1,
   },
-  containerView: {flex: 8},
+  containerView: {
+    flex: 8,
+    position: 'relative',
+  },
   infoTextView: {
     marginVertical: 2,
     flexDirection: 'row',

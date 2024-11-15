@@ -13,24 +13,28 @@ import React, {useContext} from 'react';
 import {
   ToggleState,
   PermissionState,
-  ImageIcon as UIKitImageIcon,
-  ClientRole,
+  ClientRoleType,
   PropsContext,
-  useLocalUid,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
-import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
-import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
+import {useToolbar} from '../utils/useToolbar';
 import {useActionSheet} from '../utils/useActionSheet';
 import {isMobileUA} from '../utils/common';
+import {
+  I18nDeviceStatus,
+  livestreamingMicrophoneTooltipText,
+  toolbarItemMicrophoneText,
+  toolbarItemMicrophoneTooltipText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 /**
  * A component to mute / unmute the local audio
@@ -48,39 +52,53 @@ export interface LocalAudioMuteProps {
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {
     data: {isHost},
   } = useRoomInfo();
+
   const {position} = useToolbar();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
-  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
+  const micButtonLabel = useString<I18nDeviceStatus>(toolbarItemMicrophoneText);
+  const micButtonTooltip = useString<I18nDeviceStatus>(
+    toolbarItemMicrophoneTooltipText,
+  );
 
-  //commented for v1 release
-  //const audioLabel = useString('toggleAudioButton')();
+  const lstooltip = useString<boolean>(livestreamingMicrophoneTooltipText);
 
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
 
-  const onPress = () => {
-    localMute(MUTE_LOCAL_TYPE.audio);
-  };
   const isAudioEnabled = local.audio === ToggleState.enabled;
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
+  const onPress = () => {
+    logger.log(
+      LogSource.Internals,
+      'LOCAL_MUTE',
+      'toggle mute/unmute local audio',
+      {
+        isAudioEnabled,
+        permissionDenied,
+      },
+    );
+    localMute(MUTE_LOCAL_TYPE.audio);
+  };
   const audioLabel = permissionDenied
-    ? 'Mic'
+    ? micButtonLabel(I18nDeviceStatus.PERMISSION_DENIED)
     : isAudioEnabled
-    ? 'Mic On'
-    : 'Mic Off';
+    ? micButtonLabel(I18nDeviceStatus.ON)
+    : micButtonLabel(I18nDeviceStatus.OFF);
 
   let iconProps: IconButtonProps['iconProps'] = {
     showWarningIcon: permissionDenied && showWarningIcon ? true : false,
@@ -110,10 +128,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     hoverEffectStyle: props?.plainIconHoverEffect
       ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
       : {},
-    onPress,
+    onPress: onPressCustom || onPress,
     iconProps,
     btnTextProps: {
-      text: showLabel && callActive && !isMobileUA() ? audioLabel : '',
+      text: showLabel && callActive && !isMobileUA() ? label || audioLabel : '',
       textColor: $config.FONT_COLOR,
     },
     disabled: permissionDenied || disabled ? true : false,
@@ -128,8 +146,9 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     //   justifyContent: 'center',
     //   alignItems: 'center',
     // };
-    const isAudience = rtcProps?.role == ClientRole.Audience;
-    const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+    const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
+    const isBroadCasting =
+      rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
     iconButtonProps.disabled =
       permissionDenied || ($config.EVENT_MODE && isAudience && !isBroadCasting)
@@ -150,10 +169,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
-        ? 'Give Permissions'
+        ? micButtonTooltip(I18nDeviceStatus.PERMISSION_DENIED)
         : isAudioEnabled
-        ? 'Disable Mic'
-        : 'Enable Mic'
+        ? micButtonTooltip(I18nDeviceStatus.ON)
+        : micButtonTooltip(I18nDeviceStatus.OFF)
       : '';
     if (
       //precall mobile/mobile web UI - mute button should not show the label
@@ -166,7 +185,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
+    rtcProps.role == ClientRoleType.ClientRoleAudience &&
     $config.EVENT_MODE &&
     !$config.RAISE_HAND
   ) {
@@ -174,21 +193,21 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   }
 
   if (
-    rtcProps.role == ClientRole.Audience &&
-    $config.EVENT_MODE &&
-    $config.RAISE_HAND &&
-    !isHost
+    (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      !isHost) ||
+    local?.audioForceDisabled
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'mic-off',
       tintColor: $config.SEMANTIC_NEUTRAL,
     };
-    iconButtonProps.toolTipMessage = showToolTip
-      ? isHandRaised(local.uid)
-        ? 'Waiting for host to appove the request'
-        : 'Raise Hand in order to turn mic on'
-      : '';
+    iconButtonProps.toolTipMessage =
+      showToolTip && !local?.audioForceDisabled
+        ? lstooltip(isHandRaised(local.uid))
+        : '';
     iconButtonProps.disabled = true;
   }
 

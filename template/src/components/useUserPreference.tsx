@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
   DispatchContext,
   ContentInterface,
@@ -22,8 +22,17 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
-import {useRtc} from 'customization-api';
+import {filterObject, useContent, useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
+import {
+  PSTNUserLabel,
+  videoRoomScreenshareText,
+  videoRoomUserFallbackText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {useLanguage} from '../language/useLanguage';
+import {useScreenContext} from '../components/contexts/ScreenShareContext';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import getUniqueID from '../utils/getUniqueID';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -59,31 +68,128 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   const [displayName, setDisplayName] = useState(getInitialUsername());
   const [updateUserName] = useMutation(UPDATE_USER_NAME_MUTATION);
 
+  const {languageCode} = useLanguage();
+  const {screenShareData} = useScreenContext();
+  const {defaultContent} = useContent();
+  const screenShareDataRef = useRef({screenShareData});
+  useEffect(() => {
+    screenShareDataRef.current.screenShareData = screenShareData;
+  }, [screenShareData]);
+
+  useEffect(() => {
+    try {
+      if (languageCode) {
+        Object.keys(screenShareDataRef.current.screenShareData).map(i => {
+          let screenShareUidToUpdate = parseInt(i);
+          const users = filterObject(
+            defaultContent,
+            ([k, v]) => v?.screenUid === screenShareUidToUpdate,
+          );
+          const keys = Object.keys(users);
+          if (users && keys && keys?.length) {
+            updateRenderListState(screenShareUidToUpdate, {
+              name: getScreenShareName(
+                users[parseInt(keys[0])]?.name || userText,
+              ),
+            });
+          }
+        });
+      }
+    } catch (error) {}
+  }, [languageCode, screenShareData]);
+
   const saveName = (name: string) => {
     if (name && name?.trim() !== '') {
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
       try {
+        logger.log(
+          LogSource.Internals,
+          'NAME',
+          'Trying to save the display name',
+          {
+            requestId,
+            startReqTs,
+          },
+        );
         updateUserName({
+          context: {
+            headers: {
+              'X-Request-Id': requestId,
+              'X-Session-Id': logger.getSessionId(),
+            },
+          },
           variables: {
             name,
           },
-        }).catch((error) => {
-          console.log('ERROR, could not save the name', error);
-        });
+        })
+          .then(res => {
+            const endReqTs = Date.now();
+            logger.log(
+              LogSource.Internals,
+              'NAME',
+              'name updated successfully',
+              {
+                responseData: res,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
+          })
+          .catch(error => {
+            const endReqTs = Date.now();
+            logger.error(
+              LogSource.Internals,
+              'NAME',
+              'ERROR, could not save the name',
+              error,
+              {
+                networkError: {
+                  name: error?.networkError?.name,
+                  //@ts-ignore
+                  code: error?.networkError?.result?.error?.code,
+                  //@ts-ignore
+                  message: error?.networkError?.result?.error?.message,
+                },
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+                requestId,
+              },
+            );
+          });
       } catch (error) {
-        console.log('ERROR, could not save the name', error);
+        const endReqTs = Date.now();
+        logger.error(
+          LogSource.Internals,
+          'NAME',
+          'ERROR, could not save the name',
+          error,
+          {
+            networkError: {
+              name: error?.networkError?.name,
+              //@ts-ignore
+              code: error?.networkError?.result?.error?.code,
+              //@ts-ignore
+              message: error?.networkError?.result?.error?.message,
+            },
+            startReqTs,
+            endReqTs,
+            latency: endReqTs - startReqTs,
+            requestId,
+          },
+        );
       }
     }
   };
-  //commented for v1 release
-  // const userText = useString('remoteUserDefaultLabel')();
-  const userText = 'User';
-  const pstnUserLabel = useString('pstnUserLabel')();
-  //commented for v1 release
-  //const getScreenShareName = useString('screenshareUserName');
-  const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  const userText = useString(videoRoomUserFallbackText)();
+  const pstnUserLabel = useString(PSTNUserLabel)();
+  const getScreenShareName = useString(videoRoomScreenshareText);
 
   useEffect(() => {
-    events.on(EventNames.NAME_ATTRIBUTE, (data) => {
+    events.on(EventNames.NAME_ATTRIBUTE, data => {
       const value = JSON.parse(data?.payload);
       if (value) {
         if (value?.uid) {
@@ -97,6 +203,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
         if (value?.screenShareUid) {
           updateRenderListState(value?.screenShareUid, {
             name: getScreenShareName(value?.name || userText),
+            type: 'screenshare',
           });
         }
       }
@@ -108,7 +215,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     //Update the store displayName value if the state is changed
-    setStore((prevState) => {
+    setStore(prevState => {
       return {
         ...prevState,
         displayName,
@@ -119,6 +226,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
     updateRenderListState(localUid, {name: displayName || userText});
     updateRenderListState(screenShareUid, {
       name: getScreenShareName(displayName || userText),
+      type: 'screenshare',
     });
 
     if (hasUserJoinedRTM) {

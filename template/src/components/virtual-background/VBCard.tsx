@@ -6,9 +6,20 @@ import {IconsInterface} from '../../atoms/CustomIcon';
 import Toast from '../../../react-native-toast-message';
 import {saveImagesToIndexDB, convertBlobToBase64} from './VButils';
 import ImageIcon from '../../atoms/ImageIcon';
-import getUniqueID from '../../../src/utils/getUniqueID';
 
-interface VBCardProps {
+import {useString} from '../../../src/utils/useString';
+import {
+  vbPanelImageSizeLimitErrorToastHeading,
+  vbPanelImageSizeLimitErrorToastSubHeading,
+  vbPanelImageTypeErrorToastHeading,
+  vbPanelImageTypeErrorToastSubHeading,
+  vbPanelImageUploadErrorToastHeading,
+  vbPanelImageUploadErrorToastSubHeading,
+} from '../../../src/language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {vbOptionText} from '../../../src/language/default-labels/precallScreenLabels';
+
+export interface VBCardProps {
   type: VBMode;
   icon: keyof IconsInterface;
   path?: string & {default?: string};
@@ -52,29 +63,69 @@ const VBCard: React.FC<VBCardProps> = ({
     setOptions,
   } = useVB();
 
+  const typeErrorHeading = useString(vbPanelImageTypeErrorToastHeading)();
+  const typeErrorSubheading = useString(vbPanelImageTypeErrorToastSubHeading)();
+  const limitErrorHeading = useString(vbPanelImageSizeLimitErrorToastHeading)();
+  const limitErrorSubHeading = useString(
+    vbPanelImageSizeLimitErrorToastSubHeading,
+  )();
+  const uploadErrorHeading = useString(vbPanelImageUploadErrorToastHeading)();
+  const uploadErrorSubHeading = useString(
+    vbPanelImageUploadErrorToastSubHeading,
+  )();
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const vbOptionLabel = useString<VBMode>(vbOptionText);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    logger.log(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'User wants to upload custom background',
+    );
     const selectedFile = e.target.files && e.target.files[0];
-
+    logger.log(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      `User selected a file ${e?.target?.files[0]?.name || 'none'}`,
+    );
     if (selectedFile) {
       // check if file size (less than 1MB)
+      logger.log(
+        LogSource.Internals,
+        'VIRTUAL_BACKGROUND',
+        'check if file is less than 1MB amd type is image/jpeg or image/png',
+        {
+          size: selectedFile.size,
+          type: selectedFile.type,
+        },
+      );
       if (selectedFile.size <= 1024 * 1024 * 1) {
         // check image format
         if (
           selectedFile.type === 'image/jpeg' ||
           selectedFile.type === 'image/png'
         ) {
+          logger.log(
+            LogSource.Internals,
+            'VIRTUAL_BACKGROUND',
+            'file uploaded satisfies the above constraint. Convert the file to base64',
+          );
           convertBlobToBase64(URL.createObjectURL(selectedFile))
             .then((base64Data: string) => {
               if (
                 options.filter(option => option.path === base64Data).length > 0
               ) {
+                logger.log(
+                  LogSource.Internals,
+                  'VIRTUAL_BACKGROUND',
+                  'file is already uploaded',
+                );
                 Toast.show({
                   leadingIconName: 'alert',
                   type: 'error',
-                  text2: 'Selected image is already uploaded',
-                  text1: 'Upload Failed',
+                  text2: uploadErrorSubHeading,
+                  text1: uploadErrorHeading,
                   visibilityTime: 3000,
                 });
                 return;
@@ -85,13 +136,17 @@ const VBCard: React.FC<VBCardProps> = ({
                 type: 'image',
                 icon: 'vb',
                 path: base64Data,
-                id: getUniqueID(),
               };
               setOptions(prevOptions => {
                 const updatedOptions = [...prevOptions];
                 updatedOptions.splice(3, 0, newCard);
                 return updatedOptions;
               });
+              logger.log(
+                LogSource.Internals,
+                'VIRTUAL_BACKGROUND',
+                'file uploaded successfully and storing to indexDB',
+              );
               saveImagesToIndexDB(base64Data);
             })
             .catch(error => {
@@ -101,8 +156,8 @@ const VBCard: React.FC<VBCardProps> = ({
           Toast.show({
             leadingIconName: 'alert',
             type: 'error',
-            text2: 'Please select a JPG or PNG file',
-            text1: 'Upload Failed',
+            text2: typeErrorSubheading,
+            text1: typeErrorHeading,
             visibilityTime: 3000,
           });
         }
@@ -110,8 +165,8 @@ const VBCard: React.FC<VBCardProps> = ({
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text2: 'File size must be less than 1MB.',
-          text1: 'Upload Failed',
+          text2: limitErrorSubHeading,
+          text1: limitErrorHeading,
           visibilityTime: 3000,
         });
       }
@@ -119,6 +174,11 @@ const VBCard: React.FC<VBCardProps> = ({
   };
 
   const handleClick = () => {
+    logger.log(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      `User selected a virtual background type - ${type}`,
+    );
     setSaveVB(false);
     setVBmode(type);
     if (path) {
@@ -178,7 +238,7 @@ const VBCard: React.FC<VBCardProps> = ({
                 color: $config.SECONDARY_ACTION_COLOR,
                 paddingVertical: 4,
               }}>
-              {label}
+              {vbOptionLabel(type)}
             </Text>
           ) : (
             <></>

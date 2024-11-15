@@ -27,6 +27,7 @@ end
 
 target 'HelloWorld' do
   config = use_native_modules!
+  pod 'TrustKit'
 
   # Flags change depending on the env values.
   flags = get_default_flags()
@@ -62,5 +63,5 @@ target 'HelloWorld' do
 end
 
 target 'ScreenSharing' do
-  pod 'AgoraRtcEngine_iOS', '3.7.0.3'
+  pod 'AgoraRtcEngine_iOS', '4.3.2'
 end

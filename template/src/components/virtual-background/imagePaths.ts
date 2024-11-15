@@ -2,62 +2,80 @@ import {Option} from './useVB';
 import images from './images';
 
 const imagePathsArray: Option[] = [
-  {type: 'none', icon: 'remove', label: 'None', id: 'VBOption_1'},
-  {type: 'blur', icon: 'blur', label: 'Blur', id: 'VBOption_2'},
-  {type: 'custom', icon: 'upload-new', label: 'Custom', id: 'VBOption_3'},
+  {
+    type: 'none',
+    icon: 'remove',
+    label: 'None',
+
+    isSelected: false,
+  },
+  {
+    type: 'blur',
+    icon: 'blur',
+    label: 'Blur',
+
+    isSelected: false,
+  },
+  {
+    type: 'custom',
+    icon: 'upload-new',
+    label: 'Custom',
+
+    isSelected: false,
+  },
   {
     type: 'image',
     icon: 'vb',
     path: images.bookImageBase64,
-    id: 'VBOption_4',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.beachImageBase64,
-    id: 'VBOption_5',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.office1ImageBase64,
-    id: 'VBOption_6',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.bedroomImageBase64,
-    id: 'VBOption_7',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.officeImageBase64,
-    id: 'VBOption_8',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.earthImageBase64,
-    id: 'VBOption_9',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.mountainsImageBase64,
-    id: 'VBOption_10',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.plantsImageBase64,
-    id: 'VBOption_11',
+    isSelected: false,
   },
   {
     type: 'image',
     icon: 'vb',
     path: images.wallImageBase64,
-    id: 'VBOption_12',
+    isSelected: false,
   },
 ];
 

@@ -32,10 +32,25 @@ import useTranscriptDownload from '../../subComponents/caption/useTranscriptDown
 import {useVB} from '../../components/virtual-background/useVB';
 import {PropsContext} from '../../../agora-rn-uikit';
 import useLiveStreamingUids from '../../utils/useLiveStreamingUids';
+import {useString} from '../../utils/useString';
+import {
+  settingsPanelHeading,
+  vbPanelHeading,
+} from '../../language/default-labels/precallScreenLabels';
+import {
+  chatPanelGroupTabText,
+  chatPanelPrivateTabText,
+  peoplePanelHeaderText,
+  sttChangeSpokenLanguageText,
+  sttDownloadTranscriptBtnText,
+  sttTranscriptPanelHeaderText,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
-  const settingsLabel = 'Settings';
+  const settingsLabel = useString(settingsPanelHeading)();
+
   return (
     <SidePanelHeader
       centerComponent={
@@ -56,7 +71,7 @@ export const PeopleHeader = () => {
   const count = $config.EVENT_MODE
     ? hostUids.length + audienceUids.length
     : onlineUsersCount;
-  const participantsLabel = `People`;
+  const participantsLabel = useString(peoplePanelHeaderText)();
 
   const {setSidePanel} = useSidePanel();
   return (
@@ -83,10 +98,11 @@ export const ChatHeader = () => {
   } = useChatNotification();
 
   const {setSidePanel} = useSidePanel();
-  const groupChatLabel = 'Group';
-  const privateChatLabel = 'Private';
+  const groupChatLabel = useString(chatPanelGroupTabText)();
+  const privateChatLabel = useString(chatPanelPrivateTabText)();
 
-  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
+  const {chatType, setChatType, setPrivateChatUser, showEmojiPicker} =
+    useChatUIControls();
 
   const selectGroup = () => {
     setChatType(ChatType.Group);
@@ -103,6 +119,7 @@ export const ChatHeader = () => {
   return (
     <SidePanelHeader
       isChat={true}
+      showTintedOverlay={showEmojiPicker}
       leadingIconName={isPrivateActive ? 'back-btn' : null}
       leadingIconOnPress={
         isPrivateActive
@@ -153,7 +170,7 @@ export const ChatHeader = () => {
 };
 
 export const VBHeader = () => {
-  const label = `Virtual Background`;
+  const label = useString(vbPanelHeading)();
   const {setSidePanel} = useSidePanel();
   const {setIsVBActive} = useVB();
 
@@ -173,13 +190,39 @@ export const VBHeader = () => {
   );
 };
 
+export const CustomSidePanelHeader = (props: {
+  title: string;
+  onClose?: () => void;
+  name: string;
+}) => {
+  const {setSidePanel} = useSidePanel();
+  return (
+    <SidePanelHeader
+      centerComponent={
+        <Text style={SidePanelStyles.heading}>{props?.title}</Text>
+      }
+      trailingIconName="close"
+      trailingIconOnPress={() => {
+        setSidePanel(SidePanelType.None);
+        try {
+          props?.onClose && props?.onClose();
+        } catch (error) {
+          console.error(
+            `Error on calling onClose in custom side panel ${name}`,
+          );
+        }
+      }}
+    />
+  );
+};
+
 export const TranscriptHeader = props => {
   const {setSidePanel} = useSidePanel();
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
 
-  const label = 'Meeting Transcript';
+  const label = useString(sttTranscriptPanelHeaderText)();
 
   return (
     <SidePanelHeader
@@ -229,14 +272,18 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     data: {isHost},
   } = useRoomInfo();
 
+  const downloadTranscriptLabel = useString(sttDownloadTranscriptBtnText)();
+  const changeSpokenLanguage = useString<boolean>(
+    sttChangeSpokenLanguageText,
+  )();
   isHost &&
     actionMenuitems.push({
       icon: 'lang-select',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: 'Change Spoken Language ',
+      title: changeSpokenLanguage + ' ',
       disabled: isLangChangeInProgress,
-      callback: () => {
+      onPress: () => {
         setActionMenuVisible(false);
         setLanguagePopup(true);
       },
@@ -246,9 +293,9 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Download Transcript',
+    title: downloadTranscriptLabel,
     disabled: meetingTranscript.length === 0,
-    callback: () => {
+    onPress: () => {
       downloadTranscript();
       setActionMenuVisible(false);
     },
@@ -259,10 +306,19 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     if (langChanged) {
       restart(language)
         .then(() => {
-          console.log('stt restarted successfully');
+          logger.debug(
+            LogSource.Internals,
+            'STT',
+            'stt restarted successfully',
+          );
         })
         .catch(error => {
-          console.log('Error in restarting', error);
+          logger.error(
+            LogSource.Internals,
+            'STT',
+            'Error in restarting',
+            error,
+          );
           // Handle the error case
         });
     }
@@ -335,7 +391,7 @@ const styles = StyleSheet.create({
   },
   activeContainer: {
     margin: 2,
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 11,
     alignSelf: 'center',
   },
@@ -348,7 +404,7 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
-    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    color: $config.FONT_COLOR,
   },
   nonActiveText: {
     paddingHorizontal: 24,

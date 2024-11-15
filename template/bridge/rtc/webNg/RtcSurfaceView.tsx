@@ -13,57 +13,50 @@
 import {ILocalVideoTrack, IRemoteVideoTrack} from 'agora-rtc-sdk-ng';
 import React, {useEffect} from 'react';
 import {StyleProp, StyleSheet, ViewProps, ViewStyle} from 'react-native';
-import {VideoMirrorMode, VideoRenderMode} from 'react-native-agora';
+import {RenderModeType} from './Types';
+import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
 
 export interface RtcSurfaceViewProps extends ViewProps {
-  zOrderMediaOverlay?: boolean;
-  zOrderOnTop?: boolean;
-  renderMode?: any;
-  channelId?: string;
-  mirrorMode?: any;
+  canvas: {
+    renderMode?: RenderModeType;
+    uid?: number;
+  };
 }
-export interface RtcUidProps {
-  uid: number;
-}
+
 export interface StyleProps {
   style?: StyleProp<ViewStyle>;
 }
 
-interface SurfaceViewInterface
-  extends RtcSurfaceViewProps,
-    RtcUidProps,
-    StyleProps {}
+interface SurfaceViewInterface extends RtcSurfaceViewProps, StyleProps {}
 
-const SurfaceView = (props: SurfaceViewInterface) => {
-  //   console.log('Surface View props', props);
-
+const RtcSurfaceView = (props: SurfaceViewInterface) => {
+  const {uid, renderMode} = props.canvas;
   const stream: ILocalVideoTrack | IRemoteVideoTrack =
-    props.uid === 0
+    uid === 0
       ? window.engine.localStream.video
-      : props.uid === 1
+      : uid === 1
       ? window.engine.screenStream.video
-      : window.engine.remoteStreams.get(props.uid)?.video;
-  // console.log(props, window.engine, stream);
+      : window.engine.remoteStreams.get(uid)?.video;
   useEffect(
     function () {
       if (stream?.play) {
-        if (props.renderMode === 2) {
-          stream.play(String(props.uid), {fit: 'contain'});
+        if (renderMode === RenderModeType.RenderModeFit) {
+          stream.play(String(uid), {fit: 'contain'});
         } else {
-          stream.play(String(props.uid));
+          stream.play(String(uid));
         }
       }
       return () => {
-        console.log(`unmounting stream ${props.uid}`, stream);
+        console.log(`unmounting stream ${uid}`, stream);
         stream && stream.stop();
       };
     },
-    [props.uid, props.renderMode, stream],
+    [uid, renderMode, stream],
   );
 
   return stream ? (
     <div
-      id={String(props.uid)}
+      id={String(uid)}
       className={'video-container'}
       style={{...style.full, ...(props.style as Object), overflow: 'hidden'}}
     />
@@ -78,4 +71,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default SurfaceView;
+export default RtcSurfaceView;

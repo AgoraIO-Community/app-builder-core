@@ -8,6 +8,14 @@ import {isMobileUA, useIsDesktop} from '../utils/common';
 import TertiaryButton from '../atoms/TertiaryButton';
 import isSDK from '../utils/isSDK';
 import {useAuth} from './AuthProvider';
+import {useString} from '../utils/useString';
+import {
+  authLogoutPopupHeading,
+  authLogoutPopupPrimaryBtnText,
+  authLogoutPopupSubHeading,
+  cancelText,
+  logoutText,
+} from '../language/default-labels/commonLabels';
 
 interface LogoutPopupProps {
   modalVisible: boolean;
@@ -16,11 +24,11 @@ interface LogoutPopupProps {
 }
 const LogoutPopup = (props: LogoutPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const logoutLabelHeading = 'Logout?';
-  const logoutLabelSubHeading = 'Are you sure you wanna log out?';
+  const logoutLabelHeading = useString(authLogoutPopupHeading)();
+  const logoutLabelSubHeading = useString(authLogoutPopupSubHeading)();
 
-  const cancelBtnLabel = 'CANCEL';
-  const confirmBtnLabel = 'CONFIRM';
+  const cancelBtnLabel = useString(cancelText)();
+  const confirmBtnLabel = useString(authLogoutPopupPrimaryBtnText)();
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -114,6 +122,7 @@ interface IDPLogoutComponentProps {
 }
 
 const IDPLogoutComponent = (props?: IDPLogoutComponentProps) => {
+  const logoutLabel = useString(logoutText)();
   const {authenticated, authLogout} = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   return authenticated && $config.ENABLE_IDP_AUTH && !isSDK() ? (
@@ -136,7 +145,7 @@ const IDPLogoutComponent = (props?: IDPLogoutComponentProps) => {
         setModalVisible={setModalVisible}
       />
       <TertiaryButton
-        text="Logout"
+        text={logoutLabel}
         onPress={() => {
           setModalVisible(true);
         }}

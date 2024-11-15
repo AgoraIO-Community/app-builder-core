@@ -18,7 +18,6 @@ import {
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
-import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
@@ -33,28 +32,34 @@ import {
 } from 'customization-api';
 import {filterObject} from '../../utils';
 import Toast from '../../../react-native-toast-message';
+import {useString} from '../../utils/useString';
+import {
+  videoRoomScreenShareErrorToastHeading,
+  videoRoomScreenShareErrorToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+export const ScreenshareConfigure = (props: {
+  children: React.ReactNode;
+  isRecordingActive: boolean;
+}) => {
+  const toastHeading = useString(videoRoomScreenShareErrorToastHeading)();
+  const toastSubHeading = useString(videoRoomScreenShareErrorToastSubHeading)();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
   const {defaultContent, activeUids, pinnedUid, secondaryPinnedUid} =
     useContent();
   const isPinned = useRef(0);
-  const {isRecordingActive} = useRecording();
-  const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
-  // commented for v1 release
-  // const getScreenShareName = useString('screenshareUserName');
-  // const userText = useString('remoteUserDefaultLabel')();
-  // const getScreenShareName = (name: string) => `${name}'s screenshare`;
-  // const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
   const currentLayoutRef = useRef({currentLayout: currentLayout});
+
+  const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
 
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
@@ -229,8 +234,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const ScreenshareStoppedCallback = () => {
     setScreenshareActive(false);
-    console.log('STOPPED SHARING');
-    executeNormalQuery();
+    logger.debug(LogSource.Internals, 'SCREENSHARE', 'screenshare stopped.');
     events.send(
       EventNames.SCREENSHARE_ATTRIBUTE,
       JSON.stringify({
@@ -266,29 +270,38 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     // @ts-ignore
     rtc.RtcEngineUnsafe.addListener(
-      'ScreenshareStopped',
+      'onScreenshareStopped',
       ScreenshareStoppedCallback,
     );
   }, []);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
     if (isScreenActive) {
-      console.log('screenshare: Executing presenter query');
-      // If screen share is not going on, start the screen share by executing the graphql query
+      // If recording is going on, set the presenter query
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is going on set presenter query',
+      );
       executePresenterQuery(screenShareUid);
     } else {
-      // If recording is already going on, stop the recording by executing the graphql query.
+      logger.log(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'Recording is NOT going on set normal query',
+      );
+      // If no recording is going on, set the normal query
       executeNormalQuery();
     }
   };
 
-  const stopUserScreenShare = () => {
+  const stopScreenshare = () => {
     if (!isScreenshareActive) {
       return;
     }
     userScreenshare(false);
   };
-  const startUserScreenshare = () => {
+  const startScreenshare = () => {
     if (isScreenshareActive) {
       return;
     }
@@ -296,11 +309,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const userScreenshare = async (isActive: boolean) => {
-    if (isRecordingActive) {
-      executeRecordingQuery(isActive);
-    }
-    console.log('screenshare query executed');
+    logger.log(
+      LogSource.Internals,
+      'SCREENSHARE',
+      `${isActive ? 'starting' : 'stopping'}  screenshare`,
+      {
+        channel,
+        screenShareUid,
+        encryption,
+      },
+    );
     try {
+      if (props.isRecordingActive) {
+        executeRecordingQuery(isActive);
+      }
       // @ts-ignore
       await rtc.RtcEngineUnsafe.startScreenshare(
         screenShareToken,
@@ -310,6 +332,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         appId,
         rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
+        {encoderConfig: '1080p_2', optimizationMode: 'detail'},
       );
       isActive && setScreenshareActive(true);
 
@@ -338,16 +361,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         );
       }
     } catch (e) {
-      console.error("can't start the screen share", e);
-      executeNormalQuery();
+      logger.error(
+        LogSource.Internals,
+        'SCREENSHARE',
+        'failed to start screen share',
+        e,
+      );
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'Failed to initiate screen sharing',
-        text2: 'Permission denied',
+        text1: toastHeading,
+        text2: toastSubHeading,
         visibilityTime: 1000 * 10,
         primaryBtn: null,
-        secondaryBtn: null
+        secondaryBtn: null,
       });
     }
   };
@@ -356,8 +383,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     <ScreenshareContext.Provider
       value={{
         isScreenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        startScreenshare,
+        stopScreenshare,
         //@ts-ignore
         ScreenshareStoppedCallback,
       }}>

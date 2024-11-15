@@ -13,7 +13,7 @@ import React, {useContext, useEffect, useState, useMemo} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {
   PropsContext,
-  ClientRole,
+  ClientRoleType,
   LocalContext,
   PermissionState,
   LocalUserContext,
@@ -28,6 +28,20 @@ import ThemeConfig from '../theme';
 import {randomNameGenerator} from '../utils';
 import pendingStateUpdateHelper from '../utils/pendingStateUpdateHelper';
 import InlineNotification from '../atoms/InlineNotification';
+import {
+  settingsPanelCameraLabel,
+  settingsPanelLiveStreamingAttendeeInfo,
+  settingsPanelMicrophoneLabel,
+  settingsPanelNoCameraDetectedText,
+  settingsPanelNoCameraSelectedText,
+  settingsPanelNoMicrophoneDetectedText,
+  settingsPanelNoMicrophoneSelectedText,
+  settingsPanelNoSpeakerDetectedText,
+  settingsPanelSpeakerLabel,
+  settingsPanelSystemDefaultSpeakerText,
+  settingsPanelUpdatingText,
+} from '../language/default-labels/precallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 // import {dropdown} from '../../theme.json';
 
 /*
@@ -48,14 +62,26 @@ const applyDefaultPrefixConditionally = (device: MediaDeviceInfo) => {
  * A component to diplay a dropdown and select a device.
  * It will add the selected device to the device context.
  */
-const useSelectDevice = (): [boolean, string] => {
+const useSelectDevice = (
+  type?: 'Camera' | 'Microphone' | 'Speaker' | 'ToDisplayInfo',
+): [boolean, string] => {
   const {rtcProps} = useContext(PropsContext);
   const {primaryColor} = useContext(ColorContext);
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
+    if (
+      $config.EVENT_MODE &&
+      rtcProps.role === ClientRoleType.ClientRoleAudience
+    ) {
+      type === 'ToDisplayInfo'
+        ? {}
+        : logger.log(
+            LogSource.Internals,
+            'DEVICE_CONFIGURE',
+            `User is AUDIENCE and in Live mode - ${type} Dropdown is disabled`,
+          );
       setPickerDisabled(true);
       setBtnTheme('rgba(16, 16, 16, 0.3)');
     } else {
@@ -79,7 +105,7 @@ interface SelectVideoDeviceProps {
 
 const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
-  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isPickerDisabled, btnTheme] = useSelectDevice('Camera');
   const [isFocussed, setIsFocussed] = React.useState(false);
   const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
@@ -115,11 +141,16 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
+
+  const cameraLabel = useString(settingsPanelCameraLabel)();
+  const noCameraLabel = useString(settingsPanelNoCameraDetectedText)();
+  const noCameraSelectedLabel = useString(settingsPanelNoCameraSelectedText)();
+  const updateLabel = useString(settingsPanelUpdatingText)();
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
     <>
-      <Text style={style.label}>Camera</Text>
+      <Text style={style.label}>{cameraLabel}</Text>
       <Dropdown
         icon={
           isPendingUpdate && isPermissionGranted
@@ -131,20 +162,39 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         enabled={!isPickerDisabled}
         label={
           !isPermissionGranted || !data || !data.length
-            ? 'No Camera Detected'
+            ? noCameraLabel
             : isPendingUpdate
-            ? 'Updating'
-            : 'No Camera Selected'
+            ? updateLabel
+            : noCameraSelectedLabel
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
           try {
+            logger.log(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `Trying to set camera - ${label} - ${value}`,
+            );
             pendingStateUpdateHelper(
               async () => await setSelectedCam(value),
               setIsPendingUpdate,
             );
+            logger.log(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `Camera set - ${value}`,
+            );
           } catch (e) {
+            logger.error(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `There was an error setting camera - ${value}`,
+              e,
+              {
+                data: value,
+              },
+            );
             setIsPendingUpdate(false);
           }
         }}
@@ -166,7 +216,7 @@ interface SelectAudioDeviceProps {
 
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
-  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isPickerDisabled, btnTheme] = useSelectDevice('Microphone');
   const [isFocussed, setIsFocussed] = useState(false);
   const local = useContext(LocalContext);
   const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
@@ -202,11 +252,20 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
+
+  const microphoneLabel = useString(settingsPanelMicrophoneLabel)();
+  const noMicrophoneDetectedLabel = useString(
+    settingsPanelNoMicrophoneDetectedText,
+  )();
+  const updateLabel = useString(settingsPanelUpdatingText)();
+  const noMicrophoneSelectedLabel = useString(
+    settingsPanelNoMicrophoneSelectedText,
+  )();
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
     <View>
-      <Text style={style.label}>Microphone</Text>
+      <Text style={style.label}>{microphoneLabel}</Text>
       <Dropdown
         icon={
           isPendingUpdate && isPermissionGranted
@@ -219,20 +278,39 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         selectedValue={selectedMic}
         label={
           !isPermissionGranted || !data || !data.length
-            ? 'No Microphone Detected'
+            ? noMicrophoneDetectedLabel
             : isPendingUpdate
-            ? 'Updating'
-            : 'No Microphone Selected'
+            ? updateLabel
+            : noMicrophoneSelectedLabel
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
           try {
+            logger.log(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `Trying to set mic - ${label} - ${value}`,
+            );
             pendingStateUpdateHelper(
               async () => await setSelectedMic(value),
               setIsPendingUpdate,
             );
+            logger.log(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `Mic set - ${value}`,
+            );
           } catch (e) {
+            logger.error(
+              LogSource.Internals,
+              'DEVICE_CONFIGURE',
+              `There was an error setting mic - ${value}`,
+              e,
+              {
+                data: value,
+              },
+            );
             setIsPendingUpdate(false);
           }
         }}
@@ -255,7 +333,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const {selectedSpeaker, setSelectedSpeaker, deviceList, isChrome} =
     useContext(DeviceContext);
   const local = useContext(LocalContext);
-  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isPickerDisabled, btnTheme] = useSelectDevice('Speaker');
   const [isFocussed, setIsFocussed] = React.useState(false);
   const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
@@ -288,6 +366,12 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     }
   }, [selectedSpeaker, data]);
 
+  const speakerLabel = useString(settingsPanelSpeakerLabel)();
+  const speakerDefaultLabel = useString(
+    settingsPanelSystemDefaultSpeakerText,
+  )();
+  const noSpeakerLabel = useString(settingsPanelNoSpeakerDetectedText)();
+  const updateLabel = useString(settingsPanelUpdatingText)();
   return props?.render ? (
     props.render(
       selectedSpeaker,
@@ -297,7 +381,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     )
   ) : (
     <View>
-      <Text style={style.label}>Speaker</Text>
+      <Text style={style.label}>{speakerLabel}</Text>
       {(local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
         local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
       (!isChrome || !data || data.length === 0) ? (
@@ -309,17 +393,36 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           data={[
             {
               value: newRandomDeviceId,
-              label: 'System Default Speaker Device',
+              label: speakerDefaultLabel,
             },
           ]}
           onSelect={({label, value}) => {
             setIsFocussed(true);
             try {
+              logger.log(
+                LogSource.Internals,
+                'DEVICE_CONFIGURE',
+                `Trying to set speaker - ${label} - ${value}`,
+              );
               pendingStateUpdateHelper(
                 async () => await setSelectedSpeaker(value),
                 setIsPendingUpdate,
               );
+              logger.log(
+                LogSource.Internals,
+                'DEVICE_CONFIGURE',
+                `Speaker set - ${value}`,
+              );
             } catch (e) {
+              logger.error(
+                LogSource.Internals,
+                'DEVICE_CONFIGURE',
+                `There was an error setting speaker - ${value}`,
+                e,
+                {
+                  data: value,
+                },
+              );
               setIsPendingUpdate(false);
             }
           }}
@@ -337,9 +440,9 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           selectedValue={selectedSpeaker}
           label={
             !data || !data.length
-              ? 'No Speaker Detected'
+              ? noSpeakerLabel
               : isPendingUpdate
-              ? 'Updating'
+              ? updateLabel
               : ''
           }
           data={data}
@@ -359,7 +462,7 @@ interface SelectDeviceProps {
 }
 
 const SelectDevice = (props: SelectDeviceProps) => {
-  const [isPickerDisabled] = useSelectDevice();
+  const [isPickerDisabled] = useSelectDevice('ToDisplayInfo');
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable, setSpeakerAvailable} =
     usePreCall();
@@ -403,30 +506,29 @@ const SelectDevice = (props: SelectDeviceProps) => {
   // });
 
   useEffect(() => {
-    if (audioDevices && audioDevices.length) {
+    const isDeviceAvailable = audioDevices && audioDevices.length;
+    if (isDeviceAvailable) {
       setMicAvailable(true);
     }
   }, [audioDevices]);
 
   useEffect(() => {
-    if (videoDevices && videoDevices.length) {
+    const isDeviceAvailable = videoDevices && videoDevices.length;
+    if (isDeviceAvailable) {
       setCameraAvailable(true);
     }
   }, [videoDevices]);
 
   useEffect(() => {
-    if (speakerDevices && speakerDevices.length) {
+    const isDeviceAvailable = speakerDevices && speakerDevices.length;
+    if (isDeviceAvailable) {
       setSpeakerAvailable(true);
     }
   }, [speakerDevices]);
 
-  //commented for v1 release
-  // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
-  // const settingScreenInfoMessage = $config.AUDIO_ROOM
-  //   ? 'Audio sharing is disabled for attendees. Raise hand to request permission to share.'
-  //   : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
-  const settingScreenInfoMessage =
-    'Attendees need to raise their hand to access the devices.';
+  const settingScreenInfoMessage = useString(
+    settingsPanelLiveStreamingAttendeeInfo,
+  )();
   if (isOnPrecall) {
     return (
       <>

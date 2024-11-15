@@ -19,6 +19,7 @@ import {
 import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
 import RtmClient from 'agora-react-native-rtm';
+import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
 // export {RtmAttribute}
 //
 interface RtmAttributePlaceholder {}
@@ -28,7 +29,7 @@ type callbackType = (args?: any) => void;
 
 export default class RtmEngine {
   public appId: string;
-  public client: any;
+  public client: RtmClient;
   public channelMap = new Map<string, any>([]);
   public remoteInvititations = new Map<string, any>([]);
   public localInvititations = new Map<string, any>([]);
@@ -36,7 +37,6 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
-    ['ChannelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -59,15 +59,14 @@ export default class RtmEngine {
   ]);
   constructor() {
     this.appId = '';
-    console.log('Using RTM Bridge');
+    logger.debug(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
   }
 
   on(event: any, listener: any) {
     if (
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
-      event === 'channelMemberLeft' ||
-      event === 'ChannelAttributesUpdated'
+      event === 'channelMemberLeft'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
@@ -98,6 +97,36 @@ export default class RtmEngine {
   createClient(APP_ID: string) {
     this.appId = APP_ID;
     this.client = AgoraRTM.createInstance(this.appId);
+
+    if ($config.GEO_FENCING) {
+      try {
+        //include area is comma seperated value
+        let includeArea = $config.GEO_FENCING_INCLUDE_AREA
+          ? $config.GEO_FENCING_INCLUDE_AREA
+          : AREAS.GLOBAL;
+
+        //exclude area is single value
+        let excludeArea = $config.GEO_FENCING_EXCLUDE_AREA
+          ? $config.GEO_FENCING_EXCLUDE_AREA
+          : '';
+
+        includeArea = includeArea?.split(',');
+
+        //pass excludedArea if only its provided
+        if (excludeArea) {
+          AgoraRTM.setArea({
+            areaCodes: includeArea,
+            excludedArea: excludeArea,
+          });
+        }
+        //otherwise we can pass area directly
+        else {
+          AgoraRTM.setArea({areaCodes: includeArea});
+        }
+      } catch (setAeraError) {
+        console.log('error on RTM setArea', setAeraError);
+      }
+    }
 
     window.rtmClient = this.client;
 
@@ -204,16 +233,27 @@ export default class RtmEngine {
       .get(channelId)
       .on('AttributesUpdated', (attributes: RtmChannelAttribute) => {
         /**
-         * a) The following piece of code is commented for future reference.
-         * b) To be used in future implementations of channel attributes
-         * c) Kindly note the below event listener 'ChannelAttributesUpdated' expects type
+         * a) Kindly note the below event listener 'channelAttributesUpdated' expects type
          *    RtmChannelAttribute[] (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
          *    whereas the above listener 'AttributesUpdated' receives attributes in object form
          *    {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
-         * d) Hence in this bridge the data should be modified to keep in sync with both the
+         * b) Hence in this bridge the data should be modified to keep in sync with both the
          *    listeners for web and listener for native
          */
-        // this.channelEventsMap.get('ChannelAttributesUpdated')(attributes); //RN expect evt: any
+        /**
+         * 1. Loop through object
+         * 2. Create a object {key: "", value: ""} and push into array
+         * 3. Return the Array
+         */
+        const channelAttributes = Object.keys(attributes).reduce((acc, key) => {
+          const {value, lastUpdateTs, lastUpdateUserId} = attributes[key];
+          acc.push({key, value, lastUpdateTs, lastUpdateUserId});
+          return acc;
+        }, []);
+
+        this.channelEventsMap.get('ChannelAttributesUpdated')(
+          channelAttributes,
+        );
       });
 
     return this.channelMap.get(channelId).join();
@@ -268,8 +308,8 @@ export default class RtmEngine {
 
   async queryPeersOnlineStatus(uid: Array<String>) {
     let peerArray: Array<any> = [];
-    await this.client.queryPeersOnlineStatus(uid).then((list) => {
-      Object.entries(list).forEach((value) => {
+    await this.client.queryPeersOnlineStatus(uid).then(list => {
+      Object.entries(list).forEach(value => {
         peerArray.push({
           online: value[1],
           uid: value[0],
@@ -296,6 +336,32 @@ export default class RtmEngine {
     return response;
   }
 
+  async getChannelAttributes(channelId: string) {
+    let response = {};
+    await this.client
+      .getChannelAttributes(channelId)
+      .then((attributes: RtmChannelAttribute) => {
+        /**
+         *  Here the attributes received are in the format {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
+         *  We need to convert it into (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
+        /**
+         * 1. Loop through object
+         * 2. Create a object {key: "", value: ""} and push into array
+         * 3. Return the Array
+         */
+        const channelAttributes = Object.keys(attributes).reduce((acc, key) => {
+          const {value, lastUpdateTs, lastUpdateUserId} = attributes[key];
+          acc.push({key, value, lastUpdateTs, lastUpdateUserId});
+          return acc;
+        }, []);
+        response = channelAttributes;
+      })
+      .catch((e: any) => {
+        Promise.reject(e);
+      });
+    return response;
+  }
+
   async removeAllLocalUserAttributes() {
     return this.client.clearLocalUserAttributes();
   }
@@ -306,7 +372,7 @@ export default class RtmEngine {
 
   async replaceLocalUserAttributes(attributes: string[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -316,7 +382,7 @@ export default class RtmEngine {
 
   async setLocalUserAttributes(attributes: string[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -327,7 +393,7 @@ export default class RtmEngine {
 
   async addOrUpdateLocalUserAttributes(attributes: RtmAttribute[]) {
     let formattedAttributes: any = {};
-    attributes.map((attribute) => {
+    attributes.map(attribute => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
@@ -335,28 +401,22 @@ export default class RtmEngine {
     return this.client.addOrUpdateLocalUserAttributes({...formattedAttributes});
   }
 
-  addOrUpdateChannelAttributes(
+  async addOrUpdateChannelAttributes(
     channelId: string,
     attributes: RtmChannelAttribute[],
     option: ChannelAttributeOptions,
   ): Promise<void> {
-    /**
-     * The following piece of code is commented and not deleted
-     * to be used in future implementations of channel attributes
-     */
-
-    // let formattedAttributes: any = {};
-    // attributes.map((attribute) => {
-    //   let key = Object.values(attribute)[0];
-    //   let value = Object.values(attribute)[1];
-    //   formattedAttributes[key] = value;
-    // });
-    // return this.client.addOrUpdateChannelAttributes(
-    //   channelId,
-    //   {...formattedAttributes},
-    //   option,
-    // );
-    return Promise.resolve(); // remove this line when functionality is added to the above function
+    let formattedAttributes: any = {};
+    attributes.map(attribute => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
+    return this.client.addOrUpdateChannelAttributes(
+      channelId,
+      {...formattedAttributes},
+      option,
+    );
   }
 
   async sendLocalInvitation(invitationProps: any) {

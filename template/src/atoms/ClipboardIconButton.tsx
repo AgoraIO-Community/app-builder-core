@@ -8,6 +8,8 @@ import Spacer from './Spacer';
 import ImageIcon from './ImageIcon';
 import Tooltip from './Tooltip';
 import ThemeConfig from '../theme';
+import {shareRoomCopyBtnTooltipText} from '../language/default-labels/shareLinkScreenLabels';
+import {useString} from '../utils/useString';
 
 interface Props {
   text: SHARE_LINK_CONTENT_TYPE;
@@ -17,7 +19,7 @@ interface Props {
 
 const ClipboardIconButton = (props: Props) => {
   const {copyShareLinkToClipboard} = useShareLink();
-
+  const copiedToClipboard = useString(shareRoomCopyBtnTooltipText)();
   const {text, variant = 'primary', size = 26} = props;
 
   const getTintColor = () => {
@@ -29,6 +31,7 @@ const ClipboardIconButton = (props: Props) => {
   return (
     <View style={style.iconContainer}>
       <Tooltip
+        rootTooltipContainer={style.tooltipContainer}
         isClickable
         onPress={() => {
           copyShareLinkToClipboard(text);
@@ -43,7 +46,7 @@ const ClipboardIconButton = (props: Props) => {
             <Spacer size={8} horizontal={true} />
           </>
         }
-        toolTipMessage="Copied to clipboard"
+        toolTipMessage={copiedToClipboard}
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <TouchableOpacity
@@ -71,8 +74,8 @@ export default ClipboardIconButton;
 
 export const style = StyleSheet.create({
   iconContainer: {
-    flex: 0.1,
-    minWidth: 25,
+    flexBasis: 60,
+    height: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
@@ -85,5 +88,12 @@ export const style = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
     borderTopLeftRadius: 0,
+  },
+  tooltipContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    display: 'flex',
+    width: '100%',
+    height: '100%',
   },
 });

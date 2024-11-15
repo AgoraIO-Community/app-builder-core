@@ -13,6 +13,7 @@ import ChatContext from '../components/ChatContext';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -33,8 +34,20 @@ const useFindActiveSpeaker = () => {
   const activeSpeakerUid = useRef(undefined);
 
   const emitActiveSpeaker = (uid: UidType) => {
+    const timenow = Date.now();
     if (uid !== activeSpeakerUid.current) {
       activeSpeakerUid.current = uid;
+      uid
+        ? logger.log(
+            LogSource.Internals,
+            'ACTIVE_SPEAKER',
+            `${'Final Active speaker - '} ${uid}`,
+            {
+              timestamp: timenow,
+              uid: uid,
+            },
+          )
+        : {};
       LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
     }
   };
@@ -268,6 +281,11 @@ const useFindActiveSpeaker = () => {
       // log(' local user speaking stauts', sender, '=', payload);
     } else {
       log(' remote user speaking status ', sender, '=', payload);
+      logger.log(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        `remote user speaking status ${sender} = ${payload}`,
+      );
     }
 
     usersVolume.current = {
@@ -283,8 +301,18 @@ const useFindActiveSpeaker = () => {
   const speakingVolumeEventCallBack = ({payload, sender}) => {
     if (sender == localUid) {
       log(' local user speaking volume ', sender, '=', payload);
+      logger.log(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        `local user speaking volume ${sender} = ${payload}`,
+      );
     } else {
       log(' remote user speaking volume ', sender, '=', payload);
+      logger.log(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        `remote user speaking volume ${sender} = ${payload}`,
+      );
     }
 
     usersVolume.current = {
@@ -299,8 +327,18 @@ const useFindActiveSpeaker = () => {
   const nonSpeakingVolumeEventCallback = ({payload, sender}) => {
     if (sender == localUid) {
       log(' local user non speaking volume ', sender, '=', payload);
+      logger.log(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        `local user non speaking volume ${sender} = ${payload}`,
+      );
     } else {
       log(' remote user non speaking volume ', sender, '=', payload);
+      logger.log(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        `remote user non speaking volume ${sender} = ${payload}`,
+      );
     }
 
     usersVolume.current = {

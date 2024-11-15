@@ -19,8 +19,10 @@ import {
   EventCallback,
   EventSource,
   PersistanceLevel,
+  RTMAttributePayload,
 } from './types';
 import {adjustUID} from '../rtm/utils';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 class Events {
   private source: EventSource = EventSource.core;
@@ -45,8 +47,10 @@ class Events {
       // Step 1: Call RTM API to update local attributes
       await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
     } catch (error) {
-      console.log(
-        'CUSTOM_EVENT_API error occured while updating the value ',
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'error occured while updating the value ',
         error,
       );
     }
@@ -95,7 +99,10 @@ class Events {
    * @param {ReceiverUid} toUid uid or uids[] of user
    * @api private
    */
-  private _send = async (rtmPayload: any, toUid?: ReceiverUid) => {
+  private _send = async (
+    rtmPayload: RTMAttributePayload,
+    toUid?: ReceiverUid,
+  ) => {
     const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
 
@@ -106,18 +113,31 @@ class Events {
       (typeof to === 'number' && to <= 0) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
-      console.log('CUSTOM_EVENT_API: case 1 executed');
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'case 1 executed - sending in channel',
+      );
       try {
         const channelId = RTMEngine.getInstance().channelUid;
         await rtmEngine.sendMessageByChannelId(channelId, text);
       } catch (error) {
-        console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'send event case 1 error',
+          error,
+        );
         throw error;
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'number' && to !== 0) {
-      console.log('CUSTOM_EVENT_API: case 2 executed', to);
+    if (typeof to === 'number' && to >= 0) {
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        `case 2 executed - sending to individual ${to}`,
+      );
       const adjustedUID = adjustUID(to);
       try {
         await rtmEngine.sendMessageToPeer({
@@ -126,14 +146,23 @@ class Events {
           text,
         });
       } catch (error) {
-        console.log('CUSTOM_EVENT_API: send event case 2 error : ', error);
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'send event case 2 error',
+          error,
+        );
         throw error;
       }
     }
     // Case 3: send to multiple individuals
     if (typeof to === 'object' && Array.isArray(to)) {
-      console.log('CUSTOM_EVENT_API: case 3 executed', to);
-
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'case 3 executed - sending to multiple individuals',
+        to,
+      );
       try {
         for (const uid of to) {
           const adjustedUID = adjustUID(uid);
@@ -144,9 +173,40 @@ class Events {
           });
         }
       } catch (error) {
-        console.log('CUSTOM_EVENT_API: send event case 3 error : ', error);
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'send event case 3 error',
+          error,
+        );
         throw error;
       }
+    }
+  };
+
+  private _sendAsChannelAttribute = async (rtmPayload: RTMAttributePayload) => {
+    // Case 1: send to channel
+    logger.debug(
+      LogSource.Events,
+      'CUSTOM_EVENTS',
+      'updating channel attributes',
+    );
+    try {
+      const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+      const channelId = RTMEngine.getInstance().channelUid;
+      const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
+      // Step 1: Call RTM API to update local attributes
+      await rtmEngine.addOrUpdateChannelAttributes(channelId, rtmAttribute, {
+        enableNotificationToChannelMembers: true,
+      });
+    } catch (error) {
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'updating channel attributes error',
+        error,
+      );
+      throw error;
     }
   };
 
@@ -162,8 +222,9 @@ class Events {
    */
   on = (eventName: string, listener: EventCallback): Function => {
     try {
-      if (!this._validateEvt(eventName) || !this._validateListener(listener))
+      if (!this._validateEvt(eventName) || !this._validateListener(listener)) {
         return;
+      }
       EventUtils.addListener(eventName, listener, this.source);
       console.log('CUSTOM_EVENT_API event listener registered', eventName);
       return () => {
@@ -171,7 +232,12 @@ class Events {
         EventUtils.removeListener(eventName, listener, this.source);
       };
     } catch (error) {
-      console.log('CUSTOM_EVENT_API on error: ', error);
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Error: events.on',
+        error,
+      );
     }
   };
 
@@ -202,7 +268,12 @@ class Events {
         EventUtils.removeAll(this.source);
       }
     } catch (error) {
-      console.log('CUSTOM_EVENT_API off error: ', error);
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Error: events.off',
+        error,
+      );
     }
   };
 
@@ -224,7 +295,9 @@ class Events {
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
   ) => {
-    if (!this._validateEvt(eventName)) return;
+    if (!this._validateEvt(eventName)) {
+      return;
+    }
 
     const persistValue = JSON.stringify({
       payload,
@@ -232,7 +305,7 @@ class Events {
       source: this.source,
     });
 
-    const rtmPayload = {
+    const rtmPayload: RTMAttributePayload = {
       evt: eventName,
       value: persistValue,
     };
@@ -244,13 +317,28 @@ class Events {
       try {
         await this._persist(eventName, persistValue);
       } catch (error) {
-        console.log('CUSTOM_EVENT_API persist error: ', error);
+        logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', error);
       }
     }
     try {
-      await this._send(rtmPayload, receiver);
+      logger.log(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        `sending event -> ${eventName}`,
+        persistValue,
+      );
+      if (persistLevel === PersistanceLevel.Channel) {
+        await this._sendAsChannelAttribute(rtmPayload);
+      } else {
+        await this._send(rtmPayload, receiver);
+      }
     } catch (error) {
-      console.log('CUSTOM_EVENT_API: sending failed. ', error);
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'sending event failed',
+        error,
+      );
     }
   };
 }

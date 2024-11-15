@@ -8,6 +8,9 @@ import {
   Image,
   TouchableOpacity,
   ViewStyle,
+  useWindowDimensions,
+  StyleProp,
+  TextStyle,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 
@@ -17,8 +20,12 @@ import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Toggle from './Toggle';
+import {ToolbarItemHide} from './ToolbarPreset';
 
 export interface ActionMenuItem {
+  component?: React.ComponentType;
+  componentName?: string;
+  order?: number;
   isExternalIcon?: boolean;
   externalIconString?: string;
   isBase64Icon?: boolean;
@@ -27,11 +34,15 @@ export interface ActionMenuItem {
   iconColor: string;
   textColor: string;
   title: string;
+  titleStyle?: StyleProp<TextStyle>;
+  label?: string;
   toggleStatus?: boolean;
-  callback: () => void;
+  onPress: () => void;
   onHoverCallback?: (isHovered: boolean) => void;
   onHoverContent?: JSX.Element;
   disabled?: boolean;
+  iconSize?: number;
+  hide?: ToolbarItemHide;
 }
 export interface ActionMenuProps {
   from: string;
@@ -57,99 +68,142 @@ const ActionMenu = (props: ActionMenuProps) => {
     items,
     hoverMode = false,
   } = props;
+  const {width, height} = useWindowDimensions();
 
   const renderItems = () => {
-    return items?.map(
-      (
-        {
-          icon = '',
-          onHoverIcon,
-          isBase64Icon = false,
-          isExternalIcon = false,
-          externalIconString = '',
-          title,
-          toggleStatus,
-          callback,
-          iconColor,
-          textColor,
-          disabled = false,
-          onHoverCallback = undefined,
-          onHoverContent = undefined,
-        },
-        index,
-      ) => (
+    return items?.map((item, index) => {
+      const {hide = false} = item;
+      if (typeof hide === 'boolean' && hide) {
+        return null;
+      }
+
+      try {
+        if (typeof hide === 'function' && hide && hide(width, height)) {
+          return null;
+        }
+      } catch (error) {}
+
+      const {
+        title,
+        label = null,
+        component: CustomActionItem = null,
+        icon = '',
+        onHoverIcon,
+        isBase64Icon = false,
+        isExternalIcon = false,
+        externalIconString = '',
+        toggleStatus,
+        onPress = () => {},
+        iconColor,
+        textColor,
+        disabled = false,
+        onHoverCallback = undefined,
+        onHoverContent = undefined,
+        iconSize = 20,
+        titleStyle = {},
+      } = item;
+      return (
         <PlatformWrapper key={props.from + '_' + title + index}>
           {(isHovered: boolean) => (
             <>
               {/* {onHoverCallback && onHoverCallback(isHovered)} */}
               {isHovered ? onHoverContent ? onHoverContent : <></> : <></>}
-              <TouchableOpacity
-                disabled={disabled}
-                style={[
-                  styles.row,
-                  isHovered && !disabled
-                    ? //first item should have border-radius on top left and top right
-                      index === 0
-                      ? styles.rowHoveredFirstChild
-                      : //last item should have border-radius on bottom left and top right
-                      items?.length - 1 === index
-                      ? styles.rowHoveredLastChild
-                      : //middle items don't need any border-radius
-                        styles.rowHoveredMiddleItems
-                    : {},
-                  disabled ? {opacity: 0.4} : {},
-                  items?.length - 1 === index
-                    ? {borderBottomColor: 'transparent'}
-                    : {},
-                ]}
-                onPress={callback}
-                key={icon + index}>
-                <View style={styles.iconContainer}>
-                  {isExternalIcon ? (
-                    <ImageIcon
-                      base64={isBase64Icon}
-                      base64TintColor={iconColor}
-                      iconType="plain"
-                      iconSize={20}
-                      icon={externalIconString}
-                      tintColor={iconColor}
-                    />
-                  ) : (
-                    <ImageIcon
-                      base64={isBase64Icon}
-                      base64TintColor={iconColor}
-                      iconType="plain"
-                      iconSize={20}
-                      name={
-                        isHovered && onHoverIcon && !disabled
-                          ? onHoverIcon
-                          : icon
-                      }
-                      tintColor={iconColor}
-                    />
-                  )}
-                </View>
-                <Text
-                  style={[styles.text, textColor ? {color: textColor} : {}]}>
-                  {title}
-                </Text>
-                {toggleStatus !== undefined && toggleStatus !== null ? (
-                  <View style={styles.toggleContainer}>
-                    <Toggle
-                      disabled={disabled}
-                      isEnabled={toggleStatus}
-                      toggleSwitch={callback}
-                    />
+              {CustomActionItem ? (
+                <TouchableOpacity
+                  disabled={disabled}
+                  onPress={onPress}
+                  style={[
+                    styles.row,
+                    isHovered && !disabled
+                      ? //first item should have border-radius on top left and top right
+                        index === 0
+                        ? styles.rowHoveredFirstChild
+                        : //last item should have border-radius on bottom left and top right
+                        items?.length - 1 === index
+                        ? styles.rowHoveredLastChild
+                        : //middle items don't need any border-radius
+                          styles.rowHoveredMiddleItems
+                      : {},
+                    disabled ? {opacity: 0.4} : {},
+                    items?.length - 1 === index
+                      ? {borderBottomColor: 'transparent'}
+                      : {},
+                  ]}>
+                  <CustomActionItem />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  disabled={disabled}
+                  style={[
+                    styles.row,
+                    isHovered && !disabled
+                      ? //first item should have border-radius on top left and top right
+                        index === 0
+                        ? styles.rowHoveredFirstChild
+                        : //last item should have border-radius on bottom left and top right
+                        items?.length - 1 === index
+                        ? styles.rowHoveredLastChild
+                        : //middle items don't need any border-radius
+                          styles.rowHoveredMiddleItems
+                      : {},
+                    disabled ? {opacity: 0.4} : {},
+                    items?.length - 1 === index
+                      ? {borderBottomColor: 'transparent'}
+                      : {},
+                  ]}
+                  onPress={onPress}
+                  key={icon + index}>
+                  <View style={styles.iconContainer}>
+                    {isExternalIcon ? (
+                      <ImageIcon
+                        base64={isBase64Icon}
+                        base64TintColor={iconColor}
+                        iconType="plain"
+                        iconSize={iconSize}
+                        icon={externalIconString}
+                        tintColor={iconColor}
+                      />
+                    ) : (
+                      <ImageIcon
+                        base64={isBase64Icon}
+                        base64TintColor={iconColor}
+                        iconType="plain"
+                        iconSize={iconSize}
+                        name={
+                          isHovered && onHoverIcon && !disabled
+                            ? onHoverIcon
+                            : icon
+                        }
+                        tintColor={iconColor}
+                      />
+                    )}
                   </View>
-                ) : (
-                  <></>
-                )}
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.text,
+                      titleStyle,
+                      textColor ? {color: textColor} : {},
+                    ]}>
+                    {label || title}
+                  </Text>
+                  {toggleStatus !== undefined && toggleStatus !== null ? (
+                    <View style={styles.toggleContainer}>
+                      <Toggle
+                        disabled={disabled}
+                        isEnabled={toggleStatus}
+                        toggleSwitch={onPress}
+                      />
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                </TouchableOpacity>
+              )}
             </>
           )}
         </PlatformWrapper>
-      ),
-    );
+      );
+    });
   };
 
   return (
@@ -222,6 +276,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     zIndex: 1,
     elevation: 1,
+    minWidth: 180,
   },
   rowHoveredMiddleItems: {
     backgroundColor:
@@ -243,8 +298,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
     flexDirection: 'row',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   iconContainer: {
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,

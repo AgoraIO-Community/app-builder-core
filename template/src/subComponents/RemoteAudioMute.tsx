@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useRef, useState} from 'react';
-import {useWindowDimensions} from 'react-native';
+import {useWindowDimensions, ViewStyle} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/useIsPSTN';
 import useMutePSTN from '../utils/useMutePSTN';
@@ -18,7 +18,7 @@ import Styles from '../components/styles';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
-import {useContent} from 'customization-api';
+import {I18nMuteType, useContent} from 'customization-api';
 import {calculatePosition} from '../utils/common';
 import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 export interface RemoteAudioMuteProps {
@@ -26,6 +26,7 @@ export interface RemoteAudioMuteProps {
   audio: boolean;
   isHost: boolean;
   userContainerRef: any;
+  iconContainerStyle?: ViewStyle;
 }
 /**
  * Component to mute / unmute remote audio.
@@ -34,7 +35,7 @@ export interface RemoteAudioMuteProps {
  */
 const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const btnRef = useRef(null);
-  const {isHost = false, userContainerRef} = props;
+  const {isHost = false, userContainerRef, iconContainerStyle = {}} = props;
   const muteRemoteAudio = useRemoteMute();
   const requestRemoteAudio = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
@@ -61,7 +62,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
     <>
       <RemoteMutePopup
         action={props?.audio ? 'mute' : 'request'}
-        type="audio"
+        type={I18nMuteType.audio}
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
         name={defaultContent[props.uid]?.name}
@@ -69,7 +70,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
         onMutePress={onPress}
       />
       <IconButton
-        setRef={(ref) => (btnRef.current = ref)}
+        setRef={ref => (btnRef.current = ref)}
         disabled={!isHost}
         onPress={() => {
           btnRef?.current?.measure(
@@ -100,7 +101,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
           borderRadius: 20,
         }}
         iconProps={{
-          iconContainerStyle: {padding: 8},
+          iconContainerStyle: {...iconContainerStyle},
           iconSize: 20,
           iconType: 'plain',
           name: props.audio ? 'mic-on' : 'mic-off',

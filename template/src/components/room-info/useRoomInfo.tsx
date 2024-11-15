@@ -14,6 +14,7 @@ import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
 import {LanguageType} from '../../subComponents/caption/utils';
 import {BoardColor} from '../whiteboard/WhiteboardConfigure';
+import {joinRoomPreference} from '../../utils/useJoinRoom';
 
 export enum WaitingRoomStatus {
   NOT_REQUESTED = 1,
@@ -21,32 +22,53 @@ export enum WaitingRoomStatus {
   APPROVED = 3,
   REJECTED = 4,
 }
+
+export interface RoomData {
+  isHost: boolean;
+  meetingTitle: string;
+  roomId: {
+    attendee: string;
+    host?: string;
+  };
+  pstn?: {
+    number: string;
+    pin: string;
+    error?: {
+      code?: number;
+      message?: string;
+    };
+  };
+  whiteboard?: {
+    room_uuid: string;
+    room_token: string;
+    error?: {
+      code?: number;
+      message?: string;
+    };
+  };
+  chat?: {
+    user_token: string;
+    group_id: string;
+    is_group_owner: boolean;
+    error?: {
+      code?: number;
+      message?: string;
+    };
+  };
+  isSeparateHostLink: boolean;
+  channel?: string;
+  uid?: UidType;
+  token?: string;
+  rtmToken?: string;
+  encryptionSecret?: string;
+  encryptionSecretSalt?: Uint8Array;
+  screenShareUid?: string;
+  screenShareToken?: string;
+}
+
 export interface RoomInfoContextInterface {
   isJoinDataFetched?: boolean;
-  data?: {
-    isHost: boolean;
-    meetingTitle: string;
-    roomId: {
-      attendee: string;
-      host?: string;
-    };
-    pstn?: {
-      number: string;
-      pin: string;
-    };
-    whiteboard?: {
-      room_uuid: string;
-      room_token: string;
-    };
-    isSeparateHostLink: boolean;
-    channel?: string;
-    uid?: UidType;
-    token?: string;
-    rtmToken?: string;
-    encryptionSecret?: string;
-    screenShareUid?: string;
-    screenShareToken?: string;
-  };
+  data?: RoomData;
   isInWaitingRoom?: boolean;
   waitingRoomStatus?: WaitingRoomStatus;
   isWhiteBoardOn?: boolean;
@@ -59,9 +81,10 @@ export interface RoomInfoContextInterface {
     prevLang?: LanguageType[];
     newLang?: LanguageType[];
     uid?: UidType;
-    langChanged?: Boolean;
+    langChanged?: boolean;
   };
   isSTTActive?: boolean;
+  roomPreference?: joinRoomPreference;
 }
 
 export const validateMeetingInfoData = (
@@ -102,6 +125,10 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
       attendee: '',
     },
     isSeparateHostLink: true,
+  },
+  roomPreference: {
+    disableShareTile: false,
+    disableVideoProcessors: false,
   },
 };
 

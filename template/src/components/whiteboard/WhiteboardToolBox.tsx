@@ -25,6 +25,24 @@ import {BoardColor} from './WhiteboardConfigure';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import StrokeWidthTool from './StrokeWidthTool';
 import {useVideoCall} from '../../components/useVideoCall';
+import {useString} from '../../utils/useString';
+import {
+  whiteboardFileUploadErrorToastHeading,
+  whiteboardFileUploadInfoToastHeading,
+  whiteboardFileUploadTypeErrorToastHeading,
+  whiteboardFileUploadTypeErrorToastSubHeading,
+  whiteboardToolboxClearAllText,
+  whiteboardToolboxEraseText,
+  whiteboardToolboxLaserText,
+  whiteboardToolboxMoveText,
+  whiteboardToolboxPxLabel,
+  whiteboardToolboxSelectText,
+  whiteboardToolboxTextFormatting,
+  whiteboardToolboxUploadText,
+  whiteboardToolboxWidthLabel,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import getUniqueID from '../../utils/getUniqueID';
 
 const supportedDocTypes = [
   'application/msword',
@@ -196,6 +214,29 @@ const TEST_IMAGE_DATA = {
 };
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
+  const whiteboardFileUploadErrorToastHeadingTT = useString<'File' | 'Image'>(
+    whiteboardFileUploadErrorToastHeading,
+  );
+  const whiteboardFileUploadInfoToastHeadingTT = useString<'File' | 'Image'>(
+    whiteboardFileUploadInfoToastHeading,
+  );
+  const whiteboardFileUploadTypeErrorToastHeadingTT = useString(
+    whiteboardFileUploadTypeErrorToastHeading,
+  )();
+  const whiteboardFileUploadTypeErrorToastSubHeadingTT = useString(
+    whiteboardFileUploadTypeErrorToastSubHeading,
+  )();
+
+  const selectLabel = useString(whiteboardToolboxSelectText)();
+  const textLabel = useString(whiteboardToolboxTextFormatting)();
+  const moveLabel = useString(whiteboardToolboxMoveText)();
+  const laserLabel = useString(whiteboardToolboxLaserText)();
+  const eraserLabel = useString(whiteboardToolboxEraseText)();
+  const uploadLabel = useString(whiteboardToolboxUploadText)();
+  const clearAllLabel = useString(whiteboardToolboxClearAllText)();
+
+  const toolWidthLabel = useString(whiteboardToolboxWidthLabel)();
+  const toolPxLabel = useString(whiteboardToolboxPxLabel)();
   const [selectedTool, setSelectedTool] = useState(ApplianceNames.pencil);
   const {setShowWhiteboardClearAllPopup} = useVideoCall();
   const [roomState, setRoomState] = useState(whiteboardRoom?.current?.state);
@@ -280,11 +321,46 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         headers: myHeaders,
         body: selectedFile,
       };
+      const startReqTsUpload = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'whiteboard_s3_upload',
+        'API whiteboard_s3_upload trying to send request to server',
+        {
+          startReqTs: startReqTsUpload,
+          uploadURL: url,
+          fileType: selectedFile?.type,
+        },
+      );
       fetch(url, requestOptions)
-        .then(() => {
+        .then(res => {
+          const endReqTsUpload = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'whiteboard_s3_upload success',
+            {
+              fileType: selectedFile?.type,
+              responseData: res,
+              startReqTs: startReqTsUpload,
+              endReqTs: endReqTsUpload,
+              latency: endReqTsUpload - startReqTsUpload,
+            },
+          );
+          const requestId = getUniqueID();
+          const startReqTs = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_fileconvert',
+            'API whiteboard_fileconvert trying to send request to server',
+            {requestId, startReqTs, fileType: selectedFile?.type},
+          );
           const myHeaders2 = new Headers();
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+          myHeaders2.append('X-Request-Id', requestId);
+          myHeaders2.append('X-Session-Id', logger.getSessionId());
+
           const body = JSON.stringify({
             resource_url: url,
             passphrase: roomId?.host,
@@ -297,32 +373,71 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             body: body,
           })
             .then(res2 => {
-              console.log('debugging file convert success', res2);
+              const endReqTs = Date.now();
+              logger.log(
+                LogSource.NetworkRest,
+                'whiteboard_fileconvert',
+                'file convert success',
+                {
+                  fileType: selectedFile?.type,
+                  responseData: res2,
+                  requestId,
+                  startReqTs,
+                  endReqTs,
+                  latency: endReqTs - startReqTs,
+                },
+              );
               //updating upload flag as true
               //once we got RTM message we will proceed to insert image into whiteboard
               setUploadRef();
             })
             .catch(err2 => {
-              console.log('debugging file convert failed', err2);
+              const endReqTs = Date.now();
+              logger.error(
+                LogSource.NetworkRest,
+                'whiteboard_fileconvert',
+                'file convert failed',
+                err2,
+                {
+                  fileType: selectedFile?.type,
+                  requestId,
+                  startReqTs,
+                  endReqTs,
+                  latency: endReqTs - startReqTs,
+                },
+              );
               Toast.show({
                 type: 'error',
-                text1: 'Error on uploading file, please try again.',
+                text1: whiteboardFileUploadErrorToastHeadingTT('File'),
                 visibilityTime: 10000,
               });
             });
         })
-        .catch(() => {
+        .catch(error => {
+          const endReqTsUpload = Date.now();
+          logger.error(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'API whiteboard_s3_upload failed',
+            error,
+            {
+              fileType: selectedFile?.type,
+              startReqT: startReqTsUpload,
+              endReqTs: endReqTsUpload,
+              latency: endReqTsUpload - startReqTsUpload,
+            },
+          );
           Toast.show({
             type: 'error',
-            text1: 'Error on uploading file, please try again.',
+            text1: whiteboardFileUploadErrorToastHeadingTT('File'),
             visibilityTime: 10000,
           });
         });
     } else {
-      console.log('debugging upload url is empty');
+      logger.debug(LogSource.Internals, 'WHITEBOARD', 'upload url is empty');
       Toast.show({
         type: 'error',
-        text1: 'Error on uploading file, please try again.',
+        text1: whiteboardFileUploadErrorToastHeadingTT('File'),
         visibilityTime: 10000,
       });
     }
@@ -343,11 +458,48 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         headers: myHeaders,
         body: selectedFile,
       };
+      const startReqTsS3 = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'whiteboard_s3_upload',
+        'Trying to upload image into s3',
+        {
+          uploadURL: url,
+          startReqTs: startReqTsS3,
+        },
+      );
       fetch(url, requestOptions)
-        .then(() => {
+        .then(res => {
+          const endReqTsS3 = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'Uploaded image into s3 - success',
+            {
+              responseData: res,
+              startReqTs: startReqTsS3,
+              endReqTs: endReqTsS3,
+              latency: endReqTsS3 - startReqTsS3,
+            },
+          );
+
+          const requestId = getUniqueID();
+          const startReqTs = Date.now();
+          logger.log(
+            LogSource.NetworkRest,
+            'whiteboard_get_s3_signed_url',
+            'Trying to get signed url for s3 uploaded image',
+            {
+              uploadURL: url,
+              startReqTs,
+              requestId,
+            },
+          );
           const myHeaders2 = new Headers();
           myHeaders2.append('Content-Type', 'application/json');
           myHeaders2.append('Authorization', `Bearer ${store?.token}`);
+          myHeaders2.append('X-Request-Id', requestId);
+          myHeaders2.append('X-Session-Id', logger.getSessionId());
           const body = JSON.stringify({
             resource_url: url,
           });
@@ -357,34 +509,95 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             body: body,
           })
             .then(async res2 => {
+              const endReqTs = Date.now();
               const jsonData = await res2.json();
               if (jsonData && jsonData?.url) {
+                logger.log(
+                  LogSource.NetworkRest,
+                  'whiteboard_get_s3_signed_url',
+                  'Got the signed url for s3 uploaded image',
+                  {
+                    responseData: res2,
+                    startReqTs,
+                    endReqTs,
+                    latency: endReqTs - startReqTs,
+                    requestId,
+                  },
+                );
                 const imageUrl = jsonData?.url?.replaceAll('\u0026', '&');
                 insertImageIntoWhiteboard(imageUrl);
+              } else {
+                logger.error(
+                  LogSource.NetworkRest,
+                  'whiteboard_get_s3_signed_url',
+                  'API success But failed to get signed url for s3 uploaded image',
+                  new Error(
+                    'API whiteboard_get_s3_signed_url success But failed to get signed url for s3 uploaded image',
+                  ),
+                  {
+                    responseData: res2,
+                    startReqTs,
+                    endReqTs,
+                    latency: endReqTs - startReqTs,
+                    requestId,
+                  },
+                );
+                Toast.show({
+                  type: 'error',
+                  text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
+                  visibilityTime: 10000,
+                });
               }
-              console.log('debugging image upload success', res2);
             })
             .catch(err2 => {
-              console.log('debugging error get image url', err2);
+              const endReqTs = Date.now();
+              logger.error(
+                LogSource.NetworkRest,
+                'whiteboard_get_s3_signed_url',
+                'Failed to get image URL',
+                err2,
+                {
+                  startReqTs,
+                  endReqTs,
+                  latency: endReqTs - startReqTs,
+                  requestId,
+                },
+              );
               Toast.show({
                 type: 'error',
-                text1: 'Error on uploading image, please try again.',
+                text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
                 visibilityTime: 10000,
               });
             });
         })
-        .catch(() => {
+        .catch(error => {
+          const endReqTsS3 = Date.now();
+          logger.error(
+            LogSource.NetworkRest,
+            'whiteboard_s3_upload',
+            'Failed to upload image into s3',
+            error,
+            {
+              startReqTs: startReqTsS3,
+              endReqTs: endReqTsS3,
+              latency: endReqTsS3 - startReqTsS3,
+            },
+          );
           Toast.show({
             type: 'error',
-            text1: 'Error on uploading image, please try again.',
+            text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
             visibilityTime: 10000,
           });
         });
     } else {
-      console.log('debugging image upload url is empty');
+      logger.error(
+        LogSource.Internals,
+        'WHITEBOARD',
+        'image upload url is empty',
+      );
       Toast.show({
         type: 'error',
-        text1: 'Error on uploading image, please try again.',
+        text1: whiteboardFileUploadErrorToastHeadingTT('Image'),
         visibilityTime: 10000,
       });
     }
@@ -400,20 +613,35 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         /**
          * Get URL to upload the file
          */
+        const requestId = getUniqueID();
+        const startReqTs = Date.now();
+        logger.log(
+          LogSource.NetworkRest,
+          'whiteboard_get_s3_upload_url',
+          'API whiteboard_get_s3_upload_url trying to send request to server',
+          {requestId, startReqTs},
+        );
         fetch(`${$config.BACKEND_ENDPOINT}/v1/whiteboard/upload`, {
           method: 'GET',
           headers: {
             authorization: store?.token ? `Bearer ${store?.token}` : '',
+            'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
           },
         })
           .then(async res => {
+            const endReqTs = Date.now();
+            logger.log(
+              LogSource.NetworkRest,
+              'whiteboard_get_s3_upload_url',
+              'API whiteboard_get_upload get url success',
+              {requestId, startReqTs, endReqTs, latency: endReqTs - startReqTs},
+            );
             const data = await res.json();
-
             if (supportedImageType?.indexOf(selectedFile?.type) !== -1) {
               Toast.show({
                 type: 'info',
-                text1:
-                  'Image Upload will take few seconds to appear in whiteboard',
+                text1: whiteboardFileUploadInfoToastHeadingTT('Image'),
                 visibilityTime: 5000,
                 primaryBtn: null,
                 secondaryBtn: null,
@@ -422,8 +650,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             } else {
               Toast.show({
                 type: 'info',
-                text1:
-                  'Document Upload will take few seconds to appear in whiteboard',
+                text1: whiteboardFileUploadInfoToastHeadingTT('File'),
                 visibilityTime: 5000,
                 primaryBtn: null,
                 secondaryBtn: null,
@@ -431,28 +658,39 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
               fileUploadAndConvert(data, selectedFile);
             }
           })
-          .catch(err => {
-            console.log('debugging upload api failed', err);
+          .catch(error => {
+            const endReqTs = Date.now();
+            logger.error(
+              LogSource.NetworkRest,
+              'whiteboard_get_s3_upload_url',
+              'get upload url api failed',
+              error,
+              {
+                requestId,
+                startReqTs,
+                endReqTs,
+                latency: endReqTs - startReqTs,
+              },
+            );
             Toast.show({
               type: 'error',
-              text1: 'Error on uploading file, please try again.',
+              text1: whiteboardFileUploadErrorToastHeadingTT('File'),
               visibilityTime: 10000,
             });
           });
       } else {
-        console.log('debugging unsupported file');
+        logger.error(LogSource.Internals, 'WHITEBOARD', 'unsupported file');
         Toast.show({
           type: 'error',
-          text1: 'Unsupported file',
-          text2:
-            'Please select file format with pdf, doc, docx, ppt, pptx, png, jpg, jpeg',
+          text1: whiteboardFileUploadTypeErrorToastHeadingTT,
+          text2: whiteboardFileUploadTypeErrorToastSubHeadingTT,
           visibilityTime: 10000,
         });
       }
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Error on uploading file, please try again.',
+        text1: whiteboardFileUploadErrorToastHeadingTT('File'),
         visibilityTime: 10000,
       });
     }
@@ -694,6 +932,8 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
           <View style={style.toolboxPencilContainer}>
             <View style={style.toolboxPencilColor}>
               <StrokeWidthTool
+                widthLabel={toolWidthLabel}
+                pxLabel={toolPxLabel}
                 room={whiteboardRoom?.current}
                 roomState={roomState}
                 setPrevValue={value => {
@@ -725,7 +965,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
         }>
         <View style={style.toolboxNew} nativeID="toolbox">
           <IconButton
-            toolTipMessage="Select"
+            toolTipMessage={selectLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -752,7 +992,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}
           />
           <IconButton
-            toolTipMessage="Text"
+            toolTipMessage={textLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -880,7 +1120,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             />
           </div>
           <IconButton
-            toolTipMessage="Move"
+            toolTipMessage={moveLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -901,7 +1141,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}
           />
           <IconButton
-            toolTipMessage="Laser"
+            toolTipMessage={laserLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -945,7 +1185,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             }}
           /> */}
           <IconButton
-            toolTipMessage="Erase"
+            toolTipMessage={eraserLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -986,7 +1226,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
                   }
                   document.getElementById('docpicker').click();
                 }}
-                toolTipMessage="Upload Document or Image"
+                toolTipMessage={uploadLabel}
                 placement={'right'}
                 showTooltipArrow={false}
                 hoverEffect={true}
@@ -1004,7 +1244,7 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
             <></>
           )}
           <IconButton
-            toolTipMessage="Clear All"
+            toolTipMessage={clearAllLabel}
             placement={'right'}
             showTooltipArrow={false}
             onPress={() => {
@@ -1048,11 +1288,14 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     padding: 4,
     borderRadius: 4,
+    width: 32,
+    height: 32,
   },
-
   itemDefaultStyle: {
     padding: 4,
     borderRadius: 4,
+    width: 32,
+    height: 32,
   },
   itemHoverStyle: {
     backgroundColor: $config.CARD_LAYER_4_COLOR,

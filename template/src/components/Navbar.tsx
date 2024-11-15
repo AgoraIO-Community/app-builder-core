@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -21,51 +21,49 @@ import Settings, {
   SettingsWithViewWrapper,
   SettingsIconButtonProps,
 } from './Settings';
-import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import LiveStreamContext from './livestream';
-import {numFormatter} from '../utils/index';
-import {useLayout} from '../utils/useLayout';
+import {filterObject, numFormatter} from '../utils/index';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   BREAKPOINTS,
-  CustomToolbarSort,
-  isAndroid,
+  CustomToolbarMerge,
+  CustomToolbarSorting,
   isIOS,
-  isMobileUA,
-  isValidReactComponent,
   isWebInternal,
   trimText,
-  useIsDesktop,
 } from '../utils/common';
-import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
-import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import {useString} from '../utils/useString';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
-import LayoutIconButton from '../subComponents/LayoutIconButton';
-import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
-import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import Spacer from '../atoms/Spacer';
-import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import ParticipantsCount from '../atoms/ParticipantsCount';
-import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
-import ToolbarItem from '../atoms/ToolbarItem';
-import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
+import {
+  ToolbarItemHide,
+  ToolbarItemLabel,
+  TopToolbarItemsConfig,
+  ToolbarPresetProps,
+} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
 import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
+import {
+  toolbarItemChatText,
+  toolbarItemPeopleText,
+  videoRoomRecordingText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {useLanguage} from '../language/useLanguage';
+import Toast from '../../react-native-toast-message';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -73,9 +71,10 @@ export const ParticipantsCountView = ({
   isMobileView?: boolean;
 }) => {
   const {onlineUsersCount} = useContext(ChatContext);
+  const peopleLabel = useString(toolbarItemPeopleText)();
   return isMobileView ? (
     <Text>
-      People {'\n'} ({numFormatter(onlineUsersCount)})
+      {peopleLabel} {'\n'} ({numFormatter(onlineUsersCount)})
     </Text>
   ) : (
     <>
@@ -104,6 +103,7 @@ export interface ParticipantsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {
     liveStreamingRequestAlertIconPosition = {
@@ -115,13 +115,10 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   } = props;
   const {isOnActionSheet, showLabel} = useActionSheet();
   const {sidePanel, setSidePanel} = useSidePanel();
-  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
-    useContext(LiveStreamContext);
-  //commented for v1 release
-  //const participantsLabel = useString('participantsLabel')();
+  const {isPendingRequestToReview} = useContext(LiveStreamContext);
+
   const {waitingRoomUids} = useWaitingRoomContext();
-  //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
-  const participantsLabel = `People`;
+  const participantsLabel = useString(toolbarItemPeopleText)();
   const isPanelActive = sidePanel === SidePanelType.Participants;
   const {
     data: {isHost},
@@ -137,7 +134,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     //setLastCheckedRequestTimestamp(new Date().getTime());
   };
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       name: 'participants',
       tintColor: isPanelActive
@@ -148,7 +145,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: showLabel ? participantsLabel : '',
+      text: showLabel ? label || participantsLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
@@ -225,8 +222,15 @@ export interface ChatIconButtonProps {
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isToolbarMenuItem} = useToolbarMenu();
+  const {data} = useRoomInfo();
+  //disable chat button when BE sends error on chat
+  const ChatError =
+    data?.chat?.error && (data?.chat?.error?.code || data?.chat?.error?.message)
+      ? true
+      : false;
   const {
     badgeContainerPosition = {
       top: 0,
@@ -235,18 +239,12 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       bottom: undefined,
       zIndex: 999,
     },
-    badgeTextStyle = {
-      color: $config.PRIMARY_ACTION_TEXT_COLOR,
-      fontSize: 12,
-      textAlign: 'center',
-    },
   } = props;
-  const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
+  const {totalUnreadCount} = useChatNotification();
   const {setChatType, setPrivateChatUser} = useChatUIControls();
 
-  //commented for v1 release
-  //const chatLabel = useString('chatLabel')();
-  const chatLabel = 'Chat';
+  const chatLabel = useString(toolbarItemChatText)();
+
   const isPanelActive = sidePanel === SidePanelType.Chat;
 
   //when chat panel is close then we need to show the toast notification. for that
@@ -259,7 +257,27 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   }, [sidePanel]);
 
   const onPress = () => {
-    {
+    if (ChatError) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'Failed to enable Chat Service.',
+        text2: data?.chat?.error?.message,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+        leadingIcon: null,
+      });
+      logger.error(
+        LogSource.Internals,
+        'JOIN_MEETING',
+        'Failed to enable Chat Service',
+        {
+          message: data?.chat?.error?.message,
+          code: data?.chat?.error?.code,
+        },
+      );
+    } else {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
         setChatType(ChatType.Group);
@@ -274,7 +292,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   };
   const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     iconProps: {
       name: 'chat-nav',
       tintColor: isPanelActive
@@ -285,20 +303,12 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: showLabel ? chatLabel : '',
+      text: showLabel ? label || chatLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
 
   if (isOnActionSheet) {
-    // iconButtonProps.containerStyle = {
-    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
-    //   width: 52,
-    //   height: 52,
-    //   borderRadius: 26,
-    //   justifyContent: 'center',
-    //   alignItems: 'center',
-    // };
     iconButtonProps.btnTextProps.textStyle = {
       color: $config.FONT_COLOR,
       marginTop: 8,
@@ -310,30 +320,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  // const renderBadgeOld = (badgeCount: any) => {
-  //   return (
-  //     <View
-  //       style={{
-  //         position: 'absolute',
-  //         top: badgeContainerPosition?.top,
-  //         bottom: badgeContainerPosition?.bottom,
-  //         left: badgeContainerPosition?.left,
-  //         right: badgeContainerPosition?.right,
-  //         borderRadius: 10,
-  //         width: 20,
-  //         height: 20,
-  //         backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-  //         justifyContent: 'center',
-  //       }}>
-  //       <Text
-  //         style={{
-  //           ...badgeTextStyle,
-  //         }}>
-  //         {numFormatter(badgeCount)}
-  //       </Text>
-  //     </View>
-  //   );
-  // };
   const renderUnreadMessageIndicator = () => {
     return (
       <View
@@ -347,7 +333,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           width: 12,
           height: 12,
           backgroundColor: $config.SEMANTIC_ERROR,
-        }}></View>
+        }}
+      />
     );
   };
   return props?.render ? (
@@ -367,17 +354,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     </>
   );
 };
-
-interface LayoutIconButtonProps {
-  modalPosition?: {
-    top?: number;
-    right?: number;
-    left?: number;
-    bottom?: number;
-  };
-
-  render?: (onPress: () => void) => JSX.Element;
-}
 
 export const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
@@ -422,143 +398,201 @@ export const ParticipantCountToolbarItem = () => {
   );
 };
 export const RecordingStatusToolbarItem = () => {
-  const recordingLabel = 'Recording';
+  const recordingLabel = useString(videoRoomRecordingText)(
+    $config.RECORDING_MODE,
+  );
   const {isRecordingActive} = useRecording();
   return isRecordingActive ? (
     <ToolbarItem>
-      <RecordingInfo recordingLabel={recordingLabel} />
+      <View
+        style={{
+          width: 45,
+          height: 35,
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignSelf: 'center',
+          zIndex: isWebInternal() ? 3 : 0,
+        }}>
+        <RecordingInfo recordingLabel={recordingLabel} />
+      </View>
     </ToolbarItem>
   ) : (
     <></>
   );
 };
-const defaultStartItems: ToolbarCustomItem[] = [
-  {
-    align: 'start',
-    component: MeetingTitleToolbarItem,
-    order: 0,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: ParticipantCountToolbarItem,
-    order: 1,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: RecordingStatusToolbarItem,
-    order: 2,
-    hide: 'no',
-  },
-];
-const defaultCenterItems: ToolbarCustomItem[] = [];
 
-export const ParticipantToolbarItem = () => {
+export const ParticipantToolbarItem = props => {
   return (
-    <ToolbarItem testID="videocall-participantsicon">
+    <ToolbarItem testID="videocall-participantsicon" toolbarProps={props}>
       <ParticipantsIconButton />
     </ToolbarItem>
   );
 };
 
-export const ChatToolbarItem = () => {
+export const ChatToolbarItem = props => {
   return (
     $config.CHAT && (
       <>
-        <ToolbarItem testID="videocall-chaticon">
+        <ToolbarItem testID="videocall-chaticon" toolbarProps={props}>
           <ChatIconButton />
         </ToolbarItem>
       </>
     )
   );
 };
-export const SettingsToobarItem = () => {
+export const SettingsToobarItem = props => {
   return (
-    <ToolbarItem testID="videocall-settingsicon">
+    <ToolbarItem testID="videocall-settingsicon" toolbarProps={props}>
       <SettingsIconButtonWithWrapper />
     </ToolbarItem>
   );
 };
 
-const defaultEndItems: ToolbarCustomItem[] = [
-  {
+const defaultItems: TopToolbarItemsConfig = {
+  'meeting-title': {
     align: 'start',
+    component: MeetingTitleToolbarItem,
+    order: 0,
+  },
+  'participant-count': {
+    align: 'start',
+    component: ParticipantCountToolbarItem,
+    order: 1,
+  },
+  'recording-status': {
+    align: 'start',
+    component: RecordingStatusToolbarItem,
+    order: 2,
+  },
+  participant: {
+    align: 'end',
     component: ParticipantToolbarItem,
     order: 0,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-  {
-    align: 'start',
+  chat: {
+    align: 'end',
     component: ChatToolbarItem,
     order: 1,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-  {
-    align: 'start',
+  settings: {
+    align: 'end',
     component: SettingsToobarItem,
     order: 2,
-    hide: 'no',
+    hide: w => {
+      return w < BREAKPOINTS.lg ? true : false;
+    },
   },
-];
+};
 
 export interface NavbarProps {
-  customItems?: ToolbarCustomItem[];
+  items?: ToolbarPresetProps['items'];
   includeDefaultItems?: boolean;
 }
 const Navbar = (props: NavbarProps) => {
-  //commented for v1 release
-  //const recordingLabel = useString('recordingLabel')();
-  const {customItems = [], includeDefaultItems = true} = props;
-  const {width} = useWindowDimensions();
+  const {includeDefaultItems = true, items = {}} = props;
+  const {width, height} = useWindowDimensions();
+  const {languageCode} = useLanguage();
 
-  const isHidden = i => {
-    return i?.hide === 'yes';
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
   };
 
-  const customStartItems = customItems
-    ?.filter(i => i.align === 'start' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultStartItems : [])
-    ?.sort(CustomToolbarSort);
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    items,
+  );
 
-  const customCenterItems = customItems
-    ?.filter(i => i.align === 'center' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultCenterItems : [])
-    ?.sort(CustomToolbarSort);
+  const startItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'start' && !isHidden(v?.hide),
+  );
+  const centerItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'center' && !isHidden(v?.hide),
+  );
+  const endItems = filterObject(
+    mergedItems,
+    ([_, v]) => v?.align === 'end' && !isHidden(v?.hide),
+  );
 
-  const customEndItems = customItems
-    ?.filter(i => i.align === 'end' && !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultEndItems : [])
-    ?.sort(CustomToolbarSort);
+  const startItemsOrdered = CustomToolbarSorting(startItems);
+  const centerItemsOrdered = CustomToolbarSorting(centerItems);
+  const endItemsOrdered = CustomToolbarSorting(endItems);
+
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
 
   const renderContent = (
-    items: ToolbarCustomItem[],
+    orderedKeys: string[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items?.map((item, index) => {
-      const ToolbarItem = item?.component;
-      if (ToolbarItem) {
-        return <ToolbarItem key={`top-toolbar-${type}` + index} />;
+    const renderContentItem = [];
+    let index = 0;
+    orderedKeys.forEach(keyName => {
+      index = index + 1;
+      let ToolbarComponent = null;
+      let label = null;
+      let onPress = null;
+      if (type === 'start') {
+        ToolbarComponent = startItems[keyName]?.component;
+        label = startItems[keyName]?.label;
+        onPress = startItems[keyName]?.onPress;
+      } else if (type === 'center') {
+        ToolbarComponent = centerItems[keyName]?.component;
+        label = centerItems[keyName]?.label;
+        onPress = centerItems[keyName]?.onPress;
       } else {
-        return null;
+        ToolbarComponent = endItems[keyName]?.component;
+        label = endItems[keyName]?.label;
+        onPress = endItems[keyName]?.onPress;
+      }
+      if (ToolbarComponent) {
+        renderContentItem.push(
+          <ToolbarComponent
+            key={`top-toolbar-${type}` + index}
+            label={customLabel(label)}
+            onPress={onPress}
+          />,
+        );
       }
     });
+
+    return renderContentItem;
   };
+
   return (
     <Toolbar>
       <View style={style.startContent}>
-        {renderContent(customStartItems, 'start')}
+        {renderContent(startItemsOrdered, 'start')}
       </View>
       <View style={style.centerContent}>
-        {renderContent(customCenterItems, 'center')}
+        {renderContent(centerItemsOrdered, 'center')}
       </View>
-      {width > BREAKPOINTS.sm || isMobileUA() ? (
-        <View style={style.endContent}>
-          {renderContent(customEndItems, 'end')}
-        </View>
-      ) : (
-        <></>
-      )}
+      <View style={style.endContent}>
+        {renderContent(endItemsOrdered, 'end')}
+      </View>
     </Toolbar>
   );
 };

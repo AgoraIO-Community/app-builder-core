@@ -21,7 +21,7 @@ import {DispatchContext, RtcContext} from '../../../agora-rn-uikit';
 import {
   useLocalUserInfo,
   useContent,
-  ToolbarCustomItem,
+  ToolbarPresetProps,
 } from 'customization-api';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
@@ -32,12 +32,23 @@ import useAppState from '../../utils/useAppState';
 import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useCustomization} from 'customization-implementation';
-import NavbarMobile from '../../components/NavbarMobile';
+import NavbarMobile, {NavbarProps} from '../../components/NavbarMobile';
 import {useVB} from '../../components/virtual-background/useVB';
 import VBPanel from '../../components/virtual-background/VBPanel';
+import {WhiteboardListener} from '../../components/Controls';
+import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
+import WhiteboardView from '../../components/whiteboard/WhiteboardView';
 
-const VideoCallMobileView = () => {
-  const {isScreenShareOnFullView, screenShareData} = useScreenContext();
+const VideoCallMobileView = props => {
+  const {native = true} = props;
+  const {customContent} = useContent();
+  const {
+    isScreenShareOnFullView,
+    screenShareData,
+    setScreenShareData,
+    setScreenShareOnFullView,
+  } = useScreenContext();
+  const {getWhiteboardUid, isWhiteboardOnFullScreen} = useWhiteboard();
 
   const {RtcEngineUnsafe} = useContext(RtcContext);
   const {dispatch} = useContext(DispatchContext);
@@ -59,6 +70,25 @@ const VideoCallMobileView = () => {
   const {isVBActive, setIsVBActive} = useVB();
   const isVBAvaialble =
     $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && isVBActive;
+
+  useEffect(() => {
+    if (
+      isScreenShareOnFullView &&
+      defaultContent &&
+      !defaultContent[maxScreenShareUid]?.video
+    ) {
+      setScreenShareOnFullView(false);
+      setScreenShareData(prevState => {
+        return {
+          ...prevState,
+          [maxScreenShareUid]: {
+            ...prevState[maxScreenShareUid],
+            isExpanded: !prevState[maxScreenShareUid]?.isExpanded,
+          },
+        };
+      });
+    }
+  }, [defaultContent, maxScreenShareUid, isScreenShareOnFullView]);
 
   useEffect(() => {
     // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
@@ -116,105 +146,139 @@ const VideoCallMobileView = () => {
     return <VBPanel />;
   }
 
+  if (isWhiteboardOnFullScreen) {
+    return (
+      <>
+        {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
+        <VideoRenderer
+          user={{
+            uid: customContent[getWhiteboardUid()]?.uid,
+            type: 'whiteboard',
+            video: 0,
+            audio: 0,
+            parentUid: undefined,
+            name: 'Whiteboard',
+            muted: undefined,
+          }}
+          CustomChild={WhiteboardView}
+        />
+      </>
+    );
+  }
+
   return isScreenShareOnFullView &&
     maxScreenShareUid &&
     defaultContent[maxScreenShareUid] &&
     defaultContent[maxScreenShareUid]?.video ? (
-    <VideoRenderer user={defaultContent[maxScreenShareUid]} />
+    <>
+      {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
+      <VideoRenderer user={defaultContent[maxScreenShareUid]} />
+    </>
   ) : (
-    <VideoCallView />
+    <>
+      {$config.ENABLE_WHITEBOARD ? <WhiteboardListener /> : <></>}
+      <VideoCallView />
+    </>
   );
 };
 
 const VideoCallView = React.memo(() => {
   //toolbar changes
-  const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
-    useCustomization(data => {
-      let components: {
-        BottombarComponent: React.ComponentType;
-        BottombarProps?: ToolbarCustomItem[];
-        TopbarComponent: React.ComponentType;
-        TopbarProps?: ToolbarCustomItem[];
-      } = {
-        BottombarComponent: ActionSheet,
-        BottombarProps: [],
-        //@ts-ignore
-        TopbarComponent: NavbarMobile,
-        TopbarProps: [],
-      };
+
+  const {
+    BottombarComponent,
+    BottombarProps,
+    TopbarComponent,
+    TopbarProps,
+    VideocallWrapper,
+  } = useCustomization(data => {
+    let components: {
+      BottombarComponent: React.ComponentType<any>;
+      BottombarProps?: ToolbarPresetProps['items'];
+      TopbarComponent: React.ComponentType<NavbarProps>;
+      TopbarProps?: ToolbarPresetProps['items'];
+      VideocallWrapper?: React.ComponentType;
+    } = {
+      BottombarComponent: ActionSheet,
+      BottombarProps: {},
+      TopbarComponent: NavbarMobile,
+      TopbarProps: {},
+      VideocallWrapper: ContainerView,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
       if (
-        data?.components?.videoCall &&
-        typeof data?.components?.videoCall === 'object'
+        data?.components?.videoCall?.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.bottomToolBar)
       ) {
-        if (
-          data?.components?.videoCall.bottomToolBar &&
-          typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall.bottomToolBar)
-        ) {
-          components.BottombarComponent =
-            data?.components?.videoCall.bottomToolBar;
-        }
-        if (
-          data?.components?.videoCall.bottomToolBar &&
-          typeof data?.components?.videoCall.bottomToolBar === 'object' &&
-          data?.components?.videoCall.bottomToolBar.length
-        ) {
-          components.BottombarProps = data?.components?.videoCall.bottomToolBar;
-        }
-
-        if (
-          data?.components?.videoCall.topToolBar &&
-          typeof data?.components?.videoCall.topToolBar !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall.topToolBar)
-        ) {
-          components.TopbarComponent = data?.components?.videoCall.topToolBar;
-        }
-
-        if (
-          data?.components?.videoCall.topToolBar &&
-          typeof data?.components?.videoCall.topToolBar === 'object' &&
-          data?.components?.videoCall.topToolBar.length
-        ) {
-          components.TopbarProps = data?.components?.videoCall.topToolBar;
-        }
+        components.BottombarComponent =
+          data?.components?.videoCall.bottomToolBar;
+      }
+      if (
+        data?.components?.videoCall?.bottomToolBar &&
+        typeof data?.components?.videoCall?.bottomToolBar === 'object' &&
+        Object.keys(data?.components?.videoCall.bottomToolBar)?.length
+      ) {
+        components.BottombarProps = data?.components?.videoCall.bottomToolBar;
       }
 
-      return components;
-    });
+      if (
+        data?.components?.videoCall?.topToolBar &&
+        typeof data?.components?.videoCall?.topToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.topToolBar)
+      ) {
+        components.TopbarComponent = data?.components?.videoCall.topToolBar;
+      }
+
+      if (
+        data?.components?.videoCall?.topToolBar &&
+        typeof data?.components?.videoCall?.topToolBar === 'object' &&
+        Object.keys(data?.components?.videoCall.topToolBar).length
+      ) {
+        components.TopbarProps = data?.components?.videoCall.topToolBar;
+      }
+
+      if (
+        data?.components?.videoCall?.wrapper &&
+        typeof data?.components?.videoCall?.wrapper !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.wrapper)
+      ) {
+        components.VideocallWrapper = data?.components?.videoCall.wrapper;
+      }
+    }
+
+    return components;
+  });
 
   return (
-    <View style={styles.container}>
-      <>
-        <ToolbarProvider value={{position: ToolbarPosition.top}}>
-          {TopbarProps?.length ? (
-            <TopbarComponent
-              //@ts-ignore
-              customItems={TopbarProps}
+    <>
+      <ToolbarProvider value={{position: ToolbarPosition.top}}>
+        {Object.keys(TopbarProps)?.length ? (
+          <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
+        ) : (
+          <TopbarComponent />
+        )}
+      </ToolbarProvider>
+      <View style={styles.videoView}>
+        <VideoComponent />
+        <CaptionContainer />
+      </View>
+      <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+        <ActionSheetProvider>
+          {Object.keys(BottombarProps)?.length ? (
+            <BottombarComponent
+              items={BottombarProps}
               includeDefaultItems={false}
             />
           ) : (
-            <TopbarComponent />
+            <BottombarComponent />
           )}
-        </ToolbarProvider>
-        <View style={styles.videoView}>
-          <VideoComponent />
-          <CaptionContainer />
-        </View>
-        <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-          <ActionSheetProvider>
-            {BottombarProps?.length ? (
-              <BottombarComponent
-                //@ts-ignore
-                customItems={BottombarProps}
-                includeDefaultItems={false}
-              />
-            ) : (
-              <BottombarComponent />
-            )}
-          </ActionSheetProvider>
-        </ToolbarProvider>
-      </>
-    </View>
+        </ActionSheetProvider>
+      </ToolbarProvider>
+    </>
   );
 });
 
@@ -247,3 +311,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
 });
+
+const ContainerView = props => {
+  return <View style={styles.container}>{props.children}</View>;
+};

@@ -12,14 +12,11 @@
 import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
-import {
-  ContentInterface,
-  ContentStateInterface,
-  UidType,
-} from '../agora-rn-uikit';
+import {ContentStateInterface} from '../agora-rn-uikit';
 import {I18nInterface} from '../src/language/i18nTypes';
-import {IconsInterface} from '../src/atoms/CustomIcon';
-import {ToolbarCustomItem} from './sub-components';
+import {ToolbarPresetProps} from './sub-components';
+import {TextDataInterface} from '../src/language/default-labels';
+import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -37,6 +34,8 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   deviceSelect?: React.ComponentType;
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
+  virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
+  wrapper?: React.ComponentType;
 }
 export interface ChatCmpInterface {
   //commented for v1 release
@@ -49,14 +48,28 @@ export type LayoutComponent = React.ComponentType<{
   renderData: ContentStateInterface['activeUids'];
 }>;
 
+export interface SidePanelItem {
+  name: string;
+  title: string;
+  component: React.ComponentType;
+  onClose?: () => void;
+}
+
 export interface LayoutItem {
   name: string;
   label: string;
+  translationKey?: keyof TextDataInterface;
   icon: string;
   component: LayoutComponent;
 }
 
-export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
+export type ToolbarType = React.ComponentType | ToolbarPresetProps['items'];
+export type CustomLogger = (
+  message: string,
+  data: any,
+  type: 'debug' | 'error' | 'info' | 'warn',
+) => void;
+
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
   topToolBar?: ToolbarType;
@@ -66,8 +79,12 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   chat?: ChatCmpInterface;
+  captionPanel?: React.ComponentType;
+  transcriptPanel?: React.ComponentType;
+  virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
+  customSidePanel?: () => SidePanelItem[];
   invitePopup?: {
     title: string;
     renderComponent?: React.ComponentType;
@@ -80,12 +97,13 @@ export type ComponentsInterface = {
    */
   appRoot?: React.ComponentType;
   // commented for v1 release
-  // precall?: PreCallInterface | React.ComponentType;
-  precall?: React.ComponentType;
+  precall?: PreCallInterface;
+  preferenceWrapper?: React.ComponentType;
+  //precall?: React.ComponentType;
   //create?: React.ComponentType;
   //share?: React.ComponentType;
   //join?: React.ComponentType;
-  videoCall?: VideoCallInterface | React.ComponentType;
+  videoCall?: VideoCallInterface;
 };
 
 export interface CustomRoutesInterface {
@@ -99,6 +117,14 @@ export interface CustomRoutesInterface {
 }
 
 export type CustomHookType = () => () => Promise<void>;
+export type EndCallHookType = () => (
+  isHost: boolean,
+  history: History,
+) => Promise<void>;
+
+export interface AppConfig {
+  defaultRootFallback?: React.ComponentType;
+}
 
 export interface CustomizationApiInterface {
   /**
@@ -109,17 +135,27 @@ export interface CustomizationApiInterface {
    * custom routes used to add new page/routes
    */
   // commented for v1 release
-  //customRoutes?: CustomRoutesInterface[];
+  customRoutes?: CustomRoutesInterface[];
+  /**
+   * app config
+   */
+  config?: AppConfig;
   /**
    * Internationlization
    */
   i18n?: I18nInterface[];
   /**
+   * Custom logger
+   */
+  logger?: CustomLogger;
+  /**
    * Life cycle events
    */
   // commented for v1 release
-  // lifecycle?: {
-  //   useBeforeJoin?: CustomHookType;
-  //   useBeforeCreate?: CustomHookType;
-  // };
+  lifecycle?: {
+    useAfterEndCall?: EndCallHookType;
+    useBeforeEndCall?: EndCallHookType;
+    // useBeforeJoin?: CustomHookType;
+    // useBeforeCreate?: CustomHookType;
+  };
 }

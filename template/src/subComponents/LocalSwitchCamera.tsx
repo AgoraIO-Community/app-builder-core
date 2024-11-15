@@ -1,14 +1,15 @@
 import React, {useContext} from 'react';
-import {Text, ViewStyle} from 'react-native';
+import {ViewStyle} from 'react-native';
 import {useString} from '../utils/useString';
-import {ClientRole, PropsContext, ToggleState} from '../../agora-rn-uikit';
-import Styles from '../components/styles';
+import {ClientRoleType, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import {isAndroid, isIOS, useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useScreenshare} from './screenshare/useScreenshare';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 import {useActionSheet} from '../utils/useActionSheet';
+import {toolbarItemSwitchCameraText} from '../language/default-labels/videoCallScreenLabels';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 
 export interface LocalSwitchCameraProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
@@ -19,6 +20,7 @@ export interface LocalSwitchCameraProps {
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
+  const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isToolbarMenuItem} = useToolbarMenu();
   const {callbacks} = useContext(PropsContext);
   const {isScreenshareActive} = useScreenshare();
@@ -32,13 +34,12 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     iconContainerStyle = {},
   } = props;
 
-  //commented for v1 release
-  //const switchCameraButtonText = useString('switchCameraButton')();
-  const switchCameraButtonText = 'Switch Camera';
+  const switchCameraText = useString(toolbarItemSwitchCameraText)();
+
   const {rtcProps} = useContext(PropsContext);
   const isLiveStream = $config.EVENT_MODE;
-  const isAudience = rtcProps?.role == ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const isAudience = rtcProps?.role == ClientRoleType.ClientRoleAudience;
+  const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
   const showTitle = showText ? showLabel : false;
   const onPress = () => {
     RtcEngineUnsafe.switchCamera();
@@ -64,9 +65,9 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
       iconContainerStyle: iconContainerStyle,
     },
     disabled: disabled,
-    onPress: onPress,
+    onPress: onPressCustom || onPress,
     btnTextProps: {
-      text: showTitle ? `Switch\nCamera` : '',
+      text: showTitle ? label || switchCameraText?.replace(' ', '\n') : '',
       numberOfLines: 2,
       textStyle: {
         marginTop: 8,

@@ -32,6 +32,14 @@ import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import StorageContext from '../components/StorageContext';
 import UserCancelPopup from './UserCancelPopup';
 import {exitApp} from './openIDPURL';
+import {useString} from '../utils/useString';
+import {
+  authSessionTimeoutToastHeading,
+  loadingText,
+} from '../language/default-labels/commonLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import getUniqueID from '../utils/getUniqueID';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export const GET_USER = gql`
   query getUser {
@@ -58,6 +66,8 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const loadingLabel = useString(loadingText)();
+  const timeoutHeading = useString(authSessionTimeoutToastHeading)();
   const regEvent = useRef(true);
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
@@ -74,7 +84,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const location = useLocation();
   // client
   const apolloClient = useApolloClient();
-
+  const {isRecordingBot} = useIsRecordingBot();
   const indexesOf = (arr, item) =>
     arr.reduce((acc, v, i) => (v === item && acc.push(i), acc), []);
   const nonprodenv = ['dev', 'staging', 'preprod', 'test'];
@@ -142,7 +152,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             Toast.show({
               leadingIconName: 'alert',
               type: 'error',
-              text1: 'Your session has timed out, Retrying...',
+              text1: timeoutHeading,
               visibilityTime: 3000,
             });
             setTimeout(() => {
@@ -162,20 +172,37 @@ const AuthProvider = (props: AuthProviderProps) => {
                 })
                 .catch(() => {
                   setIsAuthenticated(false);
-                  console.log('debugging error on IDP token setting');
+                  logger.error(
+                    LogSource.Internals,
+                    'AUTH',
+                    'error on IDP token setting',
+                  );
                 });
             } else {
-              console.log('debugging deep-linking token is empty');
+              logger.error(
+                LogSource.Internals,
+                'AUTH',
+                'deep-linking token is empty',
+              );
               history.push('/');
             }
           } else if (url?.indexOf('authorize') === -1) {
-            console.log('debugging deep-linking setting return to');
+            logger.error(
+              LogSource.Internals,
+              'AUTH',
+              `deep-linking setting return to - ${url}`,
+            );
             setReturnTo(url);
           } else {
             history.push(url);
           }
         } catch (error) {
-          console.log('debugging deep-linking error catch');
+          logger.error(
+            LogSource.Internals,
+            'AUTH',
+            'deep-linking error catch',
+            error,
+          );
           history.push('/');
         }
       } else {
@@ -263,12 +290,61 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, [authenticated, authError]);
 
   async function getUserDetails() {
+    const requestId = getUniqueID();
+    const startReqTs = Date.now();
     try {
-      await apolloClient.query({
+      //fetch user details
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API fetching user_details, to check if user is authenticated',
+        {
+          requestId,
+          startReqTs,
+        },
+      );
+      const res = await apolloClient.query({
         query: GET_USER,
         fetchPolicy: 'network-only',
+        context: {
+          headers: {
+            'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
+          },
+        },
       });
+      const endRequestTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API user_details query succesful. User is authenticated',
+        {
+          responseData: res,
+          startReqTs,
+          endRequestTs,
+          latency: endRequestTs - startReqTs,
+          requestId,
+        },
+      );
     } catch (error) {
+      const endRequestTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'user_details',
+        'API user details query failed. User is un-authenticated. Will Login in the user',
+        {
+          networkError: {
+            name: error?.networkError?.name,
+            code: error?.networkError?.result?.error?.code,
+            message: error?.networkError?.result?.error?.message,
+          },
+          error,
+          startReqTs,
+          endRequestTs,
+          latency: endRequestTs - startReqTs,
+          requestId,
+        },
+      );
       throw new Error(error);
     } finally {
       setLoading(false);
@@ -278,12 +354,28 @@ const AuthProvider = (props: AuthProviderProps) => {
   useEffect(() => {
     // Ignore if on sdk since IDP flow is not supported
     // For unauthenticated flow authLogin should be called to get the token
+    logger.log(LogSource.Internals, 'AUTH', 'App loaded');
+    if (isRecordingBot) {
+      logger.debug(
+        LogSource.Internals,
+        'AUTH',
+        'skip app authentication as it is a bot',
+      );
+      setIsAuthenticated(true);
+      setLoading(false);
+      return;
+    }
     if (isSDK() && ENABLE_AUTH) {
       setIsAuthenticated(true);
       setLoading(false);
       return () => {};
     }
     //if application in authorization state then don't call authlogin
+    logger.log(
+      LogSource.Internals,
+      'AUTH',
+      'check if application is in authorized state ?',
+    );
     if (
       //to check authoriztion
       location?.pathname?.indexOf('authorize') === -1 &&
@@ -291,7 +383,6 @@ const AuthProvider = (props: AuthProviderProps) => {
       //login link expiry fix
       location?.search?.indexOf('msg') === -1
     ) {
-      //fetch user details
       getUserDetails()
         .then(_ => {
           //Each time user refresh the page we have to redirect the user to IDP login.then only we can able to refresh the token
@@ -314,7 +405,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: 'Your session has timed out, Retrying...',
+          text1: timeoutHeading,
           visibilityTime: 3000,
         });
         setTimeout(() => {
@@ -327,15 +418,22 @@ const AuthProvider = (props: AuthProviderProps) => {
         setLoading(false);
       }
     }
-  }, []);
+  }, [isRecordingBot]);
 
   const authLogin = () => {
     // Authenticated login flow
+    logger.log(LogSource.Internals, 'AUTH', 'Trying to authenticate the user');
     if (ENABLE_AUTH) {
       //AUTH -> IDP -> NATIVE and WEB and DESKTOP
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
         //it will open external web link and post authentication it will redirect to application
         //@ts-ignore
+        logger.log(LogSource.Internals, 'AUTH', 'IDP auth enabled');
+        logger.log(
+          LogSource.NetworkRest,
+          'idp_login',
+          'API idp_login Trying to authenticate user',
+        );
         enableIDPAuth(
           isWeb()
             ? location.pathname
@@ -344,7 +442,14 @@ const AuthProvider = (props: AuthProviderProps) => {
             : isIOS() || isAndroid()
             ? deepLinkUrl
             : '',
+          timeoutHeading,
         )?.then((response: any) => {
+          logger.log(
+            LogSource.NetworkRest,
+            'idp_login',
+            'API idp_login authentication successful',
+            response,
+          );
           if (isAndroid() || isIOS()) {
             if (response && response?.showNativePopup) {
               setShowNativePopup(true);
@@ -356,8 +461,20 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
+        logger.log(LogSource.Internals, 'AUTH', 'Token auth enabled');
+        logger.log(
+          LogSource.NetworkRest,
+          'token_login',
+          'API token_login Trying to authenticate user',
+        );
         enableTokenAuth()
           .then(res => {
+            logger.log(
+              LogSource.NetworkRest,
+              'token_login',
+              'API token_login User Authenticated successfully',
+              res,
+            );
             setIsAuthenticated(true);
             history.push('/create');
           })
@@ -365,6 +482,12 @@ const AuthProvider = (props: AuthProviderProps) => {
             //don't show token expire/not found toast in the sdk
             //we have event emitter to inform the customer application
             //they have to listen for those events
+            logger.error(
+              LogSource.NetworkRest,
+              'token_login',
+              'API token_login failed. There was an error',
+              error,
+            );
             if (!isSDK()) {
               if (error instanceof Error) {
                 setAuthError(error.message);
@@ -380,14 +503,66 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
     // Unauthenticated login flow
     else {
-      fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
+      logger.log(
+        LogSource.Internals,
+        'AUTH',
+        'Project has No auth(token or idp) enabled',
+      );
+      const requestId = getUniqueID();
+      const startReqTs = Date.now();
+      logger.log(
+        LogSource.NetworkRest,
+        'unauth_login',
+        'API unauth_login Trying to authenticate user',
+        {requestId: requestId, startReqTs},
+      );
+      let user_id_unauth = null;
+      try {
+        if (isWeb()) {
+          const urlParams = new URLSearchParams(window?.location?.search);
+          user_id_unauth = urlParams.get('user_id');
+        }
+      } catch (error) {}
+
+      fetch(GET_UNAUTH_FLOW_API_ENDPOINT(user_id_unauth), {
         credentials: 'include',
+        headers: {
+          'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
+        },
       })
         .then(response => response.json())
         .then(response => {
+          const endReqTs = Date.now();
+          const latency = endReqTs - startReqTs;
           // unauthenticated flow all platform we will have to handle the token manually
           // we need to store token manually
+          logger.log(
+            LogSource.NetworkRest,
+            'unauth_login',
+            'API unauth_login authentication successful. User is logged in.',
+            {
+              responseData: response,
+              token: response.token,
+              startReqTs,
+              endReqTs,
+              latency,
+              requestId,
+            },
+          );
           if (!response.token) {
+            logger.error(
+              LogSource.NetworkRest,
+              'unauth_login',
+              'API unauth_login failed. There was an error',
+              new Error('Token not received'),
+              {
+                requestId,
+                startReqTs,
+                endReqTs,
+                latency,
+              },
+            );
             throw new Error('Token not received');
           } else {
             enableTokenAuth(response.token)
@@ -410,6 +585,20 @@ const AuthProvider = (props: AuthProviderProps) => {
           }
         })
         .catch(error => {
+          const endReqTs = Date.now();
+          const latency = endReqTs - startReqTs;
+          logger.error(
+            LogSource.NetworkRest,
+            'unauth_login',
+            'API unauth_login failed. There was an error',
+            error,
+            {
+              requestId,
+              startReqTs,
+              endReqTs,
+              latency,
+            },
+          );
           if (error instanceof Error) {
             setAuthError(error.message);
           } else {
@@ -422,12 +611,30 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogout = () => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
+      logger.log(LogSource.Internals, 'AUTH', 'Request to log out');
+      logger.log(
+        LogSource.NetworkRest,
+        'idp_logout',
+        'API idp_logout Trying to log out IDP authenticated user',
+      );
       idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
         .then(res => {
+          logger.log(
+            LogSource.NetworkRest,
+            'idp_logout',
+            'API idp_logout User logged out successfully',
+            res,
+          );
           setIsAuthenticated(false);
         })
-        .catch(() => {
+        .catch(error => {
           setIsAuthenticated(false);
+          logger.error(
+            LogSource.NetworkRest,
+            'idp_logout',
+            'API idp_logout failed. There was an error',
+            error,
+          );
           console.error('user logout failed');
           setAuthError('Error occured on Logout, please try again.');
           setTimeout(() => {
@@ -441,11 +648,28 @@ const AuthProvider = (props: AuthProviderProps) => {
         //sdk with auth flow will use sdk api for logout
         history.push('/create');
       } else {
+        logger.log(LogSource.Internals, 'AUTH', 'Request to log out');
+        logger.log(
+          LogSource.NetworkRest,
+          'token_logout',
+          'API token_logout Trying to log out token authenticated user',
+        );
         tokenLogout()
           .then(res => {
+            logger.log(
+              LogSource.NetworkRest,
+              'token_logout',
+              'API token_logout. Logged out user successfully',
+            );
           })
-          .catch(() => {
+          .catch(error => {
             console.error('user logout failed');
+            logger.error(
+              LogSource.NetworkRest,
+              'token_logout',
+              'API token_logout failed. There was an error',
+              error,
+            );
             setAuthError('Error occured on Logout, please try again.');
           })
           .finally(() => {
@@ -481,7 +705,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         <></>
       )}
       {(!authenticated && !ENABLE_AUTH) || (ENABLE_AUTH && loading) ? (
-        <Loading text={'Loading...'} />
+        <Loading text={loadingLabel} />
       ) : (
         props.children
       )}

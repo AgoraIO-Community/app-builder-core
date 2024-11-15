@@ -1,5 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import React, {useContext} from 'react';
 import ImageIcon from '../../atoms/ImageIcon';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
@@ -10,7 +16,7 @@ import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRoleType} from '../../../agora-rn-uikit';
 import {
   RoomInfoContextInterface,
   useRoomInfo,
@@ -22,28 +28,41 @@ import {
   ParticipantsIconButton,
 } from '../../../src/components/Navbar';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
-import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useSidePanel} from '../../utils/useSidePanel';
-import {useContent, useLocalUserInfo, ToolbarItem} from 'customization-api';
+import {
+  useContent,
+  useLocalUserInfo,
+  ToolbarItem,
+  ToolbarItemHide,
+  ToolbarItemLabel,
+} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
-import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
 import Settings from '../../components/Settings';
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import {EventNames} from '../../rtm-events';
-import events from '../../rtm-events-api';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
-import {CustomToolbarSort} from '../../utils/common';
+import {
+  CustomToolbarMerge,
+  CustomToolbarSorting,
+  isIOS,
+  isAndroid,
+} from '../../utils/common';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
 import VBButton from '../../components/virtual-background/VBButton';
 import {useVB} from '../../components/virtual-background/useVB';
+import {useString} from '../../utils/useString';
+import {
+  sttSpokenLanguageToastHeading,
+  sttSpokenLanguageToastSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {filterObject} from '../../utils/index';
+import {useLanguage} from '../../language/useLanguage';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -68,24 +87,24 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
 };
 
 //Icon for Live Streaming Controls
-const LiveStreamIcon = () => {
+const LiveStreamIcon = props => {
   //toolbaritem wrapped in the LiveStreamControls
-  return <LiveStreamControls showControls={true} />;
+  return <LiveStreamControls showControls={true} customProps={props} />;
 };
 
 //Icon for Chat
-const ChatIcon = () => {
+const ChatIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <ChatIconButton />
     </ToolbarItem>
   );
 };
 
 //Icon for Participants
-const ParticipantsIcon = () => {
+const ParticipantsIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <ParticipantsIconButton />
     </ToolbarItem>
   );
@@ -93,88 +112,85 @@ const ParticipantsIcon = () => {
 
 //Icon for Recording
 
-const RecordingIcon = () => {
+const RecordingIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <Recording />
     </ToolbarItem>
   );
 };
 
-const VBIcon = () => {
+const VBIcon = props => {
   const {isVBActive, setIsVBActive} = useVB();
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <VBButton
         isVBOpen={isVBActive}
         setIsVBOpen={setIsVBActive}
-        showLabel={true}
+        showLabel={$config.ICON_TEXT}
       />
     </ToolbarItem>
   );
 };
 
-const SwitchCameraIcon = () => {
+const SwitchCameraIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalSwitchCamera />
     </ToolbarItem>
   );
 };
 
-const SettingsIcon = () => {
+const SettingsIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <Settings />
     </ToolbarItem>
   );
 };
 
-const ShareIcon = () => {
+const ShareIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <CopyJoinInfo />
     </ToolbarItem>
   );
 };
 const ScreenshareIcon = () => {
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <ScreenshareButton showLabel={false} isOnActionSheet={true} />
-      </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Screen Share</Text>}
-    </View>
+    <ToolbarItem>
+      <ScreenshareButton />
+    </ToolbarItem>
   );
 };
 
-const AudioIcon = () => {
+const AudioIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalAudioMute />
     </ToolbarItem>
   );
 };
 
-const CamIcon = () => {
+const CamIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalVideoMute />
     </ToolbarItem>
   );
 };
 
-const EndCallIcon = () => {
+const EndCallIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LocalEndcall />
     </ToolbarItem>
   );
 };
 
-const LayoutIcon = () => {
+const LayoutIcon = props => {
   return (
-    <ToolbarItem>
+    <ToolbarItem toolbarProps={props}>
       <LayoutIconButton />
     </ToolbarItem>
   );
@@ -182,132 +198,54 @@ const LayoutIcon = () => {
 
 interface CaptionIconBtnProps {
   showLabel?: boolean;
-  onPress?: () => void;
+  onPressCallback?: () => void;
 }
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
-  const {showLabel = $config.ICON_TEXT, onPress} = props;
-  const {isCaptionON, isSTTActive} = useCaption();
-  const {
-    data: {isHost},
-  } = useRoomInfo();
-  const isDisabled = !(
-    $config.ENABLE_STT &&
-    (isHost || (!isHost && isSTTActive))
-  );
+  const {onPressCallback = () => {}} = props;
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <CaptionIcon
-          isOnActionSheet={true}
-          showLabel={false}
-          closeActionSheet={onPress}
-        />
-      </View>
-      {showLabel && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-              },
-            ]}>
-            {isCaptionON ? 'Hide' : 'Show'}
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Caption
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem toolbarProps={props}>
+      <CaptionIcon
+        isOnActionSheet={true}
+        showLabel={$config.ICON_TEXT}
+        closeActionSheet={onPressCallback}
+      />
+    </ToolbarItem>
   );
 };
 
-interface TranscriptIconProps {
-  showLabel?: boolean;
-}
-
-const TranscriptIconBtn = (props: TranscriptIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
-  const {sidePanel} = useSidePanel();
-  const isTranscriptON = sidePanel === SidePanelType.Transcript;
-  const {isSTTActive} = useCaption();
-  const {
-    data: {isHost},
-  } = useRoomInfo();
-  const isDisabled = !(
-    $config.ENABLE_STT &&
-    (isHost || (!isHost && isSTTActive))
-  );
+const TranscriptIconBtn = props => {
+  if (!$config.ENABLE_MEETING_TRANSCRIPT) {
+    return null;
+  }
   return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
-      </View>
-      {showLabel && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-              },
-            ]}>
-            {isTranscriptON ? 'Hide' : 'Show'}
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: isDisabled
-                  ? $config.SEMANTIC_NEUTRAL
-                  : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Transcript
-          </Text>
-        </View>
-      )}
-    </View>
+    <ToolbarItem toolbarProps={props}>
+      <TranscriptIcon isOnActionSheet={true} showLabel={$config.ICON_TEXT} />
+    </ToolbarItem>
   );
 };
-
-const ToastIcon = ({color}) => (
-  <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
-    <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
-  </View>
-);
 
 const ActionSheetContent = props => {
+  const heading = useString<'Set' | 'Changed'>(sttSpokenLanguageToastHeading);
+  const subheading = useString<{
+    action: 'Set' | 'Changed';
+    newLanguage: string;
+    oldLanguage: string;
+    username: string;
+  }>(sttSpokenLanguageToastSubHeading);
+
   const {
     handleSheetChanges,
     isExpanded,
-    customItems = [],
     includeDefaultItems = true,
     displayCustomBottomSheetContent = false,
     customBottomSheetContent,
     native = false,
+    items = {},
   } = props;
 
   const {localUid} = useContext(ChatContext);
-  const {isScreenshareActive} = useScreenshare();
   const {rtcProps} = useContext(PropsContext);
-  const {setSidePanel} = useSidePanel();
   const {setRoomInfo} = useSetRoomInfo();
   const {
     data: {isHost},
@@ -353,16 +291,29 @@ const ActionSheetContent = props => {
       defaultContentRef.current[uid]?.name || username
     } ${actionText} `;
 
+    let subheadingObj: any = {};
+    if (prevLang.indexOf('') !== -1) {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+      };
+    } else {
+      subheadingObj = {
+        username: defaultContentRef.current[uid]?.name || username,
+        action: prevLang.indexOf('') !== -1 ? 'Set' : 'Changed',
+        newLanguage: getLanguageLabel(newLang),
+        oldLanguage: getLanguageLabel(prevLang),
+      };
+    }
     Toast.show({
       leadingIconName: 'lang-select',
       type: 'info',
-      text1: `Spoken Language ${
-        prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
-      }`,
+      text1: heading(prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'),
       visibilityTime: 3000,
       primaryBtn: null,
       secondaryBtn: null,
-      text2: msg,
+      text2: subheading(subheadingObj),
     });
     setRoomInfo(prev => {
       return {
@@ -387,8 +338,9 @@ const ActionSheetContent = props => {
   }, [sttLanguage]);
 
   const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;
-  const isAudience = rtcProps?.role === ClientRole.Audience;
-  const isBroadCasting = rtcProps?.role === ClientRole.Broadcaster;
+  const isAudience = rtcProps?.role === ClientRoleType.ClientRoleAudience;
+  const isBroadCasting =
+    rtcProps?.role === ClientRoleType.ClientRoleBroadcaster;
   const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
 
   const isAudioRoom = $config.AUDIO_ROOM;
@@ -402,173 +354,133 @@ const ActionSheetContent = props => {
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
 
-  const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
-
-  const localUser = useLocalUserInfo();
-
-  const isVideoDisabled = native
-    ? localUser.video === ToggleState.disabled || isScreenshareActive
-    : localUser.video === ToggleState.disabled;
-
   const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
-  const defaultItems = [
-    {
-      default: true,
+  const defaultItems = {
+    'local-audio': {
       order: 0,
-      hide: 'no',
-      align: 'start',
-      component: isAudioVideoControlsDisabled ? null : <AudioIcon />,
+      component: isAudioVideoControlsDisabled ? null : AudioIcon,
     },
-    {
-      default: true,
-      order: 0,
-      hide: 'no',
-      align: 'start',
+    'raise-hand': {
+      order: $config.RAISE_HAND && isAudioRoom ? 0 : 4,
+      component:
+        ((isAudioCastAudience && isLiveStream && isAudience) ||
+        (isBroadCasting && !isHost)
+          ? LiveStreamIcon
+          : null) ||
+        ((isLiveStream && isAudience) || (isBroadCasting && !isHost)
+          ? LiveStreamIcon
+          : null),
+    },
+    'local-video': {
+      order: 1,
+      component:
+        !isAudioRoom && (isAudioVideoControlsDisabled ? null : CamIcon),
+    },
+    'end-call': {
+      order: 2,
+      component: EndCallIcon,
+    },
+    chat: {
+      order: !(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience)
+        ? 5
+        : 0,
       /*For AudioCast Host:Chat ,Attendee:Raise Hand 
             For VoiceChat Host:Chat, Attendee:Chat
            */
-      component: (isAudioCastHost ||
-        isVoiceChatHost ||
-        isVoiceChatAudience) && <ChatIcon />,
+      component: ChatIcon,
     },
-
-    {
-      default: true,
-      order: 0,
-      hide: 'no',
-      align: 'start',
-      component:
-        (isAudioCastAudience && isLiveStream && isAudience) ||
-        (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && isAudioRoom ? (
-            <LiveStreamIcon />
-          ) : null
-        ) : null,
-    },
-    {
-      default: true,
-      order: 1,
-      hide: 'no',
-      align: 'start',
-      component:
-        !isAudioRoom && (isAudioVideoControlsDisabled ? null : <CamIcon />),
-    },
-    {
-      default: true,
-      order: 2,
-      hide: 'no',
-      align: 'start',
-      component: <EndCallIcon />,
-    },
-    //reset of the controls
-    {
-      default: true,
-      order: 4,
-      hide: 'no',
-      align: 'start',
-      component:
-        (isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && !isAudioRoom ? (
-            <LiveStreamIcon />
-          ) : null
-        ) : null,
-    },
-
-    {
-      default: true,
-      order: 5,
-      hide: 'no',
-      align: 'start',
-      component: !(
-        isAudioCastHost ||
-        isVoiceChatHost ||
-        isVoiceChatAudience
-      ) && <ChatIcon />,
-    },
-    {
-      default: true,
+    participant: {
       order: 6,
-      hide: 'no',
-      align: 'start',
-      component: <ParticipantsIcon />,
+      component: ParticipantsIcon,
     },
-    {
-      default: true,
+    recording: {
       order: 7,
-      hide: 'no',
-      align: 'start',
-      component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
+      component: isHost && $config.CLOUD_RECORDING ? RecordingIcon : null,
     },
-    {
-      default: true,
+    'virtual-background': {
       order: 7,
-      hide: 'no',
-      align: 'start',
       component:
-        $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM ? (
-          <VBIcon />
-        ) : null,
+        $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM
+          ? VBIcon
+          : null,
     },
-    {
-      default: true,
+    'switch-camera': {
       order: 8,
-      hide: 'no',
-      align: 'start',
-      component: <LayoutIcon />,
-    },
-    {
-      default: true,
-      order: 9,
-      hide: 'no',
-      align: 'start',
       component:
         !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
+        (isAudioVideoControlsDisabled ? null : SwitchCameraIcon),
     },
-    {
-      default: true,
+    layout: {
+      order: 9,
+      component: LayoutIcon,
+    },
+    settings: {
       order: 10,
-      hide: 'no',
-      align: 'start',
-      component: <SettingsIcon />,
+      component: SettingsIcon,
     },
-    {
-      default: true,
+    screenshare: {
+      order: 10,
+      component: isAndroid() || isIOS() ? ScreenshareIcon : null,
+    },
+    invite: {
       order: 11,
-      hide: 'no',
-      align: 'start',
-      component: <ShareIcon />,
+      component: ShareIcon,
     },
-    {
-      default: true,
+    caption: {
       order: 12,
-      hide: 'no',
-      align: 'start',
-      component: (
-        <CaptionIconBtn
-          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
-        />
-      ),
+      component: CaptionIconBtn,
+      props: {
+        onPressCallback: () => {
+          handleSheetChanges(isExpanded ? 0 : 1);
+        },
+      },
     },
-    {
-      default: true,
+    transcript: {
       order: 13,
-      hide: 'no',
-      align: 'start',
-      component: <TranscriptIconBtn />,
+      component: TranscriptIconBtn,
     },
-  ];
-
-  const isHidden = i => {
-    return i?.hide === 'yes';
   };
-  const combinedItems = customItems
-    ?.filter(i => !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultItems : [])
-    //to filter empty component because of some condition array will have empty component
-    ?.filter(i => i?.component)
-    ?.sort(CustomToolbarSort);
+
+  const {width, height} = useWindowDimensions();
+
+  const isHidden = (hide: ToolbarItemHide = false) => {
+    try {
+      return typeof hide === 'boolean'
+        ? hide
+        : typeof hide === 'function'
+        ? hide(width, height)
+        : false;
+    } catch (error) {
+      console.log('debugging isHidden error', error);
+      return false;
+    }
+  };
+
+  const combinedData = {...items, ...items?.more?.fields};
+
+  const mergedItems = CustomToolbarMerge(
+    includeDefaultItems ? defaultItems : {},
+    combinedData,
+  );
+
+  const {languageCode} = useLanguage();
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
+
+  const displayItems = filterObject(
+    mergedItems,
+    ([_, v]) => !isHidden(v?.hide) && v?.component,
+  );
+
+  const displayItemsOrdered = CustomToolbarSorting(displayItems);
 
   if (displayCustomBottomSheetContent) {
     return <View>{customBottomSheetContent}</View>;
@@ -584,17 +496,34 @@ const ActionSheetContent = props => {
           ]}>
           {/**If no items more than 4 then render firstrender first 3 items and render show more icon  */}
           {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
-          {combinedItems
-            ?.slice(0, combinedItems?.length > 4 ? 3 : 4)
+          {displayItemsOrdered
+            ?.slice(0, displayItemsOrdered?.length > 4 ? 3 : 4)
             ?.map(i => {
-              const Component = i?.component;
-              if (Component) {
-                return i?.default ? Component : <Component />;
-              } else {
+              try {
+                const Component = displayItems[i]?.component;
+                const label = displayItems[i]?.label;
+                const onPress = displayItems[i]?.onPress;
+                const extraProps = displayItems[i]?.props;
+                if (Component) {
+                  return (
+                    <Component
+                      label={customLabel(label)}
+                      onPress={onPress}
+                      {...extraProps}
+                    />
+                  );
+                } else {
+                  return null;
+                }
+              } catch (error) {
+                console.error(
+                  'Error on rendering toolbar item in ActionSheet',
+                  error,
+                );
                 return null;
               }
             })}
-          {combinedItems && combinedItems?.length > 4 ? (
+          {displayItemsOrdered && displayItemsOrdered?.length > 4 ? (
             <ShowMoreIcon
               isExpanded={isExpanded}
               showNotification={
@@ -610,25 +539,53 @@ const ActionSheetContent = props => {
         </View>
       </ActionSheetProvider>
 
-      <CarouselWrapper data={combinedItems?.slice(3, combinedItems?.length)} />
+      <CarouselWrapper
+        data={displayItemsOrdered?.slice(3, displayItemsOrdered?.length)}
+        dataObject={displayItems}
+      />
     </View>
   );
 };
-const CarouselWrapper = ({data}) => {
+const CarouselWrapper = ({data, dataObject}) => {
+  const {languageCode} = useLanguage();
+  const customLabel = (labelParam: ToolbarItemLabel) => {
+    if (labelParam && typeof labelParam === 'string') {
+      return labelParam;
+    } else if (labelParam && typeof labelParam === 'function') {
+      return labelParam(languageCode);
+    } else {
+      return null;
+    }
+  };
   const createSlides = () => {
     const slides = [];
     const items = data || [];
     // one slide can contain max of 8 icons
     for (let i = 0; i < items.length; i += 8) {
       const slideItems = items.slice(i, i + 8).map(item => {
-        const Component = item?.component;
-        return Component ? (
-          item.default ? (
-            Component
-          ) : (
-            <Component key={item.id} />
-          )
-        ) : null;
+        try {
+          const Component = dataObject[item]?.component;
+          const label = dataObject[item]?.label;
+          const onPress = dataObject[item]?.onPress;
+          const extraProps = dataObject[item]?.props;
+          if (Component) {
+            return (
+              <Component
+                label={customLabel(label)}
+                onPress={onPress}
+                {...extraProps}
+              />
+            );
+          } else {
+            return null;
+          }
+        } catch (error) {
+          console.error(
+            'Error on rendering toolbar item in CarouselWrapper',
+            error,
+          );
+          return null;
+        }
       });
 
       slides.push({
@@ -644,13 +601,11 @@ const CarouselWrapper = ({data}) => {
 
   const isPaginationRequired = slides.length > 1;
 
-  if (isPaginationRequired)
-    return (
-      <View style={{flexDirection: 'row'}}>
-        <Carousel data={slides} />
-      </View>
-    );
-  return <View style={styles.row}>{slides[0].component}</View>;
+  return (
+    <View style={{flexDirection: 'row'}}>
+      <Carousel data={slides} isPaginationRequired={isPaginationRequired} />
+    </View>
+  );
 };
 
 export default ActionSheetContent;

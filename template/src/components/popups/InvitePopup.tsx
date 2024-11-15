@@ -31,6 +31,13 @@ import {useParams} from '../Router';
 import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
 import {ErrorContext} from '../common';
 import {useCustomization} from 'customization-implementation';
+import {useString} from '../../utils/useString';
+import {
+  invitePopupPrimaryBtnText,
+  invitePopupHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -41,6 +48,21 @@ const InvitePopup = () => {
   const getMeeting = useGetMeetingPhrase();
   useEffect(() => {
     getMeeting(phrase).catch(error => {
+      logger.error(
+        LogSource.Internals,
+        'GET_MEETING_PHRASE',
+        'unable to fetch meeting details',
+        error,
+        {
+          networkError: {
+            name: error?.networkError?.name,
+            //@ts-ignore
+            code: error?.networkError?.result?.error?.code,
+            //@ts-ignore
+            message: error?.networkError?.result?.error?.message,
+          },
+        },
+      );
       setGlobalErrorMessage(error);
     });
   }, [phrase]);
@@ -58,30 +80,31 @@ const InvitePopup = () => {
       typeof data?.components?.videoCall === 'object'
     ) {
       if (
-        data?.components?.videoCall.invitePopup.renderComponent &&
-        typeof data?.components?.videoCall.invitePopup.renderComponent !==
+        data?.components?.videoCall?.invitePopup?.renderComponent &&
+        typeof data?.components?.videoCall?.invitePopup?.renderComponent !==
           'object' &&
         isValidReactComponent(
-          data?.components?.videoCall.invitePopup.renderComponent,
+          data?.components?.videoCall?.invitePopup?.renderComponent,
         )
       ) {
         components.InvitePopupContent =
           data?.components?.videoCall.invitePopup.renderComponent;
       }
-      if (data?.components?.videoCall.invitePopup.title) {
+      if (data?.components?.videoCall?.invitePopup?.title) {
         components.InvitePopupTitle =
-          data?.components?.videoCall.invitePopup.title;
+          data?.components?.videoCall?.invitePopup.title;
       }
     }
     return components;
   });
+  const inviteOtherToJoinRoomInfo = useString(invitePopupHeading)();
+  const copyInvitationButton = useString(invitePopupPrimaryBtnText)();
+  const cancelLabel = useString(cancelText)();
   return (
     <Popup
       modalVisible={showInvitePopup}
       setModalVisible={setShowInvitePopup}
-      title={
-        InvitePopupTitle ? InvitePopupTitle : 'Invite others to join this room'
-      }
+      title={InvitePopupTitle ? InvitePopupTitle : inviteOtherToJoinRoomInfo}
       showCloseIcon={true}
       containerStyle={{alignItems: isDesktop('popup') ? 'center' : 'stretch'}}
       contentContainerStyle={style.contentContainer}>
@@ -101,7 +124,7 @@ const InvitePopup = () => {
             {isDesktop('popup') ? (
               <View style={{flex: 1}}>
                 <TertiaryButton
-                  text={'CANCEL'}
+                  text={cancelLabel}
                   textStyle={style.btnText}
                   containerStyle={{
                     width: '100%',
@@ -137,7 +160,7 @@ const InvitePopup = () => {
                     SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
                   );
                 }}
-                text={'COPY INVITATION'}
+                text={copyInvitationButton}
               />
             </View>
           </View>

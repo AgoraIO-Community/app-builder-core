@@ -10,12 +10,12 @@
 *********************************************
 */
 import React, {useState, useRef} from 'react';
-import {useWindowDimensions} from 'react-native';
+import {useWindowDimensions, ViewStyle} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
-import {useContent} from 'customization-api';
+import {I18nMuteType, useContent} from 'customization-api';
 import {calculatePosition} from '../utils/common';
 import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 /**
@@ -28,10 +28,11 @@ export interface RemoteVideoMuteProps {
   video: boolean;
   isHost: boolean;
   userContainerRef: any;
+  iconContainerStyle?: ViewStyle;
 }
 const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const btnRef = useRef(null);
-  const {isHost = false, userContainerRef} = props;
+  const {isHost = false, userContainerRef, iconContainerStyle = {}} = props;
   const muteRemoteVideo = useRemoteMute();
   const requestRemoteVideo = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
@@ -48,7 +49,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
     <>
       <RemoteMutePopup
         action={props?.video ? 'mute' : 'request'}
-        type="video"
+        type={I18nMuteType.video}
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
         name={defaultContent[props.uid]?.name}
@@ -61,7 +62,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,
         }}
-        setRef={(ref) => (btnRef.current = ref)}
+        setRef={ref => (btnRef.current = ref)}
         disabled={!isHost}
         onPress={() => {
           btnRef?.current?.measure(
@@ -87,7 +88,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           );
         }}
         iconProps={{
-          iconContainerStyle: {padding: 8},
+          iconContainerStyle: {...iconContainerStyle},
           name: props?.video ? 'video-on' : 'video-off',
           iconSize: 20,
           iconType: 'plain',

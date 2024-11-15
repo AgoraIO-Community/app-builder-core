@@ -10,7 +10,7 @@
 *********************************************
 */
 // import statements are not allowed in global configs
-type VideoProfile =
+type VideoProfilePreset =
   | '120p_1'
   | '120p_3'
   | '180p_1'
@@ -42,6 +42,50 @@ type VideoProfile =
   | '720p_5'
   | '720p_6';
 
+type ScreenShareProfilePreset =
+  | '480p_1'
+  | '480p_2'
+  | '480p_3'
+  | '720p'
+  | '720p_1'
+  | '720p_2'
+  | '720p_3'
+  | '1080p'
+  | '1080p_1'
+  | '1080p_2'
+  | '1080p_3';
+
+interface AudioEncoderConfiguration {
+  /**
+   * Sample rate of the audio (Hz).
+   */
+  sampleRate?: number;
+  /**
+   * Sample size of the audio.
+   */
+  sampleSize?: number;
+  /**
+   * Whether to enable stereo.
+   */
+  stereo?: boolean;
+  /**
+   * Bitrate of the audio (Kbps).
+   */
+  bitrate?: number;
+}
+
+declare const AUDIO_ENCODER_CONFIG_SETTINGS: {
+  speech_low_quality: AudioEncoderConfiguration;
+  speech_standard: AudioEncoderConfiguration;
+  music_standard: AudioEncoderConfiguration;
+  standard_stereo: AudioEncoderConfiguration;
+  high_quality: AudioEncoderConfiguration;
+  high_quality_stereo: AudioEncoderConfiguration;
+};
+
+type AudioEncoderConfigurationPreset =
+  keyof typeof AUDIO_ENCODER_CONFIG_SETTINGS;
+
 interface ConfigInterface {
   PRODUCT_ID: string;
   APP_NAME: string;
@@ -53,11 +97,13 @@ interface ConfigInterface {
   PRECALL: boolean;
   CHAT: boolean;
   CLOUD_RECORDING: boolean;
+  RECORDING_MODE: 'WEB' | 'MIX';
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;
   ENCRYPTION_ENABLED: boolean;
-  PROFILE: VideoProfile;
+  PROFILE: VideoProfilePreset;
+  SCREEN_SHARE_PROFILE: ScreenShareProfilePreset;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;
   ENABLE_MICROSOFT_OAUTH: boolean;
@@ -69,6 +115,8 @@ interface ConfigInterface {
   EVENT_MODE: boolean;
   RAISE_HAND: boolean;
   GEO_FENCING: boolean;
+  GEO_FENCING_INCLUDE_AREA: string;
+  GEO_FENCING_EXCLUDE_AREA: string;
   LOG_ENABLED: boolean;
   AUDIO_ROOM: boolean;
   PRIMARY_ACTION_BRAND_COLOR: string;
@@ -102,6 +150,8 @@ interface ConfigInterface {
   ENABLE_IDP_AUTH: boolean;
   PROJECT_ID: string;
   ENABLE_STT: boolean;
+  ENABLE_CAPTION: boolean;
+  ENABLE_MEETING_TRANSCRIPT: boolean;
   ENABLE_NOISE_CANCELLATION: boolean;
   ENABLE_VIRTUAL_BACKGROUND: boolean;
   ENABLE_WHITEBOARD: boolean;
@@ -109,6 +159,15 @@ interface ConfigInterface {
   ENABLE_WAITING_ROOM: boolean;
   WHITEBOARD_APPIDENTIFIER: string;
   WHITEBOARD_REGION: string;
+  CHAT_ORG_NAME: string;
+  CHAT_APP_NAME: string;
+  CHAT_URL: string;
+  ENABLE_NOISE_CANCELLATION_BY_DEFAULT: boolean;
+  CLI_VERSION: string;
+  CORE_VERSION: string;
+  DISABLE_LANDSCAPE_MODE: boolean;
+  STT_AUTO_START: boolean;
+  CLOUD_RECORDING_AUTO_START: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

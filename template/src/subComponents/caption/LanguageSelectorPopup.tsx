@@ -11,6 +11,16 @@ import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
 import {LanguageType} from './utils';
+import {useString} from '../../utils/useString';
+import {
+  sttChangeLanguagePopupDropdownError,
+  sttChangeLanguagePopupDropdownInfo,
+  sttChangeLanguagePopupHeading,
+  sttChangeLanguagePopupPrimaryBtnText,
+  sttChangeLanguagePopupSubHeading,
+  sttLanguageChangeInProgress,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 interface LanguageSelectorPopup {
   modalVisible: boolean;
@@ -23,13 +33,13 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const {isFirstTimePopupOpen = false} = props;
   const [isOpen, setIsOpen] = React.useState(false);
   const isDesktop = useIsDesktop()('popup');
-  const heading = isFirstTimePopupOpen
-    ? 'Set Spoken Language'
-    : 'Change Spoken Language';
-  const subHeading = `What language(s) are being spoken by everyone in this meeting?`;
-  const cancelBtnLabel = 'CANCEL';
-  const ConfirmBtnLabel = 'CONFIRM';
-
+  const heading = useString<boolean>(sttChangeLanguagePopupHeading);
+  const subHeading = useString(sttChangeLanguagePopupSubHeading)();
+  const cancelBtnLabel = useString(cancelText)();
+  const ConfirmBtnLabel = useString(sttChangeLanguagePopupPrimaryBtnText)();
+  const ddError = useString(sttChangeLanguagePopupDropdownError)();
+  const ddInfo = useString(sttChangeLanguagePopupDropdownInfo)();
+  const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
   const {language, setLanguage, isLangChangeInProgress, isSTTActive} =
     useCaption();
 
@@ -47,12 +57,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       setModalVisible={props.setModalVisible}
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
-      title={heading}
+      title={heading(isFirstTimePopupOpen)}
       subtitle={subHeading}>
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
           <Loading
-            text="Language Change is in progress..."
+            text={languageChangeInProgress}
             background="transparent"
             indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
             textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
@@ -75,9 +85,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
           </View>
           <Spacer size={8} />
           <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
-            {selectedValues.length === 0
-              ? 'Choose at least one language to proceed'
-              : 'You can choose a maximum of two languages'}
+            {selectedValues.length === 0 ? ddError : ddInfo}
           </Text>
           <Spacer size={32} />
           <View

@@ -31,6 +31,15 @@ import InlineNotification from '../../atoms/InlineNotification';
 import VBCard from './VBCard';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Spacer from '../../atoms/Spacer';
+import {useString} from '../../utils/useString';
+import {
+  vbPanelHeading,
+  vbPanelInfo,
+} from '../../language/default-labels/precallScreenLabels';
+import {
+  vbPanelAppliedBtnText,
+  vbPanelApplyBtnText,
+} from '../../language/default-labels/videoCallScreenLabels';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -44,8 +53,12 @@ interface VBCardProps {
   isMobile?: boolean;
 }
 
+export interface VBPanelProps {
+  isOnPrecall?: boolean;
+}
+
 const isNative = isAndroid() || isIOS();
-const VBPanel = (props?: {isOnPrecall?: boolean}) => {
+const VBPanel = (props?: VBPanelProps) => {
   const {isOnPrecall = false} = props;
   const isSmall = useIsSmall();
 
@@ -61,9 +74,11 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
   const {
     rtcProps: {callActive},
   } = useContext(PropsContext);
-  const fallbackText = isCameraAvailable
-    ? `Camera is currently off. Selected background will be applied as soon as your camera turns on.`
-    : `Your camera is switched off. Save a background to apply once it’s turned on.`;
+  const fallbackText = useString<boolean>(vbPanelInfo)(isCameraAvailable);
+
+  const vbLabel = useString(vbPanelHeading)();
+  const applyLabel = useString(vbPanelApplyBtnText)();
+  const appliedLabel = useString(vbPanelAppliedBtnText)();
 
   const PreCallVBHeader = () => (
     <Text
@@ -77,7 +92,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
         borderBottomWidth: 1,
         borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
       }}>
-      Virtual Background
+      {vbLabel}
     </Text>
   );
 
@@ -152,7 +167,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
           decelerationRate={0}>
           {options.map((item, index) => (
             <VBCard
-              key={item.id}
+              key={`VBOption_${index + 1}`}
               type={item.type}
               icon={item.icon}
               path={item.path}
@@ -184,7 +199,7 @@ const VBPanel = (props?: {isOnPrecall?: boolean}) => {
               onPress={() => {
                 setSaveVB(true);
               }}
-              text={saveVB ? 'Applied' : 'Apply'}
+              text={saveVB ? appliedLabel : applyLabel}
             />
           </View>
         </View>

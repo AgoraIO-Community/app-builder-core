@@ -7,27 +7,110 @@ import {isMobileUA} from '../utils/common';
 import NavbarMobile from '../components/NavbarMobile';
 import ActionSheet from '../pages/video-call/ActionSheet';
 
-export interface ToolbarCustomItem {
-  component: () => JSX.Element;
-  align: 'start' | 'center' | 'end';
-  hide: 'yes' | 'no' | 'never';
+export type MoreButtonDefaultKeys =
+  | 'virtual-background'
+  | 'noise-cancellation'
+  | 'caption'
+  | 'transcript'
+  | 'view-recordings'
+  | 'whiteboard'
+  | 'chat'
+  | 'participant'
+  | 'settings'
+  | 'layout'
+  | 'invite'
+  | 'screenshare'
+  | 'recording';
+
+export type BottomToolbarDefaultKeys =
+  //left
+  | 'layout'
+  | 'invite'
+  //center
+  | 'local-audio'
+  | 'local-video'
+  | 'screenshare'
+  | 'recording'
+  | 'switch-camera'
+  | 'end-call'
+  | 'raise-hand'
+  | 'more';
+
+export type TopToolbarDefaultKeys =
+  //topbar
+  | 'meeting-title'
+  | 'participant-count'
+  | 'recording-status'
+  | 'chat'
+  | 'participant'
+  | 'settings';
+
+export type ToolbarMoreButtonDefaultFields = {
+  [key in MoreButtonDefaultKeys]?: {
+    hide?: ToolbarItemHide;
+    order?: number;
+    component?: React.ComponentType;
+    label?: ToolbarItemLabel;
+    onPress?: () => void;
+  };
+};
+export type ToolbarMoreButtonCustomFields = {
+  [key: string]: {
+    hide?: ToolbarItemHide;
+    order?: number;
+    component?: React.ComponentType;
+    onPress?: () => void;
+  };
+};
+
+export type ToolbarItemAlign = 'start' | 'center' | 'end';
+export type ToolbarHideCallback = (width: number, height: number) => boolean;
+export type ToolbarItemHide = boolean | ToolbarHideCallback;
+
+export type ToolbarItemLabelCallback = (languageCode: string) => string;
+export type ToolbarItemLabel = string | ToolbarItemLabelCallback;
+export interface ToolbarDefaultItem {
+  component?: (props?: any) => JSX.Element;
+  align?: ToolbarItemAlign;
+  hide?: ToolbarItemHide;
   order?: number;
+  label?: ToolbarItemLabel;
+  onPress?: () => void;
+}
+export interface ToolbarMoreDefaultItem extends ToolbarDefaultItem {
+  fields?: ToolbarMoreButtonDefaultFields | ToolbarMoreButtonCustomFields;
 }
 
-export interface ToolbarBottomPresetProps {
-  align: 'bottom';
-  customItems?: Array<ToolbarCustomItem>;
-  snapPointsMinMax: [number, number];
-}
-export interface ToolbarOtherPresetProps {
-  align: 'top' | 'left' | 'right';
-  customItems?: Array<ToolbarCustomItem>;
-  snapPointsMinMax?: never;
-}
+export type ToolbarPresetAlign = 'top' | 'bottom' | 'right' | 'left';
 
-export type ToolbarPresetProps =
-  | ToolbarBottomPresetProps
-  | ToolbarOtherPresetProps;
+export type ToolbarDefaultItemsConfig = {
+  [key: string]: ToolbarDefaultItem;
+};
+
+export type TopToolbarItemsConfig =
+  | {
+      [key in TopToolbarDefaultKeys]?: ToolbarDefaultItem;
+    };
+
+export type BottomToolbarItemsConfig =
+  | {
+      [key in BottomToolbarDefaultKeys]?: ToolbarDefaultItem;
+    }
+  | {
+      ['more']?: ToolbarMoreDefaultItem;
+    };
+
+export type ToolbarItemsConfig =
+  | TopToolbarItemsConfig
+  | BottomToolbarItemsConfig
+  | ToolbarDefaultItemsConfig;
+
+export type ToolbarPresetProps = {
+  align: 'top' | 'bottom' | 'left' | 'right';
+  items?: ToolbarItemsConfig;
+  //applicable only for bottom bar
+  snapPointsMinMax?: [number, number];
+};
 
 const ToolbarPreset = (props: ToolbarPresetProps) => {
   const {align} = props;
@@ -38,31 +121,24 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
     return null;
   }
   if (align === 'left') {
-    return (
-      <Leftbar customItems={props?.customItems} includeDefaultItems={true} />
-    );
+    return <Leftbar items={props?.items} includeDefaultItems={true} />;
   } else if (align === 'right') {
-    return (
-      <Rightbar customItems={props?.customItems} includeDefaultItems={true} />
-    );
+    return <Rightbar items={props?.items} includeDefaultItems={true} />;
   } else if (align === 'top') {
     return isMobileUA() ? (
-      <NavbarMobile
-        customItems={props?.customItems}
-        includeDefaultItems={true}
-      />
+      <NavbarMobile items={props?.items} includeDefaultItems={true} />
     ) : (
-      <Navbar customItems={props?.customItems} includeDefaultItems={true} />
+      <Navbar items={props?.items} includeDefaultItems={true} />
     );
   } else if (align === 'bottom') {
     return isMobileUA() ? (
       <ActionSheet
-        customItems={props?.customItems}
+        items={props?.items}
         includeDefaultItems={true}
         snapPointsMinMax={props?.snapPointsMinMax}
       />
     ) : (
-      <Controls customItems={props?.customItems} includeDefaultItems={true} />
+      <Controls items={props?.items} includeDefaultItems={true} />
     );
   } else {
     return null;

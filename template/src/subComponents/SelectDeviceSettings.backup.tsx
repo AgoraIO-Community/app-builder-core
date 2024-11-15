@@ -11,7 +11,7 @@
 */
 import React, {useContext, useEffect} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 import {useString} from '../utils/useString';
@@ -30,7 +30,10 @@ const useSelectDevice = (): [boolean, string] => {
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
   React.useEffect(() => {
-    if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
+    if (
+      $config.EVENT_MODE &&
+      rtcProps.role === ClientRoleType.ClientRoleAudience
+    ) {
       setPickerDisabled(true);
       setBtnTheme('rgba(16, 16, 16, 0.3)');
     } else {
@@ -60,7 +63,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         return true;
       }
     })
-    ?.map((device) => {
+    ?.map(device => {
       return {
         label: device.label,
         value: device.deviceId,
@@ -102,7 +105,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const [isFocussed, setIsFocussed] = React.useState(false);
 
   const data = deviceList
-    .filter((device) => {
+    .filter(device => {
       if (device.kind === 'audioinput') {
         return true;
       }
@@ -140,12 +143,12 @@ const SelectDeviceSettings = () => {
   const {deviceList} = useContext(DeviceContext);
   const {setCameraAvailable, setMicAvailable} = usePreCall();
 
-  const audioDevices = deviceList.filter((device) => {
+  const audioDevices = deviceList.filter(device => {
     if (device.kind === 'audioinput') {
       return true;
     }
   });
-  const videoDevices = deviceList.filter((device) => {
+  const videoDevices = deviceList.filter(device => {
     if (device.kind === 'videoinput') {
       return true;
     }

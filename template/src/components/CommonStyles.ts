@@ -1,8 +1,9 @@
 import {StyleSheet} from 'react-native';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export const SIDE_PANEL_MAX_WIDTH = '20%';
-export const SIDE_PANEL_MIN_WIDTH = 338;
+export const SIDE_PANEL_MIN_WIDTH = 372;
 export const SIDE_PANEL_GAP = 8;
 export const CAPTION_CONTAINER_HEIGHT = 144;
 export const MOBILE_CAPTION_CONTAINER_HEIGHT = 115;
@@ -11,7 +12,7 @@ const CommonStyles = StyleSheet.create({
   sidePanelContainerWeb: {
     flex: 1,
     maxWidth: SIDE_PANEL_MAX_WIDTH,
-    minWidth: 338,
+    minWidth: 372,
     borderRadius: ThemeConfig.BorderRadius.small,
     marginLeft: SIDE_PANEL_GAP,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
@@ -46,6 +47,16 @@ const CommonStyles = StyleSheet.create({
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 20,
     overflow: 'hidden',
+  },
+  tintedOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
+    zIndex: 1,
   },
 });
 export default CommonStyles;

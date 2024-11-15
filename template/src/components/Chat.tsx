@@ -39,6 +39,7 @@ import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -48,17 +49,12 @@ export interface ChatProps {
 
 const Chat = (props?: ChatProps) => {
   // commented for v1 release
-  // const groupChatLabel = useString('groupChatLabel')();
-  // const privateChatLabel = useString('privateChatLabel')();
-  const chatLabel = 'Chat';
-  const groupChatLabel = 'Group';
-  const privateChatLabel = 'Private';
-
   const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
-
-  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
+  const {isRecordingBot} = useIsRecordingBot();
+  const {chatType, setChatType, setPrivateChatUser, showEmojiPicker} =
+    useChatUIControls();
 
   const {
     unreadGroupMessageCount,
@@ -163,10 +159,15 @@ const Chat = (props?: ChatProps) => {
             : // desktop maximized
               CommonStyles.sidePanelContainerWeb,
           isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
-            ? {marginVertical: 4}
+            ? {marginTop: 4}
             : {},
           // @ts-ignore
           transcriptHeight && !isMobileUA() && {height: transcriptHeight},
+          // showEmojiPicker && {
+          //   backgroundColor:
+          //     $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60'],
+          // },
+          ,
         ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
@@ -176,9 +177,13 @@ const Chat = (props?: ChatProps) => {
         {chatType === ChatType.Group ? (
           <>
             <ChatContainer {...props} />
-            <View style={style.chatInputContainer}>
-              <ChatInputComponent />
-            </View>
+            {isRecordingBot ? (
+              <></>
+            ) : (
+              <View style={style.chatInputContainer}>
+                <ChatInputComponent />
+              </View>
+            )}
           </>
         ) : (
           <></>
@@ -191,11 +196,15 @@ const Chat = (props?: ChatProps) => {
         {chatType === ChatType.Private ? (
           <>
             <ChatContainer {...props} />
-            <View>
-              <View style={style.chatInputContainer}>
-                <ChatInputComponent />
+            {isRecordingBot ? (
+              <></>
+            ) : (
+              <View>
+                <View style={style.chatInputContainer}>
+                  <ChatInputComponent />
+                </View>
               </View>
-            </View>
+            )}
           </>
         ) : (
           <></>

@@ -32,7 +32,14 @@ import {useVideoCall} from '../../components/useVideoCall';
 import VisibilitySensor from './VisibilitySensor';
 import ImageIcon from '../../atoms/ImageIcon';
 import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
-interface VideoRendererProps {
+import {useString} from '../../utils/useString';
+import {
+  moreBtnViewInLarge,
+  moreBtnViewWhiteboard,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
+import {useFullScreen} from '../../utils/useFullScreen';
+export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
   CustomChild?: React.ComponentType;
@@ -43,6 +50,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   CustomChild,
 }) => {
   const {height, width} = useWindowDimensions();
+  const {requestFullscreen} = useFullScreen();
   const {dispatch} = useContext(DispatchContext);
   const {RtcEngineUnsafe} = useRtc();
   const {pinnedUid, secondaryPinnedUid} = useContent();
@@ -63,7 +71,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const {setVideoTileInViewPortState} = useVideoCall();
-  const {getWhiteboardUid = () => 0} = useWhiteboard();
+  const {
+    getWhiteboardUid = () => 0,
+    isWhiteboardOnFullScreen,
+    setWhiteboardOnFullScreen,
+    whiteboardActive,
+  } = useWhiteboard();
   const [landscapeMode, setLandscapeMode] = useState(
     isAndroid() || isIOS() ? true : false,
   );
@@ -85,22 +98,19 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
     //if screenshare is on fullscreen then get the width/height to set landscape mode
     if (isScreenShareOnFullView) {
       if (isAndroid() || isIOS()) {
-        const cb = args => {
+        const cb = (connection, stats) => {
           if (
-            args?.uid == user.uid &&
-            args?.width &&
-            args?.height &&
-            args.height > args.width
+            stats?.uid == user.uid &&
+            stats?.width &&
+            stats?.height &&
+            stats.height > stats.width
           ) {
             landscapeModeRef.current.landscapeMode && setLandscapeMode(false);
           }
         };
-        const subscription = RtcEngineUnsafe.addListener(
-          'RemoteVideoStats',
-          cb,
-        );
+        RtcEngineUnsafe.addListener('onRemoteVideoStats', cb);
         setTimeout(() => {
-          subscription.remove();
+          RtcEngineUnsafe.removeAllListeners('onRemoteVideoStats');
         }, 5000);
       } else {
         if (screenShareData && screenShareData?.[user.uid] && isMobileUA()) {
@@ -120,10 +130,31 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   }, [screenShareData, isScreenShareOnFullView]);
 
   const isNativeScreenShareActive =
-    (isAndroid() || isIOS()) && isScreenshareActive;
-  const enableExpandButton = isNativeScreenShareActive ? false : true;
+    (isAndroid() || isIOS() || isMobileUA()) && user?.type === 'screenshare';
+
+  const isNativeWhiteboardActive =
+    (isAndroid() || isIOS() || isMobileUA()) && whiteboardActive;
+
+  const enableExpandButton =
+    isNativeScreenShareActive || isNativeWhiteboardActive ? true : false;
 
   const {enablePinForMe} = useVideoCall();
+
+  const viewinlargeLabel = useString(moreBtnViewInLarge)();
+  const viewwhiteboardlabel = useString(moreBtnViewWhiteboard)();
+
+  const setScreenShareFullScreen = () => {
+    setScreenShareOnFullView(!screenShareData[user.uid]?.isExpanded);
+    setScreenShareData(prevState => {
+      return {
+        ...prevState,
+        [user.uid]: {
+          ...prevState[user.uid],
+          isExpanded: !prevState[user.uid]?.isExpanded,
+        },
+      };
+    });
+  };
 
   return (
     <>
@@ -183,18 +214,29 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           ) : (
             <></>
           )}
-          {enableExpandButton &&
-          screenShareData &&
-          screenShareData?.[user.uid] &&
-          isMobileUA() ? (
+          {(enableExpandButton &&
+            screenShareData &&
+            screenShareData?.[user.uid] &&
+            user.uid !== rtcProps?.screenShareUid &&
+            isMobileUA()) ||
+          (isMobileUA() && enableExpandButton && user?.type == 'whiteboard') ? (
             <IconButton
               containerStyle={
-                isScreenShareOnFullView && landscapeMode
+                (isScreenShareOnFullView || isWhiteboardOnFullScreen) &&
+                landscapeMode
                   ? {
                       position: 'absolute',
                       top: 8,
                       right: 8,
                       transform: [{rotate: '90deg'}],
+                      zIndex: 999,
+                      elevation: 999,
+                    }
+                  : user?.type == 'whiteboard'
+                  ? {
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
                       zIndex: 999,
                       elevation: 999,
                     }
@@ -205,25 +247,25 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                         pinnedUid &&
                         pinnedUid == user.uid &&
                         !isScreenShareOnFullView
-                          ? 160 + (isAndroid() ? 15 : 0)
+                          ? //160 + (isAndroid() ? 15 : 0)
+                            8
                           : 8,
                       zIndex: 999,
                       elevation: 999,
                     }
               }
               onPress={() => {
-                setScreenShareOnFullView(
-                  !screenShareData[user.uid]?.isExpanded,
-                );
-                setScreenShareData(prevState => {
-                  return {
-                    ...prevState,
-                    [user.uid]: {
-                      ...prevState[user.uid],
-                      isExpanded: !prevState[user.uid]?.isExpanded,
-                    },
-                  };
-                });
+                if (user?.type == 'whiteboard') {
+                  setWhiteboardOnFullScreen(!isWhiteboardOnFullScreen);
+                } else {
+                  if (isMobileUA() && !(isAndroid() || isIOS())) {
+                    requestFullscreen(user.uid).catch(() => {
+                      setScreenShareFullScreen();
+                    });
+                  } else {
+                    setScreenShareFullScreen();
+                  }
+                }
               }}
               iconProps={{
                 iconContainerStyle: {
@@ -233,6 +275,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                   transform: [{rotate: '-45deg'}],
                 },
                 name:
+                  isWhiteboardOnFullScreen ||
                   screenShareData?.[user?.uid]?.isExpanded === true
                     ? 'collapse'
                     : 'expand',
@@ -276,7 +319,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                       avatarSize,
                     );
                   }}
-                  user={isNativeScreenShareActive ? {...user, video: 0} : user}
+                  user={user}
                   containerStyle={{
                     width:
                       landscapeMode && isScreenShareOnFullView
@@ -284,8 +327,6 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                         : '100%',
                     height:
                       landscapeMode && isScreenShareOnFullView ? width : '100%',
-                    // width: '100%',
-                    // height: '100%',
                     borderRadius: 4,
                     overflow: 'hidden',
                   }}
@@ -299,6 +340,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           </ZoomableWrapper>
           {(!isScreenShareOnFullView && !CustomChild) ||
           (CustomChild &&
+            !isWhiteboardOnFullScreen &&
             (pinnedUid !== getWhiteboardUid() || currentLayout === 'grid')) ? (
             <VideoContainerProvider value={{videoTileWidth}}>
               <NameWithMicIcon
@@ -317,7 +359,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           ) : (
             <></>
           )}
-          {!isScreenShareOnFullView &&
+          {!(isScreenShareOnFullView || isWhiteboardOnFullScreen) &&
           // user.uid !== rtcProps?.screenShareUid &&
           (isHovered || actionMenuVisible || isMobileUA()) ? (
             <MoreMenu
@@ -332,6 +374,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           !isMobileUA() ? (
             <IconButton
               onPress={() => {
+                logger.log(
+                  LogSource.Internals,
+                  'LAYOUT',
+                  `Pin user -> ${user.uid}`,
+                );
                 dispatch({type: 'UserPin', value: [user.uid]});
               }}
               containerStyle={
@@ -343,8 +390,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 //text: showReplacePin ? 'Replace Pin' : 'View in large',
                 text:
                   user.uid === getWhiteboardUid()
-                    ? 'View Whiteboard'
-                    : 'View in large',
+                    ? viewwhiteboardlabel
+                    : viewinlargeLabel,
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {
                   marginTop: 0,
@@ -482,6 +529,7 @@ const maxStyle = StyleSheet.create({
     borderRadius: ThemeConfig.BorderRadius.small,
     borderWidth: 2,
     borderColor: 'red',
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
   },
   activeContainerStyle: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,

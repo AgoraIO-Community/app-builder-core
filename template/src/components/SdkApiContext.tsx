@@ -27,6 +27,10 @@ type SdkApiContextInterface = {
         meetingDetails?: Partial<RoomInfoContextInterface['data']>;
         userName: string;
         skipPrecall: boolean;
+        preference: {
+          disableShareTile: boolean;
+          disableVideoProcessors: boolean;
+        };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
     | {
@@ -99,7 +103,7 @@ const commonEventHandlers: commonEventHandlers = {
   join: setter => {
     return SDKMethodEventsManager.on(
       'join',
-      (res, rej, roomDetail, skipPrecall, userName) => {
+      (res, rej, roomDetail, skipPrecall, userName, preference) => {
         if (typeof roomDetail === 'object') {
           if (!validateMeetingInfoData(roomDetail)) {
             rej(new Error('Invalid meeting details'));
@@ -111,6 +115,7 @@ const commonEventHandlers: commonEventHandlers = {
             meetingDetails: roomDetail,
             skipPrecall,
             userName,
+            preference,
             promise: {res, rej},
           });
         } else if (
@@ -122,6 +127,7 @@ const commonEventHandlers: commonEventHandlers = {
             phrase: roomDetail,
             skipPrecall,
             userName,
+            preference,
             promise: {res, rej},
           });
         } else {

@@ -10,17 +10,27 @@ import {useVideoCall} from '../useVideoCall';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {useString} from '../../utils/useString';
+import {
+  clearAllWhiteboardPopupHeading,
+  clearAllWhiteboardPopupPrimaryBtnText,
+  clearAllWhiteboardPopupSubHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {cancelText} from '../../language/default-labels/commonLabels';
 
 const WhiteboardClearAllPopup = () => {
   const {showWhiteboardClearAllPopup, setShowWhiteboardClearAllPopup} =
     useVideoCall();
   const isDesktop = useIsDesktop()('popup');
-  const recordingLabelHeading = 'Clear Whiteborad?';
-  const recordingLabelSubHeading =
-    'Are you sure you want to clear the whiteboard?';
+  const recordingLabelHeading = useString(clearAllWhiteboardPopupHeading)();
+  const recordingLabelSubHeading = useString(
+    clearAllWhiteboardPopupSubHeading,
+  )();
 
-  const cancelBtnLabel = 'CANCEL';
-  const whiteboardClearAllLabel = 'CLEAR ALL';
+  const cancelBtnLabel = useString(cancelText)();
+  const whiteboardClearAllLabel = useString(
+    clearAllWhiteboardPopupPrimaryBtnText,
+  )();
 
   const clearWhiteboard = () => {
     LocalEventEmitter.emit(LocalEventsEnum.CLEAR_WHITEBOARD);

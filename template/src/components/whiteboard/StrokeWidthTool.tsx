@@ -10,6 +10,8 @@ export type StrokeWidthToolProps = {
   room: Room;
   roomState: RoomState;
   setPrevValue: any;
+  widthLabel: string;
+  pxLabel: string;
 };
 
 export type StrokeWidthToolStates = {
@@ -100,7 +102,7 @@ export default class StrokeWidthTool extends React.PureComponent<
               fontSize: 14,
               fontWeight: '600',
             }}>
-            Width
+            {this.props.widthLabel}
           </Text>
           <Text
             style={{
@@ -110,7 +112,7 @@ export default class StrokeWidthTool extends React.PureComponent<
               fontWeight: '600',
             }}>
             {roomState.memberState.strokeWidth}
-            {' px'}
+            {this.props.pxLabel}
           </Text>
         </View>
         <style type="text/css">{css2}</style>

@@ -6,6 +6,13 @@ import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
 import TertiaryButton from '../atoms/TertiaryButton';
+import {useString} from '../utils/useString';
+import {
+  authLogInRequiredPopupHeading,
+  authLogInRequiredPopupPrimaryBtnText,
+  authLogInRequiredPopupSecondaryBtnText,
+  authLogInRequiredPopupSubHeading,
+} from '../language/default-labels/commonLabels';
 
 interface UserCancelPopupProps {
   modalVisible: boolean;
@@ -15,11 +22,11 @@ interface UserCancelPopupProps {
 }
 const UserCancelPopup = (props: UserCancelPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const logoutLabelHeading = 'Login Required';
-  const logoutLabelSubHeading = 'Log-in to your organization to contiue';
+  const logoutLabelHeading = useString(authLogInRequiredPopupHeading)();
+  const logoutLabelSubHeading = useString(authLogInRequiredPopupSubHeading)();
 
-  const closeAppBtnLabel = 'CLOSE APP';
-  const loginBtnLabel = 'LOGIN';
+  const loginBtnLabel = useString(authLogInRequiredPopupPrimaryBtnText)();
+  const closeAppBtnLabel = useString(authLogInRequiredPopupSecondaryBtnText)();
   return (
     <Popup
       cancelable={false}

@@ -77,6 +77,8 @@ export interface whiteboardContextInterface {
   getWhiteboardUid: () => number;
   whiteboardStartedFirst?: boolean;
   clearAllCallback: () => void;
+  isWhiteboardOnFullScreen?: boolean;
+  setWhiteboardOnFullScreen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface WhiteboardPropsInterface {
@@ -90,40 +92,31 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
   const [boardColor, setBoardColor] = useState<BoardColor>(BoardColor.White);
   // Defines whiteboard room state, whether disconnected, Connected, Connecting etc.
   const [whiteboardRoomState, setWhiteboardRoomState] = useState();
+  const [isWhiteboardOnFullScreen, setWhiteboardOnFullScreen] = useState(false);
   const whiteboardUidRef = useRef(Date.now());
-  const whiteWebSdkClient = useRef({});
   const whiteboardRoom = useRef({});
-  const {pinnedUid, activeUids} = useContent();
-  const prevImageUploadHeightRef = useRef(0);
 
-  const uploadPendingRef = useRef(false);
-
-  const {
-    data: {isHost, whiteboard: {room_token, room_uuid} = {}},
-    boardColor: boardColorRemote,
-    whiteboardLastImageUploadPosition: whiteboardLastImageUploadPositionRemote,
-  } = useRoomInfo();
-  const {currentLayout} = useLayout();
-
-  const setUploadRef = () => {
-    uploadPendingRef.current = true;
-  };
+  const setUploadRef = () => {};
 
   const insertImageIntoWhiteboard = url => {};
 
-  const sendLastImageUploadPositionToRemoteUsers = (height: number) => {};
+  const joinWhiteboardRoom = () => {
+    setWhiteboardActive(true);
+  };
 
-  const join = () => {};
-
-  const leave = () => {};
-
-  const joinWhiteboardRoom = () => {};
-
-  const leaveWhiteboardRoom = () => {};
+  const leaveWhiteboardRoom = () => {
+    setWhiteboardActive(false);
+  };
 
   const getWhiteboardUid = () => {
     return whiteboardUidRef?.current;
   };
+
+  useEffect(() => {
+    if (!whiteboardActive && isWhiteboardOnFullScreen) {
+      setWhiteboardOnFullScreen(false);
+    }
+  }, [whiteboardActive]);
 
   const clearAllCallback = () => {};
   return (
@@ -142,6 +135,8 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
         insertImageIntoWhiteboard,
         whiteboardStartedFirst,
         clearAllCallback,
+        isWhiteboardOnFullScreen,
+        setWhiteboardOnFullScreen,
       }}>
       {props.children}
     </whiteboardContext.Provider>

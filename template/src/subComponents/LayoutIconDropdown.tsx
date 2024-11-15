@@ -9,6 +9,12 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useContent} from 'customization-api';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import {useString} from '../utils/useString';
+import {
+  toolbarItemLayoutOptionGridText,
+  toolbarItemLayoutOptionSidebarText,
+} from '../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -41,9 +47,17 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {setLayout, currentLayout} = useLayout();
   const isMobileView = isMobileUA();
 
+  const gridLabel = useString(toolbarItemLayoutOptionGridText)();
+  const sidebarLabel = useString(toolbarItemLayoutOptionSidebarText)();
+
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
       let onPress = () => {
+        logger.log(
+          LogSource.Internals,
+          'LAYOUT',
+          `Layout changed to - ${item.name}`,
+        );
         setLayout(item.name);
         setShowDropdown(false);
       };
@@ -91,7 +105,12 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             marginTop: 0,
           },
           //text: $config.ICON_TEXT ? item.label : '',
-          text: item.label,
+          text:
+            item?.translationKey === toolbarItemLayoutOptionGridText
+              ? gridLabel
+              : item?.translationKey === toolbarItemLayoutOptionSidebarText
+              ? sidebarLabel
+              : item.label,
           textColor: $config.FONT_COLOR,
         },
       };

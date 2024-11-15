@@ -21,7 +21,11 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
-import {ClientRole, DispatchContext, UidType} from '../../../agora-rn-uikit';
+import {
+  ClientRoleType,
+  DispatchContext,
+  UidType,
+} from '../../../agora-rn-uikit';
 import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
@@ -35,11 +39,31 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
-import {calculatePosition, trimText} from '../../utils/common';
+import {calculatePosition, isMobileUA, trimText} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {customEvents} from 'customization-api';
 import {useDisableChat} from '../disable-chat/useDisableChat';
 import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
+import {useString} from '../../utils/useString';
+import {
+  I18nMuteType,
+  moreBtnAddAsPresenter,
+  moreBtnAudio,
+  moreBtnChangeName,
+  moreBtnMessagePrivately,
+  moreBtnPinToTop,
+  moreBtnRemoveAsPresenter,
+  moreBtnRemoveFromLarge,
+  moreBtnRemoveFromRoom,
+  moreBtnRemoveFromTop,
+  moreBtnRemoveScreenShare,
+  moreBtnStopScreenShare,
+  moreBtnVideo,
+  moreBtnViewInLarge,
+  moreBtnViewWhiteboard,
+  userRemovedFromTheRoomToastHeading,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {isAndroid, isIOS} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -55,7 +79,7 @@ export default function UserActionMenuOptionsOptions(
   const [showVideoMuteModal, setShowVideoMuteModal] = useState(false);
   const [isPosCalculated, setIsPosCalculated] = useState(false);
   const {setFocus} = useFocus();
-  const {stopUserScreenShare} = useScreenshare();
+  const {stopScreenshare} = useScreenshare();
   const remoteEndScreenshare = useRemoteEndScreenshare();
   const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
     useState(false);
@@ -83,6 +107,21 @@ export default function UserActionMenuOptionsOptions(
   const {enablePinForMe} = useVideoCall();
   const {setDisableChatUids, disableChatUids} = useDisableChat();
   const {getWhiteboardUid = () => 0} = useWhiteboard();
+
+  const viewWhiteboardLabel = useString(moreBtnViewWhiteboard)();
+  const removeFromLargeLabel = useString(moreBtnRemoveFromLarge)();
+  const viewInLargeLabel = useString(moreBtnViewInLarge)();
+  const pinToTopLabel = useString(moreBtnPinToTop)();
+  const removeFromTopLabel = useString(moreBtnRemoveFromTop)();
+  const messagePrivatelyLabel = useString(moreBtnMessagePrivately)();
+  const audioLabel = useString<boolean>(moreBtnAudio);
+  const videoLabel = useString<boolean>(moreBtnVideo);
+  const addAsPresenterLabel = useString(moreBtnAddAsPresenter)();
+  const removeAsPresenterLabel = useString(moreBtnRemoveAsPresenter)();
+  const changeNameLabel = useString(moreBtnChangeName)();
+  const stopScreenShareLabel = useString(moreBtnStopScreenShare)();
+  const removeScreenShareLabel = useString(moreBtnRemoveScreenShare)();
+  const removeFromRoomLabel = useString(moreBtnRemoveFromRoom)();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -116,32 +155,33 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       if (enablePinForMe) {
-        //if (pinnedUid !== user.uid) {
-        items.push({
-          //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
-          disabled: activeUids?.length === 1,
-          icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-          onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: pinnedUid
-            ? user.uid === pinnedUid
-              ? 'Remove from large'
+        if (pinnedUid !== user.uid) {
+          items.push({
+            //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+            disabled: activeUids?.length === 1,
+            icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+            onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: pinnedUid
+              ? user.uid === pinnedUid
+                ? removeFromLargeLabel
+                : user.uid === getWhiteboardUid()
+                ? viewWhiteboardLabel
+                : viewInLargeLabel
               : user.uid === getWhiteboardUid()
-              ? 'View Whiteboard'
-              : 'View in large'
-            : user.uid === getWhiteboardUid()
-            ? 'View Whiteboard'
-            : 'View in large',
-          callback: () => {
-            setActionMenuVisible(false);
-            dispatch({
-              type: 'UserPin',
-              value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
-            });
-            setLayout(getPinnedLayoutName());
-          },
-        });
+              ? viewWhiteboardLabel
+              : viewInLargeLabel,
+            onPress: () => {
+              setActionMenuVisible(false);
+              dispatch({
+                type: 'UserPin',
+                value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+              });
+              setLayout(getPinnedLayoutName());
+            },
+          });
+        }
         if (currentLayout === DefaultLayouts[1].name) {
           items.push({
             // disabled:
@@ -153,10 +193,10 @@ export default function UserActionMenuOptionsOptions(
             textColor: $config.SECONDARY_ACTION_COLOR,
             title: secondaryPinnedUid
               ? user.uid === secondaryPinnedUid
-                ? 'Remove from top'
-                : 'Pin to top'
-              : 'Pin to top',
-            callback: () => {
+                ? removeFromTopLabel
+                : pinToTopLabel
+              : pinToTopLabel,
+            onPress: () => {
               setActionMenuVisible(false);
               dispatch({
                 type: 'UserSecondaryPin',
@@ -169,7 +209,6 @@ export default function UserActionMenuOptionsOptions(
             },
           });
         }
-        //}
       }
     }
 
@@ -186,8 +225,8 @@ export default function UserActionMenuOptionsOptions(
           onHoverIcon: 'chat-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
-          title: 'Message Privately',
-          callback: () => {
+          title: messagePrivatelyLabel,
+          onPress: () => {
             setActionMenuVisible(false);
             openPrivateChat(user.uid);
           },
@@ -217,8 +256,8 @@ export default function UserActionMenuOptionsOptions(
             onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: user.audio ? 'Mute Audio' : 'Request Audio',
-            callback: () => {
+            title: audioLabel(user.audio),
+            onPress: () => {
               setActionMenuVisible(false);
               user.audio
                 ? setShowAudioMuteModal(true)
@@ -231,8 +270,8 @@ export default function UserActionMenuOptionsOptions(
               onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
               iconColor: $config.SECONDARY_ACTION_COLOR,
               textColor: $config.SECONDARY_ACTION_COLOR,
-              title: user.video ? 'Mute Video' : 'Request Video',
-              callback: () => {
+              title: videoLabel(user.video),
+              onPress: () => {
                 setActionMenuVisible(false);
                 user.video
                   ? setShowVideoMuteModal(true)
@@ -255,8 +294,8 @@ export default function UserActionMenuOptionsOptions(
             onHoverIcon: 'promote-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: 'Add as Presenter',
-            callback: () => {
+            title: addAsPresenterLabel,
+            onPress: () => {
               setActionMenuVisible(false);
               promoteAudienceAsCoHost(user.uid);
             },
@@ -265,7 +304,8 @@ export default function UserActionMenuOptionsOptions(
         if ($config.EVENT_MODE) {
           if (
             raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
-            raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+            raiseHandList[user.uid]?.role ==
+              ClientRoleType.ClientRoleBroadcaster
           ) {
             items.push({
               isBase64Icon: true,
@@ -273,8 +313,8 @@ export default function UserActionMenuOptionsOptions(
               onHoverIcon: 'demote-filled',
               iconColor: $config.SECONDARY_ACTION_COLOR,
               textColor: $config.SECONDARY_ACTION_COLOR,
-              title: 'Remove as Presenter',
-              callback: () => {
+              title: removeAsPresenterLabel,
+              onPress: () => {
                 setActionMenuVisible(false);
                 events.send(
                   LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -291,8 +331,8 @@ export default function UserActionMenuOptionsOptions(
           icon: 'remove-meeting',
           iconColor: $config.SEMANTIC_ERROR,
           textColor: $config.SEMANTIC_ERROR,
-          title: 'Remove From Room',
-          callback: () => {
+          title: removeFromRoomLabel,
+          onPress: () => {
             setActionMenuVisible(false);
             setRemoveMeetingPopupVisible(true);
           },
@@ -309,8 +349,8 @@ export default function UserActionMenuOptionsOptions(
         onHoverIcon: 'pencil-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Change Name',
-        callback: () => {
+        title: changeNameLabel,
+        onPress: () => {
           setFocus(prevState => {
             return {
               ...prevState,
@@ -334,13 +374,13 @@ export default function UserActionMenuOptionsOptions(
         textColor: $config.SEMANTIC_ERROR,
         title:
           localuid === user?.parentUid
-            ? 'Stop Screenshare'
-            : 'Remove Screenshare',
-        callback: () => {
+            ? stopScreenShareLabel
+            : removeScreenShareLabel,
+        onPress: () => {
           setActionMenuVisible(false);
           //for local user directly stop the screenshare
           if (localuid === user.parentUid) {
-            stopUserScreenShare();
+            stopScreenshare();
           }
           //for remote user show popup and then user will use cta to stop screenshare
           else {
@@ -363,7 +403,7 @@ export default function UserActionMenuOptionsOptions(
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState({});
-
+  const toastlabel = useString(userRemovedFromTheRoomToastHeading);
   useEffect(() => {
     if (actionMenuVisible) {
       //getting btnRef x,y
@@ -395,7 +435,7 @@ export default function UserActionMenuOptionsOptions(
     <>
       {isHost ? (
         <RemoteMutePopup
-          type="audio"
+          type={I18nMuteType.audio}
           actionMenuVisible={showAudioMuteModal}
           setActionMenuVisible={setShowAudioMuteModal}
           name={props?.user.name}
@@ -410,7 +450,7 @@ export default function UserActionMenuOptionsOptions(
       )}
       {isHost ? (
         <RemoteMutePopup
-          type="video"
+          type={I18nMuteType.video}
           actionMenuVisible={showVideoMuteModal}
           setActionMenuVisible={setShowVideoMuteModal}
           name={props?.user.name}
@@ -446,9 +486,7 @@ export default function UserActionMenuOptionsOptions(
             Toast.show({
               leadingIconName: 'info',
               type: 'info',
-              text1: `The system will remove ${trimText(
-                user.name,
-              )} from this call after 5 secs.`,
+              text1: toastlabel(trimText(user.name)),
               visibilityTime: 5000,
               primaryBtn: null,
               secondaryBtn: null,

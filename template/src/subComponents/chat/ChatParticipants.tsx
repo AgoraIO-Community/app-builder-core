@@ -21,6 +21,11 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
 import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamDataContext';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
+import {
+  inviteTileNoElseJoinedYetText,
+  videoRoomUserFallbackText,
+} from '../../language/default-labels/videoCallScreenLabels';
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
 
 const ChatIcon = () => (
   <View style={{alignSelf: 'center', marginRight: 20}}>
@@ -33,9 +38,7 @@ const ChatIcon = () => (
 );
 
 const ChatParticipants = (props: any) => {
-  //commented for v1 release
-  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const remoteUserDefaultLabel = 'User';
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const {selectUser} = props;
   const {defaultContent, activeUids, customContent} = useContent();
   const activeUidsLen = activeUids?.filter(i => !customContent[i])?.length;
@@ -52,6 +55,8 @@ const ChatParticipants = (props: any) => {
     }
   }, [waitingRoomUids, activeUids]);
 
+  const noOneElseJoinedYet = useString(inviteTileNoElseJoinedYetText)();
+
   return (
     <ScrollView>
       {
@@ -60,9 +65,7 @@ const ChatParticipants = (props: any) => {
         //livestreaming vertical
         ($config.EVENT_MODE && hostUids.length + audienceUids.length === 1) ? (
           <View style={style.defaultMessageContainer}>
-            <Text style={style.defaultMessageText}>
-              No one else has joined yet.
-            </Text>
+            <Text style={style.defaultMessageText}>{noOneElseJoinedYet}</Text>
           </View>
         ) : (
           <></>
@@ -122,6 +125,11 @@ const ChatParticipants = (props: any) => {
                 return (
                   <Pressable
                     onPress={() => {
+                      logger.log(
+                        LogSource.Internals,
+                        'CHAT',
+                        `Starting chat with ${name}`,
+                      );
                       selectUser(uidAsNumber);
                     }}>
                     <View style={style.participantContainer}>
@@ -148,8 +156,6 @@ const ChatParticipants = (props: any) => {
                           </View>
                           <Spacer size={20} horizontal={true} />
                         </>
-                      ) : isMobile || isHovered ? (
-                        <ChatIcon />
                       ) : (
                         <></>
                       )}
@@ -217,9 +223,9 @@ const style = StyleSheet.create({
     borderRadius: 18,
   },
   userAvatarText: {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 21,
+    fontWeight: '600',
     color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
@@ -238,7 +244,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 14,
-    lineHeight: 14,
+    lineHeight: 21,
     color: $config.FONT_COLOR,
     textAlign: 'left',
     flexShrink: 1,

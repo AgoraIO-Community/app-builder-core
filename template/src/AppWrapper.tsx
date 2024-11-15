@@ -35,6 +35,7 @@ import ToastComponent from './components/ToastComponent';
 import {ToastContext, ToastProvider} from './components/useToast';
 import {SdkApiContext} from './components/SdkApiContext';
 import isSDK from './utils/isSDK';
+import BlockUI from './subComponents/BlockUI';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -84,14 +85,10 @@ const AppWrapper = (props: AppWrapperProps) => {
         <SafeAreaView
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
-          <StatusBar hidden={true} />
-          <ToastProvider>
-            <ToastContext.Consumer>
-              {({isActionSheetVisible}) => {
-                return !isActionSheetVisible ? <ToastComponent /> : null;
-              }}
-            </ToastContext.Consumer>
-            <StorageProvider>
+          <StatusBar backgroundColor={$config.BACKGROUND_COLOR} />
+          {$config.DISABLE_LANDSCAPE_MODE && <BlockUI />}
+          <StorageProvider>
+            <LanguageProvider>
               <GraphQLProvider>
                 <Router
                   /*@ts-ignore Router will be memory Router in sdk*/
@@ -102,25 +99,32 @@ const AppWrapper = (props: AppWrapperProps) => {
                         `/${SdkJoinState.phrase}`
                       : '',
                   ]}>
-                  <AuthProvider>
-                    <SessionProvider>
-                      <ColorConfigure>
-                        <DimensionProvider>
-                          <LanguageProvider>
+                  <ToastProvider>
+                    <ToastContext.Consumer>
+                      {({isActionSheetVisible}) => {
+                        return !isActionSheetVisible ? (
+                          <ToastComponent />
+                        ) : null;
+                      }}
+                    </ToastContext.Consumer>
+                    <AuthProvider>
+                      <SessionProvider>
+                        <ColorConfigure>
+                          <DimensionProvider>
                             <ErrorProvider>
                               <Error />
                               <Navigation />
                               {props.children}
                             </ErrorProvider>
-                          </LanguageProvider>
-                        </DimensionProvider>
-                      </ColorConfigure>
-                    </SessionProvider>
-                  </AuthProvider>
+                          </DimensionProvider>
+                        </ColorConfigure>
+                      </SessionProvider>
+                    </AuthProvider>
+                  </ToastProvider>
                 </Router>
               </GraphQLProvider>
-            </StorageProvider>
-          </ToastProvider>
+            </LanguageProvider>
+          </StorageProvider>
         </SafeAreaView>
       </ImageBackgroundComp>
     </AppRoot>

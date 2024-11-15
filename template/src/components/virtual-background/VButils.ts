@@ -1,3 +1,5 @@
+import {LogSource, logger} from '../../logger/AppBuilderLogger';
+
 interface ImageItem {
   id: number;
   data: string;
@@ -48,16 +50,29 @@ export const saveImagesToIndexDB = async (
     store.add(item);
 
     tx.oncomplete = () => {
-      console.log('Transaction completed');
+      logger.debug(
+        LogSource.Internals,
+        'VIRTUAL_BACKGROUND',
+        'Transaction completed',
+      );
     };
 
-    console.log('Added images to the store!');
+    logger.debug(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Added images to the store!',
+    );
   } catch (error) {
-    console.error('Error saving images to IndexedDB:', error);
+    logger.error(
+      LogSource.Internals,
+      'VIRTUAL_BACKGROUND',
+      'Error saving images to IndexedDB',
+      error,
+    );
   }
 };
 
-export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
+export const retrieveImagesFromStorage = async (): Promise<string[]> => {
   return new Promise<string[]>(async (resolve, reject) => {
     try {
       const db = await openIndexedDB('vb-image-db', 1);
@@ -74,31 +89,56 @@ export const retrieveImagesFromIndexDB = async (): Promise<string[]> => {
           retrievedImages.push(cursor.value.data);
           cursor.continue();
         } else {
-          console.log('Successfully Retrieved images from IndexedDB:');
+          logger.debug(
+            LogSource.Internals,
+            'VIRTUAL_BACKGROUND',
+            'Successfully retrieved images from IndexedDB!',
+          );
           resolve(retrievedImages);
         }
       };
     } catch (error) {
-      console.error('Error retrieving images from IndexedDB:', error);
+      logger.error(
+        LogSource.Internals,
+        'VIRTUAL_BACKGROUND',
+        'Error retrieving images from IndexedDB',
+        error,
+      );
       reject(error);
     }
   });
 };
 
+// export const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
+//   return new Promise((resolve, reject) => {
+//     const xhr = new XMLHttpRequest();
+//     xhr.responseType = 'blob';
+//     xhr.onload = () => {
+//       const reader = new FileReader();
+//       reader.onloadend = () => {
+//         resolve(reader.result as string);
+//       };
+//       reader.onerror = reject;
+//       reader.readAsDataURL(xhr.response);
+//     };
+//     xhr.onerror = reject;
+//     xhr.open('GET', blobURL);
+//     xhr.send();
+//   });
+// };
+
 export const convertBlobToBase64 = async (blobURL: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = 'blob';
-    xhr.onload = () => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(xhr.response);
-    };
-    xhr.onerror = reject;
-    xhr.open('GET', blobURL);
-    xhr.send();
+    fetch(blobURL)
+      .then(response => response.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      })
+      .catch(reject);
   });
 };

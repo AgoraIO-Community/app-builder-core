@@ -16,6 +16,7 @@ import ToolbarItem from '../../../atoms/ToolbarItem';
 export interface LiveStreamControlsProps {
   showControls: boolean;
   showLabel?: boolean;
+  customProps?: any;
 }
 
 const LiveStreamControls = (props: LiveStreamControlsProps) => {
@@ -24,7 +25,7 @@ const LiveStreamControls = (props: LiveStreamControlsProps) => {
   if (!showControls) return <></>;
   return (
     <>
-      <ToolbarItem>
+      <ToolbarItem toolbarProps={props?.customProps}>
         <LocalRaiseHand />
       </ToolbarItem>
     </>

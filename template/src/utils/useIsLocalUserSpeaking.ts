@@ -5,6 +5,8 @@ import {useAsyncEffect} from './useAsyncEffect';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
 
 const useIsLocalUserSpeaking = () => {
   const log: (arg1: string, ...args: any[]) => void = (arg1, ...args) => {
@@ -15,6 +17,7 @@ const useIsLocalUserSpeaking = () => {
   const speechRef = useRef(null);
   const audioRef = useRef(audio);
   const audioTrackRef = useRef(null);
+  const {isRecordingBot} = useIsRecordingBot();
 
   useEffect(() => {
     audioRef.current = audio;
@@ -40,6 +43,9 @@ const useIsLocalUserSpeaking = () => {
 
   useEffect(() => {
     LocalEventEmitter.on(LocalEventsEnum.MIC_CHANGED, () => {
+      if (isRecordingBot) {
+        return;
+      }
       listenForSpeaker();
     });
   }, []);
@@ -55,7 +61,12 @@ const useIsLocalUserSpeaking = () => {
           audioTrackRef.current[0]?.stop();
       }
     } catch (error) {
-      log(' Error on stopping the hark', error);
+      logger.error(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        'Error on stopping the hark',
+        error,
+      );
     }
     try {
       //detect local user speaking or not
@@ -70,12 +81,17 @@ const useIsLocalUserSpeaking = () => {
       speechRef.current.on('speaking', speakingCallBack);
       speechRef.current.on('stopped_speaking', stoppedSpeakingCallBack);
     } catch (error) {
-      log(' Error on starting the hark', error);
+      logger.error(
+        LogSource.Internals,
+        'ACTIVE_SPEAKER',
+        'Error on starting the hark',
+        error,
+      );
     }
   };
 
   useAsyncEffect(async () => {
-    if ($config.ACTIVE_SPEAKER) {
+    if ($config.ACTIVE_SPEAKER && !isRecordingBot) {
       await listenForSpeaker();
       return () => {
         try {
@@ -87,7 +103,12 @@ const useIsLocalUserSpeaking = () => {
             audioTrackRef.current[0]?.stop &&
             audioTrackRef.current[0]?.stop();
         } catch (error) {
-          console.log('error couldnt stop the track');
+          logger.error(
+            LogSource.Internals,
+            'ACTIVE_SPEAKER',
+            'couldnt stop the track',
+            error,
+          );
         }
       };
     }

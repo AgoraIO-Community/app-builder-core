@@ -8,7 +8,7 @@ export const getIDPAuthLoginURL = () => {
   }&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
 };
 
-export const addEventListenerForToken = history => {
+export const addEventListenerForToken = (history, heading) => {
   window.addEventListener(
     'message',
     ({data, origin}: {data: {token: string; msg: string}; origin: string}) => {
@@ -18,7 +18,7 @@ export const addEventListenerForToken = history => {
         Toast.show({
           leadingIconName: 'alert',
           type: 'error',
-          text1: 'Your session has timed out, Retrying...',
+          text1: heading ? heading : 'Your session has timed out, Retrying...',
           visibilityTime: 3000,
         });
         setTimeout(() => {
@@ -31,8 +31,8 @@ export const addEventListenerForToken = history => {
   );
 };
 
-export const enableIDPAuth = async history => {
-  addEventListenerForToken(history);
+export const enableIDPAuth = async (history, heading) => {
+  addEventListenerForToken(history, heading);
   //open the auth login in the popup
   window.open(getIDPAuthLoginURL(), 'modal');
 };

@@ -18,7 +18,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRoleType} from '../../agora-rn-uikit';
 import {
   isMobileUA,
   isWebInternal,
@@ -49,10 +49,16 @@ import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
-import VBPanel from './virtual-background/VBPanel';
+import VBPanel, {VBPanelProps} from './virtual-background/VBPanel';
 import Logo from '../components/common/Logo';
 import ImageIcon from '../atoms/ImageIcon';
 import {DeviceSelectProps} from './precall/selectDevice';
+import {useString} from '../utils/useString';
+import {
+  precallYouAreJoiningAsHeading,
+  settingsPanelHeading,
+} from '../language/default-labels/precallScreenLabels';
+import {LogSource, logger} from '../logger/AppBuilderLogger';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -103,7 +109,9 @@ const JoinRoomInputView = ({isDesktop}) => {
           {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
           </Text> */}
-          {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
+          {rtcProps.role == ClientRoleType.ClientRoleAudience && (
+            <Spacer size={40} />
+          )}
         </>
       ) : (
         <></>
@@ -111,7 +119,7 @@ const JoinRoomInputView = ({isDesktop}) => {
       <View
         style={
           $config.EVENT_MODE &&
-          rtcProps.role == ClientRole.Audience && {
+          rtcProps.role == ClientRoleType.ClientRoleAudience && {
             justifyContent: 'space-between',
             flex: 1,
           }
@@ -124,7 +132,7 @@ const JoinRoomInputView = ({isDesktop}) => {
               : {width: '100%'}
           }>
           {$config.ENABLE_WAITING_ROOM &&
-          rtcProps.role === ClientRole.Audience ? (
+          rtcProps.role === ClientRoleType.ClientRoleAudience ? (
             <JoinWaitingRoomBtn />
           ) : (
             <JoinButton />
@@ -212,7 +220,7 @@ const JoinRoomButton = () => {
   });
 
   return $config.ENABLE_WAITING_ROOM &&
-    rtcProps.role === ClientRole.Audience ? (
+    rtcProps.role === ClientRoleType.ClientRoleAudience ? (
     <JoinWaitingRoomBtn />
   ) : (
     <JoinButton />
@@ -220,6 +228,8 @@ const JoinRoomButton = () => {
 };
 
 const Precall = () => {
+  const settingsLabel = useString(settingsPanelHeading)();
+  const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
   const {rtcProps} = useContext(PropsContext);
   const {height} = useWindowDimensions();
   // const {isVBActive, setIsVBActive} = useVB();
@@ -235,21 +245,27 @@ const Precall = () => {
     VideoPreview,
     MeetingName,
     DeviceSelect,
+    VirtualBackgroundComponent,
     PrecallAfterView,
     PrecallBeforeView,
+    wrapper: PrecallWrapper,
   } = useCustomization(data => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType<DeviceSelectProps>;
+      VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       VideoPreview: React.ComponentType;
       MeetingName: React.ComponentType<MeetingTitleProps>;
+      wrapper: React.ComponentType;
     } = {
       PrecallAfterView: React.Fragment,
       PrecallBeforeView: React.Fragment,
       MeetingName: PreCallMeetingTitle,
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
+      VirtualBackgroundComponent: VBPanel,
+      wrapper: React.Fragment,
     };
     // commented for v1 release
     // if (
@@ -296,6 +312,24 @@ const Precall = () => {
     //     }
     //   }
     // }
+
+    if (
+      data?.components?.precall?.wrapper &&
+      typeof data?.components?.precall?.wrapper !== 'object'
+    ) {
+      if (isValidReactComponent(data?.components?.precall?.wrapper)) {
+        components.wrapper = data?.components?.precall?.wrapper;
+      }
+    }
+
+    if (
+      data?.components?.precall?.virtualBackgroundPanel &&
+      typeof data?.components?.precall.virtualBackgroundPanel !== 'object' &&
+      isValidReactComponent(data?.components?.precall.virtualBackgroundPanel)
+    ) {
+      components.VirtualBackgroundComponent =
+        data?.components?.precall.virtualBackgroundPanel;
+    }
     return components;
   });
   const {
@@ -314,6 +348,20 @@ const Precall = () => {
   });
 
   useEffect(() => {
+    logger.log(
+      LogSource.Internals,
+      'PRECALL_SCREEN',
+      `User has landed on precall room with role as ${
+        rtcProps.role === ClientRoleType.ClientRoleAudience
+          ? 'AUDIENCE'
+          : 'HOST'
+      } and the mode of this call as ${
+        $config.EVENT_MODE ? 'LIVE' : 'COMMUNICATION'
+      }`,
+    );
+  }, []);
+
+  useEffect(() => {
     if (isJoinDataFetched) {
       new Promise(res =>
         // @ts-ignore
@@ -321,6 +369,12 @@ const Precall = () => {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {
+        logger.log(
+          LogSource.Internals,
+          'PRECALL_SCREEN',
+          'fetching available devices',
+          devices,
+        );
         SDKEvents.emit('ready-to-join', meetingTitle, devices);
       });
     }
@@ -346,15 +400,16 @@ const Precall = () => {
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
-    <>
+    <PrecallWrapper>
       <PrecallBeforeView />
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+      {$config.EVENT_MODE &&
+      rtcProps.role == ClientRoleType.ClientRoleAudience ? (
         <View style={style.root}>
           {!isMobileUA() ? <IDPLogoutComponent /> : <></>}
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
-                <MeetingName prefix="You are joining" />
+                <MeetingName prefix={youAreJoiningAs} />
               </View>
               <Spacer size={32} />
               <JoinRoomInputView isDesktop={true} />
@@ -405,8 +460,7 @@ const Precall = () => {
                   }>
                   <View style={style.desktopRootcontainer}>
                     <View>
-                      {' '}
-                      <MeetingName prefix="You are joining" />
+                      <MeetingName prefix={youAreJoiningAs} />
                     </View>
                     <View style={style.desktopContainer}>
                       <View style={style.desktopContentContainer}>
@@ -461,31 +515,33 @@ const Precall = () => {
                       marginVertical: 0,
                     }
               }>
-              <View style={style.settingHeaderContainer}>
-                <View style={style.settingIconContainer}>
-                  <ImageIcon
-                    name="settings"
-                    iconSize={24}
-                    tintColor={$config.SECONDARY_ACTION_COLOR}
-                    iconType="plain"
-                  />
+              <ScrollView>
+                <View style={style.settingHeaderContainer}>
+                  <View style={style.settingIconContainer}>
+                    <ImageIcon
+                      name="settings"
+                      iconSize={24}
+                      tintColor={$config.SECONDARY_ACTION_COLOR}
+                      iconType="plain"
+                    />
+                  </View>
+                  <Text style={style.settingTextStyle}>{settingsLabel}</Text>
                 </View>
-                <Text style={style.settingTextStyle}>Settings</Text>
-              </View>
-              <View style={style.deviceSelectContainer}>
-                <DeviceSelect isOnPrecall={true} />
-              </View>
-              {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
-                <ScrollView style={style.vbPanelContainer}>
-                  <VBPanel isOnPrecall={true} />
-                </ScrollView>
-              )}
+                <View style={style.deviceSelectContainer}>
+                  <DeviceSelect isOnPrecall={true} />
+                </View>
+                {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
+                  <ScrollView style={style.panelContainer}>
+                    <VirtualBackgroundComponent isOnPrecall={true} />
+                  </ScrollView>
+                )}
+              </ScrollView>
             </Card>
           </ScrollView>
         </View>
       )}
       <PrecallAfterView />
-    </>
+    </PrecallWrapper>
   );
 };
 
@@ -500,6 +556,15 @@ const style = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
   },
+  panelContainer: {
+    margin: 24,
+    marginTop: 0,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+  },
   settingTextStyle: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -510,15 +575,7 @@ const style = StyleSheet.create({
   deviceSelectContainer: {
     paddingHorizontal: 24,
   },
-  vbPanelContainer: {
-    margin: 24,
-    marginTop: 0,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
-    borderRadius: 8,
-    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-  },
+
   labelStyle: {
     paddingLeft: 8,
   },
