@@ -862,6 +862,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     setRecordingDeletePopupVisible(false);
     deleteRecording(recordingIdToDelete)
       .then(() => {
+        //To inform other user -> refresh the recording list
+        //in case recording list opened
+        events.send(
+          EventNames.RECORDING_DELETED,
+          JSON.stringify({recordingId: recordingIdToDelete}),
+          PersistanceLevel.None,
+        );
         Toast.show({
           leadingIconName: 'alert',
           type: 'success',
@@ -872,6 +879,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           leadingIcon: null,
         });
         setRecordingIdToDelete(0);
+        //to reopen recording list again
+        setTimeout(() => {
+          setVRModalOpen(true);
+        }, 3000);
       })
       .catch(() => {
         Toast.show({
