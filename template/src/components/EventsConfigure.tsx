@@ -268,7 +268,8 @@ const EventsConfigure: React.FC<Props> = ({
   }, [permissionStatus]);
 
   const {hasUserJoinedRTM, isInitialQueueCompleted} = useContext(ChatContext);
-  const {startSpeechToText} = useSpeechToText();
+  const {startSpeechToText, addStreamMessageListener} = useSpeechToText();
+
   //auto start stt
   useEffect(() => {
     if (
@@ -285,6 +286,10 @@ const EventsConfigure: React.FC<Props> = ({
         logger.log(LogSource.Internals, 'STT', 'STT_AUTO_START triggered', {
           uidWhoTriggered: localUid,
         });
+
+        // add stream message callback listener
+        addStreamMessageListener();
+
         //start with default language
         startSpeechToText(['en-US'])
           .then(() => {

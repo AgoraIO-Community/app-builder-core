@@ -10,9 +10,16 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {sttSettingSpokenLanguageText} from '../../language/default-labels/videoCallScreenLabels';
 
-type WebStreamMessageArgs = [number, Uint8Array];
-type NativeStreamMessageArgs = [{}, number, number, Uint8Array, number, number];
-type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
+export type WebStreamMessageArgs = [number, Uint8Array];
+export type NativeStreamMessageArgs = [
+  {},
+  number,
+  number,
+  Uint8Array,
+  number,
+  number,
+];
+export type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
 
 interface CaptionProps {
   captionTextStyle?: TextStyle;
