@@ -13,7 +13,7 @@ export const style = StyleSheet.create({
     flexShrink: 0,
     // width: 620,
     width: '100%',
-    maxWidth: 620,
+    maxWidth: 680,
     minWidth: 340,
     height: 620,
     maxHeight: 620,
@@ -98,9 +98,8 @@ export const style = StyleSheet.create({
   },
   td: {
     flex: 1,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
     // height: 100,
     gap: 10,
   },
@@ -127,7 +126,6 @@ export const style = StyleSheet.create({
   tactions: {
     display: 'flex',
     flexDirection: 'row',
-    marginTop: -8,
   },
   tlink: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,

@@ -3,12 +3,20 @@ import {
   SidePanelType,
   customEvents,
   useContent,
+  useRtc,
   useSTTAPI,
   useSidePanel,
 } from 'customization-api';
 import useTranscriptDownload from '../subComponents/caption/useTranscriptDownload';
 import {useCaption} from '../subComponents/caption/useCaption';
 import {LanguageType} from '../subComponents/caption/utils';
+import useStreamMessageUtils from '../subComponents/caption/useStreamMessageUtils';
+import {
+  NativeStreamMessageArgs,
+  StreamMessageArgs,
+  WebStreamMessageArgs,
+} from '../subComponents/caption/Caption';
+import {isWebInternal} from './common';
 
 const useSpeechToText = () => {
   const {
@@ -18,6 +26,8 @@ const useSpeechToText = () => {
     captionObj: captionData,
     prevSpeakerRef,
     activeSpeakerRef,
+    isSTTListenerAdded,
+    setIsSTTListenerAdded,
   } = useCaption();
   const {setSidePanel} = useSidePanel();
 
@@ -26,6 +36,8 @@ const useSpeechToText = () => {
 
   const isAuthorizedSTTUserRef = useRef(isAuthorizedSTTUser);
   const defaultContentRef = useRef(defaultContent);
+  const {RtcEngineUnsafe} = useRtc();
+  const {streamMessageCallback} = useStreamMessageUtils();
 
   const showTranscriptPanel = (show: boolean) => {
     show
@@ -40,7 +52,7 @@ const useSpeechToText = () => {
   useEffect(() => {
     if (!$config.ENABLE_STT) {
       //throw new Error('Speech To Text is not enabled');
-      console.error('Speech To Text is not enabled')
+      console.error('Speech To Text is not enabled');
     }
   }, []);
 
@@ -76,6 +88,24 @@ const useSpeechToText = () => {
     return await stop();
   };
 
+  const addStreamMessageListener = () => {
+    !isSTTListenerAdded &&
+      RtcEngineUnsafe.addListener(
+        'onStreamMessage',
+        handleStreamMessageCallback,
+      );
+  };
+  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
+    setIsSTTListenerAdded(true);
+    if (isWebInternal()) {
+      const [uid, data] = args as WebStreamMessageArgs;
+      streamMessageCallback([uid, data]);
+    } else {
+      const [, uid, , data] = args as NativeStreamMessageArgs;
+      streamMessageCallback([uid, data]);
+    }
+  };
+
   const changeSpeakingLanguage = async (language: LanguageType[]) => {
     if (!isAuthorizedSTTUserRef.current) {
       throw new Error('Invalid user');
@@ -96,6 +126,7 @@ const useSpeechToText = () => {
         showCaptionPanel,
         transcriptData,
         captionData,
+        addStreamMessageListener,
       }
     : {};
 };
