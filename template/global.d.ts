@@ -168,6 +168,7 @@ interface ConfigInterface {
   DISABLE_LANDSCAPE_MODE: boolean;
   STT_AUTO_START: boolean;
   CLOUD_RECORDING_AUTO_START: boolean;
+  ENABLE_SPOTLIGHT: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
