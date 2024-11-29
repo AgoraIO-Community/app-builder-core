@@ -334,6 +334,30 @@ const ChatConfigure = ({children}) => {
         // initialize native client
         await chatClient.init(chatOptions);
         console.warn('chat sdk: init success');
+        // adding chat connection event listeners
+        let listener: ChatConnectEventListener = {
+          onTokenWillExpire() {
+            console.warn('token expire.');
+          },
+          onTokenDidExpire() {
+            console.warn('token did expire');
+          },
+          onConnected() {
+            // once sdk connects to chat server successfully , need to add message listeners
+            console.warn('chat onConnected');
+            setIsChatInitialized(true);
+            setupMessageListener();
+            logger.log(
+              LogSource.Internals,
+              'CHAT',
+              `Native User ${localUid} to connected to Agora Chat Server`,
+            );
+          },
+          onDisconnected() {
+            console.warn('onDisconnected:');
+          },
+        };
+        chatClient.addConnectionListener(listener);
 
         // log in user to agoar chat
         try {
@@ -344,30 +368,6 @@ const ChatConfigure = ({children}) => {
             'CHAT',
             `Logged in Native User ${localUid} to Agora Chat Server`,
           );
-          setupMessageListener();
-          // adding chat connection event listeners
-          let listener: ChatConnectEventListener = {
-            onTokenWillExpire() {
-              console.warn('token expire.');
-            },
-            onTokenDidExpire() {
-              console.warn('token did expire');
-            },
-            onConnected() {
-              console.warn('onConnected');
-              // once sdk connects to chat server successfully , need to add message listeners
-              setIsChatInitialized(true);
-              logger.log(
-                LogSource.Internals,
-                'CHAT',
-                `Native User ${localUid} to connected to Agora Chat Server`,
-              );
-            },
-            onDisconnected() {
-              console.warn('onDisconnected:');
-            },
-          };
-          chatClient.addConnectionListener(listener);
         } catch (error) {
           console.warn(
             'chat sdk: login failed ',
