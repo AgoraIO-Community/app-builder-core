@@ -72,6 +72,7 @@ const ChatConfigure = ({children}) => {
     uploadedFiles,
     setPinMsgId,
     setPinnedByUser,
+    setIsChatInitialized,
   } = useChatUIControls();
   const localUid = useLocalUid();
   const defaultContentRef = React.useRef(defaultContent);
@@ -118,6 +119,7 @@ const ChatConfigure = ({children}) => {
         newConn.addEventHandler('connection&message', {
           // app is connected to chat server
           onConnected: () => {
+            setIsChatInitialized(true);
             logger.log(
               LogSource.Internals,
               'CHAT',

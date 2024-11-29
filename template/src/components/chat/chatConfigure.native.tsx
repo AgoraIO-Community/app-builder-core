@@ -89,7 +89,8 @@ const ChatConfigure = ({children}) => {
     addReactionToPrivateStore,
     addReactionToStore,
   } = useChatMessages();
-  const {setPinMsgId, setPinnedByUser, privateChatUser} = useChatUIControls();
+  const {setPinMsgId, setPinnedByUser, privateChatUser, setIsChatInitialized} =
+    useChatUIControls();
   const privateChatUserRef = React.useRef(privateChatUser);
 
   React.useEffect(() => {
@@ -355,6 +356,7 @@ const ChatConfigure = ({children}) => {
             onConnected() {
               console.warn('onConnected');
               // once sdk connects to chat server successfully , need to add message listeners
+              setIsChatInitialized(true);
               logger.log(
                 LogSource.Internals,
                 'CHAT',
