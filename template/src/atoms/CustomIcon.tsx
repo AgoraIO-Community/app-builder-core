@@ -152,4 +152,5 @@ export interface IconsInterface {
   'recording-status': string;
   fullscreen: string;
   add_reaction: string;
+  spotlight: string;
 }

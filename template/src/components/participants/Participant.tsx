@@ -42,6 +42,7 @@ import {
   useLayout,
   useContent,
   useSidePanel,
+  useSpotlight,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
@@ -96,6 +97,7 @@ const Participant = (props: ParticipantInterface) => {
   const showModal = () => {
     setActionMenuVisible(state => !state);
   };
+  const {setSpotlightUid, spotlightUid} = useSpotlight();
 
   return (
     <>
@@ -105,6 +107,8 @@ const Participant = (props: ParticipantInterface) => {
         user={props.user}
         btnRef={moreIconRef}
         from={'partcipant'}
+        spotlightUid={spotlightUid}
+        setSpotlightUid={setSpotlightUid}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>

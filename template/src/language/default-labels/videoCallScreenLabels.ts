@@ -267,6 +267,7 @@ export const moreBtnRemoveFromLarge = 'moreBtnRemoveFromLarge';
 export const moreBtnPinToTop = 'moreBtnPinToTop';
 export const moreBtnRemoveFromTop = 'moreBtnRemoveFromTop';
 export const moreBtnMessagePrivately = 'moreBtnMessagePrivately';
+export const moreBtnSpotlight = 'moreBtnSpotlight';
 
 export const moreBtnAudio = 'moreBtnAudio';
 export const moreBtnVideo = 'moreBtnVideo';
@@ -380,6 +381,8 @@ export const livestreamPromoteAsCoHostToastHeading =
 export const livestreamRequestAlreadyProcessed =
   'livestreamRequestAlreadyProcessed';
 
+export const videoRoomInTheSpotlightText =
+  `video${room}InTheSpotlightText` as const;
 export const videoRoomUserFallbackText =
   `video${room}UserFallbackText` as const;
 
@@ -682,6 +685,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   [moreBtnChangeName]?: I18nBaseType;
   [moreBtnStopScreenShare]?: I18nBaseType;
   [moreBtnRemoveScreenShare]?: I18nBaseType;
+  [moreBtnSpotlight]?: I18nConditionalType;
+  [videoRoomInTheSpotlightText]?: I18nBaseType;
 
   [muteAllConfirmationPopoverContent]?: I18nBaseType<I18nMuteType>;
   [muteAllConfirmationPopoverPrimaryBtnText]?: I18nBaseType;
@@ -1080,6 +1085,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [moreBtnChangeName]: 'Change Name',
   [moreBtnStopScreenShare]: 'Stop Screenshare',
   [moreBtnRemoveScreenShare]: 'Remove Screenshare',
+  [moreBtnSpotlight]: spotlightOn =>
+    spotlightOn ? 'Remove Spotlight' : 'Spotlight',
+  [videoRoomInTheSpotlightText]: 'In the Spotlight',
 
   [muteAllConfirmationPopoverContent]: (type: I18nMuteType) =>
     `Mute everyone's ${type} on the call?`,

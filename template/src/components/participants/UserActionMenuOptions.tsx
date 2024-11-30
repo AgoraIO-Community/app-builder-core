@@ -57,6 +57,7 @@ import {
   moreBtnRemoveFromRoom,
   moreBtnRemoveFromTop,
   moreBtnRemoveScreenShare,
+  moreBtnSpotlight,
   moreBtnStopScreenShare,
   moreBtnVideo,
   moreBtnViewInLarge,
@@ -64,6 +65,7 @@ import {
   userRemovedFromTheRoomToastHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {isAndroid, isIOS} from '../../utils/common';
+import {EventNames} from '../../rtm-events';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -71,6 +73,8 @@ interface UserActionMenuOptionsOptionsProps {
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
   from: 'partcipant' | 'screenshare-participant' | 'video-tile';
+  spotlightUid?: UidType;
+  setSpotlightUid?: (uid: UidType) => void;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
@@ -85,7 +89,7 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
-  const {user, actionMenuVisible, setActionMenuVisible} = props;
+  const {user, actionMenuVisible, setActionMenuVisible, spotlightUid} = props;
   const {currentLayout} = useLayout();
   const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
     useContent();
@@ -122,6 +126,7 @@ export default function UserActionMenuOptionsOptions(
   const stopScreenShareLabel = useString(moreBtnStopScreenShare)();
   const removeScreenShareLabel = useString(moreBtnRemoveScreenShare)();
   const removeFromRoomLabel = useString(moreBtnRemoveFromRoom)();
+  const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -210,6 +215,33 @@ export default function UserActionMenuOptionsOptions(
           });
         }
       }
+    }
+
+    if ($config.ENABLE_SPOTLIGHT && isHost && user.type === 'rtc') {
+      items.push({
+        icon: 'spotlight',
+        title: moreBtnSpotlightLabel(user.uid == props?.spotlightUid),
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        onPress: () => {
+          if (user.uid == props?.spotlightUid) {
+            props?.setSpotlightUid(0);
+            events.send(
+              EventNames.SPOTLIGHT_USER_CHANGED,
+              JSON.stringify({user_id: 0}),
+              PersistanceLevel.Session,
+            );
+          } else {
+            props?.setSpotlightUid(user.uid);
+            events.send(
+              EventNames.SPOTLIGHT_USER_CHANGED,
+              JSON.stringify({user_id: user.uid}),
+              PersistanceLevel.Session,
+            );
+          }
+          setActionMenuVisible(false);
+        },
+      });
     }
 
     /**
@@ -399,6 +431,7 @@ export default function UserActionMenuOptionsOptions(
     disableChatUids,
     secondaryPinnedUid,
     currentLayout,
+    spotlightUid,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
