@@ -204,7 +204,7 @@ const ChatContainer = (props?: {
     <Loading text={loadingLabel} />
   ) : (
     <View style={style.containerView}>
-      {showEmojiPicker && <View style={CommonStyles.tintedOverlay} />}
+      {showEmojiPicker ? <View style={CommonStyles.tintedOverlay} /> : null}
       {chatType === ChatType.Private && privateChatUser ? (
         <>
           <View style={style.participantContainer}>
@@ -223,12 +223,10 @@ const ChatContainer = (props?: {
           </View>
           <Spacer size={10} />
         </>
-      ) : (
-        <></>
-      )}
-      {pinMsgId && chatType === ChatType.Group && (
+      ) : null}
+      {pinMsgId && chatType === ChatType.Group ? (
         <PinnedMessage pinMsgId={pinMsgId} pinnedByUser={pinnedByUser} />
-      )}
+      ) : null}
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={onContentSizeChange}
@@ -242,7 +240,7 @@ const ChatContainer = (props?: {
             </View>
 
             {messageStore.map((message: messageStoreInterface, index) => (
-              <>
+              <React.Fragment key={`message-group-${message.msgId}`}>
                 {messageStoreLengthRef.current === messageStore.length &&
                 grpUnreadCount &&
                 messageStore.length - grpUnreadCount === index ? (
@@ -256,9 +254,7 @@ const ChatContainer = (props?: {
                       {grpUnreadCount} {unreadMessageLabel}
                     </Text>
                   </View>
-                ) : (
-                  <></>
-                )}
+                ) : null}
                 {!message?.hide ? (
                   <ChatBubbleComponent
                     isLocal={localUid === message.uid}
@@ -293,15 +289,11 @@ const ChatContainer = (props?: {
                 ) : null}
                 {messageStore?.length - 1 === index ? (
                   <Spacer size={10} />
-                ) : (
-                  <></>
-                )}
-              </>
+                ) : null}
+              </React.Fragment>
             ))}
           </>
-        ) : (
-          <></>
-        )}
+        ) : null}
         {chatType === ChatType.Private &&
         privateChatUser &&
         privateMessageStore[privateChatUser] ? (
@@ -325,9 +317,7 @@ const ChatContainer = (props?: {
                         {privateUnreadCount} {unreadMessageLabel}
                       </Text>
                     </View>
-                  ) : (
-                    <></>
-                  )}
+                  ) : null}
                   {!message?.hide ? (
                     <ChatBubbleComponent
                       isLocal={localUid === message.uid}
@@ -362,16 +352,12 @@ const ChatContainer = (props?: {
                   {privateMessageStore[privateChatUser]?.length - 1 ===
                   index ? (
                     <Spacer size={10} />
-                  ) : (
-                    <></>
-                  )}
+                  ) : null}
                 </>
               ),
             )}
           </>
-        ) : (
-          <></>
-        )}
+        ) : null}
         {defaultContent[privateChatUser]?.offline && (
           <View style={style.infoTextView}>
             <Text style={style.infoText}>{userOfflineLabel}</Text>
