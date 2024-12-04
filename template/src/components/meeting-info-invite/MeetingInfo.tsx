@@ -49,11 +49,6 @@ const MeetingInfo = (props: MeetingInfoProps) => {
     <FpeShareComponent />
   ) : (
     <View style={style.root}>
-      {!isMobileUA() ? (
-        <IDPLogoutComponent containerStyle={{marginBottom: -100}} />
-      ) : (
-        <></>
-      )}
       <ScrollView contentContainerStyle={style.scrollMain}>
         <Card
           margin={margin}
