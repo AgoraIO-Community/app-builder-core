@@ -25,22 +25,6 @@ export const MeetingInfoCardHeader = (props: MeetingInfoCardHeaderProps) => {
   const {avatar, children} = props;
   return (
     <View>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-        {isMobileUA() ? (
-          <>
-            <IDPLogoutComponent
-              containerStyle={{marginTop: 0, marginRight: 0}}
-            />
-          </>
-        ) : (
-          <></>
-        )}
-      </View>
       <View style={style.flexRow}>
         {React.isValidElement(avatar) && (
           <View style={style.avatar}>{avatar}</View>

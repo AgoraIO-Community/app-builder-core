@@ -66,7 +66,8 @@ export const useIDPAuth = () => {
               tokenLogout(false)
                 .then(() => {
                   //open idp logout url
-                  Linking.openURL(IDPAuthLogoutURL);
+                  //react-native-web support 2nd argument
+                  Linking.openURL(IDPAuthLogoutURL, '_self');
                   resolve(true);
                 })
                 .catch(() => {

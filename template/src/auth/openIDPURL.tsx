@@ -14,7 +14,8 @@ export const getIDPAuthLoginURL = (returnTo?: any) => {
 };
 
 export const enableIDPAuth = async (returnTo?: any, heading?: string) => {
-  Linking.openURL(getIDPAuthLoginURL(returnTo));
+  //react-native-web support 2nd argument
+  Linking.openURL(getIDPAuthLoginURL(returnTo), '_self');
 };
 
 export const exitApp = () => {};
