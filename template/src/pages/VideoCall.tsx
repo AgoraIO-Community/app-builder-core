@@ -499,7 +499,13 @@ const VideoCall: React.FC = () => {
                                                           )}
                                                           <VBProvider>
                                                             <BeautyEffectProvider>
-                                                              <PrefereceWrapper>
+                                                              <PrefereceWrapper
+                                                                callActive={
+                                                                  callActive
+                                                                }
+                                                                setCallActive={
+                                                                  setCallActive
+                                                                }>
                                                                 <SdkMuteToggleListener>
                                                                   {callActive ? (
                                                                     <VideoMeetingDataProvider>

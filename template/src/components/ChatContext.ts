@@ -68,6 +68,11 @@ export enum messageActionType {
   Normal = '1',
 }
 
+export interface RtmActiveUids {
+  [key: UidType]: {
+    isHost: boolean;
+  };
+}
 export interface RtmContextInterface {
   isInitialQueueCompleted: boolean;
   hasUserJoinedRTM: boolean;
@@ -75,6 +80,8 @@ export interface RtmContextInterface {
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
+  rtmActiveUids: RtmActiveUids;
+  setRtmActiveUids: () => void;
 }
 
 export enum controlMessageEnum {
