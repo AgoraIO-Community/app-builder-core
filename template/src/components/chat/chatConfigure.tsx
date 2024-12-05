@@ -110,7 +110,7 @@ const ChatConfigure = ({children}) => {
           agoraToken: data.chat.user_token,
         });
         console.log('chat login result', result);
-        logger.log(
+        logger.debug(
           LogSource.Internals,
           'CHAT',
           `Logged in User ${data.uid} to Agora Chat Server`,
@@ -122,7 +122,7 @@ const ChatConfigure = ({children}) => {
           // app is connected to chat server
           onConnected: () => {
             setIsChatInitialized(true);
-            logger.log(
+            logger.debug(
               LogSource.Internals,
               'CHAT',
               `User  ${data.uid} connected to Agora Chat Server`,
