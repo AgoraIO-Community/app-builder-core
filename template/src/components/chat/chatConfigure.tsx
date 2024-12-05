@@ -109,10 +109,12 @@ const ChatConfigure = ({children}) => {
           user: data?.uid?.toString(),
           agoraToken: data.chat.user_token,
         });
+        console.log('chat login result', result);
         logger.log(
           LogSource.Internals,
           'CHAT',
           `Logged in User ${data.uid} to Agora Chat Server`,
+          result,
         );
 
         //  event listener for messages
