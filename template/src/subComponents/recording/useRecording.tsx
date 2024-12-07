@@ -929,6 +929,33 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     _stopRecording,
   ]);
 
+  useEffect(() => {
+    return () => {
+      if (recordingMode === 'MIX' && isRecordingActive) {
+        const totalUsers = hostUids?.length + audienceUids?.length;
+        logger.log(
+          LogSource.Internals,
+          'RECORDING',
+          'checking if you should stop recording on component unmount',
+          {
+            recordingMode,
+            isRecordingActive,
+            users: totalUsers,
+          },
+        );
+        if (totalUsers === 1) {
+          logger.log(
+            LogSource.Internals,
+            'RECORDING',
+            'stopping cloud(mix) recording as there is no user in the call',
+          );
+          stopRecording();
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // auto start recording
   useEffect(() => {
     if (
