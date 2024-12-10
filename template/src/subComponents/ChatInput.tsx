@@ -314,10 +314,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
             {!replyToMsgId && uploadedFiles.map(renderAttachmentBubble)}
             {/* {replyToMsgId && renderTextInput({borderWidth: 0, padddingLeft: 0})} */}
             <View>
-              {replyToMsgId && <View>{renderReplyMsg()}</View>}
-              {replyToMsgId && uploadedFiles.map(renderAttachmentBubble)}
-              {!replyToMsgId &&
-                renderTextInput({borderWidth: 0, padddingLeft: 0})}
+              {replyToMsgId ? <View>{renderReplyMsg()}</View> : null}
+              {replyToMsgId ? uploadedFiles.map(renderAttachmentBubble) : null}
+              {!replyToMsgId
+                ? renderTextInput({borderWidth: 0, padddingLeft: 0})
+                : null}
             </View>
           </ScrollView>
         </View>
@@ -328,7 +329,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
               ? [style.inputWrapper, {borderRadius: 8, borderTopWidth: 1}]
               : {}
           }>
-          {replyToMsgId && <View>{renderReplyMsg()}</View>}
+          {replyToMsgId ? <View>{renderReplyMsg()}</View> : null}
           {renderTextInput({borderWidth: 0, padddingLeft: 0})}
         </View>
       )}

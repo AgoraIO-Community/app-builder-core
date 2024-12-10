@@ -34,6 +34,7 @@ import {
   ToolbarItem,
   ToolbarItemHide,
   ToolbarItemLabel,
+  useSpeechToText,
 } from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
@@ -259,6 +260,7 @@ const ActionSheetContent = props => {
   const {defaultContent} = useContent();
   const {waitingRoomUids} = useWaitingRoomContext();
   const defaultContentRef = React.useRef(defaultContent);
+  const {addStreamMessageListener} = useSpeechToText();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -335,6 +337,8 @@ const ActionSheetContent = props => {
         },
       ];
     });
+    // start listening to stream Message callback
+    addStreamMessageListener();
   }, [sttLanguage]);
 
   const isLiveStream = $config.EVENT_MODE && !$config.AUDIO_ROOM;

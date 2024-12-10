@@ -1,13 +1,13 @@
 const commons = require('./webpack.commons');
 const path = require('path');
-const {merge} = require('webpack-merge');
+const { merge } = require('webpack-merge');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 module.exports = merge(commons, {
   // Enable optimizations in production
   mode: isDevelopment ? 'development' : 'production',
-  devtool: isDevelopment ? 'eval-cheap-module-source-map' : 'source-map',
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : false,
   // externals: [
   //   nodeExternals({allowlist: [/agora.*/, /fpe.*/]}),
   // ],

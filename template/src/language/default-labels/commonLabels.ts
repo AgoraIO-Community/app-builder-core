@@ -2,6 +2,7 @@ import {I18nBaseType} from '../i18nTypes';
 
 export const cancelText = 'cancelText';
 export const loadingText = 'loadingText';
+export const initializingChatText = 'initializingChatText';
 export const logoutText = 'logoutText';
 export const authLogoutPopupHeading = 'authLogoutPopupHeading';
 export const authLogoutPopupSubHeading = 'authLogoutPopupSubHeading';
@@ -23,6 +24,7 @@ export const copiedToClipboardText = 'copiedToClipboardText';
 export interface I18nCommonLabelsInterface {
   [cancelText]?: I18nBaseType;
   [loadingText]?: I18nBaseType;
+  [initializingChatText]?: I18nBaseType;
   [logoutText]?: I18nBaseType;
   [authLogoutPopupHeading]?: I18nBaseType;
   [authLogoutPopupSubHeading]?: I18nBaseType;
@@ -44,6 +46,7 @@ export interface I18nCommonLabelsInterface {
 export const CommonLabels: I18nCommonLabelsInterface = {
   [cancelText]: 'CANCEL',
   [loadingText]: 'Loading...',
+  [initializingChatText]: 'Initializing Chat ...',
   [logoutText]: 'Logout',
   [authLogoutPopupHeading]: 'Logout?',
   [authLogoutPopupSubHeading]: 'Are you sure you wanna log out?',

@@ -32,7 +32,7 @@ function RTableHeader() {
   );
 }
 
-function RTableBody({status, recordings}) {
+function RTableBody({status, recordings, onDeleteAction}) {
   const renderTableBodyContent = () => {
     if (status === 'idle' || status === 'pending') {
       return <Loading background="transparent" text="Fetching recordings.." />;
@@ -104,97 +104,121 @@ function RTableBody({status, recordings}) {
                     </Text>
                   </View>
                 ) : item?.download_url?.length > 0 ? (
-                  item?.download_url?.map((link: string, i: number) => (
-                    <View style={style.tactions} key={i}>
-                      <View>
-                        <IconButtonWithToolTip
-                          hoverEffect={true}
-                          hoverEffectStyle={style.iconButtonHoverEffect}
-                          containerStyle={style.iconButton}
-                          iconProps={{
-                            name: 'download',
-                            iconType: 'plain',
-                            iconSize: 20,
-                            tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
-                          }}
-                          onPress={() => {
-                            downloadRecording(link);
-                          }}
-                        />
-                      </View>
-                      <View style={style.pl15}>
-                        <IconButtonWithToolTip
-                          // placement="bottom"
-                          // toolTipMessage="Share"
-                          hoverEffect={true}
-                          hoverEffectStyle={style.iconButtonHoverEffect}
-                          containerStyle={style.iconButton}
-                          iconProps={{
-                            name: 'link-share',
-                            iconType: 'plain',
-                            iconSize: 20,
-                            tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
-                          }}
-                          onPress={async () => {
-                            if (await Linking.canOpenURL(link)) {
-                              await Linking.openURL(link);
-                            }
-                          }}
-                        />
-                      </View>
-                      <View style={[style.pl15]}>
-                        <View>
-                          <Tooltip
-                            isClickable
-                            placement="left"
-                            toolTipMessage="Link Copied"
-                            onPress={() => {
-                              Clipboard.setString(link);
-                            }}
-                            toolTipIcon={
-                              <>
-                                <ImageIcon
-                                  iconType="plain"
-                                  name="tick-fill"
-                                  tintColor={$config.SEMANTIC_SUCCESS}
-                                  iconSize={20}
-                                />
-                                <Spacer size={8} horizontal={true} />
-                              </>
-                            }
-                            fontSize={12}
-                            renderContent={() => {
-                              return (
-                                <PlatformWrapper>
-                                  {(isHovered: boolean) => (
-                                    <TouchableOpacity
-                                      style={[
-                                        isHovered
-                                          ? style.iconButtonHoverEffect
-                                          : {},
-                                        style.iconShareLink,
-                                      ]}
-                                      onPress={() => {
-                                        Clipboard.setString(link);
-                                      }}>
-                                      <ImageIcon
-                                        iconType="plain"
-                                        name="copy-link"
-                                        iconSize={20}
-                                        tintColor={
-                                          $config.SECONDARY_ACTION_COLOR
-                                        }
-                                      />
-                                    </TouchableOpacity>
-                                  )}
-                                </PlatformWrapper>
-                              );
-                            }}
-                          />
+                  <View style={style.tactions}>
+                    <View>
+                      {item?.download_url?.map((link: string, i: number) => (
+                        <View
+                          style={[
+                            style.tactions,
+                            //if recording contains multiple parts then we need to add some space each row
+                            i >= 1 ? {marginTop: 8} : {},
+                          ]}>
+                          <View>
+                            <IconButtonWithToolTip
+                              hoverEffect={true}
+                              hoverEffectStyle={style.iconButtonHoverEffect}
+                              containerStyle={style.iconButton}
+                              iconProps={{
+                                name: 'download',
+                                iconType: 'plain',
+                                iconSize: 20,
+                                tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
+                              }}
+                              onPress={() => {
+                                downloadRecording(link);
+                              }}
+                            />
+                          </View>
+                          <View style={style.pl10}>
+                            <IconButtonWithToolTip
+                              // placement="bottom"
+                              // toolTipMessage="Share"
+                              hoverEffect={true}
+                              hoverEffectStyle={style.iconButtonHoverEffect}
+                              containerStyle={style.iconButton}
+                              iconProps={{
+                                name: 'link-share',
+                                iconType: 'plain',
+                                iconSize: 20,
+                                tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
+                              }}
+                              onPress={async () => {
+                                if (await Linking.canOpenURL(link)) {
+                                  await Linking.openURL(link);
+                                }
+                              }}
+                            />
+                          </View>
+                          <View style={[style.pl10]}>
+                            <Tooltip
+                              isClickable
+                              placement="left"
+                              toolTipMessage="Link Copied"
+                              onPress={() => {
+                                Clipboard.setString(link);
+                              }}
+                              toolTipIcon={
+                                <>
+                                  <ImageIcon
+                                    iconType="plain"
+                                    name="tick-fill"
+                                    tintColor={$config.SEMANTIC_SUCCESS}
+                                    iconSize={20}
+                                  />
+                                  <Spacer size={8} horizontal={true} />
+                                </>
+                              }
+                              fontSize={12}
+                              renderContent={() => {
+                                return (
+                                  <PlatformWrapper>
+                                    {(isHovered: boolean) => (
+                                      <TouchableOpacity
+                                        style={[
+                                          isHovered
+                                            ? style.iconButtonHoverEffect
+                                            : {},
+                                          style.iconShareLink,
+                                        ]}
+                                        onPress={() => {
+                                          Clipboard.setString(link);
+                                        }}>
+                                        <ImageIcon
+                                          iconType="plain"
+                                          name="copy-link"
+                                          iconSize={20}
+                                          tintColor={
+                                            $config.SECONDARY_ACTION_COLOR
+                                          }
+                                        />
+                                      </TouchableOpacity>
+                                    )}
+                                  </PlatformWrapper>
+                                );
+                              }}
+                            />
+                          </View>
                         </View>
-                      </View>
+                      ))}
                     </View>
-                  ))
+                    <View style={[style.pl10]}>
+                      <IconButtonWithToolTip
+                        hoverEffect={true}
+                        hoverEffectStyle={style.iconButtonHoverEffect}
+                        containerStyle={style.iconButton}
+                        iconProps={{
+                          name: 'delete',
+                          iconType: 'plain',
+                          iconSize: 20,
+                          tintColor: `${$config.SEMANTIC_ERROR}`,
+                        }}
+                        onPress={() => {
+                          //show confirmation popup
+                          onDeleteAction && onDeleteAction(item.id);
+                        }}
+                      />
+                    </View>
+                  </View>
                 ) : (
                   <View style={(style.tactions, {marginTop: 0})}>
                     <Text style={style.placeHolder}>No recordings found</Text>

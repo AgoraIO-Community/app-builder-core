@@ -8,6 +8,7 @@ import {recordingModalTitleIntn} from '../../language/default-labels/videoCallSc
 
 interface ViewRecordingsModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
+  onDeleteAction: (recordingId: number) => void;
 }
 
 // interface FetchRecordingResponse {
@@ -31,7 +32,7 @@ interface ViewRecordingsModalProps {
 //   error: null;
 // }
 export default function ViewRecordingsModal(props: ViewRecordingsModalProps) {
-  const {setModalOpen} = props;
+  const {setModalOpen, onDeleteAction} = props;
 
   const recordingModalTitle = useString(recordingModalTitleIntn)();
 
@@ -44,7 +45,7 @@ export default function ViewRecordingsModal(props: ViewRecordingsModalProps) {
       cancelable={false}
       contentContainerStyle={style.mContainer}>
       <View style={style.mbody}>
-        <RecordingsDateTable />
+        <RecordingsDateTable onDeleteAction={onDeleteAction} />
       </View>
     </RecordingsModal>
   );
