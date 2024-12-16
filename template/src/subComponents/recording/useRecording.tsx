@@ -203,6 +203,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         return;
       }
 
+      if ($config.AUTO_CONNECT_RTM && !callActive) {
+        return;
+      }
+
       Toast.show({
         leadingIconName: 'recording',
         type: 'info',

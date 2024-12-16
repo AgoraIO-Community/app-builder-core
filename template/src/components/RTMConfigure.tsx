@@ -55,7 +55,6 @@ export enum UserType {
 }
 
 const RtmConfigure = (props: any) => {
-  const [rtmActiveUids, setRtmActiveUids] = useState({});
   const rtmInitTimstamp = new Date().getTime();
   const localUid = useLocalUid();
   const {callActive} = props;
@@ -151,15 +150,6 @@ const RtmConfigure = (props: any) => {
       RTMEngine.getInstance().setLocalUID(localUid.toString());
       logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set');
       timerValueRef.current = 5;
-      //update local user data
-      setRtmActiveUids(prevState => {
-        return {
-          ...prevState,
-          [localUid.toString()]: {
-            isHost: isHostRef.current.isHost,
-          },
-        };
-      });
       await setAttribute();
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM setting attribute done');
     } catch (error) {
@@ -172,7 +162,6 @@ const RtmConfigure = (props: any) => {
   };
 
   const setAttribute = async () => {
-    console.log('debugging isHostRef.current.isHost', isHostRef.current.isHost);
     const rtmAttributes = [
       {key: 'screenUid', value: String(rtcProps.screenShareUid)},
       {key: 'isHost', value: String(isHostRef.current.isHost)},
@@ -343,17 +332,6 @@ const RtmConfigure = (props: any) => {
                 //todo hari check android uid comparsion
                 const uid = parseInt(member.uid);
                 const screenUid = parseInt(attr?.attributes?.screenUid);
-                const isHostData =
-                  attr?.attributes?.isHost === 'true' ? true : false;
-                //update remote users who already joined
-                setRtmActiveUids(prevState => {
-                  return {
-                    ...prevState,
-                    [uid]: {
-                      isHost: isHostData,
-                    },
-                  };
-                });
                 //start - updating user data in rtc
                 const userData = {
                   screenUid: screenUid,
@@ -452,6 +430,12 @@ const RtmConfigure = (props: any) => {
   };
 
   const init = async () => {
+    //on sdk due to multiple re-render we are getting rtm error code 8
+    //you are joining the same channel too frequently, exceeding the allowed rate of joining the same channel multiple times within a short period
+    //so checking rtm connection state before proceed
+    if (engine?.current?.client?.connectionState === 'CONNECTED') {
+      return;
+    }
     logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
     engine.current = RTMEngine.getInstance().engine;
     RTMEngine.getInstance();
@@ -515,16 +499,6 @@ const RtmConfigure = (props: any) => {
           console.log('[user attributes]:', {attr});
           const uid = parseInt(data.uid);
           const screenUid = parseInt(attr?.attributes?.screenUid);
-          const isHostData = attr?.attributes?.isHost === 'true' ? true : false;
-          //update new remote user who joined
-          setRtmActiveUids(prevState => {
-            return {
-              ...prevState,
-              [uid]: {
-                isHost: isHostData,
-              },
-            };
-          });
 
           //start - updating user data in rtc
           const userData = {
@@ -562,15 +536,7 @@ const RtmConfigure = (props: any) => {
       // Chat of left user becomes undefined. So don't cleanup
       const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
-      //remove user data on member left
-      setRtmActiveUids(prevState => {
-        const temp = {...prevState};
-        const keysData = Object.keys(temp);
-        if (keysData?.indexOf(uid?.toString()) !== -1) {
-          delete temp[uid.toString()];
-        }
-        return temp;
-      });
+      SDKEvents.emit('_rtm-left', uid);
       // updating the rtc data
       updateRenderListState(uid, {
         offline: true,
@@ -833,17 +799,25 @@ const RtmConfigure = (props: any) => {
     //waiting room attendee -> rtm login will happen on page load
     if ($config.ENABLE_WAITING_ROOM) {
       //attendee
-      if (!isHost && !callActive) {
+      //for waiting room attendee rtm login will happen on mount
+      if (!isHost && !hasUserJoinedRTM) {
         await init();
       }
       //host
-      if (isHost && callActive) {
+      if (
+        isHost &&
+        (($config.AUTO_CONNECT_RTM && !hasUserJoinedRTM) ||
+          (!$config.AUTO_CONNECT_RTM && callActive))
+      ) {
         await init();
       }
-    }
-    if (!$config.ENABLE_WAITING_ROOM) {
+    } else {
+      //non waiting room case
       //host and attendee
-      if (callActive) {
+      if (
+        ($config.AUTO_CONNECT_RTM && !hasUserJoinedRTM) ||
+        (!$config.AUTO_CONNECT_RTM && callActive)
+      ) {
         await init();
       }
     }
@@ -851,7 +825,7 @@ const RtmConfigure = (props: any) => {
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId, callActive]);
+  }, [rtcProps.channel, rtcProps.appId, callActive, hasUserJoinedRTM]);
 
   return (
     <ChatContext.Provider
@@ -862,8 +836,6 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
-        rtmActiveUids,
-        setRtmActiveUids,
       }}>
       {props.children}
     </ChatContext.Provider>

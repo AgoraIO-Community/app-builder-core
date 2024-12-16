@@ -80,8 +80,6 @@ export interface RtmContextInterface {
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
-  rtmActiveUids: RtmActiveUids;
-  setRtmActiveUids: () => void;
 }
 
 export enum controlMessageEnum {

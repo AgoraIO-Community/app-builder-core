@@ -1,6 +1,6 @@
-import {useRtm} from '../components/ChatContext';
+import {useUserPreference} from '../components/useUserPreference';
 
 export function useActiveUids() {
-  const {rtmActiveUids} = useRtm();
-  return rtmActiveUids;
+  const {uids} = useUserPreference();
+  return uids;
 }
