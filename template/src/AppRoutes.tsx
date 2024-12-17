@@ -24,16 +24,23 @@ import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
 import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
 import {LogSource, logger} from './logger/AppBuilderLogger';
 import {isValidReactComponent} from './utils/common';
+import ErrorBoundary from './components/ErrorBoundary';
+import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
 
 function VideoCallWrapper(props) {
   const {isRecordingBot} = useIsRecordingBot();
+  const ErrorBoundaryFallbackComponent = <ErrorBoundaryFallback />;
   return isRecordingBot ? (
     <RecordingBotRoute history={props.history}>
-      <VideoCall />
+      <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
+        <VideoCall />
+      </ErrorBoundary>
     </RecordingBotRoute>
   ) : (
     <AuthRoute>
-      <VideoCall />
+      <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
+        <VideoCall />
+      </ErrorBoundary>
     </AuthRoute>
   );
 }
