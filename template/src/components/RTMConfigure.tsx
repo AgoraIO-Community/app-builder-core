@@ -800,14 +800,13 @@ const RtmConfigure = (props: any) => {
     if ($config.ENABLE_WAITING_ROOM) {
       //attendee
       //for waiting room attendee rtm login will happen on mount
-      if (!isHost && !hasUserJoinedRTM) {
+      if (!isHost && !callActive) {
         await init();
       }
       //host
       if (
         isHost &&
-        (($config.AUTO_CONNECT_RTM && !hasUserJoinedRTM) ||
-          (!$config.AUTO_CONNECT_RTM && callActive))
+        ($config.AUTO_CONNECT_RTM || (!$config.AUTO_CONNECT_RTM && callActive))
       ) {
         await init();
       }
@@ -815,7 +814,7 @@ const RtmConfigure = (props: any) => {
       //non waiting room case
       //host and attendee
       if (
-        ($config.AUTO_CONNECT_RTM && !hasUserJoinedRTM) ||
+        $config.AUTO_CONNECT_RTM ||
         (!$config.AUTO_CONNECT_RTM && callActive)
       ) {
         await init();
@@ -825,7 +824,7 @@ const RtmConfigure = (props: any) => {
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId, callActive, hasUserJoinedRTM]);
+  }, [rtcProps.channel, rtcProps.appId, callActive]);
 
   return (
     <ChatContext.Provider
