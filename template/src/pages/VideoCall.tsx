@@ -463,7 +463,8 @@ const VideoCall: React.FC = () => {
                                 <ChatMessagesProvider callActive={callActive}>
                                   <ScreenShareProvider>
                                     <RtmConfigure callActive={callActive}>
-                                      <UserPreferenceProvider>
+                                      <UserPreferenceProvider
+                                        callActive={callActive}>
                                         <CaptionProvider>
                                           <WaitingRoomProvider>
                                             <EventsConfigure
@@ -499,7 +500,13 @@ const VideoCall: React.FC = () => {
                                                           )}
                                                           <VBProvider>
                                                             <BeautyEffectProvider>
-                                                              <PrefereceWrapper>
+                                                              <PrefereceWrapper
+                                                                callActive={
+                                                                  callActive
+                                                                }
+                                                                setCallActive={
+                                                                  setCallActive
+                                                                }>
                                                                 <SdkMuteToggleListener>
                                                                   {callActive ? (
                                                                     <VideoMeetingDataProvider>

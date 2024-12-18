@@ -49,3 +49,4 @@ export {useFullScreen} from '../src/utils/useFullScreen';
 export {useHideShareTitle} from '../src/utils/useHideShareTile';
 export {useActionSheet} from '../src/utils/useActionSheet';
 export {default as PlatformWrapper} from '../src/utils/PlatformWrapper';
+export {useActiveUids} from '../src/utils/useActiveUids';
