@@ -14,6 +14,7 @@ import {
   DispatchContext,
   ContentInterface,
   useLocalUid,
+  UidType,
 } from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import StorageContext from './StorageContext';
@@ -22,7 +23,7 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
-import {filterObject, useContent, useRtc} from 'customization-api';
+import {filterObject, useContent, useRoomInfo, useRtc} from 'customization-api';
 import {gql, useMutation} from '@apollo/client';
 import {
   PSTNUserLabel,
@@ -34,10 +35,17 @@ import {useScreenContext} from '../components/contexts/ScreenShareContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from '../utils/getUniqueID';
 
+export interface UserUids {
+  [key: UidType]: {
+    isHost: boolean;
+    name: string;
+  };
+}
 interface UserPreferenceContextInterface {
   displayName: string;
   setDisplayName: React.Dispatch<React.SetStateAction<string>>;
   saveName: (name: string) => void;
+  uids: UserUids;
 }
 
 const UserPreferenceContext =
@@ -45,6 +53,7 @@ const UserPreferenceContext =
     displayName: '',
     setDisplayName: () => {},
     saveName: () => {},
+    uids: {},
   });
 
 const UPDATE_USER_NAME_MUTATION = gql`
@@ -56,11 +65,18 @@ const UPDATE_USER_NAME_MUTATION = gql`
   }
 `;
 
-const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
+const UserPreferenceProvider = (props: {
+  children: React.ReactNode;
+  callActive: boolean;
+}) => {
+  const {callActive} = props;
+  const {
+    data: {isHost},
+  } = useRoomInfo();
   const localUid = useLocalUid();
   const screenShareUid = useLocalScreenShareUid();
   const {dispatch} = useContext(DispatchContext);
-
+  const [uids, setUids] = useState({});
   const {store, setStore} = useContext(StorageContext);
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const getInitialUsername = () =>
@@ -199,6 +215,29 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
                 ? pstnUserLabel
                 : value?.name || userText,
           });
+          //set uids data
+          if (value?.isRtcConnected) {
+            setUids(prevState => {
+              return {
+                ...prevState,
+                [value.uid]: {
+                  isHost: value?.isHost,
+                  name: value?.name,
+                },
+              };
+            });
+          } else {
+            setUids(prevState => {
+              const temp = {...prevState};
+              const keys = Object.keys(temp);
+              if (keys.indexOf(value.uid) !== -1) {
+                delete temp[value.uid];
+                return temp;
+              } else {
+                return prevState;
+              }
+            });
+          }
         }
         if (value?.screenShareUid) {
           updateRenderListState(value?.screenShareUid, {
@@ -229,6 +268,19 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
       type: 'screenshare',
     });
 
+    if (hasUserJoinedRTM && callActive) {
+      //set local uids
+      setUids(prevState => {
+        return {
+          ...prevState,
+          [localUid]: {
+            name: displayName || userText,
+            isHost: isHost,
+          },
+        };
+      });
+    }
+
     if (hasUserJoinedRTM) {
       //update remote state for user and screenshare
       events.send(
@@ -237,11 +289,13 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           uid: localUid,
           screenShareUid: screenShareUid,
           name: displayName || userText,
+          isRtcConnected: callActive,
+          isHost: isHost,
         }),
         PersistanceLevel.Sender,
       );
     }
-  }, [displayName, hasUserJoinedRTM]);
+  }, [displayName, hasUserJoinedRTM, callActive, isHost]);
 
   const updateRenderListState = (
     uid: number,
@@ -256,6 +310,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
         setDisplayName,
         displayName,
         saveName,
+        uids,
       }}>
       {props.children}
     </UserPreferenceContext.Provider>

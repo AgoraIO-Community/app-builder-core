@@ -35,6 +35,7 @@ export interface userEventsMapInterface {
   'rtc-user-joined': (uid: UidType) => void;
   'rtc-user-left': (uid: UidType) => void;
   '_rtm-joined': (uid: UidType) => void;
+  '_rtm-left': (uid: UidType) => void;
   'devices-selected-microphone-changed': (
     deviceId: MediaDeviceInfo['deviceId'],
   ) => void;

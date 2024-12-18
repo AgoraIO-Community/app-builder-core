@@ -162,7 +162,7 @@ export const WhiteboardListener = () => {
   } = useRoomInfo();
 
   React.useEffect(() => {
-    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+    if (($config.ENABLE_WAITING_ROOM && !isHost) || $config.AUTO_CONNECT_RTM) {
       if (isWhiteBoardOn) {
         WhiteboardStartedCallBack();
       } else {
@@ -1102,7 +1102,9 @@ export const MoreButtonToolbarItem = (props?: {
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
     (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
     <ToolbarItem testID="more-btn" toolbarProps={props}>
-      {!isHost && $config.ENABLE_WHITEBOARD && isWebInternal() ? (
+      {((!$config.AUTO_CONNECT_RTM && !isHost) || $config.AUTO_CONNECT_RTM) &&
+      $config.ENABLE_WHITEBOARD &&
+      isWebInternal() ? (
         <WhiteboardListener />
       ) : (
         <></>

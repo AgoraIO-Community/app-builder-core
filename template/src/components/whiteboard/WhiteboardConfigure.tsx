@@ -179,13 +179,13 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = props => {
     prevImageUploadHeightRef.current = height;
   };
   React.useEffect(() => {
-    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+    if (($config.ENABLE_WAITING_ROOM && !isHost) || $config.AUTO_CONNECT_RTM) {
       BoardColorChangedCallBack({boardColor: boardColorRemote});
     }
   }, [boardColorRemote, isHost]);
 
   React.useEffect(() => {
-    if ($config.ENABLE_WAITING_ROOM && !isHost) {
+    if (($config.ENABLE_WAITING_ROOM && !isHost) || $config.AUTO_CONNECT_RTM) {
       SetLastImageUploadHeightCallBack({
         height: whiteboardLastImageUploadPositionRemote?.height || 0,
       });

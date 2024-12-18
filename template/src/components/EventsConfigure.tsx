@@ -488,7 +488,10 @@ const EventsConfigure: React.FC<Props> = ({
     events.on(EventNames.WHITEBOARD_ACTIVE, ({payload}) => {
       const data = JSON.parse(payload);
       if (data && data?.status) {
-        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        if (
+          ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
+          $config.AUTO_CONNECT_RTM
+        ) {
           setRoomInfo(prev => {
             return {
               ...prev,
@@ -501,7 +504,10 @@ const EventsConfigure: React.FC<Props> = ({
           });
         }
       } else {
-        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        if (
+          ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
+          $config.AUTO_CONNECT_RTM
+        ) {
           setRoomInfo(prev => {
             return {
               ...prev,
@@ -519,7 +525,10 @@ const EventsConfigure: React.FC<Props> = ({
     events.on(EventNames.BOARD_COLOR_CHANGED, ({payload}) => {
       const data = JSON.parse(payload);
       if (data?.boardColor) {
-        if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+        if (
+          ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
+          $config.AUTO_CONNECT_RTM
+        ) {
           setRoomInfo(prev => {
             return {
               ...prev,
@@ -536,7 +545,10 @@ const EventsConfigure: React.FC<Props> = ({
 
     events.on(EventNames.WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION, ({payload}) => {
       const data = JSON.parse(payload);
-      if ($config.ENABLE_WAITING_ROOM && !isHostRef.current) {
+      if (
+        ($config.ENABLE_WAITING_ROOM && !isHostRef.current) ||
+        $config.AUTO_CONNECT_RTM
+      ) {
         setRoomInfo(prev => {
           return {
             ...prev,
