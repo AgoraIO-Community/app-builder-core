@@ -164,6 +164,7 @@ const RtmConfigure = (props: any) => {
   const setAttribute = async () => {
     const rtmAttributes = [
       {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+      {key: 'isHost', value: String(isHostRef.current.isHost)},
     ];
     try {
       await engine.current.setLocalUserAttributes(rtmAttributes);
@@ -429,6 +430,12 @@ const RtmConfigure = (props: any) => {
   };
 
   const init = async () => {
+    //on sdk due to multiple re-render we are getting rtm error code 8
+    //you are joining the same channel too frequently, exceeding the allowed rate of joining the same channel multiple times within a short period
+    //so checking rtm connection state before proceed
+    if (engine?.current?.client?.connectionState === 'CONNECTED') {
+      return;
+    }
     logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
     engine.current = RTMEngine.getInstance().engine;
     RTMEngine.getInstance();
@@ -492,6 +499,7 @@ const RtmConfigure = (props: any) => {
           console.log('[user attributes]:', {attr});
           const uid = parseInt(data.uid);
           const screenUid = parseInt(attr?.attributes?.screenUid);
+
           //start - updating user data in rtc
           const userData = {
             screenUid: screenUid,
@@ -528,6 +536,7 @@ const RtmConfigure = (props: any) => {
       // Chat of left user becomes undefined. So don't cleanup
       const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
+      SDKEvents.emit('_rtm-left', uid);
       // updating the rtc data
       updateRenderListState(uid, {
         offline: true,
@@ -790,17 +799,24 @@ const RtmConfigure = (props: any) => {
     //waiting room attendee -> rtm login will happen on page load
     if ($config.ENABLE_WAITING_ROOM) {
       //attendee
+      //for waiting room attendee rtm login will happen on mount
       if (!isHost && !callActive) {
         await init();
       }
       //host
-      if (isHost && callActive) {
+      if (
+        isHost &&
+        ($config.AUTO_CONNECT_RTM || (!$config.AUTO_CONNECT_RTM && callActive))
+      ) {
         await init();
       }
-    }
-    if (!$config.ENABLE_WAITING_ROOM) {
+    } else {
+      //non waiting room case
       //host and attendee
-      if (callActive) {
+      if (
+        $config.AUTO_CONNECT_RTM ||
+        (!$config.AUTO_CONNECT_RTM && callActive)
+      ) {
         await init();
       }
     }
