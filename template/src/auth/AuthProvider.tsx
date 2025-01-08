@@ -232,27 +232,55 @@ const AuthProvider = (props: AuthProviderProps) => {
       regEvent.current = false;
       SDKMethodEventsManager.on('login', async (res, rej, token) => {
         try {
+          logger.log(LogSource.Internals, 'AUTH', 'SDK login method called');
           setStore(prevState => {
             return {...prevState, token};
           });
           setTimeout(async () => {
             enableTokenAuth(token)
               .then(() => {
+                logger.log(LogSource.Internals, 'AUTH', 'SDK login success');
+                setIsAuthenticated(true);
+                setLoading(false);
                 res();
               })
               .catch(error => {
+                logger.error(
+                  LogSource.Internals,
+                  'AUTH',
+                  'SDK login failed',
+                  error,
+                );
+                Toast.show({
+                  leadingIconName: 'alert',
+                  type: 'error',
+                  text1: 'Authentication failed',
+                  text2: 'Please try again later.',
+                  visibilityTime: 1000 * 60,
+                });
                 rej('SDK Login failed' + JSON.stringify(error));
               });
           });
         } catch (error) {
+          logger.error(LogSource.Internals, 'AUTH', 'SDK login failed', error);
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Authentication failed',
+            text2: 'Please try again later.',
+            visibilityTime: 1000 * 60,
+          });
           rej('SDK Login failed' + JSON.stringify(error));
         }
       });
       SDKMethodEventsManager.on('logout', async (res, rej) => {
         try {
+          logger.log(LogSource.Internals, 'AUTH', 'SDK logout called');
           await tokenLogout();
+          logger.log(LogSource.Internals, 'AUTH', 'SDK logout success');
           res();
         } catch (error) {
+          logger.error(LogSource.Internals, 'AUTH', 'SDK logout failed', error);
           rej('SDK Logout failed' + JSON.stringify(error));
         }
       });
@@ -366,8 +394,10 @@ const AuthProvider = (props: AuthProviderProps) => {
       return;
     }
     if (isSDK() && ENABLE_AUTH) {
-      setIsAuthenticated(true);
-      setLoading(false);
+      // Auth error fix - updating state on login event callback
+      // if no login event is called then appliation only show loading label
+      // setIsAuthenticated(true);
+      // setLoading(false);
       return () => {};
     }
     //if application in authorization state then don't call authlogin
