@@ -186,6 +186,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
   const toastHeadingSize = useString(chatSendErrorTextSizeToastHeading)();
   const errorSubHeadingSize = useString(chatSendErrorTextSizeToastSubHeading);
   const groupID = data.chat.group_id;
+  const sendMessageBtnText = useString(chatSendMessageBtnText)();
 
   const onPress = () =>
     handleChatSend({
@@ -224,11 +225,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
             : {}
         }
         disabled={!isValidMsg}
-        toolTipMessage={
-          isMobileUA() || !isValidMsg
-            ? null
-            : useString(chatSendMessageBtnText)()
-        }
+        toolTipMessage={isMobileUA() || !isValidMsg ? null : sendMessageBtnText}
         iconProps={{
           iconType: 'plain',
           iconContainerStyle: {

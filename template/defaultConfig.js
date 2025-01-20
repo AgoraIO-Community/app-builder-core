@@ -76,12 +76,13 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.0.33-beta-3',
-  CORE_VERSION: '4.0.33-beta-3',
+  CLI_VERSION: '3.0.35',
+  CORE_VERSION: '4.0.35',
   DISABLE_LANDSCAPE_MODE: false,
   STT_AUTO_START: false,
   CLOUD_RECORDING_AUTO_START: false,
   ENABLE_SPOTLIGHT: false,
+  AUTO_CONNECT_RTM: false,
 };
 
 module.exports = DefaultConfig;

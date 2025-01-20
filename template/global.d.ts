@@ -169,6 +169,7 @@ interface ConfigInterface {
   STT_AUTO_START: boolean;
   CLOUD_RECORDING_AUTO_START: boolean;
   ENABLE_SPOTLIGHT: boolean;
+  AUTO_CONNECT_RTM: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
