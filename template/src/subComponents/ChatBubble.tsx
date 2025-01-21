@@ -395,6 +395,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
           style={{
             flexDirection: 'row',
             justifyContent: isLocal ? 'flex-end' : 'flex-start',
+            alignItems: 'center',
             marginBottom: 4,
             marginTop: 16,
             marginHorizontal: 12,
