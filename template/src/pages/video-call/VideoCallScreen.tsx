@@ -264,7 +264,6 @@ const VideoCallScreen = () => {
           data?.components?.videoCall.virtualBackgroundPanel;
       }
 
-      //todo hari - need to remove wrapper
       if (
         data?.components?.videoCall.wrapper &&
         typeof data?.components?.videoCall.wrapper !== 'object' &&

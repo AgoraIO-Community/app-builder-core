@@ -22,7 +22,7 @@ import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
 import {useCaption} from '../../subComponents/caption/useCaption';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
-import {calculatePosition} from '../../utils/common';
+import {calculatePosition, isMobileUA} from '../../utils/common';
 import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import useGetName from '../../utils/useGetName';
@@ -56,7 +56,9 @@ export const SettingsHeader = props => {
       centerComponent={
         <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>
       }
-      trailingIconName="close"
+      trailingIconName={
+        $config.ENABLE_CONVO_AI ? (isMobileUA() ? 'close' : '') : 'close'
+      }
       trailingIconOnPress={() => {
         props.handleClose && props.handleClose();
         setSidePanel(SidePanelType.None);
@@ -119,7 +121,6 @@ export const ChatHeader = () => {
   return (
     <SidePanelHeader
       isChat={true}
-      showTintedOverlay={showEmojiPicker}
       leadingIconName={isPrivateActive ? 'back-btn' : null}
       leadingIconOnPress={
         isPrivateActive

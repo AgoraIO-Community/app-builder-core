@@ -21,8 +21,6 @@ const ToolbarItem = (props: ToolbarItemProps) => {
   const {isHorizontal, position} = useToolbar();
   //isHorizontal true -> top/bottom bar
   //isHorizontal false -> left/right bar
-  // todo hari - first item shouldnot contain the margin right
-  // todo hari - last item shouldnot contain the margin right
 
   //action sheet
   if (isMobileUA() && position === ToolbarPosition.bottom) {

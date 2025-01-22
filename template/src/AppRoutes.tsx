@@ -26,6 +26,8 @@ import {LogSource, logger} from './logger/AppBuilderLogger';
 import {isValidReactComponent} from './utils/common';
 import ErrorBoundary from './components/ErrorBoundary';
 import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
+import CustomLoginRoute from '../customization/routes/CustomLoginRoute';
+import CustomValidateRoute from '../customization/routes/CustomValidateRoute';
 
 function VideoCallWrapper(props) {
   const {isRecordingBot} = useIsRecordingBot();
@@ -96,6 +98,12 @@ function AppRoutes() {
       </AuthRoute>
       <AuthRoute exact path={'/create'}>
         <Create />
+      </AuthRoute>
+      <AuthRoute exact path={'/login'}>
+        <CustomLoginRoute />
+      </AuthRoute>
+      <AuthRoute exact path={'/validate'}>
+        <CustomValidateRoute />
       </AuthRoute>
       {RenderCustomRoutes()}
       <Route exact path={'/:phrase'} component={VideoCallWrapper} />

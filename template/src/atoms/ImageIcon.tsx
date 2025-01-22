@@ -31,6 +31,7 @@ export interface ImageIconProps {
   // hoverEffect?: boolean;
   // hoverEffectStyle?: ViewStyle;
   showWarningIcon?: boolean;
+  iconParentContainerStyle?: ViewStyle;
 }
 
 const ImageIcon = (props: ImageIconProps) => {
@@ -46,6 +47,7 @@ const ImageIcon = (props: ImageIconProps) => {
     base64TintColor = '',
     iconType = 'round',
     iconContainerStyle,
+    iconParentContainerStyle = {},
     isHovered,
   } = props;
   return (
@@ -57,6 +59,7 @@ const ImageIcon = (props: ImageIconProps) => {
             ? {backgroundColor: props.iconBackgroundColor}
             : {}
           : {backgroundColor: 'transparent', borderRadius: 0},
+        iconParentContainerStyle,
       ]}>
       <View
         style={[
