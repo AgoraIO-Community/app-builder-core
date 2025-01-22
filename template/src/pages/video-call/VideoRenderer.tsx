@@ -10,7 +10,7 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
-import {useLayout, useContent, useRtc, customEvents} from 'customization-api';
+import {useLayout, useContent, useRtc, useSpotlight} from 'customization-api';
 import {
   DefaultLayouts,
   getGridLayoutName,
@@ -39,6 +39,7 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useFullScreen} from '../../utils/useFullScreen';
+import SpotlightHighligher from './SpotlightHighlighter';
 export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -155,6 +156,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
       };
     });
   };
+  const {setSpotlightUid, spotlightUid} = useSpotlight();
 
   return (
     <>
@@ -170,6 +172,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
         user={user}
         btnRef={videoMoreMenuRef}
         from={'video-tile'}
+        setSpotlightUid={setSpotlightUid}
+        spotlightUid={spotlightUid}
       />
       <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
         <View
@@ -356,6 +360,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                 }
               />
             </VideoContainerProvider>
+          ) : (
+            <></>
+          )}
+          {$config.ENABLE_SPOTLIGHT && spotlightUid === user.uid ? (
+            <SpotlightHighligher />
           ) : (
             <></>
           )}
