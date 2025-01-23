@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
+import React from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
@@ -22,12 +22,9 @@ import {CUSTOM_ROUTES_PREFIX, CustomRoutesInterface} from 'customization-api';
 import PrivateRoute from './components/PrivateRoute';
 import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
 import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
-import {LogSource, logger} from './logger/AppBuilderLogger';
 import {isValidReactComponent} from './utils/common';
 import ErrorBoundary from './components/ErrorBoundary';
 import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
-import CustomLoginRoute from '../customization/routes/CustomLoginRoute';
-import CustomValidateRoute from '../customization/routes/CustomValidateRoute';
 
 function VideoCallWrapper(props) {
   const {isRecordingBot} = useIsRecordingBot();
@@ -98,12 +95,6 @@ function AppRoutes() {
       </AuthRoute>
       <AuthRoute exact path={'/create'}>
         <Create />
-      </AuthRoute>
-      <AuthRoute exact path={'/login'}>
-        <CustomLoginRoute />
-      </AuthRoute>
-      <AuthRoute exact path={'/validate'}>
-        <CustomValidateRoute />
       </AuthRoute>
       {RenderCustomRoutes()}
       <Route exact path={'/:phrase'} component={VideoCallWrapper} />
