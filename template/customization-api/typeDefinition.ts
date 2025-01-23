@@ -114,6 +114,7 @@ export interface CustomRoutesInterface {
   isPrivateRoute?: boolean;
   routeProps?: object;
   failureRedirectTo?: string;
+  isTopLevelRoute?: boolean;
 }
 
 export type CustomHookType = () => () => Promise<void>;

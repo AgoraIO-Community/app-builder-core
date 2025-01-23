@@ -87,3 +87,7 @@ export {default as CaptionPanel} from '../src/subComponents/caption/CaptionConta
 export {default as VBPreview} from '../src/components/virtual-background/VideoPreview';
 export {default as Toast} from '../react-native-toast-message';
 export {default as CaptionContainer} from '../src/subComponents/caption/CaptionContainer';
+export {default as Loading} from '../src/subComponents/Loading';
+export {default as UserAvatar} from '../src/atoms/UserAvatar';
+export {default as Card} from '../src/atoms/Card';
+export {default as ThemeConfig} from '../src/theme';

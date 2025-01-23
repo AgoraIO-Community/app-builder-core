@@ -4,9 +4,9 @@
 import {createHook} from 'customization-implementation';
 import {RtcContext, ContentContext} from '../agora-rn-uikit';
 
-// commented for v1 release
-//import {default as DeviceContext} from '../src/components/DeviceContext';
-//import {default as StorageContext} from '../src/components/StorageContext';
+import {default as DeviceContext} from '../src/components/DeviceContext';
+import {default as StorageContext} from '../src/components/StorageContext';
+import {ErrorContext} from '../src/components/common/Error';
 /**
  * The RTC app state exposes the internal RtcEngine object as well as dispatch interface to perform various actions.
  */
@@ -18,9 +18,9 @@ export const useContent = createHook(ContentContext);
 
 export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
 
-// commented for v1 release
-//export const useDeviceContext = createHook(DeviceContext);
-//export const useStorageContext = createHook(StorageContext);
+export const useDeviceContext = createHook(DeviceContext);
+export const useStorageContext = createHook(StorageContext);
+export const useErrorContext = createHook(ErrorContext);
 
 /**
  * UI contexts
@@ -40,8 +40,12 @@ export type {LayoutContextInterface} from '../src/utils/useLayout';
 // export type {ScreenshareContextInterface} from '../src/subComponents/screenshare/useScreenshare';
 export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
-export {useRoomInfo} from '../src/components/room-info/useRoomInfo';
+export {
+  useRoomInfo,
+  RoomInfoDefaultValue,
+} from '../src/components/room-info/useRoomInfo';
 export type {RoomInfoContextInterface} from '../src/components/room-info/useRoomInfo';
+export {useSetRoomInfo} from '../src/components/room-info/useSetRoomInfo';
 export {useMessages} from '../src/app-state/useMessages';
 export type {messageInterface} from '../src/app-state/useMessages';
 export {SidePanelType} from '../src/subComponents/SidePanelEnum';

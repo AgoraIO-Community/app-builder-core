@@ -58,7 +58,11 @@ function AppRoutes() {
           let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
           return (
             <RouteComponent
-              path={CUSTOM_ROUTES_PREFIX + item.path}
+              path={
+                item.isTopLevelRoute
+                  ? item.path
+                  : CUSTOM_ROUTES_PREFIX + item.path
+              }
               exact={item.exact}
               key={i}
               failureRedirectTo={
