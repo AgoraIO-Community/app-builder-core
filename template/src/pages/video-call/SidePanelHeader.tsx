@@ -57,7 +57,7 @@ export const SettingsHeader = props => {
         <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>
       }
       trailingIconName={
-        $config.ENABLE_CONVO_AI ? (isMobileUA() ? 'close' : '') : 'close'
+        $config.ENABLE_AI_AGENT ? (isMobileUA() ? 'close' : '') : 'close'
       }
       trailingIconOnPress={() => {
         props.handleClose && props.handleClose();

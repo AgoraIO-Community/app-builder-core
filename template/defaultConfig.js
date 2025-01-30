@@ -83,7 +83,7 @@ const DefaultConfig = {
   CLOUD_RECORDING_AUTO_START: false,
   ENABLE_SPOTLIGHT: false,
   AUTO_CONNECT_RTM: false,
-  ENABLE_CONVO_AI: false,
+  ENABLE_AI_AGENT: false,
 };
 
 module.exports = DefaultConfig;

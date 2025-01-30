@@ -279,7 +279,7 @@ const VideoCallView = React.memo(() => {
               <ActionSheet
                 includeDefaultItems={false}
                 items={{}}
-                hideDefaultActionSheet={$config.ENABLE_CONVO_AI ? true : false}
+                hideDefaultActionSheet={$config.ENABLE_AI_AGENT ? true : false}
               />
             </>
           )}
@@ -293,7 +293,7 @@ export default VideoCallMobileView;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: $config.ENABLE_CONVO_AI ? 20 : 16,
+    paddingHorizontal: $config.ENABLE_AI_AGENT ? 20 : 16,
     paddingVertical: 20,
     flex: 1,
   },
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   videoView: {
-    flex: $config.ENABLE_CONVO_AI ? (isMobileUA() ? 1 : 0.85) : 0.85,
+    flex: $config.ENABLE_AI_AGENT ? (isMobileUA() ? 1 : 0.85) : 0.85,
     zIndex: 0,
     elevation: 0,
   },

@@ -102,7 +102,7 @@ export default function FallbackLogo(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: $config.ENABLE_CONVO_AI
+    backgroundColor: $config.ENABLE_AI_AGENT
       ? '#333'
       : $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',

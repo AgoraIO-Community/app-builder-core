@@ -9,6 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import React from 'react';
+import {AI_AGENT_CUSTOMIZATION} from '../src/ai-agent';
 import {LogSource, logger} from '../src/logger/AppBuilderLogger';
 import {CustomizationApiInterface} from './typeDefinition';
 import ReactIs from 'react-is';
@@ -129,20 +131,123 @@ function validatei18n(data: any) {
     }
   }
 }
-export const customize = (config: CustomizationApiInterface) => {
-  //validating the components
-  config?.components && validateComponents(config.components);
 
-  //validating the custom routes
-  //commented for v1 release
-  //config?.customRoutes && validateCustomRoutes(config.customRoutes);
+const mergeCustomization = (
+  externalConfig: CustomizationApiInterface,
+  aiAgentConfig: CustomizationApiInterface,
+) => {
+  //check if any external config passed
+  if (
+    !externalConfig ||
+    (externalConfig && !Object.keys(externalConfig)?.length)
+  ) {
+    logger.log(
+      LogSource.CustomizationAPI,
+      'AI_AGENT_CUSTOMIZATION',
+      'Applied default customization',
+    );
+    //if not then return the aiAgentConfig
+    return aiAgentConfig;
+  }
 
-  //validating the i18n
-  config?.i18n && validatei18n(config.i18n);
+  //merging config
+  const mergedData: CustomizationApiInterface = mergeDeep(
+    aiAgentConfig,
+    externalConfig,
+  );
 
-  //validating the lifecycle
-  //commented for v1 release
-  //config?.lifecycle && validateLifecycle(config?.lifecycle);
+  logger.log(
+    LogSource.CustomizationAPI,
+    'EXTERNAL_CUSTOMIZATION',
+    'Applied EXTERNAL_CUSTOMIZATION with AI_AGENT_CUSTOMZATION',
+  );
+  //override the app root
+  if (externalConfig?.components?.appRoot) {
+    const AiAgentAppRoot = aiAgentConfig.components.appRoot;
+    const ExternalAppRoot = externalConfig.components.appRoot;
+    mergedData.components.appRoot = props => (
+      <AiAgentAppRoot>
+        <ExternalAppRoot>{props.children}</ExternalAppRoot>
+      </AiAgentAppRoot>
+    );
+    logger.log(
+      LogSource.CustomizationAPI,
+      'EXTERNAL_CUSTOMIZATION',
+      'Applied appRoot with aiAgent appRoot',
+    );
+  }
 
-  return config;
+  //override the i18n
+  if (externalConfig?.i18n && externalConfig?.i18n?.length) {
+    mergedData.i18n = externalConfig.i18n;
+  } else if (
+    (!externalConfig?.i18n || !externalConfig?.i18n?.length) &&
+    aiAgentConfig?.i18n?.length
+  ) {
+    mergedData.i18n = aiAgentConfig.i18n;
+  }
+
+  return mergedData;
 };
+
+export const customize = (config: CustomizationApiInterface) => {
+  let newConfig: CustomizationApiInterface = {};
+
+  try {
+    //check if is ai agent and merge agent and user config
+    if ($config.ENABLE_AI_AGENT) {
+      newConfig = mergeCustomization(config, AI_AGENT_CUSTOMIZATION);
+    } else {
+      newConfig = config;
+    }
+
+    //validating the components
+    newConfig?.components && validateComponents(newConfig.components);
+
+    //validating the custom routes
+    config?.customRoutes && validateCustomRoutes(config.customRoutes);
+
+    //validating the i18n
+    newConfig?.i18n && validatei18n(newConfig.i18n);
+
+    //validating the lifecycle
+    config?.lifecycle && validateLifecycle(config?.lifecycle);
+  } catch (error) {
+    logger.error(
+      LogSource.CustomizationAPI,
+      'Log',
+      'Error on applying the customization',
+      error,
+    );
+  }
+
+  return newConfig;
+};
+
+/**
+ * Performs a deep merge of objects and returns new object. Does not modify
+ * objects (immutable) and merges arrays via concatenation.
+ *
+ * @param {...object} objects - Objects to merge
+ * @returns {object} New object with merged key/values
+ */
+function mergeDeep(...objects) {
+  const isObject = obj => obj && typeof obj === 'object';
+
+  return objects.reduce((prev, obj) => {
+    Object.keys(obj).forEach(key => {
+      const pVal = prev[key];
+      const oVal = obj[key];
+
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = pVal.concat(...oVal);
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = mergeDeep(pVal, oVal);
+      } else {
+        prev[key] = oVal;
+      }
+    });
+
+    return prev;
+  }, {});
+}
