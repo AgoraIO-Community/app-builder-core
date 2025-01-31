@@ -78,6 +78,9 @@ const Bottombar = () => {
           component: () => <AgentControl channel_name={data.channel} />,
           order: 3,
         },
+        'local-video': {hide: true},
+        screenshare: {hide: true},
+        recording: {hide: true},
         'local-audio': {align: 'end', order: 1},
         'end-call': {align: 'end', order: 2, hide: true},
       }}
