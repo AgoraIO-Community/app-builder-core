@@ -203,7 +203,9 @@ const VideoCallView = React.memo(() => {
       BottombarProps: {},
       TopbarComponent: NavbarMobile,
       TopbarProps: {},
-      VideocallWrapper: ContainerView,
+      VideocallWrapper: $config.ENABLE_AI_AGENT
+        ? ContainerView
+        : React.Fragment,
     };
     if (
       data?.components?.videoCall &&
@@ -254,7 +256,7 @@ const VideoCallView = React.memo(() => {
   });
 
   return (
-    <>
+    <VideocallWrapper>
       <ToolbarProvider value={{position: ToolbarPosition.top}}>
         {Object.keys(TopbarProps)?.length ? (
           <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
@@ -285,7 +287,7 @@ const VideoCallView = React.memo(() => {
           )}
         </ActionSheetProvider>
       </ToolbarProvider>
-    </>
+    </VideocallWrapper>
   );
 });
 
