@@ -13,6 +13,7 @@ import {
   useSidePanel,
   ToolbarItem,
   IconButton,
+  CustomizationApiInterface,
 } from 'customization-api';
 import {isMobileUA} from '../utils/common';
 import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
@@ -251,7 +252,7 @@ const DesktopLayoutComponent: LayoutComponent = () => {
   );
 };
 
-export const AI_AGENT_CUSTOMIZATION = {
+export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     appRoot: AgentProvider,
     create: isMobileUA() ? CustomCreateNative : CustomCreate,
