@@ -40,11 +40,6 @@ const CustomCreate = () => {
   const {agentAuthToken} = useContext(AgentContext);
 
   useEffect(() => {
-    // logger.log(
-    //   LogSource.Internals,
-    //   'CREATE_MEETING',
-    //   'User has landed on create room',
-    // );
     if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
@@ -93,11 +88,6 @@ const CustomCreate = () => {
     isSeparateHostLink: boolean,
   ) => {
     if (roomTitle !== '') {
-      // logger.log(
-      //   LogSource.Internals,
-      //   'CREATE_MEETING',
-      //   'User wants to create room',
-      // );
       setLoading(true);
       try {
         setRoomInfo(RoomInfoDefaultValue);
@@ -119,12 +109,6 @@ const CustomCreate = () => {
         setRoomCreated(true);
       } catch (error) {
         setLoading(false);
-        logger.error(
-          LogSource.Internals,
-          'CREATE_MEETING',
-          'There was error while creating meeting',
-          error,
-        );
         setGlobalErrorMessage({
           name: 'Unable to join channel',
           message: error.message,
