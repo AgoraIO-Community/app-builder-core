@@ -45,6 +45,13 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         rtm
         uid
       }
+      agents {
+        id
+        agent_type
+        model
+        agent_name
+        voice
+      }
     }
     getUser {
       name
@@ -87,6 +94,13 @@ const JOIN_CHANNEL_PHRASE = gql`
         rtc
         rtm
         uid
+      }
+      agents {
+        id
+        agent_type
+        model
+        agent_name
+        voice
       }
     }
   }

@@ -195,7 +195,7 @@ export const customize = (config: CustomizationApiInterface) => {
 
   try {
     //check if is ai agent and merge agent and user config
-    if ($config.ENABLE_AI_AGENT) {
+    if ($config.ENABLE_CONVERSATIONAL_AI) {
       newConfig = mergeCustomization(config, AI_AGENT_CUSTOMIZATION);
     } else {
       newConfig = config;

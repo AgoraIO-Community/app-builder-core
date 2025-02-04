@@ -114,7 +114,7 @@ const RtmConfigure = (props: any) => {
   }, [defaultContent]);
 
   React.useEffect(() => {
-    if (!$config.ENABLE_AI_AGENT) {
+    if (!$config.ENABLE_CONVERSATIONAL_AI) {
       const handBrowserClose = ev => {
         ev.preventDefault();
         window.setTimeout(function () {

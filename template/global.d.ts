@@ -170,7 +170,7 @@ interface ConfigInterface {
   CLOUD_RECORDING_AUTO_START: boolean;
   ENABLE_SPOTLIGHT: boolean;
   AUTO_CONNECT_RTM: boolean;
-  ENABLE_AI_AGENT: boolean;
+  ENABLE_CONVERSATIONAL_AI: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
