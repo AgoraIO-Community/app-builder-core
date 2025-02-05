@@ -396,6 +396,25 @@ const AuthProvider = (props: AuthProviderProps) => {
     if (isSDK() && ENABLE_AUTH) {
       // Auth error fix - updating state on login event callback
       // if no login event is called then appliation only show loading label
+      const urlParams = new URLSearchParams(window?.location?.search);
+      const token = urlParams.get('token');
+      if (token) {
+        setStore(prevState => {
+          return {...prevState, token};
+        });
+        setTimeout(async () => {
+          enableTokenAuth(token)
+            .then(() => {
+              logger.log(LogSource.Internals, 'AUTH', 'SDK login success');
+              setIsAuthenticated(true);
+              setLoading(false);
+            })
+            .catch(() => {
+              //no token provided
+              //wait for login to be called
+            });
+        });
+      }
       // setIsAuthenticated(true);
       // setLoading(false);
       return () => {};
