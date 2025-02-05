@@ -1,9 +1,15 @@
-import React, {useEffect, useState, useContext} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Linking,
+} from 'react-native';
 import {
   useRoomInfo,
   useCreateRoom,
-  useHistory,
   Toast,
   isWebInternal,
   trimText,
@@ -17,10 +23,13 @@ import {
 } from 'customization-api';
 import {Redirect} from '../../components/Router';
 import ThemeConfig from '../../theme';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {AgoraLogo, AgoraOpenAILogo, OpenAILogo, CallIcon} from './icons';
-import {AgentContext} from './AgentControls/AgentContext';
 
+//@ts-ignore
+import AgoraLogo from '../assets/agora-logo.png';
+//@ts-ignore
+import AIAgentLogo from '../assets/ai-agent-logo.png';
+import Checkbox from '../../atoms/Checkbox';
+import {isMobileUA} from '../../utils/common';
 const CustomCreate = () => {
   const {
     data: {
@@ -35,9 +44,7 @@ const CustomCreate = () => {
   const {setRoomInfo} = useSetRoomInfo();
   const {setStore} = useStorageContext();
   const loadingText = useString('loadingText')();
-  const history = useHistory();
-
-  const {agentAuthToken} = useContext(AgentContext);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     if (isWebInternal() && !isSDK) {
@@ -69,18 +76,6 @@ const CustomCreate = () => {
     // set default meeting name
     onChangeRoomTitle(generateChannelId);
   }, []);
-
-  // useEffect( () => {
-  // // to check if user logged in quer param
-  // const queryParams = new URLSearchParams(window.location.search);
-  //   if (queryParams.get('auth') === 'success' && roomTitle != '') {
-  //     createRoomAndNavigateToShare(
-  //       roomTitle?.trim(),
-  //       false,
-  //       false
-  //     );
-  //     }
-  // },[roomTitle])
 
   const createRoomAndNavigateToShare = async (
     roomTitle: string,
@@ -132,58 +127,59 @@ const CustomCreate = () => {
   return (
     <>
       {!roomCreated ? (
-        <View style={style.root}>
+        <View style={isMobileUA() ? style.rootMobile : style.root}>
           <View style={style.topLogoContainer}>
-            <View style={{paddingTop: 14}}>
-              <AgoraLogo />
-            </View>
-            <View>
-              <OpenAILogo />
+            <Image style={style.topLogo} source={{uri: AgoraLogo}} />
+          </View>
+          <View style={style.centerContentContainer}>
+            <Spacer size={isMobileUA() ? 52 : 90} />
+            <View style={style.centerLogoContainer}>
+              <Image
+                style={{width: 120, height: 120}}
+                source={{uri: AIAgentLogo}}
+              />
+              <Text style={style.mainTextStyle}>AI Agents</Text>
             </View>
           </View>
-          <View
-            style={{
-              width: 490,
-              marginTop: 90,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View style={style.centerLogoContainer}>
-              <View style={{padding: 20}}>
-                <AgoraOpenAILogo />
-              </View>
-              <Text style={style.mainTextStyle}>Agora & Conversational AI</Text>
-              <Spacer size={20} />
+          <View style={style.bottomContentContainer}>
+            <Spacer size={isMobileUA() ? 52 : 72} />
+            <View style={style.termsAndConditionsContainer}>
+              <Checkbox
+                tickColor="black"
+                label=""
+                disabled={false}
+                checked={checked}
+                onChange={setChecked}
+                checkBoxStyle={checked ? {borderWidth: 0} : {}}
+              />
               <Text style={style.subTextStyle}>
-                AI Builder Conversational AI demo
+                I agree to the{' '}
+                <TouchableOpacity
+                  onPress={() =>
+                    Linking.openURL('https://www.agora.io/en/terms-of-service/')
+                  }>
+                  <Text style={{textDecorationLine: 'underline'}}>
+                    Agora Terms of Service
+                  </Text>
+                </TouchableOpacity>
               </Text>
             </View>
-            <Spacer size={20} />
+            <Spacer size={isMobileUA() ? 52 : 28} />
             <TouchableOpacity
-              disabled={loading || !roomTitle?.trim()}
-              style={style.btnContainer}
+              disabled={loading || !roomTitle?.trim() || !checked}
+              style={[
+                style.btnContainer,
+                !checked ? style.btnDisabledEffect : {},
+              ]}
               onPress={() => {
-                const queryParams = new URLSearchParams(window.location.search);
                 if (!$config.BACKEND_ENDPOINT) {
                   showError();
                 } else {
-                  // handleSSOLogin()
-                  //history.push('/login')
                   createRoomAndNavigateToShare(roomTitle?.trim(), false, false);
                 }
               }}>
-              <CallIcon fill="#111111" />
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 18,
-                  fontStyle: 'normal',
-                  fontWeight: '600',
-                  lineHeight: 18,
-                }}>
-                {loading ? loadingText : 'Sign in to Join Call'}
+              <Text style={style.btnTextStyle}>
+                {loading ? loadingText : 'Get Started'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -206,32 +202,38 @@ const style = StyleSheet.create({
     backgroundColor: '#111',
     borderRadius: 20,
   },
-  mainMobile: {
-    paddingBottom: 80,
-    paddingTop: 66,
+  rootMobile: {
+    display: 'flex',
     flex: 1,
-  },
-  mobileContainerStyle: {
-    backgroundColor: 'transparent',
-    flex: 1,
-    paddingBottom: 0,
-    paddingTop: 0,
+    flexDirection: 'column',
+    paddingVertical: 72,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    backgroundColor: '#111',
+    justifyContent: 'space-between',
   },
   btnContainer: {
     width: '100%',
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    height: 56,
+    height: 60,
     padding: 20,
     justifyContent: 'center',
     alignContent: 'center',
-    gap: 8,
-    borderRadius: 4,
-    backgroundColor: '#00C2FF',
+    borderRadius: 40,
+    backgroundColor: '#0097D4',
   },
-  separator: {
-    height: 1,
+  btnDisabledEffect: {
+    opacity: 0.8,
+  },
+  btnTextStyle: {
+    textAlign: 'center',
+    fontSize: 18,
+    fontStyle: 'normal',
+    fontWeight: '600',
+    lineHeight: 18,
+    color: '#FDFCFB',
   },
   topLogoContainer: {
     paddingVertical: 20,
@@ -239,21 +241,26 @@ const style = StyleSheet.create({
     display: 'flex',
     width: 'auto',
     flexDirection: 'row',
-    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
-    flexShrink: 0,
     alignSelf: 'stretch',
   },
-  centerLogoContainer: {
-    padding: 40,
+  topLogo: {
+    width: 100,
+    height: 35,
+  },
+  centerContentContainer: {
+    width: isMobileUA() ? '100%' : 400,
     display: 'flex',
-    paddingHorizontal: 8,
-    flexFirection: 'column',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'stretch',
+  },
+  centerLogoContainer: {
+    padding: 20,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mainTextStyle: {
     color: '#FFF',
@@ -266,13 +273,26 @@ const style = StyleSheet.create({
     letterSpacing: 1,
   },
   subTextStyle: {
-    color: '#FFFFFF' + hexadecimalTransparency['70%'],
+    color: '#FDFCFB',
     textAlign: 'center',
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 18,
+    fontSize: 14,
     fontStyle: 'normal',
     fontWeight: '400',
-    lineHeight: 21.6,
+    lineHeight: 14,
+  },
+  termsAndConditionsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomContentContainer: {
+    width: isMobileUA() ? '100%' : 400,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

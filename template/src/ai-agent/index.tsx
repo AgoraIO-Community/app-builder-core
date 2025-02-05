@@ -255,7 +255,7 @@ const DesktopLayoutComponent: LayoutComponent = () => {
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     appRoot: AgentProvider,
-    create: isMobileUA() ? CustomCreateNative : CustomCreate,
+    create: CustomCreate,
     //preferenceWrapper: AgentProvider,
     videoCall: {
       customLayout() {
@@ -284,18 +284,18 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       bottomToolBar: isMobileUA() ? MobileBottombar : Bottombar,
     },
   },
-  customRoutes: [
-    {
-      component: CustomLoginRoute,
-      exact: true,
-      path: '/login',
-      isTopLevelRoute: true,
-    },
-    {
-      component: CustomValidateRoute,
-      exact: true,
-      path: '/validate',
-      isTopLevelRoute: true,
-    },
-  ],
+  // customRoutes: [
+  //   {
+  //     component: CustomLoginRoute,
+  //     exact: true,
+  //     path: '/login',
+  //     isTopLevelRoute: true,
+  //   },
+  //   {
+  //     component: CustomValidateRoute,
+  //     exact: true,
+  //     path: '/validate',
+  //     isTopLevelRoute: true,
+  //   },
+  // ],
 };
