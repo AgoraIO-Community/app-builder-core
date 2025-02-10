@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-spotlight:before {
+  content: '\e9a3';
+  color: #fff;
+}
 .icon-clipboard_outlined:before {
   content: '\e9a2';
 }

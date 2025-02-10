@@ -81,6 +81,7 @@ const DefaultConfig = {
   DISABLE_LANDSCAPE_MODE: false,
   STT_AUTO_START: false,
   CLOUD_RECORDING_AUTO_START: false,
+  ENABLE_SPOTLIGHT: false,
   AUTO_CONNECT_RTM: false,
 };
 
