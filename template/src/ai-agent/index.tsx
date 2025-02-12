@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {ILocalAudioTrack, IRemoteAudioTrack} from 'agora-rtc-sdk-ng';
-import {View, TouchableOpacity, Text} from 'react-native';
+import {View} from 'react-native';
 import {
   MaxVideoView,
   useContent,
@@ -8,150 +8,24 @@ import {
   type LayoutComponent,
   useRtc,
   useLocalAudio,
-  ToolbarPreset,
-  useEndCall,
-  useSidePanel,
-  ToolbarItem,
-  IconButton,
   CustomizationApiInterface,
+  Spacer,
 } from 'customization-api';
 import {isMobileUA} from '../utils/common';
 import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
 import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
-import CustomCreateNative from './components/CustomCreateNative';
-import {AudioVisualizerEffect} from './components/LocalAudioWave';
 import MobileTopBar from './components/mobile/Topbar';
 import MobileLayoutComponent from './components/mobile/MobileLayoutComponent';
 import MobileBottombar from './components/mobile/Bottombar';
 import {AgentProvider} from './components/AgentControls/AgentContext';
 import {AgentContext} from './components/AgentControls/AgentContext';
 import {AgentState} from './components/AgentControls/const';
-import {
-  AGENT_PROXY_URL,
-  AGORA_SSO_LOGOUT_PATH,
-  AGORA_SSO_BASE,
-} from './components/AgentControls/const';
-import CustomSidePanel from './components/CustomSidePanel';
-import CustomLoginRoute from './routes/CustomLoginRoute';
-import CustomValidateRoute from './routes/CustomValidateRoute';
+import CustomChatPanel from './components/CustomChatPanel';
+import CustomSettingsPanel from './components/CustomSettingsPanel';
 
 const Topbar = () => {
-  const {sidePanel, setSidePanel} = useSidePanel();
-
-  React.useEffect(() => {
-    setSidePanel('agent-transcript-panel');
-  }, []);
-
-  return (
-    <ToolbarPreset
-      align="top"
-      items={{
-        'meeting-title': {hide: true},
-        'participant-count': {hide: true},
-        'recording-status': {hide: true},
-        chat: {hide: true},
-        participant: {hide: true},
-        settings: {hide: false},
-        agentTanscript: {
-          align: 'end',
-          component: () => {
-            const {agentAuthToken, setAgentAuthToken} =
-              useContext(AgentContext);
-            const isOpen = sidePanel === 'agent-transcript-panel';
-
-            const handlePress = () => {
-              setSidePanel(isOpen ? null : 'agent-transcript-panel');
-            };
-            return (
-              <ToolbarItem>
-                <IconButton
-                  iconProps={{
-                    name: 'chat-nav',
-                    iconSize: 24,
-                    tintColor: 'white',
-                    iconBackgroundColor: isOpen
-                      ? $config.PRIMARY_ACTION_BRAND_COLOR
-                      : $config.ICON_BG_COLOR,
-                  }}
-                  btnTextProps={{
-                    textColor: 'white',
-                  }}
-                  onPress={handlePress}
-                />
-              </ToolbarItem>
-            );
-          },
-        },
-        Logout: {
-          align: 'end',
-          component: () => {
-            const {agentAuthToken, setAgentAuthToken} =
-              useContext(AgentContext);
-            const endcall = useEndCall();
-
-            const ssoLogout = async () => {
-              const logoutUrl = `${AGENT_PROXY_URL}/logout`;
-
-              const response = await fetch(logoutUrl, {
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${agentAuthToken}`,
-                },
-              });
-
-              await endcall();
-              setAgentAuthToken(null);
-
-              const data = await response.json();
-
-              console.log({logoutdata: data});
-
-              return data;
-            };
-            const logout = async () => {
-              try {
-                // await ssoLogout()
-                const originURL = window.location.origin + '/create';
-                const frontend_redirect_creds = {
-                  token: agentAuthToken,
-                  frontend_redirect: originURL,
-                };
-                const REDIRECT_URL = `${AGENT_PROXY_URL}/logout?state=${JSON.stringify(
-                  frontend_redirect_creds,
-                )}`;
-                const ssoUrl = `${AGORA_SSO_BASE}/${AGORA_SSO_LOGOUT_PATH}?redirect_uri=${REDIRECT_URL}`;
-                // console.log({REDIRECT_URL})
-                window.open(`${ssoUrl}`, '_self');
-              } catch (error) {
-                console.log({logoutFailed: error});
-              }
-            };
-
-            return null;
-            return (
-              <TouchableOpacity
-                style={{
-                  display: 'flex',
-                  height: 35,
-                  padding: 20,
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 8,
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  borderColor: '#00C2FF',
-                  flexDirection: 'row',
-                }}
-                onPress={logout}>
-                <Text style={{color: '#FFF'}}>Logout</Text>
-              </TouchableOpacity>
-            );
-          },
-        },
-      }}
-    />
-  );
+  return <></>;
 };
 
 const DesktopLayoutComponent: LayoutComponent = () => {
@@ -162,11 +36,8 @@ const DesktopLayoutComponent: LayoutComponent = () => {
   const [remoteTrack, setRemoteTrack] = useState<IRemoteAudioTrack | null>(
     null,
   );
-  const [mediaStreamTrack, setMediaStreamTrack] =
-    React.useState<MediaStreamTrack>();
 
-  const {agentConnectionState, setAgentConnectionState, agentUID} =
-    useContext(AgentContext);
+  const {agentConnectionState, agentUID} = useContext(AgentContext);
 
   const {getLocalAudioStream, getRemoteAudioStream} = useLocalAudio();
 
@@ -195,58 +66,45 @@ const DesktopLayoutComponent: LayoutComponent = () => {
   }, [activeUids]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: 10,
-      }}>
-      <MaxVideoView
-        user={{
-          ...defaultContent[agentUID],
-          name: 'OpenAI',
-          video: false,
-        }}
-        CustomChild={() =>
-          // show agent voice waves, when agent is connected to the channel, but also not on a state-of-wait,
-          connected && !isAwaitingLeave ? (
-            <AudioVisualizer audioTrack={remoteTrack} />
-          ) : (
-            <DisconnectedView isConnected={connected} />
-          )
-        }
-        hideMenuOptions={true}
-      />
+    <View style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
       <View
         style={{
-          position: 'absolute',
-          bottom: 10,
-          right: 10,
+          flex: 2,
           display: 'flex',
           flexDirection: 'row',
-          height: 200,
-          width: 300,
+          borderRadius: 10,
         }}>
-        <MaxVideoView user={defaultContent[localUid]} hideMenuOptions={true} />
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 16,
-            right: 10,
-          }}>
-          {localTracks && (
-            <AudioVisualizerEffect
-              type="user"
-              barWidth={3}
-              minBarHeight={2}
-              maxBarHeight={25}
-              audioTrack={localTracks}
-              borderRadius={2}
-              gap={4}
-            />
-          )}
+        <View style={{flex: 1}}>
+          <MaxVideoView
+            user={{
+              ...defaultContent[agentUID],
+              name: 'Ai Agent',
+              video: false,
+            }}
+            CustomChild={() =>
+              // show agent voice waves, when agent is connected to the channel, but also not on a state-of-wait,
+              connected && !isAwaitingLeave ? (
+                <AudioVisualizer audioTrack={remoteTrack} />
+              ) : (
+                <DisconnectedView isConnected={connected} />
+              )
+            }
+            hideMenuOptions={true}
+          />
         </View>
+        {connected && !isAwaitingLeave ? (
+          <>
+            <Spacer size={8} horizontal={true} />
+            <View style={{flex: 1}}>
+              <MaxVideoView
+                user={defaultContent[localUid]}
+                hideMenuOptions={true}
+              />
+            </View>
+          </>
+        ) : (
+          <></>
+        )}
       </View>
     </View>
   );
@@ -255,8 +113,7 @@ const DesktopLayoutComponent: LayoutComponent = () => {
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     appRoot: AgentProvider,
-    create: isMobileUA() ? CustomCreateNative : CustomCreate,
-    //preferenceWrapper: AgentProvider,
+    create: CustomCreate,
     videoCall: {
       customLayout() {
         return [
@@ -273,9 +130,15 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       customSidePanel: () => {
         return [
           {
+            name: 'custom-settings-panel',
+            component: CustomSettingsPanel,
+            title: 'Settings',
+            onClose: () => {},
+          },
+          {
             name: 'agent-transcript-panel',
-            component: CustomSidePanel,
-            title: 'Agent Transcript',
+            component: CustomChatPanel,
+            title: 'Transcript',
             onClose: () => {},
           },
         ];
@@ -284,18 +147,4 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       bottomToolBar: isMobileUA() ? MobileBottombar : Bottombar,
     },
   },
-  customRoutes: [
-    {
-      component: CustomLoginRoute,
-      exact: true,
-      path: '/login',
-      isTopLevelRoute: true,
-    },
-    {
-      component: CustomValidateRoute,
-      exact: true,
-      path: '/validate',
-      isTopLevelRoute: true,
-    },
-  ],
 };

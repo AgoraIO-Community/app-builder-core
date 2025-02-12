@@ -132,7 +132,7 @@ const Dropdown: FC<Props> = ({
               data={data}
               renderItem={renderItem}
               keyExtractor={(item, index) => index.toString()}
-              style={{ maxHeight: 200 }}
+              style={{maxHeight: 200}}
             />
           </View>
         </TouchableOpacity>

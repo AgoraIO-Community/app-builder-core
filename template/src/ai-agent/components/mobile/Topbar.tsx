@@ -1,25 +1,17 @@
 import React from 'react';
-import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
-import {LogoIcon, SettingsIcon} from '../icons';
-import {SidePanelType, useSidePanel} from 'customization-api';
+import {View, StyleSheet, Text} from 'react-native';
+import {useRoomInfo} from 'customization-api';
 import ThemeConfig from '../../../theme';
 
 const MobileTopbar = () => {
-  const {setSidePanel} = useSidePanel();
+  const {
+    data: {meetingTitle},
+  } = useRoomInfo();
   return (
     <View style={style.rootStyle}>
       <View style={style.containerStyle}>
-        <View style={style.logContainerStyle}>
-          <LogoIcon />
-        </View>
-        <Text style={style.textStyle}>Agora & OpenAI Demo</Text>
+        <Text style={style.textStyle}>{meetingTitle}</Text>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          setSidePanel(SidePanelType.Settings);
-        }}>
-        <SettingsIcon />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -30,7 +22,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: 14,
   },
   containerStyle: {
     display: 'flex',
@@ -40,22 +32,14 @@ const style = StyleSheet.create({
     gap: 4,
     alignSelf: 'stretch',
   },
-  logContainerStyle: {
-    display: 'flex',
-    width: 40,
-    height: 40,
-    paddingRight: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textStyle: {
-    color: '#C3C3C3',
+    color: $config.FONT_COLOR,
     textAlign: 'center',
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 18,
+    fontSize: 16,
     fontStyle: 'normal',
     fontWeight: '600',
-    lineHeight: 18,
+    lineHeight: 20,
   },
 });
 

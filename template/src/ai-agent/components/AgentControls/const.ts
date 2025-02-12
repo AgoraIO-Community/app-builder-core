@@ -1,16 +1,16 @@
 import {isMobileUA} from '../../../utils/common';
 
 export const AI_AGENT_STATE = {
-  NOT_CONNECTED: 'Start Call',
-  REQUEST_SENT: isMobileUA() ? 'Start Call' : 'Requesting agent join..', // loading - reg
-  AWAITING_JOIN: isMobileUA() ? 'Start Call' : 'Agent will join shortly..', // loading
+  NOT_CONNECTED: 'Join Call',
+  REQUEST_SENT: isMobileUA() ? 'Join Call' : 'Requesting agent join..', // loading - reg
+  AWAITING_JOIN: isMobileUA() ? 'Join Call' : 'Agent will join shortly..', // loading
   AGENT_CONNECTED: 'End Call',
-  AGENT_REQUEST_FAILED: 'Start Call',
+  AGENT_REQUEST_FAILED: 'Join Call',
   AGENT_DISCONNECT_REQUEST: isMobileUA()
     ? 'End Call'
     : 'Disconnecting agent...', // loading - req
   AGENT_DISCONNECT_FAILED: 'End Call',
-  AWAITING_LEAVE: 'Start Call', // loading
+  AWAITING_LEAVE: 'Join Call', // loading
 } as const;
 
 export type AIAgentState = keyof typeof AI_AGENT_STATE;
@@ -56,3 +56,36 @@ export const AGORA_SSO_LOGIN_PATH = '/api/v0/oauth/authorize';
 export const AGORA_SSO_LOGOUT_PATH = '/api/v0/logout';
 
 export const AGORA_SSO_CLIENT_ID = 'openai_agora';
+
+export const AI_AGENT_VOICE = {
+  'en-US-AvaMultilingualNeural': 'en-US-AvaMultilingualNeural',
+  'en-US-AndrewMultilingualNeural': 'en-US-AndrewMultilingualNeural',
+  'en-US-EmmaMultilingualNeural': 'en-US-EmmaMultilingualNeural',
+  'en-US-BrianMultilingualNeural': 'en-US-BrianMultilingualNeural',
+  'en-US-AvaNeural': 'en-US-AvaNeural',
+  'en-US-AndrewNeural': 'en-US-AndrewNeural',
+  'en-US-EmmaNeural': 'en-US-EmmaNeural',
+  'en-US-BrianNeural': 'en-US-BrianNeural',
+  'en-US-JennyNeural': 'en-US-JennyNeural',
+  'en-US-GuyNeural': 'en-US-GuyNeural',
+  'en-US-AriaNeural': 'en-US-AriaNeural',
+  'en-US-DavisNeural': 'en-US-DavisNeural',
+  'en-US-JaneNeural': 'en-US-JaneNeural',
+  'en-US-JasonNeural': 'en-US-JasonNeural',
+  'en-US-SaraNeural': 'en-US-SaraNeural',
+  'en-US-TonyNeural': 'en-US-TonyNeural',
+  'en-US-NancyNeural': 'en-US-NancyNeural',
+  'en-US-AmberNeural': 'en-US-AmberNeural',
+  'en-US-AnaNeural': 'en-US-AnaNeural',
+  'en-US-AshleyNeural': 'en-US-AshleyNeural',
+  'en-US-BrandonNeural': 'en-US-BrandonNeural',
+  'en-US-ChristopherNeural': 'en-US-ChristopherNeural',
+  'en-US-CoraNeural': 'en-US-CoraNeural',
+  'en-US-ElizabethNeural': 'en-US-ElizabethNeural',
+  'en-US-EricNeural': 'en-US-EricNeural',
+  'en-US-JacobNeural': 'en-US-JacobNeural',
+  'en-US-JennyMultilingualNeural4': 'en-US-JennyMultilingualNeural4',
+  'en-US-MichelleNeural': 'en-US-MichelleNeural',
+  'en-US-MonicaNeural': 'en-US-MonicaNeural',
+  'en-US-RogerNeural': 'en-US-RogerNeural',
+};

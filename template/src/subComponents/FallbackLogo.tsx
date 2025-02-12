@@ -102,9 +102,7 @@ export default function FallbackLogo(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: $config.ENABLE_CONVERSATIONAL_AI
-      ? '#333'
-      : $config.VIDEO_AUDIO_TILE_COLOR,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
   },
   // activeSpeakerBg: {

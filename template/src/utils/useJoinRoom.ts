@@ -340,6 +340,12 @@ export default function useJoinRoom() {
               }
             }
           }
+
+          //set the ai agent data
+          if ($config.ENABLE_CONVERSATIONAL_AI) {
+            roomInfo.agents = data?.joinChannel?.agents;
+          }
+
           //getUser is not available from backend
           // if (data?.getUser?.name) {
           //   roomInfo.username = data.getUser.name;

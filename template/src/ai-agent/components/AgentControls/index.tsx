@@ -8,7 +8,6 @@ import {
   useContent,
   useEndCall,
   useLocalUid,
-  useHistory,
   useStorageContext,
   Toast,
 } from 'customization-api';
@@ -20,6 +19,7 @@ const connectToAIAgent = async (
   channel_name: string,
   localUid: UidType,
   agentAuthToken: string,
+  data?: {agent_id: string; agent_voice: string},
 ): Promise<{}> => {
   // const apiUrl = '/api/proxy';
   const apiUrl = $config.BACKEND_ENDPOINT + '/v1/convoai';
@@ -27,6 +27,14 @@ const connectToAIAgent = async (
     channel_name: channel_name,
     uid: localUid, // user uid // localUid or 0
   };
+
+  if (data && data.agent_id) {
+    requestBody['ai_agent_id'] = data.agent_id;
+  }
+  if (data && data.agent_voice) {
+    requestBody['voice'] = data.agent_voice;
+  }
+
   console.log({requestBody});
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -70,12 +78,13 @@ export const AgentControl: React.FC<{channel_name: string}> = ({
     setAgentAuthToken,
     agentUID,
     setAgentUID,
+    agentVoice,
+    agentId,
   } = useContext(AgentContext);
   // console.log("X-Client-ID state", clientId)
   // const { users } = useContext(UserContext)
   const {activeUids: users} = useContent();
   const endcall = useEndCall();
-  const history = useHistory();
   const {store} = useStorageContext();
   const localUid = useLocalUid();
 
@@ -103,6 +112,10 @@ export const AgentControl: React.FC<{channel_name: string}> = ({
             channel_name,
             localUid,
             store.token,
+            {
+              agent_id: agentId,
+              agent_voice: agentVoice,
+            },
           );
           // console.log("response X-Client-ID", newClientId, typeof newClientId)
           // @ts-ignore
@@ -170,7 +183,10 @@ export const AgentControl: React.FC<{channel_name: string}> = ({
         }
         try {
           setAgentConnectionState(AgentState.AGENT_DISCONNECT_REQUEST);
-          await connectToAIAgent('stop', channel_name, localUid, store.token);
+          await connectToAIAgent('stop', channel_name, localUid, store.token, {
+            agent_id: agentId,
+            agent_voice: agentVoice,
+          });
           setAgentConnectionState(AgentState.AWAITING_LEAVE);
 
           Toast.show({
@@ -209,6 +225,7 @@ export const AgentControl: React.FC<{channel_name: string}> = ({
     console.log('agent contrl', {users});
     // welcome agent
     const aiAgentUID = users.filter(item => item === agentUID);
+
     if (
       aiAgentUID.length &&
       agentConnectionState === AgentState.AWAITING_JOIN
@@ -249,12 +266,11 @@ export const AgentControl: React.FC<{channel_name: string}> = ({
     agentConnectionState === AgentState.AGENT_CONNECTED ||
     agentConnectionState === AgentState.AGENT_DISCONNECT_FAILED;
 
-  const backgroundColorStyle = isMobileUA()
-    ? {backgroundColor: isEndAgent ? '#FF414D' : '#00C2FF', height: 72}
-    : {};
-  const fontcolorStyle = isMobileUA()
-    ? {color: '#FFF'}
-    : {color: isEndAgent ? '#FF414D' : '#00C2FF'};
+  const backgroundColorStyle = {
+    backgroundColor: isEndAgent ? $config.SEMANTIC_ERROR : '#0097D4',
+  };
+  const fontcolorStyle = {color: $config.FONT_COLOR};
+
   return (
     <TouchableOpacity
       style={{
@@ -265,29 +281,30 @@ export const AgentControl: React.FC<{channel_name: string}> = ({
         alignItems: 'center',
         gap: 8,
         borderRadius: 40,
-        borderWidth: isMobileUA() ? 0 : 1,
-        borderColor: isEndAgent ? '#FF414D' : '#00C2FF',
         flexDirection: 'row',
         ...backgroundColorStyle,
       }}
       onPress={handleConnectionToggle}
       disabled={isLoading}>
       {isLoading ? (
-        <ActivityIndicator
-          size="small"
-          color={isMobileUA() ? '#FFFFFF' : '#00C2FF'}
-        />
+        <ActivityIndicator size="small" color={$config.FONT_COLOR} />
       ) : isStartAgent ? (
-        <CallIcon fill={isMobileUA() ? '#FFFFFF' : '#00C2FF'} />
+        <CallIcon fill={$config.FONT_COLOR} />
       ) : (
-        <EndCall fill={isMobileUA() ? '#FFFFFF' : '#FF414D'} />
+        <EndCall fill={$config.FONT_COLOR} />
       )}
-
-      <Text
-        style={{
-          fontFamily: ThemeConfig.FontFamily.sansPro,
-          ...fontcolorStyle,
-        }}>{`${AI_AGENT_STATE[agentConnectionState]}`}</Text>
+      {!(agentConnectionState === 'AGENT_CONNECTED') ? (
+        <Text
+          style={{
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+            fontSize: 18,
+            lineHeight: 18,
+            fontWeight: '600',
+            ...fontcolorStyle,
+          }}>{`${AI_AGENT_STATE[agentConnectionState]}`}</Text>
+      ) : (
+        <></>
+      )}
     </TouchableOpacity>
   );
 };
