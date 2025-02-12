@@ -64,6 +64,15 @@ export interface RoomData {
   encryptionSecretSalt?: Uint8Array;
   screenShareUid?: string;
   screenShareToken?: string;
+  agents?: AIAgentInterface[];
+}
+
+export interface AIAgentInterface {
+  id: string;
+  agent_type: string;
+  model: string;
+  agent_name: string;
+  voice: string;
 }
 
 export interface RoomInfoContextInterface {
@@ -125,6 +134,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
       attendee: '',
     },
     isSeparateHostLink: true,
+    agents: [],
   },
   roomPreference: {
     disableShareTile: false,

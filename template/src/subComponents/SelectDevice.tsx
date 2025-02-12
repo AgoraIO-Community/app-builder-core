@@ -545,11 +545,11 @@ const SelectDevice = (props: SelectDeviceProps) => {
               />
             </>
           )}
-          <Spacer size={24} />
+          <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
           <SelectAudioDevice {...props} />
-          <Spacer size={24} />
+          <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
           <SelectSpeakerDevice {...props} />
-          <Spacer size={24} />
+          <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
           {!$config.AUDIO_ROOM && (
             <>
               <SelectVideoDevice {...props} />
@@ -575,17 +575,17 @@ const SelectDevice = (props: SelectDeviceProps) => {
             />
           </>
         )}
-        <Spacer size={24} />
+        <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
         {!$config.AUDIO_ROOM && (
           <>
             <SelectVideoDevice {...props} />
-            <Spacer size={24} />
+            <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
           </>
         )}
         <SelectAudioDevice {...props} />
-        <Spacer size={24} />
+        <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
         <SelectSpeakerDevice {...props} />
-        <Spacer size={24} />
+        <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 12 : 24} />
       </>
     </>
   );

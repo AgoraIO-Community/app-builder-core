@@ -55,7 +55,7 @@ const MobileLayoutComponent: LayoutComponent = () => {
         innerContainerStyle={{backgroundColor: '#222'}}
         user={{
           ...defaultContent[agentUID],
-          name: 'OpenAI',
+          name: 'Ai Agent',
           video: false,
         }}
         CustomChild={() =>

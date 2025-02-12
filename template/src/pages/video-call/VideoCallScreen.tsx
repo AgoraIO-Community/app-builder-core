@@ -337,7 +337,13 @@ const VideoCallScreen = () => {
       <VideocallWrapper>
         <VideocallBeforeView />
         <View
-          style={$config.ICON_TEXT ? style.fullRow : style.fullRowWithoutIcon}>
+          style={
+            $config.ENABLE_CONVERSATIONAL_AI
+              ? style.containerForAiAgent
+              : $config.ICON_TEXT
+              ? style.fullRow
+              : style.fullRowWithoutIcon
+          }>
           <ToolbarProvider value={{position: ToolbarPosition.left}}>
             {Object.keys(LeftbarProps)?.length ? (
               <LeftbarComponent
@@ -369,7 +375,9 @@ const VideoCallScreen = () => {
             <View
               style={[
                 style.videoView,
-                $config.ICON_TEXT
+                $config.ENABLE_CONVERSATIONAL_AI
+                  ? {}
+                  : $config.ICON_TEXT
                   ? {
                       paddingHorizontal: isDesktop() ? 32 : 10,
                       paddingVertical: 10,
@@ -445,7 +453,7 @@ const VideoCallScreen = () => {
                 ) : (
                   <>
                     {isCaptionON ? <CaptionComponent /> : <></>}
-                    <Spacer size={10} />
+                    <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 20 : 10} />
                     <View
                       style={
                         isRecordingBot &&
@@ -493,6 +501,13 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     overflow: 'hidden',
     paddingHorizontal: 32,
+    paddingVertical: 20,
+  },
+  containerForAiAgent: {
+    flex: 1,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    paddingHorizontal: 20,
     paddingVertical: 20,
   },
   videoView: {

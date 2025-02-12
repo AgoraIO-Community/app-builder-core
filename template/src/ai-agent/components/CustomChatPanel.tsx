@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React, {useContext} from 'react';
 import {useRtc} from 'customization-api';
 import {AgentContext} from './AgentControls/AgentContext';
@@ -118,9 +118,9 @@ const CustomSidePanel = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <View style={styles.container}>
       <ChatScreen />
-    </div>
+    </View>
   );
 };
 

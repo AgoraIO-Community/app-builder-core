@@ -1,7 +1,7 @@
 import React, {createContext, useState} from 'react';
 import {AIAgentState, AgentState} from './const';
 import {UidType} from 'customization-api';
-
+import {AI_AGENT_VOICE} from './const';
 export interface ChatItem {
   id: string;
   uid: UidType;
@@ -22,6 +22,10 @@ export interface AgentContextInterface {
   setAgentUID: (uid: UidType | null) => void;
   chatItems: ChatItem[];
   addChatItem: (newItem: ChatItem) => void;
+  agentId: string;
+  setAgentId: (id: string) => void;
+  agentVoice?: keyof typeof AI_AGENT_VOICE | '';
+  setAgentVoice: (voice: keyof typeof AI_AGENT_VOICE) => void;
 }
 
 export const AgentContext = createContext<AgentContextInterface>({
@@ -35,6 +39,10 @@ export const AgentContext = createContext<AgentContextInterface>({
   setAgentUID: () => {},
   chatItems: [],
   addChatItem: () => {}, // Default no-op
+  agentVoice: '',
+  setAgentVoice: () => {},
+  agentId: '',
+  setAgentId: () => {},
 });
 
 /**
@@ -74,6 +82,9 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [agentUID, setAgentUID] = useState<UidType | null>(null);
   const [isSubscribedForStreams, setIsSubscribedForStreams] = useState(false);
   const [chatItems, setChatItems] = useState<ChatItem[]>([]);
+  const [agentId, setAgentId] = useState('');
+  const [agentVoice, setAgentVoice] =
+    useState<AgentContextInterface['agentVoice']>('');
 
   /**
    * Adds a new chat item to the chat state while ensuring:
@@ -155,6 +166,10 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setAgentUID,
     chatItems,
     addChatItem, // Expose the function in the context
+    agentId,
+    setAgentId,
+    agentVoice,
+    setAgentVoice,
   };
 
   return (
