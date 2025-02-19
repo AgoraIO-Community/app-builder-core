@@ -16,13 +16,13 @@ import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
 import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
 import MobileTopBar from './components/mobile/Topbar';
-import MobileLayoutComponent from './components/mobile/MobileLayoutComponent';
 import MobileBottombar from './components/mobile/Bottombar';
 import {AgentProvider} from './components/AgentControls/AgentContext';
 import {AgentContext} from './components/AgentControls/AgentContext';
 import {AgentState} from './components/AgentControls/const';
 import CustomChatPanel from './components/CustomChatPanel';
 import CustomSettingsPanel from './components/CustomSettingsPanel';
+import {AgentConnectionProvider} from './components/AgentControls/AgentConnectionWrapper';
 
 const Topbar = () => {
   return <></>;
@@ -66,14 +66,21 @@ const DesktopLayoutComponent: LayoutComponent = () => {
   }, [activeUids]);
 
   return (
-    <View style={{flex: 1, display: 'flex', flexDirection: 'row'}}>
+    <View
+      style={[
+        {flex: 1, display: 'flex', flexDirection: 'row'},
+        isMobileUA() ? {marginBottom: 100} : {},
+      ]}>
       <View
-        style={{
-          flex: 2,
-          display: 'flex',
-          flexDirection: 'row',
-          borderRadius: 10,
-        }}>
+        style={[
+          {
+            flex: 2,
+            display: 'flex',
+            flexDirection: 'row',
+            borderRadius: 10,
+          },
+          isMobileUA() ? {flexDirection: 'column', padding: 12} : {},
+        ]}>
         <View style={{flex: 1}}>
           <MaxVideoView
             user={{
@@ -94,7 +101,7 @@ const DesktopLayoutComponent: LayoutComponent = () => {
         </View>
         {connected && !isAwaitingLeave ? (
           <>
-            <Spacer size={8} horizontal={true} />
+            <Spacer size={8} horizontal={isMobileUA() ? false : true} />
             <View style={{flex: 1}}>
               <MaxVideoView
                 user={defaultContent[localUid]}
@@ -115,15 +122,14 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
     appRoot: AgentProvider,
     create: CustomCreate,
     videoCall: {
+      wrapper: AgentConnectionProvider,
       customLayout() {
         return [
           {
             name: 'Ai-Agent',
             label: 'Ai-Agent',
             icon: '🤖',
-            component: isMobileUA()
-              ? MobileLayoutComponent
-              : DesktopLayoutComponent,
+            component: DesktopLayoutComponent,
           },
         ];
       },

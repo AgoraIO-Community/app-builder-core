@@ -69,10 +69,21 @@ export interface RoomData {
 
 export interface AIAgentInterface {
   id: string;
-  agent_type: string;
-  model: string;
-  agent_name: string;
-  voice: string;
+  is_active: boolean;
+  config: {
+    llm: {
+      agent_name: string;
+      model: string;
+    };
+    tts: {
+      vendor: string;
+      params: {
+        key: string;
+        voice_name: string;
+        region: string;
+      };
+    };
+  };
 }
 
 export interface RoomInfoContextInterface {

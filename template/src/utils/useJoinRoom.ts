@@ -47,10 +47,23 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
       }
       agents {
         id
-        agent_type
-        model
-        agent_name
-        voice
+        is_active
+        config {
+          llm {
+            agent_name
+            model
+          }
+          tts {
+            vendor
+            params {
+              ... on TtsVendorParamsMs {
+                key
+                voice_name
+                region
+              }
+            }
+          }
+        }
       }
     }
     getUser {
@@ -97,10 +110,23 @@ const JOIN_CHANNEL_PHRASE = gql`
       }
       agents {
         id
-        agent_type
-        model
-        agent_name
-        voice
+        is_active
+        config {
+          llm {
+            agent_name
+            model
+          }
+          tts {
+            vendor
+            params {
+              ... on TtsVendorParamsMs {
+                key
+                voice_name
+                region
+              }
+            }
+          }
+        }
       }
     }
   }

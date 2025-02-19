@@ -177,6 +177,17 @@ const mergeCustomization = (
     );
   }
 
+  if (externalConfig?.components?.videoCall?.wrapper) {
+    const AiAgentVideoCallWrapper = aiAgentConfig.components.videoCall.wrapper;
+    const ExternalVideoCallWrapper =
+      externalConfig.components.videoCall.wrapper;
+    mergedData.components.videoCall.wrapper = props => (
+      <AiAgentVideoCallWrapper>
+        <ExternalVideoCallWrapper>{props.children}</ExternalVideoCallWrapper>
+      </AiAgentVideoCallWrapper>
+    );
+  }
+
   //override the i18n
   if (externalConfig?.i18n && externalConfig?.i18n?.length) {
     mergedData.i18n = externalConfig.i18n;

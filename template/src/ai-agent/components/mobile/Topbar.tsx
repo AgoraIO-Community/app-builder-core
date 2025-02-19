@@ -22,14 +22,13 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 14,
+    padding: 14,
   },
   containerStyle: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 4,
     alignSelf: 'stretch',
   },
   textStyle: {

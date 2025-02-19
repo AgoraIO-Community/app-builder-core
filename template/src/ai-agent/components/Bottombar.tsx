@@ -2,7 +2,6 @@ import {
   ToolbarPreset,
   ToolbarComponents,
   useSidePanel,
-  useRoomInfo,
   IconButton,
   SidePanelType,
   useActionSheet,
@@ -13,7 +12,7 @@ import {isMobileUA} from '../../utils/common';
 import React, {useEffect} from 'react';
 import {AgentControl} from './AgentControls';
 
-const CustomSettingButton = () => {
+export const CustomSettingButton = () => {
   const {sidePanel, setSidePanel} = useSidePanel();
 
   const isPanelActive = sidePanel === 'custom-settings-panel';
@@ -59,7 +58,7 @@ const CustomSettingButton = () => {
   );
 };
 
-const CustomTranscriptButton = () => {
+export const CustomTranscriptButton = () => {
   const {sidePanel, setSidePanel} = useSidePanel();
 
   const isPanelActive = sidePanel === 'agent-transcript-panel';
@@ -107,7 +106,6 @@ const CustomTranscriptButton = () => {
 const Bottombar = () => {
   const {MeetingTitleToolbarItem} = ToolbarComponents;
   const {setSidePanel} = useSidePanel();
-  const {data} = useRoomInfo();
   useEffect(() => {
     !isMobileUA() && setSidePanel('custom-settings-panel');
   }, []);
@@ -134,7 +132,7 @@ const Bottombar = () => {
         'connect-agent': {
           align: 'center',
           label: 'Agent',
-          component: () => <AgentControl channel_name={data.channel} />,
+          component: AgentControl,
           order: 2,
         },
         'end-call': {align: 'center', order: 3, hide: true},

@@ -26,6 +26,8 @@ export interface AgentContextInterface {
   setAgentId: (id: string) => void;
   agentVoice?: keyof typeof AI_AGENT_VOICE | '';
   setAgentVoice: (voice: keyof typeof AI_AGENT_VOICE) => void;
+  prompt?: string;
+  setPrompt: (prompt: string) => void;
 }
 
 export const AgentContext = createContext<AgentContextInterface>({
@@ -43,6 +45,8 @@ export const AgentContext = createContext<AgentContextInterface>({
   setAgentVoice: () => {},
   agentId: '',
   setAgentId: () => {},
+  prompt: '',
+  setPrompt: () => {},
 });
 
 /**
@@ -85,6 +89,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [agentId, setAgentId] = useState('');
   const [agentVoice, setAgentVoice] =
     useState<AgentContextInterface['agentVoice']>('');
+  const [prompt, setPrompt] = useState('');
 
   /**
    * Adds a new chat item to the chat state while ensuring:
@@ -170,6 +175,8 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setAgentId,
     agentVoice,
     setAgentVoice,
+    prompt,
+    setPrompt,
   };
 
   return (

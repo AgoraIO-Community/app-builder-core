@@ -1,47 +1,63 @@
-import React, {useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {ToolbarComponents, useRoomInfo} from 'customization-api';
+import React from 'react';
+import {StyleSheet} from 'react-native';
+import {ToolbarPreset} from 'customization-api';
 import {AgentControl} from '../AgentControls';
+import {CustomSettingButton, CustomTranscriptButton} from '../Bottombar';
 
 const Bottombar = () => {
-  const [clientId, setClientId] = useState<string | null>(null);
-  const {LocalAudioToolbarItem} = ToolbarComponents;
-  const {data} = useRoomInfo();
-  const css = `
-    [data-testid="localAudio-btn"]{
-      padding-bottom: 0px !important;
-    }
-  `;
   return (
-    <>
-      <style type="text/css">{css}</style>
-      <View style={style.containerStyle}>
-        <LocalAudioToolbarItem
-          iconBGColor={'#00C2FF'}
-          iconSize={32}
-          containerStyle={{padding: 20}}
-        />
-        <AgentControl
-          channel_name={data.channel}
-          style={{fontSize: 18, lineHeight: 18}}
-          clientId={clientId}
-          setClientId={setClientId}
-        />
-      </View>
-    </>
+    <ToolbarPreset
+      align="bottom"
+      snapPointsMinMax={[100, 100]}
+      items={{
+        layout: {hide: true},
+        invite: {hide: true},
+        more: {hide: true},
+        'meeting-title': {
+          hide: true,
+        },
+        'participant-count': {
+          hide: true,
+        },
+        'local-audio': {order: 0},
+        'local-video': {hide: true},
+        screenshare: {hide: true},
+        recording: {hide: true},
+        'connect-agent': {
+          align: 'center',
+          label: 'Agent',
+          component: AgentControl,
+          order: 1,
+        },
+        'end-call': {align: 'center', hide: true},
+        'custom-transcript': {
+          align: 'end',
+          order: 2,
+          component: CustomTranscriptButton,
+        },
+        'custom-settings': {
+          align: 'end',
+          order: 3,
+          component: CustomSettingButton,
+        },
+        participant: {
+          hide: true,
+        },
+        transcript: {
+          hide: true,
+        },
+        settings: {
+          hide: true,
+        },
+        caption: {
+          hide: true,
+        },
+        chat: {
+          hide: true,
+        },
+      }}
+    />
   );
 };
-
-const style = StyleSheet.create({
-  containerStyle: {
-    paddingTop: 20,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
-    alignSelf: 'stretch',
-  },
-});
 
 export default Bottombar;

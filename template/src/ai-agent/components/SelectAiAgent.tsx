@@ -3,6 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import {Dropdown, useRoomInfo, Spacer} from 'customization-api';
 import ThemeConfig from '../../theme';
 import {AgentContext} from './AgentControls/AgentContext';
+import {AgentConnectionContext} from './AgentControls/AgentConnectionWrapper';
 
 const SelectAiAgent = () => {
   const {
@@ -10,14 +11,16 @@ const SelectAiAgent = () => {
   } = useRoomInfo();
 
   const {agentId, setAgentId} = useContext(AgentContext);
-
+  const {toggleAgentConnection} = useContext(AgentConnectionContext);
   const data = useMemo(() => {
-    return agents?.map((agent: any) => {
-      return {
-        label: agent.agent_name,
-        value: agent.id,
-      };
-    });
+    return agents
+      ?.filter(a => a.is_active === true)
+      ?.map((agent: any) => {
+        return {
+          label: agent?.config?.llm?.agent_name,
+          value: agent.id,
+        };
+      });
   }, [agents]);
 
   useEffect(() => {
@@ -46,12 +49,12 @@ const SelectAiAgent = () => {
             : data.find(d => d.value === agentId)?.label
         }
         data={data}
-        onSelect={({label, value}) => {
+        onSelect={async ({label, value}) => {
           console.log('Selected AI Agent:', label, value);
-          //@ts-ignore
           if (agentId !== value) {
-            //@ts-ignore
+            //await toggleAgentConnection(true);
             setAgentId(value);
+            await toggleAgentConnection();
           }
         }}
       />

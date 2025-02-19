@@ -8,16 +8,30 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import SelectAiAgent from './SelectAiAgent';
-import SelectAiAgentVoice from './SelectAiAgentVoice';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {AgentContext} from './AgentControls/AgentContext';
+import UserPrompt from './UserPrompt';
+import {useIsAgentAvailable} from './utils';
 
 const InfoSection = () => {
-  const {agentConnectionState} = useContext(AgentContext);
+  const {agentConnectionState, agentId} = useContext(AgentContext);
   const {
-    data: {roomId, uid},
+    data: {roomId, uid, agents},
   } = useRoomInfo();
+
+  const formatVoiceName = key => {
+    try {
+      return key
+        .replace(/en-US-/, '') // Remove "en-US-"
+        .replace(/Neural/g, '') // Remove "Neural"
+        .replace(/Multilingual/g, '(Multilingual)') // Format "Multilingual"
+        .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+        .trim();
+    } catch (error) {
+      return key;
+    }
+  };
 
   return (
     <View style={styles.sectionContainer}>
@@ -44,6 +58,23 @@ const InfoSection = () => {
           </Text>
         </View>
       </View>
+      {agentId ? (
+        <View style={styles.infoRowContainer}>
+          <View style={styles.flex1}>
+            <Text style={styles.infoRowLabel}>Agent Voice</Text>
+          </View>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <Text style={[styles.infoRowValue]}>
+              {formatVoiceName(
+                agents.find(a => a.id === agentId)?.config?.tts?.params
+                  ?.voice_name,
+              )}
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <></>
+      )}
       <View style={styles.infoRowContainer}>
         <View style={styles.flex1}>
           <Text style={styles.infoRowLabel}>Room Status</Text>
@@ -76,6 +107,7 @@ const InfoSection = () => {
 };
 
 const CustomSettingsPanel = () => {
+  const isAgentAvailable = useIsAgentAvailable();
   return (
     <View style={styles.container}>
       <ScrollView style={styles.contentContainer}>
@@ -83,8 +115,14 @@ const CustomSettingsPanel = () => {
           <Text style={styles.sectionTitle}>AI AGENT</Text>
           <Spacer size={12} />
           <SelectAiAgent />
-          <Spacer size={12} />
-          <SelectAiAgentVoice />
+          {isAgentAvailable ? (
+            <>
+              <Spacer size={12} />
+              <UserPrompt />
+            </>
+          ) : (
+            <></>
+          )}
         </View>
         <Spacer size={24} />
         <InfoSection />
