@@ -1,10 +1,21 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, TextInput, StyleSheet, Text, Platform} from 'react-native';
 import ThemeConfig from '../../theme';
 import {AgentContext} from './AgentControls/AgentContext';
+import {useRoomInfo} from 'customization-api';
 
 const UserPrompt = () => {
-  const {prompt, setPrompt, agentConnectionState} = useContext(AgentContext);
+  const {prompt, setPrompt, agentConnectionState, agentId} =
+    useContext(AgentContext);
+  const {
+    data: {agents},
+  } = useRoomInfo();
+
+  useEffect(() => {
+    if (agentId) {
+      setPrompt(agents?.find(a => a?.id === agentId)?.config?.llm?.prompt);
+    }
+  }, [agentId, agents, setPrompt]);
   return (
     <>
       <Text style={styles.label}>Prompt</Text>
@@ -20,7 +31,7 @@ const UserPrompt = () => {
           value={prompt}
           onChangeText={setPrompt}
           placeholder="Customize Prompt"
-          numberOfLines={5}
+          numberOfLines={10}
           multiline={true}
         />
       </View>

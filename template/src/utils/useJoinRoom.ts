@@ -52,6 +52,7 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
           llm {
             agent_name
             model
+            prompt
           }
           tts {
             vendor
@@ -115,6 +116,7 @@ const JOIN_CHANNEL_PHRASE = gql`
           llm {
             agent_name
             model
+            prompt
           }
           tts {
             vendor
