@@ -45,6 +45,26 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         rtm
         uid
       }
+      agents {
+        id
+        is_active
+        config {
+          llm {
+            agent_name
+            model
+          }
+          tts {
+            vendor
+            params {
+              ... on TtsVendorParamsMs {
+                key
+                voice_name
+                region
+              }
+            }
+          }
+        }
+      }
     }
     getUser {
       name
@@ -87,6 +107,26 @@ const JOIN_CHANNEL_PHRASE = gql`
         rtc
         rtm
         uid
+      }
+      agents {
+        id
+        is_active
+        config {
+          llm {
+            agent_name
+            model
+          }
+          tts {
+            vendor
+            params {
+              ... on TtsVendorParamsMs {
+                key
+                voice_name
+                region
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -326,6 +366,12 @@ export default function useJoinRoom() {
               }
             }
           }
+
+          //set the ai agent data
+          if ($config.ENABLE_CONVERSATIONAL_AI) {
+            roomInfo.agents = data?.joinChannel?.agents;
+          }
+
           //getUser is not available from backend
           // if (data?.getUser?.name) {
           //   roomInfo.username = data.getUser.name;

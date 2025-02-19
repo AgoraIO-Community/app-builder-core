@@ -100,7 +100,7 @@ export type ComponentsInterface = {
   precall?: PreCallInterface;
   preferenceWrapper?: React.ComponentType;
   //precall?: React.ComponentType;
-  //create?: React.ComponentType;
+  create?: React.ComponentType;
   //share?: React.ComponentType;
   //join?: React.ComponentType;
   videoCall?: VideoCallInterface;
@@ -114,6 +114,7 @@ export interface CustomRoutesInterface {
   isPrivateRoute?: boolean;
   routeProps?: object;
   failureRedirectTo?: string;
+  isTopLevelRoute?: boolean;
 }
 
 export type CustomHookType = () => () => Promise<void>;

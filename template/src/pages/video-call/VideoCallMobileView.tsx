@@ -203,7 +203,9 @@ const VideoCallView = React.memo(() => {
       BottombarProps: {},
       TopbarComponent: NavbarMobile,
       TopbarProps: {},
-      VideocallWrapper: ContainerView,
+      VideocallWrapper: $config.ENABLE_CONVERSATIONAL_AI
+        ? ContainerView
+        : React.Fragment,
     };
     if (
       data?.components?.videoCall &&
@@ -254,7 +256,7 @@ const VideoCallView = React.memo(() => {
   });
 
   return (
-    <>
+    <VideocallWrapper>
       <ToolbarProvider value={{position: ToolbarPosition.top}}>
         {Object.keys(TopbarProps)?.length ? (
           <TopbarComponent items={TopbarProps} includeDefaultItems={false} />
@@ -274,11 +276,20 @@ const VideoCallView = React.memo(() => {
               includeDefaultItems={false}
             />
           ) : (
-            <BottombarComponent />
+            <>
+              <BottombarComponent />
+              <ActionSheet
+                includeDefaultItems={false}
+                items={{}}
+                hideDefaultActionSheet={
+                  $config.ENABLE_CONVERSATIONAL_AI ? true : false
+                }
+              />
+            </>
           )}
         </ActionSheetProvider>
       </ToolbarProvider>
-    </>
+    </VideocallWrapper>
   );
 });
 
@@ -286,7 +297,7 @@ export default VideoCallMobileView;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: $config.ENABLE_CONVERSATIONAL_AI ? 20 : 16,
     paddingVertical: 20,
     flex: 1,
   },
@@ -299,7 +310,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   videoView: {
-    flex: 0.85,
+    flex: $config.ENABLE_CONVERSATIONAL_AI ? (isMobileUA() ? 1 : 0.85) : 0.85,
     zIndex: 0,
     elevation: 0,
   },
