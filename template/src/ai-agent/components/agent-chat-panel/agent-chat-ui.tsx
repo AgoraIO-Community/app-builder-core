@@ -25,9 +25,7 @@ const ChatItemBubble = ({item}: {item: ChatItem}) => {
           paddingTop: 2,
           marginTop: 0,
         },
-        bubbleStyleLayer2: {
-          padding: 0,
-        },
+        bubbleStyleLayer2: {},
       }}
     />
   );

@@ -74,6 +74,7 @@ export interface AIAgentInterface {
     llm: {
       agent_name: string;
       model: string;
+      prompt: string;
     };
     tts: {
       vendor: string;

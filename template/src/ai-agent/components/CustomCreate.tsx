@@ -56,7 +56,7 @@ const CustomCreate = () => {
       };
     });
     // set default meeting name
-    onChangeRoomTitle(generateChannelId);
+    onChangeRoomTitle('Conversational AI');
   }, []);
 
   const createRoomAndNavigateToShare = async (

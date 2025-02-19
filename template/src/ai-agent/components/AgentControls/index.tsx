@@ -87,7 +87,7 @@ export const AgentControl: React.FC = () => {
             lineHeight: 18,
             fontWeight: '600',
             ...fontcolorStyle,
-          }}>{`${AI_AGENT_STATE[agentConnectionState]}`}</Text>
+          }}>{` ${AI_AGENT_STATE[agentConnectionState]}`}</Text>
       ) : (
         <></>
       )}
