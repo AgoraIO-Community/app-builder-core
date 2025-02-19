@@ -4,13 +4,19 @@ import ThemeConfig from '../../theme';
 import {AgentContext} from './AgentControls/AgentContext';
 
 const UserPrompt = () => {
-  const {prompt, setPrompt} = useContext(AgentContext);
+  const {prompt, setPrompt, agentConnectionState} = useContext(AgentContext);
   return (
     <>
       <Text style={styles.label}>Prompt</Text>
       <View style={styles.container}>
         <TextInput
-          style={styles.input}
+          aria-disabled={
+            agentConnectionState === 'AGENT_CONNECTED' ? true : false
+          }
+          style={[
+            styles.input,
+            agentConnectionState === 'AGENT_CONNECTED' ? {opacity: 0.4} : {},
+          ]}
           value={prompt}
           onChangeText={setPrompt}
           placeholder="Customize Prompt"
