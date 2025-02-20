@@ -52,8 +52,7 @@ export const CustomSettingButton = () => {
   }
   return (
     <ToolbarItem>
-      {' '}
-      <IconButton {...iconButtonProps} />{' '}
+      <IconButton {...iconButtonProps} />
     </ToolbarItem>
   );
 };
