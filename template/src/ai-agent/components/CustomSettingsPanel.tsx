@@ -36,7 +36,7 @@ const InfoSection = () => {
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>INFO</Text>
-      <Spacer size={12} />
+      <Spacer size={16} />
       <View style={styles.infoRowContainer}>
         <View style={styles.flex1}>
           <Text style={styles.infoRowLabel}>Agent Status</Text>
@@ -113,23 +113,23 @@ const CustomSettingsPanel = () => {
       <ScrollView style={styles.contentContainer}>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>AI AGENT</Text>
-          <Spacer size={12} />
+          <Spacer size={16} />
           <SelectAiAgent />
           {isAgentAvailable ? (
             <>
-              <Spacer size={12} />
+              <Spacer size={16} />
               <UserPrompt />
             </>
           ) : (
             <></>
           )}
         </View>
-        <Spacer size={24} />
+        <Spacer size={16} />
         <InfoSection />
-        <Spacer size={24} />
+        <Spacer size={16} />
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>CALL SETTINGS</Text>
-          <Spacer size={12} />
+          <Spacer size={16} />
           <EditName label="Joining as" />
           <SelectDevice />
         </View>

@@ -17,12 +17,13 @@ import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
 import MobileTopBar from './components/mobile/Topbar';
 import MobileBottombar from './components/mobile/Bottombar';
-import {AgentProvider} from './components/AgentControls/AgentContext';
-import {AgentContext} from './components/AgentControls/AgentContext';
 import {AgentState} from './components/AgentControls/const';
 import CustomChatPanel from './components/CustomChatPanel';
 import CustomSettingsPanel from './components/CustomSettingsPanel';
-import {AgentConnectionProvider} from './components/AgentControls/AgentConnectionWrapper';
+import {
+  AgentContext,
+  AgentProvider,
+} from './components/AgentControls/AgentContext';
 
 const Topbar = () => {
   return <></>;
@@ -119,10 +120,9 @@ const DesktopLayoutComponent: LayoutComponent = () => {
 
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
-    appRoot: AgentProvider,
     create: CustomCreate,
     videoCall: {
-      wrapper: AgentConnectionProvider,
+      wrapper: AgentProvider,
       customLayout() {
         return [
           {

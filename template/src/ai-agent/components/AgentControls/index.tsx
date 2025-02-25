@@ -7,13 +7,13 @@ import {ThemeConfig} from 'customization-api';
 import JoinCallIcon from '../../assets/join-call.png';
 //@ts-ignore
 import LeaveCallIcon from '../../assets/leave-call.png';
-import {AgentConnectionContext} from './AgentConnectionWrapper';
 import {isMobileUA} from '../../../utils/common';
 import {useIsAgentAvailable} from '../utils';
 
 export const AgentControl: React.FC = () => {
-  const {agentConnectionState} = useContext(AgentContext);
-  const {toggleAgentConnection} = useContext(AgentConnectionContext);
+  const {agentConnectionState, toggleAgentConnection} =
+    useContext(AgentContext);
+
   // stop_agent API is successful, but agent has not yet left the RTC channel
   const isAwaitingLeave = agentConnectionState === AgentState.AWAITING_LEAVE;
   const isAgentAvailable = useIsAgentAvailable();

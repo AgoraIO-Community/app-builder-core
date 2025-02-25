@@ -84,6 +84,7 @@ const DefaultConfig = {
   ENABLE_SPOTLIGHT: false,
   AUTO_CONNECT_RTM: false,
   ENABLE_CONVERSATIONAL_AI: false,
+  CUSTOMIZE_AGENT: true,
 };
 
 module.exports = DefaultConfig;

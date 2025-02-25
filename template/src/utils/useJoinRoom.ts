@@ -54,11 +54,15 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
             model
             prompt
           }
+          vad {
+            threshold
+          }
+          asr_language
+          enable_aivadmd
           tts {
             vendor
             params {
               ... on TtsVendorParamsMs {
-                key
                 voice_name
                 region
               }
@@ -118,11 +122,15 @@ const JOIN_CHANNEL_PHRASE = gql`
             model
             prompt
           }
+          vad {
+            threshold
+          }
+          asr_language
+          enable_aivadmd
           tts {
             vendor
             params {
               ... on TtsVendorParamsMs {
-                key
                 voice_name
                 region
               }

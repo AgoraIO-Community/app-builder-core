@@ -171,6 +171,7 @@ interface ConfigInterface {
   ENABLE_SPOTLIGHT: boolean;
   AUTO_CONNECT_RTM: boolean;
   ENABLE_CONVERSATIONAL_AI: boolean;
+  CUSTOMIZE_AGENT: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
