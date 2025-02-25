@@ -123,15 +123,17 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
     create: CustomCreate,
     videoCall: {
       wrapper: AgentConnectionProvider,
-      customLayout() {
-        return [
-          {
-            name: 'Ai-Agent',
-            label: 'Ai-Agent',
-            icon: '🤖',
-            component: DesktopLayoutComponent,
-          },
-        ];
+      customLayout(defaultLayouts) {
+        return $config.ENABLE_MEETING_AI
+          ? [...defaultLayouts]
+          : [
+              {
+                name: 'Ai-Agent',
+                label: 'Ai-Agent',
+                icon: '🤖',
+                component: DesktopLayoutComponent,
+              },
+            ];
       },
       customSidePanel: () => {
         return [

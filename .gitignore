@@ -109,6 +109,7 @@ template/package-lock.json
 
 #FPE plugin folder
 template/customization/*
+template/customization1/*
 Builds
 esbuild-bin
 template/pnpm-lock.yaml
