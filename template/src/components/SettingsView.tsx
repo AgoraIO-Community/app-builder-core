@@ -259,7 +259,7 @@ const editNameStyle = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.medium,
     width: '100%',
     paddingHorizontal: 8,
-    paddingVertical: 18,
+    paddingVertical: 12,
     borderWidth: 0,
     ...Platform.select({
       web: {
