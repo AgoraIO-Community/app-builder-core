@@ -45,7 +45,12 @@ const UserPrompt = () => {
   }, [agentId, agents, setPrompt]);
   return (
     <>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
         <Text style={styles.label}>Customize Prompt</Text>
         <TouchableOpacity
           style={[
@@ -161,7 +166,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   promptBtnContainer: {
-    padding: 8,
+    paddingBottom: 8,
   },
   promptBtnContainerDisabled: {
     opacity: 0.4,
