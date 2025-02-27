@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {ILocalAudioTrack, IRemoteAudioTrack} from 'agora-rtc-sdk-ng';
-import {View} from 'react-native';
+import {View, Text} from 'react-native';
 import {
   MaxVideoView,
   useContent,
@@ -11,6 +11,7 @@ import {
   CustomizationApiInterface,
   Spacer,
   useLayout,
+  CustomAgentInterfaceProps,
 } from 'customization-api';
 import {isMobileUA} from '../utils/common';
 import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
@@ -18,7 +19,7 @@ import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
 import MobileTopBar from './components/mobile/Topbar';
 import MobileBottombar from './components/mobile/Bottombar';
-import {AgentState} from './components/AgentControls/const';
+import {AgentState, AIAgentState} from './components/AgentControls/const';
 import CustomChatPanel from './components/CustomChatPanel';
 import CustomSettingsPanel from './components/CustomSettingsPanel';
 import {
@@ -136,24 +137,40 @@ const DesktopLayoutComponent: LayoutComponent = () => {
   );
 };
 
+// const AiAgentCustomView = ({connectionState}: CustomAgentInterfaceProps) => {
+//   return (
+//     <View
+//       style={{
+//         flex: 1,
+//         backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+//         display: 'flex',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//       }}>
+//       <Text style={{color: $config.FONT_COLOR}}>{connectionState}</Text>
+//     </View>
+//   );
+// };
+
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     create: CustomCreate,
     videoCall: {
       wrapper: AgentProvider,
+      //customAgentInterface: AiAgentCustomView,
       customLayout() {
         return [
-          {
-            name: 'conversational-ai',
-            label: 'Conversational AI',
-            icon: '🤖',
-            component: ConversationalAI,
-          },
           {
             name: 'Ai-Agent',
             label: 'Ai-Agent',
             icon: '🤖',
             component: DesktopLayoutComponent,
+          },
+          {
+            name: 'conversational-ai',
+            label: 'Conversational AI',
+            icon: '🤖',
+            component: ConversationalAI,
           },
           {
             name: 'default-ai-only',

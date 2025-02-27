@@ -71,6 +71,7 @@ export const DefaultAIOnly: LayoutComponent = () => {
               ...defaultContent[agentUID],
               name: 'Ai Agent',
               video: false,
+              type: 'ai-agent',
             }}
             CustomChild={() =>
               // show agent voice waves, when agent is connected to the channel, but also not on a state-of-wait,

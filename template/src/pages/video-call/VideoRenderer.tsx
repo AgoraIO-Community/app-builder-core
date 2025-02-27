@@ -16,6 +16,7 @@ import {
   useRtc,
   useSpotlight,
   customEvents,
+  CustomAgentInterfaceProps,
 } from 'customization-api';
 import {
   DefaultLayouts,
@@ -24,9 +25,13 @@ import {
 } from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-import {isMobileUA, isWebInternal} from '../../utils/common';
+import {
+  isMobileUA,
+  isValidReactComponent,
+  isWebInternal,
+} from '../../utils/common';
 import ThemeConfig from '../../theme';
-import {createHook} from 'customization-implementation';
+import {createHook, useCustomization} from 'customization-implementation';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import ZoomableWrapper from './ZoomableWrapper';
@@ -46,6 +51,8 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useFullScreen} from '../../utils/useFullScreen';
 import SpotlightHighligher from './SpotlightHighlighter';
+import {useAgent} from '../../ai-agent/components/AgentControls/AgentContext';
+
 export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
@@ -64,6 +71,24 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   containerStyle = {},
   innerContainerStyle = {},
 }) => {
+  const {agentConnectionState} = useAgent();
+  const {CustomAgentView} = useCustomization(data => {
+    let components: {
+      CustomAgentView: React.ComponentType<CustomAgentInterfaceProps>;
+    } = {
+      CustomAgentView: null,
+    };
+    if (
+      data?.components?.videoCall?.customAgentInterface &&
+      typeof data?.components?.videoCall?.customAgentInterface !== 'object' &&
+      isValidReactComponent(data?.components?.videoCall?.customAgentInterface)
+    ) {
+      components.CustomAgentView =
+        data?.components?.videoCall.customAgentInterface;
+    }
+
+    return components;
+  });
   const {height, width} = useWindowDimensions();
   const {requestFullscreen} = useFullScreen();
   const {dispatch} = useContext(DispatchContext);
@@ -325,6 +350,10 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               }}>
               {CustomChild ? (
                 <CustomChild />
+              ) : $config.ENABLE_CONVERSATIONAL_AI &&
+                user?.type === 'ai-agent' &&
+                CustomAgentView ? (
+                <CustomAgentView connectionState={agentConnectionState} />
               ) : (
                 <MaxVideoView
                   fallback={() => {
