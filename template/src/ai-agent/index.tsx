@@ -26,6 +26,7 @@ import {
   AgentProvider,
 } from './components/AgentControls/AgentContext';
 import {ConversationalAI} from './layout/ConversationalAI';
+import {DefaultAIOnly} from './layout/DefaultAIOnly';
 
 const Topbar = () => {
   const {currentLayout} = useLayout();
@@ -153,6 +154,12 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
             label: 'Ai-Agent',
             icon: '🤖',
             component: DesktopLayoutComponent,
+          },
+          {
+            name: 'default-ai-only',
+            label: 'Default AI Only',
+            icon: '🤖',
+            component: DefaultAIOnly,
           },
         ];
       },
