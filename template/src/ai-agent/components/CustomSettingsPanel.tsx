@@ -123,7 +123,7 @@ const AdvancedSettings = () => {
   useEffect(() => {
     if (agentId) {
       setIsInterruptionHandlingEnabled(
-        agents?.find(a => a?.id === agentId)?.config?.enable_aivadmd,
+        agents?.find(a => a?.id === agentId)?.config?.enable_aivad,
       );
     }
   }, [agentId, agents, setIsInterruptionHandlingEnabled]);

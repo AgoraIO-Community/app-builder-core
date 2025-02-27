@@ -72,7 +72,7 @@ export interface AIAgentInterface {
   id: string;
   is_active: boolean;
   config: {
-    enable_aivadmd?: boolean;
+    enable_aivad?: boolean;
     asr_language?: keyof typeof ASR_LANGUAGES;
     llm: {
       agent_name: string;

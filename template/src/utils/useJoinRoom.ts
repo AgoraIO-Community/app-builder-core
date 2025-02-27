@@ -58,7 +58,7 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
             threshold
           }
           asr_language
-          enable_aivadmd
+          enable_aivad
           tts {
             vendor
             params {
@@ -126,7 +126,7 @@ const JOIN_CHANNEL_PHRASE = gql`
             threshold
           }
           asr_language
-          enable_aivadmd
+          enable_aivad
           tts {
             vendor
             params {

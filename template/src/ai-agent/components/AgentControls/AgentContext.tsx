@@ -574,7 +574,7 @@ export const connectToAIAgent = async (
     requestBody['asr_language'] = data.language;
   }
   if (data && data?.enable_interruption_handling) {
-    requestBody['enable_aivadmd'] = data.enable_interruption_handling;
+    requestBody['enable_aivad'] = data.enable_interruption_handling;
   }
 
   const headers: HeadersInit = {
