@@ -109,14 +109,16 @@ const Bottombar = () => {
   const {currentLayout} = useLayout();
   const [renderNull, setRenderNull] = useState(false);
 
+  useEffect(() => {
+    setTimeout(() => {
+      !isMobileUA() && setSidePanel('custom-settings-panel');
+    });
+  }, []);
+
   //for conversational-ai hide the bottmbar
   useEffect(() => {
     if (currentLayout === 'conversational-ai') {
       setRenderNull(true);
-    } else {
-      setTimeout(() => {
-        !isMobileUA() && setSidePanel('custom-settings-panel');
-      });
     }
   }, [currentLayout, setSidePanel]);
 
