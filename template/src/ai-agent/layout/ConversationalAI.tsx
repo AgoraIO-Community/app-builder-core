@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {Suspense, useEffect, useRef, useState} from 'react';
 import {
   Platform,
   StyleSheet,
@@ -17,7 +17,6 @@ import {
   SidePanelType,
 } from 'customization-api';
 import ThemeConfig from '../../theme';
-import Spline from '@splinetool/react-spline';
 import {useAgent} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
@@ -35,6 +34,7 @@ import SettingsIcon from '../assets/settings.png';
 //@ts-ignore
 import DisconnectIcon from '../assets/close.png';
 
+const Spline = React.lazy(() => import('@splinetool/react-spline'));
 const MicButton = () => {
   const {audio} = useLocalUserInfo();
   const muteToggle = useMuteToggleLocal();
@@ -142,10 +142,12 @@ export const ConversationalAI: LayoutComponent = () => {
         </View>
       </View>
       <View style={styles.container}>
-        <Spline
-          scene="https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode"
-          onLoad={onLoad}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Spline
+            scene="https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode"
+            onLoad={onLoad}
+          />
+        </Suspense>
       </View>
       <View style={styles.btnContainer}>
         {!isLoading && agentConnectionState === 'AGENT_CONNECTED' ? (
