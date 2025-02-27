@@ -57,6 +57,8 @@
     "@react-native-async-storage/async-storage": "1.19.2",
     "@react-native-community/checkbox": "0.5.16",
     "@react-native-community/clipboard": "1.5.1",
+    "@splinetool/react-spline": "^4.0.0",
+    "@splinetool/runtime": "^1.9.69",
     "@supersami/rn-foreground-service": "^1.1.1",
     "add": "^2.0.6",
     "agora-chat": "1.2.2-3",

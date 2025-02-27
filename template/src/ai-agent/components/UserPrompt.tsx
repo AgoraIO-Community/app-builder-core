@@ -53,6 +53,7 @@ const UserPrompt = () => {
         }}>
         <Text style={styles.label}>Customize Prompt</Text>
         <TouchableOpacity
+          disabled={agentConnectionState === 'AGENT_CONNECTED' ? true : false}
           style={[
             styles.promptBtnContainer,
             agentConnectionState === 'AGENT_CONNECTED'

@@ -1,5 +1,5 @@
 import {StyleSheet, View, ScrollView, Text} from 'react-native';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   SelectDevice,
   Spacer,
@@ -10,9 +10,11 @@ import {
 import SelectAiAgent from './SelectAiAgent';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {AgentContext} from './AgentControls/AgentContext';
+import {AgentContext, useAgent} from './AgentControls/AgentContext';
 import UserPrompt from './UserPrompt';
 import {useIsAgentAvailable} from './utils';
+import Toggle from '../../atoms/Toggle';
+import SelectUserLanguage from './SelectUserLanguage';
 
 const InfoSection = () => {
   const {agentConnectionState, agentId} = useContext(AgentContext);
@@ -106,6 +108,51 @@ const InfoSection = () => {
   );
 };
 
+const AdvancedSettings = () => {
+  const {
+    isInterruptionHandlingEnabled,
+    setIsInterruptionHandlingEnabled,
+    agentId,
+    agentConnectionState,
+  } = useAgent();
+  const {
+    data: {agents},
+  } = useRoomInfo();
+
+  //when user switchs agent then update the toggle value for that agent
+  useEffect(() => {
+    if (agentId) {
+      setIsInterruptionHandlingEnabled(
+        agents?.find(a => a?.id === agentId)?.config?.enable_aivadmd,
+      );
+    }
+  }, [agentId, agents, setIsInterruptionHandlingEnabled]);
+  const disabled = $config.ENABLE_CONVERSATIONAL_AI
+    ? agentConnectionState === 'AGENT_CONNECTED'
+      ? true
+      : false
+    : true;
+  return (
+    <View style={[{flexDirection: 'row', justifyContent: 'space-between'}]}>
+      <Text
+        style={{
+          fontFamily: ThemeConfig.FontFamily.sansPro,
+          fontSize: 14,
+          lineHeight: 14,
+          color: $config.FONT_COLOR,
+        }}>
+        Intelligent Interruption Handling
+      </Text>
+      <Toggle
+        customContainerStyle={disabled ? {opacity: 0.4} : {}}
+        disabled={disabled}
+        isEnabled={isInterruptionHandlingEnabled}
+        toggleSwitch={setIsInterruptionHandlingEnabled}
+      />
+    </View>
+  );
+};
+
 const CustomSettingsPanel = () => {
   const isAgentAvailable = useIsAgentAvailable();
   return (
@@ -119,6 +166,10 @@ const CustomSettingsPanel = () => {
             <>
               <Spacer size={16} />
               <UserPrompt />
+              <Spacer size={16} />
+              <SelectUserLanguage />
+              <Spacer size={16} />
+              <AdvancedSettings />
             </>
           ) : (
             <></>

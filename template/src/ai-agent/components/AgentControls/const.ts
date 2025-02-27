@@ -89,3 +89,12 @@ export const AI_AGENT_VOICE = {
   'en-US-MonicaNeural': 'en-US-MonicaNeural',
   'en-US-RogerNeural': 'en-US-RogerNeural',
 };
+
+export const ASR_LANGUAGES = {
+  ENGLISH: 'ENGLISH',
+  SPANISH: 'SPANISH',
+  JAPANESE: 'JAPANESE',
+  KOREAN: 'KOREAN',
+  ARABIC: 'ARABIC',
+  HINDI: 'HINDI',
+};

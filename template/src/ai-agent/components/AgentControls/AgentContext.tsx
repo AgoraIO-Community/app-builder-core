@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import StorageContext from '../../../components/StorageContext';
-import {AIAgentState, AgentState} from './const';
+import {AIAgentState, ASR_LANGUAGES, AgentState} from './const';
 import {AI_AGENT_VOICE} from './const';
 import {createHook} from 'customization-implementation';
 import {
@@ -36,8 +36,12 @@ export interface AgentContextInterface {
   setAgentId: (id: string) => void;
   agentVoice?: keyof typeof AI_AGENT_VOICE | '';
   setAgentVoice: (voice: keyof typeof AI_AGENT_VOICE) => void;
+  language?: keyof typeof ASR_LANGUAGES | '';
+  setLanguage: (language: keyof typeof ASR_LANGUAGES) => void;
   prompt?: string;
   setPrompt: (prompt: string) => void;
+  isInterruptionHandlingEnabled: boolean;
+  setIsInterruptionHandlingEnabled: (value: boolean) => void;
 }
 
 export const AgentContext = createContext<AgentContextInterface>({
@@ -60,6 +64,10 @@ export const AgentContext = createContext<AgentContextInterface>({
   setAgentId: () => {},
   prompt: '',
   setPrompt: () => {},
+  isInterruptionHandlingEnabled: false,
+  setIsInterruptionHandlingEnabled: () => {},
+  language: '',
+  setLanguage: () => {},
 });
 
 /**
@@ -104,6 +112,12 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     useState<AgentContextInterface['agentVoice']>('');
   const [prompt, setPrompt] = useState('');
   const {activeUids: users} = useContent();
+  const [isStartAPICalled, setStartAPICalled] = useState(false);
+  const [isStopAPICalled, setStopAPICalled] = useState(false);
+  const [isInterruptionHandlingEnabled, setIsInterruptionHandlingEnabled] =
+    useState(false);
+  const [language, setLanguage] =
+    useState<AgentContextInterface['language']>('');
 
   const {
     data: {channel: channel_name, uid: localUid, agents},
@@ -115,6 +129,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const messageCache = {};
   const TIMEOUT_MS = 5000; // Timeout for incomplete messages
 
+  //set agent id when user refresh the page
   useEffect(() => {
     //@ts-ignore
     if (store?.agentUID && store?.agentUID !== agentUID) {
@@ -229,15 +244,31 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   };
 
   useEffect(() => {
-    console.log('debugging users agent contrl', {users}, agentUID);
+    console.log(
+      'debugging users agent contrl',
+      agentConnectionState,
+      {users},
+      agentUID,
+    );
+
     // welcome agent
     const aiAgentUID = users.filter(item => item === agentUID);
 
     if (
-      aiAgentUID.length &&
-      agentConnectionState !== AgentState.AGENT_CONNECTED
+      //join via start api
+      (isStartAPICalled &&
+        aiAgentUID.length &&
+        agentConnectionState === AgentState.AWAITING_JOIN) ||
+      //on refresh - start is called already
+      (!isStopAPICalled &&
+        !isStartAPICalled &&
+        aiAgentUID.length &&
+        agentConnectionState !== AgentState.AGENT_CONNECTED)
     ) {
       setAgentConnectionState(AgentState.AGENT_CONNECTED);
+      if (isStartAPICalled) {
+        setStartAPICalled(false);
+      }
 
       Toast.show({
         leadingIconName: 'tick-fill',
@@ -252,12 +283,29 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     }
     // when agent leaves, show left toast, and set agent to not connected state
     if (
-      !aiAgentUID.length &&
-      agentConnectionState !== AgentState.NOT_CONNECTED
+      //agent disconnect with stop api
+      (!isStartAPICalled &&
+        isStopAPICalled &&
+        !aiAgentUID.length &&
+        agentConnectionState === AgentState.AWAITING_LEAVE) ||
+      //agent disconnect - might be timeout
+      (!isStartAPICalled &&
+        !isStopAPICalled &&
+        !aiAgentUID.length &&
+        agentConnectionState !== AgentState.NOT_CONNECTED)
     ) {
       setAgentConnectionState(AgentState.NOT_CONNECTED);
+      if (isStopAPICalled) {
+        setStartAPICalled(true);
+      }
     }
-  }, [users, agentUID]);
+  }, [
+    users,
+    agentUID,
+    agentConnectionState,
+    isStartAPICalled,
+    isStopAPICalled,
+  ]);
 
   const handleConnectionToggle = async (forceStop: boolean = false) => {
     try {
@@ -269,6 +317,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       ) {
         try {
           setAgentConnectionState(AgentState.REQUEST_SENT);
+          setStartAPICalled(true);
           const data = await connectToAIAgent(
             'start',
             channel_name,
@@ -279,6 +328,8 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
               prompt: prompt,
               voice: agents.find(a => a.id === agentId)?.config?.tts?.params
                 ?.voice_name,
+              enable_interruption_handling: isInterruptionHandlingEnabled,
+              language: language,
             },
           );
           // console.log("response X-Client-ID", newClientId, typeof newClientId)
@@ -347,6 +398,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       ) {
         try {
           setAgentConnectionState(AgentState.AGENT_DISCONNECT_REQUEST);
+          setStopAPICalled(true);
           await connectToAIAgent('stop', channel_name, localUid, store.token, {
             agent_id: agentId,
           });
@@ -479,6 +531,10 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setAgentVoice,
     prompt,
     setPrompt,
+    isInterruptionHandlingEnabled,
+    setIsInterruptionHandlingEnabled,
+    language,
+    setLanguage,
   };
 
   return (
@@ -491,13 +547,18 @@ export const connectToAIAgent = async (
   channel_name: string,
   localUid: UidType,
   agentAuthToken: string,
-  data?: {agent_id: string; prompt?: string; voice?: string},
+  data?: {
+    agent_id: string;
+    prompt?: string;
+    voice?: string;
+    language?: keyof typeof ASR_LANGUAGES | '';
+    enable_interruption_handling?: boolean;
+  },
 ): Promise<{}> => {
-  // const apiUrl = '/api/proxy';
   const apiUrl = $config.BACKEND_ENDPOINT + '/v1/convoai';
   const requestBody = {
     channel_name: channel_name,
-    uid: localUid, // user uid // localUid or 0
+    uid: localUid,
   };
 
   if (data && data?.agent_id) {
@@ -508,6 +569,12 @@ export const connectToAIAgent = async (
   }
   if (data && data?.prompt) {
     requestBody['prompt'] = data.prompt;
+  }
+  if (data && data?.language) {
+    requestBody['asr_language'] = data.language;
+  }
+  if (data && data?.enable_interruption_handling) {
+    requestBody['enable_aivadmd'] = data.enable_interruption_handling;
   }
 
   const headers: HeadersInit = {

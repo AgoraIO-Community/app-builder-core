@@ -10,6 +10,7 @@ import {
   useLocalAudio,
   CustomizationApiInterface,
   Spacer,
+  useLayout,
 } from 'customization-api';
 import {isMobileUA} from '../utils/common';
 import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
@@ -24,8 +25,24 @@ import {
   AgentContext,
   AgentProvider,
 } from './components/AgentControls/AgentContext';
+import {ConversationalAI} from './layout/ConversationalAI';
 
 const Topbar = () => {
+  const {currentLayout} = useLayout();
+  const [showMobileLayout, setShowMobileLayout] = useState(false);
+
+  useEffect(() => {
+    if (currentLayout === 'conversational-ai') {
+      setShowMobileLayout(true);
+    } else {
+      setShowMobileLayout(false);
+    }
+  }, [currentLayout]);
+
+  if (showMobileLayout) {
+    return <MobileTopBar />;
+  }
+
   return <></>;
 };
 
@@ -125,6 +142,12 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       wrapper: AgentProvider,
       customLayout() {
         return [
+          {
+            name: 'conversational-ai',
+            label: 'Conversational AI',
+            icon: '🤖',
+            component: ConversationalAI,
+          },
           {
             name: 'Ai-Agent',
             label: 'Ai-Agent',
