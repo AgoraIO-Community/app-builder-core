@@ -94,7 +94,7 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
             }
           });
           // unauth flow delete token from the localstoage if any
-          if (!ENABLE_AUTH) {
+          if (!ENABLE_AUTH && !$config.ENABLE_CONVERSATIONAL_AI) {
             storeFromStorage['token'] = null;
           }
           storeFromStorage['whiteboardNativeInfoToast'] = false;
@@ -130,7 +130,7 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
          * Fix: if we duplicate browser tab and join the same meeting, we will create new session
          */
         let tempStore = JSON.parse(JSON.stringify(store));
-        if (!ENABLE_AUTH) {
+        if (!ENABLE_AUTH && !$config.ENABLE_CONVERSATIONAL_AI) {
           tempStore['token'] = null;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));

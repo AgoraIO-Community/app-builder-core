@@ -15,6 +15,7 @@ import {UidType} from '../../../agora-rn-uikit';
 import {LanguageType} from '../../subComponents/caption/utils';
 import {BoardColor} from '../whiteboard/WhiteboardConfigure';
 import {joinRoomPreference} from '../../utils/useJoinRoom';
+import {ASR_LANGUAGES} from 'src/ai-agent/components/AgentControls/const';
 
 export enum WaitingRoomStatus {
   NOT_REQUESTED = 1,
@@ -71,6 +72,8 @@ export interface AIAgentInterface {
   id: string;
   is_active: boolean;
   config: {
+    enable_aivad?: boolean;
+    asr_language?: keyof typeof ASR_LANGUAGES;
     llm: {
       agent_name: string;
       model: string;

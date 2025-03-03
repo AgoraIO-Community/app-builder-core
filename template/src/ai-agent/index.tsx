@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {ILocalAudioTrack, IRemoteAudioTrack} from 'agora-rtc-sdk-ng';
-import {View} from 'react-native';
+import {View, Text} from 'react-native';
 import {
   MaxVideoView,
   useContent,
@@ -10,6 +10,8 @@ import {
   useLocalAudio,
   CustomizationApiInterface,
   Spacer,
+  useLayout,
+  CustomAgentInterfaceProps,
 } from 'customization-api';
 import {isMobileUA} from '../utils/common';
 import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
@@ -17,14 +19,32 @@ import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
 import MobileTopBar from './components/mobile/Topbar';
 import MobileBottombar from './components/mobile/Bottombar';
-import {AgentProvider} from './components/AgentControls/AgentContext';
-import {AgentContext} from './components/AgentControls/AgentContext';
-import {AgentState} from './components/AgentControls/const';
+import {AgentState, AIAgentState} from './components/AgentControls/const';
 import CustomChatPanel from './components/CustomChatPanel';
 import CustomSettingsPanel from './components/CustomSettingsPanel';
-import {AgentConnectionProvider} from './components/AgentControls/AgentConnectionWrapper';
+import {
+  AgentContext,
+  AgentProvider,
+} from './components/AgentControls/AgentContext';
+import {ConversationalAI} from './layout/ConversationalAI';
+import {DefaultAIOnly} from './layout/DefaultAIOnly';
 
 const Topbar = () => {
+  const {currentLayout} = useLayout();
+  const [showMobileLayout, setShowMobileLayout] = useState(false);
+
+  useEffect(() => {
+    if (currentLayout === 'conversational-ai') {
+      setShowMobileLayout(true);
+    } else {
+      setShowMobileLayout(false);
+    }
+  }, [currentLayout]);
+
+  if (showMobileLayout) {
+    return <MobileTopBar />;
+  }
+
   return <></>;
 };
 
@@ -117,19 +137,47 @@ const DesktopLayoutComponent: LayoutComponent = () => {
   );
 };
 
+// const AiAgentCustomView = ({connectionState}: CustomAgentInterfaceProps) => {
+//   return (
+//     <View
+//       style={{
+//         flex: 1,
+//         backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+//         display: 'flex',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//       }}>
+//       <Text style={{color: $config.FONT_COLOR}}>{connectionState}</Text>
+//     </View>
+//   );
+// };
+
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
-    appRoot: AgentProvider,
     create: CustomCreate,
     videoCall: {
-      wrapper: AgentConnectionProvider,
+      wrapper: AgentProvider,
+      //customAgentInterface: AiAgentCustomView,
       customLayout() {
         return [
+          {
+            name: 'conversational-ai',
+            label: 'Conversational AI',
+            icon: '🤖',
+            component: ConversationalAI,
+          },
           {
             name: 'Ai-Agent',
             label: 'Ai-Agent',
             icon: '🤖',
             component: DesktopLayoutComponent,
+          },
+
+          {
+            name: 'default-ai-only',
+            label: 'Default AI Only',
+            icon: '🤖',
+            component: DefaultAIOnly,
           },
         ];
       },

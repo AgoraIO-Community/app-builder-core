@@ -398,7 +398,6 @@ const VideoCall: React.FC = () => {
     //   }
     // },
     EndCall: () => {
-      debugger;
       clearState('join');
       setTimeout(() => {
         // TODO: These callbacks are being called twice

@@ -45,7 +45,25 @@ const UserPrompt = () => {
   }, [agentId, agents, setPrompt]);
   return (
     <>
-      <Text style={styles.label}>Prompt</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+        <Text style={styles.label}>Customize Prompt</Text>
+        <TouchableOpacity
+          disabled={agentConnectionState === 'AGENT_CONNECTED' ? true : false}
+          style={[
+            styles.promptBtnContainer,
+            agentConnectionState === 'AGENT_CONNECTED'
+              ? styles.promptBtnContainerDisabled
+              : {},
+          ]}
+          onPress={() => setModalOpen(true)}>
+          <Text style={styles.promptBtnText}>Edit</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         <TextInput
           aria-disabled={true}
@@ -53,29 +71,25 @@ const UserPrompt = () => {
           value={prompt}
           onChangeText={setPrompt}
           placeholder="Customize Prompt"
-          numberOfLines={5}
+          numberOfLines={4}
           multiline={true}
         />
       </View>
-      <TouchableOpacity
-        style={[
-          styles.promptBtnContainer,
-          agentConnectionState === 'AGENT_CONNECTED'
-            ? styles.promptBtnContainerDisabled
-            : {},
-        ]}
-        onPress={() => setModalOpen(true)}>
-        <Text style={styles.promptBtnText}>Customize Prompt</Text>
-      </TouchableOpacity>
       <PromptModal
         modalVisible={isModalOpen}
         setModalVisible={setModalOpen}
         showCloseIcon={true}
-        title={'Customize Prompt'}
+        title={'Edit Prompt'}
         cancelable={false}
         contentContainerStyle={modalStyles.mContainer}>
-        <View style={modalStyles.mbody}>
-          <View style={[styles.container, {flex: 3}]}>
+        <View style={[modalStyles.mbody]}>
+          <View
+            style={[
+              styles.container,
+              styles.containerInModal,
+              {flex: 3},
+              !$config.CUSTOMIZE_AGENT ? {opacity: 0.4} : {},
+            ]}>
             <TextInput
               style={[styles.input]}
               value={localPrompt}
@@ -83,59 +97,57 @@ const UserPrompt = () => {
               placeholder="Customize Prompt"
               numberOfLines={45}
               multiline={true}
+              aria-disabled={!$config.CUSTOMIZE_AGENT}
             />
           </View>
-          <View style={styles.infoTextContainer}>
-            <Text style={styles.infoText}>
-              Fine-tune your AI agent’s behavior by editing its prompt.
-            </Text>
-          </View>
-          <View
-            style={[
-              isDesktop ? styles.btnContainer : styles.btnContainerMobile,
-              isMobileUA() ? {flex: 1} : {flex: 0.5},
-            ]}>
-            <View style={isDesktop && {flex: 1}}>
-              <TertiaryButton
-                containerStyle={{
-                  width: '100%',
-                  height: 48,
-                  paddingVertical: 12,
-                  paddingHorizontal: 12,
-                  borderRadius: ThemeConfig.BorderRadius.medium,
-                }}
-                textStyle={styles.btnText}
-                text={'CANCEL'}
-                onPress={() => {
-                  setLocalPrompt(prompt);
-                  setModalOpen(false);
-                }}
-              />
-            </View>
-            <Spacer
-              size={isDesktop ? 40 : 20}
-              horizontal={isDesktop ? true : false}
-            />
-            <View style={isDesktop && {flex: 1}}>
-              <PrimaryButton
-                containerStyle={{
-                  minWidth: 'auto',
-                  width: '100%',
-                  borderRadius: ThemeConfig.BorderRadius.medium,
-                  height: 48,
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                  paddingVertical: 12,
-                  paddingHorizontal: 12,
-                }}
-                textStyle={styles.btnText}
-                text={'UPDATE'}
-                onPress={() => {
-                  setPrompt(localPrompt);
-                  setModalOpen(false);
-                }}
-              />
-            </View>
-          </View>
+          {$config.CUSTOMIZE_AGENT ? (
+            <>
+              <View style={styles.infoTextContainer}>
+                <Text style={styles.infoText}>
+                  Fine-tune your AI agent’s behavior by editing its prompt.
+                </Text>
+              </View>
+              <View
+                style={[
+                  isDesktop ? styles.btnContainer : styles.btnContainerMobile,
+                  isMobileUA() ? {flex: 1} : {flex: 0.5},
+                ]}>
+                <TertiaryButton
+                  containerStyle={{
+                    width: 'auto',
+                    minWidth: 124,
+                    height: 36,
+                    borderRadius: ThemeConfig.BorderRadius.medium,
+                  }}
+                  textStyle={styles.btnText}
+                  text={'CANCEL'}
+                  onPress={() => {
+                    setLocalPrompt(prompt);
+                    setModalOpen(false);
+                  }}
+                />
+                <Spacer size={16} horizontal={isDesktop ? true : false} />
+                <PrimaryButton
+                  containerStyle={{
+                    borderRadius: ThemeConfig.BorderRadius.medium,
+                    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                    width: 'auto',
+                    minWidth: 124,
+                    height: 36,
+                  }}
+                  textStyle={styles.btnText}
+                  text={'SAVE'}
+                  onPress={() => {
+                    setPrompt(localPrompt);
+                    setModalOpen(false);
+                  }}
+                />
+                <Spacer size={16} horizontal={isDesktop ? true : false} />
+              </View>
+            </>
+          ) : (
+            <Spacer size={20} horizontal={isDesktop ? true : false} />
+          )}
         </View>
       </PromptModal>
     </>
@@ -144,16 +156,18 @@ const UserPrompt = () => {
 
 const styles = StyleSheet.create({
   infoTextContainer: {
-    padding: 8,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   infoText: {
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    lineHeight: 12,
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 16,
   },
   promptBtnContainer: {
-    padding: 8,
+    paddingBottom: 8,
   },
   promptBtnContainerDisabled: {
     opacity: 0.4,
@@ -161,11 +175,15 @@ const styles = StyleSheet.create({
   btnContainer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderTopWidth: 1,
+    borderTopColor: $config.CARD_LAYER_3_COLOR,
   },
   btnContainerMobile: {
     flexDirection: 'column-reverse',
+    padding: 20,
   },
   promptBtnText: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
@@ -187,20 +205,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
+  containerInModal: {
+    margin: 20,
+    marginBottom: $config.CUSTOMIZE_AGENT ? 8 : 20,
+  },
   label: {
-    fontWeight: '600',
+    fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   input: {
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: ThemeConfig.FontSize.small,
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 20,
     width: '100%',
-    padding: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderWidth: 0,
     ...Platform.select({
       web: {
@@ -311,8 +336,6 @@ const modalStyles = StyleSheet.create({
   mbody: {
     width: '100%',
     flex: 1,
-    padding: 10,
-    justifyContent: 'space-around',
   },
   centeredView: {
     flex: 1,
@@ -353,6 +376,8 @@ const modalStyles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     width: '100%',
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
   },
   title: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,

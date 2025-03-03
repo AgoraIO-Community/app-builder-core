@@ -32,7 +32,7 @@ const SelectAiAgent = () => {
   return (
     <View>
       <Text style={style.label}>{'Choose your AI Agent'}</Text>
-      <Spacer size={12} />
+      <Spacer size={8} />
       <Dropdown
         icon={undefined}
         enabled={
@@ -64,7 +64,7 @@ const SelectAiAgent = () => {
 
 const style = StyleSheet.create({
   label: {
-    fontWeight: '600',
+    fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     color: $config.FONT_COLOR,
