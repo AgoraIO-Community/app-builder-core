@@ -161,17 +161,18 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       customLayout() {
         return [
           {
-            name: 'Ai-Agent',
-            label: 'Ai-Agent',
-            icon: '🤖',
-            component: DesktopLayoutComponent,
-          },
-          {
             name: 'conversational-ai',
             label: 'Conversational AI',
             icon: '🤖',
             component: ConversationalAI,
           },
+          {
+            name: 'Ai-Agent',
+            label: 'Ai-Agent',
+            icon: '🤖',
+            component: DesktopLayoutComponent,
+          },
+
           {
             name: 'default-ai-only',
             label: 'Default AI Only',

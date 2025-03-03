@@ -33,8 +33,8 @@ import TranscriptIcon from '../assets/transcript.png';
 import SettingsIcon from '../assets/settings.png';
 //@ts-ignore
 import DisconnectIcon from '../assets/close.png';
+const {Application} = require('@splinetool/runtime');
 
-const Spline = React.lazy(() => import('@splinetool/react-spline'));
 const MicButton = () => {
   const {audio} = useLocalUserInfo();
   const muteToggle = useMuteToggleLocal();
@@ -112,15 +112,28 @@ const DisconnectButton = () => {
 
 export const ConversationalAI: LayoutComponent = () => {
   const {agentConnectionState, toggleAgentConnection} = useAgent();
-  const spline = useRef();
-  const sphere = useRef();
+  // const spline = useRef();
+  // const sphere = useRef();
+
+  useEffect(() => {
+    setTimeout(() => {
+      // make sure you have a canvas in the body
+      const canvas = document.getElementById('ai-agent') as HTMLCanvasElement;
+
+      // start the application and load the scene
+      const spline = new Application(canvas);
+      spline.load(
+        'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
+      );
+    });
+  }, []);
 
   function onLoad(splineApp) {
     // save the app in a ref for later use
-    spline.current = splineApp;
-    sphere.current = splineApp.findObjectByName('Sphere');
-    console.log('debugging animation main', spline.current);
-    console.log('debugging animation sphere', sphere.current);
+    // spline.current = splineApp;
+    // sphere.current = splineApp.findObjectByName('Sphere');
+    // console.log('debugging animation main', spline.current);
+    // console.log('debugging animation sphere', sphere.current);
   }
 
   const isLoading =
@@ -142,12 +155,13 @@ export const ConversationalAI: LayoutComponent = () => {
         </View>
       </View>
       <View style={styles.container}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <canvas id="ai-agent" width="100%" height="100%"></canvas>
+        {/* <Suspense fallback={<div>Loading...</div>}>
           <Spline
             scene="https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode"
             onLoad={onLoad}
           />
-        </Suspense>
+        </Suspense> */}
       </View>
       <View style={styles.btnContainer}>
         {!isLoading && agentConnectionState === 'AGENT_CONNECTED' ? (
