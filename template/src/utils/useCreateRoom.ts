@@ -79,15 +79,8 @@ export default function useCreateRoom(): createRoomFun {
         LogSource.NetworkRest,
         'createChannel',
         'API createChannel failed. There was an error',
-        error,
+        JSON.stringify(error || {}),
         {
-          networkError: {
-            name: error?.networkError?.name,
-            //@ts-ignore
-            code: error?.networkError?.result?.error?.code,
-            //@ts-ignore
-            message: error?.networkError?.result?.error?.message,
-          },
           startReqTs,
           endReqTs,
           latency: latency,

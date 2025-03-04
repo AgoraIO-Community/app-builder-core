@@ -361,12 +361,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         'user_details',
         'API user details query failed. User is un-authenticated. Will Login in the user',
         {
-          networkError: {
-            name: error?.networkError?.name,
-            code: error?.networkError?.result?.error?.code,
-            message: error?.networkError?.result?.error?.message,
-          },
-          error,
+          errorAsJSONString: JSON.stringify(error || {}),
           startReqTs,
           endRequestTs,
           latency: endRequestTs - startReqTs,

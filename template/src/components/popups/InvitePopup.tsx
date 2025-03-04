@@ -52,16 +52,7 @@ const InvitePopup = () => {
         LogSource.Internals,
         'GET_MEETING_PHRASE',
         'unable to fetch meeting details',
-        error,
-        {
-          networkError: {
-            name: error?.networkError?.name,
-            //@ts-ignore
-            code: error?.networkError?.result?.error?.code,
-            //@ts-ignore
-            message: error?.networkError?.result?.error?.message,
-          },
-        },
+        JSON.stringify(error || {}),
       );
       setGlobalErrorMessage(error);
     });
