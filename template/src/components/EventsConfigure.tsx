@@ -402,9 +402,14 @@ const EventsConfigure: React.FC<Props> = ({
         primaryBtn: null,
         secondaryBtn: null,
       });
-      setTimeout(() => {
+
+      if ($config.IMMEDIATE_LEAVE_CALL) {
         executeEndCall();
-      }, 5000);
+      } else {
+        setTimeout(() => {
+          executeEndCall();
+        }, 5000);
+      }
     });
 
     events.on(controlMessageEnum.requestAudio, () => {

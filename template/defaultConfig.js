@@ -85,6 +85,7 @@ const DefaultConfig = {
   AUTO_CONNECT_RTM: false,
   ENABLE_CONVERSATIONAL_AI: false,
   CUSTOMIZE_AGENT: true,
+  IMMEDIATE_LEAVE_CALL: false,
 };
 
 module.exports = DefaultConfig;

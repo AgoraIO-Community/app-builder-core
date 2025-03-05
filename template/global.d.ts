@@ -172,6 +172,7 @@ interface ConfigInterface {
   AUTO_CONNECT_RTM: boolean;
   ENABLE_CONVERSATIONAL_AI: boolean;
   CUSTOMIZE_AGENT: boolean;
+  IMMEDIATE_LEAVE_CALL: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

@@ -516,15 +516,17 @@ export default function UserActionMenuOptionsOptions(
           setModalVisible={setRemoveMeetingPopupVisible}
           username={user.name}
           removeUserFromMeeting={() => {
-            Toast.show({
-              leadingIconName: 'info',
-              type: 'info',
-              text1: toastlabel(trimText(user.name)),
-              visibilityTime: 5000,
-              primaryBtn: null,
-              secondaryBtn: null,
-              leadingIcon: null,
-            });
+            if (!$config.IMMEDIATE_LEAVE_CALL) {
+              Toast.show({
+                leadingIconName: 'info',
+                type: 'info',
+                text1: toastlabel(trimText(user.name)),
+                visibilityTime: 5000,
+                primaryBtn: null,
+                secondaryBtn: null,
+                leadingIcon: null,
+              });
+            }
             endRemoteCall(user.uid);
           }}
         />
