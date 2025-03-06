@@ -69,7 +69,7 @@ export const DefaultAIOnly: LayoutComponent = () => {
           <MaxVideoView
             user={{
               ...defaultContent[agentUID],
-              name: 'Ai Agent',
+              name: 'AI Agent',
               video: false,
               type: 'ai-agent',
             }}
