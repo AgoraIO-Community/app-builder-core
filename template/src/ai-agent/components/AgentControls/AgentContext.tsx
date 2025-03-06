@@ -324,7 +324,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
             localUid,
             store.token,
             {
-              agent_id: agentId,
+              agent_id: agentId || agents?.length ? agents[0].id : null,
               prompt: prompt,
               voice: agents.find(a => a.id === agentId)?.config?.tts?.params
                 ?.voice_name,
@@ -400,7 +400,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
           setAgentConnectionState(AgentState.AGENT_DISCONNECT_REQUEST);
           setStopAPICalled(true);
           await connectToAIAgent('stop', channel_name, localUid, store.token, {
-            agent_id: agentId,
+            agent_id: agentId || agents?.length ? agents[0].id : null,
           });
           setStore(prevState => {
             return {

@@ -13,7 +13,7 @@ import {
   useLayout,
   CustomAgentInterfaceProps,
 } from 'customization-api';
-import {isMobileUA} from '../utils/common';
+import {isAndroid, isIOS, isMobileUA} from '../utils/common';
 import AudioVisualizer, {DisconnectedView} from './components/AudioVisualizer';
 import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
@@ -105,7 +105,7 @@ const DesktopLayoutComponent: LayoutComponent = () => {
           <MaxVideoView
             user={{
               ...defaultContent[agentUID],
-              name: 'Ai Agent',
+              name: 'AI Agent',
               video: false,
             }}
             CustomChild={() =>
@@ -152,6 +152,19 @@ const DesktopLayoutComponent: LayoutComponent = () => {
 //   );
 // };
 
+const defaultLayout = {
+  name: 'Ai-Agent',
+  label: 'Ai-Agent',
+  icon: '🤖',
+  component: DesktopLayoutComponent,
+};
+const animationLayout = {
+  name: 'conversational-ai',
+  label: 'Conversational AI',
+  icon: '🤖',
+  component: ConversationalAI,
+};
+
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     create: CustomCreate,
@@ -159,27 +172,12 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       wrapper: AgentProvider,
       //customAgentInterface: AiAgentCustomView,
       customLayout() {
-        return [
-          {
-            name: 'conversational-ai',
-            label: 'Conversational AI',
-            icon: '🤖',
-            component: ConversationalAI,
-          },
-          {
-            name: 'Ai-Agent',
-            label: 'Ai-Agent',
-            icon: '🤖',
-            component: DesktopLayoutComponent,
-          },
-
-          {
-            name: 'default-ai-only',
-            label: 'Default AI Only',
-            icon: '🤖',
-            component: DefaultAIOnly,
-          },
-        ];
+        return isAndroid() || isIOS()
+          ? //android and ios does not support animation layout
+            [defaultLayout]
+          : $config.AI_LAYOUT === 'ANIMATION_LAYOUT'
+          ? [animationLayout, defaultLayout]
+          : [defaultLayout, animationLayout];
       },
       customSidePanel: () => {
         return [
