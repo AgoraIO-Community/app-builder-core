@@ -164,7 +164,6 @@ const animationLayout = {
   icon: '🤖',
   component: ConversationalAI,
 };
-
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     create: CustomCreate,
