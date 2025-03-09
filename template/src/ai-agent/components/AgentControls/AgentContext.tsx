@@ -10,6 +10,9 @@ import {
   Toast,
   useRtc,
 } from 'customization-api';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../../../src/rtm-events-api/LocalEvents';
 
 export interface ChatItem {
   id: string;
@@ -148,7 +151,27 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     }
   }, []);
 
+  React.useEffect(() => {
+    const getChatHistoryFromEvent = (event: MessageEvent) => {
+      const {data} = event;
+      if (data.type === 'message') {
+        setChatItems(data?.chatHistory || []);
+      }
+    };
+    LocalEventEmitter.on(
+      LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE,
+      getChatHistoryFromEvent,
+    );
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE,
+        getChatHistoryFromEvent,
+      );
+    };
+  }, []);
+
   const handleStreamMessageCallback = (...args) => {
+    return; // will handle through messageEngine module
     console.log('rec', args);
     parseData(args[1]);
   };
