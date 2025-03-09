@@ -45,10 +45,6 @@ import {
   type ScreenEncoderConfigurationPreset,
   type VideoEncoderConfiguration,
 } from '../../../src/app-state/useVideoQuality';
-import {MessageEngine, EMessageEngineMode} from '../../../src/ai-agent/message';
-import LocalEventEmitter, {
-  LocalEventsEnum,
-} from '../../../src/rtm-events-api/LocalEvents';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -225,7 +221,6 @@ export default class RtcEngine {
   public appId: string;
   // public AgoraRTC: any;
   public client: IAgoraRTCClient;
-  private messageService: MessageEngine | nul = null;
   public screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
     ['onUserJoined', () => null],
@@ -701,21 +696,6 @@ export default class RtcEngine {
     // TODO create agora client here
     this.client.on('user-joined', user => {
       logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-joined]', user);
-      // Create a MessageEngine instance, passing in the AgoraRTC client, mode, and callback function
-      if ($config.ENABLE_CONVERSATIONAL_AI && !this.messageService) {
-        this.messageService = new MessageEngine(
-          this.client,
-          EMessageEngineMode.AUTO,
-          chatHistory => {
-            LocalEventEmitter.emit(LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE, {
-              data: {
-                type: 'message',
-                chatHistory,
-              },
-            });
-          },
-        );
-      }
       (this.eventsMap.get('onUserJoined') as callbackType)({}, user.uid);
       (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
         {},
@@ -741,10 +721,6 @@ export default class RtcEngine {
       }
       (this.eventsMap.get('onUserOffline') as callbackType)({}, uid);
       // (this.eventsMap.get('UserJoined') as callbackType)(uid);
-      if ($config.ENABLE_CONVERSATIONAL_AI) {
-        this.messageService.cleanup();
-        this.messageService = null;
-      }
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription

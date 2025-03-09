@@ -1,6 +1,8 @@
-import {LogSource, logger} from '../logger/AppBuilderLogger';
-import {IAgoraRTCClient, UID} from 'agora-rtc-sdk-ng';
-import {decodeStreamMessage} from './utils';
+import {decodeStreamMessage} from '../../../ai-agent/utils';
+import {LogSource, logger} from '../../../logger/AppBuilderLogger';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../../rtm-events-api/LocalEvents';
 
 const DEFAULT_MESSAGE_CACHE_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 const DEFAULT_INTERVAL = 200; // milliseconds
@@ -171,7 +173,6 @@ export class MessageEngine {
   private _pts: number = 0; // current pts
   private _lastPoppedQueueItem: TQueueItem | null | undefined = null;
   private _isRunning: boolean = false;
-  private _rtcEngine: IAgoraRTCClient | null = null;
 
   public messageList: IMessageArrayItem<
     Partial<IUserTranscription | IAgentTranscription>
@@ -186,12 +187,9 @@ export class MessageEngine {
     | null = null;
 
   constructor(
-    rtcEngine: IAgoraRTCClient,
     renderMode?: EMessageEngineMode,
     callback?: (messageList: IMessageListItem[]) => void,
   ) {
-    this._rtcEngine = rtcEngine;
-    this._listenRtcEvents();
     this.run({
       legacyMode: false,
     });
@@ -199,18 +197,15 @@ export class MessageEngine {
     this.onMessageListUpdate = callback ?? null;
   }
 
+  // not req as doin in init
   private _listenRtcEvents() {
-    if (!this._rtcEngine) {
-      return;
-    }
-    this._rtcEngine.on('audio-metadata', (metadata: Uint8Array) => {
-      const pts64 = Number(new DataView(metadata.buffer).getBigUint64(0, true));
-      this.setPts(pts64);
-    });
-
-    this._rtcEngine.on('stream-message', (_: UID, payload: Uint8Array) => {
-      this.handleStreamMessage(payload);
-    });
+    // this._rtcEngine.on('audio-metadata', (metadata: Uint8Array) => {
+    //   const pts64 = Number(new DataView(metadata.buffer).getBigUint64(0, true));
+    //   this.setPts(pts64);
+    // });
+    // this._rtcEngine.on('stream-message', (_: UID, payload: Uint8Array) => {
+    //   this.handleStreamMessage(payload);
+    // });
   }
 
   public run(options?: {legacyMode?: boolean}) {
@@ -977,5 +972,34 @@ export class MessageEngine {
         .join('\n'),
     );
     this.onMessageListUpdate?.(this.messageList as IMessageListItem[]);
+  }
+}
+
+export let messageService: MessageEngine | null = null;
+
+/**
+ * Initializes the Message Engine (if not already initialized)
+ * @returns {MessageEngine} Singleton instance of MessageEngine
+ */
+export function initializeMessageEngine(): MessageEngine {
+  debugger;
+  if (!messageService) {
+    messageService = new MessageEngine(EMessageEngineMode.AUTO, chatHistory => {
+      LocalEventEmitter.emit(LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE, {
+        data: {
+          type: 'message',
+          chatHistory,
+        },
+      });
+    });
+  }
+  return messageService;
+}
+
+export function closeMessageEngine() {
+  debugger;
+  if (messageService) {
+    messageService.cleanup();
+    messageService = null;
   }
 }
