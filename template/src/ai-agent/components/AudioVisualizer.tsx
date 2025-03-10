@@ -3,7 +3,7 @@ import {Text, View, StyleSheet} from 'react-native';
 import {LiveAudioVisualizer} from './react-audio-visualize';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {Spacer} from 'customization-api';
+import {isAndroid, isIOS, Spacer} from 'customization-api';
 
 export const DisconnectedView = ({isConnected}) => {
   return (
@@ -83,19 +83,23 @@ const AudioVisualizer = ({audioTrack}) => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <LiveAudioVisualizer
-        audioTrack={audioTrack || emptyAudioTrack}
-        width={300}
-        height={400}
-        fftSize={32}
-        barWidth={10}
-        minDecibels={-60}
-        maxDecibels={-10}
-        gap={2}
-        backgroundColor="transparent"
-        barColor="#00C2FF"
-        smoothingTimeConstant={0.9}
-      />
+      {isAndroid() || isIOS() ? (
+        <Text style={{color: $config.FONT_COLOR}}>Agent....</Text>
+      ) : (
+        <LiveAudioVisualizer
+          audioTrack={audioTrack || emptyAudioTrack}
+          width={300}
+          height={400}
+          fftSize={32}
+          barWidth={10}
+          minDecibels={-60}
+          maxDecibels={-10}
+          gap={2}
+          backgroundColor="transparent"
+          barColor="#00C2FF"
+          smoothingTimeConstant={0.9}
+        />
+      )}
     </View>
   );
 };

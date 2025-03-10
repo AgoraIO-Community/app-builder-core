@@ -278,13 +278,13 @@ const VideoCallView = React.memo(() => {
           ) : (
             <>
               <BottombarComponent />
-              <ActionSheet
+              {/* <ActionSheet
                 includeDefaultItems={false}
                 items={{}}
-                hideDefaultActionSheet={
-                  $config.ENABLE_CONVERSATIONAL_AI ? true : false
-                }
-              />
+                // hideDefaultActionSheet={
+                //   $config.ENABLE_CONVERSATIONAL_AI ? true : false
+                // }
+              /> */}
             </>
           )}
         </ActionSheetProvider>
