@@ -152,7 +152,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   React.useEffect(() => {
     if (!isSubscribedForStreams) {
       RtcEngineUnsafe.addListener('onStreamMessage', (...args: any[]) => {
-        messageService.handleStreamMessage(args[1]);
+        messageService?.handleStreamMessage(args[1]);
       });
       setIsSubscribedForStreams(true);
     }
