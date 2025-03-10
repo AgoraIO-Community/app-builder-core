@@ -179,13 +179,6 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   }, []);
 
   useEffect(() => {
-    console.log(
-      'debugging users agent contrl',
-      agentConnectionState,
-      {users},
-      agentUID,
-    );
-
     // welcome agent
     const aiAgentUID = users.filter(item => item === agentUID);
 

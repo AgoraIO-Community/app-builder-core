@@ -132,8 +132,6 @@ export const ConversationalAI: LayoutComponent = () => {
     // save the app in a ref for later use
     // spline.current = splineApp;
     // sphere.current = splineApp.findObjectByName('Sphere');
-    // console.log('debugging animation main', spline.current);
-    // console.log('debugging animation sphere', sphere.current);
   }
 
   const isLoading =
