@@ -6,6 +6,8 @@ import {
   $config,
   EditName,
   useRoomInfo,
+  isAndroid,
+  isIOS,
 } from 'customization-api';
 import SelectAiAgent from './SelectAiAgent';
 import ThemeConfig from '../../theme';
@@ -182,7 +184,7 @@ const CustomSettingsPanel = () => {
           <Text style={styles.sectionTitle}>CALL SETTINGS</Text>
           <Spacer size={16} />
           <EditName label="Joining as" />
-          <SelectDevice />
+          {!(isAndroid() || isIOS()) ? <SelectDevice /> : <Spacer size={16} />}
         </View>
       </ScrollView>
     </View>

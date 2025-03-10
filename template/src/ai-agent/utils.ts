@@ -1,6 +1,7 @@
 import {IMicrophoneAudioTrack} from 'agora-rtc-sdk-ng';
 import {useState, useEffect} from 'react';
-
+//for native its require text decoder to be imported
+const TextDecoder = require('text-encoding').TextDecoder;
 export const useMultibandTrackVolume = (
   track?: IMicrophoneAudioTrack | MediaStreamTrack,
   bands: number = 5,
