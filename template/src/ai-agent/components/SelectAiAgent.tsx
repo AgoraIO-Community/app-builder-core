@@ -49,7 +49,7 @@ const SelectAiAgent = () => {
             ? 'No AI Agent available'
             : !agentId
             ? 'Select AI Agent'
-            : data.find(d => d.value === agentId)?.label
+            : data?.find(d => d.value === agentId)?.label
         }
         data={data}
         onSelect={async ({label, value}) => {

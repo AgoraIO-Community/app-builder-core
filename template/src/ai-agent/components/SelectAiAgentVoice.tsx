@@ -20,11 +20,11 @@ const SelectAiAgentVoice = () => {
   });
 
   useEffect(() => {
-    if (agentId && !agentVoice) {
+    if (agentId && !agentVoice && agents?.length) {
       //@ts-ignore
-      setAgentVoice(agents.find((agent: any) => agent.id === agentId)?.voice);
+      setAgentVoice(agents?.find((agent: any) => agent.id === agentId)?.voice);
     }
-  }, [agentId]);
+  }, [agentId, agents]);
 
   return (
     <View>
