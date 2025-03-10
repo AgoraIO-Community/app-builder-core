@@ -30,6 +30,7 @@ export interface StoreInterface {
   >;
   activeDeviceId: Record<MediaDeviceInfo['kind'], string>;
   whiteboardNativeInfoToast?: boolean;
+  projectId: string;
 }
 
 export interface StorageContextInterface {
@@ -52,6 +53,7 @@ export const initStoreValue: StoreInterface = {
     audiooutput: '',
     videoinput: '',
   },
+  projectId: $config.PROJECT_ID,
 };
 
 const initStorageContextValue = {
@@ -97,6 +99,13 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           if (!ENABLE_AUTH && !$config.ENABLE_CONVERSATIONAL_AI) {
             storeFromStorage['token'] = null;
           }
+          const projectId = $config.PROJECT_ID;
+          //if project id different then we should not use the previous session token.
+          //so setting into null and updating new project id
+          if (storeFromStorage['projectId'] !== projectId) {
+            storeFromStorage['token'] = null;
+            storeFromStorage['projectId'] = projectId;
+          }
           storeFromStorage['whiteboardNativeInfoToast'] = false;
           setStore(storeFromStorage);
           logger.log(
@@ -132,6 +141,13 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
         let tempStore = JSON.parse(JSON.stringify(store));
         if (!ENABLE_AUTH && !$config.ENABLE_CONVERSATIONAL_AI) {
           tempStore['token'] = null;
+        }
+        const projectId = $config.PROJECT_ID;
+        //if project id different then we should not use the previous session token.
+        //so setting into null and updating new project id
+        if (tempStore['projectId'] !== projectId) {
+          tempStore['token'] = null;
+          tempStore['projectId'] = projectId;
         }
         await AsyncStorage.setItem('store', JSON.stringify(tempStore));
         logger.log(
