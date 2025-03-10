@@ -51,6 +51,7 @@ import {ReactionPicker, CustomReactionPicker} from './chat/ChatEmoji';
 import {useChatConfigure} from '../../src/components/chat/chatConfigure';
 import Tooltip from '../../src/atoms/Tooltip';
 import {MoreMessageOptions} from './chat/ChatQuickActionsMenu';
+import {EMessageStatus} from '../../src/ai-agent/components/AgentControls/message';
 
 type AttachmentBubbleProps = {
   fileName: string;
@@ -313,6 +314,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
     replyToMsgId,
     isLastMsg,
     remoteUIConfig,
+    agent_text_status = null,
+    disableReactions = false,
   } = props;
 
   const localUid = useLocalUid();
@@ -444,7 +447,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
                     },
                 isURL(message) ? {maxWidth: '88%'} : {},
               ]}>
-              {isHovered && !isDeleted && (
+              {isHovered && !isDeleted && !disableReactions && (
                 <ReactionPicker
                   messageId={msgId}
                   isLocal={isLocal}
@@ -504,6 +507,18 @@ const ChatBubble = (props: ChatBubbleProps) => {
                           ]}
                           selectable={true}>
                           {message}
+                          {!isLocal &&
+                            agent_text_status ===
+                              EMessageStatus.IN_PROGRESS && (
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  color: $config.SECONDARY_ACTION_COLOR,
+                                }}>
+                                {' '}
+                                ...
+                              </Text>
+                            )}
                         </Text>
                       </>
                     )}

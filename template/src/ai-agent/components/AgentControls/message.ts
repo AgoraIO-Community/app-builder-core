@@ -982,7 +982,6 @@ export let messageService: MessageEngine | null = null;
  * @returns {MessageEngine} Singleton instance of MessageEngine
  */
 export function initializeMessageEngine(): MessageEngine {
-  debugger;
   if (!messageService) {
     messageService = new MessageEngine(EMessageEngineMode.AUTO, chatHistory => {
       LocalEventEmitter.emit(LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE, {
@@ -997,7 +996,6 @@ export function initializeMessageEngine(): MessageEngine {
 }
 
 export function closeMessageEngine() {
-  debugger;
   if (messageService) {
     messageService.cleanup();
     messageService = null;

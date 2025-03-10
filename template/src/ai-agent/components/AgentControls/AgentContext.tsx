@@ -17,6 +17,7 @@ import {
   messageService,
   initializeMessageEngine,
   closeMessageEngine,
+  IMessageListItem,
 } from './message';
 
 export interface ChatItem {
@@ -38,8 +39,6 @@ export interface AgentContextInterface {
   setIsSubscribedForStreams: (state: boolean) => void;
   agentUID: UidType | null;
   setAgentUID: (uid: UidType | null) => void;
-  chatItems: ChatItem[];
-  addChatItem: (newItem: ChatItem) => void;
   agentId: string;
   setAgentId: (id: string) => void;
   agentVoice?: keyof typeof AI_AGENT_VOICE | '';
@@ -50,6 +49,9 @@ export interface AgentContextInterface {
   setPrompt: (prompt: string) => void;
   isInterruptionHandlingEnabled: boolean;
   setIsInterruptionHandlingEnabled: (value: boolean) => void;
+  chatHistory: IMessageListItem[];
+  setChatHistory: (history: IMessageListItem[]) => void;
+  clearChatHistory: () => void;
 }
 
 export const AgentContext = createContext<AgentContextInterface>({
@@ -64,8 +66,6 @@ export const AgentContext = createContext<AgentContextInterface>({
   setIsSubscribedForStreams: () => {},
   agentUID: null,
   setAgentUID: () => {},
-  chatItems: [],
-  addChatItem: () => {}, // Default no-op
   agentVoice: '',
   setAgentVoice: () => {},
   agentId: '',
@@ -76,6 +76,9 @@ export const AgentContext = createContext<AgentContextInterface>({
   setIsInterruptionHandlingEnabled: () => {},
   language: '',
   setLanguage: () => {},
+  chatHistory: [],
+  setChatHistory: () => {},
+  clearChatHistory: () => {},
 });
 
 /**
@@ -114,7 +117,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [agentAuthToken, setAgentAuthToken] = useState<string | null>(null);
   const [agentUID, setAgentUID] = useState<UidType | null>(null);
   const [isSubscribedForStreams, setIsSubscribedForStreams] = useState(false);
-  const [chatItems, setChatItems] = useState<ChatItem[]>([]);
+  const [chatHistory, setChatHistory] = useState<IMessageListItem[]>([]);
   const [agentId, setAgentId] = useState('');
   const [agentVoice, setAgentVoice] =
     useState<AgentContextInterface['agentVoice']>('');
@@ -159,9 +162,8 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     const getChatHistoryFromEvent = (event: MessageEvent) => {
       const {data} = event;
       console.log('get chat history from event', data);
-      //TODO format this data as chatbubble type
       if (data.type === 'message') {
-        setChatItems(data?.chatHistory || []);
+        setChatHistory(prevChatHistory => [...(data?.chatHistory || [])]);
       }
     };
     LocalEventEmitter.on(
@@ -241,6 +243,10 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     isStartAPICalled,
     isStopAPICalled,
   ]);
+
+  const clearChatHistory = () => {
+    setChatHistory([]);
+  };
 
   const handleConnectionToggle = async (forceStop: boolean = false) => {
     try {
@@ -379,75 +385,6 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  /**
-   * Adds a new chat item to the chat state while ensuring:
-   * - Outdated messages are discarded.
-   * - Non-finalized messages are updated if a newer message is received.
-   * - Finalized messages are added without duplication.
-   * - Chat items remain sorted by their `time` property.
-   *
-   * @param newItem The new chat item to add.
-   */
-  const addChatItem = (newItem: ChatItem) => {
-    setChatItems(prevItems => {
-      // Find the index of the last finalized chat item for the same user
-      // Finalized messages are typically considered "complete" and should not be updated by non-final messages
-      const LastFinalIndex = prevItems.findLastIndex(
-        el => el.uid === newItem.uid && el.isFinal,
-      );
-
-      // Find the index of the last non-finalized chat item for the same user
-      // Non-finalized messages represent "in-progress" messages that can be updated or replaced
-      const LastNonFinalIndex = prevItems.findLastIndex(
-        el => el.uid === newItem.uid && !el.isFinal,
-      );
-
-      // Retrieve the actual items for the indices found above
-      const LastFinalItem =
-        LastFinalIndex !== -1 ? prevItems[LastFinalIndex] : null;
-      const LastNonFinalItem =
-        LastNonFinalIndex !== -1 ? prevItems[LastNonFinalIndex] : null;
-
-      // If the new message's timestamp is older than or equal to the last finalized message,
-      // it is considered outdated and discarded to prevent unnecessary overwrites.
-      if (LastFinalItem && newItem.time <= LastFinalItem.time) {
-        console.log(
-          '[AgentProvider] addChatItem - Discarded outdated message:',
-          newItem,
-        );
-        return prevItems; // Return the previous state without changes
-      }
-
-      // Create a new copy of the current chat items to maintain immutability
-      let updatedItems = [...prevItems];
-
-      // If there is a non-finalized message for the same user, replace it with the new message
-      if (LastNonFinalItem) {
-        console.log(
-          '[AgentProvider] addChatItem - Updating non-finalized message:',
-          newItem,
-        );
-        updatedItems[LastNonFinalIndex] = newItem; // Replace the non-finalized message
-      } else {
-        // If no non-finalized message exists, the new message is added to the array
-        console.log(
-          '[AgentProvider] addChatItem - Adding new message:',
-          newItem,
-        );
-
-        // Use binary search to find the correct insertion index for the new message
-        // This ensures the array remains sorted by the `time` property
-        const insertIndex = findInsertionIndex(updatedItems, newItem.time);
-
-        // Insert the new message at the correct position to maintain chronological order
-        updatedItems.splice(insertIndex, 0, newItem);
-      }
-
-      // Return the updated array, which will replace the previous state
-      return updatedItems;
-    });
-  };
-
   const value = {
     toggleAgentConnection: handleConnectionToggle,
     agentConnectionState,
@@ -458,8 +395,6 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setIsSubscribedForStreams,
     agentUID,
     setAgentUID,
-    chatItems,
-    addChatItem, // Expose the function in the context
     agentId,
     setAgentId,
     agentVoice,
@@ -470,6 +405,9 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setIsInterruptionHandlingEnabled,
     language,
     setLanguage,
+    setChatHistory,
+    chatHistory,
+    clearChatHistory,
   };
 
   return (

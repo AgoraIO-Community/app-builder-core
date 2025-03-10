@@ -1,21 +1,23 @@
 import React, {useContext} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import {AgentContext, ChatItem} from '../AgentControls/AgentContext'; // Ensure the path matches your project structure
-import {ChatBubble, ChatMessageType} from 'customization-api';
+import {AgentContext} from '../AgentControls/AgentContext';
+import {ChatBubble, ChatMessageType, useLocalUid} from 'customization-api';
 
 // ChatItem Component
-const ChatItemBubble = ({item}: {item: ChatItem}) => {
+const ChatItemBubble = ({item}: {item: any}) => {
+  const localUid = useLocalUid();
   return (
     <ChatBubble
-      key={item.id}
-      msgId={item.id}
-      isLocal={item.isSelf}
+      key={`${item.turn_id}-${item.uid}`}
+      msgId={`${item.turn_id}-${item.uid}`}
+      isLocal={localUid === item.uid}
       message={item.text}
-      createdTimestamp={item.time}
+      createdTimestamp={item._time}
       uid={item.uid}
       isDeleted={false}
       isSameUser={false}
-      type={ChatMessageType.TXT}
+      type={ChatMessageType.TXT} //TODO: for images for vision modality
+      agent_text_status={item.status}
       remoteUIConfig={{
         username: 'AI Agent',
         bubbleStyleLayer1: {
@@ -27,18 +29,18 @@ const ChatItemBubble = ({item}: {item: ChatItem}) => {
         },
         bubbleStyleLayer2: {},
       }}
+      disableReactions={true}
     />
   );
 };
 
 // Main Chat Component
 const ChatScreen = () => {
-  const {chatItems} = useContext(AgentContext); // Access chatItems from AgentContext
-
+  const {chatHistory} = useContext(AgentContext);
   return (
     <View style={styles.container}>
       <ScrollView style={styles.contentContainer}>
-        {chatItems.map(item => {
+        {chatHistory.map(item => {
           return <ChatItemBubble item={item} />;
         })}
       </ScrollView>
