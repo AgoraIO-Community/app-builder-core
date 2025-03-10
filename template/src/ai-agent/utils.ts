@@ -76,3 +76,8 @@ export const normalizeFrequencies = (frequencies: Float32Array) => {
     return normalizeDb(value);
   });
 };
+
+export function decodeStreamMessage(stream: Uint8Array) {
+  const decoder = new TextDecoder();
+  return decoder.decode(stream);
+}

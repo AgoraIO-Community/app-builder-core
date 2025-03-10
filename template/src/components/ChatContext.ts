@@ -16,6 +16,7 @@ import {createContext, SetStateAction} from 'react';
 import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
 import {createHook} from 'customization-implementation';
 import {ViewStyle} from 'react-native';
+import {EMessageStatus} from '../../src/ai-agent/components/AgentControls/message';
 
 export interface ChatBubbleProps {
   isLocal: boolean;
@@ -36,6 +37,8 @@ export interface ChatBubbleProps {
   scrollOffset?: number;
   replyToMsgId?: string;
   isLastMsg?: boolean;
+  agent_text_status?: EMessageStatus | null;
+  disableReactions: boolean;
   remoteUIConfig?: {
     username?: string; // Custom username for remote user
     avatarIcon?: string;
@@ -60,6 +63,8 @@ export interface ChatBubbleProps {
     previousMessageCreatedTimestamp?: string,
     reactions?: Reaction[],
     replyToMsgId?: string,
+    agent_text_status?: EMessageStatus | null,
+    disableReactions?: boolean,
   ) => JSX.Element;
 }
 
