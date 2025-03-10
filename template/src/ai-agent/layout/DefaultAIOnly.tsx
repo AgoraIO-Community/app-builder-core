@@ -26,17 +26,11 @@ export const DefaultAIOnly: LayoutComponent = () => {
   const {getLocalAudioStream, getRemoteAudioStream} = useLocalAudio();
 
   const connected = activeUids.includes(agentUID);
-  console.log({activeUids}, 'active uids');
 
   // this state occurs when agent_stop is successful, but
   // user is still not disconnected from the RTC channel - state-of-wait
   const isAwaitingLeave = agentConnectionState === AgentState.AWAITING_LEAVE;
-  console.log(
-    {isAwaitingLeave},
-    {connected},
-    'what is going on',
-    agentConnectionState,
-  );
+
   useEffect(() => {
     if (getLocalAudioStream()) {
       setLocalTrack(getLocalAudioStream());

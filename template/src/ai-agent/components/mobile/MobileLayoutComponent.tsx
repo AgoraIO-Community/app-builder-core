@@ -27,7 +27,6 @@ const MobileLayoutComponent: LayoutComponent = () => {
   const {getLocalAudioStream, getRemoteAudioStream} = useLocalAudio();
   const isAudioEnabled = useIsAudioEnabled();
   const connected = activeUids.includes(agentUID);
-  console.log({activeUids}, 'active uids');
 
   useEffect(() => {
     if (getLocalAudioStream()) {

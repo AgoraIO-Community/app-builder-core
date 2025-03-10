@@ -18,12 +18,6 @@ export const AgentControl: React.FC = () => {
   const isAwaitingLeave = agentConnectionState === AgentState.AWAITING_LEAVE;
   const isAgentAvailable = useIsAgentAvailable();
 
-  console.log(
-    'Agent Control--',
-    {agentConnectionState},
-    {bth: AI_AGENT_STATE[agentConnectionState]},
-  );
-
   const isLoading =
     agentConnectionState === AgentState.REQUEST_SENT ||
     agentConnectionState === AgentState.AGENT_DISCONNECT_REQUEST ||
