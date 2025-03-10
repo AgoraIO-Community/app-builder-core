@@ -161,7 +161,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   React.useEffect(() => {
     const getChatHistoryFromEvent = (event: MessageEvent) => {
       const {data} = event;
-      console.log('get chat history from event', data);
+      // console.log('get chat history from event', data);
       if (data.type === 'message') {
         setChatHistory(prevChatHistory => [...(data?.chatHistory || [])]);
       }

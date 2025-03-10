@@ -446,12 +446,12 @@ export class MessageEngine {
   }
 
   public handleMessageInterrupt(message: IMessageInterrupt) {
-    logger.debug(
-      LogSource.AgoraSDK,
-      'AI_AGENT',
-      'handleMessageInterrupt',
-      message,
-    );
+    // logger.debug(
+    //   LogSource.AgoraSDK,
+    //   'AI_AGENT',
+    //   'handleMessageInterrupt',
+    //   message,
+    // );
     const turn_id = message.turn_id;
     const start_ms = message.start_ms;
     this._interruptQueue({
@@ -662,21 +662,21 @@ export class MessageEngine {
           .join('');
 
         // decode message
-        logger.debug(
-          LogSource.AgoraSDK,
-          'AI_AGENT',
-          '[message]',
-          Base64.atob(message),
-        );
+        // logger.debug(
+        //   LogSource.AgoraSDK,
+        //   'AI_AGENT',
+        //   '[message]',
+        //   atob(message),
+        // );
 
         const decodedMessage = JSON.parse(Base64.atob(message));
 
-        logger.debug(
-          LogSource.AgoraSDK,
-          'AI_AGENT',
-          '[decodedMessage]',
-          decodedMessage,
-        );
+        // logger.debug(
+        //   LogSource.AgoraSDK,
+        //   'AI_AGENT',
+        //   '[decodedMessage]',
+        //   decodedMessage,
+        // );
 
         // callback
         callback?.(decodedMessage);
@@ -830,12 +830,12 @@ export class MessageEngine {
       item => item.turn_id === turn_id,
     );
     if (!correspondingQueueItem) {
-      logger.debug(
-        LogSource.AgoraSDK,
-        'AI_AGENT',
-        'No corresponding queue item found',
-        options,
-      );
+      // logger.debug(
+      //   LogSource.AgoraSDK,
+      //   'AI_AGENT',
+      //   'No corresponding queue item found',
+      //   options,
+      // );
       return;
     }
     // if correspondingQueueItem exists, update its status to interrupted
@@ -962,15 +962,15 @@ export class MessageEngine {
 
   private _mutateChatHistory() {
     // logger.debug(LogSource.AgoraSDK,'AI_AGENT', 'Mutate messageList', this.messageList)
-    logger.debug(
-      LogSource.AgoraSDK,
-      'AI_AGENT',
-      'Mutate messageList',
-      this._pts,
-      this.messageList
-        .map(item => `${item.text}[status: ${item.status}]`)
-        .join('\n'),
-    );
+    // logger.debug(
+    //   LogSource.AgoraSDK,
+    //   'AI_AGENT',
+    //   'Mutate messageList',
+    //   this._pts,
+    //   this.messageList
+    //     .map(item => `${item.text}[status: ${item.status}]`)
+    //     .join('\n'),
+    // );
     this.onMessageListUpdate?.(this.messageList as IMessageListItem[]);
   }
 }

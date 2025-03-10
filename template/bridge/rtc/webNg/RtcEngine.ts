@@ -894,13 +894,13 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
-      logger.debug(
-        LogSource.AgoraSDK,
-        'Event',
-        'RTC [stream-message](stt-web: onStreamMessageCallback)',
-        uid,
-        payload,
-      );
+      // logger.debug(
+      //   LogSource.AgoraSDK,
+      //   'Event',
+      //   'RTC [stream-message](stt-web: onStreamMessageCallback)',
+      //   uid,
+      //   payload,
+      // );
       (this.eventsMap.get('onStreamMessage') as callbackType)(uid, payload);
     });
 
