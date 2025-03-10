@@ -830,12 +830,12 @@ export class MessageEngine {
       item => item.turn_id === turn_id,
     );
     if (!correspondingQueueItem) {
-      logger.debug(
-        LogSource.AgoraSDK,
-        'AI_AGENT',
-        'No corresponding queue item found',
-        options,
-      );
+      // logger.debug(
+      //   LogSource.AgoraSDK,
+      //   'AI_AGENT',
+      //   'No corresponding queue item found',
+      //   options,
+      // );
       return;
     }
     // if correspondingQueueItem exists, update its status to interrupted
