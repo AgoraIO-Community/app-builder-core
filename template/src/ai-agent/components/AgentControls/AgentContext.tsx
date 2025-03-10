@@ -10,6 +10,15 @@ import {
   Toast,
   useRtc,
 } from 'customization-api';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../../../src/rtm-events-api/LocalEvents';
+import {
+  messageService,
+  initializeMessageEngine,
+  closeMessageEngine,
+  IMessageListItem,
+} from './message';
 
 export interface ChatItem {
   id: string;
@@ -30,8 +39,6 @@ export interface AgentContextInterface {
   setIsSubscribedForStreams: (state: boolean) => void;
   agentUID: UidType | null;
   setAgentUID: (uid: UidType | null) => void;
-  chatItems: ChatItem[];
-  addChatItem: (newItem: ChatItem) => void;
   agentId: string;
   setAgentId: (id: string) => void;
   agentVoice?: keyof typeof AI_AGENT_VOICE | '';
@@ -42,6 +49,9 @@ export interface AgentContextInterface {
   setPrompt: (prompt: string) => void;
   isInterruptionHandlingEnabled: boolean;
   setIsInterruptionHandlingEnabled: (value: boolean) => void;
+  chatHistory: IMessageListItem[];
+  setChatHistory: (history: IMessageListItem[]) => void;
+  clearChatHistory: () => void;
 }
 
 export const AgentContext = createContext<AgentContextInterface>({
@@ -56,8 +66,6 @@ export const AgentContext = createContext<AgentContextInterface>({
   setIsSubscribedForStreams: () => {},
   agentUID: null,
   setAgentUID: () => {},
-  chatItems: [],
-  addChatItem: () => {}, // Default no-op
   agentVoice: '',
   setAgentVoice: () => {},
   agentId: '',
@@ -68,6 +76,9 @@ export const AgentContext = createContext<AgentContextInterface>({
   setIsInterruptionHandlingEnabled: () => {},
   language: '',
   setLanguage: () => {},
+  chatHistory: [],
+  setChatHistory: () => {},
+  clearChatHistory: () => {},
 });
 
 /**
@@ -106,7 +117,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [agentAuthToken, setAgentAuthToken] = useState<string | null>(null);
   const [agentUID, setAgentUID] = useState<UidType | null>(null);
   const [isSubscribedForStreams, setIsSubscribedForStreams] = useState(false);
-  const [chatItems, setChatItems] = useState<ChatItem[]>([]);
+  const [chatHistory, setChatHistory] = useState<IMessageListItem[]>([]);
   const [agentId, setAgentId] = useState('');
   const [agentVoice, setAgentVoice] =
     useState<AgentContextInterface['agentVoice']>('');
@@ -140,108 +151,32 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
 
   React.useEffect(() => {
     if (!isSubscribedForStreams) {
-      RtcEngineUnsafe.addListener(
-        'onStreamMessage',
-        handleStreamMessageCallback,
-      );
+      RtcEngineUnsafe.addListener('onStreamMessage', (...args: any[]) => {
+        messageService.handleStreamMessage(args[1]);
+      });
       setIsSubscribedForStreams(true);
     }
   }, []);
 
-  const handleStreamMessageCallback = (...args) => {
-    console.log('rec', args);
-    parseData(args[1]);
-  };
-
-  const parseData = data => {
-    let decoder = new TextDecoder('utf-8');
-    let decodedMessage = decoder.decode(data);
-    console.log('[test] textstream raw data', decodedMessage);
-    handleChunk(decodedMessage);
-  };
-  // Function to process received chunk via event emitter
-  const handleChunk = (formattedChunk: string) => {
-    try {
-      // Split the chunk by the delimiter "|"
-      const [message_id, partIndexStr, totalPartsStr, content] =
-        formattedChunk.split('|');
-
-      const part_index = parseInt(partIndexStr, 10);
-      const total_parts =
-        totalPartsStr === '???' ? -1 : parseInt(totalPartsStr, 10); // -1 means total parts unknown
-
-      // Ensure total_parts is known before processing further
-      if (total_parts === -1) {
-        console.warn(
-          `Total parts for message ${message_id} unknown, waiting for further parts.`,
-        );
-        return;
+  React.useEffect(() => {
+    const getChatHistoryFromEvent = (event: MessageEvent) => {
+      const {data} = event;
+      console.log('get chat history from event', data);
+      if (data.type === 'message') {
+        setChatHistory(prevChatHistory => [...(data?.chatHistory || [])]);
       }
-
-      const chunkData = {
-        message_id,
-        part_index,
-        total_parts,
-        content,
-      };
-
-      // Check if we already have an entry for this message
-      if (!messageCache[message_id]) {
-        messageCache[message_id] = [];
-        // Set a timeout to discard incomplete messages
-        setTimeout(() => {
-          if (messageCache[message_id]?.length !== total_parts) {
-            console.warn(`Incomplete message with ID ${message_id} discarded`);
-            delete messageCache[message_id]; // Discard incomplete message
-          }
-        }, TIMEOUT_MS);
-      }
-
-      // Cache this chunk by message_id
-      messageCache[message_id].push(chunkData);
-
-      // If all parts are received, reconstruct the message
-      if (messageCache[message_id].length === total_parts) {
-        const completeMessage = reconstructMessage(messageCache[message_id]);
-        const data = atob(completeMessage);
-        const {stream_id, is_final, text, text_ts} = JSON.parse(data);
-        /** Data type of above object
-         * stream_id: number
-         * is_final: boolean
-         * text: string
-         * text_ts: number
-         */
-        const textItem = {
-          id: message_id,
-          uid: stream_id,
-          time: text_ts,
-          dataType: 'transcribe',
-          text: text,
-          isFinal: is_final,
-          isSelf: stream_id === 0 ? false : true,
-        };
-
-        if (text.trim().length > 0) {
-          //this.emit("textChanged", textItem);
-          console.warn('emit textChanged: ', textItem);
-          addChatItem(textItem);
-        }
-
-        // Clean up the cache
-        delete messageCache[message_id];
-      }
-    } catch (error) {
-      console.error('Error processing chunk:', error);
-    }
-  };
-
-  const reconstructMessage = chunks => {
-    // Sort chunks by their part index
-    chunks.sort((a, b) => a.part_index - b.part_index);
-
-    // Concatenate all chunks to form the full message
-    return chunks.map(chunk => chunk.content).join('');
-  };
+    };
+    LocalEventEmitter.on(
+      LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE,
+      getChatHistoryFromEvent,
+    );
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE,
+        getChatHistoryFromEvent,
+      );
+    };
+  }, []);
 
   useEffect(() => {
     console.log(
@@ -266,6 +201,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
         agentConnectionState !== AgentState.AGENT_CONNECTED)
     ) {
       setAgentConnectionState(AgentState.AGENT_CONNECTED);
+      initializeMessageEngine();
       if (isStartAPICalled) {
         setStartAPICalled(false);
       }
@@ -294,6 +230,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
         !aiAgentUID.length &&
         agentConnectionState !== AgentState.NOT_CONNECTED)
     ) {
+      closeMessageEngine(); // release message engine
       setAgentConnectionState(AgentState.NOT_CONNECTED);
       if (isStopAPICalled) {
         setStartAPICalled(true);
@@ -306,6 +243,10 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     isStartAPICalled,
     isStopAPICalled,
   ]);
+
+  const clearChatHistory = () => {
+    setChatHistory([]);
+  };
 
   const handleConnectionToggle = async (forceStop: boolean = false) => {
     try {
@@ -444,75 +385,6 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  /**
-   * Adds a new chat item to the chat state while ensuring:
-   * - Outdated messages are discarded.
-   * - Non-finalized messages are updated if a newer message is received.
-   * - Finalized messages are added without duplication.
-   * - Chat items remain sorted by their `time` property.
-   *
-   * @param newItem The new chat item to add.
-   */
-  const addChatItem = (newItem: ChatItem) => {
-    setChatItems(prevItems => {
-      // Find the index of the last finalized chat item for the same user
-      // Finalized messages are typically considered "complete" and should not be updated by non-final messages
-      const LastFinalIndex = prevItems.findLastIndex(
-        el => el.uid === newItem.uid && el.isFinal,
-      );
-
-      // Find the index of the last non-finalized chat item for the same user
-      // Non-finalized messages represent "in-progress" messages that can be updated or replaced
-      const LastNonFinalIndex = prevItems.findLastIndex(
-        el => el.uid === newItem.uid && !el.isFinal,
-      );
-
-      // Retrieve the actual items for the indices found above
-      const LastFinalItem =
-        LastFinalIndex !== -1 ? prevItems[LastFinalIndex] : null;
-      const LastNonFinalItem =
-        LastNonFinalIndex !== -1 ? prevItems[LastNonFinalIndex] : null;
-
-      // If the new message's timestamp is older than or equal to the last finalized message,
-      // it is considered outdated and discarded to prevent unnecessary overwrites.
-      if (LastFinalItem && newItem.time <= LastFinalItem.time) {
-        console.log(
-          '[AgentProvider] addChatItem - Discarded outdated message:',
-          newItem,
-        );
-        return prevItems; // Return the previous state without changes
-      }
-
-      // Create a new copy of the current chat items to maintain immutability
-      let updatedItems = [...prevItems];
-
-      // If there is a non-finalized message for the same user, replace it with the new message
-      if (LastNonFinalItem) {
-        console.log(
-          '[AgentProvider] addChatItem - Updating non-finalized message:',
-          newItem,
-        );
-        updatedItems[LastNonFinalIndex] = newItem; // Replace the non-finalized message
-      } else {
-        // If no non-finalized message exists, the new message is added to the array
-        console.log(
-          '[AgentProvider] addChatItem - Adding new message:',
-          newItem,
-        );
-
-        // Use binary search to find the correct insertion index for the new message
-        // This ensures the array remains sorted by the `time` property
-        const insertIndex = findInsertionIndex(updatedItems, newItem.time);
-
-        // Insert the new message at the correct position to maintain chronological order
-        updatedItems.splice(insertIndex, 0, newItem);
-      }
-
-      // Return the updated array, which will replace the previous state
-      return updatedItems;
-    });
-  };
-
   const value = {
     toggleAgentConnection: handleConnectionToggle,
     agentConnectionState,
@@ -523,8 +395,6 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setIsSubscribedForStreams,
     agentUID,
     setAgentUID,
-    chatItems,
-    addChatItem, // Expose the function in the context
     agentId,
     setAgentId,
     agentVoice,
@@ -535,6 +405,9 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
     setIsInterruptionHandlingEnabled,
     language,
     setLanguage,
+    setChatHistory,
+    chatHistory,
+    clearChatHistory,
   };
 
   return (

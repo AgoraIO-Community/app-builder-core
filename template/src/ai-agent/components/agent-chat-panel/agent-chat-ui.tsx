@@ -1,21 +1,36 @@
-import React, {useContext} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {AgentContext, ChatItem} from '../AgentControls/AgentContext'; // Ensure the path matches your project structure
-import {ChatBubble, ChatMessageType} from 'customization-api';
+import React, {useContext, useRef, useState, useEffect} from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Animated,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
+import {AgentContext} from '../AgentControls/AgentContext';
+import {
+  ChatBubble,
+  ChatMessageType,
+  ImageIcon,
+  useLocalUid,
+} from 'customization-api';
+import hexadecimalTransparency from '../../../utils/hexadecimalTransparency';
 
 // ChatItem Component
-const ChatItemBubble = ({item}: {item: ChatItem}) => {
+const ChatItemBubble = ({item}: {item: any}) => {
+  const localUid = useLocalUid();
   return (
     <ChatBubble
-      key={item.id}
-      msgId={item.id}
-      isLocal={item.isSelf}
+      key={`${item.turn_id}-${item.uid}`}
+      msgId={`${item.turn_id}-${item.uid}`}
+      isLocal={localUid === item.uid}
       message={item.text}
-      createdTimestamp={item.time}
+      createdTimestamp={item._time}
       uid={item.uid}
       isDeleted={false}
       isSameUser={false}
-      type={ChatMessageType.TXT}
+      type={ChatMessageType.TXT} //TODO: for images for vision modality
+      agent_text_status={item.status}
       remoteUIConfig={{
         username: 'AI Agent',
         bubbleStyleLayer1: {
@@ -27,21 +42,75 @@ const ChatItemBubble = ({item}: {item: ChatItem}) => {
         },
         bubbleStyleLayer2: {},
       }}
+      disableReactions={true}
     />
   );
 };
 
 // Main Chat Component
 const ChatScreen = () => {
-  const {chatItems} = useContext(AgentContext); // Access chatItems from AgentContext
+  const {chatHistory} = useContext(AgentContext);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const isAutoScrollEnabledRef = useRef(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  // Check if the user is at the bottom
+  const getIsAtBottom = (event: any) => {
+    const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
+    return (
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 10
+    );
+  };
+
+  // Handle user scrolling
+  const handleScroll = (event: any) => {
+    if (getIsAtBottom(event)) {
+      isAutoScrollEnabledRef.current = true;
+      setShowScrollButton(false);
+    } else {
+      isAutoScrollEnabledRef.current = false;
+      setShowScrollButton(true);
+    }
+  };
+
+  // Auto-scroll when chat history updates
+  useEffect(() => {
+    if (chatHistory.length > 0 && isAutoScrollEnabledRef.current) {
+      scrollViewRef.current?.scrollToEnd({animated: true});
+    }
+  }, [chatHistory]);
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.contentContainer}>
-        {chatItems.map(item => {
+      <ScrollView
+        style={styles.contentContainer}
+        ref={scrollViewRef}
+        keyboardShouldPersistTaps="handled"
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {y: scrollY}}}],
+          {useNativeDriver: false, listener: handleScroll},
+        )}
+        scrollEventThrottle={200}>
+        {chatHistory.map(item => {
           return <ChatItemBubble item={item} />;
         })}
       </ScrollView>
+      {/* Scroll Down Button */}
+      {showScrollButton && (
+        <TouchableOpacity
+          style={styles.scrollDownButton}
+          onPress={() => {
+            scrollViewRef.current?.scrollToEnd({animated: true});
+            isAutoScrollEnabledRef.current = true;
+          }}>
+          <ImageIcon
+            iconType="plain"
+            name="down-arrow"
+            tintColor={$config.SECONDARY_ACTION_COLOR}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -76,6 +145,18 @@ const styles = StyleSheet.create({
   chatText: {
     fontSize: 14,
     color: '#fff',
+  },
+  scrollDownButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    padding: 8,
+    borderRadius: 25,
+    elevation: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

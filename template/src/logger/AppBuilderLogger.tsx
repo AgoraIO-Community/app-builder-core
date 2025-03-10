@@ -53,7 +53,7 @@ export enum LogSource {
 }
 
 type LogType = {
-  [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service';
+  [LogSource.AgoraSDK]: 'Log' | 'API' | 'Event' | 'Service' | 'AI_AGENT';
   [LogSource.Internals]:
     | 'AUTH'
     | 'CREATE_MEETING'
