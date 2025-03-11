@@ -1,4 +1,4 @@
-import {decodeStreamMessage} from '../../../ai-agent/utils';
+import {decodeStreamMessage, Base64} from '../../../ai-agent/utils';
 import {LogSource, logger} from '../../../logger/AppBuilderLogger';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -986,7 +986,10 @@ export let messageService: MessageEngine | null = null;
  * @returns {MessageEngine} Singleton instance of MessageEngine
  */
 export function initializeMessageEngine(): MessageEngine {
+  console.log('debguggingnew  initializeMessageEngine getting here');
   if (!messageService) {
+    console.log('debuggingnew getting here');
+
     messageService = new MessageEngine(EMessageEngineMode.AUTO, chatHistory => {
       LocalEventEmitter.emit(LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE, {
         data: {
@@ -996,6 +999,7 @@ export function initializeMessageEngine(): MessageEngine {
       });
     });
   }
+  console.log('debguggingnew messageService', messageService);
   return messageService;
 }
 

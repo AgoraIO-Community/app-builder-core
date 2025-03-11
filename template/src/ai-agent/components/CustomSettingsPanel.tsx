@@ -70,7 +70,7 @@ const InfoSection = () => {
           <View style={[styles.flex1, styles.alignEnd]}>
             <Text style={[styles.infoRowValue]}>
               {formatVoiceName(
-                agents.find(a => a.id === agentId)?.config?.tts?.params
+                agents?.find(a => a.id === agentId)?.config?.tts?.params
                   ?.voice_name,
               )}
             </Text>
@@ -123,7 +123,7 @@ const AdvancedSettings = () => {
 
   //when user switchs agent then update the toggle value for that agent
   useEffect(() => {
-    if (agentId) {
+    if (agentId && agents?.length) {
       setIsInterruptionHandlingEnabled(
         agents?.find(a => a?.id === agentId)?.config?.enable_aivad,
       );

@@ -156,13 +156,6 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   }, []);
 
   useEffect(() => {
-    console.log(
-      'debugging users agent contrl',
-      agentConnectionState,
-      {users},
-      agentUID,
-    );
-
     // welcome agent
     const aiAgentUID = users.filter(item => item === agentUID);
 
@@ -236,19 +229,20 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
         try {
           setAgentConnectionState(AgentState.REQUEST_SENT);
           setStartAPICalled(true);
+          const params = {
+            agent_id: agentId,
+            prompt: prompt,
+            voice: agents?.find(a => a.id === agentId)?.config?.tts?.params
+              ?.voice_name,
+            enable_interruption_handling: isInterruptionHandlingEnabled,
+            language: language,
+          };
           const data = await connectToAIAgent(
             'start',
             channel_name,
             localUid,
             store.token,
-            {
-              agent_id: agentId || agents?.length ? agents[0].id : null,
-              prompt: prompt,
-              voice: agents.find(a => a.id === agentId)?.config?.tts?.params
-                ?.voice_name,
-              enable_interruption_handling: isInterruptionHandlingEnabled,
-              language: language,
-            },
+            params,
           );
           // console.log("response X-Client-ID", newClientId, typeof newClientId)
           // @ts-ignore
