@@ -51,7 +51,7 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useFullScreen} from '../../utils/useFullScreen';
 import SpotlightHighligher from './SpotlightHighlighter';
-import {useAgent} from '../../ai-agent/components/AgentControls/AgentContext';
+import {useAIAgent} from '../../ai-agent/components/AgentControls/AgentContext';
 
 export interface VideoRendererProps {
   user: ContentInterface;
@@ -71,7 +71,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   containerStyle = {},
   innerContainerStyle = {},
 }) => {
-  const {agentConnectionState} = useAgent();
+  const {agentConnectionState} = useAIAgent();
   const {CustomAgentView} = useCustomization(data => {
     let components: {
       CustomAgentView: React.ComponentType<CustomAgentInterfaceProps>;
@@ -348,12 +348,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               onChange={isVisible => {
                 setVideoTileInViewPortState(user.uid, isVisible);
               }}>
-              {CustomChild ? (
-                <CustomChild />
-              ) : $config.ENABLE_CONVERSATIONAL_AI &&
-                user?.type === 'ai-agent' &&
-                CustomAgentView ? (
+              {$config.ENABLE_CONVERSATIONAL_AI &&
+              user?.type === 'ai-agent' &&
+              CustomAgentView ? (
                 <CustomAgentView connectionState={agentConnectionState} />
+              ) : CustomChild ? (
+                <CustomChild />
               ) : (
                 <MaxVideoView
                   fallback={() => {
