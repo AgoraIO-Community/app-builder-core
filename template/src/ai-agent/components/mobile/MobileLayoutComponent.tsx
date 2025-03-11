@@ -56,6 +56,7 @@ const MobileLayoutComponent: LayoutComponent = () => {
           ...defaultContent[agentUID],
           name: 'AI Agent',
           video: false,
+          type: 'ai-agent',
         }}
         CustomChild={() =>
           connected ? (

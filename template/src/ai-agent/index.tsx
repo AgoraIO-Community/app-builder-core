@@ -100,6 +100,7 @@ const DesktopLayoutComponent: LayoutComponent = () => {
               ...defaultContent[agentUID],
               name: 'AI Agent',
               video: false,
+              type: 'ai-agent',
             }}
             CustomChild={() =>
               // show agent voice waves, when agent is connected to the channel, but also not on a state-of-wait,

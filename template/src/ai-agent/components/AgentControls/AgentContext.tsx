@@ -30,7 +30,7 @@ export interface ChatItem {
   isSelf: boolean;
 }
 
-export interface AgentContextInterface {
+export interface AIAgentContextInterface {
   toggleAgentConnection: (forceStop?: boolean) => Promise<boolean>;
   agentConnectionState: AIAgentState;
   setAgentConnectionState: (agentState: AIAgentState) => void;
@@ -55,7 +55,7 @@ export interface AgentContextInterface {
   clearChatHistory: () => void;
 }
 
-export const AgentContext = createContext<AgentContextInterface>({
+export const AgentContext = createContext<AIAgentContextInterface>({
   toggleAgentConnection: () => {
     return Promise.resolve(false);
   },
@@ -93,7 +93,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [chatHistory, setChatHistory] = useState<IMessageListItem[]>([]);
   const [agentId, setAgentId] = useState('');
   const [agentVoice, setAgentVoice] =
-    useState<AgentContextInterface['agentVoice']>('');
+    useState<AIAgentContextInterface['agentVoice']>('');
   const [prompt, setPrompt] = useState('');
   const {activeUids: users} = useContent();
   const [isStartAPICalled, setStartAPICalled] = useState(false);
@@ -101,7 +101,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [isInterruptionHandlingEnabled, setIsInterruptionHandlingEnabled] =
     useState(false);
   const [language, setLanguage] =
-    useState<AgentContextInterface['language']>('');
+    useState<AIAgentContextInterface['language']>('');
 
   const {
     data: {channel: channel_name, uid: localUid, agents},
@@ -113,7 +113,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const messageCache = {};
   const TIMEOUT_MS = 5000; // Timeout for incomplete messages
 
-  //set agent id when user refresh the page
+  //set agent uid when user refresh the page - to maintain the app state
   useEffect(() => {
     //@ts-ignore
     if (store?.agentUID && store?.agentUID !== agentUID) {
@@ -121,6 +121,15 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       setAgentUID(store.agentUID);
     }
   }, [store, agentUID]);
+
+  //set agent id when user refresh the page - to maintain the app state
+  useEffect(() => {
+    //@ts-ignore
+    if (store?.agentId && store?.agentId !== agentId) {
+      //@ts-ignore
+      setAgentId(store.agentId);
+    }
+  }, [store, agentId]);
 
   React.useEffect(() => {
     if (!isSubscribedForStreams) {
@@ -203,7 +212,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       closeMessageEngine(); // release message engine
       setAgentConnectionState(AgentState.NOT_CONNECTED);
       if (isStopAPICalled) {
-        setStartAPICalled(true);
+        setStopAPICalled(false);
       }
     }
   }, [
@@ -452,4 +461,4 @@ export const connectToAIAgent = async (
   }
 };
 
-export const useAgent = createHook(AgentContext);
+export const useAIAgent = createHook(AgentContext);
