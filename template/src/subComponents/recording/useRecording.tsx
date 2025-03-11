@@ -369,15 +369,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           LogSource.NetworkRest,
           'recording_start',
           'Error while start recording',
-          err,
+          JSON.stringify(err || {}),
           {
-            networkError: {
-              name: err?.networkError?.name,
-              //@ts-ignore
-              code: err?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: err?.networkError?.result?.error?.message,
-            },
             startReqTs,
             endRequestTs,
             latency,

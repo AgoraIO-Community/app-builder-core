@@ -134,16 +134,7 @@ const Join = () => {
           LogSource.Internals,
           'JOIN_MEETING',
           'Error on join room page',
-          error,
-          {
-            networkError: {
-              name: error?.networkError?.name,
-              //@ts-ignore
-              code: error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: error?.networkError?.result?.error?.message,
-            },
-          },
+          JSON.stringify(error || {}),
         );
         const isInvalidUrl =
           error?.message.toLowerCase().trim() === 'invalid passphrase' || false;

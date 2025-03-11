@@ -38,7 +38,6 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {isJoinDataFetched} = useRoomInfo();
   const joinRoomButton =
     useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
-  const {saveName} = useUserPreference();
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({
       waitingRoom: false,
@@ -59,7 +58,6 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   }, [rtcProps?.role]);
 
   const onSubmit = () => {
-    saveName(username?.trim());
     setCallActive(true);
   };
 

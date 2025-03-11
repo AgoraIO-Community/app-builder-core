@@ -64,7 +64,7 @@ export const EditName: React.FC<EditNameProps> = (props?: EditNameProps) => {
   const {
     data: {isHost},
   } = useRoomInfo();
-  const {saveName} = useUserPreference();
+
   const {whiteboardActive} = useContext(whiteboardContext);
   const [saved, setSaved] = useState(false);
   const username = useGetName();
@@ -104,7 +104,6 @@ export const EditName: React.FC<EditNameProps> = (props?: EditNameProps) => {
       }, 2000);
       setEditable(false);
       logger.log(LogSource.Internals, 'NAME', `Name changed ${newName}`);
-      saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
       inputRef.current.focus();

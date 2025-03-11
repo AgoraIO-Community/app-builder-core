@@ -70,7 +70,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
   const {awake, request} = useWakeLock();
-  const {saveName} = useUserPreference();
   const waitingRoomButton =
     useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
   const {setRoomInfo} = useSetRoomInfo();
@@ -210,8 +209,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const onSubmit = () => {
     shouldWaitingRoomPoll = true;
     setUsername(username.trim());
-    //updating name in the backend
-    saveName(username.trim());
     //setCallActive(true);
 
     // add the waitingRoomStatus to the uid

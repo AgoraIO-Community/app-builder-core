@@ -44,7 +44,6 @@ export interface UserUids {
 interface UserPreferenceContextInterface {
   displayName: string;
   setDisplayName: React.Dispatch<React.SetStateAction<string>>;
-  saveName: (name: string) => void;
   uids: UserUids;
 }
 
@@ -52,7 +51,7 @@ const UserPreferenceContext =
   React.createContext<UserPreferenceContextInterface>({
     displayName: '',
     setDisplayName: () => {},
-    saveName: () => {},
+
     uids: {},
   });
 
@@ -114,92 +113,6 @@ const UserPreferenceProvider = (props: {
     } catch (error) {}
   }, [languageCode, screenShareData]);
 
-  const saveName = (name: string) => {
-    if (name && name?.trim() !== '') {
-      const requestId = getUniqueID();
-      const startReqTs = Date.now();
-      try {
-        logger.log(
-          LogSource.Internals,
-          'NAME',
-          'Trying to save the display name',
-          {
-            requestId,
-            startReqTs,
-          },
-        );
-        updateUserName({
-          context: {
-            headers: {
-              'X-Request-Id': requestId,
-              'X-Session-Id': logger.getSessionId(),
-            },
-          },
-          variables: {
-            name,
-          },
-        })
-          .then(res => {
-            const endReqTs = Date.now();
-            logger.log(
-              LogSource.Internals,
-              'NAME',
-              'name updated successfully',
-              {
-                responseData: res,
-                startReqTs,
-                endReqTs,
-                latency: endReqTs - startReqTs,
-                requestId,
-              },
-            );
-          })
-          .catch(error => {
-            const endReqTs = Date.now();
-            logger.error(
-              LogSource.Internals,
-              'NAME',
-              'ERROR, could not save the name',
-              error,
-              {
-                networkError: {
-                  name: error?.networkError?.name,
-                  //@ts-ignore
-                  code: error?.networkError?.result?.error?.code,
-                  //@ts-ignore
-                  message: error?.networkError?.result?.error?.message,
-                },
-                startReqTs,
-                endReqTs,
-                latency: endReqTs - startReqTs,
-                requestId,
-              },
-            );
-          });
-      } catch (error) {
-        const endReqTs = Date.now();
-        logger.error(
-          LogSource.Internals,
-          'NAME',
-          'ERROR, could not save the name',
-          error,
-          {
-            networkError: {
-              name: error?.networkError?.name,
-              //@ts-ignore
-              code: error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: error?.networkError?.result?.error?.message,
-            },
-            startReqTs,
-            endReqTs,
-            latency: endReqTs - startReqTs,
-            requestId,
-          },
-        );
-      }
-    }
-  };
   const userText = useString(videoRoomUserFallbackText)();
   const pstnUserLabel = useString(PSTNUserLabel)();
   const getScreenShareName = useString(videoRoomScreenshareText);
@@ -309,7 +222,6 @@ const UserPreferenceProvider = (props: {
       value={{
         setDisplayName,
         displayName,
-        saveName,
         uids,
       }}>
       {props.children}
