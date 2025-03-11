@@ -9,6 +9,7 @@ import {
   useRoomInfo,
   Toast,
   useRtc,
+  isWebInternal,
 } from 'customization-api';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -81,34 +82,6 @@ export const AgentContext = createContext<AgentContextInterface>({
   clearChatHistory: () => {},
 });
 
-/**
- * Helper function to find the correct insertion index for a new item using binary search.
- * Ensures that the array remains sorted by the `time` property after insertion.
- *
- * @param array The array to search within.
- * @param time The `time` value of the new item to insert.
- * @returns The index where the new item should be inserted.
- */
-const findInsertionIndex = (array: ChatItem[], time: number): number => {
-  let low = 0;
-  let high = array.length;
-
-  // Perform binary search to find the insertion index
-  while (low < high) {
-    const mid = Math.floor((low + high) / 2);
-
-    // If the middle item's time is less than the new time, search the upper half
-    if (array[mid].time < time) {
-      low = mid + 1;
-    } else {
-      // Otherwise, search the lower half
-      high = mid;
-    }
-  }
-
-  return low; // The correct index for insertion
-};
-
 export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   children,
 }) => {
@@ -152,7 +125,11 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   React.useEffect(() => {
     if (!isSubscribedForStreams) {
       RtcEngineUnsafe.addListener('onStreamMessage', (...args: any[]) => {
-        messageService?.handleStreamMessage(args[1]);
+        if (isWebInternal()) {
+          messageService?.handleStreamMessage(args[1]);
+        } else {
+          messageService?.handleStreamMessage(args[3]);
+        }
       });
       setIsSubscribedForStreams(true);
     }

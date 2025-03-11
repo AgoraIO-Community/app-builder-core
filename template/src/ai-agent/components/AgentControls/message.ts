@@ -3,6 +3,7 @@ import {LogSource, logger} from '../../../logger/AppBuilderLogger';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../../rtm-events-api/LocalEvents';
+import {Buffer} from 'buffer';
 
 const DEFAULT_MESSAGE_CACHE_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 const DEFAULT_INTERVAL = 200; // milliseconds
@@ -669,7 +670,10 @@ export class MessageEngine {
         //   atob(message),
         // );
 
-        const decodedMessage = JSON.parse(Base64.atob(message));
+        // const decodedMessage = JSON.parse(atob(message));
+        const decodedMessage = JSON.parse(
+          Buffer.from(message, 'base64').toString('utf-8'),
+        );
 
         // logger.debug(
         //   LogSource.AgoraSDK,
@@ -982,7 +986,10 @@ export let messageService: MessageEngine | null = null;
  * @returns {MessageEngine} Singleton instance of MessageEngine
  */
 export function initializeMessageEngine(): MessageEngine {
+  console.log('debguggingnew  initializeMessageEngine getting here');
   if (!messageService) {
+    console.log('debuggingnew getting here');
+
     messageService = new MessageEngine(EMessageEngineMode.AUTO, chatHistory => {
       LocalEventEmitter.emit(LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE, {
         data: {
@@ -992,6 +999,7 @@ export function initializeMessageEngine(): MessageEngine {
       });
     });
   }
+  console.log('debguggingnew messageService', messageService);
   return messageService;
 }
 
