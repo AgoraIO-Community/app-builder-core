@@ -47,7 +47,7 @@ const ActionSheet = props => {
       }
     }
   });
-  const {snapPointsMinMax = [100, 400]} = props;
+  const {snapPointsMinMax = [100, 400], hideDefaultActionSheet = false} = props;
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -74,7 +74,7 @@ const ActionSheet = props => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const [showOverlay, setShowOverlay] = React.useState(false);
   const handleSheetChanges = useCallback((index: number) => {
-    bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
+    bottomSheetRef?.current?.snapTo(({snapPoints}) => snapPoints[index]);
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
   }, []);
 
@@ -161,7 +161,7 @@ const ActionSheet = props => {
   };
   const handleSpringEnd = (event: SpringEvent) => {
     if (event.type == 'SNAP') {
-      const isMinmized = bottomSheetRef.current.height === 100;
+      const isMinmized = bottomSheetRef?.current?.height === 100;
       isMinmized && setShowOverlay(false);
       if (event.source === 'dragging') {
         if (isMinmized) {
@@ -203,32 +203,36 @@ const ActionSheet = props => {
       <View>
         {/* Controls Action Sheet */}
 
-        <BottomSheet
-          scrollLocking={false}
-          ref={bottomSheetRef}
-          open={true}
-          onSpringStart={handleSpringStart}
-          onSpringEnd={handleSpringEnd}
-          // skipInitialTransition={true}
-          expandOnContentDrag={true}
-          snapPoints={({maxHeight}) => snapPointsMinMax}
-          defaultSnap={({lastSnap, snapPoints}) =>
-            lastSnap ?? Math.min(...snapPoints)
-          }
-          header={
-            <>
-              <ActionSheetHandle sidePanel={SidePanelType.None} />
-              <Spacer size={12} />
-            </>
-          }
-          blocking={false}>
-          <ActionSheetContent
-            handleSheetChanges={handleSheetChanges}
-            isExpanded={isExpanded}
-            native={false}
-            {...props}
-          />
-        </BottomSheet>
+        {!hideDefaultActionSheet ? (
+          <BottomSheet
+            scrollLocking={false}
+            ref={bottomSheetRef}
+            open={true}
+            onSpringStart={handleSpringStart}
+            onSpringEnd={handleSpringEnd}
+            // skipInitialTransition={true}
+            expandOnContentDrag={true}
+            snapPoints={({maxHeight}) => snapPointsMinMax}
+            defaultSnap={({lastSnap, snapPoints}) =>
+              lastSnap ?? Math.min(...snapPoints)
+            }
+            header={
+              <>
+                <ActionSheetHandle sidePanel={SidePanelType.None} />
+                <Spacer size={12} />
+              </>
+            }
+            blocking={false}>
+            <ActionSheetContent
+              handleSheetChanges={handleSheetChanges}
+              isExpanded={isExpanded}
+              native={false}
+              {...props}
+            />
+          </BottomSheet>
+        ) : (
+          <></>
+        )}
         {/* Chat  Action Sheet */}
         <BottomSheet
           sibling={ToastComponentRender}

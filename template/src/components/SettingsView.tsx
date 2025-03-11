@@ -55,8 +55,10 @@ import {
 } from '../../src/language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 
-interface EditNameProps {}
-const EditName: React.FC = (props?: EditNameProps) => {
+interface EditNameProps {
+  label: string;
+}
+export const EditName: React.FC<EditNameProps> = (props?: EditNameProps) => {
   const yournameLabel = useString(settingPanelNameInputLabel)();
   const nameCantbeChangedInfo = useString(settingPanelNameCantbeChangedInfo)();
   const {
@@ -127,7 +129,9 @@ const EditName: React.FC = (props?: EditNameProps) => {
 
   return (
     <>
-      <Text style={editNameStyle.yournameText}>{yournameLabel}</Text>
+      <Text style={editNameStyle.yournameText}>
+        {props?.label ? props.label : yournameLabel}
+      </Text>
       <Spacer size={12} />
       {whiteboardActive && isHost ? (
         <>
@@ -254,7 +258,7 @@ const editNameStyle = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.medium,
     width: '100%',
     paddingHorizontal: 8,
-    paddingVertical: 18,
+    paddingVertical: 12,
     borderWidth: 0,
     ...Platform.select({
       web: {

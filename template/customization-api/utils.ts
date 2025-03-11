@@ -25,7 +25,7 @@ export {default as useIsVideoEnabled} from '../src/utils/useIsVideoEnabled';
 export {default as useActiveSpeaker} from '../src/utils/useActiveSpeaker';
 
 //hooks used for navigation
-export {useHistory, useParams} from '../src/components/Router';
+export {useHistory, useParams, Redirect} from '../src/components/Router';
 
 //export common function
 export {
@@ -34,7 +34,11 @@ export {
   isAndroid,
   isDesktop,
   calculatePosition,
+  isWebInternal,
+  trimText,
+  BREAKPOINTS,
 } from '../src/utils/common';
+export {default as isSDK} from '../src/utils/isSDK';
 export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
 export {default as useLocalAudio} from '../src/utils/useLocalAudio';

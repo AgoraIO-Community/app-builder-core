@@ -44,8 +44,11 @@ const PermissionHelper = () => {
       ),
     ])
       .then(([cameraResult, micResult]) => {
+        const conditionCheck = $config.AUDIO_ROOM
+          ? micResult.state !== 'granted'
+          : cameraResult.state !== 'granted' || micResult.state !== 'granted';
         // Chrome
-        if (cameraResult.state !== 'granted' || micResult.state !== 'granted') {
+        if (conditionCheck) {
           setShowPopup(true);
           const onChangeFunc = () => {
             if (
@@ -59,15 +62,15 @@ const PermissionHelper = () => {
         }
       })
       .catch(e => {
-        // Firefox
-        setTimeout(() => {
-          setShowPopup(true);
-        }, 1000);
+        // Firefox and chrome
+        setShowPopup(true);
       });
     //If permission already given it will take few milliseconds to resolve the promise. it will show the popup which not required. so added timeout
-    // setTimeout(() => {
-    //   setShowPopup(true);
-    // }, 1000);
+    setTimeout(() => {
+      if (permissionStatus === PermissionState.REQUESTED) {
+        setShowPopup(true);
+      }
+    }, 1000);
   }, []);
   //todo hari update the modal message based the veritical
   return (

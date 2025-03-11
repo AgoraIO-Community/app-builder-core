@@ -76,13 +76,16 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.0.36-1',
-  CORE_VERSION: '4.0.36-1',
+  CLI_VERSION: '3.1.0-beta-10',
+  CORE_VERSION: '4.1.0-beta-10',
   DISABLE_LANDSCAPE_MODE: false,
   STT_AUTO_START: false,
   CLOUD_RECORDING_AUTO_START: false,
   ENABLE_SPOTLIGHT: false,
   AUTO_CONNECT_RTM: false,
+  ENABLE_CONVERSATIONAL_AI: false,
+  CUSTOMIZE_AGENT: true,
+  AI_LAYOUT: 'DEFAULT_LAYOUT',
 };
 
 module.exports = DefaultConfig;

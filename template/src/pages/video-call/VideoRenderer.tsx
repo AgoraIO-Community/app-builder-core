@@ -1,5 +1,5 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
-import {View, StyleSheet, useWindowDimensions} from 'react-native';
+import {View, StyleSheet, useWindowDimensions, ViewStyle} from 'react-native';
 import {
   PropsContext,
   DispatchContext,
@@ -10,7 +10,14 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
-import {useLayout, useContent, useRtc, useSpotlight} from 'customization-api';
+import {
+  useLayout,
+  useContent,
+  useRtc,
+  useSpotlight,
+  customEvents,
+  CustomAgentInterfaceProps,
+} from 'customization-api';
 import {
   DefaultLayouts,
   getGridLayoutName,
@@ -18,9 +25,13 @@ import {
 } from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-import {isMobileUA, isWebInternal} from '../../utils/common';
+import {
+  isMobileUA,
+  isValidReactComponent,
+  isWebInternal,
+} from '../../utils/common';
 import ThemeConfig from '../../theme';
-import {createHook} from 'customization-implementation';
+import {createHook, useCustomization} from 'customization-implementation';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import ZoomableWrapper from './ZoomableWrapper';
@@ -40,16 +51,44 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useFullScreen} from '../../utils/useFullScreen';
 import SpotlightHighligher from './SpotlightHighlighter';
+import {useAgent} from '../../ai-agent/components/AgentControls/AgentContext';
+
 export interface VideoRendererProps {
   user: ContentInterface;
   isMax?: boolean;
   CustomChild?: React.ComponentType;
+  avatarRadius?: number;
+  hideMenuOptions?: boolean;
+  containerStyle?: ViewStyle;
+  innerContainerStyle?: ViewStyle;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({
   user,
   isMax = false,
   CustomChild,
+  avatarRadius = 100,
+  hideMenuOptions = false,
+  containerStyle = {},
+  innerContainerStyle = {},
 }) => {
+  const {agentConnectionState} = useAgent();
+  const {CustomAgentView} = useCustomization(data => {
+    let components: {
+      CustomAgentView: React.ComponentType<CustomAgentInterfaceProps>;
+    } = {
+      CustomAgentView: null,
+    };
+    if (
+      data?.components?.videoCall?.customAgentInterface &&
+      typeof data?.components?.videoCall?.customAgentInterface !== 'object' &&
+      isValidReactComponent(data?.components?.videoCall?.customAgentInterface)
+    ) {
+      components.CustomAgentView =
+        data?.components?.videoCall.customAgentInterface;
+    }
+
+    return components;
+  });
   const {height, width} = useWindowDimensions();
   const {requestFullscreen} = useFullScreen();
   const {dispatch} = useContext(DispatchContext);
@@ -68,7 +107,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
     isHovered &&
     currentLayout === getPinnedLayoutName();
   const [videoTileWidth, setVideoTileWidth] = useState(0);
-  const [avatarSize, setAvatarSize] = useState(100);
+  const [avatarSize, setAvatarSize] = useState(avatarRadius);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const {setVideoTileInViewPortState} = useVideoCall();
@@ -183,7 +222,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
             },
           }) => {
             setVideoTileWidth(width);
-            setAvatarSize(Math.floor(width * 0.35));
+            setAvatarSize(
+              avatarRadius ? avatarRadius : Math.floor(width * 0.35),
+            );
           }}
           style={[
             maxStyle.container,
@@ -192,6 +233,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               : user.video
               ? maxStyle.noVideoStyle
               : maxStyle.nonActiveContainerStyle,
+            containerStyle,
           ]}>
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
@@ -308,6 +350,10 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
               }}>
               {CustomChild ? (
                 <CustomChild />
+              ) : $config.ENABLE_CONVERSATIONAL_AI &&
+                user?.type === 'ai-agent' &&
+                CustomAgentView ? (
+                <CustomAgentView connectionState={agentConnectionState} />
               ) : (
                 <MaxVideoView
                   fallback={() => {
@@ -333,6 +379,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
                       landscapeMode && isScreenShareOnFullView ? width : '100%',
                     borderRadius: 4,
                     overflow: 'hidden',
+                    ...innerContainerStyle,
                   }}
                   key={user.uid}
                   landscapeMode={
@@ -370,6 +417,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
           )}
           {!(isScreenShareOnFullView || isWhiteboardOnFullScreen) &&
           // user.uid !== rtcProps?.screenShareUid &&
+          hideMenuOptions === false &&
           (isHovered || actionMenuVisible || isMobileUA()) ? (
             <MoreMenu
               videoMoreMenuRef={videoMoreMenuRef}

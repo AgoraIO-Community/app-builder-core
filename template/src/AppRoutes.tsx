@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
+import React from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
@@ -22,7 +22,6 @@ import {CUSTOM_ROUTES_PREFIX, CustomRoutesInterface} from 'customization-api';
 import PrivateRoute from './components/PrivateRoute';
 import RecordingBotRoute from './components/recording-bot/RecordingBotRoute';
 import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
-import {LogSource, logger} from './logger/AppBuilderLogger';
 import {isValidReactComponent} from './utils/common';
 import ErrorBoundary from './components/ErrorBoundary';
 import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
@@ -59,7 +58,11 @@ function AppRoutes() {
           let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
           return (
             <RouteComponent
-              path={CUSTOM_ROUTES_PREFIX + item.path}
+              path={
+                item.isTopLevelRoute
+                  ? item.path
+                  : CUSTOM_ROUTES_PREFIX + item.path
+              }
               exact={item.exact}
               key={i}
               failureRedirectTo={
