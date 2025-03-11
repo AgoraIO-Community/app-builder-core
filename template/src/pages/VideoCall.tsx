@@ -249,22 +249,19 @@ const VideoCall: React.FC = () => {
   useEffect(() => {
     if (!SdkJoinState.phrase) {
       useJoin(phrase, RoomInfoDefaultValue.roomPreference)
-        .then(() => {})
+        .then(() => {
+          logger.log(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Join channel success',
+          );
+        })
         .catch(error => {
           logger.error(
             LogSource.Internals,
             'JOIN_MEETING',
             'Join channel error',
-            error,
-            {
-              networkError: {
-                name: error?.networkError?.name,
-                //@ts-ignore
-                code: error?.networkError?.result?.error?.code,
-                //@ts-ignore
-                message: error?.networkError?.result?.error?.message,
-              },
-            },
+            JSON.stringify(error || {}),
           );
           setGlobalErrorMessage(error);
           history.push('/');
@@ -303,27 +300,26 @@ const VideoCall: React.FC = () => {
     } else if (sdkMeetingPhrase) {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
-      useJoin(sdkMeetingPhrase, preference).catch(error => {
-        logger.error(
-          LogSource.Internals,
-          'JOIN_MEETING',
-          'Join channel error',
-          error,
-          {
-            networkError: {
-              name: error?.networkError?.name,
-              //@ts-ignore
-              code: error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: error?.networkError?.result?.error?.message,
-            },
-          },
-        );
-        setGlobalErrorMessage(error);
-        history.push('/');
-        currentMeetingPhrase.current = '';
-        promise.rej(error);
-      });
+      useJoin(sdkMeetingPhrase, preference)
+        .then(() => {
+          logger.log(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Join channel success',
+          );
+        })
+        .catch(error => {
+          logger.error(
+            LogSource.Internals,
+            'JOIN_MEETING',
+            'Join channel error',
+            JSON.stringify(error || {}),
+          );
+          setGlobalErrorMessage(error);
+          history.push('/');
+          currentMeetingPhrase.current = '';
+          promise.rej(error);
+        });
     }
   }, [SdkJoinState]);
 

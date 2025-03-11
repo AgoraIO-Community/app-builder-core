@@ -236,16 +236,7 @@ const Create = () => {
           LogSource.Internals,
           'CREATE_MEETING',
           'There was error while creating meeting',
-          error,
-          {
-            networkError: {
-              name: error?.networkError?.name,
-              //@ts-ignore
-              code: error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: error?.networkError?.result?.error?.message,
-            },
-          },
+          JSON.stringify(error || {}),
         );
         if (
           createRoomErrorToastHeadingText ||

@@ -68,15 +68,8 @@ function useRecordingLayoutQuery() {
           LogSource.Internals,
           'RECORDING',
           'setPresenterQuery failure',
-          error,
+          JSON.stringify(error || {}),
           {
-            networkError: {
-              name: error?.networkError?.name,
-              //@ts-ignore
-              code: error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: error?.networkError?.result?.error?.message,
-            },
             startReqTs,
             endReqTs,
             latency: endReqTs - startReqTs,
@@ -126,15 +119,8 @@ function useRecordingLayoutQuery() {
           LogSource.Internals,
           'RECORDING',
           'executeNormalQuery failure',
-          error,
+          JSON.stringify(error || {}),
           {
-            networkError: {
-              name: error?.networkError?.name,
-              //@ts-ignore
-              code: error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: error?.networkError?.result?.error?.message,
-            },
             startReqTs,
             endReqTs,
             latency: endReqTs - startReqTs,

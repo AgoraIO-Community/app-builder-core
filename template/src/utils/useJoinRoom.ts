@@ -167,15 +167,8 @@ export default function useJoinRoom() {
             isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'
           } failed.`,
           'Join Channel Failed',
-          response?.error,
+          JSON.stringify(response?.error || {}),
           {
-            networkError: {
-              name: response?.error?.networkError?.name,
-              //@ts-ignore
-              code: response?.error?.networkError?.result?.error?.code,
-              //@ts-ignore
-              message: response?.error?.networkError?.result?.error?.message,
-            },
             startReqTs,
             endReqTs,
             latency,

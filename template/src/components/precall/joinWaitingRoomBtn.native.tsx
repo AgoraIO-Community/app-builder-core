@@ -62,7 +62,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const waitingRoomButton =
     useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
-  const {saveName} = useUserPreference();
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
       waitingRoom: true,
@@ -184,8 +183,6 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const onSubmit = () => {
     shouldWaitingRoomPoll = true;
-    saveName(username?.trim());
-
     // Enter waiting rooom;
     setRoomInfo(prev => {
       return {...prev, isInWaitingRoom: true};

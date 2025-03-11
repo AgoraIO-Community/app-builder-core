@@ -47,7 +47,6 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const setUsername = useSetName();
   const {isJoinDataFetched} = useRoomInfo();
   const {awake, request} = useWakeLock();
-  const {saveName} = useUserPreference();
   const joinRoomButton =
     useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
 
@@ -67,8 +66,6 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
     );
     setUsername(username.trim());
     setCallActive(true);
-    //updating name in the backend
-    saveName(username.trim());
     // Play a sound to avoid autoblocking in safari
     if (isWebInternal() || isMobileOrTablet()) {
       audio.volume = 0;
