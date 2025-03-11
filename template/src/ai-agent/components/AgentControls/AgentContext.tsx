@@ -113,7 +113,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const messageCache = {};
   const TIMEOUT_MS = 5000; // Timeout for incomplete messages
 
-  //set agent id when user refresh the page
+  //set agent uid when user refresh the page - to maintain the app state
   useEffect(() => {
     //@ts-ignore
     if (store?.agentUID && store?.agentUID !== agentUID) {
@@ -121,6 +121,15 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       setAgentUID(store.agentUID);
     }
   }, [store, agentUID]);
+
+  //set agent id when user refresh the page - to maintain the app state
+  useEffect(() => {
+    //@ts-ignore
+    if (store?.agentId && store?.agentId !== agentId) {
+      //@ts-ignore
+      setAgentId(store.agentId);
+    }
+  }, [store, agentId]);
 
   React.useEffect(() => {
     if (!isSubscribedForStreams) {
@@ -203,7 +212,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       closeMessageEngine(); // release message engine
       setAgentConnectionState(AgentState.NOT_CONNECTED);
       if (isStopAPICalled) {
-        setStartAPICalled(true);
+        setStopAPICalled(false);
       }
     }
   }, [
