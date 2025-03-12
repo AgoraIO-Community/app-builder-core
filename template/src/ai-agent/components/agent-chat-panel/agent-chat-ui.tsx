@@ -24,7 +24,7 @@ const ChatItemBubble = ({item}: {item: any}) => {
       key={`${item.turn_id}-${item.uid}`}
       msgId={`${item.turn_id}-${item.uid}`}
       isLocal={localUid === item.uid}
-      message={item.text}
+      message={item.text ? item.text : item?.metadata?.text}
       createdTimestamp={item._time}
       uid={item.uid}
       isDeleted={false}
