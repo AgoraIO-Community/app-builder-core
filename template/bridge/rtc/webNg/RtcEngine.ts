@@ -220,7 +220,7 @@ export default class RtcEngine {
   private activeSpeakerUid: number;
   public appId: string;
   // public AgoraRTC: any;
-  public client: any | IAgoraRTCClient;
+  public client: IAgoraRTCClient;
   public screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
     ['onUserJoined', () => null],
@@ -630,6 +630,7 @@ export default class RtcEngine {
   }
 
   async publish() {
+    console.log(`Audio-Track: ${this.localStream.audio}`);
     if (this.localStream.audio || this.localStream.video) {
       try {
         let tracks: Array<ILocalTrack> = [];
@@ -646,7 +647,9 @@ export default class RtcEngine {
             'API',
             'RTC [publish] trying to publish tracks',
           );
+          console.log(`Audio-Track: RTC publish ${this.localStream.audio}`);
           await this.client.publish(tracks);
+          console.log(`Audio-Track: RTC published ${this.localStream.audio}`);
           logger.log(
             LogSource.AgoraSDK,
             'API',
@@ -891,13 +894,13 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
-      logger.debug(
-        LogSource.AgoraSDK,
-        'Event',
-        'RTC [stream-message](stt-web: onStreamMessageCallback)',
-        uid,
-        payload,
-      );
+      // logger.debug(
+      //   LogSource.AgoraSDK,
+      //   'Event',
+      //   'RTC [stream-message](stt-web: onStreamMessageCallback)',
+      //   uid,
+      //   payload,
+      // );
       (this.eventsMap.get('onStreamMessage') as callbackType)(uid, payload);
     });
 

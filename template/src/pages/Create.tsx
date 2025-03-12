@@ -22,6 +22,7 @@ import {
   maxInputLimit,
   isMobileUA,
   trimText,
+  isValidReactComponent,
 } from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
@@ -62,24 +63,22 @@ import {
   createRoomSuccessToastSubHeading,
 } from '../language/default-labels/createScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
-import {backendErrorCode} from 'src/utils/BackendErrorCode';
 
 const Create = () => {
   const {CreateComponent} = useCustomization(data => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
-    // commented for v1 release
-    // if (
-    //   data?.components?.create &&
-    //   typeof data?.components?.create !== 'object'
-    // ) {
-    //   if (
-    //     data?.components?.create &&
-    //     isValidReactComponent(data?.components?.create)
-    //   )
-    //     components.CreateComponent = data?.components?.create;
-    // }
+    if (
+      data?.components?.create &&
+      typeof data?.components?.create !== 'object'
+    ) {
+      if (
+        data?.components?.create &&
+        isValidReactComponent(data?.components?.create)
+      )
+        components.CreateComponent = data?.components?.create;
+    }
     return components;
   });
 

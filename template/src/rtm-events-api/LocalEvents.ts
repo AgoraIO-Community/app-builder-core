@@ -10,6 +10,7 @@ export enum LocalEventsEnum {
   MIC_CHANGED = 'MIC_CHANGED',
   CLEAR_WHITEBOARD = 'CLEAR_WHITEBOARD',
   USER_KICKED_OFF_BY_REMOTE_HOST = 'USER_KICKED_OFF_BY_REMOTE_HOST',
+  AGENT_TRANSCRIPT_CHANGE = 'AGENT_TRANSCRIPT_CHANGE',
 }
 const LocalEventEmitter = new EventEmitter();
 export default LocalEventEmitter;

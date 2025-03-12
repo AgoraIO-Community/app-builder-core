@@ -15,6 +15,7 @@ import {UidType} from '../../../agora-rn-uikit';
 import {LanguageType} from '../../subComponents/caption/utils';
 import {BoardColor} from '../whiteboard/WhiteboardConfigure';
 import {joinRoomPreference} from '../../utils/useJoinRoom';
+import {ASR_LANGUAGES} from 'src/ai-agent/components/AgentControls/const';
 
 export enum WaitingRoomStatus {
   NOT_REQUESTED = 1,
@@ -64,6 +65,29 @@ export interface RoomData {
   encryptionSecretSalt?: Uint8Array;
   screenShareUid?: string;
   screenShareToken?: string;
+  agents?: AIAgentInterface[];
+}
+
+export interface AIAgentInterface {
+  id: string;
+  is_active: boolean;
+  config: {
+    enable_aivad?: boolean;
+    asr_language?: keyof typeof ASR_LANGUAGES;
+    llm: {
+      agent_name: string;
+      model: string;
+      prompt: string;
+    };
+    tts: {
+      vendor: string;
+      params: {
+        key: string;
+        voice_name: string;
+        region: string;
+      };
+    };
+  };
 }
 
 export interface RoomInfoContextInterface {
@@ -125,6 +149,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
       attendee: '',
     },
     isSeparateHostLink: true,
+    agents: [],
   },
   roomPreference: {
     disableShareTile: false,

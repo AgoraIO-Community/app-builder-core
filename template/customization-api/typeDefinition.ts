@@ -17,6 +17,7 @@ import {I18nInterface} from '../src/language/i18nTypes';
 import {ToolbarPresetProps} from './sub-components';
 import {TextDataInterface} from '../src/language/default-labels';
 import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
+import {AIAgentState} from '../src/ai-agent/components/AgentControls/const';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -70,6 +71,9 @@ export type CustomLogger = (
   type: 'debug' | 'error' | 'info' | 'warn',
 ) => void;
 
+export interface CustomAgentInterfaceProps {
+  connectionState: AIAgentState;
+}
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
   topToolBar?: ToolbarType;
@@ -84,6 +88,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
+  customAgentInterface?: React.ComponentType<CustomAgentInterfaceProps>;
   customSidePanel?: () => SidePanelItem[];
   invitePopup?: {
     title: string;
@@ -100,7 +105,7 @@ export type ComponentsInterface = {
   precall?: PreCallInterface;
   preferenceWrapper?: React.ComponentType;
   //precall?: React.ComponentType;
-  //create?: React.ComponentType;
+  create?: React.ComponentType;
   //share?: React.ComponentType;
   //join?: React.ComponentType;
   videoCall?: VideoCallInterface;
@@ -114,6 +119,7 @@ export interface CustomRoutesInterface {
   isPrivateRoute?: boolean;
   routeProps?: object;
   failureRedirectTo?: string;
+  isTopLevelRoute?: boolean;
 }
 
 export type CustomHookType = () => () => Promise<void>;

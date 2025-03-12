@@ -331,6 +331,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           startReqTs,
         },
       );
+      const token = store?.token;
       const res = await apolloClient.query({
         query: GET_USER,
         fetchPolicy: 'network-only',
@@ -338,6 +339,9 @@ const AuthProvider = (props: AuthProviderProps) => {
           headers: {
             'X-Request-Id': requestId,
             'X-Session-Id': logger.getSessionId(),
+            ...(token && {
+              authorization: token ? `Bearer ${token}` : '',
+            }),
           },
         },
       });

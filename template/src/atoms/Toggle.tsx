@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, Platform} from 'react-native';
+import {StyleSheet, Text, View, Platform, ViewStyle} from 'react-native';
 import React from 'react';
 import CustomSwitch from './CustomSwitch';
 
@@ -7,6 +7,7 @@ interface SwitchProps {
   disabled?: boolean;
   toggleSwitch: (isEnabled: boolean) => void;
   circleColor?: string;
+  customContainerStyle?: ViewStyle;
 }
 
 const Toggle = (props: SwitchProps) => {
@@ -15,16 +16,17 @@ const Toggle = (props: SwitchProps) => {
     toggleSwitch,
     disabled = false,
     circleColor = $config.CARD_LAYER_1_COLOR,
+    customContainerStyle = {},
   } = props;
   return (
-    <View>
+    <View style={customContainerStyle}>
       <CustomSwitch
         barHeight={20}
         switchWidth={16}
         switchHeight={16}
         value={isEnabled}
         onValueChange={toggleSwitch}
-        disabled={false}
+        disabled={disabled}
         backgroundActive={$config.PRIMARY_ACTION_BRAND_COLOR}
         backgroundInactive={$config.SEMANTIC_NEUTRAL}
         circleActiveColor={circleColor}

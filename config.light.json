@@ -17,7 +17,7 @@
   "RECORDING_MODE": "WEB",
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
-  "ENCRYPTION_ENABLED": true,
+  "ENCRYPTION_ENABLED": false,
   "ENABLE_GOOGLE_OAUTH": false,
   "ENABLE_APPLE_OAUTH": false,
   "ENABLE_SLACK_OAUTH": false,
