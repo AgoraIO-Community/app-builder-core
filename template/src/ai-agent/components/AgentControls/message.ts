@@ -987,7 +987,7 @@ export let messageService: MessageEngine | null = null;
  */
 export function initializeMessageEngine(): MessageEngine {
   if (!messageService) {
-    messageService = new MessageEngine(EMessageEngineMode.AUTO, chatHistory => {
+    messageService = new MessageEngine(EMessageEngineMode.TEXT, chatHistory => {
       LocalEventEmitter.emit(LocalEventsEnum.AGENT_TRANSCRIPT_CHANGE, {
         data: {
           type: 'message',
