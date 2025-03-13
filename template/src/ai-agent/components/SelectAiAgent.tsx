@@ -27,13 +27,6 @@ const SelectAiAgent = () => {
       });
   }, [agents]);
 
-  useEffect(() => {
-    if (!agentId && data && data.length) {
-      //set default agent
-      setAgentId(data[0].value);
-    }
-  }, [agentId, data]);
-
   return (
     <View>
       <Text style={style.label}>{'Choose your AI Agent'}</Text>

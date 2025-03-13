@@ -124,12 +124,29 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
 
   //set agent id when user refresh the page - to maintain the app state
   useEffect(() => {
-    //@ts-ignore
-    if (store?.agentId && store?.agentId !== agentId) {
+    if (
+      //@ts-ignore
+      store?.agentId &&
+      //@ts-ignore
+      store?.agentId !== agentId &&
+      agents?.length &&
+      //@ts-ignore
+      agents?.filter(i => i?.id === store?.agentId)?.length
+    ) {
       //@ts-ignore
       setAgentId(store.agentId);
+    } else {
+      if (!agentId && agents?.length) {
+        setAgentId(agents[0]?.id);
+        setStore(prevState => {
+          return {
+            ...prevState,
+            agentId: agents[0]?.id,
+          };
+        });
+      }
     }
-  }, [store, agentId]);
+  }, [store, agentId, agents]);
 
   React.useEffect(() => {
     if (!isSubscribedForStreams) {

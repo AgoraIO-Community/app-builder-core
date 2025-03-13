@@ -28,6 +28,7 @@ import {
 } from './components/AgentControls/AgentContext';
 import {ConversationalAI} from './layout/ConversationalAI';
 import {DefaultAIOnly} from './layout/DefaultAIOnly';
+import {AiAgentCustomView} from './ai-interface/AIAgentInterface';
 
 const Topbar = () => {
   const {currentLayout} = useLayout();
@@ -164,6 +165,7 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
     videoCall: {
       wrapper: AgentProvider,
       //customAgentInterface: AiAgentCustomView,
+      customAgentInterface: AiAgentCustomView,
       customLayout() {
         return isAndroid() || isIOS()
           ? //android and ios does not support animation layout
