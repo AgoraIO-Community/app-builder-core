@@ -29,6 +29,7 @@ import {
 import {ConversationalAI} from './layout/ConversationalAI';
 import {DefaultAIOnly} from './layout/DefaultAIOnly';
 import {AiAgentCustomView} from './ai-interface/AIAgentInterface';
+import {NewAnimation} from './layout/NewAnimation';
 
 const Topbar = () => {
   const {currentLayout} = useLayout();
@@ -159,6 +160,12 @@ const animationLayout = {
   icon: '🤖',
   component: ConversationalAI,
 };
+const newAnimationLayout = {
+  name: 'conversational-ai',
+  label: 'Conversational AI',
+  icon: '🤖',
+  component: NewAnimation,
+};
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     create: CustomCreate,
@@ -167,12 +174,13 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       //customAgentInterface: AiAgentCustomView,
       customAgentInterface: AiAgentCustomView,
       customLayout() {
-        return isAndroid() || isIOS()
-          ? //android and ios does not support animation layout
-            [defaultLayout]
-          : $config.AI_LAYOUT === 'ANIMATION_LAYOUT'
-          ? [animationLayout, defaultLayout]
-          : [defaultLayout, animationLayout];
+        // return isAndroid() || isIOS()
+        //   ? //android and ios does not support animation layout
+        //     [defaultLayout]
+        //   : $config.AI_LAYOUT === 'ANIMATION_LAYOUT'
+        //   ? [animationLayout, defaultLayout]
+        //   : [defaultLayout, animationLayout];
+        return isMobileUA() ? [defaultLayout] : [newAnimationLayout];
       },
       customSidePanel: () => {
         return [
