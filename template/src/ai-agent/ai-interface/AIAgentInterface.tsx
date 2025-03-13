@@ -96,6 +96,7 @@ export const AiAgentCustomView = ({
     <View style={styles.container}>
       <video
         autoPlay
+        style={{pointerEvents: 'none'}}
         loop
         src={AI_ANIMATION_VIDEO[animation]}
         width="40%"
