@@ -51,7 +51,7 @@ import {
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useFullScreen} from '../../utils/useFullScreen';
 import SpotlightHighligher from './SpotlightHighlighter';
-import {useAIAgent} from '../../ai-agent/components/AgentControls/AgentContext';
+import {AgentContext} from '../../ai-agent/components/AgentControls/AgentContext';
 
 export interface VideoRendererProps {
   user: ContentInterface;
@@ -71,7 +71,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   containerStyle = {},
   innerContainerStyle = {},
 }) => {
-  const {agentConnectionState} = useAIAgent();
+  const {agentConnectionState} = useContext(AgentContext);
   const {CustomAgentView} = useCustomization(data => {
     let components: {
       CustomAgentView: React.ComponentType<CustomAgentInterfaceProps>;
