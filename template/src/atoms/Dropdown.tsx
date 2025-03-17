@@ -128,11 +128,11 @@ const Dropdown: FC<Props> = ({
               },
             ]}>
             <FlatList
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator={false}
               data={data}
               renderItem={renderItem}
               keyExtractor={(item, index) => index.toString()}
-              style={{ maxHeight: 200 }}
+              style={{maxHeight: 200}}
             />
           </View>
         </TouchableOpacity>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   dropdownOptionContainer: {
     flex: 1,
     flexDirection: 'row',
-    minHeight: 60,
+    minHeight: 40,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -232,8 +232,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: ThemeConfig.BorderRadius.medium,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     justifyContent: 'space-between',
   },
   dropdownOptionTextContainer: {
@@ -247,7 +247,6 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
     paddingLeft: 8,
-    paddingVertical: 20,
   },
   dropdownIconContainer: {
     alignSelf: 'center',

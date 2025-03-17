@@ -535,7 +535,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
         <>
           {$config.EVENT_MODE && isPickerDisabled && (
             <>
-              <Spacer size={24} />
+              <Spacer size={16} />
               <InlineNotification
                 text={settingScreenInfoMessage}
                 warning={true}
@@ -545,15 +545,15 @@ const SelectDevice = (props: SelectDeviceProps) => {
               />
             </>
           )}
-          <Spacer size={24} />
+          <Spacer size={16} />
           <SelectAudioDevice {...props} />
-          <Spacer size={24} />
+          <Spacer size={16} />
           <SelectSpeakerDevice {...props} />
-          <Spacer size={24} />
+          <Spacer size={16} />
           {!$config.AUDIO_ROOM && (
             <>
               <SelectVideoDevice {...props} />
-              <Spacer size={8} />
+              <Spacer size={16} />
             </>
           )}
         </>
@@ -565,7 +565,7 @@ const SelectDevice = (props: SelectDeviceProps) => {
       <>
         {$config.EVENT_MODE && isPickerDisabled && (
           <>
-            <Spacer size={24} />
+            <Spacer size={16} />
             <InlineNotification
               text={settingScreenInfoMessage}
               warning={true}
@@ -575,17 +575,17 @@ const SelectDevice = (props: SelectDeviceProps) => {
             />
           </>
         )}
-        <Spacer size={24} />
+        <Spacer size={16} />
         {!$config.AUDIO_ROOM && (
           <>
             <SelectVideoDevice {...props} />
-            <Spacer size={24} />
+            <Spacer size={16} />
           </>
         )}
         <SelectAudioDevice {...props} />
-        <Spacer size={24} />
+        <Spacer size={16} />
         <SelectSpeakerDevice {...props} />
-        <Spacer size={24} />
+        <Spacer size={16} />
       </>
     </>
   );
@@ -629,7 +629,7 @@ const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.small,
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    marginBottom: 12,
+    marginBottom: 8,
   },
 });
 
