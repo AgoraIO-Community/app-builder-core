@@ -148,6 +148,7 @@ const JOIN_CHANNEL_PHRASE = gql`
 export interface joinRoomPreference {
   disableShareTile: boolean;
   disableVideoProcessors: boolean;
+  userRemovalTimeout: number;
 }
 
 export default function useJoinRoom() {

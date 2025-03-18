@@ -100,6 +100,7 @@ export default function UserActionMenuOptionsOptions(
   const {hostUids, audienceUids} = useLiveStreamDataContext();
   const {
     data: {isHost},
+    roomPreference: {userRemovalTimeout},
   } = useRoomInfo();
   const remoteRequest = useRemoteRequest();
   const remoteMute = useRemoteMute();
@@ -516,15 +517,19 @@ export default function UserActionMenuOptionsOptions(
           setModalVisible={setRemoveMeetingPopupVisible}
           username={user.name}
           removeUserFromMeeting={() => {
-            Toast.show({
-              leadingIconName: 'info',
-              type: 'info',
-              text1: toastlabel(trimText(user.name)),
-              visibilityTime: 5000,
-              primaryBtn: null,
-              secondaryBtn: null,
-              leadingIcon: null,
-            });
+            userRemovalTimeout > 0 &&
+              Toast.show({
+                leadingIconName: 'info',
+                type: 'info',
+                text1: toastlabel(
+                  trimText(user.name),
+                  userRemovalTimeout / 1000,
+                ),
+                visibilityTime: 5000,
+                primaryBtn: null,
+                secondaryBtn: null,
+                leadingIcon: null,
+              });
             endRemoteCall(user.uid);
           }}
         />
