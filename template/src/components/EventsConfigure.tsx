@@ -407,6 +407,8 @@ const EventsConfigure: React.FC<Props> = ({
         setTimeout(() => {
           executeEndCall();
         }, userRemovalTimeout);
+      } else {
+        executeEndCall();
       }
     });
 
