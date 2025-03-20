@@ -49,6 +49,7 @@ export interface userEventsMapInterface {
   'will-token-expire': () => void;
   'did-token-expire': () => void;
   'token-refreshed': () => void;
+  'rtc-user-removed': (uid: UidType) => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();
