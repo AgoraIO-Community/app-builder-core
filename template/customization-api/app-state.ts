@@ -67,6 +67,5 @@ export {useBeautyEffects} from '../src/app-state/useBeautyEffects';
 export {useLiveStreamDataContext} from '../src/components/contexts/LiveStreamDataContext';
 export {useRtm} from '../src/components/ChatContext';
 export {useGetHostIds} from '../src/utils/useGetHostUids';
-export {useAIAgent} from '../src/ai-agent/components/AgentControls/AgentContext';
 export type {AIAgentContextInterface} from '../src/ai-agent/components/AgentControls/AgentContext';
 export type {AIAgentState} from '../src/ai-agent/components/AgentControls/const';
