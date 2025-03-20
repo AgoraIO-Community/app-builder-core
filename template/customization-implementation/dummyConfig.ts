@@ -12,5 +12,7 @@
 /**
  * Dummy Config used to load when project doesn't have the customization.
  */
-const dummyConfig = {};
+import {isSDK, customize} from 'customization-api';
+
+const dummyConfig = isSDK() ? {} : customize({});
 export default dummyConfig;
