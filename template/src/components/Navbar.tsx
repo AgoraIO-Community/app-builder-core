@@ -64,6 +64,7 @@ import {
 import {useLanguage} from '../language/useLanguage';
 import Toast from '../../react-native-toast-message';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {withControlPermissionHOC} from './controls/useControlPermissionMatrix';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -456,7 +457,10 @@ const defaultItems: TopToolbarItemsConfig = {
   },
   'participant-count': {
     align: 'start',
-    component: ParticipantCountToolbarItem,
+    component: withControlPermissionHOC(
+      ParticipantCountToolbarItem,
+      'participantControl',
+    ),
     order: 1,
   },
   'recording-status': {
@@ -466,7 +470,10 @@ const defaultItems: TopToolbarItemsConfig = {
   },
   participant: {
     align: 'end',
-    component: ParticipantToolbarItem,
+    component: withControlPermissionHOC(
+      ParticipantToolbarItem,
+      'participantControl',
+    ),
     order: 0,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;
@@ -474,7 +481,7 @@ const defaultItems: TopToolbarItemsConfig = {
   },
   chat: {
     align: 'end',
-    component: ChatToolbarItem,
+    component: withControlPermissionHOC(ChatToolbarItem, 'chatControl'),
     order: 1,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;
@@ -482,7 +489,7 @@ const defaultItems: TopToolbarItemsConfig = {
   },
   settings: {
     align: 'end',
-    component: SettingsToobarItem,
+    component: withControlPermissionHOC(SettingsToobarItem, 'settingsControl'),
     order: 2,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;

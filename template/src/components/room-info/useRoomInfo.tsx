@@ -154,6 +154,13 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   roomPreference: {
     disableShareTile: false,
     disableVideoProcessors: false,
+    disableAudio: false,
+    disableVideo: false,
+    disableScreenShare: true,
+    disableSettings: true,
+    disableParticipantsPanel: true,
+    disableChat: true,
+    disableInvite: true,
   },
 };
 
