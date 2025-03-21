@@ -72,7 +72,7 @@ const SelectAiAgent = () => {
         data={data}
         onSelect={async ({label, value}) => {
           if (agentId !== value) {
-            setIsInterruptionHandlingEnabled(null);
+            setIsInterruptionHandlingEnabled(undefined);
             setLanguage(null);
             setPrompt('');
             setAgentId(value);
