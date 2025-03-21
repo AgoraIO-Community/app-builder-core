@@ -128,12 +128,14 @@ const AdvancedSettings = () => {
         agents?.find(a => a?.id === agentId)?.config?.enable_aivad,
       );
     }
-  }, [agentId, agents, setIsInterruptionHandlingEnabled]);
+  }, [agentId, agents]);
+
   const disabled = $config.ENABLE_CONVERSATIONAL_AI
     ? agentConnectionState === 'AGENT_CONNECTED'
       ? true
       : false
     : true;
+
   return (
     <View style={[{flexDirection: 'row', justifyContent: 'space-between'}]}>
       <Text
