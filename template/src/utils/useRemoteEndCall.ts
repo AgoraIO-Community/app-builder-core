@@ -10,7 +10,7 @@ import SDKEvents from './SdkEvents';
  */
 const useRemoteEndCall = () => {
   const {
-    data: {isHost},
+    data: {isHost, channel},
   } = useRoomInfo();
   const isPSTN = useIsPSTN();
 
@@ -24,7 +24,7 @@ const useRemoteEndCall = () => {
           uid,
         );
         // Also Send the SDK event for wrapper app to add extra functinalities like banning user;
-        SDKEvents.emit('rtc-user-removed', uid);
+        SDKEvents.emit('rtc-user-removed', uid, channel);
       }
     } else {
       console.error('A host can only remove the audience from the call.');
