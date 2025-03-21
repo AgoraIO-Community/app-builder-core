@@ -2,7 +2,6 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import StorageContext from '../../../components/StorageContext';
 import {AIAgentState, ASR_LANGUAGES, AgentState} from './const';
 import {AI_AGENT_VOICE} from './const';
-import {createHook} from 'customization-implementation';
 import {
   UidType,
   useContent,
@@ -460,5 +459,3 @@ export const connectToAIAgent = async (
     throw error;
   }
 };
-
-export const useAIAgent = createHook(AgentContext);

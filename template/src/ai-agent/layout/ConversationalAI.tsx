@@ -1,4 +1,4 @@
-import React, {Suspense, useEffect, useRef, useState} from 'react';
+import React, {Suspense, useContext, useEffect, useRef, useState} from 'react';
 import {
   Platform,
   StyleSheet,
@@ -17,7 +17,7 @@ import {
   SidePanelType,
 } from 'customization-api';
 import ThemeConfig from '../../theme';
-import {useAIAgent} from '../components/AgentControls/AgentContext';
+import {AgentContext} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
 
@@ -98,7 +98,7 @@ const SettingButton = () => {
 };
 
 const DisconnectButton = () => {
-  const {toggleAgentConnection} = useAIAgent();
+  const {toggleAgentConnection} = useContext(AgentContext);
   return (
     <TouchableOpacity
       style={{backgroundColor: $config.SEMANTIC_ERROR, borderRadius: 50}}
@@ -111,7 +111,8 @@ const DisconnectButton = () => {
 };
 
 export const ConversationalAI: LayoutComponent = () => {
-  const {agentConnectionState, toggleAgentConnection} = useAIAgent();
+  const {agentConnectionState, toggleAgentConnection} =
+    useContext(AgentContext);
   // const spline = useRef();
   // const sphere = useRef();
 

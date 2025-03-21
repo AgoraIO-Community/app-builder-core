@@ -12,7 +12,7 @@ import {
 import SelectAiAgent from './SelectAiAgent';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {AgentContext, useAIAgent} from './AgentControls/AgentContext';
+import {AgentContext} from './AgentControls/AgentContext';
 import UserPrompt from './UserPrompt';
 import {useIsAgentAvailable} from './utils';
 import Toggle from '../../atoms/Toggle';
@@ -116,7 +116,7 @@ const AdvancedSettings = () => {
     setIsInterruptionHandlingEnabled,
     agentId,
     agentConnectionState,
-  } = useAIAgent();
+  } = useContext(AgentContext);
   const {
     data: {agents},
   } = useRoomInfo();

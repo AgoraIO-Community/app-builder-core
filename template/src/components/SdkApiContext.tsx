@@ -30,6 +30,7 @@ type SdkApiContextInterface = {
         preference: {
           disableShareTile: boolean;
           disableVideoProcessors: boolean;
+          userRemovalTimeout: number;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
