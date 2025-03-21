@@ -48,7 +48,7 @@ export interface AIAgentContextInterface {
   setLanguage: (language: keyof typeof ASR_LANGUAGES) => void;
   prompt?: string;
   setPrompt: (prompt: string) => void;
-  isInterruptionHandlingEnabled: boolean;
+  isInterruptionHandlingEnabled?: boolean;
   setIsInterruptionHandlingEnabled: (value: boolean) => void;
   chatHistory: IMessageListItem[];
   setChatHistory: (history: IMessageListItem[]) => void;
@@ -100,7 +100,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [isStartAPICalled, setStartAPICalled] = useState(false);
   const [isStopAPICalled, setStopAPICalled] = useState(false);
   const [isInterruptionHandlingEnabled, setIsInterruptionHandlingEnabled] =
-    useState(false);
+    useState(undefined);
   const [language, setLanguage] =
     useState<AIAgentContextInterface['language']>('');
 
