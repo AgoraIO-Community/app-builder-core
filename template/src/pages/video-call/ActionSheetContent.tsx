@@ -1,7 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -10,12 +9,8 @@ import React, {useContext} from 'react';
 import ImageIcon from '../../atoms/ImageIcon';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
-import LocalEndcall from '../../subComponents/LocalEndCall';
-import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
-import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
-import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
-import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
+import {PropsContext} from '../../../agora-rn-uikit';
 import {ClientRoleType} from '../../../agora-rn-uikit';
 import {
   RoomInfoContextInterface,
@@ -23,27 +18,17 @@ import {
 } from '../../components/room-info/useRoomInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
-import {
-  ChatIconButton,
-  ParticipantsIconButton,
-} from '../../../src/components/Navbar';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {
   useContent,
-  useLocalUserInfo,
   ToolbarItem,
   ToolbarItemHide,
   ToolbarItemLabel,
   useSpeechToText,
 } from 'customization-api';
-import LayoutIconButton from '../../subComponents/LayoutIconButton';
-import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
-import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
-import Settings from '../../components/Settings';
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
-import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
 import {
@@ -55,8 +40,6 @@ import {
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useWaitingRoomContext} from '../../components/contexts/WaitingRoomContext';
 import {useSetRoomInfo} from '../../components/room-info/useSetRoomInfo';
-import VBButton from '../../components/virtual-background/VBButton';
-import {useVB} from '../../components/virtual-background/useVB';
 import {useString} from '../../utils/useString';
 import {
   sttSpokenLanguageToastHeading,
@@ -64,6 +47,21 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {filterObject} from '../../utils/index';
 import {useLanguage} from '../../language/useLanguage';
+import {
+  CaptionToolbarItem,
+  ChatToolbarItem,
+  InviteToolbarItem,
+  LayoutToolbarItem,
+  LocalAudioToolbarItem,
+  LocalEndcallToolbarItem,
+  LocalVideoToolbarItem,
+  ParticipantToolbarItem,
+  RecordingToolbarItem,
+  SettingsToolbarItem,
+  SwitchCameraToolbarItem,
+  TranscriptToolbarItem,
+  VirtualBgToolbarItem,
+} from '../../components/controls/toolbar-items';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -93,135 +91,10 @@ const LiveStreamIcon = props => {
   return <LiveStreamControls showControls={true} customProps={props} />;
 };
 
-//Icon for Chat
-const ChatIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <ChatIconButton />
-    </ToolbarItem>
-  );
-};
-
-//Icon for Participants
-const ParticipantsIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <ParticipantsIconButton />
-    </ToolbarItem>
-  );
-};
-
-//Icon for Recording
-
-const RecordingIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <Recording />
-    </ToolbarItem>
-  );
-};
-
-const VBIcon = props => {
-  const {isVBActive, setIsVBActive} = useVB();
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <VBButton
-        isVBOpen={isVBActive}
-        setIsVBOpen={setIsVBActive}
-        showLabel={$config.ICON_TEXT}
-      />
-    </ToolbarItem>
-  );
-};
-
-const SwitchCameraIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <LocalSwitchCamera />
-    </ToolbarItem>
-  );
-};
-
-const SettingsIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <Settings />
-    </ToolbarItem>
-  );
-};
-
-const ShareIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <CopyJoinInfo />
-    </ToolbarItem>
-  );
-};
 const ScreenshareIcon = () => {
   return (
     <ToolbarItem>
       <ScreenshareButton />
-    </ToolbarItem>
-  );
-};
-
-const AudioIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <LocalAudioMute />
-    </ToolbarItem>
-  );
-};
-
-const CamIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <LocalVideoMute />
-    </ToolbarItem>
-  );
-};
-
-const EndCallIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <LocalEndcall />
-    </ToolbarItem>
-  );
-};
-
-const LayoutIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <LayoutIconButton />
-    </ToolbarItem>
-  );
-};
-
-interface CaptionIconBtnProps {
-  showLabel?: boolean;
-  onPressCallback?: () => void;
-}
-
-const CaptionIconBtn = (props: CaptionIconBtnProps) => {
-  const {onPressCallback = () => {}} = props;
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <CaptionIcon
-        isOnActionSheet={true}
-        showLabel={$config.ICON_TEXT}
-        closeActionSheet={onPressCallback}
-      />
-    </ToolbarItem>
-  );
-};
-
-const TranscriptIconBtn = props => {
-  if (!$config.ENABLE_MEETING_TRANSCRIPT) {
-    return null;
-  }
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <TranscriptIcon isOnActionSheet={true} showLabel={$config.ICON_TEXT} />
     </ToolbarItem>
   );
 };
@@ -363,7 +236,7 @@ const ActionSheetContent = props => {
   const defaultItems = {
     'local-audio': {
       order: 0,
-      component: isAudioVideoControlsDisabled ? null : AudioIcon,
+      component: isAudioVideoControlsDisabled ? null : LocalAudioToolbarItem,
     },
     'raise-hand': {
       order: $config.RAISE_HAND && isAudioRoom ? 0 : 4,
@@ -378,12 +251,11 @@ const ActionSheetContent = props => {
     },
     'local-video': {
       order: 1,
-      component:
-        !isAudioRoom && (isAudioVideoControlsDisabled ? null : CamIcon),
+      component: isAudioVideoControlsDisabled ? null : LocalVideoToolbarItem,
     },
     'end-call': {
       order: 2,
-      component: EndCallIcon,
+      component: LocalEndcallToolbarItem,
     },
     chat: {
       order: !(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience)
@@ -392,36 +264,31 @@ const ActionSheetContent = props => {
       /*For AudioCast Host:Chat ,Attendee:Raise Hand 
             For VoiceChat Host:Chat, Attendee:Chat
            */
-      component: ChatIcon,
+      component: ChatToolbarItem,
     },
     participant: {
       order: 6,
-      component: ParticipantsIcon,
+      component: ParticipantToolbarItem,
     },
     recording: {
       order: 7,
-      component: isHost && $config.CLOUD_RECORDING ? RecordingIcon : null,
+      component: RecordingToolbarItem,
     },
     'virtual-background': {
       order: 7,
-      component:
-        $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM
-          ? VBIcon
-          : null,
+      component: VirtualBgToolbarItem,
     },
     'switch-camera': {
       order: 8,
-      component:
-        !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : SwitchCameraIcon),
+      component: isAudioVideoControlsDisabled ? null : SwitchCameraToolbarItem,
     },
     layout: {
       order: 9,
-      component: LayoutIcon,
+      component: LayoutToolbarItem,
     },
     settings: {
       order: 10,
-      component: SettingsIcon,
+      component: SettingsToolbarItem,
     },
     screenshare: {
       order: 10,
@@ -429,11 +296,11 @@ const ActionSheetContent = props => {
     },
     invite: {
       order: 11,
-      component: ShareIcon,
+      component: InviteToolbarItem,
     },
     caption: {
       order: 12,
-      component: CaptionIconBtn,
+      component: CaptionToolbarItem,
       props: {
         onPressCallback: () => {
           handleSheetChanges(isExpanded ? 0 : 1);
@@ -442,7 +309,7 @@ const ActionSheetContent = props => {
     },
     transcript: {
       order: 13,
-      component: TranscriptIconBtn,
+      component: TranscriptToolbarItem,
     },
   };
 

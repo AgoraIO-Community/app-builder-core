@@ -5,7 +5,7 @@ import LocalSwitchCamera from '../../../subComponents/LocalSwitchCamera';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export const SwitchCameraToolbarItem = props => {
-  const canAccessLocalVideo = useControlPermissionMatrix('videoControl');
+  const canAccessLocalVideo = useControlPermissionMatrix('localVideoControl');
   return (
     canAccessLocalVideo &&
     isMobileOrTablet() && (

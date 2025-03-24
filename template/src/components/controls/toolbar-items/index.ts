@@ -1,3 +1,4 @@
+export {CaptionToolbarItem} from './CaptionToolbarItem';
 export {ChatToolbarItem} from './ChatToolbarItem';
 export {InviteToolbarItem} from './InviteToolbarItem';
 export {LayoutToolbarItem} from './LayoutToolbarItem';
@@ -14,3 +15,5 @@ export {RecordingToolbarItem} from './RecordingToolbarItem';
 export {ScreenShareToolbarItem} from './ScreenShareToolbarItem';
 export {SettingsToolbarItem} from './SettingsToolbarItem';
 export {SwitchCameraToolbarItem} from './SwitchCameraToolbarItem';
+export {VirtualBgToolbarItem} from './VirtualBgToolbarItem';
+export {TranscriptToolbarItem} from './TranscriptToolbarItem';
