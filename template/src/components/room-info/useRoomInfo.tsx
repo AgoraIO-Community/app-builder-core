@@ -154,8 +154,8 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   roomPreference: {
     disableShareTile: false,
     disableVideoProcessors: false,
-    disableAudio: false,
-    disableVideo: false,
+    disableAudio: true,
+    disableVideo: true,
     disableScreenShare: true,
     disableSettings: true,
     disableParticipantsPanel: true,

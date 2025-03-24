@@ -93,15 +93,24 @@ export const MoreButtonToolbarItem = (props?: {
     forceUpdate();
   }, [isHost]);
 
+  const canAccessWhiteBoard = useControlPermissionMatrix('whiteboardControl');
+  const canAccessVirtualBg = useControlPermissionMatrix(
+    'virtualBackgroundControl',
+  );
+  const canAccessNoiseCancellation = useControlPermissionMatrix(
+    'noiseCancellationControl',
+  );
+  const canAccessSTT = useControlPermissionMatrix('sttControl');
+  const canAccessViewRecordings = useControlPermissionMatrix(
+    'viewRecordingControl',
+  );
   const canViewMoreButton =
     width < BREAKPOINTS.lg ||
-    ($config.ENABLE_STT &&
-      $config.ENABLE_CAPTION &&
-      (isHost || (!isHost && isSTTActive))) ||
-    $config.ENABLE_NOISE_CANCELLATION ||
-    (isHost && $config.CLOUD_RECORDING && isWeb()) ||
-    ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
-    (isHost && $config.ENABLE_WHITEBOARD && isWebInternal());
+    (canAccessSTT && (isHost || (!isHost && isSTTActive))) ||
+    canAccessNoiseCancellation ||
+    canAccessViewRecordings ||
+    canAccessVirtualBg ||
+    canAccessWhiteBoard;
 
   return canViewMoreButton ? (
     <ToolbarItem testID="more-btn" toolbarProps={props}>
