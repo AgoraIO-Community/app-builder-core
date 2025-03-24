@@ -1,14 +1,8 @@
 import ParticipantsView from '../../components/ParticipantsView';
 import Chat from '../../components/Chat';
-import Navbar, {
-  MeetingTitleToolbarItem,
-  ParticipantCountToolbarItem,
-  RecordingStatusToolbarItem,
-  ChatToolbarItem,
-  ParticipantToolbarItem,
-  SettingsToobarItem,
-} from '../../components/Navbar';
-import Controls, {
+import Navbar from '../../components/Navbar';
+import Controls from '../../components/Controls';
+import {
   LayoutToolbarItem,
   InviteToolbarItem,
   RaiseHandToolbarItem,
@@ -19,7 +13,14 @@ import Controls, {
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
   MoreButtonToolbarItem,
-} from '../../components/Controls';
+  MeetingTitleToolbarItem,
+  ParticipantCountToolbarItem,
+  RecordingStatusToolbarItem,
+  ChatToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToolbarItem,
+} from '../../components/controls/toolbar-items';
+
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
 import {ChatAttachmentButton} from '../../subComponents/chat/ChatAttachment';
@@ -35,7 +36,7 @@ const ToolbarComponents = {
   RecordingStatusToolbarItem,
   ChatToolbarItem,
   ParticipantToolbarItem,
-  SettingsToobarItem,
+  SettingsToolbarItem,
   LayoutToolbarItem,
   InviteToolbarItem,
   RaiseHandToolbarItem,
