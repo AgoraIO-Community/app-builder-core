@@ -7,6 +7,7 @@ import {getParamFromURL} from '../../utils/common';
 import {useUserPreference} from '../../components/useUserPreference';
 import WhiteboardConfigure from '../../components/whiteboard/WhiteboardConfigure';
 import ChatConfigure from '../../components/chat/chatConfigure';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 const VideoCallScreenWithRecordingBot: React.FC = () => {
   const location = useLocation();
@@ -30,13 +31,15 @@ const VideoCallScreenWrapper: React.FC = () => {
     <VideoCallScreen />
   );
 
-  if ($config.CHAT && $config.ENABLE_WHITEBOARD) {
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+
+  if (canAccessChat && $config.ENABLE_WHITEBOARD) {
     configComponent = (
       <ChatConfigure>
         <WhiteboardConfigure>{videoComponent}</WhiteboardConfigure>
       </ChatConfigure>
     );
-  } else if ($config.CHAT) {
+  } else if (canAccessChat) {
     configComponent = <ChatConfigure>{videoComponent}</ChatConfigure>;
   } else if ($config.ENABLE_WHITEBOARD) {
     configComponent = (

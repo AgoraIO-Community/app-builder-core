@@ -66,6 +66,7 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {isAndroid, isIOS} from '../../utils/common';
 import {EventNames} from '../../rtm-events';
+import {useControlPermissionMatrix} from '../controls/useControlPermissionMatrix';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -127,6 +128,9 @@ export default function UserActionMenuOptionsOptions(
   const removeScreenShareLabel = useString(moreBtnRemoveScreenShare)();
   const removeFromRoomLabel = useString(moreBtnRemoveFromRoom)();
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
+
+  // Permissions
+  const canAccessChat = useControlPermissionMatrix('chatControl');
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -251,7 +255,7 @@ export default function UserActionMenuOptionsOptions(
       /**
        * Chat menu
        */
-      if ($config.CHAT) {
+      if (canAccessChat) {
         items.push({
           icon: 'chat-outlined',
           onHoverIcon: 'chat-filled',
