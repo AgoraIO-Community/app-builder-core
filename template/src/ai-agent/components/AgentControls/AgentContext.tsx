@@ -2,7 +2,6 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import StorageContext from '../../../components/StorageContext';
 import {AIAgentState, ASR_LANGUAGES, AgentState} from './const';
 import {AI_AGENT_VOICE} from './const';
-import {createHook} from 'customization-implementation';
 import {
   UidType,
   useContent,
@@ -10,6 +9,7 @@ import {
   Toast,
   useRtc,
   isWebInternal,
+  useHistory,
 } from 'customization-api';
 import LocalEventEmitter, {
   LocalEventsEnum,
@@ -48,7 +48,7 @@ export interface AIAgentContextInterface {
   setLanguage: (language: keyof typeof ASR_LANGUAGES) => void;
   prompt?: string;
   setPrompt: (prompt: string) => void;
-  isInterruptionHandlingEnabled: boolean;
+  isInterruptionHandlingEnabled?: boolean;
   setIsInterruptionHandlingEnabled: (value: boolean) => void;
   chatHistory: IMessageListItem[];
   setChatHistory: (history: IMessageListItem[]) => void;
@@ -85,6 +85,7 @@ export const AgentContext = createContext<AIAgentContextInterface>({
 export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   children,
 }) => {
+  const history = useHistory();
   const [agentConnectionState, setAgentConnectionState] =
     useState<AIAgentState>(AgentState.NOT_CONNECTED);
   const [agentAuthToken, setAgentAuthToken] = useState<string | null>(null);
@@ -99,7 +100,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const [isStartAPICalled, setStartAPICalled] = useState(false);
   const [isStopAPICalled, setStopAPICalled] = useState(false);
   const [isInterruptionHandlingEnabled, setIsInterruptionHandlingEnabled] =
-    useState(false);
+    useState(undefined);
   const [language, setLanguage] =
     useState<AIAgentContextInterface['language']>('');
 
@@ -113,6 +114,22 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   const messageCache = {};
   const TIMEOUT_MS = 5000; // Timeout for incomplete messages
 
+  useEffect(() => {
+    const extraRemoteUser = users
+      // filter local user
+      ?.filter(i => i !== localUid)
+      // filter agent user
+      ?.filter(i => !i?.toString()?.startsWith('3'));
+    if (
+      extraRemoteUser &&
+      extraRemoteUser?.length &&
+      extraRemoteUser[0] !== localUid
+    ) {
+      //navigate extra user to new meeting
+      history.push('/');
+    }
+  }, [users, localUid]);
+
   //set agent uid when user refresh the page - to maintain the app state
   useEffect(() => {
     //@ts-ignore
@@ -125,11 +142,17 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
   //set agent id when user refresh the page - to maintain the app state
   useEffect(() => {
     //@ts-ignore
-    if (store?.agentId && store?.agentId !== agentId) {
+    if (
+      //@ts-ignore
+      store?.agentId &&
+      //@ts-ignore
+      store?.agentId !== agentId &&
+      agents.filter(i => i?.id === agentId)?.length
+    ) {
       //@ts-ignore
       setAgentId(store.agentId);
     }
-  }, [store, agentId]);
+  }, [store, agentId, agents]);
 
   React.useEffect(() => {
     if (!isSubscribedForStreams) {
@@ -460,5 +483,3 @@ export const connectToAIAgent = async (
     throw error;
   }
 };
-
-export const useAIAgent = createHook(AgentContext);
