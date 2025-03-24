@@ -35,17 +35,18 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import {filterObject} from '../utils/index';
 import {useLanguage} from '../language/useLanguage';
-import {LayoutToolbarItem} from './controls/toolbar-items/LayoutToolbarItem';
-import {InviteToolbarItem} from './controls/toolbar-items/InviteToolbarItem';
-import {RaiseHandToolbarItem} from './controls/toolbar-items/RaiseHandToolbarItem';
-import {LocalAudioToolbarItem} from './controls/toolbar-items/LocalAudioToolbarItem';
-import {LocalVideoToolbarItem} from './controls/toolbar-items/LocalVideoToolbarItem';
-import {SwitchCameraToolbarItem} from './controls/toolbar-items/SwitchCameraToolbarItem';
-import {ScreenShareToolbarItem} from './controls/toolbar-items/ScreenShareToolbarItem';
-import {RecordingToolbarItem} from './controls/toolbar-items/RecordingToolbarItem';
-import {MoreButtonToolbarItem} from './controls/toolbar-items/MoreButtonToolbarItem';
-import {LocalEndcallToolbarItem} from './controls/toolbar-items/LocalEndcallToolbarItem';
-import {withControlPermissionHOC} from './controls/useControlPermissionMatrix';
+import {
+  LayoutToolbarItem,
+  InviteToolbarItem,
+  RaiseHandToolbarItem,
+  LocalAudioToolbarItem,
+  LocalVideoToolbarItem,
+  SwitchCameraToolbarItem,
+  ScreenShareToolbarItem,
+  RecordingToolbarItem,
+  MoreButtonToolbarItem,
+  LocalEndcallToolbarItem,
+} from './controls/toolbar-items';
 
 const defaultItems: ToolbarPresetProps['items'] = {
   layout: {
@@ -58,7 +59,7 @@ const defaultItems: ToolbarPresetProps['items'] = {
   },
   invite: {
     align: 'start',
-    component: withControlPermissionHOC(InviteToolbarItem, 'inviteControl'),
+    component: InviteToolbarItem,
     order: 1,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;
@@ -86,10 +87,7 @@ const defaultItems: ToolbarPresetProps['items'] = {
   },
   screenshare: {
     align: 'center',
-    component: withControlPermissionHOC(
-      ScreenShareToolbarItem,
-      'screenshareControl',
-    ),
+    component: ScreenShareToolbarItem,
     order: 4,
     hide: w => {
       return w < BREAKPOINTS.sm ? true : false;

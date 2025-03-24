@@ -1,11 +1,15 @@
 import React from 'react';
 import ToolbarItem from '../../../atoms/ToolbarItem';
 import CopyJoinInfo from '../../../subComponents/CopyJoinInfo';
+import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export const InviteToolbarItem = props => {
+  const canAccessInvite = useControlPermissionMatrix('inviteControl');
   return (
-    <ToolbarItem testID="invite-btn" toolbarProps={props}>
-      <CopyJoinInfo />
-    </ToolbarItem>
+    canAccessInvite && (
+      <ToolbarItem testID="invite-btn" toolbarProps={props}>
+        <CopyJoinInfo />
+      </ToolbarItem>
+    )
   );
 };

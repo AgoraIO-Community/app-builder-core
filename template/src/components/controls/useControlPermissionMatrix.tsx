@@ -4,6 +4,7 @@ import {ClientRoleType, PropsContext} from '../../../agora-rn-uikit/src';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {isWeb, isWebInternal} from '../../utils/common';
 import {joinRoomPreference} from '../../utils/useJoinRoom';
+import isMobileOrTablet from '../../utils/isMobileOrTablet';
 
 /**
  * ControlPermissionKey represents the different keys
@@ -48,6 +49,7 @@ export const controlPermissionMatrix: Record<
   startRecordingControl: ({isHost}) => isHost && $config.CLOUD_RECORDING,
   screenshareControl: ({role, preference}) =>
     $config.SCREEN_SHARING &&
+    isMobileOrTablet &&
     !preference.disableScreenShare &&
     !(
       role == ClientRoleType.ClientRoleAudience &&
@@ -64,8 +66,9 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_CAPTION &&
     $config.ENABLE_MEETING_TRANSCRIPT,
   participantControl: ({preference}) => !preference.disableParticipantsPanel,
-  audioControl: () => true,
-  videoControl: () => true,
+  audioControl: ({preference}) => !preference.disableAudio,
+  videoControl: ({preference}) =>
+    !$config.AUDIO_ROOM && !preference.disableVideo,
   settingsControl: ({preference}) => !preference.disableSettings,
   inviteControl: ({preference}) => !preference.disableInvite,
 };

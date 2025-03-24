@@ -1,12 +1,12 @@
 import React from 'react';
 import ToolbarItem from '../../../atoms/ToolbarItem';
 import ScreenshareButton from '../../../subComponents/screenshare/ScreenshareButton';
-import isMobileOrTablet from '../../../utils/isMobileOrTablet';
+import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export const ScreenShareToolbarItem = props => {
+  const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   return (
-    $config.SCREEN_SHARING &&
-    !isMobileOrTablet() && (
+    canAccessScreenshare && (
       <ToolbarItem testID="screenShare-btn" toolbarProps={props}>
         <ScreenshareButton />
       </ToolbarItem>
