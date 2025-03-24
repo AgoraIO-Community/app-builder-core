@@ -12,5 +12,7 @@
 /**
  * Dummy Config used to load when project doesn't have the customization.
  */
-const dummyConfig = {};
+import {customize} from 'customization-api';
+
+const dummyConfig = customize({});
 export default dummyConfig;

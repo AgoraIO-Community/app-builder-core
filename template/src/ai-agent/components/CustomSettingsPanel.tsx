@@ -123,17 +123,23 @@ const AdvancedSettings = () => {
 
   //when user switchs agent then update the toggle value for that agent
   useEffect(() => {
-    if (agentId && agents?.length) {
+    if (
+      isInterruptionHandlingEnabled === undefined &&
+      agentId &&
+      agents?.length
+    ) {
       setIsInterruptionHandlingEnabled(
         agents?.find(a => a?.id === agentId)?.config?.enable_aivad,
       );
     }
-  }, [agentId, agents, setIsInterruptionHandlingEnabled]);
+  }, [agentId, agents, isInterruptionHandlingEnabled]);
+
   const disabled = $config.ENABLE_CONVERSATIONAL_AI
     ? agentConnectionState === 'AGENT_CONNECTED'
       ? true
       : false
     : true;
+
   return (
     <View style={[{flexDirection: 'row', justifyContent: 'space-between'}]}>
       <Text
