@@ -1189,8 +1189,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [peoplePanelMeText]: 'Me',
   [peoplePanelPresenterText]: 'Presenter',
 
-  [userRemovedFromTheRoomToastHeading]: name =>
-    `The system will remove ${name} from this call after 5 secs.`,
+  [userRemovedFromTheRoomToastHeading]: (name, time) =>
+    `The system will remove ${name} from this call after ${time} secs.`,
 
   [vbPanelImageUploadErrorToastHeading]: 'Upload Failed',
   [vbPanelImageUploadErrorToastSubHeading]:

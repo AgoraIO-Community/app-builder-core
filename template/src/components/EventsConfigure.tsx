@@ -244,6 +244,7 @@ const EventsConfigure: React.FC<Props> = ({
   }, [defaultContent]);
   const {
     data: {isHost, roomId},
+    roomPreference: {userRemovalTimeout},
   } = useRoomInfo();
   const {setRoomInfo} = useSetRoomInfo();
   const isHostRef = React.useRef(isHost);
@@ -402,9 +403,13 @@ const EventsConfigure: React.FC<Props> = ({
         primaryBtn: null,
         secondaryBtn: null,
       });
-      setTimeout(() => {
+      if (userRemovalTimeout > 0) {
+        setTimeout(() => {
+          executeEndCall();
+        }, userRemovalTimeout);
+      } else {
         executeEndCall();
-      }, 5000);
+      }
     });
 
     events.on(controlMessageEnum.requestAudio, () => {

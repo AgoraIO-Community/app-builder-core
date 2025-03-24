@@ -103,7 +103,8 @@ type LogType = {
     | 'recording_start'
     | 'recording_stop'
     | 'recordings_get'
-    | 'recording_delete';
+    | 'recording_delete'
+    | 'ban_user';
   [LogSource.Events]: 'CUSTOM_EVENTS' | 'RTM_EVENTS';
   [LogSource.CustomizationAPI]:
     | 'Log'
