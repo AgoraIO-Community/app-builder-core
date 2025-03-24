@@ -4,7 +4,7 @@ import LocalAudioMute from '../../../subComponents/LocalAudioMute';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export const LocalAudioToolbarItem = props => {
-  const canAccessLocalAudio = useControlPermissionMatrix('audioControl');
+  const canAccessLocalAudio = useControlPermissionMatrix('localAudioControl');
   return (
     canAccessLocalAudio && (
       <ToolbarItem testID="localAudio-btn" toolbarProps={props}>
