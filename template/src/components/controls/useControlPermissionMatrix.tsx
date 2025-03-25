@@ -23,8 +23,6 @@ export type ControlPermissionKey =
   | 'sttControl'
   | 'transcriptControl'
   | 'participantControl'
-  | 'localAudioControl'
-  | 'localVideoControl'
   | 'settingsControl'
   | 'inviteControl'
   | 'raiseHandControl';
@@ -67,8 +65,6 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_CAPTION &&
     $config.ENABLE_MEETING_TRANSCRIPT,
   participantControl: ({preference}) => !preference.disableParticipantsPanel,
-  localAudioControl: () => true,
-  localVideoControl: () => !$config.AUDIO_ROOM && true,
   settingsControl: ({preference}) => !preference.disableSettings,
   inviteControl: ({preference}) => !preference.disableInvite,
   raiseHandControl: () => $config.EVENT_MODE && $config.RAISE_HAND,

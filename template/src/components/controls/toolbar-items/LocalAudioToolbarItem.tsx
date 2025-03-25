@@ -18,17 +18,15 @@ export const LocalAudioToolbarItem = (props: Props) => {
     containerStyle,
     ...toolbarProps
   } = props;
-  const canAccessLocalAudio = useControlPermissionMatrix('localAudioControl');
+
   return (
-    canAccessLocalAudio && (
-      <ToolbarItem testID="localAudio-btn" toolbarProps={toolbarProps}>
-        <LocalAudioMute
-          showToolTip={showToolTip}
-          iconBGColor={iconBGColor}
-          iconSize={iconSize}
-          containerStyle={containerStyle}
-        />
-      </ToolbarItem>
-    )
+    <ToolbarItem testID="localAudio-btn" toolbarProps={toolbarProps}>
+      <LocalAudioMute
+        showToolTip={showToolTip}
+        iconBGColor={iconBGColor}
+        iconSize={iconSize}
+        containerStyle={containerStyle}
+      />
+    </ToolbarItem>
   );
 };

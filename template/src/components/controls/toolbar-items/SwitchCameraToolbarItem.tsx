@@ -2,12 +2,10 @@ import React from 'react';
 import ToolbarItem from '../../../atoms/ToolbarItem';
 import isMobileOrTablet from '../../../utils/isMobileOrTablet';
 import LocalSwitchCamera from '../../../subComponents/LocalSwitchCamera';
-import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export const SwitchCameraToolbarItem = props => {
-  const canAccessLocalVideo = useControlPermissionMatrix('localVideoControl');
   return (
-    canAccessLocalVideo &&
+    !$config.AUDIO_ROOM &&
     isMobileOrTablet() && (
       <ToolbarItem testID="switchCamera-btn" toolbarProps={props}>
         <LocalSwitchCamera />

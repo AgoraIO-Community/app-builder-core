@@ -115,8 +115,6 @@ const PreCallLocalMute = (props: PreCallProps) => {
     }
   }, [videoDevices]);
 
-  const canAccessLocalAudio = useControlPermissionMatrix('localAudioControl');
-  const canAccessLocalVideo = useControlPermissionMatrix('localVideoControl');
   const canAccessVirtualBg = useControlPermissionMatrix(
     'virtualBackgroundControl',
   );
@@ -132,13 +130,11 @@ const PreCallLocalMute = (props: PreCallProps) => {
         },
       ]}
       testID="precall-controls">
-      {canAccessLocalAudio && <AudioMute showToolTip={true} />}
+      <AudioMute showToolTip={true} />
 
-      {canAccessLocalVideo && (
-        <View style={{marginLeft: isMobileView ? 24 : 16}}>
-          <VideoMute showToolTip={true} />
-        </View>
-      )}
+      <View style={{marginLeft: isMobileView ? 24 : 16}}>
+        <VideoMute showToolTip={true} />
+      </View>
 
       {canAccessVirtualBg && isMobileView && (
         <View style={{marginLeft: isMobileView ? 24 : 16}}>
