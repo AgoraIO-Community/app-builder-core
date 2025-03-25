@@ -1,7 +1,6 @@
 import React from 'react';
 import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import LocalAudioMute from '../../../subComponents/LocalAudioMute';
-import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export interface Props extends Partial<ToolbarItemProps> {
   showToolTip?: boolean;
