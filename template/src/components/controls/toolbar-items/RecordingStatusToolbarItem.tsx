@@ -26,7 +26,5 @@ export const RecordingStatusToolbarItem = () => {
         <RecordingInfo recordingLabel={recordingLabel} />
       </View>
     </ToolbarItem>
-  ) : (
-    <></>
-  );
+  ) : null;
 };

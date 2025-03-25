@@ -10,8 +10,7 @@ import {
   MeetingTitleToolbarItem,
   ParticipantCountToolbarItem,
   RecordingStatusToolbarItem,
-} from './Navbar';
-import {useRecording} from '../subComponents/recording/useRecording';
+} from './controls/toolbar-items';
 import {CustomToolbarMerge, CustomToolbarSorting} from '../utils/common';
 import {filterObject} from '../utils';
 import {useLanguage} from '../language/useLanguage';
@@ -22,7 +21,6 @@ export interface NavbarProps {
 }
 
 const NavbarMobile = (props: NavbarProps) => {
-  const {isRecordingActive} = useRecording();
   const defaultItems: NavbarProps['items'] = {
     'meeting-title': {
       align: 'start',
@@ -36,7 +34,7 @@ const NavbarMobile = (props: NavbarProps) => {
     },
     'recording-status': {
       align: 'start',
-      component: isRecordingActive ? RecordingStatusToolbarItem : null,
+      component: RecordingStatusToolbarItem,
       order: 2,
     },
   };
