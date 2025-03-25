@@ -132,9 +132,11 @@ const PreCallLocalMute = (props: PreCallProps) => {
       testID="precall-controls">
       <AudioMute showToolTip={true} />
 
-      <View style={{marginLeft: isMobileView ? 24 : 16}}>
-        <VideoMute showToolTip={true} />
-      </View>
+      {!$config.AUDIO_ROOM && (
+        <View style={{marginLeft: isMobileView ? 24 : 16}}>
+          <VideoMute showToolTip={true} />
+        </View>
+      )}
 
       {canAccessVirtualBg && isMobileView && (
         <View style={{marginLeft: isMobileView ? 24 : 16}}>
