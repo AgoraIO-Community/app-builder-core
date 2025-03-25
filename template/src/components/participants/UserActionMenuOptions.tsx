@@ -129,9 +129,6 @@ export default function UserActionMenuOptionsOptions(
   const removeFromRoomLabel = useString(moreBtnRemoveFromRoom)();
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
 
-  // Permissions
-  const canAccessChat = useControlPermissionMatrix('chatControl');
-
   useEffect(() => {
     customEvents.on('DisableChat', data => {
       // for other users
@@ -147,6 +144,8 @@ export default function UserActionMenuOptionsOptions(
       });
     });
   }, []);
+
+  const canAccessChat = useControlPermissionMatrix('chatControl');
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];

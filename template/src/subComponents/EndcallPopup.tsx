@@ -18,6 +18,7 @@ import {
   sttTranscriptPanelHeaderText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../language/default-labels/commonLabels';
+import {useControlPermissionMatrix} from '../components/controls/useControlPermissionMatrix';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -57,11 +58,9 @@ const EndcallPopup = (props: EndcallPopupProps) => {
   const leaveMeetingPopupActionButton = useString(leavePopupPrimaryBtnText)();
   const cancelLabel = useString(cancelText)();
   const {isSTTActive} = useCaption();
-  const isTranscriptAvailable =
-    $config.ENABLE_STT &&
-    $config.ENABLE_CAPTION &&
-    $config.ENABLE_MEETING_TRANSCRIPT &&
-    isSTTActive;
+  const canViewTranscriptControl =
+    useControlPermissionMatrix('transcriptControl');
+  const isTranscriptAvailable = canViewTranscriptControl && isSTTActive;
 
   const stayBtnLabel = cancelLabel;
   const leaveBtnLabel = leaveMeetingPopupActionButton;

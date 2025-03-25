@@ -422,6 +422,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   };
 
   const canViewSTTControl = useControlPermissionMatrix('sttControl');
+  const canViewTranscriptControl =
+    useControlPermissionMatrix('transcriptControl');
   if (canViewSTTControl) {
     actionMenuitems.push({
       componentName: 'caption',
@@ -429,11 +431,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      disabled: !(
-        $config.ENABLE_STT &&
-        $config.ENABLE_CAPTION &&
-        (isHost || (!isHost && isSTTActive))
-      ),
+      disabled: !(canViewSTTControl && (isHost || (!isHost && isSTTActive))),
       title: captionLabel(isCaptionON),
       onPress: () => {
         setActionMenuVisible(false);
@@ -452,7 +450,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
 
-    const canViewTranscriptControl = $config.ENABLE_MEETING_TRANSCRIPT;
     if (canViewTranscriptControl) {
       actionMenuitems.push({
         componentName: 'transcript',
@@ -461,9 +458,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.FONT_COLOR,
         disabled: !(
-          $config.ENABLE_STT &&
-          $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT &&
+          canViewTranscriptControl &&
           (isHost || (!isHost && isSTTActive))
         ),
         title: transcriptLabel(isTranscriptON),
