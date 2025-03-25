@@ -33,7 +33,6 @@ export interface AppBuilderSdkApiInterface {
     preference?: {
       disableShareTile: boolean;
       disableVideoProcessors: boolean;
-      disableAudio?: boolean;
       disableVideo?: boolean;
       disableScreenShare?: boolean;
       disableSettings?: boolean;
