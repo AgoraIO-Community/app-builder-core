@@ -3,7 +3,7 @@ import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import {SettingsIconButtonWithWrapper} from '../../Navbar';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 import Settings from '../../Settings';
-interface Props extends Omit<Partial<ToolbarItemProps>, 'children'> {
+export interface Props extends Omit<Partial<ToolbarItemProps>, 'children'> {
   withWrapper?: boolean;
 }
 
