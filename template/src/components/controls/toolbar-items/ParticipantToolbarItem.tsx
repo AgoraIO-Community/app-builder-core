@@ -1,9 +1,11 @@
 import React from 'react';
-import ToolbarItem from '../../../atoms/ToolbarItem';
+import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import {ParticipantsIconButton} from '../../Navbar';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
-export const ParticipantToolbarItem = props => {
+export interface Props extends ToolbarItemProps {}
+
+export const ParticipantToolbarItem = (props: Props) => {
   const canAccessParticipants =
     useControlPermissionMatrix('participantControl');
 

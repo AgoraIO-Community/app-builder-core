@@ -1,25 +1,33 @@
 import React, {useContext} from 'react';
+import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import {PropsContext} from '../../../../agora-rn-uikit';
 import {useRoomInfo} from './../../room-info/useRoomInfo';
-import LiveStreamControls from './../../livestream/views/LiveStreamControls';
 import {ClientRoleType} from '../../../../agora-rn-uikit';
+import {LocalRaiseHand} from '../../../subComponents/livestream';
+import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
-export const RaiseHandToolbarItem = props => {
+export interface Props extends ToolbarItemProps {}
+
+export const RaiseHandToolbarItem = (props: Props) => {
   const {rtcProps} = useContext(PropsContext);
-  // attendee can view option if any host has started STT
+  const canAccessRaiseHand = useControlPermissionMatrix('raiseHandControl');
   const {
     data: {isHost},
   } = useRoomInfo();
-  return $config.EVENT_MODE ? (
+  return canAccessRaiseHand ? (
     rtcProps?.role == ClientRoleType.ClientRoleAudience ? (
-      <LiveStreamControls showControls={true} customProps={props} />
-    ) : rtcProps?.role == ClientRoleType.ClientRoleBroadcaster ? (
+      <ToolbarItem toolbarProps={props}>
+        <LocalRaiseHand />
+      </ToolbarItem>
+    ) : rtcProps?.role == ClientRoleType.ClientRoleBroadcaster && !isHost ? (
       /**
        * In event mode when raise hand feature is active
        * and audience is promoted to host, the audience can also
        * demote himself
        */
-      <LiveStreamControls showControls={!isHost} customProps={props} />
+      <ToolbarItem toolbarProps={props}>
+        <LocalRaiseHand />
+      </ToolbarItem>
     ) : (
       <></>
     )

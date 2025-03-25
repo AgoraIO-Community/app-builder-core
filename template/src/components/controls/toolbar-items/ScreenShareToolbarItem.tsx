@@ -1,9 +1,11 @@
 import React from 'react';
-import ToolbarItem from '../../../atoms/ToolbarItem';
+import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import ScreenshareButton from '../../../subComponents/screenshare/ScreenshareButton';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
-export const ScreenShareToolbarItem = props => {
+export interface Props extends ToolbarItemProps {}
+
+export const ScreenShareToolbarItem = (props: Props) => {
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   return (
     canAccessScreenshare && (

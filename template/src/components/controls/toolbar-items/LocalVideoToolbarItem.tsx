@@ -3,7 +3,7 @@ import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import LocalVideoMute from '../../../subComponents/LocalVideoMute';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
-interface Props extends Partial<ToolbarItemProps> {
+export interface Props extends Partial<ToolbarItemProps> {
   showToolTip?: boolean;
 }
 

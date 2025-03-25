@@ -3,17 +3,31 @@ import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import LocalAudioMute from '../../../subComponents/LocalAudioMute';
 import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
-interface Props extends Partial<ToolbarItemProps> {
+export interface Props extends Partial<ToolbarItemProps> {
   showToolTip?: boolean;
+  iconBGColor?: string;
+  iconSize?: number;
+  containerStyle?: object;
 }
 
 export const LocalAudioToolbarItem = (props: Props) => {
-  const {showToolTip = false, ...toolbarProps} = props;
+  const {
+    showToolTip = false,
+    iconBGColor,
+    iconSize,
+    containerStyle,
+    ...toolbarProps
+  } = props;
   const canAccessLocalAudio = useControlPermissionMatrix('localAudioControl');
   return (
     canAccessLocalAudio && (
       <ToolbarItem testID="localAudio-btn" toolbarProps={toolbarProps}>
-        <LocalAudioMute showToolTip={showToolTip} />
+        <LocalAudioMute
+          showToolTip={showToolTip}
+          iconBGColor={iconBGColor}
+          iconSize={iconSize}
+          containerStyle={containerStyle}
+        />
       </ToolbarItem>
     )
   );

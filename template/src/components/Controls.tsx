@@ -72,12 +72,12 @@ const defaultItems: ToolbarPresetProps['items'] = {
   },
   'local-audio': {
     align: 'center',
-    component: LocalAudioToolbarItem,
+    component: () => <LocalAudioToolbarItem showToolTip={true} />,
     order: 1,
   },
   'local-video': {
     align: 'center',
-    component: LocalVideoToolbarItem,
+    component: () => <LocalVideoToolbarItem showToolTip={true} />,
     order: 2,
   },
   'switch-camera': {

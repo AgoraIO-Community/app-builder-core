@@ -49,6 +49,7 @@ const ToolbarComponents = {
   WhiteboardToolbarItem: WhiteboardButton,
   MoreButtonToolbarItem,
 };
+
 export {
   ParticipantsView,
   Chat,

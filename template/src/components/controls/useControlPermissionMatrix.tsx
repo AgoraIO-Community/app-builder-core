@@ -26,7 +26,8 @@ export type ControlPermissionKey =
   | 'localAudioControl'
   | 'localVideoControl'
   | 'settingsControl'
-  | 'inviteControl';
+  | 'inviteControl'
+  | 'raiseHandControl';
 
 /**
  * ControlPermissionRule defines the properties used to evaluate permission rules.
@@ -49,16 +50,16 @@ export const controlPermissionMatrix: Record<
   startRecordingControl: ({isHost}) => isHost && $config.CLOUD_RECORDING,
   screenshareControl: ({role, preference}) =>
     $config.SCREEN_SHARING &&
-    isMobileOrTablet &&
+    !isMobileOrTablet() &&
     !preference.disableScreenShare &&
     !(
-      role == ClientRoleType.ClientRoleAudience &&
       $config.EVENT_MODE &&
+      role == ClientRoleType.ClientRoleAudience &&
       !$config.RAISE_HAND
     ),
   noiseCancellationControl: () => $config.ENABLE_NOISE_CANCELLATION,
   virtualBackgroundControl: () =>
-    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM,
+    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && false,
   sttControl: () => $config.ENABLE_STT && $config.ENABLE_CAPTION,
   captionControl: () => $config.ENABLE_CAPTION,
   transcriptControl: () =>
@@ -66,11 +67,11 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_CAPTION &&
     $config.ENABLE_MEETING_TRANSCRIPT,
   participantControl: ({preference}) => !preference.disableParticipantsPanel,
-  localAudioControl: ({preference}) => !preference.disableAudio,
-  localVideoControl: ({preference}) =>
-    !$config.AUDIO_ROOM && !preference.disableVideo,
+  localAudioControl: () => true,
+  localVideoControl: () => !$config.AUDIO_ROOM && true,
   settingsControl: ({preference}) => !preference.disableSettings,
   inviteControl: ({preference}) => !preference.disableInvite,
+  raiseHandControl: () => $config.EVENT_MODE && $config.RAISE_HAND,
 };
 
 export const useControlPermissionMatrix = (

@@ -1,15 +1,12 @@
 import React from 'react';
 import ToolbarItem from '../../../atoms/ToolbarItem';
-import {useRoomInfo} from './../../room-info/useRoomInfo';
 import Recording from '../../../subComponents/Recording';
+import {useControlPermissionMatrix} from '../useControlPermissionMatrix';
 
 export const RecordingToolbarItem = props => {
-  const {
-    data: {isHost},
-  } = useRoomInfo();
+  const canStartRecording = useControlPermissionMatrix('startRecordingControl');
   return (
-    isHost &&
-    $config.CLOUD_RECORDING && (
+    canStartRecording && (
       <ToolbarItem testID="recording-btn" toolbarProps={props}>
         <Recording />
       </ToolbarItem>

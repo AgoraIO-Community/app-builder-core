@@ -400,7 +400,7 @@ const defaultItems: TopToolbarItemsConfig = {
   },
   settings: {
     align: 'end',
-    component: SettingsToolbarItem,
+    component: () => <SettingsToolbarItem withWrapper={true} />,
     order: 2,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;

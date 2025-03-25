@@ -2,7 +2,7 @@ import React from 'react';
 import ToolbarItem, {ToolbarItemProps} from '../../../atoms/ToolbarItem';
 import CaptionIcon from '../../../subComponents/caption/CaptionIcon';
 
-interface Props extends Partial<ToolbarItemProps> {
+export interface Props extends Omit<Partial<ToolbarItemProps>, 'children'> {
   onPressCallback?: () => void;
 }
 
