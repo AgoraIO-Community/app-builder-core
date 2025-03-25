@@ -57,7 +57,7 @@ export const controlPermissionMatrix: Record<
     ),
   noiseCancellationControl: () => $config.ENABLE_NOISE_CANCELLATION,
   virtualBackgroundControl: () =>
-    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && false,
+    $config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM,
   sttControl: () => $config.ENABLE_STT && $config.ENABLE_CAPTION,
   captionControl: () => $config.ENABLE_CAPTION,
   transcriptControl: () =>
