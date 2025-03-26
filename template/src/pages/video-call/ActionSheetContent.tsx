@@ -56,7 +56,9 @@ import {
   LocalEndcallToolbarItem,
   LocalVideoToolbarItem,
   ParticipantToolbarItem,
+  RaiseHandToolbarItem,
   RecordingToolbarItem,
+  ScreenShareToolbarItem,
   SettingsToolbarItem,
   SwitchCameraToolbarItem,
   TranscriptToolbarItem,
@@ -81,20 +83,6 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
         </TouchableOpacity>
         {showNotification && <View style={styles.notification} />}
       </View>
-    </ToolbarItem>
-  );
-};
-
-//Icon for Live Streaming Controls
-const LiveStreamIcon = props => {
-  //toolbaritem wrapped in the LiveStreamControls
-  return <LiveStreamControls showControls={true} customProps={props} />;
-};
-
-const ScreenshareIcon = () => {
-  return (
-    <ToolbarItem>
-      <ScreenshareButton />
     </ToolbarItem>
   );
 };
@@ -243,10 +231,10 @@ const ActionSheetContent = props => {
       component:
         ((isAudioCastAudience && isLiveStream && isAudience) ||
         (isBroadCasting && !isHost)
-          ? LiveStreamIcon
+          ? RaiseHandToolbarItem
           : null) ||
         ((isLiveStream && isAudience) || (isBroadCasting && !isHost)
-          ? LiveStreamIcon
+          ? RaiseHandToolbarItem
           : null),
     },
     'local-video': {
@@ -292,7 +280,7 @@ const ActionSheetContent = props => {
     },
     screenshare: {
       order: 10,
-      component: isAndroid() || isIOS() ? ScreenshareIcon : null,
+      component: isAndroid() || isIOS() ? ScreenShareToolbarItem : null,
     },
     invite: {
       order: 11,

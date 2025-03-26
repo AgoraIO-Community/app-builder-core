@@ -8,11 +8,9 @@ export interface Props extends Omit<Partial<ToolbarItemProps>, 'children'> {}
 export const ChatToolbarItem = (props: Props) => {
   const canAccessChat = useControlPermissionMatrix('chatControl');
 
-  return (
-    canAccessChat && (
-      <ToolbarItem testID="videocall-chaticon" toolbarProps={props}>
-        <ChatIconButton />
-      </ToolbarItem>
-    )
-  );
+  return canAccessChat ? (
+    <ToolbarItem testID="videocall-chaticon" toolbarProps={props}>
+      <ChatIconButton />
+    </ToolbarItem>
+  ) : null;
 };
