@@ -66,6 +66,11 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {isAndroid, isIOS} from '../../utils/common';
 import {EventNames} from '../../rtm-events';
+import {
+  ActionVisibility,
+  DEFAULT_ACTION_KEYS,
+  UserActionMenuItemsConfig,
+} from '../../atoms/UserActionMenuPreset';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -75,6 +80,7 @@ interface UserActionMenuOptionsOptionsProps {
   from: 'partcipant' | 'screenshare-participant' | 'video-tile';
   spotlightUid?: UidType;
   setSpotlightUid?: (uid: UidType) => void;
+  items?: UserActionMenuItemsConfig;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
@@ -148,6 +154,27 @@ export default function UserActionMenuOptionsOptions(
   useEffect(() => {
     const items: ActionMenuItem[] = [];
 
+    //Context of current user role
+    const isSelf = user.uid === localuid;
+    const isRemote = !isSelf;
+    const isEventMode = $config.EVENT_MODE;
+
+    let currentContext: ActionVisibility;
+    if (isHost && isSelf && !isEventMode) currentContext = 'host-self';
+    else if (isHost && isRemote && !isEventMode) currentContext = 'host-remote';
+    else if (!isHost && isSelf && !isEventMode)
+      currentContext = 'attendee-self';
+    else if (!isHost && isRemote && !isEventMode)
+      currentContext = 'attendee-remote';
+    else if (isHost && isSelf && isEventMode)
+      currentContext = 'event-host-self';
+    else if (isHost && isRemote && isEventMode)
+      currentContext = 'event-host-remote';
+    else if (!isHost && isSelf && isEventMode)
+      currentContext = 'event-attendee-self';
+    else if (!isHost && isRemote && isEventMode)
+      currentContext = 'event-attendee-remote';
+
     /**
      * In VideoMeeting/VoiceChat - Show pin menu for all users
      * In Livestreaming/AudioLivecast - Show only for host -> i.e who is streaming video/audio. don't show it for audience
@@ -162,58 +189,138 @@ export default function UserActionMenuOptionsOptions(
     ) {
       if (enablePinForMe) {
         if (pinnedUid !== user.uid) {
-          items.push({
-            //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
-            disabled: activeUids?.length === 1,
-            icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-            onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: pinnedUid
-              ? user.uid === pinnedUid
-                ? removeFromLargeLabel
-                : user.uid === getWhiteboardUid()
+          const viewInLargeKey = 'view-in-large';
+          const viewInLargeConfig = props.items?.[viewInLargeKey] ?? {};
+          const isPinned = pinnedUid === user.uid;
+          const isWhiteboard = user.uid === getWhiteboardUid();
+          const isOnlyOneActive = activeUids?.length === 1;
+
+          if (!viewInLargeConfig.hide && !isPinned) {
+            items.push({
+              key: viewInLargeKey,
+              disabled: isOnlyOneActive,
+              order: viewInLargeConfig.order ?? 4,
+              icon: isPinned
+                ? viewInLargeConfig.onIcon ?? 'unpin-outlined'
+                : viewInLargeConfig.offIcon ?? 'pin-outlined',
+              onHoverIcon: isPinned
+                ? viewInLargeConfig.onHoverOnIcon ?? 'unpin-outlined'
+                : viewInLargeConfig.onHoverOffIcon ?? 'pin-filled',
+              iconColor:
+                viewInLargeConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+              textColor:
+                viewInLargeConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+              title: isWhiteboard
                 ? viewWhiteboardLabel
-                : viewInLargeLabel
-              : user.uid === getWhiteboardUid()
-              ? viewWhiteboardLabel
-              : viewInLargeLabel,
-            onPress: () => {
-              setActionMenuVisible(false);
-              dispatch({
-                type: 'UserPin',
-                value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
-              });
-              setLayout(getPinnedLayoutName());
-            },
-          });
+                : isPinned
+                ? viewInLargeConfig.onLabel ?? removeFromLargeLabel
+                : viewInLargeConfig.offLabel ?? viewInLargeLabel,
+              onPress: () => {
+                setActionMenuVisible(false);
+                if (viewInLargeConfig.onPress) {
+                  viewInLargeConfig.onPress();
+                } else {
+                  viewInLargeConfig.onAction?.();
+                  dispatch({
+                    type: 'UserPin',
+                    value: [isPinned ? 0 : user.uid],
+                  });
+                  setLayout(getPinnedLayoutName());
+                }
+              },
+            });
+          }
+
+          // items.push({
+          //   //disabled: activeUids?.filter(i => !customContent[i])?.length === 1,
+          //   disabled: activeUids?.length === 1,
+          //   icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+          //   onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+          //   iconColor: $config.SECONDARY_ACTION_COLOR,
+          //   textColor: $config.SECONDARY_ACTION_COLOR,
+          //   title: pinnedUid
+          //     ? user.uid === pinnedUid
+          //       ? removeFromLargeLabel
+          //       : user.uid === getWhiteboardUid()
+          //       ? viewWhiteboardLabel
+          //       : viewInLargeLabel
+          //     : user.uid === getWhiteboardUid()
+          //     ? viewWhiteboardLabel
+          //     : viewInLargeLabel,
+          //   onPress: () => {
+          //     setActionMenuVisible(false);
+          //     dispatch({
+          //       type: 'UserPin',
+          //       value: [pinnedUid && user.uid === pinnedUid ? 0 : user.uid],
+          //     });
+          //     setLayout(getPinnedLayoutName());
+          //   },
+          // });
         }
         if (currentLayout === DefaultLayouts[1].name) {
-          items.push({
-            // disabled:
-            //   activeUids?.filter(i => !customContent[i])?.length === 1,
-            disabled: activeUids?.length === 1,
-            icon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-outlined',
-            onHoverIcon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-filled',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: secondaryPinnedUid
-              ? user.uid === secondaryPinnedUid
-                ? removeFromTopLabel
-                : pinToTopLabel
-              : pinToTopLabel,
-            onPress: () => {
-              setActionMenuVisible(false);
-              dispatch({
-                type: 'UserSecondaryPin',
-                value: [
-                  secondaryPinnedUid && user.uid === secondaryPinnedUid
-                    ? 0
-                    : user.uid,
-                ],
-              });
-            },
-          });
+          const pinToTopKey = 'pin-to-top';
+          const pinToTopConfig = props.items?.[pinToTopKey] ?? {};
+          const isPinnedToTop = user.uid === secondaryPinnedUid;
+          const isOnlyOneActive = activeUids?.length === 1;
+
+          if (!pinToTopConfig.hide) {
+            items.push({
+              key: pinToTopKey,
+              disabled: isOnlyOneActive,
+              order: pinToTopConfig.order ?? 0,
+              icon: isPinnedToTop
+                ? pinToTopConfig.onIcon ?? 'unpin-outlined'
+                : pinToTopConfig.offIcon ?? 'pin-outlined',
+              onHoverIcon: isPinnedToTop
+                ? pinToTopConfig.onHoverOnIcon ?? 'unpin-outlined'
+                : pinToTopConfig.onHoverOffIcon ?? 'pin-filled',
+              iconColor:
+                pinToTopConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+              textColor:
+                pinToTopConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+              title: isPinnedToTop
+                ? pinToTopConfig.onLabel ?? removeFromTopLabel
+                : pinToTopConfig.offLabel ?? pinToTopLabel,
+              onPress: () => {
+                setActionMenuVisible(false);
+                if (pinToTopConfig.onPress) {
+                  pinToTopConfig.onPress();
+                } else {
+                  pinToTopConfig.onAction?.();
+                  dispatch({
+                    type: 'UserSecondaryPin',
+                    value: [isPinnedToTop ? 0 : user.uid],
+                  });
+                }
+              },
+            });
+          }
+
+          // items.push({
+          //   // disabled:
+          //   //   activeUids?.filter(i => !customContent[i])?.length === 1,
+          //   disabled: activeUids?.length === 1,
+          //   icon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-outlined',
+          //   onHoverIcon: secondaryPinnedUid ? 'unpin-outlined' : 'pin-filled',
+          //   iconColor: $config.SECONDARY_ACTION_COLOR,
+          //   textColor: $config.SECONDARY_ACTION_COLOR,
+          //   title: secondaryPinnedUid
+          //     ? user.uid === secondaryPinnedUid
+          //       ? removeFromTopLabel
+          //       : pinToTopLabel
+          //     : pinToTopLabel,
+          //   onPress: () => {
+          //     setActionMenuVisible(false);
+          //     dispatch({
+          //       type: 'UserSecondaryPin',
+          //       value: [
+          //         secondaryPinnedUid && user.uid === secondaryPinnedUid
+          //           ? 0
+          //           : user.uid,
+          //       ],
+          //     });
+          //   },
+          // });
         }
       }
     }
@@ -252,19 +359,44 @@ export default function UserActionMenuOptionsOptions(
       /**
        * Chat menu
        */
-      if ($config.CHAT) {
+      const messageKey = 'message-privately';
+      const messageConfig = props.items?.[messageKey] ?? {};
+
+      if (!messageConfig.hide && $config.CHAT) {
         items.push({
-          icon: 'chat-outlined',
-          onHoverIcon: 'chat-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: messagePrivatelyLabel,
+          key: messageKey,
+          order: messageConfig.order ?? 2,
+          icon: messageConfig.icon ?? 'chat-outlined',
+          onHoverIcon: messageConfig.onHoverIcon ?? 'chat-filled',
+          iconColor: messageConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+          textColor: messageConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+          title: messageConfig.label ?? messagePrivatelyLabel,
           onPress: () => {
             setActionMenuVisible(false);
-            openPrivateChat(user.uid);
+            if (messageConfig.onPress) {
+              messageConfig.onPress();
+            } else {
+              messageConfig.onAction?.();
+              openPrivateChat(user.uid);
+            }
           },
         });
       }
+
+      // if ($config.CHAT) {
+      //   items.push({
+      //     icon: 'chat-outlined',
+      //     onHoverIcon: 'chat-filled',
+      //     iconColor: $config.SECONDARY_ACTION_COLOR,
+      //     textColor: $config.SECONDARY_ACTION_COLOR,
+      //     title: messagePrivatelyLabel,
+      //     onPress: () => {
+      //       setActionMenuVisible(false);
+      //       openPrivateChat(user.uid);
+      //     },
+      //   });
+      // }
+
       /**
        * Only host can see this menu item - request/mute - video/audio, promote to co host,demote to audience,remove form meeting
        */
@@ -284,33 +416,101 @@ export default function UserActionMenuOptionsOptions(
             $config.RAISE_HAND &&
             hostUids.indexOf(user.uid) !== -1)
         ) {
-          items.push({
-            icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
-            onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: audioLabel(user.audio),
-            onPress: () => {
-              setActionMenuVisible(false);
-              user.audio
-                ? setShowAudioMuteModal(true)
-                : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
-            },
-          });
-          if (!$config.AUDIO_ROOM) {
+          // items.push({
+          //   icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          //   onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
+          //   iconColor: $config.SECONDARY_ACTION_COLOR,
+          //   textColor: $config.SECONDARY_ACTION_COLOR,
+          //   title: audioLabel(user.audio),
+          //   onPress: () => {
+          //     setActionMenuVisible(false);
+          //     user.audio
+          //       ? setShowAudioMuteModal(true)
+          //       : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+          //   },
+          // });
+
+          const muteAudioKey = 'mute-audio';
+          const isMuted = user.audio;
+          const audioConfig = props.items?.[muteAudioKey] ?? {};
+          if (!audioConfig.hide) {
             items.push({
-              icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-              onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
-              iconColor: $config.SECONDARY_ACTION_COLOR,
-              textColor: $config.SECONDARY_ACTION_COLOR,
-              title: videoLabel(user.video),
+              key: muteAudioKey,
+              order: audioConfig.order ?? 3,
+              icon: isMuted
+                ? audioConfig.onIcon ?? 'mic-off-outlined'
+                : audioConfig.offIcon ?? 'mic-on-outlined',
+              onHoverIcon: isMuted
+                ? audioConfig.onHoverOnIcon ?? 'mic-off-filled'
+                : audioConfig.onHoverOffIcon ?? 'mic-on-filled',
+              iconColor:
+                audioConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+              textColor:
+                audioConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+              title: isMuted
+                ? audioConfig.onLabel ?? audioLabel(true)
+                : audioConfig.offLabel ?? audioLabel(false),
               onPress: () => {
                 setActionMenuVisible(false);
-                user.video
-                  ? setShowVideoMuteModal(true)
-                  : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+                if (audioConfig.onPress) {
+                  audioConfig.onPress();
+                } else {
+                  audioConfig.onAction?.();
+                  isMuted
+                    ? setShowAudioMuteModal(true)
+                    : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+                }
               },
             });
+          }
+
+          const muteVideoKey = 'mute-video';
+          const isVideoMuted = user.video;
+          const videoConfig = props.items?.[muteVideoKey] ?? {};
+
+          if (!$config.AUDIO_ROOM && !videoConfig.hide) {
+            items.push({
+              key: muteVideoKey,
+              order: videoConfig.order ?? 4,
+              icon: isVideoMuted
+                ? videoConfig.onIcon ?? 'video-off-outlined'
+                : videoConfig.offIcon ?? 'video-on-outlined',
+              onHoverIcon: isVideoMuted
+                ? videoConfig.onHoverOnIcon ?? 'video-off-filled'
+                : videoConfig.onHoverOffIcon ?? 'video-on-filled',
+              iconColor:
+                videoConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+              textColor:
+                videoConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+              title: isVideoMuted
+                ? videoConfig.onLabel ?? videoLabel(true)
+                : videoConfig.offLabel ?? videoLabel(false),
+              onPress: () => {
+                setActionMenuVisible(false);
+                if (videoConfig.onPress) {
+                  videoConfig.onPress();
+                } else {
+                  videoConfig.onAction?.();
+                  isVideoMuted
+                    ? setShowVideoMuteModal(true)
+                    : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+                }
+              },
+            });
+
+            // items.push({
+            //   icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+            //   onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
+            //   iconColor: $config.SECONDARY_ACTION_COLOR,
+            //   textColor: $config.SECONDARY_ACTION_COLOR,
+            //   title: videoLabel(user.video),
+            //   onPress: () => {
+            //     setActionMenuVisible(false);
+            //     user.video
+            //       ? setShowVideoMuteModal(true)
+            //       : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+            //   },
+            // });
           }
         }
 
@@ -360,68 +560,161 @@ export default function UserActionMenuOptionsOptions(
           }
         }
 
-        items.push({
-          icon: 'remove-meeting',
-          iconColor: $config.SEMANTIC_ERROR,
-          textColor: $config.SEMANTIC_ERROR,
-          title: removeFromRoomLabel,
-          onPress: () => {
-            setActionMenuVisible(false);
-            setRemoveMeetingPopupVisible(true);
-          },
-        });
+        const removeKey = 'remove-from-room';
+        const removeConfig = props.items?.[removeKey] ?? {};
+
+        if (!removeConfig.hide) {
+          items.push({
+            key: removeKey,
+            order: removeConfig.order ?? 10,
+            icon: removeConfig.icon ?? 'remove-meeting',
+            iconColor: removeConfig.iconColor ?? $config.SEMANTIC_ERROR,
+            textColor: removeConfig.textColor ?? $config.SEMANTIC_ERROR,
+            title: removeConfig.label ?? removeFromRoomLabel,
+            onPress: () => {
+              setActionMenuVisible(false);
+              if (removeConfig.onPress) {
+                removeConfig.onPress();
+              } else {
+                removeConfig.onAction?.();
+                setRemoveMeetingPopupVisible(true);
+              }
+            },
+          });
+        }
+
+        // items.push({
+        //   icon: 'remove-meeting',
+        //   iconColor: $config.SEMANTIC_ERROR,
+        //   textColor: $config.SEMANTIC_ERROR,
+        //   title: removeFromRoomLabel,
+        //   onPress: () => {
+        //     setActionMenuVisible(false);
+        //     setRemoveMeetingPopupVisible(true);
+        //   },
+        // });
       }
     }
 
     /**
      * Local User menu item - change name
      */
-    if (localuid == user.uid && user.type === 'rtc') {
-      items.push({
-        icon: 'pencil-outlined',
-        onHoverIcon: 'pencil-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: changeNameLabel,
-        onPress: () => {
-          setFocus(prevState => {
-            return {
-              ...prevState,
-              editName: true,
-            };
-          });
+    const changeNameKey = 'change-name';
+    const changeNameConfig = props.items?.[changeNameKey] ?? {};
 
-          setActionMenuVisible(false);
-          setSidePanel(SidePanelType.Settings);
-        },
-      });
-    }
-    //Screenshare menu item
     if (
-      (isHost || localuid === user.parentUid) &&
-      user.type === 'screenshare'
+      !changeNameConfig.hide &&
+      localuid === user.uid &&
+      user.type === 'rtc'
     ) {
       items.push({
-        icon: 'remove-meeting',
-        iconColor: $config.SEMANTIC_ERROR,
-        textColor: $config.SEMANTIC_ERROR,
-        title:
-          localuid === user?.parentUid
-            ? stopScreenShareLabel
-            : removeScreenShareLabel,
+        key: changeNameKey,
+        order: changeNameConfig.order ?? 5,
+        icon: changeNameConfig.icon ?? 'pencil-outlined',
+        onHoverIcon: changeNameConfig.onHoverIcon ?? 'pencil-filled',
+        iconColor: changeNameConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+        textColor: changeNameConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+        title: changeNameConfig.label ?? changeNameLabel,
         onPress: () => {
           setActionMenuVisible(false);
-          //for local user directly stop the screenshare
-          if (localuid === user.parentUid) {
-            stopScreenshare();
-          }
-          //for remote user show popup and then user will use cta to stop screenshare
-          else {
-            setRemoveScreensharePopupVisible(true);
+          if (changeNameConfig.onPress) {
+            changeNameConfig.onPress();
+          } else {
+            changeNameConfig.onAction?.();
+            setFocus(prev => ({...prev, editName: true}));
+            setSidePanel(SidePanelType.Settings);
           }
         },
       });
     }
+
+    if (localuid == user.uid && user.type === 'rtc') {
+      // items.push({
+      //   icon: 'pencil-outlined',
+      //   onHoverIcon: 'pencil-filled',
+      //   iconColor: $config.SECONDARY_ACTION_COLOR,
+      //   textColor: $config.SECONDARY_ACTION_COLOR,
+      //   title: changeNameLabel,
+      //   onPress: () => {
+      //     setFocus(prevState => {
+      //       return {
+      //         ...prevState,
+      //         editName: true,
+      //       };
+      //     });
+      //     setActionMenuVisible(false);
+      //     setSidePanel(SidePanelType.Settings);
+      //   },
+      // });
+    }
+    //Screenshare menu item
+    const removeScreenshareKey = 'remove-screenshare';
+    const removeScreenshareConfig = props.items?.[removeScreenshareKey] ?? {};
+    if (
+      (isHost || localuid === user.parentUid) &&
+      user.type === 'screenshare' &&
+      !removeScreenshareConfig.hide
+    ) {
+      items.push({
+        key: removeScreenshareKey,
+        order: removeScreenshareConfig.order ?? 10,
+        icon: removeScreenshareConfig.icon ?? 'remove-meeting',
+        iconColor: removeScreenshareConfig.iconColor ?? $config.SEMANTIC_ERROR,
+        textColor: removeScreenshareConfig.textColor ?? $config.SEMANTIC_ERROR,
+        title:
+          removeScreenshareConfig.label ??
+          (localuid === user?.parentUid
+            ? stopScreenShareLabel
+            : removeScreenShareLabel),
+        onPress: () => {
+          setActionMenuVisible(false);
+          if (removeScreenshareConfig.onPress) {
+            removeScreenshareConfig.onPress();
+          } else {
+            removeScreenshareConfig.onAction?.();
+            //for local user directly stop the screenshare
+            if (localuid === user.parentUid) {
+              stopScreenshare();
+            }
+            //for remote user show popup and then user will use cta to stop screenshare
+            else {
+              setRemoveScreensharePopupVisible(true);
+            }
+          }
+        },
+      });
+    }
+
+    // Add custom items ,
+    if (props.items) {
+      const customItems = Object.entries(props.items)
+        .filter(([key, config]) => {
+          return (
+            !config?.hide &&
+            !DEFAULT_ACTION_KEYS.includes(key) &&
+            config.visibility?.includes(currentContext)
+          );
+        })
+        .map(([key, config]) => {
+          return {
+            key,
+            icon: config.icon ?? 'profile',
+            iconColor: config.iconColor ?? $config.SECONDARY_ACTION_COLOR,
+            textColor: config.textColor ?? $config.SECONDARY_ACTION_COLOR,
+            title: config.label,
+            order: config.order ?? 99,
+            onPress: () => {
+              props.setActionMenuVisible(false);
+              config.onPress?.();
+            },
+          } as ActionMenuItem;
+        });
+
+      items.push(...customItems);
+    }
+
+    items.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+
     setActionMenuitems(items);
   }, [
     pinnedUid,
