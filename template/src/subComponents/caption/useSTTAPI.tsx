@@ -10,6 +10,7 @@ import {capitalizeFirstLetter} from '../../utils/common';
 import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -254,16 +255,13 @@ const useSTTAPI = (): IuseSTTAPI => {
   };
 
   // attendee can view option if any host has started STT
+  const canAccessSTT = useControlPermissionMatrix('sttControl');
   const isAuthorizedSTTUser = () =>
-    $config.ENABLE_STT &&
-    $config.ENABLE_CAPTION &&
-    (isHost || (!isHost && isSTTActive));
+    canAccessSTT && (isHost || (!isHost && isSTTActive));
 
+  const canAccessTranscript = useControlPermissionMatrix('transcriptControl');
   const isAuthorizedTranscriptUser = () =>
-    $config.ENABLE_STT &&
-    $config.ENABLE_CAPTION &&
-    $config.ENABLE_MEETING_TRANSCRIPT &&
-    (isHost || (!isHost && isSTTActive));
+    canAccessTranscript && (isHost || (!isHost && isSTTActive));
 
   return {
     start,

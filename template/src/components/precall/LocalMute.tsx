@@ -30,6 +30,7 @@ import DeviceContext from '../DeviceContext';
 import VBButton from '../virtual-background/VBButton';
 import {ToolbarItem} from 'customization-api';
 import IconButton from '../../atoms/IconButton';
+import {useControlPermissionMatrix} from '../controls/useControlPermissionMatrix';
 
 interface PreCallProps {
   isMobileView?: boolean;
@@ -113,6 +114,10 @@ const PreCallLocalMute = (props: PreCallProps) => {
       isMobileView && !isNative && setCameraAvailable(true);
     }
   }, [videoDevices]);
+
+  const canAccessVirtualBg = useControlPermissionMatrix(
+    'virtualBackgroundControl',
+  );
   return (
     <View
       style={[
@@ -133,13 +138,11 @@ const PreCallLocalMute = (props: PreCallProps) => {
         </View>
       )}
 
-      {$config.ENABLE_VIRTUAL_BACKGROUND &&
-        !$config.AUDIO_ROOM &&
-        isMobileView && (
-          <View style={{marginLeft: isMobileView ? 24 : 16}}>
-            <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
-          </View>
-        )}
+      {canAccessVirtualBg && isMobileView && (
+        <View style={{marginLeft: isMobileView ? 24 : 16}}>
+          <VBButton isVBOpen={isVBOpen} setIsVBOpen={setIsVBOpen} />
+        </View>
+      )}
     </View>
   );
 };

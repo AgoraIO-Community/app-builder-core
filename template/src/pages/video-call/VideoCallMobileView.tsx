@@ -35,7 +35,7 @@ import {useCustomization} from 'customization-implementation';
 import NavbarMobile, {NavbarProps} from '../../components/NavbarMobile';
 import {useVB} from '../../components/virtual-background/useVB';
 import VBPanel from '../../components/virtual-background/VBPanel';
-import {WhiteboardListener} from '../../components/Controls';
+import {WhiteboardListener} from '../../components/whiteboard/WhiteboardListener';
 import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
 import WhiteboardView from '../../components/whiteboard/WhiteboardView';
 

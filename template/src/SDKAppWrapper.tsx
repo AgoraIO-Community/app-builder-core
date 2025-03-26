@@ -33,6 +33,11 @@ export interface AppBuilderSdkApiInterface {
     preference?: {
       disableShareTile: boolean;
       disableVideoProcessors: boolean;
+      disableScreenShare?: boolean;
+      disableSettings?: boolean;
+      disableParticipantsPanel?: boolean;
+      disableChat?: boolean;
+      disableInvite?: boolean;
     },
   ) => Promise<
     [

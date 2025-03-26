@@ -59,6 +59,7 @@ import {
   settingsPanelHeading,
 } from '../language/default-labels/precallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -397,6 +398,7 @@ const Precall = () => {
   const isDesktop = useIsDesktop();
   const getResponsiveValue = useResponsive();
 
+  const canAccessVB = useControlPermissionMatrix('virtualBackgroundControl');
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
@@ -530,7 +532,7 @@ const Precall = () => {
                 <View style={style.deviceSelectContainer}>
                   <DeviceSelect isOnPrecall={true} />
                 </View>
-                {$config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM && (
+                {canAccessVB && (
                   <ScrollView style={style.panelContainer}>
                     <VirtualBackgroundComponent isOnPrecall={true} />
                   </ScrollView>

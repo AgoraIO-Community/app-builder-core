@@ -32,20 +32,15 @@ import {
   CustomToolbarMerge,
   CustomToolbarSorting,
   isIOS,
-  isWebInternal,
-  trimText,
 } from '../utils/common';
-import {useRecording} from '../subComponents/recording/useRecording';
 import {useString} from '../utils/useString';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
-import ParticipantsCount from '../atoms/ParticipantsCount';
-import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
-import ToolbarItem, {useToolbarProps} from '../atoms/ToolbarItem';
+import {useToolbarProps} from '../atoms/ToolbarItem';
 import {
   ToolbarItemHide,
   ToolbarItemLabel,
@@ -59,11 +54,18 @@ import {useWaitingRoomContext} from './contexts/WaitingRoomContext';
 import {
   toolbarItemChatText,
   toolbarItemPeopleText,
-  videoRoomRecordingText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {useLanguage} from '../language/useLanguage';
 import Toast from '../../react-native-toast-message';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {
+  ChatToolbarItem,
+  MeetingTitleToolbarItem,
+  ParticipantCountToolbarItem,
+  ParticipantToolbarItem,
+  RecordingStatusToolbarItem,
+  SettingsToolbarItem,
+} from './controls/toolbar-items';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -358,94 +360,10 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
 export const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
 };
-const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
+export const SettingsIconButtonWithWrapper = (
+  props: SettingsIconButtonProps,
+) => {
   return <SettingsWithViewWrapper {...props} />;
-};
-
-export const MeetingTitleToolbarItem = () => {
-  const {
-    data: {meetingTitle},
-  } = useRoomInfo();
-  return (
-    <ToolbarItem>
-      <Text
-        style={style.roomNameText}
-        testID="videocall-meetingName"
-        numberOfLines={1}
-        ellipsizeMode="tail">
-        {trimText(meetingTitle)}
-      </Text>
-    </ToolbarItem>
-  );
-};
-export const ParticipantCountToolbarItem = () => {
-  return (
-    <ToolbarItem>
-      <View>
-        <View
-          style={{
-            width: 45,
-            height: 35,
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            zIndex: isWebInternal() ? 3 : 0,
-          }}>
-          <ParticipantsCount />
-        </View>
-      </View>
-    </ToolbarItem>
-  );
-};
-export const RecordingStatusToolbarItem = () => {
-  const recordingLabel = useString(videoRoomRecordingText)(
-    $config.RECORDING_MODE,
-  );
-  const {isRecordingActive} = useRecording();
-  return isRecordingActive ? (
-    <ToolbarItem>
-      <View
-        style={{
-          width: 45,
-          height: 35,
-          justifyContent: 'center',
-          alignItems: 'center',
-          alignSelf: 'center',
-          zIndex: isWebInternal() ? 3 : 0,
-        }}>
-        <RecordingInfo recordingLabel={recordingLabel} />
-      </View>
-    </ToolbarItem>
-  ) : (
-    <></>
-  );
-};
-
-export const ParticipantToolbarItem = props => {
-  return (
-    <ToolbarItem testID="videocall-participantsicon" toolbarProps={props}>
-      <ParticipantsIconButton />
-    </ToolbarItem>
-  );
-};
-
-export const ChatToolbarItem = props => {
-  return (
-    $config.CHAT && (
-      <>
-        <ToolbarItem testID="videocall-chaticon" toolbarProps={props}>
-          <ChatIconButton />
-        </ToolbarItem>
-      </>
-    )
-  );
-};
-export const SettingsToobarItem = props => {
-  return (
-    <ToolbarItem testID="videocall-settingsicon" toolbarProps={props}>
-      <SettingsIconButtonWithWrapper />
-    </ToolbarItem>
-  );
 };
 
 const defaultItems: TopToolbarItemsConfig = {
@@ -482,7 +400,7 @@ const defaultItems: TopToolbarItemsConfig = {
   },
   settings: {
     align: 'end',
-    component: SettingsToobarItem,
+    component: () => <SettingsToolbarItem withWrapper={true} />,
     order: 2,
     hide: w => {
       return w < BREAKPOINTS.lg ? true : false;

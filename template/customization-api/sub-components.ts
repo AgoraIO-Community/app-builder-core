@@ -39,7 +39,7 @@ export {default as NetworkQualityPill} from '../src/subComponents/NetworkQuality
 export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScreen';
 export {default as PrecallScreen} from '../src/components/Precall';
 export {default as VBPanel} from '../src/components/virtual-background/VBPanel';
-export {WhiteboardListener} from '../src/components/Controls';
+export {WhiteboardListener} from '../src/components/whiteboard/WhiteboardListener';
 
 // commented for v1 release
 //Settings screen
