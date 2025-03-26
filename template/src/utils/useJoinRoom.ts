@@ -148,6 +148,11 @@ const JOIN_CHANNEL_PHRASE = gql`
 export interface joinRoomPreference {
   disableShareTile: boolean;
   disableVideoProcessors: boolean;
+  disableChat?: boolean;
+  disableInvite?: boolean;
+  disableScreenShare?: boolean;
+  disableSettings?: boolean;
+  disableParticipantsPanel?: boolean;
 }
 
 export default function useJoinRoom() {

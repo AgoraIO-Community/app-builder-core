@@ -30,6 +30,11 @@ type SdkApiContextInterface = {
         preference: {
           disableShareTile: boolean;
           disableVideoProcessors: boolean;
+          disableChat?: boolean;
+          disableInvite?: boolean;
+          disableScreenShare?: boolean;
+          disableSettings?: boolean;
+          disableParticipantsPanel?: boolean;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
