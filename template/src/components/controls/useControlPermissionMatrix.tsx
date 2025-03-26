@@ -33,15 +33,16 @@ export const controlPermissionMatrix: Record<
   inviteControl: ({preference}) => !preference.disableInvite,
   participantControl: ({preference}) => !preference.disableParticipantsPanel,
   settingsControl: ({preference}) => !preference.disableSettings,
-  screenshareControl: ({role, preference}) =>
+  screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING &&
     !isMobileOrTablet() &&
-    !preference.disableScreenShare &&
-    !(
-      $config.EVENT_MODE &&
-      role == ClientRoleType.ClientRoleAudience &&
-      !$config.RAISE_HAND
-    ),
+    !preference.disableScreenShare,
+  // !preference.disableScreenShare &&
+  // !(
+  //   $config.EVENT_MODE &&
+  //   role == ClientRoleType.ClientRoleAudience &&
+  //   !$config.RAISE_HAND
+  // ),
 };
 
 export const useControlPermissionMatrix = (

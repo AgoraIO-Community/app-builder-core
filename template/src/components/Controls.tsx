@@ -27,7 +27,6 @@ import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
 import LocalSwitchCamera from '../subComponents/LocalSwitchCamera';
-import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRoleType} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
@@ -43,7 +42,6 @@ import {
 import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
-import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import IconButton from '../atoms/IconButton';
 import ActionMenu, {ActionMenuItem} from '../atoms/ActionMenu';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
@@ -113,6 +111,10 @@ import {filterObject} from '../utils/index';
 import {useLanguage} from '../language/useLanguage';
 import RecordingDeletePopup from './recordings/RecordingDeletePopup';
 import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
+import {
+  InviteToolbarItem,
+  ScreenShareToolbarItem,
+} from './controls/toolbar-items';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -786,7 +788,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // Settings
-  const canAccessSettings = useControlPermissionMatrix('inviteControl');
+  const canAccessSettings = useControlPermissionMatrix('settingsControl');
   if (canAccessSettings) {
     actionMenuitems.push({
       hide: w => {
@@ -1012,13 +1014,6 @@ export const LayoutToolbarItem = props => (
     <LayoutIconButton />
   </ToolbarItem>
 );
-export const InviteToolbarItem = props => {
-  return (
-    <ToolbarItem testID="invite-btn" toolbarProps={props}>
-      <CopyJoinInfo />
-    </ToolbarItem>
-  );
-};
 
 export const RaiseHandToolbarItem = props => {
   const {rtcProps} = useContext(PropsContext);
@@ -1078,16 +1073,6 @@ export const SwitchCameraToolbarItem = props => {
   );
 };
 
-export const ScreenShareToolbarItem = props => {
-  return (
-    $config.SCREEN_SHARING &&
-    !isMobileOrTablet() && (
-      <ToolbarItem testID="screenShare-btn" toolbarProps={props}>
-        <ScreenshareButton />
-      </ToolbarItem>
-    )
-  );
-};
 export const RecordingToolbarItem = props => {
   const {
     data: {isHost},
@@ -1151,71 +1136,6 @@ export const LocalEndcallToolbarItem = (
       <LocalEndcall {...props} />
     </ToolbarItem>
   );
-};
-
-const defaultItems: ToolbarPresetProps['items'] = {
-  layout: {
-    align: 'start',
-    component: LayoutToolbarItem,
-    order: 0,
-    hide: w => {
-      return w < BREAKPOINTS.lg ? true : false;
-    },
-  },
-  invite: {
-    align: 'start',
-    component: InviteToolbarItem,
-    order: 1,
-    hide: w => {
-      return w < BREAKPOINTS.lg ? true : false;
-    },
-  },
-  'raise-hand': {
-    align: 'center',
-    component: RaiseHandToolbarItem,
-    order: 0,
-  },
-  'local-audio': {
-    align: 'center',
-    component: LocalAudioToolbarItem,
-    order: 1,
-  },
-  'local-video': {
-    align: 'center',
-    component: LocalVideoToolbarItem,
-    order: 2,
-  },
-  'switch-camera': {
-    align: 'center',
-    component: SwitchCameraToolbarItem,
-    order: 3,
-  },
-  screenshare: {
-    align: 'center',
-    component: ScreenShareToolbarItem,
-    order: 4,
-    hide: w => {
-      return w < BREAKPOINTS.sm ? true : false;
-    },
-  },
-  recording: {
-    align: 'center',
-    component: RecordingToolbarItem,
-    order: 5,
-    hide: w => {
-      return w < BREAKPOINTS.sm ? true : false;
-    },
-  },
-  more: {
-    align: 'center',
-    component: MoreButtonToolbarItem,
-    order: 6,
-  },
-  'end-call': {
-    align: 'center',
-    component: LocalEndcallToolbarItem,
-    order: 7,
-  },
 };
 
 export interface ControlsProps {
@@ -1331,6 +1251,76 @@ const Controls = (props: ControlsProps) => {
       return false;
     }
   };
+
+  const canAccessInvite = useControlPermissionMatrix('inviteControl');
+  const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
+
+  const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
+    return {
+      layout: {
+        align: 'start',
+        component: LayoutToolbarItem,
+        order: 0,
+        hide: w => {
+          return w < BREAKPOINTS.lg ? true : false;
+        },
+      },
+      invite: {
+        align: 'start',
+        component: canAccessInvite ? InviteToolbarItem : null,
+        order: 1,
+        hide: w => {
+          return w < BREAKPOINTS.lg ? true : false;
+        },
+      },
+      'raise-hand': {
+        align: 'center',
+        component: RaiseHandToolbarItem,
+        order: 0,
+      },
+      'local-audio': {
+        align: 'center',
+        component: LocalAudioToolbarItem,
+        order: 1,
+      },
+      'local-video': {
+        align: 'center',
+        component: LocalVideoToolbarItem,
+        order: 2,
+      },
+      'switch-camera': {
+        align: 'center',
+        component: SwitchCameraToolbarItem,
+        order: 3,
+      },
+      screenshare: {
+        align: 'center',
+        component: canAccessScreenshare ? ScreenShareToolbarItem : null,
+        order: 4,
+        hide: w => {
+          return w < BREAKPOINTS.sm ? true : false;
+        },
+      },
+      recording: {
+        align: 'center',
+        component: RecordingToolbarItem,
+        order: 5,
+        hide: w => {
+          return w < BREAKPOINTS.sm ? true : false;
+        },
+      },
+      more: {
+        align: 'center',
+        component: MoreButtonToolbarItem,
+        order: 6,
+      },
+      'end-call': {
+        align: 'center',
+        component: LocalEndcallToolbarItem,
+        order: 7,
+      },
+    };
+  }, [canAccessInvite, canAccessScreenshare]);
 
   const mergedItems = CustomToolbarMerge(
     includeDefaultItems ? defaultItems : {},
