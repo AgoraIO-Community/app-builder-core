@@ -112,6 +112,7 @@ import ViewRecordingsModal from './recordings/ViewRecordingsModal';
 import {filterObject} from '../utils/index';
 import {useLanguage} from '../language/useLanguage';
 import RecordingDeletePopup from './recordings/RecordingDeletePopup';
+import {useControlPermissionMatrix} from './controls/hooks/useControlPermissionMatrix';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -596,23 +597,29 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  actionMenuitems.push({
-    hide: w => {
-      return w >= BREAKPOINTS.lg ? true : false;
-    },
-    componentName: 'participant',
-    order: 6,
-    icon: 'participants',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: peopleLabel,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setSidePanel(SidePanelType.Participants);
-    },
-  });
-
-  if ($config.CHAT) {
+  // Particpants
+  const canAccessParticipants =
+    useControlPermissionMatrix('participantControl');
+  if (canAccessParticipants) {
+    actionMenuitems.push({
+      hide: w => {
+        return w >= BREAKPOINTS.lg ? true : false;
+      },
+      componentName: 'participant',
+      order: 6,
+      icon: 'participants',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: peopleLabel,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setSidePanel(SidePanelType.Participants);
+      },
+    });
+  }
+  // Chat
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+  if (canAccessChat) {
     //disable chat button when BE sends error on chat
     const ChatError =
       data?.chat?.error &&
@@ -660,7 +667,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  if ($config.SCREEN_SHARING) {
+  // Screenshare
+  const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
+  if (canAccessScreenshare) {
     if (
       !(
         rtcProps.role == ClientRoleType.ClientRoleAudience &&
@@ -694,6 +703,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       });
     }
   }
+
   if (isHost && $config.CLOUD_RECORDING) {
     actionMenuitems.push({
       hide: w => {
@@ -755,37 +765,45 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     ),
   });
 
-  actionMenuitems.push({
-    hide: w => {
-      return w >= BREAKPOINTS.lg ? true : false;
-    },
-    componentName: 'invite',
-    order: 11,
-    icon: 'share',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: inviteLabel,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setShowInvitePopup(true);
-    },
-  });
+  // Invite
+  const canAccessInvite = useControlPermissionMatrix('inviteControl');
+  if (canAccessInvite) {
+    actionMenuitems.push({
+      hide: w => {
+        return w >= BREAKPOINTS.lg ? true : false;
+      },
+      componentName: 'invite',
+      order: 11,
+      icon: 'share',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: inviteLabel,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setShowInvitePopup(true);
+      },
+    });
+  }
 
-  actionMenuitems.push({
-    hide: w => {
-      return w >= BREAKPOINTS.lg ? true : false;
-    },
-    componentName: 'settings',
-    order: 12,
-    icon: 'settings',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: settingsLabel,
-    onPress: () => {
-      setActionMenuVisible(false);
-      setSidePanel(SidePanelType.Settings);
-    },
-  });
+  // Settings
+  const canAccessSettings = useControlPermissionMatrix('inviteControl');
+  if (canAccessSettings) {
+    actionMenuitems.push({
+      hide: w => {
+        return w >= BREAKPOINTS.lg ? true : false;
+      },
+      componentName: 'settings',
+      order: 12,
+      icon: 'settings',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: settingsLabel,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setSidePanel(SidePanelType.Settings);
+      },
+    });
+  }
 
   useEffect(() => {
     if (isHovered) {
