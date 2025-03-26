@@ -64,6 +64,12 @@ import {
 import {useLanguage} from '../language/useLanguage';
 import Toast from '../../react-native-toast-message';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {
+  ChatToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToolbarItem,
+} from './controls/toolbar-items';
+import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -423,83 +429,63 @@ export const RecordingStatusToolbarItem = () => {
   );
 };
 
-export const ParticipantToolbarItem = props => {
-  return (
-    <ToolbarItem testID="videocall-participantsicon" toolbarProps={props}>
-      <ParticipantsIconButton />
-    </ToolbarItem>
-  );
-};
-
-export const ChatToolbarItem = props => {
-  return (
-    $config.CHAT && (
-      <>
-        <ToolbarItem testID="videocall-chaticon" toolbarProps={props}>
-          <ChatIconButton />
-        </ToolbarItem>
-      </>
-    )
-  );
-};
-export const SettingsToobarItem = props => {
-  return (
-    <ToolbarItem testID="videocall-settingsicon" toolbarProps={props}>
-      <SettingsIconButtonWithWrapper />
-    </ToolbarItem>
-  );
-};
-
-const defaultItems: TopToolbarItemsConfig = {
-  'meeting-title': {
-    align: 'start',
-    component: MeetingTitleToolbarItem,
-    order: 0,
-  },
-  'participant-count': {
-    align: 'start',
-    component: ParticipantCountToolbarItem,
-    order: 1,
-  },
-  'recording-status': {
-    align: 'start',
-    component: RecordingStatusToolbarItem,
-    order: 2,
-  },
-  participant: {
-    align: 'end',
-    component: ParticipantToolbarItem,
-    order: 0,
-    hide: w => {
-      return w < BREAKPOINTS.lg ? true : false;
-    },
-  },
-  chat: {
-    align: 'end',
-    component: ChatToolbarItem,
-    order: 1,
-    hide: w => {
-      return w < BREAKPOINTS.lg ? true : false;
-    },
-  },
-  settings: {
-    align: 'end',
-    component: SettingsToobarItem,
-    order: 2,
-    hide: w => {
-      return w < BREAKPOINTS.lg ? true : false;
-    },
-  },
-};
-
 export interface NavbarProps {
   items?: ToolbarPresetProps['items'];
   includeDefaultItems?: boolean;
 }
+
 const Navbar = (props: NavbarProps) => {
   const {includeDefaultItems = true, items = {}} = props;
   const {width, height} = useWindowDimensions();
   const {languageCode} = useLanguage();
+  const canAccessParticipants =
+    useControlPermissionMatrix('participantControl');
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+  const canAccessSettings = useControlPermissionMatrix('settingsControl');
+
+  const defaultItems: TopToolbarItemsConfig = React.useMemo(() => {
+    return {
+      'meeting-title': {
+        align: 'start',
+        component: MeetingTitleToolbarItem,
+        order: 0,
+      },
+      'participant-count': {
+        align: 'start',
+        component: ParticipantCountToolbarItem,
+        order: 1,
+      },
+      'recording-status': {
+        align: 'start',
+        component: RecordingStatusToolbarItem,
+        order: 2,
+      },
+      participant: {
+        align: 'end',
+        component: canAccessParticipants ? ParticipantToolbarItem : null,
+        order: 0,
+        hide: w => {
+          return w < BREAKPOINTS.lg ? true : false;
+        },
+      },
+      chat: {
+        align: 'end',
+        component: canAccessChat ? ChatToolbarItem : null,
+        order: 1,
+        hide: w => {
+          return w < BREAKPOINTS.lg ? true : false;
+        },
+      },
+      settings: {
+        align: 'end',
+        component: canAccessSettings ? SettingsToolbarItem : null,
+        order: 2,
+        hide: w => {
+          return w < BREAKPOINTS.lg ? true : false;
+        },
+      },
+    };
+  }, [canAccessParticipants, canAccessChat, canAccessSettings]);
 
   const isHidden = (hide: ToolbarItemHide = false) => {
     try {

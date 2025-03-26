@@ -4,9 +4,6 @@ import Navbar, {
   MeetingTitleToolbarItem,
   ParticipantCountToolbarItem,
   RecordingStatusToolbarItem,
-  ChatToolbarItem,
-  ParticipantToolbarItem,
-  SettingsToobarItem,
 } from '../../components/Navbar';
 import Controls, {
   LayoutToolbarItem,
@@ -20,6 +17,11 @@ import Controls, {
   LocalEndcallToolbarItem,
   MoreButtonToolbarItem,
 } from '../../components/Controls';
+import {
+  ChatToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToolbarItem,
+} from '../../components/controls/toolbar-items';
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
 import {ChatAttachmentButton} from '../../subComponents/chat/ChatAttachment';
@@ -35,7 +37,7 @@ const ToolbarComponents = {
   RecordingStatusToolbarItem,
   ChatToolbarItem,
   ParticipantToolbarItem,
-  SettingsToobarItem,
+  SettingsToolbarItem,
   LayoutToolbarItem,
   InviteToolbarItem,
   RaiseHandToolbarItem,

@@ -112,7 +112,7 @@ import ViewRecordingsModal from './recordings/ViewRecordingsModal';
 import {filterObject} from '../utils/index';
 import {useLanguage} from '../language/useLanguage';
 import RecordingDeletePopup from './recordings/RecordingDeletePopup';
-import {useControlPermissionMatrix} from './controls/hooks/useControlPermissionMatrix';
+import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
 
 export const useToggleWhiteboard = () => {
   const {
