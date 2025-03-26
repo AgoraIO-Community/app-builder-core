@@ -35,7 +35,6 @@ export const controlPermissionMatrix: Record<
   settingsControl: ({preference}) => !preference.disableSettings,
   screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING && !preference.disableScreenShare,
-  // !preference.disableScreenShare &&
   // !(
   //   $config.EVENT_MODE &&
   //   role == ClientRoleType.ClientRoleAudience &&
