@@ -11,11 +11,10 @@ import ImageIcon from '../../atoms/ImageIcon';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
 import LocalEndcall from '../../subComponents/LocalEndCall';
-import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
-import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
+import {PropsContext} from '../../../agora-rn-uikit';
 import {ClientRoleType} from '../../../agora-rn-uikit';
 import {
   RoomInfoContextInterface,
@@ -23,10 +22,7 @@ import {
 } from '../../components/room-info/useRoomInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
-import {
-  ChatIconButton,
-  ParticipantsIconButton,
-} from '../../../src/components/Navbar';
+
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {
   useContent,
@@ -41,9 +37,6 @@ import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
-import Settings from '../../components/Settings';
-import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
-import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
 import {
@@ -64,6 +57,14 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {filterObject} from '../../utils/index';
 import {useLanguage} from '../../language/useLanguage';
+import {
+  ChatToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToolbarItem,
+  InviteToolbarItem,
+  ScreenShareToolbarItem,
+} from '../../components/controls/toolbar-items';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -93,24 +94,6 @@ const LiveStreamIcon = props => {
   return <LiveStreamControls showControls={true} customProps={props} />;
 };
 
-//Icon for Chat
-const ChatIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <ChatIconButton />
-    </ToolbarItem>
-  );
-};
-
-//Icon for Participants
-const ParticipantsIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <ParticipantsIconButton />
-    </ToolbarItem>
-  );
-};
-
 //Icon for Recording
 
 const RecordingIcon = props => {
@@ -138,29 +121,6 @@ const SwitchCameraIcon = props => {
   return (
     <ToolbarItem toolbarProps={props}>
       <LocalSwitchCamera />
-    </ToolbarItem>
-  );
-};
-
-const SettingsIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <Settings />
-    </ToolbarItem>
-  );
-};
-
-const ShareIcon = props => {
-  return (
-    <ToolbarItem toolbarProps={props}>
-      <CopyJoinInfo />
-    </ToolbarItem>
-  );
-};
-const ScreenshareIcon = () => {
-  return (
-    <ToolbarItem>
-      <ScreenshareButton />
     </ToolbarItem>
   );
 };
@@ -360,6 +320,13 @@ const ActionSheetContent = props => {
 
   const isPendingWaitingRoomApproval = isHost && waitingRoomUids.length > 0;
 
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+  const canAccessInvite = useControlPermissionMatrix('inviteControl');
+  const canAccessParticipants =
+    useControlPermissionMatrix('participantControl');
+  const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
+  const canAccessSettings = useControlPermissionMatrix('settingsControl');
+
   const defaultItems = {
     'local-audio': {
       order: 0,
@@ -392,11 +359,11 @@ const ActionSheetContent = props => {
       /*For AudioCast Host:Chat ,Attendee:Raise Hand 
             For VoiceChat Host:Chat, Attendee:Chat
            */
-      component: ChatIcon,
+      component: canAccessChat ? ChatToolbarItem : null,
     },
     participant: {
       order: 6,
-      component: ParticipantsIcon,
+      component: canAccessParticipants ? ParticipantToolbarItem : null,
     },
     recording: {
       order: 7,
@@ -421,15 +388,18 @@ const ActionSheetContent = props => {
     },
     settings: {
       order: 10,
-      component: SettingsIcon,
+      component: canAccessSettings ? SettingsToolbarItem : null,
     },
     screenshare: {
       order: 10,
-      component: isAndroid() || isIOS() ? ScreenshareIcon : null,
+      component:
+        (isAndroid() || isIOS()) && canAccessScreenshare
+          ? ScreenShareToolbarItem
+          : null,
     },
     invite: {
       order: 11,
-      component: ShareIcon,
+      component: canAccessInvite ? InviteToolbarItem : null,
     },
     caption: {
       order: 12,

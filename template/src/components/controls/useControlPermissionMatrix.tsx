@@ -34,9 +34,7 @@ export const controlPermissionMatrix: Record<
   participantControl: ({preference}) => !preference.disableParticipantsPanel,
   settingsControl: ({preference}) => !preference.disableSettings,
   screenshareControl: ({preference}) =>
-    $config.SCREEN_SHARING &&
-    !isMobileOrTablet() &&
-    !preference.disableScreenShare,
+    $config.SCREEN_SHARING && !preference.disableScreenShare,
   // !preference.disableScreenShare &&
   // !(
   //   $config.EVENT_MODE &&

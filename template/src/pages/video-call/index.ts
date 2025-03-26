@@ -7,20 +7,20 @@ import Navbar, {
 } from '../../components/Navbar';
 import Controls, {
   LayoutToolbarItem,
-  InviteToolbarItem,
   RaiseHandToolbarItem,
   LocalAudioToolbarItem,
   LocalVideoToolbarItem,
   SwitchCameraToolbarItem,
-  ScreenShareToolbarItem,
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
   MoreButtonToolbarItem,
 } from '../../components/Controls';
 import {
   ChatToolbarItem,
+  InviteToolbarItem,
   ParticipantToolbarItem,
   SettingsToolbarItem,
+  ScreenShareToolbarItem,
 } from '../../components/controls/toolbar-items';
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
