@@ -358,7 +358,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
 export const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
 };
-const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
+export const SettingsIconButtonWithWrapper = (
+  props: SettingsIconButtonProps,
+) => {
   return <SettingsWithViewWrapper {...props} />;
 };
 
