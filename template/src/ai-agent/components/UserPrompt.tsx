@@ -39,10 +39,12 @@ const UserPrompt = () => {
   }, [prompt]);
 
   useEffect(() => {
-    if (agentId && agents?.length) {
+    if (!prompt && agentId && agents?.length) {
       setPrompt(agents?.find(a => a?.id === agentId)?.config?.llm?.prompt);
+    } else if (prompt) {
+      setPrompt(prompt);
     }
-  }, [agentId, agents, setPrompt]);
+  }, [agentId, agents, setPrompt, prompt]);
   return (
     <>
       <View

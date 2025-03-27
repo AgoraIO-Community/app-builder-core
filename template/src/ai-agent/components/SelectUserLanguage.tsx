@@ -21,14 +21,16 @@ const SelectUserLanguage = () => {
   });
 
   useEffect(() => {
-    if (agentId && agents?.length) {
+    if (!language && agentId && agents?.length) {
       //@ts-ignore
       setLanguage(
         agents?.find((agent: any) => agent.id === agentId)?.config
           ?.asr_language,
       );
+    } else if (language) {
+      setLanguage(language);
     }
-  }, [agentId, setLanguage, agents]);
+  }, [agentId, agents, language]);
 
   return (
     <View>
