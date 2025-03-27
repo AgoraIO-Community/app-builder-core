@@ -67,6 +67,8 @@ import {
 import {isAndroid, isIOS} from '../../utils/common';
 import {EventNames} from '../../rtm-events';
 import {
+  ActionMenuKey,
+  ActionMenuKeys,
   ActionVisibility,
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
@@ -189,7 +191,7 @@ export default function UserActionMenuOptionsOptions(
     ) {
       if (enablePinForMe) {
         if (pinnedUid !== user.uid) {
-          const viewInLargeKey = 'view-in-large';
+          const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
           const viewInLargeConfig = props.items?.[viewInLargeKey] ?? {};
           const isPinned = pinnedUid === user.uid;
           const isWhiteboard = user.uid === getWhiteboardUid();
@@ -200,21 +202,15 @@ export default function UserActionMenuOptionsOptions(
               key: viewInLargeKey,
               disabled: isOnlyOneActive,
               order: viewInLargeConfig.order ?? 4,
-              icon: isPinned
-                ? viewInLargeConfig.onIcon ?? 'unpin-outlined'
-                : viewInLargeConfig.offIcon ?? 'pin-outlined',
-              onHoverIcon: isPinned
-                ? viewInLargeConfig.onHoverOnIcon ?? 'unpin-outlined'
-                : viewInLargeConfig.onHoverOffIcon ?? 'pin-filled',
-              iconColor:
-                viewInLargeConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-              textColor:
-                viewInLargeConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
+              icon: isPinned ? 'unpin-outlined' : 'pin-outlined',
+              onHoverIcon: isPinned ? 'unpin-filled' : 'pin-filled',
+              iconColor: $config.SECONDARY_ACTION_COLOR,
+              textColor: $config.SECONDARY_ACTION_COLOR,
               title: isWhiteboard
                 ? viewWhiteboardLabel
                 : isPinned
-                ? viewInLargeConfig.onLabel ?? removeFromLargeLabel
-                : viewInLargeConfig.offLabel ?? viewInLargeLabel,
+                ? removeFromLargeLabel
+                : viewInLargeLabel,
               onPress: () => {
                 setActionMenuVisible(false);
                 if (viewInLargeConfig.onPress) {
@@ -258,7 +254,7 @@ export default function UserActionMenuOptionsOptions(
           // });
         }
         if (currentLayout === DefaultLayouts[1].name) {
-          const pinToTopKey = 'pin-to-top';
+          const pinToTopKey = ActionMenuKeys.PIN_TO_TOP;
           const pinToTopConfig = props.items?.[pinToTopKey] ?? {};
           const isPinnedToTop = user.uid === secondaryPinnedUid;
           const isOnlyOneActive = activeUids?.length === 1;
@@ -268,19 +264,11 @@ export default function UserActionMenuOptionsOptions(
               key: pinToTopKey,
               disabled: isOnlyOneActive,
               order: pinToTopConfig.order ?? 0,
-              icon: isPinnedToTop
-                ? pinToTopConfig.onIcon ?? 'unpin-outlined'
-                : pinToTopConfig.offIcon ?? 'pin-outlined',
-              onHoverIcon: isPinnedToTop
-                ? pinToTopConfig.onHoverOnIcon ?? 'unpin-outlined'
-                : pinToTopConfig.onHoverOffIcon ?? 'pin-filled',
-              iconColor:
-                pinToTopConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-              textColor:
-                pinToTopConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
-              title: isPinnedToTop
-                ? pinToTopConfig.onLabel ?? removeFromTopLabel
-                : pinToTopConfig.offLabel ?? pinToTopLabel,
+              icon: isPinnedToTop ? 'unpin-outlined' : 'pin-outlined',
+              onHoverIcon: isPinnedToTop ? 'unpin-filled' : 'pin-filled',
+              iconColor: $config.SECONDARY_ACTION_COLOR,
+              textColor: $config.SECONDARY_ACTION_COLOR,
+              title: isPinnedToTop ? removeFromTopLabel : pinToTopLabel,
               onPress: () => {
                 setActionMenuVisible(false);
                 if (pinToTopConfig.onPress) {
@@ -359,24 +347,24 @@ export default function UserActionMenuOptionsOptions(
       /**
        * Chat menu
        */
-      const messageKey = 'message-privately';
+      const messageKey = ActionMenuKeys.MESSAGE_PRIVATELY;
       const messageConfig = props.items?.[messageKey] ?? {};
 
       if (!messageConfig.hide && $config.CHAT) {
         items.push({
           key: messageKey,
           order: messageConfig.order ?? 2,
-          icon: messageConfig.icon ?? 'chat-outlined',
-          onHoverIcon: messageConfig.onHoverIcon ?? 'chat-filled',
-          iconColor: messageConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-          textColor: messageConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
-          title: messageConfig.label ?? messagePrivatelyLabel,
+          icon: 'chat-outlined',
+          onHoverIcon: 'chat-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: messagePrivatelyLabel,
           onPress: () => {
             setActionMenuVisible(false);
             if (messageConfig.onPress) {
               messageConfig.onPress();
             } else {
-              messageConfig.onAction?.();
+              messageConfig.onAction?.(user.uid);
               openPrivateChat(user.uid);
             }
           },
@@ -430,32 +418,23 @@ export default function UserActionMenuOptionsOptions(
           //   },
           // });
 
-          const muteAudioKey = 'mute-audio';
+          const muteAudioKey = ActionMenuKeys.MUTE_AUDIO;
           const isMuted = user.audio;
-          const audioConfig = props.items?.[muteAudioKey] ?? {};
-          if (!audioConfig.hide) {
+          const muteAudioConfig = props.items?.[muteAudioKey] ?? {};
+          if (!muteAudioConfig.hide) {
             items.push({
               key: muteAudioKey,
-              order: audioConfig.order ?? 3,
-              icon: isMuted
-                ? audioConfig.onIcon ?? 'mic-off-outlined'
-                : audioConfig.offIcon ?? 'mic-on-outlined',
-              onHoverIcon: isMuted
-                ? audioConfig.onHoverOnIcon ?? 'mic-off-filled'
-                : audioConfig.onHoverOffIcon ?? 'mic-on-filled',
-              iconColor:
-                audioConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-              textColor:
-                audioConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
-              title: isMuted
-                ? audioConfig.onLabel ?? audioLabel(true)
-                : audioConfig.offLabel ?? audioLabel(false),
+              order: muteAudioConfig.order ?? 3,
+              icon: isMuted ? 'mic-off-outlined' : 'mic-on-outlined',
+              onHoverIcon: isMuted ? 'mic-off-filled' : 'mic-on-filled',
+              iconColor: $config.SECONDARY_ACTION_COLOR,
+              textColor: $config.SECONDARY_ACTION_COLOR,
+              title: audioLabel(isMuted),
               onPress: () => {
                 setActionMenuVisible(false);
-                if (audioConfig.onPress) {
-                  audioConfig.onPress();
+                if (muteAudioConfig.onPress) {
+                  muteAudioConfig.onPress();
                 } else {
-                  audioConfig.onAction?.();
                   isMuted
                     ? setShowAudioMuteModal(true)
                     : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
@@ -464,33 +443,26 @@ export default function UserActionMenuOptionsOptions(
             });
           }
 
-          const muteVideoKey = 'mute-video';
+          const muteVideoKey = ActionMenuKeys.MUTE_VIDEO;
           const isVideoMuted = user.video;
-          const videoConfig = props.items?.[muteVideoKey] ?? {};
+          const muteVideoConfig = props.items?.[muteVideoKey] ?? {};
 
-          if (!$config.AUDIO_ROOM && !videoConfig.hide) {
+          if (!$config.AUDIO_ROOM && !muteVideoConfig.hide) {
             items.push({
               key: muteVideoKey,
-              order: videoConfig.order ?? 4,
-              icon: isVideoMuted
-                ? videoConfig.onIcon ?? 'video-off-outlined'
-                : videoConfig.offIcon ?? 'video-on-outlined',
+              order: muteVideoConfig.order ?? 4,
+              icon: isVideoMuted ? 'video-off-outlined' : 'video-on-outlined',
               onHoverIcon: isVideoMuted
-                ? videoConfig.onHoverOnIcon ?? 'video-off-filled'
-                : videoConfig.onHoverOffIcon ?? 'video-on-filled',
-              iconColor:
-                videoConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-              textColor:
-                videoConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
-              title: isVideoMuted
-                ? videoConfig.onLabel ?? videoLabel(true)
-                : videoConfig.offLabel ?? videoLabel(false),
+                ? 'video-off-filled'
+                : 'video-on-filled',
+              iconColor: $config.SECONDARY_ACTION_COLOR,
+              textColor: $config.SECONDARY_ACTION_COLOR,
+              title: videoLabel(isVideoMuted),
               onPress: () => {
                 setActionMenuVisible(false);
-                if (videoConfig.onPress) {
-                  videoConfig.onPress();
+                if (muteVideoConfig.onPress) {
+                  muteVideoConfig.onPress();
                 } else {
-                  videoConfig.onAction?.();
                   isVideoMuted
                     ? setShowVideoMuteModal(true)
                     : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
@@ -560,23 +532,22 @@ export default function UserActionMenuOptionsOptions(
           }
         }
 
-        const removeKey = 'remove-from-room';
+        const removeKey = ActionMenuKeys.REMOVE_FROM_ROOM;
         const removeConfig = props.items?.[removeKey] ?? {};
 
         if (!removeConfig.hide) {
           items.push({
             key: removeKey,
             order: removeConfig.order ?? 10,
-            icon: removeConfig.icon ?? 'remove-meeting',
-            iconColor: removeConfig.iconColor ?? $config.SEMANTIC_ERROR,
-            textColor: removeConfig.textColor ?? $config.SEMANTIC_ERROR,
-            title: removeConfig.label ?? removeFromRoomLabel,
+            icon: 'remove-meeting',
+            iconColor: $config.SEMANTIC_ERROR,
+            textColor: $config.SEMANTIC_ERROR,
+            title: removeFromRoomLabel,
             onPress: () => {
               setActionMenuVisible(false);
               if (removeConfig.onPress) {
                 removeConfig.onPress();
               } else {
-                removeConfig.onAction?.();
                 setRemoveMeetingPopupVisible(true);
               }
             },
@@ -599,7 +570,7 @@ export default function UserActionMenuOptionsOptions(
     /**
      * Local User menu item - change name
      */
-    const changeNameKey = 'change-name';
+    const changeNameKey = ActionMenuKeys.CHANGE_NAME;
     const changeNameConfig = props.items?.[changeNameKey] ?? {};
 
     if (
@@ -610,11 +581,11 @@ export default function UserActionMenuOptionsOptions(
       items.push({
         key: changeNameKey,
         order: changeNameConfig.order ?? 5,
-        icon: changeNameConfig.icon ?? 'pencil-outlined',
-        onHoverIcon: changeNameConfig.onHoverIcon ?? 'pencil-filled',
-        iconColor: changeNameConfig.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-        textColor: changeNameConfig.textColor ?? $config.SECONDARY_ACTION_COLOR,
-        title: changeNameConfig.label ?? changeNameLabel,
+        icon: 'pencil-outlined',
+        onHoverIcon: 'pencil-filled',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: changeNameLabel,
         onPress: () => {
           setActionMenuVisible(false);
           if (changeNameConfig.onPress) {
@@ -648,7 +619,7 @@ export default function UserActionMenuOptionsOptions(
       // });
     }
     //Screenshare menu item
-    const removeScreenshareKey = 'remove-screenshare';
+    const removeScreenshareKey = ActionMenuKeys.REMOVE_SCREENSHARE;
     const removeScreenshareConfig = props.items?.[removeScreenshareKey] ?? {};
     if (
       (isHost || localuid === user.parentUid) &&
@@ -658,20 +629,19 @@ export default function UserActionMenuOptionsOptions(
       items.push({
         key: removeScreenshareKey,
         order: removeScreenshareConfig.order ?? 10,
-        icon: removeScreenshareConfig.icon ?? 'remove-meeting',
-        iconColor: removeScreenshareConfig.iconColor ?? $config.SEMANTIC_ERROR,
-        textColor: removeScreenshareConfig.textColor ?? $config.SEMANTIC_ERROR,
+        icon: 'remove-meeting',
+        iconColor: $config.SEMANTIC_ERROR,
+        textColor: $config.SEMANTIC_ERROR,
         title:
-          removeScreenshareConfig.label ??
-          (localuid === user?.parentUid
+          localuid === user?.parentUid
             ? stopScreenShareLabel
-            : removeScreenShareLabel),
+            : removeScreenShareLabel,
         onPress: () => {
           setActionMenuVisible(false);
           if (removeScreenshareConfig.onPress) {
             removeScreenshareConfig.onPress();
           } else {
-            removeScreenshareConfig.onAction?.();
+            removeScreenshareConfig.onAction?.(user.parentUid);
             //for local user directly stop the screenshare
             if (localuid === user.parentUid) {
               stopScreenshare();
@@ -691,23 +661,24 @@ export default function UserActionMenuOptionsOptions(
         .filter(([key, config]) => {
           return (
             !config?.hide &&
-            !DEFAULT_ACTION_KEYS.includes(key) &&
+            !DEFAULT_ACTION_KEYS.includes(key as ActionMenuKey) &&
             config.visibility?.includes(currentContext)
           );
         })
         .map(([key, config]) => {
+          if (!config.component) {
+            console.warn(`${key} is skipped because no component is provided.`);
+            return null;
+          }
           return {
             key,
-            icon: config.icon ?? 'profile',
-            iconColor: config.iconColor ?? $config.SECONDARY_ACTION_COLOR,
-            textColor: config.textColor ?? $config.SECONDARY_ACTION_COLOR,
-            title: config.label,
             order: config.order ?? 99,
-            onPress: () => {
-              props.setActionMenuVisible(false);
-              config.onPress?.();
+            component: config.component,
+            closeActionMenu: () => {
+              setActionMenuVisible(false);
             },
-          } as ActionMenuItem;
+            uid: user.uid,
+          };
         });
 
       items.push(...customItems);
@@ -768,8 +739,11 @@ export default function UserActionMenuOptionsOptions(
           name={props?.user.name}
           modalPosition={modalPosition}
           onMutePress={() => {
+            const muteAudioKey = ActionMenuKeys.MUTE_AUDIO;
+            const muteAudioConfig = props.items?.[muteAudioKey];
             remoteMute(MUTE_REMOTE_TYPE.audio, user.uid);
             setShowAudioMuteModal(false);
+            muteAudioConfig.onAction(user.uid);
           }}
         />
       ) : (
@@ -783,8 +757,11 @@ export default function UserActionMenuOptionsOptions(
           name={props?.user.name}
           modalPosition={modalPosition}
           onMutePress={() => {
+            const muteVideoKey = ActionMenuKeys.MUTE_VIDEO;
+            const muteVideoConfig = props.items?.[muteVideoKey];
             remoteMute(MUTE_REMOTE_TYPE.video, user.uid);
             setShowVideoMuteModal(false);
+            muteVideoConfig.onAction(user.uid);
           }}
         />
       ) : (
@@ -810,6 +787,8 @@ export default function UserActionMenuOptionsOptions(
           setModalVisible={setRemoveMeetingPopupVisible}
           username={user.name}
           removeUserFromMeeting={() => {
+            const removeKey = ActionMenuKeys.REMOVE_FROM_ROOM;
+            const removeConfig = props.items?.[removeKey];
             userRemovalTimeout > 0 &&
               Toast.show({
                 leadingIconName: 'info',
@@ -824,6 +803,7 @@ export default function UserActionMenuOptionsOptions(
                 leadingIcon: null,
               });
             endRemoteCall(user.uid);
+            removeConfig?.onAction?.(user.uid); // callback for remove meeting
           }}
         />
       ) : (

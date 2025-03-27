@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   StyleProp,
   TextStyle,
+  Pressable,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 
@@ -21,24 +22,28 @@ import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Toggle from './Toggle';
 import {ToolbarItemHide} from './ToolbarPreset';
+import {UidType} from '../../agora-rn-uikit';
 
 export interface ActionMenuItem {
-  component?: React.ComponentType;
+  key?: string;
+  component?: React.ComponentType<any>;
   componentName?: string;
   order?: number;
   isExternalIcon?: boolean;
   externalIconString?: string;
   isBase64Icon?: boolean;
-  icon: keyof IconsInterface;
+  icon?: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
-  iconColor: string;
-  textColor: string;
-  title: string;
+  iconColor?: string;
+  textColor?: string;
+  title?: string;
   titleStyle?: StyleProp<TextStyle>;
   label?: string;
   toggleStatus?: boolean;
-  onPress: () => void;
+  onPress?: () => void;
   onHoverCallback?: (isHovered: boolean) => void;
+  closeActionMenu?: () => void;
+  uid?: UidType;
   onHoverContent?: JSX.Element;
   disabled?: boolean;
   iconSize?: number;
@@ -59,6 +64,94 @@ export interface ActionMenuProps {
   onHover?: (hover: boolean) => void;
   containerStyle?: ViewStyle;
 }
+
+export interface UserActionMenuItemProps {
+  label: string;
+  icon?: keyof IconsInterface;
+  onHoverIcon?: keyof IconsInterface;
+  toggleStatus?: boolean;
+  iconColor: string;
+  textColor: string;
+  onPress?: () => void;
+  onToggle?: () => void;
+  disabled?: boolean;
+  iconSize?: number;
+  isHovered?: boolean;
+  isExternalIcon?: boolean;
+  isBase64Icon?: boolean;
+  externalIconString?: string;
+  titleStyle?: StyleProp<TextStyle>;
+}
+
+export const UserActionMenuItem = ({
+  label,
+  icon,
+  toggleStatus,
+  onPress,
+  onToggle,
+  iconColor,
+  textColor,
+  iconSize = 20,
+  titleStyle = {},
+  disabled = false,
+  isHovered = false,
+  onHoverIcon,
+  isExternalIcon = false,
+  isBase64Icon = false,
+  externalIconString = '',
+}: UserActionMenuItemProps) => {
+  const iconToShow = isHovered && onHoverIcon && !disabled ? onHoverIcon : icon;
+
+  const content = (
+    <>
+      <View style={styles.iconContainer}>
+        {isExternalIcon ? (
+          <ImageIcon
+            base64={isBase64Icon}
+            base64TintColor={iconColor}
+            iconType="plain"
+            iconSize={iconSize}
+            icon={externalIconString}
+            tintColor={iconColor}
+          />
+        ) : (
+          <ImageIcon
+            base64={isBase64Icon}
+            base64TintColor={iconColor}
+            iconType="plain"
+            iconSize={iconSize}
+            name={iconToShow}
+            tintColor={iconColor}
+          />
+        )}
+      </View>
+      <Text style={[styles.text, titleStyle, {color: textColor}]}>{label}</Text>
+
+      {typeof toggleStatus === 'boolean' && (
+        <View style={styles.toggleContainer}>
+          <Toggle
+            disabled={disabled}
+            isEnabled={toggleStatus}
+            toggleSwitch={onToggle ?? onPress}
+          />
+        </View>
+      )}
+    </>
+  );
+
+  const shouldWrapInPressable =
+    typeof toggleStatus !== 'boolean' && typeof onPress === 'function';
+  return shouldWrapInPressable ? (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={{flexDirection: 'row'}}>
+      {content}
+    </Pressable>
+  ) : (
+    <>{content}</>
+  );
+};
 
 const ActionMenu = (props: ActionMenuProps) => {
   const {
@@ -94,6 +187,8 @@ const ActionMenu = (props: ActionMenuProps) => {
         externalIconString = '',
         toggleStatus,
         onPress = () => {},
+        closeActionMenu = () => {},
+        uid,
         iconColor,
         textColor,
         disabled = false,
@@ -129,7 +224,10 @@ const ActionMenu = (props: ActionMenuProps) => {
                       ? {borderBottomColor: 'transparent'}
                       : {},
                   ]}>
-                  <CustomActionItem />
+                  <CustomActionItem
+                    closeActionMenu={closeActionMenu}
+                    targetUid={uid}
+                  />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
@@ -153,50 +251,22 @@ const ActionMenu = (props: ActionMenuProps) => {
                   ]}
                   onPress={onPress}
                   key={icon + index}>
-                  <View style={styles.iconContainer}>
-                    {isExternalIcon ? (
-                      <ImageIcon
-                        base64={isBase64Icon}
-                        base64TintColor={iconColor}
-                        iconType="plain"
-                        iconSize={iconSize}
-                        icon={externalIconString}
-                        tintColor={iconColor}
-                      />
-                    ) : (
-                      <ImageIcon
-                        base64={isBase64Icon}
-                        base64TintColor={iconColor}
-                        iconType="plain"
-                        iconSize={iconSize}
-                        name={
-                          isHovered && onHoverIcon && !disabled
-                            ? onHoverIcon
-                            : icon
-                        }
-                        tintColor={iconColor}
-                      />
-                    )}
-                  </View>
-                  <Text
-                    style={[
-                      styles.text,
-                      titleStyle,
-                      textColor ? {color: textColor} : {},
-                    ]}>
-                    {label || title}
-                  </Text>
-                  {toggleStatus !== undefined && toggleStatus !== null ? (
-                    <View style={styles.toggleContainer}>
-                      <Toggle
-                        disabled={disabled}
-                        isEnabled={toggleStatus}
-                        toggleSwitch={onPress}
-                      />
-                    </View>
-                  ) : (
-                    <></>
-                  )}
+                  <UserActionMenuItem
+                    label={label || title}
+                    icon={icon}
+                    toggleStatus={toggleStatus}
+                    iconColor={iconColor}
+                    textColor={textColor}
+                    iconSize={iconSize}
+                    titleStyle={titleStyle}
+                    disabled={disabled}
+                    onToggle={onPress}
+                    isHovered={isHovered}
+                    isExternalIcon={isExternalIcon}
+                    externalIconString={externalIconString}
+                    isBase64Icon={isBase64Icon}
+                    onHoverIcon={onHoverIcon}
+                  />
                 </TouchableOpacity>
               )}
             </>

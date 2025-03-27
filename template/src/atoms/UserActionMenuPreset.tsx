@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {ComponentType} from 'react';
 import UserActionMenuOptionsOptions from '../../src/components/participants/UserActionMenuOptions';
-import {IconsInterface} from './CustomIcon';
+import {UidType} from '../../agora-rn-uikit';
 
 //current_role-target_role
 export type ActionVisibility =
@@ -13,14 +13,30 @@ export type ActionVisibility =
   | 'event-attendee-remote'
   | 'event-attendee-self';
 
-export const DEFAULT_ACTION_KEYS: string[] = [
-  'view-in-large',
-  'pin-to-top',
-  'change-name',
-  'message-privately',
-  'mute-audio',
-  'mute-video',
-  'remove-from-room',
+export const ActionMenuKeys = {
+  REMOVE_FROM_ROOM: 'remove-from-room',
+  MUTE_AUDIO: 'mute-audio',
+  MUTE_VIDEO: 'mute-video',
+  PIN_TO_TOP: 'pin-to-top',
+  VIEW_IN_LARGE: 'view-in-large',
+  MESSAGE_PRIVATELY: 'message-privately',
+  REMOVE_SCREENSHARE: 'remove-screenshare',
+  CHANGE_NAME: 'change-name',
+  // Add others here
+} as const;
+
+export type ActionMenuKey =
+  (typeof ActionMenuKeys)[keyof typeof ActionMenuKeys];
+
+export const DEFAULT_ACTION_KEYS: ActionMenuKey[] = [
+  ActionMenuKeys.REMOVE_FROM_ROOM,
+  ActionMenuKeys.MUTE_AUDIO,
+  ActionMenuKeys.MUTE_VIDEO,
+  ActionMenuKeys.PIN_TO_TOP,
+  ActionMenuKeys.VIEW_IN_LARGE,
+  ActionMenuKeys.MESSAGE_PRIVATELY,
+  ActionMenuKeys.REMOVE_SCREENSHARE,
+  ActionMenuKeys.CHANGE_NAME,
 ];
 
 export type HostSelfActionKeys = 'view-in-large' | 'change-name';
@@ -37,28 +53,17 @@ export type HostRemoteActionKeys =
 export type AttendeeSelfActionKeys = 'view-in-large' | 'change-name';
 
 export type AttendeeRemoteActionKeys = 'view-in-large' | 'message-privately';
-export type UserActionMenuItemLabelCallback = (languageCode: string) => string;
-export type UserActionMenuItemLabel = string | UserActionMenuItemLabelCallback;
 
 export interface UserActionMenuDefaultItem {
   hide?: boolean;
   order?: number;
-  label?: UserActionMenuItemLabel; // for static items
-  icon?: keyof IconsInterface;
-  iconColor?: string;
-  textColor?: string;
   onPress?: () => void; // replace existing logic
-  onAction?: () => void; // add additional logic
-
-  // toggleable props - optional
-  onLabel?: UserActionMenuItemLabel;
-  offLabel?: UserActionMenuItemLabel;
-  onIcon?: keyof IconsInterface;
-  offIcon?: keyof IconsInterface;
-  onHoverOnIcon?: keyof IconsInterface;
-  onHoverOffIcon?: keyof IconsInterface;
-
+  onAction?: (uid?: UidType) => void; // add additional logic
   visibility?: ActionVisibility[]; // to whom  custom action item should be visible , build in actions menu is already handled
+  component?: React.ComponentType<{
+    closeActionMenu?: () => void;
+    targetUid?: UidType;
+  }>; // to override default component or add new
 }
 export type UserActionDefaultItemsConfig = {
   [key: string]: UserActionMenuDefaultItem;
@@ -93,13 +98,6 @@ export type UserActionMenuItemsConfig =
 export type UserActionMenuPresetProps = {
   items?: UserActionMenuItemsConfig;
 };
-
-// 'ban-user': {
-//   component: <BanUser />,
-//   order: 5,
-//   hide: false,
-//   label: 'Ban this user',
-// }
 
 const UserActionMenuPreset: React.FC<UserActionMenuPresetProps> = ({items}) => {
   return <UserActionMenuOptionsOptions items={items} />;
