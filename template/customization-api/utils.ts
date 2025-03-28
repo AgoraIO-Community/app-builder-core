@@ -55,4 +55,3 @@ export {useActionSheet} from '../src/utils/useActionSheet';
 export {default as PlatformWrapper} from '../src/utils/PlatformWrapper';
 export {useSpotlight} from '../src/utils/useSpotlight';
 export {useActiveUids} from '../src/utils/useActiveUids';
-export {default as useUserBan} from '../src/utils/useUserBan';
