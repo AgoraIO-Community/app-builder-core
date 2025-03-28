@@ -26,6 +26,7 @@ import Spacer from '../../atoms/Spacer';
 import Transcript from '../../subComponents/caption/Transcript';
 import {useCustomization} from 'customization-implementation';
 import CustomSidePanelView from '../../components/CustomSidePanel';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -153,6 +154,11 @@ const ActionSheet = props => {
     setSidePanel(SidePanelType.None);
   }
 
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+  const canAccessParticipants =
+    useControlPermissionMatrix('participantControl');
+  const canAccessSettings = useControlPermissionMatrix('settingsControl');
+
   return (
     <BottomSheetModalProvider>
       {isExpanded && (
@@ -187,63 +193,68 @@ const ActionSheet = props => {
       </BottomSheetModal>
 
       {/* Chat Action Sheet */}
-      <BottomSheetModal
-        snapPoints={['100%']}
-        name="ChatSheet"
-        onDismiss={onDismiss}
-        ref={chatSheetRef}
-        style={styles.container}
-        backgroundStyle={styles.backgroundStyle}
-        handleIndicatorStyle={styles.handleIndicatorStyle}
-        enableContentPanningGesture={false}
-        handleComponent={() => (
-          <ActionSheetHandle sidePanel={SidePanelType.Chat} />
-        )}
-        android_keyboardInputMode="adjustResize"
-        keyboardBehavior="extend"
-        stackBehavior="push">
-        <BottomSheetView>
-          <Chat showHeader={false} />
-        </BottomSheetView>
-      </BottomSheetModal>
-
+      {canAccessChat && (
+        <BottomSheetModal
+          snapPoints={['100%']}
+          name="ChatSheet"
+          onDismiss={onDismiss}
+          ref={chatSheetRef}
+          style={styles.container}
+          backgroundStyle={styles.backgroundStyle}
+          handleIndicatorStyle={styles.handleIndicatorStyle}
+          enableContentPanningGesture={false}
+          handleComponent={() => (
+            <ActionSheetHandle sidePanel={SidePanelType.Chat} />
+          )}
+          android_keyboardInputMode="adjustResize"
+          keyboardBehavior="extend"
+          stackBehavior="push">
+          <BottomSheetView>
+            <Chat showHeader={false} />
+          </BottomSheetView>
+        </BottomSheetModal>
+      )}
       {/* Participants Action Sheet */}
-      <BottomSheetModal
-        snapPoints={['100%']}
-        ref={participantsSheetRef}
-        onDismiss={onDismiss}
-        name="ParticipantsSheet"
-        style={styles.container}
-        backgroundStyle={styles.backgroundStyle}
-        handleIndicatorStyle={styles.handleIndicatorStyle}
-        enableContentPanningGesture={false}
-        handleComponent={() => (
-          <ActionSheetHandle sidePanel={SidePanelType.Participants} />
-        )}
-        stackBehavior="push">
-        <BottomSheetView>
-          <ParticipantView showHeader={false} />
-        </BottomSheetView>
-      </BottomSheetModal>
+      {canAccessParticipants && (
+        <BottomSheetModal
+          snapPoints={['100%']}
+          ref={participantsSheetRef}
+          onDismiss={onDismiss}
+          name="ParticipantsSheet"
+          style={styles.container}
+          backgroundStyle={styles.backgroundStyle}
+          handleIndicatorStyle={styles.handleIndicatorStyle}
+          enableContentPanningGesture={false}
+          handleComponent={() => (
+            <ActionSheetHandle sidePanel={SidePanelType.Participants} />
+          )}
+          stackBehavior="push">
+          <BottomSheetView>
+            <ParticipantView showHeader={false} />
+          </BottomSheetView>
+        </BottomSheetModal>
+      )}
 
       {/* Settings Action Sheet  */}
-      <BottomSheetModal
-        snapPoints={['100%']}
-        ref={settingsSheetRef}
-        name="SettingsSheet"
-        onDismiss={onDismiss}
-        style={styles.container}
-        backgroundStyle={styles.backgroundStyle}
-        handleIndicatorStyle={styles.handleIndicatorStyle}
-        enableContentPanningGesture={false}
-        handleComponent={() => (
-          <ActionSheetHandle sidePanel={SidePanelType.Settings} />
-        )}
-        stackBehavior="push">
-        <BottomSheetView>
-          <SettingsView showHeader={false} />
-        </BottomSheetView>
-      </BottomSheetModal>
+      {canAccessSettings && (
+        <BottomSheetModal
+          snapPoints={['100%']}
+          ref={settingsSheetRef}
+          name="SettingsSheet"
+          onDismiss={onDismiss}
+          style={styles.container}
+          backgroundStyle={styles.backgroundStyle}
+          handleIndicatorStyle={styles.handleIndicatorStyle}
+          enableContentPanningGesture={false}
+          handleComponent={() => (
+            <ActionSheetHandle sidePanel={SidePanelType.Settings} />
+          )}
+          stackBehavior="push">
+          <BottomSheetView>
+            <SettingsView showHeader={false} />
+          </BottomSheetView>
+        </BottomSheetModal>
+      )}
 
       {/* Transcript Action Sheet  */}
       <BottomSheetModal
