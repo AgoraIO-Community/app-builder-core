@@ -51,6 +51,7 @@ import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamData
 import {fetchRetry} from '../../utils/fetch-retry';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
@@ -832,9 +833,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   ]);
   // ************ Recording Bot starts ************
 
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+
   const setRecordingBotUI = () => {
     if (isRecordingBot) {
-      if (recordingBotUIConfig?.chat && $config.CHAT) {
+      if (recordingBotUIConfig?.chat && canAccessChat) {
         setSidePanel(SidePanelType.Chat);
         setChatType(ChatType.Group);
       }

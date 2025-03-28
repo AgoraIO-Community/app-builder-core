@@ -27,6 +27,7 @@ import {ActionSheetProvider} from '../../utils/useActionSheet';
 import {useOrientation} from '../../utils/useOrientation';
 import {useCustomization} from 'customization-implementation';
 import CustomSidePanelView from '../../components/CustomSidePanel';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 const ActionSheet = props => {
   const [showCustomSidePanel, setShowCustomSidePanel] = useState(false);
@@ -190,6 +191,12 @@ const ActionSheet = props => {
       default:
     }
   };
+
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+  const canAccessParticipants =
+    useControlPermissionMatrix('participantControl');
+  const canAccessSettings = useControlPermissionMatrix('settingsControl');
+
   return (
     <>
       {showOverlay && (
@@ -234,53 +241,60 @@ const ActionSheet = props => {
           <></>
         )}
         {/* Chat  Action Sheet */}
-        <BottomSheet
-          sibling={ToastComponentRender}
-          ref={chatSheetRef}
-          onDismiss={onDismiss}
-          scrollLocking={false}
-          open={isChatOpen}
-          blocking={false}
-          expandOnContentDrag={false}
-          snapPoints={({maxHeight}) => [1 * maxHeight]}
-          header={<ActionSheetHandle sidePanel={SidePanelType.Chat} />}
-          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
-          <Chat showHeader={false} />
-        </BottomSheet>
+        {canAccessChat && (
+          <BottomSheet
+            sibling={ToastComponentRender}
+            ref={chatSheetRef}
+            onDismiss={onDismiss}
+            scrollLocking={false}
+            open={isChatOpen}
+            blocking={false}
+            expandOnContentDrag={false}
+            snapPoints={({maxHeight}) => [1 * maxHeight]}
+            header={<ActionSheetHandle sidePanel={SidePanelType.Chat} />}
+            defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
+            <Chat showHeader={false} />
+          </BottomSheet>
+        )}
+
         {/* Participants Action Sheet */}
         {/** Toolbar and actionsheet wrapper added to hide the local mute button label*/}
-        <ToolbarProvider value={{position: undefined}}>
-          <ActionSheetProvider>
-            <BottomSheet
-              sibling={ToastComponentRender}
-              ref={participantsSheetRef}
-              onDismiss={onDismiss}
-              open={isParticipantsOpen}
-              expandOnContentDrag={false}
-              snapPoints={({maxHeight}) => [1 * maxHeight]}
-              defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-              scrollLocking={false}
-              header={
-                <ActionSheetHandle sidePanel={SidePanelType.Participants} />
-              }
-              blocking={false}>
-              <ParticipantView showHeader={false} />
-            </BottomSheet>
-          </ActionSheetProvider>
-        </ToolbarProvider>
+        {canAccessParticipants && (
+          <ToolbarProvider value={{position: undefined}}>
+            <ActionSheetProvider>
+              <BottomSheet
+                sibling={ToastComponentRender}
+                ref={participantsSheetRef}
+                onDismiss={onDismiss}
+                open={isParticipantsOpen}
+                expandOnContentDrag={false}
+                snapPoints={({maxHeight}) => [1 * maxHeight]}
+                defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+                scrollLocking={false}
+                header={
+                  <ActionSheetHandle sidePanel={SidePanelType.Participants} />
+                }
+                blocking={false}>
+                <ParticipantView showHeader={false} />
+              </BottomSheet>
+            </ActionSheetProvider>
+          </ToolbarProvider>
+        )}
         {/* Settings  Action Sheet */}
-        <BottomSheet
-          sibling={ToastComponentRender}
-          ref={settingsSheetRef}
-          onDismiss={onDismiss}
-          open={isSettingsOpen}
-          expandOnContentDrag={false}
-          snapPoints={({maxHeight}) => [1 * maxHeight]}
-          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-          header={<ActionSheetHandle sidePanel={SidePanelType.Settings} />}
-          blocking={false}>
-          <SettingsView showHeader={false} />
-        </BottomSheet>
+        {canAccessSettings && (
+          <BottomSheet
+            sibling={ToastComponentRender}
+            ref={settingsSheetRef}
+            onDismiss={onDismiss}
+            open={isSettingsOpen}
+            expandOnContentDrag={false}
+            snapPoints={({maxHeight}) => [1 * maxHeight]}
+            defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+            header={<ActionSheetHandle sidePanel={SidePanelType.Settings} />}
+            blocking={false}>
+            <SettingsView showHeader={false} />
+          </BottomSheet>
+        )}
         {/* Transcript  Action Sheet */}
         <BottomSheet
           sibling={ToastComponentRender}

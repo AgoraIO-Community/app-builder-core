@@ -48,6 +48,7 @@ import LocalSwitchCamera from '../../src/subComponents/LocalSwitchCamera';
 import {useString} from '../../src/utils/useString';
 import {precallYouAreJoiningAsHeading} from '../../src/language/default-labels/precallScreenLabels';
 import {loadingText} from '../../src/language/default-labels/commonLabels';
+import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -359,6 +360,7 @@ const Precall = (props: any) => {
 
   const youAreJoiningAs = useString(precallYouAreJoiningAsHeading)();
   const loading = useString(loadingText)();
+  const canAccessSettings = useControlPermissionMatrix('settingsControl');
 
   if (isVBAvaialble) {
     return <VirtualBackgroundComponent isOnPrecall={true} />;
@@ -416,7 +418,11 @@ const Precall = (props: any) => {
                 <View style={style.preCallContainer}>
                   <View style={style.header}>
                     <MeetingName prefix={youAreJoiningAs} />
-                    {isWebInternal() ? <PreCallSettings /> : <></>}
+                    {isWebInternal() && canAccessSettings ? (
+                      <PreCallSettings />
+                    ) : (
+                      <></>
+                    )}
                   </View>
                   <View style={style.content}>
                     <View style={style.preview}>
