@@ -76,6 +76,7 @@ import {useString} from '../utils/useString';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useCustomization} from 'customization-implementation';
 import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects';
+import {UserActionMenuProvider} from '../components/useUserActionMenu';
 
 enum RnEncryptionEnum {
   /**
@@ -494,39 +495,41 @@ const VideoCall: React.FC = () => {
                                                           {!isMobileUA() && (
                                                             <PermissionHelper />
                                                           )}
-                                                          <VBProvider>
-                                                            <BeautyEffectProvider>
-                                                              <PrefereceWrapper
-                                                                callActive={
-                                                                  callActive
-                                                                }
-                                                                setCallActive={
-                                                                  setCallActive
-                                                                }>
-                                                                <SdkMuteToggleListener>
-                                                                  {callActive ? (
-                                                                    <VideoMeetingDataProvider>
-                                                                      <VideoCallProvider>
-                                                                        <DisableChatProvider>
-                                                                          <VideoCallScreenWrapper />
-                                                                        </DisableChatProvider>
-                                                                      </VideoCallProvider>
-                                                                    </VideoMeetingDataProvider>
-                                                                  ) : $config.PRECALL ? (
-                                                                    <PreCallProvider
-                                                                      value={{
-                                                                        callActive,
-                                                                        setCallActive,
-                                                                      }}>
-                                                                      <Precall />
-                                                                    </PreCallProvider>
-                                                                  ) : (
-                                                                    <></>
-                                                                  )}
-                                                                </SdkMuteToggleListener>
-                                                              </PrefereceWrapper>
-                                                            </BeautyEffectProvider>
-                                                          </VBProvider>
+                                                          <UserActionMenuProvider>
+                                                            <VBProvider>
+                                                              <BeautyEffectProvider>
+                                                                <PrefereceWrapper
+                                                                  callActive={
+                                                                    callActive
+                                                                  }
+                                                                  setCallActive={
+                                                                    setCallActive
+                                                                  }>
+                                                                  <SdkMuteToggleListener>
+                                                                    {callActive ? (
+                                                                      <VideoMeetingDataProvider>
+                                                                        <VideoCallProvider>
+                                                                          <DisableChatProvider>
+                                                                            <VideoCallScreenWrapper />
+                                                                          </DisableChatProvider>
+                                                                        </VideoCallProvider>
+                                                                      </VideoMeetingDataProvider>
+                                                                    ) : $config.PRECALL ? (
+                                                                      <PreCallProvider
+                                                                        value={{
+                                                                          callActive,
+                                                                          setCallActive,
+                                                                        }}>
+                                                                        <Precall />
+                                                                      </PreCallProvider>
+                                                                    ) : (
+                                                                      <></>
+                                                                    )}
+                                                                  </SdkMuteToggleListener>
+                                                                </PrefereceWrapper>
+                                                              </BeautyEffectProvider>
+                                                            </VBProvider>
+                                                          </UserActionMenuProvider>
                                                         </NetworkQualityProvider>
                                                       </RecordingProvider>
                                                     </LocalUserContext>

@@ -8,6 +8,7 @@ import {
   useRoomInfo,
   useContent,
   useSidePanel,
+  useUserActionMenu,
 } from 'customization-api';
 import {
   DefaultLayouts,
@@ -65,6 +66,7 @@ import {
   userRemovedFromTheRoomToastHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {isAndroid, isIOS} from '../../utils/common';
+import {useCustomization} from 'customization-implementation';
 import {EventNames} from '../../rtm-events';
 import {
   ActionMenuKey,
@@ -84,6 +86,7 @@ interface UserActionMenuOptionsOptionsProps {
   setSpotlightUid?: (uid: UidType) => void;
   items?: UserActionMenuItemsConfig;
 }
+
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
 ) {
@@ -120,6 +123,14 @@ export default function UserActionMenuOptionsOptions(
   const {enablePinForMe} = useVideoCall();
   const {setDisableChatUids, disableChatUids} = useDisableChat();
   const {getWhiteboardUid = () => 0} = useWhiteboard();
+
+  // fetching via stic poprtties way as we need to update only items
+  // const {userActionMenuItems} = useCustomization(data => ({
+  //   userActionMenuItems: data?.components?.videoCall?.userActionsMenu?.items,
+  // }));
+
+  //fetch via prefrence wrapper
+  const {userActionMenuItems} = useUserActionMenu();
 
   const viewWhiteboardLabel = useString(moreBtnViewWhiteboard)();
   const removeFromLargeLabel = useString(moreBtnRemoveFromLarge)();
@@ -192,7 +203,7 @@ export default function UserActionMenuOptionsOptions(
       if (enablePinForMe) {
         if (pinnedUid !== user.uid) {
           const viewInLargeKey = ActionMenuKeys.VIEW_IN_LARGE;
-          const viewInLargeConfig = props.items?.[viewInLargeKey] ?? {};
+          const viewInLargeConfig = userActionMenuItems?.[viewInLargeKey] ?? {};
           const isPinned = pinnedUid === user.uid;
           const isWhiteboard = user.uid === getWhiteboardUid();
           const isOnlyOneActive = activeUids?.length === 1;
@@ -255,7 +266,7 @@ export default function UserActionMenuOptionsOptions(
         }
         if (currentLayout === DefaultLayouts[1].name) {
           const pinToTopKey = ActionMenuKeys.PIN_TO_TOP;
-          const pinToTopConfig = props.items?.[pinToTopKey] ?? {};
+          const pinToTopConfig = userActionMenuItems?.[pinToTopKey] ?? {};
           const isPinnedToTop = user.uid === secondaryPinnedUid;
           const isOnlyOneActive = activeUids?.length === 1;
 
@@ -348,7 +359,7 @@ export default function UserActionMenuOptionsOptions(
        * Chat menu
        */
       const messageKey = ActionMenuKeys.MESSAGE_PRIVATELY;
-      const messageConfig = props.items?.[messageKey] ?? {};
+      const messageConfig = userActionMenuItems?.[messageKey] ?? {};
 
       if (!messageConfig.hide && $config.CHAT) {
         items.push({
@@ -420,7 +431,7 @@ export default function UserActionMenuOptionsOptions(
 
           const muteAudioKey = ActionMenuKeys.MUTE_AUDIO;
           const isMuted = user.audio;
-          const muteAudioConfig = props.items?.[muteAudioKey] ?? {};
+          const muteAudioConfig = userActionMenuItems?.[muteAudioKey] ?? {};
           if (!muteAudioConfig.hide) {
             items.push({
               key: muteAudioKey,
@@ -445,7 +456,7 @@ export default function UserActionMenuOptionsOptions(
 
           const muteVideoKey = ActionMenuKeys.MUTE_VIDEO;
           const isVideoMuted = user.video;
-          const muteVideoConfig = props.items?.[muteVideoKey] ?? {};
+          const muteVideoConfig = userActionMenuItems?.[muteVideoKey] ?? {};
 
           if (!$config.AUDIO_ROOM && !muteVideoConfig.hide) {
             items.push({
@@ -533,7 +544,7 @@ export default function UserActionMenuOptionsOptions(
         }
 
         const removeKey = ActionMenuKeys.REMOVE_FROM_ROOM;
-        const removeConfig = props.items?.[removeKey] ?? {};
+        const removeConfig = userActionMenuItems?.[removeKey] ?? {};
 
         if (!removeConfig.hide) {
           items.push({
@@ -571,7 +582,7 @@ export default function UserActionMenuOptionsOptions(
      * Local User menu item - change name
      */
     const changeNameKey = ActionMenuKeys.CHANGE_NAME;
-    const changeNameConfig = props.items?.[changeNameKey] ?? {};
+    const changeNameConfig = userActionMenuItems?.[changeNameKey] ?? {};
 
     if (
       !changeNameConfig.hide &&
@@ -620,7 +631,8 @@ export default function UserActionMenuOptionsOptions(
     }
     //Screenshare menu item
     const removeScreenshareKey = ActionMenuKeys.REMOVE_SCREENSHARE;
-    const removeScreenshareConfig = props.items?.[removeScreenshareKey] ?? {};
+    const removeScreenshareConfig =
+      userActionMenuItems?.[removeScreenshareKey] ?? {};
     if (
       (isHost || localuid === user.parentUid) &&
       user.type === 'screenshare' &&
@@ -656,8 +668,8 @@ export default function UserActionMenuOptionsOptions(
     }
 
     // Add custom items ,
-    if (props.items) {
-      const customItems = Object.entries(props.items)
+    if (userActionMenuItems) {
+      const customItems = Object.entries(userActionMenuItems)
         .filter(([key, config]) => {
           return (
             !config?.hide &&
@@ -740,7 +752,7 @@ export default function UserActionMenuOptionsOptions(
           modalPosition={modalPosition}
           onMutePress={() => {
             const muteAudioKey = ActionMenuKeys.MUTE_AUDIO;
-            const muteAudioConfig = props.items?.[muteAudioKey];
+            const muteAudioConfig = userActionMenuItems?.[muteAudioKey];
             remoteMute(MUTE_REMOTE_TYPE.audio, user.uid);
             setShowAudioMuteModal(false);
             muteAudioConfig.onAction(user.uid);
@@ -758,7 +770,7 @@ export default function UserActionMenuOptionsOptions(
           modalPosition={modalPosition}
           onMutePress={() => {
             const muteVideoKey = ActionMenuKeys.MUTE_VIDEO;
-            const muteVideoConfig = props.items?.[muteVideoKey];
+            const muteVideoConfig = userActionMenuItems?.[muteVideoKey];
             remoteMute(MUTE_REMOTE_TYPE.video, user.uid);
             setShowVideoMuteModal(false);
             muteVideoConfig.onAction(user.uid);
@@ -788,7 +800,7 @@ export default function UserActionMenuOptionsOptions(
           username={user.name}
           removeUserFromMeeting={() => {
             const removeKey = ActionMenuKeys.REMOVE_FROM_ROOM;
-            const removeConfig = props.items?.[removeKey];
+            const removeConfig = userActionMenuItems?.[removeKey];
             userRemovalTimeout > 0 &&
               Toast.show({
                 leadingIconName: 'info',
