@@ -113,7 +113,7 @@ import RecordingDeletePopup from './recordings/RecordingDeletePopup';
 import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
 import {
   InviteToolbarItem,
-  ScreenShareToolbarItem,
+  ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 
 export const useToggleWhiteboard = () => {
@@ -1295,7 +1295,7 @@ const Controls = (props: ControlsProps) => {
       },
       screenshare: {
         align: 'center',
-        component: canAccessScreenshare ? ScreenShareToolbarItem : null,
+        component: canAccessScreenshare ? ScreenshareToolbarItem : null,
         order: 4,
         hide: w => {
           return w < BREAKPOINTS.sm ? true : false;

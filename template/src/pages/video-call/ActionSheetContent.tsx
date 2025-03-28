@@ -62,7 +62,7 @@ import {
   ParticipantToolbarItem,
   SettingsToolbarItem,
   InviteToolbarItem,
-  ScreenShareToolbarItem,
+  ScreenshareToolbarItem,
 } from '../../components/controls/toolbar-items';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 //Icon for expanding Action Sheet
@@ -394,7 +394,7 @@ const ActionSheetContent = props => {
       order: 10,
       component:
         (isAndroid() || isIOS()) && canAccessScreenshare
-          ? ScreenShareToolbarItem
+          ? ScreenshareToolbarItem
           : null,
     },
     invite: {

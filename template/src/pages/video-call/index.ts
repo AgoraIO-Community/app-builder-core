@@ -20,7 +20,7 @@ import {
   InviteToolbarItem,
   ParticipantToolbarItem,
   SettingsToolbarItem,
-  ScreenShareToolbarItem,
+  ScreenshareToolbarItem,
 } from '../../components/controls/toolbar-items';
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
@@ -44,7 +44,7 @@ const ToolbarComponents = {
   LocalAudioToolbarItem,
   LocalVideoToolbarItem,
   SwitchCameraToolbarItem,
-  ScreenShareToolbarItem,
+  ScreenshareToolbarItem,
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
   WhiteboardToolbarItem: WhiteboardButton,

@@ -4,7 +4,7 @@ import ScreenshareButton from '../../../subComponents/screenshare/ScreenshareBut
 
 export interface Props extends ToolbarItemProps {}
 
-export const ScreenShareToolbarItem = (props: Props) => {
+export const ScreenshareToolbarItem = (props: Props) => {
   return (
     <ToolbarItem testID="screenShare-btn" toolbarProps={props}>
       <ScreenshareButton />

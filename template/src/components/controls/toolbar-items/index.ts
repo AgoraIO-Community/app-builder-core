@@ -1,5 +1,5 @@
 export {ChatToolbarItem} from './ChatToolbarItem';
 export {InviteToolbarItem} from './InviteToolbarItem';
 export {ParticipantToolbarItem} from './ParticipantToolbarItem';
-export {ScreenShareToolbarItem} from './ScreenShareToolbarItem';
+export {ScreenshareToolbarItem} from './ScreenshareToolbarItem';
 export {SettingsToolbarItem} from './SettingsToolbarItem';
