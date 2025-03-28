@@ -28,7 +28,7 @@ export interface AppBuilderSdkApiInterface {
       disableInvite?: boolean;
       disableScreenShare?: boolean;
       disableSettings?: boolean;
-      disableParticipantsPanel?: boolean;
+      disableParticipants?: boolean;
     },
   ) => Promise<meetingData>;
   joinPrecall: (
@@ -42,7 +42,7 @@ export interface AppBuilderSdkApiInterface {
       disableInvite?: boolean;
       disableScreenShare?: boolean;
       disableSettings?: boolean;
-      disableParticipantsPanel?: boolean;
+      disableParticipants?: boolean;
     },
   ) => Promise<
     [

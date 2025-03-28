@@ -31,7 +31,7 @@ export const controlPermissionMatrix: Record<
 > = {
   chatControl: ({preference}) => $config.CHAT && !preference.disableChat,
   inviteControl: ({preference}) => !preference.disableInvite,
-  participantControl: ({preference}) => !preference.disableParticipantsPanel,
+  participantControl: ({preference}) => !preference.disableParticipants,
   settingsControl: ({preference}) => !preference.disableSettings,
   screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING && !preference.disableScreenShare,

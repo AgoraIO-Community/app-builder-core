@@ -34,7 +34,7 @@ type SdkApiContextInterface = {
           disableInvite?: boolean;
           disableScreenShare?: boolean;
           disableSettings?: boolean;
-          disableParticipantsPanel?: boolean;
+          disableParticipants?: boolean;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }

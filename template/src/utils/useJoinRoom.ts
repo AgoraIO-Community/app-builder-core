@@ -152,7 +152,7 @@ export interface joinRoomPreference {
   disableInvite?: boolean;
   disableScreenShare?: boolean;
   disableSettings?: boolean;
-  disableParticipantsPanel?: boolean;
+  disableParticipants?: boolean;
 }
 
 export default function useJoinRoom() {

@@ -158,7 +158,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
     disableInvite: false,
     disableScreenShare: false,
     disableSettings: false,
-    disableParticipantsPanel: false,
+    disableParticipants: false,
   },
 };
 
