@@ -1,10 +1,9 @@
-import React, {createContext, useContext} from 'react';
-import {createHook} from 'customization-implementation';
-import {UidType} from '../../agora-rn-uikit/src';
+import {useContext} from 'react';
 import {useRoomInfo} from 'customization-api';
+import StorageContext from '../components/StorageContext';
 import getUniqueID from '../utils/getUniqueID';
 import {logger, LogSource} from '../logger/AppBuilderLogger';
-import StorageContext from '../components/StorageContext';
+import {UidType} from '../../agora-rn-uikit/src';
 
 export type BanUserPrivilegesResponse = {
   success: boolean;
@@ -12,30 +11,25 @@ export type BanUserPrivilegesResponse = {
   data?: any;
 };
 
-interface UserBanContextInterface {
-  banUser: (
-    uid: UidType,
-    duration: number,
-  ) => Promise<BanUserPrivilegesResponse>;
+interface BanUserOptions {
+  uid: UidType;
+  duration: number;
+  hostMeetingId?: string;
 }
 
-export const UserBanContext = createContext<UserBanContextInterface>({
-  banUser: async () => ({
-    success: false,
-    message: 'Not initialized',
-  }),
-});
-
-export const UserBanProvider = ({children}) => {
+/**
+ * @param options - The options for banning a user.
+ * @returns A promise that resolves to the result of the ban operation.
+ */
+const useUserBan = (): ((
+  options: BanUserOptions,
+) => Promise<BanUserPrivilegesResponse>) => {
   const {store} = useContext(StorageContext);
   const {
     data: {roomId, channel},
   } = useRoomInfo();
 
-  const banUser = async (
-    uid: UidType,
-    duration: number,
-  ): Promise<BanUserPrivilegesResponse> => {
+  return async ({uid, duration, hostMeetingId}: BanUserOptions) => {
     if (!uid || !duration || duration < 1 || duration > 1440) {
       logger.error(
         LogSource.NetworkRest,
@@ -45,16 +39,27 @@ export const UserBanProvider = ({children}) => {
       return {success: false, message: 'Invalid user ID or duration'};
     }
 
+    const passphrase = hostMeetingId || roomId?.host;
+    if (!passphrase) {
+      logger.error(LogSource.NetworkRest, 'ban_user', 'Missing passphrase');
+      return {
+        success: false,
+        message: 'Host Passphrase is required to ban user',
+      };
+    }
+
     const requestId = getUniqueID();
     const BAN_API_URL = `${$config.BACKEND_ENDPOINT}/v1/channel/user/ban`;
 
     const payload = {
-      passphrase: roomId?.host,
-      uid: uid,
+      passphrase,
+      uid,
       channel_name: channel,
       duration,
       privileges: ['join_channel'],
     };
+
+    console.log('Ban User payload', payload);
 
     try {
       const response = await fetch(BAN_API_URL, {
@@ -78,10 +83,11 @@ export const UserBanProvider = ({children}) => {
         );
         return {success: false, message: errorText};
       }
+
       logger.log(
         LogSource.NetworkRest,
         'ban_user',
-        `Successfully banned user with id ${uid} in channel : ${channel}`,
+        `Successfully banned user ${uid} in channel: ${channel}`,
       );
 
       return {
@@ -93,12 +99,6 @@ export const UserBanProvider = ({children}) => {
       return {success: false, message: 'Unexpected error during ban request'};
     }
   };
-
-  return (
-    <UserBanContext.Provider value={{banUser}}>
-      {children}
-    </UserBanContext.Provider>
-  );
 };
 
-export const useUserBan = createHook(UserBanContext);
+export default useUserBan;

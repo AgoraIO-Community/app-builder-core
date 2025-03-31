@@ -70,4 +70,3 @@ export {useGetHostIds} from '../src/utils/useGetHostUids';
 export type {AIAgentContextInterface} from '../src/ai-agent/components/AgentControls/AgentContext';
 export type {AIAgentState} from '../src/ai-agent/components/AgentControls/const';
 export {useUserActionMenu} from '../src/components/useUserActionMenu';
-export {useUserBan} from '../src/app-state/useUserBan';
