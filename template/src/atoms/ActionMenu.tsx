@@ -23,6 +23,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Toggle from './Toggle';
 import {ToolbarItemHide} from './ToolbarPreset';
 import {UidType} from '../../agora-rn-uikit';
+import {useRoomInfo} from 'customization-api';
 
 export interface ActionMenuItem {
   key?: string;
@@ -162,6 +163,9 @@ const ActionMenu = (props: ActionMenuProps) => {
     hoverMode = false,
   } = props;
   const {width, height} = useWindowDimensions();
+  const {
+    data: {roomId},
+  } = useRoomInfo();
 
   const renderItems = () => {
     return items?.map((item, index) => {
@@ -227,6 +231,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                   <CustomActionItem
                     closeActionMenu={closeActionMenu}
                     targetUid={uid}
+                    hostMeetingId={roomId?.host}
                   />
                 </TouchableOpacity>
               ) : (

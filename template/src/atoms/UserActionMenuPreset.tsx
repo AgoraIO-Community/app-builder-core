@@ -58,11 +58,12 @@ export interface UserActionMenuDefaultItem {
   hide?: boolean;
   order?: number;
   onPress?: () => void; // replace existing logic
-  onAction?: (uid?: UidType) => void; // add additional logic
+  onAction?: (uid?: UidType, hostMeetingId?: string) => void; // add additional logic
   visibility?: ActionVisibility[]; // to whom  custom action item should be visible , build in actions menu is already handled
   component?: React.ComponentType<{
     closeActionMenu?: () => void;
     targetUid?: UidType;
+    hostMeetingId?: string;
   }>; // to override default component or add new
 }
 export type UserActionDefaultItemsConfig = {

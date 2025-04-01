@@ -110,7 +110,7 @@ export default function UserActionMenuOptionsOptions(
   const {openPrivateChat} = useChatMessages();
   const {hostUids, audienceUids} = useLiveStreamDataContext();
   const {
-    data: {isHost},
+    data: {isHost, roomId},
     roomPreference: {userRemovalTimeout},
   } = useRoomInfo();
   const remoteRequest = useRemoteRequest();
@@ -815,7 +815,7 @@ export default function UserActionMenuOptionsOptions(
                 leadingIcon: null,
               });
             endRemoteCall(user.uid);
-            removeConfig?.onAction?.(user.uid); // callback for remove meeting
+            removeConfig?.onAction?.(user.uid, roomId?.host); // callback for remove meeting
           }}
         />
       ) : (
