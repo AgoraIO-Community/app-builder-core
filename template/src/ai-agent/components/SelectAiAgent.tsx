@@ -14,7 +14,14 @@ const SelectAiAgent = () => {
     data: {agents},
   } = useRoomInfo();
   const {setStore} = useStorageContext();
-  const {agentId, setAgentId, agentConnectionState} = useContext(AgentContext);
+  const {
+    agentId,
+    setAgentId,
+    agentConnectionState,
+    setIsInterruptionHandlingEnabled,
+    setLanguage,
+    setPrompt,
+  } = useContext(AgentContext);
 
   const data = useMemo(() => {
     return agents
@@ -30,7 +37,13 @@ const SelectAiAgent = () => {
   useEffect(() => {
     if (!agentId && data && data.length) {
       //set default agent
-      setAgentId(data[0].value);
+      setAgentId(data[0]?.value);
+      setStore(prevState => {
+        return {
+          ...prevState,
+          agentId: data[0]?.value,
+        };
+      });
     }
   }, [agentId, data]);
 
@@ -59,6 +72,9 @@ const SelectAiAgent = () => {
         data={data}
         onSelect={async ({label, value}) => {
           if (agentId !== value) {
+            setIsInterruptionHandlingEnabled(undefined);
+            setLanguage(null);
+            setPrompt('');
             setAgentId(value);
             //setting agent uid in the store so we can retrive it if user refresh the page
             setStore(prevState => {
