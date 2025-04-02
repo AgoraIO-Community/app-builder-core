@@ -35,7 +35,7 @@ type SdkApiContextInterface = {
           disableScreenShare?: boolean;
           disableSettings?: boolean;
           disableParticipants?: boolean;
-          userRemovalTimeout: number;
+          userRemovalTimeout?: number;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }

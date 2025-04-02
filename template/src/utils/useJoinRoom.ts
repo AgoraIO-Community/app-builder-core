@@ -153,7 +153,7 @@ export interface joinRoomPreference {
   disableScreenShare?: boolean;
   disableSettings?: boolean;
   disableParticipants?: boolean;
-  userRemovalTimeout: number;
+  userRemovalTimeout?: number;
 }
 
 export default function useJoinRoom() {

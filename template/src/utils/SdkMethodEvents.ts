@@ -19,7 +19,7 @@ export interface SdkMethodEvents {
       disableScreenShare?: boolean;
       disableSettings?: boolean;
       disableParticipants?: boolean;
-      userRemovalTimeout: number;
+      userRemovalTimeout?: number;
     },
   ): RoomInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;
