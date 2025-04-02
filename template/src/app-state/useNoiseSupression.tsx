@@ -43,7 +43,9 @@ export function NoiseSupressionProvider(props) {
   useEffect(() => {
     if ($config.ENABLE_NOISE_CANCELLATION) {
       try {
-        const denoiserExtension = new AIDenoiserExtension({assetsPath: 'wasm'});
+        const denoiserExtension = new AIDenoiserExtension({
+          assetsPath: $config.NOISE_CANCELLATION_WASM_PATH,
+        });
         AgoraRTC.registerExtensions([denoiserExtension]);
         processor.current = denoiserExtension.createProcessor();
         processor.current.disable();
