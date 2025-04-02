@@ -18,7 +18,6 @@ import {ToolbarPresetProps} from './sub-components';
 import {TextDataInterface} from '../src/language/default-labels';
 import {VBPanelProps} from '../src/components/virtual-background/VBPanel';
 import {AIAgentState} from '../src/ai-agent/components/AgentControls/const';
-import {UserActionMenuItemsConfig} from 'customization-api';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
