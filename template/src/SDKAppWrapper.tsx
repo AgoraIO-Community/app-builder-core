@@ -24,6 +24,11 @@ export interface AppBuilderSdkApiInterface {
     preference?: {
       disableShareTile: boolean;
       disableVideoProcessors: boolean;
+      disableChat?: boolean;
+      disableInvite?: boolean;
+      disableScreenShare?: boolean;
+      disableSettings?: boolean;
+      disableParticipants?: boolean;
       userRemovalTimeout: number;
     },
   ) => Promise<meetingData>;
@@ -34,6 +39,11 @@ export interface AppBuilderSdkApiInterface {
     preference?: {
       disableShareTile: boolean;
       disableVideoProcessors: boolean;
+      disableChat?: boolean;
+      disableInvite?: boolean;
+      disableScreenShare?: boolean;
+      disableSettings?: boolean;
+      disableParticipants?: boolean;
       userRemovalTimeout: number;
     },
   ) => Promise<

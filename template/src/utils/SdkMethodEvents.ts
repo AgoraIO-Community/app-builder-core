@@ -14,6 +14,11 @@ export interface SdkMethodEvents {
     preference?: {
       disableShareTile: boolean;
       disableVideoProcessors: boolean;
+      disableChat?: boolean;
+      disableInvite?: boolean;
+      disableScreenShare?: boolean;
+      disableSettings?: boolean;
+      disableParticipants?: boolean;
       userRemovalTimeout: number;
     },
   ): RoomInfoContextInterface['data'];
