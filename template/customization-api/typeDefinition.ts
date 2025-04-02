@@ -91,9 +91,6 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   wrapper?: React.ComponentType;
   customAgentInterface?: React.ComponentType<CustomAgentInterfaceProps>;
   customSidePanel?: () => SidePanelItem[];
-  userActionsMenu?: React.ComponentType & {
-    items?: UserActionMenuItemsConfig;
-  };
   invitePopup?: {
     title: string;
     renderComponent?: React.ComponentType;

@@ -124,11 +124,6 @@ export default function UserActionMenuOptionsOptions(
   const {setDisableChatUids, disableChatUids} = useDisableChat();
   const {getWhiteboardUid = () => 0} = useWhiteboard();
 
-  // fetching via stic poprtties way as we need to update only items
-  // const {userActionMenuItems} = useCustomization(data => ({
-  //   userActionMenuItems: data?.components?.videoCall?.userActionsMenu?.items,
-  // }));
-
   //fetch via prefrence wrapper
   const {userActionMenuItems} = useUserActionMenu();
 
