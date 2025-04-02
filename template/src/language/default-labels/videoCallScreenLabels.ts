@@ -538,6 +538,8 @@ export const videoRoomPeopleCountTooltipHostText =
 export const videoRoomPeopleCountTooltipAttendeeText =
   `video${room}PeopleCountTooltipAttendeeText` as const;
 
+export const userBannedText = 'userBannedText';
+
 export interface I18nVideoCallScreenLabelsInterface {
   [blockLandscapeModeMessageText]?: I18nBaseType;
 
@@ -852,6 +854,7 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [videoRoomPeopleCountTooltipHostText]?: I18nBaseType;
   [videoRoomPeopleCountTooltipAttendeeText]?: I18nBaseType;
+  [userBannedText]?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -1189,8 +1192,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [peoplePanelMeText]: 'Me',
   [peoplePanelPresenterText]: 'Presenter',
 
-  [userRemovedFromTheRoomToastHeading]: name =>
-    `The system will remove ${name} from this call after 5 secs.`,
+  [userRemovedFromTheRoomToastHeading]: (name, time) =>
+    `The system will remove ${name} from this call after ${time} secs.`,
 
   [vbPanelImageUploadErrorToastHeading]: 'Upload Failed',
   [vbPanelImageUploadErrorToastSubHeading]:
@@ -1328,4 +1331,5 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     eventMode ? 'Audience' : 'Attendee',
   [whiteboardNativeInfoToastHeading]:
     'Use two finger to move around the whiteboard',
+  [userBannedText]: 'You are Banned from joining the call',
 };

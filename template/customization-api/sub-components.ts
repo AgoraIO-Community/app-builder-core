@@ -93,3 +93,7 @@ export {default as Card} from '../src/atoms/Card';
 export {default as ThemeConfig} from '../src/theme';
 export {default as SelectDevice} from '../src/subComponents/SelectDevice';
 export {EditName} from '../src/components/SettingsView';
+export {
+  UserActionMenuItem,
+  type UserActionMenuItemProps,
+} from '../src/atoms/ActionMenu';

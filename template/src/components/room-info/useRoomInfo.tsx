@@ -159,6 +159,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
     disableScreenShare: false,
     disableSettings: false,
     disableParticipants: false,
+    userRemovalTimeout: 5000,
   },
 };
 
