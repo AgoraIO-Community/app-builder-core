@@ -282,7 +282,7 @@ export default function useJoinRoom() {
               isWaitingRoomEnabled
                 ? data.secretSalt
                 : data.joinChannel.secretSalt,
-            );
+            ) as Uint8Array;
           }
           if (data?.joinChannel?.screenShare?.uid || data?.screenShare?.uid) {
             roomInfo.screenShareUid = isWaitingRoomEnabled
