@@ -1,51 +1,35 @@
-/*
-********************************************
- Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
-*********************************************
-*/
-import React from 'react';
-import {logger, LogSource} from '../logger/AppBuilderLogger';
-import {UidType} from '../../agora-rn-uikit';
-import getUniqueID from './getUniqueID';
-import StorageContext from '../components/StorageContext';
+import {useContext} from 'react';
 import {useRoomInfo} from 'customization-api';
+import StorageContext from '../components/StorageContext';
+import getUniqueID from '../utils/getUniqueID';
+import {logger, LogSource} from '../logger/AppBuilderLogger';
+import {UidType} from '../../agora-rn-uikit/src';
 
-type BanUserPrivilegesResponse = {
+export type BanUserPrivilegesResponse = {
   success: boolean;
   message: string;
   data?: any;
 };
 
+interface BanUserOptions {
+  uid: UidType;
+  duration: number;
+  hostMeetingId?: string;
+}
+
 /**
- * Bans specific user privileges in the channel.
- * @param hostMeetingId - host meeting id.
- * @param channel - channel from which to ban the user.
- * @param uid - user id to ban.
- * @param duration - how long to ban user in minutes - min 1 max 1440
- * @param privileges - list of privileges to ban. default is ['join_channel', 'publish_audio', 'publish_video']
+ * @param options - The options for banning a user.
+ * @returns A promise that resolves to the result of the ban operation.
  */
-
-function useUserBan() {
-  const {store} = React.useContext(StorageContext);
+const useUserBan = (): ((
+  options: BanUserOptions,
+) => Promise<BanUserPrivilegesResponse>) => {
+  const {store} = useContext(StorageContext);
   const {
-    data: {roomId},
+    data: {roomId, channel},
   } = useRoomInfo();
-  const BAN_API_URL = `${$config.BACKEND_ENDPOINT}/v1/channel/user/ban`;
 
-  // duration - how long to ban user in minutes - min 1 max 1440
-  const banUserPrivileges = async (
-    hostMeetingID: string,
-    channel: string,
-    uid: UidType,
-    duration: number,
-    privileges: string[] = ['join_channel', 'publish_audio', 'publish_video'],
-  ): Promise<BanUserPrivilegesResponse> => {
+  return async ({uid, duration, hostMeetingId}: BanUserOptions) => {
     if (!uid || !duration || duration < 1 || duration > 1440) {
       logger.error(
         LogSource.NetworkRest,
@@ -55,20 +39,27 @@ function useUserBan() {
       return {success: false, message: 'Invalid user ID or duration'};
     }
 
+    const passphrase = hostMeetingId || roomId?.host;
+    if (!passphrase) {
+      logger.error(LogSource.NetworkRest, 'ban_user', 'Missing passphrase');
+      return {
+        success: false,
+        message: 'Host Passphrase is required to ban user',
+      };
+    }
+
     const requestId = getUniqueID();
-    logger.log(
-      LogSource.NetworkRest,
-      'ban_user',
-      `Trying to ban user with id ${uid} in channel : ${channel}`,
-    );
+    const BAN_API_URL = `${$config.BACKEND_ENDPOINT}/v1/channel/user/ban`;
 
     const payload = {
-      passphrase: hostMeetingID || roomId?.host,
-      uid: uid,
+      passphrase,
+      uid,
       channel_name: channel,
-      duration: duration,
-      privileges: privileges,
+      duration,
+      privileges: ['join_channel'],
     };
+
+    console.log('Ban User payload', payload);
 
     try {
       const response = await fetch(BAN_API_URL, {
@@ -82,32 +73,32 @@ function useUserBan() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok && response.status != 200) {
+      if (!response.ok) {
         const errorText = await response.text();
         logger.error(
           LogSource.NetworkRest,
           'ban_user',
-          `Failed to ban user with id ${uid}`,
+          'API Error:',
           errorText,
         );
         return {success: false, message: errorText};
       }
-      return {
-        success: true,
-        message: 'User privileges banned successfully',
-      };
-    } catch (error) {
-      logger.error(
+
+      logger.log(
         LogSource.NetworkRest,
         'ban_user',
-        `Error while trying to ban user with id ${uid}`,
-        error,
+        `Successfully banned user ${uid} in channel: ${channel}`,
       );
-      return {success: false, message: 'Error while banning the user'};
+
+      return {
+        success: true,
+        message: 'User banned successfully',
+      };
+    } catch (error) {
+      logger.error(LogSource.NetworkRest, 'ban_user', 'Exception:', error);
+      return {success: false, message: 'Unexpected error during ban request'};
     }
   };
-
-  return banUserPrivileges;
-}
+};
 
 export default useUserBan;

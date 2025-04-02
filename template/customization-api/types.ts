@@ -47,3 +47,4 @@ export {
 } from '../src/app-state/useVideoQuality';
 export {type ActionMenuItem} from '../src/atoms/ActionMenu';
 export {type IconButtonProps} from '../src/atoms/IconButton';
+export {type UserActionMenuItemsConfig} from '../src/atoms/UserActionMenuPreset';
