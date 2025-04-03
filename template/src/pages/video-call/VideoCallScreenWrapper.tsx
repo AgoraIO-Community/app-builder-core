@@ -8,6 +8,7 @@ import {useUserPreference} from '../../components/useUserPreference';
 import WhiteboardConfigure from '../../components/whiteboard/WhiteboardConfigure';
 import ChatConfigure from '../../components/chat/chatConfigure';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
+import {useContent, useEndCall} from 'customization-api';
 
 const VideoCallScreenWithRecordingBot: React.FC = () => {
   const location = useLocation();
@@ -24,6 +25,15 @@ const VideoCallScreenWithRecordingBot: React.FC = () => {
 const VideoCallScreenWrapper: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
   let configComponent: React.ReactNode;
+
+  const {isUserBaned} = useContent();
+  const endCall = useEndCall();
+
+  useEffect(() => {
+    if (isUserBaned) {
+      endCall();
+    }
+  }, [isUserBaned]);
 
   const videoComponent = rtcProps?.recordingBot ? (
     <VideoCallScreenWithRecordingBot />

@@ -399,13 +399,18 @@ const VideoCall: React.FC = () => {
     //     SdkJoinState.promise?.res();
     //   }
     // },
-    EndCall: () => {
+    EndCall:  () => {
       clearState('join');
       setTimeout(() => {
         // TODO: These callbacks are being called twice
         SDKEvents.emit('leave');
-        history.push('/');
-        client.resetStore();
+        if (afterEndCall) {
+          afterEndCall(data.isHost, history as unknown as History);
+        } else {
+          history.push('/');
+        }
+        // client.resetStore();//https://github.com/apollographql/apollo-client/issues/2919#issuecomment-406311579
+        client.cache.reset();
       }, 0);
     },
     UserJoined: (uid: UidType) => {
