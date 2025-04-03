@@ -4,22 +4,24 @@ import Navbar, {
   MeetingTitleToolbarItem,
   ParticipantCountToolbarItem,
   RecordingStatusToolbarItem,
-  ChatToolbarItem,
-  ParticipantToolbarItem,
-  SettingsToobarItem,
 } from '../../components/Navbar';
 import Controls, {
   LayoutToolbarItem,
-  InviteToolbarItem,
   RaiseHandToolbarItem,
   LocalAudioToolbarItem,
   LocalVideoToolbarItem,
   SwitchCameraToolbarItem,
-  ScreenShareToolbarItem,
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
   MoreButtonToolbarItem,
 } from '../../components/Controls';
+import {
+  ChatToolbarItem,
+  InviteToolbarItem,
+  ParticipantToolbarItem,
+  SettingsToolbarItem,
+  ScreenshareToolbarItem,
+} from '../../components/controls/toolbar-items';
 import ChatBubble from '../../subComponents/ChatBubble';
 import {ChatInput} from '../../subComponents/ChatInput';
 import {ChatAttachmentButton} from '../../subComponents/chat/ChatAttachment';
@@ -35,14 +37,14 @@ const ToolbarComponents = {
   RecordingStatusToolbarItem,
   ChatToolbarItem,
   ParticipantToolbarItem,
-  SettingsToobarItem,
+  SettingsToolbarItem,
   LayoutToolbarItem,
   InviteToolbarItem,
   RaiseHandToolbarItem,
   LocalAudioToolbarItem,
   LocalVideoToolbarItem,
   SwitchCameraToolbarItem,
-  ScreenShareToolbarItem,
+  ScreenshareToolbarItem,
   RecordingToolbarItem,
   LocalEndcallToolbarItem,
   WhiteboardToolbarItem: WhiteboardButton,
