@@ -16,12 +16,13 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
 import RemoteMutePopup from '../subComponents/RemoteMutePopup';
-import {calculatePosition} from '../utils/common';
+import {calculatePosition, isValidReactComponent} from '../utils/common';
 import {
   I18nMuteType,
   peoplePanelMuteAllMicBtnText,
   peoplePanelTurnoffAllCameraBtnText,
 } from '../language/default-labels/videoCallScreenLabels';
+import {useCustomization} from 'customization-implementation';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -145,17 +146,52 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
 };
 
 const HostControlView = () => {
+  const {AudioControlComponent, VideoControlComponent} = useCustomization(
+    data => {
+      let components: {
+        AudioControlComponent: React.ComponentType;
+        VideoControlComponent: React.ComponentType;
+      } = {
+        AudioControlComponent:
+          MuteAllAudioButton as React.ComponentType<MuteAllAudioButtonProps>,
+        VideoControlComponent:
+          MuteAllVideoButton as React.ComponentType<MuteAllVideoButtonProps>,
+      };
+
+      if (
+        data?.components?.videoCall?.hostControls?.audioControl &&
+        isValidReactComponent(
+          data?.components?.videoCall?.hostControls?.audioControl,
+        )
+      ) {
+        components.AudioControlComponent =
+          data?.components?.videoCall?.hostControls?.audioControl;
+      }
+
+      if (
+        data?.components?.videoCall?.hostControls?.videoControl &&
+        isValidReactComponent(
+          data?.components?.videoCall?.hostControls?.videoControl,
+        )
+      ) {
+        components.VideoControlComponent =
+          data?.components?.videoCall?.hostControls?.videoControl;
+      }
+
+      return components;
+    },
+  );
   return (
     // <View style={style.container}>
     <>
       {!$config.AUDIO_ROOM && (
         <View style={{display: 'flex', flex: 1}}>
-          <MuteAllVideoButton />
+          <VideoControlComponent />
         </View>
       )}
       <Spacer horizontal size={16} />
       <View style={{display: 'flex', flex: 1}}>
-        <MuteAllAudioButton />
+        <AudioControlComponent />
       </View>
     </>
     // </View>
