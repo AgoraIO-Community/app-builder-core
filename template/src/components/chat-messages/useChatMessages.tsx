@@ -215,7 +215,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     data: {isHost},
   } = useRoomInfo();
   const {dispatch} = useContext(DispatchContext);
-  const {defaultContent} = useContent();
+  const {defaultContent, isUserBaned} = useContent();
   const localUid = useLocalUid();
   const {setSidePanel, sidePanel} = useSidePanel();
   const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
@@ -516,6 +516,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     msgType: ChatMessageType,
     forceStop: boolean = false,
   ) => {
+    if (isUserBaned) {
+      return;
+    }
     if (isPrivateMessage) {
       // update notification count
       if (!(individualActiveRef.current === Number(uid))) {
