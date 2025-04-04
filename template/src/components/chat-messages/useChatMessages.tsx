@@ -230,6 +230,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }>({});
 
   const defaultContentRef = useRef({defaultContent: defaultContent});
+  const isUserBanedRef = useRef({isUserBaned: isUserBaned});
 
   const isHostRef = useRef({isHost: isHost});
   const callActiveRef = useRef({callActive: callActive});
@@ -305,6 +306,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
+
+  useEffect(() => {
+    isUserBanedRef.current.isUserBaned = isUserBaned;
+  }, [isUserBaned]);
 
   useEffect(() => {
     groupActiveRef.current =
@@ -516,7 +521,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     msgType: ChatMessageType,
     forceStop: boolean = false,
   ) => {
-    if (isUserBaned) {
+    if (isUserBanedRef.current.isUserBaned) {
       return;
     }
     if (isPrivateMessage) {
