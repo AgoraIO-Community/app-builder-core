@@ -157,7 +157,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   } = useRoomInfo();
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {defaultContent} = useContent();
+  const {defaultContent, isUserBaned} = useContent();
   const {hostUids, audienceUids} = useLiveStreamDataContext();
 
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
@@ -205,6 +205,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
 
       if ($config.AUTO_CONNECT_RTM && !callActive) {
+        return;
+      }
+      if (isUserBaned) {
         return;
       }
 
