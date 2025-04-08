@@ -80,6 +80,11 @@ const ChatParticipants = (props: any) => {
             } else {
               const userId = i;
               const userInfo = defaultContent[userId];
+
+              // if user is not in active uids, then skip it
+              if (!activeUids.includes(userId)) {
+                return false;
+              }
               //video meeting with waiting room
               if (
                 $config.ENABLE_WAITING_ROOM &&

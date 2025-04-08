@@ -32,10 +32,7 @@ const VideoCallScreenWrapper: React.FC = () => {
 
   useEffect(() => {
     if (isUserBaned) {
-      RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
-      setTimeout(() => {
-        endCall();
-      }, 0);
+      endCall();
     }
   }, [isUserBaned]);
 
