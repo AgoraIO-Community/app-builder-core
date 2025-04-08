@@ -6,7 +6,6 @@ import {
   useLayout,
 } from 'customization-api';
 import {
-  DefaultLayouts,
   getGridLayoutName,
   getPinnedLayoutName,
 } from '../pages/video-call/DefaultLayouts';

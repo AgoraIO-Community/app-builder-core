@@ -65,6 +65,7 @@ export interface UserActionMenuDefaultItem {
     closeActionMenu: () => void;
     targetUid: UidType;
     hostMeetingId?: string;
+    targetUidType: string;
   }>; // to override default component or add new
 }
 export type UserActionDefaultItemsConfig = {

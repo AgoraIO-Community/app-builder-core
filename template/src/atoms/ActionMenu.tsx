@@ -49,6 +49,7 @@ export interface ActionMenuItem {
   disabled?: boolean;
   iconSize?: number;
   hide?: ToolbarItemHide;
+  type?: string;
 }
 export interface ActionMenuProps {
   from: string;
@@ -200,6 +201,7 @@ const ActionMenu = (props: ActionMenuProps) => {
         onHoverContent = undefined,
         iconSize = 20,
         titleStyle = {},
+        type = '',
       } = item;
       return (
         <PlatformWrapper key={props.from + '_' + title + index}>
@@ -232,6 +234,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                     closeActionMenu={closeActionMenu}
                     targetUid={uid}
                     hostMeetingId={roomId?.host}
+                    targetUidType={type}
                   />
                 </TouchableOpacity>
               ) : (

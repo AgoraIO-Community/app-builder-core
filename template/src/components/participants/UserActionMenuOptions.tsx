@@ -692,6 +692,7 @@ export default function UserActionMenuOptionsOptions(
             },
             uid: user.uid,
             disabled: config.disabled ?? false,
+            type: user.type,
           };
         });
 
