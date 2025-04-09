@@ -206,8 +206,8 @@ export default function UserActionMenuOptionsOptions(
           if (!viewInLargeConfig.hide && !isPinned) {
             items.push({
               key: viewInLargeKey,
-              disabled: isOnlyOneActive,
-              order: viewInLargeConfig.order ?? 4,
+              disabled: viewInLargeConfig.disabled ?? isOnlyOneActive,
+              order: viewInLargeConfig.order ?? 0,
               icon: isPinned ? 'unpin-outlined' : 'pin-outlined',
               onHoverIcon: isPinned ? 'unpin-filled' : 'pin-filled',
               iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -268,8 +268,8 @@ export default function UserActionMenuOptionsOptions(
           if (!pinToTopConfig.hide) {
             items.push({
               key: pinToTopKey,
-              disabled: isOnlyOneActive,
-              order: pinToTopConfig.order ?? 0,
+              disabled: pinToTopConfig.disabled ?? isOnlyOneActive,
+              order: pinToTopConfig.order ?? 1,
               icon: isPinnedToTop ? 'unpin-outlined' : 'pin-outlined',
               onHoverIcon: isPinnedToTop ? 'unpin-filled' : 'pin-filled',
               iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -359,6 +359,7 @@ export default function UserActionMenuOptionsOptions(
       if (!messageConfig.hide && $config.CHAT) {
         items.push({
           key: messageKey,
+          disabled: messageConfig.disable ?? false,
           order: messageConfig.order ?? 2,
           icon: 'chat-outlined',
           onHoverIcon: 'chat-filled',
@@ -430,6 +431,7 @@ export default function UserActionMenuOptionsOptions(
           if (!muteAudioConfig.hide) {
             items.push({
               key: muteAudioKey,
+              disabled: muteAudioConfig.disabled ?? false,
               order: muteAudioConfig.order ?? 3,
               icon: isMuted ? 'mic-off-outlined' : 'mic-on-outlined',
               onHoverIcon: isMuted ? 'mic-off-filled' : 'mic-on-filled',
@@ -456,6 +458,7 @@ export default function UserActionMenuOptionsOptions(
           if (!$config.AUDIO_ROOM && !muteVideoConfig.hide) {
             items.push({
               key: muteVideoKey,
+              disabled: muteVideoConfig.disabled ?? false,
               order: muteVideoConfig.order ?? 4,
               icon: isVideoMuted ? 'video-off-outlined' : 'video-on-outlined',
               onHoverIcon: isVideoMuted
@@ -544,7 +547,8 @@ export default function UserActionMenuOptionsOptions(
         if (!removeConfig.hide) {
           items.push({
             key: removeKey,
-            order: removeConfig.order ?? 10,
+            disabled: removeConfig.disabled ?? false,
+            order: removeConfig.order ?? 5,
             icon: 'remove-meeting',
             iconColor: $config.SEMANTIC_ERROR,
             textColor: $config.SEMANTIC_ERROR,
@@ -586,7 +590,8 @@ export default function UserActionMenuOptionsOptions(
     ) {
       items.push({
         key: changeNameKey,
-        order: changeNameConfig.order ?? 5,
+        disabled: changeNameConfig.disabled ?? false,
+        order: changeNameConfig.order ?? 6,
         icon: 'pencil-outlined',
         onHoverIcon: 'pencil-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -635,7 +640,8 @@ export default function UserActionMenuOptionsOptions(
     ) {
       items.push({
         key: removeScreenshareKey,
-        order: removeScreenshareConfig.order ?? 10,
+        disabled: removeScreenshareConfig.disabled ?? false,
+        order: removeScreenshareConfig.order ?? 7,
         icon: 'remove-meeting',
         iconColor: $config.SEMANTIC_ERROR,
         textColor: $config.SEMANTIC_ERROR,
@@ -679,12 +685,14 @@ export default function UserActionMenuOptionsOptions(
           }
           return {
             key,
-            order: config.order ?? 99,
+            order: config.order ?? 8,
             component: config.component,
             closeActionMenu: () => {
               setActionMenuVisible(false);
             },
             uid: user.uid,
+            disabled: config.disabled ?? false,
+            type: user.type,
           };
         });
 

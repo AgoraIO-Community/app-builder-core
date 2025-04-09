@@ -57,6 +57,7 @@ export type AttendeeRemoteActionKeys = 'view-in-large' | 'message-privately';
 export interface UserActionMenuDefaultItem {
   hide?: boolean;
   order?: number;
+  disabled?: boolean;
   onPress?: () => void; // replace existing logic
   onAction?: (uid?: UidType, hostMeetingId?: string) => void; // add additional logic
   visibility?: ActionVisibility[]; // to whom  custom action item should be visible , build in actions menu is already handled
@@ -64,6 +65,7 @@ export interface UserActionMenuDefaultItem {
     closeActionMenu: () => void;
     targetUid: UidType;
     hostMeetingId?: string;
+    targetUidType: string;
   }>; // to override default component or add new
 }
 export type UserActionDefaultItemsConfig = {

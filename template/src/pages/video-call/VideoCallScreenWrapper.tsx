@@ -9,7 +9,6 @@ import WhiteboardConfigure from '../../components/whiteboard/WhiteboardConfigure
 import ChatConfigure from '../../components/chat/chatConfigure';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 import {useContent, useEndCall} from 'customization-api';
-import RTMEngine from '../../../src/rtm/RTMEngine';
 
 const VideoCallScreenWithRecordingBot: React.FC = () => {
   const location = useLocation();
@@ -32,10 +31,7 @@ const VideoCallScreenWrapper: React.FC = () => {
 
   useEffect(() => {
     if (isUserBaned) {
-      RTMEngine.getInstance().engine.leaveChannel(rtcProps.channel);
-      setTimeout(() => {
-        endCall();
-      }, 0);
+      endCall();
     }
   }, [isUserBaned]);
 
