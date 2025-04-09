@@ -163,6 +163,7 @@ interface ConfigInterface {
   CHAT_APP_NAME: string;
   CHAT_URL: string;
   ENABLE_NOISE_CANCELLATION_BY_DEFAULT: boolean;
+  NOISE_CANCELLATION_WASM_PATH: string;
   CLI_VERSION: string;
   CORE_VERSION: string;
   DISABLE_LANDSCAPE_MODE: boolean;

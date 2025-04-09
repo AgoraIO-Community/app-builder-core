@@ -148,6 +148,12 @@ const JOIN_CHANNEL_PHRASE = gql`
 export interface joinRoomPreference {
   disableShareTile: boolean;
   disableVideoProcessors: boolean;
+  disableChat?: boolean;
+  disableInvite?: boolean;
+  disableScreenShare?: boolean;
+  disableSettings?: boolean;
+  disableParticipants?: boolean;
+  userRemovalTimeout?: number;
 }
 
 export default function useJoinRoom() {
@@ -276,7 +282,7 @@ export default function useJoinRoom() {
               isWaitingRoomEnabled
                 ? data.secretSalt
                 : data.joinChannel.secretSalt,
-            );
+            ) as Uint8Array;
           }
           if (data?.joinChannel?.screenShare?.uid || data?.screenShare?.uid) {
             roomInfo.screenShareUid = isWaitingRoomEnabled

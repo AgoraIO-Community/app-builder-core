@@ -54,6 +54,7 @@ import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot';
 import {ToolbarPresetProps} from '../../atoms/ToolbarPreset';
 import CustomSidePanelView from '../../components/CustomSidePanel';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -322,6 +323,7 @@ const VideoCallScreen = () => {
   }, [sidePanel, SidePanelArray]);
 
   const {isRecordingBot, recordingBotUIConfig} = useIsRecordingBot();
+  const canAccessChat = useControlPermissionMatrix('chatControl');
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -413,7 +415,7 @@ const VideoCallScreen = () => {
                 <></>
               )}
               {sidePanel === SidePanelType.Chat ? (
-                $config.CHAT ? (
+                canAccessChat ? (
                   <ChatComponent />
                 ) : (
                   <></>
