@@ -1,12 +1,12 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   CustomAgentInterfaceProps,
-  useAIAgent,
   useContent,
   useLocalAudio,
 } from 'customization-api';
 import {View, StyleSheet, Platform} from 'react-native';
 import hark from 'hark';
+import {AgentContext} from '../components/AgentControls/AgentContext';
 
 const NotJoinedMp4 = require('./1.Not-Joined.mp4').default;
 const JoiningMp4 = require('./2.Joining.mp4').default;
@@ -28,7 +28,7 @@ export default function AiAgentCustomView({
   const [animation, setAnimation] =
     useState<keyof typeof AI_ANIMATION_VIDEO>('NOT_JOINED');
   const {activeUids} = useContent();
-  const {agentUID} = useAIAgent();
+  const {agentUID} = useContext(AgentContext);
   const {getRemoteAudioStream} = useLocalAudio();
   const [isAISpeaking, setAISpeaking] = useState(false);
   const aiMediaStream = useRef(null);

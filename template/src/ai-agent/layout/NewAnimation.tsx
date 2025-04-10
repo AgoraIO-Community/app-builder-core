@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import ThemeConfig from '../../theme';
-import {useAIAgent} from '../components/AgentControls/AgentContext';
+import {AgentContext} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
 import AiAgentCustomView from '../ai-interface/AIAgentInterface';
@@ -22,7 +22,8 @@ import {
 import JoinCallIcon from '../assets/join-call.png';
 
 export default function NewAnimation() {
-  const {agentConnectionState, toggleAgentConnection} = useAIAgent();
+  const {agentConnectionState, toggleAgentConnection} =
+    useContext(AgentContext);
 
   const isLoading =
     agentConnectionState === AgentState.REQUEST_SENT ||

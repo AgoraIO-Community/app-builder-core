@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {StyleSheet, TouchableOpacity, Image} from 'react-native';
 import {
   MUTE_LOCAL_TYPE,
@@ -7,7 +7,7 @@ import {
   useMuteToggleLocal,
   SidePanelType,
 } from 'customization-api';
-import {useAIAgent} from '../components/AgentControls/AgentContext';
+import {AgentContext} from '../components/AgentControls/AgentContext';
 //@ts-ignore
 import MicOnIcon from '../assets/mic-on.png';
 //@ts-ignore
@@ -104,7 +104,7 @@ export const SettingButton = () => {
 };
 
 export const DisconnectButton = () => {
-  const {toggleAgentConnection} = useAIAgent();
+  const {toggleAgentConnection} = useContext(AgentContext);
   return (
     <TouchableOpacity
       style={{
