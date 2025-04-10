@@ -1,4 +1,4 @@
-import React, {lazy} from 'react';
+import React from 'react';
 import {CustomizationApiInterface} from 'customization-api';
 import {isMobileUA} from '../utils/common';
 import Bottombar from './components/Bottombar';
@@ -9,13 +9,12 @@ import CustomChatPanel from './components/CustomChatPanel';
 import CustomSettingsPanel from './components/CustomSettingsPanel';
 import {AgentProvider} from './components/AgentControls/AgentContext';
 
-//lazy loading the layout components
 //LAYOUT_TYPE_1
-const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
+import DefaultLayout from './layout/DefaultLayout';
 //LAYOUT_TYPE_2
-const ConversationalAILayout = lazy(() => import('./layout/ConversationalAI'));
+import ConversationalAILayout from './layout/ConversationalAI';
 //LAYOUT_TYPE_3
-const NewAnimationLayout = lazy(() => import('./layout/NewAnimation'));
+import NewAnimationLayout from './layout/NewAnimation';
 
 const DummyComponent = () => {
   return <></>;
@@ -42,6 +41,7 @@ const getCustomLayoutComponent = () => {
     ? ConversationalAILayout
     : DefaultLayout;
 };
+
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
   components: {
     create: CustomCreate,
