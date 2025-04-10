@@ -117,10 +117,7 @@ const RtmConfigure = (props: any) => {
     if (!$config.ENABLE_CONVERSATIONAL_AI) {
       const handBrowserClose = ev => {
         ev.preventDefault();
-        window.setTimeout(function () {
-          window.location = `${window.location.origin}/create`;
-        }, 0);
-        return false;
+        return (ev.returnValue = 'Are you sure you want to exit?');
       };
       const logoutRtm = () => {
         engine.current.leaveChannel(rtcProps.channel);

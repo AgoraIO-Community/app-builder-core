@@ -6,7 +6,7 @@ import {
   validateMeetingInfoData,
   RoomInfoContextInterface,
 } from './room-info/useRoomInfo';
-import {CustomizationApiInterface} from 'customization-api';
+import {CustomizationApiInterface, customize} from 'customization-api';
 import {Unsubscribe} from 'nanoevents';
 
 type extractPromises<T extends (...p: any) => any> = {
@@ -30,6 +30,12 @@ type SdkApiContextInterface = {
         preference: {
           disableShareTile: boolean;
           disableVideoProcessors: boolean;
+          disableChat?: boolean;
+          disableInvite?: boolean;
+          disableScreenShare?: boolean;
+          disableSettings?: boolean;
+          disableParticipants?: boolean;
+          userRemovalTimeout?: number;
         };
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
@@ -75,7 +81,12 @@ const SdkApiInitState: SdkApiContextInterface = {
   join: {
     initialized: false,
   },
-  customize: {},
+  //for AI apps we should call customize method to get the default customization applied.
+  customize: $config.ENABLE_CONVERSATIONAL_AI
+    ? {
+        customization: customize({}),
+      }
+    : {},
   // mediaDevice: {},
   microphoneDevice: {},
   speakerDevice: {},

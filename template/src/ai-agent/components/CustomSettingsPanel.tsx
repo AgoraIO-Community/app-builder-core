@@ -12,7 +12,7 @@ import {
 import SelectAiAgent from './SelectAiAgent';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {AgentContext, useAIAgent} from './AgentControls/AgentContext';
+import {AgentContext} from './AgentControls/AgentContext';
 import UserPrompt from './UserPrompt';
 import {useIsAgentAvailable} from './utils';
 import Toggle from '../../atoms/Toggle';
@@ -116,24 +116,30 @@ const AdvancedSettings = () => {
     setIsInterruptionHandlingEnabled,
     agentId,
     agentConnectionState,
-  } = useAIAgent();
+  } = useContext(AgentContext);
   const {
     data: {agents},
   } = useRoomInfo();
 
   //when user switchs agent then update the toggle value for that agent
   useEffect(() => {
-    if (agentId && agents?.length) {
+    if (
+      isInterruptionHandlingEnabled === undefined &&
+      agentId &&
+      agents?.length
+    ) {
       setIsInterruptionHandlingEnabled(
         agents?.find(a => a?.id === agentId)?.config?.enable_aivad,
       );
     }
-  }, [agentId, agents, setIsInterruptionHandlingEnabled]);
+  }, [agentId, agents, isInterruptionHandlingEnabled]);
+
   const disabled = $config.ENABLE_CONVERSATIONAL_AI
     ? agentConnectionState === 'AGENT_CONNECTED'
       ? true
       : false
     : true;
+
   return (
     <View style={[{flexDirection: 'row', justifyContent: 'space-between'}]}>
       <Text

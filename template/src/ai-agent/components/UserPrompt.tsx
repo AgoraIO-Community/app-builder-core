@@ -20,7 +20,7 @@ import {
   TertiaryButton,
   useRoomInfo,
 } from 'customization-api';
-import {useIsDesktop, isMobileUA} from '../../utils/common';
+import {useIsDesktop, isMobileUA, isAndroid, isIOS} from '../../utils/common';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const UserPrompt = () => {
@@ -39,10 +39,12 @@ const UserPrompt = () => {
   }, [prompt]);
 
   useEffect(() => {
-    if (agentId && agents?.length) {
+    if (!prompt && agentId && agents?.length) {
       setPrompt(agents?.find(a => a?.id === agentId)?.config?.llm?.prompt);
+    } else if (prompt) {
+      setPrompt(prompt);
     }
-  }, [agentId, agents, setPrompt]);
+  }, [agentId, agents, setPrompt, prompt]);
   return (
     <>
       <View
@@ -116,7 +118,7 @@ const UserPrompt = () => {
                   containerStyle={{
                     width: 'auto',
                     minWidth: 124,
-                    height: 36,
+                    height: isAndroid() || isIOS() ? 'auto' : 36,
                     borderRadius: ThemeConfig.BorderRadius.medium,
                   }}
                   textStyle={styles.btnText}
@@ -133,7 +135,7 @@ const UserPrompt = () => {
                     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
                     width: 'auto',
                     minWidth: 124,
-                    height: 36,
+                    height: isAndroid() || isIOS() ? 'auto' : 36,
                   }}
                   textStyle={styles.btnText}
                   text={'SAVE'}

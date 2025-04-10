@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {useSidePanel, isAndroid, isIOS} from 'customization-api';
 import ThemeConfig from '../../theme';
-import {useAIAgent} from '../components/AgentControls/AgentContext';
+import {AgentContext} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
 import {isMobileUA} from '../../utils/common';
@@ -24,7 +24,8 @@ import {
 
 export default function ConversationalAI() {
   const {setSidePanel} = useSidePanel();
-  const {agentConnectionState, toggleAgentConnection} = useAIAgent();
+  const {agentConnectionState, toggleAgentConnection} =
+    useContext(AgentContext);
 
   useEffect(() => {
     if (!(isAndroid() || isIOS())) {

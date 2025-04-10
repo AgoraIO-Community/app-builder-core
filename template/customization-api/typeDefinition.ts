@@ -94,6 +94,10 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
     title: string;
     renderComponent?: React.ComponentType;
   };
+  hostControls?: {
+    audioControl?: React.ComponentType;
+    videoControl?: React.ComponentType;
+  };
 }
 
 export type ComponentsInterface = {

@@ -51,6 +51,7 @@ import {useLiveStreamDataContext} from '../../components/contexts/LiveStreamData
 import {fetchRetry} from '../../utils/fetch-retry';
 import {LogSource, logger} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
+import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 
 const log = (...args: any[]) => {
   console.log('[Recording_v2:] ', ...args);
@@ -156,7 +157,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   } = useRoomInfo();
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {defaultContent} = useContent();
+  const {defaultContent, isUserBaned} = useContent();
   const {hostUids, audienceUids} = useLiveStreamDataContext();
 
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
@@ -204,6 +205,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
 
       if ($config.AUTO_CONNECT_RTM && !callActive) {
+        return;
+      }
+      if (isUserBaned) {
         return;
       }
 
@@ -832,9 +836,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   ]);
   // ************ Recording Bot starts ************
 
+  const canAccessChat = useControlPermissionMatrix('chatControl');
+
   const setRecordingBotUI = () => {
     if (isRecordingBot) {
-      if (recordingBotUIConfig?.chat && $config.CHAT) {
+      if (recordingBotUIConfig?.chat && canAccessChat) {
         setSidePanel(SidePanelType.Chat);
         setChatType(ChatType.Group);
       }
