@@ -7,10 +7,9 @@ import {
   useActionSheet,
   IconButtonProps,
   ToolbarItem,
-  useLayout,
 } from 'customization-api';
 import {isMobileUA} from '../../utils/common';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {AgentControl} from './AgentControls';
 
 export const CustomSettingButton = () => {
@@ -106,25 +105,12 @@ export const CustomTranscriptButton = () => {
 const Bottombar = () => {
   const {MeetingTitleToolbarItem} = ToolbarComponents;
   const {setSidePanel} = useSidePanel();
-  const {currentLayout} = useLayout();
-  const [renderNull, setRenderNull] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
       !isMobileUA() && setSidePanel('custom-settings-panel');
     });
   }, []);
-
-  //for conversational-ai hide the bottmbar
-  useEffect(() => {
-    if (currentLayout === 'conversational-ai') {
-      setRenderNull(true);
-    }
-  }, [currentLayout, setSidePanel]);
-
-  if (renderNull) {
-    return null;
-  }
 
   return (
     <ToolbarPreset

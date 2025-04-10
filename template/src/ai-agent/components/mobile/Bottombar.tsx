@@ -1,5 +1,4 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
 import {ToolbarPreset} from 'customization-api';
 import {AgentControl} from '../AgentControls';
 import {CustomSettingButton, CustomTranscriptButton} from '../Bottombar';
@@ -8,7 +7,9 @@ const Bottombar = () => {
   return (
     <ToolbarPreset
       align="bottom"
-      snapPointsMinMax={[100, 100]}
+      snapPointsMinMax={
+        $config.AI_LAYOUT === 'LAYOUT_TYPE_1' ? [100, 100] : [0, 0]
+      }
       items={{
         layout: {hide: true},
         invite: {hide: true},

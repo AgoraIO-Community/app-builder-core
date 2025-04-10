@@ -147,10 +147,22 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
       store?.agentId &&
       //@ts-ignore
       store?.agentId !== agentId &&
-      agents.filter(i => i?.id === agentId)?.length
+      agents?.length &&
+      //@ts-ignore
+      agents?.filter(i => i?.id === store?.agentId)?.length
     ) {
       //@ts-ignore
       setAgentId(store.agentId);
+    } else {
+      if (!agentId && agents?.length) {
+        setAgentId(agents[0]?.id);
+        setStore(prevState => {
+          return {
+            ...prevState,
+            agentId: agents[0]?.id,
+          };
+        });
+      }
     }
   }, [store, agentId, agents]);
 
