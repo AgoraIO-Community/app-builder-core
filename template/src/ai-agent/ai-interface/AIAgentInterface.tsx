@@ -5,7 +5,7 @@ import {
   useContent,
   useLocalAudio,
 } from 'customization-api';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Platform} from 'react-native';
 import hark from 'hark';
 
 const NotJoinedMp4 = require('./1.Not-Joined.mp4').default;
@@ -22,9 +22,9 @@ const AI_ANIMATION_VIDEO = {
   DISCONNECTING: DisconnectingMp4,
 };
 
-export const AiAgentCustomView = ({
+export default function AiAgentCustomView({
   connectionState,
-}: CustomAgentInterfaceProps) => {
+}: CustomAgentInterfaceProps) {
   const [animation, setAnimation] =
     useState<keyof typeof AI_ANIMATION_VIDEO>('NOT_JOINED');
   const {activeUids} = useContent();
@@ -90,7 +90,6 @@ export const AiAgentCustomView = ({
         animation !== 'LISTENING' && setAnimation('LISTENING');
       }
     }
-    console.log('debugging animation value', animation);
   }, [connectionState, animation, isAISpeaking]);
   return (
     <View style={styles.container}>
@@ -104,7 +103,7 @@ export const AiAgentCustomView = ({
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -113,5 +112,10 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      web: {
+        pointerEvents: 'none',
+      },
+    }),
   },
 });

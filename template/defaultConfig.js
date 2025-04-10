@@ -85,7 +85,7 @@ const DefaultConfig = {
   AUTO_CONNECT_RTM: false,
   ENABLE_CONVERSATIONAL_AI: false,
   CUSTOMIZE_AGENT: true,
-  AI_LAYOUT: 'DEFAULT_LAYOUT',
+  AI_LAYOUT: 'LAYOUT_TYPE_1',
 };
 
 module.exports = DefaultConfig;

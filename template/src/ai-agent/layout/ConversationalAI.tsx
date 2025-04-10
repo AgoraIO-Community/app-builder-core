@@ -1,6 +1,5 @@
-import React, {Suspense, useEffect, useRef, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
-  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -8,131 +7,48 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {
-  LayoutComponent,
-  MUTE_LOCAL_TYPE,
-  useSidePanel,
-  useLocalUserInfo,
-  useMuteToggleLocal,
-  SidePanelType,
-} from 'customization-api';
+import {useSidePanel, isAndroid, isIOS} from 'customization-api';
 import ThemeConfig from '../../theme';
 import {useAIAgent} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
-
+import {isMobileUA} from '../../utils/common';
 //@ts-ignore
 import JoinCallIcon from '../assets/join-call.png';
-//@ts-ignore
-import MicOnIcon from '../assets/mic-on.png';
-//@ts-ignore
-import MicOffIcon from '../assets/mic-off.png';
-//@ts-ignore
-import TranscriptIcon from '../assets/transcript.png';
-//@ts-ignore
-import SettingsIcon from '../assets/settings.png';
-//@ts-ignore
-import DisconnectIcon from '../assets/close.png';
-const {Application} = require('@splinetool/runtime');
+import {
+  DisconnectButton,
+  MicButton,
+  SettingButton,
+  TranscriptButton,
+} from '../components/ControlButtons';
 
-const MicButton = () => {
-  const {audio} = useLocalUserInfo();
-  const muteToggle = useMuteToggleLocal();
-  return (
-    <TouchableOpacity
-      style={{
-        backgroundColor: audio
-          ? $config.PRIMARY_ACTION_BRAND_COLOR
-          : $config.TOOLBAR_COLOR,
-        borderRadius: 50,
-      }}
-      onPress={() => muteToggle(MUTE_LOCAL_TYPE.audio)}>
-      <Image style={styles.iconStyle} source={audio ? MicOnIcon : MicOffIcon} />
-    </TouchableOpacity>
-  );
-};
-const TranscriptButton = () => {
-  const {setSidePanel, sidePanel} = useSidePanel();
-  return (
-    <TouchableOpacity
-      style={{
-        backgroundColor:
-          sidePanel === 'agent-transcript-panel'
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.TOOLBAR_COLOR,
-        borderRadius: 50,
-      }}
-      onPress={() => {
-        if (sidePanel === 'agent-transcript-panel') {
-          setSidePanel(SidePanelType.None);
-        } else if (sidePanel !== 'agent-transcript-panel') {
-          setSidePanel('agent-transcript-panel');
-        }
-      }}>
-      <Image style={styles.iconStyle} source={TranscriptIcon} />
-    </TouchableOpacity>
-  );
-};
-
-const SettingButton = () => {
-  const {setSidePanel, sidePanel} = useSidePanel();
-  return (
-    <TouchableOpacity
-      style={{
-        backgroundColor:
-          sidePanel === 'custom-settings-panel'
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.TOOLBAR_COLOR,
-        borderRadius: 50,
-      }}
-      onPress={() => {
-        if (sidePanel === 'custom-settings-panel') {
-          setSidePanel(SidePanelType.None);
-        } else if (sidePanel !== 'custom-settings-panel') {
-          setSidePanel('custom-settings-panel');
-        }
-      }}>
-      <Image style={styles.iconStyle} source={SettingsIcon} />
-    </TouchableOpacity>
-  );
-};
-
-const DisconnectButton = () => {
-  const {toggleAgentConnection} = useAIAgent();
-  return (
-    <TouchableOpacity
-      style={{backgroundColor: $config.SEMANTIC_ERROR, borderRadius: 50}}
-      onPress={() => {
-        toggleAgentConnection(true);
-      }}>
-      <Image style={styles.iconStyle} source={DisconnectIcon} />
-    </TouchableOpacity>
-  );
-};
-
-export const ConversationalAI: LayoutComponent = () => {
+export default function ConversationalAI() {
+  const {setSidePanel} = useSidePanel();
   const {agentConnectionState, toggleAgentConnection} = useAIAgent();
-  // const spline = useRef();
-  // const sphere = useRef();
 
   useEffect(() => {
-    setTimeout(() => {
-      // make sure you have a canvas in the body
-      const canvas = document.getElementById('ai-agent') as HTMLCanvasElement;
+    if (!(isAndroid() || isIOS())) {
+      setTimeout(() => {
+        // make sure you have a canvas in the body
+        const canvas = document?.getElementById(
+          'ai-agent',
+        ) as HTMLCanvasElement;
 
-      // start the application and load the scene
-      const spline = new Application(canvas);
-      spline.load(
-        'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
-      );
+        if (canvas) {
+          const {Application} = require('@splinetool/runtime');
+          // start the application and load the scene
+          const spline = new Application(canvas);
+          spline.load(
+            'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
+          );
+        }
+      });
+    }
+
+    setTimeout(() => {
+      !isMobileUA() && setSidePanel('custom-settings-panel');
     });
   }, []);
-
-  function onLoad(splineApp) {
-    // save the app in a ref for later use
-    // spline.current = splineApp;
-    // sphere.current = splineApp.findObjectByName('Sphere');
-  }
 
   const isLoading =
     agentConnectionState === AgentState.REQUEST_SENT ||
@@ -147,28 +63,23 @@ export const ConversationalAI: LayoutComponent = () => {
 
   return (
     <View style={styles.layoutRootContainer}>
-      <View style={styles.welcomeContainer}>
-        <View style={styles.welcomeInnerContainer}>
-          <Text style={styles.welcomeText}>Hi</Text>
-        </View>
-      </View>
       <View style={styles.container}>
-        <canvas id="ai-agent" width="100%" height="100%"></canvas>
-        {/* <Suspense fallback={<div>Loading...</div>}>
-          <Spline
-            scene="https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode"
-            onLoad={onLoad}
+        {isAndroid() || isIOS() ? (
+          <View style={styles.nativeTextContainer}>
+            <Text style={styles.nativeText}>AI Agent...</Text>
+          </View>
+        ) : (
+          <canvas
+            id="ai-agent"
+            width="100%"
+            height="100%"
+            style={{pointerEvents: 'none'}}
           />
-        </Suspense> */}
+        )}
       </View>
       <View style={styles.btnContainer}>
         {!isLoading && agentConnectionState === 'AGENT_CONNECTED' ? (
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-evenly',
-            }}>
+          <View style={styles.controlsContainer}>
             <MicButton />
             <TranscriptButton />
             <SettingButton />
@@ -215,9 +126,14 @@ export const ConversationalAI: LayoutComponent = () => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
+  controlsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   iconStyle: {
     width: 34,
     height: 34,
@@ -226,6 +142,7 @@ const styles = StyleSheet.create({
   layoutRootContainer: {
     flex: 1,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderRadius: 8,
   },
   callAgentBtnInnerContainer: {
     flexDirection: 'row',
@@ -247,26 +164,18 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR,
     paddingLeft: 8,
   },
-  welcomeContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    maxWidth: 500,
-    top: 50,
+  nativeTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  welcomeText: {
+  nativeText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 50,
+    fontSize: 18,
     fontWeight: '800',
     color: $config.FONT_COLOR,
   },
-  welcomeInnerContainer: {
-    alignSelf: 'center',
-    display: 'flex',
-    flex: 1,
-  },
+
   btnContainer: {
     position: 'absolute',
     left: 0,
@@ -281,10 +190,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderRadius: 8,
-    ...Platform.select({
-      web: {
-        pointerEvents: 'none',
-      },
-    }),
   },
 });
