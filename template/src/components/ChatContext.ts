@@ -38,7 +38,7 @@ export interface ChatBubbleProps {
   replyToMsgId?: string;
   isLastMsg?: boolean;
   agent_text_status?: EMessageStatus | null;
-  disableReactions: boolean;
+  disableReactions?: boolean;
   remoteUIConfig?: {
     username?: string; // Custom username for remote user
     avatarIcon?: string;
