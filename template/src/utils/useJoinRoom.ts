@@ -9,6 +9,10 @@ import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI'
 import {base64ToUint8Array} from '../utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from './getUniqueID';
+import {
+  chatErrorNoToken
+} from '../language/default-labels/videoCallScreenLabels';
+import {useString} from '../utils/useString';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -164,6 +168,7 @@ export default function useJoinRoom() {
   const username = useGetName();
   const {request: requestToJoin} = useWaitingRoomAPI();
   const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
+  const chatErrorNoTokenText = useString(chatErrorNoToken)();
 
   return async (phrase: string, preference?: joinRoomPreference) => {
     setRoomInfo(prevState => {
@@ -304,17 +309,25 @@ export default function useJoinRoom() {
             const chatData = isWaitingRoomEnabled
               ? data.chat
               : data?.joinChannel?.chat;
+            const hasError = chatData?.error?.code || chatData?.error?.message;  
+            const missingUserToken =
+            !(
+              isWaitingRoomEnabled
+                ? data.chat?.userToken
+                : data?.joinChannel?.chat?.userToken
+            );
             if (
               $config.CHAT &&
-              (chatData?.error?.code || chatData?.error?.message)
+              (hasError || missingUserToken)
             ) {
               roomInfo.chat = {
                 user_token: '',
                 group_id: '',
                 is_group_owner: false,
                 error: {
-                  code: chatData?.error?.code,
-                  message: chatData?.error?.message,
+                  code: chatData?.error?.code || (missingUserToken ? 'NO_USER_TOKEN' : ''),
+                  message: chatData?.error?.message ||
+                  (missingUserToken ? chatErrorNoTokenText : ''),
                 },
               };
             } else {
@@ -328,7 +341,7 @@ export default function useJoinRoom() {
                 is_group_owner: isWaitingRoomEnabled
                   ? data.chat.isGroupOwner
                   : data?.joinChannel?.chat?.isGroupOwner,
-                error: null,
+                error:  null,
               };
               roomInfo.chat = chat;
             }
