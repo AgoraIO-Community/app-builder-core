@@ -174,6 +174,7 @@ interface ConfigInterface {
   ENABLE_CONVERSATIONAL_AI: boolean;
   CUSTOMIZE_AGENT: boolean;
   AI_LAYOUT: string;
+  SDK_CODEC: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

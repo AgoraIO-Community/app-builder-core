@@ -87,6 +87,7 @@ const DefaultConfig = {
   ENABLE_CONVERSATIONAL_AI: false,
   CUSTOMIZE_AGENT: true,
   AI_LAYOUT: 'LAYOUT_TYPE_1',
+  SDK_CODEC: 'vp8',
 };
 
 module.exports = DefaultConfig;
