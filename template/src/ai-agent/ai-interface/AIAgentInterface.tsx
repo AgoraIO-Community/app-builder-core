@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 8,
     ...Platform.select({
       web: {
         pointerEvents: 'none',
