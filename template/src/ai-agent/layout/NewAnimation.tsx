@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   layoutRootContainer: {
     flex: 1,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     borderRadius: 8,
   },
   callAgentBtnInnerContainer: {
