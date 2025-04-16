@@ -1173,14 +1173,14 @@ export default class RtcEngine {
         `RTC [createClient] creating user and screen client with profile ${profile}`,
       );
       this.client = AgoraRTC.createClient({
-        codec: $config.SDK_CODEC,
+        codec: $config.SDK_CODEC || 'vp8',
         mode:
           profile === ChannelProfileType.ChannelProfileLiveBroadcasting
             ? mode.live
             : mode.rtc,
       });
       this.screenClient = AgoraRTC.createClient({
-        codec: $config.SDK_CODEC,
+        codec: $config.SDK_CODEC || 'vp8',
         mode:
           profile === ChannelProfileType.ChannelProfileLiveBroadcasting
             ? mode.live
