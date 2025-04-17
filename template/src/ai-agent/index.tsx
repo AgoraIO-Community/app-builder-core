@@ -20,8 +20,12 @@ const DummyComponent = () => {
   return <></>;
 };
 
+const getAILayoutType = () => {
+  return $config.AI_LAYOUT ? $config.AI_LAYOUT : 'LAYOUT_TYPE_1';
+};
+
 const getTopBarComponent = () => {
-  return isMobileUA() || $config.AI_LAYOUT !== 'LAYOUT_TYPE_1'
+  return isMobileUA() || getAILayoutType() !== 'LAYOUT_TYPE_1'
     ? MobileTopBar
     : DummyComponent;
 };
@@ -29,15 +33,15 @@ const getTopBarComponent = () => {
 const getBottombarComponent = () => {
   return isMobileUA()
     ? MobileBottombar
-    : $config.AI_LAYOUT === 'LAYOUT_TYPE_1'
+    : getAILayoutType() === 'LAYOUT_TYPE_1'
     ? Bottombar
     : DummyComponent;
 };
 
 const getCustomLayoutComponent = () => {
-  return $config.AI_LAYOUT === 'LAYOUT_TYPE_3'
+  return getAILayoutType() === 'LAYOUT_TYPE_3'
     ? NewAnimationLayout
-    : $config.AI_LAYOUT === 'LAYOUT_TYPE_2'
+    : getAILayoutType() === 'LAYOUT_TYPE_2'
     ? ConversationalAILayout
     : DefaultLayout;
 };
@@ -50,7 +54,7 @@ export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {
       customLayout() {
         return [
           {
-            name: $config.AI_LAYOUT,
+            name: getAILayoutType(),
             label: 'Ai-Agent',
             icon: '',
             component: getCustomLayoutComponent(),
