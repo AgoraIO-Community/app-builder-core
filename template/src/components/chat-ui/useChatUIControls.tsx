@@ -38,6 +38,8 @@ export interface File {
   upload_status: UploadStatus;
 }
 
+export type ChatConnectionStatus = 'loading' | 'connected' | 'failed';
+
 export interface ChatUIControlsInterface {
   chatType: ChatType;
   privateChatUser: UidType;
@@ -64,8 +66,8 @@ export interface ChatUIControlsInterface {
   setPinMsgId: React.Dispatch<SetStateAction<string>>;
   pinnedByUser: UidType;
   setPinnedByUser: React.Dispatch<SetStateAction<UidType>>;
-  isChatInitialized: boolean;
-  setIsChatInitialized: React.Dispatch<SetStateAction<boolean>>;
+  chatConnectionStatus: ChatConnectionStatus;
+  setChatConnectionStatus: React.Dispatch<SetStateAction<ChatConnectionStatus>>;
 }
 
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
@@ -94,8 +96,8 @@ const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   setPinMsgId: () => {},
   pinnedByUser: 0,
   setPinnedByUser: () => {},
-  isChatInitialized: false,
-  setIsChatInitialized: () => {},
+  chatConnectionStatus: 'loading',
+  setChatConnectionStatus: () => {},
 });
 
 interface ChatUIControlsProviderProps {
@@ -129,7 +131,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [replyToMsgId, setReplyToMsgId] = useState('');
   const [pinMsgId, setPinMsgId] = useState('');
   const [pinnedByUser, setPinnedByUser] = useState<UidType>(0);
-  const [isChatInitialized, setIsChatInitialized] = useState(false);
+  const [chatConnectionStatus, setChatConnectionStatus] =
+    useState<ChatConnectionStatus>('loading');
 
   const _resetTextareaHeight = () => {
     if (chatInputRef?.current) {
@@ -188,8 +191,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setPinMsgId,
         pinnedByUser,
         setPinnedByUser,
-        isChatInitialized,
-        setIsChatInitialized,
+        chatConnectionStatus,
+        setChatConnectionStatus,
       }}>
       {props.children}
     </ChatUIControlsContext.Provider>

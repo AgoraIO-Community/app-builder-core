@@ -77,8 +77,8 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.1.4',
-  CORE_VERSION: '4.1.4',
+  CLI_VERSION: '3.1.5',
+  CORE_VERSION: '4.1.5',
   DISABLE_LANDSCAPE_MODE: false,
   STT_AUTO_START: false,
   CLOUD_RECORDING_AUTO_START: false,
@@ -86,7 +86,8 @@ const DefaultConfig = {
   AUTO_CONNECT_RTM: false,
   ENABLE_CONVERSATIONAL_AI: false,
   CUSTOMIZE_AGENT: true,
-  AI_LAYOUT: 'DEFAULT_LAYOUT',
+  AI_LAYOUT: 'LAYOUT_TYPE_1',
+  SDK_CODEC: 'vp8',
 };
 
 module.exports = DefaultConfig;

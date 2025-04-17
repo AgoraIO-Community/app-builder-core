@@ -89,9 +89,14 @@ const ChatConfigure = ({children}) => {
     addReactionToPrivateStore,
     addReactionToStore,
   } = useChatMessages();
-  const {setPinMsgId, setPinnedByUser, privateChatUser, setIsChatInitialized} =
-    useChatUIControls();
+  const {
+    setPinMsgId,
+    setPinnedByUser,
+    privateChatUser,
+    setChatConnectionStatus,
+  } = useChatUIControls();
   const privateChatUserRef = React.useRef(privateChatUser);
+  const chatConnectedRef = React.useRef(false);
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -345,7 +350,8 @@ const ChatConfigure = ({children}) => {
           onConnected() {
             // once sdk connects to chat server successfully , need to add message listeners
             console.warn('chat onConnected');
-            setIsChatInitialized(true);
+            setChatConnectionStatus('connected');
+            chatConnectedRef.current = true;
             setupMessageListener();
             logger.log(
               LogSource.Internals,
@@ -384,6 +390,18 @@ const ChatConfigure = ({children}) => {
         console.warn('chat sdk: init error', error);
       }
     };
+
+    // On Connected event not recived from Agora Chat SDK
+    setTimeout(() => {
+      if (!chatConnectedRef.current) {
+        setChatConnectionStatus('failed');
+        logger.error(
+          LogSource.Internals,
+          'CHAT',
+          `Chat connection timed out for native user ${data.uid}. No onConnected received.`,
+        );
+      }
+    }, 15000);
 
     initializeChatSDK();
     return () => {

@@ -59,8 +59,6 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import CommonStyles from '../components/CommonStyles';
 import PinnedMessage from './chat/PinnedMessage';
-import {initializingChatText} from '../language/default-labels/commonLabels';
-import Loading from './Loading';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -87,7 +85,6 @@ const ChatContainer = (props?: {
     showEmojiPicker,
     pinMsgId,
     pinnedByUser,
-    isChatInitialized,
   } = useChatUIControls();
   const privateMessageStoreRef = useRef(
     privateMessageStore[privateChatUser]?.length,
@@ -102,7 +99,6 @@ const ChatContainer = (props?: {
   } = useChatNotification();
   const localUid = useLocalUid();
   const scrollViewRef = useRef<ScrollView>(null);
-  const loadingLabel = useString(initializingChatText)();
 
   useEffect(() => {
     if (chatType === ChatType.Group) {
@@ -200,9 +196,7 @@ const ChatContainer = (props?: {
     }
   };
 
-  return isChatInitialized === false ? (
-    <Loading text={loadingLabel} />
-  ) : (
+  return (
     <View style={style.containerView}>
       {showEmojiPicker ? <View style={CommonStyles.tintedOverlay} /> : null}
       {chatType === ChatType.Private && privateChatUser ? (

@@ -162,7 +162,10 @@ const ActionSheet = props => {
   };
   const handleSpringEnd = (event: SpringEvent) => {
     if (event.type == 'SNAP') {
-      const isMinmized = bottomSheetRef?.current?.height === 100;
+      const isMinmized =
+        bottomSheetRef?.current?.height === 100 ||
+        ($config.ENABLE_CONVERSATIONAL_AI &&
+          bottomSheetRef?.current?.height === 0);
       isMinmized && setShowOverlay(false);
       if (event.source === 'dragging') {
         if (isMinmized) {

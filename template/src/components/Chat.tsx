@@ -40,6 +40,9 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {ChatHeader} from '../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
+import {chatErrorNotConnected} from '../language/default-labels/videoCallScreenLabels';
+import Loading from '../subComponents/Loading';
+import {initializingChatText} from '../language/default-labels/commonLabels';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -53,20 +56,13 @@ const Chat = (props?: ChatProps) => {
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
   const {isRecordingBot} = useIsRecordingBot();
-  const {chatType, setChatType, setPrivateChatUser, showEmojiPicker} =
+  const {chatType, setChatType, setPrivateChatUser, chatConnectionStatus} =
     useChatUIControls();
 
-  const {
-    unreadGroupMessageCount,
-    setUnreadGroupMessageCount,
-    unreadPrivateMessageCount,
-    setUnreadPrivateMessageCount,
-    setUnreadIndividualMessageCount,
-    unreadIndividualMessageCount,
-  } = useChatNotification();
-
-  const {primaryColor} = useContext(ColorContext);
   const {transcriptHeight} = useCaptionWidth();
+
+  const chatErrNotConnectedText = useString(chatErrorNotConnected)();
+  const loadingLabel = useString(initializingChatText)();
 
   React.useEffect(() => {
     return () => {
@@ -172,44 +168,61 @@ const Chat = (props?: ChatProps) => {
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
          */}
-        <ChatBeforeView />
-        {showHeader && <ChatHeader />}
-        {chatType === ChatType.Group ? (
+
+        {chatConnectionStatus === 'loading' ? (
+          <Loading
+            text={loadingLabel}
+            background={$config.CARD_LAYER_1_COLOR}
+            textColor={$config.FONT_COLOR}
+          />
+        ) : chatConnectionStatus === 'failed' ? (
+          <View style={style.defaultMessageContainer}>
+            <Text style={style.defaultMessageText}>
+              {chatErrNotConnectedText}
+            </Text>
+          </View>
+        ) : (
           <>
-            <ChatContainer {...props} />
-            {isRecordingBot ? (
-              <></>
+            <ChatBeforeView />
+            {showHeader && <ChatHeader />}
+            {chatType === ChatType.Group ? (
+              <>
+                <ChatContainer {...props} />
+                {isRecordingBot ? (
+                  <></>
+                ) : (
+                  <View style={style.chatInputContainer}>
+                    <ChatInputComponent />
+                  </View>
+                )}
+              </>
             ) : (
-              <View style={style.chatInputContainer}>
-                <ChatInputComponent />
-              </View>
-            )}
-          </>
-        ) : (
-          <></>
-        )}
-        {chatType === ChatType.MemberList ? (
-          <ChatParticipants selectUser={selectUser} />
-        ) : (
-          <></>
-        )}
-        {chatType === ChatType.Private ? (
-          <>
-            <ChatContainer {...props} />
-            {isRecordingBot ? (
               <></>
-            ) : (
-              <View>
-                <View style={style.chatInputContainer}>
-                  <ChatInputComponent />
-                </View>
-              </View>
             )}
+            {chatType === ChatType.MemberList ? (
+              <ChatParticipants selectUser={selectUser} />
+            ) : (
+              <></>
+            )}
+            {chatType === ChatType.Private ? (
+              <>
+                <ChatContainer {...props} />
+                {isRecordingBot ? (
+                  <></>
+                ) : (
+                  <View>
+                    <View style={style.chatInputContainer}>
+                      <ChatInputComponent />
+                    </View>
+                  </View>
+                )}
+              </>
+            ) : (
+              <></>
+            )}
+            <ChatAfterView />
           </>
-        ) : (
-          <></>
         )}
-        <ChatAfterView />
       </View>
     </>
   );
@@ -268,6 +281,21 @@ const style = StyleSheet.create({
     position: 'absolute',
     right: 8,
     top: 4,
+  },
+  defaultMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 20,
+    marginHorizontal: 12,
+    marginBottom: 0,
+    flexDirection: 'row',
+  },
+  defaultMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
   },
 });
 

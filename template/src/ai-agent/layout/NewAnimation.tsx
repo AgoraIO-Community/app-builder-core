@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -7,49 +7,23 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {useSidePanel, isAndroid, isIOS} from 'customization-api';
 import ThemeConfig from '../../theme';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
-import {isMobileUA} from '../../utils/common';
-//@ts-ignore
-import JoinCallIcon from '../assets/join-call.png';
+import AiAgentCustomView from '../ai-interface/AIAgentInterface';
 import {
   DisconnectButton,
   MicButton,
   SettingButton,
   TranscriptButton,
 } from '../components/ControlButtons';
+//@ts-ignore
+import JoinCallIcon from '../assets/join-call.png';
 
-export default function ConversationalAI() {
-  const {setSidePanel} = useSidePanel();
+export default function NewAnimation() {
   const {agentConnectionState, toggleAgentConnection} =
     useContext(AgentContext);
-
-  useEffect(() => {
-    if (!(isAndroid() || isIOS())) {
-      setTimeout(() => {
-        // make sure you have a canvas in the body
-        const canvas = document?.getElementById(
-          'ai-agent',
-        ) as HTMLCanvasElement;
-
-        if (canvas) {
-          const {Application} = require('@splinetool/runtime');
-          // start the application and load the scene
-          const spline = new Application(canvas);
-          spline.load(
-            'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
-          );
-        }
-      });
-    }
-
-    setTimeout(() => {
-      !isMobileUA() && setSidePanel('custom-settings-panel');
-    });
-  }, []);
 
   const isLoading =
     agentConnectionState === AgentState.REQUEST_SENT ||
@@ -65,18 +39,7 @@ export default function ConversationalAI() {
   return (
     <View style={styles.layoutRootContainer}>
       <View style={styles.container}>
-        {isAndroid() || isIOS() ? (
-          <View style={styles.nativeTextContainer}>
-            <Text style={styles.nativeText}>AI Agent...</Text>
-          </View>
-        ) : (
-          <canvas
-            id="ai-agent"
-            width="100%"
-            height="100%"
-            style={{pointerEvents: 'none'}}
-          />
-        )}
+        <AiAgentCustomView connectionState={agentConnectionState} />
       </View>
       <View style={styles.btnContainer}>
         {!isLoading && agentConnectionState === 'AGENT_CONNECTED' ? (
@@ -103,7 +66,7 @@ export default function ConversationalAI() {
                 <>
                   <Image
                     source={JoinCallIcon}
-                    style={{width: 24, height: 24}}
+                    style={styles.callAgentIconStyle}
                     tintColor={$config.FONT_COLOR}
                   />
                   <Text style={styles.callAgentBtnText}>Call AI Agent</Text>
@@ -130,6 +93,10 @@ export default function ConversationalAI() {
 }
 
 const styles = StyleSheet.create({
+  callAgentIconStyle: {
+    width: 24,
+    height: 24,
+  },
   controlsContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -165,18 +132,6 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR,
     paddingLeft: 8,
   },
-  nativeTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nativeText: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 18,
-    fontWeight: '800',
-    color: $config.FONT_COLOR,
-  },
-
   btnContainer: {
     position: 'absolute',
     left: 0,
