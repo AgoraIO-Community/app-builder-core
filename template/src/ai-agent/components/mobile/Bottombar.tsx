@@ -4,12 +4,11 @@ import {AgentControl} from '../AgentControls';
 import {CustomSettingButton, CustomTranscriptButton} from '../Bottombar';
 
 const Bottombar = () => {
+  const AI_LAYOUT = $config.AI_LAYOUT ? $config.AI_LAYOUT : 'LAYOUT_TYPE_1';
   return (
     <ToolbarPreset
       align="bottom"
-      snapPointsMinMax={
-        $config.AI_LAYOUT === 'LAYOUT_TYPE_1' ? [100, 100] : [0, 0]
-      }
+      snapPointsMinMax={AI_LAYOUT === 'LAYOUT_TYPE_1' ? [100, 100] : [0, 0]}
       items={{
         layout: {hide: true},
         invite: {hide: true},
