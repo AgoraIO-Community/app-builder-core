@@ -244,6 +244,8 @@ export const chatPrivateMessageDeletePopupText =
 export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
 export const chatUploadStatusFailure = 'chatUploadStatusFailure';
 export const chatUploadMaxLimit = 'chatUploadMaxLimit';
+export const chatErrorNoToken = 'chatErrorNoToken';
+export const chatErrorNotConnected = 'chatErrorNotConnected'
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -662,6 +664,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   [chatUploadStatusInProgress]?: I18nBaseType;
   [chatUploadStatusFailure]?: I18nBaseType;
   [chatUploadMaxLimit]?: I18nBaseType;
+  [chatErrorNoToken]?: I18nBaseType;
+  [chatErrorNotConnected]?: I18nBaseType;
 
   [peoplePanelTurnoffAllCameraBtnText]?: I18nBaseType;
   [peoplePanelMuteAllMicBtnText]?: I18nBaseType;
@@ -1063,6 +1067,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
   [chatPrivateMessageDeletePopupText]: (name: string) =>
     `Are you sure you want to delete this message for ${name}`,
+  [chatErrorNoToken]:'Chat is currently unavailable. Please try rejoining the session or contact support',
+  [chatErrorNotConnected]:'Unable to connect to chat. Please try rejoining the session or contact support',
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute Everyone',

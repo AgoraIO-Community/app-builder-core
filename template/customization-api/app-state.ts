@@ -7,6 +7,7 @@ import {RtcContext, ContentContext} from '../agora-rn-uikit';
 import {default as DeviceContext} from '../src/components/DeviceContext';
 import {default as StorageContext} from '../src/components/StorageContext';
 import {ErrorContext} from '../src/components/common/Error';
+import {AgentContext} from '../src/ai-agent/components/AgentControls/AgentContext';
 /**
  * The RTC app state exposes the internal RtcEngine object as well as dispatch interface to perform various actions.
  */
@@ -22,6 +23,7 @@ export const useDeviceContext = createHook(DeviceContext);
 export const useStorageContext = createHook(StorageContext);
 export const useErrorContext = createHook(ErrorContext);
 
+export const useAIAgent = createHook(AgentContext);
 /**
  * UI contexts
  */

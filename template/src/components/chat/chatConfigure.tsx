@@ -72,7 +72,7 @@ const ChatConfigure = ({children}) => {
     uploadedFiles,
     setPinMsgId,
     setPinnedByUser,
-    setIsChatInitialized,
+    setChatConnectionStatus,
   } = useChatUIControls();
   const localUid = useLocalUid();
   const defaultContentRef = React.useRef(defaultContent);
@@ -92,6 +92,7 @@ const ChatConfigure = ({children}) => {
   }, [defaultContent]);
 
   let newConn = null;
+  const chatConnectedRef = React.useRef(false);
 
   useEffect(() => {
     const initializeChatSDK = async () => {
@@ -119,7 +120,8 @@ const ChatConfigure = ({children}) => {
         newConn.addEventHandler('connection&message', {
           // app is connected to chat server
           onConnected: () => {
-            setIsChatInitialized(true);
+            setChatConnectionStatus('connected');
+            chatConnectedRef.current = true;
             logger.log(
               LogSource.Internals,
               'CHAT',
@@ -358,8 +360,20 @@ const ChatConfigure = ({children}) => {
       }
     };
 
+    // On Connected event not recived from Agora Chat SDK
+    setTimeout(() => {
+      if (!chatConnectedRef.current) {
+        setChatConnectionStatus('failed');
+        logger.error(
+          LogSource.Internals,
+          'CHAT',
+          `Chat connection timed out for user ${data.uid}. No onConnected received.`,
+        );
+      }
+    }, 15000);
     // initializing chat sdk
     initializeChatSDK();
+
     return () => {
       newConn.close();
       logger.log(

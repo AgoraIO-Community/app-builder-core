@@ -9,6 +9,7 @@ import {
   useContent,
   useSidePanel,
   useUserActionMenu,
+  useChatUIControls,
 } from 'customization-api';
 import {
   DefaultLayouts,
@@ -47,6 +48,7 @@ import {useDisableChat} from '../disable-chat/useDisableChat';
 import {useWhiteboard} from '../../components/whiteboard/WhiteboardConfigure';
 import {useString} from '../../utils/useString';
 import {
+  chatErrorNotConnected,
   I18nMuteType,
   moreBtnAddAsPresenter,
   moreBtnAudio,
@@ -142,6 +144,8 @@ export default function UserActionMenuOptionsOptions(
   const removeScreenShareLabel = useString(moreBtnRemoveScreenShare)();
   const removeFromRoomLabel = useString(moreBtnRemoveFromRoom)();
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
+  const {chatConnectionStatus} = useChatUIControls();
+  const chatErrNotConnectedText = useString(chatErrorNotConnected)();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -372,7 +376,20 @@ export default function UserActionMenuOptionsOptions(
               messageConfig.onPress();
             } else {
               messageConfig.onAction?.(user.uid);
-              openPrivateChat(user.uid);
+              if (chatConnectionStatus !== 'connected') {
+                Toast.show({
+                  leadingIconName: 'alert',
+                  type: 'error',
+                  text1: 'Failed to enable Chat Service.',
+                  text2: chatErrNotConnectedText,
+                  visibilityTime: 1000 * 10,
+                  primaryBtn: null,
+                  secondaryBtn: null,
+                  leadingIcon: null,
+                });
+              } else {
+                openPrivateChat(user.uid);
+              }
             }
           },
         });
