@@ -10,11 +10,11 @@ import CustomSettingsPanel from './components/CustomSettingsPanel';
 import {AgentProvider} from './components/AgentControls/AgentContext';
 
 //LAYOUT_TYPE_1
-import DefaultLayout from './layout/DefaultLayout';
-//LAYOUT_TYPE_2
-import ConversationalAILayout from './layout/ConversationalAI';
-//LAYOUT_TYPE_3
 import NewAnimationLayout from './layout/NewAnimation';
+//LAYOUT_TYPE_2
+import AIWithLocalUser from './layout/AIWithLocalUser';
+//LAYOUT_TYPE_3
+import ConversationalAILayout from './layout/ConversationalAI';
 
 const DummyComponent = () => {
   return <></>;
@@ -25,7 +25,7 @@ const getAILayoutType = () => {
 };
 
 const getTopBarComponent = () => {
-  return isMobileUA() || getAILayoutType() !== 'LAYOUT_TYPE_1'
+  return isMobileUA() || getAILayoutType() !== 'LAYOUT_TYPE_2'
     ? MobileTopBar
     : DummyComponent;
 };
@@ -33,17 +33,17 @@ const getTopBarComponent = () => {
 const getBottombarComponent = () => {
   return isMobileUA()
     ? MobileBottombar
-    : getAILayoutType() === 'LAYOUT_TYPE_1'
+    : getAILayoutType() === 'LAYOUT_TYPE_2'
     ? Bottombar
     : DummyComponent;
 };
 
 const getCustomLayoutComponent = () => {
   return getAILayoutType() === 'LAYOUT_TYPE_3'
-    ? NewAnimationLayout
-    : getAILayoutType() === 'LAYOUT_TYPE_2'
     ? ConversationalAILayout
-    : DefaultLayout;
+    : getAILayoutType() === 'LAYOUT_TYPE_2'
+    ? AIWithLocalUser
+    : NewAnimationLayout;
 };
 
 export const AI_AGENT_CUSTOMIZATION: CustomizationApiInterface = {

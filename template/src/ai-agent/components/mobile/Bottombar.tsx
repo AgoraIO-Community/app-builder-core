@@ -8,7 +8,7 @@ const Bottombar = () => {
   return (
     <ToolbarPreset
       align="bottom"
-      snapPointsMinMax={AI_LAYOUT === 'LAYOUT_TYPE_1' ? [100, 100] : [0, 0]}
+      snapPointsMinMax={AI_LAYOUT === 'LAYOUT_TYPE_2' ? [100, 100] : [0, 0]}
       items={{
         layout: {hide: true},
         invite: {hide: true},
