@@ -4,8 +4,9 @@ import {
   useContent,
   useLocalAudio,
 } from 'customization-api';
-import {View, StyleSheet, Platform} from 'react-native';
-import hark from 'hark';
+import {View, StyleSheet, Platform, Text} from 'react-native';
+import ThemeConfig from '../../theme';
+import {isAndroid, isIOS} from '../../utils/common';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 
 const NotJoinedMp4 = require('./1.Not-Joined.mp4').default;
@@ -34,27 +35,27 @@ export default function AiAgentCustomView({
   const aiMediaStream = useRef(null);
 
   useEffect(() => {
-    if (activeUids?.indexOf(agentUID) !== -1 && !aiMediaStream.current) {
+    if (
+      activeUids?.indexOf(agentUID) !== -1 &&
+      !aiMediaStream?.current &&
+      !(isAndroid() || isIOS())
+    ) {
       const track = getRemoteAudioStream(agentUID);
       if (track) {
+        const hark = require('hark');
         try {
-          if (!aiMediaStream.current) {
-            console.log('debugging creating MediaStream here');
+          if (!aiMediaStream?.current) {
             aiMediaStream.current = new MediaStream([
               track.getMediaStreamTrack(),
             ]);
-          } else {
-            console.log('debugging existing MediaStream used');
           }
-          const harkai = hark(aiMediaStream.current, {
+          const harkai = hark(aiMediaStream?.current, {
             interval: 100,
           });
           harkai.on('speaking', () => {
-            console.log('debugging ai is speaking');
             setAISpeaking(true);
           });
           harkai.on('stopped_speaking', () => {
-            console.log('debugging ai is not speaking');
             setAISpeaking(false);
           });
         } catch (error) {
@@ -93,19 +94,36 @@ export default function AiAgentCustomView({
   }, [connectionState, animation, isAISpeaking]);
   return (
     <View style={styles.container}>
-      <video
-        autoPlay
-        style={{pointerEvents: 'none'}}
-        loop
-        src={AI_ANIMATION_VIDEO[animation]}
-        width="40%"
-        height="40%"
-      />
+      {isAndroid() || isIOS() ? (
+        <View style={styles.nativeTextContainer}>
+          <Text style={styles.nativeText}>AI Agent...</Text>
+        </View>
+      ) : (
+        <video
+          autoPlay
+          style={{pointerEvents: 'none'}}
+          loop
+          src={AI_ANIMATION_VIDEO[animation]}
+          width="40%"
+          height="40%"
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  nativeTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nativeText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 18,
+    fontWeight: '800',
+    color: $config.FONT_COLOR,
+  },
   container: {
     flex: 1,
     backgroundColor: 'black',
