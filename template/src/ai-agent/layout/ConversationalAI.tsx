@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   },
   layoutRootContainer: {
     flex: 1,
-    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    backgroundColor: '#1D1D1D',
     borderRadius: 8,
   },
   callAgentBtnInnerContainer: {
