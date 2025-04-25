@@ -52,7 +52,7 @@ const useSpeechToText = () => {
   useEffect(() => {
     if (!$config.ENABLE_STT) {
       //throw new Error('Speech To Text is not enabled');
-      console.error('Speech To Text is not enabled');
+      console.log('Speech To Text is not enabled');
     }
   }, []);
 

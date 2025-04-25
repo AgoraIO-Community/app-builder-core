@@ -15,7 +15,6 @@ import AiAgentCustomView from '../ai-interface/AIAgentInterface';
 import {
   DisconnectButton,
   MicButton,
-  SettingButton,
   TranscriptButton,
 } from '../components/ControlButtons';
 import {isMobileUA} from '../../utils/common';
@@ -56,7 +55,6 @@ export default function NewAnimation() {
           <View style={styles.controlsContainer}>
             <MicButton />
             <TranscriptButton />
-            <SettingButton />
             <DisconnectButton />
           </View>
         ) : (
