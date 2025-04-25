@@ -7,18 +7,17 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {useSidePanel, isAndroid, isIOS} from 'customization-api';
+import {useSidePanel} from 'customization-api';
 import ThemeConfig from '../../theme';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
-import {isMobileUA} from '../../utils/common';
+import {isMobileUA, isAndroid, isIOS} from '../../utils/common';
 //@ts-ignore
 import JoinCallIcon from '../assets/join-call.png';
 import {
   DisconnectButton,
   MicButton,
-  SettingButton,
   TranscriptButton,
 } from '../components/ControlButtons';
 
@@ -83,7 +82,6 @@ export default function ConversationalAI() {
           <View style={styles.controlsContainer}>
             <MicButton />
             <TranscriptButton />
-            <SettingButton />
             <DisconnectButton />
           </View>
         ) : (
