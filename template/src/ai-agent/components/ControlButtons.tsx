@@ -17,7 +17,7 @@ import TranscriptIcon from '../assets/transcript.png';
 //@ts-ignore
 import SettingsIcon from '../assets/settings.png';
 //@ts-ignore
-import DisconnectIcon from '../assets/close.png';
+import LeaveCallIcon from '../assets/leave-call.png';
 
 export const MicButton = () => {
   const {audio} = useLocalUserInfo();
@@ -117,7 +117,7 @@ export const DisconnectButton = () => {
       }}>
       <Image
         style={[styles.iconStyle, {tintColor: $config.FONT_COLOR}]}
-        source={DisconnectIcon}
+        source={LeaveCallIcon}
       />
     </TouchableOpacity>
   );

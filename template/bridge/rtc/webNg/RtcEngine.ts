@@ -797,8 +797,11 @@ export default class RtcEngine {
         mediaType,
       );
       if (mediaType === 'audio') {
-        const {audio, ...rest} = this.remoteStreams.get(user.uid);
-        this.remoteStreams.set(user.uid, rest);
+        const data = this.remoteStreams.get(user.uid);
+        try {
+          delete data['audio'];
+        } catch (error) {}
+        this.remoteStreams.set(user.uid, {...data});
         (this.eventsMap.get('onRemoteAudioStateChanged') as callbackType)(
           {},
           user.uid,
@@ -807,8 +810,11 @@ export default class RtcEngine {
           0,
         );
       } else {
-        const {video, ...rest} = this.remoteStreams.get(user.uid);
-        this.remoteStreams.set(user.uid, rest);
+        const data = this.remoteStreams.get(user.uid);
+        try {
+          delete data['video'];
+        } catch (error) {}
+        this.remoteStreams.set(user.uid, {...data});
         (this.eventsMap.get('onRemoteVideoStateChanged') as callbackType)(
           {},
           user.uid,
