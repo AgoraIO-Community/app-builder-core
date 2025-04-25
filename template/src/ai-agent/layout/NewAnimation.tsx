@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -18,12 +18,16 @@ import {
   SettingButton,
   TranscriptButton,
 } from '../components/ControlButtons';
+import {isMobileUA} from '../../utils/common';
+import {useSidePanel} from 'customization-api';
+
 //@ts-ignore
 import JoinCallIcon from '../assets/join-call.png';
 
 export default function NewAnimation() {
   const {agentConnectionState, toggleAgentConnection} =
     useContext(AgentContext);
+  const {setSidePanel} = useSidePanel();
 
   const isLoading =
     agentConnectionState === AgentState.REQUEST_SENT ||
@@ -35,6 +39,12 @@ export default function NewAnimation() {
     agentConnectionState === AgentState.AGENT_REQUEST_FAILED ||
     isAwaitingLeave;
   const isAgentAvailable = useIsAgentAvailable();
+
+  useEffect(() => {
+    setTimeout(() => {
+      !isMobileUA() && setSidePanel('custom-settings-panel');
+    });
+  }, []);
 
   return (
     <View style={styles.layoutRootContainer}>
@@ -57,6 +67,7 @@ export default function NewAnimation() {
               agentConnectionState === AgentState.AGENT_DISCONNECT_REQUEST
                 ? {backgroundColor: $config.SEMANTIC_ERROR}
                 : {},
+              isLoading || !isAgentAvailable ? styles.disabledOpacity : {},
             ]}
             onPress={() => {
               toggleAgentConnection();
@@ -123,6 +134,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     display: 'flex',
     flex: 1,
+  },
+  disabledOpacity: {
+    opacity: 0.6,
   },
   callAgentBtnText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

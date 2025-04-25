@@ -94,6 +94,7 @@ export default function ConversationalAI() {
               agentConnectionState === AgentState.AGENT_DISCONNECT_REQUEST
                 ? {backgroundColor: $config.SEMANTIC_ERROR}
                 : {},
+              isLoading || !isAgentAvailable ? styles.disabledOpacity : {},
             ]}
             onPress={() => {
               toggleAgentConnection();
@@ -157,6 +158,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     display: 'flex',
     flex: 1,
+  },
+  disabledOpacity: {
+    opacity: 0.6,
   },
   callAgentBtnText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
