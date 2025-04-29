@@ -113,6 +113,8 @@ export default function AiAgentCustomView({
         <div style={styles.videoContainer}>
           <style type="text/css">{cssHideVideoControls}</style>
           <video
+            disablePictureInPicture
+            playsInline
             id="animation-video"
             autoPlay
             style={{pointerEvents: 'none'}}
