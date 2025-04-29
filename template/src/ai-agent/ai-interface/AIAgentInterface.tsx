@@ -23,6 +23,17 @@ const AI_ANIMATION_VIDEO = {
   DISCONNECTING: DisconnectingMp4,
 };
 
+const cssHideVideoControls = `
+video {
+  -webkit-appearance: none; /* Remove default styling */
+}
+video::-webkit-media-controls {
+  display: none !important; /* Hide the controls */
+}
+video::-webkit-media-controls-enclosure {
+  display:none !important;
+}`;
+
 export default function AiAgentCustomView({
   connectionState,
 }: CustomAgentInterfaceProps) {
@@ -99,20 +110,42 @@ export default function AiAgentCustomView({
           <Text style={styles.nativeText}>AI Agent...</Text>
         </View>
       ) : (
-        <video
-          autoPlay
-          style={{pointerEvents: 'none'}}
-          loop
-          src={AI_ANIMATION_VIDEO[animation]}
-          width="40%"
-          height="40%"
-        />
+        <div style={styles.videoContainer}>
+          <style type="text/css">{cssHideVideoControls}</style>
+          <video
+            disablePictureInPicture
+            playsInline
+            id="animation-video"
+            autoPlay
+            style={{pointerEvents: 'none'}}
+            loop
+            src={AI_ANIMATION_VIDEO[animation]}
+            width="40%"
+            height="40%"
+          />
+          <div style={styles.overlay} />
+        </div>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  videoContainer: {
+    flex: 1,
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
+  },
   nativeTextContainer: {
     flex: 1,
     justifyContent: 'center',
