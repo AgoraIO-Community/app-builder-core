@@ -6,7 +6,7 @@ import {
 } from 'customization-api';
 import {View, StyleSheet, Platform, Text} from 'react-native';
 import ThemeConfig from '../../theme';
-import {isAndroid, isIOS} from '../../utils/common';
+import {isAndroid, isIOS, isMobileUA} from '../../utils/common';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 
 const NotJoinedMp4 = require('./1.Not-Joined.mp4').default;
@@ -44,6 +44,18 @@ export default function AiAgentCustomView({
   const {getRemoteAudioStream} = useLocalAudio();
   const [isAISpeaking, setAISpeaking] = useState(false);
   const aiMediaStream = useRef(null);
+
+  useEffect(() => {
+    if (!(isAndroid() || isIOS()) && isMobileUA()) {
+      console.log('debugging getting here');
+      try {
+        const el = document.getElementById('animation-video');
+        el.addEventListener('touchstart', e => {
+          e.preventDefault();
+        });
+      } catch (error) {}
+    }
+  }, []);
 
   useEffect(() => {
     if (
@@ -113,6 +125,7 @@ export default function AiAgentCustomView({
         <>
           <style type="text/css">{cssHideVideoControls}</style>
           <video
+            id="animation-video"
             autoPlay
             playsinline
             style={{pointerEvents: 'none'}}
