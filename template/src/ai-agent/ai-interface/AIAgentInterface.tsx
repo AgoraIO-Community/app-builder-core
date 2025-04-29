@@ -110,13 +110,11 @@ export default function AiAgentCustomView({
           <Text style={styles.nativeText}>AI Agent...</Text>
         </View>
       ) : (
-        <>
+        <div style={styles.videoContainer}>
           <style type="text/css">{cssHideVideoControls}</style>
           <video
             id="animation-video"
             autoPlay
-            webkit-playsinline
-            playsinline
             style={{pointerEvents: 'none'}}
             loop
             src={AI_ANIMATION_VIDEO[animation]}
@@ -124,13 +122,16 @@ export default function AiAgentCustomView({
             height="40%"
           />
           <div style={styles.overlay} />
-        </>
+        </div>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  videoContainer: {
+    position: 'relative',
+  },
   overlay: {
     position: 'absolute',
     top: 0,
