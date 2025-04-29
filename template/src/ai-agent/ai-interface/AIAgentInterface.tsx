@@ -53,6 +53,9 @@ export default function AiAgentCustomView({
         el.addEventListener('touchstart', e => {
           e.preventDefault();
         });
+        el.addEventListener('click', e => {
+          e.preventDefault();
+        });
       } catch (error) {}
     }
   }, []);
@@ -127,6 +130,7 @@ export default function AiAgentCustomView({
           <video
             id="animation-video"
             autoPlay
+            webkit-playsinline
             playsinline
             style={{pointerEvents: 'none'}}
             loop
