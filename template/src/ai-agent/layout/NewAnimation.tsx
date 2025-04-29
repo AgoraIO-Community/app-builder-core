@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     maxWidth: 500,
     bottom: 50,
+    zIndex: 999,
   },
   container: {
     flex: 1,
