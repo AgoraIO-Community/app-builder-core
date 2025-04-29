@@ -23,7 +23,14 @@ const AI_ANIMATION_VIDEO = {
   DISCONNECTING: DisconnectingMp4,
 };
 
-const cssHideVideoControls = `video::-webkit-media-controls-enclosure {
+const cssHideVideoControls = `
+video {
+  -webkit-appearance: none; /* Remove default styling */
+}
+video::-webkit-media-controls {
+  display: none !important; /* Hide the controls */
+}
+video::-webkit-media-controls-enclosure {
   display:none !important;
 }`;
 
@@ -107,6 +114,7 @@ export default function AiAgentCustomView({
           <style type="text/css">{cssHideVideoControls}</style>
           <video
             autoPlay
+            playsinline
             style={{pointerEvents: 'none'}}
             loop
             src={AI_ANIMATION_VIDEO[animation]}
