@@ -132,7 +132,11 @@ export default function AiAgentCustomView({
 
 const styles = StyleSheet.create({
   videoContainer: {
+    flex: 1,
     position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   overlay: {
     position: 'absolute',
@@ -155,7 +159,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    position: 'relative',
     backgroundColor: 'black',
     display: 'flex',
     alignItems: 'center',
