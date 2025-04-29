@@ -2,13 +2,20 @@ import React from 'react';
 import {ToolbarPreset} from 'customization-api';
 import {AgentControl} from '../AgentControls';
 import {CustomSettingButton, CustomTranscriptButton} from '../Bottombar';
+import {isAndroid, isIOS} from '../../../utils/common';
 
 const Bottombar = () => {
   const AI_LAYOUT = $config.AI_LAYOUT ? $config.AI_LAYOUT : 'LAYOUT_TYPE_1';
   return (
     <ToolbarPreset
       align="bottom"
-      snapPointsMinMax={AI_LAYOUT === 'LAYOUT_TYPE_2' ? [100, 100] : [0, 0]}
+      snapPointsMinMax={
+        isAndroid() || isIOS()
+          ? [100, 100]
+          : AI_LAYOUT === 'LAYOUT_TYPE_2'
+          ? [100, 100]
+          : [0, 0]
+      }
       items={{
         layout: {hide: true},
         invite: {hide: true},

@@ -3,11 +3,9 @@ import {View, StyleSheet, Text} from 'react-native';
 import {useRoomInfo} from 'customization-api';
 import ThemeConfig from '../../../theme';
 import {SettingButton} from '../ControlButtons';
+import {getAILayoutType} from '../../utils';
 
 const MobileTopbar = () => {
-  const getAILayoutType = () => {
-    return $config.AI_LAYOUT ? $config.AI_LAYOUT : 'LAYOUT_TYPE_1';
-  };
   const {
     data: {meetingTitle},
   } = useRoomInfo();
