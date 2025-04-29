@@ -1,6 +1,6 @@
 import React from 'react';
 import {CustomizationApiInterface} from 'customization-api';
-import {isMobileUA} from '../utils/common';
+import {isIOS, isAndroid, isMobileUA} from '../utils/common';
 import Bottombar from './components/Bottombar';
 import CustomCreate from './components/CustomCreate';
 import MobileTopBar from './components/mobile/Topbar';
@@ -8,7 +8,7 @@ import MobileBottombar from './components/mobile/Bottombar';
 import CustomChatPanel from './components/CustomChatPanel';
 import CustomSettingsPanel from './components/CustomSettingsPanel';
 import {AgentProvider} from './components/AgentControls/AgentContext';
-
+import {getAILayoutType} from './utils';
 //LAYOUT_TYPE_1
 import NewAnimationLayout from './layout/NewAnimation';
 //LAYOUT_TYPE_2
@@ -18,10 +18,6 @@ import ConversationalAILayout from './layout/ConversationalAI';
 
 const DummyComponent = () => {
   return <></>;
-};
-
-const getAILayoutType = () => {
-  return $config.AI_LAYOUT ? $config.AI_LAYOUT : 'LAYOUT_TYPE_1';
 };
 
 const getTopBarComponent = () => {
@@ -39,7 +35,9 @@ const getBottombarComponent = () => {
 };
 
 const getCustomLayoutComponent = () => {
-  return getAILayoutType() === 'LAYOUT_TYPE_3'
+  return isAndroid() || isIOS()
+    ? AIWithLocalUser
+    : getAILayoutType() === 'LAYOUT_TYPE_3'
     ? ConversationalAILayout
     : getAILayoutType() === 'LAYOUT_TYPE_2'
     ? AIWithLocalUser

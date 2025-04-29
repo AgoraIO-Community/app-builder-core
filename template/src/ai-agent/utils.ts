@@ -1,5 +1,7 @@
 import {IMicrophoneAudioTrack} from 'agora-rtc-sdk-ng';
 import {useState, useEffect} from 'react';
+import {isAndroid, isIOS} from '../utils/common';
+
 //for native its require text decoder to be imported
 const TextDecoder = require('text-encoding').TextDecoder;
 export const useMultibandTrackVolume = (
@@ -130,4 +132,12 @@ export const Base64 = {
 
     return output;
   },
+};
+
+export const getAILayoutType = () => {
+  return isAndroid() || isIOS()
+    ? 'LAYOUT_TYPE_2'
+    : $config.AI_LAYOUT
+    ? $config.AI_LAYOUT
+    : 'LAYOUT_TYPE_1';
 };
