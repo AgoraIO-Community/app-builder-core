@@ -510,6 +510,7 @@ const RtmConfigure = (props: any) => {
             uid,
             offline: false,
             lastMessageTimeStamp: 0,
+            isHost: attr?.attributes?.isHost,
           };
           updateRenderListState(uid, userData);
           //end- updating user data in rtc

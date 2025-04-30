@@ -10,12 +10,11 @@
 *********************************************
 */
 
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
 import {useString, useStringRef} from '../../utils/useString';
 import {
-  ChannelProfile,
   DispatchContext,
   PropsContext,
   useLocalUid,
@@ -39,7 +38,7 @@ import Toast from '../../../react-native-toast-message';
 import events from '../../rtm-events-api';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {UserType} from '../RTMConfigure';
-import {useContent} from 'customization-api';
+import {useContent, useIsHost} from 'customization-api';
 import {
   waitingRoomApprovalRejectionToastHeading,
   waitingRoomApprovalRejectionToastSubHeading,
@@ -74,9 +73,14 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
   const {setRoomInfo} = useSetRoomInfo();
   const {request: requestToJoin} = useWaitingRoomAPI();
+  const [hasHostJoined, setHasHostJoined] = useState(false);
+  const [countOfUsers, setCountOfUsers] = useState(0);
 
-  const {activeUids} = useContent();
+  const {activeUids, defaultContent} = useContent();
   const activeUidsRef = React.useRef(activeUids);
+  const isHostUser = useIsHost();
+  const localUid = useLocalUid();
+  const {dispatch} = useContext(DispatchContext);
 
   React.useEffect(() => {
     activeUidsRef.current = activeUids;
@@ -89,8 +93,29 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     }),
   );
 
-  const {dispatch} = useContext(DispatchContext);
-  const localUid = useLocalUid();
+  React.useEffect(() => {
+    if ($config.AUTO_APPROVAL_WAITING_ROOM) {
+      const usersInCall = Object.keys(defaultContent).filter(
+        key =>
+          defaultContent[key].type === 'rtc' &&
+          defaultContent[key].offline === false &&
+          Number(key) !== localUid,
+      );
+      const hostUsersInCall = Object.keys(defaultContent).filter(
+        key =>
+          defaultContent[key].type === 'rtc' &&
+          defaultContent[key].offline === false &&
+          Number(key) !== localUid &&
+          defaultContent[key].isHost === 'true',
+      );
+
+      setButtonText(
+        hostUsersInCall.length > 0
+          ? `${usersInCall.length} Users in  the call`
+          : 'Waiting for host to join',
+      );
+    }
+  }, [defaultContent]);
 
   const {
     data: {token, isHost},

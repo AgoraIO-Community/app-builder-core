@@ -15,7 +15,6 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
 import {useString, useStringRef} from '../../utils/useString';
 import {
-  ChannelProfile,
   DispatchContext,
   PropsContext,
   useLocalUid,
