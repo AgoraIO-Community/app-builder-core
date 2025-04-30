@@ -283,9 +283,9 @@ export default function useJoinRoom() {
               : data.joinChannel.secret;
           }
 
-          if (data?.joinChannel?.encryptionMode || data?.encryptionMode) {
+          if (data?.joinChannel?.encryptionMode || data?.encryption_mode) {
             roomInfo.encryptionMode = isWaitingRoomEnabled
-              ? data.encryptionMode
+              ? data.encryption_mode
               : data.joinChannel.encryptionMode;
           }
           if (data?.joinChannel?.secretSalt || data?.secretSalt) {
