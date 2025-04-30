@@ -6,7 +6,7 @@ import {
 } from 'customization-api';
 import {View, StyleSheet, Platform, Text} from 'react-native';
 import ThemeConfig from '../../theme';
-import {isAndroid, isIOS} from '../../utils/common';
+import {isAndroid, isIOS, isMobileUA} from '../../utils/common';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 
 const NotJoinedMp4 = require('./1.Not-Joined.mp4').default;
@@ -120,6 +120,8 @@ export default function AiAgentCustomView({
             style={{pointerEvents: 'none'}}
             loop
             src={AI_ANIMATION_VIDEO[animation]}
+            width={isMobileUA() ? '40%' : 'auto'}
+            height={'auto'}
           />
           <div style={styles.overlay} />
         </div>
