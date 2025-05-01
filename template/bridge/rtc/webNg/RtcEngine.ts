@@ -1460,14 +1460,14 @@ export default class RtcEngine {
         this.client.setEncryptionConfig(
           mode,
           config.encryptionKey,
-          config.encryptionKdfSalt,
-          true, // encryptDataStream
+          config?.encryptionMode === 1 ? null : config.encryptionKdfSalt,
+          config?.encryptionMode === 1 ? null : true, // encryptDataStream
         ),
         this.screenClient.setEncryptionConfig(
           mode,
           config.encryptionKey,
-          config.encryptionKdfSalt,
-          true, // encryptDataStream
+          config?.encryptionMode === 1 ? null : config.encryptionKdfSalt,
+          config?.encryptionMode === 1 ? null : true, // encryptDataStream
         ),
       ]);
       logger.log(
