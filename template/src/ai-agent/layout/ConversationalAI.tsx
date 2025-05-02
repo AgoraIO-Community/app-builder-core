@@ -38,9 +38,15 @@ export default function ConversationalAI() {
           const {Application} = require('@splinetool/runtime');
           // start the application and load the scene
           const spline = new Application(canvas);
-          spline.load(
-            'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
-          );
+          spline
+            ?.load(
+              'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
+            )
+            ?.then(() => {
+              if (isMobileUA()) {
+                spline?.setZoom(0.5);
+              }
+            });
         }
       });
     }
