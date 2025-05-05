@@ -479,6 +479,10 @@ export const waitingRoomApprovalRejectionToastHeading =
   'waitingRoomApprovalRejectionToastHeading';
 export const waitingRoomApprovalRejectionToastSubHeading =
   'waitingRoomApprovalRejectionToastSubHeading';
+export const waitingRoomHostNotJoined =
+  'waitingRoomHostNotJoined';  
+export const waitingRoomUsersInCall =
+  'waitingRoomUsersInCall';    
 
 export const videoRoomRecordingText = `video${room}RecordingText` as const;
 export const videoRoomGoToActiveSpeakerText =
@@ -820,7 +824,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [waitingRoomApprovalRequiredSecondaryBtnText]?: I18nBaseType;
 
   [waitingRoomApprovalRejectionToastHeading]?: I18nBaseType;
+  [waitingRoomUsersInCall]?: I18nBaseType;
   [waitingRoomApprovalRejectionToastSubHeading]?: I18nBaseType;
+  [waitingRoomHostNotJoined]?: I18nBaseType;
 
   [videoRoomRecordingText]?: I18nBaseType;
   [videoRoomGoToActiveSpeakerText]?: I18nBaseType;
@@ -1284,6 +1290,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [waitingRoomApprovalRejectionToastHeading]: 'Approval Required',
   [waitingRoomApprovalRejectionToastSubHeading]:
     'Permission to enter the meeting was denied by the host',
+  [waitingRoomHostNotJoined]:'Waiting for Host, Please wait...',  
+  [waitingRoomUsersInCall]: count => `${count} ${count === 1 ?'user':'users'} joined, Join Now`,
 
   [videoRoomRecordingText]: 'REC',
 

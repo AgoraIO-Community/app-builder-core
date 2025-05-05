@@ -42,6 +42,8 @@ import {useContent, useIsHost} from 'customization-api';
 import {
   waitingRoomApprovalRejectionToastHeading,
   waitingRoomApprovalRejectionToastSubHeading,
+  waitingRoomHostNotJoined,
+  waitingRoomUsersInCall
 } from '../../language/default-labels/videoCallScreenLabels';
 
 const audio = new Audio(
@@ -62,6 +64,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const subheadinglabel = useStringRef(
     waitingRoomApprovalRejectionToastSubHeading,
   );
+  const waitingRoomUserNotJoinedText = useStringRef(waitingRoomHostNotJoined);
+  const waitingRoomUsersInCallText = useStringRef(waitingRoomUsersInCall);
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive, callActive} = usePreCall();
@@ -111,8 +115,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
       setButtonText(
         hostUsersInCall.length > 0
-          ? `${usersInCall.length} Users in  the call`
-          : 'Waiting for host to join',
+          ? waitingRoomUsersInCallText?.current(usersInCall.length)
+          : waitingRoomUserNotJoinedText?.current(),
       );
     }
   }, [defaultContent]);
