@@ -120,7 +120,12 @@ const Join = () => {
     );
     apiJoinCall(phrase)
       .then(() => {
-        setRoomInfo(RoomInfoDefaultValue);
+        setRoomInfo(prevState => {
+          return {
+            ...RoomInfoDefaultValue,
+            loginToken: prevState?.loginToken,
+          };
+        });
         logger.log(
           LogSource.Internals,
           'JOIN_MEETING',

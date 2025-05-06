@@ -212,7 +212,12 @@ const Create = () => {
       );
       setLoading(true);
       try {
-        setRoomInfo(RoomInfoDefaultValue);
+        setRoomInfo(prevState => {
+          return {
+            ...RoomInfoDefaultValue,
+            loginToken: prevState?.loginToken,
+          };
+        });
         //@ts-ignore
         //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);

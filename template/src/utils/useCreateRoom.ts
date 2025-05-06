@@ -142,14 +142,17 @@ export default function useCreateRoom(): createRoomFun {
         roomId: roomInfo?.roomId,
         pstn: roomInfo?.pstn,
       });
-      setRoomInfo({
-        data: {
-          isHost: true,
-          isSeparateHostLink: isSeparateHostLink ? true : false,
-          meetingTitle: roomTitle,
-          roomId: roomInfo?.roomId,
-          pstn: roomInfo?.pstn,
-        },
+      setRoomInfo(prev => {
+        return {
+          ...prev,
+          data: {
+            isHost: true,
+            isSeparateHostLink: isSeparateHostLink ? true : false,
+            meetingTitle: roomTitle,
+            roomId: roomInfo?.roomId,
+            pstn: roomInfo?.pstn,
+          },
+        };
       });
       SDKEvents.emit(
         'create',

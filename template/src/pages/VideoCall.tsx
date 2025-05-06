@@ -245,7 +245,12 @@ const VideoCall: React.FC = () => {
         'VIDEO_CALL_ROOM',
         'Videocall unmounted',
       );
-      setRoomInfo(RoomInfoDefaultValue);
+      setRoomInfo(prevState => {
+        return {
+          ...RoomInfoDefaultValue,
+          loginToken: prevState?.loginToken,
+        };
+      });
       if (awake) {
         release();
       }
@@ -295,6 +300,7 @@ const VideoCall: React.FC = () => {
       setQueryComplete(false);
       setRoomInfo(roomInfo => {
         return {
+          ...roomInfo,
           isJoinDataFetched: true,
           data: {
             ...roomInfo.data,
@@ -399,7 +405,7 @@ const VideoCall: React.FC = () => {
     //     SdkJoinState.promise?.res();
     //   }
     // },
-    EndCall:  () => {
+    EndCall: () => {
       clearState('join');
       setTimeout(() => {
         // TODO: These callbacks are being called twice
