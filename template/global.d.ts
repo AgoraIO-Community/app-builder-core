@@ -175,8 +175,8 @@ interface ConfigInterface {
   CUSTOMIZE_AGENT: boolean;
   AI_LAYOUT: string;
   SDK_CODEC: string;
-  AUTO_APPROVAL_WAITING_ROOM: boolean;
-  AUTO_REQUEST_WAITING_ROOM: boolean;
+  WAITING_ROOM_AUTO_APPROVAL: boolean;
+  WAITING_ROOM_AUTO_REQUEST: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

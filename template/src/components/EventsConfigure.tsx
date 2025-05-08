@@ -669,33 +669,33 @@ const EventsConfigure: React.FC<Props> = ({
       // check if any other host has approved then dont show permission to join the room
 
       const approveWaitingRoomRequest = () => {
-           // user approving waiting room request
-           const res = approval({
-            host_uid: localUid,
-            attendee_uid: attendee_uid,
-            attendee_screenshare_uid: attendee_screenshare_uid,
-            approved: true,
-          });
-          dispatch({
-            type: 'UpdateRenderList',
-            value: [attendee_uid, {isInWaitingRoom: false}],
-          });
+        // user approving waiting room request
+        const res = approval({
+          host_uid: localUid,
+          attendee_uid: attendee_uid,
+          attendee_screenshare_uid: attendee_screenshare_uid,
+          approved: true,
+        });
+        dispatch({
+          type: 'UpdateRenderList',
+          value: [attendee_uid, {isInWaitingRoom: false}],
+        });
 
-          waitingRoomRef.current[attendee_uid] = 'APPROVED';
+        waitingRoomRef.current[attendee_uid] = 'APPROVED';
 
-          console.log('waitingRoomRef on APPROVAL', waitingRoomRef.current);
-          // inform other that hosts as well
-          events.send(
-            EventNames.WAITING_ROOM_STATUS_UPDATE,
-            JSON.stringify({attendee_uid, approved: true}),
-            PersistanceLevel.None,
-          );
-          // server will send the RTM message with approved status and RTC token to the approved attendee.
-      }
+        console.log('waitingRoomRef on APPROVAL', waitingRoomRef.current);
+        // inform other that hosts as well
+        events.send(
+          EventNames.WAITING_ROOM_STATUS_UPDATE,
+          JSON.stringify({attendee_uid, approved: true}),
+          PersistanceLevel.None,
+        );
+        // server will send the RTM message with approved status and RTC token to the approved attendee.
+      };
 
-      if ($config.AUTO_APPROVAL_WAITING_ROOM) {
+      if ($config.WAITING_ROOM_AUTO_APPROVAL) {
         approveWaitingRoomRequest();
-        return
+        return;
       }
 
       let btns: any = {};
