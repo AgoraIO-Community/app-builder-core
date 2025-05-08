@@ -88,6 +88,8 @@ const DefaultConfig = {
   CUSTOMIZE_AGENT: true,
   AI_LAYOUT: 'LAYOUT_TYPE_1',
   SDK_CODEC: 'vp8',
+  AUTO_APPROVAL_WAITING_ROOM: false,
+  AUTO_REQUEST_WAITING_ROOM: false
 };
 
 module.exports = DefaultConfig;

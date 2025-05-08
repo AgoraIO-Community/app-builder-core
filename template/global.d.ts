@@ -176,6 +176,7 @@ interface ConfigInterface {
   AI_LAYOUT: string;
   SDK_CODEC: string;
   AUTO_APPROVAL_WAITING_ROOM: boolean;
+  AUTO_REQUEST_WAITING_ROOM: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

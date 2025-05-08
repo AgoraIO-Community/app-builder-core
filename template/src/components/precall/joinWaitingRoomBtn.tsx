@@ -43,7 +43,7 @@ import {
   waitingRoomApprovalRejectionToastHeading,
   waitingRoomApprovalRejectionToastSubHeading,
   waitingRoomHostNotJoined,
-  waitingRoomUsersInCall
+  waitingRoomUsersInCall,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 const audio = new Audio(
@@ -64,8 +64,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const subheadinglabel = useStringRef(
     waitingRoomApprovalRejectionToastSubHeading,
   );
-  const waitingRoomUserNotJoinedText = useStringRef(waitingRoomHostNotJoined);
-  const waitingRoomUsersInCallText = useStringRef(waitingRoomUsersInCall);
+
+  const waitingRoomUserNotJoinedText = useString(waitingRoomHostNotJoined);
+  const waitingRoomUsersInCallText = useString(waitingRoomUsersInCall);
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive, callActive} = usePreCall();
@@ -78,17 +79,10 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const {setRoomInfo} = useSetRoomInfo();
   const {request: requestToJoin} = useWaitingRoomAPI();
   const [hasHostJoined, setHasHostJoined] = useState(false);
-  const [countOfUsers, setCountOfUsers] = useState(0);
+  const {defaultContent} = useContent();
 
-  const {activeUids, defaultContent} = useContent();
-  const activeUidsRef = React.useRef(activeUids);
-  const isHostUser = useIsHost();
   const localUid = useLocalUid();
   const {dispatch} = useContext(DispatchContext);
-
-  React.useEffect(() => {
-    activeUidsRef.current = activeUids;
-  }, [activeUids]);
 
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
@@ -98,7 +92,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   );
 
   React.useEffect(() => {
-    if ($config.AUTO_APPROVAL_WAITING_ROOM) {
+    if ($config.AUTO_REQUEST_WAITING_ROOM) {
       const usersInCall = Object.keys(defaultContent).filter(
         key =>
           defaultContent[key].type === 'rtc' &&
@@ -113,10 +107,14 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
           defaultContent[key].isHost === 'true',
       );
 
+      //console.log('host users in call ->', hostUsersInCall);
+
+      setHasHostJoined(hostUsersInCall.length > 0);
+
       setButtonText(
         hostUsersInCall.length > 0
-          ? waitingRoomUsersInCallText?.current(usersInCall.length)
-          : waitingRoomUserNotJoinedText?.current(),
+          ? waitingRoomUsersInCallText()
+          : waitingRoomUserNotJoinedText(),
       );
     }
   }, [defaultContent]);
@@ -279,7 +277,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const title = buttonText;
   const onPress = () => onSubmit();
-  const disabled = isInWaitingRoom || username?.trim() === '';
+  const disabled = $config.AUTO_REQUEST_WAITING_ROOM
+    ? !hasHostJoined
+    : isInWaitingRoom || username?.trim() === '';
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (
