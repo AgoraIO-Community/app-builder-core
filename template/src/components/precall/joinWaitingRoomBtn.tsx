@@ -92,7 +92,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   );
 
   React.useEffect(() => {
-    if ($config.WAITING_ROOM_AUTO_REQUEST) {
+    if ($config.ENABLE_WAITING_ROOM_AUTO_REQUEST) {
       const usersInCall = Object.keys(defaultContent).filter(
         key =>
           defaultContent[key].type === 'rtc' &&
@@ -277,7 +277,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
 
   const title = buttonText;
   const onPress = () => onSubmit();
-  const disabled = $config.WAITING_ROOM_AUTO_REQUEST
+  const disabled = $config.ENABLE_WAITING_ROOM_AUTO_REQUEST
     ? !hasHostJoined
     : isInWaitingRoom || username?.trim() === '';
   return props?.render ? (

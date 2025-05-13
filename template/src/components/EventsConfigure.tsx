@@ -693,7 +693,7 @@ const EventsConfigure: React.FC<Props> = ({
         // server will send the RTM message with approved status and RTC token to the approved attendee.
       };
 
-      if ($config.WAITING_ROOM_AUTO_APPROVAL) {
+      if ($config.ENABLE_WAITING_ROOM_AUTO_APPROVAL) {
         approveWaitingRoomRequest();
         return;
       }
