@@ -7,6 +7,10 @@ export interface PrecallJoinBtnTextInterface {
   role?: ClientRoleType;
   waitingRoom?: boolean;
 }
+export interface PrecallWaitingRoomJoinBtnTextInterface {
+  ready: boolean;
+  isAutoRequest: boolean;
+}
 
 export const permissionPopupHeading = `permissionPopupHeading`;
 export const permissionPopupSubHeading = `permissionPopupSubHeading`;
@@ -42,6 +46,7 @@ export const precallYouAreJoiningAsHeading = 'precallYouAreJoiningAsHeading';
 export const precallNameInputPlaceholderText =
   'precallNameInputPlaceholderText';
 export const precallJoinBtnText = 'precallJoinBtnText';
+export const precallWaitingRoomJoinBtnText = 'precallWaitingRoomJoinBtnText';
 export const precallInputGettingName = 'precallInputGettingName';
 
 export const vbPanelHeading = 'vbPanelHeading';
@@ -78,6 +83,7 @@ export interface I18nPrecallScreenLabelsInterface {
   [precallYouAreJoiningAsHeading]?: I18nBaseType;
   [precallNameInputPlaceholderText]?: I18nBaseType;
   [precallJoinBtnText]?: I18nBaseType<PrecallJoinBtnTextInterface>;
+  [precallWaitingRoomJoinBtnText]?: I18nBaseType<PrecallWaitingRoomJoinBtnTextInterface>;
 
   [vbPanelHeading]?: I18nBaseType;
   [vbPanelInfo]?: I18nConditionalType;
@@ -129,6 +135,14 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   [precallYouAreJoiningAsHeading]: 'You are joining',
   [precallNameInputPlaceholderText]: 'Enter Your Name',
   [precallInputGettingName]: 'Getting name...',
+  [precallWaitingRoomJoinBtnText]: ({ready, isAutoRequest}) => {
+    return isAutoRequest
+      ? 'Joining...'
+      : ready
+      ? 'Ask To Join'
+      : `Waiting for approval...`;
+  },
+
   [precallJoinBtnText]: ({waitingRoom, ready, role}) => {
     if (waitingRoom) {
       return ready ? 'Ask To Join' : `Waiting for approval...`;
