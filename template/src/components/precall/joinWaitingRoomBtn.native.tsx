@@ -20,8 +20,8 @@ import {
   useLocalUid,
 } from '../../../agora-rn-uikit';
 import {
-  PrecallJoinBtnTextInterface,
-  precallJoinBtnText,
+  PrecallWaitingRoomJoinBtnTextInterface,
+  precallWaitingRoomJoinBtnText,
 } from '../../language/default-labels/precallScreenLabels';
 import {WaitingRoomStatus, useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
@@ -65,12 +65,13 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const [hasHostJoined, setHasHostJoined] = useState(false);
   const {defaultContent} = useContent();
 
-  const waitingRoomButton =
-    useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
+  const waitingRoomButton = useString<PrecallWaitingRoomJoinBtnTextInterface>(
+    precallWaitingRoomJoinBtnText,
+  );
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
-      waitingRoom: true,
       ready: isInWaitingRoom,
+      isAutoRequest: $config.ENABLE_WAITING_ROOM_AUTO_REQUEST,
     }),
   );
   const {request: requestToJoin} = useWaitingRoomAPI();
@@ -118,8 +119,8 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   useEffect(() => {
     setButtonText(
       waitingRoomButton({
-        waitingRoom: true,
         ready: !isInWaitingRoom,
+        isAutoRequest: $config.ENABLE_WAITING_ROOM_AUTO_REQUEST,
       }),
     );
   }, [isInWaitingRoom]);
