@@ -35,7 +35,10 @@ const SelectAiAgent = () => {
   }, [agents]);
 
   useEffect(() => {
-    if (!agentId && data && data.length) {
+    const storedAgentValidAndActive =
+      agentId && agents.find(item => item.id === agentId)?.is_active;
+
+    if (!storedAgentValidAndActive && data && data.length) {
       //set default agent
       setAgentId(data[0]?.value);
       setStore(prevState => {
