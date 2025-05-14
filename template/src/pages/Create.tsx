@@ -23,6 +23,7 @@ import {
   isMobileUA,
   trimText,
   isValidReactComponent,
+  AuthErrorCodes,
 } from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
@@ -63,6 +64,7 @@ import {
   createRoomSuccessToastSubHeading,
 } from '../language/default-labels/createScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
   const {CreateComponent} = useCustomization(data => {
@@ -235,6 +237,10 @@ const Create = () => {
         });
         showShareScreen();
       } catch (error) {
+        const errorCode = error?.networkError?.result?.error?.code;
+        if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+          SDKEvents.emit('unauthorized', error?.networkError?.result?.error);
+        }
         setLoading(false);
         logger.error(
           LogSource.Internals,

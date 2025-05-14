@@ -81,6 +81,7 @@ import {useCustomization} from 'customization-implementation';
 import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects';
 import {UserActionMenuProvider} from '../components/useUserActionMenu';
 import Toast from '../../react-native-toast-message';
+import {AuthErrorCodes} from '../utils/common';
 
 enum RnEncryptionEnum {
   /**
@@ -268,6 +269,10 @@ const VideoCall: React.FC = () => {
           );
         })
         .catch(error => {
+          const errorCode = error?.networkError?.result?.error?.code;
+          if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+            SDKEvents.emit('unauthorized', error?.networkError?.result?.error);
+          }
           logger.error(
             LogSource.Internals,
             'JOIN_MEETING',
@@ -321,6 +326,10 @@ const VideoCall: React.FC = () => {
           );
         })
         .catch(error => {
+          const errorCode = error?.networkError?.result?.error?.code;
+          if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+            SDKEvents.emit('unauthorized', error?.networkError?.result?.error);
+          }
           logger.error(
             LogSource.Internals,
             'JOIN_MEETING',
