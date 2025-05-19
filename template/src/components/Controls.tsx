@@ -115,6 +115,7 @@ import {
   InviteToolbarItem,
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
+import ViewSTTModal from './stt/ViewSTTModal';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -276,6 +277,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const viewRecordingsLabel = useString<boolean>(
     toolbarItemViewRecordingText,
   )();
+  const viewSTTLabel = useString<boolean>(toolbarItemViewRecordingText)();
   const moreButtonLabel = useString(toolbarItemMoreText)();
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
@@ -292,6 +294,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     modalOpen: isVRModalOpen,
     setModalOpen: setVRModalOpen,
     toggle: toggleVRModal,
+  } = useModal();
+  const {
+    modalOpen: isViewSTTModalOpen,
+    setModalOpen: setViewSTTModalOpen,
+    toggle: toggleViewSTTModal,
   } = useModal();
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -578,6 +585,17 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
             isFirstTimePopupOpen.current = true;
             setLanguagePopup(true);
           }
+        },
+      });
+      actionMenuitems.push({
+        componentName: 'view-stts',
+        order: 13,
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: viewSTTLabel,
+        onPress: () => {
+          toggleViewSTTModal();
         },
       });
     }
@@ -952,6 +970,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
             <></>
           )}
         </>
+      )}
+      {$config.ENABLE_STT && isViewSTTModalOpen ? (
+        <ViewSTTModal setModalOpen={setVRModalOpen} />
+      ) : (
+        <></>
       )}
       <ActionMenu
         containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}
