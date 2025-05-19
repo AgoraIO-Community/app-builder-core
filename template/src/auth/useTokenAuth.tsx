@@ -6,6 +6,9 @@ import isSDK from '../utils/isSDK';
 import {getPlatformId} from './config';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from '../utils/getUniqueID';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
@@ -165,6 +168,10 @@ const useTokenAuth = () => {
           try {
             if (validateToken(token)) {
               if (updateTokenInStore) {
+                LocalEventEmitter.emit(
+                  LocalEventsEnum.SDK_TOKEN_CHANGED,
+                  token,
+                );
                 updateToken(token);
               }
               setTimeout(() => {
@@ -234,6 +241,7 @@ const useTokenAuth = () => {
               },
             );
             resolve(true);
+            LocalEventEmitter.emit(LocalEventsEnum.SDK_TOKEN_CHANGED, null);
             updateToken(null);
           })
           .catch(error => {
