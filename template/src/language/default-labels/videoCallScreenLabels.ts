@@ -149,6 +149,7 @@ export const nativeStopScreensharePopupPrimaryBtnText =
   'nativeStopScreensharePopupPrimaryBtnText';
 
 export const recordingModalTitleIntn = 'recordingModalTitleIntn';
+export const sttModalTitleIntn = 'sttModalTitleIntn';
 export const stopRecordingPopupHeading = 'stopRecordingPopupHeading';
 export const stopRecordingPopupSubHeading = 'stopRecordingPopupSubHeading';
 export const stopRecordingPopupPrimaryBtnText =
@@ -245,7 +246,7 @@ export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
 export const chatUploadStatusFailure = 'chatUploadStatusFailure';
 export const chatUploadMaxLimit = 'chatUploadMaxLimit';
 export const chatErrorNoToken = 'chatErrorNoToken';
-export const chatErrorNotConnected = 'chatErrorNotConnected'
+export const chatErrorNotConnected = 'chatErrorNotConnected';
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -603,6 +604,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [nativeStopScreensharePopupPrimaryBtnText]?: I18nBaseType;
 
   [recordingModalTitleIntn]?: I18nBaseType;
+  [sttModalTitleIntn]?: I18nBaseType;
   [stopRecordingPopupHeading]?: I18nBaseType;
   [stopRecordingPopupSubHeading]?: I18nBaseType;
   [stopRecordingPopupPrimaryBtnText]?: I18nBaseType;
@@ -1015,6 +1017,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     `Once removed, ${name} will still be able to screen share later.`,
   [removeScreenshareFromRoomPopupPrimaryBtnText]: 'REMOVE',
 
+  [sttModalTitleIntn]: 'STT',
   [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
     isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
   [sttChangeLanguagePopupSubHeading]:
@@ -1067,8 +1070,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
   [chatPrivateMessageDeletePopupText]: (name: string) =>
     `Are you sure you want to delete this message for ${name}`,
-  [chatErrorNoToken]:'Chat is currently unavailable. Please try rejoining the session or contact support',
-  [chatErrorNotConnected]:'Unable to connect to chat. Please try rejoining the session or contact support',
+  [chatErrorNoToken]:
+    'Chat is currently unavailable. Please try rejoining the session or contact support',
+  [chatErrorNotConnected]:
+    'Unable to connect to chat. Please try rejoining the session or contact support',
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute Everyone',
