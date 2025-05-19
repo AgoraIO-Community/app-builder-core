@@ -330,6 +330,18 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
               secondaryBtn: null,
               leadingIcon: null,
             });
+          } else if (agentConnectError.toString().indexOf('403') !== -1) {
+            Toast.show({
+              leadingIconName: 'alert',
+              type: 'error',
+              text1: 'Uh oh! Agent failed to connect',
+              text2:
+                "Verify if you've enabled conversational AI on agora console or if they have configured correct customerId & customer certificate for your project on appbuilder console",
+              visibilityTime: 5000,
+              primaryBtn: null,
+              secondaryBtn: null,
+              leadingIcon: null,
+            });
           } else {
             Toast.show({
               leadingIconName: 'alert',
