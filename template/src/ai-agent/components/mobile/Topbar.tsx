@@ -2,16 +2,26 @@ import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import {useRoomInfo} from 'customization-api';
 import ThemeConfig from '../../../theme';
+import {SettingButton} from '../ControlButtons';
+import {getAILayoutType} from '../../utils';
 
 const MobileTopbar = () => {
   const {
     data: {meetingTitle},
   } = useRoomInfo();
+
   return (
     <View style={style.rootStyle}>
       <View style={style.containerStyle}>
         <Text style={style.textStyle}>{meetingTitle}</Text>
       </View>
+      {getAILayoutType() !== 'LAYOUT_TYPE_2' ? (
+        <View>
+          <SettingButton />
+        </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };

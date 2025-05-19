@@ -14,7 +14,7 @@ import AudioVisualizer, {DisconnectedView} from '../components/AudioVisualizer';
 import {AgentState} from '../components/AgentControls/const';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 
-export default function DefaultLayout() {
+export default function AIWithLocalUser() {
   const localUid = useLocalUid();
   const {defaultContent, activeUids} = useContent();
   const {RtcEngineUnsafe} = useRtc();

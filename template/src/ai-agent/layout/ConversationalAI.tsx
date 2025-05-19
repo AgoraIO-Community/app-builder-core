@@ -7,18 +7,17 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {useSidePanel, isAndroid, isIOS} from 'customization-api';
+import {useSidePanel} from 'customization-api';
 import ThemeConfig from '../../theme';
 import {AgentContext} from '../components/AgentControls/AgentContext';
 import {AgentState} from '../components/AgentControls/const';
 import {useIsAgentAvailable} from '../components/utils';
-import {isMobileUA} from '../../utils/common';
+import {isMobileUA, isAndroid, isIOS} from '../../utils/common';
 //@ts-ignore
 import JoinCallIcon from '../assets/join-call.png';
 import {
   DisconnectButton,
   MicButton,
-  SettingButton,
   TranscriptButton,
 } from '../components/ControlButtons';
 
@@ -39,9 +38,15 @@ export default function ConversationalAI() {
           const {Application} = require('@splinetool/runtime');
           // start the application and load the scene
           const spline = new Application(canvas);
-          spline.load(
-            'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
-          );
+          spline
+            ?.load(
+              'https://d1i64xs2div6cu.cloudfront.net/scene-250216.splinecode',
+            )
+            ?.then(() => {
+              if (isMobileUA()) {
+                spline?.setZoom(0.5);
+              }
+            });
         }
       });
     }
@@ -83,7 +88,6 @@ export default function ConversationalAI() {
           <View style={styles.controlsContainer}>
             <MicButton />
             <TranscriptButton />
-            <SettingButton />
             <DisconnectButton />
           </View>
         ) : (
@@ -94,6 +98,7 @@ export default function ConversationalAI() {
               agentConnectionState === AgentState.AGENT_DISCONNECT_REQUEST
                 ? {backgroundColor: $config.SEMANTIC_ERROR}
                 : {},
+              isLoading || !isAgentAvailable ? styles.disabledOpacity : {},
             ]}
             onPress={() => {
               toggleAgentConnection();
@@ -142,7 +147,7 @@ const styles = StyleSheet.create({
   },
   layoutRootContainer: {
     flex: 1,
-    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    backgroundColor: '#1D1D1D',
     borderRadius: 8,
   },
   callAgentBtnInnerContainer: {
@@ -157,6 +162,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     display: 'flex',
     flex: 1,
+  },
+  disabledOpacity: {
+    opacity: 0.6,
   },
   callAgentBtnText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
