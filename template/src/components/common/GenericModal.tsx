@@ -108,7 +108,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    maxWidth: 650,
+    maxWidth: 680,
+    minWidth: 340,
+    height: 620,
+    maxHeight: 620,
+    zIndex: 2,
   },
   backDrop: {
     zIndex: 1,
