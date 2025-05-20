@@ -103,6 +103,7 @@ import {
   toolbarItemTranscriptText,
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
+  toolbarItemManageTranscriptText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
@@ -277,7 +278,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const viewRecordingsLabel = useString<boolean>(
     toolbarItemViewRecordingText,
   )();
-  const viewSTTLabel = useString<boolean>(toolbarItemViewRecordingText)();
+  const viewSTTLabel = useString<boolean>(toolbarItemManageTranscriptText)();
   const moreButtonLabel = useString(toolbarItemMoreText)();
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();

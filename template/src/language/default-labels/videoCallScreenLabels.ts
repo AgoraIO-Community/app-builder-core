@@ -109,6 +109,8 @@ export const toolbarItemNoiseCancellationText =
 export const toolbarItemWhiteboardText = 'toolbarItemWhiteboardText';
 export const toolbarItemCaptionText = 'toolbarItemCaptionText';
 export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
+export const toolbarItemManageTranscriptText =
+  'toolbarItemManageTranscriptText';
 export const toolbarItemVirtualBackgroundText =
   'toolbarItemVirtualBackgroundText';
 export const toolbarItemViewRecordingText = 'toolbarItemViewRecordingText';
@@ -569,6 +571,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemWhiteboardText]?: I18nConditionalType;
   [toolbarItemCaptionText]?: I18nConditionalType;
   [toolbarItemTranscriptText]?: I18nConditionalType;
+  [toolbarItemManageTranscriptText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
   [toolbarItemViewRecordingText]?: I18nConditionalType;
 
@@ -935,6 +938,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
+  [toolbarItemManageTranscriptText]: 'Download Transcripts',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
   [toolbarItemSwitchCameraText]: 'Switch Camera',
