@@ -296,9 +296,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     toggle: toggleVRModal,
   } = useModal();
   const {
-    modalOpen: isViewSTTModalOpen,
-    setModalOpen: setViewSTTModalOpen,
-    toggle: toggleViewSTTModal,
+    modalOpen: isSTTTranscriptModalOpen,
+    setModalOpen: setSTTTranscriptModalOpen,
+    toggle: toggleSTTTranscriptModal,
   } = useModal();
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -553,52 +553,21 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         }
       },
     });
+  }
 
-    if ($config.ENABLE_MEETING_TRANSCRIPT) {
-      actionMenuitems.push({
-        componentName: 'transcript',
-        order: 4,
-        icon: 'transcript',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.FONT_COLOR,
-        disabled: !(
-          $config.ENABLE_STT &&
-          $config.ENABLE_CAPTION &&
-          $config.ENABLE_MEETING_TRANSCRIPT &&
-          (isHost || (!isHost && isSTTActive))
-        ),
-        title: transcriptLabel(isTranscriptON),
-        onPress: () => {
-          setActionMenuVisible(false);
-          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-          if (isSTTError) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-            return;
-          }
-          if (isSTTActive) {
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-          } else {
-            isFirstTimePopupOpen.current = true;
-            setLanguagePopup(true);
-          }
-        },
-      });
-      actionMenuitems.push({
-        componentName: 'view-stts',
-        order: 13,
-        icon: 'transcript',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.FONT_COLOR,
-        title: viewSTTLabel,
-        onPress: () => {
-          toggleViewSTTModal();
-        },
-      });
-    }
+  // Show transcripts to downlaod
+  if ($config.ENABLE_STT && $config.ENABLE_MEETING_TRANSCRIPT) {
+    actionMenuitems.push({
+      componentName: 'view-stt-transcripts',
+      order: 13,
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: viewSTTLabel,
+      onPress: () => {
+        toggleSTTTranscriptModal();
+      },
+    });
   }
 
   // view recordings
@@ -971,8 +940,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           )}
         </>
       )}
-      {$config.ENABLE_STT && isViewSTTModalOpen ? (
-        <ViewSTTTranscriptModal setModalOpen={setVRModalOpen} />
+      {$config.ENABLE_STT &&
+      $config.ENABLE_MEETING_TRANSCRIPT &&
+      isSTTTranscriptModalOpen ? (
+        <ViewSTTTranscriptModal setModalOpen={setSTTTranscriptModalOpen} />
       ) : (
         <></>
       )}
