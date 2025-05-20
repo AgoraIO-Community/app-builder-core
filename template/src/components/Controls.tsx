@@ -551,7 +551,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         }
       },
     });
-    // Show Meeting transcript
+    // 4. Meeting transcript
     if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
         componentName: 'transcript',

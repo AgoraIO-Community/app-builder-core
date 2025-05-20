@@ -938,7 +938,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
-  [toolbarItemManageTranscriptText]: 'View Transcripts',
+  [toolbarItemManageTranscriptText]: 'Download Transcripts',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
   [toolbarItemSwitchCameraText]: 'Switch Camera',
