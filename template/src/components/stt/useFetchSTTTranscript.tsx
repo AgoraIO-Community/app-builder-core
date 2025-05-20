@@ -1,10 +1,10 @@
 import {useState, useCallback, useEffect, useContext} from 'react';
-import StorageContext from '../../components/StorageContext';
+import StorageContext from '../StorageContext';
 import {useRoomInfo} from 'customization-api';
 import getUniqueID from '../../utils/getUniqueID';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
-export interface FetchSTTResponse {
+export interface FetchSTTTranscriptResponse {
   pagination: {
     limit: number;
     total: number;
@@ -23,7 +23,7 @@ export interface FetchSTTResponse {
 
 export type APIStatus = 'idle' | 'pending' | 'resolved' | 'rejected';
 
-export function useFetchSTT(defaultLimit = 10) {
+export function useFetchSTTTranscript(defaultLimit = 10) {
   const {
     data: {roomId},
   } = useRoomInfo();
@@ -33,8 +33,8 @@ export function useFetchSTT(defaultLimit = 10) {
   const [state, setState] = useState<{
     status: APIStatus;
     data: {
-      stts: FetchSTTResponse['stts'];
-      pagination: FetchSTTResponse['pagination'];
+      stts: FetchSTTTranscriptResponse['stts'];
+      pagination: FetchSTTTranscriptResponse['pagination'];
     };
     error: any;
   }>({
@@ -69,23 +69,33 @@ export function useFetchSTT(defaultLimit = 10) {
         const end = Date.now();
 
         if (!res.ok) {
-          logger.error(LogSource.NetworkRest, 'stt', 'Fetch failed', {
+          logger.error(
+            LogSource.NetworkRest,
+            'stt-transcript',
+            'Fetching STT transcripts failed',
+            {
+              json,
+              start,
+              end,
+              latency: end - start,
+              requestId,
+            },
+          );
+          throw new Error(json?.error?.message || 'Unknown fetch error');
+        }
+
+        logger.debug(
+          LogSource.NetworkRest,
+          'stt-transcript',
+          'Fetched STT transcripts',
+          {
             json,
             start,
             end,
             latency: end - start,
             requestId,
-          });
-          throw new Error(json?.error?.message || 'Unknown fetch error');
-        }
-
-        logger.debug(LogSource.NetworkRest, 'stt', 'Fetched STTs', {
-          json,
-          start,
-          end,
-          latency: end - start,
-          requestId,
-        });
+          },
+        );
         return json;
       } catch (err) {
         return Promise.reject(err);

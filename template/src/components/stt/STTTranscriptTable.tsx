@@ -2,7 +2,10 @@ import React from 'react';
 import {View, Text, Linking, TouchableOpacity} from 'react-native';
 import {style} from '../recordings/style';
 import {TableBody, TableFooter, TableHeader} from '../common/data-table';
-import {FetchSTTResponse, useFetchSTT} from './useFetchSTT';
+import {
+  FetchSTTTranscriptResponse,
+  useFetchSTTTranscript,
+} from './useFetchSTTTranscript';
 import Clipboard from '../../subComponents/Clipboard';
 import {downloadS3Link, getFormattedDateTime} from '../../utils/common';
 import Tooltip from '../../atoms/Tooltip';
@@ -15,7 +18,7 @@ import Loading from '../../subComponents/Loading';
 const headers = ['Date', 'Time', 'Status', 'Actions'];
 
 interface STTItemRowProps {
-  item: FetchSTTResponse['stts'][0];
+  item: FetchSTTTranscriptResponse['stts'][0];
 }
 
 function STTItemRow({item}: STTItemRowProps) {
@@ -57,7 +60,7 @@ function STTItemRow({item}: STTItemRowProps) {
       <View style={style.td}>
         {!item.download_url ? (
           <View style={[style.tactions, {marginTop: 0}]}>
-            <Text style={style.placeHolder}>{'No stt found'}</Text>
+            <Text style={style.placeHolder}>{'No transcripts found'}</Text>
           </View>
         ) : item?.download_url?.length > 0 ? (
           <View style={style.tactions}>
@@ -188,7 +191,7 @@ function ErrorTranscriptState(message: any) {
 }
 function STTTranscriptTable() {
   const {status, stts, pagination, error, currentPage, setCurrentPage} =
-    useFetchSTT();
+    useFetchSTTTranscript();
 
   if (status === 'rejected') {
     return <ErrorTranscriptState message={error?.message} />;
