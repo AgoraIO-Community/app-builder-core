@@ -84,7 +84,9 @@ export default function ConversationalAI() {
         )}
       </View>
       <View style={styles.btnContainer}>
-        {!isLoading && agentConnectionState === 'AGENT_CONNECTED' ? (
+        {!isLoading &&
+        (agentConnectionState === 'AGENT_CONNECTED' ||
+          agentConnectionState === 'AGENT_DISCONNECT_FAILED') ? (
           <View style={styles.controlsContainer}>
             <MicButton />
             <TranscriptButton />
