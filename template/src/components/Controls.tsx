@@ -338,7 +338,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   const {isNoiseSupressionEnabled, setNoiseSupression} = useNoiseSupression();
 
-  //AINS
+  //0. AINS
   if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
       componentName: 'noise-cancellation',
@@ -362,7 +362,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
   //AINS
 
-  //virtual background
+  //1. virtual background
   const {isVBActive, setIsVBActive} = useVB();
 
   const toggleVB = () => {
@@ -393,7 +393,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   //virtual background
 
   //whiteboard start
-
   const {
     whiteboardRoomState,
     whiteboardActive,
@@ -480,8 +479,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       ? true
       : false;
 
-  //whiteboard ends
-
+  // 2. whiteboard ends
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
       componentName: 'whiteboard',
@@ -523,8 +521,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // host can see stt options and attendee can view only when stt is enabled by a host in the channel
-
+  // 3. host can see stt options and attendee can view only when stt is enabled by a host in the channel
   if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
       componentName: 'caption',
@@ -554,25 +551,44 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         }
       },
     });
+    // Show Meeting transcript
+    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+      actionMenuitems.push({
+        componentName: 'transcript',
+        order: 4,
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        disabled: !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          $config.ENABLE_MEETING_TRANSCRIPT &&
+          (isHost || (!isHost && isSTTActive))
+        ),
+        title: transcriptLabel(isTranscriptON),
+        onPress: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+          if (isSTTError) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+            return;
+          }
+          if (isSTTActive) {
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
+    }
   }
 
-  // Show transcripts to downlaod
-  if ($config.ENABLE_STT && $config.ENABLE_MEETING_TRANSCRIPT) {
-    actionMenuitems.push({
-      componentName: 'view-stt-transcripts',
-      order: 13,
-      icon: 'transcript',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: viewSTTLabel,
-      onPress: () => {
-        toggleSTTTranscriptModal();
-      },
-    });
-  }
-
-  // view recordings
-
+  // 5. view recordings
   if (isHost && $config.CLOUD_RECORDING && isWeb()) {
     actionMenuitems.push({
       componentName: 'view-recordings',
@@ -587,7 +603,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // Particpants
+  // 6. Particpants
   const canAccessParticipants =
     useControlPermissionMatrix('participantControl');
   if (canAccessParticipants) {
@@ -607,7 +623,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
   }
-  // Chat
+
+  // 7. Chat
   const canAccessChat = useControlPermissionMatrix('chatControl');
   if (canAccessChat) {
     //disable chat button when BE sends error on chat
@@ -657,7 +674,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // Screenshare
+  // 8. Screenshare
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   if (canAccessScreenshare) {
     if (
@@ -694,6 +711,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     }
   }
 
+  // 9. Recording
   if (isHost && $config.CLOUD_RECORDING) {
     actionMenuitems.push({
       hide: w => {
@@ -721,6 +739,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
+  // 10. layout
   actionMenuitems.push({
     hide: w => {
       return w >= BREAKPOINTS.lg ? true : false;
@@ -755,7 +774,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     ),
   });
 
-  // Invite
+  // 11. Invite
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   if (canAccessInvite) {
     actionMenuitems.push({
@@ -775,7 +794,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // Settings
+  // 12.Settings
   const canAccessSettings = useControlPermissionMatrix('settingsControl');
   if (canAccessSettings) {
     actionMenuitems.push({
@@ -791,6 +810,21 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       onPress: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.Settings);
+      },
+    });
+  }
+
+  // 13. Transcripts to download
+  if ($config.ENABLE_STT && $config.ENABLE_MEETING_TRANSCRIPT) {
+    actionMenuitems.push({
+      componentName: 'view-stt-transcripts',
+      order: 13,
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: viewSTTLabel,
+      onPress: () => {
+        toggleSTTTranscriptModal();
       },
     });
   }
