@@ -3,6 +3,7 @@ import {View} from 'react-native';
 import {useString} from '../../utils/useString';
 import {sttModalTitleIntn} from '../../language/default-labels/videoCallScreenLabels';
 import GenericModal from '../common/GenericModal';
+import STTTranscriptTable from './STTTranscriptTable';
 
 interface ViewSTTModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
@@ -21,7 +22,9 @@ export default function ViewSTTTranscriptModal(props: ViewSTTModalProps) {
       title={sttModalTitle}
       cancelable={false}
       contentContainerStyle={{}}>
-      <View style={{width: '100%', flex: 1}}>whats going on</View>
+      <View style={{width: '100%', flex: 1}}>
+        <STTTranscriptTable />
+      </View>
     </GenericModal>
   );
 }
