@@ -938,7 +938,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
-  [toolbarItemManageTranscriptText]: 'Download Transcripts',
+  [toolbarItemManageTranscriptText]: 'View Transcripts',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
   [toolbarItemSwitchCameraText]: 'Switch Camera',
@@ -1035,7 +1035,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',
-  [sttDownloadTranscriptBtnText]: 'Download Transcript',
+  [sttDownloadTranscriptBtnText]: 'View Transcript',
   [sttSettingSpokenLanguageText]: 'Setting Spoken Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
 
