@@ -6,7 +6,11 @@ import {
   FetchSTTTranscriptResponse,
   useFetchSTTTranscript,
 } from './useFetchSTTTranscript';
-import {downloadS3Link, getFormattedDateTime} from '../../utils/common';
+import {
+  capitalizeFirstLetter,
+  downloadS3Link,
+  getFormattedDateTime,
+} from '../../utils/common';
 import IconButtonWithToolTip from '../../atoms/IconButton';
 import ImageIcon from '../../atoms/ImageIcon';
 import Loading from '../../subComponents/Loading';
@@ -51,7 +55,7 @@ function STTItemRow({item}: STTItemRowProps) {
         <Text style={style.ttime}>{time}</Text>
       </View>
       <View style={[style.td]}>
-        <Text style={style.ttime}>{sttStatus}</Text>
+        <Text style={style.ttime}>{capitalizeFirstLetter(sttStatus)}</Text>
       </View>
       <View style={style.td}>
         {!item.download_url ? (
