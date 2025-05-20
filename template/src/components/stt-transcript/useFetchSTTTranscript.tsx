@@ -113,7 +113,11 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
             status: 'resolved',
             data: {
               stts: data.stts || [],
-              pagination: data.pagination || {total: 0, limit: defaultLimit},
+              pagination: data.pagination || {
+                total: 0,
+                limit: defaultLimit,
+                page: 1,
+              },
             },
             error: null,
           }),

@@ -56,7 +56,6 @@ export interface TableBodyProps<T> {
   status: TableStatus;
   items: T[];
   loadingComponent?: React.ReactNode;
-  emptyText?: string;
   emptyComponent?: React.ReactNode;
   renderRow: (item: T, index: number) => React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
@@ -68,11 +67,8 @@ function TableBody<T>({
   status,
   items,
   loadingComponent,
-  emptyText,
   emptyComponent,
   renderRow,
-  containerStyle,
-  horizontalContainerStyle,
   bodyStyle,
 }: TableBodyProps<T>) {
   // Loading state
@@ -87,9 +83,9 @@ function TableBody<T>({
 
   // Data state
   return (
-    <ScrollView contentContainerStyle={containerStyle}>
-      <ScrollView horizontal contentContainerStyle={horizontalContainerStyle}>
-        <View style={bodyStyle}>
+    <ScrollView contentContainerStyle={[style.scrollgrow]}>
+      <ScrollView horizontal contentContainerStyle={[style.scrollgrow]}>
+        <View style={[style.tbody, bodyStyle]}>
           {items.map((item, index) => renderRow(item, index))}
         </View>
       </ScrollView>
@@ -104,6 +100,7 @@ interface TableFooterProps {
   pagination?: Partial<{
     total: number;
     limit: number;
+    page: number;
   }>;
   containerStyle?: ViewStyle;
   infoTextStyle?: TextStyle;
@@ -120,7 +117,7 @@ const TableFooter: React.FC<TableFooterProps> = ({
   paginationWrapperStyle,
   paginationContainerStyle,
 }) => {
-  if (!pagination || Object.keys(pagination).length === 0) {
+  if (!pagination || pagination.total === 0) {
     return (
       <View style={[style.mfooter, containerStyle]}>
         <Text style={infoTextStyle}> </Text>

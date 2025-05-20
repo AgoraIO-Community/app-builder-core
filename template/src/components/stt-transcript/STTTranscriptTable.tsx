@@ -1,18 +1,14 @@
 import React from 'react';
-import {View, Text, Linking, TouchableOpacity} from 'react-native';
+import {View, Text} from 'react-native';
 import {style} from '../recordings/style';
 import {TableBody, TableFooter, TableHeader} from '../common/data-table';
 import {
   FetchSTTTranscriptResponse,
   useFetchSTTTranscript,
 } from './useFetchSTTTranscript';
-import Clipboard from '../../subComponents/Clipboard';
 import {downloadS3Link, getFormattedDateTime} from '../../utils/common';
-import Tooltip from '../../atoms/Tooltip';
 import IconButtonWithToolTip from '../../atoms/IconButton';
 import ImageIcon from '../../atoms/ImageIcon';
-import Spacer from '../../atoms/Spacer';
-import PlatformWrapper from '../../utils/PlatformWrapper';
 import Loading from '../../subComponents/Loading';
 
 const headers = ['Date', 'Time', 'Status', 'Actions'];
@@ -55,7 +51,7 @@ function STTItemRow({item}: STTItemRowProps) {
         <Text style={style.ttime}>{time}</Text>
       </View>
       <View style={[style.td]}>
-        <Text style={style.ttime}>{status}</Text>
+        <Text style={style.ttime}>{sttStatus}</Text>
       </View>
       <View style={style.td}>
         {!item.download_url ? (
@@ -86,69 +82,6 @@ function STTItemRow({item}: STTItemRowProps) {
                       }}
                       onPress={() => {
                         downloadS3Link(link);
-                      }}
-                    />
-                  </View>
-                  <View style={style.pl10}>
-                    <IconButtonWithToolTip
-                      hoverEffect={true}
-                      hoverEffectStyle={style.iconButtonHoverEffect}
-                      containerStyle={style.iconButton}
-                      iconProps={{
-                        name: 'link-share',
-                        iconType: 'plain',
-                        iconSize: 20,
-                        tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
-                      }}
-                      onPress={async () => {
-                        if (await Linking.canOpenURL(link)) {
-                          await Linking.openURL(link);
-                        }
-                      }}
-                    />
-                  </View>
-                  <View style={[style.pl10]}>
-                    <Tooltip
-                      isClickable
-                      placement="left"
-                      toolTipMessage="Link Copied"
-                      onPress={() => {
-                        Clipboard.setString(link);
-                      }}
-                      toolTipIcon={
-                        <>
-                          <ImageIcon
-                            iconType="plain"
-                            name="tick-fill"
-                            tintColor={$config.SEMANTIC_SUCCESS}
-                            iconSize={20}
-                          />
-                          <Spacer size={8} horizontal={true} />
-                        </>
-                      }
-                      fontSize={12}
-                      renderContent={() => {
-                        return (
-                          <PlatformWrapper>
-                            {(isHovered: boolean) => (
-                              <TouchableOpacity
-                                style={[
-                                  isHovered ? style.iconButtonHoverEffect : {},
-                                  style.iconShareLink,
-                                ]}
-                                onPress={() => {
-                                  Clipboard.setString(link);
-                                }}>
-                                <ImageIcon
-                                  iconType="plain"
-                                  name="copy-link"
-                                  iconSize={20}
-                                  tintColor={$config.SECONDARY_ACTION_COLOR}
-                                />
-                              </TouchableOpacity>
-                            )}
-                          </PlatformWrapper>
-                        );
                       }}
                     />
                   </View>
@@ -189,6 +122,7 @@ function EmptyTranscriptState() {
 function ErrorTranscriptState(message: any) {
   return <Text style={[style.ttime, style.pv10, style.ph20]}>{message}</Text>;
 }
+
 function STTTranscriptTable() {
   const {status, stts, pagination, error, currentPage, setCurrentPage} =
     useFetchSTTTranscript();
