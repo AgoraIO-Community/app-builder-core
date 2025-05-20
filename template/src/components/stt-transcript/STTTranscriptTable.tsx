@@ -14,6 +14,7 @@ import {
 import IconButtonWithToolTip from '../../atoms/IconButton';
 import ImageIcon from '../../atoms/ImageIcon';
 import Loading from '../../subComponents/Loading';
+import Toast from '../../../react-native-toast-message';
 
 const headers = ['Date', 'Time', 'Status', 'Actions'];
 
@@ -85,7 +86,17 @@ function STTItemRow({item}: STTItemRowProps) {
                         tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
                       }}
                       onPress={() => {
-                        downloadS3Link(link);
+                        downloadS3Link(link).catch(error => {
+                          Toast.show({
+                            leadingIconName: 'alert',
+                            type: 'error',
+                            text1: error,
+                            visibilityTime: 3000,
+                            primaryBtn: null,
+                            secondaryBtn: null,
+                            leadingIcon: null,
+                          });
+                        });
                       }}
                     />
                   </View>

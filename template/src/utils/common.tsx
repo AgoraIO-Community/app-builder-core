@@ -431,25 +431,42 @@ const getFileName = (url: string) => {
   return url.split('#')[0].split('?')[0].split('/').pop();
 };
 
-const downloadS3Link = (url: string) => {
-  const fileName = getFileName(url);
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  xhr.responseType = 'arraybuffer';
-  xhr.onload = function (_) {
-    var blob = new Blob([xhr.response], {type: 'video/mp4'});
-    // render `blob` url ✅
-    const downloadUrl = URL.createObjectURL(blob);
-    // anchor element to download
-    const anchor = document.createElement('a');
-    anchor.setAttribute('download', fileName);
-    anchor.href = downloadUrl;
-    // click to dowload the file
-    anchor.click();
-    // revoke download url
-    URL.revokeObjectURL(downloadUrl);
-  };
-  xhr.send();
+const downloadS3Link = (url: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const fileName = getFileName(url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        try {
+          const blob = new Blob([xhr.response], {type: 'video/mp4'});
+          const downloadUrl = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.setAttribute('download', fileName);
+          anchor.href = downloadUrl;
+          anchor.click();
+          URL.revokeObjectURL(downloadUrl);
+          resolve();
+        } catch (err) {
+          reject(err instanceof Error ? err : new Error('Download failed'));
+        }
+      } else {
+        reject(new Error(`Download failed with status ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error while downloading'));
+    };
+
+    xhr.onabort = () => {
+      reject(new Error('Download aborted'));
+    };
+
+    xhr.send();
+  });
 };
 
 export {
