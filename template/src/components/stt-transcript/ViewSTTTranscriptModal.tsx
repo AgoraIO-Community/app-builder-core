@@ -8,7 +8,7 @@ interface ViewSTTModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function ViewSTTModal(props: ViewSTTModalProps) {
+export default function ViewSTTTranscriptModal(props: ViewSTTModalProps) {
   const {setModalOpen} = props;
 
   const sttModalTitle = useString(sttModalTitleIntn)();

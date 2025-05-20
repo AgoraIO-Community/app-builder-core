@@ -115,7 +115,7 @@ import {
   InviteToolbarItem,
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
-import ViewSTTModal from './stt/ViewSTTModal';
+import ViewSTTTranscriptModal from './stt-transcript/ViewSTTTranscriptModal';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -972,7 +972,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         </>
       )}
       {$config.ENABLE_STT && isViewSTTModalOpen ? (
-        <ViewSTTModal setModalOpen={setVRModalOpen} />
+        <ViewSTTTranscriptModal setModalOpen={setVRModalOpen} />
       ) : (
         <></>
       )}
