@@ -71,23 +71,24 @@ function TableBody<T>({
   renderRow,
   bodyStyle,
 }: TableBodyProps<T>) {
-  // Loading state
-  if (status === 'idle' || status === 'pending') {
-    return <>{loadingComponent || null}</>;
-  }
-
-  // Empty state
-  if (status === 'resolved' && items.length === 0) {
-    return <>{emptyComponent || null}</>;
-  }
+  const renderTableBodyContent = () => {
+    // Loading state
+    if (status === 'idle' || status === 'pending') {
+      return <>{loadingComponent || null}</>;
+    }
+    // Empty state
+    if (status === 'resolved' && items.length === 0) {
+      return <>{emptyComponent || null}</>;
+    }
+    // Data state
+    return items.map((item, index) => renderRow(item, index));
+  };
 
   // Data state
   return (
     <ScrollView contentContainerStyle={[style.scrollgrow]}>
       <ScrollView horizontal contentContainerStyle={[style.scrollgrow]}>
-        <View style={[style.tbody, bodyStyle]}>
-          {items.map((item, index) => renderRow(item, index))}
-        </View>
+        <View style={[style.tbody, bodyStyle]}>{renderTableBodyContent()}</View>
       </ScrollView>
     </ScrollView>
   );
