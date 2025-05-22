@@ -11,6 +11,7 @@ export enum LocalEventsEnum {
   CLEAR_WHITEBOARD = 'CLEAR_WHITEBOARD',
   USER_KICKED_OFF_BY_REMOTE_HOST = 'USER_KICKED_OFF_BY_REMOTE_HOST',
   AGENT_TRANSCRIPT_CHANGE = 'AGENT_TRANSCRIPT_CHANGE',
+  SDK_TOKEN_CHANGED = 'SDK_TOKEN_CHANGED',
 }
 const LocalEventEmitter = new EventEmitter();
 export default LocalEventEmitter;

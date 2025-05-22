@@ -109,6 +109,7 @@ export interface RoomInfoContextInterface {
   };
   isSTTActive?: boolean;
   roomPreference?: joinRoomPreference;
+  loginToken?: string;
 }
 
 export const validateMeetingInfoData = (
@@ -161,6 +162,7 @@ export const RoomInfoDefaultValue: RoomInfoContextInterface = {
     disableParticipants: false,
     userRemovalTimeout: 5000,
   },
+  loginToken: '',
 };
 
 const RoomInfoContext = createContext(RoomInfoDefaultValue);

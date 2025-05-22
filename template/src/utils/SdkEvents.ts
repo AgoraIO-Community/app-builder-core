@@ -50,6 +50,7 @@ export interface userEventsMapInterface {
   'did-token-expire': () => void;
   'token-refreshed': () => void;
   'rtc-user-removed': (uid: UidType, channel: string) => void;
+  unauthorized: (errorMessage) => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();

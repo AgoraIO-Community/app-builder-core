@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useLayoutEffect} from 'react';
+import React, {useState, useLayoutEffect, useEffect} from 'react';
 import {Platform} from 'react-native';
 import KeyboardManager from 'react-native-keyboard-manager';
 import AppWrapper from './AppWrapper';
@@ -22,6 +22,7 @@ import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import AppRoutes from './AppRoutes';
 import {isWebInternal} from './utils/common';
+import LocalEventEmitter, {LocalEventsEnum} from './rtm-events-api/LocalEvents';
 
 // hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -100,6 +101,22 @@ const App: React.FC = () => {
       if (isWebInternal()) {
         window.removeEventListener('load', notifyReady);
       }
+    };
+  }, []);
+
+  const updateToken = token => {
+    setRoomInfo(prevState => {
+      return {
+        ...prevState,
+        loginToken: token,
+      };
+    });
+  };
+
+  useEffect(() => {
+    LocalEventEmitter.on(LocalEventsEnum.SDK_TOKEN_CHANGED, updateToken);
+    return () => {
+      LocalEventEmitter.off(LocalEventsEnum.SDK_TOKEN_CHANGED, updateToken);
     };
   }, []);
 

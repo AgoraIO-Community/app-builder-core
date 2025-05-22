@@ -17,6 +17,8 @@ import {
 import Platform from '../subComponents/Platform';
 import * as ReactIs from 'react-is';
 
+const AuthErrorCodes = [602, 603, 604];
+
 const trimText = (text: string, length: number = 25) => {
   if (!text) {
     return '';
@@ -412,4 +414,5 @@ export {
   CustomToolbarSorting,
   CustomToolbarMerge,
   MergeMoreButtonFields,
+  AuthErrorCodes,
 };
