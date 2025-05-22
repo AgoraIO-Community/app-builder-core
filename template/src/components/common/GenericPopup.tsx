@@ -62,12 +62,8 @@ const GenericPopup: React.FC<ConfirmationModalProps> = ({
       showCloseIcon={false}
       contentContainerStyle={styles.contentContainer}>
       <Text style={[styles.title, {color}]}>{title}</Text>
-      {message ? (
-        <>
-          <Spacer size={8} />
-          <Text style={styles.message}>{message}</Text>
-        </>
-      ) : null}
+      <Spacer size={18} />
+      {message ? <Text style={styles.message}>{message}</Text> : null}
       {footer ? (
         <>
           <Spacer size={16} />
@@ -104,6 +100,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 24,
     maxWidth: 360,
+    minWidth: 360,
   },
   title: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -121,7 +118,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 14,
     color: $config.FONT_COLOR,
-    textAlign: 'center',
   },
   row: {
     flex: 1,

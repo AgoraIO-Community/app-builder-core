@@ -21,9 +21,10 @@ const headers = ['Date', 'Time', 'Status', 'Actions'];
 interface STTItemRowProps {
   item: FetchSTTTranscriptResponse['stts'][0];
   onDeleteAction: (id: string) => void;
+  onDownloadAction: (link: string) => void;
 }
 
-function STTItemRow({item, onDeleteAction}: STTItemRowProps) {
+function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
   const [date, time] = getFormattedDateTime(item.created_at);
   const sttStatus = item.status;
 
@@ -87,9 +88,7 @@ function STTItemRow({item, onDeleteAction}: STTItemRowProps) {
                         tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
                       }}
                       onPress={() => {
-                        downloadS3Link(link).catch((error: Error) => {
-                          console.log('error: ', error);
-                        });
+                        onDownloadAction(link);
                       }}
                     />
                   </View>
@@ -152,9 +151,15 @@ function STTTranscriptTable() {
   const {status, stts, pagination, error, currentPage, setCurrentPage} =
     useFetchSTTTranscript();
 
+  // id of STT transcript to delete
   const [sttIdToDelete, setSTTIdToDelete] = React.useState<string | undefined>(
     undefined,
   );
+
+  // message for any download‐error popup
+  const [downloadError, setDownloadError] = React.useState<
+    string | undefined
+  >();
 
   if (status === 'rejected') {
     return <ErrorTranscriptState message={error?.message} />;
@@ -180,6 +185,11 @@ function STTTranscriptTable() {
               onDeleteAction={id => {
                 setSTTIdToDelete(id);
               }}
+              onDownloadAction={link => {
+                downloadS3Link(link).catch((err: Error) => {
+                  setDownloadError(err.message || 'Download failed');
+                });
+              }}
             />
           )}
           emptyComponent={<EmptyTranscriptState />}
@@ -194,13 +204,24 @@ function STTTranscriptTable() {
         <GenericPopup
           title="Delete ? "
           variant="error"
-          message="Are you sure want to delete the recording? This action can't be undone."
+          message="Are you sure want to delete the transcript ? This action can't be undone."
           visible={!!sttIdToDelete}
           setVisible={() => setSTTIdToDelete(undefined)}
           onConfirm={onDeleteSTTRecord}
           onCancel={() => {
             setSTTIdToDelete(undefined);
           }}
+        />
+      )}
+      {/** DOWNLOAD ERROR POPUP **/}
+      {downloadError && (
+        <GenericPopup
+          title="Download Error"
+          variant="error"
+          message={downloadError}
+          visible={true}
+          setVisible={() => setDownloadError(undefined)}
+          onConfirm={() => setDownloadError(undefined)}
         />
       )}
     </>
