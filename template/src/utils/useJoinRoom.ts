@@ -9,142 +9,10 @@ import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI'
 import {base64ToUint8Array} from '../utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from './getUniqueID';
-import {
-  chatErrorNoToken
-} from '../language/default-labels/videoCallScreenLabels';
+import {chatErrorNoToken} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
 
-const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
-      channel
-      title
-      isHost
-      secret
-      chat {
-        groupId
-        userToken
-        isGroupOwner
-        error {
-          code
-          message
-        }
-      }
-      secretSalt
-      mainUser {
-        rtc
-        rtm
-        uid
-      }
-      whiteboard {
-        room_uuid
-        room_token
-        error {
-          code
-          message
-        }
-      }
-      screenShare {
-        rtc
-        rtm
-        uid
-      }
-      agents {
-        id
-        is_active
-        config {
-          llm {
-            agent_name
-            model
-            prompt
-          }
-          vad {
-            threshold
-          }
-          asr_language
-          enable_aivad
-          tts {
-            vendor
-            params {
-              ... on TtsVendorParamsMs {
-                voice_name
-                region
-              }
-            }
-          }
-        }
-      }
-    }
-    getUser {
-      name
-      email
-    }
-  }
-`;
-
-const JOIN_CHANNEL_PHRASE = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
-      channel
-      title
-      isHost
-      secret
-      chat {
-        groupId
-        userToken
-        isGroupOwner
-        error {
-          code
-          message
-        }
-      }
-      secretSalt
-      mainUser {
-        rtc
-        rtm
-        uid
-      }
-      whiteboard {
-        room_uuid
-        room_token
-        error {
-          code
-          message
-        }
-      }
-      screenShare {
-        rtc
-        rtm
-        uid
-      }
-      agents {
-        id
-        is_active
-        config {
-          llm {
-            agent_name
-            model
-            prompt
-          }
-          vad {
-            threshold
-          }
-          asr_language
-          enable_aivad
-          tts {
-            vendor
-            params {
-              ... on TtsVendorParamsMs {
-                voice_name
-                region
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+const JOIN_CHANNEL_URL = `${$config.BACKEND_ENDPOINT}/v1/channel/join`;
 /**
  * Returns an asynchronous function to join a meeting with the given phrase.
  */
@@ -164,8 +32,6 @@ export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
   const {setRoomInfo} = useSetRoomInfo();
 
-  const {client} = useContext(GraphQLContext);
-  const username = useGetName();
   const {request: requestToJoin} = useWaitingRoomAPI();
   const isWaitingRoomEnabled = $config.ENABLE_WAITING_ROOM;
   const chatErrorNoTokenText = useString(chatErrorNoToken)();
@@ -192,6 +58,7 @@ export default function useJoinRoom() {
           send_event: false,
         });
       } else {
+        console.log('debugging store.token', store.token);
         logger.log(
           LogSource.NetworkRest,
           'joinChannel',
@@ -201,22 +68,20 @@ export default function useJoinRoom() {
             requestId,
           },
         );
-        response = await client.query({
-          context: {
-            headers: {
-              'X-Request-Id': requestId,
-              'X-Session-Id': logger.getSessionId(),
-            },
-          },
-          query:
-            store.token === null
-              ? JOIN_CHANNEL_PHRASE
-              : JOIN_CHANNEL_PHRASE_AND_GET_USER,
-          variables: {
-            passphrase: phrase,
-            //userName: username,
-          },
+        const payload = JSON.stringify({
+          passphrase: phrase,
         });
+        const res = await fetch(`${JOIN_CHANNEL_URL}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: store.token ? `Bearer ${store.token}` : '',
+            'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
+          },
+          body: payload,
+        });
+        response = await res.json();
       }
       const endReqTs = Date.now();
       const latency = endReqTs - startReqTs;
@@ -238,8 +103,8 @@ export default function useJoinRoom() {
         );
         throw response.error;
       } else {
-        if ((response && response.data) || isWaitingRoomEnabled) {
-          let data = isWaitingRoomEnabled ? response : response.data;
+        if (response) {
+          let data = response;
           logger.log(
             LogSource.NetworkRest,
             `${isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'}`,
@@ -257,109 +122,92 @@ export default function useJoinRoom() {
           );
           let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
 
-          if (data?.joinChannel?.channel || data?.channel) {
+          if (data?.channel_name || data?.channel) {
             roomInfo.channel = isWaitingRoomEnabled
               ? data.channel
-              : data.joinChannel.channel;
+              : data.channel_name;
           }
-          if (data?.joinChannel?.mainUser?.uid || data?.mainUser?.uid) {
+          if (data?.main_user?.uid || data?.mainUser?.uid) {
             roomInfo.uid = isWaitingRoomEnabled
               ? data.mainUser.uid
-              : data.joinChannel.mainUser.uid;
+              : data.main_user.uid;
           }
-          if (data?.joinChannel?.mainUser?.rtc || data?.mainUser?.rtc) {
+          if (data?.main_user?.rtc || data?.mainUser?.rtc) {
             roomInfo.token = isWaitingRoomEnabled
               ? data.mainUser.rtc
-              : data.joinChannel.mainUser.rtc;
+              : data.main_user.rtc;
           }
-          if (data?.joinChannel?.mainUser?.rtm || data?.mainUser?.rtm) {
+          if (data?.main_user?.rtm || data?.mainUser?.rtm) {
             roomInfo.rtmToken = isWaitingRoomEnabled
               ? data.mainUser.rtm
-              : data.joinChannel.mainUser.rtm;
-          }
-          if (data?.joinChannel?.secret || data?.secret) {
-            roomInfo.encryptionSecret = isWaitingRoomEnabled
-              ? data.secret
-              : data.joinChannel.secret;
-          }
-          if (data?.joinChannel?.secretSalt || data?.secretSalt) {
-            roomInfo.encryptionSecretSalt = base64ToUint8Array(
-              isWaitingRoomEnabled
-                ? data.secretSalt
-                : data.joinChannel.secretSalt,
-            ) as Uint8Array;
-          }
-          if (data?.joinChannel?.screenShare?.uid || data?.screenShare?.uid) {
-            roomInfo.screenShareUid = isWaitingRoomEnabled
-              ? data.screenShare.uid
-              : data.joinChannel.screenShare.uid;
-          }
-          if (data?.joinChannel?.screenShare?.rtc || data?.screenShare?.rtc) {
-            roomInfo.screenShareToken = isWaitingRoomEnabled
-              ? data.screenShare.rtc
-              : data.joinChannel.screenShare.rtc;
+              : data.main_user.rtm;
           }
 
-          if (data?.joinChannel?.mainUser?.rtm || data?.mainUser?.rtm) {
-            roomInfo.rtmToken = isWaitingRoomEnabled
-              ? data.mainUser.rtm
-              : data.joinChannel.mainUser.rtm;
+          if (data?.secret) {
+            roomInfo.encryptionSecret = data.secret;
           }
-          if (data?.joinChannel?.chat || data?.chat) {
-            const chatData = isWaitingRoomEnabled
-              ? data.chat
-              : data?.joinChannel?.chat;
-            const hasError = chatData?.error?.code || chatData?.error?.message;  
-            const missingUserToken =
-            !(
-              isWaitingRoomEnabled
-                ? data.chat?.userToken
-                : data?.joinChannel?.chat?.userToken
-            );
-            if (
-              $config.CHAT &&
-              (hasError || missingUserToken)
-            ) {
+          if (data?.secret_salt || data?.secretSalt) {
+            roomInfo.encryptionSecretSalt = base64ToUint8Array(
+              isWaitingRoomEnabled ? data.secretSalt : data.secret_salt,
+            ) as Uint8Array;
+          }
+          if (data?.screen_share_user?.uid || data?.screenShare?.uid) {
+            roomInfo.screenShareUid = isWaitingRoomEnabled
+              ? data.screenShare.uid
+              : data.screen_share_user.uid;
+          }
+          if (data?.screen_share_user?.rtc || data?.screenShare?.rtc) {
+            roomInfo.screenShareToken = isWaitingRoomEnabled
+              ? data.screenShare.rtc
+              : data.screen_share_user.rtc;
+          }
+
+          if (data?.chat) {
+            const chatData = data.chat;
+
+            const hasError = chatData?.error?.code || chatData?.error?.message;
+            const missingUserToken = !(isWaitingRoomEnabled
+              ? data.chat?.userToken
+              : data.chat?.user_token);
+            if ($config.CHAT && (hasError || missingUserToken)) {
               roomInfo.chat = {
                 user_token: '',
                 group_id: '',
                 is_group_owner: false,
                 error: {
-                  code: chatData?.error?.code || (missingUserToken ? 'NO_USER_TOKEN' : ''),
-                  message: chatData?.error?.message ||
-                  (missingUserToken ? chatErrorNoTokenText : ''),
+                  code:
+                    chatData?.error?.code ||
+                    (missingUserToken ? 'NO_USER_TOKEN' : ''),
+                  message:
+                    chatData?.error?.message ||
+                    (missingUserToken ? chatErrorNoTokenText : ''),
                 },
               };
             } else {
               const chat: RoomInfoContextInterface['data']['chat'] = {
                 user_token: isWaitingRoomEnabled
-                  ? data.chat.userToken
-                  : data?.joinChannel?.chat?.userToken,
+                  ? data.chat?.userToken
+                  : data.chat?.user_token,
                 group_id: isWaitingRoomEnabled
-                  ? data.chat.groupId
-                  : data?.joinChannel?.chat?.groupId,
+                  ? data.chat?.groupId
+                  : data.chat?.group_id,
                 is_group_owner: isWaitingRoomEnabled
-                  ? data.chat.isGroupOwner
-                  : data?.joinChannel?.chat?.isGroupOwner,
-                error:  null,
+                  ? data.chat?.isGroupOwner
+                  : data.chat?.is_group_owner,
+                error: null,
               };
               roomInfo.chat = chat;
             }
           }
 
-          roomInfo.isHost = isWaitingRoomEnabled
-            ? data.isHost
-            : data.joinChannel.isHost;
+          roomInfo.isHost = isWaitingRoomEnabled ? data.isHost : data.is_host;
 
           if (data?.joinChannel?.title || data?.title) {
-            roomInfo.meetingTitle = isWaitingRoomEnabled
-              ? data.title
-              : data.joinChannel.title;
+            roomInfo.meetingTitle = data.title;
           }
-          if (data?.joinChannel?.whiteboard || data?.whiteboard) {
-            const whiteboardData = isWaitingRoomEnabled
-              ? data.whiteboard
-              : data?.joinChannel?.whiteboard;
+          if (data?.whiteboard) {
+            const whiteboardData = data.whiteboard;
+
             if (
               $config.ENABLE_WHITEBOARD &&
               (whiteboardData?.error?.code || whiteboardData?.error?.message)
@@ -375,12 +223,8 @@ export default function useJoinRoom() {
             } else {
               const whiteboard: RoomInfoContextInterface['data']['whiteboard'] =
                 {
-                  room_token: isWaitingRoomEnabled
-                    ? data.whiteboard.room_token
-                    : data?.joinChannel?.whiteboard?.room_token,
-                  room_uuid: isWaitingRoomEnabled
-                    ? data.whiteboard.room_uuid
-                    : data?.joinChannel?.whiteboard?.room_uuid,
+                  room_token: data.whiteboard?.room_token,
+                  room_uuid: data.whiteboard?.room_uuid,
                   error: null,
                 };
               if (whiteboard?.room_token && whiteboard?.room_uuid) {
@@ -391,13 +235,9 @@ export default function useJoinRoom() {
 
           //set the ai agent data
           if ($config.ENABLE_CONVERSATIONAL_AI) {
-            roomInfo.agents = data?.joinChannel?.agents;
+            roomInfo.agents = data?.agents;
           }
 
-          //getUser is not available from backend
-          // if (data?.getUser?.name) {
-          //   roomInfo.username = data.getUser.name;
-          // }
           const validPreference =
             preference && Object.keys(preference).length > 0;
           setRoomInfo(prevState => {

@@ -276,8 +276,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
           const params = {
             agent_id: agentId,
             prompt: prompt,
-            voice: agents?.find(a => a.id === agentId)?.config?.tts?.params
-              ?.voice_name,
+            voice: agents?.find(a => a.id === agentId)?.tts?.params?.voice_name,
             enable_interruption_handling: isInterruptionHandlingEnabled,
             language: language,
           };
