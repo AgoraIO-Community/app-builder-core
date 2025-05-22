@@ -73,7 +73,11 @@ export const AgentControl: React.FC = () => {
       ) : (
         <Image style={{width: 24, height: 24}} source={LeaveCallIcon} />
       )}
-      {!isMobileUA() && !(agentConnectionState === 'AGENT_CONNECTED') ? (
+      {!isMobileUA() &&
+      !(
+        agentConnectionState === 'AGENT_CONNECTED' ||
+        agentConnectionState === 'AGENT_DISCONNECT_FAILED'
+      ) ? (
         <Text
           style={{
             fontFamily: ThemeConfig.FontFamily.sansPro,
