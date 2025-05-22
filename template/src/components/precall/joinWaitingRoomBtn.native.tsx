@@ -72,6 +72,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     waitingRoomButton({
       ready: isInWaitingRoom,
       isAutoRequest: $config.ENABLE_WAITING_ROOM_AUTO_REQUEST,
+      isAutoApproval: $config.ENABLE_WAITING_ROOM_AUTO_APPROVAL,
     }),
   );
   const {request: requestToJoin} = useWaitingRoomAPI();
@@ -121,6 +122,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       waitingRoomButton({
         ready: !isInWaitingRoom,
         isAutoRequest: $config.ENABLE_WAITING_ROOM_AUTO_REQUEST,
+        isAutoApproval: $config.ENABLE_WAITING_ROOM_AUTO_APPROVAL,
       }),
     );
   }, [isInWaitingRoom]);

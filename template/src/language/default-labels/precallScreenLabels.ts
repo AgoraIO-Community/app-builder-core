@@ -10,6 +10,7 @@ export interface PrecallJoinBtnTextInterface {
 export interface PrecallWaitingRoomJoinBtnTextInterface {
   ready: boolean;
   isAutoRequest: boolean;
+  isAutoApproval: boolean;
 }
 
 export const permissionPopupHeading = `permissionPopupHeading`;
@@ -135,12 +136,10 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   [precallYouAreJoiningAsHeading]: 'You are joining',
   [precallNameInputPlaceholderText]: 'Enter Your Name',
   [precallInputGettingName]: 'Getting name...',
-  [precallWaitingRoomJoinBtnText]: ({ready, isAutoRequest}) => {
-    return isAutoRequest
-      ? 'Joining...'
-      : ready
-      ? 'Ask To Join'
-      : `Waiting for approval...`;
+  [precallWaitingRoomJoinBtnText]: ({ready, isAutoRequest, isAutoApproval}) => {
+    return  ready
+      ? isAutoRequest? 'Meeting Started,  Join Now !': 'Ask To Join'
+      : isAutoApproval?'Joining...': `Waiting for approval...`
   },
 
   [precallJoinBtnText]: ({waitingRoom, ready, role}) => {
