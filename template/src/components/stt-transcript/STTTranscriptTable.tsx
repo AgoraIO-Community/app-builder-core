@@ -148,8 +148,15 @@ function ErrorTranscriptState(message: any) {
 }
 
 function STTTranscriptTable() {
-  const {status, stts, pagination, error, currentPage, setCurrentPage} =
-    useFetchSTTTranscript();
+  const {
+    status,
+    stts,
+    pagination,
+    error,
+    currentPage,
+    setCurrentPage,
+    deleteTranscript,
+  } = useFetchSTTTranscript();
 
   // id of STT transcript to delete
   const [sttIdToDelete, setSTTIdToDelete] = React.useState<string | undefined>(
@@ -165,8 +172,14 @@ function STTTranscriptTable() {
     return <ErrorTranscriptState message={error?.message} />;
   }
 
-  const onDeleteSTTRecord = () => {
-    console.log('delete stt of id', sttIdToDelete);
+  const onDeleteSTTRecord = async () => {
+    try {
+      await deleteTranscript(sttIdToDelete!);
+    } catch (err: any) {
+      setDownloadError(err.message);
+    } finally {
+      setSTTIdToDelete(undefined);
+    }
   };
 
   return (

@@ -127,6 +127,32 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
     [fetchStts, defaultLimit],
   );
 
+  const deleteTranscript = useCallback(
+    async (id: string) => {
+      const res = await fetch(
+        `${
+          $config.BACKEND_ENDPOINT
+        }/v1/stt-transcript/${id}?passphrase=${encodeURIComponent(
+          roomId.host,
+        )}`,
+        {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json'},
+        },
+      );
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(
+          body?.error?.message ?? `Delete failed (${res.status})`,
+        );
+      }
+      // optionally: const json = await res.json();
+      // re-fetch the list so UI updates
+      await fetchStts(currentPage);
+    },
+    [fetchStts, currentPage, roomId.host],
+  );
+
   useEffect(() => {
     getSTTs(currentPage);
   }, [currentPage, getSTTs]);
@@ -138,5 +164,6 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
     error: state.error,
     currentPage,
     setCurrentPage,
+    deleteTranscript,
   };
 }
