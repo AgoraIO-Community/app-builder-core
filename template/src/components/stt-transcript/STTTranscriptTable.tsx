@@ -194,6 +194,7 @@ function STTTranscriptTable() {
           }
           renderRow={item => (
             <STTItemRow
+              key={item.id}
               item={item}
               onDeleteAction={id => {
                 setSTTIdToDelete(id);

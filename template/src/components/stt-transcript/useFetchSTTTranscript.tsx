@@ -146,11 +146,31 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
           body?.error?.message ?? `Delete failed (${res.status})`,
         );
       }
-      // optionally: const json = await res.json();
-      // re-fetch the list so UI updates
-      await fetchStts(currentPage);
+      // optimistic update local state:
+      setState(prev => {
+        // remove the deleted item
+        const newStts = prev.data.stts.filter(item => item.id !== id);
+        // decrement total count
+        const newTotal = Math.max(prev.data.pagination.total - 1, 0);
+        // if we just removed the *last* item on this page, go back a page
+        let newPage = prev.data.pagination.page;
+        if (prev.data.stts.length === 1 && newPage > 1) {
+          newPage = newPage - 1;
+        }
+        return {
+          ...prev,
+          data: {
+            stts: newStts,
+            pagination: {
+              ...prev.data.pagination,
+              total: newTotal,
+              page: newPage,
+            },
+          },
+        };
+      });
     },
-    [fetchStts, currentPage, roomId.host],
+    [roomId.host],
   );
 
   useEffect(() => {
