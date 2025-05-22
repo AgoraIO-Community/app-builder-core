@@ -336,7 +336,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
               type: 'error',
               text1: 'Uh oh! Agent failed to connect',
               text2:
-                "Verify if you've enabled conversational AI on agora console or if they have configured correct customerId & customer certificate for your project on appbuilder console",
+                "Verify if you've enabled your project for Agora Conversational AI on Agora Console. Or if your project's customer ID and certificate is configured correctly.",
               visibilityTime: 5000,
               primaryBtn: null,
               secondaryBtn: null,
