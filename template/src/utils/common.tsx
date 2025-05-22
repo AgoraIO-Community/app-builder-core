@@ -254,7 +254,7 @@ const debounceFn = (fn: Function, ms = 300) => {
 };
 
 const capitalizeFirstLetter = (word: string): string => {
-  return word.charAt(0).toUpperCase() + word.slice(1);
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 };
 
 const CustomToolbarSort = (a, b) =>
@@ -382,6 +382,93 @@ function MergeMoreButtonFields(sourceArray, updateObject) {
   return result;
 }
 
+function getFormattedDateTime(ipDate: string) {
+  try {
+    let rdate = new Date(ipDate);
+    let ryear = rdate.getFullYear();
+    if (ryear === 1) {
+      throw Error(`Invalid end date, ${ipDate}`);
+    }
+    let rmonth = rdate.getMonth() + 1;
+    let rdt = rdate.getDate();
+    let hour = rdate.getHours();
+    let minute = rdate.getMinutes();
+    let ampm = hour >= 12 ? 'pm' : 'am';
+    hour = hour % 12;
+    hour = hour ? hour : 12; // the hour '0' should be '12'
+    minute = minute < 10 ? minute : minute;
+
+    const formattedHHMM = `${String(hour)}:${String(minute).padStart(
+      2,
+      '0',
+    )} ${ampm}`;
+
+    let today = new Date();
+    today.setHours(0);
+    today.setMinutes(0);
+    today.setSeconds(0);
+    today.setMilliseconds(0);
+
+    let compDate = new Date(ryear, rmonth - 1, rdt); // month - 1 because January == 0
+    let diff = today.getTime() - compDate.getTime(); // get the difference between today(at 00:00:00) and the date
+
+    if (compDate.getTime() == today.getTime()) {
+      return ['Today', `${formattedHHMM}`];
+    } else if (diff <= 24 * 60 * 60 * 1000) {
+      return ['Yesterday', `${formattedHHMM}`];
+    } else {
+      let fulldate = rdate.toDateString();
+      fulldate = fulldate.substring(fulldate.indexOf(' ') + 1);
+      return [fulldate, `${formattedHHMM}`];
+    }
+  } catch (error) {
+    console.error('error while converting recorded time: ', error);
+    return ipDate;
+  }
+}
+
+const getFileName = (url: string) => {
+  return url.split('#')[0].split('?')[0].split('/').pop();
+};
+
+const downloadS3Link = (url: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const fileName = getFileName(url);
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        try {
+          const blob = new Blob([xhr.response], {type: 'video/mp4'});
+          const downloadUrl = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.setAttribute('download', fileName);
+          anchor.href = downloadUrl;
+          anchor.click();
+          URL.revokeObjectURL(downloadUrl);
+          resolve();
+        } catch (err) {
+          reject(err instanceof Error ? err : new Error('Download failed'));
+        }
+      } else {
+        reject(new Error(`Download failed with status ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error while downloading'));
+    };
+
+    xhr.onabort = () => {
+      reject(new Error('Download aborted'));
+    };
+
+    xhr.send();
+  });
+};
+
 export {
   updateToolbarDefaultConfig,
   useIsDesktop,
@@ -415,4 +502,6 @@ export {
   CustomToolbarMerge,
   MergeMoreButtonFields,
   AuthErrorCodes,
+  downloadS3Link,
+  getFormattedDateTime,
 };
