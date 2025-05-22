@@ -14,14 +14,16 @@ import {
 import IconButtonWithToolTip from '../../atoms/IconButton';
 import ImageIcon from '../../atoms/ImageIcon';
 import Loading from '../../subComponents/Loading';
+import GenericPopup from '../common/GenericPopup';
 
 const headers = ['Date', 'Time', 'Status', 'Actions'];
 
 interface STTItemRowProps {
   item: FetchSTTTranscriptResponse['stts'][0];
+  onDeleteAction: (id: string) => void;
 }
 
-function STTItemRow({item}: STTItemRowProps) {
+function STTItemRow({item, onDeleteAction}: STTItemRowProps) {
   const [date, time] = getFormattedDateTime(item.created_at);
   const sttStatus = item.status;
 
@@ -91,6 +93,23 @@ function STTItemRow({item}: STTItemRowProps) {
                       }}
                     />
                   </View>
+                  <View style={[style.pl10]}>
+                    <IconButtonWithToolTip
+                      hoverEffect={true}
+                      hoverEffectStyle={style.iconButtonHoverEffect}
+                      containerStyle={style.iconButton}
+                      iconProps={{
+                        name: 'delete',
+                        iconType: 'plain',
+                        iconSize: 20,
+                        tintColor: `${$config.SEMANTIC_ERROR}`,
+                      }}
+                      onPress={() => {
+                        //show confirmation popup
+                        onDeleteAction && onDeleteAction(item.id);
+                      }}
+                    />
+                  </View>
                 </View>
               ))}
             </View>
@@ -133,28 +152,58 @@ function STTTranscriptTable() {
   const {status, stts, pagination, error, currentPage, setCurrentPage} =
     useFetchSTTTranscript();
 
+  const [sttIdToDelete, setSTTIdToDelete] = React.useState<string | undefined>(
+    undefined,
+  );
+
   if (status === 'rejected') {
     return <ErrorTranscriptState message={error?.message} />;
   }
 
+  const onDeleteSTTRecord = () => {
+    console.log('delete stt of id', sttIdToDelete);
+  };
+
   return (
-    <View style={style.ttable}>
-      <TableHeader columns={headers} />
-      <TableBody
-        status={status}
-        items={stts}
-        loadingComponent={
-          <Loading background="transparent" text="Fetching transcripts.." />
-        }
-        renderRow={item => <STTItemRow item={item} />}
-        emptyComponent={<EmptyTranscriptState />}
-      />
-      <TableFooter
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        pagination={pagination}
-      />
-    </View>
+    <>
+      <View style={style.ttable}>
+        <TableHeader columns={headers} />
+        <TableBody
+          status={status}
+          items={stts}
+          loadingComponent={
+            <Loading background="transparent" text="Fetching transcripts.." />
+          }
+          renderRow={item => (
+            <STTItemRow
+              item={item}
+              onDeleteAction={id => {
+                setSTTIdToDelete(id);
+              }}
+            />
+          )}
+          emptyComponent={<EmptyTranscriptState />}
+        />
+        <TableFooter
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          pagination={pagination}
+        />
+      </View>
+      {sttIdToDelete && (
+        <GenericPopup
+          title="Delete ? "
+          variant="error"
+          message="Are you sure want to delete the recording? This action can't be undone."
+          visible={!!sttIdToDelete}
+          setVisible={() => setSTTIdToDelete(undefined)}
+          onConfirm={onDeleteSTTRecord}
+          onCancel={() => {
+            setSTTIdToDelete(undefined);
+          }}
+        />
+      )}
+    </>
   );
 }
 
