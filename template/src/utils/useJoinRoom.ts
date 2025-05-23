@@ -9,10 +9,11 @@ import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI'
 import {base64ToUint8Array} from '../utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from './getUniqueID';
-import {
-  chatErrorNoToken
-} from '../language/default-labels/videoCallScreenLabels';
+import {chatErrorNoToken} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
+import isSDK from './isSDK';
+import {AuthErrorCodes} from './common';
+import SDKEvents from './SdkEvents';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -221,6 +222,12 @@ export default function useJoinRoom() {
       const endReqTs = Date.now();
       const latency = endReqTs - startReqTs;
       if (response?.error) {
+        if (isWaitingRoomEnabled) {
+          const errorCode = response?.error?.code;
+          if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+            SDKEvents.emit('unauthorized', response?.error);
+          }
+        }
         logger.error(
           LogSource.NetworkRest,
           `${isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'}`,
@@ -309,25 +316,22 @@ export default function useJoinRoom() {
             const chatData = isWaitingRoomEnabled
               ? data.chat
               : data?.joinChannel?.chat;
-            const hasError = chatData?.error?.code || chatData?.error?.message;  
-            const missingUserToken =
-            !(
-              isWaitingRoomEnabled
-                ? data.chat?.userToken
-                : data?.joinChannel?.chat?.userToken
-            );
-            if (
-              $config.CHAT &&
-              (hasError || missingUserToken)
-            ) {
+            const hasError = chatData?.error?.code || chatData?.error?.message;
+            const missingUserToken = !(isWaitingRoomEnabled
+              ? data.chat?.userToken
+              : data?.joinChannel?.chat?.userToken);
+            if ($config.CHAT && (hasError || missingUserToken)) {
               roomInfo.chat = {
                 user_token: '',
                 group_id: '',
                 is_group_owner: false,
                 error: {
-                  code: chatData?.error?.code || (missingUserToken ? 'NO_USER_TOKEN' : ''),
-                  message: chatData?.error?.message ||
-                  (missingUserToken ? chatErrorNoTokenText : ''),
+                  code:
+                    chatData?.error?.code ||
+                    (missingUserToken ? 'NO_USER_TOKEN' : ''),
+                  message:
+                    chatData?.error?.message ||
+                    (missingUserToken ? chatErrorNoTokenText : ''),
                 },
               };
             } else {
@@ -341,7 +345,7 @@ export default function useJoinRoom() {
                 is_group_owner: isWaitingRoomEnabled
                   ? data.chat.isGroupOwner
                   : data?.joinChannel?.chat?.isGroupOwner,
-                error:  null,
+                error: null,
               };
               roomInfo.chat = chat;
             }
