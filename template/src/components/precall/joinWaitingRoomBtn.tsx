@@ -281,7 +281,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const title = buttonText;
   const onPress = () => onSubmit();
   const disabled = $config.ENABLE_WAITING_ROOM_AUTO_REQUEST
-    ? !hasHostJoined
+    ? !hasHostJoined || isInWaitingRoom
     : isInWaitingRoom || username?.trim() === '';
   return props?.render ? (
     props.render(onPress, title, disabled)
