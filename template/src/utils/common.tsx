@@ -433,39 +433,28 @@ const getFileName = (url: string) => {
 
 const downloadS3Link = (url: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const fileName = getFileName(url);
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'arraybuffer';
+    if (typeof url !== 'string' || !url.trim()) {
+      return reject(new Error('Invalid URL provided for download'));
+    }
 
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        try {
-          const blob = new Blob([xhr.response], {type: 'video/mp4'});
-          const downloadUrl = URL.createObjectURL(blob);
-          const anchor = document.createElement('a');
-          anchor.setAttribute('download', fileName);
-          anchor.href = downloadUrl;
-          anchor.click();
-          URL.revokeObjectURL(downloadUrl);
-          resolve();
-        } catch (err) {
-          reject(err instanceof Error ? err : new Error('Download failed'));
-        }
-      } else {
-        reject(new Error(`Download failed with status ${xhr.status}`));
-      }
-    };
+    try {
+      const fileName = getFileName(url);
+      const a = document.createElement('a');
 
-    xhr.onerror = () => {
-      reject(new Error('Network error while downloading'));
-    };
+      a.href = url;
+      a.download = fileName;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
 
-    xhr.onabort = () => {
-      reject(new Error('Download aborted'));
-    };
-
-    xhr.send();
+      // Append to body to make `click()` work in all browsers
+      document.body.appendChild(a);
+      a.click();
+      // Clean up
+      document.body.removeChild(a);
+      resolve();
+    } catch (err) {
+      reject(err instanceof Error ? err : new Error('Download failed'));
+    }
   });
 };
 
