@@ -43,7 +43,8 @@ function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
             tintColor={$config.SEMANTIC_NEUTRAL}
           />
           <Text style={[style.captionText]}>
-            Current STT is ongoing. Once it concludes, we'll generate the link
+            Current STT is ongoing. Once the meeting concludes, we'll generate
+            the link
           </Text>
         </View>
       </View>
