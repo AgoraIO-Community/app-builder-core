@@ -28,7 +28,7 @@ const SelectAiAgent = () => {
       ?.filter(a => a.is_active === true)
       ?.map((agent: any) => {
         return {
-          label: agent?.config?.llm?.agent_name,
+          label: agent?.agent_name,
           value: agent.id,
         };
       });

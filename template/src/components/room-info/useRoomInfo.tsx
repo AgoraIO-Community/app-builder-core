@@ -71,21 +71,17 @@ export interface RoomData {
 export interface AIAgentInterface {
   id: string;
   is_active: boolean;
-  config: {
-    enable_aivad?: boolean;
-    asr_language?: keyof typeof ASR_LANGUAGES;
-    llm: {
-      agent_name: string;
-      model: string;
-      prompt: string;
-    };
-    tts: {
-      vendor: string;
-      params: {
-        key: string;
-        voice_name: string;
-        region: string;
-      };
+  agent_name: string;
+  model: string;
+  prompt: string;
+  enable_aivad?: boolean;
+  asr_language?: keyof typeof ASR_LANGUAGES;
+  tts: {
+    vendor: string;
+    params: {
+      key: string;
+      voice_name: string;
+      region: string;
     };
   };
 }
