@@ -1,5 +1,8 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
+import Tooltip from '../../atoms/Tooltip';
+import Clipboard from '../../subComponents/Clipboard';
+import Spacer from '../../atoms/Spacer';
 import {style} from '../recordings/style';
 import {TableBody, TableFooter, TableHeader} from '../common/data-table';
 import {
@@ -15,6 +18,7 @@ import IconButtonWithToolTip from '../../atoms/IconButton';
 import ImageIcon from '../../atoms/ImageIcon';
 import Loading from '../../subComponents/Loading';
 import GenericPopup from '../common/GenericPopup';
+import PlatformWrapper from '../../utils/PlatformWrapper';
 
 const headers = ['Date', 'Time', 'Status', 'Actions'];
 
@@ -90,6 +94,51 @@ function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
                       }}
                       onPress={() => {
                         onDownloadAction(link);
+                      }}
+                    />
+                  </View>
+                  <View style={[style.pl10]}>
+                    <Tooltip
+                      isClickable
+                      placement="left"
+                      toolTipMessage="Link Copied"
+                      onPress={() => {
+                        Clipboard.setString(link);
+                      }}
+                      toolTipIcon={
+                        <>
+                          <ImageIcon
+                            iconType="plain"
+                            name="tick-fill"
+                            tintColor={$config.SEMANTIC_SUCCESS}
+                            iconSize={20}
+                          />
+                          <Spacer size={8} horizontal={true} />
+                        </>
+                      }
+                      fontSize={12}
+                      renderContent={() => {
+                        return (
+                          <PlatformWrapper>
+                            {(isHovered: boolean) => (
+                              <TouchableOpacity
+                                style={[
+                                  isHovered ? style.iconButtonHoverEffect : {},
+                                  style.iconShareLink,
+                                ]}
+                                onPress={() => {
+                                  Clipboard.setString(link);
+                                }}>
+                                <ImageIcon
+                                  iconType="plain"
+                                  name="copy-link"
+                                  iconSize={20}
+                                  tintColor={$config.SECONDARY_ACTION_COLOR}
+                                />
+                              </TouchableOpacity>
+                            )}
+                          </PlatformWrapper>
+                        );
                       }}
                     />
                   </View>
