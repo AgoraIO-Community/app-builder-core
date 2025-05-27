@@ -138,9 +138,9 @@ const Join = () => {
         history.push(phrase);
       })
       .catch(error => {
-        const errorCode = error?.networkError?.result?.error?.code;
+        const errorCode = error?.code;
         if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
-          SDKEvents.emit('unauthorized', error?.networkError?.result?.error);
+          SDKEvents.emit('unauthorized', error);
         }
         logger.error(
           LogSource.Internals,
