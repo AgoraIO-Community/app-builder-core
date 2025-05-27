@@ -341,6 +341,7 @@ const RtmConfigure = (props: any) => {
                   type: uid === parseInt(RECORDING_BOT_UID) ? 'bot' : 'rtc',
                   uid,
                   offline: false,
+                  isHost: attr?.attributes?.isHost,
                   lastMessageTimeStamp: 0,
                 };
                 updateRenderListState(uid, userData);
@@ -510,6 +511,7 @@ const RtmConfigure = (props: any) => {
             uid,
             offline: false,
             lastMessageTimeStamp: 0,
+            isHost: attr?.attributes?.isHost,
           };
           updateRenderListState(uid, userData);
           //end- updating user data in rtc

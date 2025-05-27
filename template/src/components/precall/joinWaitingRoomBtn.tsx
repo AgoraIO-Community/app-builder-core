@@ -10,19 +10,18 @@
 *********************************************
 */
 
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from './usePreCall';
 import {useString, useStringRef} from '../../utils/useString';
 import {
-  ChannelProfile,
   DispatchContext,
   PropsContext,
   useLocalUid,
 } from '../../../agora-rn-uikit';
 import {
-  PrecallJoinBtnTextInterface,
-  precallJoinBtnText,
+  PrecallWaitingRoomJoinBtnTextInterface,
+  precallWaitingRoomJoinBtnText,
 } from '../../language/default-labels/precallScreenLabels';
 
 import useGetName from '../../utils/useGetName';
@@ -39,10 +38,12 @@ import Toast from '../../../react-native-toast-message';
 import events from '../../rtm-events-api';
 import useWaitingRoomAPI from '../../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {UserType} from '../RTMConfigure';
-import {useContent} from 'customization-api';
+import {useContent, useIsHost} from 'customization-api';
 import {
   waitingRoomApprovalRejectionToastHeading,
   waitingRoomApprovalRejectionToastSubHeading,
+  waitingRoomHostNotJoined,
+  waitingRoomUsersInCall,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 const audio = new Audio(
@@ -63,6 +64,9 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const subheadinglabel = useStringRef(
     waitingRoomApprovalRejectionToastSubHeading,
   );
+
+  const waitingRoomUserNotJoinedText = useString(waitingRoomHostNotJoined);
+  const waitingRoomUsersInCallText = useString(waitingRoomUsersInCall);
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive, callActive} = usePreCall();
@@ -70,27 +74,52 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const setUsername = useSetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
   const {awake, request} = useWakeLock();
-  const waitingRoomButton =
-    useString<PrecallJoinBtnTextInterface>(precallJoinBtnText);
+  const waitingRoomButton = useString<PrecallWaitingRoomJoinBtnTextInterface>(
+    precallWaitingRoomJoinBtnText,
+  );
   const {setRoomInfo} = useSetRoomInfo();
   const {request: requestToJoin} = useWaitingRoomAPI();
+  const [hasHostJoined, setHasHostJoined] = useState(false);
+  const {defaultContent} = useContent();
 
-  const {activeUids} = useContent();
-  const activeUidsRef = React.useRef(activeUids);
-
-  React.useEffect(() => {
-    activeUidsRef.current = activeUids;
-  }, [activeUids]);
+  const localUid = useLocalUid();
+  const {dispatch} = useContext(DispatchContext);
 
   const [buttonText, setButtonText] = React.useState(
     waitingRoomButton({
-      waitingRoom: true,
       ready: isInWaitingRoom,
+      isAutoRequest: $config.ENABLE_WAITING_ROOM_AUTO_REQUEST,
+      isAutoApproval: $config.ENABLE_WAITING_ROOM_AUTO_APPROVAL,
     }),
   );
 
-  const {dispatch} = useContext(DispatchContext);
-  const localUid = useLocalUid();
+  React.useEffect(() => {
+    if ($config.ENABLE_WAITING_ROOM_AUTO_REQUEST) {
+      const usersInCall = Object.keys(defaultContent).filter(
+        key =>
+          defaultContent[key].type === 'rtc' &&
+          defaultContent[key].offline === false &&
+          Number(key) !== localUid,
+      );
+      const hostUsersInCall = Object.keys(defaultContent).filter(
+        key =>
+          defaultContent[key].type === 'rtc' &&
+          defaultContent[key].offline === false &&
+          Number(key) !== localUid &&
+          defaultContent[key].isHost === 'true',
+      );
+
+      //console.log('host users in call ->', hostUsersInCall);
+
+      setHasHostJoined(hostUsersInCall.length > 0);
+
+      setButtonText(
+        hostUsersInCall.length > 0
+          ? waitingRoomUsersInCallText()
+          : waitingRoomUserNotJoinedText(),
+      );
+    }
+  }, [defaultContent]);
 
   const {
     data: {token, isHost},
@@ -242,15 +271,18 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   useEffect(() => {
     setButtonText(
       waitingRoomButton({
-        waitingRoom: true,
         ready: !isInWaitingRoom,
+        isAutoRequest: $config.ENABLE_WAITING_ROOM_AUTO_REQUEST,
+        isAutoApproval: $config.ENABLE_WAITING_ROOM_AUTO_APPROVAL,
       }),
     );
   }, [isInWaitingRoom]);
 
   const title = buttonText;
   const onPress = () => onSubmit();
-  const disabled = isInWaitingRoom || username?.trim() === '';
+  const disabled = $config.ENABLE_WAITING_ROOM_AUTO_REQUEST
+    ? !hasHostJoined || isInWaitingRoom ||  username?.trim() === ''
+    : isInWaitingRoom || username?.trim() === '';
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (

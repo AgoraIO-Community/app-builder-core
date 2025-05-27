@@ -11,6 +11,9 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from './getUniqueID';
 import {chatErrorNoToken} from '../language/default-labels/videoCallScreenLabels';
 import {useString} from '../utils/useString';
+import isSDK from './isSDK';
+import {AuthErrorCodes} from './common';
+import SDKEvents from './SdkEvents';
 
 const JOIN_CHANNEL_URL = `${$config.BACKEND_ENDPOINT}/v1/channel/join`;
 /**
@@ -86,6 +89,12 @@ export default function useJoinRoom() {
       const endReqTs = Date.now();
       const latency = endReqTs - startReqTs;
       if (response?.error) {
+        if (isWaitingRoomEnabled) {
+          const errorCode = response?.error?.code;
+          if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+            SDKEvents.emit('unauthorized', response?.error);
+          }
+        }
         logger.error(
           LogSource.NetworkRest,
           `${isWaitingRoomEnabled ? 'channel_join_request' : 'joinChannel'}`,
