@@ -276,8 +276,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
           const params = {
             agent_id: agentId,
             prompt: prompt,
-            voice: agents?.find(a => a.id === agentId)?.config?.tts?.params
-              ?.voice_name,
+            voice: agents?.find(a => a.id === agentId)?.tts?.params?.voice_name,
             enable_interruption_handling: isInterruptionHandlingEnabled,
             language: language,
           };
@@ -336,7 +335,7 @@ export const AgentProvider: React.FC<{children: React.ReactNode}> = ({
               type: 'error',
               text1: 'Uh oh! Agent failed to connect',
               text2:
-                "Verify if you've enabled conversational AI on agora console or if they have configured correct customerId & customer certificate for your project on appbuilder console",
+                "Verify if you've enabled your project for Agora Conversational AI on Agora Console. Or if your project's customer ID and certificate is configured correctly.",
               visibilityTime: 5000,
               primaryBtn: null,
               secondaryBtn: null,

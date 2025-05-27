@@ -16,6 +16,7 @@ import {useHistory} from '../components/Router';
 import Logo from '../components/common/Logo';
 import Spacer from '../atoms/Spacer';
 import {
+  AuthErrorCodes,
   isMobileUA,
   isValidReactComponent,
   shouldAuthenticate,
@@ -49,6 +50,8 @@ import {
   joinRoomInputPlaceHolderText,
 } from '../language/default-labels/joinScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import isSDK from '../utils/isSDK';
+import SDKEvents from '../utils/SdkEvents';
 
 const mobileOrTablet = isMobileOrTablet();
 
@@ -120,7 +123,12 @@ const Join = () => {
     );
     apiJoinCall(phrase)
       .then(() => {
-        setRoomInfo(RoomInfoDefaultValue);
+        setRoomInfo(prevState => {
+          return {
+            ...RoomInfoDefaultValue,
+            loginToken: prevState?.loginToken,
+          };
+        });
         logger.log(
           LogSource.Internals,
           'JOIN_MEETING',
@@ -130,6 +138,10 @@ const Join = () => {
         history.push(phrase);
       })
       .catch(error => {
+        const errorCode = error?.code;
+        if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+          SDKEvents.emit('unauthorized', error);
+        }
         logger.error(
           LogSource.Internals,
           'JOIN_MEETING',

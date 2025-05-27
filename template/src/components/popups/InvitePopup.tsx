@@ -22,6 +22,7 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import ThemeConfig from '../../theme';
 import {CopyMeetingInfo} from '../../components/Share';
 import {
+  AuthErrorCodes,
   isMobileUA,
   isValidReactComponent,
   useIsDesktop,
@@ -38,6 +39,8 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {cancelText} from '../../language/default-labels/commonLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import isSDK from '../../utils/isSDK';
+import SDKEvents from '../../utils/SdkEvents';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
@@ -48,6 +51,10 @@ const InvitePopup = () => {
   const getMeeting = useGetMeetingPhrase();
   useEffect(() => {
     getMeeting(phrase).catch(error => {
+      const errorCode = error?.networkError?.result?.error?.code;
+      if (AuthErrorCodes.indexOf(errorCode) !== -1 && isSDK()) {
+        SDKEvents.emit('unauthorized', error?.networkError?.result?.error);
+      }
       logger.error(
         LogSource.Internals,
         'GET_MEETING_PHRASE',

@@ -40,6 +40,10 @@ import {
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from '../utils/getUniqueID';
 import {useIsRecordingBot} from '../subComponents/recording/useIsRecordingBot';
+import SDKEvents from '../utils/SdkEvents';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 export const GET_USER = gql`
   query getUser {
@@ -258,7 +262,7 @@ const AuthProvider = (props: AuthProviderProps) => {
                   text2: 'Please try again later.',
                   visibilityTime: 1000 * 60,
                 });
-                rej('SDK Login failed' + JSON.stringify(error));
+                rej('SDK Login failed ' + JSON.stringify(error));
               });
           });
         } catch (error) {
@@ -270,7 +274,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             text2: 'Please try again later.',
             visibilityTime: 1000 * 60,
           });
-          rej('SDK Login failed' + JSON.stringify(error));
+          rej('SDK Login failed ' + JSON.stringify(error));
         }
       });
       SDKMethodEventsManager.on('logout', async (res, rej) => {
@@ -726,6 +730,17 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
     }
   };
+
+  useEffect(() => {
+    LocalEventEmitter.on(LocalEventsEnum.SDK_TOKEN_CHANGED, token => {
+      if (!token) {
+        setLoading(true);
+      }
+    });
+    SDKEvents.on('unauthorized', () => {
+      setLoading(true);
+    });
+  }, []);
 
   return (
     <AuthContext.Provider

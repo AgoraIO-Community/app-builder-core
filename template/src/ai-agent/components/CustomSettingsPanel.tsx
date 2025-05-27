@@ -70,8 +70,7 @@ const InfoSection = () => {
           <View style={[styles.flex1, styles.alignEnd]}>
             <Text style={[styles.infoRowValue]}>
               {formatVoiceName(
-                agents?.find(a => a.id === agentId)?.config?.tts?.params
-                  ?.voice_name,
+                agents?.find(a => a.id === agentId)?.tts?.params?.voice_name,
               )}
             </Text>
           </View>
@@ -129,7 +128,7 @@ const AdvancedSettings = () => {
       agents?.length
     ) {
       setIsInterruptionHandlingEnabled(
-        agents?.find(a => a?.id === agentId)?.config?.enable_aivad,
+        agents?.find(a => a?.id === agentId)?.enable_aivad,
       );
     }
   }, [agentId, agents, isInterruptionHandlingEnabled]);

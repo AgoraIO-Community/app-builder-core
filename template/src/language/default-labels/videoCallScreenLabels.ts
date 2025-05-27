@@ -245,7 +245,7 @@ export const chatUploadStatusInProgress = 'chatUploadStatusInProgress';
 export const chatUploadStatusFailure = 'chatUploadStatusFailure';
 export const chatUploadMaxLimit = 'chatUploadMaxLimit';
 export const chatErrorNoToken = 'chatErrorNoToken';
-export const chatErrorNotConnected = 'chatErrorNotConnected'
+export const chatErrorNotConnected = 'chatErrorNotConnected';
 
 export const peoplePanelTurnoffAllCameraBtnText =
   'peoplePanelTurnoffAllCameraBtnText';
@@ -479,6 +479,8 @@ export const waitingRoomApprovalRejectionToastHeading =
   'waitingRoomApprovalRejectionToastHeading';
 export const waitingRoomApprovalRejectionToastSubHeading =
   'waitingRoomApprovalRejectionToastSubHeading';
+export const waitingRoomHostNotJoined = 'waitingRoomHostNotJoined';
+export const waitingRoomUsersInCall = 'waitingRoomUsersInCall';
 
 export const videoRoomRecordingText = `video${room}RecordingText` as const;
 export const videoRoomGoToActiveSpeakerText =
@@ -820,7 +822,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   [waitingRoomApprovalRequiredSecondaryBtnText]?: I18nBaseType;
 
   [waitingRoomApprovalRejectionToastHeading]?: I18nBaseType;
+  [waitingRoomUsersInCall]?: I18nBaseType;
   [waitingRoomApprovalRejectionToastSubHeading]?: I18nBaseType;
+  [waitingRoomHostNotJoined]?: I18nBaseType;
 
   [videoRoomRecordingText]?: I18nBaseType;
   [videoRoomGoToActiveSpeakerText]?: I18nBaseType;
@@ -1067,8 +1071,10 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [chatPublicMessageDeletePopupText]: `Are you sure you want to delete this message for everyone in the public chat? `,
   [chatPrivateMessageDeletePopupText]: (name: string) =>
     `Are you sure you want to delete this message for ${name}`,
-  [chatErrorNoToken]:'Chat is currently unavailable. Please try rejoining the session or contact support',
-  [chatErrorNotConnected]:'Unable to connect to chat. Please try rejoining the session or contact support',
+  [chatErrorNoToken]:
+    'Chat is currently unavailable. Please try rejoining the session or contact support',
+  [chatErrorNotConnected]:
+    'Unable to connect to chat. Please try rejoining the session or contact support',
 
   [peoplePanelTurnoffAllCameraBtnText]: 'Turn off all cameras',
   [peoplePanelMuteAllMicBtnText]: 'Mute Everyone',
@@ -1284,6 +1290,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [waitingRoomApprovalRejectionToastHeading]: 'Approval Required',
   [waitingRoomApprovalRejectionToastSubHeading]:
     'Permission to enter the meeting was denied by the host',
+  [waitingRoomHostNotJoined]: 'Waiting for Host, Please wait...',
+  [waitingRoomUsersInCall]: `Meeting Started,  Join Now !`,
 
   [videoRoomRecordingText]: 'REC',
 

@@ -132,6 +132,10 @@ export const ReplyMessageBubble = ({
   if (repliedMsg.length == 0 && chatType === ChatType.Private) {
     repliedMsg = messageStore.filter(msg => msg.msgId === repliedMsgId);
   }
+
+  if (repliedMsg.length == 0) {
+    return null;
+  }
   const isAttachMsg = repliedMsg[0]?.type !== ChatMessageType.TXT;
 
   let time = formatAMPM(new Date(repliedMsg[0]?.createdTimestamp));
