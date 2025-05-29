@@ -3,7 +3,7 @@ import {useContext} from 'react';
 import {ClientRoleType, PropsContext} from '../../../agora-rn-uikit/src';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {joinRoomPreference} from '../../utils/useJoinRoom';
-import isMobileOrTablet from '../../utils/isMobileOrTablet';
+import {isWeb} from '../../utils/common';
 
 /**
  * ControlPermissionKey represents the different keys
@@ -14,7 +14,8 @@ export type ControlPermissionKey =
   | 'inviteControl'
   | 'participantControl'
   | 'screenshareControl'
-  | 'settingsControl';
+  | 'settingsControl'
+  | 'viewAllTranscripts';
 
 /**
  * ControlPermissionRule defines the properties used to evaluate permission rules.
@@ -35,11 +36,9 @@ export const controlPermissionMatrix: Record<
   settingsControl: ({preference}) => !preference.disableSettings,
   screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING && !preference.disableScreenShare,
-  // !(
-  //   $config.EVENT_MODE &&
-  //   role == ClientRoleType.ClientRoleAudience &&
-  //   !$config.RAISE_HAND
-  // ),
+  viewAllTranscripts: ({isHost}) =>
+    $config.ENABLE_STT && $config.ENABLE_MEETING_TRANSCRIPT && isWeb(),
+  // isHost,
 };
 
 export const useControlPermissionMatrix = (
