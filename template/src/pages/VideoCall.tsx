@@ -372,7 +372,7 @@ const VideoCall: React.FC = () => {
         encryption: $config.ENCRYPTION_ENABLED
           ? {
               key: data.encryptionSecret,
-              mode: RnEncryptionEnum.AES256GCM2,
+              mode: data.encryptionMode,
               screenKey: data.encryptionSecret,
               salt: data.encryptionSecretSalt,
             }
