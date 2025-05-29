@@ -11,7 +11,6 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import {useApolloClient} from '@apollo/client';
 import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
@@ -132,8 +131,6 @@ const VideoCall: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
   const joiningLoaderLabel = useString(videoRoomStartingCallText)();
   const bannedUserText = useString(userBannedText)();
-
-  const client = useApolloClient();
 
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
@@ -424,8 +421,6 @@ const VideoCall: React.FC = () => {
         } else {
           history.push('/');
         }
-        // client.resetStore();//https://github.com/apollographql/apollo-client/issues/2919#issuecomment-406311579
-        client.cache.reset();
       }, 0);
     },
     UserJoined: (uid: UidType) => {
