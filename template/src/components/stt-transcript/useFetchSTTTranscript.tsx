@@ -47,7 +47,11 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
     async (page: number) => {
       const requestId = getUniqueID();
       const start = Date.now();
+
       try {
+        if (!roomId?.host) {
+          return Promise.reject('room id is empty');
+        }
         const res = await fetch(
           `${$config.BACKEND_ENDPOINT}/v1/stt-transcript`,
           {

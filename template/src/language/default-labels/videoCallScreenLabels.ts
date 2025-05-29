@@ -151,7 +151,7 @@ export const nativeStopScreensharePopupPrimaryBtnText =
   'nativeStopScreensharePopupPrimaryBtnText';
 
 export const recordingModalTitleIntn = 'recordingModalTitleIntn';
-export const sttModalTitleIntn = 'sttModalTitleIntn';
+export const transcriptModalTitleIntn = 'transcriptModalTitleIntn';
 export const stopRecordingPopupHeading = 'stopRecordingPopupHeading';
 export const stopRecordingPopupSubHeading = 'stopRecordingPopupSubHeading';
 export const stopRecordingPopupPrimaryBtnText =
@@ -609,7 +609,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [nativeStopScreensharePopupPrimaryBtnText]?: I18nBaseType;
 
   [recordingModalTitleIntn]?: I18nBaseType;
-  [sttModalTitleIntn]?: I18nBaseType;
+  [transcriptModalTitleIntn]?: I18nBaseType;
   [stopRecordingPopupHeading]?: I18nBaseType;
   [stopRecordingPopupSubHeading]?: I18nBaseType;
   [stopRecordingPopupPrimaryBtnText]?: I18nBaseType;
@@ -942,7 +942,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',
-  [toolbarItemManageTranscriptText]: 'Download Transcripts',
+  [toolbarItemManageTranscriptText]: 'View Transcripts',
 
   [toolbarItemRaiseHandText]: active => (active ? 'Lower Hand' : 'Raise Hand'),
   [toolbarItemSwitchCameraText]: 'Switch Camera',
@@ -1025,7 +1025,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     `Once removed, ${name} will still be able to screen share later.`,
   [removeScreenshareFromRoomPopupPrimaryBtnText]: 'REMOVE',
 
-  [sttModalTitleIntn]: 'Download Transcripts',
+  [transcriptModalTitleIntn]: 'View Transcripts',
   [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
     isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
   [sttChangeLanguagePopupSubHeading]:
@@ -1039,7 +1039,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
 
   [sttTranscriptPanelHeaderText]: 'Meeting Transcript',
   [sttDownloadBtnText]: 'Download',
-  [sttDownloadTranscriptBtnText]: 'View Transcript',
+  [sttDownloadTranscriptBtnText]: 'Download Transcript',
   [sttSettingSpokenLanguageText]: 'Setting Spoken Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
 

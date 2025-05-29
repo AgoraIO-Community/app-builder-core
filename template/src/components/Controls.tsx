@@ -815,9 +815,12 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 13. Transcripts to download
-  if ($config.ENABLE_STT && $config.ENABLE_MEETING_TRANSCRIPT) {
+  const canAccessAllTranscripts =
+    useControlPermissionMatrix('viewAllTranscripts');
+
+  if (canAccessAllTranscripts) {
     actionMenuitems.push({
-      componentName: 'view-stt-transcripts',
+      componentName: 'view-all-transcripts',
       order: 13,
       icon: 'transcript',
       iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -975,9 +978,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           )}
         </>
       )}
-      {$config.ENABLE_STT &&
-      $config.ENABLE_MEETING_TRANSCRIPT &&
-      isSTTTranscriptModalOpen ? (
+      {canAccessAllTranscripts && isSTTTranscriptModalOpen ? (
         <ViewSTTTranscriptModal setModalOpen={setSTTTranscriptModalOpen} />
       ) : (
         <></>
