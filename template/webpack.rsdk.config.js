@@ -1,6 +1,6 @@
 const commons = require('./webpack.commons');
 const path = require('path');
-const { merge } = require('webpack-merge');
+const {merge} = require('webpack-merge');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -16,7 +16,6 @@ module.exports = merge(commons, {
     'react-dom': 'react-dom',
     'react-router': 'react-router',
     'react-router-dom': 'react-router-dom',
-    '@apollo/client': '@apollo/client',
   },
   // Main entry point for the web application
   entry: {

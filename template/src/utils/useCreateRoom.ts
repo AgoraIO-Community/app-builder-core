@@ -1,31 +1,13 @@
-import {gql, useMutation} from '@apollo/client';
 import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import SDKEvents from '../utils/SdkEvents';
-import isSDK from './isSDK';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import getUniqueID from './getUniqueID';
+import {useContext} from 'react';
+import StorageContext from '../components/StorageContext';
 
-const CREATE_CHANNEL = gql`
-  mutation CreateChannel($title: String!, $enablePSTN: Boolean) {
-    createChannel(title: $title, enablePSTN: $enablePSTN) {
-      passphrase {
-        host
-        view
-      }
-      channel
-      title
-      pstn {
-        number
-        dtmf
-        error {
-          code
-          message
-        }
-      }
-    }
-  }
-`;
+const CREATE_ROOM_URL = `${$config.BACKEND_ENDPOINT}/v1/channel`;
+
 /**
  * Returns an asynchronous function to create a meeting with the given options.
  */
@@ -34,8 +16,8 @@ export type createRoomFun = (
   enablePSTN?: boolean,
 ) => Promise<void>;
 export default function useCreateRoom(): createRoomFun {
-  const [createChannel, {error}] = useMutation(CREATE_CHANNEL);
   const {setRoomInfo} = useSetRoomInfo();
+  const {store} = useContext(StorageContext);
   return async (
     roomTitle: string,
     enablePSTN?: boolean,
@@ -56,25 +38,99 @@ export default function useCreateRoom(): createRoomFun {
         requestId,
       },
     );
-    const res = await createChannel({
-      context: {
+    try {
+      const payload = JSON.stringify({
+        title: roomTitle,
+        enablePSTN: enablePSTN,
+      });
+      const response = await fetch(`${CREATE_ROOM_URL}`, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
           'X-Request-Id': requestId,
           'X-Session-Id': logger.getSessionId(),
         },
-      },
-      variables: {
-        title: roomTitle,
-        enablePSTN: enablePSTN,
-      },
-    });
-    const endReqTs = Date.now();
-    const latency = endReqTs - startReqTs;
-    // in React-SDK mode, we use a more recent package of @apollo/client
-    // which is compatible with react18, long term we should be looking to
-    // upgrade core dependency as well. The following condition accounts
-    // for differences in the way the two version function.
-    if (error && !isSDK) {
+        body: payload,
+      });
+      const res = await response.json();
+      if (res?.error) {
+        throw res.error;
+      } else if (res?.channel) {
+        const endReqTs = Date.now();
+        const latency = endReqTs - startReqTs;
+        logger.log(
+          LogSource.NetworkRest,
+          'createChannel',
+          'API createChannel. Channel created successfully',
+          {
+            responseData: res,
+            startReqTs,
+            endReqTs,
+            latency: latency,
+            requestId,
+          },
+        );
+        let roomInfo: Partial<RoomInfoContextInterface['data']> = {
+          roomId: {
+            attendee: '',
+          },
+        };
+        if (res?.viewer_pass_phrase) {
+          roomInfo.roomId.attendee = res.viewer_pass_phrase;
+        }
+        if (res?.host_pass_phrase) {
+          roomInfo.roomId.host = res.host_pass_phrase;
+        }
+        if (enablePSTN === true && res?.pstn) {
+          if (res.pstn?.error?.code || res.pstn?.error?.message) {
+            roomInfo.pstn = {
+              number: '',
+              pin: '',
+              error: {
+                code: res.pstn?.error?.code,
+                message: res.pstn?.error?.message,
+              },
+            };
+          } else {
+            roomInfo.pstn = {
+              number: res.pstn?.number,
+              pin: res.pstn?.dtmf,
+              error: null,
+            };
+          }
+        }
+        logger.log(LogSource.Internals, 'CREATE_MEETING', 'Room created', {
+          isHost: true,
+          isSeparateHostLink: isSeparateHostLink ? true : false,
+          meetingTitle: roomTitle,
+          roomId: roomInfo?.roomId,
+          pstn: roomInfo?.pstn,
+        });
+        setRoomInfo(prev => {
+          return {
+            ...prev,
+            data: {
+              isHost: true,
+              isSeparateHostLink: isSeparateHostLink ? true : false,
+              meetingTitle: roomTitle,
+              roomId: roomInfo?.roomId,
+              pstn: roomInfo?.pstn,
+            },
+          };
+        });
+        SDKEvents.emit(
+          'create',
+          roomInfo.roomId.host,
+          roomInfo.roomId.attendee,
+          roomInfo?.pstn,
+        );
+      } else {
+        throw new Error(`An error occurred in parsing the channel data.`);
+      }
+    } catch (error) {
+      const endReqTs = Date.now();
+      const latency = endReqTs - startReqTs;
       logger.error(
         LogSource.NetworkRest,
         'createChannel',
@@ -88,80 +144,6 @@ export default function useCreateRoom(): createRoomFun {
         },
       );
       throw error;
-    }
-
-    if (res && res?.data && res?.data?.createChannel) {
-      logger.log(
-        LogSource.NetworkRest,
-        'createChannel',
-        'API createChannel. Channel created successfully',
-        {
-          responseData: res.data.createChannel,
-          startReqTs,
-          endReqTs,
-          latency: latency,
-          requestId,
-        },
-      );
-      let roomInfo: Partial<RoomInfoContextInterface['data']> = {
-        roomId: {
-          attendee: '',
-        },
-      };
-      if (res?.data?.createChannel?.passphrase?.view) {
-        roomInfo.roomId.attendee = res.data.createChannel.passphrase.view;
-      }
-      if (res?.data?.createChannel?.passphrase?.host) {
-        roomInfo.roomId.host = res.data.createChannel.passphrase.host;
-      }
-      if (enablePSTN === true && res?.data?.createChannel?.pstn) {
-        if (
-          res.data.createChannel.pstn?.error?.code ||
-          res.data.createChannel.pstn?.error?.message
-        ) {
-          roomInfo.pstn = {
-            number: '',
-            pin: '',
-            error: {
-              code: res.data.createChannel.pstn?.error?.code,
-              message: res.data.createChannel.pstn?.error?.message,
-            },
-          };
-        } else {
-          roomInfo.pstn = {
-            number: res.data.createChannel.pstn?.number,
-            pin: res.data.createChannel.pstn?.dtmf,
-            error: null,
-          };
-        }
-      }
-      logger.log(LogSource.Internals, 'CREATE_MEETING', 'Room created', {
-        isHost: true,
-        isSeparateHostLink: isSeparateHostLink ? true : false,
-        meetingTitle: roomTitle,
-        roomId: roomInfo?.roomId,
-        pstn: roomInfo?.pstn,
-      });
-      setRoomInfo(prev => {
-        return {
-          ...prev,
-          data: {
-            isHost: true,
-            isSeparateHostLink: isSeparateHostLink ? true : false,
-            meetingTitle: roomTitle,
-            roomId: roomInfo?.roomId,
-            pstn: roomInfo?.pstn,
-          },
-        };
-      });
-      SDKEvents.emit(
-        'create',
-        roomInfo.roomId.host,
-        roomInfo.roomId.attendee,
-        roomInfo?.pstn,
-      );
-    } else {
-      throw new Error(`An error occurred in parsing the channel data.`);
     }
   };
 }
