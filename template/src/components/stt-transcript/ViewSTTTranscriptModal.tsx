@@ -1,7 +1,7 @@
 import React, {SetStateAction, Dispatch} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useString} from '../../utils/useString';
-import {sttModalTitleIntn} from '../../language/default-labels/videoCallScreenLabels';
+import {transcriptModalTitleIntn} from '../../language/default-labels/videoCallScreenLabels';
 import GenericModal from '../common/GenericModal';
 import STTTranscriptTable from './STTTranscriptTable';
 
@@ -12,14 +12,14 @@ interface ViewSTTModalProps {
 export default function ViewSTTTranscriptModal(props: ViewSTTModalProps) {
   const {setModalOpen} = props;
 
-  const sttModalTitle = useString(sttModalTitleIntn)();
+  const transcriptModalTitle = useString(transcriptModalTitleIntn)();
 
   return (
     <GenericModal
       visible={true}
       onRequestClose={() => setModalOpen(false)}
       showCloseIcon={true}
-      title={sttModalTitle}
+      title={transcriptModalTitle}
       cancelable={false}
       contentContainerStyle={style.contentContainer}>
       <View style={style.fullBody}>
