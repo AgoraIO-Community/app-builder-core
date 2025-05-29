@@ -48,7 +48,6 @@
     "url": "https://github.com/AgoraIO-Community/app-builder-core"
   },
   "dependencies": {
-    "@apollo/client": "3.8.1",
     "@datadog/browser-logs": "^5.15.0",
     "@datadog/mobile-react-native": "^2.3.2",
     "@gorhom/bottom-sheet": "4.4.7",

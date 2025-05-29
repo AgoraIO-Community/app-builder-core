@@ -13,14 +13,8 @@ import React, {useContext} from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 import StorageContext, {initStoreValue} from '../components/StorageContext';
 import {useHistory} from '../components/Router';
-import {gql, useMutation} from '@apollo/client';
 import {useString} from '../utils/useString';
 
-const LOGOUT = gql`
-  mutation logoutSession($token: String!) {
-    logoutSession(token: $token)
-  }
-`;
 /**
  * Sends a logout request to the backend and logs out the user from the frontend.
  */
@@ -28,7 +22,6 @@ const LogoutButton = () => {
   const {store, setStore} = useContext(StorageContext);
   const {token} = store;
   const history = useHistory();
-  const [logoutQuery] = useMutation(LOGOUT);
   //commented for v1 release
   // const oauthLoginLabel = useString('oauthLoginLabel')();
   // const logoutButton = useString('logoutButton')();
@@ -41,16 +34,13 @@ const LogoutButton = () => {
        * User stored some data in localstorage we don't want to remove their on logout.
        * so setting prevstate with store default value
        */
-      setStore((prevState) => {
+      setStore(prevState => {
         return {
           ...prevState,
           ...initStoreValue,
         };
       });
     }
-    logoutQuery({variables: {token}}).catch((e) => {
-      console.log(e);
-    });
   };
 
   const login = () => {

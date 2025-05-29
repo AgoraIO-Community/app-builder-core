@@ -8,7 +8,6 @@ import React, {
   useRef,
 } from 'react';
 import {useHistory, useLocation} from '../components/Router';
-import {gql, useApolloClient} from '@apollo/client';
 import {useIDPAuth} from './useIDPAuth';
 import Loading from '../subComponents/Loading';
 import useTokenAuth from './useTokenAuth';
@@ -45,14 +44,7 @@ import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
 
-export const GET_USER = gql`
-  query getUser {
-    getUser {
-      name
-      email
-    }
-  }
-`;
+const GET_USER_URL = `${$config.BACKEND_ENDPOINT}/v1/user/details`;
 
 type AuthProviderProps = {
   enableAuth?: boolean;
@@ -87,7 +79,6 @@ const AuthProvider = (props: AuthProviderProps) => {
   const history = useHistory();
   const location = useLocation();
   // client
-  const apolloClient = useApolloClient();
   const {isRecordingBot} = useIsRecordingBot();
   const indexesOf = (arr, item) =>
     arr.reduce((acc, v, i) => (v === item && acc.push(i), acc), []);
@@ -324,44 +315,47 @@ const AuthProvider = (props: AuthProviderProps) => {
   async function getUserDetails() {
     const requestId = getUniqueID();
     const startReqTs = Date.now();
+    //fetch user details
+    logger.log(
+      LogSource.NetworkRest,
+      'user_details',
+      'API fetching user_details, to check if user is authenticated',
+      {
+        requestId,
+        startReqTs,
+      },
+    );
+    const token = store?.token;
     try {
-      //fetch user details
-      logger.log(
-        LogSource.NetworkRest,
-        'user_details',
-        'API fetching user_details, to check if user is authenticated',
-        {
-          requestId,
-          startReqTs,
-        },
-      );
-      const token = store?.token;
-      const res = await apolloClient.query({
-        query: GET_USER,
-        fetchPolicy: 'network-only',
-        context: {
-          headers: {
-            'X-Request-Id': requestId,
-            'X-Session-Id': logger.getSessionId(),
-            ...(token && {
-              authorization: token ? `Bearer ${token}` : '',
-            }),
-          },
+      const res = await fetch(`${GET_USER_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
+          ...(token && {
+            authorization: token ? `Bearer ${token}` : '',
+          }),
         },
       });
+      const response = await res.json();
+      if (response?.error) {
+        throw response?.error;
+      }
       const endRequestTs = Date.now();
       logger.log(
         LogSource.NetworkRest,
         'user_details',
         'API user_details query succesful. User is authenticated',
         {
-          responseData: res,
+          responseData: response,
           startReqTs,
           endRequestTs,
           latency: endRequestTs - startReqTs,
           requestId,
         },
       );
+      setLoading(false);
     } catch (error) {
       const endRequestTs = Date.now();
       logger.log(
@@ -376,9 +370,8 @@ const AuthProvider = (props: AuthProviderProps) => {
           requestId,
         },
       );
-      throw new Error(error);
-    } finally {
       setLoading(false);
+      throw new Error(error);
     }
   }
 

@@ -1,10 +1,7 @@
 import {useContext} from 'react';
-import {gql} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
-import {GraphQLContext} from '../components/GraphQLProvider';
-import useGetName from './useGetName';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {base64ToUint8Array} from '../utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
