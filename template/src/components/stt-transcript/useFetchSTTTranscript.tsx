@@ -36,7 +36,7 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
       stts: FetchSTTTranscriptResponse['stts'];
       pagination: FetchSTTTranscriptResponse['pagination'];
     };
-    error: any;
+    error: Error;
   }>({
     status: 'idle',
     data: {stts: [], pagination: {total: 0, limit: defaultLimit, page: 1}},
@@ -50,7 +50,8 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
 
       try {
         if (!roomId?.host) {
-          return Promise.reject('room id is empty');
+          const error = new Error('room id is empty');
+          return Promise.reject(error);
         }
         const res = await fetch(
           `${$config.BACKEND_ENDPOINT}/v1/stt-transcript`,
