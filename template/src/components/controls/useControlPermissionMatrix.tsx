@@ -37,8 +37,10 @@ export const controlPermissionMatrix: Record<
   screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING && !preference.disableScreenShare,
   viewAllTranscripts: ({isHost}) =>
-    $config.ENABLE_STT && $config.ENABLE_MEETING_TRANSCRIPT && isWeb(),
-  // isHost,
+    isHost &&
+    $config.ENABLE_STT &&
+    $config.ENABLE_MEETING_TRANSCRIPT &&
+    isWeb(),
 };
 
 export const useControlPermissionMatrix = (

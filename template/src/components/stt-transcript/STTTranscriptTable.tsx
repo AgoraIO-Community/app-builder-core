@@ -193,7 +193,7 @@ function EmptyTranscriptState() {
   );
 }
 
-function ErrorTranscriptState(message: any) {
+function ErrorTranscriptState({message}: {message: string}) {
   return <Text style={[style.ttime, style.pv10, style.ph20]}>{message}</Text>;
 }
 
