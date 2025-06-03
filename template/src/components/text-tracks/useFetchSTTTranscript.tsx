@@ -153,32 +153,29 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
           },
         },
       );
-      const json = await res.json();
       const end = Date.now();
 
       if (!res.ok) {
         logger.error(
           LogSource.NetworkRest,
           'stt-transcript',
-          'Fetching STT transcripts failed',
+          'Deleting STT transcripts failed',
           {
-            json,
+            json: '',
             start,
             end,
             latency: end - start,
             requestId,
           },
         );
-        throw new Error(
-          json?.error?.message ?? `Delete failed (${res.status})`,
-        );
+        throw new Error(`Delete failed (${res.status})`);
       }
       logger.debug(
         LogSource.NetworkRest,
         'stt-transcript',
-        'Fetched STT transcripts',
+        'Deleted STT transcripts',
         {
-          json,
+          json: '',
           start,
           end,
           latency: end - start,
