@@ -103,7 +103,7 @@ import {
   toolbarItemTranscriptText,
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
-  toolbarItemManageTranscriptText,
+  toolbarItemManageTextTracksText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
@@ -116,7 +116,7 @@ import {
   InviteToolbarItem,
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
-import ViewSTTTranscriptModal from './stt-transcript/ViewSTTTranscriptModal';
+import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -278,7 +278,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const viewRecordingsLabel = useString<boolean>(
     toolbarItemViewRecordingText,
   )();
-  const viewSTTLabel = useString<boolean>(toolbarItemManageTranscriptText)();
+  const viewTextTracksLabel = useString<boolean>(
+    toolbarItemManageTextTracksText,
+  )();
   const moreButtonLabel = useString(toolbarItemMoreText)();
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
@@ -297,9 +299,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     toggle: toggleVRModal,
   } = useModal();
   const {
-    modalOpen: isSTTTranscriptModalOpen,
-    setModalOpen: setSTTTranscriptModalOpen,
-    toggle: toggleSTTTranscriptModal,
+    modalOpen: isTextTrackModalOpen,
+    setModalOpen: setTextTrackModalOpen,
+    toggle: toggleTextTrackModal,
   } = useModal();
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -814,20 +816,20 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // 13. Transcripts to download
-  const canAccessAllTranscripts =
-    useControlPermissionMatrix('viewAllTranscripts');
+  // 13. Text-tracks to download
+  const canAccessAllTextTracks =
+    useControlPermissionMatrix('viewAllTextTracks');
 
-  if (canAccessAllTranscripts) {
+  if (canAccessAllTextTracks) {
     actionMenuitems.push({
-      componentName: 'view-all-transcripts',
+      componentName: 'view-all-text-tracks',
       order: 13,
       icon: 'transcript',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: viewSTTLabel,
+      title: viewTextTracksLabel,
       onPress: () => {
-        toggleSTTTranscriptModal();
+        toggleTextTrackModal();
       },
     });
   }
@@ -978,8 +980,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           )}
         </>
       )}
-      {canAccessAllTranscripts && isSTTTranscriptModalOpen ? (
-        <ViewSTTTranscriptModal setModalOpen={setSTTTranscriptModalOpen} />
+      {canAccessAllTextTracks && isTextTrackModalOpen ? (
+        <ViewTextTracksModal setModalOpen={setTextTrackModalOpen} />
       ) : (
         <></>
       )}
