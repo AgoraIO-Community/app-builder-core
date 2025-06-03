@@ -202,7 +202,7 @@ function STTTranscriptTable() {
     status,
     stts,
     pagination,
-    error,
+    error: fetchTranscriptError,
     currentPage,
     setCurrentPage,
     deleteTranscript,
@@ -214,19 +214,17 @@ function STTTranscriptTable() {
   );
 
   // message for any download‐error popup
-  const [downloadError, setDownloadError] = React.useState<
-    string | undefined
-  >();
+  const [errorSnack, setErrorSnack] = React.useState<string | undefined>();
 
   if (status === 'rejected') {
-    return <ErrorTranscriptState message={error?.message} />;
+    return <ErrorTranscriptState message={fetchTranscriptError?.message} />;
   }
 
-  const onDeleteSTTRecord = async () => {
+  const onDeleteSTTRecord = async (sttId: string) => {
     try {
-      await deleteTranscript(sttIdToDelete!);
+      await deleteTranscript(sttId!);
     } catch (err: any) {
-      setDownloadError(err.message);
+      setErrorSnack(err.message);
     } finally {
       setSTTIdToDelete(undefined);
     }
@@ -251,7 +249,7 @@ function STTTranscriptTable() {
               }}
               onDownloadAction={link => {
                 downloadS3Link(link).catch((err: Error) => {
-                  setDownloadError(err.message || 'Download failed');
+                  setErrorSnack(err.message || 'Download failed');
                 });
               }}
             />
@@ -271,21 +269,25 @@ function STTTranscriptTable() {
           message="Are you sure want to delete the transcript ? This action can't be undone."
           visible={!!sttIdToDelete}
           setVisible={() => setSTTIdToDelete(undefined)}
-          onConfirm={onDeleteSTTRecord}
+          onConfirm={() => {
+            const idToDelete = sttIdToDelete;
+            setSTTIdToDelete(undefined);
+            onDeleteSTTRecord(idToDelete);
+          }}
           onCancel={() => {
             setSTTIdToDelete(undefined);
           }}
         />
       )}
       {/** DOWNLOAD ERROR POPUP **/}
-      {downloadError && (
+      {errorSnack && (
         <GenericPopup
-          title="Download Error"
+          title="Error"
           variant="error"
-          message={downloadError}
+          message={errorSnack}
           visible={true}
-          setVisible={() => setDownloadError(undefined)}
-          onConfirm={() => setDownloadError(undefined)}
+          setVisible={() => setErrorSnack(undefined)}
+          onConfirm={() => setErrorSnack(undefined)}
         />
       )}
     </>

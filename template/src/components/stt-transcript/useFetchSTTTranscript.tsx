@@ -134,6 +134,9 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
 
   const deleteTranscript = useCallback(
     async (id: string) => {
+      const requestId = getUniqueID();
+      const start = Date.now();
+
       const res = await fetch(
         `${
           $config.BACKEND_ENDPOINT
@@ -142,15 +145,46 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         )}`,
         {
           method: 'DELETE',
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: store.token ? `Bearer ${store.token}` : '',
+            'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
+          },
         },
       );
+      const json = await res.json();
+      const end = Date.now();
+
       if (!res.ok) {
-        const body = await res.json();
+        logger.error(
+          LogSource.NetworkRest,
+          'stt-transcript',
+          'Fetching STT transcripts failed',
+          {
+            json,
+            start,
+            end,
+            latency: end - start,
+            requestId,
+          },
+        );
         throw new Error(
-          body?.error?.message ?? `Delete failed (${res.status})`,
+          json?.error?.message ?? `Delete failed (${res.status})`,
         );
       }
+      logger.debug(
+        LogSource.NetworkRest,
+        'stt-transcript',
+        'Fetched STT transcripts',
+        {
+          json,
+          start,
+          end,
+          latency: end - start,
+          requestId,
+        },
+      );
       // optimistic update local state:
       setState(prev => {
         // remove the deleted item
@@ -175,7 +209,7 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         };
       });
     },
-    [roomId.host],
+    [roomId.host, store?.token],
   );
 
   useEffect(() => {

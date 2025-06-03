@@ -51,7 +51,6 @@ const GenericPopup: React.FC<ConfirmationModalProps> = ({
     onCancel && onCancel();
   };
   const handleConfirm = () => {
-    setVisible(false);
     onConfirm();
   };
 
