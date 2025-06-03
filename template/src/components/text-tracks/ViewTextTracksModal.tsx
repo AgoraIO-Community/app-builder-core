@@ -1,29 +1,29 @@
 import React, {SetStateAction, Dispatch} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useString} from '../../utils/useString';
-import {transcriptModalTitleIntn} from '../../language/default-labels/videoCallScreenLabels';
+import {textTrackModalTitleIntn} from '../../language/default-labels/videoCallScreenLabels';
 import GenericModal from '../common/GenericModal';
-import STTTranscriptTable from './STTTranscriptTable';
+import TextTracksTable from './TextTracksTable';
 
-interface ViewSTTModalProps {
+interface ViewTextTracksModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function ViewSTTTranscriptModal(props: ViewSTTModalProps) {
+export default function ViewTextTracksModal(props: ViewTextTracksModalProps) {
   const {setModalOpen} = props;
 
-  const transcriptModalTitle = useString(transcriptModalTitleIntn)();
+  const textTrackModalTitle = useString(textTrackModalTitleIntn)();
 
   return (
     <GenericModal
       visible={true}
       onRequestClose={() => setModalOpen(false)}
       showCloseIcon={true}
-      title={transcriptModalTitle}
+      title={textTrackModalTitle}
       cancelable={false}
       contentContainerStyle={style.contentContainer}>
       <View style={style.fullBody}>
-        <STTTranscriptTable />
+        <TextTracksTable />
       </View>
     </GenericModal>
   );
