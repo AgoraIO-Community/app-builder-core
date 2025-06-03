@@ -15,7 +15,7 @@ export type ControlPermissionKey =
   | 'participantControl'
   | 'screenshareControl'
   | 'settingsControl'
-  | 'viewAllTranscripts';
+  | 'viewAllTextTracks';
 
 /**
  * ControlPermissionRule defines the properties used to evaluate permission rules.
@@ -36,7 +36,7 @@ export const controlPermissionMatrix: Record<
   settingsControl: ({preference}) => !preference.disableSettings,
   screenshareControl: ({preference}) =>
     $config.SCREEN_SHARING && !preference.disableScreenShare,
-  viewAllTranscripts: ({isHost}) =>
+  viewAllTextTracks: ({isHost}) =>
     isHost &&
     $config.ENABLE_STT &&
     $config.ENABLE_MEETING_TRANSCRIPT &&

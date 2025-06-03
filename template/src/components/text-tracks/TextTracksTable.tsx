@@ -22,20 +22,24 @@ import PlatformWrapper from '../../utils/PlatformWrapper';
 
 const headers = ['Date', 'Time', 'Status', 'Actions'];
 
-interface STTItemRowProps {
+interface TextTrackItemRowProps {
   item: FetchSTTTranscriptResponse['stts'][0];
   onDeleteAction: (id: string) => void;
   onDownloadAction: (link: string) => void;
 }
 
-function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
+function TextTrackItemRow({
+  item,
+  onDeleteAction,
+  onDownloadAction,
+}: TextTrackItemRowProps) {
   const [date, time] = getFormattedDateTime(item.created_at);
-  const sttStatus = item.status;
+  const textTrackStatus = item.status;
 
   if (
-    sttStatus === 'STOPPING' ||
-    sttStatus === 'STARTED' ||
-    (sttStatus === 'INPROGRESS' && !item?.download_url)
+    textTrackStatus === 'STOPPING' ||
+    textTrackStatus === 'STARTED' ||
+    (textTrackStatus === 'INPROGRESS' && !item?.download_url)
   ) {
     return (
       <View key={item.id} style={style.pt12}>
@@ -63,12 +67,14 @@ function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
         <Text style={style.ttime}>{time}</Text>
       </View>
       <View style={[style.td]}>
-        <Text style={style.ttime}>{capitalizeFirstLetter(sttStatus)}</Text>
+        <Text style={style.ttime}>
+          {capitalizeFirstLetter(textTrackStatus)}
+        </Text>
       </View>
       <View style={style.td}>
         {!item.download_url ? (
           <View style={[style.tactions, {marginTop: 0}]}>
-            <Text style={style.placeHolder}>{'No transcripts found'}</Text>
+            <Text style={style.placeHolder}>{'No text-tracks found'}</Text>
           </View>
         ) : item?.download_url?.length > 0 ? (
           <View style={style.tactions}>
@@ -165,7 +171,7 @@ function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
           </View>
         ) : (
           <View style={(style.tactions, {marginTop: 0})}>
-            <Text style={style.placeHolder}>No transcripts found</Text>
+            <Text style={style.placeHolder}>No text-tracks found</Text>
           </View>
         )}
       </View>
@@ -173,7 +179,7 @@ function STTItemRow({item, onDeleteAction, onDownloadAction}: STTItemRowProps) {
   );
 }
 
-function EmptyTranscriptState() {
+function EmptyTextTrackState() {
   return (
     <View style={style.infotextContainer}>
       <View>
@@ -186,18 +192,18 @@ function EmptyTranscriptState() {
       </View>
       <View>
         <Text style={[style.infoText, style.pt10, style.pl10]}>
-          No transcripts found for this meeting
+          No text-tracks found for this meeting
         </Text>
       </View>
     </View>
   );
 }
 
-function ErrorTranscriptState({message}: {message: string}) {
+function ErrorTextTrackState({message}: {message: string}) {
   return <Text style={[style.ttime, style.pv10, style.ph20]}>{message}</Text>;
 }
 
-function STTTranscriptTable() {
+function TextTracksTable() {
   const {
     status,
     stts,
@@ -208,25 +214,25 @@ function STTTranscriptTable() {
     deleteTranscript,
   } = useFetchSTTTranscript();
 
-  // id of STT transcript to delete
-  const [sttIdToDelete, setSTTIdToDelete] = React.useState<string | undefined>(
-    undefined,
-  );
+  // id of text-tracj to delete
+  const [textTrackIdToDelete, setTextTrackIdToDelete] = React.useState<
+    string | undefined
+  >(undefined);
 
   // message for any download‐error popup
   const [errorSnack, setErrorSnack] = React.useState<string | undefined>();
 
   if (status === 'rejected') {
-    return <ErrorTranscriptState message={fetchTranscriptError?.message} />;
+    return <ErrorTextTrackState message={fetchTranscriptError?.message} />;
   }
 
-  const onDeleteSTTRecord = async (sttId: string) => {
+  const onDeleteTextTrackRecord = async (trackId: string) => {
     try {
-      await deleteTranscript(sttId!);
+      await deleteTranscript(trackId!);
     } catch (err: any) {
       setErrorSnack(err.message);
     } finally {
-      setSTTIdToDelete(undefined);
+      setTextTrackIdToDelete(undefined);
     }
   };
 
@@ -238,14 +244,14 @@ function STTTranscriptTable() {
           status={status}
           items={stts}
           loadingComponent={
-            <Loading background="transparent" text="Fetching transcripts.." />
+            <Loading background="transparent" text="Fetching text-tracks.." />
           }
           renderRow={item => (
-            <STTItemRow
+            <TextTrackItemRow
               key={item.id}
               item={item}
               onDeleteAction={id => {
-                setSTTIdToDelete(id);
+                setTextTrackIdToDelete(id);
               }}
               onDownloadAction={link => {
                 downloadS3Link(link).catch((err: Error) => {
@@ -254,7 +260,7 @@ function STTTranscriptTable() {
               }}
             />
           )}
-          emptyComponent={<EmptyTranscriptState />}
+          emptyComponent={<EmptyTextTrackState />}
         />
         <TableFooter
           currentPage={currentPage}
@@ -262,20 +268,20 @@ function STTTranscriptTable() {
           pagination={pagination}
         />
       </View>
-      {sttIdToDelete && (
+      {textTrackIdToDelete && (
         <GenericPopup
           title="Delete ? "
           variant="error"
-          message="Are you sure want to delete the transcript ? This action can't be undone."
-          visible={!!sttIdToDelete}
-          setVisible={() => setSTTIdToDelete(undefined)}
+          message="Are you sure want to delete the text-track ? This action can't be undone."
+          visible={!!textTrackIdToDelete}
+          setVisible={() => setTextTrackIdToDelete(undefined)}
           onConfirm={() => {
-            const idToDelete = sttIdToDelete;
-            setSTTIdToDelete(undefined);
-            onDeleteSTTRecord(idToDelete);
+            const idToDelete = textTrackIdToDelete;
+            setTextTrackIdToDelete(undefined);
+            onDeleteTextTrackRecord(idToDelete);
           }}
           onCancel={() => {
-            setSTTIdToDelete(undefined);
+            setTextTrackIdToDelete(undefined);
           }}
         />
       )}
@@ -294,4 +300,4 @@ function STTTranscriptTable() {
   );
 }
 
-export default STTTranscriptTable;
+export default TextTracksTable;
