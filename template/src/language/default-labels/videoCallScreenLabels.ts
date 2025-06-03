@@ -1025,7 +1025,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     `Once removed, ${name} will still be able to screen share later.`,
   [removeScreenshareFromRoomPopupPrimaryBtnText]: 'REMOVE',
 
-  [transcriptModalTitleIntn]: 'View Transcripts',
+  [transcriptModalTitleIntn]: 'Transcripts',
   [sttChangeLanguagePopupHeading]: isFirstTimeOpened =>
     isFirstTimeOpened ? 'Set Spoken Language' : 'Change Spoken Language',
   [sttChangeLanguagePopupSubHeading]:
