@@ -24,7 +24,6 @@ import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
 import {filterObject, useContent, useRoomInfo, useRtc} from 'customization-api';
-import {gql, useMutation} from '@apollo/client';
 import {
   PSTNUserLabel,
   videoRoomScreenshareText,
@@ -55,15 +54,6 @@ const UserPreferenceContext =
     uids: {},
   });
 
-const UPDATE_USER_NAME_MUTATION = gql`
-  mutation updateUserName($name: String!) {
-    updateUserName(name: $name) {
-      name
-      email
-    }
-  }
-`;
-
 const UserPreferenceProvider = (props: {
   children: React.ReactNode;
   callActive: boolean;
@@ -81,7 +71,6 @@ const UserPreferenceProvider = (props: {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
-  const [updateUserName] = useMutation(UPDATE_USER_NAME_MUTATION);
 
   const {languageCode} = useLanguage();
   const {screenShareData} = useScreenContext();

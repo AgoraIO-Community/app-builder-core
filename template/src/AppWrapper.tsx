@@ -13,7 +13,6 @@ import React, {useContext} from 'react';
 import {Router} from './components/Router';
 import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
-import GraphQLProvider from './components/GraphQLProvider';
 import {SessionProvider} from './components/SessionContext';
 import {
   ImageBackground,
@@ -89,40 +88,36 @@ const AppWrapper = (props: AppWrapperProps) => {
           {$config.DISABLE_LANDSCAPE_MODE && <BlockUI />}
           <StorageProvider>
             <LanguageProvider>
-              <GraphQLProvider>
-                <Router
-                  /*@ts-ignore Router will be memory Router in sdk*/
-                  initialEntries={[
-                    //@ts-ignore
-                    isSDK && SdkJoinState.phrase
-                      ? //@ts-ignore
-                        `/${SdkJoinState.phrase}`
-                      : '',
-                  ]}>
-                  <ToastProvider>
-                    <ToastContext.Consumer>
-                      {({isActionSheetVisible}) => {
-                        return !isActionSheetVisible ? (
-                          <ToastComponent />
-                        ) : null;
-                      }}
-                    </ToastContext.Consumer>
-                    <AuthProvider>
-                      <SessionProvider>
-                        <ColorConfigure>
-                          <DimensionProvider>
-                            <ErrorProvider>
-                              <Error />
-                              <Navigation />
-                              {props.children}
-                            </ErrorProvider>
-                          </DimensionProvider>
-                        </ColorConfigure>
-                      </SessionProvider>
-                    </AuthProvider>
-                  </ToastProvider>
-                </Router>
-              </GraphQLProvider>
+              <Router
+                /*@ts-ignore Router will be memory Router in sdk*/
+                initialEntries={[
+                  //@ts-ignore
+                  isSDK && SdkJoinState.phrase
+                    ? //@ts-ignore
+                      `/${SdkJoinState.phrase}`
+                    : '',
+                ]}>
+                <ToastProvider>
+                  <ToastContext.Consumer>
+                    {({isActionSheetVisible}) => {
+                      return !isActionSheetVisible ? <ToastComponent /> : null;
+                    }}
+                  </ToastContext.Consumer>
+                  <AuthProvider>
+                    <SessionProvider>
+                      <ColorConfigure>
+                        <DimensionProvider>
+                          <ErrorProvider>
+                            <Error />
+                            <Navigation />
+                            {props.children}
+                          </ErrorProvider>
+                        </DimensionProvider>
+                      </ColorConfigure>
+                    </SessionProvider>
+                  </AuthProvider>
+                </ToastProvider>
+              </Router>
             </LanguageProvider>
           </StorageProvider>
         </SafeAreaView>

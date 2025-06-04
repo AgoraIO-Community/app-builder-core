@@ -1,6 +1,11 @@
 import {useContext} from 'react';
 import {useCustomization} from 'customization-implementation';
-import {useCaption, useContent, useRoomInfo} from 'customization-api';
+import {
+  useCaption,
+  useContent,
+  useRoomInfo,
+  useSTTAPI,
+} from 'customization-api';
 import {PropsContext, DispatchContext} from '../../agora-rn-uikit';
 import {useHistory} from '../components/Router';
 import {stopForegroundService} from '../subComponents/LocalEndCall';
@@ -18,6 +23,7 @@ const useEndCall = () => {
   } = useRoomInfo();
   const {authLogin} = useAuth();
   const {deleteChatUser} = useChatConfigure();
+  const {stop: stopSTTAPI} = useSTTAPI();
 
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
@@ -49,9 +55,16 @@ const useEndCall = () => {
     stopForegroundService();
     // stopping STT on call end,if only last user is remaining in call
     const usersInCall = Object.entries(defaultContent).filter(
-      item => item[1].type === 'rtc',
+      item =>
+        item[1].type === 'rtc' && item[1].isHost === 'true' && !item[1].offline,
     );
-    usersInCall.length === 1 && isSTTActive && stop();
+    if (usersInCall.length === 1 && isSTTActive) {
+      console.log('Stopping stt api as only one host is in the call');
+      stopSTTAPI().catch(error => {
+        console.log('Error stopping stt', error);
+      });
+    }
+
     // removing user from chat server
     if ($config.CHAT) {
       deleteChatUser();
