@@ -11,13 +11,13 @@ import ImageIcon from '../../atoms/ImageIcon';
 
 interface TextTrackItemRowProps {
   item: FetchSTTTranscriptResponse['stts'][0];
-  // onDownloadAction: (link: string) => void;
+  onTextTrackDownload: (link: string) => void;
 }
 
 export default function TextTrackItemRow({
   item,
-}: // onDownloadAction,
-TextTrackItemRowProps) {
+  onTextTrackDownload,
+}: TextTrackItemRowProps) {
   const textTrackStatus = item.status;
 
   return (
@@ -57,7 +57,7 @@ TextTrackItemRowProps) {
                       tintColor: `${$config.SECONDARY_ACTION_COLOR}`,
                     }}
                     onPress={() => {
-                      // onDownloadAction && onDownloadAction(link);
+                      onTextTrackDownload && onTextTrackDownload(link);
                     }}
                   />
                 </View>

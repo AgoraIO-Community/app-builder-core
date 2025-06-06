@@ -11,6 +11,8 @@ import {style, TableBody, TableHeader} from '../common/data-table';
 import Loading from '../../subComponents/Loading';
 import ImageIcon from '../../atoms/ImageIcon';
 import RecordingItemRow from './RecordingItemRow';
+import GenericPopup from '../common/GenericPopup';
+import {downloadS3Link} from '../../utils/common';
 
 function EmptyTextTrackState() {
   return (
@@ -56,6 +58,9 @@ function RecordingsDateTable(props) {
 
   const {fetchRecordings} = useRecording();
 
+  // message for any download‐error popup
+  const [errorSnack, setErrorSnack] = React.useState<string | undefined>();
+
   const onRecordingDeleteCallback = () => {
     setCurrentPage(defaultPageNumber);
     getRecordings(defaultPageNumber);
@@ -96,6 +101,12 @@ function RecordingsDateTable(props) {
       </Text>
     );
   }
+  const onTextTrackDownload = (textTrackLink: string) => {
+    downloadS3Link(textTrackLink).catch((err: Error) => {
+      setErrorSnack(err.message || 'Download failed');
+    });
+  };
+
   return (
     <View style={style.ttable}>
       <TableHeader columns={headers} firstCellStyle={style.thIconCell} />
@@ -110,10 +121,22 @@ function RecordingsDateTable(props) {
             key={item.id}
             item={item}
             onDeleteAction={props?.onDeleteAction}
+            onTextTrackDownload={onTextTrackDownload}
           />
         )}
         emptyComponent={<EmptyTextTrackState />}
       />
+      {/** ERROR POPUP **/}
+      {errorSnack && (
+        <GenericPopup
+          title="Error"
+          variant="error"
+          message={errorSnack}
+          visible={true}
+          setVisible={() => setErrorSnack(undefined)}
+          onConfirm={() => setErrorSnack(undefined)}
+        />
+      )}
     </View>
   );
 }

@@ -15,10 +15,12 @@ import TextTrackItemRow from './TextTrackItemRow';
 interface RecordingItemRowProps {
   item: FetchRecordingData['recordings'][0];
   onDeleteAction: (id: string) => void;
+  onTextTrackDownload: (textTrackLink: string) => void;
 }
 export default function RecordingItemRow({
   item,
   onDeleteAction,
+  onTextTrackDownload,
 }: RecordingItemRowProps) {
   const [expanded, setIsExpanded] = useState(false);
 
@@ -237,7 +239,11 @@ export default function RecordingItemRow({
                 <Text style={style.ttime}>Found {stts.length} text tracks</Text>
                 <View>
                   {stts.map(item => (
-                    <TextTrackItemRow key={item.id} item={item} />
+                    <TextTrackItemRow
+                      key={item.id}
+                      item={item}
+                      onTextTrackDownload={onTextTrackDownload}
+                    />
                   ))}
                 </View>
               </>
@@ -256,7 +262,7 @@ const expanedStyles = StyleSheet.create({
     gap: 5,
     color: $config.FONT_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
     paddingHorizontal: 12,
     paddingVertical: 15,
     borderRadius: 5,
