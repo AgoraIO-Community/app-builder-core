@@ -274,6 +274,8 @@ export const style = StyleSheet.create({
   tactions: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   tlink: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,

@@ -225,21 +225,22 @@ export default function RecordingItemRow({
               </Text>
             ) : status === 'rejected' ? (
               <Text style={[style.ttime, style.pv10, style.ph20]}>
-                {error?.message || 'There was an error while fetching the stts'}
+                {error?.message ||
+                  'There was an error while fetching the text-tracks'}
               </Text>
             ) : status === 'resolved' && stts?.length === 0 ? (
               <Text style={style.ttime}>
                 There are no STT's for this recording
               </Text>
             ) : (
-              <View>
-                <View>Found `${stts.length}` text tracks</View>
+              <>
+                <Text style={style.ttime}>Found {stts.length} text tracks</Text>
                 <View>
                   {stts.map(item => (
                     <TextTrackItemRow key={item.id} item={item} />
                   ))}
                 </View>
-              </View>
+              </>
             )}
           </View>
         </View>
@@ -250,11 +251,14 @@ export default function RecordingItemRow({
 
 const expanedStyles = StyleSheet.create({
   expandedContainer: {
-    paddingVertical: 15,
     display: 'flex',
     flexDirection: 'column',
     gap: 5,
     color: $config.FONT_COLOR,
+    backgroundColor: 'rgb(38, 38, 38)',
+    paddingHorizontal: 12,
+    paddingVertical: 15,
+    borderRadius: 5,
   },
   expandedHeaderText: {
     fontSize: 15,
@@ -262,5 +266,10 @@ const expanedStyles = StyleSheet.create({
     fontWeight: '500',
     color: $config.FONT_COLOR,
   },
-  expandedHeaderBody: {},
+  expandedHeaderBody: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
 });

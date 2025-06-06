@@ -5,11 +5,6 @@ import getUniqueID from '../../utils/getUniqueID';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 export interface FetchSTTTranscriptResponse {
-  pagination: {
-    limit: number;
-    total: number;
-    page: number;
-  };
   stts: {
     id: string;
     download_url: string[];
@@ -33,14 +28,12 @@ export function useFetchSTTTranscript() {
     status: APIStatus;
     data: {
       stts: FetchSTTTranscriptResponse['stts'];
-      pagination: FetchSTTTranscriptResponse['pagination'];
     };
     error: Error | null;
   }>({
     status: 'idle',
     data: {
       stts: [],
-      pagination: {total: 0, limit: 10, page: 1},
     },
     error: null,
   });
@@ -90,6 +83,16 @@ export function useFetchSTTTranscript() {
           );
           throw new Error(json?.error?.message || 'Unknown fetch error');
         }
+        // 200 with error object. {"error":{"message":"no record found","code":615}}
+        if (json?.error) {
+          logger.debug(
+            LogSource.NetworkRest,
+            'stt-transcript',
+            `No STT records found (code ${json.error.code}): ${json.error.message}`,
+            {start, end, latency: end - start, requestId},
+          );
+          return [];
+        }
 
         logger.debug(
           LogSource.NetworkRest,
@@ -103,7 +106,7 @@ export function useFetchSTTTranscript() {
             requestId,
           },
         );
-        return json as FetchSTTTranscriptResponse;
+        return (json as FetchSTTTranscriptResponse['stts']) || [];
       } catch (err) {
         return Promise.reject(err);
       }
@@ -115,16 +118,11 @@ export function useFetchSTTTranscript() {
     (recordingId: string) => {
       setState(prev => ({...prev, status: 'pending'}));
       fetchSTTsAPI(recordingId).then(
-        data =>
+        sttsArray =>
           setState({
             status: 'resolved',
             data: {
-              stts: data.stts || [],
-              pagination: data.pagination || {
-                total: 0,
-                limit: 10,
-                page: 1,
-              },
+              stts: sttsArray || [],
             },
             error: null,
           }),
@@ -134,89 +132,76 @@ export function useFetchSTTTranscript() {
     [fetchSTTsAPI],
   );
 
-  const deleteTranscript = useCallback(
-    async (id: string) => {
-      const requestId = getUniqueID();
-      const start = Date.now();
+  // const deleteTranscript = useCallback(
+  //   async (id: string) => {
+  //     const requestId = getUniqueID();
+  //     const start = Date.now();
 
-      const res = await fetch(
-        `${
-          $config.BACKEND_ENDPOINT
-        }/v1/stt-transcript/${id}?passphrase=${encodeURIComponent(
-          roomId?.host || '',
-        )}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            authorization: store.token ? `Bearer ${store.token}` : '',
-            'X-Request-Id': requestId,
-            'X-Session-Id': logger.getSessionId(),
-          },
-        },
-      );
-      const end = Date.now();
+  //     const res = await fetch(
+  //       `${
+  //         $config.BACKEND_ENDPOINT
+  //       }/v1/stt-transcript/${id}?passphrase=${encodeURIComponent(
+  //         roomId?.host || '',
+  //       )}`,
+  //       {
+  //         method: 'DELETE',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           authorization: store.token ? `Bearer ${store.token}` : '',
+  //           'X-Request-Id': requestId,
+  //           'X-Session-Id': logger.getSessionId(),
+  //         },
+  //       },
+  //     );
+  //     const end = Date.now();
 
-      if (!res.ok) {
-        logger.error(
-          LogSource.NetworkRest,
-          'stt-transcript',
-          'Deleting STT transcripts failed',
-          {
-            json: '',
-            start,
-            end,
-            latency: end - start,
-            requestId,
-          },
-        );
-        throw new Error(`Delete failed (${res.status})`);
-      }
+  //     if (!res.ok) {
+  //       logger.error(
+  //         LogSource.NetworkRest,
+  //         'stt-transcript',
+  //         'Deleting STT transcripts failed',
+  //         {
+  //           json: '',
+  //           start,
+  //           end,
+  //           latency: end - start,
+  //           requestId,
+  //         },
+  //       );
+  //       throw new Error(`Delete failed (${res.status})`);
+  //     }
 
-      logger.debug(
-        LogSource.NetworkRest,
-        'stt-transcript',
-        'Deleted STT transcripts',
-        {
-          json: '',
-          start,
-          end,
-          latency: end - start,
-          requestId,
-        },
-      );
+  //     logger.debug(
+  //       LogSource.NetworkRest,
+  //       'stt-transcript',
+  //       'Deleted STT transcripts',
+  //       {
+  //         json: '',
+  //         start,
+  //         end,
+  //         latency: end - start,
+  //         requestId,
+  //       },
+  //     );
 
-      // Optimistic local‐state update
-      setState(prev => {
-        const newStts = prev.data.stts.filter(item => item.id !== id);
-        const newTotal = Math.max(prev.data.pagination.total - 1, 0);
-        let newPage = prev.data.pagination.page;
-        // If we removed the last item on this page and page > 1, decrement page
-        if (prev.data.stts.length === 1 && newPage > 1) {
-          newPage -= 1;
-        }
-        return {
-          ...prev,
-          data: {
-            stts: newStts,
-            pagination: {
-              ...prev.data.pagination,
-              total: newTotal,
-              page: newPage,
-            },
-          },
-        };
-      });
-    },
-    [roomId?.host, store.token],
-  );
+  //     // Optimistic local‐state update
+  //     setState(prev => {
+  //       const newStts = prev.data.stts.filter(item => item.id !== id);
+  //       return {
+  //         ...prev,
+  //         data: {
+  //           stts: newStts,
+  //         },
+  //       };
+  //     });
+  //   },
+  //   [roomId?.host, store.token],
+  // );
 
   return {
     status: state.status as APIStatus,
     stts: state.data.stts,
-    pagination: state.data.pagination,
     error: state.error,
     fetchSTTs,
-    deleteTranscript,
   };
 }
