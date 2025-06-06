@@ -222,11 +222,9 @@ export default function RecordingItemRow({
           </View>
           <View style={expanedStyles.expandedHeaderBody}>
             {status === 'idle' || status === 'pending' ? (
-              <Text style={[style.ttime, style.pv10, style.ph20]}>
-                Fetching text-tracks....
-              </Text>
+              <Text style={style.ttime}>Fetching text-tracks....</Text>
             ) : status === 'rejected' ? (
-              <Text style={[style.ttime, style.pv10, style.ph20]}>
+              <Text style={style.ttime}>
                 {error?.message ||
                   'There was an error while fetching the text-tracks'}
               </Text>
