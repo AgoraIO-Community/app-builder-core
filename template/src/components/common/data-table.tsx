@@ -151,7 +151,7 @@ const TableFooter: React.FC<TableFooterProps> = ({
 
 export {TableHeader, TableFooter, TableBody};
 
-const style = StyleSheet.create({
+export const style = StyleSheet.create({
   scrollgrow: {
     flexGrow: 1,
   },
@@ -249,7 +249,6 @@ const style = StyleSheet.create({
     flex: 1,
     alignSelf: 'center',
     justifyContent: 'center',
-    // height: 100,
     gap: 10,
   },
   tpreview: {
@@ -381,5 +380,22 @@ const style = StyleSheet.create({
   },
   pl15: {
     paddingLeft: 15,
+  },
+  // icon celles
+  tdIconCell: {
+    flex: 0,
+    flexShrink: 0,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    minWidth: 50,
+    paddingRight: 50 + 12,
+  },
+  thIconCell: {
+    flex: 0,
+    flexShrink: 0,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    minWidth: 50,
+    paddingHorizontal: 12,
   },
 });

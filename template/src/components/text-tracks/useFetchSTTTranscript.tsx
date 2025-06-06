@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect, useContext} from 'react';
+import {useState, useCallback, useContext} from 'react';
 import StorageContext from '../StorageContext';
 import {useRoomInfo} from 'customization-api';
 import getUniqueID from '../../utils/getUniqueID';
@@ -23,12 +23,11 @@ export interface FetchSTTTranscriptResponse {
 
 export type APIStatus = 'idle' | 'pending' | 'resolved' | 'rejected';
 
-export function useFetchSTTTranscript(defaultLimit = 10) {
+export function useFetchSTTTranscript() {
   const {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
-  const [currentPage, setCurrentPage] = useState(1);
 
   const [state, setState] = useState<{
     status: APIStatus;
@@ -36,25 +35,29 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
       stts: FetchSTTTranscriptResponse['stts'];
       pagination: FetchSTTTranscriptResponse['pagination'];
     };
-    error: Error;
+    error: Error | null;
   }>({
     status: 'idle',
-    data: {stts: [], pagination: {total: 0, limit: defaultLimit, page: 1}},
+    data: {
+      stts: [],
+      pagination: {total: 0, limit: 10, page: 1},
+    },
     error: null,
   });
 
-  const fetchStts = useCallback(
-    async (page: number) => {
+  const fetchSTTsAPI = useCallback(
+    async (recordingId: string) => {
       const requestId = getUniqueID();
       const start = Date.now();
 
+      if (!roomId?.host) {
+        const err = new Error('room id is empty');
+        return Promise.reject(err);
+      }
+
       try {
-        if (!roomId?.host) {
-          const error = new Error('room id is empty');
-          return Promise.reject(error);
-        }
         const res = await fetch(
-          `${$config.BACKEND_ENDPOINT}/v1/stt-transcript`,
+          `${$config.BACKEND_ENDPOINT}/v1/recording/stt-transcript`,
           {
             method: 'POST',
             headers: {
@@ -64,9 +67,8 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
               'X-Session-Id': logger.getSessionId(),
             },
             body: JSON.stringify({
-              passphrase: roomId.host,
-              limit: defaultLimit,
-              page,
+              project_id: $config.PROJECT_ID,
+              recording_id: recordingId,
             }),
           },
         );
@@ -101,18 +103,18 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
             requestId,
           },
         );
-        return json;
+        return json as FetchSTTTranscriptResponse;
       } catch (err) {
         return Promise.reject(err);
       }
     },
-    [roomId.host, store.token, defaultLimit],
+    [roomId?.host, store.token],
   );
 
-  const getSTTs = useCallback(
-    (page: number) => {
-      setState(s => ({...s, status: 'pending'}));
-      fetchStts(page).then(
+  const fetchSTTs = useCallback(
+    (recordingId: string) => {
+      setState(prev => ({...prev, status: 'pending'}));
+      fetchSTTsAPI(recordingId).then(
         data =>
           setState({
             status: 'resolved',
@@ -120,16 +122,16 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
               stts: data.stts || [],
               pagination: data.pagination || {
                 total: 0,
-                limit: defaultLimit,
+                limit: 10,
                 page: 1,
               },
             },
             error: null,
           }),
-        err => setState(s => ({...s, status: 'rejected', error: err})),
+        err => setState(prev => ({...prev, status: 'rejected', error: err})),
       );
     },
-    [fetchStts, defaultLimit],
+    [fetchSTTsAPI],
   );
 
   const deleteTranscript = useCallback(
@@ -141,7 +143,7 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         `${
           $config.BACKEND_ENDPOINT
         }/v1/stt-transcript/${id}?passphrase=${encodeURIComponent(
-          roomId.host,
+          roomId?.host || '',
         )}`,
         {
           method: 'DELETE',
@@ -170,6 +172,7 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         );
         throw new Error(`Delete failed (${res.status})`);
       }
+
       logger.debug(
         LogSource.NetworkRest,
         'stt-transcript',
@@ -182,16 +185,15 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
           requestId,
         },
       );
-      // optimistic update local state:
+
+      // Optimistic local‐state update
       setState(prev => {
-        // remove the deleted item
         const newStts = prev.data.stts.filter(item => item.id !== id);
-        // decrement total count
         const newTotal = Math.max(prev.data.pagination.total - 1, 0);
-        // if we just removed the *last* item on this page, go back a page
         let newPage = prev.data.pagination.page;
+        // If we removed the last item on this page and page > 1, decrement page
         if (prev.data.stts.length === 1 && newPage > 1) {
-          newPage = newPage - 1;
+          newPage -= 1;
         }
         return {
           ...prev,
@@ -206,20 +208,15 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         };
       });
     },
-    [roomId.host, store?.token],
+    [roomId?.host, store.token],
   );
-
-  useEffect(() => {
-    getSTTs(currentPage);
-  }, [currentPage, getSTTs]);
 
   return {
     status: state.status as APIStatus,
     stts: state.data.stts,
     pagination: state.data.pagination,
     error: state.error,
-    currentPage,
-    setCurrentPage,
+    fetchSTTs,
     deleteTranscript,
   };
 }

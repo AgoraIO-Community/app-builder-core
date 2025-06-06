@@ -1,30 +1,60 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text} from 'react-native';
-import {style} from './style';
-import {RTableHeader, RTableBody, RTableFooter} from './recording-table';
-import {useRecording} from '../../subComponents/recording/useRecording';
+import {
+  APIStatus,
+  FetchRecordingData,
+  useRecording,
+} from '../../subComponents/recording/useRecording';
 import events from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {style, TableBody, TableHeader} from '../common/data-table';
+import Loading from '../../subComponents/Loading';
+import ImageIcon from '../../atoms/ImageIcon';
+import RecordingItemRow from './RecordingItemRow';
+
+function EmptyTextTrackState() {
+  return (
+    <View style={style.infotextContainer}>
+      <View>
+        <ImageIcon
+          iconType="plain"
+          name="info"
+          tintColor={'#777777'}
+          iconSize={32}
+        />
+      </View>
+      <View>
+        <Text style={[style.infoText, style.pt10, style.pl10]}>
+          No text-tracks found for this meeting
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+const headers = ['', 'Date/Time', 'Duration', 'Actions'];
+const defaultPageNumber = 1;
 
 function RecordingsDateTable(props) {
-  const [state, setState] = React.useState({
+  const [state, setState] = React.useState<{
+    status: APIStatus;
+    data: {
+      recordings: FetchRecordingData['recordings'];
+      pagination: FetchRecordingData['pagination'];
+    };
+    error: Error;
+  }>({
     status: 'idle',
     data: {
-      pagination: {},
       recordings: [],
+      pagination: {total: 0, limit: 10, page: defaultPageNumber},
     },
     error: null,
   });
-  const {
-    status,
-    data: {pagination, recordings},
-    error,
-  } = state;
+
+  const [currentPage, setCurrentPage] = useState(defaultPageNumber);
 
   const {fetchRecordings} = useRecording();
-
-  const defaultPageNumber = 1;
-  const [currentPage, setCurrentPage] = useState(defaultPageNumber);
 
   const onRecordingDeleteCallback = () => {
     setCurrentPage(defaultPageNumber);
@@ -38,7 +68,7 @@ function RecordingsDateTable(props) {
     };
   }, []);
 
-  const getRecordings = pageNumber => {
+  const getRecordings = (pageNumber: number) => {
     setState(prev => ({...prev, status: 'pending'}));
     fetchRecordings(pageNumber).then(
       response =>
@@ -46,9 +76,10 @@ function RecordingsDateTable(props) {
           ...prev,
           status: 'resolved',
           data: {
-            recordings: response?.recordings || [],
-            pagination: response?.pagination || {},
+            recordings: response?.recordings,
+            pagination: response?.pagination,
           },
+          error: null,
         })),
       error => setState(prev => ({...prev, status: 'rejected', error})),
     );
@@ -58,25 +89,30 @@ function RecordingsDateTable(props) {
     getRecordings(currentPage);
   }, [currentPage]);
 
-  if (status === 'rejected') {
+  if (state.status === 'rejected') {
     return (
       <Text style={[style.ttime, style.pv10, style.ph20]}>
-        {error?.message}
+        {state.error?.message}
       </Text>
     );
   }
   return (
     <View style={style.ttable}>
-      <RTableHeader />
-      <RTableBody
-        status={status}
-        recordings={recordings}
-        onDeleteAction={props?.onDeleteAction}
-      />
-      <RTableFooter
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        pagination={pagination}
+      <TableHeader columns={headers} firstCellStyle={style.thIconCell} />
+      <TableBody
+        status={state.status}
+        items={state.data.recordings}
+        loadingComponent={
+          <Loading background="transparent" text="Fetching recordingss.." />
+        }
+        renderRow={item => (
+          <RecordingItemRow
+            key={item.id}
+            item={item}
+            onDeleteAction={props?.onDeleteAction}
+          />
+        )}
+        emptyComponent={<EmptyTextTrackState />}
       />
     </View>
   );
