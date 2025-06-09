@@ -67,16 +67,31 @@ const getFrontendUrl = (url: string) => {
   return url;
 };
 
-interface RecordingsData {
-  recordings: [];
-  pagination: {};
+export type APIStatus = 'idle' | 'pending' | 'resolved' | 'rejected';
+
+export interface FetchRecordingData {
+  pagination: {
+    limit: number;
+    total: number;
+    page: number;
+  };
+  recordings: {
+    id: string;
+    download_url: string[];
+    title: string;
+    product_name: string;
+    status: 'COMPLETED' | 'STARTED' | 'INPROGRESS' | 'STOPPING';
+    created_at: string;
+    ended_at: string;
+  }[];
 }
+
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
   isRecordingActive: boolean;
   inProgress: boolean;
-  fetchRecordings?: (page: number) => Promise<RecordingsData>;
+  fetchRecordings?: (page: number) => Promise<FetchRecordingData>;
   deleteRecording?: (id: number) => Promise<boolean>;
 }
 
