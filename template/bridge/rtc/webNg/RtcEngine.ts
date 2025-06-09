@@ -301,15 +301,6 @@ export default class RtcEngine {
     }
     const combinedStream = destination.stream;
 
-    // if (isLocal) {
-    //   if (!this.localStream.audio) return;
-    //   stream = new MediaStream([this.localStream.audio.getMediaStreamTrack()]);
-    // } else {
-    //   const remoteAudio = this.remoteStreams.get(uid)?.audio;
-    //   if (!remoteAudio) return;
-    //   stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
-    // }
-
     const transcriber = new RecordTranscribe({apiKey});
 
     await transcriber.start({
