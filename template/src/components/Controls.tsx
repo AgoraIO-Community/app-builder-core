@@ -817,22 +817,22 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 13. Text-tracks to download
-  // const canAccessAllTextTracks =
-  //   useControlPermissionMatrix('viewAllTextTracks');
+  const canAccessAllTextTracks =
+    useControlPermissionMatrix('viewAllTextTracks');
 
-  // if (canAccessAllTextTracks) {
-  //   actionMenuitems.push({
-  //     componentName: 'view-all-text-tracks',
-  //     order: 13,
-  //     icon: 'transcript',
-  //     iconColor: $config.SECONDARY_ACTION_COLOR,
-  //     textColor: $config.FONT_COLOR,
-  //     title: viewTextTracksLabel,
-  //     onPress: () => {
-  //       toggleTextTrackModal();
-  //     },
-  //   });
-  // }
+  if (canAccessAllTextTracks) {
+    actionMenuitems.push({
+      componentName: 'view-all-text-tracks',
+      order: 13,
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: viewTextTracksLabel,
+      onPress: () => {
+        toggleTextTrackModal();
+      },
+    });
+  }
 
   useEffect(() => {
     if (isHovered) {
@@ -980,11 +980,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           )}
         </>
       )}
-      {/* {canAccessAllTextTracks && isTextTrackModalOpen ? (
+      {canAccessAllTextTracks && isTextTrackModalOpen ? (
         <ViewTextTracksModal setModalOpen={setTextTrackModalOpen} />
       ) : (
         <></>
-      )} */}
+      )}
       <ActionMenu
         containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}
         hoverMode={true}

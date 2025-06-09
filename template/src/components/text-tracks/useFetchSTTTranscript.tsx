@@ -5,11 +5,7 @@ import getUniqueID from '../../utils/getUniqueID';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 export interface FetchSTTTranscriptResponse {
-  pagination: {
-    limit: number;
-    total: number;
-    page: number;
-  };
+  pagination: {limit: number; total: number; page: number};
   stts: {
     id: string;
     download_url: string[];
@@ -23,118 +19,114 @@ export interface FetchSTTTranscriptResponse {
 
 export type APIStatus = 'idle' | 'pending' | 'resolved' | 'rejected';
 
-export function useFetchSTTTranscript(defaultLimit = 10) {
+export function useFetchSTTTranscript() {
   const {
     data: {roomId},
   } = useRoomInfo();
   const {store} = useContext(StorageContext);
+
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [state, setState] = useState<{
+  const [sttState, setSttState] = useState<{
     status: APIStatus;
     data: {
       stts: FetchSTTTranscriptResponse['stts'];
       pagination: FetchSTTTranscriptResponse['pagination'];
     };
-    error: Error;
+    error: Error | null;
   }>({
     status: 'idle',
-    data: {stts: [], pagination: {total: 0, limit: defaultLimit, page: 1}},
+    data: {stts: [], pagination: {total: 0, limit: 10, page: 1}},
     error: null,
   });
 
-  const fetchStts = useCallback(
-    async (page: number) => {
-      const requestId = getUniqueID();
+  //–– by‐recording state ––
+  const [sttRecState, setSttRecState] = useState<{
+    status: APIStatus;
+    data: {stts: FetchSTTTranscriptResponse['stts']};
+    error: Error | null;
+  }>({
+    status: 'idle',
+    data: {
+      stts: [],
+    },
+    error: null,
+  });
+
+  const getSTTs = useCallback(
+    (page: number) => {
+      setSttState(s => ({...s, status: 'pending', error: null}));
+      const reqId = getUniqueID();
       const start = Date.now();
 
-      try {
-        if (!roomId?.host) {
-          const error = new Error('room id is empty');
-          return Promise.reject(error);
-        }
-        const res = await fetch(
-          `${$config.BACKEND_ENDPOINT}/v1/stt-transcript`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              authorization: store.token ? `Bearer ${store.token}` : '',
-              'X-Request-Id': requestId,
-              'X-Session-Id': logger.getSessionId(),
-            },
-            body: JSON.stringify({
-              passphrase: roomId.host,
-              limit: defaultLimit,
-              page,
-            }),
-          },
-        );
-        const json = await res.json();
-        const end = Date.now();
-
-        if (!res.ok) {
-          logger.error(
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/stt-transcript`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+          'X-Request-Id': reqId,
+          'X-Session-Id': logger.getSessionId(),
+        },
+        body: JSON.stringify({
+          passphrase: roomId.host,
+          limit: 10,
+          page,
+        }),
+      })
+        .then(async res => {
+          const json = await res.json();
+          const end = Date.now();
+          if (!res.ok) {
+            logger.error(
+              LogSource.NetworkRest,
+              'stt-transcript',
+              'Fetch STT transcripts failed',
+              {
+                json,
+                start,
+                end,
+                latency: end - start,
+                requestId: reqId,
+              },
+            );
+            throw new Error(json?.error?.message || res.statusText);
+          }
+          logger.debug(
             LogSource.NetworkRest,
             'stt-transcript',
-            'Fetching STT transcripts failed',
+            'Fetch STT transcripts succeeded',
             {
               json,
               start,
               end,
               latency: end - start,
-              requestId,
+              requestId: reqId,
             },
           );
-          throw new Error(json?.error?.message || 'Unknown fetch error');
-        }
-
-        logger.debug(
-          LogSource.NetworkRest,
-          'stt-transcript',
-          'Fetched STT transcripts',
-          {
-            json,
-            start,
-            end,
-            latency: end - start,
-            requestId,
-          },
-        );
-        return json;
-      } catch (err) {
-        return Promise.reject(err);
-      }
-    },
-    [roomId.host, store.token, defaultLimit],
-  );
-
-  const getSTTs = useCallback(
-    (page: number) => {
-      setState(s => ({...s, status: 'pending'}));
-      fetchStts(page).then(
-        data =>
-          setState({
+          return json as FetchSTTTranscriptResponse;
+        })
+        .then(({stts = [], pagination = {total: 0, limit: 10, page}}) => {
+          setSttState({
             status: 'resolved',
-            data: {
-              stts: data.stts || [],
-              pagination: data.pagination || {
-                total: 0,
-                limit: defaultLimit,
-                page: 1,
-              },
-            },
+            data: {stts, pagination},
             error: null,
-          }),
-        err => setState(s => ({...s, status: 'rejected', error: err})),
-      );
+          });
+        })
+        .catch(err => {
+          setSttState(s => ({...s, status: 'rejected', error: err}));
+        });
     },
-    [fetchStts, defaultLimit],
+    [roomId.host, store.token],
   );
 
+  useEffect(() => {
+    getSTTs(currentPage);
+  }, [currentPage, getSTTs]);
+
+  // Delete stts
   const deleteTranscript = useCallback(
     async (id: string) => {
-      const requestId = getUniqueID();
+      const reqId = getUniqueID();
       const start = Date.now();
 
       const res = await fetch(
@@ -148,7 +140,7 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
           headers: {
             'Content-Type': 'application/json',
             authorization: store.token ? `Bearer ${store.token}` : '',
-            'X-Request-Id': requestId,
+            'X-Request-Id': reqId,
             'X-Session-Id': logger.getSessionId(),
           },
         },
@@ -159,44 +151,33 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         logger.error(
           LogSource.NetworkRest,
           'stt-transcript',
-          'Deleting STT transcripts failed',
-          {
-            json: '',
-            start,
-            end,
-            latency: end - start,
-            requestId,
-          },
+          'Delete transcript failed',
+          {start, end, latency: end - start, requestId: reqId},
         );
         throw new Error(`Delete failed (${res.status})`);
       }
       logger.debug(
         LogSource.NetworkRest,
         'stt-transcript',
-        'Deleted STT transcripts',
-        {
-          json: '',
-          start,
-          end,
-          latency: end - start,
-          requestId,
-        },
+        'Delete transcript succeeded',
+        {start, end, latency: end - start, requestId: reqId},
       );
-      // optimistic update local state:
-      setState(prev => {
+
+      // optimistic remove from paginated list
+      setSttState(prev => {
         // remove the deleted item
         const newStts = prev.data.stts.filter(item => item.id !== id);
         // decrement total count
         const newTotal = Math.max(prev.data.pagination.total - 1, 0);
-        // if we just removed the *last* item on this page, go back a page
         let newPage = prev.data.pagination.page;
         if (prev.data.stts.length === 1 && newPage > 1) {
-          newPage = newPage - 1;
+          newPage--;
         }
         return {
           ...prev,
           data: {
             stts: newStts,
+
             pagination: {
               ...prev.data.pagination,
               total: newTotal,
@@ -206,20 +187,80 @@ export function useFetchSTTTranscript(defaultLimit = 10) {
         };
       });
     },
-    [roomId.host, store?.token],
+    [roomId.host, store.token],
   );
 
-  useEffect(() => {
-    getSTTs(currentPage);
-  }, [currentPage, getSTTs]);
+  //–– fetch for a given recording ––
+  const getSTTsForRecording = useCallback(
+    (recordingId: string) => {
+      setSttRecState(r => ({...r, status: 'pending', error: null}));
+      const reqId = getUniqueID();
+      const start = Date.now();
+
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/recording/stt-transcript`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+          'X-Request-Id': reqId,
+          'X-Session-Id': logger.getSessionId(),
+        },
+        body: JSON.stringify({
+          project_id: $config.PROJECT_ID,
+          recording_id: recordingId,
+        }),
+      })
+        .then(async res => {
+          const json = await res.json();
+          const end = Date.now();
+          console.log('supriua json', json);
+          if (!res.ok) {
+            logger.error(
+              LogSource.NetworkRest,
+              'stt-transcript',
+              'Fetch stt-by-recording failed',
+              {json, start, end, latency: end - start, requestId: reqId},
+            );
+            throw new Error(json?.error?.message || res.statusText);
+          }
+          logger.debug(
+            LogSource.NetworkRest,
+            'stt-transcript',
+            'Fetch stt-by-recording succeeded',
+            {json, start, end, latency: end - start, requestId: reqId},
+          );
+          if (json?.error) {
+            logger.debug(
+              LogSource.NetworkRest,
+              'stt-transcript',
+              `No STT records found (code ${json.error.code}): ${json.error.message}`,
+              {start, end, latency: end - start, reqId},
+            );
+            return [];
+          } else {
+            return json as FetchSTTTranscriptResponse['stts'];
+          }
+        })
+        .then(stts =>
+          setSttRecState({status: 'resolved', data: {stts}, error: null}),
+        )
+        .catch(err =>
+          setSttRecState(r => ({...r, status: 'rejected', error: err})),
+        );
+    },
+    [store.token],
+  );
 
   return {
-    status: state.status as APIStatus,
-    stts: state.data.stts,
-    pagination: state.data.pagination,
-    error: state.error,
+    // stt list
+    sttState,
+    getSTTs,
     currentPage,
     setCurrentPage,
+    // STT per recording
+    sttRecState,
+    getSTTsForRecording,
+    // delete
     deleteTranscript,
   };
 }
