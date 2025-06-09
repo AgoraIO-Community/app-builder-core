@@ -277,55 +277,71 @@ export default class RtcEngine {
     this.customEvents.delete(eventName);
   }
 
-  async startSonioxTranscription(uid: UID, apiKey: string, isLocal: boolean) {
+  async startSonioxTranscription(apiKey: string) {
     let stream: MediaStream;
 
-    if (isLocal) {
-      if (!this.localStream.audio) return;
-      stream = new MediaStream([this.localStream.audio.getMediaStreamTrack()]);
-    } else {
-      const remoteAudio = this.remoteStreams.get(uid)?.audio;
-      if (!remoteAudio) return;
-      stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
+    // combined audio strem for all users
+    const audioContext = new AudioContext();
+    const destination = audioContext.createMediaStreamDestination();
+    // Add local stream if available
+    if (this.localStream?.audio) {
+      const localSource = audioContext.createMediaStreamSource(
+        new MediaStream([this.localStream.audio.getMediaStreamTrack()]),
+      );
+      localSource.connect(destination);
     }
+    // Add all remote audio tracks
+    for (const remote of this.remoteStreams.values()) {
+      if (remote.audio) {
+        const remoteSource = audioContext.createMediaStreamSource(
+          new MediaStream([remote.audio.getMediaStreamTrack()]),
+        );
+        remoteSource.connect(destination);
+      }
+    }
+    const combinedStream = destination.stream;
+
+    // if (isLocal) {
+    //   if (!this.localStream.audio) return;
+    //   stream = new MediaStream([this.localStream.audio.getMediaStreamTrack()]);
+    // } else {
+    //   const remoteAudio = this.remoteStreams.get(uid)?.audio;
+    //   if (!remoteAudio) return;
+    //   stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
+    // }
 
     const transcriber = new RecordTranscribe({apiKey});
 
     await transcriber.start({
       model: 'stt-rt-preview',
-      stream,
+      stream: combinedStream,
       // sampleRate: 48000,
       // numChannels: 1,
       enableSpeakerDiarization: true,
       onPartialResult: results => {
         const callback = this.customEvents.get('onSonioxTranscriptionResult');
-        if (callback) callback(uid, {uid, ...results});
+        if (callback) callback(101, results);
       },
       onError: (status, message, code) => {
-        console.error(
-          `Soniox Transcription Error (${uid}):`,
-          status,
-          message,
-          code,
-        );
+        console.error(`Soniox Transcription Error:`, status, message, code);
       },
       onStarted: () => {
-        console.log(` Soniox started transcription session for ${uid}`);
+        console.log(` Soniox started transcription`);
       },
       onStateChange: ({oldState, newState}) => {
-        console.log(`Soniox state change (${uid}): ${oldState} → ${newState}`);
+        console.log(`Soniox state change : ${oldState} → ${newState}`);
       },
       onFinished: () => {
-        console.log(` Soniox transcription session finished for ${uid}`);
+        console.log(` Soniox transcription session finished}`);
       },
     });
 
-    this.sonioxTranscribers.set(uid, transcriber);
+    this.sonioxTranscribers.set(101, transcriber);
 
     logger.log(
       LogSource.AgoraSDK,
       'Soniox',
-      `Started Soniox transcription for ${uid}`,
+      `Started Soniox transcription started`,
     );
   }
 

@@ -46,13 +46,9 @@ const SonixCaptionContainer = () => {
     );
 
     // Start transcription for the users in the call , later move to start / button
-    activeUids.map(uid => {
-      RtcEngineUnsafe.startSonioxTranscription(
-        uid,
-        $config.SONIOX_API_KEY,
-        uid === localUid,
-      );
-    });
+    //activeUids.map(uid => {
+    RtcEngineUnsafe.startSonioxTranscription($config.SONIOX_API_KEY);
+    //  });
 
     return () => {
       //RtcEngineUnsafe.stopSonioxTranscription(); // move to action menu
