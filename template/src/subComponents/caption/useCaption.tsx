@@ -50,6 +50,8 @@ export const CaptionContext = React.createContext<{
 
   activeSpeakerRef: React.MutableRefObject<string>;
   prevSpeakerRef: React.MutableRefObject<string>;
+  sonixCaptions: Object;
+  setSonixCaptions: React.Dispatch<React.SetStateAction<Object>>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -69,6 +71,8 @@ export const CaptionContext = React.createContext<{
   setIsSTTListenerAdded: () => {},
   activeSpeakerRef: {current: ''},
   prevSpeakerRef: {current: ''},
+  sonixCaptions: {},
+  setSonixCaptions: () => {},
 });
 
 interface CaptionProviderProps {
@@ -98,6 +102,9 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
 
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
+  const [sonixCaptions, setSonixCaptions] = React.useState<
+    Record<string, {final: string[]; nonFinal: string}>
+  >({});
 
   return (
     <CaptionContext.Provider
@@ -120,6 +127,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setIsSTTListenerAdded,
         activeSpeakerRef,
         prevSpeakerRef,
+        sonixCaptions,
+        setSonixCaptions,
       }}>
       {children}
     </CaptionContext.Provider>

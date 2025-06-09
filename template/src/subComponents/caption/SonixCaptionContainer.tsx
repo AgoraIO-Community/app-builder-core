@@ -3,17 +3,18 @@ import {StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
-import {useRtc, useContent, useLocalUid} from 'customization-api';
+import {useRtc, useContent, useLocalUid, useCaption} from 'customization-api';
 
 const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
   const [caption, setCaption] = useState('Listening...');
   const listenerRef = useRef(null);
-  const [captions, setCaptions] = useState<
-    Record<string, {final: string[]; nonFinal: string}>
-  >({});
+  // const [captions, setCaptions] = useState<
+  //   Record<string, {final: string[]; nonFinal: string}>
+  // >({});
   const {defaultContent, activeUids, customContent} = useContent();
   const localUid = useLocalUid();
+  const {sonixCaptions, setSonixCaptions} = useCaption();
 
   useEffect(() => {
     // Add listener for transcription result
@@ -32,7 +33,7 @@ const SonixCaptionContainer = () => {
           }
         }
 
-        setCaptions(prev => {
+        setSonixCaptions(prev => {
           const prevFinal = prev[uid]?.final || [];
           return {
             ...prev,
@@ -57,7 +58,7 @@ const SonixCaptionContainer = () => {
 
   return (
     <View style={styles.container}>
-      {Object.entries(captions).map(([uid, {final, nonFinal}]) => (
+      {Object.entries(sonixCaptions).map(([uid, {final, nonFinal}]) => (
         <Text key={uid} style={styles.captionText}>
           {final.map((word, i) => (
             <Text key={`f-${uid}-${i}`} style={{color: 'white'}}>
