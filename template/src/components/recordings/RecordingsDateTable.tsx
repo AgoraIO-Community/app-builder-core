@@ -14,7 +14,7 @@ import RecordingItemRow from './RecordingItemRow';
 import GenericPopup from '../common/GenericPopup';
 import {downloadS3Link} from '../../utils/common';
 
-function EmptyTextTrackState() {
+function EmptyRecordingState() {
   return (
     <View style={style.infotextContainer}>
       <View>
@@ -27,7 +27,7 @@ function EmptyTextTrackState() {
       </View>
       <View>
         <Text style={[style.infoText, style.pt10, style.pl10]}>
-          No text-tracks found for this meeting
+          No recording found for this meeting
         </Text>
       </View>
     </View>
@@ -81,8 +81,12 @@ function RecordingsDateTable(props) {
           ...prev,
           status: 'resolved',
           data: {
-            recordings: response?.recordings,
-            pagination: response?.pagination,
+            recordings: response?.recordings || [],
+            pagination: response?.pagination || {
+              total: 0,
+              limit: 10,
+              page: defaultPageNumber,
+            },
           },
           error: null,
         })),
@@ -124,7 +128,7 @@ function RecordingsDateTable(props) {
             onTextTrackDownload={onTextTrackDownload}
           />
         )}
-        emptyComponent={<EmptyTextTrackState />}
+        emptyComponent={<EmptyRecordingState />}
       />
       {/** ERROR POPUP **/}
       {errorSnack && (
