@@ -32,6 +32,8 @@ import type {
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 
+import {RecordTranscribe} from '@soniox/speech-to-text-web';
+
 import {IRtcEngine} from 'react-native-agora';
 import {VideoProfile} from '../quality';
 import {ChannelProfileType, ClientRoleType} from '../../../agora-rn-uikit';
@@ -222,6 +224,7 @@ export default class RtcEngine {
   // public AgoraRTC: any;
   public client: IAgoraRTCClient;
   public screenClient: any | IAgoraRTCClient;
+
   public eventsMap = new Map<string, callbackType>([
     ['onUserJoined', () => null],
     ['onUserOffline', () => null],
@@ -232,7 +235,9 @@ export default class RtcEngine {
     ['onNetworkQuality', () => null],
     ['onActiveSpeaker', () => null],
     ['onStreamMessage', () => null],
+    ['onSonioxTranscriptionResult', () => null],
   ]);
+
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
@@ -261,6 +266,80 @@ export default class RtcEngine {
     const {appId} = context;
     logger.log(LogSource.AgoraSDK, 'Log', 'RTC engine initialized');
     this.appId = appId;
+    this.sonioxTranscribers = new Map();
+    this.customEvents = new Map();
+  }
+  addCustomListener(eventName: string, callback: (...args: any[]) => void) {
+    this.customEvents.set(eventName, callback);
+  }
+
+  removeCustomListener(eventName: string) {
+    this.customEvents.delete(eventName);
+  }
+
+  async startSonioxTranscription(uid: UID, apiKey: string, isLocal: boolean) {
+    let stream: MediaStream;
+
+    if (isLocal) {
+      if (!this.localStream.audio) return;
+      stream = new MediaStream([this.localStream.audio.getMediaStreamTrack()]);
+    } else {
+      const remoteAudio = this.remoteStreams.get(uid)?.audio;
+      if (!remoteAudio) return;
+      stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
+    }
+
+    const transcriber = new RecordTranscribe({apiKey});
+
+    await transcriber.start({
+      model: 'stt-rt-preview',
+      stream,
+      // sampleRate: 48000,
+      // numChannels: 1,
+      enableSpeakerDiarization: true,
+      onPartialResult: results => {
+        const callback = this.customEvents.get('onSonioxTranscriptionResult');
+        if (callback) callback(uid, {uid, ...results});
+      },
+      onError: (status, message, code) => {
+        console.error(
+          `Soniox Transcription Error (${uid}):`,
+          status,
+          message,
+          code,
+        );
+      },
+      onStarted: () => {
+        console.log(` Soniox started transcription session for ${uid}`);
+      },
+      onStateChange: ({oldState, newState}) => {
+        console.log(`Soniox state change (${uid}): ${oldState} → ${newState}`);
+      },
+      onFinished: () => {
+        console.log(` Soniox transcription session finished for ${uid}`);
+      },
+    });
+
+    this.sonioxTranscribers.set(uid, transcriber);
+
+    logger.log(
+      LogSource.AgoraSDK,
+      'Soniox',
+      `Started Soniox transcription for ${uid}`,
+    );
+  }
+
+  stopSonioxTranscription(uid: UID): void {
+    const transcriber = this.sonioxTranscribers.get(uid);
+    if (transcriber) {
+      transcriber.stop();
+      this.sonioxTranscribers.delete(uid);
+      logger.log(
+        LogSource.AgoraSDK,
+        'Soniox',
+        `Stopped Soniox transcription for remote user ${uid}`,
+      );
+    }
   }
   getLocalVideoStats() {
     try {

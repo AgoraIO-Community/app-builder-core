@@ -55,6 +55,7 @@ import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot
 import {ToolbarPresetProps} from '../../atoms/ToolbarPreset';
 import CustomSidePanelView from '../../components/CustomSidePanel';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
+import SonixCaptionContainer from '../../subComponents/caption/SonixCaptionContainer';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -454,6 +455,7 @@ const VideoCallScreen = () => {
                   />
                 ) : (
                   <>
+                    {isCaptionON ? <SonixCaptionContainer /> : <></>}
                     {isCaptionON ? <CaptionComponent /> : <></>}
                     <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 20 : 10} />
                     <View
