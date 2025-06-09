@@ -40,6 +40,7 @@ export const controlPermissionMatrix: Record<
     isHost &&
     $config.ENABLE_STT &&
     $config.ENABLE_MEETING_TRANSCRIPT &&
+    // $config.ENABLE_TEXT_TRACKS &&
     isWeb(),
 };
 

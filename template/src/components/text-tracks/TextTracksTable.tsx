@@ -204,16 +204,14 @@ function ErrorTextTrackState({message}: {message: string}) {
 }
 
 function TextTracksTable() {
+  const {sttState, currentPage, setCurrentPage, deleteTranscript} =
+    useFetchSTTTranscript();
+
   const {
     status,
-    stts,
-    pagination,
+    data: {stts, pagination},
     error: fetchTranscriptError,
-    currentPage,
-    setCurrentPage,
-    deleteTranscript,
-  } = useFetchSTTTranscript();
-
+  } = sttState;
   // id of text-tracj to delete
   const [textTrackIdToDelete, setTextTrackIdToDelete] = React.useState<
     string | undefined

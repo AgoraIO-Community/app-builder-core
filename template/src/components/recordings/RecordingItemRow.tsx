@@ -27,15 +27,20 @@ export default function RecordingItemRow({
   const [date, time] = getRecordedDateTime(item.created_at);
   const recordingStatus = item.status;
 
-  const {fetchSTTs, status, error, stts} = useFetchSTTTranscript();
-
+  const {sttRecState, getSTTsForRecording} = useFetchSTTTranscript();
+  const {
+    status,
+    error,
+    data: {stts = []},
+  } = sttRecState;
+  console.log('supriya sttRecState', sttRecState);
   useEffect(() => {
     if (expanded) {
       if (item.id) {
-        fetchSTTs(item.id);
+        getSTTsForRecording(item.id);
       }
     }
-  }, [expanded, item.id, fetchSTTs]);
+  }, [expanded, item.id, getSTTsForRecording]);
 
   if (
     recordingStatus === 'STOPPING' ||
