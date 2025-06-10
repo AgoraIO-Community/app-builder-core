@@ -19,6 +19,7 @@ interface TableHeaderProps {
   rowStyle?: ViewStyle;
   cellStyle?: ViewStyle;
   firstCellStyle?: ViewStyle;
+  lastCellStyle?: ViewStyle;
   textStyle?: TextStyle;
 }
 
@@ -28,22 +29,27 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   rowStyle,
   cellStyle,
   firstCellStyle,
+  lastCellStyle,
   textStyle,
 }) => (
   <View style={[style.thead, containerStyle]}>
     <View style={[style.throw, rowStyle]}>
-      {columns.map((col, index) => (
-        <View
-          key={col}
-          style={[
-            style.th,
-            index === 0 && style.plzero,
-            cellStyle,
-            index === 0 && firstCellStyle,
-          ]}>
-          <Text style={[style.thText, textStyle]}>{col}</Text>
-        </View>
-      ))}
+      {columns.map((col, index) => {
+        const isFirst = index === 0;
+        const isLast = index === (columns.length > 1 ? columns.length - 1 : 0);
+        return (
+          <View
+            key={col}
+            style={[
+              style.th,
+              cellStyle,
+              isFirst && firstCellStyle,
+              isLast && lastCellStyle,
+            ]}>
+            <Text style={[style.thText, textStyle]}>{col}</Text>
+          </View>
+        );
+      })}
     </View>
   </View>
 );
@@ -222,7 +228,7 @@ export const style = StyleSheet.create({
     flex: 1,
     alignSelf: 'stretch',
     justifyContent: 'center',
-    paddingHorizontal: 12,
+    // paddingHorizontal: 12,
   },
   thText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
@@ -389,8 +395,8 @@ export const style = StyleSheet.create({
     flexShrink: 0,
     alignItems: 'flex-start',
     justifyContent: 'center',
-    minWidth: 50,
-    paddingRight: 50 + 12,
+    minWidth: 52,
+    // paddingRight: 50 + 12,
   },
   thIconCell: {
     flex: 0,
@@ -399,5 +405,8 @@ export const style = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 50,
     paddingHorizontal: 12,
+  },
+  alignCellToRight: {
+    alignItems: 'flex-end',
   },
 });
