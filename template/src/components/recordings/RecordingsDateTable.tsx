@@ -113,7 +113,11 @@ function RecordingsDateTable(props) {
 
   return (
     <View style={style.ttable}>
-      <TableHeader columns={headers} firstCellStyle={style.thIconCell} />
+      <TableHeader
+        columns={headers}
+        firstCellStyle={style.thIconCell}
+        lastCellStyle={style.alignCellToRight}
+      />
       <TableBody
         status={state.status}
         items={state.data.recordings}

@@ -33,7 +33,7 @@ export default function RecordingItemRow({
     error,
     data: {stts = []},
   } = sttRecState;
-  console.log('supriya sttRecState', sttRecState);
+
   useEffect(() => {
     if (expanded) {
       if (item.id) {
@@ -223,7 +223,7 @@ export default function RecordingItemRow({
       {expanded && (
         <View style={expanedStyles.expandedContainer}>
           <View>
-            <Text style={expanedStyles.expandedHeaderText}>STT's</Text>
+            <Text style={expanedStyles.expandedHeaderText}>Text-tracks</Text>
           </View>
           <View style={expanedStyles.expandedHeaderBody}>
             {status === 'idle' || status === 'pending' ? (
@@ -235,7 +235,7 @@ export default function RecordingItemRow({
               </Text>
             ) : status === 'resolved' && stts?.length === 0 ? (
               <Text style={style.ttime}>
-                There are no STT's for this recording
+                There are no text-tracks's for this recording
               </Text>
             ) : (
               <>
