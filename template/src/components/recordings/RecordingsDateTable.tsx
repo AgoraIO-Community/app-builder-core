@@ -13,6 +13,7 @@ import ImageIcon from '../../atoms/ImageIcon';
 import RecordingItemRow from './RecordingItemRow';
 import GenericPopup from '../common/GenericPopup';
 import {downloadS3Link} from '../../utils/common';
+import {useControlPermissionMatrix} from '../controls/useControlPermissionMatrix';
 
 function EmptyRecordingState() {
   return (
@@ -34,7 +35,6 @@ function EmptyRecordingState() {
   );
 }
 
-const headers = ['', 'Date/Time', 'Duration', 'Actions'];
 const defaultPageNumber = 1;
 
 function RecordingsDateTable(props) {
@@ -57,6 +57,8 @@ function RecordingsDateTable(props) {
   const [currentPage, setCurrentPage] = useState(defaultPageNumber);
 
   const {fetchRecordings} = useRecording();
+  const canAccessAllTextTracks =
+    useControlPermissionMatrix('viewAllTextTracks');
 
   // message for any download‐error popup
   const [errorSnack, setErrorSnack] = React.useState<string | undefined>();
@@ -111,11 +113,15 @@ function RecordingsDateTable(props) {
     });
   };
 
+  const headers = canAccessAllTextTracks
+    ? ['', 'Date/Time', 'Duration', 'Actions']
+    : ['Date/Time', 'Duration', 'Actions'];
+
   return (
     <View style={style.ttable}>
       <TableHeader
         columns={headers}
-        firstCellStyle={style.thIconCell}
+        firstCellStyle={canAccessAllTextTracks ? style.thIconCell : {}}
         lastCellStyle={style.alignCellToRight}
       />
       <TableBody
@@ -130,6 +136,7 @@ function RecordingsDateTable(props) {
             item={item}
             onDeleteAction={props?.onDeleteAction}
             onTextTrackDownload={onTextTrackDownload}
+            showTextTracks={canAccessAllTextTracks}
           />
         )}
         emptyComponent={<EmptyRecordingState />}
