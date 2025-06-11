@@ -16,11 +16,13 @@ interface RecordingItemRowProps {
   item: FetchRecordingData['recordings'][0];
   onDeleteAction: (id: string) => void;
   onTextTrackDownload: (textTrackLink: string) => void;
+  showTextTracks: boolean;
 }
 export default function RecordingItemRow({
   item,
   onDeleteAction,
   onTextTrackDownload,
+  showTextTracks = false,
 }: RecordingItemRowProps) {
   const [expanded, setIsExpanded] = useState(false);
 
@@ -70,20 +72,22 @@ export default function RecordingItemRow({
     <View>
       {/* ========== PARENT ROW ========== */}
       <View style={style.tbrow} key={item.id}>
-        <View style={style.tdIconCell}>
-          <IconButtonWithToolTip
-            hoverEffect={true}
-            hoverEffectStyle={style.iconButtonHoverEffect}
-            containerStyle={style.iconButton}
-            iconProps={{
-              name: expanded ? 'arrow-up' : 'arrow-down',
-              iconType: 'plain',
-              iconSize: 20,
-              tintColor: `${$config.FONT_COLOR}`,
-            }}
-            onPress={() => setIsExpanded(prev => !prev)}
-          />
-        </View>
+        {showTextTracks && (
+          <View style={style.tdIconCell}>
+            <IconButtonWithToolTip
+              hoverEffect={true}
+              hoverEffectStyle={style.iconButtonHoverEffect}
+              containerStyle={style.iconButton}
+              iconProps={{
+                name: expanded ? 'arrow-up' : 'arrow-down',
+                iconType: 'plain',
+                iconSize: 20,
+                tintColor: `${$config.FONT_COLOR}`,
+              }}
+              onPress={() => setIsExpanded(prev => !prev)}
+            />
+          </View>
+        )}
         <View style={[style.td, style.plzero]}>
           <Text style={style.ttime}>
             {date}
