@@ -58,7 +58,6 @@ export default function useJoinRoom() {
           send_event: false,
         });
       } else {
-        console.log('debugging store.token', store.token);
         logger.log(
           LogSource.NetworkRest,
           'joinChannel',
