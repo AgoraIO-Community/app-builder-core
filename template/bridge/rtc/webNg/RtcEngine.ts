@@ -277,77 +277,143 @@ export default class RtcEngine {
     this.customEvents.delete(eventName);
   }
 
-  async startSonioxTranscription(apiKey: string) {
-    let stream: MediaStream;
+  // async startSonioxTranscriptionCombined(apiKey: string) {
+  //   let stream: MediaStream;
 
-    // combined audio strem for all users
-    const audioContext = new AudioContext();
-    const destination = audioContext.createMediaStreamDestination();
-    // Add local stream if available
-    if (this.localStream?.audio) {
-      const localSource = audioContext.createMediaStreamSource(
-        new MediaStream([this.localStream.audio.getMediaStreamTrack()]),
-      );
-      localSource.connect(destination);
-    }
-    // Add all remote audio tracks
-    for (const remote of this.remoteStreams.values()) {
-      if (remote.audio) {
-        const remoteSource = audioContext.createMediaStreamSource(
-          new MediaStream([remote.audio.getMediaStreamTrack()]),
-        );
-        remoteSource.connect(destination);
+  //   // combined audio strem for all users
+  //   const audioContext = new AudioContext();
+  //   const destination = audioContext.createMediaStreamDestination();
+  //   // Add local stream if available
+  //   if (this.localStream?.audio) {
+  //     const localSource = audioContext.createMediaStreamSource(
+  //       new MediaStream([this.localStream.audio.getMediaStreamTrack()]),
+  //     );
+  //     localSource.connect(destination);
+  //   }
+  //   // Add all remote audio tracks
+  //   for (const remote of this.remoteStreams.values()) {
+  //     if (remote.audio) {
+  //       const remoteSource = audioContext.createMediaStreamSource(
+  //         new MediaStream([remote.audio.getMediaStreamTrack()]),
+  //       );
+  //       remoteSource.connect(destination);
+  //     }
+  //   }
+  //   const combinedStream = destination.stream;
+
+  //   const transcriber = new RecordTranscribe({apiKey});
+
+  //   await transcriber.start({
+  //     model: 'stt-rt-preview',
+  //     stream: combinedStream,
+  //     // sampleRate: 48000,
+  //     // numChannels: 1,
+  //     enableSpeakerDiarization: true,
+  //     onPartialResult: results => {
+  //       const callback = this.customEvents.get('onSonioxTranscriptionResult');
+  //       if (callback) callback(101, results);
+  //     },
+  //     onError: (status, message, code) => {
+  //       console.error(`Soniox Transcription Error:`, status, message, code);
+  //     },
+  //     onStarted: () => {
+  //       console.log(` Soniox started transcription`);
+  //     },
+  //     onStateChange: ({oldState, newState}) => {
+  //       console.log(`Soniox state change : ${oldState} → ${newState}`);
+  //     },
+  //     onFinished: () => {
+  //       console.log(` Soniox transcription session finished}`);
+  //     },
+  //   });
+
+  //   this.sonioxTranscribers.set(101, transcriber);
+
+  //   logger.log(
+  //     LogSource.AgoraSDK,
+  //     'Soniox',
+  //     `Started Soniox transcription started`,
+  //   );
+  // }
+
+  async startSonioxTranscription(uid: UID, apiKey: string, isLocal: boolean) {
+    let stream: MediaStream | null = null;
+
+    //  Select local or remote stream
+    if (isLocal) {
+      if (!this.localStream?.audio) {
+        console.warn('No local audio stream available');
+        return;
       }
+      stream = new MediaStream([this.localStream.audio.getMediaStreamTrack()]);
+    } else {
+      const remoteAudio = this.remoteStreams.get(uid)?.audio;
+      if (!remoteAudio) {
+        console.warn(`No remote audio stream found for UID ${uid}`);
+        return;
+      }
+      stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
     }
-    const combinedStream = destination.stream;
 
+    //  Create a new transcriber instance
     const transcriber = new RecordTranscribe({apiKey});
 
+    //  Start transcription for the single stream
     await transcriber.start({
       model: 'stt-rt-preview',
-      stream: combinedStream,
+      stream,
       // sampleRate: 48000,
       // numChannels: 1,
-      enableSpeakerDiarization: true,
+      translation: {
+        type: 'one_way',
+        language_a: 'en',
+        language_b: 'hi',
+      },
       onPartialResult: results => {
         const callback = this.customEvents.get('onSonioxTranscriptionResult');
-        if (callback) callback(101, results);
+        if (callback) callback(uid, {uid, ...results});
       },
       onError: (status, message, code) => {
-        console.error(`Soniox Transcription Error:`, status, message, code);
+        console.error(
+          `Soniox Transcription Error (${uid}):`,
+          status,
+          message,
+          code,
+        );
       },
       onStarted: () => {
-        console.log(` Soniox started transcription`);
+        console.log(`Soniox started transcription for UID: ${uid}`);
       },
       onStateChange: ({oldState, newState}) => {
-        console.log(`Soniox state change : ${oldState} → ${newState}`);
+        console.log(`Soniox state (${uid}): ${oldState} → ${newState}`);
       },
       onFinished: () => {
-        console.log(` Soniox transcription session finished}`);
+        console.log(` Soniox transcription session finished for UID: ${uid}`);
       },
     });
 
-    this.sonioxTranscribers.set(101, transcriber);
+    // Track this transcriber
+    this.sonioxTranscribers.set(uid, transcriber);
 
     logger.log(
       LogSource.AgoraSDK,
       'Soniox',
-      `Started Soniox transcription started`,
+      `Started transcription for ${uid}`,
     );
   }
 
-  stopSonioxTranscription(uid: UID): void {
-    const transcriber = this.sonioxTranscribers.get(uid);
-    if (transcriber) {
+  stopSonioxTranscription(): void {
+    for (const [uid, transcriber] of this.sonioxTranscribers.entries()) {
       transcriber.stop();
-      this.sonioxTranscribers.delete(uid);
       logger.log(
         LogSource.AgoraSDK,
         'Soniox',
-        `Stopped Soniox transcription for remote user ${uid}`,
+        `Stopped Soniox transcription for user ${uid}`,
       );
     }
+    this.sonioxTranscribers.clear();
   }
+
   getLocalVideoStats() {
     try {
       logger.log(
