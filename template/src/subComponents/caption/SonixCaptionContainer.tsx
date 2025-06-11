@@ -7,50 +7,17 @@ import {useRtc, useContent, useLocalUid, useCaption} from 'customization-api';
 
 const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
-  const [caption, setCaption] = useState('Listening...');
-  const listenerRef = useRef(null);
-  // const [captions, setCaptions] = useState<
-  //   Record<string, {final: string[]; nonFinal: string}>
-  // >({});
   const {defaultContent, activeUids, customContent} = useContent();
   const localUid = useLocalUid();
-  const {sonixCaptions, setSonixCaptions, captionFeed, setCaptionFeed} =
-    useCaption();
+  const {captionFeed, setCaptionFeed} = useCaption();
+  const scrollRef = React.useRef<ScrollView>(null);
 
   useEffect(() => {
     // Add listener for transcription result
-    // RtcEngineUnsafe.addCustomListener(
-    //   'onSonioxTranscriptionResult',
-    //   (uid, transcript) => {
-    //     console.log('sonix Captions =>', uid, transcript);
-    //     const newFinalTokens: string[] = [];
-    //     let newNonFinal = '';
-
-    //     for (const token of transcript.tokens || []) {
-    //       if (token.is_final) {
-    //         newFinalTokens.push(token.text);
-    //       } else {
-    //         newNonFinal += token.text;
-    //       }
-    //     }
-
-    //     setSonixCaptions(prev => {
-    //       const prevFinal = prev[uid]?.final || [];
-    //       return {
-    //         ...prev,
-    //         [uid]: {
-    //           final: [...prevFinal, ...newFinalTokens],
-    //           nonFinal: newNonFinal,
-    //         },
-    //       };
-    //     });
-    //   },
-    // );
-
     RtcEngineUnsafe.addCustomListener(
       'onSonioxTranscriptionResult',
       (uid, transcript) => {
-        console.log('sonix transcript =>', transcript);
+        console.log('sonix transcript =>', uid, transcript);
         const finalText = transcript.tokens
           .filter(t => t.is_final)
           .map(t => t.text)
@@ -64,8 +31,13 @@ const SonixCaptionContainer = () => {
         setCaptionFeed(prev => {
           const last = prev[prev.length - 1];
 
+          // Skip if there's nothing new to add
+          if (!finalText && !nonFinalText) {
+            return prev;
+          }
+
+          // If same speaker, merge into last line
           if (last && last.uid === uid) {
-            // Update final and nonFinal in same entry
             return [
               ...prev.slice(0, -1),
               {
@@ -75,7 +47,10 @@ const SonixCaptionContainer = () => {
                 time: Date.now(),
               },
             ];
-          } else {
+          }
+
+          // If speaker changes OR no previous entry
+          if (finalText || nonFinalText) {
             return [
               ...prev,
               {
@@ -86,64 +61,44 @@ const SonixCaptionContainer = () => {
               },
             ];
           }
+
+          return prev;
         });
       },
     );
 
     // Start transcription for the users in the call , later move to start / button
-    // activeUids.map(uid => {
-    //   RtcEngineUnsafe.startSonioxTranscription(
-    //     uid,
-    //     $config.SONIOX_API_KEY,
-    //     uid === localUid,
-    //   );
-    // });
-
-    // for (let i = 0; i < activeUids.length; i++) {
-    //   const uid = activeUids[i];
-    //   console.log('actuve uid-localuid', uid, localUid);
-    //   RtcEngineUnsafe.startSonioxTranscription(
-    //     uid,
-    //     $config.SONIOX_API_KEY,
-    //     uid === localUid,
-    //   );
-    // }
-
-    // RtcEngineUnsafe.startTranscripe();
-    const remoteUid = activeUids.find(uid => uid !== localUid);
-    RtcEngineUnsafe.tempStartTranscribe(localUid, remoteUid);
+    activeUids.map(uid => {
+      RtcEngineUnsafe.startSonioxTranscription(
+        uid,
+        $config.SONIOX_API_KEY,
+        uid === localUid,
+      );
+    });
 
     return () => {
-      //  RtcEngineUnsafe.stopSonioxTranscription(); // move to action menu
-      RtcEngineUnsafe.stopTempSonixTranscription(localUid, remoteUid);
+      RtcEngineUnsafe.stopSonioxTranscription();
     };
   }, []);
 
   return (
-    // <View style={styles.container}>
-    //   {Object.entries(sonixCaptions).map(([uid, {final, nonFinal}]) => (
-    //     <Text key={uid} style={styles.captionText}>
-    //       {final.map((word, i) => (
-    //         <Text key={`f-${uid}-${i}`} style={{color: 'white'}}>
-    //           {word}
-    //         </Text>
-    //       ))}
-    //       <Text style={{color: 'skyblue'}}>{nonFinal}</Text>
-    //     </Text>
-    //   ))}
-    // </View>
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={styles.container}
+      ref={scrollRef}
+      showsVerticalScrollIndicator={true}
+      onContentSizeChange={() => {
+        scrollRef.current?.scrollToEnd({animated: true});
+      }}>
       {captionFeed.map((entry, index) => (
         <Text key={index} style={styles.captionLine}>
           <Text style={styles.uid}>
             {entry.nonFinal || entry.text
               ? defaultContent[entry.uid].name + ' : '
-              : ''}
+              : ''}{' '}
           </Text>
           <Text style={styles.content}>{entry.text}</Text>
-          {entry.nonFinal ? (
-            <Text style={styles.live}>{entry.nonFinal}</Text>
-          ) : null}
+          {entry.nonFinal && <Text style={styles.live}>{entry.nonFinal}</Text>}
         </Text>
       ))}
     </ScrollView>
@@ -153,51 +108,41 @@ const SonixCaptionContainer = () => {
 export default SonixCaptionContainer;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 4,
-    paddingHorizontal: 20,
+  scrollContainer: {
+    maxHeight: CAPTION_CONTAINER_HEIGHT,
     height: CAPTION_CONTAINER_HEIGHT,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'grey',
+    backgroundColor: '#815f46',
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: $config.ICON_TEXT ? 8 : 0,
-    width: '100%',
+    overflowY: 'scroll',
   },
-  captionText: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    color: $config.FONT_COLOR,
-    fontSize: 24,
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    textAlign: 'left',
-    whiteSpace: 'nowrap',
+  container: {
+    padding: 12,
+    flexGrow: 1,
   },
   captionLine: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 4,
-    width: '100%',
+    flexShrink: 1,
+    lineHeight: 24,
   },
   uid: {
     color: 'orange',
     fontWeight: 'bold',
+
     fontSize: 18,
-    fontStyle: 'italic',
+    lineHeight: 24,
   },
   content: {
-    flexShrink: 1,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    color: $config.FONT_COLOR,
-    fontSize: 20,
-    flexWrap: 'wrap',
+    color: 'white',
+    fontSize: 18,
+    flexShrink: 1, // test
+    lineHeight: 24,
   },
   live: {
     color: 'skyblue',
-    fontSize: 20,
-    flexWrap: 'wrap',
-    flexShrink: 1,
+    fontSize: 18,
+    lineHeight: 24,
   },
 });
