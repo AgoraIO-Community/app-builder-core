@@ -337,7 +337,7 @@ export default class RtcEngine {
     });
 
     // Track this transcriber
-    this.sonioxTranscribers.set(uid, {transcriber, stream});
+    this.sonioxTranscribers.set(uid, transcriber);
   }
 
   stopSonioxTranscription(): void {
