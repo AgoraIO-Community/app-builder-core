@@ -91,16 +91,31 @@ const SonixCaptionContainer = () => {
     );
 
     // Start transcription for the users in the call , later move to start / button
-    activeUids.map(uid => {
-      RtcEngineUnsafe.startSonioxTranscription(
-        uid,
-        $config.SONIOX_API_KEY,
-        uid === localUid,
-      );
-    });
+    // activeUids.map(uid => {
+    //   RtcEngineUnsafe.startSonioxTranscription(
+    //     uid,
+    //     $config.SONIOX_API_KEY,
+    //     uid === localUid,
+    //   );
+    // });
+
+    // for (let i = 0; i < activeUids.length; i++) {
+    //   const uid = activeUids[i];
+    //   console.log('actuve uid-localuid', uid, localUid);
+    //   RtcEngineUnsafe.startSonioxTranscription(
+    //     uid,
+    //     $config.SONIOX_API_KEY,
+    //     uid === localUid,
+    //   );
+    // }
+
+    // RtcEngineUnsafe.startTranscripe();
+    const remoteUid = activeUids.find(uid => uid !== localUid);
+    RtcEngineUnsafe.tempStartTranscribe(localUid, remoteUid);
 
     return () => {
-      RtcEngineUnsafe.stopSonioxTranscription(); // move to action menu
+      //  RtcEngineUnsafe.stopSonioxTranscription(); // move to action menu
+      RtcEngineUnsafe.stopTempSonixTranscription(localUid, remoteUid);
     };
   }, []);
 

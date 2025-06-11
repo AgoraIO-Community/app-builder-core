@@ -336,64 +336,183 @@ export default class RtcEngine {
   //   );
   // }
 
-  async startSonioxTranscription(uid: UID, apiKey: string, isLocal: boolean) {
-    let stream: MediaStream | null = null;
+  async tempStartTranscribe(localUID, remoteUID) {
+    console.log(
+      `start transcribe for local uid ${localUID} and remote uid ${remoteUID}`,
+    );
+    const localAudioStream = new MediaStream([
+      this.localStream.audio.getMediaStreamTrack(),
+    ]);
 
-    //  Select local or remote stream
-    if (isLocal) {
-      if (!this.localStream?.audio) {
-        console.warn('No local audio stream available');
-        return;
-      }
-      stream = new MediaStream([this.localStream.audio.getMediaStreamTrack()]);
-    } else {
-      const remoteAudio = this.remoteStreams.get(uid)?.audio;
-      if (!remoteAudio) {
-        console.warn(`No remote audio stream found for UID ${uid}`);
-        return;
-      }
-      stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
-    }
+    const LocalTranscriber = new RecordTranscribe({
+      apiKey: $config.SONIOX_API_KEY,
+    });
 
-    //  Create a new transcriber instance
-    const transcriber = new RecordTranscribe({apiKey});
-
-    //  Start transcription for the single stream
-    await transcriber.start({
+    LocalTranscriber.start({
       model: 'stt-rt-preview',
-      stream,
+      stream: localAudioStream,
+      enableSpeakerDiarization: true,
+      languageHints: ['en', 'hi'],
       // sampleRate: 48000,
       // numChannels: 1,
-      translation: {
-        type: 'one_way',
-        language_a: 'en',
-        language_b: 'hi',
-      },
+      // translation: {
+      //   type: 'one_way',
+      //   language_a: 'en',
+      //   language_b: 'hi',
+      // },
       onPartialResult: results => {
         const callback = this.customEvents.get('onSonioxTranscriptionResult');
-        if (callback) callback(uid, {uid, ...results});
+        console.log(
+          `Sonix results local ${localUID} stream callback ${results}`,
+        );
+        if (callback) callback(localUID, {localUID, ...results});
       },
       onError: (status, message, code) => {
         console.error(
-          `Soniox Transcription Error (${uid}):`,
+          `Soniox Transcription Error (${localUID}):`,
           status,
           message,
           code,
         );
       },
       onStarted: () => {
-        console.log(`Soniox started transcription for UID: ${uid}`);
+        console.log(`Soniox started transcription for UID: ${localUID}`);
       },
       onStateChange: ({oldState, newState}) => {
-        console.log(`Soniox state (${uid}): ${oldState} → ${newState}`);
+        console.log(`Soniox state (${localUID}): ${oldState} → ${newState}`);
       },
       onFinished: () => {
-        console.log(` Soniox transcription session finished for UID: ${uid}`);
+        console.log(
+          ` Soniox transcription session finished for UID: ${localUID}`,
+        );
       },
     });
 
+    this.sonioxTranscribers.set(localUID, LocalTranscriber);
+
+    if (remoteUID) {
+      const remoteAudioStream = new MediaStream([
+        this.remoteStreams.get(remoteUID)?.audio.getMediaStreamTrack(),
+      ]);
+      const RemoteTranscriber = new RecordTranscribe({
+        apiKey: $config.SONIOX_API_KEY,
+      });
+      RemoteTranscriber.start({
+        model: 'stt-rt-preview',
+        stream: remoteAudioStream,
+        enableSpeakerDiarization: true,
+        languageHints: ['en', 'hi'],
+        // sampleRate: 48000,
+        // numChannels: 1,
+        // translation: {
+        //   type: 'one_way',
+        //   language_a: 'en',
+        //   language_b: 'hi',
+        // },
+        onPartialResult: results => {
+          const callback = this.customEvents.get('onSonioxTranscriptionResult');
+          console.log(
+            `Sonix results  remote ${remoteUID} stream callback ${results}`,
+          );
+          if (callback) callback(remoteUID, {remoteUID, ...results});
+        },
+        onError: (status, message, code) => {
+          console.error(
+            `Soniox Transcription Error (${remoteUID}):`,
+            status,
+            message,
+            code,
+          );
+        },
+        onStarted: () => {
+          console.log(`Soniox started transcription for UID: ${remoteUID}`);
+        },
+        onStateChange: ({oldState, newState}) => {
+          console.log(`Soniox state (${remoteUID}): ${oldState} → ${newState}`);
+        },
+        onFinished: () => {
+          console.log(
+            ` Soniox transcription session finished for UID: ${remoteUID}`,
+          );
+        },
+      });
+
+      this.sonioxTranscribers.set(remoteUID, RemoteTranscriber);
+    }
+  }
+
+  async startTranscripe() {
+    for (const [
+      uid,
+      {stream, transcriber},
+    ] of this.sonioxTranscribers.entries()) {
+      console.log('start trascribe for uid', uid);
+      await transcriber.start({
+        model: 'stt-rt-preview',
+        stream,
+        // sampleRate: 48000,
+        // numChannels: 1,
+        translation: {
+          type: 'one_way',
+          language_a: 'en',
+          language_b: 'hi',
+        },
+        onPartialResult: results => {
+          const callback = this.customEvents.get('onSonioxTranscriptionResult');
+          if (callback) callback(uid, {uid, ...results});
+        },
+        onError: (status, message, code) => {
+          console.error(
+            `Soniox Transcription Error (${uid}):`,
+            status,
+            message,
+            code,
+          );
+        },
+        onStarted: () => {
+          console.log(`Soniox started transcription for UID: ${uid}`);
+        },
+        onStateChange: ({oldState, newState}) => {
+          console.log(`Soniox state (${uid}): ${oldState} → ${newState}`);
+        },
+        onFinished: () => {
+          console.log(` Soniox transcription session finished for UID: ${uid}`);
+        },
+      });
+    }
+  }
+
+  async startSonioxTranscription(uid: UID, apiKey: string, isLocal: boolean) {
+    let stream: MediaStream | null = null;
+
+    //  Select local or remote stream
+    if (isLocal) {
+      if (!this.localStream?.audio) {
+        console.log('No local audio stream available', uid);
+        // return;
+      } else {
+        stream = new MediaStream([
+          this.localStream.audio.getMediaStreamTrack(),
+        ]);
+      }
+    } else {
+      const remoteAudio = this.remoteStreams.get(uid)?.audio;
+      if (!remoteAudio) {
+        console.warn(`No remote audio stream found for UID ${uid}`);
+        // return;
+      } else {
+        stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
+      }
+    }
+
+    //  Create a new transcriber instance
+    const transcriber = new RecordTranscribe({apiKey});
+
+    //  Start transcription for the single stream
+
     // Track this transcriber
-    this.sonioxTranscribers.set(uid, transcriber);
+    this.sonioxTranscribers.set(uid, {transcriber, stream});
+    console.log('all transcriper', this.sonioxTranscribers);
 
     logger.log(
       LogSource.AgoraSDK,
@@ -412,6 +531,17 @@ export default class RtcEngine {
       );
     }
     this.sonioxTranscribers.clear();
+  }
+
+  stopTempSonixTranscription(localUid, RemoteUid): void {
+    this?.localTranscriber?.stop();
+    this?.remoteTranscriber?.stop();
+
+    logger.log(
+      LogSource.AgoraSDK,
+      'Soniox',
+      `Stopped Soniox transcription for userS L-${localUid} , R-${RemoteUid}`,
+    );
   }
 
   getLocalVideoStats() {
