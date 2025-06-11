@@ -119,10 +119,6 @@ export function useFetchSTTTranscript() {
     [roomId.host, store.token],
   );
 
-  useEffect(() => {
-    getSTTs(currentPage);
-  }, [currentPage, getSTTs]);
-
   // Delete stts
   const deleteTranscript = useCallback(
     async (id: string) => {

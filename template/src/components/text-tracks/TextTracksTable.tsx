@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Tooltip from '../../atoms/Tooltip';
 import Clipboard from '../../subComponents/Clipboard';
@@ -204,7 +204,7 @@ function ErrorTextTrackState({message}: {message: string}) {
 }
 
 function TextTracksTable() {
-  const {sttState, currentPage, setCurrentPage, deleteTranscript} =
+  const {getSTTs, sttState, currentPage, setCurrentPage, deleteTranscript} =
     useFetchSTTTranscript();
 
   const {
@@ -212,6 +212,11 @@ function TextTracksTable() {
     data: {stts, pagination},
     error: fetchTranscriptError,
   } = sttState;
+
+  useEffect(() => {
+    getSTTs(currentPage);
+  }, [currentPage, getSTTs]);
+
   // id of text-tracj to delete
   const [textTrackIdToDelete, setTextTrackIdToDelete] = React.useState<
     string | undefined
