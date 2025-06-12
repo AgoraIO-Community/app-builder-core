@@ -268,6 +268,7 @@ export default class RtcEngine {
     this.appId = appId;
     this.sonioxTranscribers = new Map();
     this.customEvents = new Map();
+    this.localUserId = null;
   }
   addCustomListener(eventName: string, callback: (...args: any[]) => void) {
     this.customEvents.set(eventName, callback);
@@ -282,6 +283,7 @@ export default class RtcEngine {
 
     //  Select local or remote stream
     if (isLocal) {
+      this.localUserId = uid;
       if (!this.localStream?.audio) {
         console.log('No local audio stream available', uid);
         return;
@@ -307,12 +309,12 @@ export default class RtcEngine {
     await transcriber.start({
       model: 'stt-rt-preview',
       stream,
-      languageHints: ['en', 'hi'],
-      // translation: {
-      //   type: 'one_way',
-      //   source_languages: ['en'],
-      //   target_language: 'hi',
-      // },
+      languageHints: ['en'],
+      translation: {
+        type: 'one_way',
+        source_languages: ['en'],
+        target_language: 'hi',
+      },
       onPartialResult: results => {
         const callback = this.customEvents.get('onSonioxTranscriptionResult');
         if (callback) callback(uid, {uid, ...results});
@@ -1108,6 +1110,14 @@ export default class RtcEngine {
         // Release the lock once done
         this.muteLocalAudioMutex = false;
         this.isAudioEnabled = !muted;
+
+        // Stop/ Start Local Transcriber on local mute/unmute
+        const transcriber = this.sonioxTranscribers.get(this.localUserId);
+        if (muted) {
+          await transcriber.stop();
+        } else {
+          await transcriber.start(transcriber._audioOptions);
+        }
         // Unpublish only after when the user has joined the call
         if (!muted && !this.isAudioPublished && this.isJoined) {
           logger.log(
