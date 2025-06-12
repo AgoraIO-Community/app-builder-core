@@ -309,14 +309,14 @@ export default class RtcEngine {
     await transcriber.start({
       model: 'stt-rt-preview',
       stream,
-      languageHints: ['en', 'hi'],
+      languageHints: ['en'],
       sampleRate: 48000,
       numChannels: 1,
-      translation: {
-        type: 'one_way',
-        source_languages: ['en'],
-        target_language: 'hi',
-      },
+      // translation: {
+      //   type: 'one_way',
+      //   source_languages: ['en'],
+      //   target_language: 'hi',
+      // },
       onPartialResult: results => {
         const callback = this.customEvents.get('onSonioxTranscriptionResult');
         if (callback) callback(uid, {uid, ...results});

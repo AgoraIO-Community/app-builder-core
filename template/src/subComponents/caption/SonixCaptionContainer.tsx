@@ -19,12 +19,12 @@ const SonixCaptionContainer = () => {
       (uid, transcript) => {
         console.log('sonix transcript =>', uid, transcript);
         const finalText = transcript.tokens
-          .filter(t => t.is_final && (!t.language || t.language === 'hi'))
+          .filter(t => t.is_final) // && (!t.language || t.language === 'hi'))
           .map(t => t.text)
           .join('');
 
         const nonFinalText = transcript.tokens
-          .filter(t => !t.is_final && (!t.language || t.language === 'hi'))
+          .filter(t => !t.is_final) // && (!t.language || t.language === 'hi'))
           .map(t => t.text)
           .join('');
 
