@@ -309,7 +309,9 @@ export default class RtcEngine {
     await transcriber.start({
       model: 'stt-rt-preview',
       stream,
-      languageHints: ['en'],
+      languageHints: ['en', 'hi'],
+      sampleRate: 48000,
+      numChannels: 1,
       translation: {
         type: 'one_way',
         source_languages: ['en'],
