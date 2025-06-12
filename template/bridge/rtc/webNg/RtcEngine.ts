@@ -752,8 +752,11 @@ export default class RtcEngine {
       // If the subscribed track is an audio track
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
-        // Play the audio
-        audioTrack?.play();
+        if ($config.PLAY_REMOTE_AUDIO) {
+          // Play the audio
+          audioTrack?.play();
+        }
+
         this.remoteStreams.set(user.uid, {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,

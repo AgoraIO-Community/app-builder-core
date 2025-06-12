@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useCaption} from './useCaption';
 import protoRoot from './proto/ptoto';
 import PQueue from 'p-queue';
+import {useLocalUid} from '../../../agora-rn-uikit';
+import {useTextToVoice} from '../../utils/useTextToVoice';
 
 type StreamMessageCallback = (args: [number, Uint8Array]) => void;
 type FinalListType = {
@@ -17,7 +19,9 @@ const useStreamMessageUtils = (): {
     activeSpeakerRef,
     prevSpeakerRef,
   } = useCaption();
+  const {textToVoice} = useTextToVoice();
 
+  const localUid = useLocalUid();
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
   const finalTranscriptList: FinalListType = {};
@@ -201,6 +205,17 @@ const useStreamMessageUtils = (): {
         existingStringBuffer.length > 0
           ? existingStringBuffer + ' ' + latestString
           : latestString;
+
+      if (currentFinalText && textstream.uid !== localUid) {
+        console.log(
+          'debugging new caption text ',
+          currentFinalText,
+          ' spoken by ',
+          textstream.uid,
+        );
+
+        textToVoice(currentFinalText);
+      }
 
       // updating the captions
       captionText &&

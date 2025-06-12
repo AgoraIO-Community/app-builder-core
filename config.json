@@ -99,5 +99,6 @@
   "AUTO_CONNECT_RTM": false,
   "ENABLE_CONVERSATIONAL_AI": false,
   "CUSTOMIZE_AGENT": false,
-  "ENABLE_TEXT_TRACKS": true
+  "ENABLE_TEXT_TRACKS": true,
+  "PLAY_REMOTE_AUDIO": false
 }

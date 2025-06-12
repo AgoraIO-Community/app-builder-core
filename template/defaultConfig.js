@@ -91,6 +91,7 @@ const DefaultConfig = {
   ENABLE_WAITING_ROOM_AUTO_APPROVAL: false,
   ENABLE_WAITING_ROOM_AUTO_REQUEST: false,
   ENABLE_TEXT_TRACKS: true,
+  PLAY_REMOTE_AUDIO: true,
 };
 
 module.exports = DefaultConfig;
