@@ -63,6 +63,7 @@ export interface RoomData {
   rtmToken?: string;
   encryptionSecret?: string;
   encryptionSecretSalt?: Uint8Array;
+  encryptionMode?: number;
   screenShareUid?: string;
   screenShareToken?: string;
   agents?: AIAgentInterface[];

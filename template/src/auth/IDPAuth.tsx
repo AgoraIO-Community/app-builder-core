@@ -1,8 +1,7 @@
 import React, {useEffect} from 'react';
-import {GET_USER, useAuth} from './AuthProvider';
+import {useAuth} from './AuthProvider';
 import {useHistory, useParams} from '../components/Router';
 import Loading from '../subComponents/Loading';
-import {useApolloClient} from '@apollo/client';
 import Toast from '../../react-native-toast-message';
 import {getParamFromURL} from '../utils/common';
 import useTokenAuth from './useTokenAuth';
@@ -20,19 +19,7 @@ export const IDPAuth = () => {
   const history = useHistory();
   const {token: returnTo}: {token: string} = useParams();
   //token used as returnTo and webToken is sent on the token query param
-  const apolloClient = useApolloClient();
   const {enableTokenAuth} = useTokenAuth();
-
-  async function getUserDetails() {
-    try {
-      await apolloClient.query({
-        query: GET_USER,
-        fetchPolicy: 'network-only',
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
 
   useEffect(() => {
     const token = getParamFromURL(history.location.search, 'token');

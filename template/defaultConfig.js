@@ -77,8 +77,8 @@ const DefaultConfig = {
   CHAT_ORG_NAME: '',
   CHAT_APP_NAME: '',
   CHAT_URL: '',
-  CLI_VERSION: '3.1.7',
-  CORE_VERSION: '4.1.7',
+  CLI_VERSION: '3.1.8-1',
+  CORE_VERSION: '4.1.8-1',
   DISABLE_LANDSCAPE_MODE: false,
   STT_AUTO_START: false,
   CLOUD_RECORDING_AUTO_START: false,
@@ -89,7 +89,8 @@ const DefaultConfig = {
   AI_LAYOUT: 'LAYOUT_TYPE_1',
   SDK_CODEC: 'vp8',
   ENABLE_WAITING_ROOM_AUTO_APPROVAL: false,
-  ENABLE_WAITING_ROOM_AUTO_REQUEST: false
+  ENABLE_WAITING_ROOM_AUTO_REQUEST: false,
+  ENABLE_TEXT_TRACKS: false,
 };
 
 module.exports = DefaultConfig;

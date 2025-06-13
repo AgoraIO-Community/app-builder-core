@@ -1,10 +1,7 @@
 import {useContext} from 'react';
-import {gql} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
-import {GraphQLContext} from '../components/GraphQLProvider';
-import useGetName from './useGetName';
 import useWaitingRoomAPI from '../subComponents/waiting-rooms/useWaitingRoomAPI';
 import {base64ToUint8Array} from '../utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
@@ -61,7 +58,6 @@ export default function useJoinRoom() {
           send_event: false,
         });
       } else {
-        console.log('debugging store.token', store.token);
         logger.log(
           LogSource.NetworkRest,
           'joinChannel',
@@ -160,6 +156,11 @@ export default function useJoinRoom() {
               isWaitingRoomEnabled ? data.secretSalt : data.secret_salt,
             ) as Uint8Array;
           }
+
+          if (data?.encryption_mode) {
+            roomInfo.encryptionMode = data.encryption_mode;
+          }
+
           if (data?.screen_share_user?.uid || data?.screenShare?.uid) {
             roomInfo.screenShareUid = isWaitingRoomEnabled
               ? data.screenShare.uid
