@@ -41,7 +41,7 @@ export default function useCreateRoom(): createRoomFun {
     try {
       const payload = JSON.stringify({
         title: roomTitle,
-        enablePSTN: enablePSTN,
+        enable_pstn: enablePSTN,
       });
       const response = await fetch(`${CREATE_ROOM_URL}`, {
         method: 'POST',
