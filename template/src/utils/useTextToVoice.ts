@@ -137,11 +137,14 @@ export function useTextToVoice() {
 
   const textToVoice2 = async (text: string) => {
     try {
-      const response = await fetch('http://localhost:3001/tts', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({text}),
-      });
+      const response = await fetch(
+        'https://rime-tts-proxy-production.up.railway.app/tts',
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text}),
+        },
+      );
 
       if (!response.ok) throw new Error('TTS streaming failed');
 
