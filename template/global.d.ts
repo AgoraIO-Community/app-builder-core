@@ -177,6 +177,7 @@ interface ConfigInterface {
   SDK_CODEC: string;
   ENABLE_WAITING_ROOM_AUTO_APPROVAL: boolean;
   ENABLE_WAITING_ROOM_AUTO_REQUEST: boolean;
+  PLAY_REMOTE_AUDIO: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

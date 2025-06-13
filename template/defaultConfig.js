@@ -89,7 +89,8 @@ const DefaultConfig = {
   AI_LAYOUT: 'LAYOUT_TYPE_1',
   SDK_CODEC: 'vp8',
   ENABLE_WAITING_ROOM_AUTO_APPROVAL: false,
-  ENABLE_WAITING_ROOM_AUTO_REQUEST: false
+  ENABLE_WAITING_ROOM_AUTO_REQUEST: false,
+  PLAY_REMOTE_AUDIO: true,
 };
 
 module.exports = DefaultConfig;

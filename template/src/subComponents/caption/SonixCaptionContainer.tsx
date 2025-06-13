@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
 import {useRtc, useContent, useLocalUid, useCaption} from 'customization-api';
+import {useTextToVoice} from '../../utils/useTextToVoice';
 
 const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
@@ -11,6 +12,7 @@ const SonixCaptionContainer = () => {
   const localUid = useLocalUid();
   const {captionFeed, setCaptionFeed} = useCaption();
   const scrollRef = React.useRef<ScrollView>(null);
+  const {textToVoice2} = useTextToVoice();
 
   useEffect(() => {
     // Add listener for transcription result
@@ -27,6 +29,16 @@ const SonixCaptionContainer = () => {
           .filter(t => !t.is_final) // && (!t.language || t.language === 'hi'))
           .map(t => t.text)
           .join('');
+
+        if (finalText && uid !== localUid) {
+          console.log(
+            'debugging new caption text ',
+            finalText,
+            ' spoken by ',
+            uid,
+          );
+          textToVoice2(finalText);
+        }
 
         setCaptionFeed(prev => {
           const last = prev[prev.length - 1];

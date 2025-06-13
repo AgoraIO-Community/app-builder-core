@@ -843,7 +843,10 @@ export default class RtcEngine {
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
         // Play the audio
-        audioTrack?.play();
+        if ($config.PLAY_REMOTE_AUDIO) {
+          // Play the audio
+          audioTrack?.play();
+        }
         this.remoteStreams.set(user.uid, {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,
