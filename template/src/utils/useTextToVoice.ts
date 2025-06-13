@@ -108,5 +108,96 @@ export function useTextToVoice() {
     }
   };
 
-  return {convertTextToBase64Audio, decodeAndPlayAudio, textToVoice};
+  const textToVoice3 = async (text: string) => {
+    try {
+      const response = await fetch('http://localhost:3001/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({text}),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch TTS audio');
+      }
+
+      const blob = await response.blob();
+      const audioURL = URL.createObjectURL(blob);
+
+      const audio = new Audio(audioURL);
+      audio.play();
+
+      return Promise.resolve(audioURL);
+    } catch (error) {
+      console.error('Error on useTextToVoice - textToVoice (via proxy)', error);
+      return Promise.reject(error);
+    }
+  };
+
+  const textToVoice2 = async (text: string) => {
+    try {
+      const response = await fetch('http://localhost:3001/tts', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text}),
+      });
+
+      if (!response.ok) throw new Error('TTS streaming failed');
+
+      const mediaSource = new MediaSource();
+      const audio = new Audio();
+      audio.src = URL.createObjectURL(mediaSource);
+      audio.play().then(() => {
+        console.log('[TTS]  Audio playback started');
+      });
+
+      mediaSource.addEventListener('sourceopen', () => {
+        console.log('[TTS]  MediaSource opened');
+        const sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+
+        const reader = response.body?.getReader();
+        const pump = () => {
+          if (!reader) return;
+          reader.read().then(({done, value}) => {
+            if (done) {
+              console.log('[TTS] All chunks received. Closing stream...');
+              if (!sourceBuffer.updating) mediaSource.endOfStream();
+              return;
+            }
+            if (!value) return;
+
+            console.log(
+              `[TTS] 🔄 Received audio chunk: ${value.byteLength} bytes`,
+            );
+
+            if (!sourceBuffer.updating) {
+              sourceBuffer.appendBuffer(value);
+              pump();
+            } else {
+              sourceBuffer.addEventListener(
+                'updateend',
+                () => {
+                  sourceBuffer.appendBuffer(value);
+                  pump();
+                },
+                {once: true},
+              );
+            }
+          });
+        };
+
+        pump();
+      });
+    } catch (error) {
+      console.error('[TTS]  Error in streaming text-to-voice:', error);
+    }
+  };
+
+  return {
+    convertTextToBase64Audio,
+    decodeAndPlayAudio,
+    textToVoice,
+    textToVoice2,
+  };
 }

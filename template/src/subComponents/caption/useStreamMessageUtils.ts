@@ -19,7 +19,7 @@ const useStreamMessageUtils = (): {
     activeSpeakerRef,
     prevSpeakerRef,
   } = useCaption();
-  const {textToVoice} = useTextToVoice();
+  const {textToVoice, textToVoice2} = useTextToVoice();
 
   const localUid = useLocalUid();
   let captionStartTime: number = 0;
@@ -214,7 +214,8 @@ const useStreamMessageUtils = (): {
           textstream.uid,
         );
 
-        textToVoice(currentFinalText);
+        // textToVoice(currentFinalText);
+        textToVoice2(currentFinalText);
       }
 
       // updating the captions
