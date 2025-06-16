@@ -312,11 +312,11 @@ export default class RtcEngine {
       languageHints: ['en'],
       sampleRate: 48000,
       numChannels: 1,
-      translation: {
-        type: 'one_way',
-        target_language: 'en',
-        source_languages: ['*'],
-      },
+      // translation: {
+      //   type: 'one_way',
+      //   target_language: 'en',
+      //   source_languages: ['*'],
+      // },
       onPartialResult: results => {
         const callback = this.customEvents.get('onSonioxTranscriptionResult');
         if (callback) callback(uid, {uid, ...results});
