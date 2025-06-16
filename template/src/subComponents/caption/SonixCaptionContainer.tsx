@@ -11,10 +11,12 @@ const SonixCaptionContainer = () => {
   const localUid = useLocalUid();
   const {captionFeed, setCaptionFeed} = useCaption();
   const scrollRef = React.useRef<ScrollView>(null);
+  const engine = RtcEngineUnsafe;
 
   useEffect(() => {
+    engine.isSonioxPanelOpen = true;
     // Add listener for transcription result
-    RtcEngineUnsafe.addCustomListener(
+    engine.addCustomListener(
       'onSonioxTranscriptionResult',
       (uid, transcript) => {
         console.log('sonix transcript =>', uid, transcript);
@@ -69,7 +71,7 @@ const SonixCaptionContainer = () => {
 
     // Start transcription for the users in the call , later move to start / button
     activeUids.map(uid => {
-      RtcEngineUnsafe.startSonioxTranscription(
+      engine.startSonioxTranscription(
         uid,
         $config.SONIOX_API_KEY,
         uid === localUid,
@@ -77,7 +79,8 @@ const SonixCaptionContainer = () => {
     });
 
     return () => {
-      RtcEngineUnsafe.stopSonioxTranscription();
+      engine.isSonioxPanelOpen = false;
+      engine.stopSonioxTranscription();
     };
   }, []);
 

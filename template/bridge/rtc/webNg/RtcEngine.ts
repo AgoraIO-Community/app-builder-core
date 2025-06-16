@@ -241,6 +241,7 @@ export default class RtcEngine {
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
+  public isSonioxPanelOpen = false;
   private inScreenshare: Boolean = false;
   private videoProfile:
     | VideoEncoderConfigurationPreset
@@ -260,6 +261,7 @@ export default class RtcEngine {
   private muteLocalAudioMutex = false;
   private speakerDeviceId = '';
   private usersVolumeLevel = [];
+
   // Create channel profile and set it here
 
   initialize(context: RtcEngineContext) {
@@ -861,6 +863,14 @@ export default class RtcEngine {
           0,
           0,
         );
+        //  Only start transcriber if panel is open & not already started
+        if (this.isSonioxPanelOpen && !this.sonioxTranscribers.has(user.uid)) {
+          this.startSonioxTranscription(
+            user.uid,
+            $config.SONIOX_API_KEY,
+            false,
+          );
+        }
       } else {
         const videoTrack = user.videoTrack;
         // Play the video
