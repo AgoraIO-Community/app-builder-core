@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
 import {useRtc, useContent, useLocalUid, useCaption} from 'customization-api';
+import PQueue from 'p-queue';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -21,61 +22,15 @@ const SonixCaptionContainer = () => {
   const {captionFeed, setCaptionFeed} = useCaption();
   const scrollRef = React.useRef<ScrollView>(null);
   const engine = RtcEngineUnsafe;
+  const queueRef = React.useRef(new PQueue({concurrency: 1}));
+  const [autoScroll, setAutoScroll] = useState(true);
 
   useEffect(() => {
     engine.isSonioxPanelOpen = true;
     // Add listener for transcription result
     engine.addCustomListener(
       'onSonioxTranscriptionResult',
-      (uid, transcript) => {
-        console.log('sonix transcript =>', uid, transcript);
-        const finalText = transcript.tokens
-          .filter(t => t.is_final) // && (!t.language || t.language === 'hi'))
-          .map(t => t.text)
-          .join('');
-
-        const nonFinalText = transcript.tokens
-          .filter(t => !t.is_final) // && (!t.language || t.language === 'hi'))
-          .map(t => t.text)
-          .join('');
-
-        setCaptionFeed(prev => {
-          const last = prev[prev.length - 1];
-
-          // Skip if there's nothing new to add
-          if (!finalText && !nonFinalText) {
-            return prev;
-          }
-
-          // If same speaker, merge into last line
-          if (last && last.uid === uid && Date.now()) {
-            return [
-              ...prev.slice(0, -1),
-              {
-                ...last,
-                text: last.text + (finalText ? ' ' + finalText : ''),
-                nonFinal: nonFinalText,
-                time: last.time,
-              },
-            ];
-          }
-
-          // If speaker changes OR no previous entry
-          if (finalText || nonFinalText) {
-            return [
-              ...prev,
-              {
-                uid,
-                text: finalText,
-                nonFinal: nonFinalText,
-                time: Date.now(),
-              },
-            ];
-          }
-
-          return prev;
-        });
-      },
+      sonixCaptionCallback,
     );
 
     // Start transcription for the users in the call , later move to start / button
@@ -93,14 +48,122 @@ const SonixCaptionContainer = () => {
     };
   }, []);
 
+  const sonixCaptionCallback1 = (uid, transcript) => {
+    console.log('sonix transcript =>', uid, transcript);
+    const finalText = transcript.tokens
+      .filter(t => t.is_final) // && (!t.language || t.language === 'hi'))
+      .map(t => t.text)
+      .join('');
+
+    const nonFinalText = transcript.tokens
+      .filter(t => !t.is_final) // && (!t.language || t.language === 'hi'))
+      .map(t => t.text)
+      .join('');
+
+    setCaptionFeed(prev => {
+      const last = prev[prev.length - 1];
+
+      // Skip if there's nothing new to add
+      if (!finalText && !nonFinalText) {
+        return prev;
+      }
+
+      // If same speaker, merge into last line
+      if (last && last.uid === uid && Date.now()) {
+        return [
+          ...prev.slice(0, -1),
+          {
+            ...last,
+            text: last.text + (finalText ? ' ' + finalText : ''),
+            nonFinal: nonFinalText,
+            time: last.time,
+          },
+        ];
+      }
+
+      // If speaker changes OR no previous entry
+      if (finalText || nonFinalText) {
+        return [
+          ...prev,
+          {
+            uid,
+            text: finalText,
+            nonFinal: nonFinalText,
+            time: Date.now(),
+          },
+        ];
+      }
+
+      return prev;
+    });
+  };
+
+  const sonixCaptionCallback = (uid, transcript) => {
+    const queueCallback = () => {
+      console.log('sonix transcript =>', uid, transcript);
+      const finalText = transcript.tokens
+        .filter(t => t.is_final)
+        .map(t => t.text)
+        .join('');
+
+      const nonFinalText = transcript.tokens
+        .filter(t => !t.is_final)
+        .map(t => t.text)
+        .join('');
+
+      setCaptionFeed(prev => {
+        const last = prev[prev.length - 1];
+
+        if (!finalText && !nonFinalText) return prev;
+
+        if (last && last.uid === uid && Date.now()) {
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              text: last.text + (finalText ? ' ' + finalText : ''),
+              nonFinal: nonFinalText,
+              time: last.time,
+            },
+          ];
+        }
+
+        return [
+          ...prev,
+          {
+            uid,
+            text: finalText,
+            nonFinal: nonFinalText,
+            time: Date.now(),
+          },
+        ];
+      });
+    };
+    if (transcript.tokens.length > 0) {
+      queueRef.current.add(queueCallback);
+      console.log('soniox stt- using pq queue');
+    }
+  };
+
+  const handleScroll = event => {
+    const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
+    const isAtBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+    setAutoScroll(isAtBottom);
+  };
+
   return (
     <ScrollView
       style={styles.scrollContainer}
       contentContainerStyle={styles.container}
       ref={scrollRef}
       showsVerticalScrollIndicator={true}
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
       onContentSizeChange={() => {
-        scrollRef.current?.scrollToEnd({animated: true});
+        if (autoScroll) {
+          scrollRef.current?.scrollToEnd({animated: true});
+        }
       }}>
       {captionFeed.map((entry, index) => (
         <Text key={index} style={styles.captionLine}>
