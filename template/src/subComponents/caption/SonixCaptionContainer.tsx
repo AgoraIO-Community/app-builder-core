@@ -17,23 +17,26 @@ const formatTime = (timestamp: number) => {
 
 const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
-  const {defaultContent, activeUids, customContent} = useContent();
+  const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
   const {captionFeed, setCaptionFeed} = useCaption();
   const scrollRef = React.useRef<ScrollView>(null);
-  const engine = RtcEngineUnsafe;
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
 
+  // in-progress captions per speaker
+  const activeCaptionsRef = useRef({});
+
+  const engine = RtcEngineUnsafe;
+
   useEffect(() => {
     engine.isSonioxPanelOpen = true;
-    // Add listener for transcription result
+
     engine.addCustomListener(
       'onSonioxTranscriptionResult',
       sonixCaptionCallback,
     );
 
-    // Start transcription for the users in the call , later move to start / button
     activeUids.map(uid => {
       engine.startSonioxTranscription(
         uid,
@@ -48,101 +51,45 @@ const SonixCaptionContainer = () => {
     };
   }, []);
 
-  const sonixCaptionCallback1 = (uid, transcript) => {
-    console.log('sonix transcript =>', uid, transcript);
-    const finalText = transcript.tokens
-      .filter(t => t.is_final) // && (!t.language || t.language === 'hi'))
-      .map(t => t.text)
-      .join('');
-
-    const nonFinalText = transcript.tokens
-      .filter(t => !t.is_final) // && (!t.language || t.language === 'hi'))
-      .map(t => t.text)
-      .join('');
-
-    setCaptionFeed(prev => {
-      const last = prev[prev.length - 1];
-
-      // Skip if there's nothing new to add
-      if (!finalText && !nonFinalText) {
-        return prev;
-      }
-
-      // If same speaker, merge into last line
-      if (last && last.uid === uid && Date.now()) {
-        return [
-          ...prev.slice(0, -1),
-          {
-            ...last,
-            text: last.text + (finalText ? ' ' + finalText : ''),
-            nonFinal: nonFinalText,
-            time: last.time,
-          },
-        ];
-      }
-
-      // If speaker changes OR no previous entry
-      if (finalText || nonFinalText) {
-        return [
-          ...prev,
-          {
-            uid,
-            text: finalText,
-            nonFinal: nonFinalText,
-            time: Date.now(),
-          },
-        ];
-      }
-
-      return prev;
-    });
-  };
-
   const sonixCaptionCallback = (uid, transcript) => {
     const queueCallback = () => {
       console.log('sonix transcript =>', uid, transcript);
+
       const finalText = transcript.tokens
         .filter(t => t.is_final)
         .map(t => t.text)
         .join('');
-
       const nonFinalText = transcript.tokens
         .filter(t => !t.is_final)
         .map(t => t.text)
         .join('');
 
-      setCaptionFeed(prev => {
-        const last = prev[prev.length - 1];
+      // merge into in-progress buffer
+      const active = activeCaptionsRef.current[uid] || {
+        uid,
+        text: '',
+        nonFinal: '',
+        time: Date.now(),
+      };
 
-        if (!finalText && !nonFinalText) return prev;
+      if (finalText) {
+        active.text = (active.text + ' ' + finalText).trim();
+      }
+      active.nonFinal = nonFinalText;
+      active.time = Date.now();
+      activeCaptionsRef.current[uid] = active;
 
-        if (last && last.uid === uid && Date.now()) {
-          return [
-            ...prev.slice(0, -1),
-            {
-              ...last,
-              text: last.text + (finalText ? ' ' + finalText : ''),
-              nonFinal: nonFinalText,
-              time: last.time,
-            },
-          ];
-        }
-
-        return [
-          ...prev,
-          {
-            uid,
-            text: finalText,
-            nonFinal: nonFinalText,
-            time: Date.now(),
-          },
-        ];
-      });
+      // If fully finalized, commit to feed + remove from active buffer
+      if (!nonFinalText && finalText) {
+        setCaptionFeed(prev => [...prev, {...active, nonFinal: ''}]);
+        delete activeCaptionsRef.current[uid];
+      } else {
+        // partial update: force rerender by setting dummy feed (not needed in your hook-based context)
+        setCaptionFeed(prev => [...prev]); // triggers UI refresh
+      }
     };
-    if (transcript.tokens.length > 0) {
-      queueRef.current.add(queueCallback);
-      console.log('soniox stt- using pq queue');
-    }
+
+    queueRef.current.add(queueCallback);
   };
 
   const handleScroll = event => {
@@ -165,19 +112,30 @@ const SonixCaptionContainer = () => {
           scrollRef.current?.scrollToEnd({animated: true});
         }
       }}>
+      {/* Show committed lines */}
       {captionFeed.map((entry, index) => (
-        <Text key={index} style={styles.captionLine}>
+        <Text key={`feed-${index}`} style={styles.captionLine}>
           <Text style={styles.uid}>
-            {entry.nonFinal || entry.text
-              ? `${defaultContent[entry.uid].name} (${formatTime(
-                  entry.time,
-                )}) : `
-              : ''}
+            {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
           </Text>
-          <Text style={styles.content}>{entry.text}</Text>
-          {entry.nonFinal && <Text style={styles.live}>{entry.nonFinal}</Text>}
+          <Text style={styles.content}> {entry.text}</Text>
         </Text>
       ))}
+
+      {/*  Show all active speakers */}
+      {Object.values(activeCaptionsRef.current)
+        .filter(entry => entry.text || entry.nonFinal)
+        .map((entry, index) => (
+          <Text key={`active-${index}`} style={styles.captionLine}>
+            <Text style={styles.uid}>
+              {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
+            </Text>
+            <Text style={styles.content}> {entry.text}</Text>
+            {entry.nonFinal && (
+              <Text style={styles.live}> {entry.nonFinal}</Text>
+            )}
+          </Text>
+        ))}
     </ScrollView>
   );
 };
@@ -207,14 +165,13 @@ const styles = StyleSheet.create({
   uid: {
     color: 'orange',
     fontWeight: 'bold',
-
     fontSize: 18,
     lineHeight: 24,
   },
   content: {
     color: 'white',
     fontSize: 18,
-    flexShrink: 1, // test
+    flexShrink: 1,
     lineHeight: 24,
   },
   live: {
