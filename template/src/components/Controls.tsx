@@ -103,6 +103,7 @@ import {
   toolbarItemTranscriptText,
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
+  toolbarItemManageTextTracksText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
@@ -115,6 +116,7 @@ import {
   InviteToolbarItem,
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
+import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -276,6 +278,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const viewRecordingsLabel = useString<boolean>(
     toolbarItemViewRecordingText,
   )();
+  const viewTextTracksLabel = useString<boolean>(
+    toolbarItemManageTextTracksText,
+  )();
   const moreButtonLabel = useString(toolbarItemMoreText)();
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
@@ -292,6 +297,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     modalOpen: isVRModalOpen,
     setModalOpen: setVRModalOpen,
     toggle: toggleVRModal,
+  } = useModal();
+  const {
+    modalOpen: isTextTrackModalOpen,
+    setModalOpen: setTextTrackModalOpen,
+    toggle: toggleTextTrackModal,
   } = useModal();
   const moreBtnRef = useRef(null);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -330,7 +340,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   const {isNoiseSupressionEnabled, setNoiseSupression} = useNoiseSupression();
 
-  //AINS
+  //0. AINS
   if ($config.ENABLE_NOISE_CANCELLATION) {
     actionMenuitems.push({
       componentName: 'noise-cancellation',
@@ -354,7 +364,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
   //AINS
 
-  //virtual background
+  //1. virtual background
   const {isVBActive, setIsVBActive} = useVB();
 
   const toggleVB = () => {
@@ -385,7 +395,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   //virtual background
 
   //whiteboard start
-
   const {
     whiteboardRoomState,
     whiteboardActive,
@@ -472,8 +481,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       ? true
       : false;
 
-  //whiteboard ends
-
+  // 2. whiteboard ends
   if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
     actionMenuitems.push({
       componentName: 'whiteboard',
@@ -515,8 +523,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // host can see stt options and attendee can view only when stt is enabled by a host in the channel
-
+  // 3. host can see stt options and attendee can view only when stt is enabled by a host in the channel
   if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
     actionMenuitems.push({
       componentName: 'caption',
@@ -546,7 +553,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         }
       },
     });
-
+    // 4. Meeting transcript
     if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
         componentName: 'transcript',
@@ -583,8 +590,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     }
   }
 
-  // view recordings
-
+  // 5. view recordings
   if (isHost && $config.CLOUD_RECORDING && isWeb()) {
     actionMenuitems.push({
       componentName: 'view-recordings',
@@ -599,7 +605,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // Particpants
+  // 6. Particpants
   const canAccessParticipants =
     useControlPermissionMatrix('participantControl');
   if (canAccessParticipants) {
@@ -619,7 +625,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
   }
-  // Chat
+
+  // 7. Chat
   const canAccessChat = useControlPermissionMatrix('chatControl');
   if (canAccessChat) {
     //disable chat button when BE sends error on chat
@@ -669,7 +676,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // Screenshare
+  // 8. Screenshare
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   if (canAccessScreenshare) {
     if (
@@ -706,6 +713,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     }
   }
 
+  // 9. Recording
   if (isHost && $config.CLOUD_RECORDING) {
     actionMenuitems.push({
       hide: w => {
@@ -733,6 +741,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
+  // 10. layout
   actionMenuitems.push({
     hide: w => {
       return w >= BREAKPOINTS.lg ? true : false;
@@ -767,7 +776,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     ),
   });
 
-  // Invite
+  // 11. Invite
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   if (canAccessInvite) {
     actionMenuitems.push({
@@ -787,7 +796,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     });
   }
 
-  // Settings
+  // 12.Settings
   const canAccessSettings = useControlPermissionMatrix('settingsControl');
   if (canAccessSettings) {
     actionMenuitems.push({
@@ -803,6 +812,24 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       onPress: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.Settings);
+      },
+    });
+  }
+
+  // 13. Text-tracks to download
+  const canAccessAllTextTracks =
+    useControlPermissionMatrix('viewAllTextTracks');
+
+  if (canAccessAllTextTracks) {
+    actionMenuitems.push({
+      componentName: 'view-all-text-tracks',
+      order: 13,
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: viewTextTracksLabel,
+      onPress: () => {
+        toggleTextTrackModal();
       },
     });
   }
@@ -952,6 +979,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
             <></>
           )}
         </>
+      )}
+      {canAccessAllTextTracks && isTextTrackModalOpen ? (
+        <ViewTextTracksModal setModalOpen={setTextTrackModalOpen} />
+      ) : (
+        <></>
       )}
       <ActionMenu
         containerStyle={globalWidth < 720 ? {width: 180} : {width: 260}}

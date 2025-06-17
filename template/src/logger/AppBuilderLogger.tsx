@@ -95,6 +95,7 @@ type LogType = {
     | 'channel_join_request'
     | 'channel_join_approval'
     | 'stt'
+    | 'stt-transcript'
     | 'whiteboard_get_s3_signed_url'
     | 'whiteboard_get_s3_upload_url'
     | 'whiteboard_s3_upload'

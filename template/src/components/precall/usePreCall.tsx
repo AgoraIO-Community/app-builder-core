@@ -11,7 +11,6 @@
 */
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {createHook} from 'customization-implementation';
-import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import SDKEvents from '../../utils/SdkEvents';
@@ -21,7 +20,7 @@ import useSetName from '../../utils/useSetName';
 export interface PreCallContextInterface {
   callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
-  error?: ApolloError;
+  error?: any;
   isCameraAvailable?: boolean;
   setCameraAvailable: React.Dispatch<React.SetStateAction<boolean>>;
   isMicAvailable?: boolean;
