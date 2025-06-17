@@ -5,6 +5,15 @@ import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
 import {useRtc, useContent, useLocalUid, useCaption} from 'customization-api';
 
+const formatTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
 const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
   const {defaultContent, activeUids, customContent} = useContent();
@@ -39,14 +48,14 @@ const SonixCaptionContainer = () => {
           }
 
           // If same speaker, merge into last line
-          if (last && last.uid === uid) {
+          if (last && last.uid === uid && Date.now()) {
             return [
               ...prev.slice(0, -1),
               {
                 ...last,
                 text: last.text + (finalText ? ' ' + finalText : ''),
                 nonFinal: nonFinalText,
-                time: Date.now(),
+                time: last.time,
               },
             ];
           }
@@ -97,8 +106,10 @@ const SonixCaptionContainer = () => {
         <Text key={index} style={styles.captionLine}>
           <Text style={styles.uid}>
             {entry.nonFinal || entry.text
-              ? defaultContent[entry.uid].name + ' : '
-              : ''}{' '}
+              ? `${defaultContent[entry.uid].name} (${formatTime(
+                  entry.time,
+                )}) : `
+              : ''}
           </Text>
           <Text style={styles.content}>{entry.text}</Text>
           {entry.nonFinal && <Text style={styles.live}>{entry.nonFinal}</Text>}

@@ -314,6 +314,8 @@ export default class RtcEngine {
       languageHints: ['en'],
       sampleRate: 48000,
       numChannels: 1,
+      enableLanguageIdentification: false,
+      enableEndpointDetection: false,
       // translation: {
       //   type: 'one_way',
       //   source_languages: ['en'],
