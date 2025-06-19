@@ -24,7 +24,7 @@ const SonixCaptionContainer = () => {
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
 
-  // in-progress captions per speaker
+  // in-progress captions per speaker now
   const activeCaptionsRef = useRef({});
 
   const engine = RtcEngineUnsafe;
