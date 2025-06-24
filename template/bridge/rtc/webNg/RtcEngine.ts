@@ -32,8 +32,6 @@ import type {
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 
-import {RecordTranscribe} from '@soniox/speech-to-text-web';
-
 import {IRtcEngine} from 'react-native-agora';
 import {VideoProfile} from '../quality';
 import {ChannelProfileType, ClientRoleType} from '../../../agora-rn-uikit';
@@ -235,13 +233,11 @@ export default class RtcEngine {
     ['onNetworkQuality', () => null],
     ['onActiveSpeaker', () => null],
     ['onStreamMessage', () => null],
-    ['onSonioxTranscriptionResult', () => null],
   ]);
 
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
-  public isSonioxPanelOpen = false;
   private inScreenshare: Boolean = false;
   private videoProfile:
     | VideoEncoderConfigurationPreset
@@ -268,7 +264,6 @@ export default class RtcEngine {
     const {appId} = context;
     logger.log(LogSource.AgoraSDK, 'Log', 'RTC engine initialized');
     this.appId = appId;
-    this.sonioxTranscribers = new Map();
     this.customEvents = new Map();
     this.localUserId = null;
   }
@@ -278,82 +273,6 @@ export default class RtcEngine {
 
   removeCustomListener(eventName: string) {
     this.customEvents.delete(eventName);
-  }
-
-  async startSonioxTranscription(uid: UID, apiKey: string, isLocal: boolean) {
-    let stream: MediaStream | null = null;
-
-    //  Select local or remote stream
-    if (isLocal) {
-      this.localUserId = uid;
-      if (!this.localStream?.audio) {
-        console.log('No local audio stream available', uid);
-        return;
-      } else {
-        stream = new MediaStream([
-          this.localStream.audio.getMediaStreamTrack(),
-        ]);
-      }
-    } else {
-      const remoteAudio = this.remoteStreams.get(uid)?.audio;
-      if (!remoteAudio) {
-        console.warn(`No remote audio stream found for UID ${uid}`);
-        return;
-      } else {
-        stream = new MediaStream([remoteAudio.getMediaStreamTrack()]);
-      }
-    }
-
-    // Create a new transcriber instance
-    const transcriber = new RecordTranscribe({apiKey});
-
-    // Start transcription for the single stream
-    await transcriber.start({
-      model: 'stt-rt-preview',
-      stream,
-      languageHints: ['en'],
-      sampleRate: 48000,
-      numChannels: 1,
-      enableLanguageIdentification: false,
-      enableEndpointDetection: false,
-      // translation: {
-      //   type: 'one_way',
-      //   source_languages: ['en'],
-      //   target_language: 'hi',
-      // },
-      onPartialResult: results => {
-        const callback = this.customEvents.get('onSonioxTranscriptionResult');
-        if (callback) callback(uid, {uid, ...results});
-      },
-      onError: (status, message, code) => {
-        console.error(
-          `Soniox Transcription Error (${uid}):`,
-          status,
-          message,
-          code,
-        );
-      },
-      onStarted: () => {
-        console.log(`Soniox started transcription for UID: ${uid}`);
-      },
-      onStateChange: ({oldState, newState}) => {
-        console.log(`Soniox state (${uid}): ${oldState} → ${newState}`);
-      },
-      onFinished: () => {
-        console.log(` Soniox transcription session finished for UID: ${uid}`);
-      },
-    });
-
-    // Track this transcriber
-    this.sonioxTranscribers.set(uid, transcriber);
-  }
-
-  stopSonioxTranscription(): void {
-    for (const [uid, transcriber] of this.sonioxTranscribers.entries()) {
-      transcriber.stop();
-      console.log(` Stopped Soniox transcription for user UID: ${uid}`);
-    }
-    this.sonioxTranscribers.clear();
   }
 
   getLocalVideoStats() {
@@ -865,14 +784,6 @@ export default class RtcEngine {
           0,
           0,
         );
-        //  Only start transcriber if panel is open & not already started
-        if (this.isSonioxPanelOpen && !this.sonioxTranscribers.has(user.uid)) {
-          this.startSonioxTranscription(
-            user.uid,
-            $config.SONIOX_API_KEY,
-            false,
-          );
-        }
       } else {
         const videoTrack = user.videoTrack;
         // Play the video
@@ -1125,13 +1036,6 @@ export default class RtcEngine {
         this.muteLocalAudioMutex = false;
         this.isAudioEnabled = !muted;
 
-        // Stop/ Start Local Transcriber on local mute/unmute
-        const transcriber = this.sonioxTranscribers.get(this.localUserId);
-        if (muted) {
-          await transcriber.stop();
-        } else {
-          await transcriber.start(transcriber._audioOptions);
-        }
         // Unpublish only after when the user has joined the call
         if (!muted && !this.isAudioPublished && this.isJoined) {
           logger.log(
