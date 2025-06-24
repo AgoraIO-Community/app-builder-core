@@ -222,7 +222,6 @@ export default class RtcEngine {
   // public AgoraRTC: any;
   public client: IAgoraRTCClient;
   public screenClient: any | IAgoraRTCClient;
-
   public eventsMap = new Map<string, callbackType>([
     ['onUserJoined', () => null],
     ['onUserOffline', () => null],
@@ -234,7 +233,6 @@ export default class RtcEngine {
     ['onActiveSpeaker', () => null],
     ['onStreamMessage', () => null],
   ]);
-
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
@@ -259,20 +257,10 @@ export default class RtcEngine {
   private usersVolumeLevel = [];
 
   // Create channel profile and set it here
-
   initialize(context: RtcEngineContext) {
     const {appId} = context;
     logger.log(LogSource.AgoraSDK, 'Log', 'RTC engine initialized');
     this.appId = appId;
-    this.customEvents = new Map();
-    this.localUserId = null;
-  }
-  addCustomListener(eventName: string, callback: (...args: any[]) => void) {
-    this.customEvents.set(eventName, callback);
-  }
-
-  removeCustomListener(eventName: string) {
-    this.customEvents.delete(eventName);
   }
 
   getLocalVideoStats() {
@@ -1091,7 +1079,6 @@ export default class RtcEngine {
         );
         // Release the lock once done
         this.muteLocalVideoMutex = false;
-
         this.isVideoEnabled = !muted;
         // Unpublish only after when the user has joined the call
         if (!muted && !this.isVideoPublished && this.isJoined) {
