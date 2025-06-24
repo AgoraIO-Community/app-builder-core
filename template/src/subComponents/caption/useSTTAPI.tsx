@@ -45,6 +45,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   }, [language]);
 
   const apiCall = async (method: string, lang: LanguageType[] = []) => {
+    return;
     const requestId = getUniqueID();
     const startReqTs = Date.now();
     logger.log(

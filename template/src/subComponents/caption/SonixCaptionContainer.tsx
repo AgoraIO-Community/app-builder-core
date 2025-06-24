@@ -1,9 +1,14 @@
-// @ts-nocheck
 import {StyleSheet, Text, View, ScrollView} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
-import {useRtc, useContent, useLocalUid, useCaption} from 'customization-api';
+import {
+  useRtc,
+  useContent,
+  useLocalUid,
+  useCaption,
+  useRoomInfo,
+} from 'customization-api';
 import PQueue from 'p-queue';
 
 const formatTime = (timestamp: number) => {
@@ -19,47 +24,69 @@ const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
-  const {captionFeed, setCaptionFeed} = useCaption();
+  const {
+    captionFeed,
+    setCaptionFeed,
+    setIsSTTListenerAdded,
+    isSTTListenerAdded,
+  } = useCaption();
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
 
   // in-progress captions per speaker now
   const activeCaptionsRef = useRef({});
+  const {
+    data: {channel},
+  } = useRoomInfo();
 
   const engine = RtcEngineUnsafe;
 
   useEffect(() => {
-    engine.isSonioxPanelOpen = true;
-
-    engine.addCustomListener(
-      'onSonioxTranscriptionResult',
-      sonixCaptionCallback,
-    );
-
-    activeUids.map(uid => {
-      engine.startSonioxTranscription(
-        uid,
-        $config.SONIOX_API_KEY,
-        uid === localUid,
-      );
-    });
-
-    return () => {
-      engine.isSonioxPanelOpen = false;
-      engine.stopSonioxTranscription();
+    const createBot = async () => {
+      try {
+        const response = await fetch('http://35.88.219.25:8000/create_bot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            channel_name: channel, // '2e01d5e2-0ca7-4e9b-8d39-191e9bc3802e',
+            user_id: localUid.toString(), //'2201',
+            source_lang: ['*'],
+            target_lang: 'en',
+          }),
+        });
+        const data = await response.json();
+        console.log('Bot created:', data);
+      } catch (error) {
+        console.error('Error creating bot:', error);
+      }
     };
+
+    const addStreamListener = () => {
+      !isSTTListenerAdded &&
+        RtcEngineUnsafe.addListener('onStreamMessage', sonixCaptionCallback);
+    };
+    addStreamListener();
+    createBot();
   }, []);
 
   const sonixCaptionCallback = (uid, transcript) => {
+    setIsSTTListenerAdded(true);
     const queueCallback = () => {
       console.log('sonix transcript =>', uid, transcript);
+      const jsonString = new TextDecoder().decode(transcript);
+      const data = JSON.parse(jsonString);
 
-      const finalText = transcript.tokens
+      console.log('Decoded stream message:', data);
+      const finalData = JSON.parse(data.token);
+
+      const finalText = finalData
         .filter(t => t.is_final)
         .map(t => t.text)
         .join('');
-      const nonFinalText = transcript.tokens
+      const nonFinalText = finalData
         .filter(t => !t.is_final)
         .map(t => t.text)
         .join('');
@@ -112,7 +139,7 @@ const SonixCaptionContainer = () => {
           scrollRef.current?.scrollToEnd({animated: true});
         }
       }}>
-      {/* Show committed lines */}
+      {/* Show committed lines
       {captionFeed.map((entry, index) => (
         <Text key={`feed-${index}`} style={styles.captionLine}>
           <Text style={styles.uid}>
@@ -123,7 +150,7 @@ const SonixCaptionContainer = () => {
       ))}
 
       {/*  Show all active speakers */}
-      {Object.values(activeCaptionsRef.current)
+      {/* {Object.values(activeCaptionsRef.current)
         .filter(entry => entry.text || entry.nonFinal)
         .map((entry, index) => (
           <Text key={`active-${index}`} style={styles.captionLine}>
@@ -135,7 +162,7 @@ const SonixCaptionContainer = () => {
               <Text style={styles.live}> {entry.nonFinal}</Text>
             )}
           </Text>
-        ))}
+        ))} */}
     </ScrollView>
   );
 };
