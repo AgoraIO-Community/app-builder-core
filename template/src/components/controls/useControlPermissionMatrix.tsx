@@ -15,7 +15,8 @@ export type ControlPermissionKey =
   | 'participantControl'
   | 'screenshareControl'
   | 'settingsControl'
-  | 'viewAllTextTracks';
+  | 'viewAllTextTracks'
+  | 'breakoutRoom';
 
 /**
  * ControlPermissionRule defines the properties used to evaluate permission rules.
@@ -42,6 +43,7 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_MEETING_TRANSCRIPT &&
     $config.ENABLE_TEXT_TRACKS &&
     isWeb(),
+  breakoutRoom: ({isHost}) => isHost && $config.ENABLE_BREAKOUT_ROOM,
 };
 
 export const useControlPermissionMatrix = (
