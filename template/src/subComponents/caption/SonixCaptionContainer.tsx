@@ -20,6 +20,13 @@ const formatTime = (timestamp: number) => {
   });
 };
 
+type CaptionEntry = {
+  uid: string;
+  text: string;
+  nonFinal?: string;
+  time: number;
+};
+
 const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
   const {defaultContent, activeUids} = useContent();
@@ -35,17 +42,26 @@ const SonixCaptionContainer = () => {
   const [autoScroll, setAutoScroll] = useState(true);
 
   // in-progress captions per speaker now
-  const activeCaptionsRef = useRef({});
+  const activeCaptionsRef = useRef<Record<string, CaptionEntry>>({});
   const {
     data: {channel},
   } = useRoomInfo();
 
   const engine = RtcEngineUnsafe;
+  const [displayFeed, setDisplayFeed] = useState<CaptionEntry[]>([]);
+
+  useEffect(() => {
+    const mergedFeed = [
+      ...captionFeed.map(entry => ({...entry})),
+      ...Object.values(activeCaptionsRef.current).map(entry => ({...entry})),
+    ];
+    setDisplayFeed(mergedFeed);
+  }, [captionFeed]); // triggers whenever finalized captions update
 
   useEffect(() => {
     const createBot = async () => {
       try {
-        const response = await fetch('http://34.221.57.161:8000/create_bot', {
+        const response = await fetch('http://34.221.57.161:8000/create_bot1', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -53,8 +69,8 @@ const SonixCaptionContainer = () => {
           body: JSON.stringify({
             channel_name: channel, // '2e01d5e2-0ca7-4e9b-8d39-191e9bc3802e',
             user_id: localUid.toString(), //'2201',
-            source_lang: ['*'],
-            target_lang: 'en',
+            // source_lang: ['*'],
+            // target_lang: 'en',
           }),
         });
         const data = await response.json();
@@ -72,47 +88,105 @@ const SonixCaptionContainer = () => {
     createBot();
   }, []);
 
-  const sonixCaptionCallback = (uid, transcript) => {
+  // const sonixCaptionCallback = (uid, payload) => {
+  //   setIsSTTListenerAdded(true);
+  //   const queueCallback = () => {
+  //     console.log('sonix transcript =>', uid, payload);
+  //     const jsonString = new TextDecoder().decode(payload);
+  //     const data = JSON.parse(jsonString);
+
+  //     console.log('Decoded stream message:', data);
+  //     console.log('Decoded isFinal:', data.text.is_final);
+  //     const finalData = JSON.parse(data.token);
+
+  //     const finalText = finalData
+  //       .filter(t => t.is_final)
+  //       .map(t => t.text)
+  //       .join('');
+  //     const nonFinalText = finalData
+  //       .filter(t => !t.is_final)
+  //       .map(t => t.text)
+  //       .join('');
+
+  //     // merge into in-progress buffer
+  //     const active = activeCaptionsRef.current[uid] || {
+  //       uid,
+  //       text: '',
+  //       nonFinal: '',
+  //       time: Date.now(),
+  //     };
+
+  //     if (finalText) {
+  //       active.text = (active.text + ' ' + finalText).trim();
+  //     }
+  //     active.nonFinal = nonFinalText;
+  //     active.time = Date.now();
+  //     activeCaptionsRef.current[uid] = active;
+
+  //     // If fully finalized, commit to feed + remove from active buffer
+  //     if (!nonFinalText && finalText) {
+  //       setCaptionFeed(prev => [...prev, {...active, nonFinal: ''}]);
+  //       delete activeCaptionsRef.current[uid];
+  //     } else {
+  //       // partial update: force rerender by setting dummy feed (not needed in your hook-based context)
+  //       setCaptionFeed(prev => [...prev]); // triggers UI refresh
+  //     }
+  //   };
+
+  //   queueRef.current.add(queueCallback);
+  // };
+
+  const sonixCaptionCallback = (botID, payload) => {
     setIsSTTListenerAdded(true);
+
     const queueCallback = () => {
-      console.log('sonix transcript =>', uid, transcript);
-      const jsonString = new TextDecoder().decode(transcript);
-      const data = JSON.parse(jsonString);
+      try {
+        const jsonString = new TextDecoder().decode(payload);
+        const data = JSON.parse(jsonString);
 
-      console.log('Decoded stream message:', data);
-      const finalData = JSON.parse(data.token);
+        const finalText = data.final?.trim() || '';
+        const nonFinalText = data.non_final?.trim() || '';
+        const uid = data.user_id;
 
-      const finalText = finalData
-        .filter(t => t.is_final)
-        .map(t => t.text)
-        .join('');
-      const nonFinalText = finalData
-        .filter(t => !t.is_final)
-        .map(t => t.text)
-        .join('');
+        if (!finalText && !nonFinalText) return;
 
-      // merge into in-progress buffer
-      const active = activeCaptionsRef.current[uid] || {
-        uid,
-        text: '',
-        nonFinal: '',
-        time: Date.now(),
-      };
+        let active = activeCaptionsRef.current[uid] || {
+          uid,
+          text: '',
+          nonFinal: '',
+          time: Date.now(),
+        };
 
-      if (finalText) {
-        active.text = (active.text + ' ' + finalText).trim();
-      }
-      active.nonFinal = nonFinalText;
-      active.time = Date.now();
-      activeCaptionsRef.current[uid] = active;
+        // Merge final into existing line for same speaker
+        if (finalText) {
+          setCaptionFeed(prev => {
+            const last = prev[prev.length - 1];
+            if (last && last.uid === uid) {
+              // Append new final text to the last message by same user
+              const updated = {
+                ...last,
+                text: `${last.text} ${finalText}`.trim(),
+                time: Date.now(),
+              };
+              return [...prev.slice(0, -1), updated];
+            } else {
+              return [...prev, {uid, text: finalText, time: Date.now()}];
+            }
+          });
+        }
 
-      // If fully finalized, commit to feed + remove from active buffer
-      if (!nonFinalText && finalText) {
-        setCaptionFeed(prev => [...prev, {...active, nonFinal: ''}]);
-        delete activeCaptionsRef.current[uid];
-      } else {
-        // partial update: force rerender by setting dummy feed (not needed in your hook-based context)
-        setCaptionFeed(prev => [...prev]); // triggers UI refresh
+        // Update live part
+        active.nonFinal = nonFinalText;
+        active.time = Date.now();
+
+        if (nonFinalText) {
+          activeCaptionsRef.current[uid] = active;
+          setCaptionFeed(prev => [...prev]); // trigger UI update
+        } else {
+          delete activeCaptionsRef.current[uid];
+        }
+      } catch (err) {
+        console.error('Error parsing stream message:', err);
       }
     };
 
@@ -139,30 +213,20 @@ const SonixCaptionContainer = () => {
           scrollRef.current?.scrollToEnd({animated: true});
         }
       }}>
-      {/* Show committed lines
-      {captionFeed.map((entry, index) => (
-        <Text key={`feed-${index}`} style={styles.captionLine}>
-          <Text style={styles.uid}>
-            {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
-          </Text>
-          <Text style={styles.content}> {entry.text}</Text>
-        </Text>
-      ))}
-
-      {/*  Show all active speakers */}
-      {/* {Object.values(activeCaptionsRef.current)
-        .filter(entry => entry.text || entry.nonFinal)
-        .map((entry, index) => (
-          <Text key={`active-${index}`} style={styles.captionLine}>
-            <Text style={styles.uid}>
-              {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
+      <>
+        {[...captionFeed].map((entry, index) => {
+          const live = activeCaptionsRef.current[entry.uid]?.nonFinal;
+          return (
+            <Text key={`caption-${index}`} style={styles.captionLine}>
+              <Text style={styles.uid}>
+                {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
+              </Text>
+              <Text style={styles.content}> {entry.text}</Text>
+              {live && <Text style={styles.live}> {live}</Text>}
             </Text>
-            <Text style={styles.content}> {entry.text}</Text>
-            {entry.nonFinal && (
-              <Text style={styles.live}> {entry.nonFinal}</Text>
-            )}
-          </Text>
-        ))} */}
+          );
+        })}
+      </>
     </ScrollView>
   );
 };
