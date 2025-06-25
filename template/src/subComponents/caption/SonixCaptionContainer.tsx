@@ -45,7 +45,7 @@ const SonixCaptionContainer = () => {
   useEffect(() => {
     const createBot = async () => {
       try {
-        const response = await fetch('http://35.88.219.25:8000/create_bot', {
+        const response = await fetch('http://34.221.57.161:8000/create_bot', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
