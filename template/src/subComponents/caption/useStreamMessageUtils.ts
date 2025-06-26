@@ -30,7 +30,9 @@ const useStreamMessageUtils = (): {
       /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
-      const [, payload] = args1;
+
+      const [botID, payload] = args1;
+
       let nonFinalText = ''; // holds intermediate results
       let finalText = ''; // holds final strings
       let currentFinalText = ''; // holds current caption
@@ -39,6 +41,13 @@ const useStreamMessageUtils = (): {
       const textstream = protoRoot
         .lookupType('Text')
         .decode(payload as Uint8Array) as any;
+
+      console.log('Bot ID', botID, '*STT*-Agora-Decoded', textstream);
+
+      // dont show the caption for soniox bot
+      if (textstream.uid.toString().startsWith('999')) {
+        return;
+      }
 
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(

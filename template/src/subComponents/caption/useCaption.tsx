@@ -48,6 +48,9 @@ export const CaptionContext = React.createContext<{
   isSTTListenerAdded: boolean;
   setIsSTTListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
 
+  isSonioxSTTListenerAdded: boolean;
+  setIsSonioxSTTListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
+
   activeSpeakerRef: React.MutableRefObject<string>;
   prevSpeakerRef: React.MutableRefObject<string>;
   sonixCaptions: Object;
@@ -77,6 +80,8 @@ export const CaptionContext = React.createContext<{
   setSonixCaptions: () => {},
   captionFeed: {},
   setCaptionFeed: () => {},
+  isSonioxSTTListenerAdded: false,
+  setIsSonioxSTTListenerAdded: () => {},
 });
 
 interface CaptionProviderProps {
@@ -99,6 +104,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   >([]);
   const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
   const [isSTTListenerAdded, setIsSTTListenerAdded] =
+    React.useState<boolean>(false);
+  const [isSonioxSTTListenerAdded, setIsSonioxSTTListenerAdded] =
     React.useState<boolean>(false);
   const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
   const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
@@ -143,6 +150,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setSonixCaptions,
         captionFeed,
         setCaptionFeed,
+        isSonioxSTTListenerAdded,
+        setIsSonioxSTTListenerAdded,
       }}>
       {children}
     </CaptionContext.Provider>

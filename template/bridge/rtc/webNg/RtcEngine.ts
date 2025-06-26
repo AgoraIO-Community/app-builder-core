@@ -45,6 +45,7 @@ import {
   type ScreenEncoderConfigurationPreset,
   type VideoEncoderConfiguration,
 } from '../../../src/app-state/useVideoQuality';
+import {AGORA_STT_BOT_UID} from '../../../src/utils/constants';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -232,6 +233,7 @@ export default class RtcEngine {
     ['onNetworkQuality', () => null],
     ['onActiveSpeaker', () => null],
     ['onStreamMessage', () => null],
+    ['onSonioxStreamMessage', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -754,7 +756,12 @@ export default class RtcEngine {
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
         // Play the audio
-        audioTrack?.play();
+        // audioTrack?.play();
+        // play the audio through soniox bots only
+        if (user.uid.toString().startsWith('999')) {
+          audioTrack?.play();
+        }
+
         this.remoteStreams.set(user.uid, {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,
@@ -908,7 +915,14 @@ export default class RtcEngine {
       //   uid,
       //   payload,
       // );
-      (this.eventsMap.get('onStreamMessage') as callbackType)(uid, payload);
+      if (uid === AGORA_STT_BOT_UID) {
+        (this.eventsMap.get('onStreamMessage') as callbackType)(uid, payload);
+      } else {
+        (this.eventsMap.get('onSonioxStreamMessage') as callbackType)(
+          uid,
+          payload,
+        );
+      }
     });
 
     logger.log(LogSource.AgoraSDK, 'API', 'RTC [join] trying to join channel', {
@@ -976,7 +990,8 @@ export default class RtcEngine {
       event === 'onRemoteVideoStateChanged' ||
       event === 'onNetworkQuality' ||
       event === 'onActiveSpeaker' ||
-      event === 'onStreamMessage'
+      event === 'onStreamMessage' ||
+      event === 'onSonioxStreamMessage'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }

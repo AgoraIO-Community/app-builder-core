@@ -55,7 +55,6 @@ const CaptionContainer: React.FC<CaptionContainerProps> = ({
   captionUserStyle = {},
   captionTextStyle = {},
 }) => {
-  return null;
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);

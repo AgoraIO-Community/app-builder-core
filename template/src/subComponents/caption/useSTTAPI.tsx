@@ -10,6 +10,7 @@ import {capitalizeFirstLetter} from '../../utils/common';
 import {PropsContext, useLocalUid} from '../../../agora-rn-uikit';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
+import {AGORA_STT_BOT_UID} from '../../utils/constants';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -45,7 +46,6 @@ const useSTTAPI = (): IuseSTTAPI => {
   }, [language]);
 
   const apiCall = async (method: string, lang: LanguageType[] = []) => {
-    return;
     const requestId = getUniqueID();
     const startReqTs = Date.now();
     logger.log(
@@ -71,7 +71,7 @@ const useSTTAPI = (): IuseSTTAPI => {
         body: JSON.stringify({
           passphrase: roomId?.host || '',
           lang: lang,
-          dataStream_uid: 111111, // bot ID
+          dataStream_uid: AGORA_STT_BOT_UID, // bot ID
           encryption_mode: $config.ENCRYPTION_ENABLED
             ? rtcProps.encryption.mode
             : null,

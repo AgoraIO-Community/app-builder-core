@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {StyleSheet, Text, View, ScrollView} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ThemeConfig from '../../theme';
@@ -34,8 +35,8 @@ const SonixCaptionContainer = () => {
   const {
     captionFeed,
     setCaptionFeed,
-    setIsSTTListenerAdded,
-    isSTTListenerAdded,
+    isSonioxSTTListenerAdded,
+    setIsSonioxSTTListenerAdded,
   } = useCaption();
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
@@ -61,18 +62,22 @@ const SonixCaptionContainer = () => {
   useEffect(() => {
     const createBot = async () => {
       try {
-        const response = await fetch('http://34.221.57.161:8000/create_bot1', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          'https://demo.rteappbuilder.com/create_bot',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              channel_name: channel,
+              user_id: localUid.toString(),
+              language_hints: ['en'],
+              // source_lang: ['*'],
+              // target_lang: 'en',
+            }),
           },
-          body: JSON.stringify({
-            channel_name: channel, // '2e01d5e2-0ca7-4e9b-8d39-191e9bc3802e',
-            user_id: localUid.toString(), //'2201',
-            // source_lang: ['*'],
-            // target_lang: 'en',
-          }),
-        });
+        );
         const data = await response.json();
         console.log('Bot created:', data);
       } catch (error) {
@@ -81,68 +86,25 @@ const SonixCaptionContainer = () => {
     };
 
     const addStreamListener = () => {
-      !isSTTListenerAdded &&
-        RtcEngineUnsafe.addListener('onStreamMessage', sonixCaptionCallback);
+      //temp add else move to customeventsmap
+      !isSonioxSTTListenerAdded &&
+        RtcEngineUnsafe.addListener(
+          'onSonioxStreamMessage',
+          sonixCaptionCallback,
+        );
     };
     addStreamListener();
     createBot();
   }, []);
 
-  // const sonixCaptionCallback = (uid, payload) => {
-  //   setIsSTTListenerAdded(true);
-  //   const queueCallback = () => {
-  //     console.log('sonix transcript =>', uid, payload);
-  //     const jsonString = new TextDecoder().decode(payload);
-  //     const data = JSON.parse(jsonString);
-
-  //     console.log('Decoded stream message:', data);
-  //     console.log('Decoded isFinal:', data.text.is_final);
-  //     const finalData = JSON.parse(data.token);
-
-  //     const finalText = finalData
-  //       .filter(t => t.is_final)
-  //       .map(t => t.text)
-  //       .join('');
-  //     const nonFinalText = finalData
-  //       .filter(t => !t.is_final)
-  //       .map(t => t.text)
-  //       .join('');
-
-  //     // merge into in-progress buffer
-  //     const active = activeCaptionsRef.current[uid] || {
-  //       uid,
-  //       text: '',
-  //       nonFinal: '',
-  //       time: Date.now(),
-  //     };
-
-  //     if (finalText) {
-  //       active.text = (active.text + ' ' + finalText).trim();
-  //     }
-  //     active.nonFinal = nonFinalText;
-  //     active.time = Date.now();
-  //     activeCaptionsRef.current[uid] = active;
-
-  //     // If fully finalized, commit to feed + remove from active buffer
-  //     if (!nonFinalText && finalText) {
-  //       setCaptionFeed(prev => [...prev, {...active, nonFinal: ''}]);
-  //       delete activeCaptionsRef.current[uid];
-  //     } else {
-  //       // partial update: force rerender by setting dummy feed (not needed in your hook-based context)
-  //       setCaptionFeed(prev => [...prev]); // triggers UI refresh
-  //     }
-  //   };
-
-  //   queueRef.current.add(queueCallback);
-  // };
-
   const sonixCaptionCallback = (botID, payload) => {
-    setIsSTTListenerAdded(true);
+    setIsSonioxSTTListenerAdded(true);
 
     const queueCallback = () => {
       try {
         const jsonString = new TextDecoder().decode(payload);
         const data = JSON.parse(jsonString);
+        console.log('Bot ID', botID, '*STT*-Soniox-Decoded', data);
 
         const finalText = data.final?.trim() || '';
         const nonFinalText = data.non_final?.trim() || '';
