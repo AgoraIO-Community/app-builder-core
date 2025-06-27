@@ -11,6 +11,7 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import PQueue from 'p-queue';
+import useGetName from '../../../src/utils/useGetName';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -41,6 +42,7 @@ const SonixCaptionContainer = () => {
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
+  const username = useGetName();
 
   // in-progress captions per speaker now
   const activeCaptionsRef = useRef<Record<string, CaptionEntry>>({});
@@ -63,6 +65,13 @@ const SonixCaptionContainer = () => {
     const createBot = async () => {
       try {
         engine.selfSonioxBotID = Number('9' + localUid.toString().slice(1));
+
+        const langHint =
+          username.toLowerCase().trim() === 'spanish' ? ['es'] : ['en'];
+        const sourceLang =
+          username.toLowerCase().trim() === 'spanish' ? ['es'] : ['en'];
+        const targetLang =
+          username.toLowerCase().trim() === 'spanish' ? 'en' : 'es';
         const response = await fetch(
           'https://demo.rteappbuilder.com/create_bot',
           {
@@ -73,9 +82,9 @@ const SonixCaptionContainer = () => {
             body: JSON.stringify({
               channel_name: channel,
               user_id: localUid.toString(),
-              language_hints: ['en'],
-              // source_lang: ['en'],
-              // target_lang: 'fr',
+              language_hints: langHint,
+              source_lang: sourceLang,
+              target_lang: targetLang,
             }),
           },
         );
