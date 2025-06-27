@@ -62,6 +62,7 @@ const SonixCaptionContainer = () => {
   useEffect(() => {
     const createBot = async () => {
       try {
+        engine.selfSonioxBotID = Number('9' + localUid.toString().slice(1));
         const response = await fetch(
           'https://demo.rteappbuilder.com/create_bot',
           {
@@ -73,8 +74,8 @@ const SonixCaptionContainer = () => {
               channel_name: channel,
               user_id: localUid.toString(),
               language_hints: ['en'],
-              // source_lang: ['*'],
-              // target_lang: 'en',
+              // source_lang: ['en'],
+              // target_lang: 'fr',
             }),
           },
         );

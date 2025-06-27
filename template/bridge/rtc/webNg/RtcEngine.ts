@@ -263,6 +263,7 @@ export default class RtcEngine {
     const {appId} = context;
     logger.log(LogSource.AgoraSDK, 'Log', 'RTC engine initialized');
     this.appId = appId;
+    this.selfSonioxBotID = null;
   }
 
   getLocalVideoStats() {
@@ -757,8 +758,11 @@ export default class RtcEngine {
         const audioTrack = user.audioTrack;
         // Play the audio
         // audioTrack?.play();
-        // play the audio through soniox bots only
-        if (user.uid.toString().startsWith('999')) {
+        // play the audio through soniox bots only and not for self bot
+        if (
+          user.uid.toString().startsWith('9') &&
+          user.uid !== this.selfSonioxBotID
+        ) {
           audioTrack?.play();
         }
 
