@@ -69,7 +69,7 @@ const SonixCaptionContainer = () => {
         const langHint =
           username.toLowerCase().trim() === 'spanish' ? ['es'] : ['en'];
         const sourceLang =
-          username.toLowerCase().trim() === 'spanish' ? ['es'] : ['en'];
+          username.toLowerCase().trim() === 'spanish' ? ['*'] : ['en'];
         const targetLang =
           username.toLowerCase().trim() === 'spanish' ? 'en' : 'es';
         const response = await fetch(
