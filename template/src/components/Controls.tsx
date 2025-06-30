@@ -570,7 +570,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       title: v2vLabel(isV2VON),
       onPress: () => {
         setActionMenuVisible(false);
-        // setIsV2VActive(prev => !prev);
+        isV2VActive && setIsV2VActive(false);
         setIsV2VON(prev => !prev);
       },
     });
