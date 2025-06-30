@@ -63,7 +63,6 @@ const SonixCaptionContainer = () => {
   const engine = RtcEngineUnsafe;
   const [displayFeed, setDisplayFeed] = useState<TranslatioinEntry[]>([]);
   const [showTranslatorPopup, setShowTranslatorPopup] = useState(true);
-  const [isTranslation, setIsTranslation] = useState(false);
 
   useEffect(() => {
     if (RtcEngineUnsafe && RtcEngineUnsafe.setV2VActive) {
@@ -88,14 +87,9 @@ const SonixCaptionContainer = () => {
   }, [translations]);
 
   useEffect(() => {
-    if (isTranslation) {
-      setSourceLang(prev => prev || 'en');
-      setTargetLang(prev => prev || 'es');
-    } else {
-      setSourceLang(null);
-      setTargetLang(null);
-    }
-  }, [isTranslation, setSourceLang, setTargetLang]);
+    setSourceLang('en');
+    setTargetLang('es');
+  }, []);
 
   const sonixCaptionCallback = useCallback(
     (botID, payload) => {
@@ -166,12 +160,14 @@ const SonixCaptionContainer = () => {
         let body: any = {
           channel_name: channel,
           user_id: localUid.toString(),
+          language_hints: [sourceLang],
         };
-        if (sourceLang && targetLang) {
-          body.language_hints = [sourceLang];
+
+        if (sourceLang !== targetLang) {
           body.source_lang = [targetLang === 'en' ? '*' : sourceLang]; // soniox issue to trsnalte to english it src needsto be marked as *
           body.target_lang = targetLang;
         }
+
         const response = await fetch(
           'https://demo.rteappbuilder.com/create_bot',
           {
@@ -218,8 +214,6 @@ const SonixCaptionContainer = () => {
       <TranslatorSelectedLanguagePopup
         modalVisible={showTranslatorPopup}
         setModalVisible={setShowTranslatorPopup}
-        isTranslation={isTranslation}
-        setIsTranslation={setIsTranslation}
         sourceLang={sourceLang}
         setSourceLang={setSourceLang}
         targetLang={targetLang}

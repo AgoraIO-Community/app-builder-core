@@ -19,8 +19,6 @@ import Toggle from '../../atoms/Toggle';
 interface TranslatorSelectedLanguagePopupProps {
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  isTranslation: boolean;
-  setIsTranslation: (val: boolean) => void;
   sourceLang: LanguageType;
   setSourceLang: (lang: LanguageType) => void;
   targetLang: LanguageType;
@@ -102,8 +100,6 @@ const TranslatorSelectedLanguagePopup: React.FC<
 > = ({
   modalVisible,
   setModalVisible,
-  isTranslation,
-  setIsTranslation,
   sourceLang,
   setSourceLang,
   targetLang,
@@ -113,9 +109,6 @@ const TranslatorSelectedLanguagePopup: React.FC<
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
-
-  const isLangSame =
-    isTranslation && sourceLang && targetLang && sourceLang === targetLang;
 
   // Only one dropdown open at a time
   React.useEffect(() => {
@@ -131,50 +124,30 @@ const TranslatorSelectedLanguagePopup: React.FC<
       setModalVisible={setModalVisible}
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
-      title={isTranslation ? 'Select Translation Languages' : 'Transcription'}
-      subtitle={
-        isTranslation
-          ? 'Choose source and target language for translation.'
-          : 'Transcription will use the default language.'
-      }>
-      <View style={styles.toggleRow}>
-        <Text style={styles.toggleLabel}>Transcription</Text>
-        <Toggle
-          isEnabled={isTranslation}
-          toggleSwitch={setIsTranslation}
-          customContainerStyle={{marginHorizontal: 12}}
+      title={'Select Translation Languages'}
+      subtitle={'Choose source and target language for translation.'}>
+      <>
+        <SingleSelectDropdown
+          label="Source Language"
+          value={sourceLang}
+          onChange={setSourceLang}
+          options={langData}
+          placeholder="Select source language"
+          open={srcOpen}
+          setOpen={setSrcOpen}
+          otherDropdownOpen={tgtOpen}
         />
-        <Text style={styles.toggleLabel}>Translation</Text>
-      </View>
-      {isTranslation && (
-        <>
-          <SingleSelectDropdown
-            label="Source Language"
-            value={sourceLang}
-            onChange={setSourceLang}
-            options={langData}
-            placeholder="Select source language"
-            open={srcOpen}
-            setOpen={setSrcOpen}
-            otherDropdownOpen={tgtOpen}
-          />
-          <SingleSelectDropdown
-            label="Target Language"
-            value={targetLang}
-            onChange={setTargetLang}
-            options={langData}
-            placeholder="Select target language"
-            open={tgtOpen}
-            setOpen={setTgtOpen}
-            otherDropdownOpen={srcOpen}
-          />
-          {isLangSame && (
-            <Text style={styles.errorText}>
-              Source and Target languages cannot be the same.
-            </Text>
-          )}
-        </>
-      )}
+        <SingleSelectDropdown
+          label="Target Language"
+          value={targetLang}
+          onChange={setTargetLang}
+          options={langData}
+          placeholder="Select target language"
+          open={tgtOpen}
+          setOpen={setTgtOpen}
+          otherDropdownOpen={srcOpen}
+        />
+      </>
       <Spacer size={24} />
       <View style={styles.btnContainer}>
         <TertiaryButton
@@ -191,7 +164,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           containerStyle={styles.btn}
           text={'Confirm'}
           textStyle={styles.btnText}
-          disabled={isTranslation && (!sourceLang || !targetLang || isLangSame)}
+          disabled={!sourceLang || !targetLang}
           onPress={() => {
             setModalVisible(false);
             onConfirm();
