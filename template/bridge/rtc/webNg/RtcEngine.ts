@@ -251,6 +251,7 @@ export default class RtcEngine {
   private isAudioPublished = false;
   private isVideoPublished = false;
   private isJoined = false;
+  public isV2VActive: boolean = false;
   private videoDeviceId = undefined;
   private audioDeviceId = undefined;
   private muteLocalVideoMutex = false;
@@ -759,11 +760,17 @@ export default class RtcEngine {
         // Play the audio
         // audioTrack?.play();
         // play the audio through soniox bots only and not for self bot
-        if (
-          user.uid.toString().startsWith('9') &&
-          user.uid !== this.selfSonioxBotID
-        ) {
-          audioTrack?.play();
+        if (this.isV2VActive) {
+          if (
+            user.uid.toString().startsWith('9') &&
+            user.uid !== this.selfSonioxBotID
+          ) {
+            audioTrack?.play();
+          }
+        } else {
+          if (!user.uid.toString().startsWith('9')) {
+            audioTrack?.play();
+          }
         }
 
         this.remoteStreams.set(user.uid, {
@@ -1754,5 +1761,29 @@ export default class RtcEngine {
       }
       this.inScreenshare = false;
     }
+  }
+
+  setV2VActive(isActive: boolean) {
+    this.isV2VActive = isActive;
+    // adjust playback for existing remote users
+    this.remoteStreams.forEach((stream, uid) => {
+      if (stream.audio) {
+        if (isActive) {
+          // V2V is now ON. Play bots, stop users.
+          if (uid.toString().startsWith('9') && uid !== this.selfSonioxBotID) {
+            stream.audio.play();
+          } else if (!uid.toString().startsWith('9')) {
+            stream.audio.stop();
+          }
+        } else {
+          // V2V is now OFF. Play users, stop bots.
+          if (!uid.toString().startsWith('9')) {
+            stream.audio.play();
+          } else if (uid.toString().startsWith('9')) {
+            stream.audio.stop();
+          }
+        }
+      }
+    });
   }
 }

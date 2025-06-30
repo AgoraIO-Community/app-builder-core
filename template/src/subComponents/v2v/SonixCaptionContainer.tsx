@@ -66,6 +66,20 @@ const SonixCaptionContainer = () => {
   const [isTranslation, setIsTranslation] = useState(false);
 
   useEffect(() => {
+    if (RtcEngineUnsafe && RtcEngineUnsafe.setV2VActive) {
+      RtcEngineUnsafe.setV2VActive(isV2VActive);
+    }
+  }, [isV2VActive, RtcEngineUnsafe]);
+
+  useEffect(() => {
+    return () => {
+      if (RtcEngineUnsafe && RtcEngineUnsafe.setV2VActive) {
+        RtcEngineUnsafe.setV2VActive(false);
+      }
+    };
+  }, [RtcEngineUnsafe]);
+
+  useEffect(() => {
     const mergedFeed = [
       ...translations.map(entry => ({...entry})),
       ...Object.values(activeCaptionsRef.current).map(entry => ({...entry})),
