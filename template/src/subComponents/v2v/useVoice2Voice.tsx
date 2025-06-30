@@ -32,6 +32,12 @@ export const V2VContext = React.createContext<{
   language: LanguageType[];
   setLanguage: React.Dispatch<React.SetStateAction<LanguageType[]>>;
 
+  // source and target language for translation
+  sourceLang: LanguageType;
+  setSourceLang: React.Dispatch<React.SetStateAction<LanguageType>>;
+  targetLang: LanguageType;
+  setTargetLang: React.Dispatch<React.SetStateAction<LanguageType>>;
+
   // holds meeting transcript
   meetingTranscript: TranscriptItem[];
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
@@ -60,6 +66,10 @@ export const V2VContext = React.createContext<{
   setIsV2VActive: () => {},
   language: ['en'],
   setLanguage: () => {},
+  sourceLang: 'en',
+  setSourceLang: () => {},
+  targetLang: 'es',
+  setTargetLang: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
@@ -84,6 +94,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [isV2VON, setIsV2VON] = React.useState<boolean>(false);
   const [isV2VActive, setIsV2VActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['']);
+  const [sourceLang, setSourceLang] = React.useState<LanguageType>('en');
+  const [targetLang, setTargetLang] = React.useState<LanguageType>('es');
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
   const [meetingTranscript, setMeetingTranscript] = React.useState<
@@ -120,6 +132,10 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setIsV2VActive,
         language,
         setLanguage,
+        sourceLang,
+        setSourceLang,
+        targetLang,
+        setTargetLang,
         meetingTranscript,
         setMeetingTranscript,
         isLangChangeInProgress,
