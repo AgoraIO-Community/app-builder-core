@@ -55,7 +55,8 @@ import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot
 import {ToolbarPresetProps} from '../../atoms/ToolbarPreset';
 import CustomSidePanelView from '../../components/CustomSidePanel';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
-import SonixCaptionContainer from '../../subComponents/caption/SonixCaptionContainer';
+import SonixCaptionContainer from '../../subComponents/v2v/SonixCaptionContainer';
+import {useV2V} from '../../subComponents/v2v/useVoice2Voice';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -69,6 +70,7 @@ const VideoCallScreen = () => {
     data: {meetingTitle, isHost},
   } = useRoomInfo();
   const {isCaptionON} = useCaption();
+  const {isV2VON} = useV2V();
   const {
     ChatComponent,
     VideocallComponent,
@@ -455,7 +457,7 @@ const VideoCallScreen = () => {
                   />
                 ) : (
                   <>
-                    {isCaptionON ? <SonixCaptionContainer /> : <></>}
+                    {isV2VON ? <SonixCaptionContainer /> : <></>}
                     {isCaptionON ? <CaptionComponent /> : <></>}
                     <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 20 : 10} />
                     <View

@@ -108,6 +108,7 @@ export const toolbarItemNoiseCancellationText =
   'toolbarItemNoiseCancellationText';
 export const toolbarItemWhiteboardText = 'toolbarItemWhiteboardText';
 export const toolbarItemCaptionText = 'toolbarItemCaptionText';
+export const toolbarItemV2VText = 'toolbarItemV2VText';
 export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
 export const toolbarItemManageTextTracksText =
   'toolbarItemManageTextTracksText';
@@ -572,6 +573,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemNoiseCancellationText]?: I18nBaseType;
   [toolbarItemWhiteboardText]?: I18nConditionalType;
   [toolbarItemCaptionText]?: I18nConditionalType;
+  [toolbarItemV2VText]?: I18nConditionalType;
   [toolbarItemTranscriptText]?: I18nConditionalType;
   [toolbarItemManageTextTracksText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
@@ -939,6 +941,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Hide Whiteboard' : 'Show Whiteboard',
   [toolbarItemCaptionText]: active =>
     active ? 'Hide Caption' : 'Show Caption',
+  [toolbarItemV2VText]:active => active ? 'Stop V2V Tranlation' : 'Start V2V Translation',
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
   [toolbarItemViewRecordingText]: 'View Recordings',

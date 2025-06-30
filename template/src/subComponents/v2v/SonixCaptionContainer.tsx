@@ -11,6 +11,7 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import PQueue from 'p-queue';
+import {useV2V} from './useVoice2Voice';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -21,7 +22,7 @@ const formatTime = (timestamp: number) => {
   });
 };
 
-type CaptionEntry = {
+type TranslatioinEntry = {
   uid: string;
   text: string;
   nonFinal?: string;
@@ -33,31 +34,31 @@ const SonixCaptionContainer = () => {
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
   const {
-    captionFeed,
-    setCaptionFeed,
-    isSonioxSTTListenerAdded,
-    setIsSonioxSTTListenerAdded,
-  } = useCaption();
+    translations,
+    setTranslations,
+    isSonioxV2VListenerAdded,
+    setIsSonioxV2VListenerAdded,
+  } = useV2V();
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
 
   // in-progress captions per speaker now
-  const activeCaptionsRef = useRef<Record<string, CaptionEntry>>({});
+  const activeCaptionsRef = useRef<Record<string, TranslatioinEntry>>({});
   const {
     data: {channel},
   } = useRoomInfo();
 
   const engine = RtcEngineUnsafe;
-  const [displayFeed, setDisplayFeed] = useState<CaptionEntry[]>([]);
+  const [displayFeed, setDisplayFeed] = useState<TranslatioinEntry[]>([]);
 
   useEffect(() => {
     const mergedFeed = [
-      ...captionFeed.map(entry => ({...entry})),
+      ...translations.map(entry => ({...entry})),
       ...Object.values(activeCaptionsRef.current).map(entry => ({...entry})),
     ];
     setDisplayFeed(mergedFeed);
-  }, [captionFeed]); // triggers whenever finalized captions update
+  }, [translations]); // triggers whenever finalized captions update
 
   useEffect(() => {
     const createBot = async () => {
@@ -88,7 +89,7 @@ const SonixCaptionContainer = () => {
 
     const addStreamListener = () => {
       //temp add else move to customeventsmap
-      !isSonioxSTTListenerAdded &&
+      !isSonioxV2VListenerAdded &&
         RtcEngineUnsafe.addListener(
           'onSonioxStreamMessage',
           sonixCaptionCallback,
@@ -99,7 +100,7 @@ const SonixCaptionContainer = () => {
   }, []);
 
   const sonixCaptionCallback = (botID, payload) => {
-    setIsSonioxSTTListenerAdded(true);
+    setIsSonioxV2VListenerAdded(true);
 
     const queueCallback = () => {
       try {
@@ -122,7 +123,7 @@ const SonixCaptionContainer = () => {
 
         // Merge final into existing line for same speaker
         if (finalText) {
-          setCaptionFeed(prev => {
+          setTranslations(prev => {
             const last = prev[prev.length - 1];
             if (last && last.uid === uid) {
               // Append new final text to the last message by same user
@@ -144,7 +145,7 @@ const SonixCaptionContainer = () => {
 
         if (nonFinalText) {
           activeCaptionsRef.current[uid] = active;
-          setCaptionFeed(prev => [...prev]); // trigger UI update
+          setTranslations(prev => [...prev]); // trigger UI update
         } else {
           delete activeCaptionsRef.current[uid];
         }
@@ -177,7 +178,7 @@ const SonixCaptionContainer = () => {
         }
       }}>
       <>
-        {[...captionFeed].map((entry, index) => {
+        {[...translations].map((entry, index) => {
           const live = activeCaptionsRef.current[entry.uid]?.nonFinal;
           return (
             <Text key={`caption-${index}`} style={styles.captionLine}>

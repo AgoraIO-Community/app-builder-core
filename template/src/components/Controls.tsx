@@ -104,6 +104,7 @@ import {
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
   toolbarItemManageTextTracksText,
+  toolbarItemV2VText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
@@ -117,6 +118,7 @@ import {
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
+import {useV2V} from '../subComponents/v2v/useVoice2Voice';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -281,6 +283,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const viewTextTracksLabel = useString<boolean>(
     toolbarItemManageTextTracksText,
   )();
+  const v2vLabel = useString<boolean>(toolbarItemV2VText);
   const moreButtonLabel = useString(toolbarItemMoreText)();
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
@@ -318,12 +321,15 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     isSTTError,
   } = useCaption();
 
+  const {isV2VON, setIsV2VON} = useV2V();
+
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
+  const [isV2VActive, setIsV2VActive] = React.useState(false);
 
   const {start, restart} = useSTTAPI();
   const {
@@ -551,6 +557,21 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           isFirstTimePopupOpen.current = true;
           setLanguagePopup(true);
         }
+      },
+    });
+    // V2V Translation action item (below Show Caption)
+    actionMenuitems.push({
+      componentName: 'v2v-translation',
+      order: 3,
+      icon: `${isV2VON ? 'captions-off' : 'captions'}`,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: false,
+      title: v2vLabel(isV2VON),
+      onPress: () => {
+        setActionMenuVisible(false);
+        // setIsV2VActive(prev => !prev);
+        setIsV2VON(prev => !prev);
       },
     });
     // 4. Meeting transcript
@@ -1127,6 +1148,7 @@ export const MoreButtonToolbarItem = (props?: {
     data: {isHost},
   } = useRoomInfo();
   const {isSTTActive} = useCaption();
+
   const [_, forceUpdate] = useReducer(x => x + 1, 0);
 
   useEffect(() => {
