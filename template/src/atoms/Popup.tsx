@@ -27,6 +27,7 @@ interface PopupProps extends ModalProps {
   containerStyle?: ViewStyle;
   cancelable?: boolean;
   headerComponent?: React.ReactNode;
+  onCancel?: () => void;
 }
 const Popup = (props: PopupProps) => {
   const {
@@ -40,6 +41,7 @@ const Popup = (props: PopupProps) => {
     bodyContainerStyle = {},
     closeBtnStyle = {},
     headerComponent = null,
+    onCancel,
     ...otherProps
   } = props;
 
@@ -51,6 +53,7 @@ const Popup = (props: PopupProps) => {
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => {
+        if (onCancel) onCancel();
         setModalVisible(false);
       }}
       {...otherProps}>
@@ -62,7 +65,10 @@ const Popup = (props: PopupProps) => {
         ]}>
         <TouchableWithoutFeedback
           onPress={() => {
-            cancelable && setModalVisible(false);
+            if (cancelable) {
+              if (onCancel) onCancel();
+              setModalVisible(false);
+            }
           }}>
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>
@@ -92,6 +98,7 @@ const Popup = (props: PopupProps) => {
                         tintColor: $config.SECONDARY_ACTION_COLOR,
                       }}
                       onPress={() => {
+                        if (onCancel) onCancel();
                         setModalVisible(false);
                       }}
                     />

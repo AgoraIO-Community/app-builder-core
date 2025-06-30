@@ -125,7 +125,8 @@ const TranslatorSelectedLanguagePopup: React.FC<
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
       title={'Select Translation Languages'}
-      subtitle={'Choose source and target language for translation.'}>
+      subtitle={'Choose source and target language for translation.'}
+      onCancel={onCancel}>
       <>
         <SingleSelectDropdown
           label="Source Language"
