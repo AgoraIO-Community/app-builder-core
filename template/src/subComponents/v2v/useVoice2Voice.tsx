@@ -58,7 +58,7 @@ export const V2VContext = React.createContext<{
   setIsV2VError: () => {},
   isV2VActive: false,
   setIsV2VActive: () => {},
-  language: ['en-US'],
+  language: ['en'],
   setLanguage: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},

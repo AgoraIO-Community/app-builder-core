@@ -12,6 +12,8 @@ import {
 } from 'customization-api';
 import PQueue from 'p-queue';
 import {useV2V} from './useVoice2Voice';
+import Loading from '../Loading';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -38,6 +40,8 @@ const SonixCaptionContainer = () => {
     setTranslations,
     isSonioxV2VListenerAdded,
     setIsSonioxV2VListenerAdded,
+    isV2VActive,
+    setIsV2VActive,
   } = useV2V();
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
@@ -60,10 +64,15 @@ const SonixCaptionContainer = () => {
     setDisplayFeed(mergedFeed);
   }, [translations]); // triggers whenever finalized captions update
 
+  const target_lang = 'english';
+
   useEffect(() => {
     const createBot = async () => {
       try {
-        engine.selfSonioxBotID = Number('9' + localUid.toString().slice(1));
+        engine.selfSonioxBotID = ''; //Number('9' + localUid.toString().slice(1));
+        const langHint = target_lang === 'spanish' ? ['es'] : ['en'];
+        const sourceLang = target_lang === 'spanish' ? ['*'] : ['en'];
+        const targetLang = target_lang === 'spanish' ? 'en' : 'es';
         const response = await fetch(
           'https://demo.rteappbuilder.com/create_bot',
           {
@@ -74,14 +83,15 @@ const SonixCaptionContainer = () => {
             body: JSON.stringify({
               channel_name: channel,
               user_id: localUid.toString(),
-              language_hints: ['en'],
-              // source_lang: ['en'],
-              // target_lang: 'fr',
+              language_hints: langHint,
+              source_lang: sourceLang,
+              target_lang: targetLang,
             }),
           },
         );
         const data = await response.json();
         console.log('Bot created:', data);
+        setIsV2VActive(true);
       } catch (error) {
         console.error('Error creating bot:', error);
       }
@@ -177,20 +187,29 @@ const SonixCaptionContainer = () => {
           scrollRef.current?.scrollToEnd({animated: true});
         }
       }}>
-      <>
-        {[...translations].map((entry, index) => {
-          const live = activeCaptionsRef.current[entry.uid]?.nonFinal;
-          return (
-            <Text key={`caption-${index}`} style={styles.captionLine}>
-              <Text style={styles.uid}>
-                {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
+      {!isV2VActive ? (
+        <Loading
+          text={'Setting up Translation...'}
+          background="transparent"
+          indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+          textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+        />
+      ) : (
+        <>
+          {[...translations].map((entry, index) => {
+            const live = activeCaptionsRef.current[entry.uid]?.nonFinal;
+            return (
+              <Text key={`caption-${index}`} style={styles.captionLine}>
+                <Text style={styles.uid}>
+                  {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
+                </Text>
+                <Text style={styles.content}> {entry.text}</Text>
+                {live && <Text style={styles.live}> {live}</Text>}
               </Text>
-              <Text style={styles.content}> {entry.text}</Text>
-              {live && <Text style={styles.live}> {live}</Text>}
-            </Text>
-          );
-        })}
-      </>
+            );
+          })}
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -205,6 +224,7 @@ const styles = StyleSheet.create({
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: $config.ICON_TEXT ? 8 : 0,
     overflowY: 'scroll',
+    marginHorizontal: 32,
   },
   container: {
     padding: 12,

@@ -1,4 +1,3 @@
-
 export function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
   const h = d.getHours();
@@ -10,20 +9,11 @@ export function formatTime(timestamp: number): string {
 }
 
 export type LanguageType =
-  | 'en-US'
-  | 'hi-IN'
-  | 'zh-CN'
-  | 'zh-HK'
-  | 'fr-FR'
-  | 'de-DE'
-  | 'ko-KR'
-  | 'en-IN'
-  | 'ar'
-  | 'ja-JP'
-  | 'pt-PT'
-  | 'es-ES'
-  | 'it-IT'
-  | 'id-ID'
+  | 'en' // English
+  | 'fr' // French
+  | 'ja' // Japanese
+  | 'es' // Spanish
+  | 'de' // German
   | '';
 
 interface LanguageData {
@@ -32,20 +22,11 @@ interface LanguageData {
 }
 
 export const langData: LanguageData[] = [
-  {label: 'English (US)', value: 'en-US'},
-  {label: 'English (India)', value: 'en-IN'},
-  {label: 'Hindi', value: 'hi-IN'},
-  {label: 'Chinese (Simplified)', value: 'zh-CN'},
-  {label: 'Chinese (Traditional)', value: 'zh-HK'},
-  {label: 'Arabic', value: 'ar'},
-  {label: 'French', value: 'fr-FR'},
-  {label: 'German', value: 'de-DE'},
-  {label: 'Japanese', value: 'ja-JP'},
-  {label: 'Korean', value: 'ko-KR'},
-  {label: 'Portuguese', value: 'pt-PT'},
-  {label: 'Spanish', value: 'es-ES'},
-  {label: 'Italian', value: 'it-IT'},
-  {label: 'Indonesian', value: 'id-ID'},
+  {label: 'English', value: 'en'},
+  {label: 'French', value: 'fr'},
+  {label: 'German', value: 'de'},
+  {label: 'Japanese', value: 'ja'},
+  {label: 'Spanish', value: 'es'},
 ];
 
 export function getLanguageLabel(
@@ -74,4 +55,3 @@ export function formatDateWithTimeZone(date: Date): string {
     offsetMinutes,
   ).padStart(2, '0')}`;
 }
-
