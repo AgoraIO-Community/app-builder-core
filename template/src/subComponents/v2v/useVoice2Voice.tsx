@@ -158,7 +158,7 @@ const useV2V = createHook(V2VContext);
 
 //disconnect V2V user from channel
 export const disconnectV2VUser = (channel, userId) => {
-  fetch('https://demo.rteappbuilder.com/disconnect_channel', {
+  fetch('https://demo.rteappbuilder.com/disconnect_user', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
