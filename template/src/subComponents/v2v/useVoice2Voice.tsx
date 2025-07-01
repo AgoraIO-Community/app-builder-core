@@ -156,4 +156,18 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
 
 const useV2V = createHook(V2VContext);
 
+//disconnect V2V user from channel
+export const disconnectV2VUser = (channel, userId) => {
+  fetch('https://demo.rteappbuilder.com/disconnect_channel', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      channel_name: channel,
+      user_id: userId.toString(),
+    }),
+  }).catch(err => {
+    console.error('Error disconnecting V2V bot:', err);
+  });
+};
+
 export {V2VProvider, useV2V};

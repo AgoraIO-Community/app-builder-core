@@ -14,6 +14,9 @@ import {toolbarItemLeaveText} from '../../src/language/default-labels/videoCallS
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import useEndCall from '../utils/useEndCall';
 import {useToolbarProps} from '../atoms/ToolbarItem';
+import {disconnectV2VUser} from './v2v/useVoice2Voice';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
+import {useLocalUid} from '../../agora-rn-uikit';
 
 export interface LocalEndcallProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -44,6 +47,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   };
   const [endCallState, setEndCallState] = useState(false);
   const executeEndCall = useEndCall();
+  const {
+    data: {channel},
+  } = useRoomInfo();
+  const localUid = useLocalUid();
 
   useEffect(() => {
     if (!isScreenshareActive && endCallState) {
@@ -62,6 +69,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       } else {
         executeEndCall();
       }
+      disconnectV2VUser(channel, localUid);
     }
   };
 

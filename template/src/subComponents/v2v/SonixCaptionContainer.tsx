@@ -11,7 +11,7 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import PQueue from 'p-queue';
-import {useV2V} from './useVoice2Voice';
+import {useV2V, disconnectV2VUser} from './useVoice2Voice';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import TranslatorSelectedLanguagePopup from './TranslatorSelectedLanguagePopup';
@@ -64,19 +64,6 @@ const SonixCaptionContainer = () => {
   const [displayFeed, setDisplayFeed] = useState<TranslatioinEntry[]>([]);
   const [showTranslatorPopup, setShowTranslatorPopup] = useState(true);
 
-  const disconnectV2VUser = useCallback(() => {
-    fetch('https://demo.rteappbuilder.com/disconnect_user', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        channel_name: channel,
-        user_id: localUid.toString(),
-      }),
-    }).catch(err => {
-      console.error('Error disconnecting V2V bot:', err);
-    });
-  }, [channel, localUid]);
-
   useEffect(() => {
     if (RtcEngineUnsafe && RtcEngineUnsafe.setV2VActive) {
       RtcEngineUnsafe.setV2VActive(isV2VActive);
@@ -86,9 +73,9 @@ const SonixCaptionContainer = () => {
   useEffect(() => {
     return () => {
       // On unmount, disconnect user from V2V
-      disconnectV2VUser();
+      disconnectV2VUser(channel, localUid);
     };
-  }, [disconnectV2VUser]);
+  }, [channel, localUid]);
 
   useEffect(() => {
     const mergedFeed = [
