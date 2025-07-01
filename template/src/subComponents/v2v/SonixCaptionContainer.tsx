@@ -65,15 +65,10 @@ const SonixCaptionContainer = () => {
   const [showTranslatorPopup, setShowTranslatorPopup] = useState(true);
 
   useEffect(() => {
-    if (RtcEngineUnsafe && RtcEngineUnsafe.setV2VActive) {
-      RtcEngineUnsafe.setV2VActive(isV2VActive);
-    }
-  }, [isV2VActive, RtcEngineUnsafe]);
-
-  useEffect(() => {
     return () => {
       // On unmount, disconnect user from V2V
       disconnectV2VUser(channel, localUid);
+      RtcEngineUnsafe.setV2VActive(false);
     };
   }, [channel, localUid]);
 
@@ -180,6 +175,7 @@ const SonixCaptionContainer = () => {
         );
         const data = await response.json();
         console.log('Bot created:', data);
+        RtcEngineUnsafe.setV2VActive(true);
         setIsV2VActive(true);
       } catch (error) {
         console.error('Error creating bot:', error);
