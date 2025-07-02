@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import TranslatorSelectedLanguagePopup from '../TranslatorSelectedLanguagePopup';
 import {useV2VPalabra} from './usePalabraVoice2Voice';
-import {getPalabraSupportedLanguages} from './utils';
+import {langData} from './utils';
 
 const PalabraContainer = () => {
   const {
@@ -37,6 +37,7 @@ const PalabraContainer = () => {
           setTargetLang={setTargetLang}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
+          langData={langData}
         />
       )}
       {/* TODO: Add Palabra translation display here */}

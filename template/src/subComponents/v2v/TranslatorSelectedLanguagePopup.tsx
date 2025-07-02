@@ -13,27 +13,33 @@ import Spacer from '../../atoms/Spacer';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
-import {LanguageType, langData} from './utils';
+// import {LanguageType, langData} from './utils';
 import Toggle from '../../atoms/Toggle';
+
+interface LanguageData {
+  label: string;
+  value: string;
+}
 
 interface TranslatorSelectedLanguagePopupProps {
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  sourceLang: LanguageType;
-  setSourceLang: (lang: LanguageType) => void;
-  targetLang: LanguageType;
-  setTargetLang: (lang: LanguageType) => void;
+  sourceLang: string;
+  setSourceLang: (lang: string) => void;
+  targetLang: string;
+  setTargetLang: (lang: string) => void;
   onConfirm: () => void;
   onCancel: () => void;
+  langData: LanguageData[];
 }
 
 const windowWidth = Dimensions.get('window').width;
 
 const SingleSelectDropdown: React.FC<{
   label: string;
-  value: LanguageType;
-  onChange: (lang: LanguageType) => void;
-  options: {label: string; value: LanguageType}[];
+  value: string;
+  onChange: (lang: string) => void;
+  options: LanguageData[];
   placeholder?: string;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -106,6 +112,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setTargetLang,
   onConfirm,
   onCancel,
+  langData,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);

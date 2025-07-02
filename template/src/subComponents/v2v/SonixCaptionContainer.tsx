@@ -15,7 +15,7 @@ import {useV2V, disconnectV2VUser} from './useVoice2Voice';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import TranslatorSelectedLanguagePopup from './TranslatorSelectedLanguagePopup';
-import {LanguageType} from './utils';
+import {LanguageType, langData} from './utils';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -216,6 +216,7 @@ const SonixCaptionContainer = () => {
         setTargetLang={setTargetLang}
         onConfirm={() => setShowTranslatorPopup(false)}
         onCancel={() => setIsV2VON(false)}
+        langData={langData}
       />
     );
   }
