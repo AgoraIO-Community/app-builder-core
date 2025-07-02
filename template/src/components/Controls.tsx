@@ -119,6 +119,7 @@ import {
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
 import {useV2V} from '../subComponents/v2v/useVoice2Voice';
+import {useV2VPalabra} from '../subComponents/v2v/palabra/usePalabraVoice2Voice';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -322,6 +323,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   } = useCaption();
 
   const {isV2VON, setIsV2VON} = useV2V();
+  const {isPalabraON, setIsPalabraON} = useV2VPalabra();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
 
@@ -571,6 +573,21 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       onPress: () => {
         setActionMenuVisible(false);
         setIsV2VON(prev => !prev);
+      },
+    });
+
+    // V2V Translation - Palabra
+    actionMenuitems.push({
+      componentName: 'palabra-translation',
+      order: 3,
+      icon: `${isPalabraON ? 'captions-off' : 'captions'}`,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: false,
+      title: `${isPalabraON ? 'Stop V2V Palabra' : 'Start V2V Palabra'}`,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setIsPalabraON(prev => !prev);
       },
     });
     // 4. Meeting transcript

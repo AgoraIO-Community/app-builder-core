@@ -57,6 +57,8 @@ import CustomSidePanelView from '../../components/CustomSidePanel';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 import SonixCaptionContainer from '../../subComponents/v2v/SonixCaptionContainer';
 import {useV2V} from '../../subComponents/v2v/useVoice2Voice';
+import {useV2VPalabra} from '../../subComponents/v2v/palabra/usePalabraVoice2Voice';
+import PalabraContainer from '../../subComponents/v2v/palabra/PalabraContainer';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -71,6 +73,7 @@ const VideoCallScreen = () => {
   } = useRoomInfo();
   const {isCaptionON} = useCaption();
   const {isV2VON} = useV2V();
+  const {isPalabraON} = useV2VPalabra();
   const {
     ChatComponent,
     VideocallComponent,
@@ -457,6 +460,7 @@ const VideoCallScreen = () => {
                   />
                 ) : (
                   <>
+                    {isPalabraON ? <PalabraContainer /> : <></>}
                     {isV2VON ? <SonixCaptionContainer /> : <></>}
                     {isCaptionON ? <CaptionComponent /> : <></>}
                     <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 20 : 10} />
