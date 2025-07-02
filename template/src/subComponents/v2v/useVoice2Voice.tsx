@@ -1,6 +1,6 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
-import {LanguageType} from './utils';
+import {LanguageType, voices} from './utils';
 
 export type TranscriptItem = {
   uid: string;
@@ -57,6 +57,8 @@ export const V2VContext = React.createContext<{
   prevSpeakerRef: React.MutableRefObject<string>;
   translations: Object;
   setTranslations: React.Dispatch<React.SetStateAction<Object>>;
+  selectedVoice: string;
+  setSelectedVoice: React.Dispatch<React.SetStateAction<string>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -82,6 +84,8 @@ export const V2VContext = React.createContext<{
   setTranslations: () => {},
   isSonioxV2VListenerAdded: false,
   setIsSonioxV2VListenerAdded: () => {},
+  selectedVoice: voices[0]?.value || '',
+  setSelectedVoice: () => {},
 });
 
 interface V2VProviderProps {
@@ -121,6 +125,10 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
     }[]
   >([]);
 
+  const [selectedVoice, setSelectedVoice] = React.useState<string>(
+    voices[0]?.value || '',
+  );
+
   return (
     <V2VContext.Provider
       value={{
@@ -148,6 +156,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setTranslations,
         isSonioxV2VListenerAdded,
         setIsSonioxV2VListenerAdded,
+        selectedVoice,
+        setSelectedVoice,
       }}>
       {children}
     </V2VContext.Provider>

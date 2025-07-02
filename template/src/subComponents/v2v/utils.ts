@@ -55,3 +55,28 @@ export function formatDateWithTimeZone(date: Date): string {
     offsetMinutes,
   ).padStart(2, '0')}`;
 }
+
+export interface VoiceOption {
+  name: string;
+  description: string;
+  value: string;
+}
+
+export const voices: VoiceOption[] = [
+  {name: 'Luna (Female)', description: 'chill but excitable', value: 'luna'},
+  {name: 'Tauro (Male)', description: 'street smart', value: 'tauro'},
+  {name: 'Astra (Female)', description: 'wide-eyed', value: 'astra'},
+  {name: 'Pola (Female)', description: 'warm and gregarious', value: 'pola'},
+  {name: 'Orion (Male)', description: 'happy', value: 'orion'},
+  {name: 'Estelle (Female)', description: 'so sweet', value: 'estelle'},
+  {
+    name: 'Andromeda (Female)',
+    description: 'breathy, yoga vibes',
+    value: 'andromeda',
+  },
+  {
+    name: 'Ursa (Male)',
+    description: 'encyclopedic knowledge',
+    value: 'ursa',
+  },
+];

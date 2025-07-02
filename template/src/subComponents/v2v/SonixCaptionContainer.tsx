@@ -15,7 +15,7 @@ import {useV2V, disconnectV2VUser} from './useVoice2Voice';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import TranslatorSelectedLanguagePopup from './TranslatorSelectedLanguagePopup';
-import {LanguageType} from './utils';
+import {LanguageType, voices} from './utils';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -49,6 +49,8 @@ const SonixCaptionContainer = () => {
     targetLang,
     setTargetLang,
     setIsV2VON,
+    selectedVoice,
+    setSelectedVoice,
   } = useV2V();
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
@@ -156,6 +158,7 @@ const SonixCaptionContainer = () => {
           channel_name: channel,
           user_id: localUid.toString(),
           language_hints: [sourceLang],
+          rime_speaker: selectedVoice,
         };
 
         if (sourceLang !== targetLang) {
@@ -216,6 +219,9 @@ const SonixCaptionContainer = () => {
         setTargetLang={setTargetLang}
         onConfirm={() => setShowTranslatorPopup(false)}
         onCancel={() => setIsV2VON(false)}
+        voices={voices}
+        selectedVoice={selectedVoice}
+        setSelectedVoice={setSelectedVoice}
       />
     );
   }

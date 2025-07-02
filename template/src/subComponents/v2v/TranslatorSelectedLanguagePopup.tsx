@@ -25,15 +25,18 @@ interface TranslatorSelectedLanguagePopupProps {
   setTargetLang: (lang: LanguageType) => void;
   onConfirm: () => void;
   onCancel: () => void;
+  voices: {name: string; description: string; value: string}[];
+  selectedVoice: string;
+  setSelectedVoice: (voice: string) => void;
 }
 
 const windowWidth = Dimensions.get('window').width;
 
 const SingleSelectDropdown: React.FC<{
   label: string;
-  value: LanguageType;
-  onChange: (lang: LanguageType) => void;
-  options: {label: string; value: LanguageType}[];
+  value: string;
+  onChange: (value: string) => void;
+  options: {label: string; value: string; description?: string}[];
   placeholder?: string;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -85,6 +88,7 @@ const SingleSelectDropdown: React.FC<{
                     setOpen(false);
                   }}>
                   {opt.label}
+                  {opt.description ? ` - ${opt.description}` : ''}
                 </Text>
               ))}
             </View>
@@ -106,17 +110,27 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setTargetLang,
   onConfirm,
   onCancel,
+  voices,
+  selectedVoice,
+  setSelectedVoice,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
+  const [voiceOpen, setVoiceOpen] = React.useState(false);
 
   // Only one dropdown open at a time
   React.useEffect(() => {
     if (srcOpen && tgtOpen) setTgtOpen(false);
+    if (srcOpen && voiceOpen) setVoiceOpen(false);
   }, [srcOpen]);
   React.useEffect(() => {
     if (tgtOpen && srcOpen) setSrcOpen(false);
+    if (tgtOpen && voiceOpen) setVoiceOpen(false);
   }, [tgtOpen]);
+  React.useEffect(() => {
+    if (voiceOpen && srcOpen) setSrcOpen(false);
+    if (voiceOpen && tgtOpen) setTgtOpen(false);
+  }, [voiceOpen]);
 
   return (
     <Popup
@@ -136,7 +150,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           placeholder="Select source language"
           open={srcOpen}
           setOpen={setSrcOpen}
-          otherDropdownOpen={tgtOpen}
+          otherDropdownOpen={tgtOpen || voiceOpen}
         />
         <SingleSelectDropdown
           label="Target Language"
@@ -146,7 +160,21 @@ const TranslatorSelectedLanguagePopup: React.FC<
           placeholder="Select target language"
           open={tgtOpen}
           setOpen={setTgtOpen}
-          otherDropdownOpen={srcOpen}
+          otherDropdownOpen={srcOpen || voiceOpen}
+        />
+        <SingleSelectDropdown
+          label="Voice"
+          value={selectedVoice}
+          onChange={setSelectedVoice}
+          options={voices.map(v => ({
+            label: v.name,
+            value: v.value,
+            description: v.description,
+          }))}
+          placeholder="Select voice"
+          open={voiceOpen}
+          setOpen={setVoiceOpen}
+          otherDropdownOpen={srcOpen || tgtOpen}
         />
       </>
       <Spacer size={24} />
@@ -165,7 +193,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           containerStyle={styles.btn}
           text={'Confirm'}
           textStyle={styles.btnText}
-          disabled={!sourceLang || !targetLang}
+          disabled={!sourceLang || !targetLang || !selectedVoice}
           onPress={() => {
             setModalVisible(false);
             onConfirm();
