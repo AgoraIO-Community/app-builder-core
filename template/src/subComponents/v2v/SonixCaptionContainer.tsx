@@ -83,8 +83,8 @@ const SonixCaptionContainer = () => {
   }, [translations]);
 
   useEffect(() => {
-    setSourceLang('en');
-    setTargetLang('es');
+    // setSourceLang('en');
+    // setTargetLang('es');
     setIsV2VActive(false);
   }, []);
 
