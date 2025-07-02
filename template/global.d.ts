@@ -87,6 +87,8 @@ type AudioEncoderConfigurationPreset =
   keyof typeof AUDIO_ENCODER_CONFIG_SETTINGS;
 
 interface ConfigInterface {
+  PALABRA_CLIENT_ID: string;
+  PALABRA_CLIENT_SECRET: string;
   PRODUCT_ID: string;
   APP_NAME: string;
   LOGO: string;

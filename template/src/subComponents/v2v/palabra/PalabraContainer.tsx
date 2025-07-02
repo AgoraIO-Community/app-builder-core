@@ -1,7 +1,13 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import TranslatorSelectedLanguagePopup from '../TranslatorSelectedLanguagePopup';
 import {useV2VPalabra} from './usePalabraVoice2Voice';
-import {langData} from './utils';
+import {sourceLangData, SourceLanguageType, TargetLanguageType} from './utils';
+import {
+  getLocalAudioTrack,
+  PalabraClient,
+  EVENT_REMOTE_TRACKS_UPDATE,
+  EVENT_ERROR_RECEIVED,
+} from '@palabra-ai/translator';
 
 const PalabraContainer = () => {
   const {
@@ -13,16 +19,95 @@ const PalabraContainer = () => {
     setTargetLang,
   } = useV2VPalabra();
   const [showPopup, setShowPopup] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const palabraClientRef = useRef<any>(null);
 
-  const handleConfirm = () => {
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (palabraClientRef.current) {
+        palabraClientRef.current.cleanup();
+        palabraClientRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleConfirm = async () => {
     setShowPopup(false);
-    // TODO: Integrate Palabra SDK start logic here
+    setError(null);
+    setIsTranslating(true);
+    try {
+      // Cleanup previous client if any
+      if (palabraClientRef.current) {
+        await palabraClientRef.current.cleanup();
+        palabraClientRef.current = null;
+      }
+      // Use a valid fallback for source and target
+      const safeSourceLang: SourceLanguageType =
+        (sourceLang as SourceLanguageType) || 'en';
+      const safeTargetLang: TargetLanguageType =
+        (targetLang as TargetLanguageType) || 'en-us';
+      // Instantiate PalabraClient
+      const client = new PalabraClient({
+        auth: {
+          clientId: $config.PALABRA_CLIENT_ID,
+          clientSecret: $config.PALABRA_CLIENT_SECRET, // <-- replace with real credentials
+        },
+        translateFrom: safeSourceLang,
+        translateTo: safeTargetLang,
+        handleOriginalTrack: getLocalAudioTrack,
+      });
+      // Listen for remote audio tracks and play in audio element
+      client.on(EVENT_REMOTE_TRACKS_UPDATE, tracks => {
+        if (audioRef.current && tracks && tracks.length > 0) {
+          audioRef.current.srcObject = new window.MediaStream(
+            tracks.map(t => t.track),
+          );
+          audioRef.current.play();
+        }
+      });
+      // Listen for errors
+      client.on(EVENT_ERROR_RECEIVED, (err: any) => {
+        setError(
+          'Translation error: ' +
+            (err &&
+              (typeof err.message === 'string'
+                ? err.message
+                : JSON.stringify(err) || 'Unknown error')),
+        );
+      });
+      await client.startTranslation();
+      await client.startPlayback();
+      palabraClientRef.current = client;
+      setIsPalabraActive(true);
+    } catch (err: any) {
+      setError(
+        'Failed to start translation: ' +
+          (err?.message || err?.toString() || 'Unknown error'),
+      );
+      setIsTranslating(false);
+      setIsPalabraActive(false);
+    }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     setShowPopup(false);
     setIsPalabraActive(false);
-    // TODO: Integrate Palabra SDK stop logic here if needed
+    setIsTranslating(false);
+    setError(null);
+    // Stop and cleanup PalabraClient
+    if (palabraClientRef.current) {
+      try {
+        await palabraClientRef.current.stopPlayback();
+        await palabraClientRef.current.stopTranslation();
+        await palabraClientRef.current.cleanup();
+      } catch (err) {
+        // ignore cleanup errors
+      }
+      palabraClientRef.current = null;
+    }
   };
 
   return (
@@ -37,10 +122,20 @@ const PalabraContainer = () => {
           setTargetLang={setTargetLang}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
-          langData={langData}
+          langData={sourceLangData}
         />
       )}
-      {/* TODO: Add Palabra translation display here */}
+      {/* Display error if any */}
+      {error && <div style={{color: 'red', margin: 8}}>{error}</div>}
+      {/* Audio element for translated playback */}
+      {isTranslating && (
+        <audio
+          ref={audioRef}
+          autoPlay
+          controls
+          style={{width: '100%', marginTop: 16}}
+        />
+      )}
     </>
   );
 };
