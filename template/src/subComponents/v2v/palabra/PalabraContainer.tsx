@@ -21,7 +21,6 @@ const PalabraContainer = () => {
   const [showPopup, setShowPopup] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const palabraClientRef = useRef<any>(null);
 
   // Cleanup on unmount
@@ -58,15 +57,6 @@ const PalabraContainer = () => {
         translateFrom: safeSourceLang,
         translateTo: safeTargetLang,
         handleOriginalTrack: getLocalAudioTrack,
-      });
-      // Listen for remote audio tracks and play in audio element
-      client.on(EVENT_REMOTE_TRACKS_UPDATE, tracks => {
-        if (audioRef.current && tracks && tracks.length > 0) {
-          audioRef.current.srcObject = new window.MediaStream(
-            tracks.map(t => t.track),
-          );
-          audioRef.current.play();
-        }
       });
       // Listen for errors
       client.on(EVENT_ERROR_RECEIVED, (err: any) => {
@@ -127,15 +117,33 @@ const PalabraContainer = () => {
       )}
       {/* Display error if any */}
       {error && <div style={{color: 'red', margin: 8}}>{error}</div>}
-      {/* Audio element for translated playback */}
+      {/* Animated ring while translating */}
       {isTranslating && (
-        <audio
-          ref={audioRef}
-          autoPlay
-          controls
-          style={{width: '100%', marginTop: 16}}
-        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 24,
+          }}>
+          <div className="palabra-animated-ring" />
+        </div>
       )}
+      {/* Inline CSS for animated ring */}
+      <style>{`
+        .palabra-animated-ring {
+          width: 48px;
+          height: 48px;
+          border: 6px solid #e0e0e0;
+          border-top: 6px solid #007bff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </>
   );
 };
