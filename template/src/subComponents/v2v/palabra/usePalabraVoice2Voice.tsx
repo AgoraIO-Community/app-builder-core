@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, ReactNode} from 'react';
-import {LanguageType} from '../utils';
+import {SourceLanguageType, TargetLanguageType} from './utils';
 import {createHook} from 'customization-implementation';
 
 interface PalabraContextType {
@@ -7,18 +7,18 @@ interface PalabraContextType {
   setIsPalabraON: React.Dispatch<React.SetStateAction<boolean>>;
   isPalabraActive: boolean;
   setIsPalabraActive: (active: boolean) => void;
-  sourceLang: LanguageType;
-  setSourceLang: (lang: LanguageType) => void;
-  targetLang: LanguageType;
-  setTargetLang: (lang: LanguageType) => void;
+  sourceLang: SourceLanguageType;
+  setSourceLang: (lang: SourceLanguageType) => void;
+  targetLang: TargetLanguageType;
+  setTargetLang: (lang: TargetLanguageType) => void;
 }
 
 const PalabraContext = createContext<PalabraContextType | undefined>(undefined);
 
 const PalabraProvider = ({children}: {children: ReactNode}) => {
   const [isPalabraActive, setIsPalabraActive] = useState(false);
-  const [sourceLang, setSourceLang] = useState<LanguageType>('en');
-  const [targetLang, setTargetLang] = useState<LanguageType>('es');
+  const [sourceLang, setSourceLang] = useState<SourceLanguageType>('en');
+  const [targetLang, setTargetLang] = useState<TargetLanguageType>('hi');
   const [isPalabraON, setIsPalabraON] = useState(false);
 
   return (

@@ -1,7 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import TranslatorSelectedLanguagePopup from '../TranslatorSelectedLanguagePopup';
 import {useV2VPalabra} from './usePalabraVoice2Voice';
-import {sourceLangData, SourceLanguageType, TargetLanguageType} from './utils';
+import {
+  sourceLangData,
+  targetLangData,
+  SourceLanguageType,
+  TargetLanguageType,
+} from './utils';
 import {
   getLocalAudioTrack,
   PalabraClient,
@@ -95,7 +100,6 @@ const PalabraContainer = () => {
 
   // Stop and cleanup PalabraClient, called when user clicks 'Stop V2V Palabra'
   const stopPalabra = async () => {
-    debugger;
     setShowPopup(false);
     setIsPalabraActive(false);
     setIsTranslating(false);
@@ -124,9 +128,11 @@ const PalabraContainer = () => {
           setTargetLang={setTargetLang}
           onConfirm={handleConfirm}
           onCancel={handleCancel}
-          langData={sourceLangData}
+          sourceLangData={sourceLangData}
+          targetLangData={targetLangData}
           sourceLabel="Languages Others Speak"
           targetLabel="Languages You Speak"
+          allowSameLangSelection={false}
         />
       )}
       {/* Display error if any */}

@@ -30,9 +30,12 @@ interface TranslatorSelectedLanguagePopupProps {
   setTargetLang: (lang: string) => void;
   onConfirm: () => void;
   onCancel: () => void;
-  langData: LanguageData[];
+  langData?: LanguageData[]; // deprecated, for backward compatibility
+  sourceLangData?: LanguageData[];
+  targetLangData?: LanguageData[];
   sourceLabel?: string;
   targetLabel?: string;
+  allowSameLangSelection?: boolean;
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -115,11 +118,26 @@ const TranslatorSelectedLanguagePopup: React.FC<
   onConfirm,
   onCancel,
   langData,
+  sourceLangData,
+  targetLangData,
   sourceLabel = 'Source Language',
   targetLabel = 'Target Language',
+  allowSameLangSelection = false,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
+  const [showConfirmDisabled, setShowConfirmDisabled] = React.useState(false);
+  const [showSameLangError, setShowSameLangError] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!allowSameLangSelection && sourceLang === targetLang) {
+      setShowConfirmDisabled(true);
+      setShowSameLangError(true);
+    } else {
+      setShowConfirmDisabled(false);
+      setShowSameLangError(false);
+    }
+  }, [sourceLang, targetLang, allowSameLangSelection]);
 
   // Only one dropdown open at a time
   React.useEffect(() => {
@@ -143,7 +161,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           label={sourceLabel}
           value={sourceLang}
           onChange={setSourceLang}
-          options={langData}
+          options={sourceLangData || langData || []}
           placeholder="Select source language"
           open={srcOpen}
           setOpen={setSrcOpen}
@@ -153,12 +171,17 @@ const TranslatorSelectedLanguagePopup: React.FC<
           label={targetLabel}
           value={targetLang}
           onChange={setTargetLang}
-          options={langData}
+          options={targetLangData || langData || []}
           placeholder="Select target language"
           open={tgtOpen}
           setOpen={setTgtOpen}
           otherDropdownOpen={srcOpen}
         />
+        {showSameLangError && (
+          <Text style={styles.errorText}>
+            Source and Target language cannot be the same.
+          </Text>
+        )}
       </>
       <Spacer size={24} />
       <View style={styles.btnContainer}>
@@ -176,7 +199,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           containerStyle={styles.btn}
           text={'Confirm'}
           textStyle={styles.btnText}
-          disabled={!sourceLang || !targetLang}
+          disabled={showConfirmDisabled}
           onPress={onConfirm}
         />
       </View>
