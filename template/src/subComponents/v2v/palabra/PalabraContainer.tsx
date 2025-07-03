@@ -8,11 +8,15 @@ import {
   TargetLanguageType,
 } from './utils';
 import {
-  getLocalAudioTrack,
   PalabraClient,
   EVENT_REMOTE_TRACKS_UPDATE,
   EVENT_ERROR_RECEIVED,
+  EVENT_START_TRANSLATION,
+  EVENT_STOP_TRANSLATION,
+  getLocalAudioTrack,
 } from '@palabra-ai/translator';
+import {useRtc, useLocalUid} from 'customization-api';
+import ThemeConfig from '../../../theme';
 
 const PalabraContainer = () => {
   const {
@@ -29,6 +33,8 @@ const PalabraContainer = () => {
   const [error, setError] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const palabraClientRef = useRef<any>(null);
+  const {RtcEngineUnsafe} = useRtc();
+  const localUid = useLocalUid();
 
   // Cleanup on unmount
   useEffect(() => {
@@ -59,15 +65,38 @@ const PalabraContainer = () => {
         (sourceLang as SourceLanguageType) || 'en';
       const safeTargetLang: TargetLanguageType =
         (targetLang as TargetLanguageType) || 'en-us';
+      // Get the first available remote audio track (excluding localUid)
+      const remoteAudioTracks = Array.from(
+        (RtcEngineUnsafe as any).remoteStreams.entries(),
+      )
+        .filter(([uid, stream]) => uid !== localUid && stream.audio)
+        .map(([uid, stream]) => ({uid, audio: stream.audio}));
+      if (remoteAudioTracks.length === 0) {
+        setError('No remote user audio available to translate.');
+        setIsTranslating(false);
+        setIsPalabraActive(false);
+        return;
+      }
+      const selectedRemote = remoteAudioTracks[0];
       // Instantiate PalabraClient
       const client = new PalabraClient({
         auth: {
           clientId: $config.PALABRA_CLIENT_ID,
-          clientSecret: $config.PALABRA_CLIENT_SECRET, // <-- replace with real credentials
+          clientSecret: $config.PALABRA_CLIENT_SECRET,
         },
         translateFrom: safeSourceLang,
         translateTo: safeTargetLang,
-        handleOriginalTrack: getLocalAudioTrack,
+        handleOriginalTrack: () => selectedRemote.audio.mediaStreamTrack,
+        //getLocalAudioTrack : for Local user
+      });
+
+      client.on(EVENT_START_TRANSLATION, (...args) => {
+        console.log('startTranslation', args);
+        selectedRemote.audio.stop();
+      });
+      client.on(EVENT_STOP_TRANSLATION, (...args) => {
+        console.log('stoppedTranslation', args);
+        selectedRemote.audio.play();
       });
       // Listen for errors
       client.on(EVENT_ERROR_RECEIVED, (err: any) => {
@@ -95,10 +124,9 @@ const PalabraContainer = () => {
 
   const handleCancel = () => {
     setShowPopup(false);
-    // Optionally reset language selection here if needed
   };
 
-  // Stop and cleanup PalabraClient, called when user clicks 'Stop V2V Palabra'
+  // Stop and cleanup PalabraClient,
   const stopPalabra = async () => {
     setShowPopup(false);
     setIsPalabraActive(false);
@@ -109,15 +137,36 @@ const PalabraContainer = () => {
         await palabraClientRef.current.stopPlayback();
         await palabraClientRef.current.stopTranslation();
         await palabraClientRef.current.cleanup();
-      } catch (err) {
-        // ignore cleanup errors
-      }
+      } catch (err) {}
       palabraClientRef.current = null;
     }
   };
 
   return (
     <>
+      {/* Find the label for the selected target language */}
+      {isTranslating &&
+        (() => {
+          const targetLangLabel =
+            targetLangData.find(l => l.value === targetLang)?.label ||
+            targetLang;
+          return (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 24,
+                fontFamily: ThemeConfig.FontFamily.sansPro,
+              }}>
+              <div style={{marginBottom: 8, color: '#fff', fontWeight: 500}}>
+                Translating for you in {targetLangLabel}...
+              </div>
+              <div className="palabra-animated-ring" />
+            </div>
+          );
+        })()}
       {showPopup && (
         <TranslatorSelectedLanguagePopup
           modalVisible={showPopup}
@@ -137,23 +186,11 @@ const PalabraContainer = () => {
       )}
       {/* Display error if any */}
       {error && <div style={{color: 'red', margin: 8}}>{error}</div>}
-      {/* Animated ring while translating */}
-      {isTranslating && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 24,
-          }}>
-          <div className="palabra-animated-ring" />
-        </div>
-      )}
       {/* Inline CSS for animated ring */}
       <style>{`
         .palabra-animated-ring {
-          width: 48px;
-          height: 48px;
+          width: 28px;
+          height: 28px;
           border: 6px solid #e0e0e0;
           border-top: 6px solid #007bff;
           border-radius: 50%;
