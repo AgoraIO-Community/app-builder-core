@@ -17,6 +17,8 @@ const PalabraContainer = () => {
     setSourceLang,
     targetLang,
     setTargetLang,
+    isPalabraON,
+    setIsPalabraON,
   } = useV2VPalabra();
   const [showPopup, setShowPopup] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,12 +28,16 @@ const PalabraContainer = () => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (palabraClientRef.current) {
-        palabraClientRef.current.cleanup();
-        palabraClientRef.current = null;
-      }
+      stopPalabra();
     };
   }, []);
+
+  const handleSetShowPopup = (visible: boolean) => {
+    setShowPopup(visible);
+    if (!visible) {
+      setIsPalabraON(false);
+    }
+  };
 
   const handleConfirm = async () => {
     setShowPopup(false);
@@ -82,12 +88,18 @@ const PalabraContainer = () => {
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
+    setShowPopup(false);
+    // Optionally reset language selection here if needed
+  };
+
+  // Stop and cleanup PalabraClient, called when user clicks 'Stop V2V Palabra'
+  const stopPalabra = async () => {
+    debugger;
     setShowPopup(false);
     setIsPalabraActive(false);
     setIsTranslating(false);
     setError(null);
-    // Stop and cleanup PalabraClient
     if (palabraClientRef.current) {
       try {
         await palabraClientRef.current.stopPlayback();
@@ -105,7 +117,7 @@ const PalabraContainer = () => {
       {showPopup && (
         <TranslatorSelectedLanguagePopup
           modalVisible={showPopup}
-          setModalVisible={setShowPopup}
+          setModalVisible={handleSetShowPopup}
           sourceLang={sourceLang}
           setSourceLang={setSourceLang}
           targetLang={targetLang}
@@ -113,6 +125,8 @@ const PalabraContainer = () => {
           onConfirm={handleConfirm}
           onCancel={handleCancel}
           langData={sourceLangData}
+          sourceLabel="Languages Others Speak"
+          targetLabel="Languages You Speak"
         />
       )}
       {/* Display error if any */}

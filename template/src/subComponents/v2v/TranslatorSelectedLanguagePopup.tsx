@@ -31,6 +31,8 @@ interface TranslatorSelectedLanguagePopupProps {
   onConfirm: () => void;
   onCancel: () => void;
   langData: LanguageData[];
+  sourceLabel?: string;
+  targetLabel?: string;
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -113,6 +115,8 @@ const TranslatorSelectedLanguagePopup: React.FC<
   onConfirm,
   onCancel,
   langData,
+  sourceLabel = 'Source Language',
+  targetLabel = 'Target Language',
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
@@ -136,7 +140,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
       onCancel={onCancel}>
       <>
         <SingleSelectDropdown
-          label="Source Language"
+          label={sourceLabel}
           value={sourceLang}
           onChange={setSourceLang}
           options={langData}
@@ -146,7 +150,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           otherDropdownOpen={tgtOpen}
         />
         <SingleSelectDropdown
-          label="Target Language"
+          label={targetLabel}
           value={targetLang}
           onChange={setTargetLang}
           options={langData}
@@ -173,10 +177,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
           text={'Confirm'}
           textStyle={styles.btnText}
           disabled={!sourceLang || !targetLang}
-          onPress={() => {
-            setModalVisible(false);
-            onConfirm();
-          }}
+          onPress={onConfirm}
         />
       </View>
     </Popup>

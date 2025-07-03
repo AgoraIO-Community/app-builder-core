@@ -217,6 +217,8 @@ const SonixCaptionContainer = () => {
         onConfirm={() => setShowTranslatorPopup(false)}
         onCancel={() => setIsV2VON(false)}
         langData={langData}
+        sourceLabel="Your Source Language"
+        targetLabel="Your Traget Language"
       />
     );
   }
