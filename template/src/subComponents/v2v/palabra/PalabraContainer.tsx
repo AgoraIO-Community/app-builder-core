@@ -88,14 +88,14 @@ const PalabraContainer = () => {
         .filter(([uid, stream]) => uid !== localUid && stream.audio)
         .map(([uid, stream]) => ({uid, audio: stream.audio}));
 
-      //   if (remoteAudioTracks.length === 0) {
-      //     setError('No remote user audio available to translate.');
-      //     setIsTranslating(false);
-      //     setIsPalabraActive(false);
-      //     return;
-      //   }
-      //  const selectedRemote = remoteAudioTracks[0];
-      const selectedRemote = (RtcEngineUnsafe as any).localStream; //todo: only for local tetsing remove
+      if (remoteAudioTracks.length === 0) {
+        setError('No remote user audio available to translate.');
+        setIsTranslating(false);
+        setIsPalabraActive(false);
+        return;
+      }
+      const selectedRemote = remoteAudioTracks[0];
+      // const selectedRemote = (RtcEngineUnsafe as any).localStream; //todo: only for local tetsing remove
       // Instantiate PalabraClient
       const client = new PalabraClient({
         auth: {
