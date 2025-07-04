@@ -22,6 +22,7 @@ import {
 import {useRtc, useLocalUid, useContent} from 'customization-api';
 import ThemeConfig from '../../../theme';
 import {PalabraTranslationEntry} from './usePalabraVoice2Voice';
+import {ScrollView, View, StyleSheet} from 'react-native';
 
 const CAPTION_CONTAINER_HEIGHT = 144;
 
@@ -46,7 +47,7 @@ const PalabraContainer = () => {
   const localUid = useLocalUid();
   const {defaultContent} = useContent();
   const [autoScroll, setAutoScroll] = useState(true);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef(null); // for ScrollView
 
   // Cleanup on unmount
   useEffect(() => {
@@ -210,166 +211,74 @@ const PalabraContainer = () => {
 
   useEffect(() => {
     if (autoScroll && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollToEnd({animated: true});
     }
   }, [translatedText, autoScroll]);
 
   // Scroll-to-end button handler
   const scrollToEnd = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollToEnd({animated: true});
       setAutoScroll(true);
     }
   };
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        margin: '32px 32px 0 32px',
-        background: 'rgba(30,30,30,0.92)',
-        borderRadius: 12,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
-        fontFamily: ThemeConfig.FontFamily.sansPro,
-        minHeight: CAPTION_CONTAINER_HEIGHT,
-        maxHeight: CAPTION_CONTAINER_HEIGHT,
-        height: CAPTION_CONTAINER_HEIGHT,
-        padding: 0,
-        overflow: 'visible',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-      }}>
+    <View style={styles.container}>
       {/* Progress bar row at top */}
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          minHeight: 28,
-          height: 28,
-          padding: '8px 24px 0 24px',
-          boxSizing: 'border-box',
-        }}>
+      <View style={styles.progressBarRow}>
         {isTranslating && (
-          <div
-            style={{
-              width: 160,
-              background: 'rgba(0,0,0,0.7)',
-              borderRadius: 8,
-              padding: '6px 12px 6px 12px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}>
+          <View style={styles.progressBarBox}>
             <span style={{color: '#fff', fontSize: 12, marginBottom: 2}}>
-              Translating to ${targetLang}...
+              Translating to {targetLang}...
             </span>
-            <div
-              style={{
-                width: '100%',
-                height: 5,
-                background: '#333',
-                borderRadius: 3,
-                overflow: 'hidden',
-              }}>
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  background:
-                    'linear-gradient(90deg, #007bff 30%, #e0e0e0 100%)',
-                  animation: 'palabra-progress-bar 1.2s linear infinite',
-                }}
-              />
-            </div>
-          </div>
+            <View style={styles.progressBarBg}>
+              <View style={styles.progressBarFill} />
+            </View>
+          </View>
         )}
-      </div>
+      </View>
       {/* Scrollable translation feed, full width, with padding to avoid overlap */}
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        style={{
-          height: `calc(${CAPTION_CONTAINER_HEIGHT}px - 28px)`,
-          maxHeight: `calc(${CAPTION_CONTAINER_HEIGHT}px - 28px)`,
-          overflowY: 'auto',
-          padding: '12px 24px 24px 24px',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}>
-        {translatedText.length === 0 ? (
-          <div
-            style={{
-              color: '#aaa',
-              textAlign: 'center',
-              fontSize: 16,
-              marginTop: 32,
-            }}>
-            No translations yet.
-          </div>
-        ) : (
-          translatedText.map((entry, idx) => (
-            <div
-              key={idx}
-              style={{
-                marginBottom: 12,
-                display: 'flex',
-                alignItems: 'flex-start',
-                width: '100%',
-              }}>
-              <span
-                style={{
-                  color: '#ff9800',
-                  fontWeight: 600,
-                  fontSize: 16,
-                  marginRight: 8,
-                }}>
-                {getUserName(entry.uid)}{' '}
-                <span style={{color: '#bbb', fontWeight: 400, fontSize: 14}}>
-                  ({formatTime(entry.time)})
+      <View style={styles.scrollAreaWrapper}>
+        <ScrollView
+          ref={scrollRef}
+          onScroll={handleScroll}
+          style={styles.scrollArea}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={true}
+          scrollEventThrottle={16}
+          onContentSizeChange={() => {
+            if (autoScroll && scrollRef.current) {
+              scrollRef.current.scrollToEnd({animated: true});
+            }
+          }}>
+          {translatedText.length === 0 ? (
+            <View style={{alignItems: 'center', marginTop: 32}}>
+              <span style={{color: '#aaa', fontSize: 16}}>
+                No translations yet.
+              </span>
+            </View>
+          ) : (
+            translatedText.map((entry, idx) => (
+              <View key={idx} style={styles.translationLine}>
+                <span style={styles.userName}>
+                  {getUserName(entry.uid)}{' '}
+                  <span style={styles.time}>({formatTime(entry.time)})</span>:
                 </span>
-                :
-              </span>
-              <span
-                style={{
-                  color: '#fff',
-                  fontSize: 16,
-                  marginLeft: 2,
-                  wordBreak: 'break-word',
-                  flex: 1,
-                }}>
-                {entry.text}
-              </span>
-            </div>
-          ))
-        )}
+                <span style={styles.translationText}>{entry.text}</span>
+              </View>
+            ))
+          )}
+        </ScrollView>
         {/* Scroll-to-end button */}
         {!autoScroll && translatedText.length > 0 && (
-          <button
-            onClick={scrollToEnd}
-            style={{
-              position: 'absolute',
-              right: 24,
-              bottom: 16,
-              zIndex: 20,
-              background: '#007bff',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 16,
-              padding: '6px 18px',
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            }}>
-            Scroll to latest
-          </button>
+          <View style={styles.scrollToEndBtnWrapper}>
+            <button onClick={scrollToEnd} style={styles.scrollToEndBtn}>
+              Scroll to latest
+            </button>
+          </View>
         )}
-      </div>
+      </View>
       {showPopup && (
         <TranslatorSelectedLanguagePopup
           modalVisible={showPopup}
@@ -388,8 +297,8 @@ const PalabraContainer = () => {
         />
       )}
       {/* Display error if any */}
-      {error && <div style={{color: 'red', margin: 8}}>{error}</div>}
-      {/* Inline CSS for progress bar animation */}
+      {error && <span style={{color: 'red', margin: 8}}>{error}</span>}
+      {/* Inline CSS for progress bar animation (web only) */}
       <style>{`
         @keyframes palabra-progress-bar {
           0% { transform: translateX(-100%); }
@@ -397,8 +306,118 @@ const PalabraContainer = () => {
         }
         .palabra-animated-ring { display: none; }
       `}</style>
-    </div>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    width: '95%',
+    marginTop: 32,
+    marginHorizontal: 'auto',
+    backgroundColor: 'rgba(30,30,30,0.92)',
+    borderRadius: 12,
+    // boxShadow and fontFamily are web only, so ignore for native
+    minHeight: CAPTION_CONTAINER_HEIGHT,
+    maxHeight: CAPTION_CONTAINER_HEIGHT,
+    height: CAPTION_CONTAINER_HEIGHT,
+    padding: 0,
+    overflow: 'visible',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
+  progressBarRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    minHeight: 28,
+    height: 28,
+    paddingTop: 8,
+    paddingRight: 24,
+    paddingLeft: 24,
+  },
+  progressBarBox: {
+    width: 160,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  progressBarBg: {
+    width: '100%',
+    height: 5,
+    backgroundColor: '#333',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#007bff', // fallback for native
+    // For web, the animation and gradient will apply
+  },
+  scrollAreaWrapper: {
+    flex: 1,
+    position: 'relative',
+  },
+  scrollArea: {
+    flex: 1,
+    minHeight: CAPTION_CONTAINER_HEIGHT - 28,
+    maxHeight: CAPTION_CONTAINER_HEIGHT - 28,
+    width: '100%',
+  },
+  scrollContent: {
+    paddingTop: 12,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    flexGrow: 1,
+  },
+  translationLine: {
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  userName: {
+    color: '#ff9800',
+    fontWeight: '600',
+    fontSize: 16,
+    marginRight: 8,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  time: {
+    color: '#bbb',
+    fontWeight: '400',
+    fontSize: 14,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  translationText: {
+    color: '#fff',
+    fontSize: 16,
+    marginLeft: 2,
+    flex: 1,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  scrollToEndBtnWrapper: {
+    position: 'absolute',
+    right: 24,
+    bottom: 16,
+    zIndex: 20,
+  },
+  scrollToEndBtn: {
+    backgroundColor: '#007bff',
+    color: '#fff',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 18,
+    fontWeight: '600',
+    fontSize: 14,
+    // cursor and boxShadow are web only
+  },
+});
 
 export default PalabraContainer;
