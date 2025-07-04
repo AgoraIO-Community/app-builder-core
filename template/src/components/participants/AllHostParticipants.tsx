@@ -73,12 +73,14 @@ export default function AllHostParticipants(props: any) {
                 isAudienceUser={false}
                 name={getParticipantName(localUid)}
                 user={defaultContent[localUid]}
-                showControls={true}
+                showControls={props?.hideControls ? false : true}
                 isHostUser={hostUids.indexOf(localUid) !== -1}
                 key={localUid}
                 isMobile={isMobile}
                 handleClose={handleClose}
                 updateActionSheet={updateActionSheet}
+                showBreakoutRoomMenu={props?.showBreakoutRoomMenu}
+                from={props?.from}
               />
               {renderScreenShare(defaultContent[localUid])}
             </>
@@ -104,12 +106,18 @@ export default function AllHostParticipants(props: any) {
                     isAudienceUser={false}
                     name={getParticipantName(uid)}
                     user={defaultContent[uid]}
-                    showControls={defaultContent[uid]?.type === 'rtc' && isHost}
+                    showControls={
+                      defaultContent[uid]?.type === 'rtc' &&
+                      isHost &&
+                      (props?.hideControls ? false : true)
+                    }
                     isHostUser={hostUids.indexOf(uid) !== -1}
                     key={uid}
                     isMobile={isMobile}
                     handleClose={handleClose}
                     updateActionSheet={updateActionSheet}
+                    showBreakoutRoomMenu={props?.showBreakoutRoomMenu}
+                    from={props?.from}
                   />
                   {renderScreenShare(defaultContent[uid])}
                 </>

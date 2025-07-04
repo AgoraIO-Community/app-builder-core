@@ -55,7 +55,7 @@ import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot
 import {ToolbarPresetProps} from '../../atoms/ToolbarPreset';
 import CustomSidePanelView from '../../components/CustomSidePanel';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
-import BreakoutRoomView from '../../components/BreakoutRoomView';
+import BreakoutRoomView from '../../components/breakout-room/BreakoutRoomView';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
