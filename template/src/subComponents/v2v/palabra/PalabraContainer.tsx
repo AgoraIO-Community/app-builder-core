@@ -350,8 +350,8 @@ const PalabraContainer = () => {
           onCancel={handleCancel}
           sourceLangData={sourceLangData}
           targetLangData={targetLangData}
-          sourceLabel="Source Language"
-          targetLabel="Target Language"
+          sourceLabel="Languages Others Speak"
+          targetLabel="Languages You Speak"
           allowSameLangSelection={false}
         />
       )}
