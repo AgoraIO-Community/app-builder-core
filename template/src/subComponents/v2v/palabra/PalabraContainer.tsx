@@ -94,7 +94,7 @@ const PalabraContainer = () => {
       //     setIsPalabraActive(false);
       //     return;
       //   }
-      const selectedRemote = (RtcEngineUnsafe as any).localStream; //remoteAudioTracks[0];
+      const selectedRemote = remoteAudioTracks[0];
       // const selectedRemote = (RtcEngineUnsafe as any).localStream; //todo: only for local tetsing remove
       // Instantiate PalabraClient
       const client = new PalabraClient({
