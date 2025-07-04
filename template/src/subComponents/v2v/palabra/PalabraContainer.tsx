@@ -272,12 +272,18 @@ const PalabraContainer = () => {
             minHeight: 28,
             height: 28,
           }}>
-          <div className={`palabra-fade-loader${showLoader ? ' visible' : ''}`}>
+          <div
+            className={`palabra-fade-loader${showLoader ? ' visible' : ''}`}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+            }}>
             <span
               style={{
                 color: '#fff',
                 fontSize: 12,
-                marginBottom: 2,
                 fontFamily: ThemeConfig.FontFamily.sansPro,
               }}>
               Translating to {targetLangLabel}...
@@ -344,8 +350,8 @@ const PalabraContainer = () => {
           onCancel={handleCancel}
           sourceLangData={sourceLangData}
           targetLangData={targetLangData}
-          sourceLabel="Languages Others Speak"
-          targetLabel="Languages You Speak"
+          sourceLabel="Source Language"
+          targetLabel="Target Language"
           allowSameLangSelection={false}
         />
       )}
