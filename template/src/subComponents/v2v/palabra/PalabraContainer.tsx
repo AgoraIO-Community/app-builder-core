@@ -88,13 +88,13 @@ const PalabraContainer = () => {
         .filter(([uid, stream]) => uid !== localUid && stream.audio)
         .map(([uid, stream]) => ({uid, audio: stream.audio}));
 
-      if (remoteAudioTracks.length === 0) {
-        setError('No remote user audio available to translate.');
-        setIsTranslating(false);
-        setIsPalabraActive(false);
-        return;
-      }
-      const selectedRemote = remoteAudioTracks[0];
+      //   if (remoteAudioTracks.length === 0) {
+      //     setError('No remote user audio available to translate.');
+      //     setIsTranslating(false);
+      //     setIsPalabraActive(false);
+      //     return;
+      //   }
+      const selectedRemote = (RtcEngineUnsafe as any).localStream; //remoteAudioTracks[0];
       // const selectedRemote = (RtcEngineUnsafe as any).localStream; //todo: only for local tetsing remove
       // Instantiate PalabraClient
       const client = new PalabraClient({
@@ -272,18 +272,12 @@ const PalabraContainer = () => {
             minHeight: 28,
             height: 28,
           }}>
-          <div
-            className={`palabra-fade-loader${showLoader ? ' visible' : ''}`}
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-            }}>
+          <div className={`palabra-fade-loader${showLoader ? ' visible' : ''}`}>
             <span
               style={{
                 color: '#fff',
                 fontSize: 12,
+                marginBottom: 2,
                 fontFamily: ThemeConfig.FontFamily.sansPro,
               }}>
               Translating to {targetLangLabel}...
