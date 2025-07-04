@@ -2,6 +2,12 @@ import React, {createContext, useContext, useState, ReactNode} from 'react';
 import {SourceLanguageType, TargetLanguageType} from './utils';
 import {createHook} from 'customization-implementation';
 
+interface PalabraTranslationEntry {
+  uid: string;
+  text: string;
+  time: number;
+}
+
 interface PalabraContextType {
   isPalabraON: boolean;
   setIsPalabraON: React.Dispatch<React.SetStateAction<boolean>>;
@@ -11,6 +17,10 @@ interface PalabraContextType {
   setSourceLang: (lang: SourceLanguageType) => void;
   targetLang: TargetLanguageType;
   setTargetLang: (lang: TargetLanguageType) => void;
+  translatedText: PalabraTranslationEntry[];
+  setTranslatedText: React.Dispatch<
+    React.SetStateAction<PalabraTranslationEntry[]>
+  >;
 }
 
 const PalabraContext = createContext<PalabraContextType | undefined>(undefined);
@@ -20,6 +30,9 @@ const PalabraProvider = ({children}: {children: ReactNode}) => {
   const [sourceLang, setSourceLang] = useState<SourceLanguageType>('en');
   const [targetLang, setTargetLang] = useState<TargetLanguageType>('hi');
   const [isPalabraON, setIsPalabraON] = useState(false);
+  const [translatedText, setTranslatedText] = useState<
+    PalabraTranslationEntry[]
+  >([]);
 
   return (
     <PalabraContext.Provider
@@ -32,6 +45,8 @@ const PalabraProvider = ({children}: {children: ReactNode}) => {
         setSourceLang,
         targetLang,
         setTargetLang,
+        translatedText,
+        setTranslatedText,
       }}>
       {children}
     </PalabraContext.Provider>
@@ -40,4 +55,5 @@ const PalabraProvider = ({children}: {children: ReactNode}) => {
 
 const useV2VPalabra = createHook(PalabraContext);
 
+export type {PalabraTranslationEntry};
 export {PalabraProvider, useV2VPalabra};
