@@ -92,6 +92,7 @@ export const toolbarItemLayoutOptionGridText =
 export const toolbarItemLayoutOptionSidebarText =
   'toolbarItemLayoutOptionSidebarText';
 export const toolbarItemInviteText = 'toolbarItemInviteText';
+export const toolbarItemBreakoutRoomText = 'toolbarItemBreakoutRoomText';
 
 export const toolbarItemMicrophoneText = 'toolbarItemMicrophoneText';
 export const toolbarItemMicrophoneTooltipText =
@@ -213,6 +214,7 @@ export const chatPanelPrivateTabText = 'chatPanelPrivateTabText';
 export const groupChatWelcomeContent = 'groupChatWelcomeContent';
 
 export const peoplePanelHeaderText = 'peoplePanelHeaderText';
+export const breakoutRoomPanelHeaderText = 'breakoutRoomPanelHeaderText';
 
 export const groupChatMeetingInputPlaceHolderText =
   'groupChatMeetingInputPlaceHolderText';
@@ -557,6 +559,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemLayoutText]?: I18nBaseType;
   [toolbarItemInviteText]?: I18nBaseType;
 
+  [toolbarItemBreakoutRoomText]?: I18nBaseType;
+
   [toolbarItemMicrophoneText]?: I18nBaseType<I18nDeviceStatus>;
   [toolbarItemMicrophoneTooltipText]?: I18nBaseType<I18nDeviceStatus>;
   [toolbarItemCameraText]?: I18nBaseType<I18nDeviceStatus>;
@@ -644,6 +648,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [sttLanguageChangeInProgress]?: I18nBaseType;
 
   [peoplePanelHeaderText]?: I18nBaseType;
+  [breakoutRoomPanelHeaderText]?: I18nBaseType;
 
   [chatPanelGroupTabText]?: I18nBaseType;
   [chatPanelPrivateTabText]?: I18nBaseType;
@@ -879,6 +884,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemSettingText]: 'Settings',
   [toolbarItemLayoutText]: 'Layout',
   [toolbarItemInviteText]: 'Invite',
+  [toolbarItemBreakoutRoomText]: 'Breakout Room',
 
   [toolbarItemMicrophoneText]: deviceStatus => {
     switch (deviceStatus) {
@@ -1044,6 +1050,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
 
   [peoplePanelHeaderText]: 'People',
+  [breakoutRoomPanelHeaderText]: 'Breakout Room',
 
   [chatPanelGroupTabText]: 'Public',
   [chatPanelPrivateTabText]: 'Private',

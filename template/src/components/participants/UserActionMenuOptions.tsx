@@ -77,13 +77,18 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
+import {useBreakoutRoomInfo} from '../breakout-room/useBreakoutRoomInfo';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
-  from: 'partcipant' | 'screenshare-participant' | 'video-tile';
+  from:
+    | 'partcipant'
+    | 'screenshare-participant'
+    | 'video-tile'
+    | 'breakout-room';
   spotlightUid?: UidType;
   setSpotlightUid?: (uid: UidType) => void;
   items?: UserActionMenuItemsConfig;
@@ -102,7 +107,8 @@ export default function UserActionMenuOptionsOptions(
     useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
-  const {user, actionMenuVisible, setActionMenuVisible, spotlightUid} = props;
+  const {user, actionMenuVisible, setActionMenuVisible, spotlightUid, from} =
+    props;
   const {currentLayout} = useLayout();
   const {pinnedUid, activeUids, customContent, secondaryPinnedUid} =
     useContent();
@@ -146,7 +152,7 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-
+  const {breakoutRoomInfo, addUserIntoGroup} = useBreakoutRoomInfo();
   useEffect(() => {
     customEvents.on('DisableChat', data => {
       // for other users
@@ -165,6 +171,27 @@ export default function UserActionMenuOptionsOptions(
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
+
+    if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
+      if (breakoutRoomInfo && breakoutRoomInfo?.length) {
+        breakoutRoomInfo.map(({name, internalGroupId}, index) => {
+          items.push({
+            order: index + 1,
+            icon: 'add',
+            onHoverIcon: 'add',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: `Move to ${name}`,
+            onPress: () => {
+              setActionMenuVisible(false);
+              addUserIntoGroup(user.uid, internalGroupId, false);
+            },
+          });
+        });
+        setActionMenuitems(items);
+      }
+      return;
+    }
 
     //Context of current user role
     const isSelf = user.uid === localuid;
@@ -729,6 +756,8 @@ export default function UserActionMenuOptionsOptions(
     secondaryPinnedUid,
     currentLayout,
     spotlightUid,
+    from,
+    breakoutRoomInfo,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

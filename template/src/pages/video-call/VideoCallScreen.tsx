@@ -55,6 +55,7 @@ import {useIsRecordingBot} from '../../subComponents/recording/useIsRecordingBot
 import {ToolbarPresetProps} from '../../atoms/ToolbarPreset';
 import CustomSidePanelView from '../../components/CustomSidePanel';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
+import BreakoutRoomView from '../../components/breakout-room/BreakoutRoomView';
 
 const VideoCallScreen = () => {
   useFindActiveSpeaker();
@@ -73,6 +74,7 @@ const VideoCallScreen = () => {
     VideocallComponent,
     BottombarComponent,
     ParticipantsComponent,
+    BreakoutRoomComponent,
     TranscriptComponent,
     CaptionComponent,
     VirtualBackgroundComponent,
@@ -99,6 +101,7 @@ const VideoCallScreen = () => {
       CaptionComponent: React.ComponentType;
       VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       SettingsComponent: React.ComponentType;
+      BreakoutRoomComponent: React.ComponentType;
       TopbarComponent: React.ComponentType<NavbarProps>;
       VideocallBeforeView: React.ComponentType;
       VideocallAfterView: React.ComponentType;
@@ -118,6 +121,7 @@ const VideoCallScreen = () => {
       CaptionComponent: CaptionContainer,
       VirtualBackgroundComponent: VBPanel,
       SettingsComponent: SettingsView,
+      BreakoutRoomComponent: BreakoutRoomView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
       VideocallWrapper: React.Fragment,
@@ -234,6 +238,15 @@ const VideoCallScreen = () => {
       ) {
         components.ParticipantsComponent =
           data?.components?.videoCall.participantsPanel;
+      }
+
+      if (
+        data?.components?.videoCall.breakoutRoomPanel &&
+        typeof data?.components?.videoCall.breakoutRoomPanel !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.breakoutRoomPanel)
+      ) {
+        components.BreakoutRoomComponent =
+          data?.components?.videoCall.breakoutRoomPanel;
       }
 
       if (
@@ -425,6 +438,11 @@ const VideoCallScreen = () => {
               )}
               {sidePanel === SidePanelType.Settings ? (
                 <SettingsComponent />
+              ) : (
+                <></>
+              )}
+              {sidePanel === SidePanelType.BreakoutRoom ? (
+                <BreakoutRoomComponent />
               ) : (
                 <></>
               )}
