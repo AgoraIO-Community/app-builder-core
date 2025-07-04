@@ -48,6 +48,9 @@ const PalabraContainer = () => {
   const {defaultContent} = useContent();
   const [autoScroll, setAutoScroll] = useState(true);
   const scrollRef = useRef(null); // for ScrollView
+  const progressTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [showLoader, setShowLoader] = useState(false);
+  const fadeTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -105,14 +108,34 @@ const PalabraContainer = () => {
         //getLocalAudioTrack : for Local user
       });
 
-      client.on(EVENT_START_TRANSLATION, (...args) => {
+      // --- Progress bar logic ---
+      const showProgressBar = () => {
         setIsTranslating(true);
+        if (progressTimeout.current) {
+          clearTimeout(progressTimeout.current);
+          progressTimeout.current = null;
+        }
+      };
+      const hideProgressBar = () => {
+        if (progressTimeout.current) clearTimeout(progressTimeout.current);
+        progressTimeout.current = setTimeout(() => {
+          setIsTranslating(false);
+        }, 800); // 800ms after last final event
+      };
+
+      client.on(EVENT_START_TRANSLATION, (...args) => {
         selectedRemote.audio.stop();
       });
       client.on(EVENT_STOP_TRANSLATION, (...args) => {
-        setIsTranslating(false);
         selectedRemote.audio.play();
       });
+      client.on(EVENT_PARTIAL_TRANSCRIPTION_RECEIVED, showProgressBar);
+      client.on(
+        EVENT_PARTIAL_TRANSLATED_TRANSCRIPTION_RECEIVED,
+        showProgressBar,
+      );
+      client.on(EVENT_TRANSCRIPTION_RECEIVED, hideProgressBar);
+      client.on(EVENT_TRANSLATION_RECEIVED, hideProgressBar);
       client.on(EVENT_PARTIAL_TRANSCRIPTION_RECEIVED, (...args) => {
         console.log('EVENT_PARTIAL_TRANSCRIPTION_RECEIVED', args);
       });
@@ -140,9 +163,6 @@ const PalabraContainer = () => {
           }
         });
         console.log('EVENT_TRANSLATION_RECEIVED', event);
-      });
-      client.on(EVENT_PARTIAL_TRANSLATED_TRANSCRIPTION_RECEIVED, (...args) => {
-        console.log('EVENT_PARTIAL_TRANSLATED_TRANSCRIPTION_RECEIVED', args);
       });
       // Listen for errors
       client.on(EVENT_ERROR_RECEIVED, (err: any) => {
@@ -223,20 +243,54 @@ const PalabraContainer = () => {
     }
   };
 
+  // Find the label for the selected target language
+  const targetLangLabel =
+    targetLangData.find(l => l.value === targetLang)?.label || targetLang;
+
+  // Fade in/out loader logic
+  useEffect(() => {
+    if (isTranslating) {
+      if (fadeTimeout.current) clearTimeout(fadeTimeout.current);
+      setShowLoader(true);
+    } else {
+      if (fadeTimeout.current) clearTimeout(fadeTimeout.current);
+      fadeTimeout.current = setTimeout(() => setShowLoader(false), 1000);
+    }
+    return () => {
+      if (fadeTimeout.current) clearTimeout(fadeTimeout.current);
+    };
+  }, [isTranslating]);
+
   return (
     <View style={styles.container}>
-      {/* Progress bar row at top */}
+      {/* Loader row at top */}
       <View style={styles.progressBarRow}>
-        {isTranslating && (
-          <View style={styles.progressBarBox}>
-            <span style={{color: '#fff', fontSize: 12, marginBottom: 2}}>
-              Translating to {targetLang}...
+        <View
+          style={{
+            width: 200,
+            alignItems: 'flex-end',
+            minHeight: 28,
+            height: 28,
+          }}>
+          <div
+            className={`palabra-fade-loader${showLoader ? ' visible' : ''}`}
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+            <span
+              style={{
+                color: '#fff',
+                fontSize: 12,
+                fontFamily: ThemeConfig.FontFamily.sansPro,
+              }}>
+              Translating to {targetLangLabel}...
             </span>
-            <View style={styles.progressBarBg}>
-              <View style={styles.progressBarFill} />
-            </View>
-          </View>
-        )}
+            <div className="palabra-spinner" />
+          </div>
+        </View>
       </View>
       {/* Scrollable translation feed, full width, with padding to avoid overlap */}
       <View style={styles.scrollAreaWrapper}>
@@ -254,7 +308,12 @@ const PalabraContainer = () => {
           }}>
           {translatedText.length === 0 ? (
             <View style={{alignItems: 'center', marginTop: 32}}>
-              <span style={{color: '#aaa', fontSize: 16}}>
+              <span
+                style={{
+                  color: '#aaa',
+                  fontSize: 16,
+                  fontFamily: ThemeConfig.FontFamily.sansPro,
+                }}>
                 No translations yet.
               </span>
             </View>
@@ -297,14 +356,42 @@ const PalabraContainer = () => {
         />
       )}
       {/* Display error if any */}
-      {error && <span style={{color: 'red', margin: 8}}>{error}</span>}
-      {/* Inline CSS for progress bar animation (web only) */}
+      {error && (
+        <span
+          style={{
+            color: 'red',
+            margin: 8,
+            fontFamily: ThemeConfig.FontFamily.sansPro,
+          }}>
+          {error}
+        </span>
+      )}
+      {/* Inline CSS for spinner and fade animation (web only) */}
       <style>{`
-        @keyframes palabra-progress-bar {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+        .palabra-fade-loader {
+          opacity: 0;
+          transition: opacity 0.5s;
+          pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
         }
-        .palabra-animated-ring { display: none; }
+        .palabra-fade-loader.visible {
+          opacity: 1;
+        }
+        .palabra-spinner {
+          margin-top: 4px;
+          width: 18px;
+          height: 18px;
+          border: 3px solid #e0e0e0;
+          border-top: 3px solid #007bff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
       `}</style>
     </View>
   );

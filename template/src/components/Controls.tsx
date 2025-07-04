@@ -564,6 +564,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     // V2V Translation action item (below Show Caption)
     actionMenuitems.push({
       componentName: 'v2v-translation',
+      hide: true,
       order: 3,
       icon: `${isV2VON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
