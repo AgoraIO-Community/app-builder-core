@@ -16,6 +16,7 @@ import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import TranslatorSelectedLanguagePopup from './TranslatorSelectedLanguagePopup';
 import {LanguageType, voices} from './utils';
+import getUniqueID from '../../utils/getUniqueID';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -165,6 +166,7 @@ const SonixCaptionContainer = () => {
           body.source_lang = [targetLang === 'en' ? '*' : sourceLang]; // soniox issue to trsnalte to english it src needsto be marked as *
           body.target_lang = targetLang;
         }
+        const requestId = getUniqueID();
 
         const response = await fetch(
           'https://demo.rteappbuilder.com/create_bot',
@@ -172,6 +174,7 @@ const SonixCaptionContainer = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'X-Request-Id': requestId,
             },
             body: JSON.stringify(body),
           },

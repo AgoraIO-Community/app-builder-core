@@ -1,6 +1,7 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
 import {LanguageType, voices} from './utils';
+import getUniqueID from '../../utils/getUniqueID';
 
 export type TranscriptItem = {
   uid: string;
@@ -166,11 +167,13 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
 
 const useV2V = createHook(V2VContext);
 
+const requestId = getUniqueID();
+
 //disconnect V2V user from channel
 export const disconnectV2VUser = (channel, userId) => {
   fetch('https://demo.rteappbuilder.com/disconnect_channel', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json', 'X-Request-Id': requestId},
     body: JSON.stringify({
       channel_name: channel,
       user_id: userId.toString(),
