@@ -14,14 +14,40 @@ export type LanguageType =
   | 'ja' // Japanese
   | 'es' // Spanish
   | 'de' // German
+  | 'zh' // Chinese
+  | 'hi' // Hindi
+  | 'ko' // Korean
+  | 'pt' // Portuguese
+  | 'it' // Italian
+  | 'id' // Indonesian
+  | 'nl' // Dutch
+  | 'tr' // Turkish
+  | 'fil' // Filipino
+  | 'pl' // Polish
+  | 'sv' // Swedish
+  | 'bg' // Bulgarian
+  | 'ro' // Romanian
+  | 'ar' // Arabic
+  | 'cs' // Czech
+  | 'el' // Greek
+  | 'fi' // Finnish
+  | 'hr' // Croatian
+  | 'ms' // Malay
+  | 'sk' // Slovak
+  | 'da' // Danish
+  | 'ta' // Tamil
+  | 'uk' // Ukrainian
+  | 'ru' // Russian
   | '';
+
+export type TTSType = 'rime' | 'eleven_labs';
 
 interface LanguageData {
   label: string;
   value: LanguageType;
 }
 
-export const langData: LanguageData[] = [
+export const rimeLangData: LanguageData[] = [
   {label: 'English', value: 'en'},
   {label: 'French', value: 'fr'},
   {label: 'German', value: 'de'},
@@ -29,11 +55,43 @@ export const langData: LanguageData[] = [
   {label: 'Spanish', value: 'es'},
 ];
 
+export const elevenLabsLangData: LanguageData[] = [
+  {label: 'English', value: 'en'},
+  {label: 'Japanese', value: 'ja'},
+  {label: 'Chinese', value: 'zh'},
+  {label: 'German', value: 'de'},
+  {label: 'Hindi', value: 'hi'},
+  {label: 'French', value: 'fr'},
+  {label: 'Korean', value: 'ko'},
+  {label: 'Portuguese', value: 'pt'},
+  {label: 'Italian', value: 'it'},
+  {label: 'Spanish', value: 'es'},
+  {label: 'Indonesian', value: 'id'},
+  {label: 'Dutch', value: 'nl'},
+  {label: 'Turkish', value: 'tr'},
+  {label: 'Filipino', value: 'fil'},
+  {label: 'Polish', value: 'pl'},
+  {label: 'Swedish', value: 'sv'},
+  {label: 'Bulgarian', value: 'bg'},
+  {label: 'Romanian', value: 'ro'},
+  {label: 'Arabic', value: 'ar'},
+  {label: 'Czech', value: 'cs'},
+  {label: 'Greek', value: 'el'},
+  {label: 'Finnish', value: 'fi'},
+  {label: 'Croatian', value: 'hr'},
+  {label: 'Malay', value: 'ms'},
+  {label: 'Slovak', value: 'sk'},
+  {label: 'Danish', value: 'da'},
+  {label: 'Tamil', value: 'ta'},
+  {label: 'Ukrainian', value: 'uk'},
+  {label: 'Russian', value: 'ru'},
+];
+
 export function getLanguageLabel(
   languageCode: LanguageType[],
 ): string | undefined {
   const langLabels = languageCode.map(langCode => {
-    return langData.find(data => data.value === langCode).label;
+    return rimeLangData.find(data => data.value === langCode).label;
   });
   return langLabels ? langLabels.join(', ') : undefined;
 }
@@ -62,7 +120,7 @@ export interface VoiceOption {
   value: string;
 }
 
-export const voices: VoiceOption[] = [
+export const rimeVoices: VoiceOption[] = [
   {name: 'Luna (Female)', description: 'chill but excitable', value: 'luna'},
   {name: 'Tauro (Male)', description: 'street smart', value: 'tauro'},
   {name: 'Astra (Female)', description: 'wide-eyed', value: 'astra'},
@@ -80,3 +138,60 @@ export const voices: VoiceOption[] = [
     value: 'ursa',
   },
 ];
+
+export const elevenLabsVoices: VoiceOption[] = [
+  {
+    name: 'Simran - Playful, Gen Z, Hindi',
+    value: 'TRnaQb7q41oL7sV0w6Bu',
+    description:
+      "A bubbly, expressive voice that sounds just like your favorite friend spilling tea over texts. Simran’s tone is light, fast-paced, and full of playful energy—perfect for Gen Z-focused content, AI BFFs, social media storytelling, and voice-based gossip apps. Whether it's for YouTube shorts, Instagram reels, Snapchat series, or interactive voice chats, Simran brings that ultra-relatable, “girl-next-door” charm that hooks listeners instantly.",
+  },
+  {
+    name: 'Emily - Corporate, Confident, American',
+    value: 'VUGQSU6BSEjkbudnJbOj',
+    description:
+      'Female American voice with clarity and good diction and pronunciation. Perfect for a tutorial, business, corporate, or news narration or voiceover.',
+  },
+  {
+    name: 'Humanoid - Futuristic, Robotic, British',
+    value: 'ZD29qZCdYhhdqzBLRKNH',
+    description:
+      'A clear, articulate female AI assistant voice with a futuristic, slightly robotic tone—evoking the precision and calm of an advanced digital entity from the future.',
+  },
+  {
+    name: 'Molly - Pleasant, Conversational, British',
+    value: 'jkSXBeN4g5pNelNQ3YWw',
+    description: 'A high quality, conversational english voice, late twenties.',
+  },
+  {
+    name: 'Blondie - Sultry, Romantic, British',
+    value: 'YDCfZMLWcUmsGvqHq0rS',
+    description:
+      'Sultry, captivating female voice — ideal for romantic-seductive content and intimate narrations.',
+  },
+  {
+    name: 'Samara - Elegant, Calm, British',
+    value: '19STyYD15bswVz51nqLf',
+    description:
+      'An elegant yet relaxed British accent female voice that is warm, clear, trustworthy, thoughtful and engaging. Ideal for international projects that educate, explain, motivate or inspire.',
+  },
+  {
+    name: 'Amelia - Upbeat, Young, British',
+    value: 'ZF6FPAbjXT4488VcRRnw',
+    description:
+      "A young British English woman's voice, clear and easy to understand. Expressive and enthusiastic, it's beautiful for narration, podcasts and social media such as YouTube, Tiktok, Reels and Stories. This studio-produced audio is great for a young woman's Gen-Z voice in audiobooks, high-quality video dubbing, advertising and reading.",
+  },
+  {
+    name: 'Jane - Audiobook, Professional, British',
+    value: 'RILOU7YmBhvwJGDGjNmP',
+    description:
+      'Professional English audiobook narrator in her 50s with a nice tone and cadence. Great for narration, storytelling, or general content creation, like YouTube.',
+  },
+];
+
+export const ttsOptions = [
+  {label: 'Rime TTS', value: 'rime'},
+  {label: 'ElevenLabs TTS', value: 'eleven_labs'},
+];
+
+export const V2V_URL = 'https://demo.rteappbuilder.com/rcr';

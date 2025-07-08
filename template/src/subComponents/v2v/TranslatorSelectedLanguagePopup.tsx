@@ -13,8 +13,17 @@ import Spacer from '../../atoms/Spacer';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
-import {LanguageType, langData} from './utils';
+import {
+  LanguageType,
+  rimeLangData,
+  elevenLabsLangData,
+  TTSType,
+  rimeVoices,
+  elevenLabsVoices,
+  ttsOptions,
+} from './utils';
 import Toggle from '../../atoms/Toggle';
+import Dropdown from '../../atoms/Dropdown';
 
 interface TranslatorSelectedLanguagePopupProps {
   modalVisible: boolean;
@@ -28,76 +37,24 @@ interface TranslatorSelectedLanguagePopupProps {
   voices: {name: string; description: string; value: string}[];
   selectedVoice: string;
   setSelectedVoice: (voice: string) => void;
+  // New props for TTS functionality
+  selectedTTS: TTSType;
+  setSelectedTTS: (tts: TTSType) => void;
+  rimeSourceLang: LanguageType;
+  setRimeSourceLang: (lang: LanguageType) => void;
+  rimeTargetLang: LanguageType;
+  setRimeTargetLang: (lang: LanguageType) => void;
+  rimeSelectedVoice: string;
+  setRimeSelectedVoice: (voice: string) => void;
+  elevenLabsSourceLang: LanguageType;
+  setElevenLabsSourceLang: (lang: LanguageType) => void;
+  elevenLabsTargetLang: LanguageType;
+  setElevenLabsTargetLang: (lang: LanguageType) => void;
+  elevenLabsSelectedVoice: string;
+  setElevenLabsSelectedVoice: (voice: string) => void;
 }
 
 const windowWidth = Dimensions.get('window').width;
-
-const SingleSelectDropdown: React.FC<{
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: {label: string; value: string; description?: string}[];
-  placeholder?: string;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  otherDropdownOpen: boolean;
-}> = ({
-  label,
-  value,
-  onChange,
-  options,
-  placeholder = 'Select...',
-  open,
-  setOpen,
-  otherDropdownOpen,
-}) => {
-  return (
-    <View style={{marginBottom: 16}}>
-      <Text style={styles.dropdownLabel}>{label}</Text>
-      <View style={styles.singleDropdownContainer}>
-        <TouchableOpacity
-          style={styles.singleDropdown}
-          activeOpacity={0.7}
-          onPress={() => {
-            if (!otherDropdownOpen) setOpen(!open);
-          }}>
-          <Text style={value ? styles.selectedText : styles.placeholderText}>
-            {value ? options.find(o => o.value === value)?.label : placeholder}
-          </Text>
-          <Text style={styles.arrow}>▼</Text>
-        </TouchableOpacity>
-        <Modal
-          transparent
-          animationType="fade"
-          visible={open}
-          onRequestClose={() => setOpen(false)}>
-          <Pressable
-            style={styles.dropdownModalOverlay}
-            onPress={() => setOpen(false)}>
-            <View
-              style={[
-                styles.dropdownListModal,
-                {width: Math.min(windowWidth * 0.8, 400)},
-              ]}>
-              {options.map(opt => (
-                <Text
-                  key={opt.value}
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    onChange(opt.value);
-                    setOpen(false);
-                  }}>
-                  {opt.label}
-                  {opt.description ? ` - ${opt.description}` : ''}
-                </Text>
-              ))}
-            </View>
-          </Pressable>
-        </Modal>
-      </View>
-    </View>
-  );
-};
 
 const TranslatorSelectedLanguagePopup: React.FC<
   TranslatorSelectedLanguagePopupProps
@@ -113,24 +70,92 @@ const TranslatorSelectedLanguagePopup: React.FC<
   voices,
   selectedVoice,
   setSelectedVoice,
+  selectedTTS,
+  setSelectedTTS,
+  rimeSourceLang,
+  setRimeSourceLang,
+  rimeTargetLang,
+  setRimeTargetLang,
+  rimeSelectedVoice,
+  setRimeSelectedVoice,
+  elevenLabsSourceLang,
+  setElevenLabsSourceLang,
+  elevenLabsTargetLang,
+  setElevenLabsTargetLang,
+  elevenLabsSelectedVoice,
+  setElevenLabsSelectedVoice,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
   const [voiceOpen, setVoiceOpen] = React.useState(false);
+  const [ttsOpen, setTtsOpen] = React.useState(false);
+  const [rimeSrcOpen, setRimeSrcOpen] = React.useState(false);
+  const [rimeTgtOpen, setRimeTgtOpen] = React.useState(false);
+  const [rimeVoiceOpen, setRimeVoiceOpen] = React.useState(false);
+  const [elevenLabsSrcOpen, setElevenLabsSrcOpen] = React.useState(false);
+  const [elevenLabsTgtOpen, setElevenLabsTgtOpen] = React.useState(false);
+  const [elevenLabsVoiceOpen, setElevenLabsVoiceOpen] = React.useState(false);
 
   // Only one dropdown open at a time
   React.useEffect(() => {
     if (srcOpen && tgtOpen) setTgtOpen(false);
     if (srcOpen && voiceOpen) setVoiceOpen(false);
+    if (srcOpen && ttsOpen) setTtsOpen(false);
   }, [srcOpen]);
   React.useEffect(() => {
     if (tgtOpen && srcOpen) setSrcOpen(false);
     if (tgtOpen && voiceOpen) setVoiceOpen(false);
+    if (tgtOpen && ttsOpen) setTtsOpen(false);
   }, [tgtOpen]);
   React.useEffect(() => {
     if (voiceOpen && srcOpen) setSrcOpen(false);
     if (voiceOpen && tgtOpen) setTgtOpen(false);
+    if (voiceOpen && ttsOpen) setTtsOpen(false);
   }, [voiceOpen]);
+  React.useEffect(() => {
+    if (ttsOpen && srcOpen) setSrcOpen(false);
+    if (ttsOpen && tgtOpen) setTgtOpen(false);
+    if (ttsOpen && voiceOpen) setVoiceOpen(false);
+  }, [ttsOpen]);
+
+  // Rime dropdowns
+  React.useEffect(() => {
+    if (rimeSrcOpen && rimeTgtOpen) setRimeTgtOpen(false);
+    if (rimeSrcOpen && rimeVoiceOpen) setRimeVoiceOpen(false);
+  }, [rimeSrcOpen]);
+  React.useEffect(() => {
+    if (rimeTgtOpen && rimeSrcOpen) setRimeSrcOpen(false);
+    if (rimeTgtOpen && rimeVoiceOpen) setRimeVoiceOpen(false);
+  }, [rimeTgtOpen]);
+  React.useEffect(() => {
+    if (rimeVoiceOpen && rimeSrcOpen) setRimeSrcOpen(false);
+    if (rimeVoiceOpen && rimeTgtOpen) setRimeTgtOpen(false);
+  }, [rimeVoiceOpen]);
+
+  // ElevenLabs dropdowns
+  React.useEffect(() => {
+    if (elevenLabsSrcOpen && elevenLabsTgtOpen) setElevenLabsTgtOpen(false);
+    if (elevenLabsSrcOpen && elevenLabsVoiceOpen) setElevenLabsVoiceOpen(false);
+  }, [elevenLabsSrcOpen]);
+  React.useEffect(() => {
+    if (elevenLabsTgtOpen && elevenLabsSrcOpen) setElevenLabsSrcOpen(false);
+    if (elevenLabsTgtOpen && elevenLabsVoiceOpen) setElevenLabsVoiceOpen(false);
+  }, [elevenLabsTgtOpen]);
+  React.useEffect(() => {
+    if (elevenLabsVoiceOpen && elevenLabsSrcOpen) setElevenLabsSrcOpen(false);
+    if (elevenLabsVoiceOpen && elevenLabsTgtOpen) setElevenLabsTgtOpen(false);
+  }, [elevenLabsVoiceOpen]);
+
+  const isFormValid = () => {
+    if (selectedTTS === 'rime') {
+      return rimeSourceLang && rimeTargetLang && rimeSelectedVoice;
+    } else if (selectedTTS === 'eleven_labs') {
+      return (
+        elevenLabsSourceLang && elevenLabsTargetLang && elevenLabsSelectedVoice
+      );
+    }
+    return false;
+  };
 
   return (
     <Popup
@@ -139,67 +164,137 @@ const TranslatorSelectedLanguagePopup: React.FC<
       showCloseIcon={true}
       contentContainerStyle={styles.contentContainer}
       title={'Select Translation Languages'}
-      subtitle={'Choose source and target language for translation.'}
+      subtitle={
+        'Choose TTS provider and configure source and target language for translation.'
+      }
       onCancel={onCancel}>
       <>
-        <SingleSelectDropdown
-          label="Source Language"
-          value={sourceLang}
-          onChange={setSourceLang}
-          options={langData}
-          placeholder="Select source language"
-          open={srcOpen}
-          setOpen={setSrcOpen}
-          otherDropdownOpen={tgtOpen || voiceOpen}
-        />
-        <SingleSelectDropdown
-          label="Target Language"
-          value={targetLang}
-          onChange={setTargetLang}
-          options={langData}
-          placeholder="Select target language"
-          open={tgtOpen}
-          setOpen={setTgtOpen}
-          otherDropdownOpen={srcOpen || voiceOpen}
-        />
-        <SingleSelectDropdown
-          label="Voice"
-          value={selectedVoice}
-          onChange={setSelectedVoice}
-          options={voices.map(v => ({
-            label: v.name,
-            value: v.value,
-            description: v.description,
-          }))}
-          placeholder="Select voice"
-          open={voiceOpen}
-          setOpen={setVoiceOpen}
-          otherDropdownOpen={srcOpen || tgtOpen}
-        />
+        <View style={{marginBottom: 16}}>
+          <Text style={styles.dropdownLabel}>TTS Provider</Text>
+          <Dropdown
+            label={''}
+            data={ttsOptions}
+            selectedValue={selectedTTS}
+            onSelect={({value}) => setSelectedTTS(value as TTSType)}
+            enabled={true}
+          />
+        </View>
+
+        {selectedTTS === 'rime' && (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Rime TTS Configuration</Text>
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Source Language</Text>
+              <Dropdown
+                label={''}
+                data={rimeLangData}
+                selectedValue={rimeSourceLang}
+                onSelect={({value}) => setRimeSourceLang(value as LanguageType)}
+                enabled={true}
+              />
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Target Language</Text>
+              <Dropdown
+                label={''}
+                data={rimeLangData}
+                selectedValue={rimeTargetLang}
+                onSelect={({value}) => setRimeTargetLang(value as LanguageType)}
+                enabled={true}
+              />
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Voice</Text>
+              <Dropdown
+                label={''}
+                data={rimeVoices.map(v => ({
+                  label: v.name,
+                  value: v.value,
+                }))}
+                selectedValue={rimeSelectedVoice}
+                onSelect={({value}) => setRimeSelectedVoice(value)}
+                enabled={true}
+              />
+            </View>
+          </>
+        )}
+
+        {selectedTTS === 'eleven_labs' && (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>
+                ElevenLabs TTS Configuration
+              </Text>
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Source Language</Text>
+              <Dropdown
+                label={''}
+                data={elevenLabsLangData}
+                selectedValue={elevenLabsSourceLang}
+                onSelect={({value}) =>
+                  setElevenLabsSourceLang(value as LanguageType)
+                }
+                enabled={true}
+              />
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Target Language</Text>
+              <Dropdown
+                label={''}
+                data={elevenLabsLangData}
+                selectedValue={elevenLabsTargetLang}
+                onSelect={({value}) =>
+                  setElevenLabsTargetLang(value as LanguageType)
+                }
+                enabled={true}
+              />
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Voice</Text>
+              <Dropdown
+                label={''}
+                data={elevenLabsVoices.map(v => ({
+                  label: v.name,
+                  value: v.value,
+                }))}
+                selectedValue={elevenLabsSelectedVoice}
+                onSelect={({value}) => setElevenLabsSelectedVoice(value)}
+                enabled={true}
+              />
+            </View>
+          </>
+        )}
       </>
-      <Spacer size={24} />
-      <View style={styles.btnContainer}>
-        <TertiaryButton
-          containerStyle={styles.btn}
-          text={'Cancel'}
-          textStyle={styles.btnText}
-          onPress={() => {
-            onCancel();
-            setModalVisible(false);
-          }}
-        />
-        <Spacer size={10} horizontal={true} />
-        <PrimaryButton
-          containerStyle={styles.btn}
-          text={'Confirm'}
-          textStyle={styles.btnText}
-          disabled={!sourceLang || !targetLang || !selectedVoice}
-          onPress={() => {
-            setModalVisible(false);
-            onConfirm();
-          }}
-        />
-      </View>
+      {selectedTTS && (
+        <>
+          <Spacer size={24} />
+          <View style={styles.btnContainer}>
+            <TertiaryButton
+              containerStyle={styles.btn}
+              text={'Cancel'}
+              textStyle={styles.btnText}
+              onPress={() => {
+                onCancel();
+                setModalVisible(false);
+              }}
+            />
+            <Spacer size={10} horizontal={true} />
+            <PrimaryButton
+              containerStyle={styles.btn}
+              text={'Confirm'}
+              textStyle={styles.btnText}
+              disabled={!isFormValid()}
+              onPress={() => {
+                setModalVisible(false);
+                onConfirm();
+              }}
+            />
+          </View>
+        </>
+      )}
     </Popup>
   );
 };
@@ -311,5 +406,15 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     fontWeight: '500',
+  },
+  sectionHeader: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: $config.FONT_COLOR,
+    marginBottom: 8,
   },
 });

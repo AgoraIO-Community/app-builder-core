@@ -1,6 +1,6 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
-import {LanguageType, voices} from './utils';
+import {LanguageType, rimeVoices, V2V_URL, TTSType} from './utils';
 import getUniqueID from '../../utils/getUniqueID';
 
 export type TranscriptItem = {
@@ -60,6 +60,8 @@ export const V2VContext = React.createContext<{
   setTranslations: React.Dispatch<React.SetStateAction<Object>>;
   selectedVoice: string;
   setSelectedVoice: React.Dispatch<React.SetStateAction<string>>;
+  selectedTTS: TTSType;
+  setSelectedTTS: React.Dispatch<React.SetStateAction<TTSType>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -85,8 +87,10 @@ export const V2VContext = React.createContext<{
   setTranslations: () => {},
   isSonioxV2VListenerAdded: false,
   setIsSonioxV2VListenerAdded: () => {},
-  selectedVoice: voices[0]?.value || '',
+  selectedVoice: rimeVoices[0]?.value || '',
   setSelectedVoice: () => {},
+  selectedTTS: 'rime',
+  setSelectedTTS: () => {},
 });
 
 interface V2VProviderProps {
@@ -127,8 +131,9 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   >([]);
 
   const [selectedVoice, setSelectedVoice] = React.useState<string>(
-    voices[0]?.value || '',
+    rimeVoices[0]?.value || '',
   );
+  const [selectedTTS, setSelectedTTS] = React.useState<TTSType>('rime');
 
   return (
     <V2VContext.Provider
@@ -159,6 +164,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setIsSonioxV2VListenerAdded,
         selectedVoice,
         setSelectedVoice,
+        selectedTTS,
+        setSelectedTTS,
       }}>
       {children}
     </V2VContext.Provider>
@@ -171,7 +178,7 @@ const requestId = getUniqueID();
 
 //disconnect V2V user from channel
 export const disconnectV2VUser = (channel, userId) => {
-  fetch('https://demo.rteappbuilder.com/disconnect_channel', {
+  fetch(`${V2V_URL}/disconnect_channel`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'X-Request-Id': requestId},
     body: JSON.stringify({

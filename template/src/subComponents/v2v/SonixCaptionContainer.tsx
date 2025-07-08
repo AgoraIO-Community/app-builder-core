@@ -12,10 +12,17 @@ import {
 } from 'customization-api';
 import PQueue from 'p-queue';
 import {useV2V, disconnectV2VUser} from './useVoice2Voice';
+import {V2V_URL} from './utils';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import TranslatorSelectedLanguagePopup from './TranslatorSelectedLanguagePopup';
-import {LanguageType, voices} from './utils';
+import {
+  LanguageType,
+  rimeVoices,
+  TTSType,
+  ttsOptions,
+  elevenLabsVoices,
+} from './utils';
 import getUniqueID from '../../utils/getUniqueID';
 
 const formatTime = (timestamp: number) => {
@@ -35,6 +42,8 @@ type TranslatioinEntry = {
 };
 
 const SonixCaptionContainer = () => {
+  // All hooks must be at the top before any logic
+  const [showTranslatorPopup, setShowTranslatorPopup] = useState(true);
   const {RtcEngineUnsafe} = useRtc();
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
@@ -52,7 +61,61 @@ const SonixCaptionContainer = () => {
     setIsV2VON,
     selectedVoice,
     setSelectedVoice,
+    selectedTTS,
+    setSelectedTTS,
   } = useV2V();
+
+  // provider configs state
+  const [providerConfigs, setProviderConfigs] = useState({
+    rime: {
+      sourceLang: 'en',
+      targetLang: 'es',
+      voice: rimeVoices[0]?.value || '',
+    },
+    eleven_labs: {
+      sourceLang: 'en',
+      targetLang: 'hi',
+      voice: elevenLabsVoices[0]?.value || '',
+    },
+    // Add more providers here as needed
+  });
+
+  // Sync local state with context on popup open
+  useEffect(() => {
+    if (showTranslatorPopup) {
+      const config =
+        providerConfigs[selectedTTS] || providerConfigs['rime'] || {};
+      setSourceLang(config.sourceLang);
+      setTargetLang(config.targetLang);
+      setSelectedVoice(config.voice);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTranslatorPopup]);
+
+  // Handler to update providerConfigs and context
+  const handleProviderConfigChange = (provider, field, value) => {
+    setProviderConfigs(prev => ({
+      ...prev,
+      [provider]: {
+        ...prev[provider],
+        [field]: value,
+      },
+    }));
+    if (selectedTTS === provider) {
+      if (field === 'sourceLang') setSourceLang(value);
+      if (field === 'targetLang') setTargetLang(value);
+      if (field === 'voice') setSelectedVoice(value);
+    }
+  };
+
+  const handleSetSelectedTTS = tts => {
+    setSelectedTTS(tts);
+    const config = providerConfigs[tts] || {};
+    setSourceLang(config.sourceLang);
+    setTargetLang(config.targetLang);
+    setSelectedVoice(config.voice);
+  };
+
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
@@ -65,7 +128,6 @@ const SonixCaptionContainer = () => {
 
   const engine = RtcEngineUnsafe;
   const [displayFeed, setDisplayFeed] = useState<TranslatioinEntry[]>([]);
-  const [showTranslatorPopup, setShowTranslatorPopup] = useState(true);
 
   useEffect(() => {
     return () => {
@@ -159,7 +221,8 @@ const SonixCaptionContainer = () => {
           channel_name: channel,
           user_id: localUid.toString(),
           language_hints: [sourceLang],
-          rime_speaker: selectedVoice,
+          tts_speaker: selectedVoice,
+          tts_provider: selectedTTS,
         };
 
         if (sourceLang !== targetLang) {
@@ -168,17 +231,14 @@ const SonixCaptionContainer = () => {
         }
         const requestId = getUniqueID();
 
-        const response = await fetch(
-          'https://demo.rteappbuilder.com/create_bot',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Request-Id': requestId,
-            },
-            body: JSON.stringify(body),
+        const response = await fetch(`${V2V_URL}/create_bot`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Request-Id': requestId,
           },
-        );
+          body: JSON.stringify(body),
+        });
         const data = await response.json();
         console.log('Bot created:', data);
         RtcEngineUnsafe.setV2VActive(true);
@@ -212,19 +272,64 @@ const SonixCaptionContainer = () => {
   ]);
 
   if (showTranslatorPopup) {
+    const handleConfirm = () => {
+      // Save the current popup selections to context
+      const config =
+        providerConfigs[selectedTTS] || providerConfigs['rime'] || {};
+      setSourceLang(config.sourceLang);
+      setTargetLang(config.targetLang);
+      setSelectedVoice(config.voice);
+      setShowTranslatorPopup(false);
+    };
+    // Get current provider config for popup fields
+    const currentConfig =
+      providerConfigs[selectedTTS] || providerConfigs['rime'] || {};
     return (
       <TranslatorSelectedLanguagePopup
         modalVisible={showTranslatorPopup}
         setModalVisible={setShowTranslatorPopup}
-        sourceLang={sourceLang}
-        setSourceLang={setSourceLang}
-        targetLang={targetLang}
-        setTargetLang={setTargetLang}
-        onConfirm={() => setShowTranslatorPopup(false)}
+        sourceLang={currentConfig.sourceLang}
+        setSourceLang={val =>
+          handleProviderConfigChange(selectedTTS, 'sourceLang', val)
+        }
+        targetLang={currentConfig.targetLang}
+        setTargetLang={val =>
+          handleProviderConfigChange(selectedTTS, 'targetLang', val)
+        }
+        onConfirm={handleConfirm}
         onCancel={() => setIsV2VON(false)}
-        voices={voices}
-        selectedVoice={selectedVoice}
-        setSelectedVoice={setSelectedVoice}
+        voices={selectedTTS === 'rime' ? rimeVoices : elevenLabsVoices}
+        selectedVoice={currentConfig.voice}
+        setSelectedVoice={val =>
+          handleProviderConfigChange(selectedTTS, 'voice', val)
+        }
+        selectedTTS={selectedTTS}
+        setSelectedTTS={handleSetSelectedTTS}
+        // The following are not needed anymore, but kept for compatibility
+        rimeSourceLang={providerConfigs.rime.sourceLang}
+        setRimeSourceLang={val =>
+          handleProviderConfigChange('rime', 'sourceLang', val)
+        }
+        rimeTargetLang={providerConfigs.rime.targetLang}
+        setRimeTargetLang={val =>
+          handleProviderConfigChange('rime', 'targetLang', val)
+        }
+        rimeSelectedVoice={providerConfigs.rime.voice}
+        setRimeSelectedVoice={val =>
+          handleProviderConfigChange('rime', 'voice', val)
+        }
+        elevenLabsSourceLang={providerConfigs.eleven_labs.sourceLang}
+        setElevenLabsSourceLang={val =>
+          handleProviderConfigChange('eleven_labs', 'sourceLang', val)
+        }
+        elevenLabsTargetLang={providerConfigs.eleven_labs.targetLang}
+        setElevenLabsTargetLang={val =>
+          handleProviderConfigChange('eleven_labs', 'targetLang', val)
+        }
+        elevenLabsSelectedVoice={providerConfigs.eleven_labs.voice}
+        setElevenLabsSelectedVoice={val =>
+          handleProviderConfigChange('eleven_labs', 'voice', val)
+        }
       />
     );
   }
