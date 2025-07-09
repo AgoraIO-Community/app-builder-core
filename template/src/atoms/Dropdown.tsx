@@ -75,15 +75,18 @@ const Dropdown: FC<Props> = ({
   };
 
   const onItemPress = (item): void => {
-    // // Dropdown should rely on the provided
-    // setSelected(item);
+    if (item.disabled) return; // Prevent selection if disabled
     onSelect(item);
     setVisible(false);
   };
 
   const renderItem = ({item}): ReactElement<any, any> => (
-    <PlatformWrapper onPress={() => onItemPress(item)}>
-      <View style={styles.itemContainer}>
+    <PlatformWrapper onPress={() => !item.disabled && onItemPress(item)}>
+      <View
+        style={[
+          styles.itemContainer,
+          item.disabled && styles.itemContainerDisabled,
+        ]}>
         <View style={styles.itemTextContainer}>
           <Text
             numberOfLines={1}
@@ -92,6 +95,7 @@ const Dropdown: FC<Props> = ({
               selected && item?.value === selected?.value
                 ? styles.itemTextSelected
                 : {},
+              item.disabled && styles.itemTextDisabled,
             ]}>
             {item.label}
           </Text>
@@ -280,6 +284,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
+  itemContainerDisabled: {
+    opacity: 0.5,
+  },
   itemTextContainer: {
     flex: 0.8,
     justifyContent: 'center',
@@ -292,6 +299,9 @@ const styles = StyleSheet.create({
     color: $config.SECONDARY_ACTION_COLOR,
     paddingVertical: 12,
     paddingHorizontal: 15,
+  },
+  itemTextDisabled: {
+    color: '#888',
   },
   itemTextSelected: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
