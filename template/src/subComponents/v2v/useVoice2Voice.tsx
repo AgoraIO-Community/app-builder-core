@@ -1,6 +1,12 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
-import {LanguageType, rimeVoices, V2V_URL, TTSType} from './utils';
+import {
+  LanguageType,
+  rimeVoices,
+  V2V_URL,
+  TTSType,
+  elevenLabsVoices,
+} from './utils';
 import getUniqueID from '../../utils/getUniqueID';
 
 export type TranscriptItem = {
@@ -62,6 +68,8 @@ export const V2VContext = React.createContext<{
   setSelectedVoice: React.Dispatch<React.SetStateAction<string>>;
   selectedTTS: TTSType;
   setSelectedTTS: React.Dispatch<React.SetStateAction<TTSType>>;
+  providerConfigs: any;
+  setProviderConfigs: React.Dispatch<React.SetStateAction<any>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -89,8 +97,21 @@ export const V2VContext = React.createContext<{
   setIsSonioxV2VListenerAdded: () => {},
   selectedVoice: rimeVoices[0]?.value || '',
   setSelectedVoice: () => {},
-  selectedTTS: 'rime',
+  selectedTTS: 'eleven_labs',
   setSelectedTTS: () => {},
+  providerConfigs: {
+    rime: {
+      sourceLang: 'en',
+      targetLang: 'es',
+      voice: rimeVoices[0]?.value || '',
+    },
+    eleven_labs: {
+      sourceLang: 'en',
+      targetLang: 'hi',
+      voice: 'TRnaQb7q41oL7sV0w6Bu', // Simran - Gen Z, Hindi (Female)
+    },
+  },
+  setProviderConfigs: () => {},
 });
 
 interface V2VProviderProps {
@@ -134,6 +155,18 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
     rimeVoices[0]?.value || '',
   );
   const [selectedTTS, setSelectedTTS] = React.useState<TTSType>('eleven_labs');
+  const [providerConfigs, setProviderConfigs] = React.useState({
+    rime: {
+      sourceLang: 'en',
+      targetLang: 'es',
+      voice: rimeVoices[0]?.value || '',
+    },
+    eleven_labs: {
+      sourceLang: 'en',
+      targetLang: 'hi',
+      voice: 'TRnaQb7q41oL7sV0w6Bu', // Simran - Gen Z, Hindi (Female)
+    },
+  });
 
   return (
     <V2VContext.Provider
@@ -166,6 +199,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setSelectedVoice,
         selectedTTS,
         setSelectedTTS,
+        providerConfigs,
+        setProviderConfigs,
       }}>
       {children}
     </V2VContext.Provider>

@@ -47,6 +47,7 @@ const SonixCaptionContainer = () => {
   const {RtcEngineUnsafe} = useRtc();
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
+  // Use providerConfigs and setProviderConfigs from context
   const {
     translations,
     setTranslations,
@@ -63,34 +64,9 @@ const SonixCaptionContainer = () => {
     setSelectedVoice,
     selectedTTS,
     setSelectedTTS,
+    providerConfigs,
+    setProviderConfigs,
   } = useV2V();
-
-  // provider configs state
-  const [providerConfigs, setProviderConfigs] = useState({
-    rime: {
-      sourceLang: 'en',
-      targetLang: 'es',
-      voice: rimeVoices[0]?.value || '',
-    },
-    eleven_labs: {
-      sourceLang: 'en',
-      targetLang: 'hi',
-      voice: elevenLabsVoices[0]?.value || '',
-    },
-    // Add more providers here as needed
-  });
-
-  // Sync local state with context on popup open
-  useEffect(() => {
-    if (showTranslatorPopup) {
-      const config =
-        providerConfigs[selectedTTS] || providerConfigs['rime'] || {};
-      setSourceLang(config.sourceLang);
-      setTargetLang(config.targetLang);
-      setSelectedVoice(config.voice);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTranslatorPopup]);
 
   // Handler to update providerConfigs and context
   const handleProviderConfigChange = (provider, field, value) => {
