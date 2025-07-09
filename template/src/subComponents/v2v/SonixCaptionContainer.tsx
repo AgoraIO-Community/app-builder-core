@@ -137,8 +137,8 @@ const SonixCaptionContainer = () => {
           const data = JSON.parse(jsonString);
           console.log('Bot ID', botID, '*STT*-Soniox-Decoded', data);
 
-          const finalText = data.final?.trim() || '';
-          const nonFinalText = data.non_final?.trim() || '';
+          const finalText = data[sourceLang].final_text?.trim() || '';
+          const nonFinalText = data[sourceLang].non_final_text?.trim() || '';
           const uid = data.user_id;
 
           if (!finalText && !nonFinalText) return;
