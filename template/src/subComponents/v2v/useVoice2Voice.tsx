@@ -53,13 +53,6 @@ export const V2VContext = React.createContext<{
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 
-  // holds status of StreamMessageCallback listener added (caption/transcript)
-  isV2VListenerAdded: boolean;
-  setIsV2VListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
-
-  isSonioxV2VListenerAdded: boolean;
-  setIsSonioxV2VListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
-
   activeSpeakerRef: React.MutableRefObject<string>;
   prevSpeakerRef: React.MutableRefObject<string>;
   translations: Object;
@@ -87,14 +80,10 @@ export const V2VContext = React.createContext<{
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
-  isV2VListenerAdded: false,
-  setIsV2VListenerAdded: () => {},
   activeSpeakerRef: {current: ''},
   prevSpeakerRef: {current: ''},
   translations: {},
   setTranslations: () => {},
-  isSonioxV2VListenerAdded: false,
-  setIsSonioxV2VListenerAdded: () => {},
   selectedVoice: rimeVoices[0]?.value || '',
   setSelectedVoice: () => {},
   selectedTTS: 'eleven_labs',
@@ -187,14 +176,10 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
-        isV2VListenerAdded,
-        setIsV2VListenerAdded,
         activeSpeakerRef,
         prevSpeakerRef,
         translations,
         setTranslations,
-        isSonioxV2VListenerAdded,
-        setIsSonioxV2VListenerAdded,
         selectedVoice,
         setSelectedVoice,
         selectedTTS,

@@ -51,8 +51,6 @@ const SonixCaptionContainer = () => {
   const {
     translations,
     setTranslations,
-    isSonioxV2VListenerAdded,
-    setIsSonioxV2VListenerAdded,
     isV2VActive,
     setIsV2VActive,
     sourceLang,
@@ -129,10 +127,9 @@ const SonixCaptionContainer = () => {
 
   const sonixCaptionCallback = useCallback(
     (botID, payload) => {
-      setIsSonioxV2VListenerAdded(true);
-
       const queueCallback = () => {
         try {
+          const srcLangugae = providerConfigs[selectedTTS].sourceLang;
           const jsonString = new TextDecoder().decode(payload);
           const data = JSON.parse(jsonString);
           console.log('Bot ID', botID, '*STT*-Soniox-Decoded', data);
@@ -182,13 +179,18 @@ const SonixCaptionContainer = () => {
 
       queueRef.current.add(queueCallback);
     },
-    [setTranslations, setIsSonioxV2VListenerAdded],
+    [setTranslations, sourceLang],
   );
 
   useEffect(() => {
     if (showTranslatorPopup) {
       return;
     }
+
+    const eventName = 'onSonioxStreamMessage';
+    // Always remove previous listener before adding a new one
+    RtcEngineUnsafe.removeListener(eventName, sonixCaptionCallback);
+    RtcEngineUnsafe.addListener(eventName, sonixCaptionCallback);
 
     const createBot = async () => {
       try {
@@ -202,7 +204,10 @@ const SonixCaptionContainer = () => {
         };
 
         if (sourceLang !== targetLang) {
-          body.source_lang = [targetLang === 'en' ? '*' : sourceLang]; // soniox issue to trsnalte to english it src needsto be marked as *
+          body.source_lang = [targetLang === 'en' ? '*' : sourceLang];
+          body.target_lang = targetLang;
+        } else {
+          body.source_lang = [sourceLang];
           body.target_lang = targetLang;
         }
         const requestId = getUniqueID();
@@ -223,20 +228,13 @@ const SonixCaptionContainer = () => {
         console.error('Error creating bot:', error);
       }
     };
-
-    const addStreamListener = () => {
-      if (!isSonioxV2VListenerAdded) {
-        RtcEngineUnsafe.addListener(
-          'onSonioxStreamMessage',
-          sonixCaptionCallback,
-        );
-      }
-    };
-    addStreamListener();
     createBot();
+    // Cleanup: remove the listener on unmount or when callback changes
+    return () => {
+      RtcEngineUnsafe.removeListener(eventName, sonixCaptionCallback);
+    };
   }, [
     showTranslatorPopup,
-    isSonioxV2VListenerAdded,
     sonixCaptionCallback,
     engine,
     sourceLang,

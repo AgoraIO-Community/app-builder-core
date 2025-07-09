@@ -1016,6 +1016,16 @@ export default class RtcEngine {
     };
   }
 
+  // Add this method for proper event listener cleanup
+  removeListener<EventType extends keyof RtcEngineEvents>(
+    event: EventType,
+    listener: RtcEngineEvents[EventType],
+  ) {
+    if (this.eventsMap.get(event) === listener) {
+      this.eventsMap.delete(event);
+    }
+  }
+
   async muteLocalAudioStream(muted: boolean): Promise<void> {
     let didProcureMutexLock = false;
     try {
