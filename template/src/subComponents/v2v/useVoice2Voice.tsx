@@ -133,7 +133,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [selectedVoice, setSelectedVoice] = React.useState<string>(
     rimeVoices[0]?.value || '',
   );
-  const [selectedTTS, setSelectedTTS] = React.useState<TTSType>('rime');
+  const [selectedTTS, setSelectedTTS] = React.useState<TTSType>('eleven_labs');
 
   return (
     <V2VContext.Provider

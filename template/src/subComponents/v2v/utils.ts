@@ -140,49 +140,84 @@ export const rimeVoices: VoiceOption[] = [
 ];
 
 export const elevenLabsVoices: VoiceOption[] = [
+  // 1. Female
   {
-    name: 'Simran - Playful, Gen Z, Hindi',
+    name: 'Simran - Gen Z, Hindi (Female)',
     value: 'TRnaQb7q41oL7sV0w6Bu',
     description:
       "A bubbly, expressive voice that sounds just like your favorite friend spilling tea over texts. Simran’s tone is light, fast-paced, and full of playful energy—perfect for Gen Z-focused content, AI BFFs, social media storytelling, and voice-based gossip apps. Whether it's for YouTube shorts, Instagram reels, Snapchat series, or interactive voice chats, Simran brings that ultra-relatable, “girl-next-door” charm that hooks listeners instantly.",
   },
+  // 2. Male
   {
-    name: 'Emily - Corporate, Confident, American',
+    name: 'Hope - Conversational, American (Male)',
+    value: 'OYTbf65OHHFELVut7v2H',
+    description: 'Hope - Crisp, Conversational, American (Male)',
+  },
+  // 3. Female
+  {
+    name: 'Emily - Confident, American (Female)',
     value: 'VUGQSU6BSEjkbudnJbOj',
     description:
       'Female American voice with clarity and good diction and pronunciation. Perfect for a tutorial, business, corporate, or news narration or voiceover.',
   },
+  // 4. Male
   {
-    name: 'Humanoid - Futuristic, Robotic, British',
+    name: 'Adam - Professional, American (Male)',
+    value: 'pNInz6obpgDQGcFmaJgB',
+    description:
+      'A clear, professional American male voice, ideal for narration, presentations, and business content.',
+  },
+  // 5. Female
+  {
+    name: 'Humanoid - Robotic, British (Female)',
     value: 'ZD29qZCdYhhdqzBLRKNH',
     description:
       'A clear, articulate female AI assistant voice with a futuristic, slightly robotic tone—evoking the precision and calm of an advanced digital entity from the future.',
   },
+  // 6. Male
   {
-    name: 'Molly - Pleasant, Conversational, British',
+    name: 'Antoni - Conversational, Spanish (Male)',
+    value: 'ErXwobaYiN019PkySvjV',
+    description:
+      'A warm, conversational Spanish male voice, great for friendly and engaging content.',
+  },
+  // 7. Female
+  {
+    name: 'Molly - Conversational, British (Female)',
     value: 'jkSXBeN4g5pNelNQ3YWw',
     description: 'A high quality, conversational english voice, late twenties.',
   },
+  // 8. Male
   {
-    name: 'Blondie - Sultry, Romantic, British',
-    value: 'YDCfZMLWcUmsGvqHq0rS',
+    name: 'Josh - Natural, American (Male)',
+    value: 'TxGEqnHWrfWFTfGW9XjX',
     description:
-      'Sultry, captivating female voice — ideal for romantic-seductive content and intimate narrations.',
+      'A friendly, natural-sounding American male voice, suitable for a wide range of applications.',
   },
+  // 9. Female
   {
-    name: 'Samara - Elegant, Calm, British',
+    name: 'Samara - Calm, British (Female)',
     value: '19STyYD15bswVz51nqLf',
     description:
       'An elegant yet relaxed British accent female voice that is warm, clear, trustworthy, thoughtful and engaging. Ideal for international projects that educate, explain, motivate or inspire.',
   },
+  // 10. Male
   {
-    name: 'Amelia - Upbeat, Young, British',
+    name: 'Arnold - Authoritative, British (Male)',
+    value: 'VR6AewLTigWG4xSOukaG',
+    description:
+      'A deep, authoritative British male voice, perfect for documentaries and formal presentations.',
+  },
+  // 11. Female
+  {
+    name: 'Amelia - Upbeat, British (Female)',
     value: 'ZF6FPAbjXT4488VcRRnw',
     description:
       "A young British English woman's voice, clear and easy to understand. Expressive and enthusiastic, it's beautiful for narration, podcasts and social media such as YouTube, Tiktok, Reels and Stories. This studio-produced audio is great for a young woman's Gen-Z voice in audiobooks, high-quality video dubbing, advertising and reading.",
   },
+  // 12. Female
   {
-    name: 'Jane - Audiobook, Professional, British',
+    name: 'Jane - Professional, British (Female)',
     value: 'RILOU7YmBhvwJGDGjNmP',
     description:
       'Professional English audiobook narrator in her 50s with a nice tone and cadence. Great for narration, storytelling, or general content creation, like YouTube.',
