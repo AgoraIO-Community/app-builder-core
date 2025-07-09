@@ -87,6 +87,86 @@ export const elevenLabsLangData: LanguageData[] = [
   {label: 'Russian', value: 'ru'},
 ];
 
+// Soniox translation rules for stt-rt-preview
+const specialGroup = ['fr', 'de', 'it', 'es', 'zh', 'ja', 'ko'];
+const slovenianPairs = ['hr', 'fr', 'de', 'it', 'sr', 'es'];
+
+export function getValidElevenLabsTargets(
+  source: LanguageType,
+  allLangs: LanguageData[],
+): LanguageData[] {
+  const src = source as string;
+  let targets: Set<string> = new Set();
+
+  // Always allow same-language translation
+  targets.add(src);
+
+  if (src === 'en') {
+    allLangs.forEach(l => {
+      if (l.value !== 'en') targets.add(l.value);
+    });
+  }
+  if (src !== 'en') {
+    targets.add('en');
+  }
+  if (src === 'pt') {
+    targets.add('es');
+  }
+  if (src === 'es') {
+    targets.add('pt');
+  }
+  if (src === 'sl') {
+    slovenianPairs.forEach(code => targets.add(code));
+  }
+  if (src === 'hr' || src === 'sr') {
+    targets.add('sl');
+  }
+  if (specialGroup.includes(src)) {
+    specialGroup.forEach(code => {
+      if (code !== src) targets.add(code);
+    });
+  }
+  return allLangs.filter(l => targets.has(l.value));
+}
+
+export function getValidElevenLabsSources(
+  target: LanguageType,
+  allLangs: LanguageData[],
+): LanguageData[] {
+  const tgt = target as string;
+  let sources: Set<string> = new Set();
+
+  // Always allow same-language translation
+  sources.add(tgt);
+
+  if (tgt === 'en') {
+    allLangs.forEach(l => {
+      if (l.value !== 'en') sources.add(l.value);
+    });
+  }
+  if (tgt !== 'en') {
+    sources.add('en');
+  }
+  if (tgt === 'pt') {
+    sources.add('es');
+  }
+  if (tgt === 'es') {
+    sources.add('pt');
+  }
+  if (tgt === 'sl') {
+    slovenianPairs.forEach(code => sources.add(code));
+  }
+  if (tgt === 'hr' || tgt === 'sr') {
+    sources.add('sl');
+  }
+  if (specialGroup.includes(tgt)) {
+    specialGroup.forEach(code => {
+      if (code !== tgt) sources.add(code);
+    });
+  }
+  return allLangs.filter(l => sources.has(l.value));
+}
+
 export function getLanguageLabel(
   languageCode: LanguageType[],
 ): string | undefined {

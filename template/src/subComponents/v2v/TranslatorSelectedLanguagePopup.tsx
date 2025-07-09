@@ -21,6 +21,8 @@ import {
   rimeVoices,
   elevenLabsVoices,
   ttsOptions,
+  getValidElevenLabsTargets,
+  getValidElevenLabsSources,
 } from './utils';
 import Toggle from '../../atoms/Toggle';
 import Dropdown from '../../atoms/Dropdown';
@@ -232,7 +234,10 @@ const TranslatorSelectedLanguagePopup: React.FC<
               <Text style={styles.dropdownLabel}>Source Language</Text>
               <Dropdown
                 label={''}
-                data={elevenLabsLangData}
+                data={getValidElevenLabsSources(
+                  elevenLabsTargetLang,
+                  elevenLabsLangData,
+                ).sort((a, b) => a.label.localeCompare(b.label))}
                 selectedValue={elevenLabsSourceLang}
                 onSelect={({value}) =>
                   setElevenLabsSourceLang(value as LanguageType)
@@ -244,7 +249,10 @@ const TranslatorSelectedLanguagePopup: React.FC<
               <Text style={styles.dropdownLabel}>Target Language</Text>
               <Dropdown
                 label={''}
-                data={elevenLabsLangData}
+                data={getValidElevenLabsTargets(
+                  elevenLabsSourceLang,
+                  elevenLabsLangData,
+                ).sort((a, b) => a.label.localeCompare(b.label))}
                 selectedValue={elevenLabsTargetLang}
                 onSelect={({value}) =>
                   setElevenLabsTargetLang(value as LanguageType)
