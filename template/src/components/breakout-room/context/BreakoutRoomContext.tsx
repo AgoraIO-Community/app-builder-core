@@ -8,7 +8,7 @@ import {logger} from '../../../logger/AppBuilderLogger';
 import {useRoomInfo, useRtc, useLocalUid} from 'customization-api';
 import {
   BreakoutGroupActionTypes,
-  BreakoutGroupInfo,
+  BreakoutGroup,
   BreakoutRoomAction,
   BreakoutRoomState,
   breakoutRoomReducer,
@@ -19,7 +19,7 @@ import {EventNames} from '../../../rtm-events';
 import events from '../../../rtm-events-api';
 import {useBreakoutRoomEngine} from './BreakoutRoomEngineContext';
 
-const getSanitizedPayload = (payload: BreakoutGroupInfo[]) => {
+const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
     if (typeof id === 'string' && id.startsWith('temp')) {
       return rest;

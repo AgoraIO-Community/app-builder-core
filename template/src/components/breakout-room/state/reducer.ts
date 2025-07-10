@@ -4,7 +4,7 @@ import {randomNameGenerator} from '../../../utils';
 import {ConnectionState} from 'agora-rtc-sdk-ng';
 import RtcEngine from '../../../../bridge/rtc/webNg';
 
-export interface BreakoutGroupInfo {
+export interface BreakoutGroup {
   id: string;
   name: string;
   participants: {
@@ -14,7 +14,7 @@ export interface BreakoutGroupInfo {
 }
 export interface BreakoutRoomState {
   breakoutSessionId: string;
-  breakoutGroups: BreakoutGroupInfo[];
+  breakoutGroups: BreakoutGroup[];
   activeBreakoutGroup: {
     id: number | string;
     name: string;
@@ -43,10 +43,16 @@ export const initialBreakoutRoomState: BreakoutRoomState = {
 };
 
 export const BreakoutGroupActionTypes = {
+  // session
   SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
+  // group management
   SET_GROUPS: 'BREAKOUT_ROOM/SET_GROUPS',
   CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
   MOVE_PARTICIPANT: 'BREAKOUT_ROOM/MOVE_PARTICIPANT',
+  // engine management
+  ENGINE_INIT: 'BREAKOUT_ENGINE/ENGINE_INIT',
+  ENGINE_SET_CHANNEL_STATUS: 'BREAKOUT_ENGINE/ENGINE_SET_CHANNEL_STATUS',
+  ENGINE_LEAVE_AND_DESTROY: 'BREAKOUT_ENGINE/ENGINE_LEAVE_AND_DESTROY',
 } as const;
 
 export type BreakoutRoomAction =
@@ -56,7 +62,7 @@ export type BreakoutRoomAction =
     }
   | {
       type: typeof BreakoutGroupActionTypes.SET_GROUPS;
-      payload: BreakoutGroupInfo[];
+      payload: BreakoutGroup[];
     }
   | {type: typeof BreakoutGroupActionTypes.CREATE_GROUP}
   | {
@@ -67,6 +73,17 @@ export type BreakoutRoomAction =
         toGroupId: string;
         isHost: boolean;
       };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.ENGINE_INIT;
+      payload: {engine: RtcEngine};
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS;
+      payload: {status: ConnectionState};
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.ENGINE_LEAVE_AND_DESTROY;
     };
 
 export const breakoutRoomReducer = (
@@ -74,6 +91,7 @@ export const breakoutRoomReducer = (
   action: BreakoutRoomAction,
 ): BreakoutRoomState => {
   switch (action.type) {
+    // group management cases
     case BreakoutGroupActionTypes.SET_SESSION_ID: {
       return {...state, breakoutSessionId: action.payload.sessionId};
     }
@@ -144,6 +162,25 @@ export const breakoutRoomReducer = (
         }),
       };
     }
+
+    // Engine use cases
+    case BreakoutGroupActionTypes.ENGINE_INIT:
+      return {
+        ...state,
+        breakoutGroupRtc: {
+          ...state.breakoutGroupRtc,
+          engine: action.payload.engine,
+        },
+      };
+
+    case BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS:
+      return {
+        ...state,
+        breakoutGroupRtc: {
+          ...state.breakoutGroupRtc,
+          connectionState: action.payload.status,
+        },
+      };
 
     default:
       return state;
