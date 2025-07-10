@@ -1,5 +1,11 @@
 // @ts-nocheck
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import React, {useEffect, useRef, useState, useCallback} from 'react';
 import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
@@ -96,6 +102,7 @@ const SonixCaptionContainer = () => {
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
+  const [progressUid, setProgressUid] = useState<string | null>(null);
 
   // in-progress captions per speaker now
   const activeCaptionsRef = useRef<Record<string, TranslatioinEntry>>({});
@@ -136,6 +143,21 @@ const SonixCaptionContainer = () => {
           const jsonString = new TextDecoder().decode(payload);
           const data = JSON.parse(jsonString);
           console.log('Bot ID', botID, '*v2v*-stream-decoded', data);
+
+          // Progress bar logic for NOTIFY events
+          if (data.type === 'NOTIFY' && data.payload) {
+            const event = data.payload.event;
+            const uid = data.payload.uid;
+            if (event === 'BEGIN_TTS') {
+              setProgressUid(uid);
+            }
+          }
+
+          // Progress bar logic for STATS event
+          if (data.type === 'STATS' && data.payload) {
+            setProgressUid(null);
+          }
+
           if (data.type !== 'TEXT') return;
           const textData = data.payload;
 
@@ -350,6 +372,15 @@ const SonixCaptionContainer = () => {
           scrollRef.current?.scrollToEnd({animated: true});
         }
       }}>
+      {/* Progress spinner in top-right corner */}
+      {progressUid && (
+        <View style={styles.progressContainer}>
+          <ActivityIndicator size="small" color="skyblue" />
+          <Text style={styles.progressText}>
+            Translating ({defaultContent[progressUid]?.name || progressUid})
+          </Text>
+        </View>
+      )}
       {!isV2VActive ? (
         <Loading
           text={'Setting up Translation...'}
@@ -416,5 +447,23 @@ const styles = StyleSheet.create({
     color: 'skyblue',
     fontSize: 18,
     lineHeight: 24,
+  },
+  progressContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 1000,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  progressText: {
+    color: 'skyblue',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
