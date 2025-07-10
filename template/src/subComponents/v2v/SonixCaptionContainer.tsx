@@ -24,6 +24,9 @@ import {
   elevenLabsVoices,
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -138,6 +141,21 @@ const SonixCaptionContainer = () => {
           const nonFinalText = data[sourceLang].non_final_text?.trim() || '';
           const uid = data.user_id;
 
+          // Only highlight when target language's final_text is present
+          const targetFinalText = data[targetLang]?.final_text?.trim() || '';
+          if (uid && targetFinalText) {
+            const words = targetFinalText.split(/\s+/).length;
+            const durationMs = Math.max(1500, words * 500); // 0.5s per word, min 1.5s
+
+            LocalEventEmitter.emit(
+              LocalEventsEnum.ACTIVE_SPEAKER,
+              Number('9' + uid.toString().slice(1)),
+            );
+            setTimeout(() => {
+              LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, undefined);
+            }, durationMs);
+          }
+
           if (!finalText && !nonFinalText) return;
 
           let active = activeCaptionsRef.current[uid] || {
@@ -179,7 +197,7 @@ const SonixCaptionContainer = () => {
 
       queueRef.current.add(queueCallback);
     },
-    [setTranslations, sourceLang],
+    [setTranslations, sourceLang, targetLang],
   );
 
   useEffect(() => {
