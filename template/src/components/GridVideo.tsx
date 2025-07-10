@@ -41,6 +41,10 @@ const layout = (len: number, isDesktop: boolean = true) => {
 };
 
 const GridVideo: LayoutComponent = ({renderData}) => {
+  // Filter out bot UIDs
+  const filteredRenderData = renderData.filter(
+    uid => !uid?.toString().startsWith('9'),
+  );
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
   const {activeUids, customContent, pinnedUid, secondaryPinnedUid} =
@@ -48,8 +52,8 @@ const GridVideo: LayoutComponent = ({renderData}) => {
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
-    () => layout(renderData.length, isDesktop()),
-    [renderData.length, isDesktop()],
+    () => layout(filteredRenderData.length, isDesktop()),
+    [filteredRenderData.length, isDesktop()],
   );
 
   const setPinnedLayout = useSetPinnedLayout();
@@ -74,7 +78,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
           key={ridx}>
           {r.map((c, cidx) => (
             <Pressable
-              disabled={renderData.length === 1}
+              disabled={filteredRenderData.length === 1}
               onPress={() => {
                 //if (!(ridx === 0 && cidx === 0)) {
                 //const currentUid = renderData[ridx * dims.c + cidx];
@@ -90,7 +94,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
                 //}
                 dispatch({
                   type: 'UserPin',
-                  value: [renderData[ridx * dims.c + cidx]],
+                  value: [filteredRenderData[ridx * dims.c + cidx]],
                 });
                 setPinnedLayout();
               }}
@@ -113,12 +117,14 @@ const GridVideo: LayoutComponent = ({renderData}) => {
                       : //middle item will have marginHorizontal
                         {marginHorizontal: 4}
                     : //if more than one row than add marginHorizontal
-                    //for ex: 7 people in the call with 3 column layout. last person tile should be aligned propert
+                    //for ex: 7 people in the call with 3 column layout. last person tile should be aligned properly
                     ridx > 1
                     ? {marginHorizontal: 4}
                     : {},
                 ]}>
-                <RenderComponent uid={renderData[ridx * dims.c + cidx]} />
+                <RenderComponent
+                  uid={filteredRenderData[ridx * dims.c + cidx]}
+                />
               </View>
             </Pressable>
           ))}
