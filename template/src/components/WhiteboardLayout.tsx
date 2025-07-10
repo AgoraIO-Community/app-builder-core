@@ -133,50 +133,52 @@ const WhiteboardLayout = ({renderData}) => {
                 }
           }>
           {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
-          {uids?.map((minUid, i) => {
-            //first item -> maximized view so returning null
-            if (i === 0 && !whiteboardActive) return null;
-            //remaining items -> minimized view
-            {
-              /**Rendering minimized views */
-            }
-            return (
-              <Pressable
-                //old
-                //if user pinned somebody then side panel items should not be clickable - swap video should be called
-                //instead we will show replace pin button on hovering the video tile
-                //old
-                disabled={
-                  //old fix
-                  //activeSpeaker || pinnedUid || screenShareOn ? true : false
-                  //old fix
+          {uids
+            ?.filter(uid => !uid?.toString().startsWith('9'))
+            .map((minUid, i) => {
+              //first item -> maximized view so returning null
+              if (i === 0 && !whiteboardActive) return null;
+              //remaining items -> minimized view
+              {
+                /**Rendering minimized views */
+              }
+              return (
+                <Pressable
+                  //old
+                  //if user pinned somebody then side panel items should not be clickable - swap video should be called
+                  //instead we will show replace pin button on hovering the video tile
+                  //old
+                  disabled={
+                    //old fix
+                    //activeSpeaker || pinnedUid || screenShareOn ? true : false
+                    //old fix
 
-                  //latest fix : pinned video sidepanel layout should not be clickable
-                  //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
-                  true
-                }
-                style={
-                  isSidePinnedlayout
-                    ? {
-                        width: '100%',
-                        height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                        zIndex: 40,
-                        paddingBottom: 8,
-                      }
-                    : {
-                        // width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                        width: 254,
-                        height: '100%',
-                        zIndex: 40,
-                        marginRight: 8,
-                      }
-                }
-                key={'minVideo' + i}
-                onPress={() => {}}>
-                <RenderComponent uid={minUid} />
-              </Pressable>
-            );
-          })}
+                    //latest fix : pinned video sidepanel layout should not be clickable
+                    //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
+                    true
+                  }
+                  style={
+                    isSidePinnedlayout
+                      ? {
+                          width: '100%',
+                          height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                          zIndex: 40,
+                          paddingBottom: 8,
+                        }
+                      : {
+                          // width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                          width: 254,
+                          height: '100%',
+                          zIndex: 40,
+                          marginRight: 8,
+                        }
+                  }
+                  key={'minVideo' + i}
+                  onPress={() => {}}>
+                  <RenderComponent uid={minUid} />
+                </Pressable>
+              );
+            })}
         </ScrollView>
       )}
       {uids && uids?.length && (

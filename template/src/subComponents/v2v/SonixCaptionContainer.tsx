@@ -1,5 +1,11 @@
 // @ts-nocheck
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import React, {useEffect, useRef, useState, useCallback} from 'react';
 import ThemeConfig from '../../theme';
 import {CAPTION_CONTAINER_HEIGHT} from '../../components/CommonStyles';
@@ -24,6 +30,9 @@ import {
   elevenLabsVoices,
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../../rtm-events-api/LocalEvents';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -93,6 +102,8 @@ const SonixCaptionContainer = () => {
   const scrollRef = React.useRef<ScrollView>(null);
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
+  const [progressUid, setProgressUid] = useState<string | null>(null);
+  const [pendingTTSUid, setPendingTTSUid] = useState<string | null>(null);
 
   // in-progress captions per speaker now
   const activeCaptionsRef = useRef<Record<string, TranslatioinEntry>>({});
@@ -132,11 +143,59 @@ const SonixCaptionContainer = () => {
           const srcLangugae = providerConfigs[selectedTTS].sourceLang;
           const jsonString = new TextDecoder().decode(payload);
           const data = JSON.parse(jsonString);
-          console.log('Bot ID', botID, '*STT*-Soniox-Decoded', data);
+          console.log('Bot ID', botID, '*v2v*-stream-decoded', data);
 
-          const finalText = data[sourceLang].final_text?.trim() || '';
-          const nonFinalText = data[sourceLang].non_final_text?.trim() || '';
-          const uid = data.user_id;
+          // Loader logic for NOTIFY events
+          if (data.type === 'NOTIFY' && data.payload) {
+            const event = data.payload.event;
+            const uid = data.payload.uid;
+            if (event === 'BEGIN_TTS') {
+              setPendingTTSUid(null);
+            }
+          }
+
+          // Progress bar logic for NOTIFY events
+          if (data.type === 'NOTIFY' && data.payload) {
+            const event = data.payload.event;
+            const uid = data.payload.uid;
+            if (event === 'BEGIN_TTS') {
+              setProgressUid(uid);
+            }
+          }
+
+          // Progress bar logic for STATS event
+          if (data.type === 'STATS' && data.payload) {
+            setProgressUid(null);
+          }
+
+          if (data.type !== 'TEXT') return;
+          const textData = data.payload;
+
+          const finalText = textData[sourceLang].final_text?.trim() || '';
+          const nonFinalText =
+            textData[sourceLang].non_final_text?.trim() || '';
+          const uid = textData.user_id;
+
+          // Show loader on first non-final text
+          if (nonFinalText && !pendingTTSUid) {
+            setPendingTTSUid(uid);
+          }
+
+          // Only highlight when target language's final_text is present
+          const targetFinalText =
+            textData[targetLang]?.final_text?.trim() || '';
+          if (uid && targetFinalText) {
+            const words = targetFinalText.split(/\s+/).length;
+            const durationMs = Math.max(1500, words * 500); // 0.5s per word, min 1.5s
+
+            LocalEventEmitter.emit(
+              LocalEventsEnum.ACTIVE_SPEAKER,
+              Number('9' + uid.toString().slice(1)),
+            );
+            setTimeout(() => {
+              LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, undefined);
+            }, durationMs);
+          }
 
           if (!finalText && !nonFinalText) return;
 
@@ -179,7 +238,7 @@ const SonixCaptionContainer = () => {
 
       queueRef.current.add(queueCallback);
     },
-    [setTranslations, sourceLang],
+    [setTranslations, sourceLang, targetLang],
   );
 
   useEffect(() => {
@@ -316,48 +375,85 @@ const SonixCaptionContainer = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={styles.container}
-      ref={scrollRef}
-      showsVerticalScrollIndicator={true}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      onContentSizeChange={() => {
-        if (autoScroll) {
-          scrollRef.current?.scrollToEnd({animated: true});
-        }
-      }}>
-      {!isV2VActive ? (
-        <Loading
-          text={'Setting up Translation...'}
-          background="transparent"
-          indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
-          textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
-        />
-      ) : (
-        <>
-          {[...translations].map((entry, index) => {
-            const live = activeCaptionsRef.current[entry.uid]?.nonFinal;
-            return (
-              <Text key={`caption-${index}`} style={styles.captionLine}>
-                <Text style={styles.uid}>
-                  {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
-                </Text>
-                <Text style={styles.content}> {entry.text}</Text>
-                {live && <Text style={styles.live}> {live}</Text>}
-              </Text>
-            );
-          })}
-        </>
+    <View style={styles.outerContainer}>
+      {/* Loader spinner in top-right corner for pending TTS */}
+      {pendingTTSUid && (
+        <View style={styles.progressContainer}>
+          <ActivityIndicator size="small" color="skyblue" />
+          <Text style={styles.progressText}>
+            Preparing translation (
+            {defaultContent[pendingTTSUid]?.name || pendingTTSUid})
+          </Text>
+        </View>
       )}
-    </ScrollView>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.container}
+        ref={scrollRef}
+        showsVerticalScrollIndicator={true}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        onContentSizeChange={() => {
+          if (autoScroll) {
+            scrollRef.current?.scrollToEnd({animated: true});
+          }
+        }}>
+        {/* Progress spinner in top-right corner */}
+        {progressUid && (
+          <View style={styles.progressContainer}>
+            <ActivityIndicator size="small" color="skyblue" />
+            <Text style={styles.progressText}>
+              Translating ({defaultContent[progressUid]?.name || progressUid})
+            </Text>
+          </View>
+        )}
+        {!isV2VActive ? (
+          <Loading
+            text={'Setting up Translation...'}
+            background="transparent"
+            indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+            textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+          />
+        ) : (
+          <>
+            {[...translations].map((entry, index, arr) => {
+              // Only show nonFinal for the last line of this user
+              const isLastForUser =
+                arr.findLastIndex(e => e.uid === entry.uid) === index;
+              const live = isLastForUser
+                ? activeCaptionsRef.current[entry.uid]?.nonFinal
+                : null;
+              return (
+                <Text key={`caption-${index}`} style={styles.captionLine}>
+                  <Text style={styles.uid}>
+                    {defaultContent[entry.uid]?.name} ({formatTime(entry.time)})
+                    :
+                  </Text>
+                  <Text style={styles.content}> {entry.text}</Text>
+                  {live && <Text style={styles.live}> {live}</Text>}
+                </Text>
+              );
+            })}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
 export default SonixCaptionContainer;
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    position: 'relative',
+    maxHeight: CAPTION_CONTAINER_HEIGHT,
+    height: CAPTION_CONTAINER_HEIGHT,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderRadius: ThemeConfig.BorderRadius.small,
+    marginTop: $config.ICON_TEXT ? 8 : 0,
+    marginHorizontal: 32,
+    overflow: 'hidden',
+  },
   scrollContainer: {
     maxHeight: CAPTION_CONTAINER_HEIGHT,
     height: CAPTION_CONTAINER_HEIGHT,
@@ -394,5 +490,23 @@ const styles = StyleSheet.create({
     color: 'skyblue',
     fontSize: 18,
     lineHeight: 24,
+  },
+  progressContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 1000,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  progressText: {
+    color: 'skyblue',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

@@ -96,6 +96,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
   const {pinnedUid, secondaryPinnedUid} = useContent();
   const activeSpeaker = useActiveSpeaker();
   const isActiveSpeaker = activeSpeaker === user.uid;
+  // Bot highlight: if activeSpeaker starts with '9', map to real user UID
+  let isBotActiveSpeaker = false;
+  if (activeSpeaker && activeSpeaker.toString().startsWith('9')) {
+    const mappedUid = '2' + activeSpeaker.toString().slice(1);
+    isBotActiveSpeaker = user?.uid?.toString() === mappedUid;
+  }
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -227,13 +233,15 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({
             );
           }}
           style={[
+            containerStyle,
             maxStyle.container,
             !CustomChild && isActiveSpeaker
               ? maxStyle.activeContainerStyle
+              : isBotActiveSpeaker
+              ? maxStyle.botActiveContainerStyle
               : user.video
               ? maxStyle.noVideoStyle
               : maxStyle.nonActiveContainerStyle,
-            containerStyle,
           ]}>
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
@@ -596,6 +604,10 @@ const maxStyle = StyleSheet.create({
   },
   noVideoStyle: {
     borderColor: 'transparent',
+  },
+  botActiveContainerStyle: {
+    borderColor: 'yellow',
+    borderWidth: 2,
   },
 });
 
