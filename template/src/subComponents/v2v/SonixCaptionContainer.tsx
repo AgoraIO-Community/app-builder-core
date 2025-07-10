@@ -103,6 +103,7 @@ const SonixCaptionContainer = () => {
   const queueRef = React.useRef(new PQueue({concurrency: 1}));
   const [autoScroll, setAutoScroll] = useState(true);
   const [progressUid, setProgressUid] = useState<string | null>(null);
+  const [pendingTTSUid, setPendingTTSUid] = useState<string | null>(null);
 
   // in-progress captions per speaker now
   const activeCaptionsRef = useRef<Record<string, TranslatioinEntry>>({});
@@ -144,6 +145,15 @@ const SonixCaptionContainer = () => {
           const data = JSON.parse(jsonString);
           console.log('Bot ID', botID, '*v2v*-stream-decoded', data);
 
+          // Loader logic for NOTIFY events
+          if (data.type === 'NOTIFY' && data.payload) {
+            const event = data.payload.event;
+            const uid = data.payload.uid;
+            if (event === 'BEGIN_TTS') {
+              setPendingTTSUid(null);
+            }
+          }
+
           // Progress bar logic for NOTIFY events
           if (data.type === 'NOTIFY' && data.payload) {
             const event = data.payload.event;
@@ -165,6 +175,11 @@ const SonixCaptionContainer = () => {
           const nonFinalText =
             textData[sourceLang].non_final_text?.trim() || '';
           const uid = textData.user_id;
+
+          // Show loader on first non-final text
+          if (nonFinalText && !pendingTTSUid) {
+            setPendingTTSUid(uid);
+          }
 
           // Only highlight when target language's final_text is present
           const targetFinalText =
@@ -360,57 +375,85 @@ const SonixCaptionContainer = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={styles.container}
-      ref={scrollRef}
-      showsVerticalScrollIndicator={true}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      onContentSizeChange={() => {
-        if (autoScroll) {
-          scrollRef.current?.scrollToEnd({animated: true});
-        }
-      }}>
-      {/* Progress spinner in top-right corner */}
-      {progressUid && (
+    <View style={styles.outerContainer}>
+      {/* Loader spinner in top-right corner for pending TTS */}
+      {pendingTTSUid && (
         <View style={styles.progressContainer}>
           <ActivityIndicator size="small" color="skyblue" />
           <Text style={styles.progressText}>
-            Translating ({defaultContent[progressUid]?.name || progressUid})
+            Preparing translation (
+            {defaultContent[pendingTTSUid]?.name || pendingTTSUid})
           </Text>
         </View>
       )}
-      {!isV2VActive ? (
-        <Loading
-          text={'Setting up Translation...'}
-          background="transparent"
-          indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
-          textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
-        />
-      ) : (
-        <>
-          {[...translations].map((entry, index) => {
-            const live = activeCaptionsRef.current[entry.uid]?.nonFinal;
-            return (
-              <Text key={`caption-${index}`} style={styles.captionLine}>
-                <Text style={styles.uid}>
-                  {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}) :
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.container}
+        ref={scrollRef}
+        showsVerticalScrollIndicator={true}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        onContentSizeChange={() => {
+          if (autoScroll) {
+            scrollRef.current?.scrollToEnd({animated: true});
+          }
+        }}>
+        {/* Progress spinner in top-right corner */}
+        {progressUid && (
+          <View style={styles.progressContainer}>
+            <ActivityIndicator size="small" color="skyblue" />
+            <Text style={styles.progressText}>
+              Translating ({defaultContent[progressUid]?.name || progressUid})
+            </Text>
+          </View>
+        )}
+        {!isV2VActive ? (
+          <Loading
+            text={'Setting up Translation...'}
+            background="transparent"
+            indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+            textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+          />
+        ) : (
+          <>
+            {[...translations].map((entry, index, arr) => {
+              // Only show nonFinal for the last line of this user
+              const isLastForUser =
+                arr.findLastIndex(e => e.uid === entry.uid) === index;
+              const live = isLastForUser
+                ? activeCaptionsRef.current[entry.uid]?.nonFinal
+                : null;
+              return (
+                <Text key={`caption-${index}`} style={styles.captionLine}>
+                  <Text style={styles.uid}>
+                    {defaultContent[entry.uid]?.name} ({formatTime(entry.time)})
+                    :
+                  </Text>
+                  <Text style={styles.content}> {entry.text}</Text>
+                  {live && <Text style={styles.live}> {live}</Text>}
                 </Text>
-                <Text style={styles.content}> {entry.text}</Text>
-                {live && <Text style={styles.live}> {live}</Text>}
-              </Text>
-            );
-          })}
-        </>
-      )}
-    </ScrollView>
+              );
+            })}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
 export default SonixCaptionContainer;
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    position: 'relative',
+    maxHeight: CAPTION_CONTAINER_HEIGHT,
+    height: CAPTION_CONTAINER_HEIGHT,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderRadius: ThemeConfig.BorderRadius.small,
+    marginTop: $config.ICON_TEXT ? 8 : 0,
+    marginHorizontal: 32,
+    overflow: 'hidden',
+  },
   scrollContainer: {
     maxHeight: CAPTION_CONTAINER_HEIGHT,
     height: CAPTION_CONTAINER_HEIGHT,
