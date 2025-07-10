@@ -700,7 +700,22 @@ const RtmConfigure = (props: any) => {
     let evt = '',
       value = {};
 
-    if (data.feat === 'WAITING_ROOM') {
+    if (data.feat === 'BREAKOUT_ROOM') {
+      if (data.etyp === 'BREAKOUT_ROOM_JOIN_DETAILS') {
+        const outputData = {
+          evt: `${data.feat}_${data.etyp}`,
+          payload: JSON.stringify({
+            data: data.data,
+            action: data.act,
+          }),
+          persistLevel: 1,
+          source: 'core',
+        };
+        const formattedData = JSON.stringify(outputData);
+        evt = data.feat + '_' + data.etyp;
+        value = formattedData;
+      }
+    } else if (data.feat === 'WAITING_ROOM') {
       if (data.etyp === 'REQUEST') {
         const outputData = {
           evt: `${data.feat}_${data.etyp}`,
@@ -712,7 +727,7 @@ const RtmConfigure = (props: any) => {
           source: 'core',
         };
         const formattedData = JSON.stringify(outputData);
-        evt = data.feat + '_' + data.etyp; //rename if client side RTM meessage is to be sent for approval
+        evt = data.feat + '_' + data.etyp;
         value = formattedData;
       }
       if (data.etyp === 'RESPONSE') {

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -26,18 +26,19 @@ import CommonStyles from '../CommonStyles';
 import {useLayout, useContent, TertiaryButton, Spacer} from 'customization-api';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {BreakoutRoomHeader} from '../../pages/video-call/SidePanelHeader';
-import useCaptionWidth from '../../../src/subComponents/caption/useCaptionWidth';
+import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
 import {
   peoplePanelInThisMeetingLabel,
   peoplePanelNoUsersJoinedContent,
-} from '../../../src/language/default-labels/videoCallScreenLabels';
+} from '../../language/default-labels/videoCallScreenLabels';
 import {useRoomInfo} from '../room-info/useRoomInfo';
-import {BreakoutRoomInfo, useBreakoutRoomInfo} from './useBreakoutRoomInfo';
+import {useBreakoutRoom} from './context/BreakoutRoomContext';
 
-const BreakoutRoomGroupCard = ({name, participants}: BreakoutRoomInfo) => {
+const BreakoutRoomGroupCard = ({name, participants}) => {
   const {defaultContent} = useContent();
   return (
     <View
+      key={name}
       style={{
         margin: 12,
       }}>
@@ -105,7 +106,7 @@ const BreakoutRoomGroupCard = ({name, participants}: BreakoutRoomInfo) => {
               {participants?.attendees?.map(uid => {
                 return (
                   <Text style={{color: $config.FONT_COLOR}}>
-                    {defaultContent[uid].name}
+                    {defaultContent[uid]?.name}
                   </Text>
                 );
               })}
@@ -126,7 +127,7 @@ const BreakoutRoomGroupCard = ({name, participants}: BreakoutRoomInfo) => {
           }}>
           <Text style={{color: $config.FONT_COLOR}}>
             Members{' - '}
-            {participants?.hosts?.length + participants?.attendees?.length}
+            {participants?.hosts?.length || 0 + participants?.attendees?.length}
           </Text>
         </View>
       </View>
@@ -134,7 +135,7 @@ const BreakoutRoomGroupCard = ({name, participants}: BreakoutRoomInfo) => {
   );
 };
 
-const BreakoutRoomView = props => {
+const BreakoutRoomPanel = props => {
   const {activeUids, customContent} = useContent();
   const {onlineUsersCount} = useContext(ChatContext);
   const {showHeader = true} = props;
@@ -148,8 +149,23 @@ const BreakoutRoomView = props => {
     data: {isHost},
   } = useRoomInfo();
 
-  const {createBreakoutRoomGroup, breakoutRoomInfo, startBreakoutRoom} =
-    useBreakoutRoomInfo();
+  const {
+    checkBreakoutRoomSession,
+    createBreakoutRoomGroup,
+    breakoutGroups,
+    startBreakoutRoom,
+  } = useBreakoutRoom();
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        checkBreakoutRoomSession();
+      } catch (error) {
+        console.error('Failed to check breakout session:', error);
+      }
+    };
+    init();
+  }, []);
 
   return (
     <View
@@ -207,8 +223,8 @@ const BreakoutRoomView = props => {
             </Text>
           </TouchableOpacity>
         </View>
-        {breakoutRoomInfo.map(props => {
-          return <BreakoutRoomGroupCard {...props} />;
+        {breakoutGroups.map((props, index) => {
+          return <BreakoutRoomGroupCard key={index} {...props} />;
         })}
       </ScrollView>
       {isHost && (
@@ -250,4 +266,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default BreakoutRoomView;
+export default BreakoutRoomPanel;

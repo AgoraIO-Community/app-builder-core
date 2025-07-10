@@ -26,6 +26,7 @@ import AgoraRTC, {
   CameraVideoTrackInitConfig,
   MicrophoneAudioTrackInitConfig,
   IMicrophoneAudioTrack,
+  ConnectionState,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
@@ -223,6 +224,7 @@ export default class RtcEngine {
   public client: IAgoraRTCClient;
   public screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
+    ['onConnectionStateChanged', () => null],
     ['onUserJoined', () => null],
     ['onUserOffline', () => null],
     ['onJoinChannelSuccess', () => null],
@@ -694,6 +696,12 @@ export default class RtcEngine {
     _optionalInfo: {},
   ): Promise<void> {
     // TODO create agora client here
+    this.client.on('connection-state-change', (currState: ConnectionState) => {
+      (this.eventsMap.get('onConnectionStateChanged') as callbackType)(
+        {},
+        currState,
+      );
+    });
     this.client.on('user-joined', user => {
       logger.log(LogSource.AgoraSDK, 'Event', 'RTC [user-joined]', user);
       (this.eventsMap.get('onUserJoined') as callbackType)({}, user.uid);
@@ -967,6 +975,7 @@ export default class RtcEngine {
     listener: RtcEngineEvents[EventType],
   ): Subscription {
     if (
+      event === 'onConnectionStateChanged' ||
       event === 'onUserJoined' ||
       event === 'onUserOffline' ||
       event === 'onJoinChannelSuccess' ||
@@ -1466,13 +1475,13 @@ export default class RtcEngine {
         this.client.setEncryptionConfig(
           mode,
           config.encryptionKey,
-          config.encryptionMode === 1? null:config.encryptionKdfSalt,
+          config.encryptionMode === 1 ? null : config.encryptionKdfSalt,
           true, // encryptDataStream
         ),
         this.screenClient.setEncryptionConfig(
           mode,
           config.encryptionKey,
-          config.encryptionMode === 1? null:config.encryptionKdfSalt,
+          config.encryptionMode === 1 ? null : config.encryptionKdfSalt,
           true, // encryptDataStream
         ),
       ]);
