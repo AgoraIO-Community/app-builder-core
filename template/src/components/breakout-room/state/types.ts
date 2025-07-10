@@ -1,3 +1,5 @@
+import {BreakoutGroup} from './reducer';
+
 export type BreakoutGroupAssignStrategy = 'auto' | 'manual' | 'self-select';
 
 export interface AssignOption {
@@ -10,6 +12,7 @@ export interface BreakoutChannelJoinEventPayload {
   data: {
     data: {
       room_id: number;
+      room_name: string;
       channel_name: string;
       mainUser: {
         rtc: string;
@@ -25,10 +28,20 @@ export interface BreakoutChannelJoinEventPayload {
         userToken: string;
       };
     };
-    act: string; // e.g., "CHAN_JOIN"
+    act: 'CHAN_JOIN'; // e.g., "CHAN_JOIN"
   };
 }
 
+export interface BreakoutRoomStateEventPayload {
+  data: {
+    data: {
+      switch_room: boolean;
+      session_id: string;
+      breakout_room: BreakoutGroup;
+    };
+    act: 'SYNC_STATE'; // e.g., "CHAN_JOIN"
+  };
+}
 // | {type: 'DELETE_GROUP'; payload: {groupId: string}}
 // | {
 //     type: 'ADD_PARTICIPANT';

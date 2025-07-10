@@ -1,7 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {PropsContext} from '../../../agora-rn-uikit';
 import VideoCallScreen from '../video-call/VideoCallScreen';
-import {isWebInternal} from '../../utils/common';
 import {useLocation} from '../../components/Router';
 import {getParamFromURL} from '../../utils/common';
 import {useUserPreference} from '../../components/useUserPreference';
@@ -9,6 +8,10 @@ import WhiteboardConfigure from '../../components/whiteboard/WhiteboardConfigure
 import ChatConfigure from '../../components/chat/chatConfigure';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
 import {useContent, useEndCall} from 'customization-api';
+import BreakoutRoomVideoWrapper from '../../components/breakout-room/BreakoutRoomVideoWrapper';
+import {BreakoutRoomEngineProvider} from '../../components/breakout-room/context/BreakoutRoomEngineContext';
+import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
+import {BreakoutRoomStateProvider} from '../../components/breakout-room/context/BreakoutRoomStateContext';
 
 const VideoCallScreenWithRecordingBot: React.FC = () => {
   const location = useLocation();
@@ -53,6 +56,18 @@ const VideoCallScreenWrapper: React.FC = () => {
   } else if ($config.ENABLE_WHITEBOARD) {
     configComponent = (
       <WhiteboardConfigure>{videoComponent}</WhiteboardConfigure>
+    );
+  } else if ($config.ENABLE_BREAKOUT_ROOM) {
+    configComponent = (
+      <BreakoutRoomStateProvider>
+        <BreakoutRoomEngineProvider>
+          <BreakoutRoomProvider>
+            <BreakoutRoomVideoWrapper>
+              {videoComponent}{' '}
+            </BreakoutRoomVideoWrapper>
+          </BreakoutRoomProvider>
+        </BreakoutRoomEngineProvider>
+      </BreakoutRoomStateProvider>
     );
   } else {
     configComponent = videoComponent;

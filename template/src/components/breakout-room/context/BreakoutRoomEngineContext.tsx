@@ -1,16 +1,14 @@
-import React, {createContext, useReducer, useCallback} from 'react';
-import {createAgoraRtcEngine} from '../../../../bridge/rtc/webNg';
+import React, {createContext, useCallback, useRef} from 'react';
+import RtcEngine, {createAgoraRtcEngine} from '../../../../bridge/rtc/webNg';
 import {ChannelProfileType} from '../../../../agora-rn-uikit';
 import {ConnectionState} from 'agora-rtc-sdk-ng';
 import {RtcConnection} from 'react-native-agora';
 import {createHook} from 'customization-implementation';
+import {BreakoutGroupActionTypes} from '../state/reducer';
 import {
-  BreakoutGroupActionTypes,
-  BreakoutRoomAction,
-  BreakoutRoomState,
-  breakoutRoomReducer,
-  initialBreakoutRoomState,
-} from '../state/reducer';
+  useBreakoutRoomDispatch,
+  useBreakoutRoomState,
+} from './BreakoutRoomStateContext';
 
 // Context
 const BreakoutRoomEngineContext = createContext<{
@@ -29,19 +27,20 @@ const BreakoutRoomEngineContext = createContext<{
 const BreakoutRoomEngineProvider: React.FC<{
   children: React.ReactNode;
 }> = ({children}) => {
-  const [state, dispatch] = useReducer<
-    React.Reducer<BreakoutRoomState, BreakoutRoomAction>
-  >(breakoutRoomReducer, initialBreakoutRoomState);
+  const state = useBreakoutRoomState();
+  const dispatch = useBreakoutRoomDispatch();
 
-  const onBreakoutRoomChannelStateChanged = (
-    connection: RtcConnection,
-    currState: ConnectionState,
-  ) => {
-    dispatch({
-      type: BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS,
-      status: currState,
-    });
-  };
+  const breakoutEngineRf = useRef<RtcEngine | null>(null);
+
+  const onBreakoutRoomChannelStateChanged = useCallback(
+    (_connection: RtcConnection, currState: ConnectionState) => {
+      dispatch({
+        type: BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS,
+        payload: {status: currState},
+      });
+    },
+    [],
+  );
 
   const joinRtcChannel = useCallback(
     async (
@@ -58,33 +57,38 @@ const BreakoutRoomEngineProvider: React.FC<{
     ) => {
       let appId = $config.APP_ID;
       let channelProfile = ChannelProfileType.ChannelProfileLiveBroadcasting;
-      let engine = state.breakoutGroupRtc.engine;
+      if (!breakoutEngineRf.current) {
+        let engine = createAgoraRtcEngine();
+        engine.addListener(
+          'onConnectionStateChanged',
+          onBreakoutRoomChannelStateChanged,
+        );
+        breakoutEngineRf.current = engine; // ✅ set ref
 
-      if (!engine) {
-        engine = createAgoraRtcEngine();
         dispatch({
           type: BreakoutGroupActionTypes.ENGINE_INIT,
           payload: {engine},
         });
         // Add listeners here
-        engine.addListener(
-          'onConnectionStateChanged',
-          onBreakoutRoomChannelStateChanged,
-        );
       }
-
+      console.log('supriya 3');
       try {
         // Initialize RtcEngine
-        await engine.initialize({appId});
-        await engine.setChannelProfile(channelProfile);
+        await breakoutEngineRf.current.initialize({appId});
+        await breakoutEngineRf.current.setChannelProfile(channelProfile);
         // Join RtcChannel
-        await engine.joinChannel(token, channelName, optionalUid, {});
+        await breakoutEngineRf.current.joinChannel(
+          token,
+          channelName,
+          optionalUid,
+          {},
+        );
       } catch (e) {
         console.error(`[${roomId}] Failed to join channel`, e);
         throw e;
       }
     },
-    [state.breakoutGroupRtc.engine],
+    [dispatch, onBreakoutRoomChannelStateChanged],
   );
 
   const leaveRtcChannel = useCallback(async () => {
@@ -95,7 +99,7 @@ const BreakoutRoomEngineProvider: React.FC<{
         type: BreakoutGroupActionTypes.ENGINE_LEAVE_AND_DESTROY,
       });
     }
-  }, [state.breakoutGroupRtc.engine]);
+  }, [dispatch, state.breakoutGroupRtc.engine]);
 
   const value = {
     joinRtcChannel,

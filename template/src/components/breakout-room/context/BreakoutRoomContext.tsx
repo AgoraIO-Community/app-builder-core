@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useReducer, useRef} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {DispatchContext, UidType} from '../../../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
 import {randomNameGenerator} from '../../../utils';
@@ -9,15 +9,16 @@ import {useRoomInfo, useRtc, useLocalUid} from 'customization-api';
 import {
   BreakoutGroupActionTypes,
   BreakoutGroup,
-  BreakoutRoomAction,
   BreakoutRoomState,
-  breakoutRoomReducer,
-  initialBreakoutRoomState,
 } from '../state/reducer';
 import {BreakoutChannelJoinEventPayload} from '../state/types';
 import {EventNames} from '../../../rtm-events';
 import events from '../../../rtm-events-api';
 import {useBreakoutRoomEngine} from './BreakoutRoomEngineContext';
+import {
+  useBreakoutRoomDispatch,
+  useBreakoutRoomState,
+} from './BreakoutRoomStateContext';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -31,6 +32,7 @@ const getSanitizedPayload = (payload: BreakoutGroup[]) => {
 interface BreakoutRoomContextValue {
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
   breakoutGroups: BreakoutRoomState['breakoutGroups'];
+  breakoutGroupRtc: BreakoutRoomState['breakoutGroupRtc'];
   createBreakoutRoomGroup: (name?: string) => void;
   addUserIntoGroup: (
     uid: UidType,
@@ -44,6 +46,7 @@ interface BreakoutRoomContextValue {
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   breakoutSessionId: undefined,
   breakoutGroups: [],
+  breakoutGroupRtc: {} as BreakoutRoomState['breakoutGroupRtc'],
   createBreakoutRoomGroup: () => {},
   addUserIntoGroup: () => {},
   startBreakoutRoom: () => {},
@@ -61,9 +64,8 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
 
   const {dispatch: rtcDispatch} = useContext(DispatchContext);
   const {joinRtcChannel} = useBreakoutRoomEngine();
-  const [state, dispatch] = useReducer<
-    React.Reducer<BreakoutRoomState, BreakoutRoomAction>
-  >(breakoutRoomReducer, initialBreakoutRoomState);
+  const state = useBreakoutRoomState();
+  const dispatch = useBreakoutRoomDispatch();
 
   useEffect(() => {
     events.on(
@@ -81,8 +83,8 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   const onBreakoutRoomJoinDetailsReceived = async evtData => {
     const {payload, sender, ts, source} = evtData;
     const data: BreakoutChannelJoinEventPayload = JSON.parse(payload);
+    console.log('supriya onBreakoutRoomJoinDetailsReceived data: ', data);
     const {channel_name, mainUser, screenShare, room_id} = data.data.data;
-
     try {
       // 2. Attach all events and from there poulate the state
       // 3. all published unpublished state needs to be stored in breakout
@@ -164,6 +166,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
       },
       body: JSON.stringify({
         passphrase: roomId.host,
+        switch_room: false,
         session_id: state.breakoutSessionId || randomNameGenerator(6),
         breakout_room: getSanitizedPayload(state.breakoutGroups),
       }),
@@ -203,6 +206,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
       value={{
         breakoutSessionId: state.breakoutSessionId,
         breakoutGroups: state.breakoutGroups,
+        breakoutGroupRtc: state.breakoutGroupRtc,
         createBreakoutRoomGroup,
         addUserIntoGroup,
         startBreakoutRoom,
