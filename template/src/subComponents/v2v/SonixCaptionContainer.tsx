@@ -135,14 +135,18 @@ const SonixCaptionContainer = () => {
           const srcLangugae = providerConfigs[selectedTTS].sourceLang;
           const jsonString = new TextDecoder().decode(payload);
           const data = JSON.parse(jsonString);
-          console.log('Bot ID', botID, '*STT*-Soniox-Decoded', data);
+          console.log('Bot ID', botID, '*v2v*-stream-decoded', data);
+          if (data.type !== 'TEXT') return;
+          const textData = data.payload;
 
-          const finalText = data[sourceLang].final_text?.trim() || '';
-          const nonFinalText = data[sourceLang].non_final_text?.trim() || '';
-          const uid = data.user_id;
+          const finalText = textData[sourceLang].final_text?.trim() || '';
+          const nonFinalText =
+            textData[sourceLang].non_final_text?.trim() || '';
+          const uid = textData.user_id;
 
           // Only highlight when target language's final_text is present
-          const targetFinalText = data[targetLang]?.final_text?.trim() || '';
+          const targetFinalText =
+            textData[targetLang]?.final_text?.trim() || '';
           if (uid && targetFinalText) {
             const words = targetFinalText.split(/\s+/).length;
             const durationMs = Math.max(1500, words * 500); // 0.5s per word, min 1.5s
