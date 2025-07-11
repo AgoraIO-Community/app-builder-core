@@ -152,23 +152,33 @@ const TranslatorSelectedLanguagePopup: React.FC<
   // --- UX improvement: show all languages, disable invalid pairs, and sort enabled first ---
   // For ElevenLabs
   const allLangs = elevenLabsLangData;
-  const validSources = getValidElevenLabsSources(
-    elevenLabsTargetLang,
-    allLangs,
-  );
-  const validTargets = getValidElevenLabsTargets(
-    elevenLabsSourceLang,
-    allLangs,
-  );
-
-  const sourceOptions = allLangs.map(lang => ({
-    ...lang,
-    disabled: !validSources.some(l => l.value === lang.value),
-  }));
-  const targetOptions = allLangs.map(lang => ({
-    ...lang,
-    disabled: !validTargets.some(l => l.value === lang.value),
-  }));
+  let sourceOptions, targetOptions;
+  if (!elevenLabsTargetLang) {
+    // No target selected: all sources enabled
+    sourceOptions = allLangs.map(lang => ({...lang, disabled: false}));
+  } else {
+    const validSources = getValidElevenLabsSources(
+      elevenLabsTargetLang,
+      allLangs,
+    );
+    sourceOptions = allLangs.map(lang => ({
+      ...lang,
+      disabled: !validSources.some(l => l.value === lang.value),
+    }));
+  }
+  if (!elevenLabsSourceLang) {
+    // No source selected: all targets enabled
+    targetOptions = allLangs.map(lang => ({...lang, disabled: false}));
+  } else {
+    const validTargets = getValidElevenLabsTargets(
+      elevenLabsSourceLang,
+      allLangs,
+    );
+    targetOptions = allLangs.map(lang => ({
+      ...lang,
+      disabled: !validTargets.some(l => l.value === lang.value),
+    }));
+  }
 
   // Sort: enabled first (alphabetically), then disabled (alphabetically)
   const enabledSourceOptions = sourceOptions
@@ -218,6 +228,18 @@ const TranslatorSelectedLanguagePopup: React.FC<
       }
       onCancel={onCancel}>
       <>
+        <View style={{width: '100%', alignItems: 'flex-end', marginBottom: 8}}>
+          <Text
+            style={{
+              color: '#888',
+              fontSize: 12,
+              textAlign: 'right',
+              maxWidth: 320,
+            }}>
+            Tip: Use the reset icon to quickly clear the selected language and
+            unlock all language pairs.
+          </Text>
+        </View>
         <View style={{marginBottom: 16}}>
           <Text style={styles.dropdownLabel}>TTS Provider</Text>
           <Dropdown
@@ -235,23 +257,29 @@ const TranslatorSelectedLanguagePopup: React.FC<
               <Text style={styles.sectionTitle}>Rime TTS Configuration</Text>
             </View>
             <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Source Language</Text>
-              <Dropdown
-                label={''}
-                data={rimeLangData}
-                selectedValue={rimeSourceLang}
-                onSelect={({value}) => setRimeSourceLang(value as LanguageType)}
-                enabled={true}
-              />
-            </View>
-            <View style={{marginBottom: 16}}>
               <Text style={styles.dropdownLabel}>Target Language</Text>
               <Dropdown
-                label={''}
+                label={rimeTargetLang ? '' : 'Select target language...'}
                 data={rimeLangData}
                 selectedValue={rimeTargetLang}
                 onSelect={({value}) => setRimeTargetLang(value as LanguageType)}
                 enabled={true}
+              />
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Source Language</Text>
+              <Dropdown
+                label={
+                  rimeTargetLang
+                    ? rimeSourceLang
+                      ? ''
+                      : 'Select source language...'
+                    : 'Select target language first...'
+                }
+                data={rimeLangData}
+                selectedValue={rimeSourceLang}
+                onSelect={({value}) => setRimeSourceLang(value as LanguageType)}
+                enabled={!!rimeTargetLang}
               />
             </View>
             <View style={{marginBottom: 16}}>
@@ -284,9 +312,9 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   alignItems: 'center',
                   marginBottom: 4,
                 }}>
-                <Text style={styles.dropdownLabel}>Source Language</Text>
+                <Text style={styles.dropdownLabel}>Target Language</Text>
                 <TouchableOpacity
-                  onPress={() => setElevenLabsSourceLang('en')}
+                  onPress={() => setElevenLabsTargetLang('')}
                   style={{marginLeft: 8}}>
                   <ImageIcon
                     name="undo"
@@ -297,11 +325,11 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 </TouchableOpacity>
               </View>
               <Dropdown
-                label={''}
-                data={finalSourceOptions}
-                selectedValue={elevenLabsSourceLang}
+                label={elevenLabsTargetLang ? '' : 'Select target language...'}
+                data={finalTargetOptions}
+                selectedValue={elevenLabsTargetLang}
                 onSelect={({value}) =>
-                  setElevenLabsSourceLang(value as LanguageType)
+                  setElevenLabsTargetLang(value as LanguageType)
                 }
                 enabled={true}
               />
@@ -313,9 +341,9 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   alignItems: 'center',
                   marginBottom: 4,
                 }}>
-                <Text style={styles.dropdownLabel}>Target Language</Text>
+                <Text style={styles.dropdownLabel}>Source Language</Text>
                 <TouchableOpacity
-                  onPress={() => setElevenLabsTargetLang('en')}
+                  onPress={() => setElevenLabsSourceLang('')}
                   style={{marginLeft: 8}}>
                   <ImageIcon
                     name="undo"
@@ -326,13 +354,19 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 </TouchableOpacity>
               </View>
               <Dropdown
-                label={''}
-                data={finalTargetOptions}
-                selectedValue={elevenLabsTargetLang}
-                onSelect={({value}) =>
-                  setElevenLabsTargetLang(value as LanguageType)
+                label={
+                  elevenLabsTargetLang
+                    ? elevenLabsSourceLang
+                      ? ''
+                      : 'Select source language...'
+                    : 'Select target language first...'
                 }
-                enabled={true}
+                data={finalSourceOptions}
+                selectedValue={elevenLabsSourceLang}
+                onSelect={({value}) =>
+                  setElevenLabsSourceLang(value as LanguageType)
+                }
+                enabled={!!elevenLabsTargetLang}
               />
             </View>
             <View style={{marginBottom: 16}}>
@@ -360,10 +394,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
               marginTop: 8,
               marginBottom: 8,
               textAlign: 'center',
-            }}>
-            Tip: Use the reset icon to quickly set Source or Target to English
-            and unlock all language pairs.
-          </Text>
+            }}></Text>
           <Spacer size={24} />
           <View style={styles.btnContainer}>
             <TertiaryButton

@@ -136,6 +136,25 @@ const SonixCaptionContainer = () => {
     setIsV2VActive(false);
   }, []);
 
+  useEffect(() => {
+    if (showTranslatorPopup) {
+      // Clear out filters by default when popup is shown
+      setProviderConfigs(prev => ({
+        ...prev,
+        rime: {
+          ...prev.rime,
+          sourceLang: '',
+          targetLang: '',
+        },
+        eleven_labs: {
+          ...prev.eleven_labs,
+          sourceLang: '',
+          targetLang: '',
+        },
+      }));
+    }
+  }, [showTranslatorPopup, setProviderConfigs]);
+
   const sonixCaptionCallback = useCallback(
     (botID, payload) => {
       const queueCallback = () => {
