@@ -28,6 +28,8 @@ import {
   TTSType,
   ttsOptions,
   elevenLabsVoices,
+  elevenLabsLangData,
+  rimeLangData,
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
 import LocalEventEmitter, {
@@ -49,6 +51,11 @@ type TranslatioinEntry = {
   nonFinal?: string;
   time: number;
 };
+
+function getLangLabel(lang, tts) {
+  const arr = tts === 'rime' ? rimeLangData : elevenLabsLangData;
+  return arr.find(l => l.value === lang)?.label || lang;
+}
 
 const SonixCaptionContainer = () => {
   // All hooks must be at the top before any logic
@@ -105,14 +112,33 @@ const SonixCaptionContainer = () => {
   const [progressUid, setProgressUid] = useState<string | null>(null);
   const [pendingTTSUid, setPendingTTSUid] = useState<string | null>(null);
 
-  // in-progress captions per speaker now
-  const activeCaptionsRef = useRef<Record<string, TranslatioinEntry>>({});
+  // in-progress captions per speaker and language pair
+  const activeCaptionsRef = useRef<
+    Record<
+      string,
+      {
+        uid: string;
+        srcText: string;
+        tgtText: string;
+        srcNonFinal?: string;
+        tgtNonFinal?: string;
+        time: number;
+        sourceLang: string;
+        targetLang: string;
+      }
+    >
+  >({});
+
+  // Helper to get the composite key for active captions
+  function getActiveCaptionKey(uid, sourceLang, targetLang) {
+    return `${uid}__${sourceLang}__${targetLang}`;
+  }
   const {
     data: {channel},
   } = useRoomInfo();
 
   const engine = RtcEngineUnsafe;
-  const [displayFeed, setDisplayFeed] = useState<TranslatioinEntry[]>([]);
+  // No need for displayFeed or mergedFeed, use translations from context directly
 
   useEffect(() => {
     return () => {
@@ -121,14 +147,6 @@ const SonixCaptionContainer = () => {
       RtcEngineUnsafe.setV2VActive(false);
     };
   }, [channel, localUid]);
-
-  useEffect(() => {
-    const mergedFeed = [
-      ...translations.map(entry => ({...entry})),
-      ...Object.values(activeCaptionsRef.current).map(entry => ({...entry})),
-    ];
-    setDisplayFeed(mergedFeed);
-  }, [translations]);
 
   useEffect(() => {
     // setSourceLang('en');
@@ -190,21 +208,24 @@ const SonixCaptionContainer = () => {
           if (data.type !== 'TEXT') return;
           const textData = data.payload;
 
-          const finalText = textData[sourceLang].final_text?.trim() || '';
-          const nonFinalText =
-            textData[sourceLang].non_final_text?.trim() || '';
+          // Safely extract both source and target language texts
+          const srcObj = textData[sourceLang] || {};
+          const tgtObj = textData[targetLang] || {};
+          const srcText = srcObj.final_text?.trim() || '';
+          const srcNonFinal = srcObj.non_final_text?.trim() || '';
+          const tgtText = tgtObj.final_text?.trim() || '';
+          const tgtNonFinal = tgtObj.non_final_text?.trim() || '';
           const uid = textData.user_id;
+          const key = getActiveCaptionKey(uid, sourceLang, targetLang);
 
           // Show loader on first non-final text
-          if (nonFinalText && !pendingTTSUid) {
+          if ((srcNonFinal || tgtNonFinal) && !pendingTTSUid) {
             setPendingTTSUid(uid);
           }
 
           // Only highlight when target language's final_text is present
-          const targetFinalText =
-            textData[targetLang]?.final_text?.trim() || '';
-          if (uid && targetFinalText) {
-            const words = targetFinalText.split(/\s+/).length;
+          if (uid && tgtText) {
+            const words = tgtText.split(/\s+/).length;
             const durationMs = Math.max(1500, words * 500); // 0.5s per word, min 1.5s
 
             LocalEventEmitter.emit(
@@ -216,39 +237,68 @@ const SonixCaptionContainer = () => {
             }, durationMs);
           }
 
-          if (!finalText && !nonFinalText) return;
+          if (!srcText && !srcNonFinal && !tgtText && !tgtNonFinal) return;
 
-          let active = activeCaptionsRef.current[uid] || {
+          let active = activeCaptionsRef.current[key] || {
             uid,
-            text: '',
-            nonFinal: '',
+            srcText: '',
+            srcNonFinal: '',
+            tgtText: '',
+            tgtNonFinal: '',
             time: Date.now(),
+            sourceLang,
+            targetLang,
           };
 
-          if (finalText) {
+          // Update finalized text
+          if (srcText || tgtText) {
             setTranslations(prev => {
               const last = prev[prev.length - 1];
-              if (last && last.uid === uid) {
-                const updated = {
-                  ...last,
-                  text: `${last.text} ${finalText}`.trim(),
-                  time: Date.now(),
-                };
-                return [...prev.slice(0, -1), updated];
+              if (
+                last &&
+                last.uid === uid &&
+                last.sourceLang === sourceLang &&
+                last.targetLang === targetLang
+              ) {
+                // merge/accumulate
+                return [
+                  ...prev.slice(0, -1),
+                  {
+                    ...last,
+                    srcText: `${last.srcText || ''} ${srcText}`.trim(),
+                    tgtText: `${last.tgtText || ''} ${tgtText}`.trim(),
+                    time: Date.now(),
+                    sourceLang,
+                    targetLang,
+                  },
+                ];
               } else {
-                return [...prev, {uid, text: finalText, time: Date.now()}];
+                // push new
+                return [
+                  ...prev,
+                  {
+                    uid,
+                    srcText,
+                    tgtText,
+                    time: Date.now(),
+                    sourceLang,
+                    targetLang,
+                  },
+                ];
               }
             });
           }
 
-          active.nonFinal = nonFinalText;
+          // Always update nonFinal
+          active.srcNonFinal = srcNonFinal;
+          active.tgtNonFinal = tgtNonFinal;
           active.time = Date.now();
 
-          if (nonFinalText) {
-            activeCaptionsRef.current[uid] = active;
+          if (srcNonFinal || tgtNonFinal) {
+            activeCaptionsRef.current[key] = active;
             setTranslations(prev => [...prev]);
           } else {
-            delete activeCaptionsRef.current[uid];
+            delete activeCaptionsRef.current[key];
           }
         } catch (err) {
           console.error('Error parsing stream message:', err);
@@ -257,7 +307,7 @@ const SonixCaptionContainer = () => {
 
       queueRef.current.add(queueCallback);
     },
-    [setTranslations, sourceLang, targetLang],
+    [setTranslations, sourceLang, targetLang, selectedTTS, providerConfigs],
   );
 
   useEffect(() => {
@@ -331,6 +381,7 @@ const SonixCaptionContainer = () => {
       setSourceLang(config.sourceLang);
       setTargetLang(config.targetLang);
       setSelectedVoice(config.voice);
+      activeCaptionsRef.current = {}; // Clear in-progress captions when language pair changes
       setShowTranslatorPopup(false);
     };
     // Get current provider config for popup fields
@@ -435,21 +486,70 @@ const SonixCaptionContainer = () => {
           />
         ) : (
           <>
-            {[...translations].map((entry, index, arr) => {
-              // Only show nonFinal for the last line of this user
-              const isLastForUser =
-                arr.findLastIndex(e => e.uid === entry.uid) === index;
-              const live = isLastForUser
-                ? activeCaptionsRef.current[entry.uid]?.nonFinal
+            {translations.map((entry, index, arr) => {
+              // Only show nonFinal for the last line of this user and language pair
+              const isLastForUserLangPair =
+                arr.findLastIndex(
+                  e =>
+                    e.uid === entry.uid &&
+                    e.sourceLang === entry.sourceLang &&
+                    e.targetLang === entry.targetLang,
+                ) === index;
+              const key = getActiveCaptionKey(
+                entry.uid,
+                entry.sourceLang,
+                entry.targetLang,
+              );
+              const liveSrc = isLastForUserLangPair
+                ? activeCaptionsRef.current[key]?.srcNonFinal
+                : null;
+              const liveTgt = isLastForUserLangPair
+                ? activeCaptionsRef.current[key]?.tgtNonFinal
                 : null;
               return (
                 <Text key={`caption-${index}`} style={styles.captionLine}>
                   <Text style={styles.uid}>
-                    {defaultContent[entry.uid]?.name} ({formatTime(entry.time)})
-                    :
+                    {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}
+                    ): {getLangLabel(entry.sourceLang, selectedTTS)} →{' '}
+                    {getLangLabel(entry.targetLang, selectedTTS)}
                   </Text>
-                  <Text style={styles.content}> {entry.text}</Text>
-                  {live && <Text style={styles.live}> {live}</Text>}
+                  {entry.sourceLang === entry.targetLang ? (
+                    entry.srcText && (
+                      <Text style={styles.content}>
+                        [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
+                        {entry.srcText}
+                        {liveSrc ? (
+                          <Text style={styles.live}> {liveSrc}</Text>
+                        ) : null}
+                      </Text>
+                    )
+                  ) : (
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        display: 'flex',
+                      }}>
+                      {entry.srcText && (
+                        <Text style={styles.content}>
+                          [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
+                          {entry.srcText}
+                          {liveSrc ? (
+                            <Text style={styles.live}> {liveSrc}</Text>
+                          ) : null}
+                        </Text>
+                      )}
+                      {entry.tgtText && (
+                        <Text style={styles.content}>
+                          [{getLangLabel(entry.targetLang, selectedTTS)}]{' '}
+                          {entry.tgtText}
+                          {liveTgt ? (
+                            <Text style={styles.live}> {liveTgt}</Text>
+                          ) : null}
+                        </Text>
+                      )}
+                    </View>
+                  )}
                 </Text>
               );
             })}

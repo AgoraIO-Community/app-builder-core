@@ -55,8 +55,26 @@ export const V2VContext = React.createContext<{
 
   activeSpeakerRef: React.MutableRefObject<string>;
   prevSpeakerRef: React.MutableRefObject<string>;
-  translations: Object;
-  setTranslations: React.Dispatch<React.SetStateAction<Object>>;
+  translations: {
+    uid: string;
+    srcText: string;
+    tgtText: string;
+    srcNonFinal?: string;
+    tgtNonFinal?: string;
+    time: number;
+  }[];
+  setTranslations: React.Dispatch<
+    React.SetStateAction<
+      {
+        uid: string;
+        srcText: string;
+        tgtText: string;
+        srcNonFinal?: string;
+        tgtNonFinal?: string;
+        time: number;
+      }[]
+    >
+  >;
   selectedVoice: string;
   setSelectedVoice: React.Dispatch<React.SetStateAction<string>>;
   selectedTTS: TTSType;
@@ -82,7 +100,7 @@ export const V2VContext = React.createContext<{
   setIsLangChangeInProgress: () => {},
   activeSpeakerRef: {current: ''},
   prevSpeakerRef: {current: ''},
-  translations: {},
+  translations: [],
   setTranslations: () => {},
   selectedVoice: rimeVoices[0]?.value || '',
   setSelectedVoice: () => {},
@@ -134,9 +152,13 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [translations, setTranslations] = React.useState<
     {
       uid: string;
-      text: string; // finalized text
-      nonFinal?: string; // optional, shows live tokens
+      srcText: string;
+      tgtText: string;
+      srcNonFinal?: string;
+      tgtNonFinal?: string;
       time: number;
+      sourceLang: string;
+      targetLang: string;
     }[]
   >([]);
 
