@@ -80,6 +80,8 @@ const SonixCaptionContainer = () => {
     setSelectedTTS,
     providerConfigs,
     setProviderConfigs,
+    statsList,
+    setStatsList,
   } = useV2V();
 
   // Handler to update providerConfigs and context
@@ -203,6 +205,7 @@ const SonixCaptionContainer = () => {
           // Progress bar logic for STATS event
           if (data.type === 'STATS' && data.payload) {
             setProgressUid(null);
+            setStatsList(prev => [...prev, data.payload]);
           }
 
           if (data.type !== 'TEXT') return;
@@ -623,7 +626,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   progressText: {
-    color: 'skyblue',
+    color: 'yellow',
     marginLeft: 8,
     fontSize: 14,
     fontWeight: '600',

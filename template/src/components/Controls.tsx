@@ -119,6 +119,7 @@ import {
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
 import {useV2V} from '../subComponents/v2v/useVoice2Voice';
+import V2VStatsModal from '../subComponents/v2v/V2VStatsModal';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -321,7 +322,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     isSTTError,
   } = useCaption();
 
-  const {isV2VON, setIsV2VON} = useV2V();
+  const {isV2VON, setIsV2VON, isV2VStatsModalOpen, setIsV2VStatsModalOpen} =
+    useV2V();
 
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
 
@@ -573,6 +575,22 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         setIsV2VON(prev => !prev);
       },
     });
+
+    // V2V Stats action item
+    actionMenuitems.push({
+      componentName: 'v2v-stats',
+      order: 3.1,
+      icon: 'info',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      disabled: false,
+      title: isV2VStatsModalOpen ? 'Hide V2V Stats' : 'Show V2V Stats',
+      onPress: () => {
+        setActionMenuVisible(false);
+        setIsV2VStatsModalOpen(prev => !prev);
+      },
+    });
+
     // 4. Meeting transcript
     if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
@@ -1053,6 +1071,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           }}
         />
       </div>
+      <V2VStatsModal
+        visible={isV2VStatsModalOpen}
+        onClose={() => setIsV2VStatsModalOpen(false)}
+      />
     </>
   );
 };

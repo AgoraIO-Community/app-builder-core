@@ -62,6 +62,8 @@ export const V2VContext = React.createContext<{
     srcNonFinal?: string;
     tgtNonFinal?: string;
     time: number;
+    sourceLang: string;
+    targetLang: string;
   }[];
   setTranslations: React.Dispatch<
     React.SetStateAction<
@@ -72,15 +74,21 @@ export const V2VContext = React.createContext<{
         srcNonFinal?: string;
         tgtNonFinal?: string;
         time: number;
+        sourceLang: string;
+        targetLang: string;
       }[]
     >
   >;
+  statsList: any[];
+  setStatsList: React.Dispatch<React.SetStateAction<any[]>>;
   selectedVoice: string;
   setSelectedVoice: React.Dispatch<React.SetStateAction<string>>;
   selectedTTS: TTSType;
   setSelectedTTS: React.Dispatch<React.SetStateAction<TTSType>>;
   providerConfigs: any;
   setProviderConfigs: React.Dispatch<React.SetStateAction<any>>;
+  isV2VStatsModalOpen: boolean;
+  setIsV2VStatsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -102,6 +110,8 @@ export const V2VContext = React.createContext<{
   prevSpeakerRef: {current: ''},
   translations: [],
   setTranslations: () => {},
+  statsList: [],
+  setStatsList: () => {},
   selectedVoice: rimeVoices[0]?.value || '',
   setSelectedVoice: () => {},
   selectedTTS: 'eleven_labs',
@@ -119,6 +129,8 @@ export const V2VContext = React.createContext<{
     },
   },
   setProviderConfigs: () => {},
+  isV2VStatsModalOpen: false,
+  setIsV2VStatsModalOpen: () => {},
 });
 
 interface V2VProviderProps {
@@ -138,6 +150,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
   >([]);
+  const [isV2VStatsModalOpen, setIsV2VStatsModalOpen] = React.useState(false);
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
@@ -161,6 +174,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
       targetLang: string;
     }[]
   >([]);
+  const [statsList, setStatsList] = React.useState<any[]>([]);
 
   const [selectedVoice, setSelectedVoice] = React.useState<string>(
     rimeVoices[0]?.value || '',
@@ -208,6 +222,10 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setSelectedTTS,
         providerConfigs,
         setProviderConfigs,
+        statsList,
+        setStatsList,
+        isV2VStatsModalOpen,
+        setIsV2VStatsModalOpen,
       }}>
       {children}
     </V2VContext.Provider>
