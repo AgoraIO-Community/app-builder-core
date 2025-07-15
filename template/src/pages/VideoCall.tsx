@@ -83,6 +83,7 @@ import Toast from '../../react-native-toast-message';
 import {AuthErrorCodes} from '../utils/common';
 import {VideoRoomOrchestratorState} from './VideoCallRoomOrchestrator';
 import VideoCallStateSetup from './video-call/VideoCallStateSetup';
+import {BreakoutRoomProvider} from '../components/breakout-room/context/BreakoutRoomContext';
 
 export enum RnEncryptionEnum {
   /**
@@ -551,7 +552,9 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                                                                     <VideoMeetingDataProvider>
                                                                       <VideoCallProvider>
                                                                         <DisableChatProvider>
-                                                                          <VideoCallScreenWrapper />
+                                                                          <BreakoutRoomProvider>
+                                                                            <VideoCallScreenWrapper />
+                                                                          </BreakoutRoomProvider>
                                                                         </DisableChatProvider>
                                                                       </VideoCallProvider>
                                                                     </VideoMeetingDataProvider>
