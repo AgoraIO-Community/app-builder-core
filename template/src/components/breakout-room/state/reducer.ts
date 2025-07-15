@@ -90,9 +90,6 @@ export const breakoutRoomReducer = (
   state: BreakoutRoomState,
   action: BreakoutRoomAction,
 ): BreakoutRoomState => {
-  console.log('supriya action ----> ', action.type, action?.payload || '');
-  console.log('supriya state ----> ', state);
-
   switch (action.type) {
     // group management cases
     case BreakoutGroupActionTypes.SET_SESSION_ID: {
@@ -168,7 +165,6 @@ export const breakoutRoomReducer = (
 
     // Engine use cases
     case BreakoutGroupActionTypes.ENGINE_INIT:
-      console.log('supriya engine init');
       return {
         ...state,
         breakoutGroupRtc: {
@@ -178,7 +174,6 @@ export const breakoutRoomReducer = (
       };
 
     case BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS:
-      console.log('supriya channel status init');
       return {
         ...state,
         breakoutGroupRtc: {

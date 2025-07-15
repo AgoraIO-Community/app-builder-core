@@ -17,6 +17,7 @@ export interface BreakoutChannelJoinEventPayload {
       mainUser: {
         rtc: string;
         uid: number;
+        rtm: string;
       };
       screenShare: {
         rtc: string;

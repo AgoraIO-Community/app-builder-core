@@ -43,7 +43,7 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_MEETING_TRANSCRIPT &&
     $config.ENABLE_TEXT_TRACKS &&
     isWeb(),
-  breakoutRoom: ({isHost}) => isHost && $config.ENABLE_BREAKOUT_ROOM,
+  breakoutRoom: ({isHost}) => $config.ENABLE_BREAKOUT_ROOM,
 };
 
 export const useControlPermissionMatrix = (

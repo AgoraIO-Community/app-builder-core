@@ -77,7 +77,7 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
-import {useBreakoutRoomInfo} from '../breakout-room/useBreakoutRoomInfo';
+import {useBreakoutRoom} from '../breakout-room/context/BreakoutRoomContext';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -152,7 +152,7 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {breakoutRoomInfo, addUserIntoGroup} = useBreakoutRoomInfo();
+  const {breakoutGroups, addUserIntoGroup} = useBreakoutRoom();
   useEffect(() => {
     customEvents.on('DisableChat', data => {
       // for other users
@@ -173,8 +173,8 @@ export default function UserActionMenuOptionsOptions(
     const items: ActionMenuItem[] = [];
 
     if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
-      if (breakoutRoomInfo && breakoutRoomInfo?.length) {
-        breakoutRoomInfo.map(({name, internalGroupId}, index) => {
+      if (breakoutGroups && breakoutGroups?.length) {
+        breakoutGroups.map(({name, id}, index) => {
           items.push({
             order: index + 1,
             icon: 'add',
@@ -184,7 +184,7 @@ export default function UserActionMenuOptionsOptions(
             title: `Move to ${name}`,
             onPress: () => {
               setActionMenuVisible(false);
-              addUserIntoGroup(user.uid, internalGroupId, false);
+              addUserIntoGroup(user.uid, id, false);
             },
           });
         });
@@ -757,7 +757,7 @@ export default function UserActionMenuOptionsOptions(
     currentLayout,
     spotlightUid,
     from,
-    breakoutRoomInfo,
+    breakoutGroups,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

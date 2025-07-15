@@ -10,6 +10,7 @@
 *********************************************
 */
 // @ts-nocheck
+
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
 import {
@@ -120,6 +121,7 @@ const RtmConfigure = (props: any) => {
         return (ev.returnValue = 'Are you sure you want to exit?');
       };
       const logoutRtm = () => {
+        console.log('supriya[RTM] rtm channel left', rtcProps.channel);
         engine.current.leaveChannel(rtcProps.channel);
       };
 
@@ -144,6 +146,7 @@ const RtmConfigure = (props: any) => {
   const doLoginAndSetupRTM = async () => {
     try {
       logger.log(LogSource.AgoraSDK, 'API', 'RTM login starts');
+      console.log('supriya[RTM] localUid', localUid, rtcProps, rtcProps.rtm);
       await engine.current.login({
         uid: localUid.toString(),
         token: rtcProps.rtm,
@@ -436,11 +439,18 @@ const RtmConfigure = (props: any) => {
     //on sdk due to multiple re-render we are getting rtm error code 8
     //you are joining the same channel too frequently, exceeding the allowed rate of joining the same channel multiple times within a short period
     //so checking rtm connection state before proceed
+    // 1. Init -> from ?? (main or breakout) => use the engine obkect from there
+    // 2. Breakout room engine reference -> 446 -> based on how the init was called.
+    console.log('supriya[RTM] checking connection state');
     if (engine?.current?.client?.connectionState === 'CONNECTED') {
+      console.log('supriya[RTM] engine already connected');
+
       return;
     }
     logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
+    console.log('supriya[RTM] creating engine');
     engine.current = RTMEngine.getInstance().engine;
+    console.log('supriya[RTM] engine created', engine.current);
     RTMEngine.getInstance();
     logger.log(LogSource.AgoraSDK, 'Log', 'RTM engine creation done');
 
@@ -662,8 +672,11 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
-
-    await doLoginAndSetupRTM();
+    try {
+      await doLoginAndSetupRTM();
+    } catch (error) {
+      console.log('supriya[RTM] error: ', error);
+    }
   };
 
   const runQueuedEvents = async () => {
@@ -701,20 +714,18 @@ const RtmConfigure = (props: any) => {
       value = {};
 
     if (data.feat === 'BREAKOUT_ROOM') {
-      if (data.etyp === 'BREAKOUT_ROOM_JOIN_DETAILS') {
-        const outputData = {
-          evt: `${data.feat}_${data.etyp}`,
-          payload: JSON.stringify({
-            data: data.data,
-            action: data.act,
-          }),
-          persistLevel: 1,
-          source: 'core',
-        };
-        const formattedData = JSON.stringify(outputData);
-        evt = data.feat + '_' + data.etyp;
-        value = formattedData;
-      }
+      const outputData = {
+        evt: `${data.feat}_${data.etyp}`,
+        payload: JSON.stringify({
+          data: data.data,
+          action: data.act,
+        }),
+        persistLevel: 1,
+        source: 'core',
+      };
+      const formattedData = JSON.stringify(outputData);
+      evt = data.feat + '_' + data.etyp;
+      value = formattedData;
     } else if (data.feat === 'WAITING_ROOM') {
       if (data.etyp === 'REQUEST') {
         const outputData = {
@@ -805,7 +816,11 @@ const RtmConfigure = (props: any) => {
     if (!callActive) {
       return;
     }
+    engine.current.logout();
+    engine.current.release();
     await RTMEngine.getInstance().destroy();
+    console.log('supriya[RTM] logout and release done');
+
     logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
     if (isIOS() || isAndroid()) {
       EventUtils.clear();
@@ -816,6 +831,7 @@ const RtmConfigure = (props: any) => {
 
   useAsyncEffect(async () => {
     //waiting room attendee -> rtm login will happen on page load
+    console.log('supriya[RTM] inside init ueseffect channelchange');
     if ($config.ENABLE_WAITING_ROOM) {
       //attendee
       //for waiting room attendee rtm login will happen on mount
@@ -840,6 +856,7 @@ const RtmConfigure = (props: any) => {
       }
     }
     return async () => {
+      console.log('supriya[RTM] end is called on unmount');
       await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,24 +1,18 @@
-import React, {useContext, useEffect, useRef} from 'react';
-import {DispatchContext, UidType} from '../../../../agora-rn-uikit';
+import React, {useContext, useReducer} from 'react';
+import {UidType} from '../../../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
 import {randomNameGenerator} from '../../../utils';
 import StorageContext from '../../StorageContext';
 import getUniqueID from '../../../utils/getUniqueID';
 import {logger} from '../../../logger/AppBuilderLogger';
-import {useRoomInfo, useRtc, useLocalUid} from 'customization-api';
+import {useRoomInfo} from 'customization-api';
 import {
   BreakoutGroupActionTypes,
   BreakoutGroup,
   BreakoutRoomState,
+  breakoutRoomReducer,
+  initialBreakoutRoomState,
 } from '../state/reducer';
-import {BreakoutChannelJoinEventPayload} from '../state/types';
-import {EventNames} from '../../../rtm-events';
-import events from '../../../rtm-events-api';
-import {useBreakoutRoomEngine} from './BreakoutRoomEngineContext';
-import {
-  useBreakoutRoomDispatch,
-  useBreakoutRoomState,
-} from './BreakoutRoomStateContext';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -55,60 +49,13 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
 
 const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   const {store} = useContext(StorageContext);
-  const {RtcEngineUnsafe} = useRtc();
-  const engine = useRef(RtcEngineUnsafe);
+  const [state, dispatch] = useReducer(
+    breakoutRoomReducer,
+    initialBreakoutRoomState,
+  );
   const {
     data: {roomId},
   } = useRoomInfo();
-  const localUid = useLocalUid();
-
-  const {dispatch: rtcDispatch} = useContext(DispatchContext);
-  const {joinRtcChannel} = useBreakoutRoomEngine();
-  const state = useBreakoutRoomState();
-  const dispatch = useBreakoutRoomDispatch();
-
-  useEffect(() => {
-    events.on(
-      EventNames.BREAKOUT_ROOM_JOIN_DETAILS,
-      onBreakoutRoomJoinDetailsReceived,
-    );
-    return () => {
-      events.off(
-        EventNames.BREAKOUT_ROOM_JOIN_DETAILS,
-        onBreakoutRoomJoinDetailsReceived,
-      );
-    };
-  }, []);
-
-  const onBreakoutRoomJoinDetailsReceived = async evtData => {
-    const {payload, sender, ts, source} = evtData;
-    const data: BreakoutChannelJoinEventPayload = JSON.parse(payload);
-    console.log('supriya onBreakoutRoomJoinDetailsReceived data: ', data);
-    const {channel_name, mainUser, screenShare, room_id} = data.data.data;
-    try {
-      // 2. Attach all events and from there poulate the state
-      // 3. all published unpublished state needs to be stored in breakout
-      // 4. Are u part of main room or breakout room
-      // 5. Think about the flow for host join breakout room
-
-      try {
-        engine.current.leaveChannel();
-        rtcDispatch({
-          type: 'LocalUserLeft',
-          value: [localUid],
-        });
-        await joinRtcChannel(`${room_id}`, {
-          token: mainUser.rtc,
-          channelName: channel_name,
-          optionalUid: mainUser.uid,
-        });
-      } catch (error) {
-        console.error('Breakout room engine creation error: ', error);
-      }
-    } catch (error) {
-      console.log('error while leaving or join parent channel: ', error);
-    }
-  };
 
   const checkBreakoutRoomSession = async () => {
     try {

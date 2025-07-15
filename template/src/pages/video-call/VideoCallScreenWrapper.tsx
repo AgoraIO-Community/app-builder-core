@@ -57,18 +57,6 @@ const VideoCallScreenWrapper: React.FC = () => {
     configComponent = (
       <WhiteboardConfigure>{videoComponent}</WhiteboardConfigure>
     );
-  } else if ($config.ENABLE_BREAKOUT_ROOM) {
-    configComponent = (
-      <BreakoutRoomStateProvider>
-        <BreakoutRoomEngineProvider>
-          <BreakoutRoomProvider>
-            <BreakoutRoomVideoWrapper>
-              {videoComponent}{' '}
-            </BreakoutRoomVideoWrapper>
-          </BreakoutRoomProvider>
-        </BreakoutRoomEngineProvider>
-      </BreakoutRoomStateProvider>
-    );
   } else {
     configComponent = videoComponent;
   }
