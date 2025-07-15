@@ -228,18 +228,6 @@ const TranslatorSelectedLanguagePopup: React.FC<
       }
       onCancel={onCancel}>
       <>
-        <View style={{width: '100%', alignItems: 'flex-end', marginBottom: 8}}>
-          <Text
-            style={{
-              color: '#888',
-              fontSize: 12,
-              textAlign: 'right',
-              maxWidth: 320,
-            }}>
-            Tip: Use the reset icon to quickly clear the selected language and
-            unlock all language pairs.
-          </Text>
-        </View>
         <View style={{marginBottom: 16}}>
           <Text style={styles.dropdownLabel}>TTS Provider</Text>
           <Dropdown
@@ -303,6 +291,15 @@ const TranslatorSelectedLanguagePopup: React.FC<
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
                 ElevenLabs TTS Configuration
+              </Text>
+
+              <Text
+                style={{
+                  color: '#888',
+                  fontSize: 12,
+                }}>
+                Use the reset icon to quickly clear the selected language and
+                unlock all language pairs.
               </Text>
             </View>
             <View style={{marginBottom: 16}}>

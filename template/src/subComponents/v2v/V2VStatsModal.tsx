@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, ScrollView, StyleSheet} from 'react-native';
 import Popup from '../../atoms/Popup';
 import {useV2V} from './useVoice2Voice';
+import ThemeConfig from '../../theme';
 
 const V2VStatsModal = ({visible, onClose}) => {
   const {statsList} = useV2V();
@@ -18,12 +19,13 @@ const V2VStatsModal = ({visible, onClose}) => {
         <Text style={[styles.cell, styles.headerCell]}>STT</Text>
         <Text style={[styles.cell, styles.headerCell]}>TTS</Text>
         <Text style={[styles.cell, styles.headerCell]}>Total</Text>
+        <Text style={[styles.cell, styles.headerCell]}>STT Token Time</Text>
       </View>
       <ScrollView style={styles.scrollView}>
         {statsList.map((stat, idx) => {
           const sttTime =
-            stat.BEGIN_TTS && stat.FIRST_NON_FINAL_STT
-              ? Math.round((stat.BEGIN_TTS - stat.FIRST_NON_FINAL_STT) * 1000)
+            stat.END_STT && stat.FIRST_NON_FINAL_STT
+              ? Math.round((stat.END_STT - stat.FIRST_NON_FINAL_STT) * 1000)
               : '-';
           const ttsTime =
             stat.FIRST_TTS && stat.BEGIN_TTS
@@ -50,10 +52,30 @@ const V2VStatsModal = ({visible, onClose}) => {
               <Text style={styles.cell}>
                 {total !== '-' ? `${total} ms` : '-'}
               </Text>
+              <Text style={styles.cell}>
+                {typeof stat.sttTokenTime === 'number'
+                  ? `${stat.sttTokenTime} ms`
+                  : '-'}
+              </Text>
             </View>
           );
         })}
       </ScrollView>
+      <View style={{marginTop: 16}}>
+        <Text style={{color: '#888', fontWeight: 'bold'}}>Info:</Text>
+        <Text style={styles.text}>
+          STT Token Time: The total duration of recognized speech in the audio
+          (not Soniox processing time)
+        </Text>
+        <Text style={styles.text}>
+          STT Time: END_STT - FIRST_NON_FINAL_STT (time from first word detected
+          to end of speech)
+        </Text>
+        <Text style={styles.text}>
+          TTS Time: FIRST_TTS - BEGIN_TTS (time from sending final text to TTS
+          to bot speaking first word)
+        </Text>
+      </View>
     </Popup>
   );
 };
@@ -62,7 +84,7 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 16,
     minWidth: 420,
-    maxWidth: 600,
+    maxWidth: 750,
     width: '100%',
   },
   tableHeader: {
@@ -92,6 +114,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     maxHeight: 340,
+  },
+  text: {
+    color: '#888',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 });
 
