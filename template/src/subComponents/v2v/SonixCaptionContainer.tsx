@@ -586,6 +586,54 @@ const SonixCaptionContainer = () => {
                 </Text>
               );
             })}
+            {Object.values(activeCaptionsRef.current)
+              .filter(
+                active =>
+                  !translations.some(
+                    t =>
+                      t.uid === active.uid &&
+                      t.sourceLang === active.sourceLang &&
+                      t.targetLang === active.targetLang,
+                  ) &&
+                  (active.srcNonFinal || active.tgtNonFinal),
+              )
+              .map((entry, index) => (
+                <Text key={`nonfinal-only-${index}`} style={styles.captionLine}>
+                  <Text style={styles.uid}>
+                    {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}
+                    ): {getLangLabel(entry.sourceLang, selectedTTS)} →{' '}
+                    {getLangLabel(entry.targetLang, selectedTTS)}
+                  </Text>
+                  {entry.sourceLang === entry.targetLang ? (
+                    entry.srcNonFinal && (
+                      <Text style={styles.content}>
+                        [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
+                        <Text style={styles.live}>{entry.srcNonFinal}</Text>
+                      </Text>
+                    )
+                  ) : (
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        display: 'flex',
+                      }}>
+                      {entry.srcNonFinal && (
+                        <Text style={styles.content}>
+                          [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
+                          <Text style={styles.live}>{entry.srcNonFinal}</Text>
+                        </Text>
+                      )}
+                      {entry.tgtNonFinal && (
+                        <Text style={styles.content}>
+                          [{getLangLabel(entry.targetLang, selectedTTS)}]{' '}
+                          <Text style={styles.live}>{entry.tgtNonFinal}</Text>
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                </Text>
+              ))}
           </>
         )}
       </ScrollView>
