@@ -89,6 +89,8 @@ export const V2VContext = React.createContext<{
   setProviderConfigs: React.Dispatch<React.SetStateAction<any>>;
   isV2VStatsModalOpen: boolean;
   setIsV2VStatsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  maxNonFinalTokensDurationMs: number;
+  setMaxNonFinalTokensDurationMs: React.Dispatch<React.SetStateAction<number>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -131,6 +133,8 @@ export const V2VContext = React.createContext<{
   setProviderConfigs: () => {},
   isV2VStatsModalOpen: false,
   setIsV2VStatsModalOpen: () => {},
+  maxNonFinalTokensDurationMs: 4000,
+  setMaxNonFinalTokensDurationMs: () => {},
 });
 
 interface V2VProviderProps {
@@ -151,6 +155,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
     TranscriptItem[]
   >([]);
   const [isV2VStatsModalOpen, setIsV2VStatsModalOpen] = React.useState(false);
+  const [maxNonFinalTokensDurationMs, setMaxNonFinalTokensDurationMs] =
+    React.useState<number>(4000);
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
@@ -226,6 +232,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setStatsList,
         isV2VStatsModalOpen,
         setIsV2VStatsModalOpen,
+        maxNonFinalTokensDurationMs,
+        setMaxNonFinalTokensDurationMs,
       }}>
       {children}
     </V2VContext.Provider>

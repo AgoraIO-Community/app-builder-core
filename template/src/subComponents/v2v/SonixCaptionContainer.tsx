@@ -82,6 +82,8 @@ const SonixCaptionContainer = () => {
     setProviderConfigs,
     statsList,
     setStatsList,
+    maxNonFinalTokensDurationMs,
+    setMaxNonFinalTokensDurationMs,
   } = useV2V();
 
   // Handler to update providerConfigs and context
@@ -362,6 +364,7 @@ const SonixCaptionContainer = () => {
           language_hints: [sourceLang],
           tts_speaker: selectedVoice,
           tts_provider: selectedTTS,
+          max_non_final_tokens_duration_ms: maxNonFinalTokensDurationMs,
         };
 
         if (sourceLang !== targetLang) {
@@ -404,6 +407,7 @@ const SonixCaptionContainer = () => {
     localUid,
     setIsV2VActive,
     RtcEngineUnsafe,
+    maxNonFinalTokensDurationMs,
   ]);
 
   if (showTranslatorPopup) {
@@ -466,6 +470,8 @@ const SonixCaptionContainer = () => {
         setElevenLabsSelectedVoice={val =>
           handleProviderConfigChange('eleven_labs', 'voice', val)
         }
+        maxNonFinalTokensDurationMs={maxNonFinalTokensDurationMs}
+        setMaxNonFinalTokensDurationMs={setMaxNonFinalTokensDurationMs}
       />
     );
   }
