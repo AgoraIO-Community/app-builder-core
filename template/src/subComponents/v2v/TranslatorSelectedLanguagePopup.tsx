@@ -27,6 +27,7 @@ import {
 import Toggle from '../../atoms/Toggle';
 import Dropdown from '../../atoms/Dropdown';
 import ImageIcon from '../../atoms/ImageIcon';
+import Slider from '../../atoms/Slider';
 
 interface TranslatorSelectedLanguagePopupProps {
   modalVisible: boolean;
@@ -55,6 +56,8 @@ interface TranslatorSelectedLanguagePopupProps {
   setElevenLabsTargetLang: (lang: LanguageType) => void;
   elevenLabsSelectedVoice: string;
   setElevenLabsSelectedVoice: (voice: string) => void;
+  maxNonFinalTokensDurationMs: number;
+  setMaxNonFinalTokensDurationMs: (value: number) => void;
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -87,6 +90,8 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setElevenLabsTargetLang,
   elevenLabsSelectedVoice,
   setElevenLabsSelectedVoice,
+  maxNonFinalTokensDurationMs,
+  setMaxNonFinalTokensDurationMs,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
@@ -228,6 +233,19 @@ const TranslatorSelectedLanguagePopup: React.FC<
       }
       onCancel={onCancel}>
       <>
+        <View style={{marginBottom: 16}}>
+          <Slider
+            label="Max Non-Final Tokens Duration (ms)"
+            value={maxNonFinalTokensDurationMs}
+            onValueChange={setMaxNonFinalTokensDurationMs}
+            minimumValue={360}
+            maximumValue={6000}
+            step={40}
+            showValue={true}
+            unit="ms"
+            containerStyle={{marginBottom: 8}}
+          />
+        </View>
         <View style={{marginBottom: 16}}>
           <Text style={styles.dropdownLabel}>TTS Provider</Text>
           <Dropdown
