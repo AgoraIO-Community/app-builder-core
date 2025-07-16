@@ -357,7 +357,7 @@ const SonixCaptionContainer = () => {
 
     const createBot = async () => {
       try {
-        engine.selfSonioxBotID = ''; //Number('9' + localUid.toString().slice(1));
+        engine.selfSonioxBotID = Number('9' + localUid.toString().slice(1));
         let body: any = {
           channel_name: channel,
           user_id: localUid.toString(),
