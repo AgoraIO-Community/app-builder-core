@@ -115,7 +115,6 @@ const SonixCaptionContainer = () => {
   const [autoScroll, setAutoScroll] = useState(true);
   const [progressUid, setProgressUid] = useState<string | null>(null);
   const [pendingTTSUid, setPendingTTSUid] = useState<string | null>(null);
-  const sttTokenTimeRef = useRef({});
 
   // in-progress captions per speaker and language pair
   const activeCaptionsRef = useRef<
@@ -208,36 +207,18 @@ const SonixCaptionContainer = () => {
             const textData = data.payload;
             const uid = textData.user_id;
             const srcLang = textData.src_lang?.[0] || 'en';
-            let sttTokenTime = 0;
-            if (textData[srcLang]) {
-              // If tokens are available as an array, sum their times
-              const tokens = textData[srcLang].tokens || [textData[srcLang]];
-              for (const token of tokens) {
-                if (
-                  typeof token.start_ms === 'number' &&
-                  typeof token.end_ms === 'number'
-                ) {
-                  sttTokenTime += token.end_ms - token.start_ms;
-                }
-              }
-            }
-            sttTokenTimeRef.current[uid] =
-              (sttTokenTimeRef.current[uid] || 0) + sttTokenTime;
           }
 
           // Progress bar logic for STATS event
           if (data.type === 'STATS' && data.payload) {
             setProgressUid(null);
-            const userId = data.payload.USER_ID || data.payload.uid;
-            const totalTokenTime = sttTokenTimeRef.current[userId] || 0;
+            // Remove totalTokenTime and sttTokenTime from statsList
             setStatsList(prev => [
               ...prev,
               {
                 ...data.payload,
-                sttTokenTime: totalTokenTime,
               },
             ]);
-            sttTokenTimeRef.current[userId] = 0; // reset for next utterance
           }
 
           if (data.type !== 'TEXT') return;
