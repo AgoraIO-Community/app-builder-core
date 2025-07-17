@@ -1,0 +1,69 @@
+import React from 'react';
+import {Text, View, StyleSheet} from 'react-native';
+import BreakoutRoomParticipants from './BreakoutRoomParticipants';
+import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
+import Divider from '../../common/Dividers';
+import Toggle from '../../../atoms/Toggle';
+import ThemeConfig from '../../../theme';
+
+export default function BreakoutRoomHostControls() {
+  return (
+    <View style={style.card}>
+      {/* Avatar list  */}
+      <View style={style.section}>
+        <BreakoutRoomParticipants />
+      </View>
+      <Divider />
+      <View style={style.section}>
+        <SelectParticipantAssignmentStrategy />
+      </View>
+      <Divider />
+      <View style={style.section}>
+        <View style={style.switchSection}>
+          <Text style={style.label}>Allow people to switch rooms</Text>
+          <Toggle
+            disabled={$config.EVENT_MODE}
+            isEnabled={true}
+            toggleSwitch={() => {}}
+            circleColor={$config.FONT_COLOR}
+          />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const style = StyleSheet.create({
+  card: {
+    width: '100%',
+    padding: 16,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    gap: 12,
+  },
+  section: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+  },
+  switchSection: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  label: {
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 16,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+});

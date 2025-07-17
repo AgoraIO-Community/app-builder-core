@@ -20,7 +20,7 @@ const Divider: React.FC<DividerProps> = ({
   marginLeft = 0,
   marginRight = 0,
   thickness = 1,
-  color = '#ccc',
+  color = $config.CARD_LAYER_4_COLOR,
   length = '100%',
 }) => {
   const isHorizontal = orientation === 'horizontal';
