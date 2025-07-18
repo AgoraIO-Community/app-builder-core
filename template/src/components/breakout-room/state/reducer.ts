@@ -73,17 +73,6 @@ export type BreakoutRoomAction =
         toGroupId: string;
         isHost: boolean;
       };
-    }
-  | {
-      type: typeof BreakoutGroupActionTypes.ENGINE_INIT;
-      payload: {engine: RtcEngine};
-    }
-  | {
-      type: typeof BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS;
-      payload: {status: ConnectionState};
-    }
-  | {
-      type: typeof BreakoutGroupActionTypes.ENGINE_LEAVE_AND_DESTROY;
     };
 
 export const breakoutRoomReducer = (
@@ -162,25 +151,6 @@ export const breakoutRoomReducer = (
         }),
       };
     }
-
-    // Engine use cases
-    case BreakoutGroupActionTypes.ENGINE_INIT:
-      return {
-        ...state,
-        breakoutGroupRtc: {
-          ...state.breakoutGroupRtc,
-          engine: action.payload.engine,
-        },
-      };
-
-    case BreakoutGroupActionTypes.ENGINE_SET_CHANNEL_STATUS:
-      return {
-        ...state,
-        breakoutGroupRtc: {
-          ...state.breakoutGroupRtc,
-          connectionState: action.payload.status,
-        },
-      };
 
     default:
       return state;

@@ -33,6 +33,7 @@ import {
 } from '../../language/default-labels/videoCallScreenLabels';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {useBreakoutRoom} from './context/BreakoutRoomContext';
+import BreakoutRoomHostControls from './ui/BreakoutRoomHostControls';
 
 const BreakoutRoomGroupCard = ({name, participants}) => {
   const {defaultContent} = useContent();
@@ -155,7 +156,7 @@ const BreakoutRoomPanel = props => {
     breakoutGroups,
     startBreakoutRoom,
   } = useBreakoutRoom();
-
+  console.log('supriya breakoutGroups ', breakoutGroups);
   useEffect(() => {
     const init = async () => {
       try {
@@ -186,14 +187,9 @@ const BreakoutRoomPanel = props => {
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <BreakoutRoomHeader />}
-      <ScrollView style={[style.bodyContainer]}>
-        <>
-          <ParticipantSectionTitle
-            title={meetingParticpantsLabel}
-            count={onlineUsersCount}
-            isOpen={showMeetingParticipants}
-            onPress={() => setShowMeetingParticipants(!showMeetingParticipants)}
-          />
+      <ScrollView style={[style.pannelOuterBody]}>
+        <View style={style.panelInnerBody}>
+          <BreakoutRoomHostControls />
           {showMeetingParticipants ? (
             <AllHostParticipants
               emptyMessage={noUsersJoinedYet}
@@ -209,23 +205,23 @@ const BreakoutRoomPanel = props => {
           ) : (
             <></>
           )}
-        </>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignSelf: 'flex-end',
-            margin: 10,
-          }}>
-          <TouchableOpacity onPress={() => createBreakoutRoomGroup()}>
-            <Text style={{color: $config.PRIMARY_ACTION_BRAND_COLOR}}>
-              + Create Group
-            </Text>
-          </TouchableOpacity>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+              margin: 10,
+            }}>
+            <TouchableOpacity onPress={() => createBreakoutRoomGroup()}>
+              <Text style={{color: $config.PRIMARY_ACTION_BRAND_COLOR}}>
+                + Create Group
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {breakoutGroups.map((props, index) => {
+            return <BreakoutRoomGroupCard key={index} {...props} />;
+          })}
         </View>
-        {breakoutGroups.map((props, index) => {
-          return <BreakoutRoomGroupCard key={index} {...props} />;
-        })}
       </ScrollView>
       {isHost && (
         <View style={style.footer}>
@@ -261,8 +257,14 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
-  bodyContainer: {
+  pannelOuterBody: {
+    display: 'flex',
     flex: 1,
+  },
+  panelInnerBody: {
+    display: 'flex',
+    flex: 1,
+    padding: 12,
   },
 });
 

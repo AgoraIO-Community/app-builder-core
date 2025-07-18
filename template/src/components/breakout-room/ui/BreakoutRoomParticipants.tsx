@@ -120,12 +120,6 @@ const BreakoutRoomParticipants: React.FC<BreakoutRoomParticipantsProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignSelf: 'stretch',
-    gap: 12,
-  },
   title: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.small,
