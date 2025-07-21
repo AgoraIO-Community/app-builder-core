@@ -116,7 +116,7 @@ export const V2VContext = React.createContext<{
   setStatsList: () => {},
   selectedVoice: rimeVoices[0]?.value || '',
   setSelectedVoice: () => {},
-  selectedTTS: 'eleven_labs',
+  selectedTTS: 'rime',
   setSelectedTTS: () => {},
   providerConfigs: {
     rime: {
@@ -185,7 +185,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [selectedVoice, setSelectedVoice] = React.useState<string>(
     rimeVoices[0]?.value || '',
   );
-  const [selectedTTS, setSelectedTTS] = React.useState<TTSType>('eleven_labs');
+  const [selectedTTS, setSelectedTTS] = React.useState<TTSType>('rime');
   const [providerConfigs, setProviderConfigs] = React.useState({
     rime: {
       sourceLang: 'en',
