@@ -234,45 +234,6 @@ const TranslatorSelectedLanguagePopup: React.FC<
       onCancel={onCancel}>
       <>
         <View style={{marginBottom: 16}}>
-          <Slider
-            label="Max Non-Final Tokens Duration (ms)"
-            value={maxNonFinalTokensDurationMs}
-            onValueChange={setMaxNonFinalTokensDurationMs}
-            minimumValue={360}
-            maximumValue={6000}
-            step={40}
-            showValue={true}
-            unit="ms"
-            containerStyle={{marginBottom: 8}}
-          />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: 4,
-            }}>
-            <Text style={{marginLeft: 6, color: '#888', fontSize: 12}}>
-              Maximum delay between a spoken word and its finalization
-            </Text>
-            <Text
-              style={{
-                marginLeft: 6,
-                color: '#1a73e8',
-                fontSize: 12,
-                textDecorationLine: 'underline',
-              }}
-              onPress={() => {
-                window.open &&
-                  window.open(
-                    'https://soniox.com/docs/speech-to-text/core-concepts/real-time-latency#description',
-                    '_blank',
-                  );
-              }}>
-              [Docs]
-            </Text>
-          </View>
-        </View>
-        <View style={{marginBottom: 16}}>
           <Text style={styles.dropdownLabel}>TTS Provider</Text>
           <Dropdown
             label={''}
@@ -282,6 +243,48 @@ const TranslatorSelectedLanguagePopup: React.FC<
             enabled={true}
           />
         </View>
+
+        {selectedTTS === 'eleven_labs' && (
+          <View style={{marginBottom: 16}}>
+            <Slider
+              label="Max Non-Final Tokens Duration (ms)"
+              value={maxNonFinalTokensDurationMs}
+              onValueChange={setMaxNonFinalTokensDurationMs}
+              minimumValue={360}
+              maximumValue={6000}
+              step={40}
+              showValue={true}
+              unit="ms"
+              containerStyle={{marginBottom: 8}}
+            />
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: 4,
+              }}>
+              <Text style={{marginLeft: 6, color: '#888', fontSize: 12}}>
+                Maximum delay between a spoken word and its finalization
+              </Text>
+              <Text
+                style={{
+                  marginLeft: 6,
+                  color: '#1a73e8',
+                  fontSize: 12,
+                  textDecorationLine: 'underline',
+                }}
+                onPress={() => {
+                  window.open &&
+                    window.open(
+                      'https://soniox.com/docs/speech-to-text/core-concepts/real-time-latency#description',
+                      '_blank',
+                    );
+                }}>
+                [Docs]
+              </Text>
+            </View>
+          </View>
+        )}
 
         {selectedTTS === 'rime' && (
           <>
