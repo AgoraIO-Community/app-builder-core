@@ -242,7 +242,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
       onCancel={onCancel}>
       <>
         <View style={{marginBottom: 16}}>
-          <View style={{marginBottom: 8}}>
+          {/* <View style={{marginBottom: 8}}>
             <View style={styles.inlineInputContainer}>
               <Text style={styles.inlineInputLabel}>RTC Sleep Time (ms)</Text>
               <TextInput
@@ -273,7 +273,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
             <Text style={{marginLeft: 6, color: '#888', fontSize: 12}}>
               Controls the sleep interval for RTC loop (10-300 ms)
             </Text>
-          </View>
+          </View> */}
           <Slider
             label="Max Non-Final Tokens Duration (ms)"
             value={maxNonFinalTokensDurationMs}

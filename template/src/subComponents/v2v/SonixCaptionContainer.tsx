@@ -219,6 +219,8 @@ const SonixCaptionContainer = () => {
               ...prev,
               {
                 ...data.payload,
+                maxNonFinalTokensDurationMs,
+                selectedTTS,
               },
             ]);
           }
