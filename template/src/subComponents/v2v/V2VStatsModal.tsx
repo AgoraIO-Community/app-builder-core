@@ -19,6 +19,10 @@ const V2VStatsModal = ({visible, onClose}) => {
         <Text style={[styles.cell, styles.headerCell]}>STT</Text>
         <Text style={[styles.cell, styles.headerCell]}>TTS</Text>
         <Text style={[styles.cell, styles.headerCell]}>Total</Text>
+        <Text style={[styles.cell, styles.headerCell]}>
+          Max Non-Final Tokens Duration
+        </Text>
+        <Text style={[styles.cell, styles.headerCell]}>TTS Provider</Text>
       </View>
       <ScrollView style={styles.scrollView}>
         {statsList.map((stat, idx) => {
@@ -40,7 +44,9 @@ const V2VStatsModal = ({visible, onClose}) => {
                 style={[styles.cell, {flex: 2}]}
                 numberOfLines={2}
                 ellipsizeMode="tail">
-                {stat.TEXT || '-'}
+                {stat.srcText && stat.tgtText && stat.srcLang && stat.tgtLang
+                  ? `${stat.srcText} (${stat.srcLang})  ${stat.tgtText} (${stat.tgtLang})`
+                  : stat.TEXT || '-'}
               </Text>
               <Text style={styles.cell}>
                 {sttTime !== '-' ? `${sttTime} ms` : '-'}
@@ -51,6 +57,12 @@ const V2VStatsModal = ({visible, onClose}) => {
               <Text style={styles.cell}>
                 {total !== '-' ? `${total} ms` : '-'}
               </Text>
+              <Text style={styles.cell}>
+                {stat.maxNonFinalTokensDurationMs
+                  ? `${stat.maxNonFinalTokensDurationMs} ms`
+                  : '-'}
+              </Text>
+              <Text style={styles.cell}>{stat.selectedTTS || '-'}</Text>
             </View>
           );
         })}
@@ -59,6 +71,15 @@ const V2VStatsModal = ({visible, onClose}) => {
         <Text style={{color: '#888', fontWeight: 'bold'}}>Info:</Text>
         <Text style={styles.text}>STT Time: END_STT - FIRST_NON_FINAL_STT</Text>
         <Text style={styles.text}>TTS Time: FIRST_TTS - BEGIN_TTS</Text>
+        <Text style={styles.text}>
+          Max Non-Final Tokens Duration: The maximum allowed delay between a
+          spoken word and its finalization in STT (configurable in the language
+          popup).
+        </Text>
+        <Text style={styles.text}>
+          TTS Provider: The Text-to-Speech provider used for this translation
+          (e.g., rime, eleven_labs).
+        </Text>
       </View>
     </Popup>
   );
