@@ -91,6 +91,8 @@ export const V2VContext = React.createContext<{
   setIsV2VStatsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   maxNonFinalTokensDurationMs: number;
   setMaxNonFinalTokensDurationMs: React.Dispatch<React.SetStateAction<number>>;
+  rtcSleepTimeMs: number;
+  setRtcSleepTimeMs: React.Dispatch<React.SetStateAction<number>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -135,6 +137,8 @@ export const V2VContext = React.createContext<{
   setIsV2VStatsModalOpen: () => {},
   maxNonFinalTokensDurationMs: 800,
   setMaxNonFinalTokensDurationMs: () => {},
+  rtcSleepTimeMs: 40,
+  setRtcSleepTimeMs: () => {},
 });
 
 interface V2VProviderProps {
@@ -157,6 +161,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [isV2VStatsModalOpen, setIsV2VStatsModalOpen] = React.useState(false);
   const [maxNonFinalTokensDurationMs, setMaxNonFinalTokensDurationMs] =
     React.useState<number>(800);
+  const [rtcSleepTimeMs, setRtcSleepTimeMs] = React.useState<number>(10);
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
@@ -234,6 +239,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setIsV2VStatsModalOpen,
         maxNonFinalTokensDurationMs,
         setMaxNonFinalTokensDurationMs,
+        rtcSleepTimeMs,
+        setRtcSleepTimeMs,
       }}>
       {children}
     </V2VContext.Provider>

@@ -7,6 +7,7 @@ import {
   Modal,
   Pressable,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import Popup from '../../atoms/Popup';
 import Spacer from '../../atoms/Spacer';
@@ -58,6 +59,8 @@ interface TranslatorSelectedLanguagePopupProps {
   setElevenLabsSelectedVoice: (voice: string) => void;
   maxNonFinalTokensDurationMs: number;
   setMaxNonFinalTokensDurationMs: (value: number) => void;
+  rtcSleepTimeMs: number;
+  setRtcSleepTimeMs: (value: number) => void;
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -92,6 +95,8 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setElevenLabsSelectedVoice,
   maxNonFinalTokensDurationMs,
   setMaxNonFinalTokensDurationMs,
+  rtcSleepTimeMs,
+  setRtcSleepTimeMs,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
@@ -103,6 +108,9 @@ const TranslatorSelectedLanguagePopup: React.FC<
   const [elevenLabsSrcOpen, setElevenLabsSrcOpen] = React.useState(false);
   const [elevenLabsTgtOpen, setElevenLabsTgtOpen] = React.useState(false);
   const [elevenLabsVoiceOpen, setElevenLabsVoiceOpen] = React.useState(false);
+  const [rtcSleepTimeError, setRtcSleepTimeError] = React.useState<
+    string | null
+  >(null);
 
   // Only one dropdown open at a time
   React.useEffect(() => {
@@ -234,6 +242,38 @@ const TranslatorSelectedLanguagePopup: React.FC<
       onCancel={onCancel}>
       <>
         <View style={{marginBottom: 16}}>
+          <View style={{marginBottom: 8}}>
+            <View style={styles.inlineInputContainer}>
+              <Text style={styles.inlineInputLabel}>RTC Sleep Time (ms)</Text>
+              <TextInput
+                style={styles.textInput}
+                keyboardType="numeric"
+                value={rtcSleepTimeMs.toString()}
+                onChangeText={text => {
+                  const val = parseInt(text, 10);
+                  if (isNaN(val)) {
+                    setRtcSleepTimeMs(10);
+                    setRtcSleepTimeError('Enter a number between 10 and 300');
+                  } else if (val < 10 || val > 300) {
+                    setRtcSleepTimeMs(val);
+                    setRtcSleepTimeError('Value must be between 10 and 300');
+                  } else {
+                    setRtcSleepTimeMs(val);
+                    setRtcSleepTimeError(null);
+                  }
+                }}
+                maxLength={3}
+              />
+            </View>
+            <View style={{minHeight: 18}}>
+              {rtcSleepTimeError && (
+                <Text style={styles.inlineErrorText}>{rtcSleepTimeError}</Text>
+              )}
+            </View>
+            <Text style={{marginLeft: 6, color: '#888', fontSize: 12}}>
+              Controls the sleep interval for RTC loop (10-300 ms)
+            </Text>
+          </View>
           <Slider
             label="Max Non-Final Tokens Duration (ms)"
             value={maxNonFinalTokensDurationMs}
@@ -245,6 +285,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
             unit="ms"
             containerStyle={{marginBottom: 8}}
           />
+
           <View
             style={{
               flexDirection: 'row',
@@ -573,6 +614,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  inlineErrorText: {
+    color: '#FD5842',
+    textAlign: 'right',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  inlineInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  inlineInputLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: $config.FONT_COLOR,
+  },
   sectionHeader: {
     marginTop: 16,
     marginBottom: 8,
@@ -582,5 +639,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: $config.FONT_COLOR,
     marginBottom: 8,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#444',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#181818',
+    color: '#fff',
+    fontSize: 14,
+    width: 120,
   },
 });
