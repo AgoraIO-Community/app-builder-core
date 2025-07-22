@@ -84,6 +84,8 @@ const SonixCaptionContainer = () => {
     setStatsList,
     maxNonFinalTokensDurationMs,
     setMaxNonFinalTokensDurationMs,
+    rtcSleepTimeMs,
+    setRtcSleepTimeMs,
   } = useV2V();
 
   // Handler to update providerConfigs and context
@@ -346,6 +348,7 @@ const SonixCaptionContainer = () => {
           tts_speaker: selectedVoice,
           tts_provider: selectedTTS,
           max_non_final_tokens_duration_ms: maxNonFinalTokensDurationMs,
+          rtc_sleep_time_ms: rtcSleepTimeMs,
         };
 
         if (sourceLang !== targetLang) {
@@ -389,6 +392,7 @@ const SonixCaptionContainer = () => {
     setIsV2VActive,
     RtcEngineUnsafe,
     maxNonFinalTokensDurationMs,
+    rtcSleepTimeMs,
   ]);
 
   if (showTranslatorPopup) {
@@ -453,6 +457,8 @@ const SonixCaptionContainer = () => {
         }
         maxNonFinalTokensDurationMs={maxNonFinalTokensDurationMs}
         setMaxNonFinalTokensDurationMs={setMaxNonFinalTokensDurationMs}
+        rtcSleepTimeMs={rtcSleepTimeMs}
+        setRtcSleepTimeMs={setRtcSleepTimeMs}
       />
     );
   }
