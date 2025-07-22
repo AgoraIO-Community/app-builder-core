@@ -133,7 +133,7 @@ export const V2VContext = React.createContext<{
   setProviderConfigs: () => {},
   isV2VStatsModalOpen: false,
   setIsV2VStatsModalOpen: () => {},
-  maxNonFinalTokensDurationMs: 4000,
+  maxNonFinalTokensDurationMs: 800,
   setMaxNonFinalTokensDurationMs: () => {},
 });
 
@@ -156,7 +156,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   >([]);
   const [isV2VStatsModalOpen, setIsV2VStatsModalOpen] = React.useState(false);
   const [maxNonFinalTokensDurationMs, setMaxNonFinalTokensDurationMs] =
-    React.useState<number>(4000);
+    React.useState<number>(800);
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
