@@ -282,12 +282,14 @@ export class RTMWebClient {
 
   removeEventListener(
     event: keyof NativeRTMClientEventMap,
-    listener: (event: any) => void,
+    _listener: (event: any) => void,
   ) {
     if (this.client && this.eventsMap.has(event)) {
-      // Reset the event handler to default no-op function
-      this.eventsMap.set(event, () => null);
-      this.client.removeEventListener(event, listener);
+      const prevListener = this.eventsMap.get(event);
+      if (prevListener) {
+        this.client.removeEventListener(event, prevListener);
+      }
+      this.eventsMap.set(event, () => null); // reset to no-op
     }
   }
 
@@ -315,7 +317,8 @@ export class RTMWebClient {
   ) {
     const webOptions: PublishOptions = {
       ...options,
-      channelType: nativeToWebChannelTypeMapping[options.channelType],
+      channelType:
+        nativeToWebChannelTypeMapping[options.channelType] || 'MESSAGE',
     };
     return this.client.publish(channelName, message, webOptions);
   }
@@ -325,7 +328,7 @@ export class RTMWebClient {
   }
 
   removeAllListeners() {
-    this.eventsMap = new Map<keyof NativeRTMClientEventMap, any>([
+    this.eventsMap = new Map([
       ['linkState', () => null],
       ['storage', () => null],
       ['presence', () => null],
