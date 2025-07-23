@@ -10,57 +10,48 @@
 *********************************************
 */
 
-import RtmEngine from 'agora-react-native-rtm';
+import {
+  createAgoraRtmClient,
+  RtmConfig,
+  type RTMClient,
+} from 'agora-react-native-rtm';
 import {isAndroid, isIOS} from '../utils/common';
 
 class RTMEngine {
-  engine!: RtmEngine;
+  private _engine!: RTMClient;
   private localUID: string = '';
   private channelId: string = '';
 
   private static _instance: RTMEngine | null = null;
-
-  public static getInstance() {
-    if (!RTMEngine._instance) {
-      return new RTMEngine();
-    }
-    return RTMEngine._instance;
-  }
-
-  private async createClientInstance() {
-    await this.engine.createClient($config.APP_ID);
-  }
-
-  private async destroyClientInstance() {
-    await this.engine.logout();
-    if (isIOS() || isAndroid()) {
-      await this.engine.destroyClient();
-    }
-  }
 
   private constructor() {
     if (RTMEngine._instance) {
       return RTMEngine._instance;
     }
     RTMEngine._instance = this;
-    this.engine = new RtmEngine();
     this.localUID = '';
     this.channelId = '';
-    this.createClientInstance();
-
+    // RTM v2 client will be created when localUID is set
     return RTMEngine._instance;
   }
 
-  setLocalUID(localUID: string) {
-    this.localUID = localUID;
+  public static getInstance() {
+    // We are only creating the instance but not creating the rtm client yet
+    if (!RTMEngine._instance) {
+      RTMEngine._instance = new RTMEngine();
+    }
+    return RTMEngine._instance;
+  }
+
+  setLocalUID(localUID: number) {
+    this.localUID = String(localUID); // Ensure string conversion
+    // Create RTM v2 client only when valid localUID is set
+    if (!this._engine && this.localUID && this.localUID.trim() !== '') {
+      this.createClientInstance();
+    }
   }
 
   setChannelId(channelID: string) {
-    this.channelId = channelID;
-  }
-
-  setLoginInfo(localUID: string, channelID: string) {
-    this.localUID = localUID;
     this.channelId = channelID;
   }
 
@@ -70,6 +61,43 @@ class RTMEngine {
 
   get channelUid() {
     return this.channelId;
+  }
+
+  get isEngineReady() {
+    return !!this._engine && !!this.localUID;
+  }
+
+  get engine() {
+    this.ensureEngineReady();
+    return this._engine!; // We know it exists after the guard
+  }
+
+  private createClientInstance() {
+    // RTM v2 client creation is synchronous - returns RTMClient
+    const rtmConfig = new RtmConfig({
+      appId: $config.APP_ID,
+      userId: this.localUID || `user_${Date.now()}`,
+      useStringUserId: true,
+    });
+    this._engine = createAgoraRtmClient(rtmConfig);
+  }
+
+  private ensureEngineReady() {
+    if (!this.isEngineReady) {
+      throw new Error(
+        'RTM Engine not ready. Please call setLocalUID() or setLoginInfo() with a valid UID first.',
+      );
+    }
+  }
+
+  private async destroyClientInstance() {
+    if (this._engine) {
+      await this._engine.logout();
+      if (isIOS() || isAndroid()) {
+        this._engine.release();
+      }
+      this._engine = null;
+    }
   }
 
   async destroy() {

@@ -9,9 +9,10 @@ import {
   type GetChannelMetadataResponse as NativeGetChannelMetadataResponse,
   type SetOrUpdateUserMetadataOptions as NativeSetOrUpdateUserMetadataOptions,
   type IMetadataOptions as NativeIMetadataOptions,
-  StorageEvent,
-  PresenceEvent,
-  MessageEvent,
+  type StorageEvent as NativeStorageEvent,
+  type PresenceEvent as NativePresenceEvent,
+  type MessageEvent as NativeMessageEvent,
+  type SubscribeOptions as NativeSubscribeOptions,
 } from 'agora-react-native-rtm';
 import AgoraRTM, {
   RTMClient,
@@ -68,7 +69,7 @@ export class RTMWebClient {
       });
 
       this.client.addEventListener('storage', data => {
-        const nativeStorageEvent: StorageEvent = {
+        const nativeStorageEvent: NativeStorageEvent = {
           ...data,
           channelType: channelTypeMapping[data.channelType],
           storageType: storageTypeMapping[data.storageType],
@@ -79,7 +80,7 @@ export class RTMWebClient {
       });
 
       this.client.addEventListener('presence', data => {
-        const nativePresenceEvent: PresenceEvent = {
+        const nativePresenceEvent: NativePresenceEvent = {
           ...data,
           channelType: presenceEventTypeMapping[data.channelType],
           type: presenceEventTypeMapping[data.eventType],
@@ -93,7 +94,7 @@ export class RTMWebClient {
       });
 
       this.client.addEventListener('message', data => {
-        const nativeMessageEvent: MessageEvent = {
+        const nativeMessageEvent: NativeMessageEvent = {
           ...data,
           channelType: channelTypeMapping[data.channelType],
           messageType: messageEventTypeMapping[data.messageType],
@@ -303,7 +304,7 @@ export class RTMWebClient {
     return this.client.logout();
   }
 
-  async subscribe(channelName: string, options?: any) {
+  async subscribe(channelName: string, options?: NativeSubscribeOptions) {
     return this.client.subscribe(channelName, options);
   }
 

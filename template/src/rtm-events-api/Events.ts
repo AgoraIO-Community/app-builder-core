@@ -11,7 +11,7 @@
 */
 
 ('use strict');
-import RtmEngine from 'agora-react-native-rtm';
+import {type RTMClient} from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {EventUtils} from '../rtm-events';
 import {
@@ -41,11 +41,11 @@ class Events {
    * @api private
    */
   private _persist = async (evt: string, payload: string) => {
-    const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+    const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
     try {
       const rtmAttribute = {key: evt, value: payload};
       // Step 1: Call RTM API to update local attributes
-      await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      await rtmEngine.storage.setUserMetadata({items: [rtmAttribute]});
     } catch (error) {
       logger.error(
         LogSource.Events,
@@ -103,8 +103,8 @@ class Events {
     rtmPayload: RTMAttributePayload,
     toUid?: ReceiverUid,
   ) => {
-    const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
-    const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+    const to = typeof toUid == 'string' ? parseInt(toUid, 10) : toUid;
+    const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
 
     const text = JSON.stringify(rtmPayload);
     // Case 1: send to channel
@@ -120,7 +120,7 @@ class Events {
       );
       try {
         const channelId = RTMEngine.getInstance().channelUid;
-        await rtmEngine.sendMessageByChannelId(channelId, text);
+        await rtmEngine.publish(channelId, text);
       } catch (error) {
         logger.error(
           LogSource.Events,
@@ -140,10 +140,8 @@ class Events {
       );
       const adjustedUID = adjustUID(to);
       try {
-        await rtmEngine.sendMessageToPeer({
-          peerId: `${adjustedUID}`,
-          offline: false,
-          text,
+        await rtmEngine.publish(`${adjustedUID}`, text, {
+          channelType: 3,
         });
       } catch (error) {
         logger.error(
@@ -166,10 +164,8 @@ class Events {
       try {
         for (const uid of to) {
           const adjustedUID = adjustUID(uid);
-          await rtmEngine.sendMessageToPeer({
-            peerId: `${adjustedUID}`,
-            offline: false,
-            text,
+          await rtmEngine.publish(`${adjustedUID}`, text, {
+            channelType: 3,
           });
         }
       } catch (error) {
@@ -192,12 +188,12 @@ class Events {
       'updating channel attributes',
     );
     try {
-      const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+      const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
       const channelId = RTMEngine.getInstance().channelUid;
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
       // Step 1: Call RTM API to update local attributes
-      await rtmEngine.addOrUpdateChannelAttributes(channelId, rtmAttribute, {
-        enableNotificationToChannelMembers: true,
+      await rtmEngine.storage.setChannelMetadata(channelId, 1, {
+        items: rtmAttribute,
       });
     } catch (error) {
       logger.error(
