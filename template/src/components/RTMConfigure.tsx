@@ -12,8 +12,6 @@
 
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import {
-  createAgoraRtmClient,
-  RtmConfig,
   type GetChannelMetadataResponse,
   type GetOnlineUsersResponse,
   type LinkStateEvent,
@@ -23,7 +21,7 @@ import {
   type SetOrUpdateUserMetadataOptions,
   type StorageEvent,
   type RTMClient,
-  GetUserMetadataResponse,
+  type GetUserMetadataResponse,
 } from 'agora-react-native-rtm';
 import {
   ContentInterface,
@@ -35,9 +33,8 @@ import {
 import ChatContext from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
-import {useString} from '../utils/useString';
 import {isAndroid, isIOS, isWeb, isWebInternal} from '../utils/common';
-import {useContent, useIsAttendee, useUserName} from 'customization-api';
+import {useContent} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -45,8 +42,8 @@ import {
   getMessageTime,
   get32BitUid,
 } from '../rtm/utils';
-import {EventUtils, EventsQueue, EventNames} from '../rtm-events';
-import events, {PersistanceLevel} from '../rtm-events-api';
+import {EventUtils, EventsQueue} from '../rtm-events';
+import {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 import SDKEvents from '../utils/SdkEvents';
@@ -59,7 +56,6 @@ import {
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../rtm-events-api/LocalEvents';
-import {PSTNUserLabel} from '../language/default-labels/videoCallScreenLabels';
 import {controlMessageEnum} from '../components/ChatContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {RECORDING_BOT_UID} from '../utils/constants';
@@ -67,6 +63,7 @@ import {RECORDING_BOT_UID} from '../utils/constants';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
+const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 const RtmConfigure = (props: any) => {
   let engine = useRef<RTMClient>(null!);
@@ -108,6 +105,19 @@ const RtmConfigure = (props: any) => {
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
+
+  // Eventdispatcher timeout refs clean
+  const isRTMMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      isRTMMounted.current = false;
+      // Clear all pending timeouts on unmount
+      for (const timeout of eventTimeouts.values()) {
+        clearTimeout(timeout);
+      }
+      eventTimeouts.clear();
+    };
+  }, []);
 
   // Set online users
   React.useEffect(() => {
@@ -320,7 +330,7 @@ const RtmConfigure = (props: any) => {
 
           if (channelId === rtcProps.channel) {
             try {
-              eventDispatcher(msg, sender, timestamp);
+              eventDispatcher(msg, `${sender}`, timestamp);
             } catch (error) {
               logger.error(
                 LogSource.Events,
@@ -357,7 +367,7 @@ const RtmConfigure = (props: any) => {
         const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId, 10);
 
         try {
-          eventDispatcher(msg, sender, timestamp);
+          eventDispatcher(msg, `${sender}`, timestamp);
         } catch (error) {
           logger.error(
             LogSource.Events,
@@ -449,6 +459,13 @@ const RtmConfigure = (props: any) => {
           rtcProps.channel,
         );
       } else {
+        RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          'RTM setChannelId',
+          rtcProps.channel,
+        );
         await engine.current.subscribe(rtcProps.channel, {
           withMessage: true,
           withPresence: true,
@@ -458,13 +475,7 @@ const RtmConfigure = (props: any) => {
         logger.log(LogSource.AgoraSDK, 'API', 'RTM subscribeChannel', {
           data: rtcProps.channel,
         });
-        RTMEngine.getInstance().setChannelId(rtcProps.channel);
-        logger.log(
-          LogSource.AgoraSDK,
-          'API',
-          'RTM setChannelId',
-          rtcProps.channel,
-        );
+
         logger.debug(
           LogSource.SDK,
           'Event',
@@ -707,7 +718,7 @@ const RtmConfigure = (props: any) => {
     try {
       while (!EventsQueue.isEmpty()) {
         const currEvt = EventsQueue.dequeue();
-        await eventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
+        await eventDispatcher(currEvt.data, `${currEvt.uid}`, currEvt.ts);
       }
     } catch (error) {
       logger.error(
@@ -729,7 +740,7 @@ const RtmConfigure = (props: any) => {
     sender: string,
     ts: number,
   ) => {
-    console.debug(
+    console.log(
       LogSource.Events,
       'CUSTOM_EVENTS',
       'inside eventDispatcher ',
@@ -816,18 +827,26 @@ const RtmConfigure = (props: any) => {
         });
       }
       // Step 2: Emit the event
-      console.debug(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
+      console.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
       if (evt === 'name') {
-        setTimeout(() => {
+        if (eventTimeouts.has(sender)) {
+          clearTimeout(eventTimeouts.get(sender)!);
+        }
+        const timeout = setTimeout(() => {
+          if (!isRTMMounted.current) {
+            return;
+          }
           EventUtils.emitEvent(evt, source, {
             payload,
             persistLevel,
             sender,
             ts,
           });
+          eventTimeouts.delete(sender);
         }, 200);
+        eventTimeouts.set(sender, timeout);
       }
     } catch (error) {
       console.error(
@@ -843,20 +862,10 @@ const RtmConfigure = (props: any) => {
     if (!callActive) {
       return;
     }
-    // 1. Unsubscribe from channel first
-    if (engine.current && rtcProps.channel) {
-      await engine.current.unsubscribe(rtcProps.channel);
-      RTMEngine.getInstance().setChannelId('');
-    }
-    // 2. Remove all listeners (if RTM supports this)
-    if (engine.current?.removeAllListeners) {
-      engine.current.removeAllListeners();
-    }
-    // 3. Destroy instance
+    // Destroy and clean up RTM state
     await RTMEngine.getInstance().destroy();
     logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
 
-    // 4. Clear state
     if (isIOS() || isAndroid()) {
       EventUtils.clear();
     }
