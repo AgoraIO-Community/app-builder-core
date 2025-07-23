@@ -18,7 +18,7 @@ import {
 import {isAndroid, isIOS} from '../utils/common';
 
 class RTMEngine {
-  private _engine!: RTMClient;
+  private _engine?: RTMClient;
   private localUID: string = '';
   private channelId: string = '';
 
@@ -29,9 +29,6 @@ class RTMEngine {
       return RTMEngine._instance;
     }
     RTMEngine._instance = this;
-    this.localUID = '';
-    this.channelId = '';
-    // RTM v2 client will be created when localUID is set
     return RTMEngine._instance;
   }
 
@@ -44,9 +41,8 @@ class RTMEngine {
   }
 
   setLocalUID(localUID: number) {
-    this.localUID = String(localUID); // Ensure string conversion
-    // Create RTM v2 client only when valid localUID is set
-    if (!this._engine && this.localUID && this.localUID.trim() !== '') {
+    this.localUID = String(localUID);
+    if (!this._engine && this.localUID.trim() !== '') {
       this.createClientInstance();
     }
   }
@@ -67,13 +63,20 @@ class RTMEngine {
     return !!this._engine && !!this.localUID;
   }
 
-  get engine() {
+  get engine(): RTMClient {
     this.ensureEngineReady();
-    return this._engine!; // We know it exists after the guard
+    return this._engine!;
+  }
+
+  private ensureEngineReady() {
+    if (!this.isEngineReady) {
+      throw new Error(
+        'RTM Engine not ready. Please call setLocalUID() or setLoginInfo() with a valid UID first.',
+      );
+    }
   }
 
   private createClientInstance() {
-    // RTM v2 client creation is synchronous - returns RTMClient
     try {
       const rtmConfig = new RtmConfig({
         appId: $config.APP_ID,
@@ -87,41 +90,38 @@ class RTMEngine {
     }
   }
 
-  private ensureEngineReady() {
-    if (!this.isEngineReady) {
-      throw new Error(
-        'RTM Engine not ready. Please call setLocalUID() or setLoginInfo() with a valid UID first.',
-      );
-    }
-  }
-
   private async destroyClientInstance() {
-    if (this._engine) {
-      try {
+    try {
+      if (this._engine && this.channelId) {
+        // 1. Unsubscribe from channel
+        await this._engine.unsubscribe(this.channelId);
+        // 2. Remove all listeners
+        this._engine.removeAllListeners?.();
+        // 3. logout
         await this._engine.logout();
-        if (isIOS() || isAndroid()) {
-          // @ts-ignore - release method may not exist on web client
-          this._engine?.release();
-        }
-      } catch (error) {
-        console.error('Error during client instance destruction:', error);
-        // Continue with cleanup even if logout/release fails
       }
+    } catch (error) {
+      console.error('Error during client instance destruction:', error);
     }
   }
 
   async destroy() {
     try {
+      if (!this._engine) {
+        return;
+      }
+
       await this.destroyClientInstance();
-      this._engine = null!;
+      this.channelId = '';
+      this.localUID = '';
+      this._engine = undefined;
+
       if (isIOS() || isAndroid()) {
         RTMEngine._instance = null;
       }
-      this.localUID = '';
-      this.channelId = '';
     } catch (error) {
       console.error('Error destroying RTM instance:', error);
-      throw error; // Re-throw to let caller handle
+      throw error;
     }
   }
 }
