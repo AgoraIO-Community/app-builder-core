@@ -11,7 +11,7 @@
 */
 
 ('use strict');
-import {RtmChannelType, type RTMClient} from 'agora-react-native-rtm';
+import {type RTMClient} from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {EventUtils} from '../rtm-events';
 import {
@@ -104,13 +104,14 @@ class Events {
     toUid?: ReceiverUid,
   ) => {
     const to = typeof toUid === 'string' ? parseInt(toUid, 10) : toUid;
-    const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
 
     const text = JSON.stringify(rtmPayload);
 
     if (!RTMEngine.getInstance().isEngineReady) {
       throw new Error('RTM Engine is not ready. Call setLocalUID() first.');
     }
+    const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
+
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
@@ -124,8 +125,13 @@ class Events {
       );
       try {
         const channelId = RTMEngine.getInstance().channelUid;
+        if (!channelId || channelId.trim() === '') {
+          throw new Error(
+            'Channel ID is not set. Cannot send channel attributes.',
+          );
+        }
         await rtmEngine.publish(channelId, text, {
-          channelType: RtmChannelType.message,
+          channelType: 1, // 1 is message
         });
       } catch (error) {
         logger.error(
@@ -147,7 +153,7 @@ class Events {
       const adjustedUID = adjustUID(to);
       try {
         await rtmEngine.publish(`${adjustedUID}`, text, {
-          channelType: RtmChannelType.user,
+          channelType: 3, // user
         });
       } catch (error) {
         logger.error(
@@ -168,12 +174,30 @@ class Events {
         to,
       );
       try {
-        for (const uid of to) {
-          const adjustedUID = adjustUID(uid);
-          await rtmEngine.publish(`${adjustedUID}`, text, {
-            channelType: RtmChannelType.user,
-          });
-        }
+        const response = await Promise.allSettled(
+          to.map(uid =>
+            rtmEngine.publish(`${adjustUID(uid)}`, text, {
+              channelType: 3,
+            }),
+          ),
+        );
+        response.forEach((result, index) => {
+          const uid = to[index];
+          if (result.status === 'rejected') {
+            logger.error(
+              LogSource.Events,
+              'CUSTOM_EVENTS',
+              `Failed to publish to user ${uid}:`,
+              result.reason,
+            );
+          }
+        });
+        // for (const uid of to) {
+        //   const adjustedUID = adjustUID(uid);
+        //   await rtmEngine.publish(`${adjustedUID}`, text, {
+        //     channelType: 3, // user
+        //   });
+        // }
       } catch (error) {
         logger.error(
           LogSource.Events,
@@ -199,8 +223,8 @@ class Events {
         throw new Error('RTM Engine is not ready. Call setLocalUID() first.');
       }
       const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
-      const channelId = RTMEngine.getInstance().channelUid;
 
+      const channelId = RTMEngine.getInstance().channelUid;
       if (!channelId || channelId.trim() === '') {
         throw new Error(
           'Channel ID is not set. Cannot send channel attributes.',
