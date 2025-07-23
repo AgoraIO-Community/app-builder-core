@@ -42,6 +42,9 @@ export type LanguageType =
 
 export type TTSType = 'rime' | 'eleven_labs';
 
+export type RimeModelType = 'mistv2' | 'arcana';
+export type ElevenLabsModelType = 'eleven_multilingual_v2';
+
 interface LanguageData {
   label: string;
   value: LanguageType;
@@ -199,23 +202,106 @@ export interface VoiceOption {
   description: string;
   value: string;
 }
-
-export const rimeVoices: VoiceOption[] = [
-  {name: 'Luna (Female)', description: 'chill but excitable', value: 'luna'},
-  {name: 'Tauro (Male)', description: 'street smart', value: 'tauro'},
-  {name: 'Astra (Female)', description: 'wide-eyed', value: 'astra'},
-  {name: 'Pola (Female)', description: 'warm and gregarious', value: 'pola'},
-  {name: 'Orion (Male)', description: 'happy', value: 'orion'},
-  {name: 'Estelle (Female)', description: 'so sweet', value: 'estelle'},
+// arcana voices
+export const rimeArcanaVoices: VoiceOption[] = [
   {
-    name: 'Andromeda (Female)',
+    name: 'Luna (chill but excitable)',
+    description: 'chill but excitable',
+    value: 'luna',
+  },
+  {name: 'Tauro (street smart)', description: 'street smart', value: 'tauro'},
+  {name: 'Astra (wide-eyed)', description: 'wide-eyed', value: 'astra'},
+  {
+    name: 'Pola (warm and gregarious)',
+    description: 'warm and gregarious',
+    value: 'pola',
+  },
+  {name: 'Orion (happy)', description: 'happy', value: 'orion'},
+  {name: 'Estelle (so sweet)', description: 'so sweet', value: 'estelle'},
+  {
+    name: 'Andromeda (breathy, yoga vibes)',
     description: 'breathy, yoga vibes',
     value: 'andromeda',
   },
   {
-    name: 'Ursa (Male)',
+    name: 'Ursa (encyclopedic knowledge)',
     description: 'encyclopedic knowledge',
     value: 'ursa',
+  },
+];
+
+//mistv2 voices
+export const rimeMistv2Voices: VoiceOption[] = [
+  {
+    name: 'Cove (empathetic, friendly)',
+    description: 'empathetic, friendly',
+    value: 'cove',
+  },
+  {
+    name: 'Marsh (confident, professional)',
+    description: 'confident, professional',
+    value: 'marsh',
+  },
+  {
+    name: 'Bayou (friendly, nerdy)',
+    description: 'friendly, nerdy',
+    value: 'bayou',
+  },
+  {
+    name: 'Creek (deep, professional)',
+    description: 'deep, professional',
+    value: 'creek',
+  },
+  {
+    name: 'Brook (confident, soothing)',
+    description: 'confident, soothing',
+    value: 'brook',
+  },
+  {
+    name: 'Flower (confident, professional)',
+    description: 'confident, professional',
+    value: 'flower',
+  },
+  {
+    name: 'Spore (analytical, professional)',
+    description: 'analytical, professional',
+    value: 'spore',
+  },
+  {
+    name: 'Glacier (professional, smart)',
+    description: 'professional, smart',
+    value: 'glacier',
+  },
+  {
+    name: 'Gulch (confident, serious)',
+    description: 'confident, serious',
+    value: 'gulch',
+  },
+  {name: 'Alpine (friendly)', description: 'friendly', value: 'alpine'},
+  {
+    name: 'Klaus (direct, helpful)',
+    description: 'direct, helpful',
+    value: 'klaus',
+  },
+  {
+    name: 'Frieda (smart, professional)',
+    description: 'smart, professional',
+    value: 'frieda',
+  },
+  {
+    name: 'Karolina (wry, no-nonsense)',
+    description: 'wry, no-nonsense',
+    value: 'karolina',
+  },
+  {
+    name: 'Amalia (lilting, friendly)',
+    description: 'lilting, friendly',
+    value: 'amalia',
+  },
+  {
+    name: 'Karst (youthful, friendly)',
+    description: 'youthful, friendly',
+    value: 'karst',
   },
 ];
 
@@ -308,5 +394,39 @@ export const ttsOptions = [
   {label: 'Rime TTS', value: 'rime'},
   {label: 'ElevenLabs TTS', value: 'eleven_labs'},
 ];
+
+export const rimeModelOptions = [
+  {label: 'MistV2', value: 'mistv2'},
+  {label: 'Arcana', value: 'arcana'},
+];
+
+export const elevenLabsModelOptions = [
+  {
+    label: 'Eleven Multilingual V2',
+    value: 'eleven_multilingual_v2',
+    disabled: true,
+  },
+];
+
+//  (defaults to mistv2)
+export const rimeVoices = rimeMistv2Voices;
+
+// Function to get voices based on model
+export function getRimeVoicesByModel(model: RimeModelType): VoiceOption[] {
+  switch (model) {
+    case 'mistv2':
+      return rimeMistv2Voices;
+    case 'arcana':
+      return rimeArcanaVoices;
+    default:
+      return rimeMistv2Voices;
+  }
+}
+
+export function getElevenLabsVoicesByModel(
+  model: ElevenLabsModelType,
+): VoiceOption[] {
+  return elevenLabsVoices;
+}
 
 export const V2V_URL = 'https://demo.rteappbuilder.com/rcr';

@@ -19,9 +19,15 @@ import {
   rimeLangData,
   elevenLabsLangData,
   TTSType,
+  RimeModelType,
+  ElevenLabsModelType,
   rimeVoices,
   elevenLabsVoices,
   ttsOptions,
+  rimeModelOptions,
+  elevenLabsModelOptions,
+  getRimeVoicesByModel,
+  getElevenLabsVoicesByModel,
   getValidElevenLabsTargets,
   getValidElevenLabsSources,
 } from './utils';
@@ -51,12 +57,16 @@ interface TranslatorSelectedLanguagePopupProps {
   setRimeTargetLang: (lang: LanguageType) => void;
   rimeSelectedVoice: string;
   setRimeSelectedVoice: (voice: string) => void;
+  rimeSelectedModel: RimeModelType;
+  setRimeSelectedModel: (model: RimeModelType) => void;
   elevenLabsSourceLang: LanguageType;
   setElevenLabsSourceLang: (lang: LanguageType) => void;
   elevenLabsTargetLang: LanguageType;
   setElevenLabsTargetLang: (lang: LanguageType) => void;
   elevenLabsSelectedVoice: string;
   setElevenLabsSelectedVoice: (voice: string) => void;
+  elevenLabsSelectedModel: ElevenLabsModelType;
+  setElevenLabsSelectedModel: (model: ElevenLabsModelType) => void;
   maxNonFinalTokensDurationMs: number;
   setMaxNonFinalTokensDurationMs: (value: number) => void;
   rtcSleepTimeMs: number;
@@ -87,12 +97,16 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setRimeTargetLang,
   rimeSelectedVoice,
   setRimeSelectedVoice,
+  rimeSelectedModel,
+  setRimeSelectedModel,
   elevenLabsSourceLang,
   setElevenLabsSourceLang,
   elevenLabsTargetLang,
   setElevenLabsTargetLang,
   elevenLabsSelectedVoice,
   setElevenLabsSelectedVoice,
+  elevenLabsSelectedModel,
+  setElevenLabsSelectedModel,
   maxNonFinalTokensDurationMs,
   setMaxNonFinalTokensDurationMs,
   rtcSleepTimeMs,
@@ -105,9 +119,11 @@ const TranslatorSelectedLanguagePopup: React.FC<
   const [rimeSrcOpen, setRimeSrcOpen] = React.useState(false);
   const [rimeTgtOpen, setRimeTgtOpen] = React.useState(false);
   const [rimeVoiceOpen, setRimeVoiceOpen] = React.useState(false);
+  const [rimeModelOpen, setRimeModelOpen] = React.useState(false);
   const [elevenLabsSrcOpen, setElevenLabsSrcOpen] = React.useState(false);
   const [elevenLabsTgtOpen, setElevenLabsTgtOpen] = React.useState(false);
   const [elevenLabsVoiceOpen, setElevenLabsVoiceOpen] = React.useState(false);
+  const [elevenLabsModelOpen, setElevenLabsModelOpen] = React.useState(false);
   const [rtcSleepTimeError, setRtcSleepTimeError] = React.useState<
     string | null
   >(null);
@@ -138,29 +154,45 @@ const TranslatorSelectedLanguagePopup: React.FC<
   React.useEffect(() => {
     if (rimeSrcOpen && rimeTgtOpen) setRimeTgtOpen(false);
     if (rimeSrcOpen && rimeVoiceOpen) setRimeVoiceOpen(false);
+    if (rimeSrcOpen && rimeModelOpen) setRimeModelOpen(false);
   }, [rimeSrcOpen]);
   React.useEffect(() => {
     if (rimeTgtOpen && rimeSrcOpen) setRimeSrcOpen(false);
     if (rimeTgtOpen && rimeVoiceOpen) setRimeVoiceOpen(false);
+    if (rimeTgtOpen && rimeModelOpen) setRimeModelOpen(false);
   }, [rimeTgtOpen]);
   React.useEffect(() => {
     if (rimeVoiceOpen && rimeSrcOpen) setRimeSrcOpen(false);
     if (rimeVoiceOpen && rimeTgtOpen) setRimeTgtOpen(false);
+    if (rimeVoiceOpen && rimeModelOpen) setRimeModelOpen(false);
   }, [rimeVoiceOpen]);
+  React.useEffect(() => {
+    if (rimeModelOpen && rimeSrcOpen) setRimeSrcOpen(false);
+    if (rimeModelOpen && rimeTgtOpen) setRimeTgtOpen(false);
+    if (rimeModelOpen && rimeVoiceOpen) setRimeVoiceOpen(false);
+  }, [rimeModelOpen]);
 
   // ElevenLabs dropdowns
   React.useEffect(() => {
     if (elevenLabsSrcOpen && elevenLabsTgtOpen) setElevenLabsTgtOpen(false);
     if (elevenLabsSrcOpen && elevenLabsVoiceOpen) setElevenLabsVoiceOpen(false);
+    if (elevenLabsSrcOpen && elevenLabsModelOpen) setElevenLabsModelOpen(false);
   }, [elevenLabsSrcOpen]);
   React.useEffect(() => {
     if (elevenLabsTgtOpen && elevenLabsSrcOpen) setElevenLabsSrcOpen(false);
     if (elevenLabsTgtOpen && elevenLabsVoiceOpen) setElevenLabsVoiceOpen(false);
+    if (elevenLabsTgtOpen && elevenLabsModelOpen) setElevenLabsModelOpen(false);
   }, [elevenLabsTgtOpen]);
   React.useEffect(() => {
     if (elevenLabsVoiceOpen && elevenLabsSrcOpen) setElevenLabsSrcOpen(false);
     if (elevenLabsVoiceOpen && elevenLabsTgtOpen) setElevenLabsTgtOpen(false);
+    if (elevenLabsVoiceOpen && elevenLabsModelOpen) setElevenLabsModelOpen(false);
   }, [elevenLabsVoiceOpen]);
+  React.useEffect(() => {
+    if (elevenLabsModelOpen && elevenLabsSrcOpen) setElevenLabsSrcOpen(false);
+    if (elevenLabsModelOpen && elevenLabsTgtOpen) setElevenLabsTgtOpen(false);
+    if (elevenLabsModelOpen && elevenLabsVoiceOpen) setElevenLabsVoiceOpen(false);
+  }, [elevenLabsModelOpen]);
 
   // --- UX improvement: show all languages, disable invalid pairs, and sort enabled first ---
   // For ElevenLabs
@@ -218,12 +250,33 @@ const TranslatorSelectedLanguagePopup: React.FC<
 
   // For Rime (if you want similar logic, add here)
 
+  // Reset voice selection when model changes
+  React.useEffect(() => {
+    if (rimeSelectedModel && rimeSelectedVoice) {
+      const availableVoices = getRimeVoicesByModel(rimeSelectedModel);
+      const isVoiceAvailable = availableVoices.some(v => v.value === rimeSelectedVoice);
+      if (!isVoiceAvailable) {
+        setRimeSelectedVoice('');
+      }
+    }
+  }, [rimeSelectedModel, rimeSelectedVoice, setRimeSelectedVoice]);
+
+  React.useEffect(() => {
+    if (elevenLabsSelectedModel && elevenLabsSelectedVoice) {
+      const availableVoices = getElevenLabsVoicesByModel(elevenLabsSelectedModel);
+      const isVoiceAvailable = availableVoices.some(v => v.value === elevenLabsSelectedVoice);
+      if (!isVoiceAvailable) {
+        setElevenLabsSelectedVoice('');
+      }
+    }
+  }, [elevenLabsSelectedModel, elevenLabsSelectedVoice, setElevenLabsSelectedVoice]);
+
   const isFormValid = () => {
     if (selectedTTS === 'rime') {
-      return rimeSourceLang && rimeTargetLang && rimeSelectedVoice;
+      return rimeSourceLang && rimeTargetLang && rimeSelectedVoice && rimeSelectedModel;
     } else if (selectedTTS === 'eleven_labs') {
       return (
-        elevenLabsSourceLang && elevenLabsTargetLang && elevenLabsSelectedVoice
+        elevenLabsSourceLang && elevenLabsTargetLang && elevenLabsSelectedVoice && elevenLabsSelectedModel
       );
     }
     return false;
@@ -330,6 +383,16 @@ const TranslatorSelectedLanguagePopup: React.FC<
               <Text style={styles.sectionTitle}>Rime TTS Configuration</Text>
             </View>
             <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Model</Text>
+              <Dropdown
+                label={rimeSelectedModel ? '' : 'Select model...'}
+                data={rimeModelOptions}
+                selectedValue={rimeSelectedModel}
+                onSelect={({value}) => setRimeSelectedModel(value as RimeModelType)}
+                enabled={true}
+              />
+            </View>
+            <View style={{marginBottom: 16}}>
               <Text style={styles.dropdownLabel}>Target Language</Text>
               <Dropdown
                 label={rimeTargetLang ? '' : 'Select target language...'}
@@ -358,14 +421,24 @@ const TranslatorSelectedLanguagePopup: React.FC<
             <View style={{marginBottom: 16}}>
               <Text style={styles.dropdownLabel}>Voice</Text>
               <Dropdown
-                label={''}
-                data={rimeVoices.map(v => ({
-                  label: v.name,
-                  value: v.value,
-                }))}
+                label={
+                  rimeSelectedModel
+                    ? rimeSelectedVoice
+                      ? ''
+                      : 'Select voice...'
+                    : 'Select model first...'
+                }
+                data={
+                  rimeSelectedModel
+                    ? getRimeVoicesByModel(rimeSelectedModel).map(v => ({
+                        label: v.name,
+                        value: v.value,
+                      }))
+                    : []
+                }
                 selectedValue={rimeSelectedVoice}
                 onSelect={({value}) => setRimeSelectedVoice(value)}
-                enabled={true}
+                enabled={!!rimeSelectedModel}
               />
             </View>
           </>
@@ -386,6 +459,16 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 Use the reset icon to quickly clear the selected language and
                 unlock all language pairs.
               </Text>
+            </View>
+            <View style={{marginBottom: 16}}>
+              <Text style={styles.dropdownLabel}>Model</Text>
+              <Dropdown
+                label={elevenLabsSelectedModel ? '' : 'Select model...'}
+                data={elevenLabsModelOptions}
+                selectedValue={elevenLabsSelectedModel}
+                onSelect={({value}) => setElevenLabsSelectedModel(value as ElevenLabsModelType)}
+                enabled={false}
+              />
             </View>
             <View style={{marginBottom: 16}}>
               <View
@@ -454,14 +537,24 @@ const TranslatorSelectedLanguagePopup: React.FC<
             <View style={{marginBottom: 16}}>
               <Text style={styles.dropdownLabel}>Voice</Text>
               <Dropdown
-                label={''}
-                data={elevenLabsVoices.map(v => ({
-                  label: v.name,
-                  value: v.value,
-                }))}
+                label={
+                  elevenLabsSelectedModel
+                    ? elevenLabsSelectedVoice
+                      ? ''
+                      : 'Select voice...'
+                    : 'Select model first...'
+                }
+                data={
+                  elevenLabsSelectedModel
+                    ? getElevenLabsVoicesByModel(elevenLabsSelectedModel).map(v => ({
+                        label: v.name,
+                        value: v.value,
+                      }))
+                    : []
+                }
                 selectedValue={elevenLabsSelectedVoice}
                 onSelect={({value}) => setElevenLabsSelectedVoice(value)}
-                enabled={true}
+                enabled={!!elevenLabsSelectedModel}
               />
             </View>
           </>

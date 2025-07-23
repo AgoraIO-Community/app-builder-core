@@ -5,6 +5,8 @@ import {
   rimeVoices,
   V2V_URL,
   TTSType,
+  RimeModelType,
+  ElevenLabsModelType,
   elevenLabsVoices,
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
@@ -125,11 +127,13 @@ export const V2VContext = React.createContext<{
       sourceLang: 'en',
       targetLang: 'es',
       voice: rimeVoices[0]?.value || '',
+      model: 'mistv2',
     },
     eleven_labs: {
       sourceLang: 'en',
       targetLang: 'hi',
       voice: 'TRnaQb7q41oL7sV0w6Bu', // Simran - Gen Z, Hindi (Female)
+      model: 'eleven_multilingual_v2',
     },
   },
   setProviderConfigs: () => {},
@@ -196,11 +200,13 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
       sourceLang: 'en',
       targetLang: 'es',
       voice: rimeVoices[0]?.value || '',
+      model: 'mistv2' as RimeModelType,
     },
     eleven_labs: {
       sourceLang: 'en',
       targetLang: 'hi',
       voice: 'TRnaQb7q41oL7sV0w6Bu', // Simran - Gen Z, Hindi (Female)
+      model: 'eleven_multilingual_v2' as ElevenLabsModelType,
     },
   });
 

@@ -26,6 +26,8 @@ import {
   LanguageType,
   rimeVoices,
   TTSType,
+  RimeModelType,
+  ElevenLabsModelType,
   ttsOptions,
   elevenLabsVoices,
   elevenLabsLangData,
@@ -353,6 +355,11 @@ const SonixCaptionContainer = () => {
           rtc_sleep_time_ms: rtcSleepTimeMs,
         };
 
+        // Add rime_model only when Rime TTS is selected:temp fix remove once be chanegs
+        //   if (selectedTTS === 'rime') {
+        body.rime_model = providerConfigs.rime.model;
+        //    }
+
         if (sourceLang !== targetLang) {
           body.source_lang = [targetLang === 'en' ? '*' : sourceLang];
           body.target_lang = targetLang;
@@ -445,6 +452,10 @@ const SonixCaptionContainer = () => {
         setRimeSelectedVoice={val =>
           handleProviderConfigChange('rime', 'voice', val)
         }
+        rimeSelectedModel={providerConfigs.rime.model}
+        setRimeSelectedModel={val =>
+          handleProviderConfigChange('rime', 'model', val)
+        }
         elevenLabsSourceLang={providerConfigs.eleven_labs.sourceLang}
         setElevenLabsSourceLang={val =>
           handleProviderConfigChange('eleven_labs', 'sourceLang', val)
@@ -456,6 +467,10 @@ const SonixCaptionContainer = () => {
         elevenLabsSelectedVoice={providerConfigs.eleven_labs.voice}
         setElevenLabsSelectedVoice={val =>
           handleProviderConfigChange('eleven_labs', 'voice', val)
+        }
+        elevenLabsSelectedModel={providerConfigs.eleven_labs.model}
+        setElevenLabsSelectedModel={val =>
+          handleProviderConfigChange('eleven_labs', 'model', val)
         }
         maxNonFinalTokensDurationMs={maxNonFinalTokensDurationMs}
         setMaxNonFinalTokensDurationMs={setMaxNonFinalTokensDurationMs}
