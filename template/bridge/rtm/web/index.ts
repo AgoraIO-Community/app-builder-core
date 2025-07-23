@@ -13,14 +13,17 @@ import {
   type PresenceEvent as NativePresenceEvent,
   type MessageEvent as NativeMessageEvent,
   type SubscribeOptions as NativeSubscribeOptions,
+  type PublishOptions as NativePublishOptions,
 } from 'agora-react-native-rtm';
 import AgoraRTM, {
   RTMClient,
   GetUserMetadataResponse,
   GetChannelMetadataResponse,
+  PublishOptions,
 } from 'agora-rtm-sdk';
 import {
-  channelTypeMapping,
+  webToNativechannelTypeMapping,
+  nativeToWebChannelTypeMapping,
   linkStatusReasonCodeMapping,
   linkStatusStateMapping,
   messageEventTypeMapping,
@@ -29,13 +32,13 @@ import {
   storageTypeMapping,
 } from './Types';
 
-type callbackType = (args?: any) => void;
+type CallbackType = (args?: any) => void;
 
 export class RTMWebClient {
   private client: RTMClient;
   private appId: string;
   private userId: string;
-  private eventsMap = new Map<keyof NativeRTMClientEventMap, any>([
+  private eventsMap = new Map<keyof NativeRTMClientEventMap, CallbackType>([
     ['linkState', () => null],
     ['storage', () => null],
     ['presence', () => null],
@@ -46,7 +49,6 @@ export class RTMWebClient {
     this.appId = appId;
     this.userId = `${userId}`;
     try {
-      console.log('BRIDGE supriya constructor', event);
       // Create the actual web RTM client
       this.client = new AgoraRTM.RTM(this.appId, this.userId);
 
@@ -57,26 +59,17 @@ export class RTMWebClient {
           previousState: linkStatusStateMapping[data.previousState] || 0,
           reasonCode: linkStatusReasonCodeMapping[data.reasonCode] || 0,
         };
-        console.log('BRIDGE supriya linkState', data.currentState);
-        switch (data.currentState) {
-          case 'CONNECTED':
-            this.eventsMap.get('linkState')(nativeState);
-            break;
-
-          default:
-            break;
-        }
+        (this.eventsMap.get('linkState') ?? (() => {}))(nativeState);
       });
 
       this.client.addEventListener('storage', data => {
         const nativeStorageEvent: NativeStorageEvent = {
           ...data,
-          channelType: channelTypeMapping[data.channelType],
+          channelType: webToNativechannelTypeMapping[data.channelType],
           storageType: storageTypeMapping[data.storageType],
           eventType: storageEventTypeMapping[data.eventType],
         };
-        console.log('BRIDGE supriya storage event', nativeStorageEvent);
-        this.eventsMap.get('storage')(nativeStorageEvent);
+        (this.eventsMap.get('storage') ?? (() => {}))(nativeStorageEvent);
       });
 
       this.client.addEventListener('presence', data => {
@@ -89,18 +82,17 @@ export class RTMWebClient {
           interval: undefined,
           snapshot: undefined,
         };
-        console.log('BRIDGE supriya presence event', nativePresenceEvent);
-        this.eventsMap.get('presence')(nativePresenceEvent);
+        (this.eventsMap.get('presence') ?? (() => {}))(nativePresenceEvent);
       });
 
       this.client.addEventListener('message', data => {
         const nativeMessageEvent: NativeMessageEvent = {
           ...data,
-          channelType: channelTypeMapping[data.channelType],
+          channelType: webToNativechannelTypeMapping[data.channelType],
           messageType: messageEventTypeMapping[data.messageType],
           message: `${data.message}`,
         };
-        this.eventsMap.get('message')(nativeMessageEvent);
+        (this.eventsMap.get('message') ?? (() => {}))(nativeMessageEvent);
       });
     } catch (error) {
       throw error;
@@ -137,38 +129,38 @@ export class RTMWebClient {
       },
 
       getUserMetadata: async (options: NativeGetUserMetadataOptions) => {
-        console.log('BRIDGE supriya userId: ', options);
         // If no userId provided, use current user TODO
-        if (options.userId) {
-          const webResponse: GetUserMetadataResponse =
-            await this.client.storage.getUserMetadata({
-              userId: options.userId,
-            });
-          /**
-           * majorRevision : 13483783553
-           * metadata :
-           *    {
-           *     isHost: {authorUid: "", revision: 13483783553, updated: 0, value : "true"},
-           *     screenUid: {…}}
-           *    }
-           * timestamp: 0
-           * totalCount: 2
-           * userId: "xxx"
-           */
-          const items = Object.entries(webResponse.metadata).map(
-            ([key, metadataItem]) => ({
-              key: key,
-              value: metadataItem.value,
-            }),
-          );
-          const nativeResponse: NativeGetUserMetadataResponse = {
-            items: [...items],
-            itemCount: webResponse.totalCount,
-            userId: webResponse.userId,
-            timestamp: webResponse.timestamp,
-          };
-          return nativeResponse;
+        if (!options.userId) {
+          throw new Error('getUserMetadata: userId is required');
         }
+        const webResponse: GetUserMetadataResponse =
+          await this.client.storage.getUserMetadata({
+            userId: options.userId,
+          });
+        /**
+         * majorRevision : 13483783553
+         * metadata :
+         *    {
+         *     isHost: {authorUid: "", revision: 13483783553, updated: 0, value : "true"},
+         *     screenUid: {…}}
+         *    }
+         * timestamp: 0
+         * totalCount: 2
+         * userId: "xxx"
+         */
+        const items = Object.entries(webResponse.metadata).map(
+          ([key, metadataItem]) => ({
+            key: key,
+            value: metadataItem.value,
+          }),
+        );
+        const nativeResponse: NativeGetUserMetadataResponse = {
+          items: [...items],
+          itemCount: webResponse.totalCount,
+          userId: webResponse.userId,
+          timestamp: webResponse.timestamp,
+        };
+        return nativeResponse;
       },
 
       // Add setChannelMetadata if needed
@@ -195,9 +187,10 @@ export class RTMWebClient {
             revision: item.revision || -1, // Default to -1 if not provided
           };
         });
+
         return this.client.storage.setChannelMetadata(
           channelName,
-          'MESSAGE',
+          nativeToWebChannelTypeMapping[channelType] || 'MESSAGE',
           validatedItems,
         );
       },
@@ -207,15 +200,10 @@ export class RTMWebClient {
         channelType: NativeRtmChannelType,
       ) => {
         try {
-          console.log(
-            'BRIDGE supriya getChannelMetadata:',
-            channelName,
-            channelType,
-          );
           const webResponse: GetChannelMetadataResponse =
             await this.client.storage.getChannelMetadata(
               channelName,
-              'MESSAGE',
+              nativeToWebChannelTypeMapping[channelType] || 'MESSAGE',
             );
 
           const items = Object.entries(webResponse.metadata).map(
@@ -247,16 +235,11 @@ export class RTMWebClient {
         channelType: NativeRtmChannelType,
       ) => {
         try {
-          console.log(
-            'BRIDGE supriya presence getOnlineUsers:',
-            channelName,
-            channelType,
-          );
-
           // Call web SDK's presence method
+
           const result = await this.client.presence.getOnlineUsers(
             channelName,
-            'MESSAGE',
+            nativeToWebChannelTypeMapping[channelType] || 'MESSAGE',
           );
           return result;
         } catch (error) {
@@ -265,7 +248,10 @@ export class RTMWebClient {
         }
       },
 
-      whoNow: async (channelName: string) => {
+      whoNow: async (
+        channelName: string,
+        _channelType?: NativeRtmChannelType,
+      ) => {
         return this.client.presence.whoNow(channelName, 'MESSAGE');
       },
 
@@ -280,8 +266,17 @@ export class RTMWebClient {
     listener: (event: any) => void,
   ) {
     if (this.client) {
-      console.log('BRIDGE supriya index add event lister', event);
-      this.eventsMap.set(event, listener as callbackType);
+      // 1. Check if there is already an listener
+      const prevListener = this.eventsMap.get(event);
+      if (
+        prevListener &&
+        typeof this.client.removeEventListener === 'function'
+      ) {
+        // remove that listener
+        this.client.removeEventListener(event, prevListener);
+      }
+      // 2. Set the new listener
+      this.eventsMap.set(event, listener as CallbackType);
     }
   }
 
@@ -289,14 +284,15 @@ export class RTMWebClient {
     event: keyof NativeRTMClientEventMap,
     listener: (event: any) => void,
   ) {
-    if (this.client) {
+    if (this.client && this.eventsMap.has(event)) {
+      // Reset the event handler to default no-op function
+      this.eventsMap.set(event, () => null);
       this.client.removeEventListener(event, listener);
     }
   }
 
   // Core RTM methods - direct delegation to web SDK
   async login(options?: NativeLoginOptions) {
-    console.log('BRIDGE supriya login', options);
     return this.client.login({token: options.token});
   }
 
@@ -312,8 +308,16 @@ export class RTMWebClient {
     return this.client.unsubscribe(channelName);
   }
 
-  async publish(channelName: string, message: string, options?: any) {
-    return this.client.publish(channelName, message, options);
+  async publish(
+    channelName: string,
+    message: string,
+    options?: NativePublishOptions,
+  ) {
+    const webOptions: PublishOptions = {
+      ...options,
+      channelType: nativeToWebChannelTypeMapping[options.channelType],
+    };
+    return this.client.publish(channelName, message, webOptions);
   }
 
   async renewToken(token: string) {
@@ -321,6 +325,12 @@ export class RTMWebClient {
   }
 
   removeAllListeners() {
+    this.eventsMap = new Map<keyof NativeRTMClientEventMap, any>([
+      ['linkState', () => null],
+      ['storage', () => null],
+      ['presence', () => null],
+      ['message', () => null],
+    ]);
     return this.client.removeAllListeners();
   }
 }
@@ -335,7 +345,6 @@ export class RtmConfig {
     userId: string;
     useStringUserId?: boolean;
   }) {
-    console.log('BRIDGE 1 supriya RtmConfig constructor');
     this.appId = config.appId;
     this.userId = config.userId;
     this.useStringUserId = config.useStringUserId;
@@ -343,6 +352,5 @@ export class RtmConfig {
 }
 // Factory function to create RTM client
 export function createAgoraRtmClient(config: RtmConfig): RTMWebClient {
-  console.log('BRIDGE 2 createAgoraRtmClient started');
   return new RTMWebClient(config.appId, config.userId);
 }

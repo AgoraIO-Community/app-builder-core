@@ -74,12 +74,17 @@ class RTMEngine {
 
   private createClientInstance() {
     // RTM v2 client creation is synchronous - returns RTMClient
-    const rtmConfig = new RtmConfig({
-      appId: $config.APP_ID,
-      userId: this.localUID || `user_${Date.now()}`,
-      useStringUserId: true,
-    });
-    this._engine = createAgoraRtmClient(rtmConfig);
+    try {
+      const rtmConfig = new RtmConfig({
+        appId: $config.APP_ID,
+        userId: this.localUID || `user_${Date.now()}`,
+        useStringUserId: true,
+      });
+      this._engine = createAgoraRtmClient(rtmConfig);
+    } catch (error) {
+      console.error('Failed to create RTM client instance:', error);
+      throw error;
+    }
   }
 
   private ensureEngineReady() {
@@ -92,24 +97,31 @@ class RTMEngine {
 
   private async destroyClientInstance() {
     if (this._engine) {
-      await this._engine.logout();
-      if (isIOS() || isAndroid()) {
-        this._engine.release();
+      try {
+        await this._engine.logout();
+        if (isIOS() || isAndroid()) {
+          // @ts-ignore - release method may not exist on web client
+          this._engine?.release();
+        }
+      } catch (error) {
+        console.error('Error during client instance destruction:', error);
+        // Continue with cleanup even if logout/release fails
       }
-      this._engine = null;
     }
   }
 
   async destroy() {
     try {
       await this.destroyClientInstance();
+      this._engine = null!;
       if (isIOS() || isAndroid()) {
         RTMEngine._instance = null;
       }
       this.localUID = '';
       this.channelId = '';
     } catch (error) {
-      console.log('Error destroying instance error: ', error);
+      console.error('Error destroying RTM instance:', error);
+      throw error; // Re-throw to let caller handle
     }
   }
 }

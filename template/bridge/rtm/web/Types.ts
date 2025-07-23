@@ -1,3 +1,5 @@
+import {ChannelType as WebChannelType} from 'agora-rtm-sdk';
+
 export interface AttributesMap {
   [key: string]: string;
 }
@@ -14,11 +16,17 @@ export interface ChannelAttributeOptions {
 
 // Map text to numbers
 
-export const channelTypeMapping: {[key: string]: number} = {
+export const webToNativechannelTypeMapping: {[key: string]: number} = {
   NONE: 0,
   MESSAGE: 1,
   STREAM: 2,
   USER: 3,
+};
+
+export const nativeToWebChannelTypeMapping: {[key: string]: WebChannelType} = {
+  1: 'MESSAGE',
+  2: 'STREAM',
+  3: 'USER',
 };
 
 export const linkStatusStateMapping: {[key: string]: number} = {
