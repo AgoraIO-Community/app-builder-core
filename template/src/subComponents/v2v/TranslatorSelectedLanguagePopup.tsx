@@ -250,16 +250,27 @@ const TranslatorSelectedLanguagePopup: React.FC<
 
   // For Rime (if you want similar logic, add here)
 
-  // Reset voice selection when model changes
+  // Auto-select appropriate voice when model or target language changes
   React.useEffect(() => {
-    if (rimeSelectedModel && rimeSelectedVoice) {
-      const availableVoices = getRimeVoicesByModel(rimeSelectedModel);
-      const isVoiceAvailable = availableVoices.some(v => v.value === rimeSelectedVoice);
-      if (!isVoiceAvailable) {
+    if (rimeSelectedModel) {
+      const availableVoices = getRimeVoicesByModel(
+        rimeSelectedModel,
+        rimeSelectedModel === 'mistv2' ? targetLang : undefined
+      );
+      
+      // Always ensure we have a valid voice selection
+      if (availableVoices.length > 0) {
+        // If no voice selected or current voice not available, select first
+        if (!rimeSelectedVoice || !availableVoices.some(v => v.value === rimeSelectedVoice)) {
+          setRimeSelectedVoice(availableVoices[0].value);
+        }
+      } else {
         setRimeSelectedVoice('');
       }
+    } else {
+      setRimeSelectedVoice('');
     }
-  }, [rimeSelectedModel, rimeSelectedVoice, setRimeSelectedVoice]);
+  }, [rimeSelectedModel, targetLang, setRimeSelectedVoice]); // Remove rimeSelectedVoice from deps to avoid infinite loop
 
   React.useEffect(() => {
     if (elevenLabsSelectedModel && elevenLabsSelectedVoice) {
@@ -430,7 +441,10 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 }
                 data={
                   rimeSelectedModel
-                    ? getRimeVoicesByModel(rimeSelectedModel).map(v => ({
+                    ? getRimeVoicesByModel(
+                        rimeSelectedModel,
+                        rimeSelectedModel === 'mistv2' ? targetLang : undefined
+                      ).map(v => ({
                         label: v.name,
                         value: v.value,
                       }))
