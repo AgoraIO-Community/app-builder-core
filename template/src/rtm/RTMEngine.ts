@@ -144,14 +144,12 @@ class RTMEngine {
             // Continue with cleanup even if unsubscribe fails
           }
         }
-
         // 2. Remove all listeners
         try {
           this._engine.removeAllListeners?.();
         } catch (error) {
           console.warn('Failed to remove listeners:', error);
         }
-
         // 3. Logout
         try {
           await this._engine.logout();
