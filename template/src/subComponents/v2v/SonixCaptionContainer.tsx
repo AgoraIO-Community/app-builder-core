@@ -233,10 +233,10 @@ const SonixCaptionContainer = () => {
           // Safely extract both source and target language texts
           const srcObj = textData[sourceLang] || {};
           const tgtObj = textData[targetLang] || {};
-          const srcText = srcObj.final_text?.trim() || '';
-          const srcNonFinal = srcObj.non_final_text?.trim() || '';
-          const tgtText = tgtObj.final_text?.trim() || '';
-          const tgtNonFinal = tgtObj.non_final_text?.trim() || '';
+          const srcText = (srcObj.final_text || '').replace(/<end>/g, ' ');
+          const srcNonFinal = srcObj.non_final_text || '';
+          const tgtText = (tgtObj.final_text || '').replace(/<end>/g, ' ');
+          const tgtNonFinal = tgtObj.non_final_text || '';
           const uid = textData.user_id;
           const key = getActiveCaptionKey(uid, sourceLang, targetLang);
 
@@ -287,8 +287,8 @@ const SonixCaptionContainer = () => {
                   ...prev.slice(0, -1),
                   {
                     ...last,
-                    srcText: `${last.srcText || ''} ${srcText}`.trim(),
-                    tgtText: `${last.tgtText || ''} ${tgtText}`.trim(),
+                    srcText: `${last.srcText || ''}${srcText}`,
+                    tgtText: `${last.tgtText || ''}${tgtText}`,
                     time: Date.now(),
                     sourceLang,
                     targetLang,
