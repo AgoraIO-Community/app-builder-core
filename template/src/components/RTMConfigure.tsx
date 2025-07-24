@@ -108,18 +108,18 @@ const RtmConfigure = (props: any) => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
 
-  // TODO Eventdispatcher timeout refs clean
-  // const isRTMMounted = useRef(true);
-  // useEffect(() => {
-  //   return () => {
-  //     isRTMMounted.current = false;
-  //     // Clear all pending timeouts on unmount
-  //     for (const timeout of eventTimeouts.values()) {
-  //       clearTimeout(timeout);
-  //     }
-  //     eventTimeouts.clear();
-  //   };
-  // }, []);
+  // Eventdispatcher timeout refs clean
+  const isRTMMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      isRTMMounted.current = false;
+      // Clear all pending timeouts on unmount
+      for (const timeout of eventTimeouts.values()) {
+        clearTimeout(timeout);
+      }
+      eventTimeouts.clear();
+    };
+  }, []);
 
   // Set online users
   React.useEffect(() => {
@@ -938,29 +938,27 @@ const RtmConfigure = (props: any) => {
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
       if (evt === 'name') {
-        EventUtils.emitEvent(evt, source, {
-          payload,
-          persistLevel,
-          sender,
-          ts,
-        });
-        // TODO
-        // if (eventTimeouts.has(sender)) {
-        //   clearTimeout(eventTimeouts.get(sender)!);
-        // }
-        // const timeout = setTimeout(() => {
-        //   if (!isRTMMounted.current) {
-        //     return;
-        //   }
-        //   EventUtils.emitEvent(evt, source, {
-        //     payload,
-        //     persistLevel,
-        //     sender,
-        //     ts,
-        //   });
-        //   eventTimeouts.delete(sender);
-        // }, 200);
-        // eventTimeouts.set(sender, timeout);
+        // 1. Cancel existing timeout for this sender
+        if (eventTimeouts.has(sender)) {
+          clearTimeout(eventTimeouts.get(sender)!);
+        }
+        // 2. Create new timeout with tracking
+        const timeout = setTimeout(() => {
+          // 3. Guard against unmounted component
+          if (!isRTMMounted.current) {
+            return;
+          }
+          EventUtils.emitEvent(evt, source, {
+            payload,
+            persistLevel,
+            sender,
+            ts,
+          });
+          // 4. Clean up after execution
+          eventTimeouts.delete(sender);
+        }, 200);
+        // 5. Track the timeout for cleanup
+        eventTimeouts.set(sender, timeout);
       }
     } catch (error) {
       console.error(
