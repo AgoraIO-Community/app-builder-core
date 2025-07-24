@@ -11,9 +11,9 @@ export function formatTime(timestamp: number): string {
 export type LanguageType =
   | 'en' // English
   | 'fr' // French
-  | 'ja' // Japanese
   | 'es' // Spanish
   | 'de' // German
+  | 'ja' // Japanese (for ElevenLabs only)
   | 'zh' // Chinese
   | 'hi' // Hindi
   | 'ko' // Korean
@@ -54,7 +54,6 @@ export const rimeLangData: LanguageData[] = [
   {label: 'English', value: 'en'},
   {label: 'French', value: 'fr'},
   {label: 'German', value: 'de'},
-  {label: 'Japanese', value: 'ja'},
   {label: 'Spanish', value: 'es'},
 ];
 
@@ -230,79 +229,105 @@ export const rimeArcanaVoices: VoiceOption[] = [
   },
 ];
 
-//mistv2 voices
+//mistv2 voices by language
+export const rimeMistv2VoicesByLanguage = {
+  en: [
+    {
+      name: 'Amber (Conversational)',
+      description: 'Conversational',
+      value: 'amber',
+    },
+    {
+      name: 'Allison (General)',
+      description: 'General',
+      value: 'allison',
+    },
+    {
+      name: 'Ana (Conversational)',
+      description: 'Conversational',
+      value: 'ana',
+    },
+    {
+      name: 'Brittany (Conversational)',
+      description: 'Conversational',
+      value: 'brittany',
+    },
+    {
+      name: 'Elena (Conversational)',
+      description: 'Conversational',
+      value: 'elena',
+    },
+  ],
+  es: [
+    {
+      name: 'Isa (General)',
+      description: 'General',
+      value: 'isa',
+    },
+    {
+      name: 'Mari (General)',
+      description: 'General',
+      value: 'mari',
+    },
+    {
+      name: 'Pablo (General)',
+      description: 'General',
+      value: 'pablo',
+    },
+  ],
+  de: [
+    {
+      name: 'Amalia (IVR)',
+      description: 'IVR',
+      value: 'amalia',
+    },
+    {
+      name: 'Frieda (IVR)',
+      description: 'IVR',
+      value: 'frieda',
+    },
+    {
+      name: 'Karolina (IVR)',
+      description: 'IVR',
+      value: 'karolina',
+    },
+    {
+      name: 'Klaus (IVR)',
+      description: 'IVR',
+      value: 'klaus',
+    },
+  ],
+  fr: [
+    {
+      name: 'Alois (IVR)',
+      description: 'IVR',
+      value: 'alois',
+    },
+    {
+      name: 'Juliette (IVR)',
+      description: 'IVR',
+      value: 'juliette',
+    },
+    {
+      name: 'Marguerite (IVR)',
+      description: 'IVR',
+      value: 'marguerite',
+    },
+  ],
+};
+
+// Helper function to get voices for a specific language
+export const getRimeMistv2VoicesForLanguage = (language: string): VoiceOption[] => {
+  const voices = rimeMistv2VoicesByLanguage[language as keyof typeof rimeMistv2VoicesByLanguage];
+  return voices || rimeMistv2VoicesByLanguage.en; // Default to English if language not found
+};
+
+// Legacy export for backward compatibility
 export const rimeMistv2Voices: VoiceOption[] = [
-  {
-    name: 'Cove (empathetic, friendly)',
-    description: 'empathetic, friendly',
-    value: 'cove',
-  },
-  {
-    name: 'Marsh (confident, professional)',
-    description: 'confident, professional',
-    value: 'marsh',
-  },
-  {
-    name: 'Bayou (friendly, nerdy)',
-    description: 'friendly, nerdy',
-    value: 'bayou',
-  },
-  {
-    name: 'Creek (deep, professional)',
-    description: 'deep, professional',
-    value: 'creek',
-  },
-  {
-    name: 'Brook (confident, soothing)',
-    description: 'confident, soothing',
-    value: 'brook',
-  },
-  {
-    name: 'Flower (confident, professional)',
-    description: 'confident, professional',
-    value: 'flower',
-  },
-  {
-    name: 'Spore (analytical, professional)',
-    description: 'analytical, professional',
-    value: 'spore',
-  },
-  {
-    name: 'Glacier (professional, smart)',
-    description: 'professional, smart',
-    value: 'glacier',
-  },
-  {
-    name: 'Gulch (confident, serious)',
-    description: 'confident, serious',
-    value: 'gulch',
-  },
-  {name: 'Alpine (friendly)', description: 'friendly', value: 'alpine'},
-  {
-    name: 'Klaus (direct, helpful)',
-    description: 'direct, helpful',
-    value: 'klaus',
-  },
-  {
-    name: 'Frieda (smart, professional)',
-    description: 'smart, professional',
-    value: 'frieda',
-  },
-  {
-    name: 'Karolina (wry, no-nonsense)',
-    description: 'wry, no-nonsense',
-    value: 'karolina',
-  },
-  {
-    name: 'Amalia (lilting, friendly)',
-    description: 'lilting, friendly',
-    value: 'amalia',
-  },
-  {
-    name: 'Karst (youthful, friendly)',
-    description: 'youthful, friendly',
-    value: 'karst',
-  },
+  ...rimeMistv2VoicesByLanguage.en,
+  ...rimeMistv2VoicesByLanguage.es,
+  ...rimeMistv2VoicesByLanguage.de,
+  ...rimeMistv2VoicesByLanguage.fr,
 ];
 
 export const elevenLabsVoices: VoiceOption[] = [
@@ -411,10 +436,13 @@ export const elevenLabsModelOptions = [
 //  (defaults to mistv2)
 export const rimeVoices = rimeMistv2Voices;
 
-// Function to get voices based on model
-export function getRimeVoicesByModel(model: RimeModelType): VoiceOption[] {
+// Function to get voices based on model and optional language
+export function getRimeVoicesByModel(model: RimeModelType, language?: string): VoiceOption[] {
   switch (model) {
     case 'mistv2':
+      if (language) {
+        return getRimeMistv2VoicesForLanguage(language);
+      }
       return rimeMistv2Voices;
     case 'arcana':
       return rimeArcanaVoices;
@@ -424,8 +452,9 @@ export function getRimeVoicesByModel(model: RimeModelType): VoiceOption[] {
 }
 
 export function getElevenLabsVoicesByModel(
-  model: ElevenLabsModelType,
+  _model?: ElevenLabsModelType,
 ): VoiceOption[] {
+  // Currently all ElevenLabs models use the same voice set
   return elevenLabsVoices;
 }
 
