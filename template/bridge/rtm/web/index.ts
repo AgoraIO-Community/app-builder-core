@@ -95,7 +95,13 @@ export class RTMWebClient {
         (this.eventsMap.get('message') ?? (() => {}))(nativeMessageEvent);
       });
     } catch (error) {
-      throw error;
+      const contextError = new Error(
+        `Failed to create RTMWebClient for appId: ${this.appId}, userId: ${
+          this.userId
+        }. Error: ${error.message || error}`,
+      );
+      console.error('RTMWebClient constructor error:', contextError);
+      throw contextError;
     }
   }
 
@@ -106,9 +112,17 @@ export class RTMWebClient {
         data: NativeMetadata,
         options?: NativeSetOrUpdateUserMetadataOptions,
       ): Promise<SetUserMetadataResponse> => {
-        // 1. Validate that all items have required 'key' property
+        // 1. Validate input parameters
+        if (!data) {
+          throw new Error('setUserMetadata: data parameter is required');
+        }
         if (!data.items || !Array.isArray(data.items)) {
-          throw new Error('setUserMetadata: data.items must be an array');
+          throw new Error(
+            'setUserMetadata: data.items must be a non-empty array',
+          );
+        }
+        if (data.items.length === 0) {
+          throw new Error('setUserMetadata: data.items cannot be empty');
         }
         // 2. Make sure key is present as this is mandatory
         // https://docs.agora.io/en/signaling/reference/api?platform=web#storagesetuserpropsag_platform
@@ -129,9 +143,18 @@ export class RTMWebClient {
       },
 
       getUserMetadata: async (options: NativeGetUserMetadataOptions) => {
-        // If no userId provided, use current user TODO
-        if (!options.userId) {
-          throw new Error('getUserMetadata: userId is required');
+        // Validate input parameters
+        if (!options) {
+          throw new Error('getUserMetadata: options parameter is required');
+        }
+        if (
+          !options.userId ||
+          typeof options.userId !== 'string' ||
+          options.userId.trim() === ''
+        ) {
+          throw new Error(
+            'getUserMetadata: options.userId must be a non-empty string',
+          );
         }
         const webResponse: GetUserMetadataResponse =
           await this.client.storage.getUserMetadata({
@@ -170,8 +193,27 @@ export class RTMWebClient {
         data: NativeMetadata,
         _options?: NativeIMetadataOptions,
       ) => {
+        // Validate input parameters
+        if (
+          !channelName ||
+          typeof channelName !== 'string' ||
+          channelName.trim() === ''
+        ) {
+          throw new Error(
+            'setChannelMetadata: channelName must be a non-empty string',
+          );
+        }
+        if (typeof channelType !== 'number') {
+          throw new Error('setChannelMetadata: channelType must be a number');
+        }
+        if (!data) {
+          throw new Error('setChannelMetadata: data parameter is required');
+        }
         if (!data.items || !Array.isArray(data.items)) {
           throw new Error('setChannelMetadata: data.items must be an array');
+        }
+        if (data.items.length === 0) {
+          throw new Error('setChannelMetadata: data.items cannot be empty');
         }
         // 2. Make sure key is present as this is mandatory
         // https://docs.agora.io/en/signaling/reference/api?platform=web#storagesetuserpropsag_platform
@@ -221,8 +263,13 @@ export class RTMWebClient {
           };
           return nativeResponse;
         } catch (error) {
-          console.error('BRIDGE getChannelMetadata error:', error);
-          throw error;
+          const contextError = new Error(
+            `Failed to get channel metadata for channel '${channelName}' with type ${channelType}: ${
+              error.message || error
+            }`,
+          );
+          console.error('BRIDGE getChannelMetadata error:', contextError);
+          throw contextError;
         }
       },
     };
@@ -234,6 +281,20 @@ export class RTMWebClient {
         channelName: string,
         channelType: NativeRtmChannelType,
       ) => {
+        // Validate input parameters
+        if (
+          !channelName ||
+          typeof channelName !== 'string' ||
+          channelName.trim() === ''
+        ) {
+          throw new Error(
+            'getOnlineUsers: channelName must be a non-empty string',
+          );
+        }
+        if (typeof channelType !== 'number') {
+          throw new Error('getOnlineUsers: channelType must be a number');
+        }
+
         try {
           // Call web SDK's presence method
 
@@ -243,16 +304,24 @@ export class RTMWebClient {
           );
           return result;
         } catch (error) {
-          console.error('BRIDGE presence error:', error);
-          throw error;
+          const contextError = new Error(
+            `Failed to get online users for channel '${channelName}' with type ${channelType}: ${
+              error.message || error
+            }`,
+          );
+          console.error('BRIDGE presence error:', contextError);
+          throw contextError;
         }
       },
 
       whoNow: async (
         channelName: string,
-        _channelType?: NativeRtmChannelType,
+        channelType?: NativeRtmChannelType,
       ) => {
-        return this.client.presence.whoNow(channelName, 'MESSAGE');
+        const webChannelType = channelType
+          ? nativeToWebChannelTypeMapping[channelType] || 'MESSAGE'
+          : 'MESSAGE';
+        return this.client.presence.whoNow(channelName, webChannelType);
       },
 
       whereNow: async (userId: string) => {
@@ -266,16 +335,7 @@ export class RTMWebClient {
     listener: (event: any) => void,
   ) {
     if (this.client) {
-      // 1. Check if there is already an listener
-      const prevListener = this.eventsMap.get(event);
-      if (
-        prevListener &&
-        typeof this.client.removeEventListener === 'function'
-      ) {
-        // remove that listener
-        this.client.removeEventListener(event, prevListener);
-      }
-      // 2. Set the new listener
+      // Simply replace the handler in our map - web client listeners are fixed in constructor
       this.eventsMap.set(event, listener as CallbackType);
     }
   }
@@ -295,6 +355,9 @@ export class RTMWebClient {
 
   // Core RTM methods - direct delegation to web SDK
   async login(options?: NativeLoginOptions) {
+    if (!options?.token) {
+      throw new Error('login: token is required in options');
+    }
     return this.client.login({token: options.token});
   }
 
@@ -303,6 +366,13 @@ export class RTMWebClient {
   }
 
   async subscribe(channelName: string, options?: NativeSubscribeOptions) {
+    if (
+      !channelName ||
+      typeof channelName !== 'string' ||
+      channelName.trim() === ''
+    ) {
+      throw new Error('subscribe: channelName must be a non-empty string');
+    }
     return this.client.subscribe(channelName, options);
   }
 
@@ -315,10 +385,22 @@ export class RTMWebClient {
     message: string,
     options?: NativePublishOptions,
   ) {
+    // Validate input parameters
+    if (
+      !channelName ||
+      typeof channelName !== 'string' ||
+      channelName.trim() === ''
+    ) {
+      throw new Error('publish: channelName must be a non-empty string');
+    }
+    if (typeof message !== 'string') {
+      throw new Error('publish: message must be a string');
+    }
+
     const webOptions: PublishOptions = {
       ...options,
       channelType:
-        nativeToWebChannelTypeMapping[options.channelType] || 'MESSAGE',
+        nativeToWebChannelTypeMapping[options?.channelType] || 'MESSAGE',
     };
     return this.client.publish(channelName, message, webOptions);
   }

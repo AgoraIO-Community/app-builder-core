@@ -81,6 +81,8 @@ const RtmConfigure = (props: any) => {
   const [isInitialQueueCompleted, setIsInitialQueueCompleted] = useState(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
   const timerValueRef: any = useRef(5);
+  // Track RTM connection state (equivalent to v1.5x connectionState check)
+  const [rtmConnectionState, setRtmConnectionState] = useState<number>(0); // 0=IDLE, 2=CONNECTED
 
   /**
    * inside event callback state won't have latest value.
@@ -106,18 +108,18 @@ const RtmConfigure = (props: any) => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
 
-  // Eventdispatcher timeout refs clean
-  const isRTMMounted = useRef(true);
-  useEffect(() => {
-    return () => {
-      isRTMMounted.current = false;
-      // Clear all pending timeouts on unmount
-      for (const timeout of eventTimeouts.values()) {
-        clearTimeout(timeout);
-      }
-      eventTimeouts.clear();
-    };
-  }, []);
+  // TODO Eventdispatcher timeout refs clean
+  // const isRTMMounted = useRef(true);
+  // useEffect(() => {
+  //   return () => {
+  //     isRTMMounted.current = false;
+  //     // Clear all pending timeouts on unmount
+  //     for (const timeout of eventTimeouts.values()) {
+  //       clearTimeout(timeout);
+  //     }
+  //     eventTimeouts.clear();
+  //   };
+  // }, []);
 
   // Set online users
   React.useEffect(() => {
@@ -141,7 +143,16 @@ const RtmConfigure = (props: any) => {
         return (ev.returnValue = 'Are you sure you want to exit?');
       };
       const logoutRtm = () => {
-        engine.current.logout();
+        try {
+          if (engine.current && RTMEngine.getInstance().channelUid) {
+            // First unsubscribe from channel (like v1.5x leaveChannel)
+            engine.current.unsubscribe(RTMEngine.getInstance().channelUid);
+            // Then logout
+            engine.current.logout();
+          }
+        } catch (error) {
+          console.error('Error during browser close RTM cleanup:', error);
+        }
       };
       // Set up window listeners
       if (isWeb() && !isSDK()) {
@@ -166,13 +177,34 @@ const RtmConfigure = (props: any) => {
     //on sdk due to multiple re-render we are getting rtm error code 8
     //you are joining the same channel too frequently, exceeding the allowed rate of joining the same channel multiple times within a short period
     //so checking rtm connection state before proceed
-    // TODO if check if client is already connected
-    logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
-    if (!RTMEngine.getInstance().isEngineReady) {
-      RTMEngine.getInstance().setLocalUID(rtcUid);
-      logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set');
+
+    // Check if already connected (equivalent to v1.5x connectionState === 'CONNECTED')
+    if (rtmConnectionState === 2 && RTMEngine.getInstance().isEngineReady) {
+      logger.log(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM already connected, skipping initialization',
+      );
+      return;
     }
-    engine.current = RTMEngine.getInstance().engine;
+
+    logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
+
+    try {
+      if (!RTMEngine.getInstance().isEngineReady) {
+        RTMEngine.getInstance().setLocalUID(rtcUid);
+        logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set');
+      }
+      engine.current = RTMEngine.getInstance().engine;
+    } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM engine initialization failed:',
+        error,
+      );
+      throw error;
+    }
     // engine.current = createAgoraRtmClient(
     //   new RtmConfig({
     //     userId: uid,
@@ -185,6 +217,26 @@ const RtmConfigure = (props: any) => {
     engine.current.addEventListener(
       'linkState',
       async (data: LinkStateEvent) => {
+        // Update connection state for duplicate initialization prevention
+        setRtmConnectionState(data.currentState);
+
+        // Log connection state changes (equivalent to v1.5x connectionStateChanged)
+        logger.log(
+          LogSource.AgoraSDK,
+          'Event',
+          `RTM linkState changed: ${data.previousState} -> ${data.currentState}`,
+          data,
+        );
+
+        // Handle connection errors (equivalent to v1.5x error events)
+        if (data.currentState === 5) {
+          // FAILED state
+          logger.error(LogSource.AgoraSDK, 'Event', 'RTM connection failed', {
+            reasonCode: data.reasonCode,
+            currentState: data.currentState,
+          });
+        }
+
         if (data.currentState === 2) {
           try {
             logger.log(
@@ -207,30 +259,54 @@ const RtmConfigure = (props: any) => {
     );
 
     engine.current.addEventListener('storage', (storage: StorageEvent) => {
-      // remote user update metadata - 3
-      if (storage.eventType === 3) {
+      // when remote user sets/updates metadata - 3
+      if (storage.eventType === 2 || storage.eventType === 3) {
+        const storageTypeStr = storage.storageType === 1 ? 'user' : 'channel';
+        const eventTypeStr = storage.eventType === 2 ? 'SET' : 'UPDATE';
         logger.log(
           LogSource.AgoraSDK,
           'Event',
-          'storageEvent of type [3 - update user metadata] (channelAttributesUpdated)',
+          `storageEvent of type [${storage.eventType} - ${eventTypeStr} ${storageTypeStr} metadata]`,
           storage,
         );
         try {
-          storage.data.items.map(item => {
-            const {key, value, authorUserId, updateTs} = item;
-            const timestamp = getMessageTime(updateTs);
-            const sender = Platform.OS
-              ? get32BitUid(authorUserId)
-              : parseInt(authorUserId, 10);
-            eventDispatcher(
-              {
-                evt: key,
-                value,
-              },
-              `${sender}`,
-              timestamp,
-            );
-          });
+          if (storage.data?.items && Array.isArray(storage.data.items)) {
+            storage.data.items.forEach(item => {
+              try {
+                if (!item || !item.key) {
+                  logger.warn(
+                    LogSource.Events,
+                    'CUSTOM_EVENTS',
+                    'Invalid storage item:',
+                    item,
+                  );
+                  return;
+                }
+
+                const {key, value, authorUserId, updateTs} = item;
+                const timestamp = getMessageTime(updateTs);
+                const sender = Platform.OS
+                  ? get32BitUid(authorUserId)
+                  : parseInt(authorUserId, 10);
+                eventDispatcher(
+                  {
+                    evt: key,
+                    value,
+                  },
+                  `${sender}`,
+                  timestamp,
+                );
+              } catch (error) {
+                logger.error(
+                  LogSource.Events,
+                  'CUSTOM_EVENTS',
+                  `Failed to process storage item: ${JSON.stringify(item)}`,
+                  error,
+                );
+                // Continue processing other items
+              }
+            });
+          }
         } catch (error) {
           logger.error(
             LogSource.Events,
@@ -373,7 +449,7 @@ const RtmConfigure = (props: any) => {
             LogSource.Events,
             'CUSTOM_EVENTS',
             'error while dispatching through eventDispatcher',
-            err,
+            error,
           );
         }
       }
@@ -385,7 +461,7 @@ const RtmConfigure = (props: any) => {
   const doLoginAndSetupRTM = async () => {
     try {
       logger.log(LogSource.AgoraSDK, 'API', 'RTM login starts');
-      engine.current.login({
+      await engine.current.login({
         // @ts-ignore
         token: rtcProps.rtm,
       });
@@ -395,7 +471,8 @@ const RtmConfigure = (props: any) => {
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM login failed..Trying again');
       setTimeout(async () => {
-        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        timerValueRef.current = Math.min(timerValueRef.current * 2, 30);
         doLoginAndSetupRTM();
       }, timerValueRef.current * 1000);
     }
@@ -443,7 +520,8 @@ const RtmConfigure = (props: any) => {
         'RTM setAttribute failed..Trying again',
       );
       setTimeout(async () => {
-        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        timerValueRef.current = Math.min(timerValueRef.current * 2, 30);
         setAttribute();
       }, timerValueRef.current * 1000);
     }
@@ -459,13 +537,6 @@ const RtmConfigure = (props: any) => {
           rtcProps.channel,
         );
       } else {
-        RTMEngine.getInstance().setChannelId(rtcProps.channel);
-        logger.log(
-          LogSource.AgoraSDK,
-          'API',
-          'RTM setChannelId',
-          rtcProps.channel,
-        );
         await engine.current.subscribe(rtcProps.channel, {
           withMessage: true,
           withPresence: true,
@@ -475,6 +546,15 @@ const RtmConfigure = (props: any) => {
         logger.log(LogSource.AgoraSDK, 'API', 'RTM subscribeChannel', {
           data: rtcProps.channel,
         });
+
+        // Set channel ID AFTER successful subscribe (like v1.5x)
+        RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        logger.log(
+          LogSource.AgoraSDK,
+          'API',
+          'RTM setChannelId',
+          rtcProps.channel,
+        );
 
         logger.debug(
           LogSource.SDK,
@@ -500,7 +580,8 @@ const RtmConfigure = (props: any) => {
         'RTM subscribeChannel failed..Trying again',
       );
       setTimeout(async () => {
-        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        timerValueRef.current = Math.min(timerValueRef.current * 2, 30);
         subscribeChannel();
       }, timerValueRef.current * 1000);
     }
@@ -536,17 +617,29 @@ const RtmConfigure = (props: any) => {
                 // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
                 // isActive to identify all active screenshare users in the call
                 backoffAttributes?.items?.forEach(item => {
-                  if (hasJsonStructure(item.value as string)) {
-                    const data = {
-                      evt: item.key, // Use item.key instead of key
-                      value: item.value, // Use item.value instead of value
-                    };
-                    // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
-                    EventsQueue.enqueue({
-                      data: data,
-                      uid: member.userId,
-                      ts: timeNow(),
-                    });
+                  try {
+                    if (hasJsonStructure(item.value as string)) {
+                      const data = {
+                        evt: item.key, // Use item.key instead of key
+                        value: item.value, // Use item.value instead of value
+                      };
+                      // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+                      EventsQueue.enqueue({
+                        data: data,
+                        uid: member.userId,
+                        ts: timeNow(),
+                      });
+                    }
+                  } catch (error) {
+                    logger.error(
+                      LogSource.AgoraSDK,
+                      'Log',
+                      `Failed to process user attribute item for ${
+                        member.userId
+                      }: ${JSON.stringify(item)}`,
+                      error,
+                    );
+                    // Continue processing other items
                   }
                 });
               } catch (e) {
@@ -568,7 +661,8 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
     } catch (error) {
       setTimeout(async () => {
-        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        timerValueRef.current = Math.min(timerValueRef.current * 2, 30);
         await getMembers();
       }, timerValueRef.current * 1000);
     }
@@ -580,18 +674,30 @@ const RtmConfigure = (props: any) => {
         .getChannelMetadata(rtcProps.channel, 1)
         .then(async (data: GetChannelMetadataResponse) => {
           for (const item of data.items) {
-            const {key, value, authorUserId, updateTs} = item;
-            if (hasJsonStructure(value as string)) {
-              const evtData = {
-                evt: key,
-                value,
-              };
-              // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
-              EventsQueue.enqueue({
-                data: evtData,
-                uid: authorUserId,
-                ts: updateTs,
-              });
+            try {
+              const {key, value, authorUserId, updateTs} = item;
+              if (hasJsonStructure(value as string)) {
+                const evtData = {
+                  evt: key,
+                  value,
+                };
+                // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+                EventsQueue.enqueue({
+                  data: evtData,
+                  uid: authorUserId,
+                  ts: updateTs,
+                });
+              }
+            } catch (error) {
+              logger.error(
+                LogSource.AgoraSDK,
+                'Log',
+                `Failed to process channel attribute item: ${JSON.stringify(
+                  item,
+                )}`,
+                error,
+              );
+              // Continue processing other items
             }
           }
           logger.log(
@@ -604,7 +710,8 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
     } catch (error) {
       setTimeout(async () => {
-        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        timerValueRef.current = Math.min(timerValueRef.current * 2, 30);
         await readAllChannelAttributes();
       }, timerValueRef.current * 1000);
     }
@@ -831,22 +938,29 @@ const RtmConfigure = (props: any) => {
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
       if (evt === 'name') {
-        if (eventTimeouts.has(sender)) {
-          clearTimeout(eventTimeouts.get(sender)!);
-        }
-        const timeout = setTimeout(() => {
-          if (!isRTMMounted.current) {
-            return;
-          }
-          EventUtils.emitEvent(evt, source, {
-            payload,
-            persistLevel,
-            sender,
-            ts,
-          });
-          eventTimeouts.delete(sender);
-        }, 200);
-        eventTimeouts.set(sender, timeout);
+        EventUtils.emitEvent(evt, source, {
+          payload,
+          persistLevel,
+          sender,
+          ts,
+        });
+        // TODO
+        // if (eventTimeouts.has(sender)) {
+        //   clearTimeout(eventTimeouts.get(sender)!);
+        // }
+        // const timeout = setTimeout(() => {
+        //   if (!isRTMMounted.current) {
+        //     return;
+        //   }
+        //   EventUtils.emitEvent(evt, source, {
+        //     payload,
+        //     persistLevel,
+        //     sender,
+        //     ts,
+        //   });
+        //   eventTimeouts.delete(sender);
+        // }, 200);
+        // eventTimeouts.set(sender, timeout);
       }
     } catch (error) {
       console.error(

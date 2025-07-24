@@ -40,14 +40,41 @@ class RTMEngine {
     return RTMEngine._instance;
   }
 
-  setLocalUID(localUID: number) {
-    this.localUID = String(localUID);
-    if (!this._engine && this.localUID.trim() !== '') {
+  setLocalUID(localUID: string | number) {
+    if (localUID === null || localUID === undefined) {
+      throw new Error('setLocalUID: localUID cannot be null or undefined');
+    }
+
+    const newUID = String(localUID);
+    if (newUID.trim() === '') {
+      throw new Error(
+        'setLocalUID: localUID cannot be empty after string conversion',
+      );
+    }
+
+    // If UID is changing and we have an existing engine, throw error
+    if (this._engine && this.localUID !== newUID) {
+      throw new Error(
+        `RTMEngine: Cannot change UID from '${this.localUID}' to '${newUID}' while engine is active. ` +
+          `Please call destroy() first, then setLocalUID() with the new UID.`,
+      );
+    }
+
+    this.localUID = newUID;
+
+    if (!this._engine) {
       this.createClientInstance();
     }
   }
 
   setChannelId(channelID: string) {
+    if (
+      !channelID ||
+      typeof channelID !== 'string' ||
+      channelID.trim() === ''
+    ) {
+      throw new Error('setChannelId: channelID must be a non-empty string');
+    }
     this.channelId = channelID;
   }
 
@@ -71,37 +98,70 @@ class RTMEngine {
   private ensureEngineReady() {
     if (!this.isEngineReady) {
       throw new Error(
-        'RTM Engine not ready. Please call setLocalUID() or setLoginInfo() with a valid UID first.',
+        'RTM Engine not ready. Please call setLocalUID() with a valid UID first.',
       );
     }
   }
 
   private createClientInstance() {
     try {
+      if (!this.localUID || this.localUID.trim() === '') {
+        throw new Error('Cannot create RTM client: localUID is not set');
+      }
+      if (!$config.APP_ID) {
+        throw new Error('Cannot create RTM client: APP_ID is not configured');
+      }
+
       const rtmConfig = new RtmConfig({
         appId: $config.APP_ID,
-        userId: this.localUID || `user_${Date.now()}`,
+        userId: this.localUID,
         useStringUserId: true,
       });
       this._engine = createAgoraRtmClient(rtmConfig);
     } catch (error) {
-      console.error('Failed to create RTM client instance:', error);
-      throw error;
+      const contextError = new Error(
+        `Failed to create RTM client instance for userId: ${
+          this.localUID
+        }, appId: ${$config.APP_ID}. Error: ${error.message || error}`,
+      );
+      console.error('RTMEngine createClientInstance error:', contextError);
+      throw contextError;
     }
   }
 
   private async destroyClientInstance() {
     try {
-      if (this._engine && this.channelId) {
-        // 1. Unsubscribe from channel
-        await this._engine.unsubscribe(this.channelId);
+      if (this._engine) {
+        // 1. Unsubscribe from channel if we have one
+        if (this.channelId) {
+          try {
+            await this._engine.unsubscribe(this.channelId);
+          } catch (error) {
+            console.warn(
+              `Failed to unsubscribe from channel '${this.channelId}':`,
+              error,
+            );
+            // Continue with cleanup even if unsubscribe fails
+          }
+        }
+
         // 2. Remove all listeners
-        this._engine.removeAllListeners?.();
-        // 3. logout
-        await this._engine.logout();
+        try {
+          this._engine.removeAllListeners?.();
+        } catch (error) {
+          console.warn('Failed to remove listeners:', error);
+        }
+
+        // 3. Logout
+        try {
+          await this._engine.logout();
+        } catch (error) {
+          console.warn('Failed to logout:', error);
+        }
       }
     } catch (error) {
       console.error('Error during client instance destruction:', error);
+      // Don't re-throw - we want cleanup to complete
     }
   }
 
@@ -116,12 +176,16 @@ class RTMEngine {
       this.localUID = '';
       this._engine = undefined;
 
+      // Reset singleton instance for all platforms
+      // On web, you might want to keep the singleton for app lifecycle
+      // but reset the engine state (which we do above)
       if (isIOS() || isAndroid()) {
         RTMEngine._instance = null;
       }
     } catch (error) {
       console.error('Error destroying RTM instance:', error);
-      throw error;
+      // Don't re-throw - destruction should be a best-effort cleanup
+      // Re-throwing could prevent proper cleanup in calling code
     }
   }
 }

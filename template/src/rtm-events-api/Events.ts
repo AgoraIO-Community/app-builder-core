@@ -68,8 +68,8 @@ class Events {
         `CUSTOM_EVENT_API Event name cannot be of type ${typeof evt}`,
       );
     }
-    if (evt.trim() == '') {
-      throw Error(`CUSTOM_EVENT_API Name or function cannot be empty`);
+    if (evt.trim() === '') {
+      throw Error('CUSTOM_EVENT_API Name or function cannot be empty');
     }
     return true;
   };
@@ -260,7 +260,8 @@ class Events {
   on = (eventName: string, listener: EventCallback): Function => {
     try {
       if (!this._validateEvt(eventName) || !this._validateListener(listener)) {
-        return;
+        // Return no-op function instead of undefined to prevent errors
+        return () => {};
       }
       EventUtils.addListener(eventName, listener, this.source);
       console.log('CUSTOM_EVENT_API event listener registered', eventName);
@@ -275,6 +276,8 @@ class Events {
         'Error: events.on',
         error,
       );
+      // Return no-op function on error to prevent undefined issues
+      return () => {};
     }
   };
 
@@ -290,7 +293,11 @@ class Events {
   off = (eventName?: string, listener?: EventCallback) => {
     try {
       if (listener) {
-        if (this._validateListener(listener) && this._validateEvt(eventName)) {
+        if (
+          eventName &&
+          this._validateListener(listener) &&
+          this._validateEvt(eventName)
+        ) {
           // listen off an event by eventName and listener
           //@ts-ignore
           EventUtils.removeListener(eventName, listener, this.source);
