@@ -423,16 +423,10 @@ export class RTMWebClient {
 export class RtmConfig {
   public appId: string;
   public userId: string;
-  public useStringUserId?: boolean;
 
-  constructor(config: {
-    appId: string;
-    userId: string;
-    useStringUserId?: boolean;
-  }) {
+  constructor(config: {appId: string; userId: string}) {
     this.appId = config.appId;
     this.userId = config.userId;
-    this.useStringUserId = config.useStringUserId;
   }
 }
 // Factory function to create RTM client
