@@ -97,6 +97,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     replyToMsgId,
     setReplyToMsgId,
   } = useChatUIControls();
+
+  // Track IME composition state
+  const [isComposing, setIsComposing] = React.useState(false);
+
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
   const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
@@ -114,6 +118,43 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       }
     });
   }, []);
+
+  // Set up direct DOM event listeners for IME composition
+  useEffect(() => {
+    if (!isWeb()) return;
+
+    const inputElement = chatInputRef?.current;
+    if (!inputElement) return;
+
+    // Get the actual DOM element (React Native Web creates a textarea/input)
+    const domElement = inputElement._nativeTag
+      ? document.querySelector(`[data-tag="${inputElement._nativeTag}"]`)
+      : inputElement;
+
+    if (!domElement) return;
+
+    const handleCompositionStart = () => {
+      console.log('DOM: IME composition started');
+      setIsComposing(true);
+    };
+
+    const handleCompositionEnd = () => {
+      console.log('DOM: IME composition ended');
+      setIsComposing(false);
+    };
+
+    // Add event listeners directly to DOM element
+    domElement.addEventListener('compositionstart', handleCompositionStart);
+    domElement.addEventListener('compositionend', handleCompositionEnd);
+
+    return () => {
+      domElement.removeEventListener(
+        'compositionstart',
+        handleCompositionStart,
+      );
+      domElement.removeEventListener('compositionend', handleCompositionEnd);
+    };
+  }, [chatInputRef?.current]);
 
   const {data} = useRoomInfo();
   const [name] = useUserName();
@@ -166,9 +207,50 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     });
   };
 
+  // IME composition handlers
+  const handleCompositionStart = () => {
+    console.log('IME composition started');
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    console.log('IME composition ended');
+    setIsComposing(false);
+  };
+
+  const handleInput = event => {
+    // Reset composition state if input event occurs without active composition
+    if (isWeb() && !event.nativeEvent.isComposing && isComposing) {
+      console.log('Input without composition - resetting state');
+      setIsComposing(false);
+    }
+  };
+
   // with multiline textinput enter prints /n
   const handleKeyPress = ({nativeEvent}) => {
-    if (nativeEvent.key === 'Enter' && !nativeEvent.shiftKey) {
+    console.log(
+      'Key pressed:',
+      nativeEvent.key,
+      'isComposing:',
+      isComposing,
+      'isComposing from event:',
+      nativeEvent.isComposing,
+    );
+
+    // Use the native isComposing property if available (more reliable)
+    const currentlyComposing = nativeEvent.isComposing || isComposing;
+
+    // Check if this is an Enter key during composition
+    if (nativeEvent.key === 'Enter' && currentlyComposing) {
+      return;
+    }
+
+    // Only submit on Enter if not composing with IME and no Shift key
+    if (
+      nativeEvent.key === 'Enter' &&
+      !nativeEvent.shiftKey &&
+      !currentlyComposing
+    ) {
       nativeEvent.preventDefault();
       onSubmitEditing();
       setShowEmojiPicker(false); // This will close emoji picker on enter
@@ -225,6 +307,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       autoCorrect={false}
       onKeyPress={handleKeyPress}
       onChange={_handleHeightChange}
+      // IME composition event handlers for React Native Web
+      onCompositionStart={isWeb() ? handleCompositionStart : undefined}
+      onCompositionEnd={isWeb() ? handleCompositionEnd : undefined}
+      onInput={isWeb() ? handleInput : undefined}
     />
   );
 
