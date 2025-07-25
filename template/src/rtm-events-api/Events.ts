@@ -339,8 +339,18 @@ class Events {
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
   ) => {
-    if (!this._validateEvt(eventName)) {
-      return;
+    try {
+      if (!this._validateEvt(eventName)) {
+        return;
+      }
+    } catch (error) {
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Event validation failed',
+        error,
+      );
+      return; // Don't throw - just log and return
     }
 
     const persistValue = JSON.stringify({
@@ -362,6 +372,7 @@ class Events {
         await this._persist(eventName, persistValue);
       } catch (error) {
         logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', error);
+        // don't throw - just log the error, application should continue running
       }
     }
     try {
@@ -380,9 +391,10 @@ class Events {
       logger.error(
         LogSource.Events,
         'CUSTOM_EVENTS',
-        'sending event failed',
+        `Failed to send event '${eventName}' - event lost`,
         error,
       );
+      // don't throw - just log the error, application should continue running
     }
   };
 }
