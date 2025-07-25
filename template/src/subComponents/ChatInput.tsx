@@ -134,12 +134,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     if (!domElement) return;
 
     const handleCompositionStart = () => {
-      console.log('DOM: IME composition started');
       setIsComposing(true);
     };
 
     const handleCompositionEnd = () => {
-      console.log('DOM: IME composition ended');
       setIsComposing(false);
     };
 
@@ -209,35 +207,22 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 
   // IME composition handlers
   const handleCompositionStart = () => {
-    console.log('IME composition started');
     setIsComposing(true);
   };
 
   const handleCompositionEnd = () => {
-    console.log('IME composition ended');
     setIsComposing(false);
   };
 
   const handleInput = event => {
     // Reset composition state if input event occurs without active composition
     if (isWeb() && !event.nativeEvent.isComposing && isComposing) {
-      console.log('Input without composition - resetting state');
       setIsComposing(false);
     }
   };
 
   // with multiline textinput enter prints /n
   const handleKeyPress = ({nativeEvent}) => {
-    console.log(
-      'Key pressed:',
-      nativeEvent.key,
-      'isComposing:',
-      isComposing,
-      'isComposing from event:',
-      nativeEvent.isComposing,
-    );
-
-    // Use the native isComposing property if available (more reliable)
     const currentlyComposing = nativeEvent.isComposing || isComposing;
 
     // Check if this is an Enter key during composition
