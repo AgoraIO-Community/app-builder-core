@@ -208,9 +208,6 @@ const RtmConfigure = (props: any) => {
       engine.current = RTMEngine.getInstance().engine;
       // Logout any opened sessions if any
       engine.current.logout();
-      if (isAndroid() || isIOS()) {
-        engine.current.release();
-      }
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM client creation done');
     } catch (error) {
       logger.error(
@@ -471,7 +468,12 @@ const RtmConfigure = (props: any) => {
       await new Promise(resolve => setTimeout(resolve, 500));
       await setAttribute();
     } catch (error) {
-      logger.error(LogSource.AgoraSDK, 'Log', 'RTM login failed..Trying again');
+      logger.error(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM login failed..Trying again',
+        {error},
+      );
       setTimeout(async () => {
         // Cap the timer to prevent excessive delays (max 30 seconds)
         timerValueRef.current = Math.min(timerValueRef.current * 2, 30);
@@ -503,9 +505,14 @@ const RtmConfigure = (props: any) => {
       );
       timerValueRef.current = 5;
       await subscribeChannel();
-      logger.log(LogSource.AgoraSDK, 'Log', 'RTM subscribe channel done', {
-        data: rtmAttributes,
-      });
+      logger.log(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM subscribe, fetch members, reading channel atrributes all done',
+        {
+          data: rtmAttributes,
+        },
+      );
       setHasUserJoinedRTM(true);
       await runQueuedEvents();
       setIsInitialQueueCompleted(true);
