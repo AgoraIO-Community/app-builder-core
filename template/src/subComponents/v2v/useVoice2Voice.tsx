@@ -95,6 +95,8 @@ export const V2VContext = React.createContext<{
   setMaxNonFinalTokensDurationMs: React.Dispatch<React.SetStateAction<number>>;
   rtcSleepTimeMs: number;
   setRtcSleepTimeMs: React.Dispatch<React.SetStateAction<number>>;
+  useRestTTS: boolean;
+  setUseRestTTS: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -143,6 +145,8 @@ export const V2VContext = React.createContext<{
   setMaxNonFinalTokensDurationMs: () => {},
   rtcSleepTimeMs: 40,
   setRtcSleepTimeMs: () => {},
+  useRestTTS: false,
+  setUseRestTTS: () => {},
 });
 
 interface V2VProviderProps {
@@ -166,6 +170,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [maxNonFinalTokensDurationMs, setMaxNonFinalTokensDurationMs] =
     React.useState<number>(2000);
   const [rtcSleepTimeMs, setRtcSleepTimeMs] = React.useState<number>(10);
+  const [useRestTTS, setUseRestTTS] = React.useState<boolean>(false);
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
@@ -247,6 +252,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setMaxNonFinalTokensDurationMs,
         rtcSleepTimeMs,
         setRtcSleepTimeMs,
+        useRestTTS,
+        setUseRestTTS,
       }}>
       {children}
     </V2VContext.Provider>

@@ -31,7 +31,7 @@ import {
   getValidElevenLabsTargets,
   getValidElevenLabsSources,
 } from './utils';
-import Toggle from '../../atoms/Toggle';
+import Checkbox from '../../atoms/Checkbox';
 import Dropdown from '../../atoms/Dropdown';
 import ImageIcon from '../../atoms/ImageIcon';
 import Slider from '../../atoms/Slider';
@@ -71,6 +71,8 @@ interface TranslatorSelectedLanguagePopupProps {
   setMaxNonFinalTokensDurationMs: (value: number) => void;
   rtcSleepTimeMs: number;
   setRtcSleepTimeMs: (value: number) => void;
+  useRestTTS: boolean;
+  setUseRestTTS: (value: boolean) => void;
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -111,6 +113,8 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setMaxNonFinalTokensDurationMs,
   rtcSleepTimeMs,
   setRtcSleepTimeMs,
+  useRestTTS,
+  setUseRestTTS,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
@@ -282,6 +286,18 @@ const TranslatorSelectedLanguagePopup: React.FC<
     }
   }, [elevenLabsSelectedModel, elevenLabsSelectedVoice, setElevenLabsSelectedVoice]);
 
+  // Logic for Rest API checkbox
+  const getRestApiState = () => {
+    if (selectedTTS === 'eleven_labs') {
+      return { checked: true, disabled: true }; // Always true and disabled for ElevenLabs
+    } else if (selectedTTS === 'rime' && rimeSelectedModel === 'arcana') {
+      return { checked: true, disabled: true }; // Always true and disabled for Rime Arcana
+    } else if (selectedTTS === 'rime' && rimeSelectedModel === 'mistv2') {
+      return { checked: useRestTTS, disabled: false }; // User can toggle for Rime MistV2
+    }
+    return { checked: false, disabled: true }; // Default fallback
+  };
+
   const isFormValid = () => {
     if (selectedTTS === 'rime') {
       return rimeSourceLang && rimeTargetLang && rimeSelectedVoice && rimeSelectedModel;
@@ -413,6 +429,20 @@ const TranslatorSelectedLanguagePopup: React.FC<
               </View>
             </View>
             <View style={styles.controlGroup}>
+              <View style={{width: 180, marginRight: 12}}>
+                <Text style={styles.controlLabel}>Use REST API</Text>
+              </View>
+              <View style={styles.controlWrapper}>
+                <Checkbox
+                  label=""
+                  checked={getRestApiState().checked}
+                  onChange={setUseRestTTS}
+                  disabled={getRestApiState().disabled}
+                  containerStyle={{paddingTop: 12}}
+                />
+              </View>
+            </View>
+            <View style={styles.controlGroup}>
               <Text style={styles.controlLabel}>Target Language</Text>
               <View style={styles.controlWrapper}>
                 <Dropdown
@@ -487,6 +517,20 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   selectedValue={elevenLabsSelectedModel}
                   onSelect={({value}) => setElevenLabsSelectedModel(value as ElevenLabsModelType)}
                   enabled={false}
+                />
+              </View>
+            </View>
+            <View style={styles.controlGroup}>
+              <View style={{width: 180, marginRight: 12}}>
+                <Text style={styles.controlLabel}>Use REST API</Text>
+              </View>
+              <View style={styles.controlWrapper}>
+                <Checkbox
+                  label=""
+                  checked={getRestApiState().checked}
+                  onChange={setUseRestTTS}
+                  disabled={getRestApiState().disabled}
+                  containerStyle={{paddingTop: 12}}
                 />
               </View>
             </View>
