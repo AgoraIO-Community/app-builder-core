@@ -245,6 +245,10 @@ class Events {
         {
           items: rtmAttribute,
         },
+        {
+          addUserId: true,
+          addTimeStamp: true,
+        },
       );
     } catch (error) {
       logger.error(
