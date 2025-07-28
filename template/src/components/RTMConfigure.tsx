@@ -214,7 +214,7 @@ const RtmConfigure = (props: any) => {
         LogSource.AgoraSDK,
         'Log',
         'RTM engine initialization failed:',
-        error,
+        {error},
       );
       throw error;
     }
@@ -240,8 +240,10 @@ const RtmConfigure = (props: any) => {
         if (data.currentState === nativeLinkStateMapping.FAILED) {
           // FAILED state
           logger.error(LogSource.AgoraSDK, 'Event', 'RTM connection failed', {
-            reasonCode: data.reasonCode,
-            currentState: data.currentState,
+            error: {
+              reasonCode: data.reasonCode,
+              currentState: data.currentState,
+            },
           });
         }
       },
@@ -293,7 +295,7 @@ const RtmConfigure = (props: any) => {
                   LogSource.Events,
                   'CUSTOM_EVENTS',
                   `Failed to process storage item: ${JSON.stringify(item)}`,
-                  error,
+                  {error},
                 );
               }
             });
@@ -303,7 +305,7 @@ const RtmConfigure = (props: any) => {
             LogSource.Events,
             'CUSTOM_EVENTS',
             'error while dispatching through eventDispatcher',
-            error,
+            {error},
           );
         }
       }
@@ -378,7 +380,7 @@ const RtmConfigure = (props: any) => {
               LogSource.Events,
               'CUSTOM_EVENTS',
               'JSON payload incorrect, Error while parsing the payload',
-              err,
+              {error: err},
             );
           }
           if (res?.data?.data?.images) {
@@ -394,7 +396,7 @@ const RtmConfigure = (props: any) => {
               LogSource.Events,
               'CUSTOM_EVENTS',
               'JSON payload incorrect, Error while parsing the payload',
-              err,
+              {error: err},
             );
           }
 
@@ -409,7 +411,7 @@ const RtmConfigure = (props: any) => {
                 LogSource.Events,
                 'CUSTOM_EVENTS',
                 'error while dispatching through eventDispatcher',
-                error,
+                {error},
               );
             }
           }
@@ -431,7 +433,7 @@ const RtmConfigure = (props: any) => {
             LogSource.Events,
             'CUSTOM_EVENTS',
             'JSON payload incorrect, Error while parsing the payload',
-            err,
+            {error: err},
           );
         }
 
@@ -446,7 +448,7 @@ const RtmConfigure = (props: any) => {
             LogSource.Events,
             'CUSTOM_EVENTS',
             'error while dispatching through eventDispatcher',
-            error,
+            {error},
           );
         }
       }
@@ -529,6 +531,7 @@ const RtmConfigure = (props: any) => {
         LogSource.AgoraSDK,
         'Log',
         'RTM setAttribute failed..Trying again',
+        {error},
       );
       setTimeout(async () => {
         // Cap the timer to prevent excessive delays (max 30 seconds)
@@ -589,6 +592,7 @@ const RtmConfigure = (props: any) => {
         LogSource.AgoraSDK,
         'Log',
         'RTM subscribeChannel failed..Trying again',
+        {error},
       );
       setTimeout(async () => {
         // Cap the timer to prevent excessive delays (max 30 seconds)
@@ -653,7 +657,7 @@ const RtmConfigure = (props: any) => {
                       `RTM Failed to process user attribute item for ${
                         member.userId
                       }: ${JSON.stringify(item)}`,
-                      error,
+                      {error},
                     );
                     // Continue processing other items
                   }
@@ -663,7 +667,7 @@ const RtmConfigure = (props: any) => {
                   LogSource.AgoraSDK,
                   'Log',
                   `RTM Could not retrieve name of ${member.userId}`,
-                  e,
+                  {error: e},
                 );
               }
             }),
@@ -711,7 +715,7 @@ const RtmConfigure = (props: any) => {
                 `RTM Failed to process channel attribute item: ${JSON.stringify(
                   item,
                 )}`,
-                error,
+                {error},
               );
               // Continue processing other items
             }
@@ -825,7 +829,7 @@ const RtmConfigure = (props: any) => {
         LogSource.AgoraSDK,
         'Event',
         `RTM Failed to process user data for ${userId}`,
-        e,
+        {error: e},
       );
     }
   };
@@ -848,7 +852,7 @@ const RtmConfigure = (props: any) => {
         LogSource.Events,
         'CUSTOM_EVENTS',
         'error while running queue events',
-        error,
+        {error},
       );
     }
   };
@@ -937,7 +941,7 @@ const RtmConfigure = (props: any) => {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'RTM Failed to parse event value in event dispatcher:',
-          error,
+          {error},
         );
         return;
       }
@@ -987,7 +991,7 @@ const RtmConfigure = (props: any) => {
         LogSource.Events,
         'CUSTOM_EVENTS',
         'error while emiting event:',
-        error,
+        {error},
       );
     }
   };
@@ -1037,7 +1041,7 @@ const RtmConfigure = (props: any) => {
         }
       }
     } catch (error) {
-      logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', error);
+      logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
     return async () => {
       logger.log(
