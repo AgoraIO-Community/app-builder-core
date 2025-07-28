@@ -203,9 +203,14 @@ const RtmConfigure = (props: any) => {
     try {
       if (!RTMEngine.getInstance().isEngineReady) {
         RTMEngine.getInstance().setLocalUID(rtcUid);
-        logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set');
+        logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set', rtcUid);
       }
       engine.current = RTMEngine.getInstance().engine;
+      // Logout any opened sessions if any
+      engine.current.logout();
+      if (isAndroid() || isIOS()) {
+        engine.current.release();
+      }
       logger.log(LogSource.AgoraSDK, 'Log', 'RTM client creation done');
     } catch (error) {
       logger.error(
@@ -256,7 +261,7 @@ const RtmConfigure = (props: any) => {
         logger.log(
           LogSource.AgoraSDK,
           'Event',
-          `RTM storage event of type: [${storage.data} - ${eventTypeStr} ${storageTypeStr} metadata]`,
+          `RTM storage event of type: [${eventTypeStr} ${storageTypeStr} metadata]`,
           storage,
         );
         try {
@@ -310,7 +315,7 @@ const RtmConfigure = (props: any) => {
     engine.current.addEventListener(
       'presence',
       async (presence: PresenceEvent) => {
-        if (`${rtcProps.uid}` === presence.publisher) {
+        if (`${localUid}` === presence.publisher) {
           return;
         }
         // remoteJoinChannel
@@ -318,7 +323,7 @@ const RtmConfigure = (props: any) => {
           logger.log(
             LogSource.AgoraSDK,
             'Event',
-            'presenceEvent of type [3 - remoteJoin] (channelMemberJoined)',
+            'RTM presenceEvent of type [3 - remoteJoin] (channelMemberJoined)',
           );
           const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
             presence.publisher,
@@ -330,7 +335,7 @@ const RtmConfigure = (props: any) => {
           logger.log(
             LogSource.AgoraSDK,
             'Event',
-            'presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
+            'RTM presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
             presence,
           );
           // Chat of left user becomes undefined. So don't cleanup
@@ -351,7 +356,7 @@ const RtmConfigure = (props: any) => {
     );
 
     engine.current.addEventListener('message', (message: MessageEvent) => {
-      if (`${rtcProps.uid}` === message.publisher) {
+      if (`${localUid}` === message.publisher) {
         return;
       }
       // message - 1 (channel)
@@ -485,7 +490,7 @@ const RtmConfigure = (props: any) => {
         items: rtmAttributes,
       };
       const options: SetOrUpdateUserMetadataOptions = {
-        userId: `${rtcProps.uid}`,
+        userId: `${localUid}`,
       };
       await engine.current.storage.setUserMetadata(data, options);
       logger.log(
@@ -498,7 +503,7 @@ const RtmConfigure = (props: any) => {
       );
       timerValueRef.current = 5;
       await subscribeChannel();
-      logger.log(LogSource.AgoraSDK, 'Log', 'RTM join channel done', {
+      logger.log(LogSource.AgoraSDK, 'Log', 'RTM subscribe channel done', {
         data: rtmAttributes,
       });
       setHasUserJoinedRTM(true);
@@ -551,7 +556,7 @@ const RtmConfigure = (props: any) => {
         logger.log(
           LogSource.AgoraSDK,
           'API',
-          'RTM setChannelId',
+          'RTM setChannelId as subscribe is successful',
           rtcProps.channel,
         );
 
@@ -604,10 +609,7 @@ const RtmConfigure = (props: any) => {
           );
           // Filter out your own UID
           const otherMembers = data.occupants.filter(member => {
-            const isOwnUID = member.userId === `${rtcProps.uid}`;
-            if (isOwnUID) {
-              console.log('🚫 Skipping own UID in getMembers:', member.userId);
-            }
+            const isOwnUID = member.userId === `${localUid}`;
             return !isOwnUID;
           });
           await Promise.all(
@@ -641,7 +643,7 @@ const RtmConfigure = (props: any) => {
                     logger.error(
                       LogSource.AgoraSDK,
                       'Log',
-                      `Failed to process user attribute item for ${
+                      `RTM Failed to process user attribute item for ${
                         member.userId
                       }: ${JSON.stringify(item)}`,
                       error,
@@ -653,7 +655,7 @@ const RtmConfigure = (props: any) => {
                 logger.error(
                   LogSource.AgoraSDK,
                   'Log',
-                  `Could not retrieve name of ${member.userId}`,
+                  `RTM Could not retrieve name of ${member.userId}`,
                   e,
                 );
               }
@@ -699,7 +701,7 @@ const RtmConfigure = (props: any) => {
               logger.error(
                 LogSource.AgoraSDK,
                 'Log',
-                `Failed to process channel attribute item: ${JSON.stringify(
+                `RTM Failed to process channel attribute item: ${JSON.stringify(
                   item,
                 )}`,
                 error,
@@ -767,7 +769,7 @@ const RtmConfigure = (props: any) => {
           logger.debug(
             LogSource.AgoraSDK,
             'Log',
-            `[retrying] Attempt ${idx}. Fetching ${userId}'s attributes`,
+            `RTM [retrying] Attempt ${idx}. Fetching ${userId}'s attributes`,
             e,
           );
           return true;
@@ -815,7 +817,7 @@ const RtmConfigure = (props: any) => {
       logger.error(
         LogSource.AgoraSDK,
         'Event',
-        `Failed to process user data for ${userId}`,
+        `RTM Failed to process user data for ${userId}`,
         e,
       );
     }
@@ -927,7 +929,7 @@ const RtmConfigure = (props: any) => {
         logger.error(
           LogSource.Events,
           'CUSTOM_EVENTS',
-          'Failed to parse event value in event dispatcher:',
+          'RTM Failed to parse event value in event dispatcher:',
           error,
         );
         return;
@@ -937,7 +939,7 @@ const RtmConfigure = (props: any) => {
       if (persistLevel === PersistanceLevel.Session) {
         const rtmAttribute = {key: evt, value: value};
         const options: SetOrUpdateUserMetadataOptions = {
-          userId: `${rtcProps.uid}`,
+          userId: `${localUid}`,
         };
         await engine.current.storage.setUserMetadata(
           {
@@ -1007,7 +1009,7 @@ const RtmConfigure = (props: any) => {
         //attendee
         //for waiting room attendee rtm login will happen on mount
         if (!isHost && !callActive) {
-          await init(rtcProps.uid);
+          await init(localUid);
         }
         //host
         if (
@@ -1015,7 +1017,7 @@ const RtmConfigure = (props: any) => {
           ($config.AUTO_CONNECT_RTM ||
             (!$config.AUTO_CONNECT_RTM && callActive))
         ) {
-          await init(rtcProps.uid);
+          await init(localUid);
         }
       } else {
         //non waiting room case
@@ -1024,7 +1026,7 @@ const RtmConfigure = (props: any) => {
           $config.AUTO_CONNECT_RTM ||
           (!$config.AUTO_CONNECT_RTM && callActive)
         ) {
-          await init(rtcProps.uid);
+          await init(localUid);
         }
       }
     } catch (error) {
@@ -1038,7 +1040,7 @@ const RtmConfigure = (props: any) => {
       );
       await end();
     };
-  }, [rtcProps.channel, rtcProps.appId, callActive, rtcProps.uid]);
+  }, [rtcProps.channel, rtcProps.appId, callActive, localUid]);
 
   return (
     <ChatContext.Provider
