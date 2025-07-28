@@ -14,22 +14,8 @@ export interface ChannelAttributeOptions {
   enableNotificationToChannelMembers?: undefined | false | true;
 }
 
-// Map text to numbers
-
-export const webToNativechannelTypeMapping: {[key: string]: number} = {
-  NONE: 0,
-  MESSAGE: 1,
-  STREAM: 2,
-  USER: 3,
-};
-
-export const nativeToWebChannelTypeMapping: {[key: string]: WebChannelType} = {
-  1: 'MESSAGE',
-  2: 'STREAM',
-  3: 'USER',
-};
-
-export const linkStatusStateMapping: {[key: string]: number} = {
+// LINK STATE
+export const nativeLinkStateMapping = {
   IDLE: 0,
   CONNECTING: 1,
   CONNECTED: 2,
@@ -37,6 +23,11 @@ export const linkStatusStateMapping: {[key: string]: number} = {
   SUSPENDED: 4,
   FAILED: 5,
 };
+
+// Create reverse mapping: number -> string
+export const webLinkStateMapping = Object.fromEntries(
+  Object.entries(nativeLinkStateMapping).map(([key, value]) => [value, key]),
+);
 
 export const linkStatusReasonCodeMapping: {[key: string]: number} = {
   UNKNOWN: 0,
@@ -79,7 +70,22 @@ export const linkStatusReasonCodeMapping: {[key: string]: number} = {
   LOGIN_TOO_FREQUENT: 37,
 };
 
-export const storageTypeMapping: {[key: string]: number} = {
+// CHANNEL TYPE
+// string -> number
+export const nativeChannelTypeMapping = {
+  NONE: 0,
+  MESSAGE: 1,
+  STREAM: 2,
+  USER: 3,
+};
+// number -> string
+export const webChannelTypeMapping = Object.fromEntries(
+  Object.entries(nativeChannelTypeMapping).map(([key, value]) => [value, key]),
+);
+
+// STORAGE TYPE
+// string -> number
+export const nativeStorageTypeMapping = {
   NONE: 0,
   /**
    * 1: The user storage event.
@@ -90,8 +96,13 @@ export const storageTypeMapping: {[key: string]: number} = {
    */
   CHANNEL: 2,
 };
+// number -> string
+export const webStorageTypeMapping = Object.fromEntries(
+  Object.entries(nativeStorageTypeMapping).map(([key, value]) => [value, key]),
+);
 
-export const storageEventTypeMapping: {[key: string]: number} = {
+// STORAGE EVENT TYPE
+export const nativeStorageEventTypeMapping = {
   /**
    * 0: Unknown event type.
    */
@@ -113,8 +124,16 @@ export const storageEventTypeMapping: {[key: string]: number} = {
    */
   REMOVE: 4,
 };
+// number -> string
+export const webStorageEventTypeMapping = Object.fromEntries(
+  Object.entries(nativeStorageEventTypeMapping).map(([key, value]) => [
+    value,
+    key,
+  ]),
+);
 
-export const presenceEventTypeMapping: {[key: string]: number} = {
+// PRESENCE EVENT TYPE
+export const nativePresenceEventTypeMapping = {
   /**
    * 0: Unknown event type
    */
@@ -148,8 +167,17 @@ export const presenceEventTypeMapping: {[key: string]: number} = {
    */
   ERROR_OUT_OF_SERVICE: 7,
 };
+// number -> string
+export const webPresenceEventTypeMapping = Object.fromEntries(
+  Object.entries(nativePresenceEventTypeMapping).map(([key, value]) => [
+    value,
+    key,
+  ]),
+);
 
-export const messageEventTypeMapping: {[key: string]: number} = {
+// MESSAGE EVENT TYPE
+// string -> number
+export const nativeMessageEventTypeMapping = {
   /**
    * 0: The binary message.
    */
@@ -159,3 +187,10 @@ export const messageEventTypeMapping: {[key: string]: number} = {
    */
   STRING: 1,
 };
+// number -> string
+export const webMessageEventTypeMapping = Object.fromEntries(
+  Object.entries(nativePresenceEventTypeMapping).map(([key, value]) => [
+    value,
+    key,
+  ]),
+);

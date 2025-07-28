@@ -1,6 +1,7 @@
 import {
-  type GetUserMetadataOptions as NativeGetUserMetadataOptions,
   type Metadata as NativeMetadata,
+  type MetadataItem as NativeMetadataItem,
+  type GetUserMetadataOptions as NativeGetUserMetadataOptions,
   type RtmChannelType as NativeRtmChannelType,
   type SetUserMetadataResponse,
   type LoginOptions as NativeLoginOptions,
@@ -20,19 +21,47 @@ import AgoraRTM, {
   GetUserMetadataResponse,
   GetChannelMetadataResponse,
   PublishOptions,
+  ChannelType,
+  MetaDataDetail,
 } from 'agora-rtm-sdk';
 import {
-  webToNativechannelTypeMapping,
-  nativeToWebChannelTypeMapping,
   linkStatusReasonCodeMapping,
-  linkStatusStateMapping,
-  messageEventTypeMapping,
-  presenceEventTypeMapping,
-  storageEventTypeMapping,
-  storageTypeMapping,
+  nativeChannelTypeMapping,
+  nativeLinkStateMapping,
+  nativeMessageEventTypeMapping,
+  nativePresenceEventTypeMapping,
+  nativeStorageEventTypeMapping,
+  nativeStorageTypeMapping,
+  webChannelTypeMapping,
 } from './Types';
 
 type CallbackType = (args?: any) => void;
+
+// Conversion function
+const convertWebToNativeMetadata = (webMetadata: any): NativeMetadata => {
+  // Convert object entries to MetadataItem array
+  const items: NativeMetadataItem[] =
+    Object.entries(webMetadata.metadata).map(
+      ([key, metadataItem]: [string, MetaDataDetail]) => {
+        return {
+          key: key,
+          value: metadataItem.value,
+          revision: metadataItem.revision,
+          authorUserId: metadataItem.authorUid,
+          updateTs: metadataItem.updated,
+        };
+      },
+    ) || [];
+
+  // Create native Metadata object
+  const nativeMetadata: NativeMetadata = {
+    majorRevision: webMetadata?.revision || -1, // Use first item's revision as major revision
+    items: items,
+    itemCount: webMetadata?.totalCount || 0,
+  };
+
+  return nativeMetadata;
+};
 
 export class RTMWebClient {
   private client: RTMClient;
@@ -55,8 +84,12 @@ export class RTMWebClient {
       this.client.addEventListener('linkState', data => {
         const nativeState = {
           ...data,
-          currentState: linkStatusStateMapping[data.currentState] || 0,
-          previousState: linkStatusStateMapping[data.previousState] || 0,
+          currentState:
+            nativeLinkStateMapping[data.currentState] ||
+            nativeLinkStateMapping.IDLE,
+          previousState:
+            nativeLinkStateMapping[data.previousState] ||
+            nativeLinkStateMapping.IDLE,
           reasonCode: linkStatusReasonCodeMapping[data.reasonCode] || 0,
         };
         (this.eventsMap.get('linkState') ?? (() => {}))(nativeState);
@@ -64,23 +97,22 @@ export class RTMWebClient {
 
       this.client.addEventListener('storage', data => {
         const nativeStorageEvent: NativeStorageEvent = {
-          ...data,
-          channelType: webToNativechannelTypeMapping[data.channelType],
-          storageType: storageTypeMapping[data.storageType],
-          eventType: storageEventTypeMapping[data.eventType],
+          channelType: nativeChannelTypeMapping[data.channelType],
+          storageType: nativeStorageTypeMapping[data.storageType],
+          eventType: nativeStorageEventTypeMapping[data.eventType],
+          data: convertWebToNativeMetadata(data.data),
+          timestamp: data.timestamp,
         };
         (this.eventsMap.get('storage') ?? (() => {}))(nativeStorageEvent);
       });
 
       this.client.addEventListener('presence', data => {
         const nativePresenceEvent: NativePresenceEvent = {
-          ...data,
-          channelType: presenceEventTypeMapping[data.channelType],
-          type: presenceEventTypeMapping[data.eventType],
+          channelName: data.channelName,
+          channelType: nativeChannelTypeMapping[data.channelType],
+          type: nativePresenceEventTypeMapping[data.eventType],
           publisher: data.publisher,
-          stateItems: undefined,
-          interval: undefined,
-          snapshot: undefined,
+          timestamp: data.timestamp,
         };
         (this.eventsMap.get('presence') ?? (() => {}))(nativePresenceEvent);
       });
@@ -88,8 +120,8 @@ export class RTMWebClient {
       this.client.addEventListener('message', data => {
         const nativeMessageEvent: NativeMessageEvent = {
           ...data,
-          channelType: webToNativechannelTypeMapping[data.channelType],
-          messageType: messageEventTypeMapping[data.messageType],
+          channelType: nativeChannelTypeMapping[data.channelType],
+          messageType: nativeMessageEventTypeMapping[data.messageType],
           message: `${data.message}`,
         };
         (this.eventsMap.get('message') ?? (() => {}))(nativeMessageEvent);
@@ -139,7 +171,10 @@ export class RTMWebClient {
           };
         });
         // Map native signature to web signature
-        return this.client.storage.setUserMetadata(validatedItems, options);
+        return this.client.storage.setUserMetadata(validatedItems, {
+          addTimeStamp: options?.addTimeStamp || true,
+          addUserId: options?.addUserId || true,
+        });
       },
 
       getUserMetadata: async (options: NativeGetUserMetadataOptions) => {
@@ -186,12 +221,11 @@ export class RTMWebClient {
         return nativeResponse;
       },
 
-      // Add setChannelMetadata if needed
       setChannelMetadata: async (
         channelName: string,
         channelType: NativeRtmChannelType,
         data: NativeMetadata,
-        _options?: NativeIMetadataOptions,
+        options?: NativeIMetadataOptions,
       ) => {
         // Validate input parameters
         if (
@@ -229,14 +263,17 @@ export class RTMWebClient {
             revision: item.revision || -1, // Default to -1 if not provided
           };
         });
-
         return this.client.storage.setChannelMetadata(
           channelName,
-          nativeToWebChannelTypeMapping[channelType] || 'MESSAGE',
+          (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
           validatedItems,
+          {
+            addUserId: options?.addUserId || true,
+            addTimeStamp: options?.addTimeStamp || true,
+          },
         );
       },
-      // Add getChannelMetadata method
+
       getChannelMetadata: async (
         channelName: string,
         channelType: NativeRtmChannelType,
@@ -245,7 +282,7 @@ export class RTMWebClient {
           const webResponse: GetChannelMetadataResponse =
             await this.client.storage.getChannelMetadata(
               channelName,
-              nativeToWebChannelTypeMapping[channelType] || 'MESSAGE',
+              (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
             );
 
           const items = Object.entries(webResponse.metadata).map(
@@ -259,7 +296,7 @@ export class RTMWebClient {
             itemCount: webResponse.totalCount,
             timestamp: webResponse.timestamp,
             channelName: webResponse.channelName,
-            channelType: 1,
+            channelType: nativeChannelTypeMapping.MESSAGE,
           };
           return nativeResponse;
         } catch (error) {
@@ -297,10 +334,9 @@ export class RTMWebClient {
 
         try {
           // Call web SDK's presence method
-
           const result = await this.client.presence.getOnlineUsers(
             channelName,
-            nativeToWebChannelTypeMapping[channelType] || 'MESSAGE',
+            (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
           );
           return result;
         } catch (error) {
@@ -319,7 +355,7 @@ export class RTMWebClient {
         channelType?: NativeRtmChannelType,
       ) => {
         const webChannelType = channelType
-          ? nativeToWebChannelTypeMapping[channelType] || 'MESSAGE'
+          ? (webChannelTypeMapping[channelType] as ChannelType)
           : 'MESSAGE';
         return this.client.presence.whoNow(channelName, webChannelType);
       },
@@ -400,7 +436,8 @@ export class RTMWebClient {
     const webOptions: PublishOptions = {
       ...options,
       channelType:
-        nativeToWebChannelTypeMapping[options?.channelType] || 'MESSAGE',
+        (webChannelTypeMapping[options?.channelType] as ChannelType) ||
+        'MESSAGE',
     };
     return this.client.publish(channelName, message, webOptions);
   }

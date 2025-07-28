@@ -23,6 +23,7 @@ import {
 } from './types';
 import {adjustUID} from '../rtm/utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {nativeChannelTypeMapping} from '../../bridge/rtm/web/Types';
 
 class Events {
   private source: EventSource = EventSource.core;
@@ -137,7 +138,7 @@ class Events {
           );
         }
         await rtmEngine.publish(channelId, text, {
-          channelType: 1, // 1 is message
+          channelType: nativeChannelTypeMapping.MESSAGE, // 1 is message
         });
       } catch (error) {
         logger.error(
@@ -159,7 +160,7 @@ class Events {
       const adjustedUID = adjustUID(to);
       try {
         await rtmEngine.publish(`${adjustedUID}`, text, {
-          channelType: 3, // user
+          channelType: nativeChannelTypeMapping.USER, // user
         });
       } catch (error) {
         logger.error(
@@ -183,7 +184,7 @@ class Events {
         const response = await Promise.allSettled(
           to.map(uid =>
             rtmEngine.publish(`${adjustUID(uid)}`, text, {
-              channelType: 3,
+              channelType: nativeChannelTypeMapping.USER,
             }),
           ),
         );
@@ -238,9 +239,13 @@ class Events {
       }
 
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
-      await rtmEngine.storage.setChannelMetadata(channelId, 1, {
-        items: rtmAttribute,
-      });
+      await rtmEngine.storage.setChannelMetadata(
+        channelId,
+        nativeChannelTypeMapping.MESSAGE,
+        {
+          items: rtmAttribute,
+        },
+      );
     } catch (error) {
       logger.error(
         LogSource.Events,

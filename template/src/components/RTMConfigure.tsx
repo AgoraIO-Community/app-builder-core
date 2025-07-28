@@ -59,14 +59,16 @@ import LocalEventEmitter, {
 import {controlMessageEnum} from '../components/ChatContext';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {RECORDING_BOT_UID} from '../utils/constants';
+import {
+  nativeChannelTypeMapping,
+  nativeLinkStateMapping,
+  nativePresenceEventTypeMapping,
+  nativeStorageEventTypeMapping,
+} from '../../bridge/rtm/web/Types';
 
 export enum UserType {
   ScreenShare = 'screenshare',
 }
-// const NATIVE_PRESENCE_EVENTS = {
-//   REMOTE_JOIN: 3,
-//   REMOTE_LEAVE: 4,
-// };
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -186,7 +188,10 @@ const RtmConfigure = (props: any) => {
     //so checking rtm connection state before proceed
 
     // Check if already connected (equivalent to v1.5x connectionState === 'CONNECTED')
-    if (rtmConnectionState === 2 && RTMEngine.getInstance().isEngineReady) {
+    if (
+      rtmConnectionState === nativeLinkStateMapping.CONNECTED &&
+      RTMEngine.getInstance().isEngineReady
+    ) {
       logger.log(
         LogSource.AgoraSDK,
         'Log',
@@ -223,14 +228,14 @@ const RtmConfigure = (props: any) => {
           `RTM linkState changed: ${data.previousState} -> ${data.currentState}`,
           data,
         );
-        if (data.currentState === 2) {
+        if (data.currentState === nativeLinkStateMapping.CONNECTED) {
           // CONNECTED state
           logger.log(LogSource.AgoraSDK, 'Event', 'RTM connected', {
             previousState: data.previousState,
             currentState: data.currentState,
           });
         }
-        if (data.currentState === 5) {
+        if (data.currentState === nativeLinkStateMapping.FAILED) {
           // FAILED state
           logger.error(LogSource.AgoraSDK, 'Event', 'RTM connection failed', {
             reasonCode: data.reasonCode,
@@ -242,7 +247,10 @@ const RtmConfigure = (props: any) => {
 
     engine.current.addEventListener('storage', (storage: StorageEvent) => {
       // when remote user sets/updates metadata - 3
-      if (storage.eventType === 2 || storage.eventType === 3) {
+      if (
+        storage.eventType === nativeStorageEventTypeMapping.SET ||
+        storage.eventType === nativeStorageEventTypeMapping.UPDATE
+      ) {
         const storageTypeStr = storage.storageType === 1 ? 'user' : 'channel';
         const eventTypeStr = storage.eventType === 2 ? 'SET' : 'UPDATE';
         logger.log(
@@ -306,11 +314,11 @@ const RtmConfigure = (props: any) => {
           return;
         }
         // remoteJoinChannel
-        if (presence.type === 3) {
+        if (presence.type === nativePresenceEventTypeMapping.REMOTE_JOIN) {
           logger.log(
             LogSource.AgoraSDK,
             'Event',
-            'presenceEvent of type [3 - remoteJoinChannel] (channelMemberJoined)',
+            'presenceEvent of type [3 - remoteJoin] (channelMemberJoined)',
           );
           const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
             presence.publisher,
@@ -318,11 +326,11 @@ const RtmConfigure = (props: any) => {
           await processUserUidAttributes(backoffAttributes, presence.publisher);
         }
         // remoteLeaveChannel
-        if (presence.type === 4) {
+        if (presence.type === nativePresenceEventTypeMapping.REMOTE_LEAVE) {
           logger.log(
             LogSource.AgoraSDK,
             'Event',
-            'presenceEvent of type [4 - remoteLeaveChannel] (channelMemberLeft)',
+            'presenceEvent of type [4 - remoteLeave] (channelMemberLeft)',
             presence,
           );
           // Chat of left user becomes undefined. So don't cleanup
@@ -347,7 +355,7 @@ const RtmConfigure = (props: any) => {
         return;
       }
       // message - 1 (channel)
-      if (message.channelType === 1) {
+      if (message.channelType === nativeChannelTypeMapping.MESSAGE) {
         logger.debug(
           LogSource.Events,
           'CUSTOM_EVENTS',
@@ -407,7 +415,7 @@ const RtmConfigure = (props: any) => {
       }
 
       // message - 3 (user)
-      if (message.channelType === 3) {
+      if (message.channelType === nativeChannelTypeMapping.USER) {
         logger.debug(
           LogSource.Events,
           'CUSTOM_EVENTS',
