@@ -42,10 +42,16 @@ class Events {
    */
   private _persist = async (evt: string, payload: string) => {
     const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
+    const userId = RTMEngine.getInstance().localUid;
     try {
       const rtmAttribute = {key: evt, value: payload};
       // Step 1: Call RTM API to update local attributes
-      await rtmEngine.storage.setUserMetadata({items: [rtmAttribute]});
+      await rtmEngine.storage.setUserMetadata(
+        {items: [rtmAttribute]},
+        {
+          userId,
+        },
+      );
     } catch (error) {
       logger.error(
         LogSource.Events,
@@ -232,7 +238,6 @@ class Events {
       }
 
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
-      // Step 1: Call RTM API to update local attributes
       await rtmEngine.storage.setChannelMetadata(channelId, 1, {
         items: rtmAttribute,
       });

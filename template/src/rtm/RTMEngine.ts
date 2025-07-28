@@ -111,11 +111,9 @@ class RTMEngine {
       if (!$config.APP_ID) {
         throw new Error('Cannot create RTM client: APP_ID is not configured');
       }
-
       const rtmConfig = new RtmConfig({
         appId: $config.APP_ID,
         userId: this.localUID,
-        useStringUserId: true,
       });
       this._engine = createAgoraRtmClient(rtmConfig);
     } catch (error) {
@@ -153,6 +151,9 @@ class RTMEngine {
         // 3. Logout
         try {
           await this._engine.logout();
+          if (isAndroid() || isIOS()) {
+            this._engine.release();
+          }
         } catch (error) {
           console.warn('Failed to logout:', error);
         }
@@ -173,13 +174,7 @@ class RTMEngine {
       this.channelId = '';
       this.localUID = '';
       this._engine = undefined;
-
-      // Reset singleton instance for all platforms
-      // On web, you might want to keep the singleton for app lifecycle
-      // but reset the engine state (which we do above)
-      if (isIOS() || isAndroid()) {
-        RTMEngine._instance = null;
-      }
+      RTMEngine._instance = null;
     } catch (error) {
       console.error('Error destroying RTM instance:', error);
       // Don't re-throw - destruction should be a best-effort cleanup

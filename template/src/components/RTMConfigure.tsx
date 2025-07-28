@@ -63,6 +63,11 @@ import {RECORDING_BOT_UID} from '../utils/constants';
 export enum UserType {
   ScreenShare = 'screenshare',
 }
+// const NATIVE_PRESENCE_EVENTS = {
+//   REMOTE_JOIN: 3,
+//   REMOTE_LEAVE: 4,
+// };
+
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 const RtmConfigure = (props: any) => {
@@ -137,7 +142,9 @@ const RtmConfigure = (props: any) => {
   }, [defaultContent]);
 
   React.useEffect(() => {
-    if (!$config.ENABLE_CONVERSATIONAL_AI || !isWebInternal()) {
+    // If its not a convo ai project and
+    // the platform is web execute the window listeners
+    if (!$config.ENABLE_CONVERSATIONAL_AI && isWebInternal()) {
       const handBrowserClose = ev => {
         ev.preventDefault();
         return (ev.returnValue = 'Are you sure you want to exit?');
@@ -154,21 +161,21 @@ const RtmConfigure = (props: any) => {
           console.error('Error during browser close RTM cleanup:', error);
         }
       };
-      // Set up window listeners
-      if (isWeb() && !isSDK()) {
-        window.addEventListener('beforeunload', handBrowserClose);
-      }
-      window.addEventListener('pagehide', logoutRtm);
 
-      // Remove listeners on unmount
+      // Set up window listeners
+      window.addEventListener(
+        'beforeunload',
+        isWeb() && !isSDK() ? handBrowserClose : () => {},
+      );
+
+      window.addEventListener('pagehide', logoutRtm);
       return () => {
+        // Remove listeners on unmount
+        window.removeEventListener(
+          'beforeunload',
+          isWeb() && !isSDK() ? handBrowserClose : () => {},
+        );
         window.removeEventListener('pagehide', logoutRtm);
-        if (isWeb() && !isSDK()) {
-          window.removeEventListener(
-            'beforeunload',
-            isWeb() && !isSDK() ? handBrowserClose : () => {},
-          );
-        }
       };
     }
   }, []);
@@ -183,12 +190,10 @@ const RtmConfigure = (props: any) => {
       logger.log(
         LogSource.AgoraSDK,
         'Log',
-        'RTM already connected, skipping initialization',
+        '🚫 RTM already connected, skipping initialization',
       );
       return;
     }
-
-    logger.log(LogSource.AgoraSDK, 'Log', 'RTM creating engine...');
 
     try {
       if (!RTMEngine.getInstance().isEngineReady) {
@@ -196,6 +201,7 @@ const RtmConfigure = (props: any) => {
         logger.log(LogSource.AgoraSDK, 'API', 'RTM local Uid set');
       }
       engine.current = RTMEngine.getInstance().engine;
+      logger.log(LogSource.AgoraSDK, 'Log', 'RTM client creation done');
     } catch (error) {
       logger.error(
         LogSource.AgoraSDK,
@@ -205,55 +211,31 @@ const RtmConfigure = (props: any) => {
       );
       throw error;
     }
-    // engine.current = createAgoraRtmClient(
-    //   new RtmConfig({
-    //     userId: uid,
-    //     appId: $config.APP_ID,
-    //     useStringUserId: true,
-    //   }),
-    // );
-    logger.log(LogSource.AgoraSDK, 'Log', 'RTM engine creation done');
 
     engine.current.addEventListener(
       'linkState',
       async (data: LinkStateEvent) => {
         // Update connection state for duplicate initialization prevention
         setRtmConnectionState(data.currentState);
-
-        // Log connection state changes (equivalent to v1.5x connectionStateChanged)
         logger.log(
           LogSource.AgoraSDK,
           'Event',
           `RTM linkState changed: ${data.previousState} -> ${data.currentState}`,
           data,
         );
-
-        // Handle connection errors (equivalent to v1.5x error events)
+        if (data.currentState === 2) {
+          // CONNECTED state
+          logger.log(LogSource.AgoraSDK, 'Event', 'RTM connected', {
+            previousState: data.previousState,
+            currentState: data.currentState,
+          });
+        }
         if (data.currentState === 5) {
           // FAILED state
           logger.error(LogSource.AgoraSDK, 'Event', 'RTM connection failed', {
             reasonCode: data.reasonCode,
             currentState: data.currentState,
           });
-        }
-
-        if (data.currentState === 2) {
-          try {
-            logger.log(
-              LogSource.AgoraSDK,
-              'Event',
-              'linkEvent of currenstate [2 - connected] (connectionStatusChange)',
-            );
-            await setAttribute();
-            logger.log(LogSource.AgoraSDK, 'Log', 'RTM setting attribute done');
-          } catch (error) {
-            logger.error(
-              LogSource.AgoraSDK,
-              'Log',
-              'RTM failed while setting attribute',
-              error,
-            );
-          }
         }
       },
     );
@@ -266,7 +248,7 @@ const RtmConfigure = (props: any) => {
         logger.log(
           LogSource.AgoraSDK,
           'Event',
-          `storageEvent of type [${storage.eventType} - ${eventTypeStr} ${storageTypeStr} metadata]`,
+          `RTM storage event of type: [${storage.data} - ${eventTypeStr} ${storageTypeStr} metadata]`,
           storage,
         );
         try {
@@ -303,7 +285,6 @@ const RtmConfigure = (props: any) => {
                   `Failed to process storage item: ${JSON.stringify(item)}`,
                   error,
                 );
-                // Continue processing other items
               }
             });
           }
@@ -321,6 +302,9 @@ const RtmConfigure = (props: any) => {
     engine.current.addEventListener(
       'presence',
       async (presence: PresenceEvent) => {
+        if (`${rtcProps.uid}` === presence.publisher) {
+          return;
+        }
         // remoteJoinChannel
         if (presence.type === 3) {
           logger.log(
@@ -359,6 +343,9 @@ const RtmConfigure = (props: any) => {
     );
 
     engine.current.addEventListener('message', (message: MessageEvent) => {
+      if (`${rtcProps.uid}` === message.publisher) {
+        return;
+      }
       // message - 1 (channel)
       if (message.channelType === 1) {
         logger.debug(
@@ -467,7 +454,9 @@ const RtmConfigure = (props: any) => {
       });
       logger.log(LogSource.AgoraSDK, 'API', 'RTM login done');
       timerValueRef.current = 5;
-      // await setAttribute(); We have moved this inside status change listener as we can only call this once client is connected
+      // waiting for login to be fully connected
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await setAttribute();
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM login failed..Trying again');
       setTimeout(async () => {
@@ -487,7 +476,9 @@ const RtmConfigure = (props: any) => {
       const data: Metadata = {
         items: rtmAttributes,
       };
-      const options: SetOrUpdateUserMetadataOptions = {};
+      const options: SetOrUpdateUserMetadataOptions = {
+        userId: `${rtcProps.uid}`,
+      };
       await engine.current.storage.setUserMetadata(data, options);
       logger.log(
         LogSource.AgoraSDK,
@@ -533,7 +524,7 @@ const RtmConfigure = (props: any) => {
         logger.debug(
           LogSource.AgoraSDK,
           'Log',
-          'RTM already subscribed channel skipping',
+          '🚫  RTM already subscribed channel skipping',
           rtcProps.channel,
         );
       } else {
@@ -603,8 +594,16 @@ const RtmConfigure = (props: any) => {
             'RTM presence.getOnlineUsers data received',
             data,
           );
+          // Filter out your own UID
+          const otherMembers = data.occupants.filter(member => {
+            const isOwnUID = member.userId === `${rtcProps.uid}`;
+            if (isOwnUID) {
+              console.log('🚫 Skipping own UID in getMembers:', member.userId);
+            }
+            return !isOwnUID;
+          });
           await Promise.all(
-            data.occupants.map(async member => {
+            otherMembers.map(async member => {
               try {
                 const backoffAttributes =
                   await fetchUserAttributesWithBackoffRetry(member.userId);
@@ -857,8 +856,8 @@ const RtmConfigure = (props: any) => {
     let evt = '',
       value = '';
 
-    if (data.feat === 'WAITING_ROOM') {
-      if (data.etyp === 'REQUEST') {
+    if (data?.feat === 'WAITING_ROOM') {
+      if (data?.etyp === 'REQUEST') {
         const outputData = {
           evt: `${data.feat}_${data.etyp}`,
           payload: JSON.stringify({
@@ -872,7 +871,7 @@ const RtmConfigure = (props: any) => {
         evt = data.feat + '_' + data.etyp; //rename if client side RTM meessage is to be sent for approval
         value = formattedData;
       }
-      if (data.etyp === 'RESPONSE') {
+      if (data?.etyp === 'RESPONSE') {
         const outputData = {
           evt: `${data.feat}_${data.etyp}`,
           payload: JSON.stringify({
@@ -976,8 +975,9 @@ const RtmConfigure = (props: any) => {
     }
     // Destroy and clean up RTM state
     await RTMEngine.getInstance().destroy();
+    // Set the engine as null
+    engine.current = null;
     logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
-
     if (isIOS() || isAndroid()) {
       EventUtils.clear();
     }
@@ -988,30 +988,40 @@ const RtmConfigure = (props: any) => {
 
   useAsyncEffect(async () => {
     //waiting room attendee -> rtm login will happen on page load
-    if ($config.ENABLE_WAITING_ROOM) {
-      //attendee
-      //for waiting room attendee rtm login will happen on mount
-      if (!isHost && !callActive) {
-        await init(rtcProps.uid);
+    try {
+      if ($config.ENABLE_WAITING_ROOM) {
+        //attendee
+        //for waiting room attendee rtm login will happen on mount
+        if (!isHost && !callActive) {
+          await init(rtcProps.uid);
+        }
+        //host
+        if (
+          isHost &&
+          ($config.AUTO_CONNECT_RTM ||
+            (!$config.AUTO_CONNECT_RTM && callActive))
+        ) {
+          await init(rtcProps.uid);
+        }
+      } else {
+        //non waiting room case
+        //host and attendee
+        if (
+          $config.AUTO_CONNECT_RTM ||
+          (!$config.AUTO_CONNECT_RTM && callActive)
+        ) {
+          await init(rtcProps.uid);
+        }
       }
-      //host
-      if (
-        isHost &&
-        ($config.AUTO_CONNECT_RTM || (!$config.AUTO_CONNECT_RTM && callActive))
-      ) {
-        await init(rtcProps.uid);
-      }
-    } else {
-      //non waiting room case
-      //host and attendee
-      if (
-        $config.AUTO_CONNECT_RTM ||
-        (!$config.AUTO_CONNECT_RTM && callActive)
-      ) {
-        await init(rtcProps.uid);
-      }
+    } catch (error) {
+      logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', error);
     }
     return async () => {
+      logger.log(
+        LogSource.AgoraSDK,
+        'Log',
+        'RTM unmounting calling end(destroy) ',
+      );
       await end();
     };
   }, [rtcProps.channel, rtcProps.appId, callActive, rtcProps.uid]);
