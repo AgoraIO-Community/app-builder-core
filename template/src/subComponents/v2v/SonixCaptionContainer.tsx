@@ -88,6 +88,8 @@ const SonixCaptionContainer = () => {
     setMaxNonFinalTokensDurationMs,
     rtcSleepTimeMs,
     setRtcSleepTimeMs,
+    useRestTTS,
+    setUseRestTTS,
   } = useV2V();
 
   // Handler to update providerConfigs and context
@@ -359,6 +361,15 @@ const SonixCaptionContainer = () => {
         //   if (selectedTTS === 'rime') {
         body.rime_model = providerConfigs.rime.model;
         //    }
+        
+        // Logic for use_rest_tts parameter
+        if (selectedTTS === 'eleven_labs') {
+          body.use_rest_tts = true; // Always true for ElevenLabs
+        } else if (selectedTTS === 'rime' && providerConfigs.rime.model === 'arcana') {
+          body.use_rest_tts = true; // Always true for Rime Arcana
+        } else if (selectedTTS === 'rime' && providerConfigs.rime.model === 'mistv2') {
+          body.use_rest_tts = useRestTTS; // User input for Rime MistV2
+        }
 
         if (sourceLang !== targetLang) {
           body.source_lang = [targetLang === 'en' ? '*' : sourceLang];
@@ -402,6 +413,7 @@ const SonixCaptionContainer = () => {
     RtcEngineUnsafe,
     maxNonFinalTokensDurationMs,
     rtcSleepTimeMs,
+    useRestTTS,
   ]);
 
   if (showTranslatorPopup) {
@@ -476,6 +488,8 @@ const SonixCaptionContainer = () => {
         setMaxNonFinalTokensDurationMs={setMaxNonFinalTokensDurationMs}
         rtcSleepTimeMs={rtcSleepTimeMs}
         setRtcSleepTimeMs={setRtcSleepTimeMs}
+        useRestTTS={useRestTTS}
+        setUseRestTTS={setUseRestTTS}
       />
     );
   }
