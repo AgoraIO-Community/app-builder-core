@@ -928,9 +928,15 @@ const RtmConfigure = (props: any) => {
       // Step 1: Set local attributes
       if (persistLevel === PersistanceLevel.Session) {
         const rtmAttribute = {key: evt, value: value};
-        await engine.current.storage.setUserMetadata({
-          items: [rtmAttribute],
-        });
+        const options: SetOrUpdateUserMetadataOptions = {
+          userId: `${rtcProps.uid}`,
+        };
+        await engine.current.storage.setUserMetadata(
+          {
+            items: [rtmAttribute],
+          },
+          options,
+        );
       }
       // Step 2: Emit the event
       console.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
