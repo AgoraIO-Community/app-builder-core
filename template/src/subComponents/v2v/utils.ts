@@ -233,9 +233,9 @@ export const rimeArcanaVoices: VoiceOption[] = [
 export const rimeMistv2VoicesByLanguage = {
   en: [
     {
-      name: 'Amber (Conversational)',
+      name: 'Abbie (Conversational)',
       description: 'Conversational',
-      value: 'amber',
+      value: 'abbie',
     },
     {
       name: 'Allison (General)',
@@ -243,9 +243,39 @@ export const rimeMistv2VoicesByLanguage = {
       value: 'allison',
     },
     {
+      name: 'Ally (Conversational)',
+      description: 'Conversational',
+      value: 'ally',
+    },
+    {
+      name: 'Alona (Conversational)',
+      description: 'Conversational',
+      value: 'alona',
+    },
+    {
+      name: 'Amber (Conversational)',
+      description: 'Conversational',
+      value: 'amber',
+    },
+    {
       name: 'Ana (Conversational)',
       description: 'Conversational',
       value: 'ana',
+    },
+    {
+      name: 'Antoine (General)',
+      description: 'General',
+      value: 'antoine',
+    },
+    {
+      name: 'Armon (General)',
+      description: 'General',
+      value: 'armon',
+    },
+    {
+      name: 'Brenda (General)',
+      description: 'General',
+      value: 'brenda',
     },
     {
       name: 'Brittany (Conversational)',
@@ -253,9 +283,269 @@ export const rimeMistv2VoicesByLanguage = {
       value: 'brittany',
     },
     {
+      name: 'Carol (General)',
+      description: 'General',
+      value: 'carol',
+    },
+    {
+      name: 'Colin (General)',
+      description: 'General',
+      value: 'colin',
+    },
+    {
+      name: 'Courtney (General)',
+      description: 'General',
+      value: 'courtney',
+    },
+    {
       name: 'Elena (Conversational)',
       description: 'Conversational',
       value: 'elena',
+    },
+    {
+      name: 'Elliot (General)',
+      description: 'General',
+      value: 'elliot',
+    },
+    {
+      name: 'Eva (Conversational)',
+      description: 'Conversational',
+      value: 'eva',
+    },
+    {
+      name: 'Geoff (Narration)',
+      description: 'Narration',
+      value: 'geoff',
+    },
+    {
+      name: 'Gerald (Conversational)',
+      description: 'Conversational',
+      value: 'gerald',
+    },
+    {
+      name: 'Gypsum (General)',
+      description: 'General',
+      value: 'gypsum',
+    },
+    {
+      name: 'Hank (General)',
+      description: 'General',
+      value: 'hank',
+    },
+    {
+      name: 'Helen (General)',
+      description: 'General',
+      value: 'helen',
+    },
+    {
+      name: 'Hera (Conversational)',
+      description: 'Conversational',
+      value: 'hera',
+    },
+    {
+      name: 'Jen (General)',
+      description: 'General',
+      value: 'jen',
+    },
+    {
+      name: 'Joe (Narration)',
+      description: 'Narration',
+      value: 'joe',
+    },
+    {
+      name: 'Joy (Conversational)',
+      description: 'Conversational',
+      value: 'joy',
+    },
+    {
+      name: 'Juan (Conversational)',
+      description: 'Conversational',
+      value: 'juan',
+    },
+    {
+      name: 'Kendra (General)',
+      description: 'General',
+      value: 'kendra',
+    },
+    {
+      name: 'Kendrick (General)',
+      description: 'General',
+      value: 'kendrick',
+    },
+    {
+      name: 'Kenneth (General)',
+      description: 'General',
+      value: 'kenneth',
+    },
+    {
+      name: 'Kevin (Conversational)',
+      description: 'Conversational',
+      value: 'kevin',
+    },
+    {
+      name: 'Kris (General)',
+      description: 'General',
+      value: 'kris',
+    },
+    {
+      name: 'Linda (Conversational)',
+      description: 'Conversational',
+      value: 'linda',
+    },
+    {
+      name: 'Madison (Conversational)',
+      description: 'Conversational',
+      value: 'madison',
+    },
+    {
+      name: 'Marge (General)',
+      description: 'General',
+      value: 'marge',
+    },
+    {
+      name: 'Marina (General)',
+      description: 'General',
+      value: 'marina',
+    },
+    {
+      name: 'Marissa (Conversational)',
+      description: 'Conversational',
+      value: 'marissa',
+    },
+    {
+      name: 'Marta (Conversational)',
+      description: 'Conversational',
+      value: 'marta',
+    },
+    {
+      name: 'Maya (General)',
+      description: 'General',
+      value: 'maya',
+    },
+    {
+      name: 'Nicholas (Conversational)',
+      description: 'Conversational',
+      value: 'nicholas',
+    },
+    {
+      name: 'Nyles (General)',
+      description: 'General',
+      value: 'nyles',
+    },
+    {
+      name: 'Phil (General)',
+      description: 'General',
+      value: 'phil',
+    },
+    {
+      name: 'Reba (General)',
+      description: 'General',
+      value: 'reba',
+    },
+    {
+      name: 'Rex (General)',
+      description: 'General',
+      value: 'rex',
+    },
+    {
+      name: 'Rick (General)',
+      description: 'General',
+      value: 'rick',
+    },
+    {
+      name: 'Ritu (General)',
+      description: 'General',
+      value: 'ritu',
+    },
+    {
+      name: 'Rob (General)',
+      description: 'General',
+      value: 'rob',
+    },
+    {
+      name: 'Rodney (Conversational)',
+      description: 'Conversational',
+      value: 'rodney',
+    },
+    {
+      name: 'Rohan (General)',
+      description: 'General',
+      value: 'rohan',
+    },
+    {
+      name: 'Rosco (General)',
+      description: 'General',
+      value: 'rosco',
+    },
+    {
+      name: 'Samantha (Narration)',
+      description: 'Narration',
+      value: 'samantha',
+    },
+    {
+      name: 'Sandy (General)',
+      description: 'General',
+      value: 'sandy',
+    },
+    {
+      name: 'Selena (Conversational)',
+      description: 'Conversational',
+      value: 'selena',
+    },
+    {
+      name: 'Seth (General)',
+      description: 'General',
+      value: 'seth',
+    },
+    {
+      name: 'Sharon (General)',
+      description: 'General',
+      value: 'sharon',
+    },
+    {
+      name: 'Stan (Conversational)',
+      description: 'Conversational',
+      value: 'stan',
+    },
+    {
+      name: 'TJ (General)',
+      description: 'General',
+      value: 'tj',
+    },
+    {
+      name: 'Tamra (Narration)',
+      description: 'Narration',
+      value: 'tamra',
+    },
+    {
+      name: 'Tanya (Conversational)',
+      description: 'Conversational',
+      value: 'tanya',
+    },
+    {
+      name: 'Tibur (General)',
+      description: 'General',
+      value: 'tibur',
+    },
+    {
+      name: 'Tyler (Conversational)',
+      description: 'Conversational',
+      value: 'tyler',
+    },
+    {
+      name: 'Viv (General)',
+      description: 'General',
+      value: 'viv',
+    },
+    {
+      name: 'Yadira (Conversational)',
+      description: 'Conversational',
+      value: 'yadira',
+    },
+    {
+      name: 'Zest (General)',
+      description: 'General',
+      value: 'zest',
     },
   ],
   es: [
