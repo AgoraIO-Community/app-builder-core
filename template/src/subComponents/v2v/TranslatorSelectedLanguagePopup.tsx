@@ -305,7 +305,11 @@ const TranslatorSelectedLanguagePopup: React.FC<
       }
       onCancel={onCancel}>
       <>
-        <View style={{marginBottom: 16}}>
+        <View style={styles.sttSection}>
+          <View style={styles.sectionHeaderWithDivider}>
+            <Text style={styles.mainSectionTitle}>STT Configuration</Text>
+            <View style={styles.divider} />
+          </View>
           {/* <View style={{marginBottom: 8}}>
             <View style={styles.inlineInputContainer}>
               <Text style={styles.inlineInputLabel}>RTC Sleep Time (ms)</Text>
@@ -338,34 +342,28 @@ const TranslatorSelectedLanguagePopup: React.FC<
               Controls the sleep interval for RTC loop (10-300 ms)
             </Text>
           </View> */}
-          <Slider
-            label="Max Non-Final Tokens Duration (ms)"
-            value={maxNonFinalTokensDurationMs}
-            onValueChange={setMaxNonFinalTokensDurationMs}
-            minimumValue={360}
-            maximumValue={6000}
-            step={40}
-            showValue={true}
-            unit="ms"
-            containerStyle={{marginBottom: 8}}
-          />
-
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: 4,
-            }}>
-            <Text style={{marginLeft: 6, color: '#888', fontSize: 12}}>
+          <View style={styles.controlGroup}>
+            <Text style={styles.controlLabel}>Max Non-Final Tokens Duration</Text>
+            <View style={styles.controlWrapper}>
+              <Slider
+                label=""
+                value={maxNonFinalTokensDurationMs}
+                onValueChange={setMaxNonFinalTokensDurationMs}
+                minimumValue={360}
+                maximumValue={6000}
+                step={40}
+                showValue={true}
+                unit="ms"
+                containerStyle={styles.compactSlider}
+              />
+            </View>
+          </View>
+          <View style={styles.sliderDescription}>
+            <Text style={styles.sliderSubtext}>
               Maximum delay between a spoken word and its finalization
             </Text>
             <Text
-              style={{
-                marginLeft: 6,
-                color: '#1a73e8',
-                fontSize: 12,
-                textDecorationLine: 'underline',
-              }}
+              style={styles.docsLink}
               onPress={() => {
                 window.open &&
                   window.open(
@@ -377,121 +375,124 @@ const TranslatorSelectedLanguagePopup: React.FC<
             </Text>
           </View>
         </View>
-        <View style={{marginBottom: 16}}>
-          <Text style={styles.dropdownLabel}>TTS Provider</Text>
-          <Dropdown
-            label={''}
-            data={ttsOptions}
-            selectedValue={selectedTTS}
-            onSelect={({value}) => setSelectedTTS(value as TTSType)}
-            enabled={true}
-          />
+        <View style={styles.ttsSection}>
+          <View style={styles.sectionHeaderWithDivider}>
+            <Text style={styles.mainSectionTitle}>TTS Configuration</Text>
+            <View style={styles.divider} />
+          </View>
+          <View style={styles.controlGroup}>
+            <Text style={styles.controlLabel}>TTS Provider</Text>
+            <View style={styles.controlWrapper}>
+              <Dropdown
+                label={''}
+                data={ttsOptions}
+                selectedValue={selectedTTS}
+                onSelect={({value}) => setSelectedTTS(value as TTSType)}
+                enabled={true}
+              />
+            </View>
+          </View>
         </View>
 
         {selectedTTS === 'rime' && (
-          <>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Rime TTS Configuration</Text>
+          <View style={styles.providerSection}>
+            <Text style={styles.providerNote}>
+              {/* Placeholder to maintain consistent height */}
+              {' '}
+            </Text>
+            <View style={styles.controlGroup}>
+              <Text style={styles.controlLabel}>Model</Text>
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={rimeSelectedModel ? '' : 'Select model...'}
+                  data={rimeModelOptions}
+                  selectedValue={rimeSelectedModel}
+                  onSelect={({value}) => setRimeSelectedModel(value as RimeModelType)}
+                  enabled={true}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Model</Text>
-              <Dropdown
-                label={rimeSelectedModel ? '' : 'Select model...'}
-                data={rimeModelOptions}
-                selectedValue={rimeSelectedModel}
-                onSelect={({value}) => setRimeSelectedModel(value as RimeModelType)}
-                enabled={true}
-              />
+            <View style={styles.controlGroup}>
+              <Text style={styles.controlLabel}>Target Language</Text>
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={rimeTargetLang ? '' : 'Select target language...'}
+                  data={rimeLangData}
+                  selectedValue={rimeTargetLang}
+                  onSelect={({value}) => setRimeTargetLang(value as LanguageType)}
+                  enabled={true}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Target Language</Text>
-              <Dropdown
-                label={rimeTargetLang ? '' : 'Select target language...'}
-                data={rimeLangData}
-                selectedValue={rimeTargetLang}
-                onSelect={({value}) => setRimeTargetLang(value as LanguageType)}
-                enabled={true}
-              />
+            <View style={styles.controlGroup}>
+              <Text style={styles.controlLabel}>Source Language</Text>
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={
+                    rimeTargetLang
+                      ? rimeSourceLang
+                        ? ''
+                        : 'Select source language...'
+                      : 'Select target language first...'
+                  }
+                  data={rimeLangData}
+                  selectedValue={rimeSourceLang}
+                  onSelect={({value}) => setRimeSourceLang(value as LanguageType)}
+                  enabled={!!rimeTargetLang}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Source Language</Text>
-              <Dropdown
-                label={
-                  rimeTargetLang
-                    ? rimeSourceLang
-                      ? ''
-                      : 'Select source language...'
-                    : 'Select target language first...'
-                }
-                data={rimeLangData}
-                selectedValue={rimeSourceLang}
-                onSelect={({value}) => setRimeSourceLang(value as LanguageType)}
-                enabled={!!rimeTargetLang}
-              />
+            <View style={styles.controlGroup}>
+              <Text style={styles.controlLabel}>Voice</Text>
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={
+                    rimeSelectedModel
+                      ? rimeSelectedVoice
+                        ? ''
+                        : 'Select voice...'
+                      : 'Select model first...'
+                  }
+                  data={
+                    rimeSelectedModel
+                      ? getRimeVoicesByModel(
+                          rimeSelectedModel,
+                          rimeSelectedModel === 'mistv2' ? targetLang : undefined
+                        ).map(v => ({
+                          label: v.name,
+                          value: v.value,
+                        }))
+                      : []
+                  }
+                  selectedValue={rimeSelectedVoice}
+                  onSelect={({value}) => setRimeSelectedVoice(value)}
+                  enabled={!!rimeSelectedModel}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Voice</Text>
-              <Dropdown
-                label={
-                  rimeSelectedModel
-                    ? rimeSelectedVoice
-                      ? ''
-                      : 'Select voice...'
-                    : 'Select model first...'
-                }
-                data={
-                  rimeSelectedModel
-                    ? getRimeVoicesByModel(
-                        rimeSelectedModel,
-                        rimeSelectedModel === 'mistv2' ? targetLang : undefined
-                      ).map(v => ({
-                        label: v.name,
-                        value: v.value,
-                      }))
-                    : []
-                }
-                selectedValue={rimeSelectedVoice}
-                onSelect={({value}) => setRimeSelectedVoice(value)}
-                enabled={!!rimeSelectedModel}
-              />
-            </View>
-          </>
+          </View>
         )}
 
         {selectedTTS === 'eleven_labs' && (
-          <>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                ElevenLabs TTS Configuration
-              </Text>
-
-              <Text
-                style={{
-                  color: '#888',
-                  fontSize: 12,
-                }}>
-                Use the reset icon to quickly clear the selected language and
-                unlock all language pairs.
-              </Text>
+          <View style={styles.providerSection}>
+            <Text style={styles.providerNote}>
+              Use the reset icon to quickly clear the selected language and unlock all language pairs.
+            </Text>
+            <View style={styles.controlGroup}>
+              <Text style={styles.controlLabel}>Model</Text>
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={elevenLabsSelectedModel ? '' : 'Select model...'}
+                  data={elevenLabsModelOptions}
+                  selectedValue={elevenLabsSelectedModel}
+                  onSelect={({value}) => setElevenLabsSelectedModel(value as ElevenLabsModelType)}
+                  enabled={false}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Model</Text>
-              <Dropdown
-                label={elevenLabsSelectedModel ? '' : 'Select model...'}
-                data={elevenLabsModelOptions}
-                selectedValue={elevenLabsSelectedModel}
-                onSelect={({value}) => setElevenLabsSelectedModel(value as ElevenLabsModelType)}
-                enabled={false}
-              />
-            </View>
-            <View style={{marginBottom: 16}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 4,
-                }}>
-                <Text style={styles.dropdownLabel}>Target Language</Text>
+            <View style={styles.controlGroup}>
+              <View style={styles.labelWithReset}>
+                <Text style={[styles.controlLabel, {paddingTop: 0}]}>Target Language</Text>
                 <TouchableOpacity
                   onPress={() => setElevenLabsTargetLang('')}
                   style={{marginLeft: 8}}>
@@ -503,24 +504,21 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   />
                 </TouchableOpacity>
               </View>
-              <Dropdown
-                label={elevenLabsTargetLang ? '' : 'Select target language...'}
-                data={finalTargetOptions}
-                selectedValue={elevenLabsTargetLang}
-                onSelect={({value}) =>
-                  setElevenLabsTargetLang(value as LanguageType)
-                }
-                enabled={true}
-              />
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={elevenLabsTargetLang ? '' : 'Select target language...'}
+                  data={finalTargetOptions}
+                  selectedValue={elevenLabsTargetLang}
+                  onSelect={({value}) =>
+                    setElevenLabsTargetLang(value as LanguageType)
+                  }
+                  enabled={true}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 4,
-                }}>
-                <Text style={styles.dropdownLabel}>Source Language</Text>
+            <View style={styles.controlGroup}>
+              <View style={styles.labelWithReset}>
+                <Text style={[styles.controlLabel, {paddingTop: 0}]}>Source Language</Text>
                 <TouchableOpacity
                   onPress={() => setElevenLabsSourceLang('')}
                   style={{marginLeft: 8}}>
@@ -532,46 +530,50 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   />
                 </TouchableOpacity>
               </View>
-              <Dropdown
-                label={
-                  elevenLabsTargetLang
-                    ? elevenLabsSourceLang
-                      ? ''
-                      : 'Select source language...'
-                    : 'Select target language first...'
-                }
-                data={finalSourceOptions}
-                selectedValue={elevenLabsSourceLang}
-                onSelect={({value}) =>
-                  setElevenLabsSourceLang(value as LanguageType)
-                }
-                enabled={!!elevenLabsTargetLang}
-              />
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={
+                    elevenLabsTargetLang
+                      ? elevenLabsSourceLang
+                        ? ''
+                        : 'Select source language...'
+                      : 'Select target language first...'
+                  }
+                  data={finalSourceOptions}
+                  selectedValue={elevenLabsSourceLang}
+                  onSelect={({value}) =>
+                    setElevenLabsSourceLang(value as LanguageType)
+                  }
+                  enabled={!!elevenLabsTargetLang}
+                />
+              </View>
             </View>
-            <View style={{marginBottom: 16}}>
-              <Text style={styles.dropdownLabel}>Voice</Text>
-              <Dropdown
-                label={
-                  elevenLabsSelectedModel
-                    ? elevenLabsSelectedVoice
-                      ? ''
-                      : 'Select voice...'
-                    : 'Select model first...'
-                }
-                data={
-                  elevenLabsSelectedModel
-                    ? getElevenLabsVoicesByModel(elevenLabsSelectedModel).map(v => ({
-                        label: v.name,
-                        value: v.value,
-                      }))
-                    : []
-                }
-                selectedValue={elevenLabsSelectedVoice}
-                onSelect={({value}) => setElevenLabsSelectedVoice(value)}
-                enabled={!!elevenLabsSelectedModel}
-              />
+            <View style={styles.controlGroup}>
+              <Text style={styles.controlLabel}>Voice</Text>
+              <View style={styles.controlWrapper}>
+                <Dropdown
+                  label={
+                    elevenLabsSelectedModel
+                      ? elevenLabsSelectedVoice
+                        ? ''
+                        : 'Select voice...'
+                      : 'Select model first...'
+                  }
+                  data={
+                    elevenLabsSelectedModel
+                      ? getElevenLabsVoicesByModel(elevenLabsSelectedModel).map(v => ({
+                          label: v.name,
+                          value: v.value,
+                        }))
+                      : []
+                  }
+                  selectedValue={elevenLabsSelectedVoice}
+                  onSelect={({value}) => setElevenLabsSelectedVoice(value)}
+                  enabled={!!elevenLabsSelectedModel}
+                />
+              </View>
             </View>
-          </>
+          </View>
         )}
       </>
       {selectedTTS && (
@@ -618,8 +620,9 @@ export default TranslatorSelectedLanguagePopup;
 const styles = StyleSheet.create({
   contentContainer: {
     padding: 24,
-    maxWidth: 446,
-    width: '100%',
+    maxWidth: 600,
+    width: '95%',
+    alignSelf: 'center',
   },
   btnContainer: {
     flexDirection: 'row',
@@ -632,10 +635,10 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 140,
     maxWidth: 180,
-    height: 48,
-    borderRadius: ThemeConfig.BorderRadius.medium,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    height: 52,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
     marginHorizontal: 0,
   },
   btnText: {
@@ -655,11 +658,12 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR,
   },
   dropdownLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
-    marginTop: 8,
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 8,
+    marginTop: 4,
     color: $config.FONT_COLOR,
+    letterSpacing: 0.3,
   },
   singleDropdownContainer: {
     position: 'relative',
@@ -757,5 +761,99 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     width: 120,
+  },
+  sttSection: {
+    marginBottom: 14,
+  },
+  ttsSection: {
+    marginBottom: 4,
+  },
+  providerSection: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  sectionHeaderWithDivider: {
+    marginBottom: 10,
+  },
+  mainSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: $config.FONT_COLOR,
+    marginBottom: 8,
+    letterSpacing: 0.3,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#333',
+    width: '100%',
+  },
+  controlGroup: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+    minHeight: 36,
+  },
+  controlLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: $config.FONT_COLOR,
+    width: 180,
+    marginRight: 12,
+    letterSpacing: 0.3,
+    paddingTop: 12,
+    lineHeight: 20,
+  },
+  controlWrapper: {
+    flex: 1,
+    maxWidth: 280,
+    minWidth: 200,
+  },
+  labelWithReset: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 180,
+    marginRight: 12,
+    paddingTop: 12,
+  },
+  providerNote: {
+    color: '#999',
+    fontSize: 12,
+    fontStyle: 'italic',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+    lineHeight: 16,
+  },
+  sliderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  compactSlider: {
+    flex: 1,
+    marginRight: 12,
+  },
+  sliderSubtext: {
+    color: '#999',
+    fontSize: 11,
+    marginTop: 2,
+    lineHeight: 14,
+  },
+  docsLink: {
+    color: '#1a73e8',
+    fontSize: 11,
+    textDecorationLine: 'underline',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  sliderDescription: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    marginTop: -30,
+    marginLeft: 192, // 180px label width + 12px margin
   },
 });
