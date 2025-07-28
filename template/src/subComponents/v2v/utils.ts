@@ -458,4 +458,4 @@ export function getElevenLabsVoicesByModel(
   return elevenLabsVoices;
 }
 
-export const V2V_URL = 'https://demo.rteappbuilder.com/rcr';
+export const V2V_URL = 'https://demo.rteappbuilder.com/rcr-dev';
