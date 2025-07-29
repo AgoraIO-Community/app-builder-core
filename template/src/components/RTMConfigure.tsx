@@ -618,13 +618,8 @@ const RtmConfigure = (props: any) => {
             'RTM presence.getOnlineUsers data received',
             data,
           );
-          // Filter out your own UID
-          const otherMembers = data.occupants.filter(member => {
-            const isOwnUID = member.userId === `${localUid}`;
-            return !isOwnUID;
-          });
           await Promise.all(
-            otherMembers.map(async member => {
+            data.occupants?.map(async member => {
               try {
                 const backoffAttributes =
                   await fetchUserAttributesWithBackoffRetry(member.userId);
