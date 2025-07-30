@@ -12,20 +12,38 @@ export function formatTime(timestamp: number): string {
 }
 
 export type LanguageType =
-  | 'en-US'
-  | 'hi-IN'
+  | 'ar-EG'
+  | 'ar-JO'
+  | 'ar-SA'
+  | 'ar-AE'
+  | 'bn-IN'
   | 'zh-CN'
   | 'zh-HK'
+  | 'zh-TW'
+  | 'nl-NL'
+  | 'en-IN'
+  | 'en-US'
+  | 'fil-PH'
   | 'fr-FR'
   | 'de-DE'
-  | 'ko-KR'
-  | 'en-IN'
-  | 'ar'
-  | 'ja-JP'
-  | 'pt-PT'
-  | 'es-ES'
-  | 'it-IT'
+  | 'gu-IN'
+  | 'he-IL'
+  | 'hi-IN'
   | 'id-ID'
+  | 'it-IT'
+  | 'ja-JP'
+  | 'kn-IN'
+  | 'ko-KR'
+  | 'ms-MY'
+  | 'fa-IR'
+  | 'pt-PT'
+  | 'ru-RU'
+  | 'es-ES'
+  | 'ta-IN'
+  | 'te-IN'
+  | 'th-TH'
+  | 'tr-TR'
+  | 'vi-VN'
   | '';
 
 interface LanguageData {
@@ -34,20 +52,38 @@ interface LanguageData {
 }
 
 export const langData: LanguageData[] = [
+  {label: 'Arabic (EG)', value: 'ar-EG'},
+  {label: 'Arabic (JO)', value: 'ar-JO'},
+  {label: 'Arabic (SA)', value: 'ar-SA'},
+  {label: 'Arabic (UAE)', value: 'ar-AE'},
+  {label: 'Bengali (IN)', value: 'bn-IN'},
+  {label: 'Chinese', value: 'zh-CN'},
+  {label: 'Chinese (HK)', value: 'zh-HK'},
+  {label: 'Chinese (TW)', value: 'zh-TW'},
+  {label: 'Dutch', value: 'nl-NL'},
+  {label: 'English (IN)', value: 'en-IN'},
   {label: 'English (US)', value: 'en-US'},
-  {label: 'English (India)', value: 'en-IN'},
-  {label: 'Hindi', value: 'hi-IN'},
-  {label: 'Chinese (Simplified)', value: 'zh-CN'},
-  {label: 'Chinese (Traditional)', value: 'zh-HK'},
-  {label: 'Arabic', value: 'ar'},
+  {label: 'Filipino', value: 'fil-PH'},
   {label: 'French', value: 'fr-FR'},
   {label: 'German', value: 'de-DE'},
-  {label: 'Japanese', value: 'ja-JP'},
-  {label: 'Korean', value: 'ko-KR'},
-  {label: 'Portuguese', value: 'pt-PT'},
-  {label: 'Spanish', value: 'es-ES'},
-  {label: 'Italian', value: 'it-IT'},
+  {label: 'Gujarati', value: 'gu-IN'},
+  {label: 'Hebrew', value: 'he-IL'},
+  {label: 'Hindi', value: 'hi-IN'},
   {label: 'Indonesian', value: 'id-ID'},
+  {label: 'Italian', value: 'it-IT'},
+  {label: 'Japanese', value: 'ja-JP'},
+  {label: 'Kannada', value: 'kn-IN'},
+  {label: 'Korean', value: 'ko-KR'},
+  {label: 'Malay', value: 'ms-MY'},
+  {label: 'Persian', value: 'fa-IR'},
+  {label: 'Portuguese', value: 'pt-PT'},
+  {label: 'Russian', value: 'ru-RU'},
+  {label: 'Spanish', value: 'es-ES'},
+  {label: 'Tamil', value: 'ta-IN'},
+  {label: 'Telugu', value: 'te-IN'},
+  {label: 'Thai', value: 'th-TH'},
+  {label: 'Turkish', value: 'tr-TR'},
+  {label: 'Vietnamese', value: 'vi-VN'},
 ];
 
 export function getLanguageLabel(
