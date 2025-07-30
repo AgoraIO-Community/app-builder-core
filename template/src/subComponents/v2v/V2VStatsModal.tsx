@@ -23,6 +23,8 @@ const V2VStatsModal = ({visible, onClose}) => {
           Max Non-Final Tokens Duration
         </Text>
         <Text style={[styles.cell, styles.headerCell]}>TTS Provider</Text>
+        <Text style={[styles.cell, styles.headerCell]}>TTS Model</Text>
+        <Text style={[styles.cell, styles.headerCell]}>Connection Type</Text>
       </View>
       <ScrollView style={styles.scrollView}>
         {statsList.map((stat, idx) => {
@@ -63,6 +65,8 @@ const V2VStatsModal = ({visible, onClose}) => {
                   : '-'}
               </Text>
               <Text style={styles.cell}>{stat.selectedTTS || '-'}</Text>
+              <Text style={styles.cell}>{stat.ttsModel || '-'}</Text>
+              <Text style={styles.cell}>{stat.useRestTTS ? 'Rest':'Websocket'}</Text>
             </View>
           );
         })}
@@ -89,7 +93,7 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 16,
     minWidth: 420,
-    maxWidth: 750,
+    maxWidth: 850,
     width: '100%',
   },
   tableHeader: {

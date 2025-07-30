@@ -225,6 +225,8 @@ const SonixCaptionContainer = () => {
                 ...data.payload,
                 maxNonFinalTokensDurationMs,
                 selectedTTS,
+                ttsModel:selectedTTS === 'rime'?providerConfigs.rime.model : eleven_multilingual_v2,
+                useRestTTS
               },
             ]);
           }
