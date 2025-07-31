@@ -225,8 +225,11 @@ const SonixCaptionContainer = () => {
                 ...data.payload,
                 maxNonFinalTokensDurationMs,
                 selectedTTS,
-                ttsModel:selectedTTS === 'rime'?providerConfigs.rime.model : eleven_multilingual_v2,
-                useRestTTS
+                ttsModel:
+                  selectedTTS === 'rime'
+                    ? providerConfigs.rime.model
+                    : providerConfigs.eleven_labs.model,
+                useRestTTS,
               },
             ]);
           }
@@ -360,17 +363,24 @@ const SonixCaptionContainer = () => {
         };
 
         // Add rime_model only when Rime TTS is selected:temp fix remove once be chanegs
-        //   if (selectedTTS === 'rime') {
-        body.rime_model = providerConfigs.rime.model;
-        //    }
-        
+        if (selectedTTS === 'rime') {
+          body.rime_model = providerConfigs.rime.model;
+        }
+
         // Logic for use_rest_tts parameter
         if (selectedTTS === 'eleven_labs') {
-          body.use_rest_tts = true; // Always true for ElevenLabs
-        } else if (selectedTTS === 'rime' && providerConfigs.rime.model === 'arcana') {
+          body.use_rest_tts = useRestTTS;
+          body.eleven_labs_model = providerConfigs.eleven_labs.model;
+        } else if (
+          selectedTTS === 'rime' &&
+          providerConfigs.rime.model === 'arcana'
+        ) {
           body.use_rest_tts = true; // Always true for Rime Arcana
-        } else if (selectedTTS === 'rime' && providerConfigs.rime.model === 'mistv2') {
-          body.use_rest_tts = useRestTTS; // User input for Rime MistV2
+        } else if (
+          selectedTTS === 'rime' &&
+          providerConfigs.rime.model === 'mistv2'
+        ) {
+          body.use_rest_tts = useRestTTS;
         }
 
         if (sourceLang !== targetLang) {
