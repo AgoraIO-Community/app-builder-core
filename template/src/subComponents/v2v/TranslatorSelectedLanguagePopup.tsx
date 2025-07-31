@@ -289,7 +289,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
   // Logic for Rest API checkbox
   const getRestApiState = () => {
     if (selectedTTS === 'eleven_labs') {
-      return { checked: true, disabled: true }; // Always true and disabled for ElevenLabs
+      return { checked: useRestTTS, disabled: false }; // User can toggle for ElevenLabs
     } else if (selectedTTS === 'rime' && rimeSelectedModel === 'arcana') {
       return { checked: true, disabled: true }; // Always true and disabled for Rime Arcana
     } else if (selectedTTS === 'rime' && rimeSelectedModel === 'mistv2') {
