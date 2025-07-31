@@ -17,6 +17,9 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface TextInputCustomProps extends TextInputProps {
   setRef?: (ref: any) => void;
+  onCompositionStart?: () => void;
+  onCompositionEnd?: () => void;
+  onInput?: (event: any) => void;
 }
 
 const TextInputCustom = (props: TextInputCustomProps) => {
