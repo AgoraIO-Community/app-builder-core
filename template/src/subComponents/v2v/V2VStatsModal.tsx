@@ -3,9 +3,74 @@ import {View, Text, ScrollView, StyleSheet} from 'react-native';
 import Popup from '../../atoms/Popup';
 import {useV2V} from './useVoice2Voice';
 import ThemeConfig from '../../theme';
+import SecondaryButton from '../../atoms/SecondaryButton';
 
 const V2VStatsModal = ({visible, onClose}) => {
   const {statsList} = useV2V();
+
+  const exportToCSV = () => {
+    const headers = [
+      'Text',
+      'STT (ms)',
+      'TTS (ms)',
+      'Total (ms)',
+      'Max Non-Final Tokens Duration (ms)',
+      'TTS Provider',
+      'TTS Model',
+      'Connection Type',
+    ];
+
+    const csvData = statsList.map(stat => {
+      const sttTime =
+        stat.END_STT && stat.FIRST_NON_FINAL_STT
+          ? Math.round((stat.END_STT - stat.FIRST_NON_FINAL_STT) * 1000)
+          : '';
+      const ttsTime =
+        stat.FIRST_TTS && stat.BEGIN_TTS
+          ? Math.round((stat.FIRST_TTS - stat.BEGIN_TTS) * 1000)
+          : '';
+      const total =
+        typeof sttTime === 'number' && typeof ttsTime === 'number'
+          ? sttTime + ttsTime
+          : '';
+
+      const text =
+        stat.srcText && stat.tgtText && stat.srcLang && stat.tgtLang
+          ? `${stat.srcText} (${stat.srcLang}) ${stat.tgtText} (${stat.tgtLang})`
+          : stat.TEXT || '';
+
+      return [
+        `"${text.replace(/"/g, '""')}"`,
+        sttTime,
+        ttsTime,
+        total,
+        stat.maxNonFinalTokensDurationMs || '',
+        stat.selectedTTS || '',
+        stat.ttsModel || '',
+        stat.useRestTTS ? 'Rest' : 'Websocket',
+      ];
+    });
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute(
+      'download',
+      `v2v-stats-${new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .slice(0, 16)}.csv`,
+    );
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <Popup
       modalVisible={visible}
@@ -66,7 +131,9 @@ const V2VStatsModal = ({visible, onClose}) => {
               </Text>
               <Text style={styles.cell}>{stat.selectedTTS || '-'}</Text>
               <Text style={styles.cell}>{stat.ttsModel || '-'}</Text>
-              <Text style={styles.cell}>{stat.useRestTTS ? 'Rest':'Websocket'}</Text>
+              <Text style={styles.cell}>
+                {stat.useRestTTS ? 'Rest' : 'Websocket'}
+              </Text>
             </View>
           );
         })}
@@ -84,6 +151,14 @@ const V2VStatsModal = ({visible, onClose}) => {
           TTS Provider: The Text-to-Speech provider used for this translation
           (e.g., rime, eleven_labs).
         </Text>
+      </View>
+      <View style={styles.exportButtonContainer}>
+        <SecondaryButton
+          text="Export CSV"
+          onPress={exportToCSV}
+          style={styles.exportButton}
+          // containerStyle={styles.exportButton}
+        />
       </View>
     </Popup>
   );
@@ -127,6 +202,15 @@ const styles = StyleSheet.create({
   text: {
     color: '#888',
     fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  exportButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  exportButton: {
+    minWidth: 80,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
 });
 
