@@ -120,7 +120,7 @@ export default function AiAgentCustomView({
             style={{pointerEvents: 'none'}}
             loop
             src={AI_ANIMATION_VIDEO[animation]}
-            width={isMobileUA() ? '40%' : 'auto'}
+            width={'40%'}
             height={'auto'}
           />
           <div style={styles.overlay} />
