@@ -206,7 +206,7 @@ const SonixCaptionContainer = () => {
             const event = data.payload.event;
             const uid = data.payload.uid;
             if (event === 'FIRST_TTS') {
-              setProgressUid(uid);
+              // setProgressUid(uid);
             }
           }
           if (data.type === 'TEXT' && data.payload) {
@@ -217,7 +217,7 @@ const SonixCaptionContainer = () => {
 
           // Progress bar logic for STATS event
           if (data.type === 'STATS' && data.payload) {
-            setProgressUid(null);
+            //  setProgressUid(null);
             // Remove totalTokenTime and sttTokenTime from statsList
             setStatsList(prev => [
               ...prev,

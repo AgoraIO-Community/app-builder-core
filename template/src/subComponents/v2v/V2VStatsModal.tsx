@@ -80,16 +80,30 @@ const V2VStatsModal = ({visible, onClose}) => {
       contentContainerStyle={styles.modalContent}
       onCancel={onClose}>
       <View style={styles.tableHeader}>
-        <Text style={[styles.cell, styles.headerCell, {flex: 2}]}>Text</Text>
-        <Text style={[styles.cell, styles.headerCell]}>STT</Text>
-        <Text style={[styles.cell, styles.headerCell]}>TTS</Text>
-        <Text style={[styles.cell, styles.headerCell]}>Total</Text>
-        <Text style={[styles.cell, styles.headerCell]}>
+        <Text style={[styles.cell, styles.headerCell, styles.textColumn]}>
+          Text
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.sttColumn]}>
+          STT
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.ttsColumn]}>
+          TTS
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.totalColumn]}>
+          Total
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.tokensColumn]}>
           Max Non-Final Tokens Duration
         </Text>
-        <Text style={[styles.cell, styles.headerCell]}>TTS Provider</Text>
-        <Text style={[styles.cell, styles.headerCell]}>TTS Model</Text>
-        <Text style={[styles.cell, styles.headerCell]}>Connection Type</Text>
+        <Text style={[styles.cell, styles.headerCell, styles.providerColumn]}>
+          TTS Provider
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.modelColumn]}>
+          TTS Model
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.connectionColumn]}>
+          Connection Type
+        </Text>
       </View>
       <ScrollView style={styles.scrollView}>
         {statsList.map((stat, idx) => {
@@ -108,30 +122,55 @@ const V2VStatsModal = ({visible, onClose}) => {
           return (
             <View key={idx} style={styles.tableRow}>
               <Text
-                style={[styles.cell, {flex: 2}]}
+                style={[styles.cell, styles.textColumn]}
                 numberOfLines={2}
                 ellipsizeMode="tail">
                 {stat.srcText && stat.tgtText && stat.srcLang && stat.tgtLang
                   ? `${stat.srcText} (${stat.srcLang})  ${stat.tgtText} (${stat.tgtLang})`
                   : stat.TEXT || '-'}
               </Text>
-              <Text style={styles.cell}>
+              <Text
+                style={[styles.cell, styles.sttColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {sttTime !== '-' ? `${sttTime} ms` : '-'}
               </Text>
-              <Text style={styles.cell}>
+              <Text
+                style={[styles.cell, styles.ttsColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {ttsTime !== '-' ? `${ttsTime} ms` : '-'}
               </Text>
-              <Text style={styles.cell}>
+              <Text
+                style={[styles.cell, styles.totalColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {total !== '-' ? `${total} ms` : '-'}
               </Text>
-              <Text style={styles.cell}>
+              <Text
+                style={[styles.cell, styles.tokensColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {stat.maxNonFinalTokensDurationMs
                   ? `${stat.maxNonFinalTokensDurationMs} ms`
                   : '-'}
               </Text>
-              <Text style={styles.cell}>{stat.selectedTTS || '-'}</Text>
-              <Text style={styles.cell}>{stat.ttsModel || '-'}</Text>
-              <Text style={styles.cell}>
+              <Text
+                style={[styles.cell, styles.providerColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {stat.selectedTTS || '-'}
+              </Text>
+              <Text
+                style={[styles.cell, styles.modelColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {stat.ttsModel || '-'}
+              </Text>
+              <Text
+                style={[styles.cell, styles.connectionColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {stat.useRestTTS ? 'Rest' : 'Websocket'}
               </Text>
             </View>
@@ -167,8 +206,8 @@ const V2VStatsModal = ({visible, onClose}) => {
 const styles = StyleSheet.create({
   modalContent: {
     padding: 16,
-    minWidth: 420,
-    maxWidth: 850,
+    minWidth: 950,
+    maxWidth: 950,
     width: '100%',
   },
   tableHeader: {
@@ -186,7 +225,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cell: {
-    flex: 1,
     color: '#fff',
     fontSize: 13,
     paddingHorizontal: 4,
@@ -211,6 +249,47 @@ const styles = StyleSheet.create({
     minWidth: 80,
     paddingHorizontal: 10,
     paddingVertical: 8,
+  },
+  // Column-specific styles with fixed widths
+  textColumn: {
+    width: 250,
+    maxWidth: 250,
+    minWidth: 200,
+  },
+  sttColumn: {
+    width: 80,
+    maxWidth: 80,
+    minWidth: 60,
+  },
+  ttsColumn: {
+    width: 80,
+    maxWidth: 80,
+    minWidth: 60,
+  },
+  totalColumn: {
+    width: 80,
+    maxWidth: 80,
+    minWidth: 60,
+  },
+  tokensColumn: {
+    width: 120,
+    maxWidth: 120,
+    minWidth: 100,
+  },
+  providerColumn: {
+    width: 100,
+    maxWidth: 100,
+    minWidth: 80,
+  },
+  modelColumn: {
+    width: 120,
+    maxWidth: 120,
+    minWidth: 100,
+  },
+  connectionColumn: {
+    width: 100,
+    maxWidth: 100,
+    minWidth: 80,
   },
 });
 
