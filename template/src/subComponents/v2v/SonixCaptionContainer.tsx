@@ -205,7 +205,7 @@ const SonixCaptionContainer = () => {
           if (data.type === 'NOTIFY' && data.payload) {
             const event = data.payload.event;
             const uid = data.payload.uid;
-            if (event === 'BEGIN_TTS') {
+            if (event === 'FIRST_TTS') {
               setProgressUid(uid);
             }
           }
