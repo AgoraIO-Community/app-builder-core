@@ -1,8 +1,6 @@
 import {UidType} from '../../../../agora-rn-uikit/src';
 import {BreakoutChannelJoinEventPayload} from '../state/types';
 import {randomNameGenerator} from '../../../utils';
-import {ConnectionState} from 'agora-rtc-sdk-ng';
-import RtcEngine from '../../../../bridge/rtc/webNg';
 
 export interface BreakoutGroup {
   id: string;
@@ -20,25 +18,26 @@ export interface BreakoutRoomState {
     name: string;
     channelInfo: BreakoutChannelJoinEventPayload['data']['data'];
   };
-  breakoutGroupRtc: {
-    connectionState: ConnectionState;
-    connectionError: string;
-    engine: RtcEngine | null;
-  };
 }
 
 export const initialBreakoutRoomState: BreakoutRoomState = {
   breakoutSessionId: '',
-  breakoutGroups: [],
+  breakoutGroups: [
+    {
+      name: 'Room 1',
+      id: `temp_${randomNameGenerator(6)}`,
+      participants: {hosts: [], attendees: []},
+    },
+    {
+      name: 'Room 2',
+      id: `temp_${randomNameGenerator(6)}`,
+      participants: {hosts: [], attendees: []},
+    },
+  ],
   activeBreakoutGroup: {
     id: undefined,
     name: '',
     channelInfo: undefined,
-  },
-  breakoutGroupRtc: {
-    connectionState: undefined,
-    connectionError: undefined,
-    engine: null,
   },
 };
 

@@ -6,7 +6,7 @@ import Divider from '../../common/Dividers';
 import Toggle from '../../../atoms/Toggle';
 import ThemeConfig from '../../../theme';
 
-export default function BreakoutRoomHostControls() {
+export default function BreakoutRoomSettings() {
   return (
     <View style={style.card}>
       {/* Avatar list  */}

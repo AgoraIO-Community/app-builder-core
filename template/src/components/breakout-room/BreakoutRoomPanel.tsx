@@ -9,141 +9,25 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useState} from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
-import ParticipantSectionTitle from '../participants/ParticipantSectionTitle';
-import AllHostParticipants from '../participants/AllHostParticipants';
-import {useString} from '../../utils/useString';
+import React, {useEffect} from 'react';
+import {View, StyleSheet, ScrollView} from 'react-native';
 import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
-import ChatContext from '../ChatContext';
 import CommonStyles from '../CommonStyles';
-import {useLayout, useContent, TertiaryButton, Spacer} from 'customization-api';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {BreakoutRoomHeader} from '../../pages/video-call/SidePanelHeader';
 import useCaptionWidth from '../../subComponents/caption/useCaptionWidth';
-import {
-  peoplePanelInThisMeetingLabel,
-  peoplePanelNoUsersJoinedContent,
-} from '../../language/default-labels/videoCallScreenLabels';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {useBreakoutRoom} from './context/BreakoutRoomContext';
-import BreakoutRoomHostControls from './ui/BreakoutRoomHostControls';
-
-const BreakoutRoomGroupCard = ({name, participants}) => {
-  const {defaultContent} = useContent();
-  return (
-    <View
-      key={name}
-      style={{
-        margin: 12,
-      }}>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-          padding: 12,
-          borderRadius: 12,
-          borderWidth: 2,
-          borderColor: $config.CARD_LAYER_3_COLOR,
-          backgroundColor: $config.CARD_LAYER_1_COLOR,
-        }}>
-        <View
-          style={{
-            height: 24,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-          <Text style={{color: $config.FONT_COLOR}}>{name}</Text>
-        </View>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-            alignSelf: 'stretch',
-            alignItems: 'flex-start',
-          }}>
-          {participants?.hosts?.length ? (
-            <>
-              <Text
-                style={{
-                  color: $config.FONT_COLOR,
-                  fontSize: 16,
-                  fontWeight: '800',
-                }}>
-                Hosts
-              </Text>
-              {participants?.hosts?.map(uid => {
-                return (
-                  <Text style={{color: $config.FONT_COLOR}}>
-                    {defaultContent[uid].name}
-                  </Text>
-                );
-              })}
-            </>
-          ) : (
-            <></>
-          )}
-          <Spacer size={8} horizontal />
-          {participants?.attendees?.length ? (
-            <>
-              <Text
-                style={{
-                  color: $config.FONT_COLOR,
-                  fontSize: 16,
-                  fontWeight: '800',
-                }}>
-                Attendees
-              </Text>
-              {participants?.attendees?.map(uid => {
-                return (
-                  <Text style={{color: $config.FONT_COLOR}}>
-                    {defaultContent[uid]?.name}
-                  </Text>
-                );
-              })}
-            </>
-          ) : (
-            <></>
-          )}
-        </View>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-            alignSelf: 'flex-end',
-            backgroundColor: $config.CARD_LAYER_2_COLOR,
-            padding: 10,
-            borderRadius: 8,
-          }}>
-          <Text style={{color: $config.FONT_COLOR}}>
-            Members{' - '}
-            {participants?.hosts?.length || 0 + participants?.attendees?.length}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-};
+import BreakoutRoomSettings from './ui/BreakoutRoomSettings';
+import BreakoutRoomGroupSettings from './ui/BreakoutRoomGroupSettings';
+import ThemeConfig from '../../theme';
+import TertiaryButton from '../../atoms/TertiaryButton';
+import Spacer from '../../atoms/Spacer';
+import {useLayout} from '../../utils/useLayout';
 
 const BreakoutRoomPanel = props => {
-  const {activeUids, customContent} = useContent();
-  const {onlineUsersCount} = useContext(ChatContext);
   const {showHeader = true} = props;
-  const meetingParticpantsLabel = useString(peoplePanelInThisMeetingLabel)();
-  const noUsersJoinedYet = useString(peoplePanelNoUsersJoinedContent)();
   const isSmall = useIsSmall();
-  const [showMeetingParticipants, setShowMeetingParticipants] = useState(true);
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
   const {
@@ -156,7 +40,7 @@ const BreakoutRoomPanel = props => {
     breakoutGroups,
     startBreakoutRoom,
   } = useBreakoutRoom();
-  console.log('supriya breakoutGroups ', breakoutGroups);
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -189,38 +73,14 @@ const BreakoutRoomPanel = props => {
       {showHeader && <BreakoutRoomHeader />}
       <ScrollView style={[style.pannelOuterBody]}>
         <View style={style.panelInnerBody}>
-          <BreakoutRoomHostControls />
-          {showMeetingParticipants ? (
-            <AllHostParticipants
-              emptyMessage={noUsersJoinedYet}
-              //custom content shouldn't be shown in the participant list. so filtering the activeuids
-              uids={activeUids.filter(i => !customContent[i])}
-              isMobile={isSmall()}
-              updateActionSheet={props.updateActionSheet}
-              handleClose={props.handleClose}
-              hideControls={true}
-              showBreakoutRoomMenu={true}
-              from="breakout-room"
-            />
-          ) : (
-            <></>
-          )}
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignSelf: 'flex-end',
-              margin: 10,
-            }}>
-            <TouchableOpacity onPress={() => createBreakoutRoomGroup()}>
-              <Text style={{color: $config.PRIMARY_ACTION_BRAND_COLOR}}>
-                + Create Group
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {breakoutGroups.map((props, index) => {
-            return <BreakoutRoomGroupCard key={index} {...props} />;
-          })}
+          <BreakoutRoomSettings />
+          <BreakoutRoomGroupSettings groups={breakoutGroups} />
+          <TertiaryButton
+            containerStyle={style.createBtnContainer}
+            textStyle={style.createBtnText}
+            text={'+ Create New Room'}
+            onPress={() => createBreakoutRoomGroup()}
+          />
         </View>
       </ScrollView>
       {isHost && (
@@ -265,6 +125,18 @@ const style = StyleSheet.create({
     display: 'flex',
     flex: 1,
     padding: 12,
+    gap: 12,
+  },
+  createBtnContainer: {
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 8,
+  },
+  createBtnText: {
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    lineHeight: 20,
+    fontWeight: '500',
+    fontSize: ThemeConfig.FontSize.normal,
   },
 });
 
