@@ -30,6 +30,8 @@ import {
   getElevenLabsVoicesByModel,
   getValidElevenLabsTargets,
   getValidElevenLabsSources,
+  getRimeLangDataByConnection,
+  isLanguageValidForConnection,
 } from './utils';
 import Checkbox from '../../atoms/Checkbox';
 import Dropdown from '../../atoms/Dropdown';
@@ -286,6 +288,23 @@ const TranslatorSelectedLanguagePopup: React.FC<
     }
   }, [elevenLabsSelectedModel, elevenLabsSelectedVoice, setElevenLabsSelectedVoice]);
 
+  // Handle language validation when useRestTTS or model changes for Rime
+  React.useEffect(() => {
+    if (selectedTTS === 'rime') {
+      // Check if current source language is valid for the connection type
+      if (rimeSourceLang && !isLanguageValidForConnection(rimeSourceLang, useRestTTS, rimeSelectedModel)) {
+        // Reset to English (first valid option for WebSocket mode)
+        setRimeSourceLang('en');
+      }
+      
+      // Check if current target language is valid for the connection type
+      if (rimeTargetLang && !isLanguageValidForConnection(rimeTargetLang, useRestTTS, rimeSelectedModel)) {
+        // Reset to English (first valid option for WebSocket mode)
+        setRimeTargetLang('en');
+      }
+    }
+  }, [selectedTTS, useRestTTS, rimeSelectedModel, rimeSourceLang, rimeTargetLang, setRimeSourceLang, setRimeTargetLang]);
+
   // Logic for Rest API checkbox
   const getRestApiState = () => {
     if (selectedTTS === 'eleven_labs') {
@@ -447,7 +466,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
               <View style={styles.controlWrapper}>
                 <Dropdown
                   label={rimeTargetLang ? '' : 'Select target language...'}
-                  data={rimeLangData}
+                  data={getRimeLangDataByConnection(useRestTTS, rimeSelectedModel)}
                   selectedValue={rimeTargetLang}
                   onSelect={({value}) => setRimeTargetLang(value as LanguageType)}
                   enabled={true}
@@ -465,7 +484,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                         : 'Select source language...'
                       : 'Select target language first...'
                   }
-                  data={rimeLangData}
+                  data={getRimeLangDataByConnection(useRestTTS, rimeSelectedModel)}
                   selectedValue={rimeSourceLang}
                   onSelect={({value}) => setRimeSourceLang(value as LanguageType)}
                   enabled={!!rimeTargetLang}
