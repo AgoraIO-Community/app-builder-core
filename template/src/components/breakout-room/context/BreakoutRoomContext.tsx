@@ -12,6 +12,7 @@ import {
   BreakoutRoomState,
   breakoutRoomReducer,
   initialBreakoutRoomState,
+  RoomAssignmentStrategy,
 } from '../state/reducer';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
@@ -26,7 +27,7 @@ const getSanitizedPayload = (payload: BreakoutGroup[]) => {
 interface BreakoutRoomContextValue {
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
   breakoutGroups: BreakoutRoomState['breakoutGroups'];
-  breakoutGroupRtc: BreakoutRoomState['breakoutGroupRtc'];
+  assignmentStrategy: RoomAssignmentStrategy;
   createBreakoutRoomGroup: (name?: string) => void;
   addUserIntoGroup: (
     uid: UidType,
@@ -35,12 +36,17 @@ interface BreakoutRoomContextValue {
   ) => void;
   startBreakoutRoom: () => void;
   checkBreakoutRoomSession: () => void;
+  assignParticipants: (
+    strategy: RoomAssignmentStrategy,
+    participants: UidType[],
+  ) => void;
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   breakoutSessionId: undefined,
+  assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
   breakoutGroups: [],
-  breakoutGroupRtc: {} as BreakoutRoomState['breakoutGroupRtc'],
+  assignParticipants: () => {},
   createBreakoutRoomGroup: () => {},
   addUserIntoGroup: () => {},
   startBreakoutRoom: () => {},
@@ -148,12 +154,22 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     });
   };
 
+  const assignParticipants = (
+    strategy: RoomAssignmentStrategy,
+    participants: UidType[],
+  ) => {
+    dispatch({
+      type: BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
+      payload: {strategy, participantsToAssign: [...participants]},
+    });
+  };
   return (
     <BreakoutRoomContext.Provider
       value={{
         breakoutSessionId: state.breakoutSessionId,
         breakoutGroups: state.breakoutGroups,
-        breakoutGroupRtc: state.breakoutGroupRtc,
+        assignmentStrategy: state.assignmentStrategy,
+        assignParticipants: assignParticipants,
         createBreakoutRoomGroup,
         addUserIntoGroup,
         startBreakoutRoom,

@@ -1,34 +1,43 @@
-import React, {useEffect} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React from 'react';
+import {Text, StyleSheet} from 'react-native';
 import {Dropdown} from 'customization-api';
 import ThemeConfig from '../../../theme';
 import TertiaryButton from '../../../atoms/TertiaryButton';
+import {RoomAssignmentStrategy} from '../state/reducer';
 
-interface ParticipantAssignControlProps {
-  onAssign: () => void;
-  strategy: 'auto' | 'manually' | 'self';
-  onStrategyChange: (value: string) => void;
+interface Props {
+  selectedStrategy: RoomAssignmentStrategy;
+  onStrategyChange: (strategy: RoomAssignmentStrategy) => void;
 }
 
 const strategyList = [
-  {label: 'Auto-assign people to all rooms', value: 'auto'},
-  {label: 'Manually Assign participants', value: 'manually'},
-  {label: 'Let people choose their rooms', value: 'self'},
+  {
+    label: 'Auto-assign people to all rooms',
+    value: RoomAssignmentStrategy.AUTO_ASSIGN,
+  },
+  {
+    label: 'Manually Assign participants',
+    value: RoomAssignmentStrategy.MANUAL_ASSIGN,
+  },
+  {
+    label: 'Let people choose their rooms',
+    value: RoomAssignmentStrategy.NO_ASSIGN,
+  },
 ];
-const SelectParticipantAssignmentStrategy = () => {
-  useEffect(() => {}, []);
-
+const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
+  selectedStrategy,
+  onStrategyChange,
+}) => {
   return (
     <>
       <Text style={style.label}>Assign participants to breakout rooms</Text>
       <Dropdown
         enabled={true}
-        selectedValue={strategyList[0].value}
+        selectedValue={selectedStrategy}
         label={strategyList[0].label}
         data={strategyList}
         onSelect={async ({label, value}) => {
-          console.log('value: ', value);
-          console.log('label: ', label);
+          onStrategyChange(value as RoomAssignmentStrategy);
         }}
       />
       <TertiaryButton

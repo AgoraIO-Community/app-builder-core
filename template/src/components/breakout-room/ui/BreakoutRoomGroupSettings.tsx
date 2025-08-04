@@ -55,7 +55,7 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
           textStyle={styles.userAvatarText}
         />
         <Text style={styles.memberName} numberOfLines={1}>
-          getName({memberUId})
+          {getName(memberUId)}
         </Text>
       </View>
 

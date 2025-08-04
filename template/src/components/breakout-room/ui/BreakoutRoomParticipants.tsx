@@ -12,103 +12,31 @@
 
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {useContent} from 'customization-api';
-import {useLocalUid} from '../../../../agora-rn-uikit';
 import UserAvatar from '../../../atoms/UserAvatar';
-import {UidType} from '../../../../agora-rn-uikit';
+import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import ThemeConfig from '../../../theme';
 
-interface BreakoutRoomParticipantsProps {
-  onParticipantSelect?: (uid: UidType) => void;
-  selectedParticipants?: UidType[];
-  title?: string;
+interface Props {
+  participants?: {uid: UidType; user: ContentInterface}[];
 }
 
-const BreakoutRoomParticipants: React.FC<BreakoutRoomParticipantsProps> = ({
-  onParticipantSelect,
-  selectedParticipants = [],
-  title = 'Main Room',
-}) => {
-  const {defaultContent, activeUids} = useContent();
-  console.log('supriya activeUids: ', activeUids);
-  const localUid = useLocalUid();
-
-  // Filter active UIDs to exclude:
-  // 1. Custom content (not type 'rtc')
-  // 2. Screenshare UIDs
-  // 3. Offline users
-  const filteredParticipants = activeUids
-    .filter(uid => {
-      const user = defaultContent[uid];
-      if (!user) {
-        return false;
-      }
-      // Only include RTC users
-      if (user.type !== 'rtc') {
-        return false;
-      }
-      // Exclude offline users
-      if (user.offline) {
-        return false;
-      }
-      // Exclude screenshare UIDs (they typically have a parentUid)
-      if (user.parentUid) {
-        return false;
-      }
-      return true;
-    })
-    .map(uid => ({
-      uid,
-      user: defaultContent[uid],
-    }));
-
-  // Sort participants with local user first
-  const availableParticipants = filteredParticipants.sort((a, b) => {
-    if (a.uid === localUid) {
-      return -1;
-    }
-    if (b.uid === localUid) {
-      return 1;
-    }
-    return 0;
-  });
-
-  const renderParticipant = ({item}: {item: {uid: UidType; user: any}}) => {
-    console.log('supriya participant item: ', item);
-    const {uid, user} = item;
-    const isSelected = selectedParticipants.includes(uid);
-
-    return (
-      <View style={[styles.participantItem, isSelected && styles.selectedItem]}>
-        <UserAvatar
-          name={user.name}
-          containerStyle={styles.userAvatarContainer}
-          textStyle={styles.userAvatarText}
-        />
-        {onParticipantSelect && (
-          <View style={styles.selectButton}>
-            <Text
-              style={[
-                styles.selectButtonText,
-                isSelected && styles.selectedButtonText,
-              ]}
-              onPress={() => onParticipantSelect(uid)}>
-              {isSelected ? 'Selected' : 'Select'}
-            </Text>
-          </View>
-        )}
-      </View>
-    );
-  };
-
+const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
   return (
     <>
       <Text style={styles.title}>
-        {title} ({availableParticipants.length} unassigned)
+        Main Room ({participants.length} unassigned)
       </Text>
       <View style={styles.participantContainer}>
-        {availableParticipants.length > 0 ? (
-          availableParticipants.map(item => renderParticipant({item}))
+        {participants.length > 0 ? (
+          participants.map(item => (
+            <View style={[styles.participantItem]}>
+              <UserAvatar
+                name={item.user.name}
+                containerStyle={styles.userAvatarContainer}
+                textStyle={styles.userAvatarText}
+              />
+            </View>
+          ))
         ) : (
           <Text style={styles.emptyStateText}>
             No participants available for breakout rooms
@@ -127,31 +55,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     opacity: 0.2,
   },
-  listContainer: {
-    paddingVertical: 8,
-  },
   participantContainer: {
     display: 'flex',
     flexDirection: 'row',
     gap: 5,
   },
-  participantItem: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // paddingHorizontal: 16,
-    // paddingVertical: 12,
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#2a2a2a',
-  },
-  selectedItem: {
-    backgroundColor: '#2a4a7a',
-  },
-  avatar: {
-    marginRight: 12,
-  },
-  participantInfo: {
-    flex: 1,
-  },
+  participantItem: {},
   userAvatarContainer: {
     backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 24,
@@ -167,32 +76,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
   },
-
-  participantName: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  participantStatus: {
-    color: '#888',
-    fontSize: 12,
-  },
-  selectButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#4A90E2',
-    borderRadius: 4,
-  },
-  selectButtonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  selectedButtonText: {
-    color: '#4A90E2',
-  },
-
   emptyStateText: {
     color: $config.FONT_COLOR,
     fontSize: 14,
