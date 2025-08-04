@@ -57,6 +57,11 @@ export const rimeLangData: LanguageData[] = [
   {label: 'Spanish', value: 'es'},
 ];
 
+export const rimeMistv2WebSocketLangData: LanguageData[] = [
+  {label: 'English', value: 'en'},
+  {label: 'Spanish', value: 'es'},
+];
+
 export const elevenLabsLangData: LanguageData[] = [
   {label: 'English', value: 'en'},
   {label: 'Japanese', value: 'ja'},
@@ -749,3 +754,32 @@ export function getElevenLabsVoicesByModel(
 }
 
 export const V2V_URL = 'https://demo.rteappbuilder.com/rcr-dev';
+
+// Get Rime language data based on connection type and model
+export function getRimeLangDataByConnection(
+  useRestTTS: boolean,
+  model: RimeModelType,
+): LanguageData[] {
+  // For Rime MistV2 model
+  if (model === 'mistv2') {
+    // WebSocket mode: only English and Spanish
+    if (!useRestTTS) {
+      return rimeMistv2WebSocketLangData;
+    }
+    // REST API mode: all Rime languages
+    return rimeLangData;
+  }
+  
+  // For Arcana model: always use all Rime languages (REST API only)
+  return rimeLangData;
+}
+
+// Check if a language is valid for the current connection type and model
+export function isLanguageValidForConnection(
+  language: LanguageType,
+  useRestTTS: boolean,
+  model: RimeModelType,
+): boolean {
+  const availableLanguages = getRimeLangDataByConnection(useRestTTS, model);
+  return availableLanguages.some(lang => lang.value === language);
+}
