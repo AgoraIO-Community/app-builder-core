@@ -29,7 +29,7 @@ const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
       <View style={styles.participantContainer}>
         {participants.length > 0 ? (
           participants.map(item => (
-            <View style={[styles.participantItem]}>
+            <View style={[styles.participantItem]} key={item.uid}>
               <UserAvatar
                 name={item.user.name}
                 containerStyle={styles.userAvatarContainer}
@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
     color: $config.BACKGROUND_COLOR,
   },
   emptyStateText: {
-    color: $config.FONT_COLOR,
-    fontSize: 14,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+    fontSize: ThemeConfig.FontSize.tiny,
   },
 });
 

@@ -6,8 +6,10 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 import {RoomAssignmentStrategy} from '../state/reducer';
 
 interface Props {
+  assignParticipants: () => void;
   selectedStrategy: RoomAssignmentStrategy;
   onStrategyChange: (strategy: RoomAssignmentStrategy) => void;
+  disabled: boolean;
 }
 
 const strategyList = [
@@ -27,12 +29,14 @@ const strategyList = [
 const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
   selectedStrategy,
   onStrategyChange,
+  disabled = false,
+  assignParticipants,
 }) => {
   return (
     <>
       <Text style={style.label}>Assign participants to breakout rooms</Text>
       <Dropdown
-        enabled={true}
+        enabled={!disabled}
         selectedValue={selectedStrategy}
         label={strategyList[0].label}
         data={strategyList}
@@ -41,11 +45,14 @@ const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
         }}
       />
       <TertiaryButton
+        disabled={disabled}
         containerStyle={{
           backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
           borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
         }}
-        onPress={() => {}}
+        onPress={() => {
+          assignParticipants();
+        }}
         text={'Assign participants'}
       />
     </>

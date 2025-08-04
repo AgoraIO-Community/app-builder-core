@@ -1,4 +1,4 @@
-import {UidType} from '../../../../agora-rn-uikit/src';
+import {ContentInterface, UidType} from '../../../../agora-rn-uikit/src';
 import {BreakoutChannelJoinEventPayload} from '../state/types';
 import {randomNameGenerator} from '../../../utils';
 
@@ -19,6 +19,7 @@ export interface BreakoutGroup {
 export interface BreakoutRoomState {
   breakoutSessionId: string;
   breakoutGroups: BreakoutGroup[];
+  unassignedParticipants: {uid: UidType; user: ContentInterface}[];
   assignmentStrategy: RoomAssignmentStrategy;
   activeBreakoutGroup: {
     id: number | string;
@@ -29,7 +30,8 @@ export interface BreakoutRoomState {
 
 export const initialBreakoutRoomState: BreakoutRoomState = {
   breakoutSessionId: '',
-  assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
+  assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
+  unassignedParticipants: [],
   breakoutGroups: [
     {
       name: 'Room 1',
@@ -52,12 +54,16 @@ export const initialBreakoutRoomState: BreakoutRoomState = {
 export const BreakoutGroupActionTypes = {
   // session
   SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
+  // strategy
+  SET_ASSIGNMENT_STRATEGY: 'BREAKOUT_ROOM/SET_ASSIGNMENT_STRATEGY',
   // Group management
   SET_GROUPS: 'BREAKOUT_ROOM/SET_GROUPS',
   CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
-  MOVE_PARTICIPANT: 'BREAKOUT_ROOM/MOVE_PARTICIPANT',
-  // Assignment
+  // Participants Assignment
+  UPDATE_UNASSIGNED_PARTICIPANTS:
+    'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
   ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/ASSIGN_PARTICPANTS',
+  MOVE_PARTICIPANT: 'BREAKOUT_ROOM/MOVE_PARTICIPANT',
 } as const;
 
 export type BreakoutRoomAction =
@@ -70,13 +76,21 @@ export type BreakoutRoomAction =
       payload: BreakoutGroup[];
     }
   | {
-      type: typeof BreakoutGroupActionTypes.ASSIGN_PARTICPANTS;
+      type: typeof BreakoutGroupActionTypes.SET_ASSIGNMENT_STRATEGY;
       payload: {
         strategy: RoomAssignmentStrategy;
-        participantsToAssign: UidType[];
       };
     }
   | {type: typeof BreakoutGroupActionTypes.CREATE_GROUP}
+  | {
+      type: typeof BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS;
+      payload: {
+        unassignedParticipants: {uid: UidType; user: ContentInterface}[];
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.ASSIGN_PARTICPANTS;
+    }
   | {
       type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT;
       payload: {
@@ -110,8 +124,22 @@ export const breakoutRoomReducer = (
       };
     }
 
+    case BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS: {
+      return {
+        ...state,
+        unassignedParticipants: action.payload.unassignedParticipants || [],
+      };
+    }
+
+    case BreakoutGroupActionTypes.SET_ASSIGNMENT_STRATEGY: {
+      return {
+        ...state,
+        assignmentStrategy: action.payload.strategy,
+      };
+    }
+
     case BreakoutGroupActionTypes.ASSIGN_PARTICPANTS: {
-      const {strategy, participantsToAssign} = action.payload;
+      const selectedStrategy = state.assignmentStrategy;
       const roomAssignments = new Map<string, UidType[]>();
 
       // Initialize empty arrays for each room
@@ -119,14 +147,17 @@ export const breakoutRoomReducer = (
         roomAssignments.set(room.id, []);
       });
 
+      let assignedParticipantUids: UidType[] = [];
       // AUTO ASSIGN Simple round-robin assignment (no capacity limits)
-      if (strategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
+      if (selectedStrategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
         let roomIndex = 0;
         const roomIds = state.breakoutGroups.map(room => room.id);
-        participantsToAssign.forEach(participant => {
+        state.unassignedParticipants.forEach(participant => {
           const currentRoomId = roomIds[roomIndex];
           // Assign participant to current room
-          roomAssignments.get(currentRoomId)!.push(participant);
+          roomAssignments.get(currentRoomId)!.push(participant.uid);
+          // Move it to assigned list
+          assignedParticipantUids.push(participant.uid);
           // Move to next room for round-robin
           roomIndex = (roomIndex + 1) % roomIds.length;
         });
@@ -143,9 +174,14 @@ export const breakoutRoomReducer = (
         };
       });
 
+      // Remove assigned participants from unassignedParticipants
+      const updatedUnassignedParticipants = state.unassignedParticipants.filter(
+        participant => !assignedParticipantUids.includes(participant.uid),
+      );
+
       return {
         ...state,
-        assignmentStrategy: strategy,
+        unassignedParticipants: updatedUnassignedParticipants,
         breakoutGroups: updatedBreakoutGroups,
       };
     }

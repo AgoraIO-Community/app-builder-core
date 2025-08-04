@@ -34,7 +34,6 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
   };
 
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
-  // Expand/collapse room cards
 
   const toggleRoomExpansion = (roomId: string) => {
     const newExpanded = new Set(expandedRooms);
@@ -237,6 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 8,
   },
   memberDragHandle: {
     marginRight: 12,

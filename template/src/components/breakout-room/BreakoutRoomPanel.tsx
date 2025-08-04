@@ -22,7 +22,6 @@ import BreakoutRoomSettings from './ui/BreakoutRoomSettings';
 import BreakoutRoomGroupSettings from './ui/BreakoutRoomGroupSettings';
 import ThemeConfig from '../../theme';
 import TertiaryButton from '../../atoms/TertiaryButton';
-import Spacer from '../../atoms/Spacer';
 import {useLayout} from '../../utils/useLayout';
 
 const BreakoutRoomPanel = props => {
@@ -35,16 +34,21 @@ const BreakoutRoomPanel = props => {
   } = useRoomInfo();
 
   const {
-    checkBreakoutRoomSession,
+    breakoutSessionId,
+    checkIfBreakoutRoomSessionExistsAPI,
     createBreakoutRoomGroup,
     breakoutGroups,
-    startBreakoutRoom,
+    startBreakoutRoomAPI,
+    closeBreakoutRoomAPI,
   } = useBreakoutRoom();
 
   useEffect(() => {
     const init = async () => {
       try {
-        checkBreakoutRoomSession();
+        const activeSession = await checkIfBreakoutRoomSessionExistsAPI();
+        if (!activeSession) {
+          startBreakoutRoomAPI();
+        }
       } catch (error) {
         console.error('Failed to check breakout session:', error);
       }
@@ -83,25 +87,25 @@ const BreakoutRoomPanel = props => {
           />
         </View>
       </ScrollView>
-      {isHost && (
+      {isHost && breakoutSessionId ? (
         <View style={style.footer}>
-          <View style={{display: 'flex', flex: 1}}>
-            <TertiaryButton onPress={() => {}} text={'CANCEL'} />
-          </View>
-          <Spacer size={16} horizontal />
-          <View style={{display: 'flex', flex: 1}}>
+          <View style={style.fullWidth}>
             <TertiaryButton
               containerStyle={{
-                backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                borderColor: $config.SEMANTIC_ERROR,
+              }}
+              textStyle={{
+                color: $config.SEMANTIC_ERROR,
               }}
               onPress={() => {
-                startBreakoutRoom();
+                closeBreakoutRoomAPI();
               }}
-              text={'START'}
+              text={'Close All Rooms'}
             />
           </View>
         </View>
+      ) : (
+        <></>
       )}
     </View>
   );
@@ -126,6 +130,10 @@ const style = StyleSheet.create({
     flex: 1,
     padding: 12,
     gap: 12,
+  },
+  fullWidth: {
+    display: 'flex',
+    flex: 1,
   },
   createBtnContainer: {
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
