@@ -38,6 +38,7 @@ import {
   vbPanelHeading,
 } from '../../language/default-labels/precallScreenLabels';
 import {
+  breakoutRoomPanelHeaderText,
   chatPanelGroupTabText,
   chatPanelPrivateTabText,
   peoplePanelHeaderText,
@@ -84,6 +85,22 @@ export const PeopleHeader = () => {
     <SidePanelHeader
       centerComponent={
         <Text style={SidePanelStyles.heading}>{participantsLabel}</Text>
+      }
+      trailingIconName="close"
+      trailingIconOnPress={() => {
+        setSidePanel(SidePanelType.None);
+      }}
+    />
+  );
+};
+
+export const BreakoutRoomHeader = () => {
+  const headerText = useString(breakoutRoomPanelHeaderText)();
+  const {setSidePanel} = useSidePanel();
+  return (
+    <SidePanelHeader
+      centerComponent={
+        <Text style={SidePanelStyles.heading}>{headerText}</Text>
       }
       trailingIconName="close"
       trailingIconOnPress={() => {

@@ -104,6 +104,7 @@ import {
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
   toolbarItemManageTextTracksText,
+  toolbarItemBreakoutRoomText,
 } from '../language/default-labels/videoCallScreenLabels';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useModal} from '../utils/useModal';
@@ -285,6 +286,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const virtualBackgroundLabel = useString(toolbarItemVirtualBackgroundText)();
   const chatLabel = useString(toolbarItemChatText)();
   const inviteLabel = useString(toolbarItemInviteText)();
+  const breakoutRoomLabel = useString(toolbarItemBreakoutRoomText)();
   const peopleLabel = useString(toolbarItemPeopleText)();
   const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
@@ -830,6 +832,23 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       title: viewTextTracksLabel,
       onPress: () => {
         toggleTextTrackModal();
+      },
+    });
+  }
+
+  // 14. Breakout Room
+  const canAccessBreakoutRoom = useControlPermissionMatrix('breakoutRoom');
+  if (canAccessBreakoutRoom) {
+    actionMenuitems.push({
+      componentName: 'breakoutRoom',
+      order: 14,
+      icon: 'participants',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: breakoutRoomLabel,
+      onPress: () => {
+        setActionMenuVisible(false);
+        setSidePanel(SidePanelType.BreakoutRoom);
       },
     });
   }

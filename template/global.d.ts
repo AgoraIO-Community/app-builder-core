@@ -178,6 +178,7 @@ interface ConfigInterface {
   ENABLE_WAITING_ROOM_AUTO_APPROVAL: boolean;
   ENABLE_WAITING_ROOM_AUTO_REQUEST: boolean;
   ENABLE_TEXT_TRACKS: boolean;
+  ENABLE_BREAKOUT_ROOM: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

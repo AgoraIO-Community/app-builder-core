@@ -66,6 +66,12 @@ interface ParticipantInterface {
   updateActionSheet: (screenName: 'chat' | 'participants' | 'settings') => {};
   uid?: UidType;
   screenUid?: UidType;
+  showBreakoutRoomMenu?: boolean;
+  from?:
+    | 'breakout-room'
+    | 'partcipant'
+    | 'screenshare-participant'
+    | 'video-tile';
 }
 
 const Participant = (props: ParticipantInterface) => {
@@ -106,7 +112,7 @@ const Participant = (props: ParticipantInterface) => {
         setActionMenuVisible={setActionMenuVisible}
         user={props.user}
         btnRef={moreIconRef}
-        from={'partcipant'}
+        from={props?.from || 'partcipant'}
         spotlightUid={spotlightUid}
         setSpotlightUid={setSpotlightUid}
       />

@@ -11,7 +11,7 @@
 */
 
 ('use strict');
-import RtmEngine from 'agora-react-native-rtm';
+import {type RTMClient} from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {EventUtils} from '../rtm-events';
 import {
@@ -23,6 +23,7 @@ import {
 } from './types';
 import {adjustUID} from '../rtm/utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
+import {nativeChannelTypeMapping} from '../../bridge/rtm/web/Types';
 
 class Events {
   private source: EventSource = EventSource.core;
@@ -41,11 +42,17 @@ class Events {
    * @api private
    */
   private _persist = async (evt: string, payload: string) => {
-    const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+    const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
+    const userId = RTMEngine.getInstance().localUid;
     try {
       const rtmAttribute = {key: evt, value: payload};
       // Step 1: Call RTM API to update local attributes
-      await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      await rtmEngine.storage.setUserMetadata(
+        {items: [rtmAttribute]},
+        {
+          userId,
+        },
+      );
     } catch (error) {
       logger.error(
         LogSource.Events,
@@ -68,8 +75,8 @@ class Events {
         `CUSTOM_EVENT_API Event name cannot be of type ${typeof evt}`,
       );
     }
-    if (evt.trim() == '') {
-      throw Error(`CUSTOM_EVENT_API Name or function cannot be empty`);
+    if (evt.trim() === '') {
+      throw Error('CUSTOM_EVENT_API Name or function cannot be empty');
     }
     return true;
   };
@@ -103,10 +110,15 @@ class Events {
     rtmPayload: RTMAttributePayload,
     toUid?: ReceiverUid,
   ) => {
-    const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
-    const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+    const to = typeof toUid === 'string' ? parseInt(toUid, 10) : toUid;
 
     const text = JSON.stringify(rtmPayload);
+
+    if (!RTMEngine.getInstance().isEngineReady) {
+      throw new Error('RTM Engine is not ready. Call setLocalUID() first.');
+    }
+    const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
+
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
@@ -120,7 +132,14 @@ class Events {
       );
       try {
         const channelId = RTMEngine.getInstance().channelUid;
-        await rtmEngine.sendMessageByChannelId(channelId, text);
+        if (!channelId || channelId.trim() === '') {
+          throw new Error(
+            'Channel ID is not set. Cannot send channel attributes.',
+          );
+        }
+        await rtmEngine.publish(channelId, text, {
+          channelType: nativeChannelTypeMapping.MESSAGE, // 1 is message
+        });
       } catch (error) {
         logger.error(
           LogSource.Events,
@@ -140,10 +159,8 @@ class Events {
       );
       const adjustedUID = adjustUID(to);
       try {
-        await rtmEngine.sendMessageToPeer({
-          peerId: `${adjustedUID}`,
-          offline: false,
-          text,
+        await rtmEngine.publish(`${adjustedUID}`, text, {
+          channelType: nativeChannelTypeMapping.USER, // user
         });
       } catch (error) {
         logger.error(
@@ -164,14 +181,30 @@ class Events {
         to,
       );
       try {
-        for (const uid of to) {
-          const adjustedUID = adjustUID(uid);
-          await rtmEngine.sendMessageToPeer({
-            peerId: `${adjustedUID}`,
-            offline: false,
-            text,
-          });
-        }
+        const response = await Promise.allSettled(
+          to.map(uid =>
+            rtmEngine.publish(`${adjustUID(uid)}`, text, {
+              channelType: nativeChannelTypeMapping.USER,
+            }),
+          ),
+        );
+        response.forEach((result, index) => {
+          const uid = to[index];
+          if (result.status === 'rejected') {
+            logger.error(
+              LogSource.Events,
+              'CUSTOM_EVENTS',
+              `Failed to publish to user ${uid}:`,
+              result.reason,
+            );
+          }
+        });
+        // for (const uid of to) {
+        //   const adjustedUID = adjustUID(uid);
+        //   await rtmEngine.publish(`${adjustedUID}`, text, {
+        //     channelType: 3, // user
+        //   });
+        // }
       } catch (error) {
         logger.error(
           LogSource.Events,
@@ -192,13 +225,31 @@ class Events {
       'updating channel attributes',
     );
     try {
-      const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
+      // Validate if rtmengine is ready
+      if (!RTMEngine.getInstance().isEngineReady) {
+        throw new Error('RTM Engine is not ready. Call setLocalUID() first.');
+      }
+      const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
+
       const channelId = RTMEngine.getInstance().channelUid;
+      if (!channelId || channelId.trim() === '') {
+        throw new Error(
+          'Channel ID is not set. Cannot send channel attributes.',
+        );
+      }
+
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
-      // Step 1: Call RTM API to update local attributes
-      await rtmEngine.addOrUpdateChannelAttributes(channelId, rtmAttribute, {
-        enableNotificationToChannelMembers: true,
-      });
+      await rtmEngine.storage.setChannelMetadata(
+        channelId,
+        nativeChannelTypeMapping.MESSAGE,
+        {
+          items: rtmAttribute,
+        },
+        {
+          addUserId: true,
+          addTimeStamp: true,
+        },
+      );
     } catch (error) {
       logger.error(
         LogSource.Events,
@@ -223,7 +274,8 @@ class Events {
   on = (eventName: string, listener: EventCallback): Function => {
     try {
       if (!this._validateEvt(eventName) || !this._validateListener(listener)) {
-        return;
+        // Return no-op function instead of undefined to prevent errors
+        return () => {};
       }
       EventUtils.addListener(eventName, listener, this.source);
       console.log('CUSTOM_EVENT_API event listener registered', eventName);
@@ -238,6 +290,8 @@ class Events {
         'Error: events.on',
         error,
       );
+      // Return no-op function on error to prevent undefined issues
+      return () => {};
     }
   };
 
@@ -253,7 +307,11 @@ class Events {
   off = (eventName?: string, listener?: EventCallback) => {
     try {
       if (listener) {
-        if (this._validateListener(listener) && this._validateEvt(eventName)) {
+        if (
+          eventName &&
+          this._validateListener(listener) &&
+          this._validateEvt(eventName)
+        ) {
           // listen off an event by eventName and listener
           //@ts-ignore
           EventUtils.removeListener(eventName, listener, this.source);
@@ -295,8 +353,18 @@ class Events {
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
   ) => {
-    if (!this._validateEvt(eventName)) {
-      return;
+    try {
+      if (!this._validateEvt(eventName)) {
+        return;
+      }
+    } catch (error) {
+      logger.error(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'Event validation failed',
+        error,
+      );
+      return; // Don't throw - just log and return
     }
 
     const persistValue = JSON.stringify({
@@ -318,6 +386,7 @@ class Events {
         await this._persist(eventName, persistValue);
       } catch (error) {
         logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', error);
+        // don't throw - just log the error, application should continue running
       }
     }
     try {
@@ -336,9 +405,10 @@ class Events {
       logger.error(
         LogSource.Events,
         'CUSTOM_EVENTS',
-        'sending event failed',
+        `Failed to send event '${eventName}' - event lost`,
         error,
       );
+      // don't throw - just log the error, application should continue running
     }
   };
 }

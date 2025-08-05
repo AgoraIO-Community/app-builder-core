@@ -25,6 +25,7 @@ import {useIsRecordingBot} from './subComponents/recording/useIsRecordingBot';
 import {isValidReactComponent} from './utils/common';
 import ErrorBoundary from './components/ErrorBoundary';
 import {ErrorBoundaryFallback} from './components/ErrorBoundaryFallback';
+import VideoCallRoomOrchestrator from './pages/VideoCallRoomOrchestrator';
 
 function VideoCallWrapper(props) {
   const {isRecordingBot} = useIsRecordingBot();
@@ -38,7 +39,7 @@ function VideoCallWrapper(props) {
   ) : (
     <AuthRoute>
       <ErrorBoundary fallback={ErrorBoundaryFallbackComponent}>
-        <VideoCall />
+        <VideoCallRoomOrchestrator />
       </ErrorBoundary>
     </AuthRoute>
   );

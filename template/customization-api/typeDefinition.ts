@@ -86,6 +86,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   captionPanel?: React.ComponentType;
   transcriptPanel?: React.ComponentType;
   virtualBackgroundPanel?: React.ComponentType<VBPanelProps>;
+  breakoutRoomPanel?: React.ComponentType;
   customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
   wrapper?: React.ComponentType;
   customAgentInterface?: React.ComponentType<CustomAgentInterfaceProps>;
