@@ -753,7 +753,7 @@ export function getElevenLabsVoicesByModel(
   return elevenLabsVoices;
 }
 
-export const V2V_URL = 'https://demo.rteappbuilder.com/rcr-dev';
+export const V2V_URL = 'https://demo.rteappbuilder.com/v2v-prod';
 
 // Get Rime language data based on connection type and model
 export function getRimeLangDataByConnection(
