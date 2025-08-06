@@ -72,13 +72,13 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
   const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
   const [breakoutRoomRTCProps, setBreakoutRoomRtcProps] = useState({
+    ...rtcProps,
     channel: breakoutChannelDetails.channel,
     uid: breakoutChannelDetails.uid as number,
     token: breakoutChannelDetails.token,
     rtm: breakoutChannelDetails.rtmToken,
     screenShareUid: breakoutChannelDetails?.screenShareUid as number,
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
-    ...rtcProps,
   });
 
   return (

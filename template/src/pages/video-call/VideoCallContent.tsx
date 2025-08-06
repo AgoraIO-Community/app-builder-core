@@ -45,7 +45,6 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   // Parse URL to determine current mode
   const searchParams = new URLSearchParams(location.search);
   const isBreakoutMode = searchParams.get('breakout') === 'true';
-  const breakoutChannelName = searchParams.get('channelName');
 
   // Breakout channel details (populated by RTM events)
   const [breakoutChannelDetails, setBreakoutChannelDetails] =
@@ -69,12 +68,15 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           rtmToken: mainUser.rtm,
         };
 
-        setBreakoutChannelDetails(breakoutDetails);
+        setBreakoutChannelDetails(prev => ({
+          ...prev,
+          ...breakoutDetails,
+        }));
 
         // Navigate to breakout room
         console.log(`supriya Navigating to breakout room: ${channel_name}`);
 
-        // history.push(`/${phrase}?breakout=true`);
+        history.push(`/${phrase}?breakout=true`);
       } catch (error) {
         console.error(' supriya Failed to process breakout join event');
       }
@@ -100,13 +102,12 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
 
   // Debug logging
   useEffect(() => {
-    console.log('supriya Component mode changed', {
+    console.log('supriya Component mode changed breakout', {
       isBreakoutMode,
-      breakoutChannelName,
-      mainChannelName: phrase,
       hasBreakoutDetails: !!breakoutChannelDetails,
+      breakoutChannelDetails: breakoutChannelDetails,
     });
-  }, [isBreakoutMode, breakoutChannelName, phrase, breakoutChannelDetails]);
+  }, [isBreakoutMode, phrase, breakoutChannelDetails]);
 
   // Conditional rendering based on URL params
   return (

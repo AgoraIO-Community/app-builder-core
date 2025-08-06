@@ -142,7 +142,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       return;
     }
     const handleGlobalStorageEvent = (storage: StorageEvent) => {
-      console.log('supriya handleGlobalStorageEvent event: ', storage);
+      console.log('supriya-GLOBAL---StorageEvent event: ', storage);
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.storage) {
@@ -156,7 +156,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     };
 
     const handleGlobalPresenceEvent = (presence: PresenceEvent) => {
-      console.log('supriya handleGlobalPresenceEvent: ', presence);
+      console.log('supriya-GLOBAL---PresenceEvent: ', presence);
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.presence) {
@@ -170,7 +170,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     };
 
     const handleGlobalMessageEvent = (message: MessageEvent) => {
-      console.log('supriya handleGlobalMessageEvent event: ', message);
+      console.log('supriya-GLOBAL---MessageEvent event: ', message);
 
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {

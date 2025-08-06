@@ -803,11 +803,13 @@ const RtmConfigure = (props: Props) => {
       if (`${localUid}` === message.publisher) {
         return;
       }
-      if (message.channelName !== channelName) {
-        return;
-      }
+
       // message - 1 (channel)
       if (message.channelType === nativeChannelTypeMapping.MESSAGE) {
+        // here the channel name will be the channel name
+        if (message.channelName !== channelName) {
+          return;
+        }
         logger.debug(
           LogSource.Events,
           'CUSTOM_EVENTS',
@@ -874,6 +876,7 @@ const RtmConfigure = (props: Props) => {
           'messageEvent of type [3- USER] (messageReceived)',
           message,
         );
+        // here the  (message.channelname) channel name will be the to UID
         const {publisher: peerId, timestamp: ts, message: text} = message;
         const [err, msg] = safeJsonParse(text);
         if (err) {
@@ -925,9 +928,10 @@ const RtmConfigure = (props: Props) => {
           'Log',
           'RTMConfigure unmounted nothing to do',
         );
+        await client.unsubscribe(channelName);
       }
     };
-  }, [isLoggedIn, callActive]);
+  }, [isLoggedIn, callActive, channelName]);
 
   return (
     <ChatContext.Provider
