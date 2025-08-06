@@ -38,7 +38,7 @@ interface BreakoutRoomContextValue {
     selectGroupId: string,
     isHost: boolean,
   ) => void;
-  startBreakoutRoomAPI: () => void;
+  upsertBreakoutRoomAPI: () => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
@@ -53,7 +53,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   assignParticipants: () => {},
   createBreakoutRoomGroup: () => {},
   addUserIntoGroup: () => {},
-  startBreakoutRoomAPI: () => {},
+  upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
 });
@@ -95,6 +95,10 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         if (user.parentUid) {
           return false;
         }
+        // Exclude yourself from assigning
+        if (uid === localUid) {
+          return false;
+        }
         return true;
       })
       .map(uid => ({
@@ -120,6 +124,11 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
       },
     });
   }, [defaultContent, activeUids, localUid]);
+
+  useEffect(() => {
+    console.log('supriya breakout group changed');
+    upsertBreakoutRoomAPI('UPDATE');
+  }, [state.breakoutGroups]);
 
   const checkIfBreakoutRoomSessionExistsAPI = async (): Promise<boolean> => {
     try {
@@ -171,7 +180,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     }
   };
 
-  const startBreakoutRoomAPI = () => {
+  const upsertBreakoutRoomAPI = (type: 'START' | 'UPDATE' = 'START') => {
     const startReqTs = Date.now();
     const requestId = getUniqueID();
 
@@ -198,20 +207,13 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
           throw new Error(`Breakout room creation failed: ${msg}`);
         } else {
           const data = await response.json();
-          console.log('supriya res', response);
+          console.log('supriya update res', response);
 
-          if (data?.session_id) {
+          if (type === 'START' && data?.session_id) {
             dispatch({
               type: BreakoutGroupActionTypes.SET_SESSION_ID,
               payload: {sessionId: data.session_id},
             });
-
-            if (data?.breakout_room) {
-              dispatch({
-                type: BreakoutGroupActionTypes.SET_GROUPS,
-                payload: data.breakout_room,
-              });
-            }
           }
         }
       })
@@ -230,6 +232,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
       payload: {strategy},
     });
   };
+
   const createBreakoutRoomGroup = () => {
     dispatch({
       type: BreakoutGroupActionTypes.CREATE_GROUP,
@@ -264,7 +267,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         unsassignedParticipants: state.unassignedParticipants,
         createBreakoutRoomGroup,
         checkIfBreakoutRoomSessionExistsAPI,
-        startBreakoutRoomAPI,
+        upsertBreakoutRoomAPI,
         closeBreakoutRoomAPI,
         addUserIntoGroup,
       }}>

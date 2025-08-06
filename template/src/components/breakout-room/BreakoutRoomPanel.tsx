@@ -38,7 +38,7 @@ const BreakoutRoomPanel = props => {
     checkIfBreakoutRoomSessionExistsAPI,
     createBreakoutRoomGroup,
     breakoutGroups,
-    startBreakoutRoomAPI,
+    upsertBreakoutRoomAPI,
     closeBreakoutRoomAPI,
   } = useBreakoutRoom();
 
@@ -47,7 +47,7 @@ const BreakoutRoomPanel = props => {
       try {
         const activeSession = await checkIfBreakoutRoomSessionExistsAPI();
         if (!activeSession) {
-          startBreakoutRoomAPI();
+          upsertBreakoutRoomAPI();
         }
       } catch (error) {
         console.error('Failed to check breakout session:', error);

@@ -13,7 +13,7 @@ const VideoCallStateSetup: React.FC<VideoCallProps> = ({
   useEffect(() => {
     if ($config.ENABLE_BREAKOUT_ROOM && RtcEngineUnsafe && setMainRtcEngine) {
       console.log(
-        'supriya [VideoCallStateSetup] Engine ready, storing in orchestrator',
+        'supriya [VideoCallStateSetup] Engine ready, storing in state',
       );
       setMainRtcEngine(RtcEngineUnsafe);
     }
@@ -27,7 +27,7 @@ const VideoCallStateSetup: React.FC<VideoCallProps> = ({
       setMainChannelDetails
     ) {
       console.log(
-        'supriya [VideoCallStateSetup] Channel details ready, storing in orchestrator',
+        'supriya [VideoCallStateSetup] Channel details ready, storing in state',
       );
       setMainChannelDetails({
         channel: roomInfo.channel || '',
