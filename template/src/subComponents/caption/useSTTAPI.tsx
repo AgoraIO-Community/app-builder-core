@@ -70,6 +70,8 @@ const useSTTAPI = (): IuseSTTAPI => {
         body: JSON.stringify({
           passphrase: roomId?.host || '',
           lang: lang,
+          target_lang: ['hi-IN'],
+          source_lang: 'en-US',
           dataStream_uid: 111111, // bot ID
           encryption_mode: $config.ENCRYPTION_ENABLED
             ? rtcProps.encryption.mode
