@@ -43,7 +43,8 @@ export type LanguageType =
 export type TTSType = 'rime' | 'eleven_labs';
 
 export type RimeModelType = 'mistv2' | 'arcana';
-export type ElevenLabsModelType = 'eleven_multilingual_v2';
+export type ElevenLabsModelType = 'eleven_multilingual_v2' | 'eleven_flash_v2_5';
+export type STTModelType = 'stt-rt-preview-v2' | 'stt-rt-preview';
 
 interface LanguageData {
   label: string;
@@ -724,8 +725,16 @@ export const elevenLabsModelOptions = [
   {
     label: 'Eleven Multilingual V2',
     value: 'eleven_multilingual_v2',
-    disabled: true,
   },
+  {
+    label: 'Eleven Flash V2.5',
+    value: 'eleven_flash_v2_5',
+  },
+];
+
+export const sttModelOptions = [
+  {label: 'STT RT Preview V2', value: 'stt-rt-preview-v2'},
+  {label: 'STT RT Preview', value: 'stt-rt-preview'},
 ];
 
 //  (defaults to mistv2)
