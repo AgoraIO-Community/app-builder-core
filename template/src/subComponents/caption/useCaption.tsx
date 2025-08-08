@@ -8,9 +8,16 @@ export type TranscriptItem = {
   text: string;
 };
 
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
+
 type CaptionObj = {
   [key: string]: {
     text: string;
+    translations: TranslationItem[];
     lastUpdated: number;
   };
 };

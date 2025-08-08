@@ -11,9 +11,16 @@ import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
 
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
+
 interface CaptionTextProps {
   user: string;
   value: string;
+  translations?: TranslationItem[];
   activeSpeakersCount: number;
   isActiveSpeaker?: boolean;
   activelinesAvailable?: number;
@@ -28,9 +35,28 @@ const DESKTOP_LINE_HEIGHT = 28;
 const MOBILE_LINE_HEIGHT = 21;
 const MAX_CAPTIONS_LINES_ALLOWED = 3;
 
+// Language name mapping for display
+const LANGUAGE_LABELS: {[key: string]: string} = {
+  'hi-IN': 'Hindi',
+  'fr-FR': 'French',
+  'ru-RU': 'Russian',
+  'zh-HK': 'Chinese',
+  'en-US': 'English',
+};
+
+// Colors for different translation lines
+const TRANSLATION_COLORS: {[key: string]: string} = {
+  'hi-IN': '#FF6B6B',
+  'fr-FR': '#4ECDC4', 
+  'ru-RU': '#45B7D1',
+  'zh-HK': '#96CEB4',
+  'en-US': '#FECA57',
+};
+
 const CaptionText = ({
   user,
   value,
+  translations = [],
   activeSpeakersCount,
   isActiveSpeaker = false,
   activelinesAvailable,
@@ -116,7 +142,7 @@ const CaptionText = ({
         style={[
           styles.captionTextContainerStyle,
           {
-            height:
+            minHeight:
               (isActiveSpeaker
                 ? activelinesAvailable
                 : Math.min(
@@ -125,18 +151,48 @@ const CaptionText = ({
                   )) * LINE_HEIGHT,
           },
         ]}>
-        <Text
-          onLayout={handleTextLayout}
-          style={[
-            styles.captionText,
-            isMobile
-              ? styles.mobileCaptionFontSize
-              : styles.desktopCaptionFontSize,
-            isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
-            captionTextStyle,
-          ]}>
-          {value}
-        </Text>
+        {/* Transcription */}
+        {value ? (
+          <Text
+            onLayout={handleTextLayout}
+            style={[
+              styles.captionText,
+              styles.transcriptionText,
+              isMobile
+                ? styles.mobileCaptionFontSize
+                : styles.desktopCaptionFontSize,
+              isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+              captionTextStyle,
+            ]}>
+            {value}
+          </Text>
+        ) : null}
+        
+        {/* Translations */}
+        {translations.map((translation, index) => {
+          const langLabel = LANGUAGE_LABELS[translation.lang] || translation.lang;
+          const color = TRANSLATION_COLORS[translation.lang] || '#888888';
+          const opacity = translation.isFinal ? 1 : 0.7;
+          
+          return (
+            <Text
+              key={`${translation.lang}-${index}`}
+              style={[
+                styles.translationText,
+                isMobile
+                  ? styles.mobileCaptionFontSize
+                  : styles.desktopCaptionFontSize,
+                isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+                {
+                  color: color,
+                  opacity: opacity,
+                  marginTop: 2,
+                },
+              ]}>
+              ({langLabel}) {translation.text}
+            </Text>
+          );
+        })}
       </View>
     </View>
   );
@@ -155,17 +211,26 @@ const styles = StyleSheet.create({
   },
 
   captionTextContainerStyle: {
-    overflow: 'hidden',
     width: '100%',
-    position: 'relative',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
   },
 
   captionText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR,
-    position: 'absolute',
-    bottom: 0,
+  },
+
+  transcriptionText: {
+    marginBottom: 2,
+  },
+
+  translationText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '300',
+    color: $config.FONT_COLOR,
+    marginTop: 1,
   },
 
   captionUserName: {

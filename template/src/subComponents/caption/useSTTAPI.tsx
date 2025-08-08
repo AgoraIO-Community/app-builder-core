@@ -69,9 +69,18 @@ const useSTTAPI = (): IuseSTTAPI => {
         },
         body: JSON.stringify({
           passphrase: roomId?.host || '',
-          lang: lang,
-          target_lang: ['hi-IN'],
-          source_lang: 'en-US',
+          lang: lang, // speaking langauge max 4 allowed
+          translate_config: [
+            // max 4 lang pair allowed in v7
+            {
+              target_lang: ['fr-FR', 'ru-RU', 'ko-KR'], // max 10 target langugage for each source lang ,
+              source_lang: 'en-US',
+            },
+            {
+              target_lang: ['en-US', 'zh-CN', 'th-TH'], // max 10 target langugage for each source lang ,
+              source_lang: 'hi-IN',
+            },
+          ],
           dataStream_uid: 111111, // bot ID
           encryption_mode: $config.ENCRYPTION_ENABLED
             ? rtcProps.encryption.mode

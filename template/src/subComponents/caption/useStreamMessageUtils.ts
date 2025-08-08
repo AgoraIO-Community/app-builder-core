@@ -21,6 +21,7 @@ const useStreamMessageUtils = (): {
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
   const finalTranscriptList: FinalListType = {};
+  const finalTranslationList: FinalTranslationListType = {};
   const queue = new PQueue({concurrency: 1});
   let counter = 0;
   let lastOfftime = 0;
@@ -35,10 +36,12 @@ const useStreamMessageUtils = (): {
       let finalText = ''; // holds final strings
       let currentFinalText = ''; // holds current caption
       let isInterjecting = false;
+      let translations: TranslationData[] = []; // holds translation data
 
       const textstream = protoRoot
-        .lookupType('Text')
+        .lookupType('agora.audio2text.Text')
         .decode(payload as Uint8Array) as any;
+      console.log('stt v7 textstream', textstream);
 
       //console.log('STT - Parsed Textstream : ', textstream);
       // console.log(
@@ -94,6 +97,12 @@ const useStreamMessageUtils = (): {
         // we have a speaker change so clear the context for prev speaker
         if (prevSpeakerRef.current !== '') {
           finalList[prevSpeakerRef.current] = [];
+          // Clear translations for previous speaker
+          if (finalTranslationList[prevSpeakerRef.current]) {
+            Object.keys(finalTranslationList[prevSpeakerRef.current]).forEach(lang => {
+              finalTranslationList[prevSpeakerRef.current][lang] = [];
+            });
+          }
           isInterjecting = true;
           // console.log(
           //   '%cSTT-callback%c Interjection! ',
@@ -112,6 +121,46 @@ const useStreamMessageUtils = (): {
       if (!finalList[textstream.uid]) {
         finalList[textstream.uid] = [];
         finalTranscriptList[textstream.uid] = [];
+      }
+
+      // Process translations if available
+      if (textstream.trans && textstream.trans.length > 0) {
+        for (const trans of textstream.trans) {
+          const lang = trans.lang;
+          const texts = trans.texts || [];
+          const isFinal = trans.isFinal || false;
+          
+          if (!finalTranslationList[textstream.uid]) {
+            finalTranslationList[textstream.uid] = {};
+          }
+          if (!finalTranslationList[textstream.uid][lang]) {
+            finalTranslationList[textstream.uid][lang] = [];
+          }
+
+          const currentTranslationText = texts.join(' ');
+          if (currentTranslationText) {
+            if (isFinal) {
+              finalTranslationList[textstream.uid][lang].push(currentTranslationText);
+            }
+            
+            // Build complete translation text (final + current non-final)
+            const existingTranslationBuffer = isInterjecting 
+              ? '' 
+              : finalTranslationList[textstream.uid][lang]?.join(' ');
+            const latestTranslationString = isFinal ? '' : currentTranslationText;
+            const completeTranslationText = existingTranslationBuffer.length > 0
+              ? (latestTranslationString ? existingTranslationBuffer + ' ' + latestTranslationString : existingTranslationBuffer)
+              : latestTranslationString;
+              
+            if (completeTranslationText || isFinal) {
+              translations.push({
+                lang,
+                text: completeTranslationText,
+                isFinal,
+              });
+            }
+          }
+        }
       }
 
       const words = textstream.words; //[Word,Word]
@@ -202,17 +251,34 @@ const useStreamMessageUtils = (): {
           ? existingStringBuffer + ' ' + latestString
           : latestString;
 
-      // updating the captions
-      captionText &&
-        setCaptionObj(prevState => {
-          return {
-            ...prevState,
-            [textstream.uid]: {
-              text: captionText,
-              lastUpdated: new Date().getTime(),
-            },
-          };
-        });
+      // updating the captions with both transcription and translations
+      setCaptionObj(prevState => {
+        const existingTranslations = prevState[textstream.uid]?.translations || [];
+        
+        // Update existing translations or add new ones
+        const updatedTranslations = [...existingTranslations];
+        
+        for (const newTrans of translations) {
+          const existingIndex = updatedTranslations.findIndex(
+            t => t.lang === newTrans.lang
+          );
+          
+          if (existingIndex >= 0) {
+            updatedTranslations[existingIndex] = newTrans;
+          } else {
+            updatedTranslations.push(newTrans);
+          }
+        }
+
+        return {
+          ...prevState,
+          [textstream.uid]: {
+            text: captionText || prevState[textstream.uid]?.text || '',
+            translations: updatedTranslations,
+            lastUpdated: new Date().getTime(),
+          },
+        };
+      });
 
       // console.group('STT-logs');
       // console.log('Recived uid =>', textstream.uid);

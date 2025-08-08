@@ -106,6 +106,7 @@ const Caption: React.FC<CaptionProps> = ({
             <CaptionText
               user={defaultContent[prevSpeakerRef.current].name || 'Speaker'}
               value={captionObj[prevSpeakerRef.current].text}
+              translations={captionObj[prevSpeakerRef.current].translations}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={false}
               activelinesAvailable={activelinesAvailable}
@@ -123,6 +124,7 @@ const Caption: React.FC<CaptionProps> = ({
             <CaptionText
               user={defaultContent[activeSpeakerRef.current].name || 'Speaker'}
               value={captionObj[activeSpeakerRef.current].text}
+              translations={captionObj[activeSpeakerRef.current].translations}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
               activelinesAvailable={activelinesAvailable}
