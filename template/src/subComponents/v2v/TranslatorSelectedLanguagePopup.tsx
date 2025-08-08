@@ -21,11 +21,13 @@ import {
   TTSType,
   RimeModelType,
   ElevenLabsModelType,
+  STTModelType,
   rimeVoices,
   elevenLabsVoices,
   ttsOptions,
   rimeModelOptions,
   elevenLabsModelOptions,
+  sttModelOptions,
   getRimeVoicesByModel,
   getElevenLabsVoicesByModel,
   getValidElevenLabsTargets,
@@ -75,6 +77,8 @@ interface TranslatorSelectedLanguagePopupProps {
   setRtcSleepTimeMs: (value: number) => void;
   useRestTTS: boolean;
   setUseRestTTS: (value: boolean) => void;
+  selectedSTTModel: STTModelType;
+  setSelectedSTTModel: (model: STTModelType) => void;
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -117,6 +121,8 @@ const TranslatorSelectedLanguagePopup: React.FC<
   setRtcSleepTimeMs,
   useRestTTS,
   setUseRestTTS,
+  selectedSTTModel,
+  setSelectedSTTModel,
 }) => {
   const [srcOpen, setSrcOpen] = React.useState(false);
   const [tgtOpen, setTgtOpen] = React.useState(false);
@@ -409,6 +415,18 @@ const TranslatorSelectedLanguagePopup: React.FC<
               [Docs]
             </Text>
           </View>
+          <View style={styles.controlGroup}>
+            <Text style={styles.controlLabel}>Select Model</Text>
+            <View style={styles.controlWrapper}>
+              <Dropdown
+                label={selectedSTTModel ? '' : 'Select STT model...'}
+                data={sttModelOptions}
+                selectedValue={selectedSTTModel}
+                onSelect={({value}) => setSelectedSTTModel(value as STTModelType)}
+                enabled={true}
+              />
+            </View>
+          </View>
         </View>
         <View style={styles.ttsSection}>
           <View style={styles.sectionHeaderWithDivider}>
@@ -535,7 +553,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   data={elevenLabsModelOptions}
                   selectedValue={elevenLabsSelectedModel}
                   onSelect={({value}) => setElevenLabsSelectedModel(value as ElevenLabsModelType)}
-                  enabled={false}
+                  enabled={true}
                 />
               </View>
             </View>
