@@ -232,6 +232,7 @@ const SonixCaptionContainer = () => {
                   selectedTTS === 'rime'
                     ? providerConfigs.rime.model
                     : providerConfigs.eleven_labs.model,
+                sttModel: selectedSTTModel,
                 useRestTTS,
               },
             ]);
