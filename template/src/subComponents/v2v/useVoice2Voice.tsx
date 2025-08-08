@@ -7,6 +7,7 @@ import {
   TTSType,
   RimeModelType,
   ElevenLabsModelType,
+  STTModelType,
   elevenLabsVoices,
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
@@ -97,6 +98,8 @@ export const V2VContext = React.createContext<{
   setRtcSleepTimeMs: React.Dispatch<React.SetStateAction<number>>;
   useRestTTS: boolean;
   setUseRestTTS: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedSTTModel: STTModelType;
+  setSelectedSTTModel: React.Dispatch<React.SetStateAction<STTModelType>>;
 }>({
   isV2VON: false,
   setIsV2VON: () => {},
@@ -147,6 +150,8 @@ export const V2VContext = React.createContext<{
   setRtcSleepTimeMs: () => {},
   useRestTTS: false,
   setUseRestTTS: () => {},
+  selectedSTTModel: 'stt-rt-preview',
+  setSelectedSTTModel: () => {},
 });
 
 interface V2VProviderProps {
@@ -171,6 +176,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
     React.useState<number>(2000);
   const [rtcSleepTimeMs, setRtcSleepTimeMs] = React.useState<number>(10);
   const [useRestTTS, setUseRestTTS] = React.useState<boolean>(false);
+  const [selectedSTTModel, setSelectedSTTModel] = React.useState<STTModelType>('stt-rt-preview');
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
@@ -254,6 +260,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setRtcSleepTimeMs,
         useRestTTS,
         setUseRestTTS,
+        selectedSTTModel,
+        setSelectedSTTModel,
       }}>
       {children}
     </V2VContext.Provider>

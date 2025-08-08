@@ -28,6 +28,7 @@ import {
   TTSType,
   RimeModelType,
   ElevenLabsModelType,
+  STTModelType,
   ttsOptions,
   elevenLabsVoices,
   elevenLabsLangData,
@@ -90,6 +91,8 @@ const SonixCaptionContainer = () => {
     setRtcSleepTimeMs,
     useRestTTS,
     setUseRestTTS,
+    selectedSTTModel,
+    setSelectedSTTModel,
   } = useV2V();
 
   // Handler to update providerConfigs and context
@@ -360,6 +363,7 @@ const SonixCaptionContainer = () => {
           tts_provider: selectedTTS,
           max_non_final_tokens_duration_ms: maxNonFinalTokensDurationMs,
           rtc_sleep_time_ms: rtcSleepTimeMs,
+          soniox_model: selectedSTTModel,
         };
 
         // Add rime_model only when Rime TTS is selected:temp fix remove once be chanegs
@@ -426,6 +430,7 @@ const SonixCaptionContainer = () => {
     maxNonFinalTokensDurationMs,
     rtcSleepTimeMs,
     useRestTTS,
+    selectedSTTModel,
   ]);
 
   if (showTranslatorPopup) {
@@ -502,6 +507,8 @@ const SonixCaptionContainer = () => {
         setRtcSleepTimeMs={setRtcSleepTimeMs}
         useRestTTS={useRestTTS}
         setUseRestTTS={setUseRestTTS}
+        selectedSTTModel={selectedSTTModel}
+        setSelectedSTTModel={setSelectedSTTModel}
       />
     );
   }
