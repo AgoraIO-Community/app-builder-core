@@ -17,6 +17,7 @@ const V2VStatsModal = ({visible, onClose}) => {
       'Max Non-Final Tokens Duration (ms)',
       'TTS Provider',
       'TTS Model',
+      'STT Model',
       'Connection Type',
     ];
 
@@ -47,6 +48,7 @@ const V2VStatsModal = ({visible, onClose}) => {
         stat.maxNonFinalTokensDurationMs || '',
         stat.selectedTTS || '',
         stat.ttsModel || '',
+        stat.sttModel || '',
         stat.useRestTTS ? 'Rest' : 'Websocket',
       ];
     });
@@ -100,6 +102,9 @@ const V2VStatsModal = ({visible, onClose}) => {
         </Text>
         <Text style={[styles.cell, styles.headerCell, styles.modelColumn]}>
           TTS Model
+        </Text>
+        <Text style={[styles.cell, styles.headerCell, styles.sttModelColumn]}>
+          STT Model
         </Text>
         <Text style={[styles.cell, styles.headerCell, styles.connectionColumn]}>
           Connection Type
@@ -168,6 +173,12 @@ const V2VStatsModal = ({visible, onClose}) => {
                 {stat.ttsModel || '-'}
               </Text>
               <Text
+                style={[styles.cell, styles.sttModelColumn]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {stat.sttModel || '-'}
+              </Text>
+              <Text
                 style={[styles.cell, styles.connectionColumn]}
                 numberOfLines={1}
                 ellipsizeMode="tail">
@@ -206,8 +217,8 @@ const V2VStatsModal = ({visible, onClose}) => {
 const styles = StyleSheet.create({
   modalContent: {
     padding: 16,
-    minWidth: 950,
-    maxWidth: 950,
+    minWidth: 1070,
+    maxWidth: 1070,
     width: '100%',
   },
   tableHeader: {
@@ -282,6 +293,11 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   modelColumn: {
+    width: 120,
+    maxWidth: 120,
+    minWidth: 100,
+  },
+  sttModelColumn: {
     width: 120,
     maxWidth: 120,
     minWidth: 100,
