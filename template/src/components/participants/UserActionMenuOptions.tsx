@@ -152,7 +152,8 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {breakoutGroups, addUserIntoGroup} = useBreakoutRoom();
+  const {breakoutGroups, moveUserIntoGroup, moveUserToMainRoom} =
+    useBreakoutRoom();
   useEffect(() => {
     customEvents.on('DisableChat', data => {
       // for other users
@@ -173,18 +174,28 @@ export default function UserActionMenuOptionsOptions(
     const items: ActionMenuItem[] = [];
 
     if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
+      items.push({
+        order: 0,
+        icon: 'arrow-up',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: 'Move to Main Room',
+        onPress: () => {
+          setActionMenuVisible(false);
+          moveUserToMainRoom(user);
+        },
+      });
       if (breakoutGroups && breakoutGroups?.length) {
-        breakoutGroups.map(({name, id}, index) => {
+        breakoutGroups.map(({name, id: breakoutRoomId}, index) => {
           items.push({
             order: index + 1,
             icon: 'add',
-            onHoverIcon: 'add',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: `Move to ${name}`,
+            title: `Shift to ${name}`,
             onPress: () => {
               setActionMenuVisible(false);
-              addUserIntoGroup(user.uid, id, false);
+              moveUserIntoGroup(user, breakoutRoomId);
             },
           });
         });

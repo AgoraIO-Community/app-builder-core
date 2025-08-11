@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
@@ -20,6 +20,7 @@ import {BreakoutGroup} from '../state/reducer';
 import {useContent} from 'customization-api';
 import {videoRoomUserFallbackText} from '../../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../../utils/useString';
+import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
 
 interface Props {
   groups: BreakoutGroup[];
@@ -28,6 +29,18 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
   // Render room card
   const {defaultContent} = useContent();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
+  const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
+
+  const [actionMenuVisible, setActionMenuVisible] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  const showModal = (memberUId: UidType) => {
+    setActionMenuVisible(prev => ({
+      ...prev,
+      [memberUId]: !prev[memberUId],
+    }));
+  };
 
   const getName = (uid: UidType) => {
     return defaultContent[uid]?.name || remoteUserDefaultLabel;
@@ -45,24 +58,55 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
     setExpandedRooms(newExpanded);
   };
 
-  const renderMember = (memberUId: UidType) => (
-    <View key={memberUId} style={styles.memberItem}>
-      <View style={styles.memberInfo}>
-        <UserAvatar
-          name={getName(memberUId)}
-          containerStyle={styles.userAvatarContainer}
-          textStyle={styles.userAvatarText}
-        />
-        <Text style={styles.memberName} numberOfLines={1}>
-          {getName(memberUId)}
-        </Text>
-      </View>
+  const renderMember = (memberUId: UidType) => {
+    // Create or get ref for this specific member
+    if (!memberMoreMenuRefs.current[memberUId]) {
+      memberMoreMenuRefs.current[memberUId] = React.createRef();
+    }
 
-      <TouchableOpacity style={styles.memberMenu} onPress={() => {}}>
-        <Text style={styles.memberMenuText}>⋯</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    const memberRef = memberMoreMenuRefs.current[memberUId];
+    const isMenuVisible = actionMenuVisible[memberUId] || false;
+
+    return (
+      <View key={memberUId} style={styles.memberItem}>
+        <View style={styles.memberInfo}>
+          <UserAvatar
+            name={getName(memberUId)}
+            containerStyle={styles.userAvatarContainer}
+            textStyle={styles.userAvatarText}
+          />
+          <Text style={styles.memberName} numberOfLines={1}>
+            {getName(memberUId)}
+          </Text>
+        </View>
+
+        <View style={styles.memberMenu}>
+          <View style={styles.memberMenuText}>
+            <View ref={memberRef} collapsable={false}>
+              <IconButton
+                iconProps={{
+                  iconType: 'plain',
+                  name: 'more-menu',
+                  iconSize: 20,
+                  tintColor: $config.SECONDARY_ACTION_COLOR,
+                }}
+                onPress={() => showModal(memberUId)}
+              />
+            </View>
+            <UserActionMenuOptionsOptions
+              actionMenuVisible={isMenuVisible}
+              setActionMenuVisible={visible =>
+                setActionMenuVisible(prev => ({...prev, [memberUId]: visible}))
+              }
+              user={defaultContent[memberUId]}
+              btnRef={memberRef}
+              from={'breakout-room'}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   const renderRoom = (room: BreakoutGroup) => {
     const isExpanded = expandedRooms.has(room.id);
@@ -270,9 +314,15 @@ const styles = StyleSheet.create({
   },
   memberMenu: {
     padding: 8,
+    marginLeft: 'auto',
   },
   memberMenuText: {
-    fontSize: 16,
+    width: 24,
+    height: 24,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
   },
   emptyRoom: {
     alignItems: 'center',

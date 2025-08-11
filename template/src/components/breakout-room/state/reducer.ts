@@ -97,7 +97,6 @@ export type BreakoutRoomAction =
         uid: UidType;
         fromGroupId: string;
         toGroupId: string;
-        isHost: boolean;
       };
     };
 
@@ -201,7 +200,7 @@ export const breakoutRoomReducer = (
     }
 
     case BreakoutGroupActionTypes.MOVE_PARTICIPANT: {
-      const {uid, fromGroupId, toGroupId, isHost} = action.payload;
+      const {uid, fromGroupId, toGroupId} = action.payload;
       return {
         ...state,
         breakoutGroups: state.breakoutGroups.map(group => {
@@ -211,10 +210,10 @@ export const breakoutRoomReducer = (
               ...group,
               participants: {
                 ...group.participants,
-                hosts: isHost
+                hosts: true
                   ? group.participants.hosts.filter(id => id !== uid)
                   : group.participants.hosts,
-                attendees: !isHost
+                attendees: false
                   ? group.participants.attendees.filter(id => id !== uid)
                   : group.participants.attendees,
               },
@@ -226,10 +225,10 @@ export const breakoutRoomReducer = (
               ...group,
               participants: {
                 ...group.participants,
-                hosts: isHost
+                hosts: true
                   ? [...group.participants.hosts, uid]
                   : group.participants.hosts,
-                attendees: !isHost
+                attendees: false
                   ? [...group.participants.attendees, uid]
                   : group.participants.attendees,
               },

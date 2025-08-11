@@ -33,11 +33,8 @@ interface BreakoutRoomContextValue {
   setStrategy: (strategy: RoomAssignmentStrategy) => void;
   unsassignedParticipants: {uid: UidType; user: ContentInterface}[];
   createBreakoutRoomGroup: (name?: string) => void;
-  addUserIntoGroup: (
-    uid: UidType,
-    selectGroupId: string,
-    isHost: boolean,
-  ) => void;
+  moveUserIntoGroup: (user: ContentInterface, selectGroupId: string) => void;
+  moveUserToMainRoom: (user: ContentInterface) => void;
   upsertBreakoutRoomAPI: () => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
@@ -52,7 +49,8 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   setStrategy: () => {},
   assignParticipants: () => {},
   createBreakoutRoomGroup: () => {},
-  addUserIntoGroup: () => {},
+  moveUserIntoGroup: () => {},
+  moveUserToMainRoom: () => {},
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
@@ -239,15 +237,16 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     });
   };
 
-  const addUserIntoGroup = (
-    uid: UidType,
-    toGroupId: string,
-    isHost: boolean,
-  ) => {
-    dispatch({
-      type: BreakoutGroupActionTypes.MOVE_PARTICIPANT,
-      payload: {uid, fromGroupId: null, toGroupId, isHost},
-    });
+  const moveUserToMainRoom = (user: ContentInterface) => {
+    console.log('supriya move user to main room', user);
+  };
+
+  const moveUserIntoGroup = (user: ContentInterface, toGroupId: string) => {
+    console.log('supriya move user to another room', user, toGroupId);
+    // dispatch({
+    //   type: BreakoutGroupActionTypes.MOVE_PARTICIPANT,
+    //   payload: {uid: user.uid, fromGroupId: null, toGroupId},
+    // });
   };
 
   const assignParticipants = () => {
@@ -269,7 +268,8 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         checkIfBreakoutRoomSessionExistsAPI,
         upsertBreakoutRoomAPI,
         closeBreakoutRoomAPI,
-        addUserIntoGroup,
+        moveUserIntoGroup,
+        moveUserToMainRoom,
       }}>
       {children}
     </BreakoutRoomContext.Provider>
