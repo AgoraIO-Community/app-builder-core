@@ -63,7 +63,8 @@ export const BreakoutGroupActionTypes = {
   UPDATE_UNASSIGNED_PARTICIPANTS:
     'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
   ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/ASSIGN_PARTICPANTS',
-  MOVE_PARTICIPANT: 'BREAKOUT_ROOM/MOVE_PARTICIPANT',
+  MOVE_PARTICIPANT_TO_MAIN: 'BREAKOUT_ROOM/MOVE_PARTICIPANT_TO_MAIN',
+  MOVE_PARTICIPANT_TO_GROUP: 'BREAKOUT_ROOM/MOVE_PARTICIPANT_TO_GROUP',
 } as const;
 
 export type BreakoutRoomAction =
@@ -92,9 +93,16 @@ export type BreakoutRoomAction =
       type: typeof BreakoutGroupActionTypes.ASSIGN_PARTICPANTS;
     }
   | {
-      type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT;
+      type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN;
       payload: {
-        uid: UidType;
+        user: ContentInterface;
+        fromGroupId: string;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP;
+      payload: {
+        user: ContentInterface;
         fromGroupId: string;
         toGroupId: string;
       };
@@ -139,11 +147,14 @@ export const breakoutRoomReducer = (
 
     case BreakoutGroupActionTypes.ASSIGN_PARTICPANTS: {
       const selectedStrategy = state.assignmentStrategy;
-      const roomAssignments = new Map<string, UidType[]>();
+      const roomAssignments = new Map<
+        string,
+        {hosts: UidType[]; attendees: UidType[]}
+      >();
 
       // Initialize empty arrays for each room
       state.breakoutGroups.forEach(room => {
-        roomAssignments.set(room.id, []);
+        roomAssignments.set(room.id, {hosts: [], attendees: []});
       });
 
       let assignedParticipantUids: UidType[] = [];
@@ -153,8 +164,13 @@ export const breakoutRoomReducer = (
         const roomIds = state.breakoutGroups.map(room => room.id);
         state.unassignedParticipants.forEach(participant => {
           const currentRoomId = roomIds[roomIndex];
-          // Assign participant to current room
-          roomAssignments.get(currentRoomId)!.push(participant.uid);
+          const roomAssignment = roomAssignments.get(currentRoomId)!;
+          // Assign participant based on their isHost status (string "true"/"false")
+          if (participant.user.isHost === 'true') {
+            roomAssignment.hosts.push(participant.uid);
+          } else {
+            roomAssignment.attendees.push(participant.uid);
+          }
           // Move it to assigned list
           assignedParticipantUids.push(participant.uid);
           // Move to next room for round-robin
@@ -163,12 +179,15 @@ export const breakoutRoomReducer = (
       }
       // Update breakoutGroups with new assignments
       const updatedBreakoutGroups = state.breakoutGroups.map(group => {
-        const roomParticipants = roomAssignments.get(group.id) || [];
+        const roomParticipants = roomAssignments.get(group.id) || {
+          hosts: [],
+          attendees: [],
+        };
         return {
           ...group,
           participants: {
-            hosts: [],
-            attendees: roomParticipants || [],
+            hosts: roomParticipants.hosts,
+            attendees: roomParticipants.attendees,
           },
         };
       });
@@ -199,37 +218,67 @@ export const breakoutRoomReducer = (
       };
     }
 
-    case BreakoutGroupActionTypes.MOVE_PARTICIPANT: {
-      const {uid, fromGroupId, toGroupId} = action.payload;
+    case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN: {
+      const {user, fromGroupId} = action.payload;
       return {
         ...state,
         breakoutGroups: state.breakoutGroups.map(group => {
-          // Remove from source group (if fromGroupId exists)
+          // Remove participant from their current breakout group
           if (fromGroupId && group.id === fromGroupId) {
             return {
               ...group,
               participants: {
                 ...group.participants,
-                hosts: true
-                  ? group.participants.hosts.filter(id => id !== uid)
-                  : group.participants.hosts,
-                attendees: false
-                  ? group.participants.attendees.filter(id => id !== uid)
-                  : group.participants.attendees,
+                hosts: group.participants.hosts.filter(id => id !== user.uid),
+                attendees: group.participants.attendees.filter(
+                  id => id !== user.uid,
+                ),
+              },
+            };
+          }
+          return group;
+        }),
+      };
+    }
+
+    case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP: {
+      const {user, fromGroupId, toGroupId} = action.payload;
+      console.log(
+        'supriya-group-change MOVE_PARTICIPANT_TO_GROUP user: ',
+        user,
+        fromGroupId,
+        toGroupId,
+      );
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group => {
+          // Remove from source group (if fromGroupId exists)
+          if (fromGroupId && group.id === fromGroupId) {
+            console.log('supriya-group-change remove from source group');
+            return {
+              ...group,
+              participants: {
+                ...group.participants,
+                hosts: group.participants.hosts.filter(id => id !== user.uid),
+                attendees: group.participants.attendees.filter(
+                  id => id !== user.uid,
+                ),
               },
             };
           }
           // Add to target group
           if (group.id === toGroupId) {
+            console.log('supriya-group-change add to taregt group');
+            const isHost = user.isHost === 'true';
             return {
               ...group,
               participants: {
                 ...group.participants,
-                hosts: true
-                  ? [...group.participants.hosts, uid]
+                hosts: isHost
+                  ? [...group.participants.hosts, user.uid]
                   : group.participants.hosts,
-                attendees: false
-                  ? [...group.participants.attendees, uid]
+                attendees: !isHost
+                  ? [...group.participants.attendees, user.uid]
                   : group.participants.attendees,
               },
             };

@@ -110,7 +110,10 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
 
   const renderRoom = (room: BreakoutGroup) => {
     const isExpanded = expandedRooms.has(room.id);
-    const memberCount = room.participants.attendees.length || 0;
+    const memberCount =
+      room.participants.hosts.length ||
+      0 + room.participants.attendees.length ||
+      0;
 
     return (
       <View key={room.id} style={styles.roomGroupCard}>
@@ -153,8 +156,14 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
         {/* Room Members (Expanded) */}
         {isExpanded && (
           <View style={styles.roomMembers}>
-            {room.participants.attendees.length > 0 ? (
-              room.participants.attendees.map(member => renderMember(member))
+            {room.participants.hosts.length > 0 ||
+            room.participants.attendees.length > 0 ? (
+              <>
+                {room.participants.hosts.map(member => renderMember(member))}
+                {room.participants.attendees.map(member =>
+                  renderMember(member),
+                )}
+              </>
             ) : (
               <View style={styles.emptyRoom}>
                 <Text style={styles.emptyRoomText}>

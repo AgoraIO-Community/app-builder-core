@@ -16,6 +16,9 @@ import {
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
+import {useHistory, useParams} from '../../Router';
+import events, {PersistanceLevel} from '../../../rtm-events-api';
+import {EventNames} from '../../../rtm-events';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -124,7 +127,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   }, [defaultContent, activeUids, localUid]);
 
   useEffect(() => {
-    console.log('supriya breakout group changed');
+    console.log('supriya breakout state changed');
     upsertBreakoutRoomAPI('UPDATE');
   }, [state.breakoutGroups]);
 
@@ -181,7 +184,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   const upsertBreakoutRoomAPI = (type: 'START' | 'UPDATE' = 'START') => {
     const startReqTs = Date.now();
     const requestId = getUniqueID();
-
+    console.log('supriya-group-change', state.breakoutGroups);
     fetch(`${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`, {
       method: 'POST',
       headers: {
@@ -238,15 +241,68 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   };
 
   const moveUserToMainRoom = (user: ContentInterface) => {
-    console.log('supriya move user to main room', user);
+    console.log('supriya moving user to main room', user);
+    try {
+      // Find user's current breakout group
+      const currentGroup = state.breakoutGroups.find(
+        group =>
+          group.participants.hosts.includes(user.uid) ||
+          group.participants.attendees.includes(user.uid),
+      );
+      // Dispatch action to remove user from breakout group
+      if (currentGroup) {
+        dispatch({
+          type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
+          payload: {
+            user: user,
+            fromGroupId: currentGroup.id,
+          },
+        });
+      }
+      // Call upsertBreakoutRoomAPI to sync changes and trigger events
+      upsertBreakoutRoomAPI('UPDATE');
+      console.log(`supriya User ${user.name} (${user.uid}) moved to main room`);
+    } catch (error) {
+      console.error('supriya Error moving user to main room:', error);
+    }
   };
 
   const moveUserIntoGroup = (user: ContentInterface, toGroupId: string) => {
     console.log('supriya move user to another room', user, toGroupId);
-    // dispatch({
-    //   type: BreakoutGroupActionTypes.MOVE_PARTICIPANT,
-    //   payload: {uid: user.uid, fromGroupId: null, toGroupId},
-    // });
+    try {
+      // Find user's current breakout group
+      const currentGroup = state.breakoutGroups.find(
+        group =>
+          group.participants.hosts.includes(user.uid) ||
+          group.participants.attendees.includes(user.uid),
+      );
+      // Find target group
+      const targetGroup = state.breakoutGroups.find(
+        group => group.id === toGroupId,
+      );
+      if (!targetGroup) {
+        console.error('Target group not found:', toGroupId);
+        return;
+      }
+      // Dispatch action to move user between groups
+      dispatch({
+        type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
+        payload: {
+          user: user,
+          fromGroupId: currentGroup?.id,
+          toGroupId,
+        },
+      });
+
+      // Call upsertBreakoutRoomAPI to sync changes and trigger events
+      upsertBreakoutRoomAPI('UPDATE');
+
+      console.log(
+        `supriya User ${user.name} (${user.uid}) moved to ${targetGroup.name}`,
+      );
+    } catch (error) {
+      console.error('supriya Error moving user to breakout room:', error);
+    }
   };
 
   const assignParticipants = () => {

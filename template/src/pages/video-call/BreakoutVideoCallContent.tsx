@@ -80,7 +80,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareUid: breakoutChannelDetails?.screenShareUid as number,
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
-
+  console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
   return (
     <PropsProvider
       value={{

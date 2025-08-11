@@ -21,6 +21,7 @@ interface Props {
 }
 
 const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
+  console.log('supriya participants: ', participants);
   return (
     <>
       <Text style={styles.title}>
