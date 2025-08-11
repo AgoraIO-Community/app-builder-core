@@ -23,9 +23,12 @@ import BreakoutRoomGroupSettings from './ui/BreakoutRoomGroupSettings';
 import ThemeConfig from '../../theme';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import {useLayout} from '../../utils/useLayout';
+import {useSidePanel} from '../../utils/useSidePanel';
+import {SidePanelType} from '../../subComponents/SidePanelEnum';
 
 const BreakoutRoomPanel = props => {
   const {showHeader = true} = props;
+  const {setSidePanel} = useSidePanel();
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();
@@ -39,7 +42,10 @@ const BreakoutRoomPanel = props => {
     createBreakoutRoomGroup,
     breakoutGroups,
     upsertBreakoutRoomAPI,
-    closeBreakoutRoomAPI,
+    isUserInRoom,
+    exitRoom,
+    joinRoom,
+    closeAllRooms,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -78,7 +84,12 @@ const BreakoutRoomPanel = props => {
       <ScrollView style={[style.pannelOuterBody]}>
         <View style={style.panelInnerBody}>
           <BreakoutRoomSettings />
-          <BreakoutRoomGroupSettings groups={breakoutGroups} />
+          <BreakoutRoomGroupSettings
+            isUserInRoom={isUserInRoom}
+            exitRoom={exitRoom}
+            joinRoom={joinRoom}
+            groups={breakoutGroups}
+          />
           <TertiaryButton
             containerStyle={style.createBtnContainer}
             textStyle={style.createBtnText}
@@ -98,7 +109,12 @@ const BreakoutRoomPanel = props => {
                 color: $config.SEMANTIC_ERROR,
               }}
               onPress={() => {
-                closeBreakoutRoomAPI();
+                try {
+                  closeAllRooms();
+                  setSidePanel(SidePanelType.None);
+                } catch (error) {
+                  console.error('Supriya Error while closing the room', error);
+                }
               }}
               text={'Close All Rooms'}
             />

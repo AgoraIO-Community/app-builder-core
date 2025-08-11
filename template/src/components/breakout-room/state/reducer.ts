@@ -59,6 +59,8 @@ export const BreakoutGroupActionTypes = {
   // Group management
   SET_GROUPS: 'BREAKOUT_ROOM/SET_GROUPS',
   CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
+  CLOSE_GROUP: 'BREAKOUT_ROOM/CLOSE_GROUP',
+  CLOSE_ALL_GROUPS: 'BREAKOUT_ROOM/CLOSE_ALL_GROUPS',
   // Participants Assignment
   UPDATE_UNASSIGNED_PARTICIPANTS:
     'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
@@ -83,6 +85,13 @@ export type BreakoutRoomAction =
       };
     }
   | {type: typeof BreakoutGroupActionTypes.CREATE_GROUP}
+  | {
+      type: typeof BreakoutGroupActionTypes.CLOSE_GROUP;
+      payload: {
+        groupId: string;
+      };
+    }
+  | {type: typeof BreakoutGroupActionTypes.CLOSE_ALL_GROUPS}
   | {
       type: typeof BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS;
       payload: {
@@ -215,6 +224,23 @@ export const breakoutRoomReducer = (
             participants: {hosts: [], attendees: []},
           },
         ],
+      };
+    }
+
+    case BreakoutGroupActionTypes.CLOSE_GROUP: {
+      const {groupId} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.filter(
+          room => room.id !== groupId,
+        ),
+      };
+    }
+
+    case BreakoutGroupActionTypes.CLOSE_ALL_GROUPS: {
+      return {
+        ...state,
+        breakoutGroups: [],
       };
     }
 

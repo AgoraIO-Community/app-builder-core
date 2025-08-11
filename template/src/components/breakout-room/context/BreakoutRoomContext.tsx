@@ -16,9 +16,6 @@ import {
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
-import {useHistory, useParams} from '../../Router';
-import events, {PersistanceLevel} from '../../../rtm-events-api';
-import {EventNames} from '../../../rtm-events';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -36,8 +33,13 @@ interface BreakoutRoomContextValue {
   setStrategy: (strategy: RoomAssignmentStrategy) => void;
   unsassignedParticipants: {uid: UidType; user: ContentInterface}[];
   createBreakoutRoomGroup: (name?: string) => void;
-  moveUserIntoGroup: (user: ContentInterface, selectGroupId: string) => void;
+  moveUserIntoGroup: (user: ContentInterface, toGroupId: string) => void;
   moveUserToMainRoom: (user: ContentInterface) => void;
+  isUserInRoom: (room: BreakoutGroup) => boolean;
+  joinRoom: (roomId: string) => void;
+  exitRoom: (roomId: string) => void;
+  closeRoom: (roomId: string) => void;
+  closeAllRooms: () => void;
   upsertBreakoutRoomAPI: () => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
@@ -54,6 +56,11 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   createBreakoutRoomGroup: () => {},
   moveUserIntoGroup: () => {},
   moveUserToMainRoom: () => {},
+  isUserInRoom: () => false,
+  joinRoom: () => {},
+  exitRoom: () => {},
+  closeRoom: () => {},
+  closeAllRooms: () => {},
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
@@ -240,6 +247,12 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     });
   };
 
+  const assignParticipants = () => {
+    dispatch({
+      type: BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
+    });
+  };
+
   const moveUserToMainRoom = (user: ContentInterface) => {
     console.log('supriya moving user to main room', user);
     try {
@@ -305,10 +318,47 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     }
   };
 
-  const assignParticipants = () => {
+  // To check if current user is in a specific room
+  const isUserInRoom = (room: BreakoutGroup): boolean => {
+    return (
+      room.participants.hosts.includes(localUid) ||
+      room.participants.attendees.includes(localUid)
+    );
+  };
+
+  const joinRoom = (toRoomId: string) => {
+    const localUser = defaultContent[localUid];
+    moveUserIntoGroup(localUser, toRoomId);
+  };
+
+  const exitRoom = (fromRoomId: string) => {
+    const localUser = defaultContent[localUid];
     dispatch({
-      type: BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
+      type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
+      payload: {
+        user: localUser,
+        fromGroupId: fromRoomId,
+        toGroupId: null,
+      },
     });
+    upsertBreakoutRoomAPI('UPDATE');
+  };
+
+  const closeRoom = (roomIdToClose: string) => {
+    dispatch({
+      type: BreakoutGroupActionTypes.CLOSE_GROUP,
+      payload: {
+        groupId: roomIdToClose,
+      },
+    });
+    upsertBreakoutRoomAPI('UPDATE');
+  };
+
+  const closeAllRooms = () => {
+    dispatch({
+      type: BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
+    });
+    upsertBreakoutRoomAPI('UPDATE');
   };
 
   return (
@@ -326,6 +376,11 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         closeBreakoutRoomAPI,
         moveUserIntoGroup,
         moveUserToMainRoom,
+        isUserInRoom,
+        joinRoom,
+        exitRoom,
+        closeRoom,
+        closeAllRooms,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

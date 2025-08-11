@@ -11,7 +11,7 @@
 */
 
 import React, {useState, useRef} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
 import {UidType} from 'agora-rn-uikit';
@@ -21,11 +21,22 @@ import {useContent} from 'customization-api';
 import {videoRoomUserFallbackText} from '../../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../../utils/useString';
 import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
+import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
+import TertiaryButton from '../../../atoms/TertiaryButton';
 
 interface Props {
+  isUserInRoom: (room: BreakoutGroup) => boolean;
+  joinRoom: (roomId: string) => void;
+  exitRoom: (roomId: string) => void;
   groups: BreakoutGroup[];
 }
-const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
+
+const BreakoutRoomGroupSettings: React.FC<Props> = ({
+  groups,
+  isUserInRoom,
+  exitRoom,
+  joinRoom,
+}) => {
   // Render room card
   const {defaultContent} = useContent();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
@@ -120,7 +131,7 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
         <View style={styles.roomHeader}>
           <View style={styles.roomHeaderLeft}>
             <IconButton
-              hoverEffect={true}
+              hoverEffect={false}
               containerStyle={styles.expandIcon}
               iconProps={{
                 name: isExpanded ? 'arrow-down' : 'arrow-up',
@@ -138,19 +149,33 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
               </Text>
             </View>
           </View>
-          {/* <View style={styles.roomHeaderRight}>
-            <IconButton
-              hoverEffect={true}
-              containerStyle={styles.expandIcon}
-              iconProps={{
-                name: 'more-menu',
-                iconType: 'plain',
-                iconSize: 20,
-                tintColor: `${$config.FONT_COLOR}`,
+          <View style={styles.roomHeaderRight}>
+            {isUserInRoom(room) ? (
+              <TertiaryButton
+                containerStyle={styles.exitRoomBtn}
+                textStyle={styles.roomActionBtnText}
+                text={'Exit Room'}
+                onPress={() => {
+                  exitRoom(room.id);
+                }}
+              />
+            ) : (
+              <TertiaryButton
+                containerStyle={styles.joinRoomBtn}
+                textStyle={styles.roomActionBtnText}
+                text={'Join'}
+                onPress={() => {
+                  joinRoom(room.id);
+                }}
+              />
+            )}
+
+            <BreakoutRoomActionMenu
+              onDeleteRoom={() => {
+                console.log('supriya on delete clicked');
               }}
-              onPress={() => {}}
             />
-          </View> */}
+          </View>
         </View>
 
         {/* Room Members (Expanded) */}
@@ -242,6 +267,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  exitRoomBtn: {
+    backgroundColor: 'transparent',
+    borderColor: $config.SECONDARY_ACTION_COLOR,
+    height: 28,
+  },
+  joinRoomBtn: {
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    height: 28,
+  },
+  roomActionBtnText: {
+    color: $config.SECONDARY_ACTION_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 16,
+    fontWeight: '600',
+  },
   roomHeaderInfo: {
     display: 'flex',
     flexDirection: 'column',
@@ -262,7 +303,8 @@ const styles = StyleSheet.create({
   roomHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginLeft: 'auto',
+    gap: 4,
   },
   roomMembers: {
     paddingHorizontal: 8,
