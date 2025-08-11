@@ -23,12 +23,15 @@ import {useString} from '../../../utils/useString';
 import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
 import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
 import TertiaryButton from '../../../atoms/TertiaryButton';
+import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
+import {useModal} from '../../../utils/useModal';
 
 interface Props {
   isUserInRoom: (room: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
   exitRoom: (roomId: string) => void;
   groups: BreakoutGroup[];
+  sendAnnouncement: (text: string) => void;
 }
 
 const BreakoutRoomGroupSettings: React.FC<Props> = ({
@@ -36,11 +39,16 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({
   isUserInRoom,
   exitRoom,
   joinRoom,
+  sendAnnouncement,
 }) => {
   // Render room card
   const {defaultContent} = useContent();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
   const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
+  const {
+    modalOpen: isAnnoucementModalOpen,
+    setModalOpen: setAnnouncementModal,
+  } = useModal();
 
   const [actionMenuVisible, setActionMenuVisible] = useState<{
     [key: string]: boolean;
@@ -205,10 +213,31 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>All Rooms</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>All Rooms</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <IconButton
+            iconProps={{
+              iconType: 'plain',
+              name: 'speaker',
+              iconSize: 20,
+              tintColor: $config.SECONDARY_ACTION_COLOR,
+            }}
+            onPress={() => {
+              setAnnouncementModal(true);
+            }}
+          />
+        </View>
         {/* <View style={styles.headerActions}></View> */}
       </View>
       <View style={styles.body}>{groups.map(renderRoom)}</View>
+      {isAnnoucementModalOpen && (
+        <BreakoutRoomAnnouncementModal
+          sendAnnouncement={sendAnnouncement}
+          setModalOpen={setAnnouncementModal}
+        />
+      )}
     </View>
   );
 };
@@ -225,14 +254,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    // border: '1px solid yellow',
   },
+  headerLeft: {},
   headerTitle: {
     fontWeight: '600',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  headerRight: {
+    display: 'flex',
+    marginLeft: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerActions: {
     flexDirection: 'row',

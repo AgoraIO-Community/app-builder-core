@@ -46,6 +46,7 @@ const BreakoutRoomPanel = props => {
     exitRoom,
     joinRoom,
     closeAllRooms,
+    sendAnnouncement,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -85,6 +86,7 @@ const BreakoutRoomPanel = props => {
         <View style={style.panelInnerBody}>
           <BreakoutRoomSettings />
           <BreakoutRoomGroupSettings
+            sendAnnouncement={sendAnnouncement}
             isUserInRoom={isUserInRoom}
             exitRoom={exitRoom}
             joinRoom={joinRoom}

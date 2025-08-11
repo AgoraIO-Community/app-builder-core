@@ -152,7 +152,7 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {breakoutGroups, moveUserIntoGroup, moveUserToMainRoom} =
+  const {breakoutGroups, moveUserIntoGroup, moveUserToMainRoom, makePresenter} =
     useBreakoutRoom();
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -172,10 +172,10 @@ export default function UserActionMenuOptionsOptions(
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
-
+    let outerIndex = 0;
     if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
       items.push({
-        order: 0,
+        order: outerIndex + 1,
         icon: 'arrow-up',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
@@ -187,8 +187,9 @@ export default function UserActionMenuOptionsOptions(
       });
       if (breakoutGroups && breakoutGroups?.length) {
         breakoutGroups.map(({name, id: breakoutRoomId}, index) => {
+          outerIndex = index + 1;
           items.push({
-            order: index + 1,
+            order: outerIndex,
             icon: 'add',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
@@ -199,6 +200,18 @@ export default function UserActionMenuOptionsOptions(
             },
           });
         });
+        if (isHost) {
+          items.push({
+            order: outerIndex + 1,
+            icon: 'person',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: 'Make a presenter',
+            onPress: () => {
+              makePresenter(user);
+            },
+          });
+        }
         setActionMenuitems(items);
       }
       return;

@@ -16,6 +16,8 @@ import {
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
+import events, {PersistanceLevel} from '../../../rtm-events-api';
+import {EventNames} from '../../../rtm-events';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -35,6 +37,7 @@ interface BreakoutRoomContextValue {
   createBreakoutRoomGroup: (name?: string) => void;
   moveUserIntoGroup: (user: ContentInterface, toGroupId: string) => void;
   moveUserToMainRoom: (user: ContentInterface) => void;
+  makePresenter: (user: ContentInterface) => void;
   isUserInRoom: (room: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
   exitRoom: (roomId: string) => void;
@@ -44,6 +47,7 @@ interface BreakoutRoomContextValue {
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
+  sendAnnouncement: (announcement: string) => void;
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
@@ -56,11 +60,13 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   createBreakoutRoomGroup: () => {},
   moveUserIntoGroup: () => {},
   moveUserToMainRoom: () => {},
+  makePresenter: () => {},
   isUserInRoom: () => false,
   joinRoom: () => {},
   exitRoom: () => {},
   closeRoom: () => {},
   closeAllRooms: () => {},
+  sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
@@ -280,6 +286,22 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     }
   };
 
+  const makePresenter = (user: ContentInterface) => {
+    try {
+      events.send(
+        EventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+        '',
+        PersistanceLevel.None,
+        user.uid,
+      );
+    } catch (error) {
+      console.log(
+        'supriya error occured while sending presenter event error: ',
+        error,
+      );
+    }
+  };
+
   const moveUserIntoGroup = (user: ContentInterface, toGroupId: string) => {
     console.log('supriya move user to another room', user, toGroupId);
     try {
@@ -361,6 +383,16 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     upsertBreakoutRoomAPI('UPDATE');
   };
 
+  const sendAnnouncement = (announcement: string) => {
+    console.log('supriya host will send an announcement: ', announcement);
+    // events.send(
+    //   EventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
+    //   announcement,
+    //   PersistanceLevel.None,
+    //   -1,
+    // );
+  };
+
   return (
     <BreakoutRoomContext.Provider
       value={{
@@ -381,6 +413,8 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         exitRoom,
         closeRoom,
         closeAllRooms,
+        sendAnnouncement,
+        makePresenter,
       }}>
       {children}
     </BreakoutRoomContext.Provider>
