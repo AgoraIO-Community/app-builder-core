@@ -17,15 +17,18 @@ import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import ThemeConfig from '../../../theme';
 
 interface Props {
+  isHost?: boolean;
   participants?: {uid: UidType; user: ContentInterface}[];
 }
 
-const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
-  console.log('supriya participants: ', participants);
+const BreakoutRoomParticipants: React.FC<Props> = ({
+  participants,
+  isHost = false,
+}) => {
   return (
     <>
       <Text style={styles.title}>
-        Main Room ({participants.length} unassigned)
+        Main Room {isHost ? `(${participants.length} unassigned)` : ''}
       </Text>
       <View style={styles.participantContainer}>
         {participants.length > 0 ? (
@@ -40,7 +43,9 @@ const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
           ))
         ) : (
           <Text style={styles.emptyStateText}>
-            No participants available for breakout rooms
+            {isHost
+              ? 'No participants available for breakout rooms'
+              : 'No members'}
           </Text>
         )}
       </View>

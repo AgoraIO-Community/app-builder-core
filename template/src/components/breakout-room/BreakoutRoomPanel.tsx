@@ -79,7 +79,7 @@ const BreakoutRoomPanel = props => {
       {showHeader && <BreakoutRoomHeader />}
       <ScrollView style={[style.pannelOuterBody]}>
         <View style={style.panelInnerBody}>
-          <BreakoutRoomSettings />
+          {isHost ? <BreakoutRoomSettings /> : <></>}
           <BreakoutRoomGroupSettings />
           <TertiaryButton
             containerStyle={style.createBtnContainer}
