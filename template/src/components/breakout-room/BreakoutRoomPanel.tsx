@@ -40,13 +40,8 @@ const BreakoutRoomPanel = props => {
     breakoutSessionId,
     checkIfBreakoutRoomSessionExistsAPI,
     createBreakoutRoomGroup,
-    breakoutGroups,
     upsertBreakoutRoomAPI,
-    isUserInRoom,
-    exitRoom,
-    joinRoom,
     closeAllRooms,
-    sendAnnouncement,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -85,13 +80,7 @@ const BreakoutRoomPanel = props => {
       <ScrollView style={[style.pannelOuterBody]}>
         <View style={style.panelInnerBody}>
           <BreakoutRoomSettings />
-          <BreakoutRoomGroupSettings
-            sendAnnouncement={sendAnnouncement}
-            isUserInRoom={isUserInRoom}
-            exitRoom={exitRoom}
-            joinRoom={joinRoom}
-            groups={breakoutGroups}
-          />
+          <BreakoutRoomGroupSettings />
           <TertiaryButton
             containerStyle={style.createBtnContainer}
             textStyle={style.createBtnText}

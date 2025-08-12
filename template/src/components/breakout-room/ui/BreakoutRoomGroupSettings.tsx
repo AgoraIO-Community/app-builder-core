@@ -25,22 +25,19 @@ import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
 import {useModal} from '../../../utils/useModal';
+import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import BreakoutRoomRenameModal from './BreakoutRoomRenameModal';
 
-interface Props {
-  isUserInRoom: (room: BreakoutGroup) => boolean;
-  joinRoom: (roomId: string) => void;
-  exitRoom: (roomId: string) => void;
-  groups: BreakoutGroup[];
-  sendAnnouncement: (text: string) => void;
-}
+const BreakoutRoomGroupSettings: React.FC = () => {
+  const {
+    breakoutGroups,
+    isUserInRoom,
+    exitRoom,
+    joinRoom,
+    sendAnnouncement,
+    updateRoomName,
+  } = useBreakoutRoom();
 
-const BreakoutRoomGroupSettings: React.FC<Props> = ({
-  groups,
-  isUserInRoom,
-  exitRoom,
-  joinRoom,
-  sendAnnouncement,
-}) => {
   // Render room card
   const {defaultContent} = useContent();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
@@ -49,6 +46,12 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({
     modalOpen: isAnnoucementModalOpen,
     setModalOpen: setAnnouncementModal,
   } = useModal();
+  const {
+    modalOpen: isRenameRoomModalOpen,
+    setModalOpen: setRenameRoomModalOpen,
+  } = useModal();
+
+  const [roomIdToEdit, setRoomIdToEdit] = useState<string>(null);
 
   const [actionMenuVisible, setActionMenuVisible] = useState<{
     [key: string]: boolean;
@@ -182,6 +185,10 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({
               onDeleteRoom={() => {
                 console.log('supriya on delete clicked');
               }}
+              onRenameRoom={() => {
+                setRoomIdToEdit(room.id);
+                setRenameRoomModalOpen(true);
+              }}
             />
           </View>
         </View>
@@ -210,6 +217,14 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({
     );
   };
 
+  const onRoomNameChange = (newName: string) => {
+    if (newName && roomIdToEdit) {
+      updateRoomName(newName, roomIdToEdit);
+      setRoomIdToEdit(null);
+      setRenameRoomModalOpen(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -229,13 +244,18 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({
             }}
           />
         </View>
-        {/* <View style={styles.headerActions}></View> */}
       </View>
-      <View style={styles.body}>{groups.map(renderRoom)}</View>
+      <View style={styles.body}>{breakoutGroups.map(renderRoom)}</View>
       {isAnnoucementModalOpen && (
         <BreakoutRoomAnnouncementModal
           sendAnnouncement={sendAnnouncement}
           setModalOpen={setAnnouncementModal}
+        />
+      )}
+      {isRenameRoomModalOpen && roomIdToEdit && (
+        <BreakoutRoomRenameModal
+          updateRoomName={onRoomNameChange}
+          setModalOpen={setRenameRoomModalOpen}
         />
       )}
     </View>

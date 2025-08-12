@@ -61,6 +61,7 @@ export const BreakoutGroupActionTypes = {
   CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
   CLOSE_GROUP: 'BREAKOUT_ROOM/CLOSE_GROUP',
   CLOSE_ALL_GROUPS: 'BREAKOUT_ROOM/CLOSE_ALL_GROUPS',
+  RENAME_GROUP: 'BREAKOUT_ROOM/RENAME_GROUP',
   // Participants Assignment
   UPDATE_UNASSIGNED_PARTICIPANTS:
     'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
@@ -92,6 +93,13 @@ export type BreakoutRoomAction =
       };
     }
   | {type: typeof BreakoutGroupActionTypes.CLOSE_ALL_GROUPS}
+  | {
+      type: typeof BreakoutGroupActionTypes.RENAME_GROUP;
+      payload: {
+        newName: string;
+        groupId: string;
+      };
+    }
   | {
       type: typeof BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS;
       payload: {
@@ -241,6 +249,16 @@ export const breakoutRoomReducer = (
       return {
         ...state,
         breakoutGroups: [],
+      };
+    }
+
+    case BreakoutGroupActionTypes.RENAME_GROUP: {
+      const {groupId, newName} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group =>
+          group.id === groupId ? {...group, name: newName} : group,
+        ),
       };
     }
 

@@ -43,6 +43,7 @@ interface BreakoutRoomContextValue {
   exitRoom: (roomId: string) => void;
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
+  updateRoomName: (newRoomName: string, roomId: string) => void;
   upsertBreakoutRoomAPI: () => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
@@ -66,6 +67,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   exitRoom: () => {},
   closeRoom: () => {},
   closeAllRooms: () => {},
+  updateRoomName: () => {},
   sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
@@ -393,6 +395,22 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     // );
   };
 
+  const updateRoomName = (newRoomName: string, roomId: string) => {
+    console.log(
+      'supriya host will send an announcement: ',
+      newRoomName,
+      roomId,
+    );
+    dispatch({
+      type: BreakoutGroupActionTypes.RENAME_GROUP,
+      payload: {
+        newName: newRoomName,
+        groupId: roomId,
+      },
+    });
+    upsertBreakoutRoomAPI('UPDATE');
+  };
+
   return (
     <BreakoutRoomContext.Provider
       value={{
@@ -415,6 +433,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         closeAllRooms,
         sendAnnouncement,
         makePresenter,
+        updateRoomName,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

@@ -19,10 +19,12 @@ import {useRoomInfo} from 'customization-api';
 
 interface RoomActionMenuProps {
   onDeleteRoom: () => void;
+  onRenameRoom: () => void;
 }
 
 const BreakoutRoomActionMenu: React.FC<RoomActionMenuProps> = ({
   onDeleteRoom,
+  onRenameRoom,
 }) => {
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [isPosCalculated, setIsPosCalculated] = useState(false);
@@ -37,10 +39,21 @@ const BreakoutRoomActionMenu: React.FC<RoomActionMenuProps> = ({
   // Build action menu items based on context
   const actionMenuItems: ActionMenuItem[] = [];
 
-  // CLOSE ACTION - Only show for hosts
+  //  ACTION - Only show for hosts
   if (isHost) {
     actionMenuItems.push({
       order: 1,
+      icon: 'pencil-filled',
+      iconColor: $config.SEMANTIC_ERROR,
+      textColor: $config.SEMANTIC_ERROR,
+      title: 'Rename Room',
+      onPress: () => {
+        onRenameRoom();
+        setActionMenuVisible(false);
+      },
+    });
+    actionMenuItems.push({
+      order: 2,
       icon: 'delete',
       iconColor: $config.SEMANTIC_ERROR,
       textColor: $config.SEMANTIC_ERROR,
