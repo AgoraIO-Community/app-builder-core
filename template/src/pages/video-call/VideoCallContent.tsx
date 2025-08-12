@@ -18,6 +18,7 @@ import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/st
 import {CallbacksInterface, RtcPropsInterface} from 'agora-rn-uikit';
 import VideoCall from '../VideoCall';
 import BreakoutVideoCallContent from './BreakoutVideoCallContent';
+import {BreakoutRoomEventNames} from '../../components/breakout-room/events/constants';
 
 export interface BreakoutChannelDetails {
   channel: string;
@@ -83,11 +84,17 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
     };
 
     // Register breakout join event listener
-    events.on(EventNames.BREAKOUT_ROOM_JOIN_DETAILS, handleBreakoutJoin);
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_JOIN_DETAILS,
+      handleBreakoutJoin,
+    );
 
     return () => {
       // Cleanup event listener
-      events.off(EventNames.BREAKOUT_ROOM_JOIN_DETAILS, handleBreakoutJoin);
+      events.off(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_JOIN_DETAILS,
+        handleBreakoutJoin,
+      );
     };
   }, [history, phrase]);
 

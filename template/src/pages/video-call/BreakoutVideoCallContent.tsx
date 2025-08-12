@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
@@ -22,9 +22,7 @@ import DeviceConfigure from '../../components/DeviceConfigure';
 import {isMobileUA} from '../../utils/common';
 import {LiveStreamContextProvider} from '../../components/livestream';
 import ScreenshareConfigure from '../../subComponents/screenshare/ScreenshareConfigure';
-import {PreCallProvider} from '../../components/precall/usePreCall';
 import {LayoutProvider} from '../../utils/useLayout';
-import Precall from '../../components/Precall';
 import {RecordingProvider} from '../../subComponents/recording/useRecording';
 import {SidePanelProvider} from '../../utils/useSidePanel';
 import {NetworkQualityProvider} from '../../components/NetworkQualityContext';
@@ -54,6 +52,7 @@ import {
   BreakoutChannelDetails,
   VideoCallContentProps,
 } from './VideoCallContent';
+import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
 
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
@@ -81,6 +80,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
   console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
+
   return (
     <PropsProvider
       value={{
@@ -145,27 +145,17 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                                                     <VBProvider>
                                                       <BeautyEffectProvider>
                                                         <SdkMuteToggleListener>
-                                                          {callActive ? (
-                                                            <VideoMeetingDataProvider>
-                                                              <VideoCallProvider>
-                                                                <DisableChatProvider>
-                                                                  <BreakoutRoomProvider>
+                                                          <VideoMeetingDataProvider>
+                                                            <VideoCallProvider>
+                                                              <DisableChatProvider>
+                                                                <BreakoutRoomProvider>
+                                                                  <BreakoutRoomEventsConfigure>
                                                                     <VideoCallScreenWrapper />
-                                                                  </BreakoutRoomProvider>
-                                                                </DisableChatProvider>
-                                                              </VideoCallProvider>
-                                                            </VideoMeetingDataProvider>
-                                                          ) : $config.PRECALL ? (
-                                                            <PreCallProvider
-                                                              value={{
-                                                                callActive,
-                                                                setCallActive,
-                                                              }}>
-                                                              <Precall />
-                                                            </PreCallProvider>
-                                                          ) : (
-                                                            <></>
-                                                          )}
+                                                                  </BreakoutRoomEventsConfigure>
+                                                                </BreakoutRoomProvider>
+                                                              </DisableChatProvider>
+                                                            </VideoCallProvider>
+                                                          </VideoMeetingDataProvider>
                                                         </SdkMuteToggleListener>
                                                       </BeautyEffectProvider>
                                                     </VBProvider>
