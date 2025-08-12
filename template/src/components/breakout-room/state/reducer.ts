@@ -160,6 +160,10 @@ export const breakoutRoomReducer = (
         ...state,
         breakoutGroups: action.payload.map(group => ({
           ...group,
+          participants: {
+            hosts: group.participants?.hosts ?? [],
+            attendees: group.participants?.attendees ?? [],
+          },
         })),
       };
     }
