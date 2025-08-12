@@ -27,8 +27,13 @@ import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
 import {useModal} from '../../../utils/useModal';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import BreakoutRoomRenameModal from './BreakoutRoomRenameModal';
+import {useRoomInfo} from '../../room-info/useRoomInfo';
 
 const BreakoutRoomGroupSettings: React.FC = () => {
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
   const {
     breakoutGroups,
     isUserInRoom,
@@ -180,16 +185,20 @@ const BreakoutRoomGroupSettings: React.FC = () => {
                 }}
               />
             )}
-
-            <BreakoutRoomActionMenu
-              onDeleteRoom={() => {
-                console.log('supriya on delete clicked');
-              }}
-              onRenameRoom={() => {
-                setRoomIdToEdit(room.id);
-                setRenameRoomModalOpen(true);
-              }}
-            />
+            {/* Only host can perform these actions */}
+            {isHost ? (
+              <BreakoutRoomActionMenu
+                onDeleteRoom={() => {
+                  console.log('supriya on delete clicked');
+                }}
+                onRenameRoom={() => {
+                  setRoomIdToEdit(room.id);
+                  setRenameRoomModalOpen(true);
+                }}
+              />
+            ) : (
+              <></>
+            )}
           </View>
         </View>
 
@@ -231,19 +240,23 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>All Rooms</Text>
         </View>
-        <View style={styles.headerRight}>
-          <IconButton
-            iconProps={{
-              iconType: 'plain',
-              name: 'speaker',
-              iconSize: 20,
-              tintColor: $config.SECONDARY_ACTION_COLOR,
-            }}
-            onPress={() => {
-              setAnnouncementModal(true);
-            }}
-          />
-        </View>
+        {isHost ? (
+          <View style={styles.headerRight}>
+            <IconButton
+              iconProps={{
+                iconType: 'plain',
+                name: 'speaker',
+                iconSize: 20,
+                tintColor: $config.SECONDARY_ACTION_COLOR,
+              }}
+              onPress={() => {
+                setAnnouncementModal(true);
+              }}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
       </View>
       <View style={styles.body}>{breakoutGroups.map(renderRoom)}</View>
       {isAnnoucementModalOpen && (
