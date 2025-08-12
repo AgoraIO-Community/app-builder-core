@@ -148,10 +148,16 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                                                           <VideoMeetingDataProvider>
                                                             <VideoCallProvider>
                                                               <DisableChatProvider>
-                                                                <BreakoutRoomProvider>
-                                                                  <BreakoutRoomEventsConfigure>
-                                                                    <VideoCallScreenWrapper />
-                                                                  </BreakoutRoomEventsConfigure>
+                                                                <BreakoutRoomProvider
+                                                                  mainChannel={
+                                                                    rtcProps.channel
+                                                                  }>
+                                                                  {/* <BreakoutRoomEventsConfigure
+                                                                    mainChannelName={
+                                                                      rtcProps.channel
+                                                                    }> */}
+                                                                  <VideoCallScreenWrapper />
+                                                                  {/* </BreakoutRoomEventsConfigure> */}
                                                                 </BreakoutRoomProvider>
                                                               </DisableChatProvider>
                                                             </VideoCallProvider>

@@ -1,4 +1,10 @@
-import React, {useContext, useReducer, useEffect} from 'react';
+import React, {
+  useContext,
+  useReducer,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
 import {randomNameGenerator} from '../../../utils';
@@ -17,7 +23,8 @@ import {
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
-import {EventNames} from '../../../rtm-events';
+import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
+import {BreakoutRoomEventNames} from '../events/constants';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -38,17 +45,19 @@ interface BreakoutRoomContextValue {
   moveUserIntoGroup: (user: ContentInterface, toGroupId: string) => void;
   moveUserToMainRoom: (user: ContentInterface) => void;
   makePresenter: (user: ContentInterface) => void;
-  isUserInRoom: (room: BreakoutGroup) => boolean;
+  isUserInRoom: (room?: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
   exitRoom: (roomId: string) => void;
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
   updateRoomName: (newRoomName: string, roomId: string) => void;
-  upsertBreakoutRoomAPI: () => void;
+  upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
   sendAnnouncement: (announcement: string) => void;
+  isHandRaised: boolean;
+  handleRaiseHand: () => void;
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
@@ -72,20 +81,37 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
+  isHandRaised: false,
+  handleRaiseHand: () => {},
 });
 
-const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
+const BreakoutRoomProvider = ({
+  children,
+  mainChannel,
+}: {
+  children: React.ReactNode;
+  mainChannel: string;
+}) => {
   const {store} = useContext(StorageContext);
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
-  const [state, dispatch] = useReducer(
+  const [state, baseDispatch] = useReducer(
     breakoutRoomReducer,
     initialBreakoutRoomState,
   );
+  const [lastAction, setLastAction] = useState<BreakoutRoomAction | null>(null);
+
+  // Enhanced dispatch that tracks user actions
+  const dispatch = useCallback((action: BreakoutRoomAction) => {
+    baseDispatch(action);
+    setLastAction(action);
+  }, []);
+
   const {
-    data: {roomId},
+    data: {isHost, roomId},
   } = useRoomInfo();
 
+  const [isHandRaised, setHandRaised] = useState<boolean>(false);
   // Update unassigned participants whenever defaultContent or activeUids change
   useEffect(() => {
     // Get currently assigned participants from all rooms
@@ -139,18 +165,15 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         unassignedParticipants: sortedParticipants,
       },
     });
-  }, [defaultContent, activeUids, localUid]);
-
-  useEffect(() => {
-    console.log('supriya breakout state changed');
-    upsertBreakoutRoomAPI('UPDATE');
-  }, [state.breakoutGroups]);
+  }, [defaultContent, activeUids, localUid, dispatch]);
 
   const checkIfBreakoutRoomSessionExistsAPI = async (): Promise<boolean> => {
     try {
       const requestId = getUniqueID();
       const response = await fetch(
-        `${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room?passphrase=${roomId.host}`,
+        `${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room?passphrase=${
+          isHost ? roomId.host : roomId.attendee
+        }`,
         {
           method: 'GET',
           headers: {
@@ -196,47 +219,63 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
     }
   };
 
-  const upsertBreakoutRoomAPI = (type: 'START' | 'UPDATE' = 'START') => {
-    const startReqTs = Date.now();
-    const requestId = getUniqueID();
-    console.log('supriya-group-change', state.breakoutGroups);
-    fetch(`${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store.token ? `Bearer ${store.token}` : '',
-        'X-Request-Id': requestId,
-        'X-Session-Id': logger.getSessionId(),
-      },
-      body: JSON.stringify({
-        passphrase: roomId.host,
-        switch_room: false,
-        session_id: state.breakoutSessionId || randomNameGenerator(6),
-        breakout_room: getSanitizedPayload(state.breakoutGroups),
-      }),
-    })
-      .then(async response => {
-        const endRequestTs = Date.now();
-        const latency = endRequestTs - startReqTs;
-        if (!response.ok) {
-          const msg = await response.text();
-          throw new Error(`Breakout room creation failed: ${msg}`);
-        } else {
-          const data = await response.json();
-          console.log('supriya update res', response);
-
-          if (type === 'START' && data?.session_id) {
-            dispatch({
-              type: BreakoutGroupActionTypes.SET_SESSION_ID,
-              payload: {sessionId: data.session_id},
-            });
-          }
-        }
+  const upsertBreakoutRoomAPI = useCallback(
+    (type: 'START' | 'UPDATE' = 'START') => {
+      const startReqTs = Date.now();
+      const requestId = getUniqueID();
+      console.log('supriya-group-change', state.breakoutGroups);
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store.token ? `Bearer ${store.token}` : '',
+          'X-Request-Id': requestId,
+          'X-Session-Id': logger.getSessionId(),
+        },
+        body: JSON.stringify({
+          passphrase: roomId.host,
+          switch_room: false,
+          session_id: state.breakoutSessionId || randomNameGenerator(6),
+          breakout_room:
+            type === 'START'
+              ? getSanitizedPayload(initialBreakoutGroups)
+              : getSanitizedPayload(state.breakoutGroups),
+        }),
       })
-      .catch(err => {
-        console.log('debugging err', err);
-      });
-  };
+        .then(async response => {
+          const endRequestTs = Date.now();
+          const latency = endRequestTs - startReqTs;
+          if (!response.ok) {
+            const msg = await response.text();
+            throw new Error(`Breakout room creation failed: ${msg}`);
+          } else {
+            const data = await response.json();
+            if (type === 'START' && data?.session_id) {
+              dispatch({
+                type: BreakoutGroupActionTypes.SET_SESSION_ID,
+                payload: {sessionId: data.session_id},
+              });
+            }
+            if (data?.breakout_room) {
+              dispatch({
+                type: BreakoutGroupActionTypes.UPDATE_GROUPS_IDS,
+                payload: data.breakout_room,
+              });
+            }
+          }
+        })
+        .catch(err => {
+          console.log('debugging err', err);
+        });
+    },
+    [
+      roomId.host,
+      state.breakoutSessionId,
+      state.breakoutGroups,
+      store.token,
+      dispatch,
+    ],
+  );
 
   const closeBreakoutRoomAPI = () => {
     console.log('supriya close breakout room API not yet implemented');
@@ -280,8 +319,6 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
           },
         });
       }
-      // Call upsertBreakoutRoomAPI to sync changes and trigger events
-      upsertBreakoutRoomAPI('UPDATE');
       console.log(`supriya User ${user.name} (${user.uid}) moved to main room`);
     } catch (error) {
       console.error('supriya Error moving user to main room:', error);
@@ -291,7 +328,7 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   const makePresenter = (user: ContentInterface) => {
     try {
       events.send(
-        EventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+        BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
         '',
         PersistanceLevel.None,
         user.uid,
@@ -331,9 +368,6 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         },
       });
 
-      // Call upsertBreakoutRoomAPI to sync changes and trigger events
-      upsertBreakoutRoomAPI('UPDATE');
-
       console.log(
         `supriya User ${user.name} (${user.uid}) moved to ${targetGroup.name}`,
       );
@@ -343,11 +377,21 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
   };
 
   // To check if current user is in a specific room
-  const isUserInRoom = (room: BreakoutGroup): boolean => {
-    return (
-      room.participants.hosts.includes(localUid) ||
-      room.participants.attendees.includes(localUid)
-    );
+  const isUserInRoom = (room?: BreakoutGroup): boolean => {
+    if (room) {
+      // Check specific room
+      return (
+        room.participants.hosts.includes(localUid) ||
+        room.participants.attendees.includes(localUid)
+      );
+    } else {
+      // Check ALL rooms - is user in any room?
+      return state.breakoutGroups.some(
+        group =>
+          group.participants.hosts.includes(localUid) ||
+          group.participants.attendees.includes(localUid),
+      );
+    }
   };
 
   const joinRoom = (toRoomId: string) => {
@@ -365,7 +409,6 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         toGroupId: null,
       },
     });
-    upsertBreakoutRoomAPI('UPDATE');
   };
 
   const closeRoom = (roomIdToClose: string) => {
@@ -375,27 +418,23 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         groupId: roomIdToClose,
       },
     });
-    upsertBreakoutRoomAPI('UPDATE');
   };
 
   const closeAllRooms = () => {
     dispatch({
       type: BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
     });
-    upsertBreakoutRoomAPI('UPDATE');
   };
 
   const sendAnnouncement = (announcement: string) => {
     console.log('supriya host will send an announcement: ', announcement);
-    // events.send(
-    //   EventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
-    //   announcement,
-    //   PersistanceLevel.None,
-    //   -1,
-    // );
+    events.send(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
+      announcement,
+    );
   };
 
-  const updateRoomName = (newRoomName: string, roomId: string) => {
+  const updateRoomName = (newRoomName: string, roomIdToEdit: string) => {
     console.log(
       'supriya host will send an announcement: ',
       newRoomName,
@@ -405,11 +444,47 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
       type: BreakoutGroupActionTypes.RENAME_GROUP,
       payload: {
         newName: newRoomName,
-        groupId: roomId,
+        groupId: roomIdToEdit,
       },
     });
-    upsertBreakoutRoomAPI('UPDATE');
   };
+
+  // User is in the main channel and wants to raise hand
+  const handleRaiseHand = () => {
+    events.send(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_RAISE_HAND,
+      'testing handraise',
+    );
+    setHandRaised(true);
+  };
+
+  // Action-based API triggering with debounce
+  useEffect(() => {
+    if (!lastAction || !lastAction.type) {
+      return;
+    }
+    // Actions that should trigger API calls
+    const API_TRIGGERING_ACTIONS = [
+      BreakoutGroupActionTypes.CREATE_GROUP,
+      BreakoutGroupActionTypes.RENAME_GROUP,
+      BreakoutGroupActionTypes.CLOSE_GROUP,
+      BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
+      BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
+      BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
+      BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
+    ];
+
+    const shouldCallAPI = API_TRIGGERING_ACTIONS.includes(
+      lastAction.type as any,
+    );
+
+    if (shouldCallAPI) {
+      console.log('supriya calling update groups api');
+      upsertBreakoutRoomAPI('UPDATE');
+    } else {
+      console.log(`Action ${lastAction.type} - skipping API call`);
+    }
+  }, [lastAction, upsertBreakoutRoomAPI]);
 
   return (
     <BreakoutRoomContext.Provider
@@ -434,6 +509,8 @@ const BreakoutRoomProvider = ({children}: {children: React.ReactNode}) => {
         sendAnnouncement,
         makePresenter,
         updateRoomName,
+        isHandRaised,
+        handleRaiseHand,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

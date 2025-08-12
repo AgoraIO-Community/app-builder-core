@@ -44,8 +44,8 @@ const BreakoutRoomActionMenu: React.FC<RoomActionMenuProps> = ({
     actionMenuItems.push({
       order: 1,
       icon: 'pencil-filled',
-      iconColor: $config.SEMANTIC_ERROR,
-      textColor: $config.SEMANTIC_ERROR,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.SECONDARY_ACTION_COLOR,
       title: 'Rename Room',
       onPress: () => {
         onRenameRoom();

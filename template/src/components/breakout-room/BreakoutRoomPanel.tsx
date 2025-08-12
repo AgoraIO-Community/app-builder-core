@@ -25,6 +25,7 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import {useLayout} from '../../utils/useLayout';
 import {useSidePanel} from '../../utils/useSidePanel';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
+import BreakoutRoomRaiseHand from './ui/BreakoutRoomRaiseHand';
 
 const BreakoutRoomPanel = props => {
   const {showHeader = true} = props;
@@ -42,6 +43,7 @@ const BreakoutRoomPanel = props => {
     createBreakoutRoomGroup,
     upsertBreakoutRoomAPI,
     closeAllRooms,
+    isUserInRoom,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -49,14 +51,14 @@ const BreakoutRoomPanel = props => {
       try {
         const activeSession = await checkIfBreakoutRoomSessionExistsAPI();
         if (!activeSession && isHost) {
-          upsertBreakoutRoomAPI();
+          upsertBreakoutRoomAPI('START');
         }
       } catch (error) {
         console.error('Failed to check breakout session:', error);
       }
     };
     init();
-  }, [isHost]);
+  }, []);
 
   return (
     <View
@@ -79,6 +81,7 @@ const BreakoutRoomPanel = props => {
       {showHeader && <BreakoutRoomHeader />}
       <ScrollView style={[style.pannelOuterBody]}>
         <View style={style.panelInnerBody}>
+          {!isHost && !isUserInRoom() ? <BreakoutRoomRaiseHand /> : <></>}
           {isHost ? <BreakoutRoomSettings /> : <></>}
           <BreakoutRoomGroupSettings />
           {isHost ? (

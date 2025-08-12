@@ -150,7 +150,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               hoverEffect={false}
               containerStyle={styles.expandIcon}
               iconProps={{
-                name: isExpanded ? 'arrow-down' : 'arrow-up',
+                name: isExpanded ? 'arrow-up' : 'arrow-down',
                 iconType: 'plain',
                 iconSize: 20,
                 tintColor: `${$config.FONT_COLOR}`,
@@ -234,6 +234,13 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     }
   };
 
+  const onAnnouncement = (announcement: string) => {
+    if (announcement) {
+      sendAnnouncement(announcement);
+      setAnnouncementModal(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -261,7 +268,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       <View style={styles.body}>{breakoutGroups.map(renderRoom)}</View>
       {isAnnoucementModalOpen && (
         <BreakoutRoomAnnouncementModal
-          sendAnnouncement={sendAnnouncement}
+          onAnnouncement={onAnnouncement}
           setModalOpen={setAnnouncementModal}
         />
       )}

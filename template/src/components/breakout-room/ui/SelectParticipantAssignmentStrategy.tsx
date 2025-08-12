@@ -47,8 +47,12 @@ const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
       <TertiaryButton
         disabled={disabled}
         containerStyle={{
-          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-          borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+          backgroundColor: disabled
+            ? $config.SEMANTIC_NEUTRAL
+            : $config.PRIMARY_ACTION_BRAND_COLOR,
+          borderColor: disabled
+            ? $config.SEMANTIC_NEUTRAL
+            : $config.PRIMARY_ACTION_BRAND_COLOR,
         }}
         onPress={() => {
           assignParticipants();

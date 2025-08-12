@@ -28,22 +28,24 @@ export interface BreakoutRoomState {
   };
 }
 
+export const initialBreakoutGroups = [
+  {
+    name: 'Room 1',
+    id: `temp_${randomNameGenerator(6)}`,
+    participants: {hosts: [], attendees: []},
+  },
+  {
+    name: 'Room 2',
+    id: `temp_${randomNameGenerator(6)}`,
+    participants: {hosts: [], attendees: []},
+  },
+];
+
 export const initialBreakoutRoomState: BreakoutRoomState = {
   breakoutSessionId: '',
   assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
   unassignedParticipants: [],
-  breakoutGroups: [
-    {
-      name: 'Room 1',
-      id: `temp_${randomNameGenerator(6)}`,
-      participants: {hosts: [], attendees: []},
-    },
-    {
-      name: 'Room 2',
-      id: `temp_${randomNameGenerator(6)}`,
-      participants: {hosts: [], attendees: []},
-    },
-  ],
+  breakoutGroups: [],
   activeBreakoutGroup: {
     id: undefined,
     name: '',
@@ -58,10 +60,11 @@ export const BreakoutGroupActionTypes = {
   SET_ASSIGNMENT_STRATEGY: 'BREAKOUT_ROOM/SET_ASSIGNMENT_STRATEGY',
   // Group management
   SET_GROUPS: 'BREAKOUT_ROOM/SET_GROUPS',
+  UPDATE_GROUPS_IDS: 'BREAKOUT_ROOM/UPDATE_GROUPS_IDS',
   CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
+  RENAME_GROUP: 'BREAKOUT_ROOM/RENAME_GROUP',
   CLOSE_GROUP: 'BREAKOUT_ROOM/CLOSE_GROUP',
   CLOSE_ALL_GROUPS: 'BREAKOUT_ROOM/CLOSE_ALL_GROUPS',
-  RENAME_GROUP: 'BREAKOUT_ROOM/RENAME_GROUP',
   // Participants Assignment
   UPDATE_UNASSIGNED_PARTICIPANTS:
     'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
@@ -77,6 +80,10 @@ export type BreakoutRoomAction =
     }
   | {
       type: typeof BreakoutGroupActionTypes.SET_GROUPS;
+      payload: BreakoutGroup[];
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.UPDATE_GROUPS_IDS;
       payload: BreakoutGroup[];
     }
   | {
@@ -144,6 +151,15 @@ export const breakoutRoomReducer = (
             hosts: group.participants?.hosts ?? [],
             attendees: group.participants?.attendees ?? [],
           },
+        })),
+      };
+    }
+
+    case BreakoutGroupActionTypes.UPDATE_GROUPS_IDS: {
+      return {
+        ...state,
+        breakoutGroups: action.payload.map(group => ({
+          ...group,
         })),
       };
     }

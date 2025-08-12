@@ -6,13 +6,13 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 
 interface BreakoutRoomAnnouncementModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
-  sendAnnouncement: (text: string) => void;
+  onAnnouncement: (text: string) => void;
 }
 
 export default function BreakoutRoomAnnouncementModal(
   props: BreakoutRoomAnnouncementModalProps,
 ) {
-  const {setModalOpen, sendAnnouncement} = props;
+  const {setModalOpen, onAnnouncement} = props;
   const [announcement, setAnnouncement] = React.useState('');
 
   const disabled = announcement.trim() === '';
@@ -59,7 +59,7 @@ export default function BreakoutRoomAnnouncementModal(
               text={'Send'}
               disabled={disabled}
               onPress={() => {
-                sendAnnouncement(announcement);
+                onAnnouncement(announcement);
               }}
             />
           </View>
