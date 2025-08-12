@@ -48,7 +48,7 @@ const BreakoutRoomPanel = props => {
     const init = async () => {
       try {
         const activeSession = await checkIfBreakoutRoomSessionExistsAPI();
-        if (!activeSession) {
+        if (!activeSession && isHost) {
           upsertBreakoutRoomAPI();
         }
       } catch (error) {
@@ -56,7 +56,7 @@ const BreakoutRoomPanel = props => {
       }
     };
     init();
-  }, []);
+  }, [isHost]);
 
   return (
     <View
@@ -81,12 +81,16 @@ const BreakoutRoomPanel = props => {
         <View style={style.panelInnerBody}>
           {isHost ? <BreakoutRoomSettings /> : <></>}
           <BreakoutRoomGroupSettings />
-          <TertiaryButton
-            containerStyle={style.createBtnContainer}
-            textStyle={style.createBtnText}
-            text={'+ Create New Room'}
-            onPress={() => createBreakoutRoomGroup()}
-          />
+          {isHost ? (
+            <TertiaryButton
+              containerStyle={style.createBtnContainer}
+              textStyle={style.createBtnText}
+              text={'+ Create New Room'}
+              onPress={() => createBreakoutRoomGroup()}
+            />
+          ) : (
+            <></>
+          )}
         </View>
       </ScrollView>
       {isHost && breakoutSessionId ? (
