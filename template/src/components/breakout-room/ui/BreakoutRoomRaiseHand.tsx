@@ -57,6 +57,7 @@ const style = StyleSheet.create({
   cardFooter: {
     display: 'flex',
     flex: 1,
+    width: '100%',
   },
   infoText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,

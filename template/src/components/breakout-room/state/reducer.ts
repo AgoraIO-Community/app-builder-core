@@ -21,6 +21,7 @@ export interface BreakoutRoomState {
   breakoutGroups: BreakoutGroup[];
   unassignedParticipants: {uid: UidType; user: ContentInterface}[];
   assignmentStrategy: RoomAssignmentStrategy;
+  canUserSwitchRoom: boolean;
   activeBreakoutGroup: {
     id: number | string;
     name: string;
@@ -44,6 +45,7 @@ export const initialBreakoutGroups = [
 export const initialBreakoutRoomState: BreakoutRoomState = {
   breakoutSessionId: '',
   assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
+  canUserSwitchRoom: false,
   unassignedParticipants: [],
   breakoutGroups: [],
   activeBreakoutGroup: {
@@ -58,6 +60,9 @@ export const BreakoutGroupActionTypes = {
   SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
   // strategy
   SET_ASSIGNMENT_STRATEGY: 'BREAKOUT_ROOM/SET_ASSIGNMENT_STRATEGY',
+  // switch room
+  SET_ALLOW_PEOPLE_TO_SWITCH_ROOM:
+    'BREAKOUT_ROOM/SET_ALLOW_PEOPLE_TO_SWITCH_ROOM',
   // Group management
   SET_GROUPS: 'BREAKOUT_ROOM/SET_GROUPS',
   UPDATE_GROUPS_IDS: 'BREAKOUT_ROOM/UPDATE_GROUPS_IDS',
@@ -79,18 +84,24 @@ export type BreakoutRoomAction =
       payload: {sessionId: string};
     }
   | {
+      type: typeof BreakoutGroupActionTypes.SET_ASSIGNMENT_STRATEGY;
+      payload: {
+        strategy: RoomAssignmentStrategy;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM;
+      payload: {
+        canUserSwitchRoom: boolean;
+      };
+    }
+  | {
       type: typeof BreakoutGroupActionTypes.SET_GROUPS;
       payload: BreakoutGroup[];
     }
   | {
       type: typeof BreakoutGroupActionTypes.UPDATE_GROUPS_IDS;
       payload: BreakoutGroup[];
-    }
-  | {
-      type: typeof BreakoutGroupActionTypes.SET_ASSIGNMENT_STRATEGY;
-      payload: {
-        strategy: RoomAssignmentStrategy;
-      };
     }
   | {type: typeof BreakoutGroupActionTypes.CREATE_GROUP}
   | {
@@ -179,6 +190,13 @@ export const breakoutRoomReducer = (
       return {
         ...state,
         assignmentStrategy: action.payload.strategy,
+      };
+    }
+
+    case BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM: {
+      return {
+        ...state,
+        canUserSwitchRoom: action.payload.canUserSwitchRoom,
       };
     }
 

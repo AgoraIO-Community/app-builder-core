@@ -40,6 +40,8 @@ interface BreakoutRoomContextValue {
   breakoutGroups: BreakoutRoomState['breakoutGroups'];
   assignmentStrategy: RoomAssignmentStrategy;
   setStrategy: (strategy: RoomAssignmentStrategy) => void;
+  canUserSwitchRoom: boolean;
+  toggleSwitchRooms: (value: boolean) => void;
   unsassignedParticipants: {uid: UidType; user: ContentInterface}[];
   createBreakoutRoomGroup: (name?: string) => void;
   moveUserIntoGroup: (user: ContentInterface, toGroupId: string) => void;
@@ -66,6 +68,8 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   breakoutGroups: [],
   assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
   setStrategy: () => {},
+  canUserSwitchRoom: false,
+  toggleSwitchRooms: () => {},
   assignParticipants: () => {},
   createBreakoutRoomGroup: () => {},
   moveUserIntoGroup: () => {},
@@ -234,7 +238,7 @@ const BreakoutRoomProvider = ({
         },
         body: JSON.stringify({
           passphrase: roomId.host,
-          switch_room: false,
+          switch_room: state.canUserSwitchRoom,
           session_id: state.breakoutSessionId || randomNameGenerator(6),
           breakout_room:
             type === 'START'
@@ -272,6 +276,7 @@ const BreakoutRoomProvider = ({
       roomId.host,
       state.breakoutSessionId,
       state.breakoutGroups,
+      state.canUserSwitchRoom,
       store.token,
       dispatch,
     ],
@@ -285,6 +290,15 @@ const BreakoutRoomProvider = ({
     dispatch({
       type: BreakoutGroupActionTypes.SET_ASSIGNMENT_STRATEGY,
       payload: {strategy},
+    });
+  };
+
+  const toggleSwitchRooms = (value: boolean) => {
+    dispatch({
+      type: BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
+      payload: {
+        canUserSwitchRoom: value,
+      },
     });
   };
 
@@ -463,6 +477,7 @@ const BreakoutRoomProvider = ({
     if (!lastAction || !lastAction.type) {
       return;
     }
+
     // Actions that should trigger API calls
     const API_TRIGGERING_ACTIONS = [
       BreakoutGroupActionTypes.CREATE_GROUP,
@@ -472,11 +487,11 @@ const BreakoutRoomProvider = ({
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
       BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
+      BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
     ];
 
-    const shouldCallAPI = API_TRIGGERING_ACTIONS.includes(
-      lastAction.type as any,
-    );
+    const shouldCallAPI =
+      API_TRIGGERING_ACTIONS.includes(lastAction.type as any) && isHost;
 
     if (shouldCallAPI) {
       console.log('supriya calling update groups api');
@@ -484,7 +499,7 @@ const BreakoutRoomProvider = ({
     } else {
       console.log(`Action ${lastAction.type} - skipping API call`);
     }
-  }, [lastAction, upsertBreakoutRoomAPI]);
+  }, [lastAction, upsertBreakoutRoomAPI, isHost]);
 
   return (
     <BreakoutRoomContext.Provider
@@ -493,7 +508,9 @@ const BreakoutRoomProvider = ({
         breakoutGroups: state.breakoutGroups,
         assignmentStrategy: state.assignmentStrategy,
         setStrategy,
-        assignParticipants: assignParticipants,
+        assignParticipants,
+        canUserSwitchRoom: state.canUserSwitchRoom,
+        toggleSwitchRooms,
         unsassignedParticipants: state.unassignedParticipants,
         createBreakoutRoomGroup,
         checkIfBreakoutRoomSessionExistsAPI,

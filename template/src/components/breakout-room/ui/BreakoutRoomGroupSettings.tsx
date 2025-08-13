@@ -41,7 +41,10 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     joinRoom,
     sendAnnouncement,
     updateRoomName,
+    canUserSwitchRoom,
   } = useBreakoutRoom();
+
+  const disableJoinBtn = !isHost && !canUserSwitchRoom;
 
   // Render room card
   const {defaultContent} = useContent();
@@ -177,7 +180,10 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               />
             ) : (
               <TertiaryButton
-                containerStyle={styles.joinRoomBtn}
+                disabled={disableJoinBtn}
+                containerStyle={
+                  disableJoinBtn ? styles.disabledBtn : styles.joinRoomBtn
+                }
                 textStyle={styles.roomActionBtnText}
                 text={'Join'}
                 onPress={() => {
@@ -292,7 +298,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     paddingVertical: 16,
   },
   headerLeft: {},
@@ -350,6 +356,11 @@ const styles = StyleSheet.create({
   joinRoomBtn: {
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    height: 28,
+  },
+  disabledBtn: {
+    backgroundColor: $config.SEMANTIC_NEUTRAL,
+    borderColor: $config.SEMANTIC_NEUTRAL,
     height: 28,
   },
   roomActionBtnText: {

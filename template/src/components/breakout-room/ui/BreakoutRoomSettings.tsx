@@ -1,10 +1,11 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
 import BreakoutRoomParticipants from './BreakoutRoomParticipants';
 import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
 import Divider from '../../common/Dividers';
 import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import Toggle from '../../../atoms/Toggle';
 
 export default function BreakoutRoomSettings() {
   const {
@@ -12,6 +13,8 @@ export default function BreakoutRoomSettings() {
     assignmentStrategy,
     setStrategy,
     assignParticipants,
+    canUserSwitchRoom,
+    toggleSwitchRooms,
   } = useBreakoutRoom();
 
   const disableAssignment = unsassignedParticipants.length === 0;
@@ -32,17 +35,17 @@ export default function BreakoutRoomSettings() {
         />
       </View>
       <Divider />
-      {/* <View style={style.section}>
+      <View style={style.section}>
         <View style={style.switchSection}>
           <Text style={style.label}>Allow people to switch rooms</Text>
           <Toggle
             disabled={$config.EVENT_MODE}
-            isEnabled={true}
-            toggleSwitch={() => {}}
+            isEnabled={canUserSwitchRoom}
+            toggleSwitch={toggleSwitchRooms}
             circleColor={$config.FONT_COLOR}
           />
         </View>
-      </View> */}
+      </View>
     </View>
   );
 }
