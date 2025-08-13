@@ -33,12 +33,12 @@ export interface BreakoutChannelJoinEventPayload {
   };
 }
 
-export interface BreakoutRoomStateEventPayload {
+export interface BreakoutRoomSyncStateEventPayload {
   data: {
     data: {
       switch_room: boolean;
       session_id: string;
-      breakout_room: BreakoutGroup;
+      breakout_room: BreakoutGroup[];
     };
     act: 'SYNC_STATE'; // e.g., "CHAN_JOIN"
   };

@@ -3,6 +3,7 @@ import events from '../../../rtm-events-api';
 import {BreakoutRoomEventNames} from './constants';
 import Toast from '../../../../react-native-toast-message';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 
 interface Props {
   children: React.ReactNode;
@@ -13,7 +14,8 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   children,
   mainChannelName,
 }) => {
-  const {addRaisedHand, removeRaisedHand} = useBreakoutRoom();
+  const {addRaisedHand, removeRaisedHand, handleBreakoutRoomSyncState} =
+    useBreakoutRoom();
 
   useEffect(() => {
     const handleHandRaiseEvent = (evtData: any) => {
@@ -58,6 +60,14 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       } catch (error) {}
     };
 
+    const handleBreakoutRoomStateSync = (evtData: any) => {
+      const {payload} = evtData;
+      const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
+      if (data.data.act === 'SYNC_STATE') {
+        handleBreakoutRoomSyncState(data.data.data);
+      }
+    };
+
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
       handleAnnouncementEvent,
@@ -72,6 +82,11 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       handleHandRaiseEvent,
     );
 
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
+      handleBreakoutRoomStateSync,
+    );
+
     return () => {
       events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
       events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER);
@@ -79,8 +94,12 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
         handleHandRaiseEvent,
       );
+      events.off(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
+        handleBreakoutRoomStateSync,
+      );
     };
-  }, [addRaisedHand, removeRaisedHand]);
+  }, [addRaisedHand, removeRaisedHand, handleBreakoutRoomSyncState]);
 
   return <>{children}</>;
 };

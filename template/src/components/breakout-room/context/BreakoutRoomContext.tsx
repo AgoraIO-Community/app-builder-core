@@ -25,6 +25,7 @@ import {useContent} from '../../../../customization-api';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
 import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
+import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -65,6 +66,9 @@ interface BreakoutRoomContextValue {
   addRaisedHand: (uid: UidType) => void;
   removeRaisedHand: (uid: UidType) => void;
   clearAllRaisedHands: () => void;
+  handleBreakoutRoomSyncState: (
+    data: BreakoutRoomSyncStateEventPayload['data']['data'],
+  ) => void;
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
@@ -97,6 +101,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   addRaisedHand: () => {},
   removeRaisedHand: () => {},
   clearAllRaisedHands: () => {},
+  handleBreakoutRoomSyncState: () => {},
 });
 
 const BreakoutRoomProvider = ({
@@ -216,7 +221,7 @@ const BreakoutRoomProvider = ({
 
       if (data?.session_id) {
         dispatch({
-          type: BreakoutGroupActionTypes.SET_INITIAL_STATE,
+          type: BreakoutGroupActionTypes.SYNC_STATE,
           payload: {
             sessionId: data.session_id,
             rooms: data?.breakout_room || [],
@@ -532,7 +537,22 @@ const BreakoutRoomProvider = ({
     setMyHandRaised(false);
   }, []);
 
+  const handleBreakoutRoomSyncState = useCallback(
+    (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
+      dispatch({
+        type: BreakoutGroupActionTypes.SYNC_STATE,
+        payload: {
+          sessionId: data.session_id,
+          switchRoom: data.switch_room,
+          rooms: data.breakout_room,
+        },
+      });
+    },
+    [dispatch],
+  );
+
   // Action-based API triggering with debounce
+
   useEffect(() => {
     if (!lastAction || !lastAction.type) {
       return;
@@ -593,6 +613,7 @@ const BreakoutRoomProvider = ({
         addRaisedHand,
         removeRaisedHand,
         clearAllRaisedHands,
+        handleBreakoutRoomSyncState,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

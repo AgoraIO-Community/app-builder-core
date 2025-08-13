@@ -47,7 +47,7 @@ export const initialBreakoutRoomState: BreakoutRoomState = {
 
 export const BreakoutGroupActionTypes = {
   // Initial state
-  SET_INITIAL_STATE: 'BREAKOUT_ROOM/SET_INITIAL_STATE',
+  SYNC_STATE: 'BREAKOUT_ROOM/SYNC_STATE',
   // session
   SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
   // strategy
@@ -72,7 +72,7 @@ export const BreakoutGroupActionTypes = {
 
 export type BreakoutRoomAction =
   | {
-      type: typeof BreakoutGroupActionTypes.SET_INITIAL_STATE;
+      type: typeof BreakoutGroupActionTypes.SYNC_STATE;
       payload: {
         sessionId: BreakoutRoomState['breakoutSessionId'];
         switchRoom: BreakoutRoomState['canUserSwitchRoom'];
@@ -148,7 +148,7 @@ export const breakoutRoomReducer = (
   action: BreakoutRoomAction,
 ): BreakoutRoomState => {
   switch (action.type) {
-    case BreakoutGroupActionTypes.SET_INITIAL_STATE: {
+    case BreakoutGroupActionTypes.SYNC_STATE: {
       return {
         ...state,
         breakoutSessionId: action.payload.sessionId,
