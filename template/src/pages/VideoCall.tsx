@@ -207,7 +207,10 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                                                             <VideoMeetingDataProvider>
                                                               <VideoCallProvider>
                                                                 <DisableChatProvider>
-                                                                  <BreakoutRoomProvider>
+                                                                  <BreakoutRoomProvider
+                                                                    mainChannel={
+                                                                      rtcProps.channel
+                                                                    }>
                                                                     <VideoCallScreenWrapper />
                                                                   </BreakoutRoomProvider>
                                                                 </DisableChatProvider>

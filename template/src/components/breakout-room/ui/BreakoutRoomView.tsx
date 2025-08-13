@@ -8,6 +8,7 @@ import ThemeConfig from '../../../theme';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import {BreakoutRoomHeader} from '../../../pages/video-call/SidePanelHeader';
 import BreakoutRoomRaiseHand from './BreakoutRoomRaiseHand';
+import BreakoutRoomMainRoomUsers from './BreakoutRoomMainRoomUsers';
 
 interface Props {
   closeSidePanel: () => void;
@@ -46,7 +47,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
       <ScrollView style={[style.pannelOuterBody]}>
         <View style={style.panelInnerBody}>
           {!isHost && !isUserInRoom() ? <BreakoutRoomRaiseHand /> : <></>}
-          {isHost ? <BreakoutRoomSettings /> : <></>}
+          {isHost ? <BreakoutRoomSettings /> : <BreakoutRoomMainRoomUsers />}
           <BreakoutRoomGroupSettings />
           {isHost ? (
             <TertiaryButton

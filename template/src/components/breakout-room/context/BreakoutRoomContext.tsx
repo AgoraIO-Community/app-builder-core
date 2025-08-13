@@ -37,6 +37,7 @@ const getSanitizedPayload = (payload: BreakoutGroup[]) => {
 };
 
 interface BreakoutRoomContextValue {
+  mainChannelId: string;
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
   breakoutGroups: BreakoutRoomState['breakoutGroups'];
   assignmentStrategy: RoomAssignmentStrategy;
@@ -72,6 +73,7 @@ interface BreakoutRoomContextValue {
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
+  mainChannelId: '',
   breakoutSessionId: undefined,
   unsassignedParticipants: [],
   breakoutGroups: [],
@@ -579,6 +581,7 @@ const BreakoutRoomProvider = ({
   return (
     <BreakoutRoomContext.Provider
       value={{
+        mainChannelId: mainChannel,
         breakoutSessionId: state.breakoutSessionId,
         breakoutGroups: state.breakoutGroups,
         assignmentStrategy: state.assignmentStrategy,
