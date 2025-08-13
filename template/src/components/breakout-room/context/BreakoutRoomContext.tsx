@@ -468,11 +468,6 @@ const BreakoutRoomProvider = ({
   };
 
   const updateRoomName = (newRoomName: string, roomIdToEdit: string) => {
-    console.log(
-      'supriya host will send an announcement: ',
-      newRoomName,
-      roomId,
-    );
     dispatch({
       type: BreakoutGroupActionTypes.RENAME_GROUP,
       payload: {

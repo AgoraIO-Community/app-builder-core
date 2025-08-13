@@ -27,18 +27,20 @@ export default function BreakoutRoomRenameModal(
       contentContainerStyle={style.contentContainer}>
       <View style={style.fullBody}>
         <View style={style.mbody}>
-          <Text style={style.label}>Room name</Text>
-          <TextInput
-            id="room-rename-text"
-            style={style.inputBox}
-            value={roomName}
-            onChangeText={setRoomName}
-            placeholder="Rename room..."
-            placeholderTextColor={
-              $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
-            }
-            underlineColorAndroid="transparent"
-          />
+          <View style={style.form}>
+            <Text style={style.label}>Room name</Text>
+            <TextInput
+              id="room-rename-text"
+              style={style.inputBox}
+              value={roomName}
+              onChangeText={setRoomName}
+              placeholder="Rename room..."
+              placeholderTextColor={
+                $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
+              }
+              underlineColorAndroid="transparent"
+            />
+          </View>
         </View>
         <View style={style.mfooter}>
           <View>
@@ -76,7 +78,7 @@ const style = StyleSheet.create({
     flexShrink: 0,
     width: '100%',
     maxWidth: 500,
-    maxHeight: 300,
+    height: 235,
   },
   fullBody: {
     width: '100%',
@@ -90,6 +92,12 @@ const style = StyleSheet.create({
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
     borderBottomWidth: 1,
   },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+    width: '100%',
+  },
   mfooter: {
     padding: 12,
     gap: 12,
@@ -100,7 +108,7 @@ const style = StyleSheet.create({
   },
   label: {
     fontSize: ThemeConfig.FontSize.small,
-    fontWeight: '600',
+    fontWeight: '500',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     lineHeight: 16,
   },
