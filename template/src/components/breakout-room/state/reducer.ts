@@ -22,11 +22,6 @@ export interface BreakoutRoomState {
   unassignedParticipants: {uid: UidType; user: ContentInterface}[];
   assignmentStrategy: RoomAssignmentStrategy;
   canUserSwitchRoom: boolean;
-  activeBreakoutGroup: {
-    id: number | string;
-    name: string;
-    channelInfo: BreakoutChannelJoinEventPayload['data']['data'];
-  };
 }
 
 export const initialBreakoutGroups = [
@@ -48,14 +43,11 @@ export const initialBreakoutRoomState: BreakoutRoomState = {
   canUserSwitchRoom: false,
   unassignedParticipants: [],
   breakoutGroups: [],
-  activeBreakoutGroup: {
-    id: undefined,
-    name: '',
-    channelInfo: undefined,
-  },
 };
 
 export const BreakoutGroupActionTypes = {
+  // Initial state
+  SET_INITIAL_STATE: 'BREAKOUT_ROOM/SET_INITIAL_STATE',
   // session
   SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
   // strategy
@@ -79,6 +71,14 @@ export const BreakoutGroupActionTypes = {
 } as const;
 
 export type BreakoutRoomAction =
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_INITIAL_STATE;
+      payload: {
+        sessionId: BreakoutRoomState['breakoutSessionId'];
+        switchRoom: BreakoutRoomState['canUserSwitchRoom'];
+        rooms: BreakoutRoomState['breakoutGroups'];
+      };
+    }
   | {
       type: typeof BreakoutGroupActionTypes.SET_SESSION_ID;
       payload: {sessionId: string};
@@ -148,6 +148,20 @@ export const breakoutRoomReducer = (
   action: BreakoutRoomAction,
 ): BreakoutRoomState => {
   switch (action.type) {
+    case BreakoutGroupActionTypes.SET_INITIAL_STATE: {
+      return {
+        ...state,
+        breakoutSessionId: action.payload.sessionId,
+        canUserSwitchRoom: action.payload.switchRoom,
+        breakoutGroups: action.payload.rooms.map(group => ({
+          ...group,
+          participants: {
+            hosts: group.participants?.hosts ?? [],
+            attendees: group.participants?.attendees ?? [],
+          },
+        })),
+      };
+    }
     // group management cases
     case BreakoutGroupActionTypes.SET_SESSION_ID: {
       return {...state, breakoutSessionId: action.payload.sessionId};

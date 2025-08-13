@@ -1,47 +1,86 @@
-/*
-********************************************
- Copyright © 2022 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
-*********************************************
-*/
 import React, {useEffect} from 'react';
 import events from '../../../rtm-events-api';
 import {BreakoutRoomEventNames} from './constants';
+import Toast from '../../../../react-native-toast-message';
+import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 
 interface Props {
   children: React.ReactNode;
+  mainChannelName: string;
 }
-const BreakoutRoomEventsConfigure: React.FC<Props> = ({children}) => {
+
+const BreakoutRoomEventsConfigure: React.FC<Props> = ({
+  children,
+  mainChannelName,
+}) => {
+  const {addRaisedHand, removeRaisedHand} = useBreakoutRoom();
+
   useEffect(() => {
-    events.on(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT, data => {
-      console.log('supriya BREAKOUT_ROOM_ANNOUNCEMENT data: ', data);
-      //  Toast.show({
-      //         leadingIconName: 'video-off',
-      //         type: 'info',
-      //         // text1: `${
-      //         //   defaultContentRef.current.defaultContent[sender].name || 'The host'
-      //         // } muted you.`,
-      //         text1:
-      //         visibilityTime: 3000,
-      //         primaryBtn: null,
-      //         secondaryBtn: null,
-      //         leadingIcon: null,
-      //       });
-    });
+    const handleHandRaiseEvent = (evtData: any) => {
+      console.log('supriya BREAKOUT_ROOM_ATTENDEE_RAISE_HAND data: ', evtData);
+      try {
+        const {uid, payload} = evtData;
+        const data = JSON.parse(payload);
+        // uid timestamp action
+        if (data.action === 'raise') {
+          addRaisedHand(data.uid || uid);
+        } else if (data.action === 'lower') {
+          removeRaisedHand(data.uid || uid);
+        }
+      } catch (error) {}
+    };
+
+    const handleAnnouncementEvent = (evtData: any) => {
+      console.log('supriya BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
+      try {
+        const {_, payload} = evtData;
+        const data = JSON.parse(payload);
+        if (data.announcement) {
+          Toast.show({
+            leadingIconName: 'speaker',
+            type: 'info',
+            text1: `Message from host: :${data.announcement}`,
+            visibilityTime: 3000,
+            primaryBtn: null,
+            secondaryBtn: null,
+            leadingIcon: null,
+          });
+        }
+      } catch (error) {}
+    };
+
+    const handleMakePresenterEvent = (evtData: any) => {
+      try {
+        const {uid, payload} = evtData;
+
+        console.log('supriya User made presenter:', uid);
+        // TODO: Handle presenter change UI
+      } catch (error) {}
+    };
+
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
+      handleAnnouncementEvent,
+    );
+
     events.on(BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER, data => {
       console.log('supriya BREAKOUT_ROOM_MAKE_PRESENTER data: ', data);
     });
 
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
+      handleHandRaiseEvent,
+    );
+
     return () => {
       events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
       events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER);
+      events.off(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
+        handleHandRaiseEvent,
+      );
     };
-  }, []);
+  }, [addRaisedHand, removeRaisedHand]);
 
   return <>{children}</>;
 };

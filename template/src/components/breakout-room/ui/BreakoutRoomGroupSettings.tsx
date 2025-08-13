@@ -42,6 +42,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     sendAnnouncement,
     updateRoomName,
     canUserSwitchRoom,
+    raisedHands,
   } = useBreakoutRoom();
 
   const disableJoinBtn = !isHost && !canUserSwitchRoom;
@@ -60,6 +61,10 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   } = useModal();
 
   const [roomIdToEdit, setRoomIdToEdit] = useState<string>(null);
+
+  const isParticipantHandRaised = (uid: UidType) => {
+    return raisedHands.some(hand => hand.uid === uid);
+  };
 
   const [actionMenuVisible, setActionMenuVisible] = useState<{
     [key: string]: boolean;
@@ -96,7 +101,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
     const memberRef = memberMoreMenuRefs.current[memberUId];
     const isMenuVisible = actionMenuVisible[memberUId] || false;
-
+    const hasRaisedHand = isParticipantHandRaised(memberUId);
     return (
       <View key={memberUId} style={styles.memberItem}>
         <View style={styles.memberInfo}>
@@ -111,7 +116,8 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         </View>
 
         <View style={styles.memberMenu}>
-          <View style={styles.memberMenuText}>
+          <View>{hasRaisedHand ? '✋' : <></>}</View>
+          <View style={styles.memberMenuMoreIcon}>
             <View ref={memberRef} collapsable={false}>
               <IconButton
                 iconProps={{
@@ -452,8 +458,11 @@ const styles = StyleSheet.create({
   memberMenu: {
     padding: 8,
     marginLeft: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
   },
-  memberMenuText: {
+  memberMenuMoreIcon: {
     width: 24,
     height: 24,
     alignSelf: 'center',

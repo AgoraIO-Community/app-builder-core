@@ -6,7 +6,7 @@ import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 
 export default function BreakoutRoomRaiseHand() {
-  const {handleRaiseHand} = useBreakoutRoom();
+  const {raiseMyHand} = useBreakoutRoom();
   return (
     <View style={style.card}>
       <View style={style.cardHeader}>
@@ -26,7 +26,7 @@ export default function BreakoutRoomRaiseHand() {
           textStyle={style.raiseHandBtnText}
           text={'✋ Raise Hand'}
           onPress={() => {
-            handleRaiseHand();
+            raiseMyHand();
           }}
         />
       </View>

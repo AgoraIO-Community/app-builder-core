@@ -58,8 +58,13 @@ interface BreakoutRoomContextValue {
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
   sendAnnouncement: (announcement: string) => void;
-  isHandRaised: boolean;
-  handleRaiseHand: () => void;
+  isMyHandRaised: boolean;
+  raiseMyHand: () => void;
+  lowerMyHand: () => void;
+  raisedHands: {uid: UidType; timestamp: number}[];
+  addRaisedHand: (uid: UidType) => void;
+  removeRaisedHand: (uid: UidType) => void;
+  clearAllRaisedHands: () => void;
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
@@ -85,8 +90,13 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
-  isHandRaised: false,
-  handleRaiseHand: () => {},
+  isMyHandRaised: false,
+  raiseMyHand: () => {},
+  lowerMyHand: () => {},
+  raisedHands: [],
+  addRaisedHand: () => {},
+  removeRaisedHand: () => {},
+  clearAllRaisedHands: () => {},
 });
 
 const BreakoutRoomProvider = ({
@@ -115,7 +125,10 @@ const BreakoutRoomProvider = ({
     data: {isHost, roomId},
   } = useRoomInfo();
 
-  const [isHandRaised, setHandRaised] = useState<boolean>(false);
+  const [isMyHandRaised, setMyHandRaised] = useState<boolean>(false);
+  const [raisedHands, setRaisedHands] = useState<
+    {uid: UidType; timestamp: number}[]
+  >([]);
   // Update unassigned participants whenever defaultContent or activeUids change
   useEffect(() => {
     // Get currently assigned participants from all rooms
@@ -203,16 +216,13 @@ const BreakoutRoomProvider = ({
 
       if (data?.session_id) {
         dispatch({
-          type: BreakoutGroupActionTypes.SET_SESSION_ID,
-          payload: {sessionId: data.session_id},
+          type: BreakoutGroupActionTypes.SET_INITIAL_STATE,
+          payload: {
+            sessionId: data.session_id,
+            rooms: data?.breakout_room || [],
+            switchRoom: data.switch_room || false,
+          },
         });
-
-        if (data?.breakout_room) {
-          dispatch({
-            type: BreakoutGroupActionTypes.SET_GROUPS,
-            payload: data.breakout_room,
-          });
-        }
         return true;
       }
 
@@ -444,7 +454,11 @@ const BreakoutRoomProvider = ({
     console.log('supriya host will send an announcement: ', announcement);
     events.send(
       BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
-      announcement,
+      JSON.stringify({
+        uid: localUid,
+        timestamp: Date.now(),
+        announcement,
+      }),
     );
   };
 
@@ -463,14 +477,60 @@ const BreakoutRoomProvider = ({
     });
   };
 
-  // User is in the main channel and wants to raise hand
-  const handleRaiseHand = () => {
+  // User wants to raise hand
+  const raiseMyHand = () => {
     events.send(
-      BreakoutRoomEventNames.BREAKOUT_ROOM_RAISE_HAND,
-      'testing handraise',
+      BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
+      JSON.stringify({
+        uid: localUid,
+        timestamp: Date.now(),
+        action: 'raise',
+      }),
     );
-    setHandRaised(true);
+    setMyHandRaised(true);
   };
+
+  // User wants to lower their hand
+  const lowerMyHand = () => {
+    events.send(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
+      JSON.stringify({
+        uid: localUid,
+        timestamp: Date.now(),
+        action: 'lower',
+      }),
+    );
+    setMyHandRaised(false);
+  };
+
+  // Hand raise management functions (called by event handlers)
+  const addRaisedHand = useCallback((uid: UidType) => {
+    setRaisedHands(prev => {
+      // Check if hand is already raised to avoid duplicates
+      const exists = prev.find(hand => hand.uid === uid);
+      if (exists) {
+        return prev;
+      }
+
+      return [...prev, {uid, timestamp: Date.now()}];
+    });
+  }, []);
+
+  const removeRaisedHand = useCallback(
+    (uid: UidType) => {
+      setRaisedHands(prev => prev.filter(hand => hand.uid !== uid));
+      // If it's the local user, update their personal state
+      if (uid === localUid) {
+        setMyHandRaised(false);
+      }
+    },
+    [localUid],
+  );
+
+  const clearAllRaisedHands = useCallback(() => {
+    setRaisedHands([]);
+    setMyHandRaised(false);
+  }, []);
 
   // Action-based API triggering with debounce
   useEffect(() => {
@@ -526,8 +586,13 @@ const BreakoutRoomProvider = ({
         sendAnnouncement,
         makePresenter,
         updateRoomName,
-        isHandRaised,
-        handleRaiseHand,
+        isMyHandRaised,
+        raiseMyHand,
+        lowerMyHand,
+        raisedHands,
+        addRaisedHand,
+        removeRaisedHand,
+        clearAllRaisedHands,
       }}>
       {children}
     </BreakoutRoomContext.Provider>
