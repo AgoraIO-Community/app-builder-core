@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   ModalProps,
   ViewStyle,
+  ScrollView,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
@@ -74,51 +75,57 @@ const Popup = (props: PopupProps) => {
         </TouchableWithoutFeedback>
 
         <View style={[styles.modalView, props?.contentContainerStyle]}>
-          {title || showCloseIcon || headerComponent ? (
-            <>
-              <View style={styles.header}>
-                {title && <Text style={styles.title}>{title}</Text>}
-                {headerComponent}
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={true}
+            keyboardShouldPersistTaps="handled">
+            {title || showCloseIcon || headerComponent ? (
+              <>
+                <View style={styles.header}>
+                  {title && <Text style={styles.title}>{title}</Text>}
+                  {headerComponent}
 
-                {showCloseIcon ? (
-                  <View>
-                    <IconButton
-                      hoverEffect={true}
-                      hoverEffectStyle={{
-                        backgroundColor: $config.ICON_BG_COLOR,
-                        borderRadius: 20,
-                      }}
-                      iconProps={{
-                        iconType: 'plain',
-                        iconContainerStyle: {
-                          padding: isMobileUA() ? 0 : 5,
-                          ...closeBtnStyle,
-                        },
-                        name: 'close',
-                        tintColor: $config.SECONDARY_ACTION_COLOR,
-                      }}
-                      onPress={() => {
-                        if (onCancel) onCancel();
-                        setModalVisible(false);
-                      }}
-                    />
-                  </View>
+                  {showCloseIcon ? (
+                    <View>
+                      <IconButton
+                        hoverEffect={true}
+                        hoverEffectStyle={{
+                          backgroundColor: $config.ICON_BG_COLOR,
+                          borderRadius: 20,
+                        }}
+                        iconProps={{
+                          iconType: 'plain',
+                          iconContainerStyle: {
+                            padding: isMobileUA() ? 0 : 5,
+                            ...closeBtnStyle,
+                          },
+                          name: 'close',
+                          tintColor: $config.SECONDARY_ACTION_COLOR,
+                        }}
+                        onPress={() => {
+                          if (onCancel) onCancel();
+                          setModalVisible(false);
+                        }}
+                      />
+                    </View>
+                  ) : (
+                    <></>
+                  )}
+                </View>
+                {subtitle ? (
+                  <Text style={styles.subtitle}>{subtitle}</Text>
                 ) : (
                   <></>
                 )}
-              </View>
-              {subtitle ? (
-                <Text style={styles.subtitle}>{subtitle}</Text>
-              ) : (
-                <></>
-              )}
 
-              {title ? <Spacer size={32} /> : null}
-            </>
-          ) : (
-            <></>
-          )}
-          <View style={bodyContainerStyle}>{children}</View>
+                {title ? <Spacer size={32} /> : null}
+              </>
+            ) : (
+              <></>
+            )}
+            <View style={bodyContainerStyle}>{children}</View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -150,6 +157,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     maxWidth: 650,
+    maxHeight: '90%',
   },
   backDrop: {
     position: 'absolute',
@@ -181,5 +189,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
     marginTop: 8,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 });
