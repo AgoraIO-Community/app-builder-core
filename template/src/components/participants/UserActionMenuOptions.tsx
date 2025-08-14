@@ -77,7 +77,10 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
-import {useBreakoutRoom} from '../breakout-room/context/BreakoutRoomContext';
+import {
+  MemberDropdownOption,
+  useBreakoutRoom,
+} from '../breakout-room/context/BreakoutRoomContext';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -152,8 +155,8 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {breakoutGroups, moveUserIntoGroup, moveUserToMainRoom, makePresenter} =
-    useBreakoutRoom();
+  const {getRoomMemberDropdownOptions} = useBreakoutRoom();
+
   useEffect(() => {
     customEvents.on('DisableChat', data => {
       // for other users
@@ -172,48 +175,23 @@ export default function UserActionMenuOptionsOptions(
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
-    let outerIndex = 0;
     if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
-      items.push({
-        order: outerIndex + 1,
-        icon: 'arrow-up',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Move to Main Room',
-        onPress: () => {
-          setActionMenuVisible(false);
-          moveUserToMainRoom(user);
-        },
-      });
-      if (breakoutGroups && breakoutGroups?.length) {
-        breakoutGroups.map(({name, id: breakoutRoomId}, index) => {
-          outerIndex = index + 1;
-          items.push({
-            order: outerIndex,
-            icon: 'add',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: `Shift to ${name}`,
-            onPress: () => {
-              setActionMenuVisible(false);
-              moveUserIntoGroup(user, breakoutRoomId);
-            },
-          });
-        });
-        if (isHost) {
-          items.push({
-            order: outerIndex + 1,
-            icon: 'person',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: 'Make a presenter',
-            onPress: () => {
-              makePresenter(user);
-            },
-          });
-        }
-        setActionMenuitems(items);
-      }
+      const memberOptions = getRoomMemberDropdownOptions(user.uid);
+      // Transform to your UI format
+      const breakoutRoomMenuDropdowItems = memberOptions.map(
+        (option: MemberDropdownOption, index) => ({
+          order: index + 1,
+          icon: option.icon,
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: option.title,
+          onPress: () => {
+            setActionMenuVisible(false);
+            option?.onOptionPress();
+          },
+        }),
+      );
+      setActionMenuitems(breakoutRoomMenuDropdowItems);
       return;
     }
 
@@ -781,7 +759,6 @@ export default function UserActionMenuOptionsOptions(
     currentLayout,
     spotlightUid,
     from,
-    breakoutGroups,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

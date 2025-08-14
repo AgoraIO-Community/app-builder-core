@@ -35,15 +35,15 @@ const getUserNameFromAttributes = (
 };
 
 const BreakoutRoomMainRoomUsers: React.FC = () => {
-  const {client, registerCallbacks, unregisterCallbacks} = useRTMCore();
+  const {client, onlineUsers} = useRTMCore();
   const {mainChannelId, breakoutGroups} = useBreakoutRoom();
-  const [allOnlineUsers, setAllOnlineUsers] = useState<OnlineUser[]>([]);
+  const [usersWithNames, setUsersWithNames] = useState<OnlineUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Get all assigned users from breakout rooms
   const getAssignedUsers = useCallback(() => {
-    const assigned = new Set();
+    const assigned = new Set<string>();
     breakoutGroups.forEach(group => {
       group.participants.hosts.forEach(uid => assigned.add(String(uid)));
       group.participants.attendees.forEach(uid => assigned.add(String(uid)));
@@ -51,107 +51,59 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
     return assigned;
   }, [breakoutGroups]);
 
-  const fetchMainRoomUsers = useCallback(async () => {
-    if (!client || !mainChannelId) {
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      console.log(
-        'supriya-online Fetching main room users for channel:',
-        mainChannelId,
-      );
-
-      // Get online users
-      const data = await client.presence.getOnlineUsers(
-        mainChannelId,
-        nativeChannelTypeMapping.MESSAGE,
-      );
-
-      // Get their names from attributes
-      const usersWithNames = await Promise.all(
-        data.occupants?.map(async member => {
-          try {
-            const attributes = await client.storage.getUserMetadata({
-              userId: member.userId,
-            });
-
-            const username = getUserNameFromAttributes(
-              attributes,
-              member.userId,
-            );
-
-            return {
-              userId: member.userId,
-              name: username,
-            };
-          } catch (e) {
-            console.warn(
-              `Failed to get attributes for user ${member.userId}:`,
-              e,
-            );
-            return {
-              userId: member.userId,
-              name: member.userId,
-            };
-          }
-        }) || [],
-      );
-      console.log('supriya-online usersWithNames', usersWithNames);
-      setAllOnlineUsers(usersWithNames);
-    } catch (fetchOnlineUsersError) {
-      console.error('Failed to fetch main room users:', fetchOnlineUsersError);
-      setError('Failed to fetch main room users');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [client, mainChannelId]);
-
-  // Initial fetch when component mounts or dependencies change
+  // Fetch attributes only when online users change
   useEffect(() => {
-    fetchMainRoomUsers();
-  }, [fetchMainRoomUsers]);
+    const fetchUserAttributes = async () => {
+      if (!client || !onlineUsers || onlineUsers.size === 0) {
+        setUsersWithNames([]);
+        return;
+      }
 
-  // Register for presence events to handle real-time updates
-  useEffect(() => {
-    if (!mainChannelId || !registerCallbacks || !unregisterCallbacks) {
-      return;
-    }
+      setIsLoading(true);
+      setError(null);
 
-    const callbackKey = `main-room-users-${mainChannelId}`;
+      try {
+        console.log(
+          `Fetching attributes for online users: of channel ${mainChannelId}`,
+          Array.from(onlineUsers),
+        );
+        const users = await Promise.all(
+          Array.from(onlineUsers).map(async userId => {
+            try {
+              const attributes = await client.storage.getUserMetadata({
+                userId: userId,
+              });
+              const username = getUserNameFromAttributes(attributes, userId);
+              return {
+                userId: userId,
+                name: username,
+              };
+            } catch (e) {
+              console.warn(`Failed to get attributes for user ${userId}:`, e);
+              return {
+                userId: userId,
+                name: userId,
+              };
+            }
+          }),
+        );
 
-    const handlePresenceChange = (presence: any) => {
-      // Only handle presence events for our main channel
-      if (presence.channelName === mainChannelId) {
-        console.log('Main room presence change detected:', presence);
-        // Refetch users when someone joins/leaves main channel
-        fetchMainRoomUsers();
+        setUsersWithNames(users);
+      } catch (fetchError) {
+        console.error('Failed to fetch user attributes:', fetchError);
+        setError('Failed to fetch user information');
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    console.log('Registering presence callbacks for main room users');
-    registerCallbacks(callbackKey, {
-      presence: handlePresenceChange,
-    });
-
-    return () => {
-      console.log('Unregistering presence callbacks for main room users');
-      unregisterCallbacks(callbackKey);
-    };
-  }, [
-    mainChannelId,
-    registerCallbacks,
-    unregisterCallbacks,
-    fetchMainRoomUsers,
-  ]);
+    fetchUserAttributes();
+  }, [client, onlineUsers, mainChannelId]);
 
   // Filter out users who are assigned to breakout rooms
-  const mainRoomOnlyUsers = allOnlineUsers.filter(user => {
+  const mainRoomOnlyUsers = usersWithNames.filter(user => {
     const assignedUsers = getAssignedUsers();
-    console.log('supriya-online allOnlineUsers', allOnlineUsers);
+    console.log('supriya-online allOnlineUsers', usersWithNames);
     console.log('supriya-online assignedUsers: ', assignedUsers);
     return !assignedUsers.has(user.userId);
   });

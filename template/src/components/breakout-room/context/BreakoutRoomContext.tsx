@@ -26,6 +26,7 @@ import events, {PersistanceLevel} from '../../../rtm-events-api';
 import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
 import {BreakoutRoomSyncStateEventPayload} from '../state/types';
+import {IconsInterface} from '../../../atoms/CustomIcon';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -36,6 +37,14 @@ const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   });
 };
 
+export interface MemberDropdownOption {
+  type: 'move-to-main' | 'move-to-room' | 'make-presenter';
+  icon: keyof IconsInterface;
+  title: string;
+  roomId?: string;
+  roomName?: string;
+  onOptionPress: () => void;
+}
 interface BreakoutRoomContextValue {
   mainChannelId: string;
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
@@ -55,6 +64,7 @@ interface BreakoutRoomContextValue {
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
   updateRoomName: (newRoomName: string, roomId: string) => void;
+  getRoomMemberDropdownOptions: (memberUid: UidType) => MemberDropdownOption[];
   upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
@@ -92,6 +102,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   closeRoom: () => {},
   closeAllRooms: () => {},
   updateRoomName: () => {},
+  getRoomMemberDropdownOptions: () => [],
   sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
@@ -479,6 +490,54 @@ const BreakoutRoomProvider = ({
     });
   };
 
+  // In BreakoutRoomProvider
+  const getRoomMemberDropdownOptions = (memberUid: UidType) => {
+    const options: MemberDropdownOption[] = [];
+    // Find which room the user is currently in
+    const getCurrentUserRoom = (uid: UidType) => {
+      return state.breakoutGroups.find(
+        group =>
+          group.participants.hosts.includes(uid) ||
+          group.participants.attendees.includes(uid),
+      );
+    };
+    const currentRoom = getCurrentUserRoom(memberUid);
+    const memberUser = defaultContent[memberUid];
+    // Move to Main Room option
+    options.push({
+      icon: 'arrow-up',
+      type: 'move-to-main',
+      title: 'Move to Main Room',
+      onOptionPress: () => moveUserToMainRoom(memberUser),
+    });
+
+    // Move to other breakout rooms (exclude current room)
+    state.breakoutGroups
+      .filter(group => group.id !== currentRoom?.id)
+      .forEach(group => {
+        options.push({
+          type: 'move-to-room',
+          icon: 'add',
+          title: `Shift to ${group.name}`,
+          roomId: group.id,
+          roomName: group.name,
+          onOptionPress: () => moveUserIntoGroup(memberUser, group.id),
+        });
+      });
+
+    // Make presenter option (only for hosts)
+    if (isHost) {
+      options.push({
+        type: 'make-presenter',
+        icon: 'person',
+        title: 'Make a presenter',
+        onOptionPress: () => makePresenter(memberUser),
+      });
+    }
+
+    return options;
+  };
+
   // User wants to raise hand
   const raiseMyHand = () => {
     events.send(
@@ -612,6 +671,7 @@ const BreakoutRoomProvider = ({
         removeRaisedHand,
         clearAllRaisedHands,
         handleBreakoutRoomSyncState,
+        getRoomMemberDropdownOptions,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

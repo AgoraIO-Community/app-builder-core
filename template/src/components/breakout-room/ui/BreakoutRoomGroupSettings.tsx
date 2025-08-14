@@ -117,28 +117,35 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
         <View style={styles.memberMenu}>
           <View>{hasRaisedHand ? '✋' : <></>}</View>
-          <View style={styles.memberMenuMoreIcon}>
-            <View ref={memberRef} collapsable={false}>
-              <IconButton
-                iconProps={{
-                  iconType: 'plain',
-                  name: 'more-menu',
-                  iconSize: 20,
-                  tintColor: $config.SECONDARY_ACTION_COLOR,
-                }}
-                onPress={() => showModal(memberUId)}
+          {canUserSwitchRoom ? (
+            <View style={styles.memberMenuMoreIcon}>
+              <View ref={memberRef} collapsable={false}>
+                <IconButton
+                  iconProps={{
+                    iconType: 'plain',
+                    name: 'more-menu',
+                    iconSize: 20,
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
+                  }}
+                  onPress={() => showModal(memberUId)}
+                />
+              </View>
+              <UserActionMenuOptionsOptions
+                actionMenuVisible={isMenuVisible}
+                setActionMenuVisible={visible =>
+                  setActionMenuVisible(prev => ({
+                    ...prev,
+                    [memberUId]: visible,
+                  }))
+                }
+                user={defaultContent[memberUId]}
+                btnRef={memberRef}
+                from={'breakout-room'}
               />
             </View>
-            <UserActionMenuOptionsOptions
-              actionMenuVisible={isMenuVisible}
-              setActionMenuVisible={visible =>
-                setActionMenuVisible(prev => ({...prev, [memberUId]: visible}))
-              }
-              user={defaultContent[memberUId]}
-              btnRef={memberRef}
-              from={'breakout-room'}
-            />
-          </View>
+          ) : (
+            <></>
+          )}
         </View>
       </View>
     );

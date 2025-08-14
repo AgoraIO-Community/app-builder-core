@@ -18,7 +18,7 @@ import type {
 } from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import RTMEngine from '../rtm/RTMEngine';
-import {nativeLinkStateMapping} from '../../bridge/rtm/web/Types';
+import {nativePresenceEventTypeMapping} from '../../bridge/rtm/web/Types';
 
 // Event callback types
 type MessageCallback = (message: MessageEvent) => void;
@@ -36,6 +36,7 @@ interface RTMContextType {
   connectionState: number;
   error: Error | null;
   isLoggedIn: boolean;
+  onlineUsers: Set<string>;
   // Callback registration methods
   registerCallbacks: (channelName: string, callbacks: EventCallbacks) => void;
   unregisterCallbacks: (channelName: string) => void;
@@ -46,6 +47,7 @@ const RTMContext = createContext<RTMContextType>({
   connectionState: 0,
   error: null,
   isLoggedIn: false,
+  onlineUsers: new Set<string>(),
   registerCallbacks: () => {},
   unregisterCallbacks: () => {},
 });
@@ -68,6 +70,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [connectionState, setConnectionState] = useState(0);
   const [error, setError] = useState<Error | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   // Callback registration storage
   const callbackRegistry = useRef<Map<string, EventCallbacks>>(new Map());
 
@@ -142,7 +145,10 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       return;
     }
     const handleGlobalStorageEvent = (storage: StorageEvent) => {
-      console.log('supriya-GLOBAL---StorageEvent event: ', storage);
+      console.log(
+        'supriya-rtm-global ********************** ---StorageEvent event: ',
+        storage,
+      );
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.storage) {
@@ -156,7 +162,26 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     };
 
     const handleGlobalPresenceEvent = (presence: PresenceEvent) => {
-      console.log('supriya-GLOBAL---PresenceEvent: ', presence);
+      console.log(
+        'supriya-rtm-global @@@@@@@@@@@@@@@@@@@@@@@  ---PresenceEvent: ',
+        presence,
+      );
+      if (presence.type === nativePresenceEventTypeMapping.SNAPSHOT) {
+        // Initial snapshot - set all online users
+        setOnlineUsers(
+          new Set(presence.snapshot?.userStateList.map(u => u.userId) || []),
+        );
+      } else if (presence.type === nativePresenceEventTypeMapping.REMOTE_JOIN) {
+        setOnlineUsers(prev => new Set([...prev, presence.publisher]));
+      } else if (
+        presence.type === nativePresenceEventTypeMapping.REMOTE_LEAVE
+      ) {
+        setOnlineUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(presence.publisher);
+          return newSet;
+        });
+      }
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.presence) {
@@ -170,7 +195,10 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     };
 
     const handleGlobalMessageEvent = (message: MessageEvent) => {
-      console.log('supriya-GLOBAL---MessageEvent event: ', message);
+      console.log(
+        'supriya-rtm-global ######################## ---MessageEvent event: ',
+        message,
+      );
 
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
@@ -252,6 +280,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         isLoggedIn,
         connectionState,
         error,
+        onlineUsers,
         registerCallbacks,
         unregisterCallbacks,
       }}>
