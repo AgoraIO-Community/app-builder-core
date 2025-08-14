@@ -51,6 +51,7 @@ import {
   useChatUIControls,
   useContent,
   useLayout,
+  useLocalUserInfo,
   useRecording,
   useSidePanel,
   useSpeechToText,
@@ -325,6 +326,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {isV2VON, setIsV2VON, isV2VStatsModalOpen, setIsV2VStatsModalOpen} =
     useV2V();
 
+  const local = useLocalUserInfo();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
 
   const [isLanguagePopupOpen, setLanguagePopup] =
@@ -572,6 +574,21 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       title: v2vLabel(isV2VON),
       onPress: () => {
         setActionMenuVisible(false);
+        
+        // Check if microphone is muted before starting V2V
+        if (!isV2VON && local.audio === ToggleState.disabled) {
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: 'Microphone Required',
+            text2: 'Unmute the microphone before starting voice-to-voice translation',
+            visibilityTime: 3000,
+            primaryBtn: null,
+            secondaryBtn: null,
+          });
+          return;
+        }
+        
         setIsV2VON(prev => !prev);
       },
     });
