@@ -55,9 +55,6 @@ interface BreakoutRoomContextValue {
   toggleSwitchRooms: (value: boolean) => void;
   unsassignedParticipants: {uid: UidType; user: ContentInterface}[];
   createBreakoutRoomGroup: (name?: string) => void;
-  moveUserIntoGroup: (user: ContentInterface, toGroupId: string) => void;
-  moveUserToMainRoom: (user: ContentInterface) => void;
-  makePresenter: (user: ContentInterface) => void;
   isUserInRoom: (room?: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
   exitRoom: (roomId: string) => void;
@@ -70,6 +67,7 @@ interface BreakoutRoomContextValue {
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
   sendAnnouncement: (announcement: string) => void;
+  // Raise hands
   isMyHandRaised: boolean;
   raiseMyHand: () => void;
   lowerMyHand: () => void;
@@ -77,6 +75,12 @@ interface BreakoutRoomContextValue {
   addRaisedHand: (uid: UidType) => void;
   removeRaisedHand: (uid: UidType) => void;
   clearAllRaisedHands: () => void;
+  // Presenters
+  isMyPresenterActive: boolean;
+  onMakeMePresenter: (action: 'start' | 'stop') => void;
+  presenters: {uid: UidType; timestamp: number}[];
+  clearAllPresenters: () => void;
+  // State sync
   handleBreakoutRoomSyncState: (
     data: BreakoutRoomSyncStateEventPayload['data']['data'],
   ) => void;
@@ -93,9 +97,6 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   toggleSwitchRooms: () => {},
   assignParticipants: () => {},
   createBreakoutRoomGroup: () => {},
-  moveUserIntoGroup: () => {},
-  moveUserToMainRoom: () => {},
-  makePresenter: () => {},
   isUserInRoom: () => false,
   joinRoom: () => {},
   exitRoom: () => {},
@@ -114,6 +115,10 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   addRaisedHand: () => {},
   removeRaisedHand: () => {},
   clearAllRaisedHands: () => {},
+  isMyPresenterActive: false,
+  onMakeMePresenter: () => {},
+  presenters: [],
+  clearAllPresenters: () => {},
   handleBreakoutRoomSyncState: () => {},
 });
 
@@ -131,22 +136,28 @@ const BreakoutRoomProvider = ({
     breakoutRoomReducer,
     initialBreakoutRoomState,
   );
-  const [lastAction, setLastAction] = useState<BreakoutRoomAction | null>(null);
+  const {
+    data: {isHost, roomId},
+  } = useRoomInfo();
 
   // Enhanced dispatch that tracks user actions
+  const [lastAction, setLastAction] = useState<BreakoutRoomAction | null>(null);
   const dispatch = useCallback((action: BreakoutRoomAction) => {
     baseDispatch(action);
     setLastAction(action);
   }, []);
 
-  const {
-    data: {isHost, roomId},
-  } = useRoomInfo();
-
+  // Raise hands
   const [isMyHandRaised, setMyHandRaised] = useState<boolean>(false);
   const [raisedHands, setRaisedHands] = useState<
     {uid: UidType; timestamp: number}[]
   >([]);
+  // Presenter
+  const [isMyPresenterActive, setMyPresenterActive] = useState<boolean>(false);
+  const [presenters, setPresenters] = useState<
+    {uid: UidType; timestamp: number}[]
+  >([]);
+
   // Update unassigned participants whenever defaultContent or activeUids change
   useEffect(() => {
     // Get currently assigned participants from all rooms
@@ -367,22 +378,6 @@ const BreakoutRoomProvider = ({
     }
   };
 
-  const makePresenter = (user: ContentInterface) => {
-    try {
-      events.send(
-        BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
-        '',
-        PersistanceLevel.None,
-        user.uid,
-      );
-    } catch (error) {
-      console.log(
-        'supriya error occured while sending presenter event error: ',
-        error,
-      );
-    }
-  };
-
   const moveUserIntoGroup = (user: ContentInterface, toGroupId: string) => {
     console.log('supriya move user to another room', user, toGroupId);
     try {
@@ -490,7 +485,6 @@ const BreakoutRoomProvider = ({
     });
   };
 
-  // In BreakoutRoomProvider
   const getRoomMemberDropdownOptions = (memberUid: UidType) => {
     const options: MemberDropdownOption[] = [];
     // Find which room the user is currently in
@@ -527,14 +521,16 @@ const BreakoutRoomProvider = ({
 
     // Make presenter option (only for hosts)
     if (isHost) {
+      const userIsPresenting = isUserPresenting(memberUid);
+      const title = userIsPresenting ? 'Stop presenter' : 'Make a Presenter';
+      const action = userIsPresenting ? 'stop' : 'start';
       options.push({
         type: 'make-presenter',
         icon: 'person',
-        title: 'Make a presenter',
-        onOptionPress: () => makePresenter(memberUser),
+        title: title,
+        onOptionPress: () => makePresenter(memberUser, action),
       });
     }
-
     return options;
   };
 
@@ -593,6 +589,73 @@ const BreakoutRoomProvider = ({
     setMyHandRaised(false);
   }, []);
 
+  const isUserPresenting = useCallback(
+    (uid?: UidType) => {
+      if (uid) {
+        // Check specific user
+        return presenters.some(presenter => presenter.uid === uid);
+      } else {
+        // Check current user (same as isMyPresenterActive)
+        return false;
+      }
+    },
+    [presenters],
+  );
+
+  // User wants to start presenting
+  const makePresenter = (user: ContentInterface, action: 'start' | 'stop') => {
+    try {
+      // Host can make someone a presenter
+      events.send(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+        JSON.stringify({
+          uid: user.uid,
+          timestamp: Date.now(),
+          action: action,
+        }),
+        PersistanceLevel.None,
+        user.uid,
+      );
+      if (action === 'start') {
+        addPresenter(user.uid);
+      } else if (action === 'stop') {
+        removePresenter(user.uid);
+      }
+    } catch (error) {
+      console.log('Error making user presenter:', error);
+    }
+  };
+
+  // Presenter management functions (called by event handlers)
+  const addPresenter = useCallback((uid: UidType) => {
+    setPresenters(prev => {
+      // Check if already presenting to avoid duplicates
+      const exists = prev.find(presenter => presenter.uid === uid);
+      if (exists) {
+        return prev;
+      }
+      return [...prev, {uid, timestamp: Date.now()}];
+    });
+  }, []);
+
+  const removePresenter = useCallback((uid: UidType) => {
+    if (uid) {
+      setPresenters(prev => prev.filter(presenter => presenter.uid !== uid));
+    }
+  }, []);
+
+  const onMakeMePresenter = (action: 'start' | 'stop') => {
+    if (action === 'start') {
+      setMyPresenterActive(true);
+    } else if (action === 'stop') {
+      setMyPresenterActive(false);
+    }
+  };
+
+  const clearAllPresenters = useCallback(() => {
+    setPresenters([]);
+  }, []);
+
   const handleBreakoutRoomSyncState = useCallback(
     (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
       dispatch({
@@ -607,8 +670,7 @@ const BreakoutRoomProvider = ({
     [dispatch],
   );
 
-  // Action-based API triggering with debounce
-
+  // Action-based API triggering
   useEffect(() => {
     if (!lastAction || !lastAction.type) {
       return;
@@ -653,16 +715,14 @@ const BreakoutRoomProvider = ({
         checkIfBreakoutRoomSessionExistsAPI,
         upsertBreakoutRoomAPI,
         closeBreakoutRoomAPI,
-        moveUserIntoGroup,
-        moveUserToMainRoom,
         isUserInRoom,
         joinRoom,
         exitRoom,
         closeRoom,
         closeAllRooms,
         sendAnnouncement,
-        makePresenter,
         updateRoomName,
+        getRoomMemberDropdownOptions,
         isMyHandRaised,
         raiseMyHand,
         lowerMyHand,
@@ -670,8 +730,11 @@ const BreakoutRoomProvider = ({
         addRaisedHand,
         removeRaisedHand,
         clearAllRaisedHands,
+        isMyPresenterActive,
+        onMakeMePresenter,
+        presenters,
+        clearAllPresenters,
         handleBreakoutRoomSyncState,
-        getRoomMemberDropdownOptions,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

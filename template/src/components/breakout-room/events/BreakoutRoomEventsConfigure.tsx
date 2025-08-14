@@ -14,8 +14,12 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   children,
   mainChannelName,
 }) => {
-  const {addRaisedHand, removeRaisedHand, handleBreakoutRoomSyncState} =
-    useBreakoutRoom();
+  const {
+    addRaisedHand,
+    removeRaisedHand,
+    onMakeMePresenter,
+    handleBreakoutRoomSyncState,
+  } = useBreakoutRoom();
 
   useEffect(() => {
     const handleHandRaiseEvent = (evtData: any) => {
@@ -28,6 +32,19 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
           addRaisedHand(data.uid || uid);
         } else if (data.action === 'lower') {
           removeRaisedHand(data.uid || uid);
+        }
+      } catch (error) {}
+    };
+
+    const handlePresenterStatusEvent = (evtData: any) => {
+      console.log('supriya BREAKOUT_ROOM_PRESENTER_STATUS data: ', evtData);
+      try {
+        const {payload} = evtData;
+        const data = JSON.parse(payload);
+        if (data.action === 'start') {
+          onMakeMePresenter('start');
+        } else if (data.action === 'stop') {
+          onMakeMePresenter('stop');
         }
       } catch (error) {}
     };
@@ -48,15 +65,6 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
             leadingIcon: null,
           });
         }
-      } catch (error) {}
-    };
-
-    const handleMakePresenterEvent = (evtData: any) => {
-      try {
-        const {uid, payload} = evtData;
-
-        console.log('supriya User made presenter:', uid);
-        // TODO: Handle presenter change UI
       } catch (error) {}
     };
 
@@ -89,7 +97,10 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
 
     return () => {
       events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
-      events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER);
+      events.off(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+        handlePresenterStatusEvent,
+      );
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
         handleHandRaiseEvent,
@@ -99,7 +110,12 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         handleBreakoutRoomStateSync,
       );
     };
-  }, [addRaisedHand, removeRaisedHand, handleBreakoutRoomSyncState]);
+  }, [
+    addRaisedHand,
+    removeRaisedHand,
+    onMakeMePresenter,
+    handleBreakoutRoomSyncState,
+  ]);
 
   return <>{children}</>;
 };

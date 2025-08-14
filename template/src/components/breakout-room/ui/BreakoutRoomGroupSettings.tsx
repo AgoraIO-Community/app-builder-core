@@ -117,7 +117,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
         <View style={styles.memberMenu}>
           <View>{hasRaisedHand ? '✋' : <></>}</View>
-          {canUserSwitchRoom ? (
+          {isHost || canUserSwitchRoom ? (
             <View style={styles.memberMenuMoreIcon}>
               <View ref={memberRef} collapsable={false}>
                 <IconButton
