@@ -244,9 +244,9 @@ const SonixCaptionContainer = () => {
           // Safely extract both source and target language texts
           const srcObj = textData[sourceLang] || {};
           const tgtObj = textData[targetLang] || {};
-          const srcText = (srcObj.final_text || '').replace(/<end>/g, ' ');
+          const srcText = srcObj.final_text || '';
           const srcNonFinal = srcObj.non_final_text || '';
-          const tgtText = (tgtObj.final_text || '').replace(/<end>/g, ' ');
+          const tgtText = (tgtObj.final_text || '').replace(/<end>/g, '\n');
           const tgtNonFinal = tgtObj.non_final_text || '';
           const uid = textData.user_id;
           const key = getActiveCaptionKey(uid, sourceLang, targetLang);
@@ -294,12 +294,14 @@ const SonixCaptionContainer = () => {
                 last.targetLang === targetLang
               ) {
                 // merge/accumulate
+                const accumulatedSrcText = `${last.srcText || ''}${srcText}`;
+                const accumulatedTgtText = `${last.tgtText || ''}${tgtText}`;
                 return [
                   ...prev.slice(0, -1),
                   {
                     ...last,
-                    srcText: `${last.srcText || ''}${srcText}`,
-                    tgtText: `${last.tgtText || ''}${tgtText}`,
+                    srcText: accumulatedSrcText.replace(/([.?!])\s+/g, '$1\n'),
+                    tgtText: accumulatedTgtText,
                     time: Date.now(),
                     sourceLang,
                     targetLang,
@@ -311,8 +313,8 @@ const SonixCaptionContainer = () => {
                   ...prev,
                   {
                     uid,
-                    srcText,
-                    tgtText,
+                    srcText: srcText.replace(/([.?!])\s+/g, '$1\n'),
+                    tgtText: tgtText,
                     time: Date.now(),
                     sourceLang,
                     targetLang,
@@ -584,7 +586,9 @@ const SonixCaptionContainer = () => {
                 ? activeCaptionsRef.current[key]?.tgtNonFinal
                 : null;
               return (
-                <Text key={`caption-${index}`} style={styles.captionLine}>
+                <View
+                  key={`caption-${index}`}
+                  style={styles.captionLineContainer}>
                   <Text style={styles.uid}>
                     {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}
                     ): {getLangLabel(entry.sourceLang, selectedTTS)} →{' '}
@@ -592,42 +596,55 @@ const SonixCaptionContainer = () => {
                   </Text>
                   {entry.sourceLang === entry.targetLang ? (
                     entry.srcText && (
-                      <Text style={styles.content}>
-                        [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
-                        {entry.srcText}
-                        {liveSrc ? (
-                          <Text style={styles.live}> {liveSrc}</Text>
-                        ) : null}
-                      </Text>
-                    )
-                  ) : (
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        display: 'flex',
-                      }}>
-                      {entry.srcText && (
+                      <View style={styles.singleLanguageContainer}>
+                        <View style={styles.languageBadge}>
+                          <Text style={styles.languageBadgeText}>
+                            {getLangLabel(entry.sourceLang, selectedTTS)}
+                          </Text>
+                        </View>
                         <Text style={styles.content}>
-                          [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
                           {entry.srcText}
                           {liveSrc ? (
                             <Text style={styles.live}> {liveSrc}</Text>
                           ) : null}
                         </Text>
+                      </View>
+                    )
+                  ) : (
+                    <View style={styles.sideBySideContainer}>
+                      {entry.srcText && (
+                        <View style={styles.languageColumn}>
+                          <View style={styles.languageBadge}>
+                            <Text style={styles.languageBadgeText}>
+                              {getLangLabel(entry.sourceLang, selectedTTS)}
+                            </Text>
+                          </View>
+                          <Text style={styles.content}>
+                            {entry.srcText}
+                            {liveSrc ? (
+                              <Text style={styles.live}> {liveSrc}</Text>
+                            ) : null}
+                          </Text>
+                        </View>
                       )}
                       {entry.tgtText && (
-                        <Text style={styles.content}>
-                          [{getLangLabel(entry.targetLang, selectedTTS)}]{' '}
-                          {entry.tgtText}
-                          {liveTgt ? (
-                            <Text style={styles.live}> {liveTgt}</Text>
-                          ) : null}
-                        </Text>
+                        <View style={styles.languageColumn}>
+                          <View style={styles.languageBadge}>
+                            <Text style={styles.languageBadgeText}>
+                              {getLangLabel(entry.targetLang, selectedTTS)}
+                            </Text>
+                          </View>
+                          <Text style={styles.content}>
+                            {entry.tgtText}
+                            {liveTgt ? (
+                              <Text style={styles.live}> {liveTgt}</Text>
+                            ) : null}
+                          </Text>
+                        </View>
                       )}
                     </View>
                   )}
-                </Text>
+                </View>
               );
             })}
             {Object.values(activeCaptionsRef.current)
@@ -642,7 +659,9 @@ const SonixCaptionContainer = () => {
                   (active.srcNonFinal || active.tgtNonFinal),
               )
               .map((entry, index) => (
-                <Text key={`nonfinal-only-${index}`} style={styles.captionLine}>
+                <View
+                  key={`nonfinal-only-${index}`}
+                  style={styles.captionLineContainer}>
                   <Text style={styles.uid}>
                     {defaultContent[entry.uid]?.name} ({formatTime(entry.time)}
                     ): {getLangLabel(entry.sourceLang, selectedTTS)} →{' '}
@@ -650,33 +669,40 @@ const SonixCaptionContainer = () => {
                   </Text>
                   {entry.sourceLang === entry.targetLang ? (
                     entry.srcNonFinal && (
-                      <Text style={styles.content}>
-                        [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
+                      <View style={styles.singleLanguageContainer}>
+                        <View style={styles.languageBadge}>
+                          <Text style={styles.languageBadgeText}>
+                            {getLangLabel(entry.sourceLang, selectedTTS)}
+                          </Text>
+                        </View>
                         <Text style={styles.live}>{entry.srcNonFinal}</Text>
-                      </Text>
+                      </View>
                     )
                   ) : (
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        display: 'flex',
-                      }}>
+                    <View style={styles.sideBySideContainer}>
                       {entry.srcNonFinal && (
-                        <Text style={styles.content}>
-                          [{getLangLabel(entry.sourceLang, selectedTTS)}]{' '}
+                        <View style={styles.languageColumn}>
+                          <View style={styles.languageBadge}>
+                            <Text style={styles.languageBadgeText}>
+                              {getLangLabel(entry.sourceLang, selectedTTS)}
+                            </Text>
+                          </View>
                           <Text style={styles.live}>{entry.srcNonFinal}</Text>
-                        </Text>
+                        </View>
                       )}
                       {entry.tgtNonFinal && (
-                        <Text style={styles.content}>
-                          [{getLangLabel(entry.targetLang, selectedTTS)}]{' '}
+                        <View style={styles.languageColumn}>
+                          <View style={styles.languageBadge}>
+                            <Text style={styles.languageBadgeText}>
+                              {getLangLabel(entry.targetLang, selectedTTS)}
+                            </Text>
+                          </View>
                           <Text style={styles.live}>{entry.tgtNonFinal}</Text>
-                        </Text>
+                        </View>
                       )}
                     </View>
                   )}
-                </Text>
+                </View>
               ))}
           </>
         )}
@@ -690,8 +716,8 @@ export default SonixCaptionContainer;
 const styles = StyleSheet.create({
   outerContainer: {
     position: 'relative',
-    maxHeight: CAPTION_CONTAINER_HEIGHT,
-    height: CAPTION_CONTAINER_HEIGHT,
+    maxHeight: 250,
+    height: 250,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: $config.ICON_TEXT ? 8 : 0,
@@ -699,8 +725,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   scrollContainer: {
-    maxHeight: CAPTION_CONTAINER_HEIGHT,
-    height: CAPTION_CONTAINER_HEIGHT,
+    maxHeight: 250,
+    height: 250,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: $config.ICON_TEXT ? 8 : 0,
@@ -754,6 +780,37 @@ const styles = StyleSheet.create({
   progressText: {
     color: 'yellow',
     marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  sideBySideContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  languageColumn: {
+    flex: 1,
+    paddingHorizontal: 4,
+  },
+  captionLineContainer: {
+    marginBottom: 8,
+    flexShrink: 1,
+  },
+  singleLanguageContainer: {
+    marginTop: 4,
+  },
+  languageBadge: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginVertical: 4,
+    alignSelf: 'flex-start',
+  },
+  languageBadgeText: {
+    color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
     fontSize: 14,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
