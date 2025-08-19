@@ -144,13 +144,13 @@ export const V2VContext = React.createContext<{
   setProviderConfigs: () => {},
   isV2VStatsModalOpen: false,
   setIsV2VStatsModalOpen: () => {},
-  maxNonFinalTokensDurationMs: 2000,
+  maxNonFinalTokensDurationMs: 700,
   setMaxNonFinalTokensDurationMs: () => {},
   rtcSleepTimeMs: 40,
   setRtcSleepTimeMs: () => {},
   useRestTTS: false,
   setUseRestTTS: () => {},
-  selectedSTTModel: 'stt-rt-preview',
+  selectedSTTModel: 'stt-rt-preview-v2',
   setSelectedSTTModel: () => {},
 });
 
@@ -173,10 +173,11 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   >([]);
   const [isV2VStatsModalOpen, setIsV2VStatsModalOpen] = React.useState(false);
   const [maxNonFinalTokensDurationMs, setMaxNonFinalTokensDurationMs] =
-    React.useState<number>(2000);
+    React.useState<number>(700);
   const [rtcSleepTimeMs, setRtcSleepTimeMs] = React.useState<number>(10);
   const [useRestTTS, setUseRestTTS] = React.useState<boolean>(false);
-  const [selectedSTTModel, setSelectedSTTModel] = React.useState<STTModelType>('stt-rt-preview');
+  const [selectedSTTModel, setSelectedSTTModel] =
+    React.useState<STTModelType>('stt-rt-preview-v2');
 
   const [isV2VListenerAdded, setIsV2VListenerAdded] =
     React.useState<boolean>(false);
