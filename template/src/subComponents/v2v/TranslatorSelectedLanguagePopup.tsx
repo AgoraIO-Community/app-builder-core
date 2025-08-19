@@ -423,7 +423,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 data={sttModelOptions}
                 selectedValue={selectedSTTModel}
                 onSelect={({value}) => setSelectedSTTModel(value as STTModelType)}
-                enabled={true}
+                enabled={false}
               />
             </View>
           </View>
