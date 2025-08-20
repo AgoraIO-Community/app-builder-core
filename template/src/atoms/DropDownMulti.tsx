@@ -14,6 +14,7 @@ import {
   Modal,
   View,
   Image,
+  ScrollView,
 } from 'react-native';
 import {isWebInternal} from '../utils/common';
 import ThemeConfig from '../theme';
@@ -34,6 +35,7 @@ interface Props {
   defaultSelectedValues?: LanguageType[];
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  maxAllowedSelection?: number;
 }
 
 const DropdownMulti: FC<Props> = ({
@@ -45,6 +47,7 @@ const DropdownMulti: FC<Props> = ({
   icon,
   isOpen,
   setIsOpen,
+  maxAllowedSelection = 2,
 }) => {
   const DropdownButton = useRef();
   const maxHeight = 170;
@@ -87,11 +90,10 @@ const DropdownMulti: FC<Props> = ({
       }
     } else {
       // Item is not selected, add it
-      if (selectedValues.length < 2) {
+      if (selectedValues.length < maxAllowedSelection) {
         updatedValues = [...selectedValues, item.value];
       } else {
-        // Max selection limit reached, replace the second selected value
-        //  updatedValues = [selectedValues[1], item.value];
+        // Max selection limit reached, do nothing or implement replacement logic
       }
     }
 
@@ -106,7 +108,7 @@ const DropdownMulti: FC<Props> = ({
     const isINEngLangSelected = selectedValues.includes('en-IN');
 
     const isDisabled =
-      (!isSelected && selectedValues.length === 2) ||
+      (!isSelected && selectedValues.length === maxAllowedSelection) ||
       (item.value === 'en-US' && isINEngLangSelected) ||
       (item.value === 'en-IN' && isUSEngLangSelected);
 
@@ -163,7 +165,7 @@ const DropdownMulti: FC<Props> = ({
           />
         </TouchableOpacity>
 
-        <Text numberOfLines={1} style={styles.dropdownOptionText}>
+        <Text style={styles.dropdownOptionText}>
           {selectedLanguage.label}
         </Text>
       </View>
@@ -210,13 +212,16 @@ const DropdownMulti: FC<Props> = ({
             <></>
           )}
           {/* Dropdown Text */}
-          <View
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={true}
+            contentContainerStyle={styles.scrollContainer}
             style={[
               styles.dropdownOptionTextContainer,
-              selectedValues.length === 2 && {flex: 0.9},
+              selectedValues.length === maxAllowedSelection && {flex: 0.9},
             ]}>
             {formattedSelectedLanguages}
-          </View>
+          </ScrollView>
         </View>
         {/* Dropdown end Icon */}
         <View style={styles.dropdownIconContainer}>
@@ -274,6 +279,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
   },
+  scrollContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   dropdownOptionText: {
     textAlign: 'left',
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -281,7 +290,6 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     marginLeft: 4,
-    flex: 1,
   },
   dropdownIconContainer: {
     alignSelf: 'center',
@@ -311,7 +319,7 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 6,
-    flex: 1,
+    maxWidth: 140,
     justifyContent: 'flex-start',
     alignItems: 'center',
     flexDirection: 'row',

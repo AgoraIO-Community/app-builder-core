@@ -1032,7 +1032,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     'What language(s) are being spoken by everyone in this meeting?',
   [sttChangeLanguagePopupPrimaryBtnText]: 'CONFIRM',
   [sttChangeLanguagePopupDropdownInfo]:
-    'You can choose a maximum of two languages',
+    'You can choose a maximum of four languages',
   [sttChangeLanguagePopupDropdownError]:
     'Choose at least one language to proceed',
   [sttChangeSpokenLanguageText]: 'Change Spoken Language',

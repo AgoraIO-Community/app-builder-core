@@ -81,6 +81,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
               setError={setError}
               isOpen={isOpen}
               setIsOpen={setIsOpen}
+              maxAllowedSelection={4}
             />
           </View>
           <Spacer size={8} />
@@ -162,9 +163,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
-    maxWidth: 446,
+    maxWidth: 500,
     width: '100%',
   },
+
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
