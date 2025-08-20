@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useMemo,
 } from 'react';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
@@ -45,6 +46,20 @@ export interface MemberDropdownOption {
   roomName?: string;
   onOptionPress: () => void;
 }
+
+interface BreakoutRoomPermissions {
+  // Room navigation
+  canJoinRoom: boolean;
+  canExitRoom: boolean;
+  canSwitchBetweenRooms: boolean;
+  // Media controls
+  canScreenshare: boolean;
+  // Room management (host only)
+  canCreateRooms: boolean;
+  canMoveUsers: boolean;
+  canCloseRooms: boolean;
+  canMakePresenter: boolean;
+}
 interface BreakoutRoomContextValue {
   mainChannelId: string;
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
@@ -61,22 +76,14 @@ interface BreakoutRoomContextValue {
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
   updateRoomName: (newRoomName: string, roomId: string) => void;
+  exitBreakoutRoom: () => void;
   getRoomMemberDropdownOptions: (memberUid: UidType) => MemberDropdownOption[];
   upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => void;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
   sendAnnouncement: (announcement: string) => void;
-  // Raise hands
-  isMyHandRaised: boolean;
-  raiseMyHand: () => void;
-  lowerMyHand: () => void;
-  raisedHands: {uid: UidType; timestamp: number}[];
-  addRaisedHand: (uid: UidType) => void;
-  removeRaisedHand: (uid: UidType) => void;
-  clearAllRaisedHands: () => void;
   // Presenters
-  isMyPresenterActive: boolean;
   onMakeMePresenter: (action: 'start' | 'stop') => void;
   presenters: {uid: UidType; timestamp: number}[];
   clearAllPresenters: () => void;
@@ -84,6 +91,7 @@ interface BreakoutRoomContextValue {
   handleBreakoutRoomSyncState: (
     data: BreakoutRoomSyncStateEventPayload['data']['data'],
   ) => void;
+  permissions: BreakoutRoomPermissions;
 }
 
 const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
@@ -103,23 +111,17 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   closeRoom: () => {},
   closeAllRooms: () => {},
   updateRoomName: () => {},
+  exitBreakoutRoom: () => {},
   getRoomMemberDropdownOptions: () => [],
   sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
-  isMyHandRaised: false,
-  raiseMyHand: () => {},
-  lowerMyHand: () => {},
-  raisedHands: [],
-  addRaisedHand: () => {},
-  removeRaisedHand: () => {},
-  clearAllRaisedHands: () => {},
-  isMyPresenterActive: false,
   onMakeMePresenter: () => {},
   presenters: [],
   clearAllPresenters: () => {},
   handleBreakoutRoomSyncState: () => {},
+  permissions: null,
 });
 
 const BreakoutRoomProvider = ({
@@ -147,13 +149,8 @@ const BreakoutRoomProvider = ({
     setLastAction(action);
   }, []);
 
-  // Raise hands
-  const [isMyHandRaised, setMyHandRaised] = useState<boolean>(false);
-  const [raisedHands, setRaisedHands] = useState<
-    {uid: UidType; timestamp: number}[]
-  >([]);
   // Presenter
-  const [isMyPresenterActive, setMyPresenterActive] = useState<boolean>(false);
+  const [canIPresent, setICanPresent] = useState<boolean>(false);
   const [presenters, setPresenters] = useState<
     {uid: UidType; timestamp: number}[]
   >([]);
@@ -414,22 +411,25 @@ const BreakoutRoomProvider = ({
   };
 
   // To check if current user is in a specific room
-  const isUserInRoom = (room?: BreakoutGroup): boolean => {
-    if (room) {
-      // Check specific room
-      return (
-        room.participants.hosts.includes(localUid) ||
-        room.participants.attendees.includes(localUid)
-      );
-    } else {
-      // Check ALL rooms - is user in any room?
-      return state.breakoutGroups.some(
-        group =>
-          group.participants.hosts.includes(localUid) ||
-          group.participants.attendees.includes(localUid),
-      );
-    }
-  };
+  const isUserInRoom = useCallback(
+    (room?: BreakoutGroup): boolean => {
+      if (room) {
+        // Check specific room
+        return (
+          room.participants.hosts.includes(localUid) ||
+          room.participants.attendees.includes(localUid)
+        );
+      } else {
+        // Check ALL rooms - is user in any room?
+        return state.breakoutGroups.some(
+          group =>
+            group.participants.hosts.includes(localUid) ||
+            group.participants.attendees.includes(localUid),
+        );
+      }
+    },
+    [localUid, state.breakoutGroups],
+  );
 
   const joinRoom = (toRoomId: string) => {
     const localUser = defaultContent[localUid];
@@ -461,6 +461,10 @@ const BreakoutRoomProvider = ({
     dispatch({
       type: BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
     });
+  };
+
+  const exitBreakoutRoom = () => {
+    console.log('supriya exit the breakout room');
   };
 
   const sendAnnouncement = (announcement: string) => {
@@ -534,68 +538,13 @@ const BreakoutRoomProvider = ({
     return options;
   };
 
-  // User wants to raise hand
-  const raiseMyHand = () => {
-    events.send(
-      BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
-      JSON.stringify({
-        uid: localUid,
-        timestamp: Date.now(),
-        action: 'raise',
-      }),
-    );
-    setMyHandRaised(true);
-  };
-
-  // User wants to lower their hand
-  const lowerMyHand = () => {
-    events.send(
-      BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
-      JSON.stringify({
-        uid: localUid,
-        timestamp: Date.now(),
-        action: 'lower',
-      }),
-    );
-    setMyHandRaised(false);
-  };
-
-  // Hand raise management functions (called by event handlers)
-  const addRaisedHand = useCallback((uid: UidType) => {
-    setRaisedHands(prev => {
-      // Check if hand is already raised to avoid duplicates
-      const exists = prev.find(hand => hand.uid === uid);
-      if (exists) {
-        return prev;
-      }
-
-      return [...prev, {uid, timestamp: Date.now()}];
-    });
-  }, []);
-
-  const removeRaisedHand = useCallback(
-    (uid: UidType) => {
-      setRaisedHands(prev => prev.filter(hand => hand.uid !== uid));
-      // If it's the local user, update their personal state
-      if (uid === localUid) {
-        setMyHandRaised(false);
-      }
-    },
-    [localUid],
-  );
-
-  const clearAllRaisedHands = useCallback(() => {
-    setRaisedHands([]);
-    setMyHandRaised(false);
-  }, []);
-
   const isUserPresenting = useCallback(
     (uid?: UidType) => {
       if (uid) {
         // Check specific user
         return presenters.some(presenter => presenter.uid === uid);
       } else {
-        // Check current user (same as isMyPresenterActive)
+        // Check current user (same as canIPresent)
         return false;
       }
     },
@@ -645,16 +594,61 @@ const BreakoutRoomProvider = ({
   }, []);
 
   const onMakeMePresenter = (action: 'start' | 'stop') => {
+    console.log('supriya on make me presenter action: ', action);
     if (action === 'start') {
-      setMyPresenterActive(true);
+      setICanPresent(true);
     } else if (action === 'stop') {
-      setMyPresenterActive(false);
+      setICanPresent(false);
     }
   };
 
   const clearAllPresenters = useCallback(() => {
     setPresenters([]);
   }, []);
+
+  // Calculate permissions dynamically
+  const permissions = useMemo((): BreakoutRoomPermissions => {
+    const currentlyInRoom = isUserInRoom();
+    const hasAvailableRooms = state.breakoutGroups.length > 0;
+    const canUserSwitchRoom = state.canUserSwitchRoom;
+
+    if (true) {
+      return {
+        // Room navigation
+        canJoinRoom:
+          !currentlyInRoom &&
+          hasAvailableRooms &&
+          (isHost || canUserSwitchRoom),
+        canExitRoom: currentlyInRoom,
+        canSwitchBetweenRooms:
+          currentlyInRoom && hasAvailableRooms && (isHost || canUserSwitchRoom),
+        // Media controls
+        canScreenshare: currentlyInRoom ? canIPresent : isHost,
+        // Room management (host only)
+        canCreateRooms: isHost,
+        canMoveUsers: isHost,
+        canCloseRooms: isHost && hasAvailableRooms,
+        canMakePresenter: isHost,
+      };
+    }
+    return {
+      canJoinRoom: false,
+      canExitRoom: false,
+      canSwitchBetweenRooms: false, // Media controls
+      canScreenshare: true,
+      // Room management (host only)
+      canCreateRooms: false,
+      canMoveUsers: false,
+      canCloseRooms: false,
+      canMakePresenter: false,
+    };
+  }, [
+    isUserInRoom,
+    isHost,
+    state.canUserSwitchRoom,
+    state.breakoutGroups,
+    canIPresent,
+  ]);
 
   const handleBreakoutRoomSyncState = useCallback(
     (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
@@ -720,21 +714,15 @@ const BreakoutRoomProvider = ({
         exitRoom,
         closeRoom,
         closeAllRooms,
+        exitBreakoutRoom,
         sendAnnouncement,
         updateRoomName,
         getRoomMemberDropdownOptions,
-        isMyHandRaised,
-        raiseMyHand,
-        lowerMyHand,
-        raisedHands,
-        addRaisedHand,
-        removeRaisedHand,
-        clearAllRaisedHands,
-        isMyPresenterActive,
         onMakeMePresenter,
         presenters,
         clearAllPresenters,
         handleBreakoutRoomSyncState,
+        permissions,
       }}>
       {children}
     </BreakoutRoomContext.Provider>

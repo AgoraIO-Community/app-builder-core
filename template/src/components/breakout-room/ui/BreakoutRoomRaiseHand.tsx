@@ -3,10 +3,8 @@ import {View, StyleSheet, Text} from 'react-native';
 import ImageIcon from '../../../atoms/ImageIcon';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import ThemeConfig from '../../../theme';
-import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 
 export default function BreakoutRoomRaiseHand() {
-  const {raiseMyHand} = useBreakoutRoom();
   return (
     <View style={style.card}>
       <View style={style.cardHeader}>
@@ -25,9 +23,7 @@ export default function BreakoutRoomRaiseHand() {
           containerStyle={style.raiseHandBtn}
           textStyle={style.raiseHandBtnText}
           text={'✋ Raise Hand'}
-          onPress={() => {
-            raiseMyHand();
-          }}
+          onPress={() => {}}
         />
       </View>
     </View>
