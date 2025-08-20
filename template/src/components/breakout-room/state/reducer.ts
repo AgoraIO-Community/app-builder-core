@@ -339,18 +339,11 @@ export const breakoutRoomReducer = (
 
     case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP: {
       const {user, fromGroupId, toGroupId} = action.payload;
-      console.log(
-        'supriya-group-change MOVE_PARTICIPANT_TO_GROUP user: ',
-        user,
-        fromGroupId,
-        toGroupId,
-      );
       return {
         ...state,
         breakoutGroups: state.breakoutGroups.map(group => {
           // Remove from source group (if fromGroupId exists)
           if (fromGroupId && group.id === fromGroupId) {
-            console.log('supriya-group-change remove from source group');
             return {
               ...group,
               participants: {
@@ -364,7 +357,6 @@ export const breakoutRoomReducer = (
           }
           // Add to target group
           if (group.id === toGroupId) {
-            console.log('supriya-group-change add to taregt group');
             const isHost = user.isHost === 'true';
             return {
               ...group,

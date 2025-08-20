@@ -99,7 +99,8 @@ const RtmConfigure = (props: Props) => {
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
   const timerValueRef: any = useRef(5);
   // Track RTM connection state (equivalent to v1.5x connectionState check)
-  const {client, isLoggedIn, registerCallbacks} = useRTMCore();
+  const {client, isLoggedIn, registerCallbacks, unregisterCallbacks} =
+    useRTMCore();
 
   /**
    * inside event callback state won't have latest value.
@@ -467,7 +468,7 @@ const RtmConfigure = (props: Props) => {
         isHost: isHostItem?.value || false,
         lastMessageTimeStamp: 0,
       };
-      console.log('supriya new user joined', uid, userData);
+      console.log('new user joined', uid, userData);
       updateRenderListState(uid, userData);
       //end- updating user data in rtc
 
@@ -629,7 +630,7 @@ const RtmConfigure = (props: Props) => {
         );
       }
       // Step 2: Emit the event
-      console.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ');
+      console.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ', evt);
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
       // Because async gets evaluated in a different order when in an sdk
       if (evt === 'name') {
@@ -798,18 +799,11 @@ const RtmConfigure = (props: Props) => {
     };
 
     const handleMessageEvent = (message: MessageEvent) => {
-      console.log('supriya incoming message channel: ', message.channelName);
       console.log('supriya current message channel: ', channelName);
-      if (`${localUid}` === message.publisher) {
-        return;
-      }
-
+      console.log('supriya message event is', message);
       // message - 1 (channel)
       if (message.channelType === nativeChannelTypeMapping.MESSAGE) {
         // here the channel name will be the channel name
-        if (message.channelName !== channelName) {
-          return;
-        }
         logger.debug(
           LogSource.Events,
           'CUSTOM_EVENTS',
@@ -818,7 +812,7 @@ const RtmConfigure = (props: Props) => {
         );
         const {
           publisher: uid,
-          channelName: channelId,
+          channelName,
           message: text,
           timestamp: ts,
         } = message;
@@ -852,18 +846,15 @@ const RtmConfigure = (props: Props) => {
 
           const timestamp = getMessageTime(ts);
           const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid, 10);
-
-          if (channelId === channelName) {
-            try {
-              eventDispatcher(msg, `${sender}`, timestamp);
-            } catch (error) {
-              logger.error(
-                LogSource.Events,
-                'CUSTOM_EVENTS',
-                'error while dispatching through eventDispatcher',
-                {error},
-              );
-            }
+          try {
+            eventDispatcher(msg, `${sender}`, timestamp);
+          } catch (error) {
+            logger.error(
+              LogSource.Events,
+              'CUSTOM_EVENTS',
+              'error while dispatching through eventDispatcher',
+              {error},
+            );
           }
         }
       }
@@ -910,10 +901,13 @@ const RtmConfigure = (props: Props) => {
       presence: handlePresenceEvent,
       message: handleMessageEvent,
     });
+
+    return () => {
+      unregisterCallbacks(channelName);
+    };
   }, [client, channelName]);
 
   useAsyncEffect(async () => {
-    //waiting room attendee -> rtm login will happen on page load
     try {
       if (isLoggedIn && callActive) {
         await init();
@@ -921,16 +915,6 @@ const RtmConfigure = (props: Props) => {
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
-    return async () => {
-      if (isLoggedIn) {
-        logger.log(
-          LogSource.AgoraSDK,
-          'Log',
-          'RTMConfigure unmounted nothing to do',
-        );
-        await client.unsubscribe(channelName);
-      }
-    };
   }, [isLoggedIn, callActive, channelName]);
 
   return (

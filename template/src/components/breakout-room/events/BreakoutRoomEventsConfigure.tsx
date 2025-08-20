@@ -14,12 +14,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   children,
   mainChannelName,
 }) => {
-  const {
-    addRaisedHand,
-    removeRaisedHand,
-    onMakeMePresenter,
-    handleBreakoutRoomSyncState,
-  } = useBreakoutRoom();
+  const {onMakeMePresenter, handleBreakoutRoomSyncState} = useBreakoutRoom();
 
   useEffect(() => {
     const handleHandRaiseEvent = (evtData: any) => {
@@ -29,15 +24,13 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         const data = JSON.parse(payload);
         // uid timestamp action
         if (data.action === 'raise') {
-          addRaisedHand(data.uid || uid);
         } else if (data.action === 'lower') {
-          removeRaisedHand(data.uid || uid);
         }
       } catch (error) {}
     };
 
     const handlePresenterStatusEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_PRESENTER_STATUS data: ', evtData);
+      console.log('supriya BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
       try {
         const {payload} = evtData;
         const data = JSON.parse(payload);
@@ -70,6 +63,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
 
     const handleBreakoutRoomStateSync = (evtData: any) => {
       const {payload} = evtData;
+      console.log('supriya BREAKOUT_ROOM_SYNC_STATE data: ', evtData);
       const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
       if (data.data.act === 'SYNC_STATE') {
         handleBreakoutRoomSyncState(data.data.data);
@@ -80,16 +74,14 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
       handleAnnouncementEvent,
     );
-
-    events.on(BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER, data => {
-      console.log('supriya BREAKOUT_ROOM_MAKE_PRESENTER data: ', data);
-    });
-
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
+      handlePresenterStatusEvent,
+    );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
       handleHandRaiseEvent,
     );
-
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
       handleBreakoutRoomStateSync,
@@ -110,12 +102,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         handleBreakoutRoomStateSync,
       );
     };
-  }, [
-    addRaisedHand,
-    removeRaisedHand,
-    onMakeMePresenter,
-    handleBreakoutRoomSyncState,
-  ]);
+  }, [onMakeMePresenter, handleBreakoutRoomSyncState]);
 
   return <>{children}</>;
 };
