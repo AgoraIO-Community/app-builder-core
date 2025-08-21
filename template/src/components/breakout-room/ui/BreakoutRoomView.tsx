@@ -133,14 +133,6 @@ const style = StyleSheet.create({
   pannelOuterBody: {
     display: 'flex',
     flex: 1,
-    border: '1px solid red',
-  },
-  loadingInnerBody: {
-    display: 'flex',
-    flex: 1,
-    padding: 12,
-    height: '100%',
-    border: '1px solid green',
   },
   panelInnerBody: {
     display: 'flex',
