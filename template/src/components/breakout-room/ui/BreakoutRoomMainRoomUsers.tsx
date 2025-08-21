@@ -103,8 +103,6 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
   // Filter out users who are assigned to breakout rooms
   const mainRoomOnlyUsers = usersWithNames.filter(user => {
     const assignedUsers = getAssignedUsers();
-    console.log('supriya-online allOnlineUsers', usersWithNames);
-    console.log('supriya-online assignedUsers: ', assignedUsers);
     return !assignedUsers.has(user.userId);
   });
 

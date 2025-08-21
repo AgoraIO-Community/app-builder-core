@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {useRoomInfo} from '../../room-info/useRoomInfo';
 import {useBreakoutRoom} from './../context/BreakoutRoomContext';
@@ -9,33 +9,38 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 import {BreakoutRoomHeader} from '../../../pages/video-call/SidePanelHeader';
 import BreakoutRoomRaiseHand from './BreakoutRoomRaiseHand';
 import BreakoutRoomMainRoomUsers from './BreakoutRoomMainRoomUsers';
+import Loading from '../../../subComponents/Loading';
 
 interface Props {
   closeSidePanel: () => void;
 }
 export default function BreakoutRoomView({closeSidePanel}: Props) {
+  const [isInitializing, setIsInitializing] = useState(true);
+
   const {
     data: {isHost},
   } = useRoomInfo();
 
   const {
-    breakoutSessionId,
     checkIfBreakoutRoomSessionExistsAPI,
     createBreakoutRoomGroup,
     upsertBreakoutRoomAPI,
     closeAllRooms,
-    isUserInRoom,
+    permissions,
   } = useBreakoutRoom();
 
   useEffect(() => {
     const init = async () => {
       try {
+        setIsInitializing(true);
         const activeSession = await checkIfBreakoutRoomSessionExistsAPI();
         if (!activeSession && isHost) {
-          upsertBreakoutRoomAPI('START');
+          await upsertBreakoutRoomAPI('START');
         }
       } catch (error) {
         console.error('Failed to check breakout session:', error);
+      } finally {
+        setIsInitializing(false);
       }
     };
     init();
@@ -44,24 +49,42 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
   return (
     <>
       <BreakoutRoomHeader />
-      <ScrollView style={[style.pannelOuterBody]}>
-        <View style={style.panelInnerBody}>
-          {!isHost && !isUserInRoom() ? <BreakoutRoomRaiseHand /> : <></>}
-          {isHost ? <BreakoutRoomSettings /> : <BreakoutRoomMainRoomUsers />}
-          <BreakoutRoomGroupSettings />
-          {isHost ? (
-            <TertiaryButton
-              containerStyle={style.createBtnContainer}
-              textStyle={style.createBtnText}
-              text={'+ Create New Room'}
-              onPress={() => createBreakoutRoomGroup()}
+      <ScrollView
+        style={[style.pannelOuterBody]}
+        contentContainerStyle={
+          isInitializing ? style.contentCenter : style.contentStart
+        }>
+        {isInitializing ? (
+          <View style={style.panelInnerBody}>
+            <Loading
+              text={'Initializing...'}
+              background={$config.CARD_LAYER_1_COLOR}
+              textColor={$config.FONT_COLOR}
             />
-          ) : (
-            <></>
-          )}
-        </View>
+          </View>
+        ) : (
+          <View style={style.panelInnerBody}>
+            {permissions.canRaiseHands ? <BreakoutRoomRaiseHand /> : <></>}
+            {permissions.canAssignParticipants ? (
+              <BreakoutRoomSettings />
+            ) : (
+              <BreakoutRoomMainRoomUsers />
+            )}
+            <BreakoutRoomGroupSettings />
+            {permissions.canCreateRooms ? (
+              <TertiaryButton
+                containerStyle={style.createBtnContainer}
+                textStyle={style.createBtnText}
+                text={'+ Create New Room'}
+                onPress={() => createBreakoutRoomGroup()}
+              />
+            ) : (
+              <></>
+            )}
+          </View>
+        )}
       </ScrollView>
-      {isHost && breakoutSessionId ? (
+      {!isInitializing && permissions.canCloseRooms ? (
         <View style={style.footer}>
           <View style={style.fullWidth}>
             <TertiaryButton
@@ -100,9 +123,24 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
+  contentCenter: {
+    height: '100%',
+    justifyContent: 'center',
+  },
+  contentStart: {
+    justifyContent: 'flex-start',
+  },
   pannelOuterBody: {
     display: 'flex',
     flex: 1,
+    border: '1px solid red',
+  },
+  loadingInnerBody: {
+    display: 'flex',
+    flex: 1,
+    padding: 12,
+    height: '100%',
+    border: '1px solid green',
   },
   panelInnerBody: {
     display: 'flex',

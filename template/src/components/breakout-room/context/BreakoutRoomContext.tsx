@@ -54,7 +54,9 @@ interface BreakoutRoomPermissions {
   canSwitchBetweenRooms: boolean;
   // Media controls
   canScreenshare: boolean;
+  canRaiseHands: boolean;
   // Room management (host only)
+  canAssignParticipants: boolean;
   canCreateRooms: boolean;
   canMoveUsers: boolean;
   canCloseRooms: boolean;
@@ -78,7 +80,7 @@ interface BreakoutRoomContextValue {
   updateRoomName: (newRoomName: string, roomId: string) => void;
   exitBreakoutRoom: () => void;
   getRoomMemberDropdownOptions: (memberUid: UidType) => MemberDropdownOption[];
-  upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => void;
+  upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => Promise<void>;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   assignParticipants: () => void;
@@ -114,7 +116,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   exitBreakoutRoom: () => {},
   getRoomMemberDropdownOptions: () => [],
   sendAnnouncement: () => {},
-  upsertBreakoutRoomAPI: () => {},
+  upsertBreakoutRoomAPI: async () => {},
   closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
   onMakeMePresenter: () => {},
@@ -260,53 +262,54 @@ const BreakoutRoomProvider = ({
   };
 
   const upsertBreakoutRoomAPI = useCallback(
-    (type: 'START' | 'UPDATE' = 'START') => {
+    async (type: 'START' | 'UPDATE' = 'START') => {
       const startReqTs = Date.now();
       const requestId = getUniqueID();
-      console.log('supriya-group-change', state.breakoutGroups);
-      fetch(`${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
-          'X-Request-Id': requestId,
-          'X-Session-Id': logger.getSessionId(),
-        },
-        body: JSON.stringify({
-          passphrase: roomId.host,
-          switch_room: state.canUserSwitchRoom,
-          session_id: state.breakoutSessionId || randomNameGenerator(6),
-          breakout_room:
-            type === 'START'
-              ? getSanitizedPayload(initialBreakoutGroups)
-              : getSanitizedPayload(state.breakoutGroups),
-        }),
-      })
-        .then(async response => {
-          const endRequestTs = Date.now();
-          const latency = endRequestTs - startReqTs;
-          if (!response.ok) {
-            const msg = await response.text();
-            throw new Error(`Breakout room creation failed: ${msg}`);
-          } else {
-            const data = await response.json();
-            if (type === 'START' && data?.session_id) {
-              dispatch({
-                type: BreakoutGroupActionTypes.SET_SESSION_ID,
-                payload: {sessionId: data.session_id},
-              });
-            }
-            if (data?.breakout_room) {
-              dispatch({
-                type: BreakoutGroupActionTypes.UPDATE_GROUPS_IDS,
-                payload: data.breakout_room,
-              });
-            }
+      try {
+        const response = await fetch(
+          `${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              authorization: store.token ? `Bearer ${store.token}` : '',
+              'X-Request-Id': requestId,
+              'X-Session-Id': logger.getSessionId(),
+            },
+            body: JSON.stringify({
+              passphrase: roomId.host,
+              switch_room: state.canUserSwitchRoom,
+              session_id: state.breakoutSessionId || randomNameGenerator(6),
+              breakout_room:
+                type === 'START'
+                  ? getSanitizedPayload(initialBreakoutGroups)
+                  : getSanitizedPayload(state.breakoutGroups),
+            }),
+          },
+        );
+        const endRequestTs = Date.now();
+        const latency = endRequestTs - startReqTs;
+        if (!response.ok) {
+          const msg = await response.text();
+          throw new Error(`Breakout room creation failed: ${msg}`);
+        } else {
+          const data = await response.json();
+          if (type === 'START' && data?.session_id) {
+            dispatch({
+              type: BreakoutGroupActionTypes.SET_SESSION_ID,
+              payload: {sessionId: data.session_id},
+            });
           }
-        })
-        .catch(err => {
-          console.log('debugging err', err);
-        });
+          if (data?.breakout_room) {
+            dispatch({
+              type: BreakoutGroupActionTypes.UPDATE_GROUPS_IDS,
+              payload: data.breakout_room,
+            });
+          }
+        }
+      } catch (err) {
+        console.log('debugging err', err);
+      }
     },
     [
       roomId.host,
@@ -351,7 +354,6 @@ const BreakoutRoomProvider = ({
   };
 
   const moveUserToMainRoom = (user: ContentInterface) => {
-    console.log('supriya moving user to main room', user);
     try {
       // Find user's current breakout group
       const currentGroup = state.breakoutGroups.find(
@@ -468,7 +470,6 @@ const BreakoutRoomProvider = ({
   };
 
   const sendAnnouncement = (announcement: string) => {
-    console.log('supriya host will send an announcement: ', announcement);
     events.send(
       BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
       JSON.stringify({
@@ -594,7 +595,6 @@ const BreakoutRoomProvider = ({
   }, []);
 
   const onMakeMePresenter = (action: 'start' | 'stop') => {
-    console.log('supriya on make me presenter action: ', action);
     if (action === 'start') {
       setICanPresent(true);
     } else if (action === 'stop') {
@@ -624,10 +624,12 @@ const BreakoutRoomProvider = ({
           currentlyInRoom && hasAvailableRooms && (isHost || canUserSwitchRoom),
         // Media controls
         canScreenshare: currentlyInRoom ? canIPresent : isHost,
+        canRaiseHands: $config.RAISE_HAND && !isHost,
         // Room management (host only)
+        canAssignParticipants: isHost,
         canCreateRooms: isHost,
         canMoveUsers: isHost,
-        canCloseRooms: isHost && hasAvailableRooms,
+        canCloseRooms: isHost && hasAvailableRooms && !!state.breakoutSessionId,
         canMakePresenter: isHost,
       };
     }
@@ -636,7 +638,9 @@ const BreakoutRoomProvider = ({
       canExitRoom: false,
       canSwitchBetweenRooms: false, // Media controls
       canScreenshare: true,
+      canRaiseHands: false,
       // Room management (host only)
+      canAssignParticipants: false,
       canCreateRooms: false,
       canMoveUsers: false,
       canCloseRooms: false,
@@ -647,6 +651,7 @@ const BreakoutRoomProvider = ({
     isHost,
     state.canUserSwitchRoom,
     state.breakoutGroups,
+    state.breakoutSessionId,
     canIPresent,
   ]);
 
@@ -686,7 +691,6 @@ const BreakoutRoomProvider = ({
       API_TRIGGERING_ACTIONS.includes(lastAction.type as any) && isHost;
 
     if (shouldCallAPI) {
-      console.log('supriya calling update groups api');
       upsertBreakoutRoomAPI('UPDATE');
     } else {
       console.log(`Action ${lastAction.type} - skipping API call`);
