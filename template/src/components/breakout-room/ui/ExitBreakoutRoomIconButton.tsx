@@ -25,11 +25,11 @@ export interface ScreenshareButtonProps {
 const ExitBreakoutRoomIconButton = (props: ScreenshareButtonProps) => {
   const {label = null, onPress: onPressCustom = null} = useToolbarProps();
   const {isOnActionSheet, showLabel} = useActionSheet();
-  const {exitBreakoutRoom} = useBreakoutRoom();
+  const {exitRoom} = useBreakoutRoom();
   const {isToolbarMenuItem} = useToolbarMenu();
 
   const onPress = () => {
-    exitBreakoutRoom();
+    exitRoom();
   };
 
   let iconButtonProps: IconButtonProps = {

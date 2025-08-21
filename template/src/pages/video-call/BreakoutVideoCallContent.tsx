@@ -53,6 +53,7 @@ import {
   VideoCallContentProps,
 } from './VideoCallContent';
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
+import {useHistory, useParams} from '../../components/Router';
 
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
@@ -80,7 +81,16 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
   console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
+  const history = useHistory();
+  const {phrase} = useParams<{phrase: string}>();
 
+  const endCallModifiedCallbacks = {
+    ...callbacks,
+    EndCall: () => {
+      console.log('supriya-ending here i am ');
+      history.replace(`/${phrase}`);
+    },
+  };
   return (
     <PropsProvider
       value={{
@@ -88,7 +98,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
           ...breakoutRoomRTCProps,
           callActive,
         },
-        callbacks,
+        callbacks: endCallModifiedCallbacks,
         styleProps,
         mode: $config.EVENT_MODE
           ? ChannelProfileType.ChannelProfileLiveBroadcasting
