@@ -35,7 +35,7 @@ const ExitBreakoutRoomIconButton = (props: ScreenshareButtonProps) => {
   let iconButtonProps: IconButtonProps = {
     onPress: onPressCustom || onPress,
     iconProps: {
-      name: 'back-btn',
+      name: 'close-room',
       tintColor: $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {

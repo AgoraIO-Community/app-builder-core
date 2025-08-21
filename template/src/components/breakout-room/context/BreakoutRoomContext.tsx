@@ -144,6 +144,9 @@ const BreakoutRoomProvider = ({
     data: {isHost, roomId},
   } = useRoomInfo();
 
+  // Join Room
+  const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
+
   // Enhanced dispatch that tracks user actions
   const [lastAction, setLastAction] = useState<BreakoutRoomAction | null>(null);
   const dispatch = useCallback((action: BreakoutRoomAction) => {
@@ -281,6 +284,21 @@ const BreakoutRoomProvider = ({
       const startReqTs = Date.now();
       const requestId = getUniqueID();
       try {
+        const payload = {
+          passphrase: roomId.host,
+          switch_room: state.canUserSwitchRoom,
+          session_id: state.breakoutSessionId || randomNameGenerator(6),
+          breakout_room:
+            type === 'START'
+              ? getSanitizedPayload(initialBreakoutGroups)
+              : getSanitizedPayload(state.breakoutGroups),
+        };
+
+        // Only add join_room_id if there's a pending join
+        if (selfJoinRoomId) {
+          payload.join_room_id = selfJoinRoomId;
+        }
+
         const response = await fetch(
           `${$config.BACKEND_ENDPOINT}/v1/channel/breakout-room`,
           {
@@ -291,15 +309,7 @@ const BreakoutRoomProvider = ({
               'X-Request-Id': requestId,
               'X-Session-Id': logger.getSessionId(),
             },
-            body: JSON.stringify({
-              passphrase: roomId.host,
-              switch_room: state.canUserSwitchRoom,
-              session_id: state.breakoutSessionId || randomNameGenerator(6),
-              breakout_room:
-                type === 'START'
-                  ? getSanitizedPayload(initialBreakoutGroups)
-                  : getSanitizedPayload(state.breakoutGroups),
-            }),
+            body: JSON.stringify(payload),
           },
         );
         const endRequestTs = Date.now();
@@ -309,6 +319,10 @@ const BreakoutRoomProvider = ({
           throw new Error(`Breakout room creation failed: ${msg}`);
         } else {
           const data = await response.json();
+
+          if (selfJoinRoomId) {
+            setSelfJoinRoomId(null);
+          }
           if (type === 'START' && data?.session_id) {
             dispatch({
               type: BreakoutGroupActionTypes.SET_SESSION_ID,
@@ -333,6 +347,7 @@ const BreakoutRoomProvider = ({
       state.canUserSwitchRoom,
       store.token,
       dispatch,
+      selfJoinRoomId,
     ],
   );
 
@@ -449,8 +464,9 @@ const BreakoutRoomProvider = ({
   );
 
   const joinRoom = (toRoomId: string) => {
-    const localUser = defaultContent[localUid];
-    moveUserIntoGroup(localUser, toRoomId);
+    const user = defaultContent[localUid];
+    moveUserIntoGroup(user, toRoomId);
+    setSelfJoinRoomId(toRoomId);
   };
 
   const exitRoom = (fromRoomId: string) => {
