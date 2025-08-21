@@ -17,12 +17,7 @@ import React, {
   useReducer,
 } from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {
-  DispatchContext,
-  PropsContext,
-  ToggleState,
-  useLocalUid,
-} from '../../agora-rn-uikit';
+import {DispatchContext, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -39,7 +34,7 @@ import {
   MergeMoreButtonFields,
   CustomToolbarSort,
 } from '../utils/common';
-import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
+import {RoomInfoContextInterface} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import IconButton from '../atoms/IconButton';
@@ -119,8 +114,9 @@ import {
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
-import {useV2V} from '../subComponents/v2v/useVoice2Voice';
+import {useV2V, disconnectV2VUser} from '../subComponents/v2v/useVoice2Voice';
 import V2VStatsModal from '../subComponents/v2v/V2VStatsModal';
+import {useLocalUid, useRtc, useRoomInfo} from 'customization-api';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -294,6 +290,33 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
+  const localUid = useLocalUid();
+  const {RtcEngineUnsafe} = useRtc();
+  const {
+    data: {channel},
+  } = useRoomInfo();
+
+  const handleV2VDisconnect = async (): Promise<boolean> => {
+    if (isV2VActive) {
+      const success = await disconnectV2VUser(channel, localUid);
+
+      if (success) {
+        // Only update state if disconnect was successful
+        setIsV2VActive(false);
+        //@ts-ignore
+        if (RtcEngineUnsafe.setV2VActive) {
+          //@ts-ignore
+          RtcEngineUnsafe.setV2VActive(false);
+        }
+        return true;
+      } else {
+        // Show error
+        setV2vAPIError('Unable to stop translation, please try again');
+        return false;
+      }
+    }
+    return true; // If not active, consider it successful
+  };
   const {setCustomContent} = useContent();
   const [_, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -329,6 +352,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     isV2VStatsModalOpen,
     setIsV2VStatsModalOpen,
     isV2VActive,
+    setIsV2VActive,
+    setV2vAPIError,
   } = useV2V();
 
   const local = useLocalUserInfo();
@@ -576,25 +601,33 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       textColor: $config.FONT_COLOR,
       disabled: false,
       title: v2vLabel(isV2VON),
-      onPress: () => {
+      onPress: async () => {
         setActionMenuVisible(false);
 
-        // Check if microphone is muted before starting V2V
-        if (!isV2VON && local.audio === ToggleState.disabled) {
-          Toast.show({
-            leadingIconName: 'alert',
-            type: 'error',
-            text1: 'Microphone Required',
-            text2:
-              'Unmute the microphone before starting voice-to-voice translation',
-            visibilityTime: 3000,
-            primaryBtn: null,
-            secondaryBtn: null,
-          });
-          return;
+        if (isV2VON) {
+          // Stopping V2V - disconnect bot first,
+          const disconnectSuccess = await handleV2VDisconnect();
+          if (disconnectSuccess) {
+            setIsV2VON(false);
+          }
+          // If disconnect failed, keep isV2VON true so user can retry
+        } else {
+          // Starting V2V - check mic first
+          if (local.audio === ToggleState.disabled) {
+            Toast.show({
+              leadingIconName: 'alert',
+              type: 'error',
+              text1: 'Microphone Required',
+              text2:
+                'Unmute the microphone before starting voice-to-voice translation',
+              visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
+            });
+            return;
+          }
+          setIsV2VON(true);
         }
-
-        setIsV2VON(prev => !prev);
       },
     });
 

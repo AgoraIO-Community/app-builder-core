@@ -17,7 +17,7 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import PQueue from 'p-queue';
-import {useV2V, disconnectV2VUser} from './useVoice2Voice';
+import {useV2V} from './useVoice2Voice';
 import {V2V_URL} from './utils';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -153,18 +153,6 @@ const SonixCaptionContainer = () => {
   } = useRoomInfo();
 
   const engine = RtcEngineUnsafe;
-  // No need for displayFeed or mergedFeed, use translations from context directly
-
-  useEffect(() => {
-    return () => {
-      // On unmount, disconnect user from V2V
-      if (isV2VActive) {
-        disconnectV2VUser(channel, localUid);
-        setIsV2VActive(false);
-        RtcEngineUnsafe.setV2VActive(false);
-      }
-    };
-  }, [channel, localUid, isV2VActive]);
 
   useEffect(() => {
     // setSourceLang('en');

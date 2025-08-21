@@ -238,7 +238,7 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
       Toast.show({
         leadingIconName: 'alert',
         type: 'error',
-        text1: 'V2V Start Failed',
+        text1: 'V2V Service Error',
         text2: v2vAPIError,
         visibilityTime: 5000,
         primaryBtn: null,
@@ -302,8 +302,8 @@ const useV2V = createHook(V2VContext);
 
 const requestId = getUniqueID();
 
-//disconnect V2V user from channel
-export const disconnectV2VUser = async (channel, userId) => {
+//disconnect V2V user from channel - returns true if successful, false if failed
+export const disconnectV2VUser = async (channel, userId): Promise<boolean> => {
   logger.debug(
     LogSource.NetworkRest,
     'v2v',
@@ -336,7 +336,7 @@ export const disconnectV2VUser = async (channel, userId) => {
           statusText: response.statusText,
         },
       );
-      return;
+      return false;
     }
 
     // Log successful disconnect
@@ -348,6 +348,7 @@ export const disconnectV2VUser = async (channel, userId) => {
         requestId,
       },
     );
+    return true;
   } catch (error) {
     logger.debug(
       LogSource.NetworkRest,
@@ -358,6 +359,7 @@ export const disconnectV2VUser = async (channel, userId) => {
         requestId,
       },
     );
+    return false;
   }
 };
 
