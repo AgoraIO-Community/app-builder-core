@@ -1,5 +1,4 @@
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit/src';
-import {BreakoutChannelJoinEventPayload} from '../state/types';
 import {randomNameGenerator} from '../../../utils';
 
 export enum RoomAssignmentStrategy {
@@ -60,6 +59,7 @@ export const BreakoutGroupActionTypes = {
   UPDATE_GROUPS_IDS: 'BREAKOUT_ROOM/UPDATE_GROUPS_IDS',
   CREATE_GROUP: 'BREAKOUT_ROOM/CREATE_GROUP',
   RENAME_GROUP: 'BREAKOUT_ROOM/RENAME_GROUP',
+  EXIT_GROUP: 'BREAKOUT_ROOM/EXIT_GROUP',
   CLOSE_GROUP: 'BREAKOUT_ROOM/CLOSE_GROUP',
   CLOSE_ALL_GROUPS: 'BREAKOUT_ROOM/CLOSE_ALL_GROUPS',
   // Participants Assignment
@@ -116,6 +116,13 @@ export type BreakoutRoomAction =
       payload: {
         newName: string;
         groupId: string;
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.EXIT_GROUP;
+      payload: {
+        user: ContentInterface;
+        fromGroupId: string;
       };
     }
   | {
@@ -284,6 +291,28 @@ export const breakoutRoomReducer = (
             participants: {hosts: [], attendees: []},
           },
         ],
+      };
+    }
+
+    case BreakoutGroupActionTypes.EXIT_GROUP: {
+      // Same logic as MOVE_PARTICIPANT_TO_MAIN but more explicit
+      const {user, fromGroupId} = action.payload;
+      return {
+        ...state,
+        breakoutGroups: state.breakoutGroups.map(group => {
+          if (group.id === fromGroupId) {
+            return {
+              ...group,
+              participants: {
+                hosts: group.participants.hosts.filter(uid => uid !== user.uid),
+                attendees: group.participants.attendees.filter(
+                  uid => uid !== user.uid,
+                ),
+              },
+            };
+          }
+          return group;
+        }),
       };
     }
 

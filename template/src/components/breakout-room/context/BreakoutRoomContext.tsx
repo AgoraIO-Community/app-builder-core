@@ -29,6 +29,7 @@ import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
 import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {IconsInterface} from '../../../atoms/CustomIcon';
+import useEndCall from '../../../utils/useEndCall';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -75,11 +76,10 @@ interface BreakoutRoomContextValue {
   createBreakoutRoomGroup: (name?: string) => void;
   isUserInRoom: (room?: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
-  exitRoom: (roomId: string) => void;
+  exitRoom: (roomId?: string) => void;
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
   updateRoomName: (newRoomName: string, roomId: string) => void;
-  exitBreakoutRoom: () => void;
   getRoomMemberDropdownOptions: (memberUid: UidType) => MemberDropdownOption[];
   upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => Promise<void>;
   closeBreakoutRoomAPI: () => void;
@@ -114,7 +114,6 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   closeRoom: () => {},
   closeAllRooms: () => {},
   updateRoomName: () => {},
-  exitBreakoutRoom: () => {},
   getRoomMemberDropdownOptions: () => [],
   sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: async () => {},
@@ -144,6 +143,7 @@ const BreakoutRoomProvider = ({
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
+  const executeEndCall = useEndCall();
 
   // Sync state
   const lastSyncTimeRef = useRef(Date.now());
@@ -495,20 +495,30 @@ const BreakoutRoomProvider = ({
     [localUid, state.breakoutGroups],
   );
 
+  // New function to get current room ID
+  const getCurrentRoomId = useCallback((): string | null => {
+    const userRoom = state.breakoutGroups.find(
+      group =>
+        group.participants.hosts.includes(localUid) ||
+        group.participants.attendees.includes(localUid),
+    );
+    return userRoom ? userRoom.id : null;
+  }, [localUid, state.breakoutGroups]);
+
   const joinRoom = (toRoomId: string) => {
     const user = defaultContent[localUid];
     moveUserIntoGroup(user, toRoomId);
     setSelfJoinRoomId(toRoomId);
   };
 
-  const exitRoom = (fromRoomId: string) => {
+  const exitRoom = (fromRoomId?: string) => {
+    const currentRoomId = fromRoomId ? fromRoomId : getCurrentRoomId();
     const localUser = defaultContent[localUid];
     dispatch({
-      type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
+      type: BreakoutGroupActionTypes.EXIT_GROUP,
       payload: {
         user: localUser,
-        fromGroupId: fromRoomId,
-        toGroupId: null,
+        fromGroupId: currentRoomId,
       },
     });
   };
@@ -526,10 +536,6 @@ const BreakoutRoomProvider = ({
     dispatch({
       type: BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
     });
-  };
-
-  const exitBreakoutRoom = () => {
-    console.log('supriya exit the breakout room');
   };
 
   const sendAnnouncement = (announcement: string) => {
@@ -748,13 +754,23 @@ const BreakoutRoomProvider = ({
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
       BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
       BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
+      BreakoutGroupActionTypes.EXIT_GROUP,
     ];
 
     const shouldCallAPI =
       API_TRIGGERING_ACTIONS.includes(lastAction.type as any) && isHost;
 
     if (shouldCallAPI) {
-      upsertBreakoutRoomAPI('UPDATE');
+      upsertBreakoutRoomAPI('UPDATE').finally(() => {
+        if (lastAction.type === BreakoutGroupActionTypes.EXIT_GROUP) {
+          console.log('User exited room, executing end call');
+          try {
+            executeEndCall();
+          } catch (error) {
+            console.log('Error while leaving the room: ', error);
+          }
+        }
+      });
     } else {
       console.log(`Action ${lastAction.type} - skipping API call`);
     }
@@ -781,7 +797,6 @@ const BreakoutRoomProvider = ({
         exitRoom,
         closeRoom,
         closeAllRooms,
-        exitBreakoutRoom,
         sendAnnouncement,
         updateRoomName,
         getRoomMemberDropdownOptions,
