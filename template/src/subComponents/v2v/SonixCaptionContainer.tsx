@@ -94,6 +94,7 @@ const SonixCaptionContainer = () => {
     setUseRestTTS,
     selectedSTTModel,
     setSelectedSTTModel,
+    setV2vAPIError,
   } = useV2V();
 
   // Handler to update providerConfigs and context
@@ -357,6 +358,7 @@ const SonixCaptionContainer = () => {
     RtcEngineUnsafe.addListener(eventName, sonixCaptionCallback);
 
     const createBot = async () => {
+      const requestId = getUniqueID();
       try {
         engine.selfSonioxBotID = ''; //Number('9' + localUid.toString().slice(1));
         let body: any = {
@@ -398,7 +400,6 @@ const SonixCaptionContainer = () => {
           body.source_lang = [sourceLang];
           body.target_lang = targetLang;
         }
-        const requestId = getUniqueID();
 
         //Logs before making request
         logger.debug(
@@ -433,6 +434,10 @@ const SonixCaptionContainer = () => {
               userId: localUid,
             },
           );
+          // Show error toast and stop showing loader
+          setV2vAPIError('Something went wrong, please contact Support');
+          setIsV2VON(false);
+          return;
         }
 
         if (response.status === 200) {
@@ -451,16 +456,19 @@ const SonixCaptionContainer = () => {
           );
         }
       } catch (error) {
-        console.error('Error creating bot:', error);
+        console.error('Error creating bot:', error.message);
         logger.debug(
           LogSource.NetworkRest,
           'v2v',
           `Error Creating V2V Bot for user ${defaultContent[localUid].name} - ${localUid} `,
           {
-            error,
+            error: error.message,
             requestId,
           },
         );
+        // Show error toast and stop showing loader
+        setV2vAPIError('Something went wrong, contact support');
+        setIsV2VON(false);
       }
     };
     createBot();

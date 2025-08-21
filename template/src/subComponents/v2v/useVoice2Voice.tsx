@@ -12,6 +12,8 @@ import {
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import Toast from '../../../react-native-toast-message';
+import {useEffect} from 'react';
 
 export type TranscriptItem = {
   uid: string;
@@ -34,6 +36,10 @@ export const V2VContext = React.createContext<{
   // for error state
   isV2VError: boolean;
   setIsV2VError: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // for V2V API error message
+  v2vAPIError: string | null;
+  setV2vAPIError: React.Dispatch<React.SetStateAction<string | null>>;
 
   // to check if V2V is active in the call
   isV2VActive: boolean;
@@ -106,6 +112,8 @@ export const V2VContext = React.createContext<{
   setIsV2VON: () => {},
   isV2VError: false,
   setIsV2VError: () => {},
+  v2vAPIError: null,
+  setV2vAPIError: () => {},
   isV2VActive: false,
   setIsV2VActive: () => {},
   language: ['en'],
@@ -162,6 +170,7 @@ interface V2VProviderProps {
 
 const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [isV2VError, setIsV2VError] = React.useState<boolean>(false);
+  const [v2vAPIError, setV2vAPIError] = React.useState<string | null>(null);
   const [isV2VON, setIsV2VON] = React.useState<boolean>(false);
   const [isV2VActive, setIsV2VActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['']);
@@ -223,6 +232,23 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
     },
   });
 
+  // Show toast when v2vAPIError is set
+  useEffect(() => {
+    if (v2vAPIError) {
+      Toast.show({
+        leadingIconName: 'alert',
+        type: 'error',
+        text1: 'V2V Start Failed',
+        text2: v2vAPIError,
+        visibilityTime: 5000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      // Clear the error after showing toast
+      setV2vAPIError(null);
+    }
+  }, [v2vAPIError, setV2vAPIError]);
+
   return (
     <V2VContext.Provider
       value={{
@@ -230,6 +256,8 @@ const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
         setIsV2VON,
         isV2VError,
         setIsV2VError,
+        v2vAPIError,
+        setV2vAPIError,
         isV2VActive,
         setIsV2VActive,
         language,

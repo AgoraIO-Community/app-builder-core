@@ -323,8 +323,13 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     isSTTError,
   } = useCaption();
 
-  const {isV2VON, setIsV2VON, isV2VStatsModalOpen, setIsV2VStatsModalOpen} =
-    useV2V();
+  const {
+    isV2VON,
+    setIsV2VON,
+    isV2VStatsModalOpen,
+    setIsV2VStatsModalOpen,
+    isV2VActive,
+  } = useV2V();
 
   const local = useLocalUserInfo();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -333,7 +338,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
-  const [isV2VActive, setIsV2VActive] = React.useState(false);
 
   const {start, restart} = useSTTAPI();
   const {
@@ -574,21 +578,22 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       title: v2vLabel(isV2VON),
       onPress: () => {
         setActionMenuVisible(false);
-        
+
         // Check if microphone is muted before starting V2V
         if (!isV2VON && local.audio === ToggleState.disabled) {
           Toast.show({
             leadingIconName: 'alert',
             type: 'error',
             text1: 'Microphone Required',
-            text2: 'Unmute the microphone before starting voice-to-voice translation',
+            text2:
+              'Unmute the microphone before starting voice-to-voice translation',
             visibilityTime: 3000,
             primaryBtn: null,
             secondaryBtn: null,
           });
           return;
         }
-        
+
         setIsV2VON(prev => !prev);
       },
     });
