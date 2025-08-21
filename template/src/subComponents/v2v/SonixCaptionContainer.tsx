@@ -158,15 +158,18 @@ const SonixCaptionContainer = () => {
   useEffect(() => {
     return () => {
       // On unmount, disconnect user from V2V
-      disconnectV2VUser(channel, localUid);
-      RtcEngineUnsafe.setV2VActive(false);
+      if (isV2VActive) {
+        disconnectV2VUser(channel, localUid);
+        setIsV2VActive(false);
+        RtcEngineUnsafe.setV2VActive(false);
+      }
     };
-  }, [channel, localUid]);
+  }, [channel, localUid, isV2VActive]);
 
   useEffect(() => {
     // setSourceLang('en');
     // setTargetLang('es');
-    setIsV2VActive(false);
+    // setIsV2VActive(false);
   }, []);
 
   useEffect(() => {
