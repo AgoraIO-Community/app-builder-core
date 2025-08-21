@@ -5,6 +5,7 @@ import React, {
   useState,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import {createHook} from 'customization-implementation';
@@ -144,6 +145,9 @@ const BreakoutRoomProvider = ({
     data: {isHost, roomId},
   } = useRoomInfo();
 
+  // Sync state
+  const lastSyncTimeRef = useRef(Date.now());
+
   // Join Room
   const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
 
@@ -279,6 +283,31 @@ const BreakoutRoomProvider = ({
     }
   };
 
+  // Polling for sync event
+  const pollBreakoutGetAPI = useCallback(async () => {
+    const now = Date.now();
+    const timeSinceLastAPICall = now - lastSyncTimeRef.current;
+
+    // If no UPDATE API call in last 30 seconds and we have an active session
+    if (timeSinceLastAPICall > 30000 && isHost && state.breakoutSessionId) {
+      console.log(
+        'Fallback: Calling breakout session to sync events due to no recent updates',
+      );
+      await checkIfBreakoutRoomSessionExistsAPI();
+      lastSyncTimeRef.current = Date.now();
+    }
+  }, [isHost, state.breakoutSessionId]);
+
+  // Automatic interval management with cleanup
+  // useEffect(() => {
+  //   if (isHost && state.breakoutSessionId) {
+  //     // Check every 15 seconds
+  //     const interval = setInterval(pollBreakoutGetAPI, 15000);
+  //     // React will automatically call this cleanup function
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [isHost, state.breakoutSessionId, pollBreakoutGetAPI]);
+
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START') => {
       const startReqTs = Date.now();
@@ -334,6 +363,9 @@ const BreakoutRoomProvider = ({
               type: BreakoutGroupActionTypes.UPDATE_GROUPS_IDS,
               payload: data.breakout_room,
             });
+          }
+          if (type === 'UPDATE') {
+            lastSyncTimeRef.current = Date.now();
           }
         }
       } catch (err) {

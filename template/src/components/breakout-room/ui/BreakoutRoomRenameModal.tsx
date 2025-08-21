@@ -6,14 +6,15 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 
 interface BreakoutRoomRenameModalProps {
   setModalOpen: Dispatch<SetStateAction<boolean>>;
+  currentRoomName: string;
   updateRoomName: (newName: string) => void;
 }
 
 export default function BreakoutRoomRenameModal(
   props: BreakoutRoomRenameModalProps,
 ) {
-  const {setModalOpen, updateRoomName} = props;
-  const [roomName, setRoomName] = React.useState('');
+  const {currentRoomName, setModalOpen, updateRoomName} = props;
+  const [roomName, setRoomName] = React.useState(currentRoomName);
 
   const disabled = roomName.trim() === '';
 

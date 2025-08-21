@@ -39,6 +39,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     isUserInRoom,
     exitRoom,
     joinRoom,
+    closeRoom,
     sendAnnouncement,
     updateRoomName,
     canUserSwitchRoom,
@@ -59,7 +60,9 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     setModalOpen: setRenameRoomModalOpen,
   } = useModal();
 
-  const [roomIdToEdit, setRoomIdToEdit] = useState<string>(null);
+  const [roomToEdit, setRoomToEdit] = useState<{id: string; name: string}>(
+    null,
+  );
 
   const [actionMenuVisible, setActionMenuVisible] = useState<{
     [key: string]: boolean;
@@ -204,9 +207,10 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               <BreakoutRoomActionMenu
                 onDeleteRoom={() => {
                   console.log('supriya on delete clicked');
+                  closeRoom(room.id);
                 }}
                 onRenameRoom={() => {
-                  setRoomIdToEdit(room.id);
+                  setRoomToEdit({id: room.id, name: room.name});
                   setRenameRoomModalOpen(true);
                 }}
               />
@@ -241,9 +245,9 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   };
 
   const onRoomNameChange = (newName: string) => {
-    if (newName && roomIdToEdit) {
-      updateRoomName(newName, roomIdToEdit);
-      setRoomIdToEdit(null);
+    if (newName && roomToEdit?.id) {
+      updateRoomName(newName, roomToEdit.id);
+      setRoomToEdit(null);
       setRenameRoomModalOpen(false);
     }
   };
@@ -286,8 +290,9 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           setModalOpen={setAnnouncementModal}
         />
       )}
-      {isRenameRoomModalOpen && roomIdToEdit && (
+      {isRenameRoomModalOpen && roomToEdit?.id && (
         <BreakoutRoomRenameModal
+          currentRoomName={roomToEdit.name}
           updateRoomName={onRoomNameChange}
           setModalOpen={setRenameRoomModalOpen}
         />
