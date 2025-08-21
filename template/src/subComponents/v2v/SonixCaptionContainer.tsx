@@ -38,6 +38,7 @@ import getUniqueID from '../../utils/getUniqueID';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -399,6 +400,17 @@ const SonixCaptionContainer = () => {
         }
         const requestId = getUniqueID();
 
+        //Logs before making request
+        logger.debug(
+          LogSource.NetworkRest,
+          'v2v',
+          `Attempting to create V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
+          {
+            requestId,
+            body,
+          },
+        );
+
         const response = await fetch(`${V2V_URL}/create_bot`, {
           method: 'POST',
           headers: {
@@ -407,12 +419,48 @@ const SonixCaptionContainer = () => {
           },
           body: JSON.stringify(body),
         });
-        const data = await response.json();
-        console.log('Bot created:', data);
-        RtcEngineUnsafe.setV2VActive(true);
-        setIsV2VActive(true);
+
+        // Logs all status (4xx , 5xx)
+        if (!response.ok) {
+          logger.debug(
+            LogSource.NetworkRest,
+            'v2v',
+            `Failed to create V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
+            {
+              status: response.status,
+              statusText: response.statusText,
+              requestId,
+              userId: localUid,
+            },
+          );
+        }
+
+        if (response.status === 200) {
+          const data = await response.json();
+          RtcEngineUnsafe.setV2VActive(true);
+          setIsV2VActive(true);
+          // Logs successful result
+          logger.debug(
+            LogSource.NetworkRest,
+            'v2v',
+            `Successfully created V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
+            {
+              responseData: data,
+              requestId,
+            },
+          );
+        }
       } catch (error) {
         console.error('Error creating bot:', error);
+        logger.debug(
+          LogSource.NetworkRest,
+          'v2v',
+          `Error Creating V2V Bot for user ${defaultContent[localUid].name} - ${localUid} `,
+          {
+            error,
+            requestId,
+          },
+        );
       }
     };
     createBot();

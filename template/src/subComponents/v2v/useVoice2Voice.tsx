@@ -11,6 +11,7 @@ import {
   elevenLabsVoices,
 } from './utils';
 import getUniqueID from '../../utils/getUniqueID';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 export type TranscriptItem = {
   uid: string;
@@ -274,17 +275,62 @@ const useV2V = createHook(V2VContext);
 const requestId = getUniqueID();
 
 //disconnect V2V user from channel
-export const disconnectV2VUser = (channel, userId) => {
-  fetch(`${V2V_URL}/disconnect_channel`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-Request-Id': requestId},
-    body: JSON.stringify({
-      channel_name: channel,
-      user_id: userId.toString(),
-    }),
-  }).catch(err => {
-    console.error('Error disconnecting V2V bot:', err);
-  });
+export const disconnectV2VUser = async (channel, userId) => {
+  logger.debug(
+    LogSource.NetworkRest,
+    'v2v',
+    `Attempting to disconnect V2V Bot for user - ${userId}`,
+    {
+      requestId,
+    },
+  );
+
+  try {
+    const response = await fetch(`${V2V_URL}/disconnect_channel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Request-Id': requestId,
+      },
+      body: JSON.stringify({
+        channel_name: channel,
+        user_id: userId.toString(),
+      }),
+    });
+
+    if (!response.ok) {
+      logger.debug(
+        LogSource.NetworkRest,
+        'v2v',
+        `Error disconnecting V2V Bot for user - ${userId}`,
+        {
+          status: response.status,
+          statusText: response.statusText,
+        },
+      );
+      return;
+    }
+
+    // Log successful disconnect
+    logger.debug(
+      LogSource.NetworkRest,
+      'v2v',
+      `Successfully disconnected V2V Bot for user- ${userId}`,
+      {
+        requestId,
+      },
+    );
+  } catch (error) {
+    logger.debug(
+      LogSource.NetworkRest,
+      'v2v',
+      `Failed disconnecting V2V Bot for user - ${userId}`,
+      {
+        error,
+        requestId,
+      },
+    );
+  }
 };
 
 export {V2VProvider, useV2V};
