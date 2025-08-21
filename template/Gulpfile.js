@@ -48,6 +48,8 @@ const TS_DEFS_BUILD_PATH =
     : process.env.TARGET === 'android'
     ? path.join(__dirname, '../Builds/ts-defs/android')
     : path.join(__dirname, '../Builds/ts-defs/.electron');
+const GraphqlFolderName = '__generated__';
+const GraphqlFolderPath = `./src/assets/${GraphqlFolderName}`;
 
 const debugFlag = process.argv.indexOf('--debug') !== -1;
 
@@ -188,6 +190,9 @@ declare module 'customization' {
   },
   generateNpmPackage: (cb) => {
     runCli(`cd ${BUILD_PATH} && npm pack`, cb);
+  },
+  copyGqlFiles: (cb) => {
+    runCli(`cp -r ${GraphqlFolderPath} ${BUILD_PATH}`, cb);
   },
 };
 
@@ -361,6 +366,7 @@ module.exports.reactSdk = series(
   reactSdk.generateSdkTypedefs,
   reactSdk.bundleSdkTypedefs,
   general.cleanTempFiles,
+  general.copyGqlFiles,
   general.generateNpmPackage,
 );
 
