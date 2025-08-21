@@ -567,7 +567,7 @@ const BreakoutRoomProvider = ({
     const memberUser = defaultContent[memberUid];
     // Move to Main Room option
     options.push({
-      icon: 'arrow-up',
+      icon: 'double-up-arrow',
       type: 'move-to-main',
       title: 'Move to Main Room',
       onOptionPress: () => moveUserToMainRoom(memberUser),
@@ -579,7 +579,7 @@ const BreakoutRoomProvider = ({
       .forEach(group => {
         options.push({
           type: 'move-to-room',
-          icon: 'add',
+          icon: 'move-up',
           title: `Shift to ${group.name}`,
           roomId: group.id,
           roomName: group.name,
@@ -594,7 +594,7 @@ const BreakoutRoomProvider = ({
       const action = userIsPresenting ? 'stop' : 'start';
       options.push({
         type: 'make-presenter',
-        icon: 'person',
+        icon: 'promote-filled',
         title: title,
         onOptionPress: () => makePresenter(memberUser, action),
       });
