@@ -848,7 +848,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     actionMenuitems.push({
       componentName: 'breakoutRoom',
       order: 14,
-      icon: 'participants',
+      icon: 'breakout-room',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: breakoutRoomLabel,
