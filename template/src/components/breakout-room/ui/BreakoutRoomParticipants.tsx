@@ -15,6 +15,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import UserAvatar from '../../../atoms/UserAvatar';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import ThemeConfig from '../../../theme';
+import ImageIcon from '../../../atoms/ImageIcon';
 
 interface Props {
   isHost?: boolean;
@@ -27,9 +28,23 @@ const BreakoutRoomParticipants: React.FC<Props> = ({
 }) => {
   return (
     <>
-      <Text style={styles.title}>
-        Main Room {isHost ? `(${participants.length} unassigned)` : ''}
-      </Text>
+      <View
+        style={[
+          styles.titleContainer,
+          participants?.length > 0 ? {} : styles.titleLowOpacity,
+        ]}>
+        <View>
+          <ImageIcon
+            iconType="plain"
+            name="people"
+            tintColor={$config.FONT_COLOR}
+            iconSize={20}
+          />
+        </View>
+        <Text style={styles.title}>
+          Main Room {isHost ? `(${participants.length} unassigned)` : ''}
+        </Text>
+      </View>
       <View style={styles.participantContainer}>
         {participants.length > 0 ? (
           participants.map(item => (
@@ -54,12 +69,21 @@ const BreakoutRoomParticipants: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
+  titleLowOpacity: {
+    opacity: 0.2,
+  },
+  titleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+    opacity: 0.2,
+  },
   title: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     fontWeight: '500',
-    opacity: 0.2,
   },
   participantContainer: {
     display: 'flex',
