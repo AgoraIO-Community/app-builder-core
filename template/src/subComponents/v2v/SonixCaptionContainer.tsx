@@ -393,7 +393,7 @@ const SonixCaptionContainer = () => {
         }
 
         //Logs before making request
-        logger.log(
+        logger.debug(
           LogSource.NetworkRest,
           'v2v',
           `Attempting to create V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
@@ -414,7 +414,7 @@ const SonixCaptionContainer = () => {
 
         // Logs all status (4xx , 5xx)
         if (!response.ok) {
-          logger.log(
+          logger.debug(
             LogSource.NetworkRest,
             'v2v',
             `Failed to create V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
@@ -436,7 +436,7 @@ const SonixCaptionContainer = () => {
           RtcEngineUnsafe.setV2VActive(true);
           setIsV2VActive(true);
           // Logs successful result
-          logger.log(
+          logger.debug(
             LogSource.NetworkRest,
             'v2v',
             `Successfully created V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
@@ -448,7 +448,7 @@ const SonixCaptionContainer = () => {
         }
       } catch (error) {
         console.error('Error creating bot:', error.message);
-        logger.log(
+        logger.debug(
           LogSource.NetworkRest,
           'v2v',
           `Error Creating V2V Bot for user ${defaultContent[localUid].name} - ${localUid} `,
