@@ -237,7 +237,7 @@ const SonixCaptionContainer = () => {
           // Safely extract both source and target language texts
           const srcObj = textData[sourceLang] || {};
           const tgtObj = textData[targetLang] || {};
-          const srcText = srcObj.final_text || '';
+          const srcText = (srcObj.final_text || '').replace(/<end>/g, '\n');
           const srcNonFinal = srcObj.non_final_text || '';
           const tgtText = (tgtObj.final_text || '').replace(/<end>/g, '\n');
           const tgtNonFinal = tgtObj.non_final_text || '';
