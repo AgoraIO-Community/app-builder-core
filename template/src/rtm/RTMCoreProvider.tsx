@@ -69,6 +69,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const [client, setClient] = useState<RTMClient | null>(null); // Use state instead
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [connectionState, setConnectionState] = useState(0);
+  console.log('supriya-connectionState: ', connectionState);
   const [error, setError] = useState<Error | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   // Callback registration storage
@@ -94,14 +95,17 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const loginToRTM = async (rtmClient: RTMClient, loginToken: string) => {
     try {
       try {
-        // Handle ghost sessions
+        // 1. Handle ghost sessions, so do logout to leave any ghost sessions
         await rtmClient.logout();
+        // 2. Wait for sometime
+        await new Promise(resolve => setTimeout(resolve, 500));
+        // 3. Login again
+        await rtmClient.login({token: loginToken});
+        // 4. Wait for sometime
         await new Promise(resolve => setTimeout(resolve, 500));
       } catch (logoutError) {
         console.log('logoutError: ', logoutError);
       }
-      await rtmClient.login({token: loginToken});
-      await new Promise(resolve => setTimeout(resolve, 500));
     } catch (loginError) {
       const contextError = new Error(`RTM login failed: ${loginError.message}`);
       setError(contextError);
@@ -199,7 +203,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         'supriya-rtm-global ######################## ---MessageEvent event: ',
         message,
       );
-
+      console.log('supriya callbackRegistry', callbackRegistry);
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.message) {

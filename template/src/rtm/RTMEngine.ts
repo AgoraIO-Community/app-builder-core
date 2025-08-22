@@ -22,7 +22,7 @@ class RTMEngine {
   private localUID: string = '';
   private primaryChannelId: string = '';
   // track multiple subscribed channels
-  private secondaryChannels: Set<string> = new Set();
+  private channels: Set<string> = new Set();
   private static _instance: RTMEngine | null = null;
 
   private constructor() {
@@ -62,20 +62,7 @@ class RTMEngine {
     }
   }
 
-  setPrimaryChannel(channelID: string) {
-    if (
-      !channelID ||
-      typeof channelID !== 'string' ||
-      channelID.trim() === ''
-    ) {
-      throw new Error(
-        'setPrimaryChannel: channelID must be a non-empty string',
-      );
-    }
-    this.primaryChannelId = channelID;
-  }
-
-  addSecondaryChannel(channelID: string) {
+  addChannel(channelID: string, primary?: boolean) {
     if (
       !channelID ||
       typeof channelID !== 'string' ||
@@ -85,16 +72,14 @@ class RTMEngine {
         'addSecondaryChannel: channelID must be a non-empty string',
       );
     }
-    this.secondaryChannels.add(channelID);
+    this.channels.add(channelID);
+    if (primary) {
+      this.primaryChannelId = channelID;
+    }
   }
 
-  removeSecondaryChannel(channelID: string) {
-    this.secondaryChannels.delete(channelID);
-  }
-
-  // Backward compatibility - uses primary channel
-  setChannelId(channelID: string) {
-    this.setPrimaryChannel(channelID);
+  removeChannel(channelID: string) {
+    this.channels.delete(channelID);
   }
 
   get localUid() {
@@ -110,16 +95,13 @@ class RTMEngine {
   }
 
   get allChannels() {
-    const channels = [this.primaryChannelId];
-    this.secondaryChannels.forEach(channel => channels.push(channel));
+    const channels = [];
+    this.channels.forEach(channel => channels.push(channel));
     return channels.filter(channel => channel.trim() !== '');
   }
 
   hasChannel(channelID: string): boolean {
-    return (
-      this.primaryChannelId === channelID ||
-      this.secondaryChannels.has(channelID)
-    );
+    return this.channels.has(channelID);
   }
 
   /** Engine readiness flag */
@@ -204,7 +186,7 @@ class RTMEngine {
       }
       await this.destroyClientInstance();
       this.primaryChannelId = '';
-      this.secondaryChannels.clear();
+      this.channels.clear();
       // Reset state
       this.localUID = '';
       this._engine = undefined;

@@ -79,11 +79,6 @@ interface Props {
   channelName: string;
 }
 
-// RTMConfigure-v2 ✅
-// - Subscribes to its specific channel
-// - Handles events for that channel only
-// - No knowledge of other channels
-
 const RtmConfigure = (props: Props) => {
   const rtmInitTimstamp = new Date().getTime();
   const localUid = useLocalUid();
@@ -162,14 +157,15 @@ const RtmConfigure = (props: Props) => {
   //       ev.preventDefault();
   //       return (ev.returnValue = 'Are you sure you want to exit?');
   //     };
+
   //     const logoutRtm = () => {
   //       try {
-  //         // if (engine.current && RTMEngine.getInstance().channelUid) {
-  //         //   // First unsubscribe from channel (like v1.5x leaveChannel)
-  //         //   engine.current.unsubscribe(RTMEngine.getInstance().channelUid);
-  //         //   // Then logout
-  //         //   engine.current.logout();
-  //         // }
+  //         if (client && RTMEngine.getInstance().channelUid) {
+  //           // First unsubscribe from channel (like v1.5x leaveChannel)
+  //           client.unsubscribe(RTMEngine.getInstance().channelUid);
+  //           // Then logout
+  //           client.logout();
+  //         }
   //       } catch (error) {
   //         console.error('Error during browser close RTM cleanup:', error);
   //       }
@@ -223,14 +219,13 @@ const RtmConfigure = (props: Props) => {
 
         // Set channel ID AFTER successful subscribe (like v1.5x)
         console.log('setting primary channel', channelName);
-        RTMEngine.getInstance().setPrimaryChannel(channelName);
+        RTMEngine.getInstance().addChannel(channelName, true);
         logger.log(
           LogSource.AgoraSDK,
           'API',
           'RTM setChannelId as subscribe is successful',
           channelName,
         );
-
         logger.debug(
           LogSource.SDK,
           'Event',
@@ -666,12 +661,22 @@ const RtmConfigure = (props: Props) => {
     }
   };
 
-  const end = async () => {
-    if (!callActive) {
+  const unsubscribe = async (channelName: string) => {
+    if (client && channelName) {
+      try {
+        await client.unsubscribe(channelName);
+        RTMEngine.getInstance().removeChannel(channelName);
+        console.log('Unsubscribed from channel:', channelName);
+      } catch (error) {
+        console.error('Unsubscribe error:', error);
+      }
+    }
+  };
+
+  const cleanup = async () => {
+    if (!callActive || !isLoggedIn) {
       return;
     }
-    // Destroy and clean up RTM state
-    await RTMEngine.getInstance().destroy();
     // Set the engine as null
     logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
     if (isIOS() || isAndroid()) {
@@ -915,6 +920,9 @@ const RtmConfigure = (props: Props) => {
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
+    return async () => {
+      await cleanup();
+    };
   }, [isLoggedIn, callActive, channelName]);
 
   return (
