@@ -17,7 +17,8 @@ import {
   useRoomInfo,
 } from 'customization-api';
 import PQueue from 'p-queue';
-import {useV2V, disconnectV2VUser} from './useVoice2Voice';
+import {useV2V} from './useVoice2Voice';
+import {useV2VDisconnect} from './useV2VDisconnect';
 import {V2V_URL} from './utils';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -38,6 +39,7 @@ import getUniqueID from '../../utils/getUniqueID';
 import LocalEventEmitter, {
   LocalEventsEnum,
 } from '../../rtm-events-api/LocalEvents';
+import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
 const formatTime = (timestamp: number) => {
   const date = new Date(timestamp);
@@ -93,7 +95,10 @@ const SonixCaptionContainer = () => {
     setUseRestTTS,
     selectedSTTModel,
     setSelectedSTTModel,
+    setV2vAPIError,
   } = useV2V();
+
+  const {handleV2VDisconnect} = useV2VDisconnect();
 
   // Handler to update providerConfigs and context
   const handleProviderConfigChange = (provider, field, value) => {
@@ -151,20 +156,11 @@ const SonixCaptionContainer = () => {
   } = useRoomInfo();
 
   const engine = RtcEngineUnsafe;
-  // No need for displayFeed or mergedFeed, use translations from context directly
-
-  useEffect(() => {
-    return () => {
-      // On unmount, disconnect user from V2V
-      disconnectV2VUser(channel, localUid);
-      RtcEngineUnsafe.setV2VActive(false);
-    };
-  }, [channel, localUid]);
 
   useEffect(() => {
     // setSourceLang('en');
     // setTargetLang('es');
-    setIsV2VActive(false);
+    // setIsV2VActive(false);
   }, []);
 
   useEffect(() => {
@@ -194,6 +190,23 @@ const SonixCaptionContainer = () => {
           const jsonString = new TextDecoder().decode(payload);
           const data = JSON.parse(jsonString);
           console.log('Bot ID', botID, '*v2v*-stream-decoded', data);
+
+          // check for error
+          if (data.type === 'ERROR' && data.payload) {
+            const error = data.payload.err;
+            logger.debug(
+              LogSource.NetworkRest,
+              'v2v',
+              `V2V error sent via RTC Stream for user ${defaultContent[localUid].name} - ${localUid}`,
+              {
+                error,
+              },
+            );
+            // Server error during active V2V session - disconnect bot and show error
+            setV2vAPIError('V2V service encountered an error, session stopped');
+            handleV2VDisconnect();
+            return;
+          }
 
           // Loader logic for NOTIFY events
           if (data.type === 'NOTIFY' && data.payload) {
@@ -244,7 +257,7 @@ const SonixCaptionContainer = () => {
           // Safely extract both source and target language texts
           const srcObj = textData[sourceLang] || {};
           const tgtObj = textData[targetLang] || {};
-          const srcText = srcObj.final_text || '';
+          const srcText = (srcObj.final_text || '').replace(/<end>/g, '\n');
           const srcNonFinal = srcObj.non_final_text || '';
           const tgtText = (tgtObj.final_text || '').replace(/<end>/g, '\n');
           const tgtNonFinal = tgtObj.non_final_text || '';
@@ -356,6 +369,7 @@ const SonixCaptionContainer = () => {
     RtcEngineUnsafe.addListener(eventName, sonixCaptionCallback);
 
     const createBot = async () => {
+      const requestId = getUniqueID();
       try {
         engine.selfSonioxBotID = ''; //Number('9' + localUid.toString().slice(1));
         let body: any = {
@@ -397,7 +411,17 @@ const SonixCaptionContainer = () => {
           body.source_lang = [sourceLang];
           body.target_lang = targetLang;
         }
-        const requestId = getUniqueID();
+
+        //Logs before making request
+        logger.debug(
+          LogSource.NetworkRest,
+          'v2v',
+          `Attempting to create V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
+          {
+            requestId,
+            body,
+          },
+        );
 
         const response = await fetch(`${V2V_URL}/create_bot`, {
           method: 'POST',
@@ -407,12 +431,55 @@ const SonixCaptionContainer = () => {
           },
           body: JSON.stringify(body),
         });
-        const data = await response.json();
-        console.log('Bot created:', data);
-        RtcEngineUnsafe.setV2VActive(true);
-        setIsV2VActive(true);
+
+        // Logs all status (4xx , 5xx)
+        if (!response.ok) {
+          logger.debug(
+            LogSource.NetworkRest,
+            'v2v',
+            `Failed to create V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
+            {
+              status: response.status,
+              statusText: response.statusText,
+              requestId,
+              userId: localUid,
+            },
+          );
+          // Show error toast and stop showing loader - no bot to disconnect
+          setV2vAPIError('Something went wrong, please contact Support');
+          setIsV2VON(false);
+          return;
+        }
+
+        if (response.status === 200) {
+          const data = await response.json();
+          RtcEngineUnsafe.setV2VActive(true);
+          setIsV2VActive(true);
+          // Logs successful result
+          logger.debug(
+            LogSource.NetworkRest,
+            'v2v',
+            `Successfully created V2V bot for user ${defaultContent[localUid].name} - ${localUid}`,
+            {
+              responseData: data,
+              requestId,
+            },
+          );
+        }
       } catch (error) {
-        console.error('Error creating bot:', error);
+        console.error('Error creating bot:', error.message);
+        logger.debug(
+          LogSource.NetworkRest,
+          'v2v',
+          `Error Creating V2V Bot for user ${defaultContent[localUid].name} - ${localUid} `,
+          {
+            error: error.message,
+            requestId,
+          },
+        );
+        // Show error toast and stop showing loader - no bot to disconnect
+        setV2vAPIError('Something went wrong, contact support');
+        setIsV2VON(false);
       }
     };
     createBot();

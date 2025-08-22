@@ -69,6 +69,7 @@ import {
   ParticipantToolbarItem,
   SettingsToolbarItem,
 } from './controls/toolbar-items';
+import V2VHealthToolbarItem from './v2v/V2VHealthToolbarItem';
 import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
 
 export const ParticipantsCountView = ({
@@ -459,6 +460,11 @@ const Navbar = (props: NavbarProps) => {
         align: 'start',
         component: RecordingStatusToolbarItem,
         order: 2,
+      },
+      'v2v-health': {
+        align: 'end',
+        component: V2VHealthToolbarItem,
+        order: 0,
       },
       participant: {
         align: 'end',
