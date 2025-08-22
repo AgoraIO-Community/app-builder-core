@@ -304,7 +304,7 @@ const requestId = getUniqueID();
 
 //disconnect V2V user from channel - returns true if successful, false if failed
 export const disconnectV2VUser = async (channel, userId): Promise<boolean> => {
-  logger.debug(
+  logger.log(
     LogSource.NetworkRest,
     'v2v',
     `Attempting to disconnect V2V Bot for user - ${userId}`,
@@ -327,7 +327,7 @@ export const disconnectV2VUser = async (channel, userId): Promise<boolean> => {
     });
 
     if (!response.ok) {
-      logger.debug(
+      logger.log(
         LogSource.NetworkRest,
         'v2v',
         `Error disconnecting V2V Bot for user - ${userId}`,
@@ -340,7 +340,7 @@ export const disconnectV2VUser = async (channel, userId): Promise<boolean> => {
     }
 
     // Log successful disconnect
-    logger.debug(
+    logger.log(
       LogSource.NetworkRest,
       'v2v',
       `Successfully disconnected V2V Bot for user- ${userId}`,
@@ -350,7 +350,7 @@ export const disconnectV2VUser = async (channel, userId): Promise<boolean> => {
     );
     return true;
   } catch (error) {
-    logger.debug(
+    logger.log(
       LogSource.NetworkRest,
       'v2v',
       `Failed disconnecting V2V Bot for user - ${userId}`,
