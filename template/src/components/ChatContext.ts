@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine from 'agora-react-native-rtm';
+import {type RTMClient} from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
 
@@ -89,7 +89,7 @@ export interface RtmContextInterface {
   isInitialQueueCompleted: boolean;
   hasUserJoinedRTM: boolean;
   rtmInitTimstamp: number;
-  engine: RtmEngine;
+  engine: RTMClient;
   localUid: UidType;
   onlineUsersCount: number;
 }

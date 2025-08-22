@@ -164,11 +164,8 @@ const BreakoutRoomProvider = ({
     {uid: UidType; timestamp: number}[]
   >([]);
 
-  // Fetch the data when the context loads for attendee. Dont wait till they open panel
+  // Fetch the data when the context loads. Dont wait till they open panel
   useEffect(() => {
-    if (!isHost) {
-      return;
-    }
     const loadData = async () => {
       try {
         await checkIfBreakoutRoomSessionExistsAPI();
@@ -177,7 +174,7 @@ const BreakoutRoomProvider = ({
       }
     };
     loadData();
-  }, [isHost]);
+  }, []);
 
   // Update unassigned participants whenever defaultContent or activeUids change
   useEffect(() => {

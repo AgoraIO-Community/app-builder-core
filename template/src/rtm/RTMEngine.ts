@@ -79,7 +79,12 @@ class RTMEngine {
   }
 
   removeChannel(channelID: string) {
-    this.channels.delete(channelID);
+    if (this.channels.has(channelID)) {
+      this.channels.delete(channelID);
+      if (channelID === this.primaryChannelId) {
+        this.primaryChannelId = '';
+      }
+    }
   }
 
   get localUid() {

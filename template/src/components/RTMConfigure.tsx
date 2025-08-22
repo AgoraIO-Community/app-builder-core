@@ -661,30 +661,23 @@ const RtmConfigure = (props: Props) => {
     }
   };
 
-  const unsubscribe = async (channelName: string) => {
-    if (client && channelName) {
-      try {
-        await client.unsubscribe(channelName);
-        RTMEngine.getInstance().removeChannel(channelName);
-        console.log('Unsubscribed from channel:', channelName);
-      } catch (error) {
-        console.error('Unsubscribe error:', error);
-      }
-    }
-  };
-
-  const cleanup = async () => {
+  const unsubscribeAndCleanup = async (channelName: string) => {
     if (!callActive || !isLoggedIn) {
       return;
     }
-    // Set the engine as null
-    logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
-    if (isIOS() || isAndroid()) {
-      EventUtils.clear();
+    try {
+      client.unsubscribe(channelName);
+      RTMEngine.getInstance().removeChannel(channelName);
+      logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
+      if (isIOS() || isAndroid()) {
+        EventUtils.clear();
+      }
+      setHasUserJoinedRTM(false);
+      setIsInitialQueueCompleted(false);
+      logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
+    } catch (unsubscribeError) {
+      console.log('supriya error while unsubscribing: ', unsubscribeError);
     }
-    setHasUserJoinedRTM(false);
-    setIsInitialQueueCompleted(false);
-    logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
   };
 
   // Register listeners when client is created
@@ -921,7 +914,7 @@ const RtmConfigure = (props: Props) => {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
     return async () => {
-      await cleanup();
+      await unsubscribeAndCleanup(channelName);
     };
   }, [isLoggedIn, callActive, channelName]);
 
