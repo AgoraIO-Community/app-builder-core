@@ -17,12 +17,7 @@ import React, {
   useReducer,
 } from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {
-  DispatchContext,
-  PropsContext,
-  ToggleState,
-  useLocalUid,
-} from '../../agora-rn-uikit';
+import {DispatchContext, PropsContext, ToggleState} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import Recording from '../subComponents/Recording';
@@ -39,7 +34,7 @@ import {
   MergeMoreButtonFields,
   CustomToolbarSort,
 } from '../utils/common';
-import {RoomInfoContextInterface, useRoomInfo} from './room-info/useRoomInfo';
+import {RoomInfoContextInterface} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import IconButton from '../atoms/IconButton';
@@ -120,7 +115,9 @@ import {
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
 import {useV2V} from '../subComponents/v2v/useVoice2Voice';
+import {useV2VDisconnect} from '../subComponents/v2v/useV2VDisconnect';
 import V2VStatsModal from '../subComponents/v2v/V2VStatsModal';
+import {useRoomInfo} from 'customization-api';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -326,6 +323,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const {isV2VON, setIsV2VON, isV2VStatsModalOpen, setIsV2VStatsModalOpen} =
     useV2V();
 
+  const {handleV2VDisconnect} = useV2VDisconnect();
+
   const local = useLocalUserInfo();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
 
@@ -333,7 +332,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     React.useState<boolean>(false);
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
-  const [isV2VActive, setIsV2VActive] = React.useState(false);
 
   const {start, restart} = useSTTAPI();
   const {
@@ -572,24 +570,28 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       textColor: $config.FONT_COLOR,
       disabled: false,
       title: v2vLabel(isV2VON),
-      onPress: () => {
+      onPress: async () => {
         setActionMenuVisible(false);
-        
-        // Check if microphone is muted before starting V2V
-        if (!isV2VON && local.audio === ToggleState.disabled) {
-          Toast.show({
-            leadingIconName: 'alert',
-            type: 'error',
-            text1: 'Microphone Required',
-            text2: 'Unmute the microphone before starting voice-to-voice translation',
-            visibilityTime: 3000,
-            primaryBtn: null,
-            secondaryBtn: null,
-          });
-          return;
+
+        if (isV2VON) {
+          await handleV2VDisconnect();
+        } else {
+          // Starting V2V - check mic first
+          if (local.audio === ToggleState.disabled) {
+            Toast.show({
+              leadingIconName: 'alert',
+              type: 'error',
+              text1: 'Microphone Required',
+              text2:
+                'Unmute the microphone before starting voice-to-voice translation',
+              visibilityTime: 3000,
+              primaryBtn: null,
+              secondaryBtn: null,
+            });
+            return;
+          }
+          setIsV2VON(true);
         }
-        
-        setIsV2VON(prev => !prev);
       },
     });
 
