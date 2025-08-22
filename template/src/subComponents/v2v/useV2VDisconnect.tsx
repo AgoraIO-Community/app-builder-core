@@ -17,7 +17,7 @@ export const useV2VDisconnect = () => {
   } = useRoomInfo();
 
   const handleV2VDisconnect = useCallback(async (): Promise<boolean> => {
-    if (!isV2VActive) return true;
+   
     
     try {
       const success = await disconnectV2VUser(channel, localUid);
