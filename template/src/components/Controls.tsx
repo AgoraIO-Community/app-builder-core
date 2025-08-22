@@ -114,9 +114,10 @@ import {
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
-import {useV2V, disconnectV2VUser} from '../subComponents/v2v/useVoice2Voice';
+import {useV2V} from '../subComponents/v2v/useVoice2Voice';
+import {useV2VDisconnect} from '../subComponents/v2v/useV2VDisconnect';
 import V2VStatsModal from '../subComponents/v2v/V2VStatsModal';
-import {useLocalUid, useRtc, useRoomInfo} from 'customization-api';
+import {useRoomInfo} from 'customization-api';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -290,33 +291,6 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const layoutLabel = useString(toolbarItemLayoutText)();
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const localUid = useLocalUid();
-  const {RtcEngineUnsafe} = useRtc();
-  const {
-    data: {channel},
-  } = useRoomInfo();
-
-  const handleV2VDisconnect = async (): Promise<boolean> => {
-    if (isV2VActive) {
-      const success = await disconnectV2VUser(channel, localUid);
-
-      if (success) {
-        // Only update state if disconnect was successful
-        setIsV2VActive(false);
-        //@ts-ignore
-        if (RtcEngineUnsafe.setV2VActive) {
-          //@ts-ignore
-          RtcEngineUnsafe.setV2VActive(false);
-        }
-        return true;
-      } else {
-        // Show error
-        setV2vAPIError('Unable to stop translation, please try again');
-        return false;
-      }
-    }
-    return true; // If not active, consider it successful
-  };
   const {setCustomContent} = useContent();
   const [_, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -346,15 +320,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     isSTTError,
   } = useCaption();
 
-  const {
-    isV2VON,
-    setIsV2VON,
-    isV2VStatsModalOpen,
-    setIsV2VStatsModalOpen,
-    isV2VActive,
-    setIsV2VActive,
-    setV2vAPIError,
-  } = useV2V();
+  const {isV2VON, setIsV2VON, isV2VStatsModalOpen, setIsV2VStatsModalOpen} =
+    useV2V();
+
+  const {handleV2VDisconnect} = useV2VDisconnect();
 
   const local = useLocalUserInfo();
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
@@ -605,12 +574,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         setActionMenuVisible(false);
 
         if (isV2VON) {
-          // Stopping V2V - disconnect bot first,
-          const disconnectSuccess = await handleV2VDisconnect();
-          if (disconnectSuccess) {
-            setIsV2VON(false);
-          }
-          // If disconnect failed, keep isV2VON true so user can retry
+          await handleV2VDisconnect();
         } else {
           // Starting V2V - check mic first
           if (local.audio === ToggleState.disabled) {

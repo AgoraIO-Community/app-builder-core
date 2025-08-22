@@ -18,6 +18,7 @@ import {
 } from 'customization-api';
 import PQueue from 'p-queue';
 import {useV2V} from './useVoice2Voice';
+import {useV2VDisconnect} from './useV2VDisconnect';
 import {V2V_URL} from './utils';
 import Loading from '../Loading';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -96,6 +97,8 @@ const SonixCaptionContainer = () => {
     setSelectedSTTModel,
     setV2vAPIError,
   } = useV2V();
+
+  const {handleV2VDisconnect} = useV2VDisconnect();
 
   // Handler to update providerConfigs and context
   const handleProviderConfigChange = (provider, field, value) => {
@@ -187,6 +190,23 @@ const SonixCaptionContainer = () => {
           const jsonString = new TextDecoder().decode(payload);
           const data = JSON.parse(jsonString);
           console.log('Bot ID', botID, '*v2v*-stream-decoded', data);
+
+          // check for error
+          if (data.type === 'ERROR' && data.payload) {
+            const error = data.payload.err;
+            logger.debug(
+              LogSource.NetworkRest,
+              'v2v',
+              `V2V error sent via RTC Stream for user ${defaultContent[localUid].name} - ${localUid}`,
+              {
+                error,
+              },
+            );
+            // Server error during active V2V session - disconnect bot and show error
+            setV2vAPIError('V2V service encountered an error, session stopped');
+            handleV2VDisconnect();
+            return;
+          }
 
           // Loader logic for NOTIFY events
           if (data.type === 'NOTIFY' && data.payload) {
@@ -425,7 +445,7 @@ const SonixCaptionContainer = () => {
               userId: localUid,
             },
           );
-          // Show error toast and stop showing loader
+          // Show error toast and stop showing loader - no bot to disconnect
           setV2vAPIError('Something went wrong, please contact Support');
           setIsV2VON(false);
           return;
@@ -457,7 +477,7 @@ const SonixCaptionContainer = () => {
             requestId,
           },
         );
-        // Show error toast and stop showing loader
+        // Show error toast and stop showing loader - no bot to disconnect
         setV2vAPIError('Something went wrong, contact support');
         setIsV2VON(false);
       }
