@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useRef} from 'react';
 import {useV2V, disconnectV2VUser} from './useVoice2Voice';
 import {useLocalUid, useRtc, useRoomInfo} from 'customization-api';
 
@@ -10,6 +10,8 @@ export const useV2VDisconnect = () => {
     setV2vAPIError,
   } = useV2V();
   
+  const isDisconnecting = useRef(false);
+  
   const localUid = useLocalUid();
   const {RtcEngineUnsafe} = useRtc();
   const {
@@ -17,7 +19,12 @@ export const useV2VDisconnect = () => {
   } = useRoomInfo();
 
   const handleV2VDisconnect = useCallback(async (): Promise<boolean> => {
-   
+    // Prevent multiple simultaneous disconnect calls
+    if (isDisconnecting.current) {
+      return true; // Return success if already disconnecting
+    }
+    
+    isDisconnecting.current = true;
     
     try {
       const success = await disconnectV2VUser(channel, localUid);
@@ -40,6 +47,8 @@ export const useV2VDisconnect = () => {
     } catch (error) {
       setV2vAPIError('Unable to stop translation, please try again');
       return false;
+    } finally {
+      isDisconnecting.current = false;
     }
   }, [
     isV2VActive,
