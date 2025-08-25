@@ -81,6 +81,7 @@ interface BreakoutRoomContextValue {
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
   updateRoomName: (newRoomName: string, roomId: string) => void;
+  getAllRooms: () => BreakoutGroup[];
   getRoomMemberDropdownOptions: (memberUid: UidType) => MemberDropdownOption[];
   upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => Promise<void>;
   closeBreakoutRoomAPI: () => void;
@@ -115,6 +116,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   closeRoom: () => {},
   closeAllRooms: () => {},
   updateRoomName: () => {},
+  getAllRooms: () => [],
   getRoomMemberDropdownOptions: () => [],
   sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: async () => {},
@@ -559,6 +561,10 @@ const BreakoutRoomProvider = ({
     });
   };
 
+  const getAllRooms = () => {
+    return state.breakoutGroups.length > 0 ? state.breakoutGroups : [];
+  };
+
   const getRoomMemberDropdownOptions = (memberUid: UidType) => {
     const options: MemberDropdownOption[] = [];
     // Find which room the user is currently in
@@ -935,6 +941,7 @@ const BreakoutRoomProvider = ({
         closeAllRooms,
         sendAnnouncement,
         updateRoomName,
+        getAllRooms,
         getRoomMemberDropdownOptions,
         onMakeMePresenter,
         presenters,
