@@ -92,7 +92,11 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   );
 
   // Login function
-  const loginToRTM = async (rtmClient: RTMClient, loginToken: string) => {
+  const loginToRTM = async (
+    rtmClient: RTMClient,
+    loginToken: string,
+    retryCount = 0,
+  ) => {
     try {
       try {
         // 1. Handle ghost sessions, so do logout to leave any ghost sessions
@@ -107,9 +111,17 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         console.log('logoutError: ', logoutError);
       }
     } catch (loginError) {
-      const contextError = new Error(`RTM login failed: ${loginError.message}`);
-      setError(contextError);
-      throw contextError;
+      if (retryCount < 5) {
+        // Retry with exponential backoff (capped at 30s)
+        const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return loginToRTM(rtmClient, loginToken, retryCount + 1);
+      } else {
+        const contextError = new Error(
+          `RTM login failed after retries: ${error.message}`,
+        );
+        setError(contextError);
+      }
     }
   };
 
@@ -246,8 +258,22 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       setClient(rtmClient); // Set client after successful setup
 
       // 3. Global linkState listener
-      const onLink = (evt: LinkStateEvent) =>
+      const onLink = async (evt: LinkStateEvent) => {
         setConnectionState(evt.currentState);
+        if (evt.currentState === 0 /* DISCONNECTED */) {
+          setIsLoggedIn(false);
+          console.warn('RTM disconnected. Attempting re-login...');
+          if (stableUserInfo.rtmToken) {
+            try {
+              await loginToRTM(rtmClient, stableUserInfo.rtmToken);
+              await setAttribute(rtmClient, stableUserInfo);
+              console.log('RTM re-login successful.');
+            } catch (err) {
+              console.error('RTM re-login failed:', err);
+            }
+          }
+        }
+      };
       rtmClient.addEventListener('linkState', onLink);
 
       try {
