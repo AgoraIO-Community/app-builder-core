@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useEffect, SetStateAction} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
@@ -53,11 +53,13 @@ import {
   VideoCallContentProps,
 } from './VideoCallContent';
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
-import {useHistory, useParams} from '../../components/Router';
+import {useRTMCore} from '../../rtm/RTMCoreProvider';
+import RTMEngine from '../../rtm/RTMEngine';
 
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
   breakoutChannelDetails: BreakoutChannelDetails;
+  setIsInBreakoutMode: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
@@ -67,6 +69,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   setCallActive,
   callbacks,
   styleProps,
+  setIsInBreakoutMode,
 }) => {
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
@@ -81,16 +84,45 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
   console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
-  const history = useHistory();
-  const {phrase} = useParams<{phrase: string}>();
+
+  const {client, isLoggedIn} = useRTMCore();
 
   const endCallModifiedCallbacks = {
     ...callbacks,
     EndCall: () => {
       console.log('supriya-ending here i am ');
-      history.replace(`/${phrase}`);
+      setIsInBreakoutMode(false);
     },
   };
+
+  useEffect(() => {
+    // Cleanup on unmount
+    if (client && isLoggedIn && rtcProps.channel) {
+      console.log(
+        `Breakout room unmounting, subsribing to: ${rtcProps.channel}`,
+      );
+      try {
+        client.subscribe(rtcProps.channel);
+        RTMEngine.getInstance().addChannel(rtcProps.channel, false);
+      } catch (error) {
+        console.error('Failed to unsubscribe on unmount:', error);
+      }
+    }
+    return () => {
+      if (rtcProps.channel) {
+        console.log(
+          `Breakout room unmounting, unsubscribing from: ${rtcProps.channel}`,
+        );
+        try {
+          client.unsubscribe(rtcProps.channel);
+          RTMEngine.getInstance().removeChannel(rtcProps.channel);
+        } catch (error) {
+          console.error('Failed to unsubscribe on unmount:', error);
+        }
+      }
+    };
+  }, [client, isLoggedIn, rtcProps.channel]);
+
   return (
     <PropsProvider
       value={{
