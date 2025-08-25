@@ -30,7 +30,6 @@ const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
   selectedStrategy,
   onStrategyChange,
   disabled = false,
-  assignParticipants,
 }) => {
   return (
     <>
@@ -43,21 +42,6 @@ const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
         onSelect={async ({label, value}) => {
           onStrategyChange(value as RoomAssignmentStrategy);
         }}
-      />
-      <TertiaryButton
-        disabled={disabled}
-        containerStyle={{
-          backgroundColor: disabled
-            ? $config.SEMANTIC_NEUTRAL
-            : $config.PRIMARY_ACTION_BRAND_COLOR,
-          borderColor: disabled
-            ? $config.SEMANTIC_NEUTRAL
-            : $config.PRIMARY_ACTION_BRAND_COLOR,
-        }}
-        onPress={() => {
-          assignParticipants();
-        }}
-        text={'Assign participants'}
       />
     </>
   );

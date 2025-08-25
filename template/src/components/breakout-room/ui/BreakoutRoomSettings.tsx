@@ -9,6 +9,7 @@ import Toggle from '../../../atoms/Toggle';
 import ParticipantManualAssignmentModal from './ParticipantManualAssignmentModal';
 import {useModal} from '../../../utils/useModal';
 import {RoomAssignmentStrategy} from '../state/reducer';
+import {TertiaryButton} from 'index.rsdk';
 
 export default function BreakoutRoomSettings() {
   const {
@@ -35,6 +36,15 @@ export default function BreakoutRoomSettings() {
     }
   }, [assignmentStrategy, setManualAssignmentModalOpen]);
 
+  const handleAssignParticipants = () => {
+    if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+    } else if (assignmentStrategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
+      // Direct auto assignment (no modal needed)
+      assignParticipants();
+    }
+    // NO_ASSIGN strategy - button might be disabled
+  };
+
   return (
     <View style={style.card}>
       {/* Avatar list  */}
@@ -48,6 +58,21 @@ export default function BreakoutRoomSettings() {
           onStrategyChange={setStrategy}
           assignParticipants={assignParticipants}
           disabled={disableAssignment}
+        />
+        <TertiaryButton
+          disabled={disableAssignment}
+          containerStyle={{
+            backgroundColor: disableAssignment
+              ? $config.SEMANTIC_NEUTRAL
+              : $config.PRIMARY_ACTION_BRAND_COLOR,
+            borderColor: disableAssignment
+              ? $config.SEMANTIC_NEUTRAL
+              : $config.PRIMARY_ACTION_BRAND_COLOR,
+          }}
+          onPress={() => {
+            handleAssignParticipants();
+          }}
+          text={'Assign participants'}
         />
       </View>
       <Divider />

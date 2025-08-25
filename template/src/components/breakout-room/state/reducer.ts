@@ -6,6 +6,12 @@ export enum RoomAssignmentStrategy {
   MANUAL_ASSIGN = 'manual-assign',
   NO_ASSIGN = 'no-assign',
 }
+export interface ManualParticipantAssignment {
+  uid: UidType;
+  roomId: string | null; // null means stay in main room
+  isHost: boolean;
+  isSelected: boolean;
+}
 
 export interface BreakoutGroup {
   id: string;
@@ -19,6 +25,7 @@ export interface BreakoutRoomState {
   breakoutSessionId: string;
   breakoutGroups: BreakoutGroup[];
   unassignedParticipants: {uid: UidType; user: ContentInterface}[];
+  manualAssignments: ManualParticipantAssignment[];
   assignmentStrategy: RoomAssignmentStrategy;
   canUserSwitchRoom: boolean;
 }
@@ -41,6 +48,7 @@ export const initialBreakoutRoomState: BreakoutRoomState = {
   assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
   canUserSwitchRoom: false,
   unassignedParticipants: [],
+  manualAssignments: [],
   breakoutGroups: [],
 };
 
@@ -51,6 +59,10 @@ export const BreakoutGroupActionTypes = {
   SET_SESSION_ID: 'BREAKOUT_ROOM/SET_SESSION_ID',
   // strategy
   SET_ASSIGNMENT_STRATEGY: 'BREAKOUT_ROOM/SET_ASSIGNMENT_STRATEGY',
+  // Manual assignment strategy
+  SET_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/SET_MANUAL_ASSIGNMENTS',
+  CLEAR_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/CLEAR_MANUAL_ASSIGNMENTS',
+  APPLY_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/APPLY_MANUAL_ASSIGNMENTS',
   // switch room
   SET_ALLOW_PEOPLE_TO_SWITCH_ROOM:
     'BREAKOUT_ROOM/SET_ALLOW_PEOPLE_TO_SWITCH_ROOM',
@@ -88,6 +100,18 @@ export type BreakoutRoomAction =
       payload: {
         strategy: RoomAssignmentStrategy;
       };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.SET_MANUAL_ASSIGNMENTS;
+      payload: {
+        assignments: ManualParticipantAssignment[];
+      };
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS;
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.APPLY_MANUAL_ASSIGNMENTS;
     }
   | {
       type: typeof BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM;
@@ -213,6 +237,48 @@ export const breakoutRoomReducer = (
         assignmentStrategy: action.payload.strategy,
       };
     }
+
+    case BreakoutGroupActionTypes.SET_MANUAL_ASSIGNMENTS:
+      return {
+        ...state,
+        manualAssignments: action.payload.assignments,
+      };
+
+    case BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS:
+      return {
+        ...state,
+        manualAssignments: [],
+      };
+
+    case BreakoutGroupActionTypes.APPLY_MANUAL_ASSIGNMENTS:
+      // Only applies when strategy is MANUAL
+      const updatedGroups = state.breakoutGroups.map(group => {
+        const roomAssignments = state.manualAssignments.filter(
+          assignment => assignment.roomId === group.id,
+        );
+
+        const hostsToAdd = roomAssignments
+          .filter(assignment => assignment.isHost)
+          .map(assignment => assignment.uid);
+
+        const attendeesToAdd = roomAssignments
+          .filter(assignment => !assignment.isHost)
+          .map(assignment => assignment.uid);
+
+        return {
+          ...group,
+          participants: {
+            hosts: [...group.participants.hosts, ...hostsToAdd],
+            attendees: [...group.participants.attendees, ...attendeesToAdd],
+          },
+        };
+      });
+
+      return {
+        ...state,
+        breakoutGroups: updatedGroups,
+        manualAssignments: [], // Clear after applying
+      };
 
     case BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM: {
       return {

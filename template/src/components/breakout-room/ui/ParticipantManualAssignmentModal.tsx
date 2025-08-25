@@ -10,6 +10,7 @@ import Dropdown from '../../../atoms/Dropdown';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import TertiaryButton from '../../../atoms/TertiaryButton';
+import {ManualParticipantAssignment} from '../state/reducer';
 
 function EmptyParticipantsState() {
   return (
@@ -88,26 +89,41 @@ export default function ParticipantManualAssignmentModal(
   props: ParticipantManualAssignmentModalProps,
 ) {
   const {setModalOpen} = props;
-  const {getAllRooms, unsassignedParticipants} = useBreakoutRoom();
+  const {
+    getAllRooms,
+    unsassignedParticipants,
+    manualAssignments,
+    setManualAssignments,
+    applyManualAssignments,
+  } = useBreakoutRoom();
 
   // Local state for assignments
-  const [assignments, setAssignments] = useState<ParticipantAssignment[]>(() =>
-    unsassignedParticipants.map(participant => ({
+  const [localAssignments, setLocalAssignments] = useState<
+    ManualParticipantAssignment[]
+  >(() => {
+    if (manualAssignments.length > 0) {
+      // Restore previous manual assignments
+      return manualAssignments;
+    }
+
+    // Create new manual assignments for unassigned participants
+    return unsassignedParticipants.map(participant => ({
       uid: participant.uid,
       roomId: null, // Start unassigned
+      isHost: participant.user.isHost || false,
       isSelected: false,
-    })),
-  );
-  console.log('supriya assignments', assignments);
+    }));
+  });
+
   // Rooms dropdown options
   const rooms = [
     {label: 'Unassigned', value: 'unassigned'},
     ...getAllRooms().map(item => ({label: item.name, value: item.id})),
   ];
 
-  // Update assignment for specific participant
-  const updateAssignment = (uid: UidType, roomId: string | null) => {
-    setAssignments(prev =>
+  // Update room assignment for specific participant
+  const updateManualAssignment = (uid: UidType, roomId: string | null) => {
+    setLocalAssignments(prev =>
       prev.map(assignment =>
         assignment.uid === uid
           ? {...assignment, roomId: roomId === 'unassigned' ? null : roomId}
@@ -117,8 +133,8 @@ export default function ParticipantManualAssignmentModal(
   };
 
   // Toggle selection for specific participant
-  const toggleSelection = (uid: UidType) => {
-    setAssignments(prev =>
+  const toggleParticipantSelection = (uid: UidType) => {
+    setLocalAssignments(prev =>
       prev.map(assignment =>
         assignment.uid === uid
           ? {...assignment, isSelected: !assignment.isSelected}
@@ -129,8 +145,8 @@ export default function ParticipantManualAssignmentModal(
 
   // Select/deselect all
   const toggleSelectAll = () => {
-    const allSelected = assignments.every(a => a.isSelected);
-    setAssignments(prev =>
+    const allSelected = localAssignments.every(a => a.isSelected);
+    setLocalAssignments(prev =>
       prev.map(assignment => ({
         ...assignment,
         isSelected: !allSelected,
@@ -138,22 +154,28 @@ export default function ParticipantManualAssignmentModal(
     );
   };
 
-  // Save assignments
-  const handleSave = () => {
-    // assignments.forEach(assignment => {
-    //   const participant = unsassignedParticipants.find(
-    //     p => p.uid === assignment.uid,
-    //   );
-    //   // If roomId is null, user stays in main room (no action needed)
-    // });
-    console.log('supriya-assignment', assignments);
-    // setModalOpen(false);
+  // Bulk assign selected participants to a room
+  const bulkAssignSelected = (roomId: string | null) => {
+    setLocalAssignments(prev =>
+      prev.map(assignment =>
+        assignment.isSelected
+          ? {...assignment, roomId: roomId === 'unassigned' ? null : roomId}
+          : assignment,
+      ),
+    );
   };
 
   const handleCancel = () => {
     setModalOpen(false);
-    // State is automatically discarded when component unmounts
   };
+  const handleSaveManualAssignments = () => {
+    // Save to reducer
+
+    setManualAssignments(localAssignments);
+    setModalOpen(false);
+  };
+
+  const selectedCount = localAssignments.filter(a => a.isSelected).length;
 
   return (
     <GenericModal
@@ -179,8 +201,8 @@ export default function ParticipantManualAssignmentModal(
               />
             </View>
             <Text style={style.title}>
-              {assignments.length}({assignments.filter(a => !a.roomId).length}{' '}
-              Unassigned)
+              {localAssignments.length}(
+              {localAssignments.filter(a => !a.roomId).length} Unassigned)
             </Text>
           </View>
           <View style={style.participantTable}>
@@ -198,16 +220,16 @@ export default function ParticipantManualAssignmentModal(
                 backgroundColor: $config.BACKGROUND_COLOR,
               }}
               renderRow={participant => {
-                const assignment = assignments.find(
+                const assignment = localAssignments.find(
                   a => a.uid === participant.uid,
                 );
                 return (
                   <ParticipantRow
                     key={participant.uid}
                     participant={participant}
-                    assignment={assignment}
+                    assignment={localAssignments}
                     rooms={rooms}
-                    onAssignmentChange={updateAssignment}
+                    onAssignmentChange={updateManualAssignment}
                     onSelectionChange={toggleSelection}
                   />
                 );
@@ -233,7 +255,7 @@ export default function ParticipantManualAssignmentModal(
               textStyle={style.actionBtnText}
               text={'Save'}
               onPress={() => {
-                handleSave();
+                handleSaveManualAssignments();
               }}
             />
           </View>
