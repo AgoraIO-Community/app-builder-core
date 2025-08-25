@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import BreakoutRoomParticipants from './BreakoutRoomParticipants';
 import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
@@ -6,6 +6,9 @@ import Divider from '../../common/Dividers';
 import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import Toggle from '../../../atoms/Toggle';
+import ParticipantManualAssignmentModal from './ParticipantManualAssignmentModal';
+import {useModal} from '../../../utils/useModal';
+import {RoomAssignmentStrategy} from '../state/reducer';
 
 export default function BreakoutRoomSettings() {
   const {
@@ -18,6 +21,19 @@ export default function BreakoutRoomSettings() {
   } = useBreakoutRoom();
 
   const disableAssignment = unsassignedParticipants.length === 0;
+
+  const {
+    modalOpen: isManualAssignmentModalOpen,
+    setModalOpen: setManualAssignmentModalOpen,
+  } = useModal();
+
+  useEffect(() => {
+    if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+      setManualAssignmentModalOpen(true);
+    } else {
+      setManualAssignmentModalOpen(false);
+    }
+  }, [assignmentStrategy, setManualAssignmentModalOpen]);
 
   return (
     <View style={style.card}>
@@ -46,6 +62,11 @@ export default function BreakoutRoomSettings() {
           />
         </View>
       </View>
+      {isManualAssignmentModalOpen && (
+        <ParticipantManualAssignmentModal
+          setModalOpen={setManualAssignmentModalOpen}
+        />
+      )}
     </View>
   );
 }

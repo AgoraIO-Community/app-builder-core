@@ -5,7 +5,6 @@ import {TableBody, TableHeader} from '../../common/data-table';
 import Loading from '../../../subComponents/Loading';
 import ThemeConfig from '../../../theme';
 import ImageIcon from '../../../atoms/ImageIcon';
-import {style as tableStyles} from '../../common/data-table';
 import Checkbox from '../../../atoms/Checkbox';
 import Dropdown from '../../../atoms/Dropdown';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
@@ -14,7 +13,7 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 
 function EmptyParticipantsState() {
   return (
-    <View style={tableStyles.infotextContainer}>
+    <View style={style.infotextContainer}>
       <View>
         <ImageIcon
           iconType="plain"
@@ -24,7 +23,7 @@ function EmptyParticipantsState() {
         />
       </View>
       <View>
-        <Text style={[tableStyles.infoText]}>
+        <Text style={[style.infoText]}>
           No text-tracks found for this meeting
         </Text>
       </View>
@@ -48,8 +47,8 @@ function ParticipantRow({
   const selectedValue = assignment?.roomId || 'unassigned';
 
   return (
-    <View style={tableStyles.tbrow} key={participant.uid}>
-      <View style={[tableStyles.td, tableStyles.plzero]}>
+    <View style={style.tbrow} key={participant.uid}>
+      <View style={[style.td]}>
         <Checkbox
           disabled={false}
           checked={assignment?.isSelected || false}
@@ -57,22 +56,19 @@ function ParticipantRow({
           label={participant.user.name}
         />
       </View>
-      <View style={[tableStyles.tactions]}>
-        <View>
-          <Dropdown
-            enabled={true}
-            label={selectedValue}
-            data={rooms}
-            onSelect={({label, value}) => {
-              console.log('lable value');
-              onAssignmentChange(
-                participant.uid,
-                value === 'unassigned' ? null : value,
-              );
-            }}
-            selectedValue={selectedValue}
-          />
-        </View>
+      <View style={[style.td]}>
+        <Dropdown
+          enabled={true}
+          label={selectedValue}
+          data={rooms}
+          onSelect={({_, value}) => {
+            onAssignmentChange(
+              participant.uid,
+              value === 'unassigned' ? null : value,
+            );
+          }}
+          selectedValue={selectedValue}
+        />
       </View>
     </View>
   );
@@ -102,7 +98,7 @@ export default function ParticipantManualAssignmentModal(
       isSelected: false,
     })),
   );
-
+  console.log('supriya assignments', assignments);
   // Rooms dropdown options
   const rooms = [
     {label: 'Unassigned', value: 'unassigned'},
@@ -150,6 +146,7 @@ export default function ParticipantManualAssignmentModal(
     //   );
     //   // If roomId is null, user stays in main room (no action needed)
     // });
+    console.log('supriya-assignment', assignments);
     // setModalOpen(false);
   };
 
@@ -168,43 +165,56 @@ export default function ParticipantManualAssignmentModal(
       contentContainerStyle={style.contentContainer}>
       <View style={style.fullBody}>
         <View style={style.mbody}>
-          <View>
-            <Text>
-              {assignments.length} ({assignments.filter(a => !a.roomId).length}{' '}
+          <View
+            style={[
+              style.titleContainer,
+              unsassignedParticipants?.length > 0 ? {} : style.titleLowOpacity,
+            ]}>
+            <View>
+              <ImageIcon
+                iconType="plain"
+                name="people"
+                tintColor={$config.FONT_COLOR}
+                iconSize={20}
+              />
+            </View>
+            <Text style={style.title}>
+              {assignments.length}({assignments.filter(a => !a.roomId).length}{' '}
               Unassigned)
             </Text>
           </View>
-          <TableHeader
-            columns={['', 'Name', 'Room']}
-            //   onHeaderPress={index => {
-            //     if (index === 0) {
-            //       toggleSelectAll();
-            //     }
-            //   }}
-          />
-          <TableBody
-            status="pending"
-            items={unsassignedParticipants}
-            loadingComponent={
-              <Loading background="transparent" text="Fetching participants" />
-            }
-            renderRow={participant => {
-              const assignment = assignments.find(
-                a => a.uid === participant.uid,
-              );
-              return (
-                <ParticipantRow
-                  key={participant.uid}
-                  participant={participant}
-                  assignment={assignment}
-                  rooms={rooms}
-                  onAssignmentChange={updateAssignment}
-                  onSelectionChange={toggleSelection}
+          <View style={style.participantTable}>
+            <TableHeader columns={['Name', 'Room']} />
+            <TableBody
+              status="resolved"
+              items={unsassignedParticipants}
+              loadingComponent={
+                <Loading
+                  background="transparent"
+                  text="Fetching participants"
                 />
-              );
-            }}
-            emptyComponent={<EmptyParticipantsState />}
-          />
+              }
+              bodyStyle={{
+                backgroundColor: $config.BACKGROUND_COLOR,
+              }}
+              renderRow={participant => {
+                const assignment = assignments.find(
+                  a => a.uid === participant.uid,
+                );
+                return (
+                  <ParticipantRow
+                    key={participant.uid}
+                    participant={participant}
+                    assignment={assignment}
+                    rooms={rooms}
+                    onAssignmentChange={updateAssignment}
+                    onSelectionChange={toggleSelection}
+                  />
+                );
+              }}
+              emptyComponent={<EmptyParticipantsState />}
+            />
+          </View>
         </View>
         <View style={style.mfooter}>
           <View>
@@ -221,7 +231,7 @@ export default function ParticipantManualAssignmentModal(
             <TertiaryButton
               containerStyle={style.saveBtn}
               textStyle={style.actionBtnText}
-              text={'Send'}
+              text={'Save'}
               onPress={() => {
                 handleSave();
               }}
@@ -247,6 +257,7 @@ const style = StyleSheet.create({
     flex: 1,
   },
   mbody: {
+    flex: 1,
     padding: 12,
     borderTopColor: $config.CARD_LAYER_3_COLOR,
     borderTopWidth: 1,
@@ -260,6 +271,24 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
+    marginTop: 'auto',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
+  titleLowOpacity: {
+    opacity: 0.2,
+  },
+  titleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  title: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 16,
+    fontWeight: '500',
   },
   infotextContainer: {
     display: 'flex',
@@ -272,6 +301,23 @@ const style = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
+  participantTable: {
+    flex: 1,
+    backgroundColor: $config.BACKGROUND_COLOR,
+  },
+  tbrow: {
+    display: 'flex',
+    alignSelf: 'stretch',
+    minHeight: 48,
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  td: {
+    flex: 1,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    gap: 10,
   },
   actionBtnText: {
     color: $config.SECONDARY_ACTION_COLOR,

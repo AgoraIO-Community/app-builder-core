@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 4,
     alignItems: 'center',
-    opacity: 0.2,
   },
   title: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
