@@ -22,7 +22,7 @@ export function useSubscribeChannel(
           withMetadata: true,
           withLock: false,
         });
-        RTMEngine.getInstance().addSecondaryChannel(channelId);
+        RTMEngine.getInstance().addChannel(channelId);
       } catch (err) {
         console.warn(`Failed to subscribe to secondary ${channelId}`, err);
       }
@@ -31,7 +31,7 @@ export function useSubscribeChannel(
     return () => {
       if (!cancelled) {
         client.unsubscribe(channelId).catch(() => {});
-        RTMEngine.getInstance().removeSecondaryChannel(channelId);
+        RTMEngine.getInstance().removeChannel(channelId);
       }
       cancelled = true;
     };

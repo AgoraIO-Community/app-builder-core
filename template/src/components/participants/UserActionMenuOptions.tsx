@@ -155,7 +155,8 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {getRoomMemberDropdownOptions} = useBreakoutRoom();
+  const {getRoomMemberDropdownOptions, presenters: breakoutRoomPresenters} =
+    useBreakoutRoom();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -759,6 +760,7 @@ export default function UserActionMenuOptionsOptions(
     currentLayout,
     spotlightUid,
     from,
+    breakoutRoomPresenters,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

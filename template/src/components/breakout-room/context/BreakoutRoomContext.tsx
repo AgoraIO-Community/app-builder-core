@@ -30,6 +30,7 @@ import {BreakoutRoomEventNames} from '../events/constants';
 import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {IconsInterface} from '../../../atoms/CustomIcon';
 import useEndCall from '../../../utils/useEndCall';
+import Toast from '../../../../react-native-toast-message';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -492,14 +493,14 @@ const BreakoutRoomProvider = ({
     [localUid, state.breakoutGroups],
   );
 
-  // New function to get current room ID
-  const getCurrentRoomId = useCallback((): string | null => {
+  // Function to get current room
+  const getCurrentRoom = useCallback((): BreakoutGroup => {
     const userRoom = state.breakoutGroups.find(
       group =>
         group.participants.hosts.includes(localUid) ||
         group.participants.attendees.includes(localUid),
     );
-    return userRoom ? userRoom.id : null;
+    return userRoom ? userRoom : null;
   }, [localUid, state.breakoutGroups]);
 
   const joinRoom = (toRoomId: string) => {
@@ -509,15 +510,17 @@ const BreakoutRoomProvider = ({
   };
 
   const exitRoom = (fromRoomId?: string) => {
-    const currentRoomId = fromRoomId ? fromRoomId : getCurrentRoomId();
-    const localUser = defaultContent[localUid];
-    dispatch({
-      type: BreakoutGroupActionTypes.EXIT_GROUP,
-      payload: {
-        user: localUser,
-        fromGroupId: currentRoomId,
-      },
-    });
+    const currentRoomId = fromRoomId ? fromRoomId : getCurrentRoom()?.id;
+    if (currentRoomId) {
+      const localUser = defaultContent[localUid];
+      dispatch({
+        type: BreakoutGroupActionTypes.EXIT_GROUP,
+        payload: {
+          user: localUser,
+          fromGroupId: currentRoomId,
+        },
+      });
+    }
   };
 
   const closeRoom = (roomIdToClose: string) => {
@@ -723,6 +726,14 @@ const BreakoutRoomProvider = ({
 
   const handleBreakoutRoomSyncState = useCallback(
     (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
+      const {switch_room, breakout_room} = data;
+
+      // Store previous state to compare changes
+      const prevGroups = state.breakoutGroups;
+      const prevSwitchRoom = state.canUserSwitchRoom;
+      const userCurrentRoom = getCurrentRoom();
+      const userCurrentRoomId = userCurrentRoom.id;
+
       dispatch({
         type: BreakoutGroupActionTypes.SYNC_STATE,
         payload: {
@@ -731,8 +742,129 @@ const BreakoutRoomProvider = ({
           rooms: data.breakout_room,
         },
       });
+
+      // Show notifications based on changes
+      // 1. Switch room enabled notification
+      if (switch_room && !prevSwitchRoom) {
+        Toast.show({
+          leadingIconName: 'info',
+          type: 'info',
+          text1: 'Breakout rooms are now open. Please choose a room to join.',
+          visibilityTime: 4000,
+        });
+        return; // Don't show other notifications when rooms first open
+      }
+
+      // 2. User joined a room (compare previous and current state)
+      if (userCurrentRoomId) {
+        const wasInRoom = prevGroups.some(
+          group =>
+            group.participants.hosts.includes(localUid) ||
+            group.participants.attendees.includes(localUid),
+        );
+
+        if (!wasInRoom) {
+          const currentRoom = breakout_room.find(
+            room => room.id === userCurrentRoomId,
+          );
+          Toast.show({
+            type: 'success',
+            text1: `You've joined ${currentRoom?.name || 'a breakout room'}.`,
+            visibilityTime: 3000,
+          });
+          return;
+        }
+      }
+
+      // 3. User was moved to a different room by host
+      if (userCurrentRoom) {
+        const prevUserRoom = prevGroups.find(
+          group =>
+            group.participants.hosts.includes(localUid) ||
+            group.participants.attendees.includes(localUid),
+        );
+
+        if (prevUserRoom && prevUserRoom.id !== userCurrentRoomId) {
+          Toast.show({
+            type: 'info',
+            text1: `You've been moved to ${userCurrentRoom.name} by the host.`,
+            visibilityTime: 4000,
+          });
+          return;
+        }
+      }
+
+      // 4. User was moved to main room
+      if (!userCurrentRoom) {
+        const wasInRoom = prevGroups.some(
+          group =>
+            group.participants.hosts.includes(localUid) ||
+            group.participants.attendees.includes(localUid),
+        );
+
+        if (wasInRoom) {
+          Toast.show({
+            leadingIconName: 'arrow-up',
+            type: 'info',
+            text1: "You've returned to the main room.",
+            visibilityTime: 3000,
+          });
+          return;
+        }
+      }
+
+      // 5. All breakout rooms closed
+      if (breakout_room.length === 0 && prevGroups.length > 0) {
+        Toast.show({
+          leadingIconName: 'close',
+          type: 'warning',
+          text1: 'Breakout rooms are now closed. Returning to the main room...',
+          visibilityTime: 4000,
+        });
+        return;
+      }
+
+      // 6. Specific room was closed (user was in it)
+      if (userCurrentRoomId) {
+        const roomStillExists = breakout_room.some(
+          room => room.id === userCurrentRoomId,
+        );
+        if (!roomStillExists) {
+          const closedRoom = prevGroups.find(
+            room => room.id === userCurrentRoomId,
+          );
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: `${
+              closedRoom?.name || 'Your room'
+            } is currently closed. Returning to main room. Please 
+  contact the host.`,
+            visibilityTime: 5000,
+          });
+          return;
+        }
+      }
+
+      // 7. Room name changed
+      prevGroups.forEach(prevRoom => {
+        const currentRoom = breakout_room.find(room => room.id === prevRoom.id);
+        if (currentRoom && currentRoom.name !== prevRoom.name) {
+          Toast.show({
+            type: 'info',
+            text1: `${prevRoom.name} has been renamed to '${currentRoom.name}'.`,
+            visibilityTime: 3000,
+          });
+        }
+      });
     },
-    [dispatch],
+    [
+      dispatch,
+      getCurrentRoom,
+      localUid,
+      state.breakoutGroups,
+      state.canUserSwitchRoom,
+    ],
   );
 
   // Action-based API triggering
@@ -740,6 +872,7 @@ const BreakoutRoomProvider = ({
     if (!lastAction || !lastAction.type) {
       return;
     }
+    console.log('supriya-exit 1 lastAction: ', lastAction.type);
 
     // Actions that should trigger API calls
     const API_TRIGGERING_ACTIONS = [
@@ -760,7 +893,6 @@ const BreakoutRoomProvider = ({
     if (shouldCallAPI) {
       upsertBreakoutRoomAPI('UPDATE').finally(() => {
         if (lastAction.type === BreakoutGroupActionTypes.EXIT_GROUP) {
-          console.log('User exited room, executing end call');
           try {
             executeEndCall();
           } catch (error) {
@@ -769,9 +901,16 @@ const BreakoutRoomProvider = ({
         }
       });
     } else {
+      if (lastAction.type === BreakoutGroupActionTypes.EXIT_GROUP) {
+        try {
+          executeEndCall();
+        } catch (error) {
+          console.log('Error while leaving the room: ', error);
+        }
+      }
       console.log(`Action ${lastAction.type} - skipping API call`);
     }
-  }, [lastAction, upsertBreakoutRoomAPI, isHost]);
+  }, [lastAction, upsertBreakoutRoomAPI, isHost, executeEndCall]);
 
   return (
     <BreakoutRoomContext.Provider

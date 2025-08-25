@@ -16,6 +16,7 @@ import UserAvatar from '../../../atoms/UserAvatar';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import ThemeConfig from '../../../theme';
 import ImageIcon from '../../../atoms/ImageIcon';
+import Tooltip from '../../../atoms/Tooltip';
 
 interface Props {
   isHost?: boolean;
@@ -49,10 +50,17 @@ const BreakoutRoomParticipants: React.FC<Props> = ({
         {participants.length > 0 ? (
           participants.map(item => (
             <View style={[styles.participantItem]} key={item.uid}>
-              <UserAvatar
-                name={item.user.name}
-                containerStyle={styles.userAvatarContainer}
-                textStyle={styles.userAvatarText}
+              <Tooltip
+                toolTipMessage={item.user.name}
+                renderContent={() => {
+                  return (
+                    <UserAvatar
+                      name={item.user.name}
+                      containerStyle={styles.userAvatarContainer}
+                      textStyle={styles.userAvatarText}
+                    />
+                  );
+                }}
               />
             </View>
           ))
