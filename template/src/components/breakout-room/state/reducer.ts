@@ -77,7 +77,8 @@ export const BreakoutGroupActionTypes = {
   // Participants Assignment
   UPDATE_UNASSIGNED_PARTICIPANTS:
     'BREAKOUT_ROOM/UPDATE_UNASSIGNED_PARTICIPANTS',
-  ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/ASSIGN_PARTICPANTS',
+  AUTO_ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/AUTO_ASSIGN_PARTICPANTS',
+  MANUAL_ASSIGN_PARTICPANTS: 'BREAKOUT_ROOM/MANUAL_ASSIGN_PARTICPANTS',
   MOVE_PARTICIPANT_TO_MAIN: 'BREAKOUT_ROOM/MOVE_PARTICIPANT_TO_MAIN',
   MOVE_PARTICIPANT_TO_GROUP: 'BREAKOUT_ROOM/MOVE_PARTICIPANT_TO_GROUP',
 } as const;
@@ -156,7 +157,10 @@ export type BreakoutRoomAction =
       };
     }
   | {
-      type: typeof BreakoutGroupActionTypes.ASSIGN_PARTICPANTS;
+      type: typeof BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS;
+    }
+  | {
+      type: typeof BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS;
     }
   | {
       type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN;
@@ -287,7 +291,7 @@ export const breakoutRoomReducer = (
       };
     }
 
-    case BreakoutGroupActionTypes.ASSIGN_PARTICPANTS: {
+    case BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS: {
       const selectedStrategy = state.assignmentStrategy;
       const roomAssignments = new Map<
         string,

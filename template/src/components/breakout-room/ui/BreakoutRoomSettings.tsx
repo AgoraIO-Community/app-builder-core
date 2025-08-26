@@ -16,7 +16,7 @@ export default function BreakoutRoomSettings() {
     unsassignedParticipants,
     assignmentStrategy,
     setStrategy,
-    assignParticipants,
+    handleAssignParticipants,
     canUserSwitchRoom,
     toggleSwitchRooms,
   } = useBreakoutRoom();
@@ -36,15 +36,6 @@ export default function BreakoutRoomSettings() {
     }
   }, [assignmentStrategy, setManualAssignmentModalOpen]);
 
-  const handleAssignParticipants = () => {
-    if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
-    } else if (assignmentStrategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
-      // Direct auto assignment (no modal needed)
-      assignParticipants();
-    }
-    // NO_ASSIGN strategy - button might be disabled
-  };
-
   return (
     <View style={style.card}>
       {/* Avatar list  */}
@@ -56,7 +47,6 @@ export default function BreakoutRoomSettings() {
         <SelectParticipantAssignmentStrategy
           selectedStrategy={assignmentStrategy}
           onStrategyChange={setStrategy}
-          assignParticipants={assignParticipants}
           disabled={disableAssignment}
         />
         <TertiaryButton
@@ -70,7 +60,7 @@ export default function BreakoutRoomSettings() {
               : $config.PRIMARY_ACTION_BRAND_COLOR,
           }}
           onPress={() => {
-            handleAssignParticipants();
+            handleAssignParticipants(assignmentStrategy);
           }}
           text={'Assign participants'}
         />

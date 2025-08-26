@@ -2,11 +2,9 @@ import React from 'react';
 import {Text, StyleSheet} from 'react-native';
 import {Dropdown} from 'customization-api';
 import ThemeConfig from '../../../theme';
-import TertiaryButton from '../../../atoms/TertiaryButton';
 import {RoomAssignmentStrategy} from '../state/reducer';
 
 interface Props {
-  assignParticipants: () => void;
   selectedStrategy: RoomAssignmentStrategy;
   onStrategyChange: (strategy: RoomAssignmentStrategy) => void;
   disabled: boolean;

@@ -21,6 +21,7 @@ import {
   breakoutRoomReducer,
   initialBreakoutRoomState,
   RoomAssignmentStrategy,
+  ManualParticipantAssignment,
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
@@ -74,6 +75,9 @@ interface BreakoutRoomContextValue {
   canUserSwitchRoom: boolean;
   toggleSwitchRooms: (value: boolean) => void;
   unsassignedParticipants: {uid: UidType; user: ContentInterface}[];
+  manualAssignments: ManualParticipantAssignment[];
+  setManualAssignments: (assignments: ManualParticipantAssignment[]) => void;
+  clearManualAssignments: () => void;
   createBreakoutRoomGroup: (name?: string) => void;
   isUserInRoom: (room?: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
@@ -86,7 +90,7 @@ interface BreakoutRoomContextValue {
   upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => Promise<void>;
   closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
-  assignParticipants: () => void;
+  handleAssignParticipants: (strategy: RoomAssignmentStrategy) => void;
   sendAnnouncement: (announcement: string) => void;
   // Presenters
   onMakeMePresenter: (action: 'start' | 'stop') => void;
@@ -106,9 +110,12 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   breakoutGroups: [],
   assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
   setStrategy: () => {},
+  manualAssignments: [],
+  setManualAssignments: () => {},
+  clearManualAssignments: () => {},
   canUserSwitchRoom: false,
   toggleSwitchRooms: () => {},
-  assignParticipants: () => {},
+  handleAssignParticipants: () => {},
   createBreakoutRoomGroup: () => {},
   isUserInRoom: () => false,
   joinRoom: () => {},
@@ -394,6 +401,22 @@ const BreakoutRoomProvider = ({
     });
   };
 
+  const setManualAssignments = useCallback(
+    (assignments: ManualParticipantAssignment[]) => {
+      dispatch({
+        type: BreakoutGroupActionTypes.SET_MANUAL_ASSIGNMENTS,
+        payload: {assignments},
+      });
+    },
+    [dispatch],
+  );
+
+  const clearManualAssignments = useCallback(() => {
+    dispatch({
+      type: BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS,
+    });
+  }, [dispatch]);
+
   const toggleSwitchRooms = (value: boolean) => {
     dispatch({
       type: BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
@@ -409,10 +432,17 @@ const BreakoutRoomProvider = ({
     });
   };
 
-  const assignParticipants = () => {
-    dispatch({
-      type: BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
-    });
+  const handleAssignParticipants = (strategy: RoomAssignmentStrategy) => {
+    if (strategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
+      dispatch({
+        type: BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
+      });
+    }
+    if (strategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+      dispatch({
+        type: BreakoutGroupActionTypes.APPLY_MANUAL_ASSIGNMENTS,
+      });
+    }
   };
 
   const moveUserToMainRoom = (user: ContentInterface) => {
@@ -888,7 +918,7 @@ const BreakoutRoomProvider = ({
       BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
-      BreakoutGroupActionTypes.ASSIGN_PARTICPANTS,
+      BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
       BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
       BreakoutGroupActionTypes.EXIT_GROUP,
     ];
@@ -926,7 +956,10 @@ const BreakoutRoomProvider = ({
         breakoutGroups: state.breakoutGroups,
         assignmentStrategy: state.assignmentStrategy,
         setStrategy,
-        assignParticipants,
+        handleAssignParticipants,
+        manualAssignments: state.manualAssignments,
+        setManualAssignments,
+        clearManualAssignments,
         canUserSwitchRoom: state.canUserSwitchRoom,
         toggleSwitchRooms,
         unsassignedParticipants: state.unassignedParticipants,
