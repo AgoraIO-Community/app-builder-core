@@ -10,8 +10,8 @@
 *********************************************
 */
 
-import React, {useState, useEffect, useRef} from 'react';
-import {useParams} from '../../components/Router';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {useParams, useLocation, useHistory} from '../../components/Router';
 import events from '../../rtm-events-api';
 import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/state/types';
 import {CallbacksInterface, RtcPropsInterface} from 'agora-rn-uikit';
@@ -40,9 +40,15 @@ export interface VideoCallContentProps {
 
 const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const {phrase} = useParams<{phrase: string}>();
+  const location = useLocation();
+  const history = useHistory();
+
+  // Parse URL to determine current mode
+  const searchParams = new URLSearchParams(location.search);
+  const isBreakoutMode = searchParams.get('breakout') === 'true';
+
   const breakoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [isInBreakoutMode, setIsInBreakoutMode] = useState(false);
   // Breakout channel details (populated by RTM events)
   const [breakoutChannelDetails, setBreakoutChannelDetails] =
     useState<BreakoutChannelDetails | null>(null);
@@ -71,7 +77,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
             rtmToken: mainUser.rtm,
           };
           // Set breakout state active
-          setIsInBreakoutMode(true);
+          history.push(`/${phrase}?breakout=true`);
           setBreakoutChannelDetails(null);
           // Add state after a delay to show transitioning screen
           breakoutTimeoutRef.current = setTimeout(() => {
@@ -110,31 +116,31 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
       }
     };
   }, []);
-  // Debug logging
-  useEffect(() => {
-    console.log('supriya Component mode changed breakout', {
-      isBreakoutMode: isInBreakoutMode,
-      hasBreakoutDetails: !!breakoutChannelDetails,
-      breakoutChannelDetails: breakoutChannelDetails,
-    });
-  }, [isInBreakoutMode, phrase, breakoutChannelDetails]);
+
+  // Handle leaving breakout room
+  const handleLeaveBreakout = useCallback(() => {
+    console.log('Leaving breakout room, returning to main room');
+    // Clear breakout channel details
+    setBreakoutChannelDetails(null);
+    // Navigate back to main room
+    history.push(`/${phrase}`);
+  }, [history, phrase]);
 
   // Conditional rendering based on URL params
   return (
     <>
-      {isInBreakoutMode ? (
+      {isBreakoutMode ? (
         breakoutChannelDetails?.channel ? (
           // Breakout Room Mode - Fresh component instance
           <BreakoutVideoCallContent
             key={`breakout-${breakoutChannelDetails.channel}`}
             breakoutChannelDetails={breakoutChannelDetails}
-            setIsInBreakoutMode={setIsInBreakoutMode}
+            onLeave={handleLeaveBreakout}
             {...props}
           />
         ) : (
           <BreakoutRoomTransition
             onTimeout={() => {
-              setIsInBreakoutMode(false);
               setBreakoutChannelDetails(null);
             }}
           />

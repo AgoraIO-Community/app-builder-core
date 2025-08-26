@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useEffect, SetStateAction} from 'react';
+import React, {useState, useEffect, SetStateAction, useMemo} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
@@ -59,17 +59,16 @@ import RTMEngine from '../../rtm/RTMEngine';
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
   breakoutChannelDetails: BreakoutChannelDetails;
-  setIsInBreakoutMode: React.Dispatch<SetStateAction<boolean>>;
+  onLeave: () => void;
 }
 
 const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   rtcProps,
   breakoutChannelDetails,
   callActive,
-  setCallActive,
   callbacks,
   styleProps,
-  setIsInBreakoutMode,
+  onLeave,
 }) => {
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
@@ -86,14 +85,6 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
 
   const {client, isLoggedIn} = useRTMCore();
-
-  const endCallModifiedCallbacks = {
-    ...callbacks,
-    EndCall: () => {
-      console.log('supriya-ending here i am ');
-      setIsInBreakoutMode(false);
-    },
-  };
 
   useEffect(() => {
     // Cleanup on unmount
@@ -122,6 +113,19 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
       }
     };
   }, [client, isLoggedIn, rtcProps.channel]);
+
+  // Modified callbacks that use the onLeave prop
+  const endCallModifiedCallbacks = useMemo(
+    () => ({
+      ...callbacks,
+      EndCall: () => {
+        console.log('Breakout room end call triggered');
+        // Use the parent's onLeave callback
+        onLeave?.();
+      },
+    }),
+    [callbacks, onLeave],
+  );
 
   return (
     <PropsProvider

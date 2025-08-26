@@ -30,8 +30,8 @@ import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
 import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {IconsInterface} from '../../../atoms/CustomIcon';
-import useEndCall from '../../../utils/useEndCall';
 import Toast from '../../../../react-native-toast-message';
+import useBreakoutRoomExit from '../hooks/useBreakoutRoomExit';
 
 const getSanitizedPayload = (payload: BreakoutGroup[]) => {
   return payload.map(({id, ...rest}) => {
@@ -81,7 +81,7 @@ interface BreakoutRoomContextValue {
   createBreakoutRoomGroup: (name?: string) => void;
   isUserInRoom: (room?: BreakoutGroup) => boolean;
   joinRoom: (roomId: string) => void;
-  exitRoom: (roomId?: string) => void;
+  exitRoom: (roomId?: string) => Promise<void>;
   closeRoom: (roomId: string) => void;
   closeAllRooms: () => void;
   updateRoomName: (newRoomName: string, roomId: string) => void;
@@ -119,7 +119,7 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   createBreakoutRoomGroup: () => {},
   isUserInRoom: () => false,
   joinRoom: () => {},
-  exitRoom: () => {},
+  exitRoom: async () => {},
   closeRoom: () => {},
   closeAllRooms: () => {},
   updateRoomName: () => {},
@@ -153,8 +153,8 @@ const BreakoutRoomProvider = ({
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
-  const executeEndCall = useEndCall();
 
+  const breakoutRoomExit = useBreakoutRoomExit();
   // Sync state
   const lastSyncTimeRef = useRef(Date.now());
 
@@ -541,17 +541,34 @@ const BreakoutRoomProvider = ({
     setSelfJoinRoomId(toRoomId);
   };
 
-  const exitRoom = (fromRoomId?: string) => {
-    const currentRoomId = fromRoomId ? fromRoomId : getCurrentRoom()?.id;
-    if (currentRoomId) {
+  const exitRoom = async (fromRoomId?: string) => {
+    try {
       const localUser = defaultContent[localUid];
-      dispatch({
-        type: BreakoutGroupActionTypes.EXIT_GROUP,
-        payload: {
-          user: localUser,
-          fromGroupId: currentRoomId,
-        },
-      });
+      const currentRoomId = fromRoomId ? fromRoomId : getCurrentRoom()?.id;
+      if (currentRoomId) {
+        // Use breakout-specific exit (doesn't destroy main RTM)
+        await breakoutRoomExit();
+
+        dispatch({
+          type: BreakoutGroupActionTypes.EXIT_GROUP,
+          payload: {
+            user: localUser,
+            fromGroupId: currentRoomId,
+          },
+        });
+      }
+    } catch (error) {
+      const localUser = defaultContent[localUid];
+      const currentRoom = getCurrentRoom();
+      if (currentRoom) {
+        dispatch({
+          type: BreakoutGroupActionTypes.EXIT_GROUP,
+          payload: {
+            user: localUser,
+            fromGroupId: currentRoom.id,
+          },
+        });
+      }
     }
   };
 
@@ -928,26 +945,11 @@ const BreakoutRoomProvider = ({
       API_TRIGGERING_ACTIONS.includes(lastAction.type as any) && isHost;
 
     if (shouldCallAPI) {
-      upsertBreakoutRoomAPI('UPDATE').finally(() => {
-        if (lastAction.type === BreakoutGroupActionTypes.EXIT_GROUP) {
-          try {
-            executeEndCall();
-          } catch (error) {
-            console.log('Error while leaving the room: ', error);
-          }
-        }
-      });
+      upsertBreakoutRoomAPI('UPDATE').finally(() => {});
     } else {
-      if (lastAction.type === BreakoutGroupActionTypes.EXIT_GROUP) {
-        try {
-          executeEndCall();
-        } catch (error) {
-          console.log('Error while leaving the room: ', error);
-        }
-      }
       console.log(`Action ${lastAction.type} - skipping API call`);
     }
-  }, [lastAction, upsertBreakoutRoomAPI, isHost, executeEndCall]);
+  }, [lastAction, upsertBreakoutRoomAPI, isHost]);
 
   return (
     <BreakoutRoomContext.Provider
