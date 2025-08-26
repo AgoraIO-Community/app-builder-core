@@ -21,7 +21,10 @@ export default function BreakoutRoomSettings() {
     toggleSwitchRooms,
   } = useBreakoutRoom();
 
-  const disableAssignment = unsassignedParticipants.length === 0;
+  const disableAssignmentSelect = unsassignedParticipants.length === 0;
+  const disableHandleAssignment =
+    disableAssignmentSelect ||
+    assignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
 
   const {
     modalOpen: isManualAssignmentModalOpen,
@@ -47,15 +50,15 @@ export default function BreakoutRoomSettings() {
         <SelectParticipantAssignmentStrategy
           selectedStrategy={assignmentStrategy}
           onStrategyChange={setStrategy}
-          disabled={disableAssignment}
+          disabled={disableAssignmentSelect}
         />
         <TertiaryButton
-          disabled={disableAssignment}
+          disabled={disableHandleAssignment}
           containerStyle={{
-            backgroundColor: disableAssignment
+            backgroundColor: disableHandleAssignment
               ? $config.SEMANTIC_NEUTRAL
               : $config.PRIMARY_ACTION_BRAND_COLOR,
-            borderColor: disableAssignment
+            borderColor: disableHandleAssignment
               ? $config.SEMANTIC_NEUTRAL
               : $config.PRIMARY_ACTION_BRAND_COLOR,
           }}
