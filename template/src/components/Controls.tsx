@@ -705,7 +705,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
             $config.EVENT_MODE &&
             $config.RAISE_HAND &&
             !isHost) ||
-          canScreenshareInBreakoutRoom,
+          !canScreenshareInBreakoutRoom,
         icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
         iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
@@ -1313,6 +1313,10 @@ const Controls = (props: ControlsProps) => {
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   const canAccessExitBreakoutRoomBtn = permissions.canExitRoom;
+  console.log(
+    'supriya-exit canAccessExitBreakoutRoomBtn: ',
+    canAccessExitBreakoutRoomBtn,
+  );
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
     return {
