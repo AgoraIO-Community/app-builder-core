@@ -62,7 +62,6 @@ export const BreakoutGroupActionTypes = {
   // Manual assignment strategy
   SET_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/SET_MANUAL_ASSIGNMENTS',
   CLEAR_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/CLEAR_MANUAL_ASSIGNMENTS',
-  APPLY_MANUAL_ASSIGNMENTS: 'BREAKOUT_ROOM/APPLY_MANUAL_ASSIGNMENTS',
   // switch room
   SET_ALLOW_PEOPLE_TO_SWITCH_ROOM:
     'BREAKOUT_ROOM/SET_ALLOW_PEOPLE_TO_SWITCH_ROOM',
@@ -110,9 +109,6 @@ export type BreakoutRoomAction =
     }
   | {
       type: typeof BreakoutGroupActionTypes.CLEAR_MANUAL_ASSIGNMENTS;
-    }
-  | {
-      type: typeof BreakoutGroupActionTypes.APPLY_MANUAL_ASSIGNMENTS;
     }
   | {
       type: typeof BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM;
@@ -254,7 +250,7 @@ export const breakoutRoomReducer = (
         manualAssignments: [],
       };
 
-    case BreakoutGroupActionTypes.APPLY_MANUAL_ASSIGNMENTS:
+    case BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS:
       // Only applies when strategy is MANUAL
       const updatedGroups = state.breakoutGroups.map(group => {
         const roomAssignments = state.manualAssignments.filter(

@@ -440,7 +440,7 @@ const BreakoutRoomProvider = ({
     }
     if (strategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
       dispatch({
-        type: BreakoutGroupActionTypes.APPLY_MANUAL_ASSIGNMENTS,
+        type: BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
       });
     }
   };
@@ -919,6 +919,7 @@ const BreakoutRoomProvider = ({
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
       BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
+      BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
       BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
       BreakoutGroupActionTypes.EXIT_GROUP,
     ];
