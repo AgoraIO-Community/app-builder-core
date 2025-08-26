@@ -9,7 +9,7 @@ import Toggle from '../../../atoms/Toggle';
 import ParticipantManualAssignmentModal from './ParticipantManualAssignmentModal';
 import {useModal} from '../../../utils/useModal';
 import {RoomAssignmentStrategy} from '../state/reducer';
-import {TertiaryButton} from 'index.rsdk';
+import TertiaryButton from '../../../atoms/TertiaryButton';
 
 export default function BreakoutRoomSettings() {
   const {

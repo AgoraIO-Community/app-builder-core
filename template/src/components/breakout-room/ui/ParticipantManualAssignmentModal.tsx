@@ -40,11 +40,13 @@ function ParticipantRow({
   onSelectionChange,
 }: {
   participant: {uid: UidType; user: ContentInterface};
-  assignment: ParticipantAssignment;
+  assignment: ManualParticipantAssignment;
   rooms: {label: string; value: string}[];
   onAssignmentChange: (uid: UidType, roomId: string | null) => void;
   onSelectionChange: (uid: UidType) => void;
 }) {
+  console.log('supriya-manual individual assignment', assignment);
+  console.log('supriya-manual participant', participant);
   const selectedValue = assignment?.roomId || 'unassigned';
 
   return (
@@ -73,12 +75,6 @@ function ParticipantRow({
       </View>
     </View>
   );
-}
-
-interface ParticipantAssignment {
-  uid: UidType;
-  roomId: string | null; // null = unassigned
-  isSelected: boolean;
 }
 
 interface ParticipantManualAssignmentModalProps {
@@ -114,24 +110,69 @@ export default function ParticipantManualAssignmentModal(
       isSelected: false,
     }));
   });
-
+  console.log('supriya-manual localAssignments', localAssignments);
   // Rooms dropdown options
   const rooms = [
     {label: 'Unassigned', value: 'unassigned'},
     ...getAllRooms().map(item => ({label: item.name, value: item.id})),
   ];
 
-  // Update room assignment for specific participant
+  // Update room assignment
   const updateManualAssignment = (uid: UidType, roomId: string | null) => {
-    setLocalAssignments(prev =>
-      prev.map(assignment =>
-        assignment.uid === uid
-          ? {...assignment, roomId: roomId === 'unassigned' ? null : roomId}
-          : assignment,
-      ),
-    );
-  };
+    const selectedParticipants = localAssignments.filter(a => a.isSelected);
+    const clickedParticipant = localAssignments.find(a => a.uid === uid);
 
+    if (selectedParticipants.length > 1 && clickedParticipant?.isSelected) {
+      // BULK BEHAVIOR: If multiple selected and clicked one is selected,
+      // assign ALL selected participants to the same room
+      setLocalAssignments(prev =>
+        prev.map(assignment =>
+          assignment.isSelected
+            ? {
+                ...assignment,
+                roomId: roomId === 'unassigned' ? null : roomId,
+                isSelected: false, // Deselect after assignment
+              }
+            : assignment,
+        ),
+      );
+    } else {
+      // INDIVIDUAL BEHAVIOR: Normal single assignment
+      setLocalAssignments(prev =>
+        prev.map(assignment =>
+          assignment.uid === uid
+            ? {
+                ...assignment,
+                roomId: roomId === 'unassigned' ? null : roomId,
+                isSelected: false, // Deselect this one too
+              }
+            : assignment,
+        ),
+      );
+    }
+  };
+  const handleRoomDropdownChange = (uid: UidType, roomId: string | null) => {
+    const clickedParticipant = localAssignments.find(a => a.uid === uid);
+    if (!clickedParticipant?.isSelected) {
+      // User clicked dropdown of non-selected participant
+      // Deselect everyone first, then assign
+      setLocalAssignments(prev =>
+        prev.map(assignment => ({
+          ...assignment,
+          isSelected: false, // Deselect all
+          roomId:
+            assignment.uid === uid
+              ? roomId === 'unassigned'
+                ? null
+                : roomId
+              : assignment.roomId,
+        })),
+      );
+    } else {
+      // Use the bulk/individual logic
+      updateManualAssignment(uid, roomId);
+    }
+  };
   // Toggle selection for specific participant
   const toggleParticipantSelection = (uid: UidType) => {
     setLocalAssignments(prev =>
@@ -143,34 +184,36 @@ export default function ParticipantManualAssignmentModal(
     );
   };
 
+  const allSelected =
+    localAssignments.length > 0 && localAssignments.every(a => a.isSelected);
+
   // Select/deselect all
   const toggleSelectAll = () => {
-    const allSelected = localAssignments.every(a => a.isSelected);
+    const areAllSelected = localAssignments.every(a => a.isSelected);
     setLocalAssignments(prev =>
       prev.map(assignment => ({
         ...assignment,
-        isSelected: !allSelected,
+        isSelected: !areAllSelected,
       })),
     );
   };
 
-  // Bulk assign selected participants to a room
-  const bulkAssignSelected = (roomId: string | null) => {
-    setLocalAssignments(prev =>
-      prev.map(assignment =>
-        assignment.isSelected
-          ? {...assignment, roomId: roomId === 'unassigned' ? null : roomId}
-          : assignment,
-      ),
-    );
+  // More descriptive Select All label
+  const getSelectAllLabel = () => {
+    if (selectedCount === 0) {
+      return 'Select All';
+    } else if (allSelected) {
+      return 'Deselect All';
+    } else {
+      return `Select All (${selectedCount}/${localAssignments.length})`;
+    }
   };
 
   const handleCancel = () => {
     setModalOpen(false);
   };
-  const handleSaveManualAssignments = () => {
-    // Save to reducer
 
+  const handleSaveManualAssignments = () => {
     setManualAssignments(localAssignments);
     setModalOpen(false);
   };
@@ -200,13 +243,34 @@ export default function ParticipantManualAssignmentModal(
                 iconSize={20}
               />
             </View>
-            <Text style={style.title}>
-              {localAssignments.length}(
-              {localAssignments.filter(a => !a.roomId).length} Unassigned)
+            <Text style={style.title}>{localAssignments.length}</Text>
+            <Text style={[style.title, style.titleLowOpacity]}>
+              ({localAssignments.filter(a => !a.roomId).length} Unassigned)
             </Text>
           </View>
+          <View style={style.participantTableControls}>
+            <View>
+              <Checkbox
+                disabled={localAssignments.length === 0}
+                checked={allSelected}
+                onChange={() => toggleSelectAll()}
+                label={getSelectAllLabel()}
+              />
+            </View>
+            <View>
+              {selectedCount > 0 && (
+                <Text style={style.infoText}>
+                  {selectedCount} of {localAssignments.length} participants
+                  selected
+                </Text>
+              )}
+            </View>
+          </View>
           <View style={style.participantTable}>
-            <TableHeader columns={['Name', 'Room']} />
+            <TableHeader
+              columns={['Name', 'Room']}
+              containerStyle={style.tHeadRow}
+            />
             <TableBody
               status="resolved"
               items={unsassignedParticipants}
@@ -216,9 +280,7 @@ export default function ParticipantManualAssignmentModal(
                   text="Fetching participants"
                 />
               }
-              bodyStyle={{
-                backgroundColor: $config.BACKGROUND_COLOR,
-              }}
+              bodyStyle={style.tbodyContainer}
               renderRow={participant => {
                 const assignment = localAssignments.find(
                   a => a.uid === participant.uid,
@@ -227,10 +289,10 @@ export default function ParticipantManualAssignmentModal(
                   <ParticipantRow
                     key={participant.uid}
                     participant={participant}
-                    assignment={localAssignments}
+                    assignment={assignment}
                     rooms={rooms}
-                    onAssignmentChange={updateManualAssignment}
-                    onSelectionChange={toggleSelection}
+                    onAssignmentChange={handleRoomDropdownChange}
+                    onSelectionChange={toggleParticipantSelection}
                   />
                 );
               }}
@@ -295,6 +357,8 @@ const style = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 'auto',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
   titleLowOpacity: {
     opacity: 0.2,
@@ -319,14 +383,29 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   infoText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
     fontFamily: 'Source Sans Pro',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
+  participantTableControls: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    paddingBottom: 12,
   },
   participantTable: {
     flex: 1,
     backgroundColor: $config.BACKGROUND_COLOR,
+  },
+  tHeadRow: {
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2,
+  },
+  tbodyContainer: {
+    backgroundColor: $config.BACKGROUND_COLOR,
+    borderRadius: 2,
   },
   tbrow: {
     display: 'flex',
