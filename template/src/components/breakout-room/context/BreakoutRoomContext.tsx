@@ -157,7 +157,7 @@ const BreakoutRoomProvider = ({
   const breakoutRoomExit = useBreakoutRoomExit();
   // Sync state
   const lastSyncTimeRef = useRef(Date.now());
-
+  console.log('supriya-exit', state.breakoutGroups);
   // Join Room
   const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
 
@@ -306,14 +306,14 @@ const BreakoutRoomProvider = ({
   }, [isHost, state.breakoutSessionId]);
 
   // Automatic interval management with cleanup
-  // useEffect(() => {
-  //   if (isHost && state.breakoutSessionId) {
-  //     // Check every 15 seconds
-  //     const interval = setInterval(pollBreakoutGetAPI, 15000);
-  //     // React will automatically call this cleanup function
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [isHost, state.breakoutSessionId, pollBreakoutGetAPI]);
+  useEffect(() => {
+    if (isHost && state.breakoutSessionId) {
+      // Check every 15 seconds
+      const interval = setInterval(pollBreakoutGetAPI, 15000);
+      // React will automatically call this cleanup function
+      return () => clearInterval(interval);
+    }
+  }, [isHost, state.breakoutSessionId, pollBreakoutGetAPI]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START') => {
@@ -731,6 +731,7 @@ const BreakoutRoomProvider = ({
   // Calculate permissions dynamically
   const permissions = useMemo((): BreakoutRoomPermissions => {
     const currentlyInRoom = isUserInRoom();
+    console.log('supriya-exit currentlyInRoom: ', currentlyInRoom);
     const hasAvailableRooms = state.breakoutGroups.length > 0;
     const canUserSwitchRoom = state.canUserSwitchRoom;
 

@@ -69,7 +69,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const [client, setClient] = useState<RTMClient | null>(null); // Use state instead
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [connectionState, setConnectionState] = useState(0);
-  console.log('supriya-connectionState: ', connectionState);
+  console.log('supriya-rtm-restest connectionState: ', connectionState);
   const [error, setError] = useState<Error | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   // Callback registration storage
@@ -293,6 +293,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
     return () => {
       // Cleanup
+      console.log('supriya-rtm-retest RTM cleanup is happening');
       if (client) {
         console.log('supriya RTM cleanup is happening');
         client.removeAllListeners();
