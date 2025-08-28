@@ -121,7 +121,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const start = async (lang: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
-      const res = await apiCall('start', lang);
+      const res = await apiCall('startv7', lang);
       // null means stt startred successfully
       const isSTTAlreadyActive =
         res?.error?.message
@@ -209,7 +209,7 @@ const useSTTAPI = (): IuseSTTAPI => {
 
   const stop = async () => {
     try {
-      const res = await apiCall('stop');
+      const res = await apiCall('stopv7');
       // once STT is non-active in the channel , notify others so that they dont' trigger start again
       // events.send(
       //   EventNames.STT_ACTIVE,
