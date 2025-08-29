@@ -104,11 +104,13 @@ class Events {
    *
    * @param {Object} rtmPayload payload to be sent across
    * @param {ReceiverUid} toUid uid or uids[] of user
+   * @param {string} channelId optional specific channel ID, defaults to primary channel
    * @api private
    */
   private _send = async (
     rtmPayload: RTMAttributePayload,
     toUid?: ReceiverUid,
+    channelId?: string,
   ) => {
     const to = typeof toUid === 'string' ? parseInt(toUid, 10) : toUid;
 
@@ -131,13 +133,14 @@ class Events {
         'case 1 executed - sending in channel',
       );
       try {
-        const channelId = RTMEngine.getInstance().channelUid;
-        if (!channelId || channelId.trim() === '') {
+        const targetChannelId = channelId || RTMEngine.getInstance().channelUid;
+        console.log('supriya targetChannelId: ', targetChannelId);
+        if (!targetChannelId || targetChannelId.trim() === '') {
           throw new Error(
-            'Channel ID is not set. Cannot send channel attributes.',
+            'Channel ID is not set. Cannot send channel messages.',
           );
         }
-        await rtmEngine.publish(channelId, text, {
+        await rtmEngine.publish(targetChannelId, text, {
           channelType: nativeChannelTypeMapping.MESSAGE, // 1 is message
         });
       } catch (error) {
@@ -159,6 +162,7 @@ class Events {
       );
       const adjustedUID = adjustUID(to);
       try {
+        console.log('supriya 2  ');
         await rtmEngine.publish(`${adjustedUID}`, text, {
           channelType: nativeChannelTypeMapping.USER, // user
         });
@@ -217,7 +221,10 @@ class Events {
     }
   };
 
-  private _sendAsChannelAttribute = async (rtmPayload: RTMAttributePayload) => {
+  private _sendAsChannelAttribute = async (
+    rtmPayload: RTMAttributePayload,
+    channelId?: string,
+  ) => {
     // Case 1: send to channel
     logger.debug(
       LogSource.Events,
@@ -231,16 +238,14 @@ class Events {
       }
       const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
 
-      const channelId = RTMEngine.getInstance().channelUid;
-      if (!channelId || channelId.trim() === '') {
-        throw new Error(
-          'Channel ID is not set. Cannot send channel attributes.',
-        );
+      const targetChannelId = RTMEngine.getInstance().channelUid;
+      if (!targetChannelId || targetChannelId.trim() === '') {
+        throw new Error('Channel ID is not set. Cannot send channel messages.');
       }
 
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
       await rtmEngine.storage.setChannelMetadata(
-        channelId,
+        targetChannelId,
         nativeChannelTypeMapping.MESSAGE,
         {
           items: rtmAttribute,
@@ -345,6 +350,7 @@ class Events {
    * @param {String} payload (optional) Additional data to be sent along with the event.
    * @param {Enum} persistLevel (optional) set different levels of persistance. Default value is Level 1
    * @param {ReceiverUid} receiver (optional) uid or uid array. Default mode sends message in channel.
+   * @param {String} channelId (optional) specific channel to send to, defaults to primary channel.
    * @api public
    * */
   send = async (
@@ -352,6 +358,7 @@ class Events {
     payload: string = '',
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
+    channelId?: string,
   ) => {
     try {
       if (!this._validateEvt(eventName)) {
@@ -397,9 +404,9 @@ class Events {
         persistValue,
       );
       if (persistLevel === PersistanceLevel.Channel) {
-        await this._sendAsChannelAttribute(rtmPayload);
+        await this._sendAsChannelAttribute(rtmPayload, channelId);
       } else {
-        await this._send(rtmPayload, receiver);
+        await this._send(rtmPayload, receiver, channelId);
       }
     } catch (error) {
       logger.error(

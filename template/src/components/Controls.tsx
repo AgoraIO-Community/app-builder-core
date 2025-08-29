@@ -118,6 +118,8 @@ import {
   ScreenshareToolbarItem,
 } from './controls/toolbar-items';
 import ViewTextTracksModal from './text-tracks/ViewTextTracksModal';
+import {useBreakoutRoom} from './breakout-room/context/BreakoutRoomContext';
+import {ExitBreakoutRoomToolbarItem} from './controls/toolbar-items/ExitBreakoutRoomToolbarItem';
 
 export const useToggleWhiteboard = () => {
   const {
@@ -679,6 +681,10 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 8. Screenshare
+  const {permissions} = useBreakoutRoom();
+  const canAccessBreakoutRoom = useControlPermissionMatrix('breakoutRoom');
+  const canScreenshareInBreakoutRoom = permissions.canScreenshare;
+
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   if (canAccessScreenshare) {
     if (
@@ -695,10 +701,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         componentName: 'screenshare',
         order: 8,
         disabled:
-          rtcProps.role == ClientRoleType.ClientRoleAudience &&
-          $config.EVENT_MODE &&
-          $config.RAISE_HAND &&
-          !isHost,
+          (rtcProps.role == ClientRoleType.ClientRoleAudience &&
+            $config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            !isHost) ||
+          !canScreenshareInBreakoutRoom,
         icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
         iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
@@ -837,12 +844,11 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 14. Breakout Room
-  const canAccessBreakoutRoom = useControlPermissionMatrix('breakoutRoom');
   if (canAccessBreakoutRoom) {
     actionMenuitems.push({
       componentName: 'breakoutRoom',
       order: 14,
-      icon: 'participants',
+      icon: 'breakout-room',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: breakoutRoomLabel,
@@ -1211,6 +1217,7 @@ const Controls = (props: ControlsProps) => {
 
   const {sttLanguage, isSTTActive} = useRoomInfo();
   const {addStreamMessageListener} = useSpeechToText();
+  const {permissions} = useBreakoutRoom();
 
   React.useEffect(() => {
     defaultContentRef.current = defaultContent;
@@ -1305,6 +1312,11 @@ const Controls = (props: ControlsProps) => {
 
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
+  const canAccessExitBreakoutRoomBtn = permissions.canExitRoom;
+  console.log(
+    'supriya-exit canAccessExitBreakoutRoomBtn: ',
+    canAccessExitBreakoutRoomBtn,
+  );
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
     return {
@@ -1365,13 +1377,20 @@ const Controls = (props: ControlsProps) => {
         component: MoreButtonToolbarItem,
         order: 6,
       },
+      'exit-breakout-room': {
+        align: 'center',
+        component: canAccessExitBreakoutRoomBtn
+          ? ExitBreakoutRoomToolbarItem
+          : null,
+        order: 7,
+      },
       'end-call': {
         align: 'center',
         component: LocalEndcallToolbarItem,
-        order: 7,
+        order: 8,
       },
     };
-  }, [canAccessInvite, canAccessScreenshare]);
+  }, [canAccessInvite, canAccessScreenshare, canAccessExitBreakoutRoomBtn]);
 
   const mergedItems = CustomToolbarMerge(
     includeDefaultItems ? defaultItems : {},

@@ -77,7 +77,10 @@ import {
   DEFAULT_ACTION_KEYS,
   UserActionMenuItemsConfig,
 } from '../../atoms/UserActionMenuPreset';
-import {useBreakoutRoom} from '../breakout-room/context/BreakoutRoomContext';
+import {
+  MemberDropdownOption,
+  useBreakoutRoom,
+} from '../breakout-room/context/BreakoutRoomContext';
 
 interface UserActionMenuOptionsOptionsProps {
   user: ContentInterface;
@@ -152,7 +155,9 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {breakoutGroups, addUserIntoGroup} = useBreakoutRoom();
+  const {getRoomMemberDropdownOptions, presenters: breakoutRoomPresenters} =
+    useBreakoutRoom();
+
   useEffect(() => {
     customEvents.on('DisableChat', data => {
       // for other users
@@ -171,25 +176,23 @@ export default function UserActionMenuOptionsOptions(
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
-
     if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
-      if (breakoutGroups && breakoutGroups?.length) {
-        breakoutGroups.map(({name, id}, index) => {
-          items.push({
-            order: index + 1,
-            icon: 'add',
-            onHoverIcon: 'add',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: `Move to ${name}`,
-            onPress: () => {
-              setActionMenuVisible(false);
-              addUserIntoGroup(user.uid, id, false);
-            },
-          });
-        });
-        setActionMenuitems(items);
-      }
+      const memberOptions = getRoomMemberDropdownOptions(user.uid);
+      // Transform to your UI format
+      const breakoutRoomMenuDropdowItems = memberOptions.map(
+        (option: MemberDropdownOption, index) => ({
+          order: index + 1,
+          icon: option.icon,
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: option.title,
+          onPress: () => {
+            setActionMenuVisible(false);
+            option?.onOptionPress();
+          },
+        }),
+      );
+      setActionMenuitems(breakoutRoomMenuDropdowItems);
       return;
     }
 
@@ -757,7 +760,7 @@ export default function UserActionMenuOptionsOptions(
     currentLayout,
     spotlightUid,
     from,
-    breakoutGroups,
+    breakoutRoomPresenters,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();

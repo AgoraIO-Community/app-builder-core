@@ -1,21 +1,43 @@
-import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import React, {useEffect} from 'react';
+import {View, StyleSheet, Text} from 'react-native';
 import BreakoutRoomParticipants from './BreakoutRoomParticipants';
 import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
 import Divider from '../../common/Dividers';
-import Toggle from '../../../atoms/Toggle';
 import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import Toggle from '../../../atoms/Toggle';
+import ParticipantManualAssignmentModal from './ParticipantManualAssignmentModal';
+import {useModal} from '../../../utils/useModal';
+import {RoomAssignmentStrategy} from '../state/reducer';
+import TertiaryButton from '../../../atoms/TertiaryButton';
 
 export default function BreakoutRoomSettings() {
   const {
     unsassignedParticipants,
     assignmentStrategy,
     setStrategy,
-    assignParticipants,
+    handleAssignParticipants,
+    canUserSwitchRoom,
+    toggleSwitchRooms,
   } = useBreakoutRoom();
 
-  const disableAssignment = unsassignedParticipants.length === 0;
+  const disableAssignmentSelect = unsassignedParticipants.length === 0;
+  const disableHandleAssignment =
+    disableAssignmentSelect ||
+    assignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
+
+  const {
+    modalOpen: isManualAssignmentModalOpen,
+    setModalOpen: setManualAssignmentModalOpen,
+  } = useModal();
+
+  useEffect(() => {
+    if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+      setManualAssignmentModalOpen(true);
+    } else {
+      setManualAssignmentModalOpen(false);
+    }
+  }, [assignmentStrategy, setManualAssignmentModalOpen]);
 
   return (
     <View style={style.card}>
@@ -28,22 +50,41 @@ export default function BreakoutRoomSettings() {
         <SelectParticipantAssignmentStrategy
           selectedStrategy={assignmentStrategy}
           onStrategyChange={setStrategy}
-          assignParticipants={assignParticipants}
-          disabled={disableAssignment}
+          disabled={disableAssignmentSelect}
+        />
+        <TertiaryButton
+          disabled={disableHandleAssignment}
+          containerStyle={{
+            backgroundColor: disableHandleAssignment
+              ? $config.SEMANTIC_NEUTRAL
+              : $config.PRIMARY_ACTION_BRAND_COLOR,
+            borderColor: disableHandleAssignment
+              ? $config.SEMANTIC_NEUTRAL
+              : $config.PRIMARY_ACTION_BRAND_COLOR,
+          }}
+          onPress={() => {
+            handleAssignParticipants(assignmentStrategy);
+          }}
+          text={'Assign participants'}
         />
       </View>
       <Divider />
-      {/* <View style={style.section}>
+      <View style={style.section}>
         <View style={style.switchSection}>
           <Text style={style.label}>Allow people to switch rooms</Text>
           <Toggle
             disabled={$config.EVENT_MODE}
-            isEnabled={true}
-            toggleSwitch={() => {}}
+            isEnabled={canUserSwitchRoom}
+            toggleSwitch={toggleSwitchRooms}
             circleColor={$config.FONT_COLOR}
           />
         </View>
-      </View> */}
+      </View>
+      {isManualAssignmentModalOpen && (
+        <ParticipantManualAssignmentModal
+          setModalOpen={setManualAssignmentModalOpen}
+        />
+      )}
     </View>
   );
 }

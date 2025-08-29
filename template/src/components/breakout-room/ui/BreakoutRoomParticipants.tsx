@@ -15,31 +15,60 @@ import {View, Text, StyleSheet} from 'react-native';
 import UserAvatar from '../../../atoms/UserAvatar';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import ThemeConfig from '../../../theme';
+import ImageIcon from '../../../atoms/ImageIcon';
+import Tooltip from '../../../atoms/Tooltip';
 
 interface Props {
+  isHost?: boolean;
   participants?: {uid: UidType; user: ContentInterface}[];
 }
 
-const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
+const BreakoutRoomParticipants: React.FC<Props> = ({
+  participants,
+  isHost = false,
+}) => {
   return (
     <>
-      <Text style={styles.title}>
-        Main Room ({participants.length} unassigned)
-      </Text>
+      <View
+        style={[
+          styles.titleContainer,
+          participants?.length > 0 ? {} : styles.titleLowOpacity,
+        ]}>
+        <View>
+          <ImageIcon
+            iconType="plain"
+            name="people"
+            tintColor={$config.FONT_COLOR}
+            iconSize={20}
+          />
+        </View>
+        <Text style={styles.title}>
+          Main Room {isHost ? `(${participants.length} unassigned)` : ''}
+        </Text>
+      </View>
       <View style={styles.participantContainer}>
         {participants.length > 0 ? (
           participants.map(item => (
             <View style={[styles.participantItem]} key={item.uid}>
-              <UserAvatar
-                name={item.user.name}
-                containerStyle={styles.userAvatarContainer}
-                textStyle={styles.userAvatarText}
+              <Tooltip
+                toolTipMessage={item.user.name}
+                renderContent={() => {
+                  return (
+                    <UserAvatar
+                      name={item.user.name}
+                      containerStyle={styles.userAvatarContainer}
+                      textStyle={styles.userAvatarText}
+                    />
+                  );
+                }}
               />
             </View>
           ))
         ) : (
           <Text style={styles.emptyStateText}>
-            No participants available for breakout rooms
+            {isHost
+              ? 'No participants available for breakout rooms'
+              : 'No members'}
           </Text>
         )}
       </View>
@@ -48,12 +77,20 @@ const BreakoutRoomParticipants: React.FC<Props> = ({participants}) => {
 };
 
 const styles = StyleSheet.create({
+  titleLowOpacity: {
+    opacity: 0.2,
+  },
+  titleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+  },
   title: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     fontWeight: '500',
-    opacity: 0.2,
   },
   participantContainer: {
     display: 'flex',

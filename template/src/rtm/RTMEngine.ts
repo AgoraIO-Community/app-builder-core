@@ -20,8 +20,9 @@ import {isAndroid, isIOS} from '../utils/common';
 class RTMEngine {
   private _engine?: RTMClient;
   private localUID: string = '';
-  private channelId: string = '';
-
+  private primaryChannelId: string = '';
+  // track multiple subscribed channels
+  private channels: Set<string> = new Set();
   private static _instance: RTMEngine | null = null;
 
   private constructor() {
@@ -32,6 +33,7 @@ class RTMEngine {
     return RTMEngine._instance;
   }
 
+  /** Get the singleton instance */
   public static getInstance() {
     // We are only creating the instance but not creating the rtm client yet
     if (!RTMEngine._instance) {
@@ -40,42 +42,49 @@ class RTMEngine {
     return RTMEngine._instance;
   }
 
+  /** Sets UID and initializes the client if needed */
   setLocalUID(localUID: string | number) {
-    if (localUID === null || localUID === undefined) {
+    if (localUID == null) {
       throw new Error('setLocalUID: localUID cannot be null or undefined');
     }
-
-    const newUID = String(localUID);
-    if (newUID.trim() === '') {
-      throw new Error(
-        'setLocalUID: localUID cannot be empty after string conversion',
-      );
+    const newUID = String(localUID).trim();
+    if (!newUID) {
+      throw new Error('setLocalUID: localUID cannot be empty');
     }
-
-    // If UID is changing and we have an existing engine, throw error
     if (this._engine && this.localUID !== newUID) {
       throw new Error(
-        `RTMEngine: Cannot change UID from '${this.localUID}' to '${newUID}' while engine is active. ` +
-          `Please call destroy() first, then setLocalUID() with the new UID.`,
+        `Cannot change UID from '${this.localUID}' to '${newUID}'. Call destroy() first.`,
       );
     }
-
     this.localUID = newUID;
-
     if (!this._engine) {
       this.createClientInstance();
     }
   }
 
-  setChannelId(channelID: string) {
+  addChannel(channelID: string, primary?: boolean) {
     if (
       !channelID ||
       typeof channelID !== 'string' ||
       channelID.trim() === ''
     ) {
-      throw new Error('setChannelId: channelID must be a non-empty string');
+      throw new Error(
+        'addSecondaryChannel: channelID must be a non-empty string',
+      );
     }
-    this.channelId = channelID;
+    this.channels.add(channelID);
+    if (primary) {
+      this.primaryChannelId = channelID;
+    }
+  }
+
+  removeChannel(channelID: string) {
+    if (this.channels.has(channelID)) {
+      this.channels.delete(channelID);
+      if (channelID === this.primaryChannelId) {
+        this.primaryChannelId = '';
+      }
+    }
   }
 
   get localUid() {
@@ -83,13 +92,29 @@ class RTMEngine {
   }
 
   get channelUid() {
-    return this.channelId;
+    return this.primaryChannelId;
   }
 
+  get primaryChannel() {
+    return this.primaryChannelId;
+  }
+
+  get allChannels() {
+    const channels = [];
+    this.channels.forEach(channel => channels.push(channel));
+    return channels.filter(channel => channel.trim() !== '');
+  }
+
+  hasChannel(channelID: string): boolean {
+    return this.channels.has(channelID);
+  }
+
+  /** Engine readiness flag */
   get isEngineReady() {
     return !!this._engine && !!this.localUID;
   }
 
+  /** Access the RTMClient instance */
   get engine(): RTMClient {
     this.ensureEngineReady();
     return this._engine!;
@@ -97,12 +122,11 @@ class RTMEngine {
 
   private ensureEngineReady() {
     if (!this.isEngineReady) {
-      throw new Error(
-        'RTM Engine not ready. Please call setLocalUID() with a valid UID first.',
-      );
+      throw new Error('RTM Engine not ready. Call setLocalUID() first.');
     }
   }
 
+  /** Create the Agora RTM client */
   private createClientInstance() {
     try {
       if (!this.localUID || this.localUID.trim() === '') {
@@ -128,50 +152,47 @@ class RTMEngine {
   }
 
   private async destroyClientInstance() {
-    try {
-      if (this._engine) {
-        // 1. Unsubscribe from channel if we have one
-        if (this.channelId) {
-          try {
-            await this._engine.unsubscribe(this.channelId);
-          } catch (error) {
-            console.warn(
-              `Failed to unsubscribe from channel '${this.channelId}':`,
-              error,
-            );
-            // Continue with cleanup even if unsubscribe fails
-          }
-        }
-        // 2. Remove all listeners
-        try {
-          this._engine.removeAllListeners?.();
-        } catch (error) {
-          console.warn('Failed to remove listeners:', error);
-        }
-        // 3. Logout
-        try {
-          await this._engine.logout();
-          if (isAndroid() || isIOS()) {
-            this._engine.release();
-          }
-        } catch (error) {
-          console.warn('Failed to logout:', error);
-        }
+    if (!this._engine) {
+      return;
+    }
+
+    // Unsubscribe from all tracked channels
+    for (const channel of this.allChannels) {
+      try {
+        await this._engine.unsubscribe(channel);
+      } catch (err) {
+        console.warn(`Failed to unsubscribe from '${channel}':`, err);
       }
-    } catch (error) {
-      console.error('Error during client instance destruction:', error);
-      // Don't re-throw - we want cleanup to complete
+    }
+
+    // 2. Remove all listeners if supported
+    try {
+      this._engine.removeAllListeners?.();
+    } catch {
+      console.warn('Failed to remove listeners:');
+    }
+
+    // 3. Logout and release resources
+    try {
+      await this._engine.logout();
+      if (isAndroid() || isIOS()) {
+        this._engine.release();
+      }
+    } catch (err) {
+      console.warn('RTM logout/release failed:', err);
     }
   }
 
-  async destroy() {
+  /** Fully destroy the singleton and cleanup */
+  public async destroy() {
     try {
       if (!this._engine) {
         return;
       }
-
       await this.destroyClientInstance();
-      this.channelId = '';
+      this.primaryChannelId = '';
+      this.channels.clear();
+      // Reset state
       this.localUID = '';
       this._engine = undefined;
       RTMEngine._instance = null;

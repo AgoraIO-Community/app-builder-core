@@ -9,26 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-
-import React, {useState, useEffect, useContext, useCallback} from 'react';
-import {IRtcEngine} from 'react-native-agora';
+import React, {useState, useEffect, useCallback} from 'react';
 import VideoCall from '../pages/VideoCall';
 import BreakoutRoomVideoCall from './BreakoutRoomVideoCall';
+import {RTMCoreProvider} from '../rtm/RTMCoreProvider';
 import {useParams, useHistory, useLocation} from '../components/Router';
 import events from '../rtm-events-api';
 import {EventNames} from '../rtm-events';
 import {BreakoutChannelJoinEventPayload} from '../components/breakout-room/state/types';
 
 export interface VideoRoomOrchestratorState {
-  rtcEngine: IRtcEngine | null;
-  channelDetails: {
-    channel: string;
-    uid: number | string;
-    token: string;
-    screenShareUid: number | string;
-    screenShareToken: string;
-    rtmToken: string;
-  };
+  channel: string;
+  uid: number | string;
+  token: string;
+  screenShareUid: number | string;
+  screenShareToken: string;
+  rtmToken: string;
 }
 
 const VideoCallRoomOrchestrator: React.FC = () => {
@@ -36,166 +32,119 @@ const VideoCallRoomOrchestrator: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
 
-  // Parse query parameters from location.search
+  // Parse query parameters
   const searchParams = new URLSearchParams(location.search);
-  const callActive = searchParams.get('call') === 'true';
   const isBreakoutRoomActive = searchParams.get('breakout') === 'true';
+  const breakoutChannelName = searchParams.get('channelName');
 
   // Main room state
   const [mainRoomState, setMainRoomState] =
     useState<VideoRoomOrchestratorState>({
-      rtcEngine: null,
-      channelDetails: {
-        channel: null,
-        uid: null,
-        token: null,
-        screenShareUid: null,
-        screenShareToken: null,
-        rtmToken: null,
-      },
+      channel: phrase, // Use phrase as main channel
+      uid: null,
+      token: null,
+      screenShareUid: null,
+      screenShareToken: null,
+      rtmToken: null,
     });
 
   // Breakout room state
   const [breakoutRoomState, setBreakoutRoomState] =
     useState<VideoRoomOrchestratorState>({
-      rtcEngine: null,
-      channelDetails: {
-        channel: null,
-        uid: null,
-        token: null,
-        screenShareUid: null,
-        screenShareToken: null,
-        rtmToken: null,
-      },
+      channel: breakoutChannelName || null,
+      uid: null,
+      token: null,
+      screenShareUid: null,
+      screenShareToken: null,
+      rtmToken: null,
     });
 
+  // Listen for breakout room join events
   useEffect(() => {
-    const handleBreakoutJoin = evtData => {
-      const {payload, sender, ts, source} = evtData;
+    const handleBreakoutJoin = (evtData: any) => {
+      const {payload} = evtData;
       const data: BreakoutChannelJoinEventPayload = JSON.parse(payload);
-      console.log(
-        'supriya [VideoCallRoomOrchestrator] onBreakoutRoomJoinDetailsReceived data: ',
-        data,
-      );
-      const {channel_name, mainUser, screenShare, chat} = data.data.data;
+      console.log('[VideoCallRoomOrchestrator] Breakout join data:', data);
+
+      const {channel_name, mainUser, screenShare} = data.data.data;
 
       try {
-        setBreakoutRoomState(prev => ({
-          ...prev,
-          channelDetails: {
-            channel: channel_name,
-            token: mainUser.rtc,
-            uid: mainUser?.uid || 0,
-            screenShareToken: screenShare.rtc,
-            screenShareUid: screenShare.uid,
-            rtmToken: mainUser.rtm,
-          },
-        }));
-        // Navigate to breakout roo
-        history.push(`/${phrase}?call=true&breakout=true`);
+        // Update breakout room state
+        setBreakoutRoomState({
+          channel: channel_name,
+          token: mainUser.rtc,
+          uid: mainUser?.uid,
+          screenShareToken: screenShare.rtc,
+          screenShareUid: screenShare.uid,
+          rtmToken: mainUser.rtm,
+        });
+
+        // Navigate to breakout room with proper URL
+        history.push(`/${phrase}?breakout=true&channelName=${channel_name}`);
       } catch (error) {
-        console.log(
-          ' handleBreakoutJoin [VideoCallRoomOrchestrator]  error: ',
+        console.error(
+          '[VideoCallRoomOrchestrator] Breakout join error:',
           error,
         );
       }
     };
+
     events.on(EventNames.BREAKOUT_ROOM_JOIN_DETAILS, handleBreakoutJoin);
+
     return () => {
       events.off(EventNames.BREAKOUT_ROOM_JOIN_DETAILS, handleBreakoutJoin);
     };
   }, [history, phrase]);
 
-  // // RTM listeners for breakout events
-  // useEffect(() => {
-  //   const handleBreakoutLeave = () => {
-  //     console.log(
-  //       `[VideoCallRoomOrchestrator] Leaving breakout room, returning to main`,
-  //     );
+  // Handle leaving breakout room
+  const handleLeaveBreakout = useCallback(() => {
+    console.log('[VideoCallRoomOrchestrator] Leaving breakout room');
 
-  //     // Return to main room
-  //     history.push(`/${phrase}?call=true`);
-  //   };
+    // Clear breakout state
+    setBreakoutRoomState({
+      channel: null,
+      uid: null,
+      token: null,
+      screenShareUid: null,
+      screenShareToken: null,
+      rtmToken: null,
+    });
 
-  //   // TODO: Implement RTM event listeners
-  //   // RTMManager.on('BREAKOUT_JOIN', handleBreakoutJoin);
-  //   // RTMManager.on('BREAKOUT_LEAVE', handleBreakoutLeave);
+    // Return to main room
+    history.push(`/${phrase}`);
+  }, [history, phrase]);
 
-  //   // For now, we'll expose these functions globally for testing
-  //   if (typeof window !== 'undefined') {
-  //     (window as any).joinBreakoutRoom = handleBreakoutJoin;
-  //     (window as any).leaveBreakoutRoom = handleBreakoutLeave;
-  //   }
-
-  //   return () => {
-  //     // RTMManager.off('BREAKOUT_JOIN', handleBreakoutJoin);
-  //     // RTMManager.off('BREAKOUT_LEAVE', handleBreakoutLeave);
-
-  //     if (typeof window !== 'undefined') {
-  //       delete (window as any).joinBreakoutRoom;
-  //       delete (window as any).leaveBreakoutRoom;
-  //     }
-  //   };
-  // }, [phrase, history, roomInfo]);
-
-  // Helper functions to update RTC engines
-  const setMainRtcEngine = useCallback((engine: IRtcEngine) => {
-    console.log('supriya [VideoCallRoomOrchestrator] Setting main RTC engine');
-    setMainRoomState(prev => ({
-      ...prev,
-      rtcEngine: engine,
-    }));
-  }, []);
-
+  // Update main room details
   const setMainChannelDetails = useCallback(
-    (channelDetails: VideoRoomOrchestratorState['channelDetails']) => {
-      console.log(
-        'supriya [VideoCallRoomOrchestrator] Setting main RTC engine',
-      );
+    (channelInfo: VideoRoomOrchestratorState) => {
+      console.log('[VideoCallRoomOrchestrator] Setting main channel details');
       setMainRoomState(prev => ({
         ...prev,
-        channelDetails: {...channelDetails},
+        ...channelInfo,
       }));
     },
     [],
   );
 
-  const setBreakoutRtcEngine = useCallback((engine: IRtcEngine) => {
-    console.log('[VideoCallRoomOrchestrator] Setting breakout RTC engine');
-    setBreakoutRoomState(prev => ({
-      ...prev,
-      rtcEngine: engine,
-    }));
-  }, []);
-
-  // // Handle return to main room
-  // const handleReturnToMain = () => {
-  //   console.log('[VideoCallRoomOrchestrator] Returning to main room');
-  //   history.push(`/${phrase}?call=true`);
-  // };
-
   console.log('[VideoCallRoomOrchestrator] Rendering:', {
-    isBreakoutRoom: isBreakoutRoomActive,
-    callActive,
+    isBreakoutRoomActive,
     phrase,
-    mainChannel: {...mainRoomState},
-    breakoutChannel: {...breakoutRoomState},
+    mainChannel: mainRoomState,
+    breakoutChannel: breakoutRoomState,
   });
 
   return (
-    <>
-      {isBreakoutRoomActive && breakoutRoomState?.channelDetails?.channel ? (
+    <RTMCoreProvider userInfo={userInfo}>
+      {isBreakoutRoomActive && breakoutRoomState?.channel ? (
         <BreakoutRoomVideoCall
-          setBreakoutRtcEngine={setBreakoutRtcEngine}
-          storedBreakoutChannelDetails={breakoutRoomState.channelDetails}
+          breakoutChannelDetails={breakoutRoomState}
+          mainChannelDetails={mainRoomState}
+          onLeaveBreakout={handleLeaveBreakout}
         />
       ) : (
-        <VideoCall
-          setMainRtcEngine={setMainRtcEngine}
-          setMainChannelDetails={setMainChannelDetails}
-        />
+        <VideoCall setMainChannelDetails={setMainChannelDetails} />
       )}
-    </>
+    </RTMCoreProvider>
   );
 };
 

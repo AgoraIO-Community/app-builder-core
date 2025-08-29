@@ -153,4 +153,11 @@ export interface IconsInterface {
   fullscreen: string;
   add_reaction: string;
   spotlight: string;
+  'people-assigned': string;
+  'double-up-arrow': string;
+  'move-up': string;
+  'close-room': string;
+  announcement: string;
+  'settings-outlined': string;
+  'breakout-room': string;
 }

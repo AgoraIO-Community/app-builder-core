@@ -2,11 +2,9 @@ import React from 'react';
 import {Text, StyleSheet} from 'react-native';
 import {Dropdown} from 'customization-api';
 import ThemeConfig from '../../../theme';
-import TertiaryButton from '../../../atoms/TertiaryButton';
 import {RoomAssignmentStrategy} from '../state/reducer';
 
 interface Props {
-  assignParticipants: () => void;
   selectedStrategy: RoomAssignmentStrategy;
   onStrategyChange: (strategy: RoomAssignmentStrategy) => void;
   disabled: boolean;
@@ -30,7 +28,6 @@ const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
   selectedStrategy,
   onStrategyChange,
   disabled = false,
-  assignParticipants,
 }) => {
   return (
     <>
@@ -43,17 +40,6 @@ const SelectParticipantAssignmentStrategy: React.FC<Props> = ({
         onSelect={async ({label, value}) => {
           onStrategyChange(value as RoomAssignmentStrategy);
         }}
-      />
-      <TertiaryButton
-        disabled={disabled}
-        containerStyle={{
-          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-          borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        }}
-        onPress={() => {
-          assignParticipants();
-        }}
-        text={'Assign participants'}
       />
     </>
   );

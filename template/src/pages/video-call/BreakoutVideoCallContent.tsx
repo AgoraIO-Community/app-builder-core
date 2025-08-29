@@ -1,0 +1,241 @@
+/*
+********************************************
+ Copyright © 2021 Agora Lab, Inc., all rights reserved.
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
+*********************************************
+*/
+import React, {useState, useEffect, SetStateAction, useMemo} from 'react';
+import {
+  RtcConfigure,
+  PropsProvider,
+  ChannelProfileType,
+  LocalUserContext,
+  RtcPropsInterface,
+} from '../../../agora-rn-uikit';
+import RtmConfigure from '../../components/RTMConfigure';
+import DeviceConfigure from '../../components/DeviceConfigure';
+import {isMobileUA} from '../../utils/common';
+import {LiveStreamContextProvider} from '../../components/livestream';
+import ScreenshareConfigure from '../../subComponents/screenshare/ScreenshareConfigure';
+import {LayoutProvider} from '../../utils/useLayout';
+import {RecordingProvider} from '../../subComponents/recording/useRecording';
+import {SidePanelProvider} from '../../utils/useSidePanel';
+import {NetworkQualityProvider} from '../../components/NetworkQualityContext';
+import {ChatNotificationProvider} from '../../components/chat-notification/useChatNotification';
+import {ChatUIControlsProvider} from '../../components/chat-ui/useChatUIControls';
+import {ScreenShareProvider} from '../../components/contexts/ScreenShareContext';
+import {LiveStreamDataProvider} from '../../components/contexts/LiveStreamDataContext';
+import {VideoMeetingDataProvider} from '../../components/contexts/VideoMeetingDataContext';
+import {UserPreferenceProvider} from '../../components/useUserPreference';
+import EventsConfigure from '../../components/EventsConfigure';
+import PermissionHelper from '../../components/precall/PermissionHelper';
+import {FocusProvider} from '../../utils/useFocus';
+import {VideoCallProvider} from '../../components/useVideoCall';
+import {CaptionProvider} from '../../subComponents/caption/useCaption';
+import SdkMuteToggleListener from '../../components/SdkMuteToggleListener';
+import {NoiseSupressionProvider} from '../../app-state/useNoiseSupression';
+import {VideoQualityContextProvider} from '../../app-state/useVideoQuality';
+import {VBProvider} from '../../components/virtual-background/useVB';
+import {DisableChatProvider} from '../../components/disable-chat/useDisableChat';
+import {WaitingRoomProvider} from '../../components/contexts/WaitingRoomContext';
+import {ChatMessagesProvider} from '../../components/chat-messages/useChatMessages';
+import VideoCallScreenWrapper from './../video-call/VideoCallScreenWrapper';
+import {BeautyEffectProvider} from '../../components/beauty-effect/useBeautyEffects';
+import {UserActionMenuProvider} from '../../components/useUserActionMenu';
+import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
+import {
+  BreakoutChannelDetails,
+  VideoCallContentProps,
+} from './VideoCallContent';
+import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
+import {useRTMCore} from '../../rtm/RTMCoreProvider';
+import RTMEngine from '../../rtm/RTMEngine';
+
+interface BreakoutVideoCallContentProps extends VideoCallContentProps {
+  rtcProps: RtcPropsInterface;
+  breakoutChannelDetails: BreakoutChannelDetails;
+  onLeave: () => void;
+}
+
+const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
+  rtcProps,
+  breakoutChannelDetails,
+  callActive,
+  callbacks,
+  styleProps,
+  onLeave,
+}) => {
+  const [isRecordingActive, setRecordingActive] = useState(false);
+  const [sttAutoStarted, setSttAutoStarted] = useState(false);
+  const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
+  const [breakoutRoomRTCProps, setBreakoutRoomRtcProps] = useState({
+    ...rtcProps,
+    channel: breakoutChannelDetails.channel,
+    uid: breakoutChannelDetails.uid as number,
+    token: breakoutChannelDetails.token,
+    rtm: breakoutChannelDetails.rtmToken,
+    screenShareUid: breakoutChannelDetails?.screenShareUid as number,
+    screenShareToken: breakoutChannelDetails?.screenShareToken || '',
+  });
+  console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
+
+  const {client, isLoggedIn} = useRTMCore();
+
+  useEffect(() => {
+    // Cleanup on unmount
+    if (client && isLoggedIn && rtcProps.channel) {
+      console.log(
+        `Breakout room unmounting, subsribing to: ${rtcProps.channel}`,
+      );
+      try {
+        client.subscribe(rtcProps.channel);
+        RTMEngine.getInstance().addChannel(rtcProps.channel, false);
+      } catch (error) {
+        console.error('Failed to unsubscribe on unmount:', error);
+      }
+    }
+    return () => {
+      if (rtcProps.channel) {
+        console.log(
+          `Breakout room unmounting, unsubscribing from: ${rtcProps.channel}`,
+        );
+        try {
+          client.unsubscribe(rtcProps.channel);
+          RTMEngine.getInstance().removeChannel(rtcProps.channel);
+        } catch (error) {
+          console.error('Failed to unsubscribe on unmount:', error);
+        }
+      }
+    };
+  }, [client, isLoggedIn, rtcProps.channel]);
+
+  // Modified callbacks that use the onLeave prop
+  const endCallModifiedCallbacks = useMemo(
+    () => ({
+      ...callbacks,
+      EndCall: () => {
+        console.log('Breakout room end call triggered');
+        // Use the parent's onLeave callback
+        onLeave?.();
+      },
+    }),
+    [callbacks, onLeave],
+  );
+
+  return (
+    <PropsProvider
+      value={{
+        rtcProps: {
+          ...breakoutRoomRTCProps,
+          callActive,
+        },
+        callbacks: endCallModifiedCallbacks,
+        styleProps,
+        mode: $config.EVENT_MODE
+          ? ChannelProfileType.ChannelProfileLiveBroadcasting
+          : ChannelProfileType.ChannelProfileCommunication,
+      }}>
+      <RtcConfigure>
+        <DeviceConfigure>
+          <NoiseSupressionProvider callActive={callActive}>
+            <VideoQualityContextProvider>
+              <ChatUIControlsProvider>
+                <ChatNotificationProvider>
+                  <LayoutProvider>
+                    <FocusProvider>
+                      <SidePanelProvider>
+                        <ChatMessagesProvider callActive={callActive}>
+                          <ScreenShareProvider>
+                            <RtmConfigure
+                              channelName={breakoutRoomRTCProps.channel}
+                              callActive={callActive}>
+                              <UserPreferenceProvider callActive={callActive}>
+                                <CaptionProvider>
+                                  <WaitingRoomProvider>
+                                    <EventsConfigure
+                                      setSttAutoStarted={setSttAutoStarted}
+                                      sttAutoStarted={sttAutoStarted}
+                                      callActive={callActive}>
+                                      <ScreenshareConfigure
+                                        isRecordingActive={isRecordingActive}>
+                                        <LiveStreamContextProvider
+                                          value={{
+                                            setRtcProps:
+                                              setBreakoutRoomRtcProps,
+                                            rtcProps: breakoutRoomRTCProps,
+                                            callActive,
+                                          }}>
+                                          <LiveStreamDataProvider>
+                                            <LocalUserContext
+                                              localUid={
+                                                breakoutRoomRTCProps?.uid
+                                              }>
+                                              <RecordingProvider
+                                                value={{
+                                                  setRecordingActive,
+                                                  isRecordingActive,
+                                                  callActive,
+                                                  recordingAutoStarted,
+                                                  setRecordingAutoStarted,
+                                                }}>
+                                                <NetworkQualityProvider>
+                                                  {!isMobileUA() && (
+                                                    <PermissionHelper />
+                                                  )}
+                                                  <UserActionMenuProvider>
+                                                    <VBProvider>
+                                                      <BeautyEffectProvider>
+                                                        <SdkMuteToggleListener>
+                                                          <VideoMeetingDataProvider>
+                                                            <VideoCallProvider>
+                                                              <DisableChatProvider>
+                                                                <BreakoutRoomProvider
+                                                                  mainChannel={
+                                                                    rtcProps.channel
+                                                                  }>
+                                                                  <BreakoutRoomEventsConfigure
+                                                                    mainChannelName={
+                                                                      rtcProps.channel
+                                                                    }>
+                                                                    <VideoCallScreenWrapper />
+                                                                  </BreakoutRoomEventsConfigure>
+                                                                </BreakoutRoomProvider>
+                                                              </DisableChatProvider>
+                                                            </VideoCallProvider>
+                                                          </VideoMeetingDataProvider>
+                                                        </SdkMuteToggleListener>
+                                                      </BeautyEffectProvider>
+                                                    </VBProvider>
+                                                  </UserActionMenuProvider>
+                                                </NetworkQualityProvider>
+                                              </RecordingProvider>
+                                            </LocalUserContext>
+                                          </LiveStreamDataProvider>
+                                        </LiveStreamContextProvider>
+                                      </ScreenshareConfigure>
+                                    </EventsConfigure>
+                                  </WaitingRoomProvider>
+                                </CaptionProvider>
+                              </UserPreferenceProvider>
+                            </RtmConfigure>
+                          </ScreenShareProvider>
+                        </ChatMessagesProvider>
+                      </SidePanelProvider>
+                    </FocusProvider>
+                  </LayoutProvider>
+                </ChatNotificationProvider>
+              </ChatUIControlsProvider>
+            </VideoQualityContextProvider>
+          </NoiseSupressionProvider>
+        </DeviceConfigure>
+      </RtcConfigure>
+    </PropsProvider>
+  );
+};
+
+export default BreakoutVideoCallContent;

@@ -10,8 +10,8 @@
 *********************************************
 */
 
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useState, useRef} from 'react';
+import {View, Text, StyleSheet} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
 import {UidType} from 'agora-rn-uikit';
@@ -20,14 +20,60 @@ import {BreakoutGroup} from '../state/reducer';
 import {useContent} from 'customization-api';
 import {videoRoomUserFallbackText} from '../../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../../utils/useString';
+import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
+import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
+import TertiaryButton from '../../../atoms/TertiaryButton';
+import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
+import {useModal} from '../../../utils/useModal';
+import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import BreakoutRoomRenameModal from './BreakoutRoomRenameModal';
+import {useRoomInfo} from '../../room-info/useRoomInfo';
 
-interface Props {
-  groups: BreakoutGroup[];
-}
-const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
+const BreakoutRoomGroupSettings: React.FC = () => {
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+
+  const {
+    breakoutGroups,
+    isUserInRoom,
+    exitRoom,
+    joinRoom,
+    closeRoom,
+    sendAnnouncement,
+    updateRoomName,
+    canUserSwitchRoom,
+  } = useBreakoutRoom();
+
+  const disableJoinBtn = !isHost && !canUserSwitchRoom;
+
   // Render room card
   const {defaultContent} = useContent();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
+  const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
+  const {
+    modalOpen: isAnnoucementModalOpen,
+    setModalOpen: setAnnouncementModal,
+  } = useModal();
+  const {
+    modalOpen: isRenameRoomModalOpen,
+    setModalOpen: setRenameRoomModalOpen,
+  } = useModal();
+
+  const [roomToEdit, setRoomToEdit] = useState<{id: string; name: string}>(
+    null,
+  );
+
+  const [actionMenuVisible, setActionMenuVisible] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  const showModal = (memberUId: UidType) => {
+    setActionMenuVisible(prev => ({
+      ...prev,
+      [memberUId]: !prev[memberUId],
+    }));
+  };
 
   const getName = (uid: UidType) => {
     return defaultContent[uid]?.name || remoteUserDefaultLabel;
@@ -45,38 +91,80 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
     setExpandedRooms(newExpanded);
   };
 
-  const renderMember = (memberUId: UidType) => (
-    <View key={memberUId} style={styles.memberItem}>
-      <View style={styles.memberInfo}>
-        <UserAvatar
-          name={getName(memberUId)}
-          containerStyle={styles.userAvatarContainer}
-          textStyle={styles.userAvatarText}
-        />
-        <Text style={styles.memberName} numberOfLines={1}>
-          {getName(memberUId)}
-        </Text>
-      </View>
+  const renderMember = (memberUId: UidType) => {
+    // Create or get ref for this specific member
+    if (!memberMoreMenuRefs.current[memberUId]) {
+      memberMoreMenuRefs.current[memberUId] = React.createRef();
+    }
 
-      <TouchableOpacity style={styles.memberMenu} onPress={() => {}}>
-        <Text style={styles.memberMenuText}>⋯</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    const memberRef = memberMoreMenuRefs.current[memberUId];
+    const isMenuVisible = actionMenuVisible[memberUId] || false;
+    const hasRaisedHand = false;
+    return (
+      <View key={memberUId} style={styles.memberItem}>
+        <View style={styles.memberInfo}>
+          <UserAvatar
+            name={getName(memberUId)}
+            containerStyle={styles.userAvatarContainer}
+            textStyle={styles.userAvatarText}
+          />
+          <Text style={styles.memberName} numberOfLines={1}>
+            {getName(memberUId)}
+          </Text>
+        </View>
+
+        <View style={styles.memberMenu}>
+          <View>{hasRaisedHand ? '✋' : <></>}</View>
+          {isHost || canUserSwitchRoom ? (
+            <View style={styles.memberMenuMoreIcon}>
+              <View ref={memberRef} collapsable={false}>
+                <IconButton
+                  iconProps={{
+                    iconType: 'plain',
+                    name: 'more-menu',
+                    iconSize: 20,
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
+                  }}
+                  onPress={() => showModal(memberUId)}
+                />
+              </View>
+              <UserActionMenuOptionsOptions
+                actionMenuVisible={isMenuVisible}
+                setActionMenuVisible={visible =>
+                  setActionMenuVisible(prev => ({
+                    ...prev,
+                    [memberUId]: visible,
+                  }))
+                }
+                user={defaultContent[memberUId]}
+                btnRef={memberRef}
+                from={'breakout-room'}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
+        </View>
+      </View>
+    );
+  };
 
   const renderRoom = (room: BreakoutGroup) => {
     const isExpanded = expandedRooms.has(room.id);
-    const memberCount = room.participants.attendees.length || 0;
+    const memberCount =
+      room.participants.hosts.length ||
+      0 + room.participants.attendees.length ||
+      0;
 
     return (
       <View key={room.id} style={styles.roomGroupCard}>
         <View style={styles.roomHeader}>
           <View style={styles.roomHeaderLeft}>
             <IconButton
-              hoverEffect={true}
+              hoverEffect={false}
               containerStyle={styles.expandIcon}
               iconProps={{
-                name: isExpanded ? 'arrow-down' : 'arrow-up',
+                name: isExpanded ? 'arrow-up' : 'arrow-down',
                 iconType: 'plain',
                 iconSize: 20,
                 tintColor: `${$config.FONT_COLOR}`,
@@ -91,26 +179,58 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
               </Text>
             </View>
           </View>
-          {/* <View style={styles.roomHeaderRight}>
-            <IconButton
-              hoverEffect={true}
-              containerStyle={styles.expandIcon}
-              iconProps={{
-                name: 'more-menu',
-                iconType: 'plain',
-                iconSize: 20,
-                tintColor: `${$config.FONT_COLOR}`,
-              }}
-              onPress={() => {}}
-            />
-          </View> */}
+          <View style={styles.roomHeaderRight}>
+            {isUserInRoom(room) ? (
+              <TertiaryButton
+                containerStyle={styles.exitRoomBtn}
+                textStyle={styles.roomActionBtnText}
+                text={'Exit Room'}
+                onPress={() => {
+                  exitRoom(room.id);
+                }}
+              />
+            ) : (
+              <TertiaryButton
+                disabled={disableJoinBtn}
+                containerStyle={
+                  disableJoinBtn ? styles.disabledBtn : styles.joinRoomBtn
+                }
+                textStyle={styles.roomActionBtnText}
+                text={'Join'}
+                onPress={() => {
+                  joinRoom(room.id);
+                }}
+              />
+            )}
+            {/* Only host can perform these actions */}
+            {isHost ? (
+              <BreakoutRoomActionMenu
+                onDeleteRoom={() => {
+                  console.log('supriya on delete clicked');
+                  closeRoom(room.id);
+                }}
+                onRenameRoom={() => {
+                  setRoomToEdit({id: room.id, name: room.name});
+                  setRenameRoomModalOpen(true);
+                }}
+              />
+            ) : (
+              <></>
+            )}
+          </View>
         </View>
 
         {/* Room Members (Expanded) */}
         {isExpanded && (
           <View style={styles.roomMembers}>
-            {room.participants.attendees.length > 0 ? (
-              room.participants.attendees.map(member => renderMember(member))
+            {room.participants.hosts.length > 0 ||
+            room.participants.attendees.length > 0 ? (
+              <>
+                {room.participants.hosts.map(member => renderMember(member))}
+                {room.participants.attendees.map(member =>
+                  renderMember(member),
+                )}
+              </>
             ) : (
               <View style={styles.emptyRoom}>
                 <Text style={styles.emptyRoomText}>
@@ -124,13 +244,59 @@ const BreakoutRoomGroupSettings: React.FC<Props> = ({groups}) => {
     );
   };
 
+  const onRoomNameChange = (newName: string) => {
+    if (newName && roomToEdit?.id) {
+      updateRoomName(newName, roomToEdit.id);
+      setRoomToEdit(null);
+      setRenameRoomModalOpen(false);
+    }
+  };
+
+  const onAnnouncement = (announcement: string) => {
+    if (announcement) {
+      sendAnnouncement(announcement);
+      setAnnouncementModal(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>All Rooms</Text>
-        {/* <View style={styles.headerActions}></View> */}
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>All Rooms</Text>
+        </View>
+        {isHost ? (
+          <View style={styles.headerRight}>
+            <IconButton
+              iconProps={{
+                iconType: 'plain',
+                name: 'speaker',
+                iconSize: 20,
+                tintColor: $config.SECONDARY_ACTION_COLOR,
+              }}
+              onPress={() => {
+                setAnnouncementModal(true);
+              }}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
       </View>
-      <View style={styles.body}>{groups.map(renderRoom)}</View>
+      <View style={styles.body}>{breakoutGroups.map(renderRoom)}</View>
+      {isAnnoucementModalOpen && (
+        <BreakoutRoomAnnouncementModal
+          onAnnouncement={onAnnouncement}
+          setModalOpen={setAnnouncementModal}
+        />
+      )}
+      {isRenameRoomModalOpen && roomToEdit?.id && (
+        <BreakoutRoomRenameModal
+          currentRoomName={roomToEdit.name}
+          updateRoomName={onRoomNameChange}
+          setModalOpen={setRenameRoomModalOpen}
+        />
+      )}
     </View>
   );
 };
@@ -145,16 +311,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     paddingVertical: 16,
-    // border: '1px solid yellow',
   },
+  headerLeft: {},
   headerTitle: {
     fontWeight: '600',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 16,
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+  },
+  headerRight: {
+    display: 'flex',
+    marginLeft: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerActions: {
     flexDirection: 'row',
@@ -189,6 +361,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  exitRoomBtn: {
+    backgroundColor: 'transparent',
+    borderColor: $config.SECONDARY_ACTION_COLOR,
+    height: 28,
+  },
+  joinRoomBtn: {
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    height: 28,
+  },
+  disabledBtn: {
+    backgroundColor: $config.SEMANTIC_NEUTRAL,
+    borderColor: $config.SEMANTIC_NEUTRAL,
+    height: 28,
+  },
+  roomActionBtnText: {
+    color: $config.SECONDARY_ACTION_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 16,
+    fontWeight: '600',
+  },
   roomHeaderInfo: {
     display: 'flex',
     flexDirection: 'column',
@@ -209,7 +402,8 @@ const styles = StyleSheet.create({
   roomHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginLeft: 'auto',
+    gap: 4,
   },
   roomMembers: {
     paddingHorizontal: 8,
@@ -270,9 +464,18 @@ const styles = StyleSheet.create({
   },
   memberMenu: {
     padding: 8,
+    marginLeft: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
   },
-  memberMenuText: {
-    fontSize: 16,
+  memberMenuMoreIcon: {
+    width: 24,
+    height: 24,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
   },
   emptyRoom: {
     alignItems: 'center',

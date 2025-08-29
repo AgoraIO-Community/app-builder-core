@@ -120,6 +120,6 @@ const styles = StyleSheet.create({
     cursor: 'default',
   },
   disabledText: {
-    color: $config.SEMANTIC_NEUTRAL,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
 });
