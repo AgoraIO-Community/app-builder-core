@@ -139,6 +139,8 @@ class Events {
         }
         await rtmEngine.publish(channelId, text, {
           channelType: nativeChannelTypeMapping.MESSAGE, // 1 is message
+          customType: 'PlainText',
+          messageType: 1,
         });
       } catch (error) {
         logger.error(
@@ -161,6 +163,8 @@ class Events {
       try {
         await rtmEngine.publish(`${adjustedUID}`, text, {
           channelType: nativeChannelTypeMapping.USER, // user
+          customType: 'PlainText',
+          messageType: 1,
         });
       } catch (error) {
         logger.error(
@@ -185,6 +189,8 @@ class Events {
           to.map(uid =>
             rtmEngine.publish(`${adjustUID(uid)}`, text, {
               channelType: nativeChannelTypeMapping.USER,
+              customType: 'PlainText',
+              messageType: 1,
             }),
           ),
         );
