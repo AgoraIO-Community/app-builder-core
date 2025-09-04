@@ -35,7 +35,7 @@ import {
   MOBILE_CAPTION_CONTAINER_HEIGHT,
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
-import {LanguageType} from './utils';
+import {LanguageType, langData} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {
@@ -56,7 +56,10 @@ const CaptionContainer: React.FC<CaptionContainerProps> = ({
   captionTextStyle = {},
 }) => {
   const moreIconRef = React.useRef<View>(null);
+  const langSelectIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+  const [langActionMenuVisible, setLangActionMenuVisible] =
     React.useState<boolean>(false);
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
@@ -115,11 +118,23 @@ const CaptionContainer: React.FC<CaptionContainerProps> = ({
             btnRef={moreIconRef}
           />
 
+          <TranslateActionMenu
+            actionMenuVisible={langActionMenuVisible}
+            setActionMenuVisible={setLangActionMenuVisible}
+            btnRef={langSelectIconRef}
+          />
+
           {(isHovered || isMobileUA()) && !isLangChangeInProgress && (
-            <MoreMenu
-              ref={moreIconRef}
-              setActionMenuVisible={setActionMenuVisible}
-            />
+            <>
+              <LanguageSelectMenu
+                ref={langSelectIconRef}
+                setActionMenuVisible={setLangActionMenuVisible}
+              />
+              <MoreMenu
+                ref={moreIconRef}
+                setActionMenuVisible={setActionMenuVisible}
+              />
+            </>
           )}
 
           <Caption
@@ -181,6 +196,53 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
         iconProps={{
           iconType: 'plain',
           name: 'more-menu',
+          iconSize: isMobile ? 18 : 20,
+          tintColor: $config.SECONDARY_ACTION_COLOR,
+          iconContainerStyle: {
+            padding: isMobile ? 6 : 8,
+            borderRadius: 20,
+            backgroundColor: isMobile
+              ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%']
+              : 'transparent',
+          },
+        }}
+        onPress={() => {
+          setActionMenuVisible(true);
+        }}
+      />
+    </View>
+  );
+});
+
+const LanguageSelectMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
+  const {setActionMenuVisible} = props;
+  const isMobile = isMobileUA();
+  return (
+    <View
+      ref={ref}
+      collapsable={false}
+      style={{
+        width: 32,
+        height: 32,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        position: 'absolute',
+        right: isMobile ? 45 : 50,
+        top: isMobile ? 3 : 8,
+        zIndex: 999,
+      }}>
+      <IconButton
+        hoverEffect={true}
+        hoverEffectStyle={{
+          backgroundColor:
+            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
+          borderRadius: 20,
+        }}
+        iconProps={{
+          iconType: 'plain',
+          name: 'lang-select',
           iconSize: isMobile ? 18 : 20,
           tintColor: $config.SECONDARY_ACTION_COLOR,
           iconContainerStyle: {
@@ -325,6 +387,100 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
         onConfirm={onLanguageChange}
       />
     </>
+  );
+};
+
+interface TranslateActionMenuProps {
+  actionMenuVisible: boolean;
+  setActionMenuVisible: (actionMenuVisible: boolean) => void;
+  btnRef: React.RefObject<View>;
+}
+
+const TranslateActionMenu = (props: TranslateActionMenuProps) => {
+  const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
+  const [modalPosition, setModalPosition] = React.useState({});
+  const [isPosCalculated, setIsPosCalculated] = React.useState(false);
+  const [selectedLanguage, setSelectedLanguage] = React.useState<string>('');
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+
+  const actionMenuitems: ActionMenuItem[] = [];
+
+
+  actionMenuitems.push({
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Translate to',
+     iconPosition: 'end',
+    disabled: true,
+    onPress: () => {},
+  });
+
+
+  actionMenuitems.push({
+    icon: selectedLanguage === '' ? 'tick-fill' : undefined,
+    iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Off',
+    iconPosition: 'end',
+    onPress: () => {
+      setSelectedLanguage('');
+      setActionMenuVisible(false);
+    },
+  });
+
+  // Add Translation language options 
+  langData.forEach((language) => {
+    actionMenuitems.push({
+      icon: selectedLanguage === language.value ? 'tick-fill' : undefined,
+      iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: language.label,
+      iconPosition: 'end',
+      onPress: () => {
+        setSelectedLanguage(language.value);
+        setActionMenuVisible(false);
+      },
+    });
+  });
+
+  React.useEffect(() => {
+    if (actionMenuVisible) {
+      btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          const data = calculatePosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          setModalPosition(data);
+          setIsPosCalculated(true);
+        },
+      );
+    }
+  }, [actionMenuVisible]);
+
+  return (
+    <ActionMenu
+      from={'translation'}
+      actionMenuVisible={actionMenuVisible && isPosCalculated}
+      setActionMenuVisible={setActionMenuVisible}
+      modalPosition={modalPosition}
+      items={actionMenuitems}
+      containerStyle={{
+        maxHeight: Math.min(440, globalHeight * 0.6),
+        width:220
+      }}
+    />
   );
 };
 
