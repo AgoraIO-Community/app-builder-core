@@ -402,6 +402,8 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const [selectedLanguage, setSelectedLanguage] = React.useState<string>('');
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const {language: currentSpokenLanguages} = useCaption();
+  const {update} = useSTTAPI();
 
   const actionMenuitems: ActionMenuItem[] = [];
 
@@ -416,16 +418,46 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   });
 
 
+  const handleTranslationToggle = async (targetLanguage: string) => {
+    try {
+      if (targetLanguage === '') {
+        // turn off translation - todo test
+        await update({
+          translate_config: [],
+          lang:currentSpokenLanguages,
+        });
+        setSelectedLanguage('');
+      } else {
+        // create translate_config for all spoken languages
+        const translateConfig = currentSpokenLanguages.map((spokenLang) => ({
+          source_lang: spokenLang,
+          target_lang: [targetLanguage]
+        }));
+
+        await update({
+          translate_config: translateConfig,
+          lang:currentSpokenLanguages,
+        });
+        setSelectedLanguage(targetLanguage);
+      }
+      setActionMenuVisible(false);
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'STT',
+        'Failed to update translation configuration',
+        error,
+      );
+    }
+  };
+
   actionMenuitems.push({
     icon: selectedLanguage === '' ? 'tick-fill' : undefined,
     iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Off',
     iconPosition: 'end',
-    onPress: () => {
-      setSelectedLanguage('');
-      setActionMenuVisible(false);
-    },
+    onPress: () => handleTranslationToggle(''),
   });
 
   // Add Translation language options 
@@ -436,10 +468,7 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
       textColor: $config.FONT_COLOR,
       title: language.label,
       iconPosition: 'end',
-      onPress: () => {
-        setSelectedLanguage(language.value);
-        setActionMenuVisible(false);
-      },
+      onPress: () => handleTranslationToggle(language.value),
     });
   });
 

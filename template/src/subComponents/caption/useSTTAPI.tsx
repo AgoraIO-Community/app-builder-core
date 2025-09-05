@@ -15,8 +15,19 @@ interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
   stop: () => Promise<void>;
   restart: (lang: LanguageType[]) => Promise<void>;
+  update: (params: UpdateParams) => Promise<any>;
   isAuthorizedSTTUser: () => boolean;
   isAuthorizedTranscriptUser: () => boolean;
+}
+
+interface UpdateParams {
+  // Speaking language (max 4 allowed)
+  lang?: LanguageType[];       
+  // Translation configuration parameters
+  translate_config?: {         
+    target_lang: string[];     
+    source_lang: string;       
+  }[];
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -44,21 +55,40 @@ const useSTTAPI = (): IuseSTTAPI => {
     currentLangRef.current = language;
   }, [language]);
 
-  const apiCall = async (method: string, lang: LanguageType[] = []) => {
+  const apiCall = async (method: string, payload?: any) => {
     const requestId = getUniqueID();
     const startReqTs = Date.now();
+    
     logger.log(
       LogSource.NetworkRest,
       'stt',
-      `Trying to ${method} stt for lang ${lang}`,
+      `Trying to ${method} stt`,
       {
         method,
-        lang,
+        payload,
         requestId,
         startReqTs,
       },
     );
+    
     try {
+      
+      let requestBody: any = {
+        passphrase: roomId?.host || '',
+        dataStream_uid: 111111, // default bot ID
+        encryption_mode: $config.ENCRYPTION_ENABLED
+          ? rtcProps.encryption.mode
+          : null,
+      };
+
+    
+      if (payload && typeof payload === 'object') {
+        requestBody = {
+          ...requestBody,
+          ...payload,
+        };
+      }
+
       const response = await fetch(`${STT_API_URL}/${method}`, {
         method: 'POST',
         headers: {
@@ -67,33 +97,17 @@ const useSTTAPI = (): IuseSTTAPI => {
           'X-Request-Id': requestId,
           'X-Session-Id': logger.getSessionId(),
         },
-        body: JSON.stringify({
-          passphrase: roomId?.host || '',
-          lang: lang, // speaking langauge max 4 allowed
-          translate_config: [
-            // max 4 lang pair allowed in v7
-            {
-              target_lang: ['fr-FR', 'ru-RU', 'ko-KR'], // max 10 target langugage for each source lang ,
-              source_lang: 'en-US',
-            },
-            {
-              target_lang: ['en-US', 'zh-CN', 'th-TH'], // max 10 target langugage for each source lang ,
-              source_lang: 'hi-IN',
-            },
-          ],
-          dataStream_uid: 111111, // bot ID
-          encryption_mode: $config.ENCRYPTION_ENABLED
-            ? rtcProps.encryption.mode
-            : null,
-        }),
+        body: JSON.stringify(requestBody),
       });
+      
       const res = await response.json();
       const endReqTs = Date.now();
       const latency = endReqTs - startReqTs;
+      
       logger.log(
         LogSource.NetworkRest,
         'stt',
-        `STT API Success - Called ${method} on stt with lang ${lang}`,
+        `STT API Success - Called ${method}`,
         {
           responseData: res,
           requestId,
@@ -109,7 +123,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       logger.error(
         LogSource.NetworkRest,
         'stt',
-        `STT API Failure - Called ${method} on stt with lang ${lang}`,
+        `STT API Failure - Called ${method}`,
         error,
         {
           requestId,
@@ -118,6 +132,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           latency,
         },
       );
+      throw error;
     }
   };
 
@@ -132,7 +147,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const start = async (lang: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
-      const res = await apiCall('startv7', lang);
+      const res = await apiCall('startv7', {lang});
       // null means stt startred successfully
       const isSTTAlreadyActive =
         res?.error?.message
@@ -264,6 +279,57 @@ const useSTTAPI = (): IuseSTTAPI => {
     }
   };
 
+ 
+  const update = async (params: UpdateParams) => {
+    try {
+      setIsLangChangeInProgress(true);
+      
+      logger.log(
+        LogSource.NetworkRest,
+        'stt',
+        'Calling STT update method',
+        { params }
+      );
+      
+      const res = await apiCall('update', params);
+      
+      if (res?.error?.message) {
+        setIsSTTError(true);
+        logger.error(
+          LogSource.NetworkRest,
+          'stt',
+          'STT update failed',
+          res?.error,
+        );
+      } else {
+        logger.log(
+          LogSource.NetworkRest,
+          'stt',
+          'STT update successful',
+          res,
+        );
+        setIsSTTError(false);
+        
+        // If language was updated, update local state
+        if (params.lang) {
+          setLanguage(params.lang);
+        }
+      }
+      
+      return res;
+    } catch (error) {
+      logger.error(
+        LogSource.NetworkRest,
+        'stt',
+        'Error in STT update method',
+        error,
+      );
+      throw error;
+    } finally {
+      setIsLangChangeInProgress(false);
+    }
+  };
+
   // attendee can view option if any host has started STT
   const isAuthorizedSTTUser = () =>
     $config.ENABLE_STT &&
@@ -280,6 +346,7 @@ const useSTTAPI = (): IuseSTTAPI => {
     start,
     stop,
     restart,
+    update,
     isAuthorizedSTTUser,
     isAuthorizedTranscriptUser,
   };
