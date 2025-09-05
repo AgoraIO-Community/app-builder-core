@@ -88,7 +88,6 @@ interface BreakoutRoomContextValue {
   getAllRooms: () => BreakoutGroup[];
   getRoomMemberDropdownOptions: (memberUid: UidType) => MemberDropdownOption[];
   upsertBreakoutRoomAPI: (type: 'START' | 'UPDATE') => Promise<void>;
-  closeBreakoutRoomAPI: () => void;
   checkIfBreakoutRoomSessionExistsAPI: () => Promise<boolean>;
   handleAssignParticipants: (strategy: RoomAssignmentStrategy) => void;
   sendAnnouncement: (announcement: string) => void;
@@ -127,7 +126,6 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   getRoomMemberDropdownOptions: () => [],
   sendAnnouncement: () => {},
   upsertBreakoutRoomAPI: async () => {},
-  closeBreakoutRoomAPI: () => {},
   checkIfBreakoutRoomSessionExistsAPI: async () => false,
   onMakeMePresenter: () => {},
   presenters: [],
@@ -389,10 +387,6 @@ const BreakoutRoomProvider = ({
       selfJoinRoomId,
     ],
   );
-
-  const closeBreakoutRoomAPI = () => {
-    console.log('supriya close breakout room API not yet implemented');
-  };
 
   const setStrategy = (strategy: RoomAssignmentStrategy) => {
     dispatch({
@@ -970,7 +964,6 @@ const BreakoutRoomProvider = ({
         createBreakoutRoomGroup,
         checkIfBreakoutRoomSessionExistsAPI,
         upsertBreakoutRoomAPI,
-        closeBreakoutRoomAPI,
         isUserInRoom,
         joinRoom,
         exitRoom,
