@@ -851,7 +851,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: 'breakout-room',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: breakoutRoomLabel,
+      title: isHost ? breakoutRoomLabel : 'View Breakout Rooms',
       onPress: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.BreakoutRoom);

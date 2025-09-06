@@ -65,11 +65,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
           </View>
         ) : (
           <View style={style.panelInnerBody}>
-            {permissions.canRaiseHands && isUserInRoom() ? (
-              <BreakoutRoomRaiseHand />
-            ) : (
-              <></>
-            )}
+            {permissions.canRaiseHands ? <BreakoutRoomRaiseHand /> : <></>}
             {permissions.canAssignParticipants ? (
               <BreakoutRoomSettings />
             ) : (
