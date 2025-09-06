@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-open-room:before {
+  content: '\e9ab';
+  color: #fff;
+}
 .icon-people-assigned:before {
   content: '\e9a4';
   color: #e8eaed;
