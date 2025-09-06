@@ -283,7 +283,17 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           <></>
         )}
       </View>
-      <View style={styles.body}>{breakoutGroups.map(renderRoom)}</View>
+      <View style={styles.body}>
+        {breakoutGroups.length === 0 ? (
+          <View style={styles.emptyRoomPaddingHorizontal}>
+            <Text style={styles.emptyRoomText}>
+              The host hasn't created any breakout rooms yet
+            </Text>
+          </View>
+        ) : (
+          breakoutGroups.map(renderRoom)
+        )}
+      </View>
       {isAnnoucementModalOpen && (
         <BreakoutRoomAnnouncementModal
           onAnnouncement={onAnnouncement}
@@ -480,6 +490,9 @@ const styles = StyleSheet.create({
   emptyRoom: {
     alignItems: 'center',
     paddingVertical: 16,
+  },
+  emptyRoomPaddingHorizontal: {
+    paddingHorizontal: 12,
   },
   emptyRoomText: {
     fontSize: ThemeConfig.FontSize.small,
