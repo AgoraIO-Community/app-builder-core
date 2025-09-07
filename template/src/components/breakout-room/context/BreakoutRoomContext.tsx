@@ -137,9 +137,11 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
 const BreakoutRoomProvider = ({
   children,
   mainChannel,
+  handleLeaveBreakout,
 }: {
   children: React.ReactNode;
   mainChannel: string;
+  handleLeaveBreakout: () => void;
 }) => {
   const {store} = useContext(StorageContext);
   const {defaultContent, activeUids} = useContent();
@@ -152,7 +154,7 @@ const BreakoutRoomProvider = ({
     data: {isHost, roomId},
   } = useRoomInfo();
 
-  const breakoutRoomExit = useBreakoutRoomExit();
+  const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   // Sync state
   const lastSyncTimeRef = useRef(Date.now());
   // Join Room
@@ -281,7 +283,7 @@ const BreakoutRoomProvider = ({
 
   // Polling for sync event
   const pollBreakoutGetAPI = useCallback(async () => {
-    console.log('Supriya Poll started');
+    // console.log('Supriya Poll started');
     const now = Date.now();
     const timeSinceLastAPICall = now - lastSyncTimeRef.current;
 
@@ -290,7 +292,7 @@ const BreakoutRoomProvider = ({
       console.log(
         'Fallback: Calling breakout session to sync events due to no recent updates',
       );
-      console.log('Supriya calling breakout session API started');
+      // console.log('Supriya calling breakout session API started');
       await checkIfBreakoutRoomSessionExistsAPI();
       lastSyncTimeRef.current = Date.now();
     }
@@ -420,6 +422,7 @@ const BreakoutRoomProvider = ({
   };
 
   const handleAssignParticipants = (strategy: RoomAssignmentStrategy) => {
+    console.log('supriya participant assign strategy strategy: ', strategy);
     if (strategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
       dispatch({
         type: BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
@@ -428,6 +431,14 @@ const BreakoutRoomProvider = ({
     if (strategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
       dispatch({
         type: BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
+      });
+    }
+    if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
+      dispatch({
+        type: BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
+        payload: {
+          canUserSwitchRoom: true,
+        },
       });
     }
   };
@@ -921,7 +932,6 @@ const BreakoutRoomProvider = ({
       localUid,
       state.breakoutGroups,
       state.canUserSwitchRoom,
-      exitRoom,
     ],
   );
 
@@ -947,6 +957,9 @@ const BreakoutRoomProvider = ({
 
     // Host can always trigger API calls for any action
     // Attendees can only trigger API when they self-join a room and switch_room is enabled
+    console.log('supriya-allow-people lastAction', lastAction);
+    console.log('supriya-allow-people isHost', isHost);
+
     const shouldCallAPI =
       API_TRIGGERING_ACTIONS.includes(lastAction.type as any) &&
       (isHost ||
@@ -954,8 +967,9 @@ const BreakoutRoomProvider = ({
           state.canUserSwitchRoom &&
           lastAction.type ===
             BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP));
-
+    console.log('supriya-allow-people shouldCallAPI', shouldCallAPI);
     if (shouldCallAPI) {
+      console.log('supriya-allow-people calling update api');
       upsertBreakoutRoomAPI('UPDATE').finally(() => {});
     } else {
       console.log(`Action ${lastAction.type} - skipping API call`);

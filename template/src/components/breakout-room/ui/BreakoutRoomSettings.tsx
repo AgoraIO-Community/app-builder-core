@@ -42,6 +42,15 @@ export default function BreakoutRoomSettings() {
     }
   };
 
+  // Handle strategy change - automatically trigger assignment for NO_ASSIGN
+  const handleStrategyChange = (strategy: RoomAssignmentStrategy) => {
+    setStrategy(strategy);
+    // NO_ASSIGN needs to be applied immediately to enable switch rooms
+    if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
+      handleAssignParticipants(strategy);
+    }
+  };
+
   return (
     <View style={style.card}>
       {/* Avatar list  */}
@@ -52,7 +61,7 @@ export default function BreakoutRoomSettings() {
       <View style={style.section}>
         <SelectParticipantAssignmentStrategy
           selectedStrategy={assignmentStrategy}
-          onStrategyChange={setStrategy}
+          onStrategyChange={handleStrategyChange}
           disabled={disableAssignmentSelect}
         />
         <TertiaryButton

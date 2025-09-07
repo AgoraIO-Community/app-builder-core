@@ -65,10 +65,10 @@ interface BreakoutVideoCallContentProps extends VideoCallContentProps {
 const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   rtcProps,
   breakoutChannelDetails,
+  onLeave,
   callActive,
   callbacks,
   styleProps,
-  onLeave,
 }) => {
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
@@ -196,6 +196,9 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                                                                 <BreakoutRoomProvider
                                                                   mainChannel={
                                                                     rtcProps.channel
+                                                                  }
+                                                                  handleLeaveBreakout={
+                                                                    onLeave
                                                                   }>
                                                                   <BreakoutRoomEventsConfigure
                                                                     mainChannelName={

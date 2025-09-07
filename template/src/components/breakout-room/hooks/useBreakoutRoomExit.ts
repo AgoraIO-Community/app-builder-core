@@ -2,7 +2,7 @@ import {useContext} from 'react';
 import {useHistory, useParams} from '../../../components/Router';
 import {useCaption, useContent, useSTTAPI} from 'customization-api';
 
-const useBreakoutRoomExit = () => {
+const useBreakoutRoomExit = (handleLeaveBreakout?: () => void) => {
   const history = useHistory();
   const {phrase} = useParams<{phrase: string}>();
   const {defaultContent} = useContent();
@@ -24,10 +24,22 @@ const useBreakoutRoomExit = () => {
           console.log('Error stopping stt', error);
         });
       }
-      // 2. Navigate back to main room (if not skipped)
-      history.push(`/${phrase}`);
+
+      // Trigger exit transition if callback provided
+      if (handleLeaveBreakout) {
+        console.log('Triggering breakout room exit transition');
+        handleLeaveBreakout();
+      } else {
+        // Fallback: Navigate directly if no transition callback
+        history.push(`/${phrase}`);
+      }
     } catch (error) {
-      history.push(`/${phrase}`);
+      // Fallback navigation on error
+      if (handleLeaveBreakout) {
+        handleLeaveBreakout();
+      } else {
+        history.push(`/${phrase}`);
+      }
 
       throw error; // Re-throw so caller can handle
     }
