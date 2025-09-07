@@ -24,6 +24,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-raise-hand-fill:before {
+  content: '\e9ac';
+  color: #ffab00;
+}
 .icon-open-room:before {
   content: '\e9ab';
   color: #fff;
