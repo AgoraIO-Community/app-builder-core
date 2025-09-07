@@ -166,7 +166,6 @@ const BreakoutRoomProvider = ({
 
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   // Sync state
-  const lastSyncTimeRef = useRef(Date.now());
   // Join Room
   const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
 
@@ -187,6 +186,9 @@ const BreakoutRoomProvider = ({
   const [raisedHands, setRaisedHands] = useState<
     {uid: UidType; timestamp: number}[]
   >([]);
+
+  // Polling control
+  const [isPollingPaused, setIsPollingPaused] = useState(false);
 
   // Note: No initial data loading needed here as host polls every 2s and sends RTM sync events
   // All participants (including attendees) receive current data via RTM sync events
@@ -298,35 +300,30 @@ const BreakoutRoomProvider = ({
 
   // Polling for sync event
   const pollBreakoutGetAPI = useCallback(async () => {
-    // console.log('Supriya Poll started');
-    const now = Date.now();
-    const timeSinceLastAPICall = now - lastSyncTimeRef.current;
-
-    // If no UPDATE API call in last 30 seconds and we have an active session
-    if (timeSinceLastAPICall > 2000 && isHost && state.breakoutSessionId) {
-      console.log(
-        'Fallback: Calling breakout session to sync events due to no recent updates',
-      );
-      // console.log('Supriya calling breakout session API started');
+    if (isHost && state.breakoutSessionId) {
+      console.log('Polling: Calling breakout session to sync events');
       await checkIfBreakoutRoomSessionExistsAPI();
-      lastSyncTimeRef.current = Date.now();
     }
   }, [isHost, state.breakoutSessionId]);
 
   // Automatic interval management with cleanup only host will poll
   useEffect(() => {
-    if (isHost && state.breakoutSessionId) {
-      // Check every 15 seconds
+    if (isHost && state.breakoutSessionId && !isPollingPaused) {
+      // Check every 2 seconds
       const interval = setInterval(pollBreakoutGetAPI, 2000);
       // React will automatically call this cleanup function
       return () => clearInterval(interval);
     }
-  }, [isHost, state.breakoutSessionId, pollBreakoutGetAPI]);
+  }, [isHost, state.breakoutSessionId, isPollingPaused, pollBreakoutGetAPI]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START') => {
       const startReqTs = Date.now();
       const requestId = getUniqueID();
+
+      // Pause polling during API call to prevent conflicts
+      setIsPollingPaused(true);
+
       try {
         const payload = {
           passphrase: roomId.host,
@@ -379,12 +376,13 @@ const BreakoutRoomProvider = ({
               payload: data.breakout_room,
             });
           }
-          if (type === 'UPDATE') {
-            lastSyncTimeRef.current = Date.now();
-          }
+          // API update completed successfully
         }
       } catch (err) {
         console.log('debugging err', err);
+      } finally {
+        // Resume polling after API call completes (success or error)
+        setIsPollingPaused(false);
       }
     },
     [
