@@ -59,6 +59,7 @@ interface BreakoutRoomPermissions {
   // Media controls
   canScreenshare: boolean;
   canRaiseHands: boolean;
+  canSeeRaisedHands: boolean;
   // Room management (host only)
   canAssignParticipants: boolean;
   canCreateRooms: boolean;
@@ -95,6 +96,11 @@ interface BreakoutRoomContextValue {
   onMakeMePresenter: (action: 'start' | 'stop') => void;
   presenters: {uid: UidType; timestamp: number}[];
   clearAllPresenters: () => void;
+  // Raised hands
+  raisedHands: {uid: UidType; timestamp: number}[];
+  sendRaiseHandEvent: (action: 'raise' | 'lower') => void;
+  onRaiseHand: (action: 'raise' | 'lower', uid: UidType) => void;
+  clearAllRaisedHands: () => void;
   // State sync
   handleBreakoutRoomSyncState: (
     data: BreakoutRoomSyncStateEventPayload['data']['data'],
@@ -130,6 +136,10 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   onMakeMePresenter: () => {},
   presenters: [],
   clearAllPresenters: () => {},
+  raisedHands: [],
+  sendRaiseHandEvent: () => {},
+  onRaiseHand: () => {},
+  clearAllRaisedHands: () => {},
   handleBreakoutRoomSyncState: () => {},
   permissions: null,
 });
@@ -170,6 +180,11 @@ const BreakoutRoomProvider = ({
   // Presenter
   const [canIPresent, setICanPresent] = useState<boolean>(false);
   const [presenters, setPresenters] = useState<
+    {uid: UidType; timestamp: number}[]
+  >([]);
+
+  // Raised hands
+  const [raisedHands, setRaisedHands] = useState<
     {uid: UidType; timestamp: number}[]
   >([]);
 
@@ -738,6 +753,90 @@ const BreakoutRoomProvider = ({
     setPresenters([]);
   }, []);
 
+  // Raised hand management functions
+  const addRaisedHand = useCallback(
+    (uid: UidType) => {
+      setRaisedHands(prev => {
+        // Check if already raised to avoid duplicates
+        const exists = prev.find(hand => hand.uid === uid);
+        if (exists) {
+          return prev;
+        }
+        return [...prev, {uid, timestamp: Date.now()}];
+      });
+      if (isHost) {
+        const userName = defaultContent[uid]?.name || `User ${uid}`;
+        Toast.show({
+          leadingIconName: 'raise-hand',
+          type: 'info',
+          text1: `${userName} raised their hand`,
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+          leadingIcon: null,
+        });
+      }
+    },
+    [defaultContent, isHost],
+  );
+
+  const removeRaisedHand = useCallback(
+    (uid: UidType) => {
+      if (uid) {
+        setRaisedHands(prev => prev.filter(hand => hand.uid !== uid));
+      }
+      if (isHost) {
+        const userName = defaultContent[uid]?.name || `User ${uid}`;
+        Toast.show({
+          leadingIconName: 'raise-hand',
+          type: 'info',
+          text1: `${userName} lowered their hand`,
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+          leadingIcon: null,
+        });
+      }
+    },
+    [defaultContent, isHost],
+  );
+
+  const clearAllRaisedHands = useCallback(() => {
+    setRaisedHands([]);
+  }, []);
+
+  // Send raise hand event via RTM
+  const sendRaiseHandEvent = useCallback(
+    (action: 'raise' | 'lower') => {
+      const payload = {
+        action,
+        uid: localUid,
+        timestamp: Date.now(),
+      };
+
+      events.send(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
+        JSON.stringify(payload),
+      );
+    },
+    [localUid],
+  );
+
+  // Handle incoming raise hand events (only host sees notifications)
+  const onRaiseHand = (action: 'raise' | 'lower', uid: UidType) => {
+    try {
+      if (action === 'raise') {
+        addRaisedHand(uid);
+        // Show toast notification only to host
+      } else if (action === 'lower') {
+        removeRaisedHand(uid);
+        // Show toast notification only to host
+      }
+    } catch (error) {
+      console.error('Error handling raise hand event:', error);
+    }
+  };
+
   // Calculate permissions dynamically
   const permissions = useMemo((): BreakoutRoomPermissions => {
     const currentlyInRoom = isUserInRoom();
@@ -763,7 +862,8 @@ const BreakoutRoomProvider = ({
           currentlyInRoom && hasAvailableRooms && (isHost || canUserSwitchRoom),
         // Media controls
         canScreenshare: currentlyInRoom ? canIPresent : isHost,
-        canRaiseHands: !isHost && isUserInRoom(),
+        canRaiseHands: !isHost && !!state.breakoutSessionId,
+        canSeeRaisedHands: isHost,
         // Room management (host only)
         canAssignParticipants: isHost,
         canCreateRooms: isHost,
@@ -1014,6 +1114,10 @@ const BreakoutRoomProvider = ({
         onMakeMePresenter,
         presenters,
         clearAllPresenters,
+        raisedHands,
+        sendRaiseHandEvent,
+        onRaiseHand,
+        clearAllRaisedHands,
         handleBreakoutRoomSyncState,
         permissions,
       }}>

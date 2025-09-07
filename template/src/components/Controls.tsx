@@ -683,7 +683,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   // 8. Screenshare
   const {permissions} = useBreakoutRoom();
   const canAccessBreakoutRoom = useControlPermissionMatrix('breakoutRoom');
-  const canScreenshareInBreakoutRoom = permissions.canScreenshare;
+  const canScreenshareInBreakoutRoom = permissions?.canScreenshare;
 
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   if (canAccessScreenshare) {
@@ -1312,7 +1312,7 @@ const Controls = (props: ControlsProps) => {
 
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
-  const canAccessExitBreakoutRoomBtn = permissions.canExitRoom;
+  const canAccessExitBreakoutRoomBtn = permissions?.canExitRoom;
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
     return {

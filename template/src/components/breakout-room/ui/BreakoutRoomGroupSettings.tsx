@@ -16,6 +16,7 @@ import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
 import {UidType} from 'agora-rn-uikit';
 import UserAvatar from '../../../atoms/UserAvatar';
+import ImageIcon from '../../../atoms/ImageIcon';
 import {BreakoutGroup} from '../state/reducer';
 import {useContent} from 'customization-api';
 import {videoRoomUserFallbackText} from '../../../language/default-labels/videoCallScreenLabels';
@@ -43,6 +44,8 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     sendAnnouncement,
     updateRoomName,
     canUserSwitchRoom,
+    raisedHands,
+    permissions,
   } = useBreakoutRoom();
 
   const disableJoinBtn = !isHost && !canUserSwitchRoom;
@@ -99,7 +102,10 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
     const memberRef = memberMoreMenuRefs.current[memberUId];
     const isMenuVisible = actionMenuVisible[memberUId] || false;
-    const hasRaisedHand = false;
+    const hasRaisedHand =
+      permissions?.canSeeRaisedHands &&
+      raisedHands.some(hand => hand.uid === memberUId);
+
     return (
       <View key={memberUId} style={styles.memberItem}>
         <View style={styles.memberInfo}>
@@ -114,7 +120,18 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         </View>
 
         <View style={styles.memberMenu}>
-          <View>{hasRaisedHand ? '✋' : <></>}</View>
+          {hasRaisedHand ? (
+            <View style={styles.memberRaiseHand}>
+              <ImageIcon
+                iconSize={18}
+                iconType="plain"
+                name="raise-hand"
+                tintColor={$config.SEMANTIC_WARNING}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
           {isHost || canUserSwitchRoom ? (
             <View style={styles.memberMenuMoreIcon}>
               <View ref={memberRef} collapsable={false}>
@@ -432,7 +449,7 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     borderRadius: 9,
     backgroundColor: $config.CARD_LAYER_3_COLOR,
-    minHeight: 40,
+    minHeight: 64,
     gap: 8,
   },
   memberInfo: {
@@ -475,9 +492,11 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 'auto',
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
+  memberRaiseHand: {},
   memberMenuMoreIcon: {
     width: 24,
     height: 24,
