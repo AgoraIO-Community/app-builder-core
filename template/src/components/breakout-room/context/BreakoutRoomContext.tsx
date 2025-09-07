@@ -14,6 +14,7 @@ import StorageContext from '../../StorageContext';
 import getUniqueID from '../../../utils/getUniqueID';
 import {logger} from '../../../logger/AppBuilderLogger';
 import {useRoomInfo} from 'customization-api';
+import {useLocation} from '../../Router';
 import {
   BreakoutGroupActionTypes,
   BreakoutGroup,
@@ -164,6 +165,9 @@ const BreakoutRoomProvider = ({
     data: {isHost, roomId},
   } = useRoomInfo();
 
+  const location = useLocation();
+  const isInBreakoutRoute = location.pathname.includes('breakout');
+
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   // Sync state
   // Join Room
@@ -301,20 +305,40 @@ const BreakoutRoomProvider = ({
   // Polling for sync event
   const pollBreakoutGetAPI = useCallback(async () => {
     if (isHost && state.breakoutSessionId) {
-      console.log('Polling: Calling breakout session to sync events');
+      console.log(
+        'supriya-polling-check Polling: Calling breakout session to sync events',
+      );
       await checkIfBreakoutRoomSessionExistsAPI();
     }
   }, [isHost, state.breakoutSessionId]);
 
   // Automatic interval management with cleanup only host will poll
   useEffect(() => {
-    if (isHost && state.breakoutSessionId && !isPollingPaused) {
+    console.log(
+      'supriya-polling-check for automatic interval',
+      isHost,
+      state.breakoutSessionId,
+      isPollingPaused,
+    );
+    if (
+      isHost &&
+      !isPollingPaused &&
+      (state.breakoutSessionId || isInBreakoutRoute)
+    ) {
+      console.log('supriya inside automatic interval');
+
       // Check every 2 seconds
       const interval = setInterval(pollBreakoutGetAPI, 2000);
       // React will automatically call this cleanup function
       return () => clearInterval(interval);
     }
-  }, [isHost, state.breakoutSessionId, isPollingPaused, pollBreakoutGetAPI]);
+  }, [
+    isHost,
+    state.breakoutSessionId,
+    isPollingPaused,
+    isInBreakoutRoute,
+    pollBreakoutGetAPI,
+  ]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START') => {

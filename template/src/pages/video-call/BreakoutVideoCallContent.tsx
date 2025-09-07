@@ -113,19 +113,6 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     };
   }, [client, isLoggedIn, rtcProps.channel]);
 
-  // Modified callbacks that use the onLeave prop
-  const endCallModifiedCallbacks = useMemo(
-    () => ({
-      ...callbacks,
-      EndCall: () => {
-        console.log('Breakout room end call triggered');
-        // Use the parent's onLeave callback
-        onLeave?.();
-      },
-    }),
-    [callbacks, onLeave],
-  );
-
   return (
     <PropsProvider
       value={{
@@ -133,7 +120,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
           ...breakoutRoomRTCProps,
           callActive,
         },
-        callbacks: endCallModifiedCallbacks,
+        callbacks,
         styleProps,
         mode: $config.EVENT_MODE
           ? ChannelProfileType.ChannelProfileLiveBroadcasting
