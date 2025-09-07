@@ -19,6 +19,8 @@ import type {
 import {UidType} from '../../agora-rn-uikit';
 import RTMEngine from '../rtm/RTMEngine';
 import {nativePresenceEventTypeMapping} from '../../bridge/rtm/web/Types';
+import {isWeb, isWebInternal} from '../utils/common';
+import isSDK from '../utils/isSDK';
 
 // Event callback types
 type MessageCallback = (message: MessageEvent) => void;
@@ -69,7 +71,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const [client, setClient] = useState<RTMClient | null>(null); // Use state instead
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [connectionState, setConnectionState] = useState(0);
-  console.log('supriya-rtm-restest connectionState: ', connectionState);
+  console.log('supriya-rtm connectionState: ', connectionState);
   const [error, setError] = useState<Error | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   // Callback registration storage
@@ -215,7 +217,6 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         'supriya-rtm-global ######################## ---MessageEvent event: ',
         message,
       );
-      console.log('supriya callbackRegistry', callbackRegistry);
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.message) {
@@ -233,7 +234,6 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     client.addEventListener('message', handleGlobalMessageEvent);
 
     return () => {
-      console.log('supriya removing up global listeners');
       // Remove global event listeners
       client.removeEventListener('storage', handleGlobalStorageEvent);
       client.removeEventListener('presence', handleGlobalPresenceEvent);
@@ -293,16 +293,50 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
     return () => {
       // Cleanup
-      console.log('supriya-rtm-retest RTM cleanup is happening');
+      console.log('supriya-rtm RTM cleanup is happening');
       if (client) {
         console.log('supriya RTM cleanup is happening');
-        client.removeAllListeners();
-        client.logout().catch(() => {});
         RTMEngine.getInstance().destroy();
         setClient(null);
       }
     };
   }, [client, stableUserInfo, setAttribute]);
+
+  // Handle browser close/reload events for RTM cleanup
+  useEffect(() => {
+    if (!$config.ENABLE_CONVERSATIONAL_AI) {
+      const handleBrowserClose = (ev: BeforeUnloadEvent) => {
+        ev.preventDefault();
+        return (ev.returnValue = 'Are you sure you want to exit?');
+      };
+
+      const handleRTMLogout = () => {
+        if (client && isLoggedIn) {
+          console.log('Browser closing, logging out from RTM');
+          client.logout().catch(() => {});
+        }
+      };
+
+      if (!isWebInternal()) {
+        return;
+      }
+
+      window.addEventListener(
+        'beforeunload',
+        isWeb() && !isSDK() ? handleBrowserClose : () => {},
+      );
+
+      window.addEventListener('pagehide', handleRTMLogout);
+
+      return () => {
+        window.removeEventListener(
+          'beforeunload',
+          isWeb() && !isSDK() ? handleBrowserClose : () => {},
+        );
+        window.removeEventListener('pagehide', handleRTMLogout);
+      };
+    }
+  }, [client, isLoggedIn]);
 
   return (
     <RTMContext.Provider

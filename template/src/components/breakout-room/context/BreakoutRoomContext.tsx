@@ -155,7 +155,6 @@ const BreakoutRoomProvider = ({
   const breakoutRoomExit = useBreakoutRoomExit();
   // Sync state
   const lastSyncTimeRef = useRef(Date.now());
-  console.log('supriya-exit', state.breakoutGroups);
   // Join Room
   const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
 
@@ -172,17 +171,9 @@ const BreakoutRoomProvider = ({
     {uid: UidType; timestamp: number}[]
   >([]);
 
-  // Fetch the data when the context loads. Dont wait till they open panel
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        await checkIfBreakoutRoomSessionExistsAPI();
-      } catch (error) {
-        console.error('Failed to load breakout session:', error);
-      }
-    };
-    loadData();
-  }, []);
+  // Note: No initial data loading needed here as host polls every 2s and sends RTM sync events
+  // All participants (including attendees) receive current data via RTM sync events
+  // BreakoutRoomView handles data loading only when panel is opened
 
   // Update unassigned participants whenever defaultContent or activeUids change
   useEffect(() => {
@@ -290,24 +281,26 @@ const BreakoutRoomProvider = ({
 
   // Polling for sync event
   const pollBreakoutGetAPI = useCallback(async () => {
+    console.log('Supriya Poll started');
     const now = Date.now();
     const timeSinceLastAPICall = now - lastSyncTimeRef.current;
 
     // If no UPDATE API call in last 30 seconds and we have an active session
-    if (timeSinceLastAPICall > 30000 && isHost && state.breakoutSessionId) {
+    if (timeSinceLastAPICall > 2000 && isHost && state.breakoutSessionId) {
       console.log(
         'Fallback: Calling breakout session to sync events due to no recent updates',
       );
+      console.log('Supriya calling breakout session API started');
       await checkIfBreakoutRoomSessionExistsAPI();
       lastSyncTimeRef.current = Date.now();
     }
   }, [isHost, state.breakoutSessionId]);
 
-  // Automatic interval management with cleanup
+  // Automatic interval management with cleanup only host will poll
   useEffect(() => {
     if (isHost && state.breakoutSessionId) {
       // Check every 15 seconds
-      const interval = setInterval(pollBreakoutGetAPI, 15000);
+      const interval = setInterval(pollBreakoutGetAPI, 2000);
       // React will automatically call this cleanup function
       return () => clearInterval(interval);
     }
@@ -457,14 +450,14 @@ const BreakoutRoomProvider = ({
           },
         });
       }
-      console.log(`supriya User ${user.name} (${user.uid}) moved to main room`);
+      console.log(`User ${user.name} (${user.uid}) moved to main room`);
     } catch (error) {
-      console.error('supriya Error moving user to main room:', error);
+      console.error('Error moving user to main room:', error);
     }
   };
 
   const moveUserIntoGroup = (user: ContentInterface, toGroupId: string) => {
-    console.log('supriya move user to another room', user, toGroupId);
+    console.log('move user to another room', user, toGroupId);
     try {
       // Find user's current breakout group
       const currentGroup = state.breakoutGroups.find(
@@ -491,10 +484,10 @@ const BreakoutRoomProvider = ({
       });
 
       console.log(
-        `supriya User ${user.name} (${user.uid}) moved to ${targetGroup.name}`,
+        `User ${user.name} (${user.uid}) moved to ${targetGroup.name}`,
       );
     } catch (error) {
-      console.error('supriya Error moving user to breakout room:', error);
+      console.error('Error moving user to breakout room:', error);
     }
   };
 
@@ -713,8 +706,20 @@ const BreakoutRoomProvider = ({
   const onMakeMePresenter = (action: 'start' | 'stop') => {
     if (action === 'start') {
       setICanPresent(true);
+      // Show toast notification when presenter permission is granted
+      Toast.show({
+        type: 'success',
+        text1: 'You can now present in this breakout room',
+        visibilityTime: 3000,
+      });
     } else if (action === 'stop') {
       setICanPresent(false);
+      // Show toast notification when presenter permission is removed
+      Toast.show({
+        type: 'info',
+        text1: 'Your presenter access has been removed',
+        visibilityTime: 3000,
+      });
     }
   };
 
@@ -725,7 +730,6 @@ const BreakoutRoomProvider = ({
   // Calculate permissions dynamically
   const permissions = useMemo((): BreakoutRoomPermissions => {
     const currentlyInRoom = isUserInRoom();
-    console.log('supriya-exit currentlyInRoom: ', currentlyInRoom);
     const hasAvailableRooms = state.breakoutGroups.length > 0;
     const canUserSwitchRoom = state.canUserSwitchRoom;
 
@@ -741,7 +745,7 @@ const BreakoutRoomProvider = ({
           currentlyInRoom && hasAvailableRooms && (isHost || canUserSwitchRoom),
         // Media controls
         canScreenshare: currentlyInRoom ? canIPresent : isHost,
-        canRaiseHands: $config.RAISE_HAND && !isHost,
+        canRaiseHands: !isHost && isUserInRoom(),
         // Room management (host only)
         canAssignParticipants: isHost,
         canCreateRooms: isHost,
@@ -775,12 +779,11 @@ const BreakoutRoomProvider = ({
   const handleBreakoutRoomSyncState = useCallback(
     (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
       const {switch_room, breakout_room} = data;
-
       // Store previous state to compare changes
       const prevGroups = state.breakoutGroups;
       const prevSwitchRoom = state.canUserSwitchRoom;
       const userCurrentRoom = getCurrentRoom();
-      const userCurrentRoomId = userCurrentRoom.id;
+      const userCurrentRoomId = userCurrentRoom?.id || null;
 
       dispatch({
         type: BreakoutGroupActionTypes.SYNC_STATE,
@@ -857,6 +860,8 @@ const BreakoutRoomProvider = ({
             text1: "You've returned to the main room.",
             visibilityTime: 3000,
           });
+          // Exit breakout room and return to main room
+          exitRoom();
           return;
         }
       }
@@ -869,6 +874,8 @@ const BreakoutRoomProvider = ({
           text1: 'Breakout rooms are now closed. Returning to the main room...',
           visibilityTime: 4000,
         });
+        // Exit breakout room and return to main room
+        exitRoom();
         return;
       }
 
@@ -890,6 +897,8 @@ const BreakoutRoomProvider = ({
   contact the host.`,
             visibilityTime: 5000,
           });
+          // Exit breakout room and return to main room
+          exitRoom();
           return;
         }
       }
@@ -912,6 +921,7 @@ const BreakoutRoomProvider = ({
       localUid,
       state.breakoutGroups,
       state.canUserSwitchRoom,
+      exitRoom,
     ],
   );
 
@@ -920,7 +930,6 @@ const BreakoutRoomProvider = ({
     if (!lastAction || !lastAction.type) {
       return;
     }
-    console.log('supriya-exit 1 lastAction: ', lastAction.type);
 
     // Actions that should trigger API calls
     const API_TRIGGERING_ACTIONS = [
@@ -936,15 +945,22 @@ const BreakoutRoomProvider = ({
       BreakoutGroupActionTypes.EXIT_GROUP,
     ];
 
+    // Host can always trigger API calls for any action
+    // Attendees can only trigger API when they self-join a room and switch_room is enabled
     const shouldCallAPI =
-      API_TRIGGERING_ACTIONS.includes(lastAction.type as any) && isHost;
+      API_TRIGGERING_ACTIONS.includes(lastAction.type as any) &&
+      (isHost ||
+        (!isHost &&
+          state.canUserSwitchRoom &&
+          lastAction.type ===
+            BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP));
 
     if (shouldCallAPI) {
       upsertBreakoutRoomAPI('UPDATE').finally(() => {});
     } else {
       console.log(`Action ${lastAction.type} - skipping API call`);
     }
-  }, [lastAction, upsertBreakoutRoomAPI, isHost]);
+  }, [lastAction, upsertBreakoutRoomAPI, isHost, state.canUserSwitchRoom]);
 
   return (
     <BreakoutRoomContext.Provider

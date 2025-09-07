@@ -206,7 +206,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
             {isHost ? (
               <BreakoutRoomActionMenu
                 onDeleteRoom={() => {
-                  console.log('supriya on delete clicked');
                   closeRoom(room.id);
                 }}
                 onRenameRoom={() => {

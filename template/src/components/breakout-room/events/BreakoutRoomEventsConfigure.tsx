@@ -18,7 +18,10 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
 
   useEffect(() => {
     const handleHandRaiseEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_ATTENDEE_RAISE_HAND data: ', evtData);
+      console.log(
+        'supriya-event BREAKOUT_ROOM_ATTENDEE_RAISE_HAND data: ',
+        evtData,
+      );
       try {
         const {uid, payload} = evtData;
         const data = JSON.parse(payload);
@@ -30,7 +33,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     };
 
     const handlePresenterStatusEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
+      console.log('supriya-event BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
       try {
         const {payload} = evtData;
         const data = JSON.parse(payload);
@@ -43,7 +46,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     };
 
     const handleAnnouncementEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
+      console.log('supriya-event BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
       try {
         const {_, payload} = evtData;
         const data = JSON.parse(payload);
@@ -61,9 +64,9 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       } catch (error) {}
     };
 
-    const handleBreakoutRoomStateSync = (evtData: any) => {
+    const handleBreakoutRoomSyncStateEvent = (evtData: any) => {
       const {payload} = evtData;
-      console.log('supriya BREAKOUT_ROOM_SYNC_STATE data: ', evtData);
+      console.log('supriya-event BREAKOUT_ROOM_SYNC_STATE data: ', evtData);
       const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
       if (data.data.act === 'SYNC_STATE') {
         handleBreakoutRoomSyncState(data.data.data);
@@ -84,7 +87,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
-      handleBreakoutRoomStateSync,
+      handleBreakoutRoomSyncStateEvent,
     );
 
     return () => {
@@ -99,7 +102,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       );
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
-        handleBreakoutRoomStateSync,
+        handleBreakoutRoomSyncStateEvent,
       );
     };
   }, [onMakeMePresenter, handleBreakoutRoomSyncState]);

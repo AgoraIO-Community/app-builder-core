@@ -31,13 +31,16 @@ export default function BreakoutRoomSettings() {
     setModalOpen: setManualAssignmentModalOpen,
   } = useModal();
 
-  useEffect(() => {
+  // Handle assign participants button click
+  const handleAssignClick = () => {
     if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+      // Open manual assignment modal
       setManualAssignmentModalOpen(true);
     } else {
-      setManualAssignmentModalOpen(false);
+      // Handle other assignment strategies
+      handleAssignParticipants(assignmentStrategy);
     }
-  }, [assignmentStrategy, setManualAssignmentModalOpen]);
+  };
 
   return (
     <View style={style.card}>
@@ -62,9 +65,7 @@ export default function BreakoutRoomSettings() {
               ? $config.SEMANTIC_NEUTRAL
               : $config.PRIMARY_ACTION_BRAND_COLOR,
           }}
-          onPress={() => {
-            handleAssignParticipants(assignmentStrategy);
-          }}
+          onPress={handleAssignClick}
           text={'Assign participants'}
         />
       </View>

@@ -1313,10 +1313,6 @@ const Controls = (props: ControlsProps) => {
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   const canAccessExitBreakoutRoomBtn = permissions.canExitRoom;
-  console.log(
-    'supriya-exit canAccessExitBreakoutRoomBtn: ',
-    canAccessExitBreakoutRoomBtn,
-  );
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
     return {
