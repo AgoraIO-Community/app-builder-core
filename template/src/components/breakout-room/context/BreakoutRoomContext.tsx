@@ -741,9 +741,16 @@ const BreakoutRoomProvider = ({
   // Calculate permissions dynamically
   const permissions = useMemo((): BreakoutRoomPermissions => {
     const currentlyInRoom = isUserInRoom();
+    console.log('supriya-let currentlyInRoom: ', currentlyInRoom);
     const hasAvailableRooms = state.breakoutGroups.length > 0;
+    console.log('supriya-let  hasAvailableRooms: ', hasAvailableRooms);
     const canUserSwitchRoom = state.canUserSwitchRoom;
+    console.log('supriya-let canUserSwitchRoom: ', canUserSwitchRoom);
 
+    console.log(
+      'supriya-let canJoinRoom',
+      !currentlyInRoom && hasAvailableRooms && (isHost || canUserSwitchRoom),
+    );
     if (true) {
       return {
         // Room navigation
@@ -784,6 +791,7 @@ const BreakoutRoomProvider = ({
     state.canUserSwitchRoom,
     state.breakoutGroups,
     state.breakoutSessionId,
+    state.assignmentStrategy,
     canIPresent,
   ]);
 
