@@ -81,8 +81,6 @@ import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects
 import {UserActionMenuProvider} from '../components/useUserActionMenu';
 import Toast from '../../react-native-toast-message';
 import {AuthErrorCodes} from '../utils/common';
-import {VideoRoomOrchestratorState} from './VideoCallRoomOrchestrator';
-import VideoCallStateSetup from './video-call/VideoCallStateSetup';
 import {BreakoutRoomProvider} from '../components/breakout-room/context/BreakoutRoomContext';
 
 interface VideoCallProps {
