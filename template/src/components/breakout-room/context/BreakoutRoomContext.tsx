@@ -421,6 +421,8 @@ const BreakoutRoomProvider = ({
       store.token,
       dispatch,
       selfJoinRoomId,
+      isHost,
+      roomId.attendee,
     ],
   );
 
