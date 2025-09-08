@@ -107,7 +107,7 @@ export default function ParticipantManualAssignmentModal(
     return unassignedParticipants.map(participant => ({
       uid: participant.uid,
       roomId: null, // Start unassigned
-      isHost: participant.user.isHost || false,
+      isHost: participant.user?.isHost || false,
       isSelected: false,
     }));
   });

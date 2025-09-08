@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import BreakoutRoomParticipants from './BreakoutRoomParticipants';
 import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
@@ -15,16 +15,19 @@ export default function BreakoutRoomSettings() {
   const {
     unassignedParticipants,
     assignmentStrategy,
-    setStrategy,
     handleAssignParticipants,
     canUserSwitchRoom,
     setSwitchRoomsAllowed,
   } = useBreakoutRoom();
 
+  // Local dropdown state to prevent sync conflicts
+  const [localAssignmentStrategy, setLocalAssignmentStrategy] =
+    useState(assignmentStrategy);
+
   const disableAssignmentSelect = unassignedParticipants.length === 0;
   const disableHandleAssignment =
     disableAssignmentSelect ||
-    assignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
+    localAssignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
 
   const {
     modalOpen: isManualAssignmentModalOpen,
@@ -33,23 +36,20 @@ export default function BreakoutRoomSettings() {
 
   // Handle assign participants button click
   const handleAssignClick = () => {
-    if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+    if (localAssignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
       // Open manual assignment modal
       setManualAssignmentModalOpen(true);
     } else {
       // Handle other assignment strategies
-      handleAssignParticipants(assignmentStrategy);
+      handleAssignParticipants(localAssignmentStrategy);
     }
   };
 
-  // Handle strategy change - automatically trigger assignment for NO_ASSIGN
-  const handleStrategyChange = (strategy: RoomAssignmentStrategy) => {
-    setStrategy(strategy);
-    // NO_ASSIGN needs to be applied immediately to enable switch rooms
-    if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
-      handleAssignParticipants(strategy);
+  useEffect(() => {
+    if (localAssignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN) {
+      handleAssignParticipants(localAssignmentStrategy);
     }
-  };
+  }, [localAssignmentStrategy]);
 
   return (
     <View style={style.card}>
@@ -60,8 +60,8 @@ export default function BreakoutRoomSettings() {
       <Divider />
       <View style={style.section}>
         <SelectParticipantAssignmentStrategy
-          selectedStrategy={assignmentStrategy}
-          onStrategyChange={handleStrategyChange}
+          selectedStrategy={localAssignmentStrategy}
+          onStrategyChange={setLocalAssignmentStrategy}
           disabled={disableAssignmentSelect}
         />
         <TertiaryButton

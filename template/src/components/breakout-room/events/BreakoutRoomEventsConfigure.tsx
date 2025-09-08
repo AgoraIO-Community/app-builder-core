@@ -3,7 +3,11 @@ import events from '../../../rtm-events-api';
 import {BreakoutRoomEventNames} from './constants';
 import Toast from '../../../../react-native-toast-message';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
-import {BreakoutRoomSyncStateEventPayload} from '../state/types';
+import {
+  BreakoutRoomAnnouncementEventPayload,
+  BreakoutRoomSyncStateEventPayload,
+} from '../state/types';
+import {useLocalUid} from '../../../../agora-rn-uikit';
 
 interface Props {
   children: React.ReactNode;
@@ -16,6 +20,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
 }) => {
   const {onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand} =
     useBreakoutRoom();
+  const localUid = useLocalUid();
 
   useEffect(() => {
     const handlePresenterStatusEvent = (evtData: any) => {
@@ -46,8 +51,11 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     const handleAnnouncementEvent = (evtData: any) => {
       console.log('supriya-event BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
       try {
-        const {_, payload} = evtData;
-        const data = JSON.parse(payload);
+        const {_, payload, sender} = evtData;
+        const data: BreakoutRoomAnnouncementEventPayload = JSON.parse(payload);
+        if (sender === `${localUid}`) {
+          return;
+        }
         if (data.announcement) {
           Toast.show({
             leadingIconName: 'speaker',
@@ -103,7 +111,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         handleBreakoutRoomSyncStateEvent,
       );
     };
-  }, [onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand]);
+  }, [onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand, localUid]);
 
   return <>{children}</>;
 };

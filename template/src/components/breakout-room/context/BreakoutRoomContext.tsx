@@ -86,7 +86,6 @@ interface BreakoutRoomContextValue {
   breakoutSessionId: BreakoutRoomState['breakoutSessionId'];
   breakoutGroups: BreakoutRoomState['breakoutGroups'];
   assignmentStrategy: RoomAssignmentStrategy;
-  setStrategy: (strategy: RoomAssignmentStrategy) => void;
   canUserSwitchRoom: boolean;
   setSwitchRoomsAllowed: (value: boolean) => void;
   unassignedParticipants: {uid: UidType; user: ContentInterface}[];
@@ -128,7 +127,6 @@ const BreakoutRoomContext = React.createContext<BreakoutRoomContextValue>({
   unassignedParticipants: [],
   breakoutGroups: [],
   assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
-  setStrategy: () => {},
   manualAssignments: [],
   setManualAssignments: () => {},
   clearManualAssignments: () => {},
@@ -428,13 +426,6 @@ const BreakoutRoomProvider = ({
     ],
   );
 
-  const setStrategy = (strategy: RoomAssignmentStrategy) => {
-    dispatch({
-      type: BreakoutGroupActionTypes.SET_ASSIGNMENT_STRATEGY,
-      payload: {strategy},
-    });
-  };
-
   const setManualAssignments = useCallback(
     (assignments: ManualParticipantAssignment[]) => {
       dispatch({
@@ -479,8 +470,7 @@ const BreakoutRoomProvider = ({
     }
     if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
       dispatch({
-        type: BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
-        payload: {canUserSwitchRoom: true},
+        type: BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS,
       });
     }
   };
@@ -1075,6 +1065,7 @@ const BreakoutRoomProvider = ({
       BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
       BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
       BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
+      BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS,
       BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
       BreakoutGroupActionTypes.EXIT_GROUP,
     ];
@@ -1101,7 +1092,6 @@ const BreakoutRoomProvider = ({
         breakoutSessionId: state.breakoutSessionId,
         breakoutGroups: state.breakoutGroups,
         assignmentStrategy: state.assignmentStrategy,
-        setStrategy,
         handleAssignParticipants,
         manualAssignments: state.manualAssignments,
         setManualAssignments,

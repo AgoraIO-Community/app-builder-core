@@ -44,6 +44,11 @@ export interface BreakoutRoomSyncStateEventPayload {
     act: 'SYNC_STATE'; // e.g., "CHAN_JOIN"
   };
 }
+export interface BreakoutRoomAnnouncementEventPayload {
+  uid: string;
+  timestamp: string;
+  announcement: string;
+}
 // | {type: 'DELETE_GROUP'; payload: {groupId: string}}
 // | {
 //     type: 'ADD_PARTICIPANT';
