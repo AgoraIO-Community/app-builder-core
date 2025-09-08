@@ -352,7 +352,7 @@ const BreakoutRoomProvider = ({
 
       try {
         const payload = {
-          passphrase: roomId.host,
+          passphrase: isHost ? roomId.host : roomId.attendee,
           switch_room: state.canUserSwitchRoom,
           session_id: state.breakoutSessionId || randomNameGenerator(6),
           assignment_type: state.assignmentStrategy,
