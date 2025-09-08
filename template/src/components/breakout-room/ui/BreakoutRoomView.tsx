@@ -27,6 +27,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     upsertBreakoutRoomAPI,
     closeAllRooms,
     permissions,
+    isUserInRoom,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -64,14 +65,14 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
           </View>
         ) : (
           <View style={style.panelInnerBody}>
-            {permissions.canRaiseHands ? <BreakoutRoomRaiseHand /> : <></>}
-            {permissions.canAssignParticipants ? (
+            {permissions?.canRaiseHands ? <BreakoutRoomRaiseHand /> : <></>}
+            {permissions?.canAssignParticipants ? (
               <BreakoutRoomSettings />
             ) : (
               <BreakoutRoomMainRoomUsers />
             )}
             <BreakoutRoomGroupSettings />
-            {permissions.canCreateRooms ? (
+            {permissions?.canCreateRooms ? (
               <TertiaryButton
                 containerStyle={style.createBtnContainer}
                 textStyle={style.createBtnText}
@@ -84,7 +85,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
           </View>
         )}
       </ScrollView>
-      {!isInitializing && permissions.canCloseRooms ? (
+      {!isInitializing && permissions?.canCloseRooms ? (
         <View style={style.footer}>
           <View style={style.fullWidth}>
             <TertiaryButton
@@ -99,7 +100,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
                   closeAllRooms();
                   closeSidePanel();
                 } catch (error) {
-                  console.error('Supriya Error while closing the room', error);
+                  console.error('Error while closing the room', error);
                 }
               }}
               text={'Close All Rooms'}

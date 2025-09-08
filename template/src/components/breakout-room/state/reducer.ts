@@ -308,7 +308,7 @@ export const breakoutRoomReducer = (
           const currentRoomId = roomIds[roomIndex];
           const roomAssignment = roomAssignments.get(currentRoomId)!;
           // Assign participant based on their isHost status (string "true"/"false")
-          if (participant.user.isHost === 'true') {
+          if (participant.user?.isHost === 'true') {
             roomAssignment.hosts.push(participant.uid);
           } else {
             roomAssignment.attendees.push(participant.uid);

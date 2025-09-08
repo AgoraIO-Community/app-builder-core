@@ -14,36 +14,37 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   children,
   mainChannelName,
 }) => {
-  const {onMakeMePresenter, handleBreakoutRoomSyncState} = useBreakoutRoom();
+  const {onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand} =
+    useBreakoutRoom();
 
   useEffect(() => {
-    const handleHandRaiseEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_ATTENDEE_RAISE_HAND data: ', evtData);
+    const handlePresenterStatusEvent = (evtData: any) => {
+      console.log('supriya-event BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
       try {
-        const {uid, payload} = evtData;
+        const {payload} = evtData;
         const data = JSON.parse(payload);
-        // uid timestamp action
-        if (data.action === 'raise') {
-        } else if (data.action === 'lower') {
+        if (data.action === 'start' || data.action === 'stop') {
+          onMakeMePresenter(data.action);
         }
       } catch (error) {}
     };
 
-    const handlePresenterStatusEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
+    const handleRaiseHandEvent = (evtData: any) => {
+      console.log(
+        'supriya-event BREAKOUT_ROOM_ATTENDEE_RAISE_HAND data: ',
+        evtData,
+      );
       try {
         const {payload} = evtData;
         const data = JSON.parse(payload);
-        if (data.action === 'start') {
-          onMakeMePresenter('start');
-        } else if (data.action === 'stop') {
-          onMakeMePresenter('stop');
+        if (data.action === 'raise' || data.action === 'lower') {
+          onRaiseHand(data.action, data.uid);
         }
       } catch (error) {}
     };
 
     const handleAnnouncementEvent = (evtData: any) => {
-      console.log('supriya BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
+      console.log('supriya-event BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
       try {
         const {_, payload} = evtData;
         const data = JSON.parse(payload);
@@ -61,9 +62,9 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       } catch (error) {}
     };
 
-    const handleBreakoutRoomStateSync = (evtData: any) => {
+    const handleBreakoutRoomSyncStateEvent = (evtData: any) => {
       const {payload} = evtData;
-      console.log('supriya BREAKOUT_ROOM_SYNC_STATE data: ', evtData);
+      console.log('supriya-event BREAKOUT_ROOM_SYNC_STATE data: ', evtData);
       const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
       if (data.data.act === 'SYNC_STATE') {
         handleBreakoutRoomSyncState(data.data.data);
@@ -80,11 +81,11 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
-      handleHandRaiseEvent,
+      handleRaiseHandEvent,
     );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
-      handleBreakoutRoomStateSync,
+      handleBreakoutRoomSyncStateEvent,
     );
 
     return () => {
@@ -95,14 +96,14 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       );
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
-        handleHandRaiseEvent,
+        handleRaiseHandEvent,
       );
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
-        handleBreakoutRoomStateSync,
+        handleBreakoutRoomSyncStateEvent,
       );
     };
-  }, [onMakeMePresenter, handleBreakoutRoomSyncState]);
+  }, [onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand]);
 
   return <>{children}</>;
 };

@@ -19,6 +19,7 @@ import VideoCall from '../VideoCall';
 import BreakoutVideoCallContent from './BreakoutVideoCallContent';
 import {BreakoutRoomEventNames} from '../../components/breakout-room/events/constants';
 import BreakoutRoomTransition from '../../components/breakout-room/ui/BreakoutRoomTransition';
+import Toast from '../../../react-native-toast-message';
 
 export interface BreakoutChannelDetails {
   channel: string;
@@ -53,6 +54,11 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const [breakoutChannelDetails, setBreakoutChannelDetails] =
     useState<BreakoutChannelDetails | null>(null);
 
+  // Track transition direction for better UX
+  const [transitionDirection, setTransitionDirection] = useState<
+    'enter' | 'exit'
+  >('enter');
+
   // Listen for breakout room join events
   useEffect(() => {
     const handleBreakoutJoin = (evtData: any) => {
@@ -64,9 +70,10 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         // Process the event payload
         const {payload} = evtData;
         const data: BreakoutChannelJoinEventPayload = JSON.parse(payload);
-        console.log('supriya Breakout room join event received', data);
+        console.log('supriya-event Breakout room join event received', data);
         if (data?.data?.act === 'CHAN_JOIN') {
-          const {channel_name, mainUser, screenShare, chat} = data.data.data;
+          const {channel_name, mainUser, screenShare, chat, room_name} =
+            data.data.data;
           // Extract breakout channel details
           const breakoutDetails: BreakoutChannelDetails = {
             channel: channel_name,
@@ -79,6 +86,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           // Set breakout state active
           history.push(`/${phrase}?breakout=true`);
           setBreakoutChannelDetails(null);
+          setTransitionDirection('enter'); // Set direction for entering
           // Add state after a delay to show transitioning screen
           breakoutTimeoutRef.current = setTimeout(() => {
             setBreakoutChannelDetails(prev => ({
@@ -87,9 +95,17 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
             }));
             breakoutTimeoutRef.current = null;
           }, 800);
+
+          setTimeout(() => {
+            Toast.show({
+              type: 'success',
+              text1: `You’ve been added to ${room_name} by the host.`,
+              visibilityTime: 3000,
+            });
+          }, 500);
         }
       } catch (error) {
-        console.error(' supriya Failed to process breakout join event');
+        console.error('Failed to process breakout join event');
       }
     };
 
@@ -120,11 +136,29 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   // Handle leaving breakout room
   const handleLeaveBreakout = useCallback(() => {
     console.log('Leaving breakout room, returning to main room');
-    // Clear breakout channel details
+    // Set direction for exiting
+    setTransitionDirection('exit');
+    // Clear breakout channel details to show transition
     setBreakoutChannelDetails(null);
-    // Navigate back to main room
-    history.push(`/${phrase}`);
+    // Navigate back to main room after a delay
+    setTimeout(() => {
+      history.push(`/${phrase}`);
+    }, 800);
   }, [history, phrase]);
+
+  // Route protection: Prevent direct navigation to breakout route
+  useEffect(() => {
+    if (isBreakoutMode && !breakoutChannelDetails) {
+      // If user navigated to breakout route without valid channel details,
+      // redirect to main room after a short delay to prevent infinite loops
+      const redirectTimer = setTimeout(() => {
+        console.log('Invalid breakout route access, redirecting to main room');
+        history.replace(`/${phrase}`); // Use replace to prevent back navigation
+      }, 2000); // Give 2s for legitimate transitions
+
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [isBreakoutMode, breakoutChannelDetails, history, phrase]);
 
   // Conditional rendering based on URL params
   return (
@@ -140,6 +174,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           />
         ) : (
           <BreakoutRoomTransition
+            direction={transitionDirection}
             onTimeout={() => {
               setBreakoutChannelDetails(null);
             }}

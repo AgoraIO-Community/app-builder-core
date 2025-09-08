@@ -81,9 +81,8 @@ import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects
 import {UserActionMenuProvider} from '../components/useUserActionMenu';
 import Toast from '../../react-native-toast-message';
 import {AuthErrorCodes} from '../utils/common';
-import {VideoRoomOrchestratorState} from './VideoCallRoomOrchestrator';
-import VideoCallStateSetup from './video-call/VideoCallStateSetup';
 import {BreakoutRoomProvider} from '../components/breakout-room/context/BreakoutRoomContext';
+import BreakoutRoomMainEventsConfigure from '../components/breakout-room/events/BreakoutRoomMainEventsConfigure';
 
 interface VideoCallProps {
   callActive: boolean;
@@ -210,8 +209,13 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                                                                   <BreakoutRoomProvider
                                                                     mainChannel={
                                                                       rtcProps.channel
+                                                                    }
+                                                                    handleLeaveBreakout={
+                                                                      null
                                                                     }>
-                                                                    <VideoCallScreenWrapper />
+                                                                    <BreakoutRoomMainEventsConfigure>
+                                                                      <VideoCallScreenWrapper />
+                                                                    </BreakoutRoomMainEventsConfigure>
                                                                   </BreakoutRoomProvider>
                                                                 </DisableChatProvider>
                                                               </VideoCallProvider>

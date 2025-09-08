@@ -10,7 +10,10 @@ import Dropdown from '../../../atoms/Dropdown';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
 import TertiaryButton from '../../../atoms/TertiaryButton';
-import {ManualParticipantAssignment} from '../state/reducer';
+import {
+  ManualParticipantAssignment,
+  RoomAssignmentStrategy,
+} from '../state/reducer';
 
 function EmptyParticipantsState() {
   return (
@@ -45,8 +48,6 @@ function ParticipantRow({
   onAssignmentChange: (uid: UidType, roomId: string | null) => void;
   onSelectionChange: (uid: UidType) => void;
 }) {
-  console.log('supriya-manual individual assignment', assignment);
-  console.log('supriya-manual participant', participant);
   const selectedValue = assignment?.roomId || 'unassigned';
 
   return (
@@ -90,7 +91,7 @@ export default function ParticipantManualAssignmentModal(
     unsassignedParticipants,
     manualAssignments,
     setManualAssignments,
-    applyManualAssignments,
+    handleAssignParticipants,
   } = useBreakoutRoom();
 
   // Local state for assignments
@@ -110,7 +111,6 @@ export default function ParticipantManualAssignmentModal(
       isSelected: false,
     }));
   });
-  console.log('supriya-manual localAssignments', localAssignments);
   // Rooms dropdown options
   const rooms = [
     {label: 'Unassigned', value: 'unassigned'},
@@ -215,6 +215,8 @@ export default function ParticipantManualAssignmentModal(
 
   const handleSaveManualAssignments = () => {
     setManualAssignments(localAssignments);
+    // Trigger the actual assignment after saving
+    handleAssignParticipants(RoomAssignmentStrategy.MANUAL_ASSIGN);
     setModalOpen(false);
   };
 

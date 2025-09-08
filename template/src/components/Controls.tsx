@@ -683,7 +683,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   // 8. Screenshare
   const {permissions} = useBreakoutRoom();
   const canAccessBreakoutRoom = useControlPermissionMatrix('breakoutRoom');
-  const canScreenshareInBreakoutRoom = permissions.canScreenshare;
+  const canScreenshareInBreakoutRoom = permissions?.canScreenshare;
 
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
   if (canAccessScreenshare) {
@@ -851,7 +851,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       icon: 'breakout-room',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
-      title: breakoutRoomLabel,
+      title: isHost ? breakoutRoomLabel : 'View Breakout Rooms',
       onPress: () => {
         setActionMenuVisible(false);
         setSidePanel(SidePanelType.BreakoutRoom);
@@ -1312,11 +1312,7 @@ const Controls = (props: ControlsProps) => {
 
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
-  const canAccessExitBreakoutRoomBtn = permissions.canExitRoom;
-  console.log(
-    'supriya-exit canAccessExitBreakoutRoomBtn: ',
-    canAccessExitBreakoutRoomBtn,
-  );
+  const canAccessExitBreakoutRoomBtn = permissions?.canExitRoom;
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
     return {

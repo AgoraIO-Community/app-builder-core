@@ -1,29 +1,45 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import ImageIcon from '../../../atoms/ImageIcon';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import ThemeConfig from '../../../theme';
+import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 
 export default function BreakoutRoomRaiseHand() {
+  const {sendRaiseHandEvent, isUserInRoom} = useBreakoutRoom();
+  const [isHandRaised, setIsHandRaised] = useState(false);
+
+  const handleRaiseHand = () => {
+    const action = isHandRaised ? 'lower' : 'raise';
+    sendRaiseHandEvent(action);
+    setIsHandRaised(!isHandRaised);
+  };
   return (
     <View style={style.card}>
-      <View style={style.cardHeader}>
-        <ImageIcon
-          iconType="plain"
-          name="info"
-          iconSize={20}
-          tintColor={$config.SECONDARY_ACTION_COLOR}
-        />
-        <Text style={style.infoText}>
-          Please wait, the meeting host will assign you to a room shortly.
-        </Text>
-      </View>
+      {!isUserInRoom() ? (
+        <View style={style.cardHeader}>
+          <ImageIcon
+            iconType="plain"
+            name="info"
+            iconSize={20}
+            tintColor={$config.SECONDARY_ACTION_COLOR}
+          />
+          <Text style={style.infoText}>
+            Please wait, the meeting host will assign you to a room shortly.
+          </Text>
+        </View>
+      ) : (
+        <></>
+      )}
       <View style={style.cardFooter}>
         <TertiaryButton
           containerStyle={style.raiseHandBtn}
           textStyle={style.raiseHandBtnText}
-          text={'✋ Raise Hand'}
-          onPress={() => {}}
+          text={isHandRaised ? 'Lower Hand' : 'Raise Hand'}
+          iconName={isHandRaised ? 'lower-hand' : 'raise-hand'}
+          iconColor={$config.SEMANTIC_WARNING}
+          iconSize={15}
+          onPress={handleRaiseHand}
         />
       </View>
     </View>

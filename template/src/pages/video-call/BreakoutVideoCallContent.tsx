@@ -65,10 +65,10 @@ interface BreakoutVideoCallContentProps extends VideoCallContentProps {
 const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   rtcProps,
   breakoutChannelDetails,
+  onLeave,
   callActive,
   callbacks,
   styleProps,
-  onLeave,
 }) => {
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
@@ -82,7 +82,6 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareUid: breakoutChannelDetails?.screenShareUid as number,
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
-  console.log('supriya breakoutRoomRTCProps', breakoutRoomRTCProps);
 
   const {client, isLoggedIn} = useRTMCore();
 
@@ -114,19 +113,6 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     };
   }, [client, isLoggedIn, rtcProps.channel]);
 
-  // Modified callbacks that use the onLeave prop
-  const endCallModifiedCallbacks = useMemo(
-    () => ({
-      ...callbacks,
-      EndCall: () => {
-        console.log('Breakout room end call triggered');
-        // Use the parent's onLeave callback
-        onLeave?.();
-      },
-    }),
-    [callbacks, onLeave],
-  );
-
   return (
     <PropsProvider
       value={{
@@ -134,7 +120,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
           ...breakoutRoomRTCProps,
           callActive,
         },
-        callbacks: endCallModifiedCallbacks,
+        callbacks,
         styleProps,
         mode: $config.EVENT_MODE
           ? ChannelProfileType.ChannelProfileLiveBroadcasting
@@ -197,6 +183,9 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                                                                 <BreakoutRoomProvider
                                                                   mainChannel={
                                                                     rtcProps.channel
+                                                                  }
+                                                                  handleLeaveBreakout={
+                                                                    onLeave
                                                                   }>
                                                                   <BreakoutRoomEventsConfigure
                                                                     mainChannelName={

@@ -157,6 +157,7 @@ export interface IconsInterface {
   'double-up-arrow': string;
   'move-up': string;
   'close-room': string;
+  'open-room': string;
   announcement: string;
   'settings-outlined': string;
   'breakout-room': string;

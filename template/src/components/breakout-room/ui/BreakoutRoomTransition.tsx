@@ -1,9 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import Loading from '../../../subComponents/Loading';
-import {View, StyleSheet, Text} from 'react-native';
-import ThemeConfig from '../../../theme';
+import {View, StyleSheet} from 'react-native';
 
-const BreakoutRoomTransition = ({onTimeout}: {onTimeout: () => void}) => {
+interface BreakoutRoomTransitionProps {
+  onTimeout: () => void;
+  direction?: 'enter' | 'exit';
+}
+
+const BreakoutRoomTransition = ({
+  onTimeout,
+  direction = 'enter',
+}: BreakoutRoomTransitionProps) => {
   const [dots, setDots] = useState('');
 
   useEffect(() => {
@@ -19,10 +26,13 @@ const BreakoutRoomTransition = ({onTimeout}: {onTimeout: () => void}) => {
     };
   }, [onTimeout]);
 
+  const transitionText =
+    direction === 'exit' ? 'Exiting breakout room' : 'Entering breakout room';
+
   return (
     <View style={styles.transitionContainer}>
       <Loading
-        text={`Entering breakout room...${dots}`}
+        text={`${transitionText}...${dots}`}
         background={$config.CARD_LAYER_1_COLOR}
         textColor={$config.FONT_COLOR}
       />

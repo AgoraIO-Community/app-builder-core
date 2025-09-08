@@ -31,13 +31,25 @@ export default function BreakoutRoomSettings() {
     setModalOpen: setManualAssignmentModalOpen,
   } = useModal();
 
-  useEffect(() => {
+  // Handle assign participants button click
+  const handleAssignClick = () => {
     if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+      // Open manual assignment modal
       setManualAssignmentModalOpen(true);
     } else {
-      setManualAssignmentModalOpen(false);
+      // Handle other assignment strategies
+      handleAssignParticipants(assignmentStrategy);
     }
-  }, [assignmentStrategy, setManualAssignmentModalOpen]);
+  };
+
+  // Handle strategy change - automatically trigger assignment for NO_ASSIGN
+  const handleStrategyChange = (strategy: RoomAssignmentStrategy) => {
+    setStrategy(strategy);
+    // NO_ASSIGN needs to be applied immediately to enable switch rooms
+    if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
+      handleAssignParticipants(strategy);
+    }
+  };
 
   return (
     <View style={style.card}>
@@ -49,7 +61,7 @@ export default function BreakoutRoomSettings() {
       <View style={style.section}>
         <SelectParticipantAssignmentStrategy
           selectedStrategy={assignmentStrategy}
-          onStrategyChange={setStrategy}
+          onStrategyChange={handleStrategyChange}
           disabled={disableAssignmentSelect}
         />
         <TertiaryButton
@@ -62,9 +74,7 @@ export default function BreakoutRoomSettings() {
               ? $config.SEMANTIC_NEUTRAL
               : $config.PRIMARY_ACTION_BRAND_COLOR,
           }}
-          onPress={() => {
-            handleAssignParticipants(assignmentStrategy);
-          }}
+          onPress={handleAssignClick}
           text={'Assign participants'}
         />
       </View>
