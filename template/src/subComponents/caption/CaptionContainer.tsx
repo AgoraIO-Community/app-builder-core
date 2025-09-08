@@ -400,9 +400,12 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
-  const [selectedLanguage, setSelectedLanguage] = React.useState<string>('');
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const {language: currentSpokenLanguages} = useCaption();
+  const {
+    language: currentSpokenLanguages,
+    selectedTranslationLanguage,
+    setSelectedTranslationLanguage
+  } = useCaption();
   const {update} = useSTTAPI();
 
   const actionMenuitems: ActionMenuItem[] = [];
@@ -426,7 +429,7 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: [],
           lang:currentSpokenLanguages,
         });
-        setSelectedLanguage('');
+        setSelectedTranslationLanguage('');
       } else {
         // create translate_config for all spoken languages
         const translateConfig = currentSpokenLanguages.map((spokenLang) => ({
@@ -438,7 +441,7 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: translateConfig,
           lang:currentSpokenLanguages,
         });
-        setSelectedLanguage(targetLanguage);
+        setSelectedTranslationLanguage(targetLanguage);
       }
       setActionMenuVisible(false);
     } catch (error) {
@@ -452,7 +455,7 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   };
 
   actionMenuitems.push({
-    icon: selectedLanguage === '' ? 'tick-fill' : undefined,
+    icon: selectedTranslationLanguage === '' ? 'tick-fill' : undefined,
     iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Off',
@@ -463,7 +466,7 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   // Add Translation language options 
   langData.forEach((language) => {
     actionMenuitems.push({
-      icon: selectedLanguage === language.value ? 'tick-fill' : undefined,
+      icon: selectedTranslationLanguage === language.value ? 'tick-fill' : undefined,
       iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
       textColor: $config.FONT_COLOR,
       title: language.label,

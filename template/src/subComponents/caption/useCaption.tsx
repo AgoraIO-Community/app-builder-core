@@ -57,6 +57,9 @@ export const CaptionContext = React.createContext<{
 
   activeSpeakerRef: React.MutableRefObject<string>;
   prevSpeakerRef: React.MutableRefObject<string>;
+
+  selectedTranslationLanguage: string;
+  setSelectedTranslationLanguage: React.Dispatch<React.SetStateAction<string>>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -76,6 +79,8 @@ export const CaptionContext = React.createContext<{
   setIsSTTListenerAdded: () => {},
   activeSpeakerRef: {current: ''},
   prevSpeakerRef: {current: ''},
+  selectedTranslationLanguage: '',
+  setSelectedTranslationLanguage: () => {},
 });
 
 interface CaptionProviderProps {
@@ -102,6 +107,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
   const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
     React.useState<string>('');
+  const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
+    React.useState<string>('');
 
   const activeSpeakerRef = React.useRef('');
   const prevSpeakerRef = React.useRef('');
@@ -127,6 +134,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setIsSTTListenerAdded,
         activeSpeakerRef,
         prevSpeakerRef,
+        selectedTranslationLanguage,
+        setSelectedTranslationLanguage,
       }}>
       {children}
     </CaptionContext.Provider>

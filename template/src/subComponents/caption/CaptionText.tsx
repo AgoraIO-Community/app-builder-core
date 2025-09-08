@@ -8,6 +8,7 @@ import {
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
+import {useCaption} from './useCaption';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isAndroid, isMobileUA} from '../../utils/common';
 
@@ -35,24 +36,6 @@ const DESKTOP_LINE_HEIGHT = 28;
 const MOBILE_LINE_HEIGHT = 21;
 const MAX_CAPTIONS_LINES_ALLOWED = 3;
 
-// Language name mapping for display
-const LANGUAGE_LABELS: {[key: string]: string} = {
-  'hi-IN': 'Hindi',
-  'fr-FR': 'French',
-  'ru-RU': 'Russian',
-  'zh-HK': 'Chinese',
-  'en-US': 'English',
-};
-
-// Colors for different translation lines
-const TRANSLATION_COLORS: {[key: string]: string} = {
-  'hi-IN': '#FF6B6B',
-  'fr-FR': '#4ECDC4', 
-  'ru-RU': '#45B7D1',
-  'zh-HK': '#96CEB4',
-  'en-US': '#FECA57',
-};
-
 const CaptionText = ({
   user,
   value,
@@ -67,6 +50,7 @@ const CaptionText = ({
   captionTextStyle = {},
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
+  const {selectedTranslationLanguage} = useCaption();
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -142,7 +126,7 @@ const CaptionText = ({
         style={[
           styles.captionTextContainerStyle,
           {
-            minHeight:
+            height:
               (isActiveSpeaker
                 ? activelinesAvailable
                 : Math.min(
@@ -152,47 +136,22 @@ const CaptionText = ({
           },
         ]}>
         {/* Transcription */}
-        {value ? (
-          <Text
-            onLayout={handleTextLayout}
-            style={[
-              styles.captionText,
-              styles.transcriptionText,
-              isMobile
-                ? styles.mobileCaptionFontSize
-                : styles.desktopCaptionFontSize,
-              isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
-              captionTextStyle,
-            ]}>
-            {value}
-          </Text>
-        ) : null}
-        
-        {/* Translations */}
-        {translations.map((translation, index) => {
-          const langLabel = LANGUAGE_LABELS[translation.lang] || translation.lang;
-          const color = TRANSLATION_COLORS[translation.lang] || '#888888';
-          const opacity = translation.isFinal ? 1 : 0.7;
-          
-          return (
-            <Text
-              key={`${translation.lang}-${index}`}
-              style={[
-                styles.translationText,
-                isMobile
-                  ? styles.mobileCaptionFontSize
-                  : styles.desktopCaptionFontSize,
-                isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
-                {
-                  color: color,
-                  opacity: opacity,
-                  marginTop: 2,
-                },
-              ]}>
-              ({langLabel}) {translation.text}
-            </Text>
-          );
-        })}
+        <Text
+          onLayout={handleTextLayout}
+          style={[
+            styles.captionText,
+            styles.transcriptionText,
+            isMobile
+              ? styles.mobileCaptionFontSize
+              : styles.desktopCaptionFontSize,
+            isAndroid() && {lineHeight: MOBILE_LINE_HEIGHT - 2},
+            captionTextStyle,
+          ]}>
+          {selectedTranslationLanguage
+            ? translations.find(t => t.lang === selectedTranslationLanguage)
+                ?.text || value
+            : value}
+        </Text>
       </View>
     </View>
   );
@@ -212,14 +171,18 @@ const styles = StyleSheet.create({
 
   captionTextContainerStyle: {
     width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
+    // flexDirection: 'column',
+    // justifyContent: 'flex-end',
+    overflow: 'hidden',
+    position: 'relative',
   },
 
   captionText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR,
+    position: 'absolute',
+    bottom: 0,
   },
 
   transcriptionText: {
