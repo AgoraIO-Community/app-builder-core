@@ -35,7 +35,10 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     const handlePresenterStatusEvent = (evtData: any) => {
       console.log('supriya-event BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
       try {
-        const {payload} = evtData;
+        const {sender, payload} = evtData;
+        if (sender === `${localUid}`) {
+          return;
+        }
         const data = JSON.parse(payload);
         if (data.action === 'start' || data.action === 'stop') {
           onMakeMePresenter(data.action);

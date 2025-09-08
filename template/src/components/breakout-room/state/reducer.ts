@@ -261,6 +261,7 @@ export const breakoutRoomReducer = (
           participants: {
             hosts: [...group.participants.hosts, ...hostsToAdd],
             attendees: [...group.participants.attendees, ...attendeesToAdd],
+            assignmentStrategy: RoomAssignmentStrategy.MANUAL_ASSIGN, // Update strategy
           },
         };
       });
@@ -330,6 +331,7 @@ export const breakoutRoomReducer = (
           participants: {
             hosts: roomParticipants.hosts,
             attendees: roomParticipants.attendees,
+            assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN, // Update strategy
           },
         };
       });

@@ -326,8 +326,8 @@ const BreakoutRoomProvider = ({
       !isPollingPaused &&
       (state.breakoutSessionId || isInBreakoutRoute)
     ) {
-      const interval = setInterval(pollBreakoutGetAPI, 2000);
-      return () => clearInterval(interval);
+      // const interval = setInterval(pollBreakoutGetAPI, 2000);
+      // return () => clearInterval(interval);
     }
   }, [
     isHost,
@@ -904,92 +904,99 @@ const BreakoutRoomProvider = ({
   const handleBreakoutRoomSyncState = useCallback(
     (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
       const {session_id, switch_room, breakout_room, assignment_type} = data;
+      console.log('supriya-new-state breakout_room: ', breakout_room);
+      console.log('supriya-new-state prevGroups: ', state.breakoutGroups);
       // Store previous state to compare changes
+      // const prevGroups = [...state.breakoutGroups];
+      // const prevSwitchRoom = state.canUserSwitchRoom;
+      // const userCurrentRoom = getCurrentRoom();
+      // const userCurrentRoomId = userCurrentRoom?.id || null;
+
+      // BEFORE snapshot
       const prevGroups = state.breakoutGroups;
       const prevSwitchRoom = state.canUserSwitchRoom;
-      const userCurrentRoom = getCurrentRoom();
-      const userCurrentRoomId = userCurrentRoom?.id || null;
 
-      dispatch({
-        type: BreakoutGroupActionTypes.SYNC_STATE,
-        payload: {
-          sessionId: session_id,
-          assignmentStrategy: assignment_type,
-          switchRoom: switch_room,
-          rooms: breakout_room,
-        },
-      });
+      // Helpers to find membership
+      const findUserRoomId = (uid: UidType, groups: BreakoutGroup[] = []) =>
+        groups.find(g => {
+          const hosts = Array.isArray(g?.participants?.hosts)
+            ? g.participants.hosts
+            : [];
+          const attendees = Array.isArray(g?.participants?.attendees)
+            ? g.participants.attendees
+            : [];
+          return hosts.includes(uid) || attendees.includes(uid);
+        })?.id ?? null;
+
+      const prevRoomId = findUserRoomId(localUid, prevGroups); // before
+      const nextRoomId = findUserRoomId(localUid, breakout_room);
 
       // Show notifications based on changes
       // 1. Switch room enabled notification
       if (switch_room && !prevSwitchRoom) {
+        console.log('supriya-move-to-main 1');
         Toast.show({
           leadingIconName: 'info',
           type: 'info',
           text1: 'Breakout rooms are now open. Please choose a room to join.',
           visibilityTime: 4000,
         });
-        return; // Don't show other notifications when rooms first open
+        console.log('supriya-move-to-main 1 return');
       }
 
       // 2. User joined a room (compare previous and current state)
-      if (userCurrentRoomId) {
-        const wasInRoom = prevGroups.some(
-          group =>
-            group.participants.hosts.includes(localUid) ||
-            group.participants.attendees.includes(localUid),
-        );
+      if (!prevRoomId && nextRoomId) {
+        const currentRoom = breakout_room.find(r => r.id === nextRoomId);
 
-        if (!wasInRoom) {
-          const currentRoom = breakout_room.find(
-            room => room.id === userCurrentRoomId,
-          );
-          Toast.show({
-            type: 'success',
-            text1: `You've joined ${currentRoom?.name || 'a breakout room'}.`,
-            visibilityTime: 3000,
-          });
-          return;
-        }
+        Toast.show({
+          type: 'success',
+          text1: `You've joined ${currentRoom?.name || 'a breakout room'}.`,
+          visibilityTime: 3000,
+        });
+        console.log('supriya-move-to-main 2 return');
       }
 
       // 3. User was moved to a different room by host
-      if (userCurrentRoom) {
-        const prevUserRoom = prevGroups.find(
-          group =>
-            group.participants.hosts.includes(localUid) ||
-            group.participants.attendees.includes(localUid),
-        );
-
-        if (prevUserRoom && prevUserRoom.id !== userCurrentRoomId) {
-          Toast.show({
-            type: 'info',
-            text1: `You've been moved to ${userCurrentRoom.name} by the host.`,
-            visibilityTime: 4000,
-          });
-          return;
-        }
+      // Moved to a different room (before: A, after: B, A≠B)
+      if (prevRoomId && nextRoomId && prevRoomId !== nextRoomId) {
+        console.log('supriya-move-to-main 3');
+        const afterRoom = breakout_room.find(r => r.id === nextRoomId);
+        Toast.show({
+          type: 'info',
+          text1: `You've been moved to ${afterRoom.name} by the host.`,
+          visibilityTime: 4000,
+        });
       }
 
       // 4. User was moved to main room
-      if (!userCurrentRoom) {
-        const wasInRoom = prevGroups.some(
-          group =>
-            group.participants.hosts.includes(localUid) ||
-            group.participants.attendees.includes(localUid),
-        );
+      if (prevRoomId && !nextRoomId) {
+        console.log('supriya-move-to-main 4');
 
-        if (wasInRoom) {
+        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
+        // Distinguish "room closed" vs "moved to main"
+        const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
+
+        if (!roomStillExists) {
+          Toast.show({
+            leadingIconName: 'alert',
+            type: 'error',
+            text1: `${
+              prevRoom?.name || 'Your room'
+            } is currently closed. Returning to main room.`,
+            visibilityTime: 5000,
+          });
+        } else {
           Toast.show({
             leadingIconName: 'arrow-up',
             type: 'info',
             text1: "You've returned to the main room.",
             visibilityTime: 3000,
           });
-          // Exit breakout room and return to main room
-          exitRoom();
-          return;
         }
+        // Exit breakout room and return to main room
+        // (safe to call before/after dispatch; choose what your app expects)
+        exitRoom();
+        // no return; still apply state
       }
 
       // 5. All breakout rooms closed
@@ -1005,39 +1012,28 @@ const BreakoutRoomProvider = ({
         return;
       }
 
-      // 6. Specific room was closed (user was in it)
-      if (userCurrentRoomId) {
-        const roomStillExists = breakout_room.some(
-          room => room.id === userCurrentRoomId,
-        );
-        if (!roomStillExists) {
-          const closedRoom = prevGroups.find(
-            room => room.id === userCurrentRoomId,
-          );
-          Toast.show({
-            leadingIconName: 'alert',
-            type: 'error',
-            text1: `${
-              closedRoom?.name || 'Your room'
-            } is currently closed. Returning to main room. Please contact the host.`,
-            visibilityTime: 5000,
-          });
-          // Exit breakout room and return to main room
-          exitRoom();
-          return;
-        }
-      }
-
       // 7. Room name changed
+      // 6) Room renamed (compare per-room names)
       prevGroups.forEach(prevRoom => {
-        const currentRoom = breakout_room.find(room => room.id === prevRoom.id);
-        if (currentRoom && currentRoom.name !== prevRoom.name) {
+        const after = breakout_room.find(r => r.id === prevRoom.id);
+        if (after && after.name !== prevRoom.name) {
           Toast.show({
             type: 'info',
-            text1: `${prevRoom.name} has been renamed to '${currentRoom.name}'.`,
+            text1: `${prevRoom.name} has been renamed to '${after.name}'.`,
             visibilityTime: 3000,
           });
         }
+      });
+
+      // Finally, apply the authoritative state
+      dispatch({
+        type: BreakoutGroupActionTypes.SYNC_STATE,
+        payload: {
+          sessionId: session_id,
+          assignmentStrategy: assignment_type,
+          switchRoom: switch_room,
+          rooms: breakout_room,
+        },
       });
     },
     [
