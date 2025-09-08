@@ -13,15 +13,15 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 
 export default function BreakoutRoomSettings() {
   const {
-    unsassignedParticipants,
+    unassignedParticipants,
     assignmentStrategy,
     setStrategy,
     handleAssignParticipants,
     canUserSwitchRoom,
-    toggleSwitchRooms,
+    setSwitchRoomsAllowed,
   } = useBreakoutRoom();
 
-  const disableAssignmentSelect = unsassignedParticipants.length === 0;
+  const disableAssignmentSelect = unassignedParticipants.length === 0;
   const disableHandleAssignment =
     disableAssignmentSelect ||
     assignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
@@ -55,7 +55,7 @@ export default function BreakoutRoomSettings() {
     <View style={style.card}>
       {/* Avatar list  */}
       <View style={style.section}>
-        <BreakoutRoomParticipants participants={unsassignedParticipants} />
+        <BreakoutRoomParticipants participants={unassignedParticipants} />
       </View>
       <Divider />
       <View style={style.section}>
@@ -85,7 +85,7 @@ export default function BreakoutRoomSettings() {
           <Toggle
             disabled={$config.EVENT_MODE}
             isEnabled={canUserSwitchRoom}
-            toggleSwitch={toggleSwitchRooms}
+            toggleSwitch={setSwitchRoomsAllowed}
             circleColor={$config.FONT_COLOR}
           />
         </View>
