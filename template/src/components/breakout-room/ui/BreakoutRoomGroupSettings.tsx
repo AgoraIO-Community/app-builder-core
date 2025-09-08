@@ -14,7 +14,7 @@ import React, {useState, useRef} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
-import {UidType} from 'agora-rn-uikit';
+import {UidType, useLocalUid} from '../../../../agora-rn-uikit';
 import UserAvatar from '../../../atoms/UserAvatar';
 import ImageIcon from '../../../atoms/ImageIcon';
 import {BreakoutGroup} from '../state/reducer';
@@ -34,6 +34,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   const {
     data: {isHost},
   } = useRoomInfo();
+  const localUid = useLocalUid();
 
   const {
     breakoutGroups,
@@ -132,7 +133,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           ) : (
             <></>
           )}
-          {isHost || canUserSwitchRoom ? (
+          {canUserSwitchRoom && isHost && memberUId !== localUid ? (
             <View style={styles.memberMenuMoreIcon}>
               <View ref={memberRef} collapsable={false}>
                 <IconButton
@@ -169,9 +170,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   const renderRoom = (room: BreakoutGroup) => {
     const isExpanded = expandedRooms.has(room.id);
     const memberCount =
-      room.participants.hosts.length ||
-      0 + room.participants.attendees.length ||
-      0;
+      room.participants.hosts.length + room.participants.attendees.length;
 
     return (
       <View key={room.id} style={styles.roomGroupCard}>

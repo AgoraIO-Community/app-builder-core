@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import events from '../../../rtm-events-api';
 import {BreakoutRoomEventNames} from './constants';
 import Toast from '../../../../react-native-toast-message';
@@ -8,6 +8,7 @@ import {
   BreakoutRoomSyncStateEventPayload,
 } from '../state/types';
 import {useLocalUid} from '../../../../agora-rn-uikit';
+import {useRoomInfo} from '../../../components/room-info/useRoomInfo';
 
 interface Props {
   children: React.ReactNode;
@@ -21,6 +22,14 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   const {onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand} =
     useBreakoutRoom();
   const localUid = useLocalUid();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  const isHostRef = React.useRef(isHost);
+
+  useEffect(() => {
+    isHostRef.current = isHost;
+  }, [isHost]);
 
   useEffect(() => {
     const handlePresenterStatusEvent = (evtData: any) => {
@@ -40,7 +49,13 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         evtData,
       );
       try {
-        const {payload} = evtData;
+        const {sender, payload} = evtData;
+        if (!isHostRef.current) {
+          return;
+        }
+        if (sender === `${localUid}`) {
+          return;
+        }
         const data = JSON.parse(payload);
         if (data.action === 'raise' || data.action === 'lower') {
           onRaiseHand(data.action, data.uid);
