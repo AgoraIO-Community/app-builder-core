@@ -330,9 +330,9 @@ const BreakoutRoomProvider = ({
       console.log('supriya inside automatic interval');
 
       // Check every 2 seconds
-      // const interval = setInterval(pollBreakoutGetAPI, 2000);
+      const interval = setInterval(pollBreakoutGetAPI, 2000);
       // React will automatically call this cleanup function
-      // return () => clearInterval(interval);
+      return () => clearInterval(interval);
     }
   }, [
     isHost,
