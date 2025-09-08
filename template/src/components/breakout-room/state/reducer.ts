@@ -2,9 +2,9 @@ import {ContentInterface, UidType} from '../../../../agora-rn-uikit/src';
 import {randomNameGenerator} from '../../../utils';
 
 export enum RoomAssignmentStrategy {
-  AUTO_ASSIGN = 'auto-assign',
-  MANUAL_ASSIGN = 'manual-assign',
-  NO_ASSIGN = 'no-assign',
+  AUTO_ASSIGN = 'AUTO_ASSIGN',
+  MANUAL_ASSIGN = 'MANUAL_ASSIGN',
+  NO_ASSIGN = 'NO_ASSIGN',
 }
 export interface ManualParticipantAssignment {
   uid: UidType;
@@ -45,8 +45,8 @@ export const initialBreakoutGroups = [
 
 export const initialBreakoutRoomState: BreakoutRoomState = {
   breakoutSessionId: '',
-  assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
-  canUserSwitchRoom: false,
+  assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN,
+  canUserSwitchRoom: true,
   unassignedParticipants: [],
   manualAssignments: [],
   breakoutGroups: [],
@@ -89,6 +89,7 @@ export type BreakoutRoomAction =
         sessionId: BreakoutRoomState['breakoutSessionId'];
         switchRoom: BreakoutRoomState['canUserSwitchRoom'];
         rooms: BreakoutRoomState['breakoutGroups'];
+        assignmentStrategy: BreakoutRoomState['assignmentStrategy'];
       };
     }
   | {
@@ -184,6 +185,7 @@ export const breakoutRoomReducer = (
         ...state,
         breakoutSessionId: action.payload.sessionId,
         canUserSwitchRoom: action.payload.switchRoom,
+        assignmentStrategy: action.payload.assignmentStrategy,
         breakoutGroups: action.payload.rooms.map(group => ({
           ...group,
           participants: {
@@ -235,6 +237,10 @@ export const breakoutRoomReducer = (
       return {
         ...state,
         assignmentStrategy: action.payload.strategy,
+        canUserSwitchRoom:
+          action.payload.strategy === RoomAssignmentStrategy.NO_ASSIGN
+            ? true
+            : state.canUserSwitchRoom,
       };
     }
 

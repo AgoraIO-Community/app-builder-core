@@ -289,7 +289,9 @@ const BreakoutRoomProvider = ({
           payload: {
             sessionId: data.session_id,
             rooms: data?.breakout_room || [],
-            switchRoom: data.switch_room || false,
+            assignmentStrategy:
+              data?.assignment_type || RoomAssignmentStrategy.NO_ASSIGN,
+            switchRoom: data?.switch_room || true,
           },
         });
         return true;
@@ -328,9 +330,9 @@ const BreakoutRoomProvider = ({
       console.log('supriya inside automatic interval');
 
       // Check every 2 seconds
-      const interval = setInterval(pollBreakoutGetAPI, 2000);
+      // const interval = setInterval(pollBreakoutGetAPI, 2000);
       // React will automatically call this cleanup function
-      return () => clearInterval(interval);
+      // return () => clearInterval(interval);
     }
   }, [
     isHost,
@@ -353,6 +355,7 @@ const BreakoutRoomProvider = ({
           passphrase: roomId.host,
           switch_room: state.canUserSwitchRoom,
           session_id: state.breakoutSessionId || randomNameGenerator(6),
+          assignment_type: state.assignmentStrategy,
           breakout_room:
             type === 'START'
               ? getSanitizedPayload(initialBreakoutGroups)
@@ -414,6 +417,7 @@ const BreakoutRoomProvider = ({
       state.breakoutSessionId,
       state.breakoutGroups,
       state.canUserSwitchRoom,
+      state.assignmentStrategy,
       store.token,
       dispatch,
       selfJoinRoomId,
@@ -867,12 +871,12 @@ const BreakoutRoomProvider = ({
     console.log('supriya-let  hasAvailableRooms: ', hasAvailableRooms);
     const canUserSwitchRoom = state.canUserSwitchRoom;
     console.log('supriya-let canUserSwitchRoom: ', canUserSwitchRoom);
-
+    console.log('supriya assignment strateg', state.assignmentStrategy);
     console.log(
       'supriya-let canJoinRoom',
       !currentlyInRoom && hasAvailableRooms && (isHost || canUserSwitchRoom),
     );
-    if (true) {
+    if ($config.ENABLE_BREAKOUT_ROOM) {
       return {
         // Room navigation
         canJoinRoom:
@@ -893,20 +897,22 @@ const BreakoutRoomProvider = ({
         canCloseRooms: isHost && hasAvailableRooms && !!state.breakoutSessionId,
         canMakePresenter: isHost,
       };
+    } else {
+      return {
+        canJoinRoom: false,
+        canExitRoom: false,
+        canSwitchBetweenRooms: false, // Media controls
+        canScreenshare: true,
+        canRaiseHands: false,
+        canSeeRaisedHands: false,
+        // Room management (host only)
+        canAssignParticipants: false,
+        canCreateRooms: false,
+        canMoveUsers: false,
+        canCloseRooms: false,
+        canMakePresenter: false,
+      };
     }
-    return {
-      canJoinRoom: false,
-      canExitRoom: false,
-      canSwitchBetweenRooms: false, // Media controls
-      canScreenshare: true,
-      canRaiseHands: false,
-      // Room management (host only)
-      canAssignParticipants: false,
-      canCreateRooms: false,
-      canMoveUsers: false,
-      canCloseRooms: false,
-      canMakePresenter: false,
-    };
   }, [
     isUserInRoom,
     isHost,
@@ -919,19 +925,20 @@ const BreakoutRoomProvider = ({
 
   const handleBreakoutRoomSyncState = useCallback(
     (data: BreakoutRoomSyncStateEventPayload['data']['data']) => {
-      const {switch_room, breakout_room} = data;
+      console.log('supriya sync state event fired');
+      const {session_id, switch_room, breakout_room, assignment_type} = data;
       // Store previous state to compare changes
       const prevGroups = state.breakoutGroups;
       const prevSwitchRoom = state.canUserSwitchRoom;
       const userCurrentRoom = getCurrentRoom();
       const userCurrentRoomId = userCurrentRoom?.id || null;
-
       dispatch({
         type: BreakoutGroupActionTypes.SYNC_STATE,
         payload: {
-          sessionId: data.session_id,
-          switchRoom: data.switch_room,
-          rooms: data.breakout_room,
+          sessionId: session_id,
+          assignmentStrategy: assignment_type,
+          switchRoom: switch_room,
+          rooms: breakout_room,
         },
       });
 

@@ -1,4 +1,4 @@
-import {BreakoutGroup} from './reducer';
+import {BreakoutGroup, RoomAssignmentStrategy} from './reducer';
 
 export type BreakoutGroupAssignStrategy = 'auto' | 'manual' | 'self-select';
 
@@ -39,6 +39,7 @@ export interface BreakoutRoomSyncStateEventPayload {
       switch_room: boolean;
       session_id: string;
       breakout_room: BreakoutGroup[];
+      assignment_type: RoomAssignmentStrategy;
     };
     act: 'SYNC_STATE'; // e.g., "CHAN_JOIN"
   };
