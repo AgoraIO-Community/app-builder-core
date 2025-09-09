@@ -4,11 +4,19 @@ import React from 'react';
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {formatTime} from './utils';
+import {useCaption} from './useCaption';
+
+type TranslationItem = {
+  lang: string;
+  text: string;
+  isFinal: boolean;
+};
 
 interface TranscriptTextProps {
   user: string;
   time: number;
   value: string;
+  translations?: TranslationItem[];
   searchQuery?: string;
 }
 
@@ -16,11 +24,40 @@ export const TranscriptText = ({
   user,
   time,
   value,
+  translations = [],
   searchQuery = '',
 }: TranscriptTextProps) => {
+  const {selectedTranslationLanguage} = useCaption();
   const t = time ? formatTime(Number(time)) : '';
+  
+  //  text to display based on selected translation language
+  const getDisplayText = () => {
+    if (!selectedTranslationLanguage) {
+      return value; // no translation selected, show original
+    }
+    
+    // current selected language
+    const currentTranslation = translations.find(t => t.lang === selectedTranslationLanguage);
+    if (currentTranslation?.text) {
+      return currentTranslation.text;
+    }
+    
+    //  show the  recent translation available :TODO test
+    if (translations && translations.length > 0) {
+      const latestTranslation = translations.find(t => t.text && t.text.length > 0);
+      if (latestTranslation?.text) {
+        return latestTranslation.text;
+      }
+    }
+    
+    // if no translations exist
+    return value;
+  };
+  
+  const displayText = getDisplayText();
+    
   const regex = searchQuery ? new RegExp(`(${searchQuery})`, 'gi') : ' ';
-  const parts = value.split(regex);
+  const parts = displayText.split(regex);
 
   return (
     <View key={user} style={styles.transcriptTextContainer}>

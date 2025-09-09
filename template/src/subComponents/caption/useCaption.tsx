@@ -2,16 +2,17 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {LanguageType} from './utils';
 
-export type TranscriptItem = {
-  uid: string;
-  time: number;
-  text: string;
-};
-
 type TranslationItem = {
   lang: string;
   text: string;
   isFinal: boolean;
+};
+
+export type TranscriptItem = {
+  uid: string;
+  time: number;
+  text: string;
+  translations?: TranslationItem[];
 };
 
 type CaptionObj = {

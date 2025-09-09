@@ -27,6 +27,8 @@ import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import useGetName from '../../utils/useGetName';
 import {useRoomInfo} from 'customization-api';
+import {useLocalUid} from '../../../agora-rn-uikit';
+import {getLanguageLabel} from './utils';
 import {
   SIDE_PANEL_MAX_WIDTH,
   SIDE_PANEL_GAP,
@@ -390,13 +392,13 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   );
 };
 
-interface TranslateActionMenuProps {
+export interface TranslateActionMenuProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: React.RefObject<View>;
 }
 
-const TranslateActionMenu = (props: TranslateActionMenuProps) => {
+export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -404,9 +406,12 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
   const {
     language: currentSpokenLanguages,
     selectedTranslationLanguage,
-    setSelectedTranslationLanguage
+    setSelectedTranslationLanguage,
+    setMeetingTranscript
   } = useCaption();
   const {update} = useSTTAPI();
+  const username = useGetName();
+  const localUid = useLocalUid();
 
   const actionMenuitems: ActionMenuItem[] = [];
 
@@ -423,6 +428,8 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
 
   const handleTranslationToggle = async (targetLanguage: string) => {
     try {
+      const prevTranslationLanguage = selectedTranslationLanguage;
+      
       if (targetLanguage === '') {
         // turn off translation - todo test
         await update({
@@ -443,6 +450,30 @@ const TranslateActionMenu = (props: TranslateActionMenuProps) => {
         });
         setSelectedTranslationLanguage(targetLanguage);
       }
+      
+      // Add translation language change notification to transcript
+      const getLanguageName = (langCode: string) => {
+        if (!langCode) return '';
+        const lang = langData.find(data => data.value === langCode);
+        return lang ? lang.label : langCode;
+      };
+      
+      const actionText = targetLanguage === '' 
+        ? 'turned off translation' 
+        : prevTranslationLanguage === ''
+          ? `set the translation language to "${getLanguageName(targetLanguage)}"`
+          : `changed the translation language from "${getLanguageName(prevTranslationLanguage)}" to "${getLanguageName(targetLanguage)}"`;
+          
+      setMeetingTranscript(prev => [
+        ...prev,
+        {
+          name: 'translationUpdate',
+          time: new Date().getTime(),
+          uid: `translationUpdate-${localUid}`,
+          text: actionText,
+        },
+      ]);
+      
       setActionMenuVisible(false);
     } catch (error) {
       logger.error(

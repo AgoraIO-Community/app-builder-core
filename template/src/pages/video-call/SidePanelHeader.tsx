@@ -46,6 +46,7 @@ import {
   sttTranscriptPanelHeaderText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {TranslateActionMenu} from '../../subComponents/caption/CaptionContainer';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -270,6 +271,8 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
+  const [isTranslateMenuOpen, setTranslateMenuOpen] =
+    React.useState<boolean>(false);
   const {restart} = useSTTAPI();
   const username = useGetName();
   const actionMenuitems: ActionMenuItem[] = [];
@@ -293,6 +296,18 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         setLanguagePopup(true);
       },
     });
+
+  actionMenuitems.push({
+    icon: 'lang-select',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Change Translate Language',
+    disabled: false,
+    onPress: () => {
+      setActionMenuVisible(false);
+      setTranslateMenuOpen(true);
+    },
+  });
 
   actionMenuitems.push({
     icon: 'download',
@@ -369,6 +384,12 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onLanguageChange}
+      />
+
+      <TranslateActionMenu
+        actionMenuVisible={isTranslateMenuOpen}
+        setActionMenuVisible={setTranslateMenuOpen}
+        btnRef={btnRef}
       />
     </>
   );
