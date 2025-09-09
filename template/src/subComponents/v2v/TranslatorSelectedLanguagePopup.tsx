@@ -465,7 +465,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 />
               </View>
             </View>
-            <View style={styles.controlGroup}>
+            {/* <View style={styles.controlGroup}>
               <View style={{width: 180, marginRight: 12}}>
                 <Text style={styles.controlLabel}>Use REST API</Text>
               </View>
@@ -478,7 +478,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   containerStyle={{paddingTop: 12}}
                 />
               </View>
-            </View>
+            </View> */}
             <View style={styles.controlGroup}>
               <Text style={styles.controlLabel}>Target Language</Text>
               <View style={styles.controlWrapper}>
@@ -557,7 +557,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                 />
               </View>
             </View>
-            <View style={styles.controlGroup}>
+            {/* <View style={styles.controlGroup}>
               <View style={{width: 180, marginRight: 12}}>
                 <Text style={styles.controlLabel}>Use REST API</Text>
               </View>
@@ -570,7 +570,7 @@ const TranslatorSelectedLanguagePopup: React.FC<
                   containerStyle={{paddingTop: 12}}
                 />
               </View>
-            </View>
+            </View> */}
             <View style={styles.controlGroup}>
               <View style={styles.labelWithReset}>
                 <Text style={[styles.controlLabel, {paddingTop: 0}]}>Target Language</Text>
