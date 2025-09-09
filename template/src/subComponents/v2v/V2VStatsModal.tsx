@@ -49,7 +49,7 @@ const V2VStatsModal = ({visible, onClose}) => {
         stat.selectedTTS || '',
         stat.ttsModel || '',
         stat.sttModel || '',
-        stat.useRestTTS ? 'Rest' : 'Websocket',
+        stat.useRestTTS || stat.ttsModel === 'arcana' ? 'Rest' : 'Websocket',
       ];
     });
 
@@ -182,7 +182,7 @@ const V2VStatsModal = ({visible, onClose}) => {
                 style={[styles.cell, styles.connectionColumn]}
                 numberOfLines={1}
                 ellipsizeMode="tail">
-                {stat.useRestTTS ? 'Rest' : 'Websocket'}
+                {stat.useRestTTS || stat.ttsModel === 'arcana' ? 'Rest' : 'Websocket'}
               </Text>
             </View>
           );

@@ -390,7 +390,7 @@ const SonixCaptionContainer = () => {
 
         // Logic for use_rest_tts parameter
         if (selectedTTS === 'eleven_labs') {
-          body.use_rest_tts = useRestTTS;
+          body.use_rest_tts = false;
           body.eleven_labs_model = providerConfigs.eleven_labs.model;
         } else if (
           selectedTTS === 'rime' &&
@@ -401,7 +401,7 @@ const SonixCaptionContainer = () => {
           selectedTTS === 'rime' &&
           providerConfigs.rime.model === 'mistv2'
         ) {
-          body.use_rest_tts = useRestTTS;
+          body.use_rest_tts = false;
         }
 
         if (sourceLang !== targetLang) {
