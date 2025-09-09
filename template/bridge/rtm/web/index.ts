@@ -1,540 +1,472 @@
-/*
-********************************************
- Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
- Use without a license or in violation of any license terms and conditions (including use for
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
- information visit https://appbuilder.agora.io.
-*********************************************
-*/
-// @ts-nocheck
 import {
-  ChannelAttributeOptions,
-  RtmAttribute,
-  RtmChannelAttribute,
-  Subscription,
-} from 'agora-react-native-rtm/lib/typescript/src';
-import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
-import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
-import RtmClient from 'agora-react-native-rtm';
-import {LogSource, logger} from '../../../src/logger/AppBuilderLogger';
-// export {RtmAttribute}
-//
-interface RtmAttributePlaceholder {}
-export {RtmAttributePlaceholder as RtmAttribute};
+  type Metadata as NativeMetadata,
+  type MetadataItem as NativeMetadataItem,
+  type GetUserMetadataOptions as NativeGetUserMetadataOptions,
+  type RtmChannelType as NativeRtmChannelType,
+  type SetUserMetadataResponse,
+  type LoginOptions as NativeLoginOptions,
+  type RTMClientEventMap as NativeRTMClientEventMap,
+  type GetUserMetadataResponse as NativeGetUserMetadataResponse,
+  type GetChannelMetadataResponse as NativeGetChannelMetadataResponse,
+  type SetOrUpdateUserMetadataOptions as NativeSetOrUpdateUserMetadataOptions,
+  type IMetadataOptions as NativeIMetadataOptions,
+  type StorageEvent as NativeStorageEvent,
+  type PresenceEvent as NativePresenceEvent,
+  type MessageEvent as NativeMessageEvent,
+  type SubscribeOptions as NativeSubscribeOptions,
+  type PublishOptions as NativePublishOptions,
+} from 'agora-react-native-rtm';
+import AgoraRTM, {
+  RTMClient,
+  GetUserMetadataResponse,
+  GetChannelMetadataResponse,
+  PublishOptions,
+  ChannelType,
+  MetaDataDetail,
+} from 'agora-rtm-sdk';
+import {
+  linkStatusReasonCodeMapping,
+  nativeChannelTypeMapping,
+  nativeLinkStateMapping,
+  nativeMessageEventTypeMapping,
+  nativePresenceEventTypeMapping,
+  nativeStorageEventTypeMapping,
+  nativeStorageTypeMapping,
+  webChannelTypeMapping,
+} from './Types';
 
-type callbackType = (args?: any) => void;
+type CallbackType = (args?: any) => void;
 
-export default class RtmEngine {
-  public appId: string;
-  public client: RtmClient;
-  public channelMap = new Map<string, any>([]);
-  public remoteInvititations = new Map<string, any>([]);
-  public localInvititations = new Map<string, any>([]);
-  public channelEventsMap = new Map<string, any>([
-    ['channelMessageReceived', () => null],
-    ['channelMemberJoined', () => null],
-    ['channelMemberLeft', () => null],
-  ]);
-  public clientEventsMap = new Map<string, any>([
-    ['connectionStateChanged', () => null],
-    ['messageReceived', () => null],
-    ['remoteInvitationReceived', () => null],
-    ['tokenExpired', () => null],
-  ]);
-  public localInvitationEventsMap = new Map<string, any>([
-    ['localInvitationAccepted', () => null],
-    ['localInvitationCanceled', () => null],
-    ['localInvitationFailure', () => null],
-    ['localInvitationReceivedByPeer', () => null],
-    ['localInvitationRefused', () => null],
-  ]);
-  public remoteInvitationEventsMap = new Map<string, any>([
-    ['remoteInvitationAccepted', () => null],
-    ['remoteInvitationCanceled', () => null],
-    ['remoteInvitationFailure', () => null],
-    ['remoteInvitationRefused', () => null],
-  ]);
-  constructor() {
-    this.appId = '';
-    logger.debug(LogSource.AgoraSDK, 'Log', 'Using RTM Bridge');
-  }
+// Conversion function
+const convertWebToNativeMetadata = (webMetadata: any): NativeMetadata => {
+  // Convert object entries to MetadataItem array
+  const items: NativeMetadataItem[] =
+    Object.entries(webMetadata.metadata).map(
+      ([key, metadataItem]: [string, MetaDataDetail]) => {
+        return {
+          key: key,
+          value: metadataItem.value,
+          revision: metadataItem.revision,
+          authorUserId: metadataItem.authorUid,
+          updateTs: metadataItem.updated,
+        };
+      },
+    ) || [];
 
-  on(event: any, listener: any) {
-    if (
-      event === 'channelMessageReceived' ||
-      event === 'channelMemberJoined' ||
-      event === 'channelMemberLeft'
-    ) {
-      this.channelEventsMap.set(event, listener);
-    } else if (
-      event === 'connectionStateChanged' ||
-      event === 'messageReceived' ||
-      event === 'remoteInvitationReceived' ||
-      event === 'tokenExpired'
-    ) {
-      this.clientEventsMap.set(event, listener);
-    } else if (
-      event === 'localInvitationAccepted' ||
-      event === 'localInvitationCanceled' ||
-      event === 'localInvitationFailure' ||
-      event === 'localInvitationReceivedByPeer' ||
-      event === 'localInvitationRefused'
-    ) {
-      this.localInvitationEventsMap.set(event, listener);
-    } else if (
-      event === 'remoteInvitationAccepted' ||
-      event === 'remoteInvitationCanceled' ||
-      event === 'remoteInvitationFailure' ||
-      event === 'remoteInvitationRefused'
-    ) {
-      this.remoteInvitationEventsMap.set(event, listener);
+  // Create native Metadata object
+  const nativeMetadata: NativeMetadata = {
+    majorRevision: webMetadata?.revision || -1, // Use first item's revision as major revision
+    items: items,
+    itemCount: webMetadata?.totalCount || 0,
+  };
+
+  return nativeMetadata;
+};
+
+export class RTMWebClient {
+  private client: RTMClient;
+  private appId: string;
+  private userId: string;
+  private eventsMap = new Map<keyof NativeRTMClientEventMap, CallbackType>([
+    ['linkState', () => null],
+    ['storage', () => null],
+    ['presence', () => null],
+    ['message', () => null],
+  ]);
+
+  constructor(appId: string, userId: string) {
+    this.appId = appId;
+    this.userId = `${userId}`;
+    try {
+      // Create the actual web RTM client
+      this.client = new AgoraRTM.RTM(this.appId, this.userId);
+
+      this.client.addEventListener('linkState', data => {
+        const nativeState = {
+          ...data,
+          currentState:
+            nativeLinkStateMapping[data.currentState] ||
+            nativeLinkStateMapping.IDLE,
+          previousState:
+            nativeLinkStateMapping[data.previousState] ||
+            nativeLinkStateMapping.IDLE,
+          reasonCode: linkStatusReasonCodeMapping[data.reasonCode] || 0,
+        };
+        (this.eventsMap.get('linkState') ?? (() => {}))(nativeState);
+      });
+
+      this.client.addEventListener('storage', data => {
+        const nativeStorageEvent: NativeStorageEvent = {
+          channelType: nativeChannelTypeMapping[data.channelType],
+          storageType: nativeStorageTypeMapping[data.storageType],
+          eventType: nativeStorageEventTypeMapping[data.eventType],
+          data: convertWebToNativeMetadata(data.data),
+          timestamp: data.timestamp,
+        };
+        (this.eventsMap.get('storage') ?? (() => {}))(nativeStorageEvent);
+      });
+
+      this.client.addEventListener('presence', data => {
+        const nativePresenceEvent: NativePresenceEvent = {
+          channelName: data.channelName,
+          channelType: nativeChannelTypeMapping[data.channelType],
+          type: nativePresenceEventTypeMapping[data.eventType],
+          publisher: data.publisher,
+          timestamp: data.timestamp,
+        };
+        (this.eventsMap.get('presence') ?? (() => {}))(nativePresenceEvent);
+      });
+
+      this.client.addEventListener('message', data => {
+        const nativeMessageEvent: NativeMessageEvent = {
+          ...data,
+          channelType: nativeChannelTypeMapping[data.channelType],
+          messageType: nativeMessageEventTypeMapping[data.messageType],
+          message: `${data.message}`,
+        };
+        (this.eventsMap.get('message') ?? (() => {}))(nativeMessageEvent);
+      });
+    } catch (error) {
+      const contextError = new Error(
+        `Failed to create RTMWebClient for appId: ${this.appId}, userId: ${
+          this.userId
+        }. Error: ${error.message || error}`,
+      );
+      console.error('RTMWebClient constructor error:', contextError);
+      throw contextError;
     }
   }
 
-  createClient(APP_ID: string) {
-    this.appId = APP_ID;
-    this.client = AgoraRTM.createInstance(this.appId);
+  // Storage methods
+  get storage() {
+    return {
+      setUserMetadata: (
+        data: NativeMetadata,
+        options?: NativeSetOrUpdateUserMetadataOptions,
+      ): Promise<SetUserMetadataResponse> => {
+        // 1. Validate input parameters
+        if (!data) {
+          throw new Error('setUserMetadata: data parameter is required');
+        }
+        if (!data.items || !Array.isArray(data.items)) {
+          throw new Error(
+            'setUserMetadata: data.items must be a non-empty array',
+          );
+        }
+        if (data.items.length === 0) {
+          throw new Error('setUserMetadata: data.items cannot be empty');
+        }
+        // 2. Make sure key is present as this is mandatory
+        // https://docs.agora.io/en/signaling/reference/api?platform=web#storagesetuserpropsag_platform
+        const validatedItems = data.items.map((item, index) => {
+          if (!item.key || typeof item.key !== 'string') {
+            throw new Error(
+              `setUserMetadata: item at index ${index} missing required 'key' property`,
+            );
+          }
+          return {
+            key: item.key,
+            value: item.value || '', // Default to empty string if not provided
+            revision: item.revision || -1, // Default to -1 if not provided
+          };
+        });
+        // Map native signature to web signature
+        return this.client.storage.setUserMetadata(validatedItems, {
+          addTimeStamp: options?.addTimeStamp || true,
+          addUserId: options?.addUserId || true,
+        });
+      },
 
-    if ($config.GEO_FENCING) {
-      try {
-        //include area is comma seperated value
-        let includeArea = $config.GEO_FENCING_INCLUDE_AREA
-          ? $config.GEO_FENCING_INCLUDE_AREA
-          : AREAS.GLOBAL;
-
-        //exclude area is single value
-        let excludeArea = $config.GEO_FENCING_EXCLUDE_AREA
-          ? $config.GEO_FENCING_EXCLUDE_AREA
-          : '';
-
-        includeArea = includeArea?.split(',');
-
-        //pass excludedArea if only its provided
-        if (excludeArea) {
-          AgoraRTM.setArea({
-            areaCodes: includeArea,
-            excludedArea: excludeArea,
+      getUserMetadata: async (options: NativeGetUserMetadataOptions) => {
+        // Validate input parameters
+        if (!options) {
+          throw new Error('getUserMetadata: options parameter is required');
+        }
+        if (
+          !options.userId ||
+          typeof options.userId !== 'string' ||
+          options.userId.trim() === ''
+        ) {
+          throw new Error(
+            'getUserMetadata: options.userId must be a non-empty string',
+          );
+        }
+        const webResponse: GetUserMetadataResponse =
+          await this.client.storage.getUserMetadata({
+            userId: options.userId,
           });
-        }
-        //otherwise we can pass area directly
-        else {
-          AgoraRTM.setArea({areaCodes: includeArea});
-        }
-      } catch (setAeraError) {
-        console.log('error on RTM setArea', setAeraError);
-      }
-    }
-
-    window.rtmClient = this.client;
-
-    this.client.on('ConnectionStateChanged', (state, reason) => {
-      this.clientEventsMap.get('connectionStateChanged')({state, reason});
-    });
-
-    this.client.on('MessageFromPeer', (msg, uid, msgProps) => {
-      this.clientEventsMap.get('messageReceived')({
-        text: msg.text,
-        ts: msgProps.serverReceivedTs,
-        offline: msgProps.isOfflineMessage,
-        peerId: uid,
-      });
-    });
-
-    this.client.on('RemoteInvitationReceived', (remoteInvitation: any) => {
-      this.remoteInvititations.set(remoteInvitation.callerId, remoteInvitation);
-      this.clientEventsMap.get('remoteInvitationReceived')({
-        callerId: remoteInvitation.callerId,
-        content: remoteInvitation.content,
-        state: remoteInvitation.state,
-        channelId: remoteInvitation.channelId,
-        response: remoteInvitation.response,
-      });
-
-      remoteInvitation.on('RemoteInvitationAccepted', () => {
-        this.remoteInvitationEventsMap.get('RemoteInvitationAccepted')({
-          callerId: remoteInvitation.callerId,
-          content: remoteInvitation.content,
-          state: remoteInvitation.state,
-          channelId: remoteInvitation.channelId,
-          response: remoteInvitation.response,
-        });
-      });
-
-      remoteInvitation.on('RemoteInvitationCanceled', (content: string) => {
-        this.remoteInvitationEventsMap.get('remoteInvitationCanceled')({
-          callerId: remoteInvitation.callerId,
-          content: content,
-          state: remoteInvitation.state,
-          channelId: remoteInvitation.channelId,
-          response: remoteInvitation.response,
-        });
-      });
-
-      remoteInvitation.on('RemoteInvitationFailure', (reason: string) => {
-        this.remoteInvitationEventsMap.get('remoteInvitationFailure')({
-          callerId: remoteInvitation.callerId,
-          content: remoteInvitation.content,
-          state: remoteInvitation.state,
-          channelId: remoteInvitation.channelId,
-          response: remoteInvitation.response,
-          code: -1, //Web sends string, RN expect number but can't find enum
-        });
-      });
-
-      remoteInvitation.on('RemoteInvitationRefused', () => {
-        this.remoteInvitationEventsMap.get('remoteInvitationRefused')({
-          callerId: remoteInvitation.callerId,
-          content: remoteInvitation.content,
-          state: remoteInvitation.state,
-          channelId: remoteInvitation.channelId,
-          response: remoteInvitation.response,
-        });
-      });
-    });
-
-    this.client.on('TokenExpired', () => {
-      this.clientEventsMap.get('tokenExpired')({}); //RN expect evt: any
-    });
-  }
-
-  async login(loginParam: {uid: string; token?: string}): Promise<any> {
-    return this.client.login(loginParam);
-  }
-
-  async logout(): Promise<any> {
-    return await this.client.logout();
-  }
-
-  async joinChannel(channelId: string): Promise<any> {
-    this.channelMap.set(channelId, this.client.createChannel(channelId));
-    this.channelMap
-      .get(channelId)
-      .on('ChannelMessage', (msg: {text: string}, uid: string, messagePros) => {
-        let text = msg.text;
-        let ts = messagePros.serverReceivedTs;
-        this.channelEventsMap.get('channelMessageReceived')({
-          uid,
-          channelId,
-          text,
-          ts,
-        });
-      });
-    this.channelMap.get(channelId).on('MemberJoined', (uid: string) => {
-      this.channelEventsMap.get('channelMemberJoined')({uid, channelId});
-    });
-    this.channelMap.get(channelId).on('MemberLeft', (uid: string) => {
-      console.log('Member Left', this.channelEventsMap);
-      this.channelEventsMap.get('channelMemberLeft')({uid});
-    });
-    this.channelMap
-      .get(channelId)
-      .on('AttributesUpdated', (attributes: RtmChannelAttribute) => {
         /**
-         * a) Kindly note the below event listener 'channelAttributesUpdated' expects type
-         *    RtmChannelAttribute[] (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
-         *    whereas the above listener 'AttributesUpdated' receives attributes in object form
-         *    {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
-         * b) Hence in this bridge the data should be modified to keep in sync with both the
-         *    listeners for web and listener for native
+         * majorRevision : 13483783553
+         * metadata :
+         *    {
+         *     isHost: {authorUid: "", revision: 13483783553, updated: 0, value : "true"},
+         *     screenUid: {…}}
+         *    }
+         * timestamp: 0
+         * totalCount: 2
+         * userId: "xxx"
          */
-        /**
-         * 1. Loop through object
-         * 2. Create a object {key: "", value: ""} and push into array
-         * 3. Return the Array
-         */
-        const channelAttributes = Object.keys(attributes).reduce((acc, key) => {
-          const {value, lastUpdateTs, lastUpdateUserId} = attributes[key];
-          acc.push({key, value, lastUpdateTs, lastUpdateUserId});
-          return acc;
-        }, []);
-
-        this.channelEventsMap.get('ChannelAttributesUpdated')(
-          channelAttributes,
+        const items = Object.entries(webResponse.metadata).map(
+          ([key, metadataItem]) => ({
+            key: key,
+            value: metadataItem.value,
+          }),
         );
-      });
+        const nativeResponse: NativeGetUserMetadataResponse = {
+          items: [...items],
+          itemCount: webResponse.totalCount,
+          userId: webResponse.userId,
+          timestamp: webResponse.timestamp,
+        };
+        return nativeResponse;
+      },
 
-    return this.channelMap.get(channelId).join();
-  }
-
-  async leaveChannel(channelId: string): Promise<any> {
-    if (this.channelMap.get(channelId)) {
-      return this.channelMap.get(channelId).leave();
-    } else {
-      Promise.reject('Wrong channel');
-    }
-  }
-
-  async sendMessageByChannelId(channel: string, message: string): Promise<any> {
-    if (this.channelMap.get(channel)) {
-      return this.channelMap.get(channel).sendMessage({text: message});
-    } else {
-      console.log(this.channelMap, channel);
-      Promise.reject('Wrong channel');
-    }
-  }
-
-  destroyClient() {
-    console.log('Destroy called');
-    this.channelEventsMap.forEach((callback, event) => {
-      this.client.off(event, callback);
-    });
-    this.channelEventsMap.clear();
-    this.channelMap.clear();
-    this.clientEventsMap.clear();
-    this.remoteInvitationEventsMap.clear();
-    this.localInvitationEventsMap.clear();
-  }
-
-  async getChannelMembersBychannelId(channel: string) {
-    if (this.channelMap.get(channel)) {
-      let memberArray: Array<any> = [];
-      let currentChannel = this.channelMap.get(channel);
-      await currentChannel.getMembers().then((arr: Array<number>) => {
-        arr.map((elem: number) => {
-          memberArray.push({
-            channelId: channel,
-            uid: elem,
-          });
+      setChannelMetadata: async (
+        channelName: string,
+        channelType: NativeRtmChannelType,
+        data: NativeMetadata,
+        options?: NativeIMetadataOptions,
+      ) => {
+        // Validate input parameters
+        if (
+          !channelName ||
+          typeof channelName !== 'string' ||
+          channelName.trim() === ''
+        ) {
+          throw new Error(
+            'setChannelMetadata: channelName must be a non-empty string',
+          );
+        }
+        if (typeof channelType !== 'number') {
+          throw new Error('setChannelMetadata: channelType must be a number');
+        }
+        if (!data) {
+          throw new Error('setChannelMetadata: data parameter is required');
+        }
+        if (!data.items || !Array.isArray(data.items)) {
+          throw new Error('setChannelMetadata: data.items must be an array');
+        }
+        if (data.items.length === 0) {
+          throw new Error('setChannelMetadata: data.items cannot be empty');
+        }
+        // 2. Make sure key is present as this is mandatory
+        // https://docs.agora.io/en/signaling/reference/api?platform=web#storagesetuserpropsag_platform
+        const validatedItems = data.items.map((item, index) => {
+          if (!item.key || typeof item.key !== 'string') {
+            throw new Error(
+              `setChannelMetadata: item at index ${index} missing required 'key' property`,
+            );
+          }
+          return {
+            key: item.key,
+            value: item.value || '', // Default to empty string if not provided
+            revision: item.revision || -1, // Default to -1 if not provided
+          };
         });
-      });
-      return {members: memberArray};
-    } else {
-      Promise.reject('Wrong channel');
+        return this.client.storage.setChannelMetadata(
+          channelName,
+          (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
+          validatedItems,
+          {
+            addUserId: options?.addUserId || true,
+            addTimeStamp: options?.addTimeStamp || true,
+          },
+        );
+      },
+
+      getChannelMetadata: async (
+        channelName: string,
+        channelType: NativeRtmChannelType,
+      ) => {
+        try {
+          const webResponse: GetChannelMetadataResponse =
+            await this.client.storage.getChannelMetadata(
+              channelName,
+              (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
+            );
+
+          const items = Object.entries(webResponse.metadata).map(
+            ([key, metadataItem]) => ({
+              key: key,
+              value: metadataItem.value,
+            }),
+          );
+          const nativeResponse: NativeGetChannelMetadataResponse = {
+            items: [...items],
+            itemCount: webResponse.totalCount,
+            timestamp: webResponse.timestamp,
+            channelName: webResponse.channelName,
+            channelType: nativeChannelTypeMapping.MESSAGE,
+          };
+          return nativeResponse;
+        } catch (error) {
+          const contextError = new Error(
+            `Failed to get channel metadata for channel '${channelName}' with type ${channelType}: ${
+              error.message || error
+            }`,
+          );
+          console.error('BRIDGE getChannelMetadata error:', contextError);
+          throw contextError;
+        }
+      },
+    };
+  }
+
+  get presence() {
+    return {
+      getOnlineUsers: async (
+        channelName: string,
+        channelType: NativeRtmChannelType,
+      ) => {
+        // Validate input parameters
+        if (
+          !channelName ||
+          typeof channelName !== 'string' ||
+          channelName.trim() === ''
+        ) {
+          throw new Error(
+            'getOnlineUsers: channelName must be a non-empty string',
+          );
+        }
+        if (typeof channelType !== 'number') {
+          throw new Error('getOnlineUsers: channelType must be a number');
+        }
+
+        try {
+          // Call web SDK's presence method
+          const result = await this.client.presence.getOnlineUsers(
+            channelName,
+            (webChannelTypeMapping[channelType] as ChannelType) || 'MESSAGE',
+          );
+          return result;
+        } catch (error) {
+          const contextError = new Error(
+            `Failed to get online users for channel '${channelName}' with type ${channelType}: ${
+              error.message || error
+            }`,
+          );
+          console.error('BRIDGE presence error:', contextError);
+          throw contextError;
+        }
+      },
+
+      whoNow: async (
+        channelName: string,
+        channelType?: NativeRtmChannelType,
+      ) => {
+        const webChannelType = channelType
+          ? (webChannelTypeMapping[channelType] as ChannelType)
+          : 'MESSAGE';
+        return this.client.presence.whoNow(channelName, webChannelType);
+      },
+
+      whereNow: async (userId: string) => {
+        return this.client.presence.whereNow(userId);
+      },
+    };
+  }
+
+  addEventListener(
+    event: keyof NativeRTMClientEventMap,
+    listener: (event: any) => void,
+  ) {
+    if (this.client) {
+      // Simply replace the handler in our map - web client listeners are fixed in constructor
+      this.eventsMap.set(event, listener as CallbackType);
     }
   }
 
-  async queryPeersOnlineStatus(uid: Array<String>) {
-    let peerArray: Array<any> = [];
-    await this.client.queryPeersOnlineStatus(uid).then(list => {
-      Object.entries(list).forEach(value => {
-        peerArray.push({
-          online: value[1],
-          uid: value[0],
-        });
-      });
-    });
-    return {items: peerArray};
+  removeEventListener(
+    event: keyof NativeRTMClientEventMap,
+    _listener: (event: any) => void,
+  ) {
+    if (this.client && this.eventsMap.has(event)) {
+      const prevListener = this.eventsMap.get(event);
+      if (prevListener) {
+        this.client.removeEventListener(event, prevListener);
+      }
+      this.eventsMap.set(event, () => null); // reset to no-op
+    }
+  }
+
+  // Core RTM methods - direct delegation to web SDK
+  async login(options?: NativeLoginOptions) {
+    if (!options?.token) {
+      throw new Error('login: token is required in options');
+    }
+    return this.client.login({token: options.token});
+  }
+
+  async logout() {
+    return this.client.logout();
+  }
+
+  async subscribe(channelName: string, options?: NativeSubscribeOptions) {
+    if (
+      !channelName ||
+      typeof channelName !== 'string' ||
+      channelName.trim() === ''
+    ) {
+      throw new Error('subscribe: channelName must be a non-empty string');
+    }
+    return this.client.subscribe(channelName, options);
+  }
+
+  async unsubscribe(channelName: string) {
+    return this.client.unsubscribe(channelName);
+  }
+
+  async publish(
+    channelName: string,
+    message: string,
+    options?: NativePublishOptions,
+  ) {
+    // Validate input parameters
+    if (
+      !channelName ||
+      typeof channelName !== 'string' ||
+      channelName.trim() === ''
+    ) {
+      throw new Error('publish: channelName must be a non-empty string');
+    }
+    if (typeof message !== 'string') {
+      throw new Error('publish: message must be a string');
+    }
+
+    const webOptions: PublishOptions = {
+      ...options,
+      channelType:
+        (webChannelTypeMapping[options?.channelType] as ChannelType) ||
+        'MESSAGE',
+    };
+    return this.client.publish(channelName, message, webOptions);
   }
 
   async renewToken(token: string) {
     return this.client.renewToken(token);
   }
 
-  async getUserAttributesByUid(uid: string) {
-    let response = {};
-    await this.client
-      .getUserAttributes(uid)
-      .then((attributes: string) => {
-        response = {attributes, uid};
-      })
-      .catch((e: any) => {
-        Promise.reject(e);
-      });
-    return response;
+  removeAllListeners() {
+    this.eventsMap = new Map([
+      ['linkState', () => null],
+      ['storage', () => null],
+      ['presence', () => null],
+      ['message', () => null],
+    ]);
+    return this.client.removeAllListeners();
   }
+}
 
-  async getChannelAttributes(channelId: string) {
-    let response = {};
-    await this.client
-      .getChannelAttributes(channelId)
-      .then((attributes: RtmChannelAttribute) => {
-        /**
-         *  Here the attributes received are in the format {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
-         *  We need to convert it into (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
-        /**
-         * 1. Loop through object
-         * 2. Create a object {key: "", value: ""} and push into array
-         * 3. Return the Array
-         */
-        const channelAttributes = Object.keys(attributes).reduce((acc, key) => {
-          const {value, lastUpdateTs, lastUpdateUserId} = attributes[key];
-          acc.push({key, value, lastUpdateTs, lastUpdateUserId});
-          return acc;
-        }, []);
-        response = channelAttributes;
-      })
-      .catch((e: any) => {
-        Promise.reject(e);
-      });
-    return response;
+export class RtmConfig {
+  public appId: string;
+  public userId: string;
+
+  constructor(config: {appId: string; userId: string}) {
+    this.appId = config.appId;
+    this.userId = config.userId;
   }
-
-  async removeAllLocalUserAttributes() {
-    return this.client.clearLocalUserAttributes();
-  }
-
-  async removeLocalUserAttributesByKeys(keys: string[]) {
-    return this.client.deleteLocalUserAttributesByKeys(keys);
-  }
-
-  async replaceLocalUserAttributes(attributes: string[]) {
-    let formattedAttributes: any = {};
-    attributes.map(attribute => {
-      let key = Object.values(attribute)[0];
-      let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
-    });
-    return this.client.setLocalUserAttributes({...formattedAttributes});
-  }
-
-  async setLocalUserAttributes(attributes: string[]) {
-    let formattedAttributes: any = {};
-    attributes.map(attribute => {
-      let key = Object.values(attribute)[0];
-      let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
-      // console.log('!!!!formattedAttributes', formattedAttributes, key, value);
-    });
-    return this.client.setLocalUserAttributes({...formattedAttributes});
-  }
-
-  async addOrUpdateLocalUserAttributes(attributes: RtmAttribute[]) {
-    let formattedAttributes: any = {};
-    attributes.map(attribute => {
-      let key = Object.values(attribute)[0];
-      let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
-    });
-    return this.client.addOrUpdateLocalUserAttributes({...formattedAttributes});
-  }
-
-  async addOrUpdateChannelAttributes(
-    channelId: string,
-    attributes: RtmChannelAttribute[],
-    option: ChannelAttributeOptions,
-  ): Promise<void> {
-    let formattedAttributes: any = {};
-    attributes.map(attribute => {
-      let key = Object.values(attribute)[0];
-      let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
-    });
-    return this.client.addOrUpdateChannelAttributes(
-      channelId,
-      {...formattedAttributes},
-      option,
-    );
-  }
-
-  async sendLocalInvitation(invitationProps: any) {
-    let invite = this.client.createLocalInvitation(invitationProps.uid);
-    this.localInvititations.set(invitationProps.uid, invite);
-    invite.content = invitationProps.content;
-
-    invite.on('LocalInvitationAccepted', (response: string) => {
-      this.localInvitationEventsMap.get('localInvitationAccepted')({
-        calleeId: invite.calleeId,
-        content: invite.content,
-        state: invite.state,
-        channelId: invite.channelId,
-        response,
-      });
-    });
-
-    invite.on('LocalInvitationCanceled', () => {
-      this.localInvitationEventsMap.get('localInvitationCanceled')({
-        calleeId: invite.calleeId,
-        content: invite.content,
-        state: invite.state,
-        channelId: invite.channelId,
-        response: invite.response,
-      });
-    });
-
-    invite.on('LocalInvitationFailure', (reason: string) => {
-      this.localInvitationEventsMap.get('localInvitationFailure')({
-        calleeId: invite.calleeId,
-        content: invite.content,
-        state: invite.state,
-        channelId: invite.channelId,
-        response: invite.response,
-        code: -1, //Web sends string, RN expect number but can't find enum
-      });
-    });
-
-    invite.on('LocalInvitationReceivedByPeer', () => {
-      this.localInvitationEventsMap.get('localInvitationReceivedByPeer')({
-        calleeId: invite.calleeId,
-        content: invite.content,
-        state: invite.state,
-        channelId: invite.channelId,
-        response: invite.response,
-      });
-    });
-
-    invite.on('LocalInvitationRefused', (response: string) => {
-      this.localInvitationEventsMap.get('localInvitationRefused')({
-        calleeId: invite.calleeId,
-        content: invite.content,
-        state: invite.state,
-        channelId: invite.channelId,
-        response: response,
-      });
-    });
-    return invite.send();
-  }
-
-  async sendMessageToPeer(AgoraPeerMessage: {
-    peerId: string;
-    offline: boolean;
-    text: string;
-  }) {
-    return this.client.sendMessageToPeer(
-      {text: AgoraPeerMessage.text},
-      AgoraPeerMessage.peerId,
-    );
-    //check promise result
-  }
-
-  async acceptRemoteInvitation(remoteInvitationProps: {
-    uid: string;
-    response?: string;
-    channelId: string;
-  }) {
-    let invite = this.remoteInvititations.get(remoteInvitationProps.uid);
-    // console.log(invite);
-    // console.log(this.remoteInvititations);
-    // console.log(remoteInvitationProps.uid);
-    return invite.accept();
-  }
-
-  async refuseRemoteInvitation(remoteInvitationProps: {
-    uid: string;
-    response?: string;
-    channelId: string;
-  }) {
-    return this.remoteInvititations.get(remoteInvitationProps.uid).refuse();
-  }
-
-  async cancelLocalInvitation(LocalInvitationProps: {
-    uid: string;
-    content?: string;
-    channelId?: string;
-  }) {
-    console.log(this.localInvititations.get(LocalInvitationProps.uid));
-    return this.localInvititations.get(LocalInvitationProps.uid).cancel();
-  }
-
-  getSdkVersion(callback: (version: string) => void) {
-    callback(VERSION);
-  }
-
-  addListener<EventType extends keyof RtmClientEvents>(
-    event: EventType,
-    listener: RtmClientEvents[EventType],
-  ): Subscription {
-    if (event === 'ChannelAttributesUpdated') {
-      this.channelEventsMap.set(event, listener as callbackType);
-    }
-    return {
-      remove: () => {
-        console.log(
-          'Use destroy method to remove all the event listeners from the RtcEngine instead.',
-        );
-      },
-    };
-  }
+}
+// Factory function to create RTM client
+export function createAgoraRtmClient(config: RtmConfig): RTMWebClient {
+  return new RTMWebClient(config.appId, config.userId);
 }
