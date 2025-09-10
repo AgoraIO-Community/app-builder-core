@@ -183,10 +183,11 @@ export const breakoutRoomReducer = (
         canUserSwitchRoom: action.payload.switchRoom,
         assignmentStrategy: action.payload.assignmentStrategy,
         breakoutGroups: action.payload.rooms.map(group => ({
-          ...group,
+          id: group.id,
+          name: group.name,
           participants: {
-            hosts: group.participants?.hosts ?? [],
-            attendees: group.participants?.attendees ?? [],
+            hosts: group?.participants?.hosts ?? [],
+            attendees: group?.participants?.attendees ?? [],
           },
         })),
       };

@@ -17,7 +17,7 @@ export default function BreakoutRoomSettings() {
     assignmentStrategy,
     handleAssignParticipants,
     canUserSwitchRoom,
-    setSwitchRoomsAllowed,
+    toggleRoomSwitchingAllowed,
   } = useBreakoutRoom();
 
   // Local dropdown state to prevent sync conflicts
@@ -85,7 +85,7 @@ export default function BreakoutRoomSettings() {
           <Toggle
             disabled={$config.EVENT_MODE}
             isEnabled={canUserSwitchRoom}
-            toggleSwitch={setSwitchRoomsAllowed}
+            toggleSwitch={toggleRoomSwitchingAllowed}
             circleColor={$config.FONT_COLOR}
           />
         </View>

@@ -9,6 +9,7 @@ import {
 } from '../state/types';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useRoomInfo} from '../../../components/room-info/useRoomInfo';
+import {logger, LogSource} from '../../../logger/AppBuilderLogger';
 
 interface Props {
   children: React.ReactNode;
@@ -26,29 +27,52 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     data: {isHost},
   } = useRoomInfo();
   const isHostRef = React.useRef(isHost);
+  const localUidRef = React.useRef(localUid);
+  const onRaiseHandRef = useRef(onRaiseHand);
+  const onMakeMePresenterRef = useRef(onMakeMePresenter);
+  const handleBreakoutRoomSyncStateRef = useRef(handleBreakoutRoomSyncState);
 
   useEffect(() => {
     isHostRef.current = isHost;
   }, [isHost]);
+  useEffect(() => {
+    localUidRef.current = localUid;
+  }, [localUid]);
+  useEffect(() => {
+    onRaiseHandRef.current = onRaiseHand;
+  }, [onRaiseHand]);
+  useEffect(() => {
+    onMakeMePresenterRef.current = onMakeMePresenter;
+  }, [onMakeMePresenter]);
+  useEffect(() => {
+    handleBreakoutRoomSyncStateRef.current = handleBreakoutRoomSyncState;
+  }, [handleBreakoutRoomSyncState]);
 
   useEffect(() => {
     const handlePresenterStatusEvent = (evtData: any) => {
-      console.log('supriya-event BREAKOUT_ROOM_MAKE_PRESENTER data: ', evtData);
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'BREAKOUT_ROOM_MAKE_PRESENTER event recevied',
+        evtData,
+      );
       try {
         const {sender, payload} = evtData;
-        if (sender === `${localUid}`) {
+        if (sender === `${localUidRef.current}`) {
           return;
         }
         const data = JSON.parse(payload);
         if (data.action === 'start' || data.action === 'stop') {
-          onMakeMePresenter(data.action);
+          onMakeMePresenterRef.current(data.action);
         }
       } catch (error) {}
     };
 
     const handleRaiseHandEvent = (evtData: any) => {
-      console.log(
-        'supriya-event BREAKOUT_ROOM_ATTENDEE_RAISE_HAND data: ',
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'BREAKOUT_ROOM_ATTENDEE_RAISE_HAND event recevied',
         evtData,
       );
       try {
@@ -56,22 +80,27 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         if (!isHostRef.current) {
           return;
         }
-        if (sender === `${localUid}`) {
+        if (sender === `${localUidRef.current}`) {
           return;
         }
         const data = JSON.parse(payload);
         if (data.action === 'raise' || data.action === 'lower') {
-          onRaiseHand(data.action, data.uid);
+          onRaiseHandRef.current?.(data.action, data.uid);
         }
       } catch (error) {}
     };
 
     const handleAnnouncementEvent = (evtData: any) => {
-      console.log('supriya-event BREAKOUT_ROOM_ANNOUNCEMENT data: ', evtData);
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'BREAKOUT_ROOM_ANNOUNCEMENT event recevied',
+        evtData,
+      );
       try {
         const {_, payload, sender} = evtData;
         const data: BreakoutRoomAnnouncementEventPayload = JSON.parse(payload);
-        if (sender === `${localUid}`) {
+        if (sender === `${localUidRef.current}`) {
           return;
         }
         if (data.announcement) {
@@ -89,11 +118,16 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     };
 
     const handleBreakoutRoomSyncStateEvent = (evtData: any) => {
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'BREAKOUT_ROOM_SYNC_STATE event recevied',
+        evtData,
+      );
       const {payload} = evtData;
-      console.log('supriya-event BREAKOUT_ROOM_SYNC_STATE data: ', evtData);
       const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
       if (data.data.act === 'SYNC_STATE') {
-        handleBreakoutRoomSyncState(data.data.data);
+        handleBreakoutRoomSyncStateRef.current(data.data.data);
       }
     };
 
@@ -129,7 +163,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         handleBreakoutRoomSyncStateEvent,
       );
     };
-  }, [onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand, localUid]);
+  }, []);
 
   return <>{children}</>;
 };
