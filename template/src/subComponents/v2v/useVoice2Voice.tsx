@@ -171,7 +171,7 @@ interface V2VProviderProps {
 const V2VProvider: React.FC<V2VProviderProps> = ({callActive, children}) => {
   const [isV2VError, setIsV2VError] = React.useState<boolean>(false);
   const [v2vAPIError, setV2vAPIError] = React.useState<string | null>(null);
-  const [isV2VON, setIsV2VON] = React.useState<boolean>(false);
+  const [isV2VON, setIsV2VON] = React.useState<boolean>(true);
   const [isV2VActive, setIsV2VActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['']);
   const [sourceLang, setSourceLang] = React.useState<LanguageType>('en');
