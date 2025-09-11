@@ -42,6 +42,8 @@ const HOST_BROADCASTED_OPERATIONS = [
   BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
   BreakoutGroupActionTypes.MANUAL_ASSIGN_PARTICPANTS,
   BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS,
+  BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
+  BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
   BreakoutGroupActionTypes.CLOSE_GROUP,
   BreakoutGroupActionTypes.CLOSE_ALL_GROUPS,
   BreakoutGroupActionTypes.RENAME_GROUP,
@@ -461,7 +463,7 @@ const BreakoutRoomProvider = ({
               currentOperatingHostName || 'Another host'
             } is currently managing breakout rooms`,
             text2: 'Please wait for them to finish',
-            visibilityTime: 4000,
+            visibilityTime: 3000,
           });
         }
         return false;
@@ -1857,7 +1859,7 @@ const BreakoutRoomProvider = ({
           leadingIconName: 'info',
           type: 'info',
           text1: 'Breakout rooms are now open. Please choose a room to join.',
-          visibilityTime: 4000,
+          visibilityTime: 3000,
         });
       }
 
@@ -1919,14 +1921,26 @@ const BreakoutRoomProvider = ({
       if (breakout_room.length === 0 && prevGroups.length > 0) {
         console.log('supriya-toast 5', prevRoomId, nextRoomId);
 
-        showDeduplicatedToast('all-rooms-closed', {
-          leadingIconName: 'close',
-          type: 'info',
-          text1: 'Breakout rooms are now closed. Returning to the main room...',
-          visibilityTime: 4000,
-        });
-        // Exit breakout room and return to main room
-        exitRoom(prevRoomId, true);
+        // Show different messages based on user's current location
+        if (prevRoomId) {
+          // User was in a breakout room - returning to main
+          showDeduplicatedToast('all-rooms-closed', {
+            leadingIconName: 'close',
+            type: 'info',
+            text1:
+              'Breakout rooms are now closed. Returning to the main room...',
+            visibilityTime: 3000,
+          });
+          exitRoom(prevRoomId, true);
+        } else {
+          // User was already in main room - just notify about closure
+          showDeduplicatedToast('all-rooms-closed', {
+            leadingIconName: 'close',
+            type: 'info',
+            text1: 'All breakout rooms have been closed.',
+            visibilityTime: 4000,
+          });
+        }
         return;
       }
 
