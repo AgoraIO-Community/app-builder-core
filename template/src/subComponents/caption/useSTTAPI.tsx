@@ -12,9 +12,9 @@ import {logger, LogSource} from '../../logger/AppBuilderLogger';
 import getUniqueID from '../../utils/getUniqueID';
 
 interface IuseSTTAPI {
-  start: (lang: LanguageType[]) => Promise<{message: string} | null>;
+  start: (lang: LanguageType[], userOwnLang?: LanguageType[]) => Promise<{message: string} | null>;
   stop: () => Promise<void>;
-  restart: (lang: LanguageType[]) => Promise<void>;
+  restart: (lang: LanguageType[], userOwnLang?: LanguageType[]) => Promise<void>;
   update: (params: UpdateParams) => Promise<any>;
   isAuthorizedSTTUser: () => boolean;
   isAuthorizedTranscriptUser: () => boolean;
@@ -136,15 +136,15 @@ const useSTTAPI = (): IuseSTTAPI => {
     }
   };
 
-  const startWithDelay = (lang: LanguageType[]): Promise<string> =>
+  const startWithDelay = (lang: LanguageType[], userOwnLang?: LanguageType[]): Promise<string> =>
     new Promise(resolve => {
       setTimeout(async () => {
-        const res = await start(lang);
+        const res = await start(lang, userOwnLang);
         resolve(res);
       }, 1000); // Delay of 1 seconds (1000 milliseconds) to allow existing stt service to fully stop
     });
 
-  const start = async (lang: LanguageType[]) => {
+  const start = async (lang: LanguageType[], userOwnLang?: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
       const res = await apiCall('startv7', {lang});
@@ -186,26 +186,33 @@ const useSTTAPI = (): IuseSTTAPI => {
           'stt',
           `stt lang update from: ${language} to ${lang}`,
         );
-        // inform about the language set for stt
+        // Send RTM message with all languages and user's own selection as remoteLang
+        // From other users' perspective, userOwnLang are the new remote languages
+        const userSelectedLang = userOwnLang && userOwnLang.length > 0 ? userOwnLang : [];
+        
         events.send(
           EventNames.STT_LANGUAGE,
           JSON.stringify({
             username: capitalizeFirstLetter(username),
             uid: localUid,
             prevLang: language,
-            newLang: lang,
+            newLang: lang, // Send all languages
+            remoteLang: userSelectedLang, // Send user's own selection as remote for others
           }),
           PersistanceLevel.Sender,
         );
+        
+        // Set the user's language state to ALL languages (own + protected)
+        // This allows the popup to properly identify protected languages
         setLanguage(lang);
 
         // updaing transcript for self
         const actionText =
           language.indexOf('') !== -1
-            ? `has set the spoken language to  "${getLanguageLabel(lang)}" `
+            ? `has set the spoken language to  "${getLanguageLabel(userSelectedLang)}" `
             : `changed the spoken language from "${getLanguageLabel(
                 language,
-              )}" to "${getLanguageLabel(lang)}" `;
+              )}" to "${getLanguageLabel(userSelectedLang)}" `;
         //const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
         setMeetingTranscript(prev => {
           return [
@@ -260,11 +267,11 @@ const useSTTAPI = (): IuseSTTAPI => {
       throw error;
     }
   };
-  const restart = async (lang: LanguageType[]) => {
+  const restart = async (lang: LanguageType[], userOwnLang?: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
       await stop();
-      await startWithDelay(lang);
+      await startWithDelay(lang, userOwnLang);
       return Promise.resolve();
     } catch (error) {
       logger.error(

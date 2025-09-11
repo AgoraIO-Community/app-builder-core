@@ -1,4 +1,4 @@
-import React, {SetStateAction, useContext} from 'react';
+import React, {SetStateAction} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../../atoms/Spacer';
 import Popup from '../../atoms/Popup';
@@ -12,6 +12,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
 import {LanguageType} from './utils';
 import {useString} from '../../utils/useString';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {
   sttChangeLanguagePopupDropdownError,
   sttChangeLanguagePopupDropdownInfo,
@@ -25,7 +26,7 @@ import {cancelText} from '../../language/default-labels/commonLabels';
 interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  onConfirm: (param: boolean, lang: LanguageType[]) => void;
+  onConfirm: (param: boolean, lang: LanguageType[], userOwnLang?: LanguageType[]) => void;
   isFirstTimePopupOpen?: boolean;
 }
 
@@ -40,8 +41,14 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const ddError = useString(sttChangeLanguagePopupDropdownError)();
   const ddInfo = useString(sttChangeLanguagePopupDropdownInfo)();
   const languageChangeInProgress = useString(sttLanguageChangeInProgress)();
-  const {language, setLanguage, isLangChangeInProgress, isSTTActive} =
-    useCaption();
+  const {language, isLangChangeInProgress, isSTTActive} = useCaption();
+  
+  const {sttLanguage} = useRoomInfo();
+
+  // Get protected languages from accumulated remoteLang
+  const protectedLanguages = React.useMemo(() => {
+    return sttLanguage?.remoteLang || [];
+  }, [sttLanguage?.remoteLang]);
 
   const [error, setError] = React.useState<boolean>(false);
   const [selectedValues, setSelectedValues] =
@@ -49,7 +56,17 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const isNotValidated =
     isOpen && (selectedValues.length === 0 || selectedValues.length === 2);
 
-  // React.useEffect(() => setSelectedValues(() => language), []);
+  // Initialize selectedValues with current languages plus protected languages
+  React.useEffect(() => {
+    console.log('LanguagePopup Debug - language:', language);
+    console.log('LanguagePopup Debug - protectedLanguages:', protectedLanguages);
+    const combinedLanguages = [...language, ...protectedLanguages];
+    // Remove duplicates
+    const uniqueLanguages = Array.from(new Set(combinedLanguages));
+    console.log('LanguagePopup Debug - uniqueLanguages:', uniqueLanguages);
+    setSelectedValues(uniqueLanguages);
+  }, [language, protectedLanguages]);
+
 
   return (
     <Popup
@@ -82,6 +99,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
               isOpen={isOpen}
               setIsOpen={setIsOpen}
               maxAllowedSelection={4}
+              protectedLanguages={protectedLanguages}
             />
           </View>
           <Spacer size={8} />
@@ -119,7 +137,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
                   paddingVertical: 12,
                   paddingHorizontal: 12,
                 }}
-                disabled={selectedValues.length === 0}
+                disabled={selectedValues.length === 0 || selectedValues.every(lang => protectedLanguages.includes(lang))}
                 text={ConfirmBtnLabel}
                 textStyle={styles.btnText}
                 onPress={() => {
@@ -127,13 +145,19 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
                   console.log(language);
 
                   if (selectedValues.length === 0) {
-                    // setError(true);
                     return;
                   }
-                  const lang1 = language.slice().sort().toString();
-                  const lang2 = selectedValues.slice().sort().toString();
-                  const isLangChanged = lang1 !== lang2 || !isSTTActive;
-                  props.onConfirm(isLangChanged, selectedValues);
+                  
+                  // Get user's own languages (not protected)
+                  const userOwnLanguages = selectedValues.filter(lang => !protectedLanguages.includes(lang));
+                  
+                  // Compare current languages with new selection (ignoring order)
+                  const currentLangs = language.slice().sort().join(',');
+                  const newLangs = selectedValues.slice().sort().join(',');
+                  const isLangChanged = currentLangs !== newLangs || !isSTTActive;
+                  
+                  // Pass all selected languages for STT API, and user's own for RTM
+                  props.onConfirm(isLangChanged, selectedValues, userOwnLanguages);
                 }}
               />
             </View>

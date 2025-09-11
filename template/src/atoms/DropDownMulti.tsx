@@ -36,6 +36,7 @@ interface Props {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   maxAllowedSelection?: number;
+  protectedLanguages?: LanguageType[];
 }
 
 const DropdownMulti: FC<Props> = ({
@@ -48,6 +49,7 @@ const DropdownMulti: FC<Props> = ({
   isOpen,
   setIsOpen,
   maxAllowedSelection = 2,
+  protectedLanguages = [],
 }) => {
   const DropdownButton = useRef();
   const maxHeight = 170;
@@ -81,12 +83,13 @@ const DropdownMulti: FC<Props> = ({
     //setIsOpen(false);
 
     const isSelected = selectedValues.includes(item.value);
+    const isProtected = protectedLanguages.includes(item.value);
     let updatedValues = [...selectedValues];
 
     if (isSelected) {
-      // Item is already selected, remove it if there are more than one selected languages
-      if (selectedValues.length > 0) {
-        updatedValues = selectedValues.filter((value) => value !== item.value);
+      // Item is already selected, remove it if it's not protected and there are more than one selected languages
+      if (selectedValues.length > 0 && !isProtected) {
+        updatedValues = selectedValues.filter(value => value !== item.value);
       }
     } else {
       // Item is not selected, add it
@@ -104,13 +107,15 @@ const DropdownMulti: FC<Props> = ({
   // renders each lang checkbox row
   const renderItem = ({item}): ReactElement<any, any> => {
     const isSelected = selectedValues.includes(item.value);
+    const isProtected = protectedLanguages.includes(item.value);
     const isUSEngLangSelected = selectedValues.includes('en-US');
     const isINEngLangSelected = selectedValues.includes('en-IN');
 
     const isDisabled =
       (!isSelected && selectedValues.length === maxAllowedSelection) ||
       (item.value === 'en-US' && isINEngLangSelected) ||
-      (item.value === 'en-IN' && isUSEngLangSelected);
+      (item.value === 'en-IN' && isUSEngLangSelected) ||
+      (isSelected && isProtected);
 
     setError(isDisabled || selectedValues.length === 0);
 
@@ -121,8 +126,14 @@ const DropdownMulti: FC<Props> = ({
             <Checkbox
               disabled={isDisabled}
               checked={isSelected}
-              label={item.label}
-              labelStye={styles.itemText}
+              label={
+                item.label + (isProtected ? ' (Selected by another user)' : '')
+              }
+              labelStye={
+                isProtected
+                  ? {...styles.itemText, ...styles.protectedItemText}
+                  : styles.itemText
+              }
               onChange={() => onItemPress(item)}
             />
           </View>
@@ -146,26 +157,38 @@ const DropdownMulti: FC<Props> = ({
     );
   };
 
-  const selectedLabels = selectedValues.map((value) => {
-    const selectedLanguage = data.find((item) => item.value === value);
+  const selectedLabels = selectedValues.map(value => {
+    const selectedLanguage = data.find(item => item.value === value);
+    const isProtected = protectedLanguages.includes(value);
     return selectedLanguage ? (
       <View style={styles.selectedLang}>
         <TouchableOpacity
+          disabled={isProtected}
           onPress={() => {
-            const updatedValues = selectedValues.filter(
-              (value) => value !== selectedLanguage.value,
-            );
-            setSelectedValues(updatedValues);
+            if (!isProtected) {
+              const updatedValues = selectedValues.filter(
+                value => value !== selectedLanguage.value,
+              );
+              setSelectedValues(updatedValues);
+            }
           }}>
           <ImageIcon
             iconType="plain"
             name={'close'}
             iconSize={20}
-            tintColor={$config.CARD_LAYER_5_COLOR}
+            tintColor={
+              isProtected
+                ? $config.FONT_COLOR + hexadecimalTransparency['40%']
+                : $config.CARD_LAYER_5_COLOR
+            }
           />
         </TouchableOpacity>
 
-        <Text style={styles.dropdownOptionText}>
+        <Text
+          style={[
+            styles.dropdownOptionText,
+            isProtected && {fontStyle: 'italic', opacity: 0.7},
+          ]}>
           {selectedLanguage.label}
         </Text>
       </View>
@@ -351,6 +374,11 @@ const styles = StyleSheet.create({
     flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  protectedItemText: {
+    paddingVertical: 12,
+    opacity: 0.6,
+    fontStyle: 'italic',
   },
 });
 

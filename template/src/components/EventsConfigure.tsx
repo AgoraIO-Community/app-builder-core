@@ -591,16 +591,24 @@ const EventsConfigure: React.FC<Props> = ({
         prevLang,
         newLang,
         uid,
+        remoteLang,
       }: RoomInfoContextInterface['sttLanguage'] = JSON.parse(data?.payload);
-      // set this on roominfo then use it in Controls
-      const sttLangObj = {
-        username,
-        prevLang,
-        newLang,
-        uid,
-        langChanged: true,
-      };
+      
       setRoomInfo(prev => {
+        // Merge remoteLang with existing remoteLang to accumulate protected languages
+        const existingRemoteLang = prev.sttLanguage?.remoteLang || [];
+        const newRemoteLang = remoteLang || [];
+        const mergedRemoteLang = [...new Set([...existingRemoteLang, ...newRemoteLang])];
+        
+        const sttLangObj = {
+          username,
+          prevLang,
+          newLang, // All languages in the channel
+          uid,
+          langChanged: true,
+          remoteLang: mergedRemoteLang, // Accumulated protected languages
+        };
+
         return {
           ...prev,
           sttLanguage: sttLangObj,

@@ -320,15 +320,16 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
+  const onLanguageChange = (langChanged = false, allLanguages: LanguageType[], userOwnLanguages?: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
       logger.log(
         LogSource.Internals,
         'STT',
-        `Language changed to  ${language}. Restarting STT`,
+        `Language changed to  ${allLanguages}. Restarting STT`,
       );
-      restart(language)
+      // Use all languages for STT API, user's own languages for RTM
+      restart(allLanguages, userOwnLanguages)
         .then(() => {
           logger.debug(
             LogSource.Internals,
@@ -410,7 +411,6 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     setMeetingTranscript
   } = useCaption();
   const {update} = useSTTAPI();
-  const username = useGetName();
   const localUid = useLocalUid();
 
   const actionMenuitems: ActionMenuItem[] = [];
