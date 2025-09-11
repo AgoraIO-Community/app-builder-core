@@ -20,8 +20,13 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   children,
   mainChannelName,
 }) => {
-  const {onMakeMePresenter, handleBreakoutRoomSyncState, onRaiseHand} =
-    useBreakoutRoom();
+  const {
+    onMakeMePresenter,
+    handleBreakoutRoomSyncState,
+    onRaiseHand,
+    handleHostOperationStart,
+    handleHostOperationEnd,
+  } = useBreakoutRoom();
   const localUid = useLocalUid();
   const {
     data: {isHost},
@@ -31,6 +36,8 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   const onRaiseHandRef = useRef(onRaiseHand);
   const onMakeMePresenterRef = useRef(onMakeMePresenter);
   const handleBreakoutRoomSyncStateRef = useRef(handleBreakoutRoomSyncState);
+  const handleHostOperationStartRef = useRef(handleHostOperationStart);
+  const handleHostOperationEndRef = useRef(handleHostOperationEnd);
 
   useEffect(() => {
     isHostRef.current = isHost;
@@ -47,6 +54,12 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   useEffect(() => {
     handleBreakoutRoomSyncStateRef.current = handleBreakoutRoomSyncState;
   }, [handleBreakoutRoomSyncState]);
+  useEffect(() => {
+    handleHostOperationStartRef.current = handleHostOperationStart;
+  }, [handleHostOperationStart]);
+  useEffect(() => {
+    handleHostOperationEndRef.current = handleHostOperationEnd;
+  }, [handleHostOperationEnd]);
 
   useEffect(() => {
     const handlePresenterStatusEvent = (evtData: any) => {
@@ -127,7 +140,74 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       const {payload} = evtData;
       const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
       if (data.data.act === 'SYNC_STATE') {
+        console.log(
+          'supriya-state-sync ********* BREAKOUT_ROOM_SYNC_STATE event triggered ***************',
+        );
         handleBreakoutRoomSyncStateRef.current(data.data.data);
+      }
+    };
+
+    const handleHostOperationStartEvent = (evtData: any) => {
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'BREAKOUT_ROOM_HOST_OPERATION_START event received',
+        evtData,
+      );
+      try {
+        const {sender, payload} = evtData;
+        // Ignore events from self
+        if (sender === `${localUidRef.current}`) {
+          return;
+        }
+        // Only process if current user is also a host
+        if (!isHostRef.current) {
+          return;
+        }
+
+        const data = JSON.parse(payload);
+        const {operationName, hostUid, hostName} = data;
+
+        handleHostOperationStartRef.current(operationName, hostUid, hostName);
+      } catch (error) {
+        logger.log(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          'Error handling host operation start event',
+          {error: error.message},
+        );
+      }
+    };
+
+    const handleHostOperationEndEvent = (evtData: any) => {
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'BREAKOUT_ROOM_HOST_OPERATION_END event received',
+        evtData,
+      );
+      try {
+        const {sender, payload} = evtData;
+        // Ignore events from self
+        if (sender === `${localUidRef.current}`) {
+          return;
+        }
+        // Only process if current user is also a host
+        if (!isHostRef.current) {
+          return;
+        }
+
+        const data = JSON.parse(payload);
+        const {operationName, hostUid, hostName} = data;
+
+        handleHostOperationEndRef.current(operationName, hostUid, hostName);
+      } catch (error) {
+        logger.log(
+          LogSource.Internals,
+          'BREAKOUT_ROOM',
+          'Error handling host operation end event',
+          {error: error.message},
+        );
       }
     };
 
@@ -147,6 +227,14 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
       handleBreakoutRoomSyncStateEvent,
     );
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_HOST_OPERATION_START,
+      handleHostOperationStartEvent,
+    );
+    events.on(
+      BreakoutRoomEventNames.BREAKOUT_ROOM_HOST_OPERATION_END,
+      handleHostOperationEndEvent,
+    );
 
     return () => {
       events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
@@ -161,6 +249,14 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
         handleBreakoutRoomSyncStateEvent,
+      );
+      events.off(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_HOST_OPERATION_START,
+        handleHostOperationStartEvent,
+      );
+      events.off(
+        BreakoutRoomEventNames.BREAKOUT_ROOM_HOST_OPERATION_END,
+        handleHostOperationEndEvent,
       );
     };
   }, []);

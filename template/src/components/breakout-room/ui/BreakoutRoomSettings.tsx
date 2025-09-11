@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import BreakoutRoomParticipants from './BreakoutRoomParticipants';
 import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
@@ -34,6 +34,19 @@ export default function BreakoutRoomSettings() {
     setModalOpen: setManualAssignmentModalOpen,
   } = useModal();
 
+  // Handle strategy change from dropdown
+  const handleStrategyChange = (newStrategy: RoomAssignmentStrategy) => {
+    setLocalAssignmentStrategy(newStrategy);
+
+    // Immediately call API for NO_ASSIGN strategy
+    if (newStrategy === RoomAssignmentStrategy.NO_ASSIGN) {
+      console.log(
+        'supriya-state-sync calling handleAssignParticipants on strategy change',
+      );
+      handleAssignParticipants(newStrategy);
+    }
+  };
+
   // Handle assign participants button click
   const handleAssignClick = () => {
     if (localAssignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
@@ -45,12 +58,6 @@ export default function BreakoutRoomSettings() {
     }
   };
 
-  useEffect(() => {
-    if (localAssignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN) {
-      handleAssignParticipants(localAssignmentStrategy);
-    }
-  }, [localAssignmentStrategy]);
-
   return (
     <View style={style.card}>
       {/* Avatar list  */}
@@ -61,7 +68,7 @@ export default function BreakoutRoomSettings() {
       <View style={style.section}>
         <SelectParticipantAssignmentStrategy
           selectedStrategy={localAssignmentStrategy}
-          onStrategyChange={setLocalAssignmentStrategy}
+          onStrategyChange={handleStrategyChange}
           disabled={disableAssignmentSelect}
         />
         <TertiaryButton

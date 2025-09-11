@@ -262,16 +262,15 @@ export const breakoutRoomReducer = (
           participants: {
             hosts: [...group.participants.hosts, ...hostsToAdd],
             attendees: [...group.participants.attendees, ...attendeesToAdd],
-            assignmentStrategy: RoomAssignmentStrategy.MANUAL_ASSIGN, // Update strategy
           },
         };
       });
 
       return {
         ...state,
+        assignmentStrategy: RoomAssignmentStrategy.MANUAL_ASSIGN, // Update strategy
         breakoutGroups: updatedGroups,
         manualAssignments: [], // Clear after applying
-        assignmentStrategy: RoomAssignmentStrategy.MANUAL_ASSIGN, // Update strategy
       };
 
     case BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM: {
@@ -284,13 +283,12 @@ export const breakoutRoomReducer = (
     case BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS: {
       return {
         ...state,
-        canUserSwitchRoom: true,
         assignmentStrategy: RoomAssignmentStrategy.NO_ASSIGN, // Update strategy
+        canUserSwitchRoom: true,
       };
     }
 
     case BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS: {
-      const selectedStrategy = state.assignmentStrategy;
       const roomAssignments = new Map<
         string,
         {hosts: UidType[]; attendees: UidType[]}
@@ -303,24 +301,23 @@ export const breakoutRoomReducer = (
 
       let assignedParticipantUids: UidType[] = [];
       // AUTO ASSIGN Simple round-robin assignment (no capacity limits)
-      if (selectedStrategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
-        let roomIndex = 0;
-        const roomIds = state.breakoutGroups.map(room => room.id);
-        state.unassignedParticipants.forEach(participant => {
-          const currentRoomId = roomIds[roomIndex];
-          const roomAssignment = roomAssignments.get(currentRoomId)!;
-          // Assign participant based on their isHost status (string "true"/"false")
-          if (participant.user?.isHost === 'true') {
-            roomAssignment.hosts.push(participant.uid);
-          } else {
-            roomAssignment.attendees.push(participant.uid);
-          }
-          // Move it to assigned list
-          assignedParticipantUids.push(participant.uid);
-          // Move to next room for round-robin
-          roomIndex = (roomIndex + 1) % roomIds.length;
-        });
-      }
+      let roomIndex = 0;
+      const roomIds = state.breakoutGroups.map(room => room.id);
+      state.unassignedParticipants.forEach(participant => {
+        const currentRoomId = roomIds[roomIndex];
+        const roomAssignment = roomAssignments.get(currentRoomId)!;
+        // Assign participant based on their isHost status (string "true"/"false")
+        if (participant.user?.isHost === 'true') {
+          roomAssignment.hosts.push(participant.uid);
+        } else {
+          roomAssignment.attendees.push(participant.uid);
+        }
+        // Move it to assigned list
+        assignedParticipantUids.push(participant.uid);
+        // Move to next room for round-robin
+        roomIndex = (roomIndex + 1) % roomIds.length;
+      });
+
       // Update breakoutGroups with new assignments
       const updatedBreakoutGroups = state.breakoutGroups.map(group => {
         const roomParticipants = roomAssignments.get(group.id) || {
@@ -332,7 +329,6 @@ export const breakoutRoomReducer = (
           participants: {
             hosts: roomParticipants.hosts,
             attendees: roomParticipants.attendees,
-            assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN, // Update strategy
           },
         };
       });
@@ -345,8 +341,8 @@ export const breakoutRoomReducer = (
       return {
         ...state,
         unassignedParticipants: updatedUnassignedParticipants,
+        assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN,
         breakoutGroups: updatedBreakoutGroups,
-        assignmentStrategy: RoomAssignmentStrategy.AUTO_ASSIGN, // Update strategy
       };
     }
 

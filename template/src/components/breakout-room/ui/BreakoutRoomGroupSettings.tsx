@@ -47,9 +47,13 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     canUserSwitchRoom,
     raisedHands,
     permissions,
+    isBreakoutUpdateInFlight,
+    isAnotherHostOperating,
+    currentOperatingHostName,
   } = useBreakoutRoom();
 
   const disableJoinBtn = !isHost && !canUserSwitchRoom;
+  const disableAllActions = isBreakoutUpdateInFlight || isAnotherHostOperating;
 
   // Render room card
   const {defaultContent} = useContent();
@@ -108,7 +112,12 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       raisedHands.some(hand => hand.uid === memberUId);
 
     return (
-      <View key={memberUId} style={styles.memberItem}>
+      <View
+        key={memberUId}
+        style={[
+          styles.memberItem,
+          disableAllActions && {opacity: 0.6, pointerEvents: 'none'},
+        ]}>
         <View style={styles.memberInfo}>
           <UserAvatar
             name={getName(memberUId)}
@@ -133,21 +142,24 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           ) : (
             <></>
           )}
-          {canUserSwitchRoom && isHost && memberUId !== localUid ? (
+          {permissions.canHostManageMainRoom && memberUId !== localUid ? (
             <View style={styles.memberMenuMoreIcon}>
               <View ref={memberRef} collapsable={false}>
                 <IconButton
+                  disabled={disableAllActions}
                   iconProps={{
                     iconType: 'plain',
                     name: 'more-menu',
                     iconSize: 20,
-                    tintColor: $config.SECONDARY_ACTION_COLOR,
+                    tintColor: disableAllActions
+                      ? $config.SEMANTIC_NEUTRAL
+                      : $config.SECONDARY_ACTION_COLOR,
                   }}
-                  onPress={() => showModal(memberUId)}
+                  onPress={() => !disableAllActions && showModal(memberUId)}
                 />
               </View>
               <UserActionMenuOptionsOptions
-                actionMenuVisible={isMenuVisible}
+                actionMenuVisible={isMenuVisible && !disableAllActions}
                 setActionMenuVisible={visible =>
                   setActionMenuVisible(prev => ({
                     ...prev,
@@ -195,15 +207,17 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               </Text>
             </View>
           </View>
-          <View style={styles.roomHeaderRight}>
+          <View
+            style={[
+              styles.roomHeaderRight,
+              disableAllActions && {opacity: 0.6, pointerEvents: 'none'},
+            ]}>
             {isUserInRoom(room) ? (
               <TertiaryButton
                 containerStyle={styles.exitRoomBtn}
                 textStyle={styles.roomActionBtnText}
                 text={'Exit Room'}
-                onPress={() => {
-                  exitRoom(room.id);
-                }}
+                onPress={() => exitRoom(room.id)}
               />
             ) : (
               <TertiaryButton
@@ -213,13 +227,11 @@ const BreakoutRoomGroupSettings: React.FC = () => {
                 }
                 textStyle={styles.roomActionBtnText}
                 text={'Join'}
-                onPress={() => {
-                  joinRoom(room.id);
-                }}
+                onPress={() => joinRoom(room.id)}
               />
             )}
             {/* Only host can perform these actions */}
-            {isHost ? (
+            {permissions.canHostManageMainRoom ? (
               <BreakoutRoomActionMenu
                 onDeleteRoom={() => {
                   closeRoom(room.id);
@@ -280,8 +292,12 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>All Rooms</Text>
         </View>
-        {isHost ? (
-          <View style={styles.headerRight}>
+        {permissions.canHostManageMainRoom ? (
+          <View
+            style={[
+              styles.headerRight,
+              disableAllActions && {opacity: 0.6, pointerEvents: 'none'},
+            ]}>
             <IconButton
               iconProps={{
                 iconType: 'plain',
@@ -289,9 +305,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
                 iconSize: 20,
                 tintColor: $config.SECONDARY_ACTION_COLOR,
               }}
-              onPress={() => {
-                setAnnouncementModal(true);
-              }}
+              onPress={() => setAnnouncementModal(true)}
             />
           </View>
         ) : (
