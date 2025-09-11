@@ -27,6 +27,8 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     upsertBreakoutRoomAPI,
     closeAllRooms,
     permissions,
+    isBreakoutUpdateInFlight,
+    isAnotherHostOperating,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -46,6 +48,9 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     init();
   }, []);
 
+  // Disable all actions when API is in flight or another host is operating
+  const disableAllActions = isBreakoutUpdateInFlight || isAnotherHostOperating;
+
   return (
     <>
       <BreakoutRoomHeader />
@@ -63,7 +68,11 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
             />
           </View>
         ) : (
-          <View style={style.panelInnerBody}>
+          <View
+            style={[
+              style.panelInnerBody,
+              disableAllActions ? style.disabledPannelInnerBody : {},
+            ]}>
             {permissions?.canRaiseHands ? <BreakoutRoomRaiseHand /> : <></>}
             {permissions?.canHostManageMainRoom &&
             permissions.canAssignParticipants ? (
@@ -75,6 +84,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
             {permissions?.canHostManageMainRoom &&
             permissions?.canCreateRooms ? (
               <TertiaryButton
+                disabled={disableAllActions}
                 containerStyle={style.createBtnContainer}
                 textStyle={style.createBtnText}
                 text={'+ Create New Room'}
@@ -92,6 +102,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
         <View style={style.footer}>
           <View style={style.fullWidth}>
             <TertiaryButton
+              disabled={disableAllActions}
               containerStyle={{
                 borderColor: $config.SEMANTIC_ERROR,
               }}
@@ -158,5 +169,10 @@ const style = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '500',
     fontSize: ThemeConfig.FontSize.normal,
+  },
+
+  disabledPannelInnerBody: {
+    opacity: 0.4,
+    pointerEvents: 'none',
   },
 });

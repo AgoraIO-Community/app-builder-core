@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useMemo,
   useRef,
 } from 'react';
 import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
@@ -14,7 +13,6 @@ import StorageContext from '../../StorageContext';
 import getUniqueID from '../../../utils/getUniqueID';
 import {logger, LogSource} from '../../../logger/AppBuilderLogger';
 import {useRoomInfo} from 'customization-api';
-import {useLocation} from '../../Router';
 import {
   BreakoutGroupActionTypes,
   BreakoutGroup,
@@ -36,7 +34,7 @@ import useBreakoutRoomExit from '../hooks/useBreakoutRoomExit';
 import {useDebouncedCallback} from '../../../utils/useDebouncedCallback';
 
 const BREAKOUT_LOCK_TIMEOUT_MS = 5000;
-const HOST_OPERATION_LOCK_TIMEOUT_MS = 30000; // Emergency timeout for network failures only
+const HOST_OPERATION_LOCK_TIMEOUT_MS = 10000; // Emergency timeout for network failures only
 
 const HOST_BROADCASTED_OPERATIONS = [
   BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
@@ -252,18 +250,15 @@ const BreakoutRoomProvider = ({
   const {store} = useContext(StorageContext);
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
+  const {
+    data: {isHost, roomId},
+  } = useRoomInfo();
+  const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   const [state, baseDispatch] = useReducer(
     breakoutRoomReducer,
     initialBreakoutRoomState,
   );
-  const {
-    data: {isHost, roomId},
-  } = useRoomInfo();
-
-  const location = useLocation();
-  const isInBreakoutRoute = location.pathname.includes('breakout');
   const [isBreakoutUpdateInFlight, setBreakoutUpdateInFlight] = useState(false);
-  const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
 
   // Permissions:
   const [permissions, setPermissions] = useState<BreakoutRoomPermissions>({
@@ -293,17 +288,14 @@ const BreakoutRoomProvider = ({
   // Polling control
   const [isPollingPaused, setIsPollingPaused] = useState(false);
 
-  // 🛡️ State ref to avoid stale closures in async callbacks
+  //  Refs to avoid stale closures in async callbacks
   const stateRef = useRef(state);
   const prevStateRef = useRef(state);
   const isHostRef = useRef(isHost);
   const defaultContentRef = useRef(defaultContent);
-  // 🛡️ Component mount ref to prevent actions after unmount
   const isMountedRef = useRef(true);
-
-  // 🛡️ Concurrent action protection - track users being moved
+  // Concurrent action protection - track users being moved
   const usersBeingMovedRef = useRef<Set<UidType>>(new Set());
-
   // Enhanced dispatch that tracks user actions
   const [lastAction, setLastAction] = useState<BreakoutRoomAction | null>(null);
 
@@ -336,7 +328,6 @@ const BreakoutRoomProvider = ({
   useEffect(() => {
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
-
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
@@ -345,6 +336,11 @@ const BreakoutRoomProvider = ({
 
   // Timeouts
   const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  // Track host operation timeout for manual clearing
+  const hostOperationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
   const safeSetTimeout = useCallback((fn: () => void, delay: number) => {
     const id = setTimeout(() => {
       fn();
@@ -354,7 +350,11 @@ const BreakoutRoomProvider = ({
     timeoutsRef.current.add(id);
     return id;
   }, []);
-
+  const safeClearTimeout = useCallback((id: ReturnType<typeof setTimeout>) => {
+    clearTimeout(id);
+    timeoutsRef.current.delete(id);
+  }, []);
+  // Clear all timeouts
   useEffect(() => {
     const snapshot = timeoutsRef.current;
     return () => {
@@ -379,7 +379,7 @@ const BreakoutRoomProvider = ({
     }, toastConfig.visibilityTime || 3000);
   }, []);
 
-  // 🛡️ Multi-host coordination functions
+  // Multi-host coordination functions
   const broadcastHostOperationStart = useCallback(
     (operationName: string) => {
       if (!isHostRef.current) {
@@ -436,11 +436,14 @@ const BreakoutRoomProvider = ({
     [localUid],
   );
 
-  // 🛡️ Common operation lock for API-triggering actions with multi-host coordination
+  // Common operation lock for API-triggering actions with multi-host coordination
   const acquireOperationLock = useCallback(
     (operationName: string, showToast = true): boolean => {
       // Check if another host is operating
+      console.log('supriya-state-sync acquiring lock step 1');
       if (isAnotherHostOperating) {
+        console.log('supriya-state-sync isAnotherHostOperating is true');
+
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
@@ -453,7 +456,7 @@ const BreakoutRoomProvider = ({
 
         if (showToast) {
           showDeduplicatedToast(`operation-blocked-host-${operationName}`, {
-            type: 'warning',
+            type: 'info',
             text1: `${
               currentOperatingHostName || 'Another host'
             } is currently managing breakout rooms`,
@@ -478,7 +481,7 @@ const BreakoutRoomProvider = ({
 
         if (showToast) {
           showDeduplicatedToast(`operation-blocked-${operationName}`, {
-            type: 'warning',
+            type: 'info',
             text1: 'Please wait for current operation to complete',
             visibilityTime: 3000,
           });
@@ -487,6 +490,10 @@ const BreakoutRoomProvider = ({
       }
 
       // Broadcast that this host is starting an operation
+      console.log(
+        'supriya-state-sync broadcasting host operation start',
+        operationName,
+      );
       broadcastHostOperationStart(operationName);
 
       logger.log(
@@ -506,7 +513,7 @@ const BreakoutRoomProvider = ({
     ],
   );
 
-  // Concurrent action protection helper functions
+  // Individual user lock: so that same user is not moved from two different actions
   const acquireUserLock = (uid: UidType, operation: string): boolean => {
     if (usersBeingMovedRef.current.has(uid)) {
       logger.log(
@@ -585,6 +592,10 @@ const BreakoutRoomProvider = ({
         if (user.offline) {
           return false;
         }
+        // Exclude hosts
+        if (user?.isHost) {
+          return false;
+        }
         // Exclude screenshare UIDs (they typically have a parentUid)
         if (user.parentUid) {
           return false;
@@ -619,6 +630,8 @@ const BreakoutRoomProvider = ({
     });
   }, [activeUids, localUid, dispatch, state.breakoutSessionId]);
 
+  // Check if there is already an active breakout session
+  // We can call this to trigger sync events
   const checkIfBreakoutRoomSessionExistsAPI = async (): Promise<boolean> => {
     console.log(
       'supriya-state-sync calling checkIfBreakoutRoomSessionExistsAPI',
@@ -827,7 +840,7 @@ const BreakoutRoomProvider = ({
           body: JSON.stringify(payload),
         });
 
-        // 🛡️ Guard against component unmount after fetch
+        // Guard against component unmount after fetch
         if (!isMountedRef.current) {
           logger.log(
             LogSource.Internals,
@@ -1001,7 +1014,6 @@ const BreakoutRoomProvider = ({
     );
     if (!acquireOperationLock('SET_ALLOW_PEOPLE_TO_SWITCH_ROOM')) {
       console.log('supriya-state-sync lock acquired');
-
       return;
     }
 
@@ -1909,7 +1921,7 @@ const BreakoutRoomProvider = ({
 
         showDeduplicatedToast('all-rooms-closed', {
           leadingIconName: 'close',
-          type: 'warning',
+          type: 'info',
           text1: 'Breakout rooms are now closed. Returning to the main room...',
           visibilityTime: 4000,
         });
@@ -1954,6 +1966,7 @@ const BreakoutRoomProvider = ({
   const handleHostOperationStart = useCallback(
     (operationName: string, hostUid: UidType, hostName: string) => {
       // Only process if current user is also a host and it's not their own event
+      console.log('supriya-state-sync host operation started', operationName);
       if (!isHostRef.current || hostUid === localUid) {
         return;
       }
@@ -1977,7 +1990,7 @@ const BreakoutRoomProvider = ({
       });
 
       // Emergency timeout ONLY as last resort (30 seconds for network failures)
-      safeSetTimeout(() => {
+      const timeoutId = safeSetTimeout(() => {
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
@@ -1992,14 +2005,18 @@ const BreakoutRoomProvider = ({
         );
         setIsAnotherHostOperating(false);
         setCurrentOperatingHostName(undefined);
+        hostOperationTimeoutRef.current = null; // Clear the ref since timeout fired
 
         showDeduplicatedToast(`host-operation-emergency-unlock-${hostUid}`, {
-          type: 'warning',
+          type: 'info',
           text1: 'Breakout room controls unlocked',
           text2: 'The other host may have disconnected',
           visibilityTime: 4000,
         });
       }, HOST_OPERATION_LOCK_TIMEOUT_MS);
+
+      // Store the timeout ID so we can clear it if operation ends normally
+      hostOperationTimeoutRef.current = timeoutId;
     },
     [localUid, showDeduplicatedToast, safeSetTimeout],
   );
@@ -2007,6 +2024,8 @@ const BreakoutRoomProvider = ({
   const handleHostOperationEnd = useCallback(
     (operationName: string, hostUid: UidType, hostName: string) => {
       // Only process if current user is also a host and it's not their own event
+      console.log('supriya-state-sync host operation ended', operationName);
+
       if (!isHostRef.current || hostUid === localUid) {
         return;
       }
@@ -2020,6 +2039,12 @@ const BreakoutRoomProvider = ({
 
       setIsAnotherHostOperating(false);
       setCurrentOperatingHostName(undefined);
+
+      // Clear the emergency timeout since operation ended properly
+      if (hostOperationTimeoutRef.current) {
+        safeClearTimeout(hostOperationTimeoutRef.current);
+        hostOperationTimeoutRef.current = null;
+      }
     },
     [localUid],
   );
@@ -2031,12 +2056,23 @@ const BreakoutRoomProvider = ({
       setIsPollingPaused(true);
 
       try {
-        console.log('supriya-state-sync calling upsertBreakoutRoomAPI 2007');
+        console.log(
+          'supriya-state-sync before calling upsertBreakoutRoomAPI 2007',
+        );
 
         await upsertBreakoutRoomAPI(type);
+        console.log(
+          'supriya-state-sync after calling upsertBreakoutRoomAPI 2007',
+        );
+        console.log('supriya-state-sync operationName', operationName);
 
         // Broadcast operation end after successful API call
         if (operationName) {
+          console.log(
+            'supriya-state-sync broadcasting host operation end',
+            operationName,
+          );
+
           broadcastHostOperationEnd(operationName);
         }
       } catch (error) {

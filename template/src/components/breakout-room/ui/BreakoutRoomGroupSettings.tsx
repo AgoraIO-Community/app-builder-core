@@ -47,13 +47,9 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     canUserSwitchRoom,
     raisedHands,
     permissions,
-    isBreakoutUpdateInFlight,
-    isAnotherHostOperating,
-    currentOperatingHostName,
   } = useBreakoutRoom();
 
   const disableJoinBtn = !isHost && !canUserSwitchRoom;
-  const disableAllActions = isBreakoutUpdateInFlight || isAnotherHostOperating;
 
   // Render room card
   const {defaultContent} = useContent();
@@ -112,12 +108,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       raisedHands.some(hand => hand.uid === memberUId);
 
     return (
-      <View
-        key={memberUId}
-        style={[
-          styles.memberItem,
-          disableAllActions && {opacity: 0.6, pointerEvents: 'none'},
-        ]}>
+      <View key={memberUId} style={[styles.memberItem]}>
         <View style={styles.memberInfo}>
           <UserAvatar
             name={getName(memberUId)}
@@ -146,20 +137,17 @@ const BreakoutRoomGroupSettings: React.FC = () => {
             <View style={styles.memberMenuMoreIcon}>
               <View ref={memberRef} collapsable={false}>
                 <IconButton
-                  disabled={disableAllActions}
                   iconProps={{
                     iconType: 'plain',
                     name: 'more-menu',
                     iconSize: 20,
-                    tintColor: disableAllActions
-                      ? $config.SEMANTIC_NEUTRAL
-                      : $config.SECONDARY_ACTION_COLOR,
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
-                  onPress={() => !disableAllActions && showModal(memberUId)}
+                  onPress={() => showModal(memberUId)}
                 />
               </View>
               <UserActionMenuOptionsOptions
-                actionMenuVisible={isMenuVisible && !disableAllActions}
+                actionMenuVisible={isMenuVisible}
                 setActionMenuVisible={visible =>
                   setActionMenuVisible(prev => ({
                     ...prev,
@@ -207,11 +195,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               </Text>
             </View>
           </View>
-          <View
-            style={[
-              styles.roomHeaderRight,
-              disableAllActions && {opacity: 0.6, pointerEvents: 'none'},
-            ]}>
+          <View style={[styles.roomHeaderRight]}>
             {isUserInRoom(room) ? (
               <TertiaryButton
                 containerStyle={styles.exitRoomBtn}
@@ -293,11 +277,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           <Text style={styles.headerTitle}>All Rooms</Text>
         </View>
         {permissions.canHostManageMainRoom ? (
-          <View
-            style={[
-              styles.headerRight,
-              disableAllActions && {opacity: 0.6, pointerEvents: 'none'},
-            ]}>
+          <View style={[styles.headerRight]}>
             <IconButton
               iconProps={{
                 iconType: 'plain',
