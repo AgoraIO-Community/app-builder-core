@@ -24,7 +24,6 @@ import {
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
-import {useLocation} from '../../Router';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
 import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
@@ -257,8 +256,6 @@ const BreakoutRoomProvider = ({
     data: {isHost, roomId: joinRoomId},
   } = useRoomInfo();
   console.log('supriya-room-data', joinRoomId);
-  const location = useLocation();
-  const isInBreakoutRoute = location.pathname.includes('breakout');
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   const [state, baseDispatch] = useReducer(
     breakoutRoomReducer,
@@ -290,9 +287,6 @@ const BreakoutRoomProvider = ({
   const [raisedHands, setRaisedHands] = useState<
     {uid: UidType; timestamp: number}[]
   >([]);
-
-  // Polling control
-  const [isPollingPaused, setIsPollingPaused] = useState(false);
 
   //  Refs to avoid stale closures in async callbacks
   const stateRef = useRef(state);
@@ -600,10 +594,6 @@ const BreakoutRoomProvider = ({
         if (user.offline) {
           return false;
         }
-        // // Exclude hosts
-        if (user?.isHost === 'true') {
-          return false;
-        }
         // Exclude screenshare UIDs (they typically have a parentUid)
         if (user.parentUid) {
           return false;
@@ -779,25 +769,6 @@ const BreakoutRoomProvider = ({
         return false;
       }
     }, [isBreakoutUpdateInFlight, dispatch, joinRoomId, store.token]);
-
-  // Polling for sync event
-  const pollBreakoutGetAPI = useCallback(async () => {
-    if (isHostRef.current && stateRef.current.breakoutSessionId) {
-      await checkIfBreakoutRoomSessionExistsAPI();
-    }
-  }, [checkIfBreakoutRoomSessionExistsAPI]);
-
-  // Automatic interval management with cleanup only host will poll
-  useEffect(() => {
-    if (
-      isHostRef.current &&
-      !isPollingPaused &&
-      stateRef.current.breakoutSessionId
-    ) {
-      const interval = setInterval(pollBreakoutGetAPI, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [isPollingPaused, pollBreakoutGetAPI]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START', retryCount = 0) => {
