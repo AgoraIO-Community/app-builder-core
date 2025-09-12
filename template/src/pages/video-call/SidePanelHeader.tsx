@@ -321,10 +321,11 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
+  const onLanguageChange = (langChanged = false,  allLanguages: LanguageType[],
+    userOwnLanguages?: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
-      restart(language)
+      restart(allLanguages, userOwnLanguages)
         .then(() => {
           logger.debug(
             LogSource.Internals,
