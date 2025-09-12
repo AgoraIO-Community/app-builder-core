@@ -581,12 +581,14 @@ const BreakoutRoomProvider = ({
     // 1. Custom content (not type 'rtc')
     // 2. Screenshare UIDs
     // 3. Offline users
+    console.log('supriya-breakoutSessionId', stateRef);
     if (!stateRef?.current?.breakoutSessionId) {
       return;
     }
     const filteredParticipants = activeUids
       .filter(uid => {
         const user = defaultContentRef.current[uid];
+        console.log('supriya-breakoutSessionId user: ', user);
         if (!user) {
           return false;
         }
@@ -598,8 +600,8 @@ const BreakoutRoomProvider = ({
         if (user.offline) {
           return false;
         }
-        // Exclude hosts
-        if (user?.isHost) {
+        // // Exclude hosts
+        if (user?.isHost === 'true') {
           return false;
         }
         // Exclude screenshare UIDs (they typically have a parentUid)
