@@ -24,6 +24,7 @@ import {
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
+import {useLocation} from '../../Router';
 import events, {PersistanceLevel} from '../../../rtm-events-api';
 import {BreakoutRoomAction, initialBreakoutGroups} from '../state/reducer';
 import {BreakoutRoomEventNames} from '../events/constants';
@@ -255,6 +256,8 @@ const BreakoutRoomProvider = ({
   const {
     data: {isHost, roomId},
   } = useRoomInfo();
+  const location = useLocation();
+  const isInBreakoutRoute = location.pathname.includes('breakout');
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   const [state, baseDispatch] = useReducer(
     breakoutRoomReducer,
@@ -769,16 +772,16 @@ const BreakoutRoomProvider = ({
   }, []);
 
   // Automatic interval management with cleanup only host will poll
-  // useEffect(() => {
-  //   if (
-  //     isHostRef.current &&
-  //     !isPollingPaused &&
-  //     (stateRef.current.breakoutSessionId || isInBreakoutRoute)
-  //   ) {
-  //     const interval = setInterval(pollBreakoutGetAPI, 2000);
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [isPollingPaused, isInBreakoutRoute, pollBreakoutGetAPI]);
+  useEffect(() => {
+    if (
+      isHostRef.current &&
+      !isPollingPaused &&
+      (stateRef.current.breakoutSessionId || isInBreakoutRoute)
+    ) {
+      const interval = setInterval(pollBreakoutGetAPI, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isPollingPaused, isInBreakoutRoute, pollBreakoutGetAPI]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START', retryCount = 0) => {
