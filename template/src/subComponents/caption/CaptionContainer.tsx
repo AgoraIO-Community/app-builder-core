@@ -216,52 +216,54 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
   );
 });
 
-const LanguageSelectMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
-  const {setActionMenuVisible} = props;
-  const isMobile = isMobileUA();
-  return (
-    <View
-      ref={ref}
-      collapsable={false}
-      style={{
-        width: 32,
-        height: 32,
-        alignSelf: 'center',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 20,
-        position: 'absolute',
-        right: isMobile ? 45 : 50,
-        top: isMobile ? 3 : 8,
-        zIndex: 999,
-      }}>
-      <IconButton
-        hoverEffect={true}
-        hoverEffectStyle={{
-          backgroundColor:
-            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
+const LanguageSelectMenu = React.forwardRef<View, MoreMenuProps>(
+  (props, ref) => {
+    const {setActionMenuVisible} = props;
+    const isMobile = isMobileUA();
+    return (
+      <View
+        ref={ref}
+        collapsable={false}
+        style={{
+          width: 32,
+          height: 32,
+          alignSelf: 'center',
+          justifyContent: 'center',
+          alignItems: 'center',
           borderRadius: 20,
-        }}
-        iconProps={{
-          iconType: 'plain',
-          name: 'lang-select',
-          iconSize: isMobile ? 18 : 20,
-          tintColor: $config.SECONDARY_ACTION_COLOR,
-          iconContainerStyle: {
-            padding: isMobile ? 6 : 8,
+          position: 'absolute',
+          right: isMobile ? 45 : 50,
+          top: isMobile ? 3 : 8,
+          zIndex: 999,
+        }}>
+        <IconButton
+          hoverEffect={true}
+          hoverEffectStyle={{
+            backgroundColor:
+              $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
             borderRadius: 20,
-            backgroundColor: isMobile
-              ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%']
-              : 'transparent',
-          },
-        }}
-        onPress={() => {
-          setActionMenuVisible(true);
-        }}
-      />
-    </View>
-  );
-});
+          }}
+          iconProps={{
+            iconType: 'plain',
+            name: 'lang-select',
+            iconSize: isMobile ? 18 : 20,
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+            iconContainerStyle: {
+              padding: isMobile ? 6 : 8,
+              borderRadius: 20,
+              backgroundColor: isMobile
+                ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%']
+                : 'transparent',
+            },
+          }}
+          onPress={() => {
+            setActionMenuVisible(true);
+          }}
+        />
+      </View>
+    );
+  },
+);
 
 interface CaptionsActionMenuProps {
   actionMenuVisible: boolean;
@@ -320,7 +322,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (langChanged = false, allLanguages: LanguageType[], userOwnLanguages?: LanguageType[]) => {
+  const onLanguageChange = (
+    langChanged = false,
+    allLanguages: LanguageType[],
+    userOwnLanguages?: LanguageType[],
+  ) => {
     setLanguagePopup(false);
     if (langChanged) {
       logger.log(
@@ -408,62 +414,96 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     language: currentSpokenLanguages,
     selectedTranslationLanguage,
     setSelectedTranslationLanguage,
-    setMeetingTranscript
+    setMeetingTranscript,
   } = useCaption();
   const {update} = useSTTAPI();
   const localUid = useLocalUid();
+  const {sttLanguage} = useRoomInfo();
 
   const actionMenuitems: ActionMenuItem[] = [];
-
 
   actionMenuitems.push({
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Translate to',
-     iconPosition: 'end',
+    iconPosition: 'end',
     disabled: true,
     onPress: () => {},
   });
 
-
   const handleTranslationToggle = async (targetLanguage: string) => {
     try {
       const prevTranslationLanguage = selectedTranslationLanguage;
-      
+
       if (targetLanguage === '') {
         // turn off translation - todo test
         await update({
           translate_config: [],
-          lang:currentSpokenLanguages,
+          lang: currentSpokenLanguages,
+          userSelectedTranslation: '', // Empty string for "off"
         });
         setSelectedTranslationLanguage('');
       } else {
-        // create translate_config for all spoken languages
-        const translateConfig = currentSpokenLanguages.map((spokenLang) => ({
+        // Get existing translate config from room state
+        const existingTranslateConfig = sttLanguage?.translateConfig || [];
+
+        // Create new translate_config for user's spoken languages
+        const newTranslateConfigs = currentSpokenLanguages.map(spokenLang => ({
           source_lang: spokenLang,
-          target_lang: [targetLanguage]
+          target_lang: [targetLanguage],
         }));
 
+        // Merge with existing configuration using same logic as RTM handler
+        const mergedTranslateConfig = [...existingTranslateConfig];
+
+        newTranslateConfigs.forEach(newConfig => {
+          const existingIndex = mergedTranslateConfig.findIndex(
+            existing => existing.source_lang === newConfig.source_lang,
+          );
+
+          if (existingIndex !== -1) {
+            // Same source language - merge target languages
+            const existingTargets =
+              mergedTranslateConfig[existingIndex].target_lang;
+            const mergedTargets = [
+              ...new Set([...existingTargets, ...newConfig.target_lang]),
+            ];
+            mergedTranslateConfig[existingIndex] = {
+              ...mergedTranslateConfig[existingIndex],
+              target_lang: mergedTargets,
+            };
+          } else {
+            // Different source language - add new config
+            mergedTranslateConfig.push(newConfig);
+          }
+        });
+
         await update({
-          translate_config: translateConfig,
-          lang:currentSpokenLanguages,
+          translate_config: mergedTranslateConfig,
+          lang: currentSpokenLanguages,
+          userSelectedTranslation: targetLanguage,
         });
         setSelectedTranslationLanguage(targetLanguage);
       }
-      
+
       // Add translation language change notification to transcript
       const getLanguageName = (langCode: string) => {
         if (!langCode) return '';
         const lang = langData.find(data => data.value === langCode);
         return lang ? lang.label : langCode;
       };
-      
-      const actionText = targetLanguage === '' 
-        ? 'turned off translation' 
-        : prevTranslationLanguage === ''
-          ? `set the translation language to "${getLanguageName(targetLanguage)}"`
-          : `changed the translation language from "${getLanguageName(prevTranslationLanguage)}" to "${getLanguageName(targetLanguage)}"`;
-          
+
+      const actionText =
+        targetLanguage === ''
+          ? 'turned off translation'
+          : prevTranslationLanguage === ''
+          ? `set the translation language to "${getLanguageName(
+              targetLanguage,
+            )}"`
+          : `changed the translation language from "${getLanguageName(
+              prevTranslationLanguage,
+            )}" to "${getLanguageName(targetLanguage)}"`;
+
       setMeetingTranscript(prev => [
         ...prev,
         {
@@ -473,7 +513,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           text: actionText,
         },
       ]);
-      
+
       setActionMenuVisible(false);
     } catch (error) {
       logger.error(
@@ -494,10 +534,13 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
     onPress: () => handleTranslationToggle(''),
   });
 
-  // Add Translation language options 
-  langData.forEach((language) => {
+  // Add Translation language options
+  langData.forEach(language => {
     actionMenuitems.push({
-      icon: selectedTranslationLanguage === language.value ? 'tick-fill' : undefined,
+      icon:
+        selectedTranslationLanguage === language.value
+          ? 'tick-fill'
+          : undefined,
       iconColor: $config.PRIMARY_ACTION_BRAND_COLOR,
       textColor: $config.FONT_COLOR,
       title: language.label,
@@ -541,7 +584,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
       items={actionMenuitems}
       containerStyle={{
         maxHeight: Math.min(440, globalHeight * 0.6),
-        width:220
+        width: 220,
       }}
     />
   );

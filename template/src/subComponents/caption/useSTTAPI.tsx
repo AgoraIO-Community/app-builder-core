@@ -28,6 +28,8 @@ interface UpdateParams {
     target_lang: string[];     
     source_lang: string;       
   }[];
+  // User's own selected translation language (for RTM message)
+  userSelectedTranslation?: string;
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -320,6 +322,25 @@ const useSTTAPI = (): IuseSTTAPI => {
         // If language was updated, update local state
         if (params.lang) {
           setLanguage(params.lang);
+        }
+
+        // Send RTM message for translation config sync
+        if (params.translate_config && params.userSelectedTranslation) {
+          // Create user's own translation config from userSelectedTranslation
+          const userOwnTranslateConfig = (params.lang || currentLangRef.current).map(spokenLang => ({
+            source_lang: spokenLang,
+            target_lang: [params.userSelectedTranslation]
+          }));
+
+          events.send(
+            EventNames.STT_TRANSLATE_LANGUAGE,
+            JSON.stringify({
+              username: capitalizeFirstLetter(username),
+              uid: localUid,
+              translateConfig: userOwnTranslateConfig, // Only user's own choice
+            }),
+            PersistanceLevel.Sender,
+          );
         }
       }
       

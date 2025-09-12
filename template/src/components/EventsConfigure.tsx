@@ -616,6 +616,52 @@ const EventsConfigure: React.FC<Props> = ({
       });
     });
 
+    events.on(EventNames.STT_TRANSLATE_LANGUAGE, data => {
+      const {
+        username,
+        uid,
+        translateConfig,
+      } = JSON.parse(data?.payload);
+      
+      setRoomInfo(prev => {
+        // Merge translate configs with existing configuration
+        const existingTranslateConfig = prev.sttLanguage?.translateConfig || [];
+        const newTranslateConfig = translateConfig || [];
+        
+        // Merge logic: for each new source language, merge with existing or add new
+        const mergedTranslateConfig = [...existingTranslateConfig];
+        
+        newTranslateConfig.forEach(newConfig => {
+          const existingIndex = mergedTranslateConfig.findIndex(
+            existing => existing.source_lang === newConfig.source_lang
+          );
+          
+          if (existingIndex !== -1) {
+            // Same source language - merge target languages
+            const existingTargets = mergedTranslateConfig[existingIndex].target_lang;
+            const mergedTargets = [...new Set([...existingTargets, ...newConfig.target_lang])];
+            mergedTranslateConfig[existingIndex] = {
+              ...mergedTranslateConfig[existingIndex],
+              target_lang: mergedTargets,
+            };
+          } else {
+            // Different source language - add new config
+            mergedTranslateConfig.push(newConfig);
+          }
+        });
+        
+        const sttLangObj = {
+          ...prev.sttLanguage,
+          translateConfig: mergedTranslateConfig,
+        };
+
+        return {
+          ...prev,
+          sttLanguage: sttLangObj,
+        };
+      });
+    });
+
     events.on(EventNames.WAITING_ROOM_STATUS_UPDATE, data => {
       if (!isHostRef.current) return;
       const {attendee_uid, approved} = JSON.parse(data?.payload);
@@ -881,6 +927,7 @@ const EventsConfigure: React.FC<Props> = ({
       events.off(EventNames.BOARD_COLOR_CHANGED);
       events.off(EventNames.STT_ACTIVE);
       events.off(EventNames.STT_LANGUAGE);
+      events.off(EventNames.STT_TRANSLATE_LANGUAGE);
     };
   }, []);
 
