@@ -2063,7 +2063,6 @@ const BreakoutRoomProvider = ({
   const debouncedUpsertAPI = useDebouncedCallback(
     async (type: 'START' | 'UPDATE', operationName?: string) => {
       setBreakoutUpdateInFlight(true);
-      setIsPollingPaused(true);
 
       try {
         console.log(
@@ -2124,7 +2123,6 @@ const BreakoutRoomProvider = ({
         }
       } finally {
         setBreakoutUpdateInFlight(false);
-        setIsPollingPaused(false);
       }
     },
     500,
