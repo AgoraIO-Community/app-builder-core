@@ -254,8 +254,9 @@ const BreakoutRoomProvider = ({
   const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
   const {
-    data: {isHost, roomId},
+    data: {isHost, roomId: joinRoomId},
   } = useRoomInfo();
+  console.log('supriya-room-data', joinRoomId);
   const location = useLocation();
   const isInBreakoutRoute = location.pathname.includes('breakout');
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
@@ -637,151 +638,164 @@ const BreakoutRoomProvider = ({
 
   // Check if there is already an active breakout session
   // We can call this to trigger sync events
-  const checkIfBreakoutRoomSessionExistsAPI = async (): Promise<boolean> => {
-    console.log(
-      'supriya-state-sync calling checkIfBreakoutRoomSessionExistsAPI',
-    );
-    const startTime = Date.now();
-    const requestId = getUniqueID();
-    const url = `${
-      $config.BACKEND_ENDPOINT
-    }/v1/channel/breakout-room?passphrase=${
-      isHostRef.current ? roomId.host : roomId.attendee
-    }`;
-
-    // Log internals for breakout room lifecycle
-    logger.log(
-      LogSource.Internals,
-      'BREAKOUT_ROOM',
-      'Checking active session',
-      {
-        isHost: isHostRef.current,
-        sessionId: stateRef.current.breakoutSessionId,
-      },
-    );
-
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: store.token ? `Bearer ${store.token}` : '',
-          'X-Request-Id': requestId,
-          'X-Session-Id': logger.getSessionId(),
-        },
-      });
-
-      // 🛡️ Guard against component unmount after fetch
-      if (!isMountedRef.current) {
-        logger.log(
-          LogSource.Internals,
-          'BREAKOUT_ROOM',
-          'Check session API cancelled - component unmounted',
-          {requestId},
-        );
+  const checkIfBreakoutRoomSessionExistsAPI =
+    useCallback(async (): Promise<boolean> => {
+      // Skip API call if roomId is not available or if API update is in progress
+      if (!joinRoomId?.host && !joinRoomId?.attendee) {
+        console.log('supriya-polling: Skipping - no roomId available');
         return false;
       }
 
-      const latency = Date.now() - startTime;
+      if (isBreakoutUpdateInFlight) {
+        console.log('supriya-polling: Skipping - API update in progress');
+        return false;
+      }
+      console.log(
+        'supriya-state-sync calling checkIfBreakoutRoomSessionExistsAPI',
+        joinRoomId,
+        isHostRef.current,
+      );
+      const startTime = Date.now();
+      const requestId = getUniqueID();
+      const url = `${
+        $config.BACKEND_ENDPOINT
+      }/v1/channel/breakout-room?passphrase=${
+        isHostRef.current ? joinRoomId.host : joinRoomId.attendee
+      }`;
 
-      // Log network request
+      // Log internals for breakout room lifecycle
       logger.log(
-        LogSource.NetworkRest,
-        'breakout-room',
-        'GET breakout-room session',
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        'Checking active session',
         {
-          url,
-          method: 'GET',
-          status: response.status,
-          latency,
-          requestId,
+          isHost: isHostRef.current,
+          sessionId: stateRef.current.breakoutSessionId,
         },
       );
 
-      if (response.status === 204) {
-        logger.log(
-          LogSource.Internals,
-          'BREAKOUT_ROOM',
-          'No active session found',
-        );
-        return false;
-      }
-
-      if (!response.ok) {
-        throw new Error(`Failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // 🛡️ Guard against component unmount after JSON parsing
-      if (!isMountedRef.current) {
-        logger.log(
-          LogSource.Internals,
-          'BREAKOUT_ROOM',
-          'Session sync cancelled - component unmounted after parsing',
-          {requestId},
-        );
-        return false;
-      }
-
-      if (data?.session_id) {
-        logger.log(
-          LogSource.Internals,
-          'BREAKOUT_ROOM',
-          'Session synced successfully',
-          {
-            sessionId: data.session_id,
-            roomCount: data?.breakout_room?.length || 0,
-            assignmentType: data?.assignment_type,
-            switchRoom: data?.switch_room,
-          },
-        );
-
-        dispatch({
-          type: BreakoutGroupActionTypes.SYNC_STATE,
-          payload: {
-            sessionId: data.session_id,
-            rooms: data?.breakout_room || [],
-            assignmentStrategy:
-              data?.assignment_type || RoomAssignmentStrategy.NO_ASSIGN,
-            switchRoom: data?.switch_room ?? true,
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: store.token ? `Bearer ${store.token}` : '',
+            'X-Request-Id': requestId,
+            'X-Session-Id': logger.getSessionId(),
           },
         });
-        return true;
-      }
 
-      return false;
-    } catch (error) {
-      const latency = Date.now() - startTime;
-      logger.log(LogSource.NetworkRest, 'breakout-room', 'API call failed', {
-        url,
-        method: 'GET',
-        error: error.message,
-        latency,
-        requestId,
-      });
-      return false;
-    }
-  };
+        // 🛡️ Guard against component unmount after fetch
+        if (!isMountedRef.current) {
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            'Check session API cancelled - component unmounted',
+            {requestId},
+          );
+          return false;
+        }
+
+        const latency = Date.now() - startTime;
+
+        // Log network request
+        logger.log(
+          LogSource.NetworkRest,
+          'breakout-room',
+          'GET breakout-room session',
+          {
+            url,
+            method: 'GET',
+            status: response.status,
+            latency,
+            requestId,
+          },
+        );
+
+        if (response.status === 204) {
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            'No active session found',
+          );
+          return false;
+        }
+
+        if (!response.ok) {
+          throw new Error(`Failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // 🛡️ Guard against component unmount after JSON parsing
+        if (!isMountedRef.current) {
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            'Session sync cancelled - component unmounted after parsing',
+            {requestId},
+          );
+          return false;
+        }
+
+        if (data?.session_id) {
+          logger.log(
+            LogSource.Internals,
+            'BREAKOUT_ROOM',
+            'Session synced successfully',
+            {
+              sessionId: data.session_id,
+              roomCount: data?.breakout_room?.length || 0,
+              assignmentType: data?.assignment_type,
+              switchRoom: data?.switch_room,
+            },
+          );
+
+          dispatch({
+            type: BreakoutGroupActionTypes.SYNC_STATE,
+            payload: {
+              sessionId: data.session_id,
+              rooms: data?.breakout_room || [],
+              assignmentStrategy:
+                data?.assignment_type || RoomAssignmentStrategy.NO_ASSIGN,
+              switchRoom: data?.switch_room ?? true,
+            },
+          });
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        const latency = Date.now() - startTime;
+        logger.log(LogSource.NetworkRest, 'breakout-room', 'API call failed', {
+          url,
+          method: 'GET',
+          error: error.message,
+          latency,
+          requestId,
+        });
+        return false;
+      }
+    }, [isBreakoutUpdateInFlight, dispatch, joinRoomId, store.token]);
 
   // Polling for sync event
   const pollBreakoutGetAPI = useCallback(async () => {
     if (isHostRef.current && stateRef.current.breakoutSessionId) {
       await checkIfBreakoutRoomSessionExistsAPI();
     }
-  }, []);
+  }, [checkIfBreakoutRoomSessionExistsAPI]);
 
   // Automatic interval management with cleanup only host will poll
   useEffect(() => {
     if (
       isHostRef.current &&
       !isPollingPaused &&
-      (stateRef.current.breakoutSessionId || isInBreakoutRoute)
+      stateRef.current.breakoutSessionId
     ) {
       const interval = setInterval(pollBreakoutGetAPI, 2000);
       return () => clearInterval(interval);
     }
-  }, [isPollingPaused, isInBreakoutRoute, pollBreakoutGetAPI]);
+  }, [isPollingPaused, pollBreakoutGetAPI]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START', retryCount = 0) => {
@@ -819,7 +833,7 @@ const BreakoutRoomProvider = ({
           stateRef.current.breakoutSessionId || randomNameGenerator(6);
 
         const payload: UpsertPayload = {
-          passphrase: isHostRef.current ? roomId.host : roomId.attendee,
+          passphrase: isHostRef.current ? joinRoomId.host : joinRoomId.attendee,
           switch_room: stateRef.current.canUserSwitchRoom,
           session_id: sessionId,
           assignment_type: stateRef.current.assignmentStrategy,
@@ -993,7 +1007,13 @@ const BreakoutRoomProvider = ({
         }
       }
     },
-    [roomId.host, store.token, dispatch, selfJoinRoomId, roomId.attendee],
+    [
+      joinRoomId.host,
+      store.token,
+      dispatch,
+      selfJoinRoomId,
+      joinRoomId.attendee,
+    ],
   );
 
   const setManualAssignments = useCallback(
