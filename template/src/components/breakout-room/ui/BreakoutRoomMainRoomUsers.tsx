@@ -1,10 +1,10 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {useRTMCore} from '../../../rtm/RTMCoreProvider';
-import {nativeChannelTypeMapping} from '../../../../bridge/rtm/web/Types';
 import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import UserAvatar from '../../../atoms/UserAvatar';
+import {type GetOnlineUsersResponse} from 'agora-react-native-rtm';
 
 interface OnlineUser {
   userId: string;
@@ -35,7 +35,7 @@ const getUserNameFromAttributes = (
 };
 
 const BreakoutRoomMainRoomUsers: React.FC = () => {
-  const {client, onlineUsers} = useRTMCore();
+  const {client} = useRTMCore();
   const {mainChannelId, breakoutGroups} = useBreakoutRoom();
   const [usersWithNames, setUsersWithNames] = useState<OnlineUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +54,7 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
   // Fetch attributes only when online users change
   useEffect(() => {
     const fetchUserAttributes = async () => {
-      if (!client || !onlineUsers || onlineUsers.size === 0) {
+      if (!client) {
         setUsersWithNames([]);
         return;
       }
@@ -63,26 +63,31 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
       setError(null);
 
       try {
-        console.log(
-          `Fetching attributes for online users: of channel ${mainChannelId}`,
-          Array.from(onlineUsers),
-        );
+        const onlineUsers: GetOnlineUsersResponse =
+          await client.presence.getOnlineUsers(mainChannelId, 1);
+
         const users = await Promise.all(
-          Array.from(onlineUsers).map(async userId => {
+          Array.from(onlineUsers.occupants).map(async member => {
             try {
               const attributes = await client.storage.getUserMetadata({
-                userId: userId,
+                userId: member.userId,
               });
-              const username = getUserNameFromAttributes(attributes, userId);
+              const username = getUserNameFromAttributes(
+                attributes,
+                member.userId,
+              );
               return {
-                userId: userId,
+                userId: member.userId,
                 name: username,
               };
             } catch (e) {
-              console.warn(`Failed to get attributes for user ${userId}:`, e);
+              console.warn(
+                `Failed to get attributes for user ${member.userId}:`,
+                e,
+              );
               return {
-                userId: userId,
-                name: userId,
+                userId: member.userId,
+                name: 'User',
               };
             }
           }),
@@ -98,7 +103,7 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
     };
 
     fetchUserAttributes();
-  }, [client, onlineUsers, mainChannelId]);
+  }, [client, mainChannelId]);
 
   // Filter out users who are assigned to breakout rooms
   const mainRoomOnlyUsers = usersWithNames.filter(user => {

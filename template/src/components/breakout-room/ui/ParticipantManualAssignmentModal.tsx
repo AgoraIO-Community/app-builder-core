@@ -88,7 +88,7 @@ export default function ParticipantManualAssignmentModal(
   const {setModalOpen} = props;
   const {
     getAllRooms,
-    unsassignedParticipants,
+    unassignedParticipants,
     manualAssignments,
     setManualAssignments,
     handleAssignParticipants,
@@ -104,10 +104,10 @@ export default function ParticipantManualAssignmentModal(
     }
 
     // Create new manual assignments for unassigned participants
-    return unsassignedParticipants.map(participant => ({
+    return unassignedParticipants.map(participant => ({
       uid: participant.uid,
       roomId: null, // Start unassigned
-      isHost: participant.user.isHost || false,
+      isHost: participant.user?.isHost || false,
       isSelected: false,
     }));
   });
@@ -235,7 +235,7 @@ export default function ParticipantManualAssignmentModal(
           <View
             style={[
               style.titleContainer,
-              unsassignedParticipants?.length > 0 ? {} : style.titleLowOpacity,
+              unassignedParticipants?.length > 0 ? {} : style.titleLowOpacity,
             ]}>
             <View>
               <ImageIcon
@@ -275,7 +275,7 @@ export default function ParticipantManualAssignmentModal(
             />
             <TableBody
               status="resolved"
-              items={unsassignedParticipants}
+              items={unassignedParticipants}
               loadingComponent={
                 <Loading
                   background="transparent"

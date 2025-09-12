@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import BreakoutRoomParticipants from './BreakoutRoomParticipants';
 import SelectParticipantAssignmentStrategy from './SelectParticipantAssignmentStrategy';
@@ -13,41 +13,48 @@ import TertiaryButton from '../../../atoms/TertiaryButton';
 
 export default function BreakoutRoomSettings() {
   const {
-    unsassignedParticipants,
+    unassignedParticipants,
     assignmentStrategy,
-    setStrategy,
     handleAssignParticipants,
     canUserSwitchRoom,
-    toggleSwitchRooms,
+    toggleRoomSwitchingAllowed,
   } = useBreakoutRoom();
 
-  const disableAssignmentSelect = unsassignedParticipants.length === 0;
+  // Local dropdown state to prevent sync conflicts
+  const [localAssignmentStrategy, setLocalAssignmentStrategy] =
+    useState(assignmentStrategy);
+
+  const disableAssignmentSelect = unassignedParticipants.length === 0;
   const disableHandleAssignment =
     disableAssignmentSelect ||
-    assignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
+    localAssignmentStrategy === RoomAssignmentStrategy.NO_ASSIGN;
 
   const {
     modalOpen: isManualAssignmentModalOpen,
     setModalOpen: setManualAssignmentModalOpen,
   } = useModal();
 
+  // Handle strategy change from dropdown
+  const handleStrategyChange = (newStrategy: RoomAssignmentStrategy) => {
+    setLocalAssignmentStrategy(newStrategy);
+
+    // Immediately call API for NO_ASSIGN strategy
+    if (newStrategy === RoomAssignmentStrategy.NO_ASSIGN) {
+      console.log(
+        'supriya-state-sync calling handleAssignParticipants on strategy change',
+      );
+      handleAssignParticipants(newStrategy);
+    }
+  };
+
   // Handle assign participants button click
   const handleAssignClick = () => {
-    if (assignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
+    if (localAssignmentStrategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {
       // Open manual assignment modal
       setManualAssignmentModalOpen(true);
     } else {
       // Handle other assignment strategies
-      handleAssignParticipants(assignmentStrategy);
-    }
-  };
-
-  // Handle strategy change - automatically trigger assignment for NO_ASSIGN
-  const handleStrategyChange = (strategy: RoomAssignmentStrategy) => {
-    setStrategy(strategy);
-    // NO_ASSIGN needs to be applied immediately to enable switch rooms
-    if (strategy === RoomAssignmentStrategy.NO_ASSIGN) {
-      handleAssignParticipants(strategy);
+      handleAssignParticipants(localAssignmentStrategy);
     }
   };
 
@@ -55,12 +62,12 @@ export default function BreakoutRoomSettings() {
     <View style={style.card}>
       {/* Avatar list  */}
       <View style={style.section}>
-        <BreakoutRoomParticipants participants={unsassignedParticipants} />
+        <BreakoutRoomParticipants participants={unassignedParticipants} />
       </View>
       <Divider />
       <View style={style.section}>
         <SelectParticipantAssignmentStrategy
-          selectedStrategy={assignmentStrategy}
+          selectedStrategy={localAssignmentStrategy}
           onStrategyChange={handleStrategyChange}
           disabled={disableAssignmentSelect}
         />
@@ -85,7 +92,7 @@ export default function BreakoutRoomSettings() {
           <Toggle
             disabled={$config.EVENT_MODE}
             isEnabled={canUserSwitchRoom}
-            toggleSwitch={toggleSwitchRooms}
+            toggleSwitch={toggleRoomSwitchingAllowed}
             circleColor={$config.FONT_COLOR}
           />
         </View>

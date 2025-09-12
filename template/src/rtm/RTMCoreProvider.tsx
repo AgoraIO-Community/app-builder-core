@@ -38,7 +38,6 @@ interface RTMContextType {
   connectionState: number;
   error: Error | null;
   isLoggedIn: boolean;
-  onlineUsers: Set<string>;
   // Callback registration methods
   registerCallbacks: (channelName: string, callbacks: EventCallbacks) => void;
   unregisterCallbacks: (channelName: string) => void;
@@ -49,7 +48,6 @@ const RTMContext = createContext<RTMContextType>({
   connectionState: 0,
   error: null,
   isLoggedIn: false,
-  onlineUsers: new Set<string>(),
   registerCallbacks: () => {},
   unregisterCallbacks: () => {},
 });
@@ -73,7 +71,6 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   const [connectionState, setConnectionState] = useState(0);
   console.log('supriya-rtm connectionState: ', connectionState);
   const [error, setError] = useState<Error | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   // Callback registration storage
   const callbackRegistry = useRef<Map<string, EventCallbacks>>(new Map());
 
@@ -184,22 +181,6 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         'supriya-rtm-global @@@@@@@@@@@@@@@@@@@@@@@  ---PresenceEvent: ',
         presence,
       );
-      if (presence.type === nativePresenceEventTypeMapping.SNAPSHOT) {
-        // Initial snapshot - set all online users
-        setOnlineUsers(
-          new Set(presence.snapshot?.userStateList.map(u => u.userId) || []),
-        );
-      } else if (presence.type === nativePresenceEventTypeMapping.REMOTE_JOIN) {
-        setOnlineUsers(prev => new Set([...prev, presence.publisher]));
-      } else if (
-        presence.type === nativePresenceEventTypeMapping.REMOTE_LEAVE
-      ) {
-        setOnlineUsers(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(presence.publisher);
-          return newSet;
-        });
-      }
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.presence) {
@@ -345,7 +326,6 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         isLoggedIn,
         connectionState,
         error,
-        onlineUsers,
         registerCallbacks,
         unregisterCallbacks,
       }}>

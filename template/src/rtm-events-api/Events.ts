@@ -134,7 +134,18 @@ class Events {
       );
       try {
         const targetChannelId = channelId || RTMEngine.getInstance().channelUid;
-        console.log('supriya targetChannelId: ', targetChannelId);
+        logger.debug(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'event is sent to targetChannelId ->',
+          targetChannelId,
+        );
+        logger.debug(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'event is sent to targetChannelId ->',
+          targetChannelId,
+        );
         if (!targetChannelId || targetChannelId.trim() === '') {
           throw new Error(
             'Channel ID is not set. Cannot send channel messages.',
@@ -162,7 +173,6 @@ class Events {
       );
       const adjustedUID = adjustUID(to);
       try {
-        console.log('supriya 2  ');
         await rtmEngine.publish(`${adjustedUID}`, text, {
           channelType: nativeChannelTypeMapping.USER, // user
         });

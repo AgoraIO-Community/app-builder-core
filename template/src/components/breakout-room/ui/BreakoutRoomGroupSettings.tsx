@@ -14,7 +14,7 @@ import React, {useState, useRef} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
-import {UidType} from 'agora-rn-uikit';
+import {UidType, useLocalUid} from '../../../../agora-rn-uikit';
 import UserAvatar from '../../../atoms/UserAvatar';
 import ImageIcon from '../../../atoms/ImageIcon';
 import {BreakoutGroup} from '../state/reducer';
@@ -34,6 +34,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   const {
     data: {isHost},
   } = useRoomInfo();
+  const localUid = useLocalUid();
 
   const {
     breakoutGroups,
@@ -107,7 +108,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       raisedHands.some(hand => hand.uid === memberUId);
 
     return (
-      <View key={memberUId} style={styles.memberItem}>
+      <View key={memberUId} style={[styles.memberItem]}>
         <View style={styles.memberInfo}>
           <UserAvatar
             name={getName(memberUId)}
@@ -132,7 +133,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           ) : (
             <></>
           )}
-          {isHost || canUserSwitchRoom ? (
+          {permissions.canHostManageMainRoom && memberUId !== localUid ? (
             <View style={styles.memberMenuMoreIcon}>
               <View ref={memberRef} collapsable={false}>
                 <IconButton
@@ -169,9 +170,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   const renderRoom = (room: BreakoutGroup) => {
     const isExpanded = expandedRooms.has(room.id);
     const memberCount =
-      room.participants.hosts.length ||
-      0 + room.participants.attendees.length ||
-      0;
+      room.participants.hosts.length + room.participants.attendees.length;
 
     return (
       <View key={room.id} style={styles.roomGroupCard}>
@@ -196,15 +195,13 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               </Text>
             </View>
           </View>
-          <View style={styles.roomHeaderRight}>
+          <View style={[styles.roomHeaderRight]}>
             {isUserInRoom(room) ? (
               <TertiaryButton
                 containerStyle={styles.exitRoomBtn}
                 textStyle={styles.roomActionBtnText}
                 text={'Exit Room'}
-                onPress={() => {
-                  exitRoom(room.id);
-                }}
+                onPress={() => exitRoom(room.id)}
               />
             ) : (
               <TertiaryButton
@@ -214,13 +211,11 @@ const BreakoutRoomGroupSettings: React.FC = () => {
                 }
                 textStyle={styles.roomActionBtnText}
                 text={'Join'}
-                onPress={() => {
-                  joinRoom(room.id);
-                }}
+                onPress={() => joinRoom(room.id)}
               />
             )}
             {/* Only host can perform these actions */}
-            {isHost ? (
+            {permissions.canHostManageMainRoom ? (
               <BreakoutRoomActionMenu
                 onDeleteRoom={() => {
                   closeRoom(room.id);
@@ -281,8 +276,8 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>All Rooms</Text>
         </View>
-        {isHost ? (
-          <View style={styles.headerRight}>
+        {permissions.canHostManageMainRoom ? (
+          <View style={[styles.headerRight]}>
             <IconButton
               iconProps={{
                 iconType: 'plain',
@@ -290,9 +285,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
                 iconSize: 20,
                 tintColor: $config.SECONDARY_ACTION_COLOR,
               }}
-              onPress={() => {
-                setAnnouncementModal(true);
-              }}
+              onPress={() => setAnnouncementModal(true)}
             />
           </View>
         ) : (

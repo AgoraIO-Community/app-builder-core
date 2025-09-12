@@ -4,6 +4,7 @@ import {ClientRoleType, PropsContext} from '../../../agora-rn-uikit/src';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {joinRoomPreference} from '../../utils/useJoinRoom';
 import {isWeb} from '../../utils/common';
+import {ENABLE_AUTH} from '../../auth/config';
 
 /**
  * ControlPermissionKey represents the different keys
@@ -43,7 +44,7 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_MEETING_TRANSCRIPT &&
     $config.ENABLE_TEXT_TRACKS &&
     isWeb(),
-  breakoutRoom: ({isHost}) => $config.ENABLE_BREAKOUT_ROOM,
+  breakoutRoom: () => $config.ENABLE_BREAKOUT_ROOM && ENABLE_AUTH,
 };
 
 export const useControlPermissionMatrix = (
