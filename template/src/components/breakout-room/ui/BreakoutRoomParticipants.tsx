@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
+    display: 'flex',
   },
   emptyStateText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,

@@ -32,6 +32,7 @@ import {IconsInterface} from '../../../atoms/CustomIcon';
 import Toast from '../../../../react-native-toast-message';
 import useBreakoutRoomExit from '../hooks/useBreakoutRoomExit';
 import {useDebouncedCallback} from '../../../utils/useDebouncedCallback';
+import {useLocation} from '../../../components/Router';
 
 const BREAKOUT_LOCK_TIMEOUT_MS = 5000;
 const HOST_OPERATION_LOCK_TIMEOUT_MS = 10000; // Emergency timeout for network failures only
@@ -255,13 +256,16 @@ const BreakoutRoomProvider = ({
   const {
     data: {isHost, roomId: joinRoomId},
   } = useRoomInfo();
-  console.log('supriya-room-data', joinRoomId);
   const breakoutRoomExit = useBreakoutRoomExit(handleLeaveBreakout);
   const [state, baseDispatch] = useReducer(
     breakoutRoomReducer,
     initialBreakoutRoomState,
   );
   const [isBreakoutUpdateInFlight, setBreakoutUpdateInFlight] = useState(false);
+  // Parse URL to determine current mode
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isBreakoutMode = searchParams.get('breakout') === 'true';
 
   // Permissions:
   const [permissions, setPermissions] = useState<BreakoutRoomPermissions>({
@@ -769,6 +773,17 @@ const BreakoutRoomProvider = ({
         return false;
       }
     }, [isBreakoutUpdateInFlight, dispatch, joinRoomId, store.token]);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (!stateRef.current.breakoutSessionId) {
+        await checkIfBreakoutRoomSessionExistsAPI();
+      }
+    };
+    if (isBreakoutMode) {
+      loadInitialData();
+    }
+  }, [isBreakoutMode, checkIfBreakoutRoomSessionExistsAPI]);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START', retryCount = 0) => {

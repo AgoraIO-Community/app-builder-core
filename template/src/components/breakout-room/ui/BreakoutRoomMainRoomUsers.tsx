@@ -217,5 +217,6 @@ const style = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
+    display: 'flex',
   },
 });
