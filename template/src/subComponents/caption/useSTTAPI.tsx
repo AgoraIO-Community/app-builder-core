@@ -14,7 +14,11 @@ import getUniqueID from '../../utils/getUniqueID';
 interface IuseSTTAPI {
   start: (lang: LanguageType[], userOwnLang?: LanguageType[]) => Promise<{message: string} | null>;
   stop: () => Promise<void>;
-  restart: (lang: LanguageType[], userOwnLang?: LanguageType[]) => Promise<void>;
+  restart: (
+    lang: LanguageType[], 
+    userOwnLang?: LanguageType[], 
+    translationConfig?: { translate_config: any[], userSelectedTranslation: string }
+  ) => Promise<void>;
   update: (params: UpdateParams) => Promise<any>;
   isAuthorizedSTTUser: () => boolean;
   isAuthorizedTranscriptUser: () => boolean;
@@ -269,11 +273,60 @@ const useSTTAPI = (): IuseSTTAPI => {
       throw error;
     }
   };
-  const restart = async (lang: LanguageType[], userOwnLang?: LanguageType[]) => {
+  const restart = async (
+    lang: LanguageType[], 
+    userOwnLang?: LanguageType[], 
+    translationConfig?: { translate_config: any[], userSelectedTranslation: string }
+  ) => {
     try {
       setIsLangChangeInProgress(true);
-      await stop();
-      await startWithDelay(lang, userOwnLang);
+    //  await stop();
+      
+      // If translation config is provided, use update method after start
+      
+       // await startWithDelay(lang, userOwnLang);
+        await update({
+          ...translationConfig,
+          lang: lang,
+        });
+      
+        const userSelectedLang = userOwnLang && userOwnLang.length > 0 ? userOwnLang : [];
+        
+        events.send(
+          EventNames.STT_LANGUAGE,
+          JSON.stringify({
+            username: capitalizeFirstLetter(username),
+            uid: localUid,
+            prevLang: language,
+            newLang: lang, // Send all languages
+            remoteLang: userSelectedLang, // Send user's own selection as remote for others
+          }),
+          PersistanceLevel.Sender,
+        );
+
+         setLanguage(lang);
+
+        // updaing transcript for self
+        const actionText =
+          language.indexOf('') !== -1
+            ? `has set the spoken language to  "${getLanguageLabel(userSelectedLang)}" `
+            : `changed the spoken language from "${getLanguageLabel(
+                language,
+              )}" to "${getLanguageLabel(userSelectedLang)}" `;
+        //const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
+        setMeetingTranscript(prev => {
+          return [
+            ...prev,
+            {
+              name: 'langUpdate',
+              time: new Date().getTime(),
+              uid: `langUpdate-${localUid}`,
+              text: actionText,
+            },
+          ];
+        });
+        
+      
       return Promise.resolve();
     } catch (error) {
       logger.error(

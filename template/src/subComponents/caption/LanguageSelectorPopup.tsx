@@ -54,7 +54,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const [selectedValues, setSelectedValues] =
     React.useState<LanguageType[]>(language);
   const isNotValidated =
-    isOpen && (selectedValues.length === 0 || selectedValues.length === 2);
+    isOpen && (selectedValues.length === 0 || selectedValues.length === 4);
 
   // Initialize selectedValues with current languages plus protected languages
   React.useEffect(() => {
@@ -137,7 +137,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
                   paddingVertical: 12,
                   paddingHorizontal: 12,
                 }}
-                disabled={selectedValues.length === 0 || selectedValues.every(lang => protectedLanguages.includes(lang))}
+                disabled={selectedValues.length === 0 }
                 text={ConfirmBtnLabel}
                 textStyle={styles.btnText}
                 onPress={() => {

@@ -160,3 +160,46 @@ export const formatTranscriptContent = (
 
   return [finalContent, fileName];
 };
+
+export interface TranslateConfig {
+  source_lang: string;
+  target_lang: string[];
+}
+
+export const mergeTranslationConfigs = (
+  existingTranslateConfig: TranslateConfig[],
+  userOwnLanguages: LanguageType[],
+  selectedTranslationLanguage: string,
+): TranslateConfig[] => {
+  // Create new translate_config for user's own languages
+  const newTranslateConfigs = userOwnLanguages.map(spokenLang => ({
+    source_lang: spokenLang,
+    target_lang: [selectedTranslationLanguage],
+  }));
+
+  // Merge with existing configuration
+  const mergedTranslateConfig = [...existingTranslateConfig];
+
+  newTranslateConfigs.forEach(newConfig => {
+    const existingIndex = mergedTranslateConfig.findIndex(
+      existing => existing.source_lang === newConfig.source_lang,
+    );
+
+    if (existingIndex !== -1) {
+      // Same source language - merge target languages
+      const existingTargets = mergedTranslateConfig[existingIndex].target_lang;
+      const mergedTargets = [
+        ...new Set([...existingTargets, ...newConfig.target_lang]),
+      ];
+      mergedTranslateConfig[existingIndex] = {
+        ...mergedTranslateConfig[existingIndex],
+        target_lang: mergedTargets,
+      };
+    } else {
+      // Different source language - add new config
+      mergedTranslateConfig.push(newConfig);
+    }
+  });
+
+  return mergedTranslateConfig;
+};

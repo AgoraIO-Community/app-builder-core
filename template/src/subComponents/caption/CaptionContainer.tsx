@@ -37,7 +37,7 @@ import {
   MOBILE_CAPTION_CONTAINER_HEIGHT,
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
-import {LanguageType, langData} from './utils';
+import {LanguageType, langData, mergeTranslationConfigs} from './utils';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useString} from '../../utils/useString';
 import {
@@ -278,6 +278,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     language: prevLang,
     isLangChangeInProgress,
     setLanguage,
+    selectedTranslationLanguage
   } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
@@ -288,7 +289,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {restart} = useSTTAPI();
   const username = useGetName();
   const {
-    data: {isHost},
+    data: {isHost},sttLanguage
   } = useRoomInfo();
 
   const changeSpokenLangLabel = useString<boolean>(
@@ -327,6 +328,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     allLanguages: LanguageType[],
     userOwnLanguages?: LanguageType[],
   ) => {
+    console.log(`CaptionContainer - onLanguageChange - selectedTranslationLanguage, sttLanguage:`, selectedTranslationLanguage, sttLanguage);
     setLanguagePopup(false);
     if (langChanged) {
       logger.log(
@@ -334,8 +336,29 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
         'STT',
         `Language changed to  ${allLanguages}. Restarting STT`,
       );
-      // Use all languages for STT API, user's own languages for RTM
-      restart(allLanguages, userOwnLanguages)
+      
+      // If user has translation selected, we need to merge translation configs
+      let translateConfigToPass = null;
+      
+      if (selectedTranslationLanguage && selectedTranslationLanguage !== '') {
+        // Get existing translate config from room state
+        const existingTranslateConfig = sttLanguage?.translateConfig || [];
+
+        // Use utility function to merge translation configs
+        const mergedTranslateConfig = mergeTranslationConfigs(
+          existingTranslateConfig,
+          userOwnLanguages || [],
+          selectedTranslationLanguage,
+        );
+
+        translateConfigToPass = {
+          translate_config: mergedTranslateConfig,
+          userSelectedTranslation: selectedTranslationLanguage,
+        };
+      }
+
+      // Pass translation config to restart if available
+      restart(allLanguages, userOwnLanguages, translateConfigToPass)
         .then(() => {
           logger.debug(
             LogSource.Internals,
@@ -447,36 +470,12 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
         // Get existing translate config from room state
         const existingTranslateConfig = sttLanguage?.translateConfig || [];
 
-        // Create new translate_config for user's spoken languages
-        const newTranslateConfigs = currentSpokenLanguages.map(spokenLang => ({
-          source_lang: spokenLang,
-          target_lang: [targetLanguage],
-        }));
-
-        // Merge with existing configuration using same logic as RTM handler
-        const mergedTranslateConfig = [...existingTranslateConfig];
-
-        newTranslateConfigs.forEach(newConfig => {
-          const existingIndex = mergedTranslateConfig.findIndex(
-            existing => existing.source_lang === newConfig.source_lang,
-          );
-
-          if (existingIndex !== -1) {
-            // Same source language - merge target languages
-            const existingTargets =
-              mergedTranslateConfig[existingIndex].target_lang;
-            const mergedTargets = [
-              ...new Set([...existingTargets, ...newConfig.target_lang]),
-            ];
-            mergedTranslateConfig[existingIndex] = {
-              ...mergedTranslateConfig[existingIndex],
-              target_lang: mergedTargets,
-            };
-          } else {
-            // Different source language - add new config
-            mergedTranslateConfig.push(newConfig);
-          }
-        });
+        // Use utility function to merge translation configs
+        const mergedTranslateConfig = mergeTranslationConfigs(
+          existingTranslateConfig,
+          currentSpokenLanguages,
+          targetLanguage,
+        );
 
         await update({
           translate_config: mergedTranslateConfig,
