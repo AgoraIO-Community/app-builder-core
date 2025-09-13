@@ -56,6 +56,7 @@ import {
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
 import {useRTMCore} from '../../rtm/RTMCoreProvider';
 import RTMEngine from '../../rtm/RTMEngine';
+import {RTM_ROOMS} from '../../rtm/constants';
 
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
@@ -111,7 +112,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                             <RTMConfigureBreakoutRoomProvider
                               callActive={callActive}
                               channelName={breakoutRoomRTCProps.channel}>
-                              <RtmConfigure room="breakout">
+                              <RtmConfigure room={RTM_ROOMS.BREAKOUT}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>
                                     <WaitingRoomProvider>

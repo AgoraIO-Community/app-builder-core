@@ -16,9 +16,10 @@ import ChatContext from './ChatContext';
 import {useRTMCore} from '../rtm/RTMCoreProvider';
 import {useRTMConfigureMain} from '../rtm/RTMConfigureMainRoomProvider';
 import {useRTMConfigureBreakout} from '../rtm/RTMConfigureBreakoutRoomProvider';
+import {RTM_ROOMS} from '../rtm/constants';
 
 interface Props {
-  room: 'main' | 'breakout';
+  room: RTM_ROOMS;
   children: React.ReactNode;
 }
 
@@ -33,7 +34,7 @@ const RtmConfigure = (props: Props) => {
   rtmMainData = useRTMConfigureMain();
   rtmBreakoutData = useRTMConfigureBreakout();
 
-  const rtmData = room === 'main' ? rtmMainData : rtmBreakoutData;
+  const rtmData = room === RTM_ROOMS.MAIN ? rtmMainData : rtmBreakoutData;
 
   if (!rtmData) {
     throw new Error(

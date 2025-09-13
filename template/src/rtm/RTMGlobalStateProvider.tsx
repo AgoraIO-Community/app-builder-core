@@ -37,6 +37,7 @@ import {
   nativePresenceEventTypeMapping,
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
+import {RTM_ROOMS} from './constants';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -130,7 +131,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     handler: (storage: StorageEvent) => void,
   ) => {
     console.log(
-      'rudra-core-client: RTM registering main channel message handler',
+      'rudra-core-client: RTM registering main channel storage handler',
     );
     if (storageHandlerRef.current) {
       console.warn(
@@ -142,7 +143,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
 
   const unregisterMainChannelStorageHandler = () => {
     console.log(
-      'rudra-core-client: RTM unregistering main channel message handler',
+      'rudra-core-client: RTM unregistering main channel storage handler',
     );
     storageHandlerRef.current = null;
   };
@@ -198,7 +199,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         });
         console.log('rudra-  subscribed main channel', mainChannelName);
 
-        RTMEngine.getInstance().addChannel('main', mainChannelName);
+        RTMEngine.getInstance().addChannel(RTM_ROOMS.MAIN, mainChannelName);
         subscribeTimerRef.current = 5;
         // Clear any pending retry timeout since we succeeded
         if (subscribeTimeoutRef.current) {
