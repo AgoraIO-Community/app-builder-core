@@ -55,6 +55,7 @@ import {
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from './RTMCoreProvider';
 import {useRTMGlobalState} from './RTMGlobalStateProvider';
+import {RTM_ROOMS} from './constants';
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -106,6 +107,14 @@ const RTMConfigureMainRoomProvider: React.FC<RTMConfigureMainRoomProviderProps> 
   // RTM
   const {client, isLoggedIn} = useRTMCore();
   const {mainRoomUsers} = useRTMGlobalState();
+
+  // Set main room as active channel when this provider is active
+  useEffect(() => {
+    const rtmEngine = RTMEngine.getInstance();
+    if (rtmEngine.hasChannel(RTM_ROOMS.MAIN)) {
+      rtmEngine.setActiveChannel(RTM_ROOMS.MAIN);
+    }
+  }, []);
 
   // Main channel message registration (RTMConfigureMainRoom is always for main channel)
   const {
