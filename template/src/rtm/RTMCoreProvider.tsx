@@ -18,7 +18,6 @@ import type {
 } from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import RTMEngine from '../rtm/RTMEngine';
-import {nativePresenceEventTypeMapping} from '../../bridge/rtm/web/Types';
 import {isWeb, isWebInternal} from '../utils/common';
 import isSDK from '../utils/isSDK';
 
@@ -66,7 +65,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
   userInfo,
   children,
 }) => {
-  const [client, setClient] = useState<RTMClient | null>(null); // Use state instead
+  const [client, setClient] = useState<RTMClient | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [connectionState, setConnectionState] = useState(0);
   console.log('supriya-rtm connectionState: ', connectionState);
@@ -236,9 +235,9 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       if (!rtmClient) {
         throw new Error('Failed to create RTM client');
       }
-      setClient(rtmClient); // Set client after successful setup
-
-      // 3. Global linkState listener
+      // 3. Set client after successful setup
+      setClient(rtmClient);
+      // 4 .Global linkState listener
       const onLink = async (evt: LinkStateEvent) => {
         setConnectionState(evt.currentState);
         if (evt.currentState === 0 /* DISCONNECTED */) {
@@ -258,10 +257,9 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       rtmClient.addEventListener('linkState', onLink);
 
       try {
-        // 4. Client Login
+        // 5. Client Login
         if (stableUserInfo.rtmToken) {
           await loginToRTM(rtmClient, stableUserInfo.rtmToken);
-          // 5. Set user attributes after successful login
           await setAttribute(rtmClient, stableUserInfo);
           setIsLoggedIn(true);
         }

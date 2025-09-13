@@ -1312,7 +1312,10 @@ const BreakoutRoomProvider = ({
         hasAvailableRooms &&
         (isHostRef.current || allowAttendeeSwitch),
       canScreenshare: currentlyInRoom ? canIPresent : true,
-      canRaiseHands: !isHostRef.current && !!stateRef.current.breakoutSessionId,
+      canRaiseHands:
+        !isHostRef.current &&
+        !!stateRef.current.breakoutSessionId &&
+        currentlyInRoom,
       canSeeRaisedHands: isHostRef.current,
       canAssignParticipants: isHostRef.current,
       canHostManageMainRoom: isHostRef.current && !currentlyInRoom,
