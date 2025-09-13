@@ -24,6 +24,7 @@ import {
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
+import RTMConfigureMainRoomProvider from '../rtm/RTMConfigureMainRoomProvider';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
 import {useHasBrandLogo, isMobileUA, isWebInternal} from '../utils/common';
@@ -159,98 +160,100 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                       <SidePanelProvider>
                         <ChatMessagesProvider callActive={callActive}>
                           <ScreenShareProvider>
-                            <RtmConfigure
-                              channelName={rtcProps.channel}
-                              callActive={callActive}>
-                              <UserPreferenceProvider callActive={callActive}>
-                                <CaptionProvider>
-                                  <WaitingRoomProvider>
-                                    <EventsConfigure
-                                      setSttAutoStarted={setSttAutoStarted}
-                                      sttAutoStarted={sttAutoStarted}
-                                      callActive={callActive}>
-                                      <ScreenshareConfigure
-                                        isRecordingActive={isRecordingActive}>
-                                        <LiveStreamContextProvider
-                                          value={{
-                                            setRtcProps,
-                                            rtcProps,
-                                            callActive,
-                                          }}>
-                                          <LiveStreamDataProvider>
-                                            <LocalUserContext
-                                              localUid={rtcProps?.uid}>
-                                              <RecordingProvider
-                                                value={{
-                                                  setRecordingActive,
-                                                  isRecordingActive,
-                                                  callActive,
-                                                  recordingAutoStarted,
-                                                  setRecordingAutoStarted,
-                                                }}>
-                                                <NetworkQualityProvider>
-                                                  {!isMobileUA() && (
-                                                    <PermissionHelper />
-                                                  )}
-                                                  <UserActionMenuProvider>
-                                                    <VBProvider>
-                                                      <BeautyEffectProvider>
-                                                        {/* <PrefereceWrapper
-                                                                  callActive={
-                                                                    callActive
-                                                                  }
-                                                                  setCallActive={
-                                                                    setCallActive
-                                                                  }> */}
-                                                        <SdkMuteToggleListener>
-                                                          {callActive ? (
-                                                            <VideoMeetingDataProvider>
-                                                              <VideoCallProvider>
-                                                                <DisableChatProvider>
-                                                                  <BreakoutRoomProvider
-                                                                    mainChannel={
-                                                                      rtcProps.channel
+                            <RTMConfigureMainRoomProvider
+                              callActive={callActive}
+                              channelName={rtcProps.channel}>
+                              <RtmConfigure room="main">
+                                <UserPreferenceProvider callActive={callActive}>
+                                  <CaptionProvider>
+                                    <WaitingRoomProvider>
+                                      <EventsConfigure
+                                        setSttAutoStarted={setSttAutoStarted}
+                                        sttAutoStarted={sttAutoStarted}
+                                        callActive={callActive}>
+                                        <ScreenshareConfigure
+                                          isRecordingActive={isRecordingActive}>
+                                          <LiveStreamContextProvider
+                                            value={{
+                                              setRtcProps,
+                                              rtcProps,
+                                              callActive,
+                                            }}>
+                                            <LiveStreamDataProvider>
+                                              <LocalUserContext
+                                                localUid={rtcProps?.uid}>
+                                                <RecordingProvider
+                                                  value={{
+                                                    setRecordingActive,
+                                                    isRecordingActive,
+                                                    callActive,
+                                                    recordingAutoStarted,
+                                                    setRecordingAutoStarted,
+                                                  }}>
+                                                  <NetworkQualityProvider>
+                                                    {!isMobileUA() && (
+                                                      <PermissionHelper />
+                                                    )}
+                                                    <UserActionMenuProvider>
+                                                      <VBProvider>
+                                                        <BeautyEffectProvider>
+                                                          {/* <PrefereceWrapper
+                                                                    callActive={
+                                                                      callActive
                                                                     }
-                                                                    handleLeaveBreakout={
-                                                                      null
-                                                                    }>
-                                                                    <BreakoutRoomEventsConfigure
-                                                                      mainChannelName={
+                                                                    setCallActive={
+                                                                      setCallActive
+                                                                    }> */}
+                                                          <SdkMuteToggleListener>
+                                                            {callActive ? (
+                                                              <VideoMeetingDataProvider>
+                                                                <VideoCallProvider>
+                                                                  <DisableChatProvider>
+                                                                    <BreakoutRoomProvider
+                                                                      mainChannel={
                                                                         rtcProps.channel
+                                                                      }
+                                                                      handleLeaveBreakout={
+                                                                        null
                                                                       }>
-                                                                      <VideoCallScreenWrapper />
-                                                                    </BreakoutRoomEventsConfigure>
-                                                                  </BreakoutRoomProvider>
-                                                                </DisableChatProvider>
-                                                              </VideoCallProvider>
-                                                            </VideoMeetingDataProvider>
-                                                          ) : $config.PRECALL ? (
-                                                            <PreCallProvider
-                                                              value={{
-                                                                callActive,
-                                                                setCallActive,
-                                                              }}>
-                                                              <Precall />
-                                                            </PreCallProvider>
-                                                          ) : (
-                                                            <></>
-                                                          )}
-                                                        </SdkMuteToggleListener>
-                                                        {/* </PrefereceWrapper> */}
-                                                      </BeautyEffectProvider>
-                                                    </VBProvider>
-                                                  </UserActionMenuProvider>
-                                                </NetworkQualityProvider>
-                                              </RecordingProvider>
-                                            </LocalUserContext>
-                                          </LiveStreamDataProvider>
-                                        </LiveStreamContextProvider>
-                                      </ScreenshareConfigure>
-                                    </EventsConfigure>
-                                  </WaitingRoomProvider>
-                                </CaptionProvider>
-                              </UserPreferenceProvider>
-                            </RtmConfigure>
+                                                                      <BreakoutRoomEventsConfigure
+                                                                        mainChannelName={
+                                                                          rtcProps.channel
+                                                                        }>
+                                                                        <VideoCallScreenWrapper />
+                                                                      </BreakoutRoomEventsConfigure>
+                                                                    </BreakoutRoomProvider>
+                                                                  </DisableChatProvider>
+                                                                </VideoCallProvider>
+                                                              </VideoMeetingDataProvider>
+                                                            ) : $config.PRECALL ? (
+                                                              <PreCallProvider
+                                                                value={{
+                                                                  callActive,
+                                                                  setCallActive,
+                                                                }}>
+                                                                <Precall />
+                                                              </PreCallProvider>
+                                                            ) : (
+                                                              <></>
+                                                            )}
+                                                          </SdkMuteToggleListener>
+                                                          {/* </PrefereceWrapper> */}
+                                                        </BeautyEffectProvider>
+                                                      </VBProvider>
+                                                    </UserActionMenuProvider>
+                                                  </NetworkQualityProvider>
+                                                </RecordingProvider>
+                                              </LocalUserContext>
+                                            </LiveStreamDataProvider>
+                                          </LiveStreamContextProvider>
+                                        </ScreenshareConfigure>
+                                      </EventsConfigure>
+                                    </WaitingRoomProvider>
+                                  </CaptionProvider>
+                                </UserPreferenceProvider>
+                              </RtmConfigure>
+                            </RTMConfigureMainRoomProvider>
                           </ScreenShareProvider>
                         </ChatMessagesProvider>
                       </SidePanelProvider>

@@ -46,6 +46,7 @@ import Toast from '../../../react-native-toast-message';
 import {RTMCoreProvider} from '../../rtm/RTMCoreProvider';
 import {videoView} from '../../../theme.json';
 import VideoCallContent from './VideoCallContent';
+import RTMGlobalStateProvider from '../../rtm/RTMGlobalStateProvider';
 
 export enum RnEncryptionEnum {
   /**
@@ -416,14 +417,16 @@ const VideoCallStateWrapper = () => {
               isHost: rtcProps.role === ClientRoleType.ClientRoleBroadcaster,
               rtmToken: rtcProps.rtm,
             }}>
-            <VideoCallContent
-              callActive={callActive}
-              setCallActive={setCallActive}
-              rtcProps={rtcProps}
-              setRtcProps={setRtcProps}
-              styleProps={styleProps}
-              callbacks={callbacks}
-            />
+            <RTMGlobalStateProvider mainChannelRtcProps={{...rtcProps}}>
+              <VideoCallContent
+                callActive={callActive}
+                setCallActive={setCallActive}
+                rtcProps={rtcProps}
+                setRtcProps={setRtcProps}
+                styleProps={styleProps}
+                callbacks={callbacks}
+              />
+            </RTMGlobalStateProvider>
           </RTMCoreProvider>
         ) : (
           <View style={style.loader}>
