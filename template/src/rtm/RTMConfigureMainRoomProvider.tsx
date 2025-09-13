@@ -10,7 +10,13 @@
 *********************************************
 */
 
-import React, {useState, useContext, useEffect, useRef, createContext} from 'react';
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  createContext,
+} from 'react';
 import {
   type GetChannelMetadataResponse,
   type GetOnlineUsersResponse,
@@ -77,7 +83,9 @@ const RTMMainRoomContext = createContext<RTMMainRoomData>({
 export const useRTMConfigureMain = () => {
   const context = useContext(RTMMainRoomContext);
   if (!context) {
-    throw new Error('useRTMConfigureMain must be used within RTMConfigureMainRoomProvider');
+    throw new Error(
+      'useRTMConfigureMain must be used within RTMConfigureMainRoomProvider',
+    );
   }
   return context;
 };
@@ -88,11 +96,9 @@ interface RTMConfigureMainRoomProviderProps {
   children: React.ReactNode;
 }
 
-const RTMConfigureMainRoomProvider: React.FC<RTMConfigureMainRoomProviderProps> = ({
-  callActive,
-  channelName,
-  children,
-}) => {
+const RTMConfigureMainRoomProvider: React.FC<
+  RTMConfigureMainRoomProviderProps
+> = ({callActive, channelName, children}) => {
   const rtmInitTimstamp = new Date().getTime();
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids} = useContent();
