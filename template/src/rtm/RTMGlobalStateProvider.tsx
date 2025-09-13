@@ -53,6 +53,9 @@ interface RTMGlobalStateProviderProps {
 // Context for message and storage handler registration
 const RTMGlobalStateContext = React.createContext<{
   mainRoomUsers: {[uid: number]: ContentInterface};
+  setMainRoomUsers: React.Dispatch<
+    React.SetStateAction<{[uid: number]: ContentInterface}>
+  >;
   registerMainChannelMessageHandler: (
     handler: (message: MessageEvent) => void,
   ) => void;
@@ -63,6 +66,7 @@ const RTMGlobalStateContext = React.createContext<{
   unregisterMainChannelStorageHandler: () => void;
 }>({
   mainRoomUsers: {},
+  setMainRoomUsers: () => {},
   registerMainChannelMessageHandler: () => {},
   unregisterMainChannelMessageHandler: () => {},
   registerMainChannelStorageHandler: () => {},
@@ -685,6 +689,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     <RTMGlobalStateContext.Provider
       value={{
         mainRoomUsers,
+        setMainRoomUsers,
         registerMainChannelMessageHandler,
         unregisterMainChannelMessageHandler,
         registerMainChannelStorageHandler,

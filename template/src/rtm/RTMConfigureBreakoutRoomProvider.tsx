@@ -16,6 +16,7 @@ import React, {
   useEffect,
   useRef,
   createContext,
+  useCallback,
 } from 'react';
 import {
   type GetChannelMetadataResponse,
@@ -78,6 +79,7 @@ export interface RTMBreakoutRoomData {
   isInitialQueueCompleted: boolean;
   onlineUsersCount: number;
   rtmInitTimstamp: number;
+  syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
 }
 
 const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
@@ -85,6 +87,7 @@ const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
   isInitialQueueCompleted: false,
   onlineUsersCount: 0,
   rtmInitTimstamp: 0,
+  syncUserState: () => {},
 });
 
 export const useRTMConfigureBreakout = () => {
@@ -478,6 +481,13 @@ const RTMConfigureBreakoutRoomProvider = (
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
+
+  const syncUserState = useCallback(
+    (uid: number, data: Partial<ContentInterface>) => {
+      dispatch({type: 'UpdateRenderList', value: [uid, data]});
+    },
+    [dispatch],
+  );
 
   const runQueuedEvents = async () => {
     try {
@@ -909,6 +919,7 @@ const RTMConfigureBreakoutRoomProvider = (
     isInitialQueueCompleted,
     onlineUsersCount,
     rtmInitTimstamp,
+    syncUserState,
   };
 
   return (

@@ -16,6 +16,7 @@ import React, {
   useEffect,
   useRef,
   createContext,
+  useCallback,
 } from 'react';
 import {
   type GetChannelMetadataResponse,
@@ -71,6 +72,7 @@ export interface RTMMainRoomData {
   isInitialQueueCompleted: boolean;
   onlineUsersCount: number;
   rtmInitTimstamp: number;
+  syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
 }
 
 const RTMMainRoomContext = createContext<RTMMainRoomData>({
@@ -78,6 +80,7 @@ const RTMMainRoomContext = createContext<RTMMainRoomData>({
   isInitialQueueCompleted: false,
   onlineUsersCount: 0,
   rtmInitTimstamp: 0,
+  syncUserState: () => {},
 });
 
 export const useRTMConfigureMain = () => {
@@ -112,7 +115,7 @@ const RTMConfigureMainRoomProvider: React.FC<
 
   // RTM
   const {client, isLoggedIn} = useRTMCore();
-  const {mainRoomUsers} = useRTMGlobalState();
+  const {mainRoomUsers, setMainRoomUsers} = useRTMGlobalState();
 
   // Set main room as active channel when this provider is active
   useEffect(() => {
@@ -568,12 +571,27 @@ const RTMConfigureMainRoomProvider: React.FC<
     };
   }, [isLoggedIn, callActive, channelName]);
 
+  // Main room specific syncUserState function
+  const syncUserState = useCallback(
+    (uid: number, data: Partial<ContentInterface>) => {
+      setMainRoomUsers(prev => ({
+        ...prev,
+        [uid]: {
+          ...prev[uid],
+          ...data,
+        },
+      }));
+    },
+    [setMainRoomUsers],
+  );
+
   // Provide context data to children
   const contextValue: RTMMainRoomData = {
     hasUserJoinedRTM,
     isInitialQueueCompleted,
     onlineUsersCount,
     rtmInitTimstamp,
+    syncUserState,
   };
 
   return (
