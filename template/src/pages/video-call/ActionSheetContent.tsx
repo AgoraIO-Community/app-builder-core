@@ -34,6 +34,7 @@ import {
 } from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
+import SonioxCaptionIcon from '../../../src/subComponents/caption/soniox/SonioxCaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
@@ -170,6 +171,20 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
         isOnActionSheet={true}
         showLabel={$config.ICON_TEXT}
         closeActionSheet={onPressCallback}
+      />
+    </ToolbarItem>
+  );
+};
+
+const SonioxCaptionIconBtn = (props: CaptionIconBtnProps) => {
+  const {onPressCallback = () => {}} = props;
+  if (!$config.ENABLE_SONIOX_STT) {
+    return null;
+  }
+  return (
+    <ToolbarItem toolbarProps={props}>
+      <SonioxCaptionIcon
+        showLabel={$config.ICON_TEXT}
       />
     </ToolbarItem>
   );
@@ -404,6 +419,15 @@ const ActionSheetContent = props => {
     caption: {
       order: 12,
       component: CaptionIconBtn,
+      props: {
+        onPressCallback: () => {
+          handleSheetChanges(isExpanded ? 0 : 1);
+        },
+      },
+    },
+    sonioxCaption: {
+      order: 12.5,
+      component: SonioxCaptionIconBtn,
       props: {
         onPressCallback: () => {
           handleSheetChanges(isExpanded ? 0 : 1);

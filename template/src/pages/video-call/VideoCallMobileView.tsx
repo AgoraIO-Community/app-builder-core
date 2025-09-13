@@ -23,7 +23,7 @@ import {
   useContent,
   ToolbarPresetProps,
 } from 'customization-api';
-import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import DualCaptionContainer from '../../subComponents/caption/DualCaptionContainer';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import VideoRenderer from './VideoRenderer';
 import {filterObject} from '../../utils';
@@ -266,7 +266,7 @@ const VideoCallView = React.memo(() => {
       </ToolbarProvider>
       <View style={styles.videoView}>
         <VideoComponent />
-        <CaptionContainer />
+        <DualCaptionContainer />
       </View>
       <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
         <ActionSheetProvider>

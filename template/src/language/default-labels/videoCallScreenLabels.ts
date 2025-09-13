@@ -108,7 +108,9 @@ export const toolbarItemNoiseCancellationText =
   'toolbarItemNoiseCancellationText';
 export const toolbarItemWhiteboardText = 'toolbarItemWhiteboardText';
 export const toolbarItemCaptionText = 'toolbarItemCaptionText';
+export const toolbarItemCaption2Text = 'toolbarItemCaption2Text';
 export const toolbarItemTranscriptText = 'toolbarItemTranscriptText';
+export const toolbarItemTranscript2Text = 'toolbarItemTranscript2Text';
 export const toolbarItemManageTextTracksText =
   'toolbarItemManageTextTracksText';
 export const toolbarItemVirtualBackgroundText =
@@ -572,6 +574,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   [toolbarItemNoiseCancellationText]?: I18nBaseType;
   [toolbarItemWhiteboardText]?: I18nConditionalType;
   [toolbarItemCaptionText]?: I18nConditionalType;
+  [toolbarItemCaption2Text]?: I18nConditionalType;
   [toolbarItemTranscriptText]?: I18nConditionalType;
   [toolbarItemManageTextTracksText]?: I18nConditionalType;
   [toolbarItemVirtualBackgroundText]?: I18nBaseType;
@@ -939,8 +942,12 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
     active ? 'Hide Whiteboard' : 'Show Whiteboard',
   [toolbarItemCaptionText]: active =>
     active ? 'Hide Caption' : 'Show Caption',
+  [toolbarItemCaption2Text]: active =>
+    active ? 'Hide Caption 2' : 'Show Caption 2',
   [toolbarItemTranscriptText]: active =>
     active ? 'Hide Transcript' : 'Show Transcript',
+  [toolbarItemTranscript2Text]: active =>
+    active ? 'Hide Transcript 2' : 'Show Transcript 2',
   [toolbarItemViewRecordingText]: 'View Recordings',
   [toolbarItemManageTextTracksText]: 'View Text-tracks',
 

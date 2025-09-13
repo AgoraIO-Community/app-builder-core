@@ -59,8 +59,10 @@ import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import {useCaption} from '../../src/subComponents/caption/useCaption';
+import {useSonioxCaption} from '../../src/subComponents/caption/soniox/useSonioxCaption';
 import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
+import useSonioxSTTAPI from '../../src/subComponents/caption/soniox/useSonioxSTTAPI';
 import {EventNames} from '../rtm-events';
 import events, {PersistanceLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
@@ -90,6 +92,7 @@ import {
   sttSpokenLanguageToastHeading,
   sttSpokenLanguageToastSubHeading,
   toolbarItemCaptionText,
+  toolbarItemCaption2Text,
   toolbarItemChatText,
   toolbarItemInviteText,
   toolbarItemLayoutText,
@@ -101,6 +104,7 @@ import {
   toolbarItemSettingText,
   toolbarItemShareText,
   toolbarItemTranscriptText,
+  toolbarItemTranscript2Text,
   toolbarItemVirtualBackgroundText,
   toolbarItemWhiteboardText,
   toolbarItemManageTextTracksText,
@@ -271,7 +275,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const noiseCancellationLabel = useString(toolbarItemNoiseCancellationText)();
   const whiteboardLabel = useString<boolean>(toolbarItemWhiteboardText);
   const captionLabel = useString<boolean>(toolbarItemCaptionText);
+  const caption2Label = useString<boolean>(toolbarItemCaption2Text);
   const transcriptLabel = useString<boolean>(toolbarItemTranscriptText);
+  const transcript2Label = useString<boolean>(toolbarItemTranscript2Text);
   const settingsLabel = useString(toolbarItemSettingText)();
   const screenShareButton = useString<boolean>(toolbarItemShareText);
   const recordingButton = useString<boolean>(toolbarItemRecordingText);
@@ -318,7 +324,17 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
     isSTTError,
   } = useCaption();
 
+  const {
+    isCaptionON: isSonioxCaptionON,
+    setIsCaptionON: setIsSonioxCaptionON,
+    language: sonioxPrevLang,
+    isSTTActive: isSonioxSTTActive,
+    setIsSTTActive: setIsSonioxSTTActive,
+    isSTTError: isSonioxSTTError,
+  } = useSonioxCaption();
+
   const isTranscriptON = sidePanel === SidePanelType.Transcript;
+  const isSonioxTranscriptON = sidePanel === SidePanelType.SonioxTranscript;
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -326,6 +342,7 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   const STT_clicked = React.useRef(null);
 
   const {start, restart} = useSTTAPI();
+  const {start: sonioxStart, restart: sonioxRestart} = useSonioxSTTAPI();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -553,6 +570,39 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         }
       },
     });
+
+    // 3.5. Soniox Caption (Caption 2)
+    if ($config.ENABLE_SONIOX_STT) {
+      actionMenuitems.push({
+        componentName: 'soniox-caption',
+        order: 3.5,
+        icon: `${isSonioxCaptionON ? 'captions-off' : 'captions'}`,
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        disabled: !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          $config.ENABLE_SONIOX_STT &&
+          (isHost || (!isHost && isSonioxSTTActive))
+        ),
+        title: caption2Label(isSonioxCaptionON),
+        onPress: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isSonioxCaptionON ? 'soniox-caption' : null;
+          if (isSonioxSTTError) {
+            setIsSonioxCaptionON(prev => !prev);
+            return;
+          }
+          if (isSonioxSTTActive) {
+            setIsSonioxCaptionON(prev => !prev);
+            // is lang popup has been shown once for any user in meeting
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
+    }
     // 4. Meeting transcript
     if ($config.ENABLE_MEETING_TRANSCRIPT) {
       actionMenuitems.push({
@@ -580,6 +630,43 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
           if (isSTTActive) {
             !isTranscriptON
               ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
+    }
+
+    // 4.5. Soniox Meeting transcript
+    if ($config.ENABLE_MEETING_TRANSCRIPT && $config.ENABLE_SONIOX_STT) {
+      actionMenuitems.push({
+        componentName: 'soniox-transcript',
+        order: 4.5,
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        disabled: !(
+          $config.ENABLE_STT &&
+          $config.ENABLE_CAPTION &&
+          $config.ENABLE_MEETING_TRANSCRIPT &&
+          $config.ENABLE_SONIOX_STT &&
+          (isHost || (!isHost && isSonioxSTTActive))
+        ),
+        title: transcript2Label(isSonioxTranscriptON),
+        onPress: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isSonioxTranscriptON ? 'soniox-transcript' : null;
+          if (isSonioxSTTError) {
+            !isSonioxTranscriptON
+              ? setSidePanel(SidePanelType.SonioxTranscript)
+              : setSidePanel(SidePanelType.None);
+            return;
+          }
+          if (isSonioxSTTActive) {
+            !isSonioxTranscriptON
+              ? setSidePanel(SidePanelType.SonioxTranscript)
               : setSidePanel(SidePanelType.None);
           } else {
             isFirstTimePopupOpen.current = true;
@@ -847,14 +934,22 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   const onConfirm = async (langChanged, language) => {
     const isCaptionClicked = STT_clicked.current === 'caption';
+    const isSonioxCaptionClicked = STT_clicked.current === 'soniox-caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
+    const isSonioxTranscriptClicked = STT_clicked.current === 'soniox-transcript';
     setLanguagePopup(false);
     isFirstTimePopupOpen.current = false;
+    
     const method = isCaptionClicked
       ? isCaptionON
-      : isTranscriptON
-      ? 'stop'
+      : isSonioxCaptionClicked
+      ? isSonioxCaptionON
+      : isTranscriptClicked
+      ? (isTranscriptON ? 'stop' : 'start')
+      : isSonioxTranscriptClicked
+      ? (isSonioxTranscriptON ? 'stop' : 'start')
       : 'start';
+      
     if (isTranscriptClicked) {
       if (!isTranscriptON) {
         setSidePanel(SidePanelType.Transcript);
@@ -862,22 +957,42 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         setSidePanel(SidePanelType.None);
       }
     }
+    
+    if (isSonioxTranscriptClicked) {
+      if (!isSonioxTranscriptON) {
+        setSidePanel(SidePanelType.SonioxTranscript);
+      } else {
+        setSidePanel(SidePanelType.None);
+      }
+    }
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-
+    
     if (isCaptionClicked) {
+      if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
       setIsCaptionON(prev => !prev);
+    } else if (isSonioxCaptionClicked) {
+      if (method === 'start' && isSonioxSTTActive === true) return; // not triggering the start service if Soniox STT Service already started by anyone else in the channel
+      setIsSonioxCaptionON(prev => !prev);
     } else {
     }
 
     try {
-      const res = await start(language, language);
-      if (res?.message.includes('STARTED')) {
-        // channel is already started now restart
-        await restart(language, language);
+      if (isCaptionClicked) {
+        const res = await start(language, language);
+        if (res?.message.includes('STARTED')) {
+          // channel is already started now restart
+          await restart(language, language);
+        }
+      } else if (isSonioxCaptionClicked) {
+        const res = await sonioxStart(language, language);
+        if (res?.message.includes('STARTED')) {
+          // channel is already started now restart
+          await sonioxRestart(language, language);
+        }
       }
     } catch (error) {
-      logger.error(LogSource.Internals, 'STT', 'error in starting stt', error);
+      const provider = isSonioxCaptionClicked ? 'Soniox-STT' : 'STT';
+      logger.error(LogSource.Internals, provider, `error in starting ${provider.toLowerCase()}`, error);
     }
   };
 
@@ -1127,6 +1242,7 @@ export const MoreButtonToolbarItem = (props?: {
     data: {isHost},
   } = useRoomInfo();
   const {isSTTActive} = useCaption();
+  const {isSTTActive: isSonioxSTTActive} = useSonioxCaption();
   const [_, forceUpdate] = useReducer(x => x + 1, 0);
 
   useEffect(() => {
@@ -1137,6 +1253,10 @@ export const MoreButtonToolbarItem = (props?: {
     ($config.ENABLE_STT &&
       $config.ENABLE_CAPTION &&
       (isHost || (!isHost && isSTTActive))) ||
+    ($config.ENABLE_STT &&
+      $config.ENABLE_CAPTION &&
+      $config.ENABLE_SONIOX_STT &&
+      (isHost || (!isHost && isSonioxSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
     (isHost && $config.CLOUD_RECORDING && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||

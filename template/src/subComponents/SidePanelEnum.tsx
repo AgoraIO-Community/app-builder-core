@@ -15,5 +15,6 @@ export enum SidePanelType {
   Chat = 'Chat',
   Settings = 'Settings',
   Transcript = 'Transcript',
+  SonioxTranscript = 'SonioxTranscript',
   VirtualBackground = 'VirtualBackground',
 }

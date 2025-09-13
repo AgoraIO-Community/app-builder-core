@@ -30,6 +30,7 @@ interface CaptionTextProps {
   setInActiveLinesAvaialble?: React.Dispatch<React.SetStateAction<number>>;
   captionUserStyle?: TextStyle;
   captionTextStyle?: TextStyle;
+  selectedTranslationLanguage?: string;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -48,9 +49,15 @@ const CaptionText = ({
   setInActiveLinesAvaialble,
   captionUserStyle = {},
   captionTextStyle = {},
+  selectedTranslationLanguage: propSelectedTranslationLanguage,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const {selectedTranslationLanguage} = useCaption();
+  const {selectedTranslationLanguage: contextSelectedTranslationLanguage} = useCaption();
+  
+  // Use prop if provided, otherwise use context
+  const selectedTranslationLanguage = propSelectedTranslationLanguage !== undefined 
+    ? propSelectedTranslationLanguage 
+    : contextSelectedTranslationLanguage;
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 

@@ -1,0 +1,140 @@
+import {StyleSheet, TextStyle, View} from 'react-native';
+import React from 'react';
+import {useContent, useRtc} from 'customization-api';
+import {useSonioxCaption} from './useSonioxCaption';
+import CaptionText from '../CaptionText';
+import Loading from '../../Loading';
+import {isWebInternal} from '../../../utils/common';
+import useSonioxStreamMessageUtils from './useSonioxStreamMessageUtils';
+import hexadecimalTransparency from '../../../utils/hexadecimalTransparency';
+import {useString} from '../../../utils/useString';
+import {sttSettingSpokenLanguageText} from '../../../language/default-labels/videoCallScreenLabels';
+
+export type WebStreamMessageArgs = [number, Uint8Array];
+export type NativeStreamMessageArgs = [
+  {},
+  number,
+  number,
+  Uint8Array,
+  number,
+  number,
+];
+export type StreamMessageArgs = WebStreamMessageArgs | NativeStreamMessageArgs;
+
+interface SonioxCaptionProps {
+  captionTextStyle?: TextStyle;
+  captionUserStyle?: TextStyle;
+}
+
+const SonioxCaption: React.FC<SonioxCaptionProps> = ({
+  captionTextStyle = {},
+  captionUserStyle = {},
+}) => {
+  const {RtcEngineUnsafe} = useRtc();
+  const {
+    isLangChangeInProgress,
+    captionObj, //state for current live caption for all users
+    isSTTListenerAdded,
+    setIsSTTListenerAdded,
+    activeSpeakerRef,
+    prevSpeakerRef,
+    selectedTranslationLanguage,
+  } = useSonioxCaption();
+  const ssLabel = useString(sttSettingSpokenLanguageText)();
+  const {streamMessageCallback} = useSonioxStreamMessageUtils();
+  const {defaultContent} = useContent();
+
+  const [activelinesAvailable, setActiveLinesAvailable] = React.useState(0);
+  const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
+
+  const handleStreamMessageCallback = (...args: StreamMessageArgs) => {
+    setIsSTTListenerAdded(true);
+    if (isWebInternal()) {
+      const [uid, data] = args as WebStreamMessageArgs;
+      streamMessageCallback([uid, data]);
+    } else {
+      const [, uid, , data] = args as NativeStreamMessageArgs;
+      streamMessageCallback([uid, data]);
+    }
+  };
+
+  React.useEffect(() => {
+    !isSTTListenerAdded &&
+      RtcEngineUnsafe.addListener(
+        'onStreamMessage',
+        handleStreamMessageCallback,
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (isLangChangeInProgress)
+    return (
+      <Loading
+        text={ssLabel + ' (Soniox)'}
+        background="transparent"
+        indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+        textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+      />
+    );
+
+  console.log('soniox current speaker uid', activeSpeakerRef.current);
+  console.log('soniox prev current uid ', prevSpeakerRef.current);
+
+  const speakerCount = prevSpeakerRef.current === '' ? 1 : 2;
+
+  return (
+    <View style={styles.captionContainer}>
+      {
+        <>
+          {captionObj[prevSpeakerRef.current] &&
+          captionObj[prevSpeakerRef.current].text ? (
+            <CaptionText
+              user={defaultContent[prevSpeakerRef.current].name || 'Speaker'}
+              value={captionObj[prevSpeakerRef.current].text}
+              translations={captionObj[prevSpeakerRef.current].translations}
+              activeSpeakersCount={speakerCount}
+              isActiveSpeaker={false}
+              activelinesAvailable={activelinesAvailable}
+              setActiveLinesAvailable={setActiveLinesAvailable}
+              inActiveLinesAvailable={inActiveLinesAvailable}
+              setInActiveLinesAvaialble={setInActiveLinesAvaialble}
+              captionUserStyle={captionUserStyle}
+              captionTextStyle={captionTextStyle}
+              selectedTranslationLanguage={selectedTranslationLanguage}
+            />
+          ) : (
+            <></>
+          )}
+          {captionObj[activeSpeakerRef.current] &&
+          captionObj[activeSpeakerRef.current].text ? (
+            <CaptionText
+              user={defaultContent[activeSpeakerRef.current].name || 'Speaker'}
+              value={captionObj[activeSpeakerRef.current].text}
+              translations={captionObj[activeSpeakerRef.current].translations}
+              activeSpeakersCount={speakerCount}
+              isActiveSpeaker={true}
+              activelinesAvailable={activelinesAvailable}
+              setActiveLinesAvailable={setActiveLinesAvailable}
+              inActiveLinesAvailable={inActiveLinesAvailable}
+              setInActiveLinesAvaialble={setInActiveLinesAvaialble}
+              captionUserStyle={captionUserStyle}
+              captionTextStyle={captionTextStyle}
+              selectedTranslationLanguage={selectedTranslationLanguage}
+            />
+          ) : (
+            <></>
+          )}
+        </>
+      }
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  captionContainer: {
+    width: '100%',
+    height: '100%',
+  },
+});
+
+export default React.memo(SonioxCaption);

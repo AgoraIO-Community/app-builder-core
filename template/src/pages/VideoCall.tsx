@@ -57,7 +57,7 @@ import {FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
 import {SdkApiContext} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
-import {CaptionProvider} from '../subComponents/caption/useCaption';
+import CaptionProviderWrapper from '../subComponents/caption/CaptionProviderWrapper';
 import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 import StorageContext from '../components/StorageContext';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
@@ -491,7 +491,7 @@ const VideoCall: React.FC = () => {
                                     <RtmConfigure callActive={callActive}>
                                       <UserPreferenceProvider
                                         callActive={callActive}>
-                                        <CaptionProvider>
+                                        <CaptionProviderWrapper callActive={callActive}>
                                           <WaitingRoomProvider>
                                             <EventsConfigure
                                               setSttAutoStarted={
@@ -567,7 +567,7 @@ const VideoCall: React.FC = () => {
                                               </ScreenshareConfigure>
                                             </EventsConfigure>
                                           </WaitingRoomProvider>
-                                        </CaptionProvider>
+                                        </CaptionProviderWrapper>
                                       </UserPreferenceProvider>
                                     </RtmConfigure>
                                   </ScreenShareProvider>

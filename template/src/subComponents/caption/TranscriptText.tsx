@@ -18,6 +18,7 @@ interface TranscriptTextProps {
   value: string;
   translations?: TranslationItem[];
   searchQuery?: string;
+  selectedTranslationLanguage?: string;
 }
 
 export const TranscriptText = ({
@@ -26,8 +27,14 @@ export const TranscriptText = ({
   value,
   translations = [],
   searchQuery = '',
+  selectedTranslationLanguage: propSelectedTranslationLanguage,
 }: TranscriptTextProps) => {
-  const {selectedTranslationLanguage} = useCaption();
+  const {selectedTranslationLanguage: contextSelectedTranslationLanguage} = useCaption();
+  
+  // Use prop if provided, otherwise use context
+  const selectedTranslationLanguage = propSelectedTranslationLanguage !== undefined 
+    ? propSelectedTranslationLanguage 
+    : contextSelectedTranslationLanguage;
   const t = time ? formatTime(Number(time)) : '';
   
   //  text to display based on selected translation language

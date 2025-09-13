@@ -34,10 +34,14 @@ import {
 } from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
-import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import DualCaptionContainer from '../../subComponents/caption/DualCaptionContainer';
+import {useSonioxCaption} from '../../subComponents/caption/soniox/useSonioxCaption';
 import Transcript, {
   TranscriptProps,
 } from '../../subComponents/caption/Transcript';
+import SonioxTranscript, {
+  SonioxTranscriptProps,
+} from '../../subComponents/caption/soniox/SonioxTranscript';
 
 import Spacer from '../../atoms/Spacer';
 import Leftbar, {
@@ -68,12 +72,14 @@ const VideoCallScreen = () => {
     data: {meetingTitle, isHost},
   } = useRoomInfo();
   const {isCaptionON} = useCaption();
+  const {isCaptionON: isSonioxCaptionON} = useSonioxCaption();
   const {
     ChatComponent,
     VideocallComponent,
     BottombarComponent,
     ParticipantsComponent,
     TranscriptComponent,
+    SonioxTranscriptComponent,
     CaptionComponent,
     VirtualBackgroundComponent,
     SettingsComponent,
@@ -96,6 +102,7 @@ const VideoCallScreen = () => {
       BottombarComponent: React.ComponentType<ControlsProps>;
       ParticipantsComponent: React.ComponentType;
       TranscriptComponent: React.ComponentType<TranscriptProps>;
+      SonioxTranscriptComponent: React.ComponentType<SonioxTranscriptProps>;
       CaptionComponent: React.ComponentType;
       VirtualBackgroundComponent: React.ComponentType<VBPanelProps>;
       SettingsComponent: React.ComponentType;
@@ -115,7 +122,8 @@ const VideoCallScreen = () => {
       ChatComponent: Chat,
       ParticipantsComponent: ParticipantsView,
       TranscriptComponent: Transcript,
-      CaptionComponent: CaptionContainer,
+      SonioxTranscriptComponent: SonioxTranscript,
+      CaptionComponent: DualCaptionContainer,
       VirtualBackgroundComponent: VBPanel,
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
@@ -437,6 +445,15 @@ const VideoCallScreen = () => {
               ) : (
                 <></>
               )}
+              {sidePanel === SidePanelType.SonioxTranscript ? (
+                $config.ENABLE_MEETING_TRANSCRIPT ? (
+                  <SonioxTranscriptComponent />
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
               {sidePanel === SidePanelType.VirtualBackground ? (
                 <VirtualBackgroundComponent />
               ) : (
@@ -454,7 +471,7 @@ const VideoCallScreen = () => {
                   />
                 ) : (
                   <>
-                    {isCaptionON ? <CaptionComponent /> : <></>}
+                    {(isCaptionON || isSonioxCaptionON) ? <CaptionComponent /> : <></>}
                     <Spacer size={$config.ENABLE_CONVERSATIONAL_AI ? 20 : 10} />
                     <View
                       style={

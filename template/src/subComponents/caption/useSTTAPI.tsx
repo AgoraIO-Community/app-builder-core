@@ -82,6 +82,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       let requestBody: any = {
         passphrase: roomId?.host || '',
         dataStream_uid: 111111, // default bot ID
+        project_id:'8d2b1a60e4e0e95ac455',
         encryption_mode: $config.ENCRYPTION_ENABLED
           ? rtcProps.encryption.mode
           : null,
