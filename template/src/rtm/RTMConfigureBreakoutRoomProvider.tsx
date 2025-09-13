@@ -163,6 +163,13 @@ const RTMConfigureBreakoutRoomProvider = (
     };
   }, []);
 
+  const syncUserState = useCallback(
+    (uid: number, data: Partial<ContentInterface>) => {
+      dispatch({type: 'UpdateRenderList', value: [uid, data]});
+    },
+    [dispatch],
+  );
+
   // Set online users
   React.useEffect(() => {
     setTotalOnlineUsers(
@@ -453,7 +460,7 @@ const RTMConfigureBreakoutRoomProvider = (
         lastMessageTimeStamp: 0,
       };
       console.log('new user joined', uid, userData);
-      updateRenderListState(uid, userData);
+      syncUserState(uid, userData);
       //end- updating user data in rtc
 
       //start - updating screenshare data in rtc
@@ -462,7 +469,7 @@ const RTMConfigureBreakoutRoomProvider = (
           type: UserType.ScreenShare,
           parentUid: uid,
         };
-        updateRenderListState(screenUid, screenShareUser);
+        syncUserState(screenUid, screenShareUser);
       }
       //end - updating screenshare data in rtc
     } catch (e) {
@@ -474,20 +481,6 @@ const RTMConfigureBreakoutRoomProvider = (
       );
     }
   };
-
-  const updateRenderListState = (
-    uid: number,
-    data: Partial<ContentInterface>,
-  ) => {
-    dispatch({type: 'UpdateRenderList', value: [uid, data]});
-  };
-
-  const syncUserState = useCallback(
-    (uid: number, data: Partial<ContentInterface>) => {
-      dispatch({type: 'UpdateRenderList', value: [uid, data]});
-    },
-    [dispatch],
-  );
 
   const runQueuedEvents = async () => {
     try {
@@ -786,7 +779,7 @@ const RTMConfigureBreakoutRoomProvider = (
         }
         SDKEvents.emit('_rtm-left', uid);
         // updating the rtc data
-        updateRenderListState(uid, {
+        syncUserState(uid, {
           offline: true,
         });
       }

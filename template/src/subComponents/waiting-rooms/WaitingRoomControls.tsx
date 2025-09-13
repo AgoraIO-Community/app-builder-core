@@ -14,12 +14,14 @@ import {
   peoplePanelWaitingRoomRequestApprovalBtnTxt,
   peoplePanelWaitingRoomRequestDenyBtnTxt,
 } from '../../../src/language/default-labels/videoCallScreenLabels';
+import ChatContext from '../../components/ChatContext';
 
 const WaitingRoomButton = props => {
   const {uid, screenUid, isAccept} = props;
   const {approval} = useWaitingRoomAPI();
   const localUid = useLocalUid();
   const {dispatch} = useContext(DispatchContext);
+  const {syncUserState} = useContext(ChatContext);
   const {waitingRoomRef} = useWaitingRoomContext();
   const admintext = useString(peoplePanelWaitingRoomRequestApprovalBtnTxt)();
   const denytext = useString(peoplePanelWaitingRoomRequestDenyBtnTxt)();
@@ -40,10 +42,11 @@ const WaitingRoomButton = props => {
       Toast.hide();
     }
 
-    dispatch({
-      type: 'UpdateRenderList',
-      value: [uid, {isInWaitingRoom: false}],
-    });
+    //  dispatch({
+    //   type: 'UpdateRenderList',
+    //   value: [uid, {isInWaitingRoom: false}],
+    // });
+    syncUserState(uid, {isInWaitingRoom: false});
 
     if (waitingRoomRef.current) {
       waitingRoomRef.current[uid] = approved ? 'APPROVED' : 'REJECTED';

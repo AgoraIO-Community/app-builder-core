@@ -426,7 +426,10 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         lastMessageTimeStamp: 0,
       };
       console.log('rudra-core-client: new user joined', uid, userData);
-      setMainRoomUsers(prev => ({...prev, [uid]: userData}));
+      setMainRoomUsers(prev => ({
+        ...prev,
+        [uid]: {...(prev[uid] || {}), ...userData},
+      }));
       //end- updating user data in rtc
 
       //start - updating screenshare data in rtc
@@ -435,7 +438,10 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
           type: UserType.ScreenShare,
           parentUid: uid,
         };
-        setMainRoomUsers(prev => ({...prev, [screenUid]: screenShareUser}));
+        setMainRoomUsers(prev => ({
+          ...prev,
+          [screenUid]: {...(prev[screenUid] || {}), ...screenShareUser},
+        }));
       }
       //end - updating screenshare data in rtc
     } catch (e) {

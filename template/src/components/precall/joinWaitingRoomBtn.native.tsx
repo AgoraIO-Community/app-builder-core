@@ -39,6 +39,7 @@ import {
   waitingRoomHostNotJoined,
   waitingRoomUsersInCall,
 } from '../../language/default-labels/videoCallScreenLabels';
+import ChatContext from '../ChatContext';
 
 export interface PreCallJoinWaitingRoomBtnProps {
   render?: (
@@ -58,6 +59,7 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
   const waitingRoomUsersInCallText = useString(waitingRoomUsersInCall);
   let pollingTimeout = React.useRef(null);
   const {rtcProps} = useContext(PropsContext);
+  const {syncUserState} = useContext(ChatContext);
   const {setCallActive, callActive} = usePreCall();
   const username = useGetName();
   const {isJoinDataFetched, isInWaitingRoom} = useRoomInfo();
@@ -139,10 +141,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
       if (callActive) return;
       // on approve/reject response from host, waiting room permission is reset
       // update waitinng room status on uid
-      dispatch({
-        type: 'UpdateRenderList',
-        value: [localUid, {isInWaitingRoom: false}],
-      });
+      // dispatch({
+      //   type: 'UpdateRenderList',
+      //   value: [localUid, {isInWaitingRoom: false}],
+      // });
+      syncUserState(localUid, {isInWaitingRoom: false});
 
       if (approved) {
         setRoomInfo(prev => {
@@ -219,10 +222,11 @@ const JoinWaitingRoomBtn = (props: PreCallJoinWaitingRoomBtnProps) => {
     });
 
     // add the waitingRoomStatus to the uid
-    dispatch({
-      type: 'UpdateRenderList',
-      value: [localUid, {isInWaitingRoom: true}],
-    });
+    // dispatch({
+    //   type: 'UpdateRenderList',
+    //   value: [localUid, {isInWaitingRoom: true}],
+    // });
+    syncUserState(localUid, {isInWaitingRoom: true});
 
     // join request API to server, server will send RTM message to all hosts regarding request from this user,
     requestServerToJoinRoom();

@@ -170,6 +170,22 @@ const RTMConfigureMainRoomProvider: React.FC<
     };
   }, []);
 
+  // Main room specific syncUserState function
+  const syncUserState = useCallback(
+    (uid: number, data: Partial<ContentInterface>) => {
+      setMainRoomUsers(prev => {
+        return {
+          ...prev,
+          [uid]: {
+            ...prev[uid],
+            ...data,
+          },
+        };
+      });
+    },
+    [setMainRoomUsers],
+  );
+
   // Set online users
   React.useEffect(() => {
     setTotalOnlineUsers(
@@ -188,28 +204,26 @@ const RTMConfigureMainRoomProvider: React.FC<
   useEffect(() => {
     Object.entries(mainRoomUsers).forEach(
       ([uidStr, user]: [string, ContentInterface]) => {
-        console.log('supriya-mainRoomUsers: ', uidStr, user);
         const uid = parseInt(uidStr, 10);
 
         const userData = {
+          ...user,
           type: user.type ?? 'rtc',
           offline: !!user.offline,
           isHost: user?.isHost ?? false,
           uid,
-          screenUid: user.screenUid,
+          screenUid: user?.screenUid,
           lastMessageTimeStamp: user.lastMessageTimeStamp ?? 0,
         };
 
         // Dispatch directly for each user
-        dispatch({
-          type: 'UpdateRenderList',
-          value: [uid, userData], // Correct [uid, data] format
-        });
+        dispatch({type: 'UpdateRenderList', value: [uid, userData]});
       },
     );
   }, [mainRoomUsers, dispatch]);
 
   const init = async () => {
+    setHasUserJoinedRTM(true);
     await runQueuedEvents();
     setIsInitialQueueCompleted(true);
   };
@@ -570,20 +584,6 @@ const RTMConfigureMainRoomProvider: React.FC<
       logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
     };
   }, [isLoggedIn, callActive, channelName]);
-
-  // Main room specific syncUserState function
-  const syncUserState = useCallback(
-    (uid: number, data: Partial<ContentInterface>) => {
-      setMainRoomUsers(prev => ({
-        ...prev,
-        [uid]: {
-          ...prev[uid],
-          ...data,
-        },
-      }));
-    },
-    [setMainRoomUsers],
-  );
 
   // Provide context data to children
   const contextValue: RTMMainRoomData = {

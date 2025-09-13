@@ -27,7 +27,7 @@ import {
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import {ChatBubbleProps} from '../components/ChatContext';
+import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
 import {
   DispatchContext,
   ContentInterface,
@@ -71,6 +71,7 @@ const ChatContainer = (props?: {
   const info1 = useString<boolean>(groupChatWelcomeContent);
   const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useContext(DispatchContext);
+  const {syncUserState} = useContext(ChatContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {defaultContent} = useContent();
@@ -118,16 +119,18 @@ const ChatContainer = (props?: {
       });
       //Once message is seen, reset lastMessageTimeStamp.
       //so whoever has unread count will show in the top of participant list
-      updateRenderListState(privateChatUser, {lastMessageTimeStamp: 0});
+      // updateRenderListState(privateChatUser, {lastMessageTimeStamp: 0});
+      syncUserState(privateChatUser, {lastMessageTimeStamp: 0});
     }
   }, [privateChatUser]);
 
-  const updateRenderListState = (
-    uid: number,
-    data: Partial<ContentInterface>,
-  ) => {
-    dispatch({type: 'UpdateRenderList', value: [uid, data]});
-  };
+  // We will be using syncRoomusers
+  // const updateRenderListState = (
+  //   uid: number,
+  //   data: Partial<ContentInterface>,
+  // ) => {
+  //   dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  // };
 
   const onScroll = event => {
     setScrollOffset(event.nativeEvent.contentOffset.y);
