@@ -444,6 +444,12 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   };
 
   const handleMainChannelPresenceEvent = async (presence: PresenceEvent) => {
+    console.log(
+      'rudra-core-client: RTM presence event received for different channel',
+      presence.channelName,
+      'expected:',
+      mainChannelName,
+    );
     if (presence.channelName !== mainChannelName) {
       console.log(
         'rudra-core-client: RTM presence event received for different channel',

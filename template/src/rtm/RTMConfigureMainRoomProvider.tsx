@@ -183,27 +183,27 @@ const RTMConfigureMainRoomProvider: React.FC<
   }, [defaultContent]);
 
   useEffect(() => {
-    const updatedContent: {[uid: number]: ContentInterface} = {};
+    Object.entries(mainRoomUsers).forEach(
+      ([uidStr, user]: [string, ContentInterface]) => {
+        console.log('supriya-mainRoomUsers: ', uidStr, user);
+        const uid = parseInt(uidStr, 10);
 
-    Object.entries(mainRoomUsers).forEach(([uidStr, user]) => {
-      const uid = parseInt(uidStr, 10);
+        const userData = {
+          type: user.type ?? 'rtc',
+          offline: !!user.offline,
+          isHost: user?.isHost ?? false,
+          uid,
+          screenUid: user.screenUid,
+          lastMessageTimeStamp: user.lastMessageTimeStamp ?? 0,
+        };
 
-      updatedContent[uid] = {
-        type: user.type ?? 'rtc',
-        offline: !!user.offline,
-        isHost: user.isHost ?? false,
-        uid,
-        screenUid: user.screenUid,
-        lastMessageTimeStamp: user.lastMessageTimeStamp ?? 0,
-      };
-    });
-
-    dispatch({
-      type: 'UpdateRenderList',
-      value: {
-        content: updatedContent,
+        // Dispatch directly for each user
+        dispatch({
+          type: 'UpdateRenderList',
+          value: [uid, userData], // Correct [uid, data] format
+        });
       },
-    });
+    );
   }, [mainRoomUsers, dispatch]);
 
   const init = async () => {

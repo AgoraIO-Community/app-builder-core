@@ -10,7 +10,13 @@
 *********************************************
 */
 
-import React, {useState, useContext, useEffect, useRef} from 'react';
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  createContext,
+} from 'react';
 import {
   type GetChannelMetadataResponse,
   type GetOnlineUsersResponse,
@@ -66,13 +72,40 @@ export enum UserType {
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
+// RTM Breakout Room Context
+export interface RTMBreakoutRoomData {
+  hasUserJoinedRTM: boolean;
+  isInitialQueueCompleted: boolean;
+  onlineUsersCount: number;
+  rtmInitTimstamp: number;
+}
+
+const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
+  hasUserJoinedRTM: false,
+  isInitialQueueCompleted: false,
+  onlineUsersCount: 0,
+  rtmInitTimstamp: 0,
+});
+
+export const useRTMConfigureBreakout = () => {
+  const context = useContext(RTMBreakoutRoomContext);
+  if (!context) {
+    throw new Error(
+      'useRTMConfigureBreakout must be used within RTMConfigureBreakoutRoomProvider',
+    );
+  }
+  return context;
+};
+
 interface RTMConfigureBreakoutRoomProviderProps {
   callActive: boolean;
   children: React.ReactNode;
   channelName: string;
 }
 
-const RtmConfigure = (props: RTMConfigureBreakoutRoomProviderProps) => {
+const RTMConfigureBreakoutRoomProvider = (
+  props: RTMConfigureBreakoutRoomProviderProps,
+) => {
   const rtmInitTimstamp = new Date().getTime();
   const localUid = useLocalUid();
   const {callActive, channelName} = props;
@@ -871,19 +904,18 @@ const RtmConfigure = (props: RTMConfigureBreakoutRoomProviderProps) => {
     };
   }, [isLoggedIn, callActive, channelName]);
 
+  const contextValue: RTMBreakoutRoomData = {
+    hasUserJoinedRTM,
+    isInitialQueueCompleted,
+    onlineUsersCount,
+    rtmInitTimstamp,
+  };
+
   return (
-    <ChatContext.Provider
-      value={{
-        isInitialQueueCompleted,
-        rtmInitTimstamp,
-        hasUserJoinedRTM,
-        engine: client,
-        localUid: localUid,
-        onlineUsersCount,
-      }}>
+    <RTMBreakoutRoomContext.Provider value={contextValue}>
       {props.children}
-    </ChatContext.Provider>
+    </RTMBreakoutRoomContext.Provider>
   );
 };
 
-export default RtmConfigure;
+export default RTMConfigureBreakoutRoomProvider;

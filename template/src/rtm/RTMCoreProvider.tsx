@@ -160,7 +160,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     }
     const handleGlobalStorageEvent = (storage: StorageEvent) => {
       console.log(
-        'supriya-rtm-global ********************** ---StorageEvent event: ',
+        'rudra-core-client ********************** ---StorageEvent event: ',
         storage,
       );
       // Distribute to all registered callbacks
@@ -177,7 +177,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
     const handleGlobalPresenceEvent = (presence: PresenceEvent) => {
       console.log(
-        'supriya-rtm-global @@@@@@@@@@@@@@@@@@@@@@@  ---PresenceEvent: ',
+        'rudra-core-client @@@@@@@@@@@@@@@@@@@@@@@  ---PresenceEvent: ',
         presence,
       );
       // Distribute to all registered callbacks
@@ -194,7 +194,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
     const handleGlobalMessageEvent = (message: MessageEvent) => {
       console.log(
-        'supriya-rtm-global ######################## ---MessageEvent event: ',
+        'rudra-core-client ######################## ---MessageEvent event: ',
         message,
       );
       // Distribute to all registered callbacks

@@ -85,6 +85,7 @@ import {AuthErrorCodes} from '../utils/common';
 import {BreakoutRoomProvider} from '../components/breakout-room/context/BreakoutRoomContext';
 import BreakoutRoomMainEventsConfigure from '../components/breakout-room/events/BreakoutRoomMainEventsConfigure';
 import BreakoutRoomEventsConfigure from '../components/breakout-room/events/BreakoutRoomEventsConfigure';
+import {RTM_ROOMS} from '../rtm/constants';
 
 interface VideoCallProps {
   callActive: boolean;
@@ -163,7 +164,7 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                             <RTMConfigureMainRoomProvider
                               callActive={callActive}
                               channelName={rtcProps.channel}>
-                              <RtmConfigure room="main">
+                              <RtmConfigure room={RTM_ROOMS.MAIN}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>
                                     <WaitingRoomProvider>
