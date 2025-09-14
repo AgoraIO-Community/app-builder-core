@@ -61,7 +61,7 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from './RTMCoreProvider';
-import {useRTMGlobalState} from './RTMGlobalStateProvider';
+import {RTMUserData, useRTMGlobalState} from './RTMGlobalStateProvider';
 import {RTM_ROOMS} from './constants';
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
@@ -115,7 +115,7 @@ const RTMConfigureMainRoomProvider: React.FC<
 
   // RTM
   const {client, isLoggedIn} = useRTMCore();
-  const {mainRoomUsers, setMainRoomUsers} = useRTMGlobalState();
+  const {mainRoomRTMUsers, setMainRoomRTMUsers} = useRTMGlobalState();
 
   // Set main room as active channel when this provider mounts again active
   useEffect(() => {
@@ -172,18 +172,52 @@ const RTMConfigureMainRoomProvider: React.FC<
 
   // Main room specific syncUserState function
   const syncUserState = useCallback(
-    (uid: number, data: Partial<ContentInterface>) => {
-      setMainRoomUsers(prev => {
-        return {
-          ...prev,
-          [uid]: {
-            ...prev[uid],
-            ...data,
-          },
-        };
-      });
+    (uid: number, data: any) => {
+      // Extract only RTM-related fields that are actually passed
+      const rtmData: Partial<RTMUserData> = {};
+
+      // Only add fields if they exist in the passed data
+      if ('name' in data) {
+        rtmData.name = data.name;
+      }
+      if ('screenUid' in data) {
+        rtmData.screenUid = data.screenUid;
+      }
+      if ('offline' in data) {
+        rtmData.offline = data.offline;
+      }
+      if ('lastMessageTimeStamp' in data) {
+        rtmData.lastMessageTimeStamp = data.lastMessageTimeStamp;
+      }
+      if ('isInWaitingRoom' in data) {
+        rtmData.isInWaitingRoom = data.isInWaitingRoom;
+      }
+      if ('isHost' in data) {
+        rtmData.isHost = data.isHost;
+      }
+      if ('type' in data) {
+        rtmData.type = data.type;
+      }
+      if ('parentUid' in data) {
+        rtmData.parentUid = data.parentUid;
+      }
+      if ('uid' in data) {
+        rtmData.uid = data.uid;
+      }
+      // Only update if we have RTM data to update
+      if (Object.keys(rtmData).length > 0) {
+        setMainRoomRTMUsers(prev => {
+          return {
+            ...prev,
+            [uid]: {
+              ...prev[uid],
+              ...rtmData,
+            },
+          };
+        });
+      }
     },
-    [setMainRoomUsers],
+    [setMainRoomRTMUsers],
   );
 
   // Set online users
@@ -202,25 +236,25 @@ const RTMConfigureMainRoomProvider: React.FC<
   }, [defaultContent]);
 
   useEffect(() => {
-    Object.entries(mainRoomUsers).forEach(
-      ([uidStr, user]: [string, ContentInterface]) => {
-        const uid = parseInt(uidStr, 10);
+    Object.entries(mainRoomRTMUsers).forEach(([uidStr, rtmUser]) => {
+      const uid = parseInt(uidStr, 10);
 
-        const userData = {
-          ...user,
-          type: user.type ?? 'rtc',
-          offline: !!user.offline,
-          isHost: user?.isHost ?? false,
-          uid,
-          screenUid: user?.screenUid,
-          lastMessageTimeStamp: user.lastMessageTimeStamp ?? 0,
-        };
+      // Create only RTM data
+      const userData: RTMUserData = {
+        // RTM data
+        name: rtmUser.name || '',
+        screenUid: rtmUser.screenUid || 0,
+        offline: !!rtmUser.offline,
+        lastMessageTimeStamp: rtmUser.lastMessageTimeStamp || 0,
+        isInWaitingRoom: rtmUser?.isInWaitingRoom || false,
+        isHost: rtmUser.isHost,
+        type: rtmUser.type,
+      };
 
-        // Dispatch directly for each user
-        dispatch({type: 'UpdateRenderList', value: [uid, userData]});
-      },
-    );
-  }, [mainRoomUsers, dispatch]);
+      // Dispatch directly for each user
+      dispatch({type: 'UpdateRenderList', value: [uid, userData]});
+    });
+  }, [mainRoomRTMUsers, dispatch]);
 
   const init = async () => {
     setHasUserJoinedRTM(true);

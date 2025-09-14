@@ -31,6 +31,7 @@ import {useRTMCore} from './RTMCoreProvider';
 import {
   ContentInterface,
   RtcPropsInterface,
+  UidType,
   useLocalUid,
 } from '../../agora-rn-uikit';
 import {
@@ -43,6 +44,19 @@ export enum UserType {
   ScreenShare = 'screenshare',
 }
 
+// RTM-specific user data interface
+export interface RTMUserData {
+  uid?: UidType;
+  screenUid?: number; // Screen sharing UID reference (stored in RTM user metadata)
+  parentUid?: UidType; // Only available for screenshare
+  type: 'rtc' | 'screenshare' | 'bot';
+  name?: string; // User's display name (stored in RTM user metadata)
+  offline: boolean; // User online/offline status (managed through RTM presence events)
+  lastMessageTimeStamp: number; // Timestamp of last message (RTM message tracking)
+  isInWaitingRoom?: boolean; // Waiting room status (RTM-based feature state)
+  isHost: string; // Host privileges (stored in RTM user metadata as 'isHost')
+}
+
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 interface RTMGlobalStateProviderProps {
@@ -52,9 +66,9 @@ interface RTMGlobalStateProviderProps {
 
 // Context for message and storage handler registration
 const RTMGlobalStateContext = React.createContext<{
-  mainRoomUsers: {[uid: number]: ContentInterface};
-  setMainRoomUsers: React.Dispatch<
-    React.SetStateAction<{[uid: number]: ContentInterface}>
+  mainRoomRTMUsers: {[uid: number]: RTMUserData};
+  setMainRoomRTMUsers: React.Dispatch<
+    React.SetStateAction<{[uid: number]: RTMUserData}>
   >;
   registerMainChannelMessageHandler: (
     handler: (message: MessageEvent) => void,
@@ -65,8 +79,8 @@ const RTMGlobalStateContext = React.createContext<{
   ) => void;
   unregisterMainChannelStorageHandler: () => void;
 }>({
-  mainRoomUsers: {},
-  setMainRoomUsers: () => {},
+  mainRoomRTMUsers: {},
+  setMainRoomRTMUsers: () => {},
   registerMainChannelMessageHandler: () => {},
   unregisterMainChannelMessageHandler: () => {},
   registerMainChannelStorageHandler: () => {},
@@ -81,9 +95,9 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   const localUid = useLocalUid();
   const {client, isLoggedIn, registerCallbacks, unregisterCallbacks} =
     useRTMCore();
-  // Main room users
-  const [mainRoomUsers, setMainRoomUsers] = useState<{
-    [uid: number]: ContentInterface;
+  // Main room RTM users (RTM-specific data only)
+  const [mainRoomRTMUsers, setMainRoomRTMUsers] = useState<{
+    [uid: number]: RTMUserData;
   }>({});
 
   const hasInitRef = useRef(false);
@@ -415,35 +429,36 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         ? parseInt(screenUidItem.value, 10)
         : undefined;
 
-      //start - updating user data in rtc
-      const userData = {
-        screenUid: screenUid,
-        //below thing for livestreaming
-        type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
+      //start - updating RTM user data
+      const rtmUserData: RTMUserData = {
         uid,
+        type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
+        screenUid: screenUid,
         offline: false,
-        isHost: isHostItem?.value || false,
+        isHost: isHostItem?.value || 'false',
         lastMessageTimeStamp: 0,
       };
-      console.log('rudra-core-client: new user joined', uid, userData);
-      setMainRoomUsers(prev => ({
+      console.log('rudra-core-client: new RTM user joined', uid, rtmUserData);
+      setMainRoomRTMUsers(prev => ({
         ...prev,
-        [uid]: {...(prev[uid] || {}), ...userData},
+        [uid]: {...(prev[uid] || {}), ...rtmUserData},
       }));
-      //end- updating user data in rtc
+      //end- updating RTM user data
 
-      //start - updating screenshare data in rtc
+      //start - updating screenshare RTM data
       if (screenUid) {
-        const screenShareUser = {
-          type: UserType.ScreenShare,
+        // @ts-ignore
+        const screenShareRTMData: RTMUserData = {
+          type: 'screenshare',
           parentUid: uid,
+          // Note: screenUid itself doesn't need screenUid field, parentUid will be handled in RTC layer
         };
-        setMainRoomUsers(prev => ({
+        setMainRoomRTMUsers(prev => ({
           ...prev,
-          [screenUid]: {...(prev[screenUid] || {}), ...screenShareUser},
+          [screenUid]: {...(prev[screenUid] || {}), ...screenShareRTMData},
         }));
       }
-      //end - updating screenshare data in rtc
+      //end - updating screenshare RTM data
     } catch (e) {
       console.log(
         'rudra-core-client: RTM Failed to process user data for',
@@ -504,8 +519,8 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         return;
       }
 
-      // Remove user and their screenshare from main room users
-      setMainRoomUsers(prev => {
+      // Remove user and their screenshare from main room RTM users
+      setMainRoomRTMUsers(prev => {
         const updated = {...prev};
         const screenUid = prev[uid]?.screenUid;
         delete updated[uid];
@@ -693,8 +708,8 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   return (
     <RTMGlobalStateContext.Provider
       value={{
-        mainRoomUsers,
-        setMainRoomUsers,
+        mainRoomRTMUsers,
+        setMainRoomRTMUsers,
         registerMainChannelMessageHandler,
         unregisterMainChannelMessageHandler,
         registerMainChannelStorageHandler,
