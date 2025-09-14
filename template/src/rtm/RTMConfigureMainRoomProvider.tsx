@@ -117,7 +117,7 @@ const RTMConfigureMainRoomProvider: React.FC<
   const {client, isLoggedIn} = useRTMCore();
   const {mainRoomUsers, setMainRoomUsers} = useRTMGlobalState();
 
-  // Set main room as active channel when this provider is active
+  // Set main room as active channel when this provider mounts again active
   useEffect(() => {
     const rtmEngine = RTMEngine.getInstance();
     if (rtmEngine.hasChannel(RTM_ROOMS.MAIN)) {

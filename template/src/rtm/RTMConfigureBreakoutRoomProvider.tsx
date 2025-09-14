@@ -66,6 +66,7 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from '../rtm/RTMCoreProvider';
+import {RTM_ROOMS} from './constants';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -215,7 +216,8 @@ const RTMConfigureBreakoutRoomProvider = (
 
         // Set channel ID AFTER successful subscribe (like v1.5x)
         console.log('setting primary channel', channelName);
-        RTMEngine.getInstance().addChannel(channelName, true);
+        RTMEngine.getInstance().addChannel(RTM_ROOMS.BREAKOUT, channelName);
+        RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.BREAKOUT);
         logger.log(
           LogSource.AgoraSDK,
           'API',
@@ -650,25 +652,6 @@ const RTMConfigureBreakoutRoomProvider = (
     }
   };
 
-  const unsubscribeAndCleanup = async (channelName: string) => {
-    if (!callActive || !isLoggedIn) {
-      return;
-    }
-    try {
-      client.unsubscribe(channelName);
-      RTMEngine.getInstance().removeChannel(channelName);
-      logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
-      if (isIOS() || isAndroid()) {
-        EventUtils.clear();
-      }
-      setHasUserJoinedRTM(false);
-      setIsInitialQueueCompleted(false);
-      logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
-    } catch (unsubscribeError) {
-      console.log('supriya error while unsubscribing: ', unsubscribeError);
-    }
-  };
-
   // Register listeners when client is created
   useEffect(() => {
     if (!client) {
@@ -894,18 +877,39 @@ const RTMConfigureBreakoutRoomProvider = (
     };
   }, [client, channelName]);
 
+  const unsubscribeAndCleanup = async (channel: string) => {
+    if (!callActive || !isLoggedIn) {
+      return;
+    }
+    try {
+      client.unsubscribe(channel);
+      RTMEngine.getInstance().removeChannel(channel);
+      logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
+      if (isIOS() || isAndroid()) {
+        EventUtils.clear();
+      }
+      setHasUserJoinedRTM(false);
+      setIsInitialQueueCompleted(false);
+      logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
+    } catch (unsubscribeError) {
+      console.log('supriya error while unsubscribing: ', unsubscribeError);
+    }
+  };
+
   useAsyncEffect(async () => {
     try {
-      if (isLoggedIn && callActive) {
+      if (client && isLoggedIn && callActive) {
         await init();
       }
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
     return async () => {
-      await unsubscribeAndCleanup(channelName);
+      if (client) {
+        await unsubscribeAndCleanup(channelName);
+      }
     };
-  }, [isLoggedIn, callActive, channelName]);
+  }, [isLoggedIn, callActive, channelName, client]);
 
   const contextValue: RTMBreakoutRoomData = {
     hasUserJoinedRTM,

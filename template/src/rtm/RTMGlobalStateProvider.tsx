@@ -679,7 +679,6 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
       hasInitRef.current = false;
       if (mainChannelName) {
         unregisterCallbacks(mainChannelName);
-        //TODO:SUP check if was subscribed
         if (RTMEngine.getInstance().hasChannel(mainChannelName)) {
           client?.unsubscribe(mainChannelName).catch(() => {});
           RTMEngine.getInstance().removeChannel(mainChannelName);
