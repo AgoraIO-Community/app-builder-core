@@ -319,7 +319,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           'Trying to start native screenshare',
         );
         if (video) {
-          localMute(MUTE_LOCAL_TYPE.video);
+          await localMute(MUTE_LOCAL_TYPE.video);
         }
         try {
           await engine.current.startScreenCapture({

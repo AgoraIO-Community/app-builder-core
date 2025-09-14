@@ -79,7 +79,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   );
 
   const lstooltip = useString<boolean>(livestreamingCameraTooltipText);
-  const onPress = () => {
+  const onPress = async () => {
     //if screensharing is going on native - to turn on video screenshare should be turn off
     //show confirm popup to stop the screenshare
     logger.log(
@@ -91,7 +91,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
         permissionDenied,
       },
     );
-    localMute(MUTE_LOCAL_TYPE.video);
+    await localMute(MUTE_LOCAL_TYPE.video);
   };
   const isVideoEnabled = local.video === ToggleState.enabled;
 
