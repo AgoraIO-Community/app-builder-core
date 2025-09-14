@@ -94,7 +94,7 @@ export interface RtmContextInterface {
   localUid: UidType;
   onlineUsersCount: number;
   syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
-  syncPreferences: (prefs: Partial<RTMUserPreferences>) => void;
+  syncUserPreferences: (prefs: Partial<RTMUserPreferences>) => void;
 }
 
 export enum controlMessageEnum {

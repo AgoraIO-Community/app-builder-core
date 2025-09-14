@@ -52,7 +52,7 @@ const RtmConfigure = (props: Props) => {
         localUid: localUid,
         onlineUsersCount: rtmData.onlineUsersCount,
         syncUserState: rtmData.syncUserState,
-        syncPreferences: rtmData.syncPreferences,
+        syncUserPreferences: rtmData.syncUserPreferences,
       }}>
       {props.children}
     </ChatContext.Provider>

@@ -121,7 +121,7 @@ const VBProvider: React.FC = ({children}) => {
   const {video: localVideoStatus} = useLocalUserInfo();
   const isLocalVideoON = localVideoStatus === ToggleState.enabled;
 
-  const {syncPreferences} = useRtm();
+  const {syncUserPreferences} = useRtm();
 
   const {
     rtcProps: {callActive},
@@ -167,7 +167,7 @@ const VBProvider: React.FC = ({children}) => {
   /* Sync VB preferences to RTM (only saves in main room) */
   React.useEffect(() => {
     try {
-      syncPreferences({
+      syncUserPreferences({
         virtualBackground: {
           type:
             vbMode === 'blur' ? 'blur' : vbMode === 'image' ? 'image' : 'none',
@@ -177,7 +177,7 @@ const VBProvider: React.FC = ({children}) => {
     } catch (error) {
       console.warn('Failed to sync VB preference:', error);
     }
-  }, [vbMode, selectedImage, syncPreferences]);
+  }, [vbMode, selectedImage, syncUserPreferences]);
 
   /* Fetch Saved Images from IndexDB to show in VBPanel */
   React.useEffect(() => {

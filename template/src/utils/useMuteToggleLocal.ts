@@ -37,7 +37,7 @@ function useMuteToggleLocal() {
   const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
-  const {syncPreferences} = useRtm();
+  const {syncUserPreferences} = useRtm();
 
   const toggleMute = async (
     type: MUTE_LOCAL_TYPE,
@@ -100,7 +100,7 @@ function useMuteToggleLocal() {
 
               // Sync audio preference to RTM (only saves in main room)
               try {
-                syncPreferences({
+                syncUserPreferences({
                   audioMuted: newAudioState === ToggleState.disabled,
                 });
               } catch (error) {
@@ -177,7 +177,7 @@ function useMuteToggleLocal() {
 
               // Sync video preference to RTM (only saves in main room)
               try {
-                syncPreferences({
+                syncUserPreferences({
                   videoMuted: newVideoState === ToggleState.disabled,
                 });
               } catch (error) {
