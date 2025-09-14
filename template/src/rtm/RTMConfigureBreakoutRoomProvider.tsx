@@ -66,6 +66,7 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from '../rtm/RTMCoreProvider';
+import {RTMUserPreferences} from './RTMGlobalStateProvider';
 import {RTM_ROOMS} from './constants';
 
 export enum UserType {
@@ -81,6 +82,7 @@ export interface RTMBreakoutRoomData {
   onlineUsersCount: number;
   rtmInitTimstamp: number;
   syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
+  syncPreferences: (prefs: Partial<RTMUserPreferences>) => void;
 }
 
 const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
@@ -89,6 +91,7 @@ const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
   onlineUsersCount: 0,
   rtmInitTimstamp: 0,
   syncUserState: () => {},
+  syncPreferences: () => {}, // No-op for breakout room
 });
 
 export const useRTMConfigureBreakout = () => {
@@ -170,6 +173,12 @@ const RTMConfigureBreakoutRoomProvider = (
     },
     [dispatch],
   );
+
+  // Breakout room syncPreferences - no-op (doesn't save preferences)
+  const syncPreferences = useCallback((prefs: Partial<RTMUserPreferences>) => {
+    // No-op: Changes in breakout room don't affect user preferences
+    console.log('RTM Breakout: ignoring preference changes (no-op)', prefs);
+  }, []);
 
   // Set online users
   React.useEffect(() => {
@@ -917,6 +926,7 @@ const RTMConfigureBreakoutRoomProvider = (
     onlineUsersCount,
     rtmInitTimstamp,
     syncUserState,
+    syncPreferences,
   };
 
   return (

@@ -61,7 +61,11 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from './RTMCoreProvider';
-import {RTMUserData, useRTMGlobalState} from './RTMGlobalStateProvider';
+import {
+  RTMUserData,
+  RTMUserPreferences,
+  useRTMGlobalState,
+} from './RTMGlobalStateProvider';
 import {RTM_ROOMS} from './constants';
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
@@ -73,6 +77,7 @@ export interface RTMMainRoomData {
   onlineUsersCount: number;
   rtmInitTimstamp: number;
   syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
+  syncPreferences: (prefs: Partial<RTMUserPreferences>) => void;
 }
 
 const RTMMainRoomContext = createContext<RTMMainRoomData>({
@@ -81,6 +86,7 @@ const RTMMainRoomContext = createContext<RTMMainRoomData>({
   onlineUsersCount: 0,
   rtmInitTimstamp: 0,
   syncUserState: () => {},
+  syncPreferences: () => {},
 });
 
 export const useRTMConfigureMain = () => {
@@ -115,7 +121,8 @@ const RTMConfigureMainRoomProvider: React.FC<
 
   // RTM
   const {client, isLoggedIn} = useRTMCore();
-  const {mainRoomRTMUsers, setMainRoomRTMUsers} = useRTMGlobalState();
+  const {mainRoomRTMUsers, setMainRoomRTMUsers, setUserPreferences} =
+    useRTMGlobalState();
 
   // Set main room as active channel when this provider mounts again active
   useEffect(() => {
@@ -218,6 +225,17 @@ const RTMConfigureMainRoomProvider: React.FC<
       }
     },
     [setMainRoomRTMUsers],
+  );
+
+  // Main room specific syncPreferences function - saves preferences to global state
+  const syncPreferences = useCallback(
+    (prefs: Partial<RTMUserPreferences>) => {
+      setUserPreferences(prev => ({
+        ...prev,
+        ...prefs,
+      }));
+    },
+    [setUserPreferences],
   );
 
   // Set online users
@@ -626,6 +644,7 @@ const RTMConfigureMainRoomProvider: React.FC<
     onlineUsersCount,
     rtmInitTimstamp,
     syncUserState,
+    syncPreferences,
   };
 
   return (

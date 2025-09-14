@@ -57,6 +57,26 @@ export interface RTMUserData {
   isHost: string; // Host privileges (stored in RTM user metadata as 'isHost')
 }
 
+// RTM User Preferences interface - session-scoped preferences that survive room transitions
+export interface RTMUserPreferences {
+  audioMuted: boolean; // false = unmuted (0), true = muted (1)
+  videoMuted: boolean; // false = unmuted (0), true = muted (1)
+  virtualBackground?: {
+    type: 'blur' | 'image' | 'none';
+    imageUrl?: string;
+    blurIntensity?: number;
+  };
+}
+
+// Default user preferences
+export const DEFAULT_USER_PREFERENCES: RTMUserPreferences = {
+  audioMuted: false, // Default unmuted (0 = unmuted)
+  videoMuted: false, // Default unmuted (0 = unmuted)
+  virtualBackground: {
+    type: 'none',
+  },
+};
+
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 interface RTMGlobalStateProviderProps {
@@ -70,6 +90,8 @@ const RTMGlobalStateContext = React.createContext<{
   setMainRoomRTMUsers: React.Dispatch<
     React.SetStateAction<{[uid: number]: RTMUserData}>
   >;
+  userPreferences: RTMUserPreferences;
+  setUserPreferences: React.Dispatch<React.SetStateAction<RTMUserPreferences>>;
   registerMainChannelMessageHandler: (
     handler: (message: MessageEvent) => void,
   ) => void;
@@ -81,6 +103,8 @@ const RTMGlobalStateContext = React.createContext<{
 }>({
   mainRoomRTMUsers: {},
   setMainRoomRTMUsers: () => {},
+  userPreferences: DEFAULT_USER_PREFERENCES,
+  setUserPreferences: () => {},
   registerMainChannelMessageHandler: () => {},
   unregisterMainChannelMessageHandler: () => {},
   registerMainChannelStorageHandler: () => {},
@@ -99,6 +123,11 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   const [mainRoomRTMUsers, setMainRoomRTMUsers] = useState<{
     [uid: number]: RTMUserData;
   }>({});
+
+  // User preferences (survives room transitions, session-scoped)
+  const [userPreferences, setUserPreferences] = useState<RTMUserPreferences>(
+    DEFAULT_USER_PREFERENCES,
+  );
 
   const hasInitRef = useRef(false);
   // Timeout Refs
@@ -710,6 +739,8 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
       value={{
         mainRoomRTMUsers,
         setMainRoomRTMUsers,
+        userPreferences,
+        setUserPreferences,
         registerMainChannelMessageHandler,
         unregisterMainChannelMessageHandler,
         registerMainChannelStorageHandler,

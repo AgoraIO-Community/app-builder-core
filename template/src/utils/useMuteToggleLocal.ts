@@ -19,6 +19,7 @@ import {
 } from '../../agora-rn-uikit';
 import {isAndroid, isIOS, isWebInternal} from './common';
 import {SdkMuteQueueContext} from '../components/SdkMuteToggleListener';
+import {useRtm} from '../components/ChatContext';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -36,6 +37,7 @@ function useMuteToggleLocal() {
   const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
+  const {syncPreferences} = useRtm();
 
   const toggleMute = async (
     type: MUTE_LOCAL_TYPE,
@@ -86,14 +88,25 @@ function useMuteToggleLocal() {
                   );
 
               // Enable UI
+              const newAudioState =
+                localAudioState === ToggleState.enabled
+                  ? ToggleState.disabled
+                  : ToggleState.enabled;
+
               dispatch({
                 type: 'LocalMuteAudio',
-                value: [
-                  localAudioState === ToggleState.enabled
-                    ? ToggleState.disabled
-                    : ToggleState.enabled,
-                ],
+                value: [newAudioState],
               });
+
+              // Sync audio preference to RTM (only saves in main room)
+              try {
+                syncPreferences({
+                  audioMuted: newAudioState === ToggleState.disabled,
+                });
+              } catch (error) {
+                console.warn('Failed to sync audio preference:', error);
+              }
+
               handleQueue();
             } catch (e) {
               dispatch({
@@ -152,14 +165,25 @@ function useMuteToggleLocal() {
                 );
               }
               // Enable UI
+              const newVideoState =
+                localVideoState === ToggleState.enabled
+                  ? ToggleState.disabled
+                  : ToggleState.enabled;
+
               dispatch({
                 type: 'LocalMuteVideo',
-                value: [
-                  localVideoState === ToggleState.enabled
-                    ? ToggleState.disabled
-                    : ToggleState.enabled,
-                ],
+                value: [newVideoState],
               });
+
+              // Sync video preference to RTM (only saves in main room)
+              try {
+                syncPreferences({
+                  videoMuted: newVideoState === ToggleState.disabled,
+                });
+              } catch (error) {
+                console.warn('Failed to sync video preference:', error);
+              }
+
               handleQueue();
             } catch (e) {
               dispatch({
