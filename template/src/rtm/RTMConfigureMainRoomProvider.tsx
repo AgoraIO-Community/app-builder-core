@@ -175,13 +175,7 @@ const RTMConfigureMainRoomProvider: React.FC<
         'UP: trackesready',
         JSON.stringify(defaultContentRef.current[localUid]),
       );
-      applyUserPreferences(
-        {
-          audio: defaultContentRef.current[localUid]?.audio,
-          video: defaultContentRef.current[localUid]?.video,
-        },
-        toggleMute,
-      );
+      applyUserPreferences(defaultContentRef.current[localUid], toggleMute);
     }
   }, [rtcTracksReady]);
 

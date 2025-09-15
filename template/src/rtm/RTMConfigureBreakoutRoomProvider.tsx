@@ -175,13 +175,8 @@ const RTMConfigureBreakoutRoomProvider = (
   // Apply user preferences when breakout room mounts
   useEffect(() => {
     if (rtcTracksReady) {
-      applyUserPreferences(
-        {
-          audio: defaultContentRef.current[localUid]?.audio,
-          video: defaultContentRef.current[localUid]?.video,
-        },
-        toggleMute,
-      );
+      console.log('supriya-permissions', defaultContentRef.current[localUid]);
+      applyUserPreferences(defaultContentRef.current[localUid], toggleMute);
     }
   }, [rtcTracksReady]);
 

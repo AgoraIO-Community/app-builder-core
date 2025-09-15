@@ -17,7 +17,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {ToggleState} from '../../agora-rn-uikit';
+import {
+  ToggleState,
+  PermissionState,
+  DefaultContentInterface,
+} from '../../agora-rn-uikit';
 import {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 
 // RTM User Preferences interface - session-scoped preferences that survive room transitions
@@ -44,7 +48,7 @@ interface UserGlobalPreferenceInterface {
   userGlobalPreferences: UserGlobalPreferences;
   syncUserPreferences: (prefs: Partial<UserGlobalPreferences>) => void;
   applyUserPreferences: (
-    currentUserData: {audio: number; video: number},
+    currentUserData: DefaultContentInterface,
     toggleMuteFn: (type: number, action?: number) => Promise<void>,
   ) => Promise<void>;
 }
@@ -79,7 +83,7 @@ export const UserGlobalPreferenceProvider: React.FC<
 
   const applyUserPreferences = useCallback(
     async (
-      currentUserData: {audio: number; video: number},
+      currentUserData: DefaultContentInterface,
       toggleMuteFn: (
         type: MUTE_LOCAL_TYPE,
         action?: ToggleState,
@@ -104,41 +108,75 @@ export const UserGlobalPreferenceProvider: React.FC<
 
         const currentAudioState = currentUserData.audio;
         const currentVideoState = currentUserData.video;
-        console.log('UP: 5', currentAudioState, currentVideoState);
+        const permissionStatus = currentUserData.permissionStatus;
+        const audioForceDisabled = currentUserData.audioForceDisabled;
+        const videoForceDisabled = currentUserData.videoForceDisabled;
 
-        // Apply audio mute preference
-        const desiredAudioState = userGlobalPreferences.audioMuted
-          ? ToggleState.disabled
-          : ToggleState.enabled;
-        console.log('UP: 6', desiredAudioState);
+        console.log('UP: 5', {
+          currentAudioState,
+          currentVideoState,
+          permissionStatus,
+          audioForceDisabled,
+          videoForceDisabled,
+        });
 
-        if (currentAudioState !== desiredAudioState) {
-          console.log('UP: 7 changed', currentAudioState, desiredAudioState);
+        // Check if audio permissions are available and not force disabled
+        const hasAudioPermission =
+          (permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+            permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
+          !audioForceDisabled;
 
+        // Check if video permissions are available and not force disabled
+        const hasVideoPermission =
+          (permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+            permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY) &&
+          !videoForceDisabled;
+
+        // Apply audio mute preference only if user has audio permission and not force disabled
+        if (hasAudioPermission) {
+          const desiredAudioState = userGlobalPreferences.audioMuted
+            ? ToggleState.disabled
+            : ToggleState.enabled;
+          console.log('UP: 6', desiredAudioState);
+
+          if (currentAudioState !== desiredAudioState) {
+            console.log('UP: 7 changed', currentAudioState, desiredAudioState);
+
+            console.log(
+              `UP: UserGlobalPreference: Applying audio state: ${
+                desiredAudioState === ToggleState.disabled ? 'muted' : 'unmuted'
+              }`,
+              desiredAudioState,
+            );
+            await toggleMuteFn(MUTE_LOCAL_TYPE.audio, desiredAudioState);
+          }
+        } else {
           console.log(
-            `UP: UserGlobalPreference: Applying audio state: ${
-              desiredAudioState === ToggleState.disabled ? 'muted' : 'unmuted'
-            }`,
-            desiredAudioState,
+            'UP: Skipping audio preference - no audio permission or force disabled',
           );
-          await toggleMuteFn(MUTE_LOCAL_TYPE.audio, desiredAudioState); // 0 = MUTE_LOCAL_TYPE.audio
         }
 
-        // Apply video mute preference
-        const desiredVideoState = userGlobalPreferences.videoMuted
-          ? ToggleState.disabled
-          : ToggleState.enabled;
-        console.log('UP: 8', currentVideoState, desiredVideoState);
+        // Apply video mute preference only if user has video permission and not force disabled
+        if (hasVideoPermission) {
+          const desiredVideoState = userGlobalPreferences.videoMuted
+            ? ToggleState.disabled
+            : ToggleState.enabled;
+          console.log('UP: 8', currentVideoState, desiredVideoState);
 
-        if (currentVideoState !== desiredVideoState) {
-          console.log('UP: 9 changed');
+          if (currentVideoState !== desiredVideoState) {
+            console.log('UP: 9 changed');
 
+            console.log(
+              `UserGlobalPreference: Applying video state: ${
+                desiredVideoState === ToggleState.disabled ? 'muted' : 'unmuted'
+              }`,
+            );
+            await toggleMuteFn(MUTE_LOCAL_TYPE.video, desiredVideoState);
+          }
+        } else {
           console.log(
-            `UserGlobalPreference: Applying video state: ${
-              desiredVideoState === ToggleState.disabled ? 'muted' : 'unmuted'
-            }`,
+            'UP: Skipping video preference - no video permission or force disabled',
           );
-          await toggleMuteFn(MUTE_LOCAL_TYPE.video, desiredVideoState); // 1 = MUTE_LOCAL_TYPE.video
         }
 
         // Virtual background preferences will be handled by useVB hook
