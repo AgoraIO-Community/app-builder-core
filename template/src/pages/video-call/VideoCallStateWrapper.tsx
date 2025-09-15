@@ -47,6 +47,7 @@ import {RTMCoreProvider} from '../../rtm/RTMCoreProvider';
 import {videoView} from '../../../theme.json';
 import VideoCallContent from './VideoCallContent';
 import RTMGlobalStateProvider from '../../rtm/RTMGlobalStateProvider';
+import UserGlobalPreferenceProvider from '../../components/UserGlobalPreferenceProvider';
 
 export enum RnEncryptionEnum {
   /**
@@ -418,14 +419,16 @@ const VideoCallStateWrapper = () => {
               rtmToken: rtcProps.rtm,
             }}>
             <RTMGlobalStateProvider mainChannelRtcProps={{...rtcProps}}>
-              <VideoCallContent
-                callActive={callActive}
-                setCallActive={setCallActive}
-                rtcProps={rtcProps}
-                setRtcProps={setRtcProps}
-                styleProps={styleProps}
-                callbacks={callbacks}
-              />
+              <UserGlobalPreferenceProvider>
+                <VideoCallContent
+                  callActive={callActive}
+                  setCallActive={setCallActive}
+                  rtcProps={rtcProps}
+                  setRtcProps={setRtcProps}
+                  styleProps={styleProps}
+                  callbacks={callbacks}
+                />
+              </UserGlobalPreferenceProvider>
             </RTMGlobalStateProvider>
           </RTMCoreProvider>
         ) : (

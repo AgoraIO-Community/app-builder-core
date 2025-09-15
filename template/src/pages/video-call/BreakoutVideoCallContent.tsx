@@ -54,8 +54,6 @@ import {
   VideoCallContentProps,
 } from './VideoCallContent';
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
-import {useRTMCore} from '../../rtm/RTMCoreProvider';
-import RTMEngine from '../../rtm/RTMEngine';
 import {RTM_ROOMS} from '../../rtm/constants';
 
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {

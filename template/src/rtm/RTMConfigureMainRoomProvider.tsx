@@ -61,12 +61,12 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from './RTMCoreProvider';
-import {
-  RTMUserData,
-  RTMUserPreferences,
-  useRTMGlobalState,
-} from './RTMGlobalStateProvider';
+import {RTMUserData, useRTMGlobalState} from './RTMGlobalStateProvider';
+import {useUserGlobalPreferences} from '../components/UserGlobalPreferenceProvider';
+import {ToggleState} from '../../agora-rn-uikit';
+import useMuteToggleLocal from '../utils/useMuteToggleLocal';
 import {RTM_ROOMS} from './constants';
+import {useRtc} from 'customization-api';
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -77,7 +77,6 @@ export interface RTMMainRoomData {
   onlineUsersCount: number;
   rtmInitTimstamp: number;
   syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
-  syncUserPreferences: (prefs: Partial<RTMUserPreferences>) => void;
 }
 
 const RTMMainRoomContext = createContext<RTMMainRoomData>({
@@ -86,7 +85,6 @@ const RTMMainRoomContext = createContext<RTMMainRoomData>({
   onlineUsersCount: 0,
   rtmInitTimstamp: 0,
   syncUserState: () => {},
-  syncUserPreferences: () => {},
 });
 
 export const useRTMConfigureMain = () => {
@@ -115,22 +113,17 @@ const RTMConfigureMainRoomProvider: React.FC<
     waitingRoomStatus,
     data: {isHost},
   } = useRoomInfo();
+  const localUid = useLocalUid();
+  const {applyUserPreferences, syncUserPreferences} =
+    useUserGlobalPreferences();
+  const toggleMute = useMuteToggleLocal();
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [isInitialQueueCompleted, setIsInitialQueueCompleted] = useState(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   // RTM
   const {client, isLoggedIn} = useRTMCore();
-  const {mainRoomRTMUsers, setMainRoomRTMUsers, setUserPreferences} =
-    useRTMGlobalState();
-
-  // Set main room as active channel when this provider mounts again active
-  useEffect(() => {
-    const rtmEngine = RTMEngine.getInstance();
-    if (rtmEngine.hasChannel(RTM_ROOMS.MAIN)) {
-      rtmEngine.setActiveChannel(RTM_ROOMS.MAIN);
-    }
-  }, []);
+  const {mainRoomRTMUsers, setMainRoomRTMUsers} = useRTMGlobalState();
 
   // Main channel message registration (RTMConfigureMainRoom is always for main channel)
   const {
@@ -159,10 +152,52 @@ const RTMConfigureMainRoomProvider: React.FC<
     activeUidsRef.current.activeUids = activeUids;
   }, [activeUids]);
 
-  const defaultContentRef = useRef({defaultContent: defaultContent});
+  const defaultContentRef = useRef(defaultContent);
+
   useEffect(() => {
-    defaultContentRef.current.defaultContent = defaultContent;
+    defaultContentRef.current = defaultContent;
   }, [defaultContent]);
+
+  const {rtcTracksReady} = useRtc();
+
+  // Set main room as active channel when this provider mounts again active
+  useEffect(() => {
+    const rtmEngine = RTMEngine.getInstance();
+    if (rtmEngine.hasChannel(RTM_ROOMS.MAIN)) {
+      rtmEngine.setActiveChannel(RTM_ROOMS.MAIN);
+    }
+  }, []);
+
+  // Apply user preferences when main room mounts
+  useEffect(() => {
+    if (rtcTracksReady) {
+      console.log(
+        'UP: trackesready',
+        JSON.stringify(defaultContentRef.current[localUid]),
+      );
+      applyUserPreferences(
+        {
+          audio: defaultContentRef.current[localUid]?.audio,
+          video: defaultContentRef.current[localUid]?.video,
+        },
+        toggleMute,
+      );
+    }
+  }, [rtcTracksReady]);
+
+  // Sync current audio/video state audio video changes
+  useEffect(() => {
+    const userData = defaultContent[localUid];
+    if (rtcTracksReady && userData) {
+      console.log('UP: syncing userData: ', userData);
+      const preferences = {
+        audioMuted: userData.audio === ToggleState.disabled,
+        videoMuted: userData.video === ToggleState.disabled,
+      };
+      console.log('UP: saved preferences: ', preferences);
+      syncUserPreferences(preferences);
+    }
+  }, [defaultContent, localUid, syncUserPreferences, rtcTracksReady]);
 
   // Eventdispatcher timeout refs clean
   const isRTMMounted = useRef(true);
@@ -225,17 +260,6 @@ const RTMConfigureMainRoomProvider: React.FC<
       }
     },
     [setMainRoomRTMUsers],
-  );
-
-  // Main room specific syncUserPreferences function - saves preferences to global state
-  const syncUserPreferences = useCallback(
-    (prefs: Partial<RTMUserPreferences>) => {
-      setUserPreferences(prev => ({
-        ...prev,
-        ...prefs,
-      }));
-    },
-    [setUserPreferences],
   );
 
   // Set online users
@@ -644,7 +668,6 @@ const RTMConfigureMainRoomProvider: React.FC<
     onlineUsersCount,
     rtmInitTimstamp,
     syncUserState,
-    syncUserPreferences,
   };
 
   return (

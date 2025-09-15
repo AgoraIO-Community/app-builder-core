@@ -66,8 +66,11 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from '../rtm/RTMCoreProvider';
-import {RTMUserPreferences} from './RTMGlobalStateProvider';
 import {RTM_ROOMS} from './constants';
+import {useUserGlobalPreferences} from '../components/UserGlobalPreferenceProvider';
+import {ToggleState} from '../../agora-rn-uikit';
+import useMuteToggleLocal from '../utils/useMuteToggleLocal';
+import {useRtc} from 'customization-api';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -82,7 +85,6 @@ export interface RTMBreakoutRoomData {
   onlineUsersCount: number;
   rtmInitTimstamp: number;
   syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
-  syncUserPreferences: (prefs: Partial<RTMUserPreferences>) => void;
 }
 
 const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
@@ -91,7 +93,6 @@ const RTMBreakoutRoomContext = createContext<RTMBreakoutRoomData>({
   onlineUsersCount: 0,
   rtmInitTimstamp: 0,
   syncUserState: () => {},
-  syncUserPreferences: () => {}, // No-op for breakout room
 });
 
 export const useRTMConfigureBreakout = () => {
@@ -122,6 +123,9 @@ const RTMConfigureBreakoutRoomProvider = (
     waitingRoomStatus,
     data: {isHost},
   } = useRoomInfo();
+  const {applyUserPreferences, syncUserPreferences} =
+    useUserGlobalPreferences();
+  const toggleMute = useMuteToggleLocal();
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [isInitialQueueCompleted, setIsInitialQueueCompleted] = useState(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
@@ -129,6 +133,7 @@ const RTMConfigureBreakoutRoomProvider = (
   // Track RTM connection state (equivalent to v1.5x connectionState check)
   const {client, isLoggedIn, registerCallbacks, unregisterCallbacks} =
     useRTMCore();
+  const {rtcTracksReady} = useRtc();
 
   /**
    * inside event callback state won't have latest value.
@@ -149,9 +154,9 @@ const RTMConfigureBreakoutRoomProvider = (
     activeUidsRef.current.activeUids = activeUids;
   }, [activeUids]);
 
-  const defaultContentRef = useRef({defaultContent: defaultContent});
+  const defaultContentRef = useRef(defaultContent);
   useEffect(() => {
-    defaultContentRef.current.defaultContent = defaultContent;
+    defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
   // Eventdispatcher timeout refs clean
@@ -167,20 +172,38 @@ const RTMConfigureBreakoutRoomProvider = (
     };
   }, []);
 
+  // Apply user preferences when breakout room mounts
+  useEffect(() => {
+    if (rtcTracksReady) {
+      applyUserPreferences(
+        {
+          audio: defaultContentRef.current[localUid]?.audio,
+          video: defaultContentRef.current[localUid]?.video,
+        },
+        toggleMute,
+      );
+    }
+  }, [rtcTracksReady]);
+
+  // Sync current audio/video state audio video changes
+  useEffect(() => {
+    const userData = defaultContent[localUid];
+    if (rtcTracksReady && userData) {
+      console.log('UP: syncing userData: ', userData);
+      const preferences = {
+        audioMuted: userData.audio === ToggleState.disabled,
+        videoMuted: userData.video === ToggleState.disabled,
+      };
+      console.log('UP: saved preferences: ', preferences);
+      syncUserPreferences(preferences);
+    }
+  }, [defaultContent, localUid, syncUserPreferences, rtcTracksReady]);
+
   const syncUserState = useCallback(
     (uid: number, data: Partial<ContentInterface>) => {
       dispatch({type: 'UpdateRenderList', value: [uid, data]});
     },
     [dispatch],
-  );
-
-  // Breakout room syncUserPreferences - no-op (doesn't save preferences)
-  const syncUserPreferences = useCallback(
-    (prefs: Partial<RTMUserPreferences>) => {
-      // No-op: Changes in breakout room don't affect user preferences
-      console.log('RTM Breakout: ignoring preference changes (no-op)', prefs);
-    },
-    [],
   );
 
   // Set online users
@@ -929,7 +952,6 @@ const RTMConfigureBreakoutRoomProvider = (
     onlineUsersCount,
     rtmInitTimstamp,
     syncUserState,
-    syncUserPreferences,
   };
 
   return (

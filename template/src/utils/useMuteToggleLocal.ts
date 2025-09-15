@@ -19,7 +19,6 @@ import {
 } from '../../agora-rn-uikit';
 import {isAndroid, isIOS, isWebInternal} from './common';
 import {SdkMuteQueueContext} from '../components/SdkMuteToggleListener';
-import {useRtm} from '../components/ChatContext';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -37,7 +36,6 @@ function useMuteToggleLocal() {
   const isBroadCasting = rtcProps?.role == ClientRoleType.ClientRoleBroadcaster;
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
-  const {syncUserPreferences} = useRtm();
 
   const toggleMute = async (
     type: MUTE_LOCAL_TYPE,
