@@ -579,13 +579,15 @@ const BreakoutRoomProvider = ({
     // 1. Custom content (not type 'rtc')
     // 2. Screenshare UIDs
     // 3. Offline users
-    console.log('supriya-breakoutSessionId', stateRef);
-    if (!stateRef?.current?.breakoutSessionId) {
+    if (!state?.breakoutSessionId) {
       return;
     }
     const filteredParticipants = activeUids
-      .filter(uid => {
-        const user = defaultContentRef.current[uid];
+      .map(uid => ({
+        uid,
+        user: defaultContent[uid],
+      }))
+      .filter(({uid, user}) => {
         console.log('supriya-breakoutSessionId user: ', user);
         if (!user) {
           return false;
@@ -607,22 +609,7 @@ const BreakoutRoomProvider = ({
           return false;
         }
         return true;
-      })
-      .map(uid => ({
-        uid,
-        user: defaultContentRef.current[uid],
-      }));
-
-    // // Sort participants with local user first
-    // const sortedParticipants = filteredParticipants.sort((a, b) => {
-    //   if (a.uid === localUid) {
-    //     return -1;
-    //   }
-    //   if (b.uid === localUid) {
-    //     return 1;
-    //   }
-    //   return 0;
-    // });
+      });
 
     dispatch({
       type: BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS,
@@ -630,7 +617,7 @@ const BreakoutRoomProvider = ({
         unassignedParticipants: filteredParticipants,
       },
     });
-  }, [activeUids, localUid, dispatch, state.breakoutSessionId]);
+  }, [defaultContent, activeUids, localUid, dispatch, state.breakoutSessionId]);
 
   // Check if there is already an active breakout session
   // We can call this to trigger sync events

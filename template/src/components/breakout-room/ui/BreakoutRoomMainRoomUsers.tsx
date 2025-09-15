@@ -1,145 +1,52 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useMemo} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {useRTMCore} from '../../../rtm/RTMCoreProvider';
+import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import UserAvatar from '../../../atoms/UserAvatar';
-import {type GetOnlineUsersResponse} from 'agora-react-native-rtm';
 
-interface OnlineUser {
-  userId: string;
-  name?: string;
+interface MainRoomUser {
+  uid: number;
+  name: string;
 }
 
-const getUserNameFromAttributes = (
-  attributes: any,
-  fallbackUserId: string,
-): string => {
-  try {
-    const nameAttribute = attributes?.items?.find(
-      item => item.key === 'name',
-    )?.value;
-    if (!nameAttribute) {
-      return fallbackUserId;
-    }
-
-    const firstParse = JSON.parse(nameAttribute);
-    if (firstParse?.payload) {
-      const secondParse = JSON.parse(firstParse.payload);
-      return secondParse?.name || fallbackUserId;
-    }
-    return firstParse?.name || fallbackUserId;
-  } catch (e) {
-    return fallbackUserId;
-  }
-};
-
 const BreakoutRoomMainRoomUsers: React.FC = () => {
-  const {client} = useRTMCore();
-  const {mainChannelId, breakoutGroups} = useBreakoutRoom();
-  const [usersWithNames, setUsersWithNames] = useState<OnlineUser[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {mainRoomRTMUsers} = useRTMGlobalState();
+  const {breakoutGroups} = useBreakoutRoom();
 
   // Get all assigned users from breakout rooms
-  const getAssignedUsers = useCallback(() => {
-    const assigned = new Set<string>();
+  const assignedUserUids = useMemo(() => {
+    const assigned = new Set<number>();
     breakoutGroups.forEach(group => {
-      group.participants.hosts.forEach(uid => assigned.add(String(uid)));
-      group.participants.attendees.forEach(uid => assigned.add(String(uid)));
+      group.participants.hosts.forEach(uid => assigned.add(uid));
+      group.participants.attendees.forEach(uid => assigned.add(uid));
     });
     return assigned;
   }, [breakoutGroups]);
 
-  // Fetch attributes only when online users change
-  useEffect(() => {
-    const fetchUserAttributes = async () => {
-      if (!client) {
-        setUsersWithNames([]);
+  // Filter main room users to only show those not assigned to breakout rooms
+  const mainRoomOnlyUsers = useMemo(() => {
+    const users: MainRoomUser[] = [];
+
+    Object.entries(mainRoomRTMUsers).forEach(([uidStr, userData]) => {
+      const uid = parseInt(uidStr, 10);
+
+      // Skip if user is assigned to a breakout room
+      if (assignedUserUids.has(uid)) {
         return;
       }
 
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const onlineUsers: GetOnlineUsersResponse =
-          await client.presence.getOnlineUsers(mainChannelId, 1);
-
-        const users = await Promise.all(
-          Array.from(onlineUsers.occupants).map(async member => {
-            try {
-              const attributes = await client.storage.getUserMetadata({
-                userId: member.userId,
-              });
-              const username = getUserNameFromAttributes(
-                attributes,
-                member.userId,
-              );
-              return {
-                userId: member.userId,
-                name: username,
-              };
-            } catch (e) {
-              console.warn(
-                `Failed to get attributes for user ${member.userId}:`,
-                e,
-              );
-              return {
-                userId: member.userId,
-                name: 'User',
-              };
-            }
-          }),
-        );
-
-        setUsersWithNames(users);
-      } catch (fetchError) {
-        console.error('Failed to fetch user attributes:', fetchError);
-        setError('Failed to fetch user information');
-      } finally {
-        setIsLoading(false);
+      // Only include RTC users who are online
+      if (userData.type === 'rtc' && !userData.offline) {
+        users.push({
+          uid,
+          name: userData.name || `User ${uid}`,
+        });
       }
-    };
+    });
 
-    fetchUserAttributes();
-  }, [client, mainChannelId]);
-
-  // Filter out users who are assigned to breakout rooms
-  const mainRoomOnlyUsers = usersWithNames.filter(user => {
-    const assignedUsers = getAssignedUsers();
-    return !assignedUsers.has(user.userId);
-  });
-
-  if (!mainChannelId) {
-    return (
-      <View style={style.card}>
-        <View style={style.section}>
-          <Text style={style.emptyText}>Main channel not available</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={style.card}>
-        <View style={style.section}>
-          <Text style={style.emptyText}>Loading main room users...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={style.card}>
-        <View style={style.section}>
-          <Text style={style.emptyText}>Error: {error}</Text>
-        </View>
-      </View>
-    );
-  }
+    return users;
+  }, [mainRoomRTMUsers, assignedUserUids]);
 
   return (
     <View style={style.card}>
@@ -147,7 +54,7 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
         <Text style={style.title}>Main Room ({mainRoomOnlyUsers.length})</Text>
         <View style={style.participantContainer}>
           {mainRoomOnlyUsers.map(user => (
-            <View key={user.userId}>
+            <View key={user.uid}>
               <UserAvatar
                 name={user.name}
                 containerStyle={style.userAvatarContainer}
