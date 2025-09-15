@@ -1285,14 +1285,12 @@ const BreakoutRoomProvider = ({
   // Permissions
   useEffect(() => {
     const currentlyInRoom = isUserInRoom();
-    const hasAvailableRooms = stateRef.current.breakoutGroups.length > 0;
-    const allowAttendeeSwitch = stateRef.current.canUserSwitchRoom;
+    const hasAvailableRooms = state.breakoutGroups.length > 0;
+    const allowAttendeeSwitch = state.canUserSwitchRoom;
 
     const nextPermissions: BreakoutRoomPermissions = {
       canJoinRoom:
-        !currentlyInRoom &&
-        hasAvailableRooms &&
-        (isHostRef.current || allowAttendeeSwitch),
+        hasAvailableRooms && (isHostRef.current || allowAttendeeSwitch),
       canExitRoom: currentlyInRoom,
       canSwitchBetweenRooms:
         currentlyInRoom &&
@@ -1300,18 +1298,14 @@ const BreakoutRoomProvider = ({
         (isHostRef.current || allowAttendeeSwitch),
       canScreenshare: currentlyInRoom ? canIPresent : true,
       canRaiseHands:
-        !isHostRef.current &&
-        !!stateRef.current.breakoutSessionId &&
-        currentlyInRoom,
+        !isHostRef.current && !!state.breakoutSessionId && currentlyInRoom,
       canSeeRaisedHands: isHostRef.current,
       canAssignParticipants: isHostRef.current,
       canHostManageMainRoom: isHostRef.current && !currentlyInRoom,
       canCreateRooms: isHostRef.current,
       canMoveUsers: isHostRef.current,
       canCloseRooms:
-        isHostRef.current &&
-        hasAvailableRooms &&
-        !!stateRef.current.breakoutSessionId,
+        isHostRef.current && hasAvailableRooms && !!state.breakoutSessionId,
       canMakePresenter: isHostRef.current,
     };
 

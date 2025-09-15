@@ -19,8 +19,6 @@ import UserAvatar from '../../../atoms/UserAvatar';
 import ImageIcon from '../../../atoms/ImageIcon';
 import {BreakoutGroup} from '../state/reducer';
 import {useContent} from 'customization-api';
-import {videoRoomUserFallbackText} from '../../../language/default-labels/videoCallScreenLabels';
-import {useString} from '../../../utils/useString';
 import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
 import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
 import TertiaryButton from '../../../atoms/TertiaryButton';
@@ -28,6 +26,7 @@ import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
 import {useModal} from '../../../utils/useModal';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import BreakoutRoomRenameModal from './BreakoutRoomRenameModal';
+import {useMainRoomUserDisplayName} from '../../../rtm/hooks/useMainRoomUserDisplayName';
 import {useRoomInfo} from '../../room-info/useRoomInfo';
 
 const BreakoutRoomGroupSettings: React.FC = () => {
@@ -53,7 +52,8 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
   // Render room card
   const {defaultContent} = useContent();
-  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
+  // Use hook to get display names with fallback to main room users
+  const getDisplayName = useMainRoomUserDisplayName();
   const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
   const {
     modalOpen: isAnnoucementModalOpen,
@@ -77,10 +77,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       ...prev,
       [memberUId]: !prev[memberUId],
     }));
-  };
-
-  const getName = (uid: UidType) => {
-    return defaultContent[uid]?.name || remoteUserDefaultLabel;
   };
 
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
@@ -111,12 +107,12 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       <View key={memberUId} style={[styles.memberItem]}>
         <View style={styles.memberInfo}>
           <UserAvatar
-            name={getName(memberUId)}
+            name={getDisplayName(memberUId)}
             containerStyle={styles.userAvatarContainer}
             textStyle={styles.userAvatarText}
           />
           <Text style={styles.memberName} numberOfLines={1}>
-            {getName(memberUId)}
+            {getDisplayName(memberUId)}
           </Text>
         </View>
 
