@@ -4,6 +4,7 @@ import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import UserAvatar from '../../../atoms/UserAvatar';
+import Tooltip from '../../../atoms/Tooltip';
 
 interface MainRoomUser {
   uid: number;
@@ -55,10 +56,17 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
         <View style={style.participantContainer}>
           {mainRoomOnlyUsers.map(user => (
             <View key={user.uid}>
-              <UserAvatar
-                name={user.name}
-                containerStyle={style.userAvatarContainer}
-                textStyle={style.userAvatarText}
+              <Tooltip
+                toolTipMessage={user.name}
+                renderContent={() => {
+                  return (
+                    <UserAvatar
+                      name={user.name}
+                      containerStyle={style.userAvatarContainer}
+                      textStyle={style.userAvatarText}
+                    />
+                  );
+                }}
               />
             </View>
           ))}
