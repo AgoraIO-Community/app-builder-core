@@ -27,7 +27,7 @@ import ThemeConfig from '../../../theme';
 import Loading from '../../Loading';
 import ImageIcon from '../../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../../src/utils/hexadecimalTransparency';
-import useSonioxStreamMessageUtils from './useSonioxStreamMessageUtils';
+import useStreamMessageUtils from '../useStreamMessageUtils';
 import useCaptionWidth from '../useCaptionWidth';
 import DownloadTranscriptBtn from '../DownloadTranscriptBtn';
 import {useString} from '../../../../src/utils/useString';
@@ -58,7 +58,7 @@ export const SonioxTranscript: React.FC<SonioxTranscriptProps> = ({
   } = useSonioxCaption();
   const {RtcEngineUnsafe} = useRtc();
   const {defaultContent} = useContent();
-  const {streamMessageCallback} = useSonioxStreamMessageUtils();
+  const {streamMessageCallback} = useStreamMessageUtils();
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {transcriptHeight} = useCaptionWidth();

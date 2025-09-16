@@ -79,7 +79,7 @@ const useSonioxSTTAPI = (): IuseSonioxSTTAPI => {
       let requestBody: any = {
         passphrase: roomId?.host || '',
         dataStream_uid: 222222, // Soniox bot ID
-        project_id:'49c705c1c9efb71000d7',
+        project_id: '49c705c1c9efb71000d7',// '6iYzn9O9R',
         encryption_mode: $config.ENCRYPTION_ENABLED
           ? rtcProps.encryption.mode
           : null,
@@ -142,7 +142,7 @@ const useSonioxSTTAPI = (): IuseSonioxSTTAPI => {
   const start = async (lang: LanguageType[], userOwnLang?: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
-      const res = await apiCall('startv7', {lang});
+      const res = await apiCall('startSoniox', {lang});
       
       const isSTTAlreadyActive =
         res?.error?.message

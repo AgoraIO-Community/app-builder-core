@@ -5,7 +5,7 @@ import {useSonioxCaption} from './useSonioxCaption';
 import CaptionText from '../CaptionText';
 import Loading from '../../Loading';
 import {isWebInternal} from '../../../utils/common';
-import useSonioxStreamMessageUtils from './useSonioxStreamMessageUtils';
+import useStreamMessageUtils from '../useStreamMessageUtils';
 import hexadecimalTransparency from '../../../utils/hexadecimalTransparency';
 import {useString} from '../../../utils/useString';
 import {sttSettingSpokenLanguageText} from '../../../language/default-labels/videoCallScreenLabels';
@@ -41,7 +41,7 @@ const SonioxCaption: React.FC<SonioxCaptionProps> = ({
     selectedTranslationLanguage,
   } = useSonioxCaption();
   const ssLabel = useString(sttSettingSpokenLanguageText)();
-  const {streamMessageCallback} = useSonioxStreamMessageUtils();
+  const {streamMessageCallback} = useStreamMessageUtils();
   const {defaultContent} = useContent();
 
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(0);
