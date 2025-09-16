@@ -14,12 +14,13 @@ import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {useParams, useLocation, useHistory} from '../../components/Router';
 import events from '../../rtm-events-api';
 import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/state/types';
-import {CallbacksInterface, RtcPropsInterface} from 'agora-rn-uikit';
+import {CallbacksInterface, RtcPropsInterface} from '../../../agora-rn-uikit';
 import VideoCall from '../VideoCall';
 import BreakoutVideoCallContent from './BreakoutVideoCallContent';
 import {BreakoutRoomEventNames} from '../../components/breakout-room/events/constants';
 import BreakoutRoomTransition from '../../components/breakout-room/ui/BreakoutRoomTransition';
 import Toast from '../../../react-native-toast-message';
+import {useMainRoomUserDisplayName} from '../../rtm/hooks/useMainRoomUserDisplayName';
 
 export interface BreakoutChannelDetails {
   channel: string;
@@ -49,6 +50,9 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const isBreakoutMode = searchParams.get('breakout') === 'true';
 
   const breakoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const mainRoomLocalUid = props.rtcProps.uid;
+  const getDisplayName = useMainRoomUserDisplayName();
 
   // Breakout channel details (populated by RTM events)
   const [breakoutChannelDetails, setBreakoutChannelDetails] =
@@ -95,11 +99,18 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
             }));
             breakoutTimeoutRef.current = null;
           }, 800);
-
+          let joinMessage = '';
+          const sourceUid = data?.data?.srcuid;
+          const senderName = getDisplayName(sourceUid);
+          if (sourceUid === mainRoomLocalUid) {
+            joinMessage = `You have joined room "${room_name}".`;
+          } else {
+            joinMessage = `Host: ${senderName} has moved you to room "${room_name}".`;
+          }
           setTimeout(() => {
             Toast.show({
               type: 'success',
-              text1: `You’ve been added to ${room_name} by the host.`,
+              text1: joinMessage,
               visibilityTime: 3000,
             });
           }, 500);
@@ -122,7 +133,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         handleBreakoutJoin,
       );
     };
-  }, [phrase]);
+  }, [phrase, getDisplayName, mainRoomLocalUid]);
 
   // Cleanup on unmount
   useEffect(() => {
