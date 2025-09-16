@@ -26,8 +26,8 @@ export const useMainRoomUserDisplayName = () => {
   return (uid: UidType): string => {
     // Priority: Local defaultContent → Global mainRoomRTMUsers → UID fallback
     return (
-      defaultContent[uid]?.name ||
-      mainRoomRTMUsers[uid]?.name ||
+      defaultContent?.[uid]?.name ||
+      mainRoomRTMUsers?.[uid]?.name ||
       remoteUserDefaultLabel
     );
   };

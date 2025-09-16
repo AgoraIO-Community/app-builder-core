@@ -186,8 +186,8 @@ export const breakoutRoomReducer = (
           id: group.id,
           name: group.name,
           participants: {
-            hosts: group?.participants?.hosts ?? [],
-            attendees: group?.participants?.attendees ?? [],
+            hosts: [...new Set(group?.participants?.hosts ?? [])],
+            attendees: [...new Set(group?.participants?.attendees ?? [])],
           },
         })),
       };

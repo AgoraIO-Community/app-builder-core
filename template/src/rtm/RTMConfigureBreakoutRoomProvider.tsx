@@ -477,9 +477,22 @@ const RTMConfigureBreakoutRoomProvider = (
       const uid = parseInt(userId, 10);
       const screenUidItem = attr?.items?.find(item => item.key === 'screenUid');
       const isHostItem = attr?.items?.find(item => item.key === 'isHost');
+      const nameItem = attr?.items?.find(item => item.key === 'name');
       const screenUid = screenUidItem?.value
         ? parseInt(screenUidItem.value, 10)
         : undefined;
+
+      let userName = '';
+      if (nameItem?.value) {
+        try {
+          const parsedValue = JSON.parse(nameItem.value);
+          const payloadString = parsedValue.payload;
+          if (payloadString) {
+            const payload = JSON.parse(payloadString);
+            userName = payload.name;
+          }
+        } catch (parseError) {}
+      }
 
       //start - updating user data in rtc
       const userData = {
@@ -487,6 +500,7 @@ const RTMConfigureBreakoutRoomProvider = (
         //below thing for livestreaming
         type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
         uid,
+        name: userName,
         offline: false,
         isHost: isHostItem?.value || false,
         lastMessageTimeStamp: 0,

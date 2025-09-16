@@ -57,7 +57,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   // Track transition direction for better UX
   const [transitionDirection, setTransitionDirection] = useState<
     'enter' | 'exit'
-  >('enter');
+  >('exit');
 
   // Listen for breakout room join events
   useEffect(() => {

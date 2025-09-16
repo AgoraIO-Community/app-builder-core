@@ -30,6 +30,7 @@ export interface BreakoutChannelJoinEventPayload {
       };
     };
     act: 'CHAN_JOIN'; // e.g., "CHAN_JOIN"
+    srcuid: number;
   };
 }
 
@@ -41,7 +42,8 @@ export interface BreakoutRoomSyncStateEventPayload {
       breakout_room: BreakoutGroup[];
       assignment_type: RoomAssignmentStrategy;
     };
-    act: 'SYNC_STATE'; // e.g., "CHAN_JOIN"
+    act: 'SYNC_STATE';
+    srcuid: number;
   };
 }
 export interface BreakoutRoomAnnouncementEventPayload {
@@ -49,20 +51,3 @@ export interface BreakoutRoomAnnouncementEventPayload {
   timestamp: string;
   announcement: string;
 }
-// | {type: 'DELETE_GROUP'; payload: {groupId: string}}
-// | {
-//     type: 'ADD_PARTICIPANT';
-//     payload: {uid: UidType; groupId: string; isHost: boolean};
-//   }
-// | {
-//     type: 'MOVE_PARTICIPANT';
-//     payload: {
-//       uid: UidType;
-//       fromGroupId: string;
-//       toGroupId: string;
-//       isHost: boolean;
-//     };
-//   }
-// | {type: 'RESET_ALL_PARTICIPANTS'}
-// | {type: 'SET_GROUPS'; payload: BreakoutRoomInfo[]}
-// | {type: 'RESET_ALL'};

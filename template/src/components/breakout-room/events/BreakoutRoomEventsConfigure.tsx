@@ -137,13 +137,13 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         'BREAKOUT_ROOM_SYNC_STATE event recevied',
         evtData,
       );
-      const {payload} = evtData;
+      const {ts, payload} = evtData;
       const data: BreakoutRoomSyncStateEventPayload = JSON.parse(payload);
       if (data.data.act === 'SYNC_STATE') {
         console.log(
           'supriya-state-sync ********* BREAKOUT_ROOM_SYNC_STATE event triggered ***************',
         );
-        handleBreakoutRoomSyncStateRef.current(data.data.data);
+        handleBreakoutRoomSyncStateRef.current(data.data, ts);
       }
     };
 
