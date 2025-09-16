@@ -28,6 +28,7 @@ import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import BreakoutRoomRenameModal from './BreakoutRoomRenameModal';
 import {useMainRoomUserDisplayName} from '../../../rtm/hooks/useMainRoomUserDisplayName';
 import {useRoomInfo} from '../../room-info/useRoomInfo';
+import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 
 const BreakoutRoomGroupSettings: React.FC = () => {
   const {
@@ -52,6 +53,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
   // Render room card
   const {defaultContent} = useContent();
+  const {mainRoomRTMUsers} = useRTMGlobalState();
   // Use hook to get display names with fallback to main room users
   const getDisplayName = useMainRoomUserDisplayName();
   const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
@@ -92,6 +94,14 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   };
 
   const renderMember = (memberUId: UidType) => {
+    // Hide offline users from UI - check mainRoomRTMUsers for offline status
+    const rtmMemberData = mainRoomRTMUsers[memberUId];
+
+    // If user is offline in RTM data, don't render them
+    if (rtmMemberData && rtmMemberData?.offline) {
+      return null;
+    }
+
     // Create or get ref for this specific member
     if (!memberMoreMenuRefs.current[memberUId]) {
       memberMoreMenuRefs.current[memberUId] = React.createRef();
