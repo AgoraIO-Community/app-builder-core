@@ -13,7 +13,7 @@ interface MainRoomUser {
 
 const BreakoutRoomMainRoomUsers: React.FC = () => {
   const {mainRoomRTMUsers} = useRTMGlobalState();
-  const {breakoutGroups} = useBreakoutRoom();
+  const {breakoutGroups, breakoutRoomVersion} = useBreakoutRoom();
 
   // Get all assigned users from breakout rooms
   const assignedUserUids = useMemo(() => {
@@ -23,7 +23,7 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
       group.participants.attendees.forEach(uid => assigned.add(uid));
     });
     return assigned;
-  }, [breakoutGroups]);
+  }, [breakoutRoomVersion]);
 
   // Filter main room users to only show those not assigned to breakout rooms
   const mainRoomOnlyUsers = useMemo(() => {
@@ -47,7 +47,7 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
     });
 
     return users;
-  }, [mainRoomRTMUsers, assignedUserUids]);
+  }, [mainRoomRTMUsers, assignedUserUids, breakoutRoomVersion]);
 
   return (
     <View style={style.card}>

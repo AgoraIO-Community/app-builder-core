@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React from 'react';
+import React, {useMemo} from 'react';
 import {useLocation} from '../../Router';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import {useLocalUid} from '../../../../agora-rn-uikit';
@@ -29,36 +29,38 @@ const BreakoutRoomNameRenderer: React.FC<BreakoutRoomNameRendererProps> = ({
 }) => {
   const location = useLocation();
   const localUid = useLocalUid();
-  const {breakoutGroups = []} = useBreakoutRoom();
+  const {breakoutGroups = [], breakoutRoomVersion} = useBreakoutRoom();
 
-  let breakoutRoomName = '';
-  let isInBreakoutMode = false;
-  let currentRoom = null;
+  const breakoutRoomInfo = useMemo(() => {
+    let breakoutRoomName = '';
+    let isInBreakoutMode = false;
+    let currentRoom = null;
 
-  try {
-    const searchParams = new URLSearchParams(location.search);
-    isInBreakoutMode = searchParams.get('breakout') === 'true';
+    try {
+      const searchParams = new URLSearchParams(location.search);
+      isInBreakoutMode = searchParams.get('breakout') === 'true';
 
-    if (isInBreakoutMode) {
-      currentRoom = breakoutGroups?.find(
-        group =>
-          group.participants?.hosts?.includes(localUid) ||
-          group.participants?.attendees?.includes(localUid),
-      );
+      if (isInBreakoutMode) {
+        currentRoom = breakoutGroups?.find(
+          group =>
+            group.participants?.hosts?.includes(localUid) ||
+            group.participants?.attendees?.includes(localUid),
+        );
 
-      if (currentRoom?.name) {
-        breakoutRoomName = currentRoom.name;
+        if (currentRoom?.name) {
+          breakoutRoomName = currentRoom.name;
+        }
       }
+    } catch (error) {
+      // Safely handle cases where breakout context is not available
+      console.log('BreakoutRoomNameRenderer: Breakout context not available');
     }
-  } catch (error) {
-    // Safely handle cases where breakout context is not available
-    console.log('BreakoutRoomNameRenderer: Breakout context not available');
-  }
 
-  const breakoutRoomInfo: BreakoutRoomInfo = {
-    isInBreakoutMode,
-    breakoutRoomName,
-  };
+    return {
+      isInBreakoutMode,
+      breakoutRoomName,
+    };
+  }, [location.search, localUid, breakoutRoomVersion]);
 
   return <>{children(breakoutRoomInfo)}</>;
 };

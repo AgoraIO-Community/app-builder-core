@@ -760,7 +760,7 @@ export default function UserActionMenuOptionsOptions(
     currentLayout,
     spotlightUid,
     from,
-    breakoutRoomPresenters,
+    getRoomMemberDropdownOptions,
   ]);
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
