@@ -8,7 +8,11 @@ import ImageIcon from '../../../atoms/ImageIcon';
 import Checkbox from '../../../atoms/Checkbox';
 import Dropdown from '../../../atoms/Dropdown';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
-import {ContentInterface, UidType} from '../../../../agora-rn-uikit';
+import {
+  ContentInterface,
+  UidType,
+  useLocalUid,
+} from '../../../../agora-rn-uikit';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import {
   ManualParticipantAssignment,
@@ -41,14 +45,20 @@ function ParticipantRow({
   rooms,
   onAssignmentChange,
   onSelectionChange,
+  localUid,
 }: {
   participant: {uid: UidType; user: ContentInterface};
   assignment: ManualParticipantAssignment;
   rooms: {label: string; value: string}[];
   onAssignmentChange: (uid: UidType, roomId: string | null) => void;
   onSelectionChange: (uid: UidType) => void;
+  localUid: UidType;
 }) {
   const selectedValue = assignment?.roomId || 'unassigned';
+  const displayName =
+    participant?.uid === localUid
+      ? `${participant?.user?.name} (me)`
+      : participant?.user?.name;
 
   return (
     <View style={style.tbrow} key={participant.uid}>
@@ -57,7 +67,7 @@ function ParticipantRow({
           disabled={false}
           checked={assignment?.isSelected || false}
           onChange={() => onSelectionChange(participant.uid)}
-          label={participant.user.name}
+          label={displayName}
         />
       </View>
       <View style={[style.td]}>
@@ -86,6 +96,7 @@ export default function ParticipantManualAssignmentModal(
   props: ParticipantManualAssignmentModalProps,
 ) {
   const {setModalOpen} = props;
+  const localUid = useLocalUid();
   const {
     getAllRooms,
     unassignedParticipants,
@@ -295,6 +306,7 @@ export default function ParticipantManualAssignmentModal(
                     rooms={rooms}
                     onAssignmentChange={handleRoomDropdownChange}
                     onSelectionChange={toggleParticipantSelection}
+                    localUid={localUid}
                   />
                 );
               }}

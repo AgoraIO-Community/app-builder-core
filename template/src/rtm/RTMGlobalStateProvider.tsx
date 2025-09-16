@@ -533,17 +533,28 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         return;
       }
 
-      // Remove user and their screenshare from main room RTM users
+      // Mark user as offline (matching legacy channelMemberLeft behavior)
       setMainRoomRTMUsers(prev => {
         const updated = {...prev};
-        const screenUid = prev[uid]?.screenUid;
-        delete updated[uid];
-        // Also remove screenshare if exists
-        if (screenUid) {
-          delete updated[screenUid];
+
+        if (updated[uid]) {
+          updated[uid] = {
+            ...updated[uid],
+            offline: true,
+          };
         }
+
+        // Also mark screenshare as offline if exists
+        const screenUid = prev[uid]?.screenUid;
+        // if (screenUid && updated[screenUid]) {
+        //   updated[screenUid] = {
+        //     ...updated[screenUid],
+        //     offline: true,
+        //   };
+        // }
+
         console.log(
-          'rudra-core-client: RTM removed user from main room',
+          'rudra-core-client: RTM marked user as offline in main room',
           uid,
           screenUid ? `and screenshare ${screenUid}` : '',
         );

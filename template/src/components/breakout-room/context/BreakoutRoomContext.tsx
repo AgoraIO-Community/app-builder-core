@@ -34,6 +34,10 @@ import useBreakoutRoomExit from '../hooks/useBreakoutRoomExit';
 import {useDebouncedCallback} from '../../../utils/useDebouncedCallback';
 import {useLocation} from '../../../components/Router';
 import {useMainRoomUserDisplayName} from '../../../rtm/hooks/useMainRoomUserDisplayName';
+import {
+  RTMUserData,
+  useRTMGlobalState,
+} from '../../../rtm/RTMGlobalStateProvider';
 
 const BREAKOUT_LOCK_TIMEOUT_MS = 5000;
 const HOST_OPERATION_LOCK_TIMEOUT_MS = 10000; // Emergency timeout for network failures only
@@ -51,12 +55,40 @@ const HOST_BROADCASTED_OPERATIONS = [
   BreakoutGroupActionTypes.RENAME_GROUP,
 ] as const;
 
-const getSanitizedPayload = (payload: BreakoutGroup[]) => {
+const getSanitizedPayload = (
+  payload: BreakoutGroup[],
+  mainRoomRTMUsers: {[uid: number]: RTMUserData},
+) => {
   return payload.map(({id, ...rest}) => {
+    const group = id !== undefined ? {...rest, id} : rest;
+
+    // Filter out offline users from participants
+    const filteredGroup = {
+      ...group,
+      participants: {
+        hosts: group.participants.hosts.filter(uid => {
+          // Check defaultContent first
+          let user = mainRoomRTMUsers[uid];
+          if (user) {
+            return !user.offline && user.type === 'rtc';
+          }
+        }),
+        attendees: group.participants.attendees.filter(uid => {
+          // Check defaultContent first
+          let user = mainRoomRTMUsers[uid];
+          if (user) {
+            return !user.offline && user.type === 'rtc';
+          }
+        }),
+      },
+    };
+
+    // Remove temp IDs for API payload
     if (typeof id === 'string' && id.startsWith('temp')) {
-      return rest;
+      const {id: _, ...withoutId} = filteredGroup;
+      return withoutId;
     }
-    return id !== undefined ? {...rest, id} : rest;
+    return filteredGroup;
   });
 };
 
@@ -258,6 +290,7 @@ const BreakoutRoomProvider = ({
 }) => {
   const {store} = useContext(StorageContext);
   const {defaultContent, activeUids} = useContent();
+  const {mainRoomRTMUsers} = useRTMGlobalState();
   const localUid = useLocalUid();
   const {
     data: {isHost, roomId: joinRoomId},
@@ -587,16 +620,17 @@ const BreakoutRoomProvider = ({
     }
   };
 
-  // Update unassigned participants whenever defaultContent or activeUids change
+  // Update unassigned participants and remove offline users from breakout rooms
   useEffect(() => {
+    if (!stateRef.current?.breakoutSessionId) {
+      return;
+    }
+
     // Get currently assigned participants from all rooms
     // Filter active UIDs to exclude:
     // 1. Custom content (not type 'rtc')
     // 2. Screenshare UIDs
     // 3. Offline users
-    if (!stateRef.current?.breakoutSessionId) {
-      return;
-    }
     const filteredParticipants = activeUids
       .map(uid => ({
         uid,
@@ -619,13 +653,44 @@ const BreakoutRoomProvider = ({
         if (user.parentUid) {
           return false;
         }
-        // Exclude yourself from assigning
-        if (uid === localUid) {
-          return false;
-        }
         return true;
       });
 
+    // Sort participants to show local user first
+    filteredParticipants.sort((a, b) => {
+      if (a.uid === localUid) {
+        return -1;
+      }
+      if (b.uid === localUid) {
+        return 1;
+      }
+      return 0;
+    });
+
+    // // Find offline users who are currently assigned to breakout rooms
+    // const currentlyAssignedUids = new Set<UidType>();
+    // stateRef.current.breakoutGroups.forEach(group => {
+    //   group.participants.hosts.forEach(uid => currentlyAssignedUids.add(uid));
+    //   group.participants.attendees.forEach(uid => currentlyAssignedUids.add(uid));
+    // });
+
+    // const offlineAssignedUsers = Array.from(currentlyAssignedUids).filter(uid => {
+    //   const user = defaultContent[uid];
+    //   return !user || user.offline || user.type !== 'rtc';
+    // });
+
+    // // Remove offline users from breakout rooms if any found
+    // if (offlineAssignedUsers.length > 0) {
+    //   console.log('Removing offline users from breakout rooms:', offlineAssignedUsers);
+    //   dispatch({
+    //     type: BreakoutGroupActionTypes.REMOVE_OFFLINE_USERS,
+    //     payload: {
+    //       offlineUserUids: offlineAssignedUsers,
+    //     },
+    //   });
+    // }
+
+    // Update unassigned participants
     dispatch({
       type: BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS,
       payload: {
@@ -838,8 +903,11 @@ const BreakoutRoomProvider = ({
           assignment_type: stateRef.current.assignmentStrategy,
           breakout_room:
             type === 'START'
-              ? getSanitizedPayload(initialBreakoutGroups)
-              : getSanitizedPayload(stateRef.current.breakoutGroups),
+              ? getSanitizedPayload(initialBreakoutGroups, mainRoomRTMUsers)
+              : getSanitizedPayload(
+                  stateRef.current.breakoutGroups,
+                  mainRoomRTMUsers,
+                ),
         };
 
         // Only add join_room_id if attendee has called this api(during join room)
@@ -1006,6 +1074,7 @@ const BreakoutRoomProvider = ({
       dispatch,
       selfJoinRoomId,
       joinRoomId.attendee,
+      mainRoomRTMUsers,
     ],
   );
 
@@ -1092,6 +1161,9 @@ const BreakoutRoomProvider = ({
     if (strategy === RoomAssignmentStrategy.AUTO_ASSIGN) {
       dispatch({
         type: BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS,
+        payload: {
+          localUid,
+        },
       });
     }
     if (strategy === RoomAssignmentStrategy.MANUAL_ASSIGN) {

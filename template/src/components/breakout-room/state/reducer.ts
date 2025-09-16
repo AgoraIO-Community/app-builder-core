@@ -148,6 +148,9 @@ export type BreakoutRoomAction =
     }
   | {
       type: typeof BreakoutGroupActionTypes.AUTO_ASSIGN_PARTICPANTS;
+      payload: {
+        localUid: UidType;
+      };
     }
   | {
       type: typeof BreakoutGroupActionTypes.NO_ASSIGN_PARTICIPANTS;
@@ -301,9 +304,14 @@ export const breakoutRoomReducer = (
 
       let assignedParticipantUids: UidType[] = [];
       // AUTO ASSIGN Simple round-robin assignment (no capacity limits)
+      // Exclude local user from auto assignment
+      const participantsToAssign = state.unassignedParticipants.filter(
+        participant => participant.uid !== action.payload.localUid
+      );
+
       let roomIndex = 0;
       const roomIds = state.breakoutGroups.map(room => room.id);
-      state.unassignedParticipants.forEach(participant => {
+      participantsToAssign.forEach(participant => {
         const currentRoomId = roomIds[roomIndex];
         const roomAssignment = roomAssignments.get(currentRoomId)!;
         // Assign participant based on their isHost status (string "true"/"false")
