@@ -710,16 +710,16 @@ const BreakoutRoomProvider = ({
     useCallback(async (): Promise<boolean> => {
       // Skip API call if roomId is not available or if API update is in progress
       if (!joinRoomId?.host && !joinRoomId?.attendee) {
-        console.log('supriya-polling: Skipping - no roomId available');
+        console.log('supriya-api: Skipping GET no roomId available');
         return false;
       }
 
       if (isBreakoutUpdateInFlight) {
-        console.log('supriya-polling: Skipping - API update in progress');
+        console.log('supriya-api upsert in progress: Skipping GET');
         return false;
       }
       console.log(
-        'supriya-state-sync calling checkIfBreakoutRoomSessionExistsAPI',
+        'supriya-api calling checkIfBreakoutRoomSessionExistsAPI',
         joinRoomId,
         isHostRef.current,
       );
@@ -752,7 +752,6 @@ const BreakoutRoomProvider = ({
             'X-Session-Id': logger.getSessionId(),
           },
         });
-
         // 🛡️ Guard against component unmount after fetch
         if (!isMountedRef.current) {
           logger.log(
@@ -794,7 +793,7 @@ const BreakoutRoomProvider = ({
         }
 
         const data = await response.json();
-
+        console.log('supriya-api-get response', data.sts, data);
         // 🛡️ Guard against component unmount after JSON parsing
         if (!isMountedRef.current) {
           logger.log(
@@ -850,16 +849,14 @@ const BreakoutRoomProvider = ({
     const loadInitialData = async () => {
       await checkIfBreakoutRoomSessionExistsAPI();
     };
-    if (isBreakoutMode) {
-      const timeoutId = setTimeout(() => {
-        loadInitialData();
-      }, 1200);
+    const timeoutId = setTimeout(() => {
+      loadInitialData();
+    }, 1200);
 
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-  }, [isBreakoutMode]);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   const upsertBreakoutRoomAPI = useCallback(
     async (type: 'START' | 'UPDATE' = 'START', retryCount = 0) => {
@@ -973,6 +970,7 @@ const BreakoutRoomProvider = ({
           throw new Error(`Breakout room creation failed: ${msg}`);
         } else {
           const data = await response.json();
+          console.log('supriya-api-upsert response', data.sts, data);
 
           // 🛡️ Guard against component unmount after JSON parsing
           if (!isMountedRef.current) {
@@ -1403,7 +1401,7 @@ const BreakoutRoomProvider = ({
         : true,
       canRaiseHands:
         !isHostRef.current && !!current.breakoutSessionId && currentlyInRoom,
-      canSeeRaisedHands: isHostRef.current,
+      canSeeRaisedHands: true,
       canAssignParticipants: isHostRef.current && !currentlyInRoom,
       canHostManageMainRoom: isHostRef.current,
       canCreateRooms: isHostRef.current,
@@ -1911,6 +1909,12 @@ const BreakoutRoomProvider = ({
 
   const handleBreakoutRoomSyncState = useCallback(
     (payload: BreakoutRoomSyncStateEventPayload['data'], timestamp) => {
+      console.log(
+        'supriya-api-sync response',
+        timestamp,
+        JSON.stringify(payload),
+      );
+
       // Skip events older than the last processed timestamp
       if (timestamp && timestamp <= lastProcessedTimestampRef.current) {
         console.log('Skipping old breakout room sync event', {
