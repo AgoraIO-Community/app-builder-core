@@ -1981,7 +1981,8 @@ const BreakoutRoomProvider = ({
         showDeduplicatedToast('switch-room-toggle', {
           leadingIconName: 'info',
           type: 'info',
-          text1: `Host:${senderName} has opened breakout rooms. Please choose a room to join.`,
+          text1: `Host:${senderName} has opened breakout rooms.`,
+          text2: 'Please choose a room to join.',
           visibilityTime: 3000,
         });
       }
@@ -2003,7 +2004,8 @@ const BreakoutRoomProvider = ({
             type: 'error',
             text1: `Host: ${senderName} has closed "${
               prevRoom?.name || ''
-            }" room. Returning to main room.`,
+            }" room. `,
+            text2: 'Returning to main room...',
             visibilityTime: 3000,
           });
         } else {
@@ -2028,7 +2030,8 @@ const BreakoutRoomProvider = ({
           showDeduplicatedToast('all-rooms-closed', {
             leadingIconName: 'close',
             type: 'info',
-            text1: `Host: ${senderName} has closed all breakout rooms. Returning to the main room...`,
+            text1: `Host: ${senderName} has closed all breakout rooms.`,
+            text2: 'Returning to the main room...',
             visibilityTime: 3000,
           });
           return exitRoom(prevRoomId, true);
