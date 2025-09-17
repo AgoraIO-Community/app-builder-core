@@ -818,6 +818,17 @@ const BreakoutRoomProvider = ({
             },
           );
 
+          // Skip events older than the last processed timestamp
+          if (data?.sts && data?.sts <= lastProcessedTimestampRef.current) {
+            console.log(
+              'supriya-api-get skipping dispatch as out of date/order ',
+              {
+                timestamp: data?.sts,
+                lastProcessed: lastProcessedTimestampRef.current,
+              },
+            );
+            return;
+          }
           dispatch({
             type: BreakoutGroupActionTypes.SYNC_STATE,
             payload: {
@@ -828,6 +839,8 @@ const BreakoutRoomProvider = ({
               switchRoom: data?.switch_room ?? true,
             },
           });
+          lastProcessedTimestampRef.current = data.sts || Date.now();
+
           return true;
         }
 
@@ -1917,7 +1930,7 @@ const BreakoutRoomProvider = ({
 
       // Skip events older than the last processed timestamp
       if (timestamp && timestamp <= lastProcessedTimestampRef.current) {
-        console.log('Skipping old breakout room sync event', {
+        console.log('supriya-api-sync Skipping old breakout room sync event', {
           timestamp,
           lastProcessed: lastProcessedTimestampRef.current,
         });
@@ -2073,7 +2086,6 @@ const BreakoutRoomProvider = ({
           rooms: breakout_room,
         },
       });
-
       // Update the last processed timestamp after successful processing
       lastProcessedTimestampRef.current = timestamp || Date.now();
     },
