@@ -1147,6 +1147,14 @@ const BreakoutRoomProvider = ({
   };
 
   const handleAssignParticipants = (strategy: RoomAssignmentStrategy) => {
+    if (stateRef.current.breakoutGroups.length === 0) {
+      Toast.show({
+        type: 'info',
+        text1: 'No breakout rooms found.',
+        visibilityTime: 3000,
+      });
+      return;
+    }
     if (!acquireOperationLock(`ASSIGN_${strategy}`)) {
       return;
     }
@@ -1396,8 +1404,8 @@ const BreakoutRoomProvider = ({
       canRaiseHands:
         !isHostRef.current && !!current.breakoutSessionId && currentlyInRoom,
       canSeeRaisedHands: isHostRef.current,
-      canAssignParticipants: isHostRef.current,
-      canHostManageMainRoom: isHostRef.current && !currentlyInRoom,
+      canAssignParticipants: isHostRef.current && !currentlyInRoom,
+      canHostManageMainRoom: isHostRef.current,
       canCreateRooms: isHostRef.current,
       canMoveUsers: isHostRef.current,
       canCloseRooms:

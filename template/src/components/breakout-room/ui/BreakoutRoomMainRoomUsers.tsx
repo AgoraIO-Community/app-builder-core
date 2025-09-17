@@ -5,6 +5,8 @@ import ThemeConfig from '../../../theme';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import UserAvatar from '../../../atoms/UserAvatar';
 import Tooltip from '../../../atoms/Tooltip';
+import {useString} from '../../../utils/useString';
+import {videoRoomUserFallbackText} from '../../../language/default-labels/videoCallScreenLabels';
 
 interface MainRoomUser {
   uid: number;
@@ -14,6 +16,7 @@ interface MainRoomUser {
 const BreakoutRoomMainRoomUsers: React.FC = () => {
   const {mainRoomRTMUsers} = useRTMGlobalState();
   const {breakoutGroups, breakoutRoomVersion} = useBreakoutRoom();
+  const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
 
   // Get all assigned users from breakout rooms
   const assignedUserUids = useMemo(() => {
@@ -41,7 +44,7 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
       if (userData.type === 'rtc' && !userData.offline) {
         users.push({
           uid,
-          name: userData.name || `User ${uid}`,
+          name: userData.name || remoteUserDefaultLabel,
         });
       }
     });

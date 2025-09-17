@@ -297,9 +297,12 @@ export const breakoutRoomReducer = (
         {hosts: UidType[]; attendees: UidType[]}
       >();
 
-      // Initialize empty arrays for each room
+      // Initialize with existing participants for each room
       state.breakoutGroups.forEach(room => {
-        roomAssignments.set(room.id, {hosts: [], attendees: []});
+        roomAssignments.set(room.id, {
+          hosts: [...room.participants.hosts],
+          attendees: [...room.participants.attendees],
+        });
       });
 
       let assignedParticipantUids: UidType[] = [];
