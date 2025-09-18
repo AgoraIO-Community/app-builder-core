@@ -1810,7 +1810,12 @@ const BreakoutRoomProvider = ({
           });
         });
 
-      // Make presenter option (only for hosts)
+      // Make presenter option is available only for host
+      // and if the incoming member is also a host we dont
+      // need to show this option as they can already present
+      if (defaultContentRef[memberUid]?.isHost === 'true') {
+        return options;
+      }
       if (isHostRef.current) {
         const userIsPresenting = isUserPresenting(memberUid);
         const title = userIsPresenting ? 'Stop presenter' : 'Make a Presenter';
@@ -2060,7 +2065,6 @@ const BreakoutRoomProvider = ({
             text1: `Host: ${senderName} has closed all breakout rooms`,
             visibilityTime: 4000,
           });
-          return;
         }
       }
 
