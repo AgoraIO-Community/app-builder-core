@@ -255,7 +255,7 @@ const ChatConfigure = ({children}) => {
               );
             }
           },
-          // text message is recieved
+          // Text message is recieved, update receiver side ui
           onTextMessage: message => {
             if (message?.ext?.channel !== data?.channel) {
               return;
@@ -285,6 +285,7 @@ const ChatConfigure = ({children}) => {
                 isDeleted: false,
                 type: ChatMessageType.TXT,
                 replyToMsgId: message.ext?.replyToMsgId,
+                isAnnouncementText: message.ext?.isAnnouncementText || false,
               });
             }
 
@@ -418,6 +419,7 @@ const ChatConfigure = ({children}) => {
             ext: option?.ext?.file_ext,
             fileName: option?.ext?.file_name,
             replyToMsgId: option?.ext?.replyToMsgId,
+            isAnnouncementText: option?.ext?.isAnnouncementText,
           };
 
           // update local user message store

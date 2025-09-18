@@ -103,32 +103,32 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       } catch (error) {}
     };
 
-    const handleAnnouncementEvent = (evtData: any) => {
-      logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'BREAKOUT_ROOM_ANNOUNCEMENT event recevied',
-        evtData,
-      );
-      try {
-        const {_, payload, sender} = evtData;
-        const data: BreakoutRoomAnnouncementEventPayload = JSON.parse(payload);
-        if (sender === `${localUidRef.current}`) {
-          return;
-        }
-        if (data.announcement) {
-          Toast.show({
-            leadingIconName: 'speaker',
-            type: 'info',
-            text1: `Message from host: :${data.announcement}`,
-            visibilityTime: 3000,
-            primaryBtn: null,
-            secondaryBtn: null,
-            leadingIcon: null,
-          });
-        }
-      } catch (error) {}
-    };
+    // const handleAnnouncementEvent = (evtData: any) => {
+    //   logger.log(
+    //     LogSource.Internals,
+    //     'BREAKOUT_ROOM',
+    //     'BREAKOUT_ROOM_ANNOUNCEMENT event recevied',
+    //     evtData,
+    //   );
+    //   try {
+    //     const {_, payload, sender} = evtData;
+    //     const data: BreakoutRoomAnnouncementEventPayload = JSON.parse(payload);
+    //     if (sender === `${localUidRef.current}`) {
+    //       return;
+    //     }
+    //     if (data.announcement) {
+    //       Toast.show({
+    //         leadingIconName: 'speaker',
+    //         type: 'info',
+    //         text1: `Message from host: :${data.announcement}`,
+    //         visibilityTime: 3000,
+    //         primaryBtn: null,
+    //         secondaryBtn: null,
+    //         leadingIcon: null,
+    //       });
+    //     }
+    //   } catch (error) {}
+    // };
 
     const handleBreakoutRoomSyncStateEvent = (evtData: any) => {
       logger.log(
@@ -211,10 +211,10 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       }
     };
 
-    events.on(
-      BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
-      handleAnnouncementEvent,
-    );
+    // events.on(
+    //   BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
+    //   handleAnnouncementEvent,
+    // );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
       handlePresenterStatusEvent,
@@ -237,7 +237,7 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     );
 
     return () => {
-      events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
+      // events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
         handlePresenterStatusEvent,

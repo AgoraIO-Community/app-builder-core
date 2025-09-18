@@ -28,13 +28,20 @@ import {useBreakoutRoom} from '../context/BreakoutRoomContext';
 import BreakoutRoomRenameModal from './BreakoutRoomRenameModal';
 import {useMainRoomUserDisplayName} from '../../../rtm/hooks/useMainRoomUserDisplayName';
 import {useRoomInfo} from '../../room-info/useRoomInfo';
+import {useChatConfigure} from '../../chat/chatConfigure';
+import {
+  ChatMessageType,
+  SDKChatType,
+} from '../../chat-messages/useChatMessages';
+import {isWeb} from '../../../utils/common';
 import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 
 const BreakoutRoomGroupSettings: React.FC = () => {
   const {
-    data: {isHost},
+    data: {isHost, uid, chat},
   } = useRoomInfo();
   const localUid = useLocalUid();
+  const {sendChatSDKMessage} = useChatConfigure();
 
   const {
     breakoutGroups,
@@ -42,7 +49,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     exitRoom,
     joinRoom,
     closeRoom,
-    sendAnnouncement,
     updateRoomName,
     canUserSwitchRoom,
     raisedHands,
@@ -271,7 +277,18 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
   const onAnnouncement = (announcement: string) => {
     if (announcement) {
-      sendAnnouncement(announcement);
+      const option = {
+        chatType: SDKChatType.GROUP_CHAT,
+        type: ChatMessageType.TXT,
+        msg: `${announcement}`,
+        from: uid.toString(),
+        to: chat.group_id,
+        ext: {
+          from_platform: isWeb() ? 'web' : 'native',
+          isAnnouncementText: true,
+        },
+      };
+      sendChatSDKMessage(option);
       setAnnouncementModal(false);
     }
   };
