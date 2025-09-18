@@ -55,6 +55,9 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const screenShareButtonLabel = useString<boolean>(toolbarItemShareText);
   const lstooltip = useString<boolean>(livestreamingShareTooltipText);
   const {permissions} = useBreakoutRoom();
+  // In the main room (default case), permissions come from the main room state.
+  // If the user is in a breakout room, retrieve permissions from the breakout room instead.
+  const canScreenshareInBreakoutRoom = permissions.canScreenshare;
 
   const onPress = () => {
     if (isScreenshareActive) {
@@ -107,7 +110,14 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     iconButtonProps.toolTipMessage = lstooltip(isHandRaised(local.uid));
     iconButtonProps.disabled = true;
   }
-  if (!permissions.canScreenshare) {
+
+  if (!canScreenshareInBreakoutRoom) {
+    iconButtonProps.iconProps = {
+      ...iconButtonProps.iconProps,
+      tintColor: $config.SEMANTIC_NEUTRAL,
+      showWarningIcon: true,
+    };
+    iconButtonProps.toolTipMessage = 'cannot screenshare';
     iconButtonProps.disabled = true;
   }
 
