@@ -309,7 +309,7 @@ export const breakoutRoomReducer = (
       // AUTO ASSIGN Simple round-robin assignment (no capacity limits)
       // Exclude local user from auto assignment
       const participantsToAssign = state.unassignedParticipants.filter(
-        participant => participant.uid !== action.payload.localUid
+        participant => participant.uid !== action.payload.localUid,
       );
 
       let roomIndex = 0;
@@ -358,12 +358,25 @@ export const breakoutRoomReducer = (
     }
 
     case BreakoutGroupActionTypes.CREATE_GROUP: {
+      // Find the next available room number
+      const existingRoomNumbers = state.breakoutGroups
+        .map(room => {
+          const match = room.name.match(/^Room (\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter(num => num > 0);
+
+      const nextRoomNumber =
+        existingRoomNumbers.length === 0
+          ? 1
+          : Math.max(...existingRoomNumbers) + 1;
+
       return {
         ...state,
         breakoutGroups: [
           ...state.breakoutGroups,
           {
-            name: `Room ${state.breakoutGroups.length + 1}`,
+            name: `Room ${nextRoomNumber}`,
             id: `temp_${randomNameGenerator(6)}`,
             participants: {hosts: [], attendees: []},
           },

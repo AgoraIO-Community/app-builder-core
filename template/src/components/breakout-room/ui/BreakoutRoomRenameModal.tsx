@@ -16,7 +16,9 @@ export default function BreakoutRoomRenameModal(
   const {currentRoomName, setModalOpen, updateRoomName} = props;
   const [roomName, setRoomName] = React.useState(currentRoomName);
 
-  const disabled = roomName.trim() === '';
+  const MAX_ROOM_NAME_LENGTH = 30;
+  const disabled =
+    roomName.trim() === '' || roomName.trim().length > MAX_ROOM_NAME_LENGTH;
 
   return (
     <GenericModal
@@ -32,7 +34,11 @@ export default function BreakoutRoomRenameModal(
             <Text style={style.label}>Room name</Text>
             <TextInput
               id="room-rename-text"
-              style={style.inputBox}
+              style={[
+                style.inputBox,
+                roomName.trim().length > MAX_ROOM_NAME_LENGTH &&
+                  style.inputBoxError,
+              ]}
               value={roomName}
               onChangeText={setRoomName}
               placeholder="Rename room..."
@@ -40,7 +46,23 @@ export default function BreakoutRoomRenameModal(
                 $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low
               }
               underlineColorAndroid="transparent"
+              maxLength={50}
             />
+            <View style={style.inputFooter}>
+              <Text
+                style={[
+                  style.characterCount,
+                  roomName.trim().length > MAX_ROOM_NAME_LENGTH &&
+                    style.characterCountError,
+                ]}>
+                {roomName.trim().length}/{MAX_ROOM_NAME_LENGTH}
+              </Text>
+              {roomName.trim().length > MAX_ROOM_NAME_LENGTH && (
+                <Text style={style.errorText}>
+                  Room name cannot exceed {MAX_ROOM_NAME_LENGTH} characters
+                </Text>
+              )}
+            </View>
           </View>
         </View>
         <View style={style.mfooter}>
@@ -79,7 +101,7 @@ const style = StyleSheet.create({
     flexShrink: 0,
     width: '100%',
     maxWidth: 500,
-    height: 235,
+    height: 272,
   },
   fullBody: {
     width: '100%',
@@ -124,6 +146,29 @@ const style = StyleSheet.create({
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     outline: 'none',
+  },
+  inputBoxError: {
+    borderColor: $config.SEMANTIC_ERROR,
+  },
+  inputFooter: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  characterCount: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontWeight: '400',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+  },
+  characterCountError: {
+    color: $config.SEMANTIC_ERROR,
+  },
+  errorText: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontWeight: '400',
+    color: $config.SEMANTIC_ERROR,
   },
   actionBtnText: {
     color: $config.SECONDARY_ACTION_COLOR,
