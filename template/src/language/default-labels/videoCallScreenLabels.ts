@@ -199,6 +199,8 @@ export const sttChangeSpokenLanguageText =
   `${stt}ChangeSpokenLanguageText` as const;
 export const sttSettingSpokenLanguageText =
   `${stt}SettingSpokenLanguageText` as const;
+export const sttSettingTranslationLanguageText =
+  `${stt}SettingTranslationLanguageText` as const;
 export const sttTranscriptPanelHeaderText =
   `${stt}TranscriptPanelHeaderText` as const;
 export const sttDownloadBtnText = `${stt}DownloadBtnText` as const;
@@ -638,6 +640,7 @@ export interface I18nVideoCallScreenLabelsInterface {
 
   [sttChangeSpokenLanguageText]?: I18nBaseType;
   [sttSettingSpokenLanguageText]?: I18nBaseType;
+  [sttSettingTranslationLanguageText]?: I18nBaseType;
   [sttTranscriptPanelHeaderText]?: I18nBaseType;
   [sttDownloadBtnText]?: I18nBaseType;
   [sttDownloadTranscriptBtnText]?: I18nBaseType;
@@ -1041,6 +1044,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [sttDownloadBtnText]: 'Download',
   [sttDownloadTranscriptBtnText]: 'Download Transcript',
   [sttSettingSpokenLanguageText]: 'Setting Spoken Language',
+  [sttSettingTranslationLanguageText]: 'Setting Translation Language',
   [sttLanguageChangeInProgress]: 'Language Change is in progress...',
 
   [peoplePanelHeaderText]: 'People',

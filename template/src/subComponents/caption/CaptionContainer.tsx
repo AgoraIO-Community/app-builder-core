@@ -464,6 +464,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: [],
           lang: currentSpokenLanguages,
           userSelectedTranslation: '', // Empty string for "off"
+          isTranslationChange: true,
         });
         setSelectedTranslationLanguage('');
       } else {
@@ -481,6 +482,7 @@ export const TranslateActionMenu = (props: TranslateActionMenuProps) => {
           translate_config: mergedTranslateConfig,
           lang: currentSpokenLanguages,
           userSelectedTranslation: targetLanguage,
+          isTranslationChange: true,
         });
         setSelectedTranslationLanguage(targetLanguage);
       }

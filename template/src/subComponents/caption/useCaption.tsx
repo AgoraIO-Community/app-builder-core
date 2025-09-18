@@ -48,6 +48,10 @@ export const CaptionContext = React.createContext<{
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 
+  // holds status of translation language change process
+  isTranslationChangeInProgress: boolean;
+  setIsTranslationChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
+
   // holds live captions
   captionObj: CaptionObj;
   setCaptionObj: React.Dispatch<React.SetStateAction<CaptionObj>>;
@@ -74,6 +78,8 @@ export const CaptionContext = React.createContext<{
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
+  isTranslationChangeInProgress: false,
+  setIsTranslationChangeInProgress: () => {},
   captionObj: {},
   setCaptionObj: () => {},
   isSTTListenerAdded: false,
@@ -98,6 +104,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['']);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
+    React.useState<boolean>(false);
+  const [isTranslationChangeInProgress, setIsTranslationChangeInProgress] =
     React.useState<boolean>(false);
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
@@ -129,6 +137,8 @@ const CaptionProvider: React.FC<CaptionProviderProps> = ({
         setMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
+        isTranslationChangeInProgress,
+        setIsTranslationChangeInProgress,
         captionObj,
         setCaptionObj,
         isSTTListenerAdded,
