@@ -38,6 +38,7 @@ import {
   RTMUserData,
   useRTMGlobalState,
 } from '../../../rtm/RTMGlobalStateProvider';
+import {useScreenshare} from '../../../subComponents/screenshare/useScreenshare';
 
 const BREAKOUT_LOCK_TIMEOUT_MS = 5000;
 const HOST_OPERATION_LOCK_TIMEOUT_MS = 10000; // Emergency timeout for network failures only
@@ -327,6 +328,8 @@ const BreakoutRoomProvider = ({
   const [selfJoinRoomId, setSelfJoinRoomId] = useState<string | null>(null);
 
   // Presenter
+  const {isScreenshareActive, stopScreenshare} = useScreenshare();
+
   const [canIPresent, setICanPresent] = useState<boolean>(false);
   const [presenters, setPresenters] = useState<
     {uid: UidType; timestamp: number}[]
@@ -1402,7 +1405,7 @@ const BreakoutRoomProvider = ({
     const nextPermissions: BreakoutRoomPermissions = {
       canJoinRoom:
         hasAvailableRooms && (isHostRef.current || allowAttendeeSwitch),
-      canExitRoom: currentlyInRoom,
+      canExitRoom: isBreakoutMode && currentlyInRoom,
       canSwitchBetweenRooms:
         currentlyInRoom &&
         hasAvailableRooms &&
@@ -1425,7 +1428,7 @@ const BreakoutRoomProvider = ({
     };
 
     setPermissions(nextPermissions);
-  }, [breakoutRoomVersion, canIPresent]);
+  }, [breakoutRoomVersion, canIPresent, isBreakoutMode]);
 
   const joinRoom = (
     toRoomId: string,
@@ -1712,6 +1715,9 @@ const BreakoutRoomProvider = ({
         visibilityTime: 3000,
       });
     } else if (action === 'stop') {
+      if (isScreenshareActive) {
+        stopScreenshare();
+      }
       setICanPresent(false);
       // Show toast notification when presenter permission is removed
       Toast.show({
