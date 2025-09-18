@@ -269,7 +269,7 @@ const RTMConfigureMainRoomProvider: React.FC<
         ),
       ).length,
     );
-  }, [defaultContent]);
+  }, [defaultContent, activeUids]);
 
   useEffect(() => {
     Object.entries(mainRoomRTMUsers).forEach(([uidStr, rtmUser]) => {

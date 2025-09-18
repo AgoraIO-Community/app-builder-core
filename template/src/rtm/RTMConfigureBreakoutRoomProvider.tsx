@@ -214,7 +214,7 @@ const RTMConfigureBreakoutRoomProvider = (
         ),
       ).length,
     );
-  }, [defaultContent]);
+  }, [defaultContent, activeUids]);
 
   const init = async () => {
     await subscribeChannel();
