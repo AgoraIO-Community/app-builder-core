@@ -1471,10 +1471,7 @@ const BreakoutRoomProvider = ({
   };
 
   const exitRoom = useCallback(
-    async (
-      fromRoomId?: string,
-      permissionAtCallTime = permissions.canExitRoom,
-    ) => {
+    async (permissionAtCallTime = permissions.canExitRoom) => {
       // 🛡️ Use permission passed at call time to avoid race conditions
       if (!permissionAtCallTime) {
         logger.log(
@@ -1482,7 +1479,6 @@ const BreakoutRoomProvider = ({
           'BREAKOUT_ROOM',
           'Exit room blocked - no permission at call time',
           {
-            fromRoomId,
             permissionAtCallTime,
             currentPermission: permissions.canExitRoom,
           },
@@ -1491,19 +1487,9 @@ const BreakoutRoomProvider = ({
       }
 
       const localUser = defaultContentRef.current[localUid];
-      const currentRoom = getCurrentRoom();
-      const currentRoomId = fromRoomId ? fromRoomId : currentRoom?.id;
-
-      logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'User exiting room', {
-        userId: localUid,
-        userName: localUser?.name,
-        fromRoomId: currentRoomId,
-        fromRoomName: currentRoom?.name,
-        hasLocalUser: !!localUser,
-      });
 
       try {
-        if (currentRoomId && localUser) {
+        if (localUser) {
           // Use breakout-specific exit (doesn't destroy main RTM)
           await breakoutRoomExit();
 
@@ -1513,25 +1499,10 @@ const BreakoutRoomProvider = ({
               LogSource.Internals,
               'BREAKOUT_ROOM',
               'Exit room cancelled - component unmounted',
-              {userId: localUid, fromRoomId: currentRoomId},
+              {userId: localUid},
             );
             return;
           }
-
-          dispatch({
-            type: BreakoutGroupActionTypes.EXIT_GROUP,
-            payload: {
-              user: localUser,
-              fromGroupId: currentRoomId,
-            },
-          });
-
-          logger.log(
-            LogSource.Internals,
-            'BREAKOUT_ROOM',
-            'User exit room success',
-            {userId: localUid, fromRoomId: currentRoomId},
-          );
         }
       } catch (error) {
         logger.log(
@@ -1540,25 +1511,12 @@ const BreakoutRoomProvider = ({
           'Exit room error - fallback dispatch',
           {
             userId: localUid,
-            fromRoomId: currentRoomId,
             error: error.message,
           },
         );
-
-        if (currentRoom && localUser) {
-          dispatch({
-            type: BreakoutGroupActionTypes.EXIT_GROUP,
-            payload: {
-              user: localUser,
-              fromGroupId: currentRoom.id,
-            },
-          });
-        }
       }
     },
     [
-      dispatch,
-      getCurrentRoom,
       localUid,
       permissions.canExitRoom, // TODO:SUP move to the method call
       breakoutRoomExit,
@@ -1813,7 +1771,8 @@ const BreakoutRoomProvider = ({
       // Make presenter option is available only for host
       // and if the incoming member is also a host we dont
       // need to show this option as they can already present
-      if (defaultContentRef[memberUid]?.isHost === 'true') {
+      console.log('supriya-dropdown optopn', defaultContentRef[memberUid]);
+      if (defaultContentRef.current[memberUid]?.isHost === 'true') {
         return options;
       }
       if (isHostRef.current) {
@@ -1952,8 +1911,8 @@ const BreakoutRoomProvider = ({
       //   return;
       // }
       const {session_id, switch_room, breakout_room, assignment_type} = data;
-      console.log('supriya-state-sync new data: ', data);
-      console.log('supriya-state-sync old data: ', stateRef.current);
+      console.log('supriya-event-sync new data: ', data);
+      console.log('supriya-event-sync old data: ', stateRef.current);
 
       logger.log(
         LogSource.Internals,
@@ -1974,7 +1933,7 @@ const BreakoutRoomProvider = ({
       }
       // 🛡️ BEFORE snapshot - using stateRef to avoid stale closure
       const prevGroups = stateRef.current.breakoutGroups;
-      console.log('supriya-event sync prevGroups: ', prevGroups);
+      console.log('supriya-event-sync prevGroups: ', prevGroups);
       const prevSwitchRoom = stateRef.current.canUserSwitchRoom;
 
       // Helpers to find membership
@@ -1989,12 +1948,16 @@ const BreakoutRoomProvider = ({
           return hosts.includes(uid) || attendees.includes(uid);
         })?.id ?? null;
 
-      const prevRoomId = findUserRoomId(localUid, prevGroups); // before
-      console.log('supriya-event sync prevRoomId: ', prevRoomId);
-
+      const prevRoomId = findUserRoomId(localUid, prevGroups);
       const nextRoomId = findUserRoomId(localUid, breakout_room);
-      console.log('supriya-event sync nextRoomId: ', nextRoomId);
 
+      console.log(
+        'supriya-event-sync prevRoomId and nextRoomId: ',
+        prevRoomId,
+        nextRoomId,
+      );
+
+      console.log('supriya-event-sync 1: ');
       // Show notifications based on changes
       // 1. Switch room enabled notification
       const senderName = getDisplayName(srcuid);
@@ -2008,12 +1971,16 @@ const BreakoutRoomProvider = ({
           visibilityTime: 3000,
         });
       }
+      console.log('supriya-event-sync 2: ');
 
       // 2. User joined a room (compare previous and current state)
       // The notification for this comes from the main room channel_join event
       if (prevRoomId === nextRoomId) {
         // No logic
       }
+
+      console.log('supriya-event-sync 3: ');
+
       // 3. User was moved to main room
       if (prevRoomId && !nextRoomId) {
         const prevRoom = prevGroups.find(r => r.id === prevRoomId);
@@ -2039,8 +2006,10 @@ const BreakoutRoomProvider = ({
           });
         }
         // Exit breakout room and return to main room
-        return exitRoom(prevRoomId, true);
+        return exitRoom(true);
       }
+
+      console.log('supriya-event-sync 5: ');
 
       // 5. All breakout rooms closed
       if (breakout_room.length === 0 && prevGroups.length > 0) {
@@ -2056,7 +2025,7 @@ const BreakoutRoomProvider = ({
             text2: 'Returning to the main room...',
             visibilityTime: 3000,
           });
-          return exitRoom(prevRoomId, true);
+          return exitRoom(true);
         } else {
           // User was already in main room - just notify about closure
           showDeduplicatedToast('all-rooms-closed', {
@@ -2067,6 +2036,8 @@ const BreakoutRoomProvider = ({
           });
         }
       }
+
+      console.log('supriya-event-sync 6: ');
 
       // 6) Room renamed (compare per-room names)
       prevGroups.forEach(prevRoom => {
@@ -2080,6 +2051,12 @@ const BreakoutRoomProvider = ({
         }
       });
 
+      console.log('supriya-event-sync 7: ');
+
+      // The host clicked on the room to close in which he is a part of
+      if (!prevRoomId && !nextRoomId) {
+        return exitRoom(true);
+      }
       // Finally, apply the authoritative state
       dispatch({
         type: BreakoutGroupActionTypes.SYNC_STATE,
