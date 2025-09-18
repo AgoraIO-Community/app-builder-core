@@ -31,7 +31,7 @@ export const MicButton = () => {
         borderRadius: 50,
         marginHorizontal: 8,
       }}
-      onPress={() => muteToggle(MUTE_LOCAL_TYPE.audio)}>
+      onPress={async () => await muteToggle(MUTE_LOCAL_TYPE.audio)}>
       <Image
         style={[styles.iconStyle, {tintColor: $config.FONT_COLOR}]}
         source={audio ? MicOnIcon : MicOffIcon}

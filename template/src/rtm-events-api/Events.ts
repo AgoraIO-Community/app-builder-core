@@ -133,7 +133,9 @@ class Events {
         'case 1 executed - sending in channel',
       );
       try {
-        const targetChannelId = channelId || RTMEngine.getInstance().channelUid;
+        const targetChannelId =
+          channelId || RTMEngine.getInstance().getActiveChannel();
+        console.log('supriya targetChannelId', targetChannelId);
         logger.debug(
           LogSource.Events,
           'CUSTOM_EVENTS',
@@ -248,7 +250,7 @@ class Events {
       }
       const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
 
-      const targetChannelId = RTMEngine.getInstance().channelUid;
+      const targetChannelId = RTMEngine.getInstance().getActiveChannel();
       if (!targetChannelId || targetChannelId.trim() === '') {
         throw new Error('Channel ID is not set. Cannot send channel messages.');
       }

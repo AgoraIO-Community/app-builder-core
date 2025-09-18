@@ -329,12 +329,15 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //TODO: check why need
 
-  const updateRenderListState = (
-    uid: number,
-    data: Partial<ContentInterface>,
-  ) => {
-    dispatch({type: 'UpdateRenderList', value: [uid, data]});
-  };
+  // If this is needed use syncUserState
+  //
+  // const updateRenderListState = (
+  //   uid: number,
+  //   data: Partial<ContentInterface>,
+  // ) => {
+  //   dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  // };
+  //
 
   const addMessageToStore = (uid: UidType, body: messageInterface) => {
     setMessageStore((m: messageStoreInterface[]) => {

@@ -18,6 +18,7 @@ import {
   RtcPropsInterface,
 } from '../../../agora-rn-uikit';
 import RtmConfigure from '../../components/RTMConfigure';
+import RTMConfigureBreakoutRoomProvider from '../../rtm/RTMConfigureBreakoutRoomProvider';
 import DeviceConfigure from '../../components/DeviceConfigure';
 import {isMobileUA} from '../../utils/common';
 import {LiveStreamContextProvider} from '../../components/livestream';
@@ -53,8 +54,7 @@ import {
   VideoCallContentProps,
 } from './VideoCallContent';
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
-import {useRTMCore} from '../../rtm/RTMCoreProvider';
-import RTMEngine from '../../rtm/RTMEngine';
+import {RTM_ROOMS} from '../../rtm/constants';
 
 interface BreakoutVideoCallContentProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
@@ -83,36 +83,6 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
 
-  const {client, isLoggedIn} = useRTMCore();
-
-  useEffect(() => {
-    // Cleanup on unmount
-    if (client && isLoggedIn && rtcProps.channel) {
-      console.log(
-        `Breakout room unmounting, subsribing to: ${rtcProps.channel}`,
-      );
-      try {
-        client.subscribe(rtcProps.channel);
-        RTMEngine.getInstance().addChannel(rtcProps.channel, false);
-      } catch (error) {
-        console.error('Failed to unsubscribe on unmount:', error);
-      }
-    }
-    return () => {
-      if (rtcProps.channel) {
-        console.log(
-          `Breakout room unmounting, unsubscribing from: ${rtcProps.channel}`,
-        );
-        try {
-          client.unsubscribe(rtcProps.channel);
-          RTMEngine.getInstance().removeChannel(rtcProps.channel);
-        } catch (error) {
-          console.error('Failed to unsubscribe on unmount:', error);
-        }
-      }
-    };
-  }, [client, isLoggedIn, rtcProps.channel]);
-
   return (
     <PropsProvider
       value={{
@@ -137,81 +107,83 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                       <SidePanelProvider>
                         <ChatMessagesProvider callActive={callActive}>
                           <ScreenShareProvider>
-                            <RtmConfigure
-                              channelName={breakoutRoomRTCProps.channel}
-                              callActive={callActive}>
-                              <UserPreferenceProvider callActive={callActive}>
-                                <CaptionProvider>
-                                  <WaitingRoomProvider>
-                                    <EventsConfigure
-                                      setSttAutoStarted={setSttAutoStarted}
-                                      sttAutoStarted={sttAutoStarted}
-                                      callActive={callActive}>
-                                      <ScreenshareConfigure
-                                        isRecordingActive={isRecordingActive}>
-                                        <LiveStreamContextProvider
-                                          value={{
-                                            setRtcProps:
-                                              setBreakoutRoomRtcProps,
-                                            rtcProps: breakoutRoomRTCProps,
-                                            callActive,
-                                          }}>
-                                          <LiveStreamDataProvider>
-                                            <LocalUserContext
-                                              localUid={
-                                                breakoutRoomRTCProps?.uid
-                                              }>
-                                              <RecordingProvider
-                                                value={{
-                                                  setRecordingActive,
-                                                  isRecordingActive,
-                                                  callActive,
-                                                  recordingAutoStarted,
-                                                  setRecordingAutoStarted,
-                                                }}>
-                                                <NetworkQualityProvider>
-                                                  {!isMobileUA() && (
-                                                    <PermissionHelper />
-                                                  )}
-                                                  <UserActionMenuProvider>
-                                                    <VBProvider>
-                                                      <BeautyEffectProvider>
-                                                        <SdkMuteToggleListener>
-                                                          <VideoMeetingDataProvider>
-                                                            <VideoCallProvider>
-                                                              <DisableChatProvider>
-                                                                <BreakoutRoomProvider
-                                                                  mainChannel={
-                                                                    rtcProps.channel
-                                                                  }
-                                                                  handleLeaveBreakout={
-                                                                    onLeave
-                                                                  }>
-                                                                  <BreakoutRoomEventsConfigure
-                                                                    mainChannelName={
+                            <RTMConfigureBreakoutRoomProvider
+                              callActive={callActive}
+                              channelName={breakoutRoomRTCProps.channel}>
+                              <RtmConfigure room={RTM_ROOMS.BREAKOUT}>
+                                <UserPreferenceProvider callActive={callActive}>
+                                  <CaptionProvider>
+                                    <WaitingRoomProvider>
+                                      <EventsConfigure
+                                        setSttAutoStarted={setSttAutoStarted}
+                                        sttAutoStarted={sttAutoStarted}
+                                        callActive={callActive}>
+                                        <ScreenshareConfigure
+                                          isRecordingActive={isRecordingActive}>
+                                          <LiveStreamContextProvider
+                                            value={{
+                                              setRtcProps:
+                                                setBreakoutRoomRtcProps,
+                                              rtcProps: breakoutRoomRTCProps,
+                                              callActive,
+                                            }}>
+                                            <LiveStreamDataProvider>
+                                              <LocalUserContext
+                                                localUid={
+                                                  breakoutRoomRTCProps?.uid
+                                                }>
+                                                <RecordingProvider
+                                                  value={{
+                                                    setRecordingActive,
+                                                    isRecordingActive,
+                                                    callActive,
+                                                    recordingAutoStarted,
+                                                    setRecordingAutoStarted,
+                                                  }}>
+                                                  <NetworkQualityProvider>
+                                                    {!isMobileUA() && (
+                                                      <PermissionHelper />
+                                                    )}
+                                                    <UserActionMenuProvider>
+                                                      <VBProvider>
+                                                        <BeautyEffectProvider>
+                                                          <SdkMuteToggleListener>
+                                                            <VideoMeetingDataProvider>
+                                                              <VideoCallProvider>
+                                                                <DisableChatProvider>
+                                                                  <BreakoutRoomProvider
+                                                                    mainChannel={
                                                                       rtcProps.channel
+                                                                    }
+                                                                    handleLeaveBreakout={
+                                                                      onLeave
                                                                     }>
-                                                                    <VideoCallScreenWrapper />
-                                                                  </BreakoutRoomEventsConfigure>
-                                                                </BreakoutRoomProvider>
-                                                              </DisableChatProvider>
-                                                            </VideoCallProvider>
-                                                          </VideoMeetingDataProvider>
-                                                        </SdkMuteToggleListener>
-                                                      </BeautyEffectProvider>
-                                                    </VBProvider>
-                                                  </UserActionMenuProvider>
-                                                </NetworkQualityProvider>
-                                              </RecordingProvider>
-                                            </LocalUserContext>
-                                          </LiveStreamDataProvider>
-                                        </LiveStreamContextProvider>
-                                      </ScreenshareConfigure>
-                                    </EventsConfigure>
-                                  </WaitingRoomProvider>
-                                </CaptionProvider>
-                              </UserPreferenceProvider>
-                            </RtmConfigure>
+                                                                    <BreakoutRoomEventsConfigure
+                                                                      mainChannelName={
+                                                                        rtcProps.channel
+                                                                      }>
+                                                                      <VideoCallScreenWrapper />
+                                                                    </BreakoutRoomEventsConfigure>
+                                                                  </BreakoutRoomProvider>
+                                                                </DisableChatProvider>
+                                                              </VideoCallProvider>
+                                                            </VideoMeetingDataProvider>
+                                                          </SdkMuteToggleListener>
+                                                        </BeautyEffectProvider>
+                                                      </VBProvider>
+                                                    </UserActionMenuProvider>
+                                                  </NetworkQualityProvider>
+                                                </RecordingProvider>
+                                              </LocalUserContext>
+                                            </LiveStreamDataProvider>
+                                          </LiveStreamContextProvider>
+                                        </ScreenshareConfigure>
+                                      </EventsConfigure>
+                                    </WaitingRoomProvider>
+                                  </CaptionProvider>
+                                </UserPreferenceProvider>
+                              </RtmConfigure>
+                            </RTMConfigureBreakoutRoomProvider>
                           </ScreenShareProvider>
                         </ChatMessagesProvider>
                       </SidePanelProvider>

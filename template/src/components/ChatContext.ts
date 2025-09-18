@@ -10,7 +10,8 @@
 *********************************************
 */
 import {type RTMClient} from 'agora-react-native-rtm';
-import {UidType} from '../../agora-rn-uikit';
+import {UidType, ContentInterface} from '../../agora-rn-uikit';
+import {RTMUserPreferences} from '../rtm/RTMGlobalStateProvider';
 import {createContext, SetStateAction} from 'react';
 
 import {ChatMessageType, Reaction} from './chat-messages/useChatMessages';
@@ -92,6 +93,7 @@ export interface RtmContextInterface {
   engine: RTMClient;
   localUid: UidType;
   onlineUsersCount: number;
+  syncUserState: (uid: number, data: Partial<ContentInterface>) => void;
 }
 
 export enum controlMessageEnum {

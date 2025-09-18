@@ -70,6 +70,7 @@ import {
   SettingsToolbarItem,
 } from './controls/toolbar-items';
 import {useControlPermissionMatrix} from './controls/useControlPermissionMatrix';
+import BreakoutMeetingTitle from './breakout-room/ui/BreakoutMeetingTitle';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -376,13 +377,16 @@ export const MeetingTitleToolbarItem = () => {
   } = useRoomInfo();
   return (
     <ToolbarItem>
-      <Text
-        style={style.roomNameText}
-        testID="videocall-meetingName"
-        numberOfLines={1}
-        ellipsizeMode="tail">
-        {trimText(meetingTitle)}
-      </Text>
+      <View style={style.roomNameContainer}>
+        <Text
+          style={style.roomNameText}
+          testID="videocall-meetingName"
+          numberOfLines={1}
+          ellipsizeMode="tail">
+          {trimText(meetingTitle)}
+        </Text>
+        <BreakoutMeetingTitle />
+      </View>
     </ToolbarItem>
   );
 };
@@ -632,12 +636,11 @@ const style = StyleSheet.create({
   roomNameContainer: {
     zIndex: 10,
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    paddingLeft: 13,
   },
-
   roomNameText: {
-    alignSelf: 'center',
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     fontWeight: '600',
