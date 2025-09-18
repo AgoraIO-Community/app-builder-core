@@ -884,7 +884,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [toolbarItemSettingText]: 'Settings',
   [toolbarItemLayoutText]: 'Layout',
   [toolbarItemInviteText]: 'Invite',
-  [toolbarItemBreakoutRoomText]: 'Create Breakout Rooms',
+  [toolbarItemBreakoutRoomText]: 'Breakout Rooms',
 
   [toolbarItemMicrophoneText]: deviceStatus => {
     switch (deviceStatus) {
