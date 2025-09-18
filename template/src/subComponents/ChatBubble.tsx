@@ -52,6 +52,7 @@ import {useChatConfigure} from '../../src/components/chat/chatConfigure';
 import Tooltip from '../../src/atoms/Tooltip';
 import {MoreMessageOptions} from './chat/ChatQuickActionsMenu';
 import {EMessageStatus} from '../../src/ai-agent/components/AgentControls/message';
+import {useMainRoomUserDisplayName} from '../rtm/hooks/useMainRoomUserDisplayName';
 
 type AttachmentBubbleProps = {
   fileName: string;
@@ -362,6 +363,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
+  const getDisplayName = useMainRoomUserDisplayName();
 
   const getUsername = () => {
     if (isLocal) {
@@ -370,9 +372,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     if (remoteUIConfig?.username) {
       return trimText(remoteUIConfig?.username);
     }
-    return defaultContent[uid]?.name
-      ? trimText(defaultContent[uid].name)
-      : remoteUserDefaultLabel;
+    return getDisplayName(uid);
   };
 
   return props?.render ? (

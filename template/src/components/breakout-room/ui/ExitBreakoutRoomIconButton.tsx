@@ -17,6 +17,7 @@ import ToolbarMenuItem from '../../../atoms/ToolbarMenuItem';
 import {useToolbarProps} from '../../../atoms/ToolbarItem';
 import {useActionSheet} from '../../../utils/useActionSheet';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import BreakoutRoomNameRenderer from '../hoc/BreakoutRoomNameRenderer';
 
 export interface ScreenshareButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -32,36 +33,46 @@ const ExitBreakoutRoomIconButton = (props: ScreenshareButtonProps) => {
     exitRoom();
   };
 
-  let iconButtonProps: IconButtonProps = {
-    onPress: onPressCustom || onPress,
-    iconProps: {
-      name: 'close-room',
-      tintColor: $config.SECONDARY_ACTION_COLOR,
-    },
-    btnTextProps: {
-      textColor: $config.FONT_COLOR,
-      text: showLabel ? label || 'Exit Room' : '',
-    },
-  };
+  return (
+    <BreakoutRoomNameRenderer>
+      {({breakoutRoomName}) => {
+        const displayText = breakoutRoomName 
+          ? `Exit ${breakoutRoomName}` 
+          : 'Exit Room';
 
-  if (isOnActionSheet) {
-    iconButtonProps.btnTextProps.textStyle = {
-      color: $config.FONT_COLOR,
-      marginTop: 8,
-      fontSize: 12,
-      fontWeight: '400',
-      fontFamily: 'Source Sans Pro',
-      textAlign: 'center',
-    };
-  }
-  iconButtonProps.isOnActionSheet = isOnActionSheet;
+        let iconButtonProps: IconButtonProps = {
+          onPress: onPressCustom || onPress,
+          iconProps: {
+            name: 'close-room',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          },
+          btnTextProps: {
+            textColor: $config.FONT_COLOR,
+            text: showLabel ? label || displayText : '',
+          },
+        };
 
-  return props?.render ? (
-    props.render(onPress)
-  ) : isToolbarMenuItem ? (
-    <ToolbarMenuItem {...iconButtonProps} />
-  ) : (
-    <IconButton {...iconButtonProps} />
+        if (isOnActionSheet) {
+          iconButtonProps.btnTextProps.textStyle = {
+            color: $config.FONT_COLOR,
+            marginTop: 8,
+            fontSize: 12,
+            fontWeight: '400',
+            fontFamily: 'Source Sans Pro',
+            textAlign: 'center',
+          };
+        }
+        iconButtonProps.isOnActionSheet = isOnActionSheet;
+
+        return props?.render ? (
+          props.render(onPress)
+        ) : isToolbarMenuItem ? (
+          <ToolbarMenuItem {...iconButtonProps} />
+        ) : (
+          <IconButton {...iconButtonProps} />
+        );
+      }}
+    </BreakoutRoomNameRenderer>
   );
 };
 

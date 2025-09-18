@@ -709,6 +709,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
         icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
         iconColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR
+          : !canScreenshareInBreakoutRoom
+          ? $config.SEMANTIC_NEUTRAL
           : $config.SECONDARY_ACTION_COLOR,
         textColor: isScreenshareActive
           ? $config.SEMANTIC_ERROR

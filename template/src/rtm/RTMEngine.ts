@@ -16,13 +16,15 @@ import {
   type RTMClient,
 } from 'agora-react-native-rtm';
 import {isAndroid, isIOS} from '../utils/common';
+import {RTM_ROOMS} from './constants';
 
 class RTMEngine {
   private _engine?: RTMClient;
   private localUID: string = '';
-  private primaryChannelId: string = '';
-  // track multiple subscribed channels
-  private channels: Set<string> = new Set();
+  // track multiple named channels (e.g., "main": "channelId", "breakout": "channelId")
+  private channelMap: Map<string, string> = new Map();
+  // track current active channel for default operations
+  private activeChannelName: string = RTM_ROOMS.MAIN;
   private static _instance: RTMEngine | null = null;
 
   private constructor() {
@@ -62,51 +64,79 @@ class RTMEngine {
     }
   }
 
-  addChannel(channelID: string, primary?: boolean) {
+  addChannel(name: string, channelID: string) {
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      throw new Error('addChannel: name must be a non-empty string');
+    }
     if (
       !channelID ||
       typeof channelID !== 'string' ||
       channelID.trim() === ''
     ) {
-      throw new Error(
-        'addSecondaryChannel: channelID must be a non-empty string',
-      );
+      throw new Error('addChannel: channelID must be a non-empty string');
     }
-    this.channels.add(channelID);
-    if (primary) {
-      this.primaryChannelId = channelID;
-    }
+    this.channelMap.set(name, channelID);
+    this.setActiveChannel(name);
   }
 
-  removeChannel(channelID: string) {
-    if (this.channels.has(channelID)) {
-      this.channels.delete(channelID);
-      if (channelID === this.primaryChannelId) {
-        this.primaryChannelId = '';
-      }
-    }
+  removeChannel(name: string) {
+    this.channelMap.delete(name);
   }
 
   get localUid() {
     return this.localUID;
   }
 
-  get channelUid() {
-    return this.primaryChannelId;
+  getChannel(name?: string): string {
+    // Default to active channel if no name provided
+    const channelName = name || this.activeChannelName;
+    console.log('supriya channelName: ', this.channelMap.get(channelName));
+    return this.channelMap.get(channelName) || '';
   }
 
-  get primaryChannel() {
-    return this.primaryChannelId;
+  get allChannels(): string[] {
+    return Array.from(this.channelMap.values()).filter(
+      channel => channel.trim() !== '',
+    );
   }
 
-  get allChannels() {
-    const channels = [];
-    this.channels.forEach(channel => channels.push(channel));
-    return channels.filter(channel => channel.trim() !== '');
+  hasChannel(name: string): boolean {
+    return this.channelMap.has(name);
   }
 
-  hasChannel(channelID: string): boolean {
-    return this.channels.has(channelID);
+  getChannelNames(): string[] {
+    return Array.from(this.channelMap.keys());
+  }
+
+  /** Set the active channel for default operations */
+  setActiveChannel(name: string): void {
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      throw new Error('setActiveChannel: name must be a non-empty string');
+    }
+    if (!this.hasChannel(name)) {
+      throw new Error(
+        `setActiveChannel: Channel '${name}' not found. Add it first with addChannel().`,
+      );
+    }
+    this.activeChannelName = name;
+    console.log(
+      `RTMEngine: Active channel set to '${name}' (${this.getChannel(name)})`,
+    );
+  }
+
+  /** Get the current active channel ID */
+  getActiveChannel(): string {
+    return this.getChannel(this.activeChannelName);
+  }
+
+  /** Get the current active channel name */
+  getActiveChannelName(): string {
+    return this.activeChannelName;
+  }
+
+  /** Check if the specified channel is currently active */
+  isActiveChannel(name: string): boolean {
+    return this.activeChannelName === name;
   }
 
   /** Engine readiness flag */
@@ -190,10 +220,10 @@ class RTMEngine {
         return;
       }
       await this.destroyClientInstance();
-      this.primaryChannelId = '';
-      this.channels.clear();
+      this.channelMap.clear();
       // Reset state
       this.localUID = '';
+      this.activeChannelName = RTM_ROOMS.MAIN;
       this._engine = undefined;
       RTMEngine._instance = null;
     } catch (error) {

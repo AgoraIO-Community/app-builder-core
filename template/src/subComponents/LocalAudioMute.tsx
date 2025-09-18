@@ -85,7 +85,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
-  const onPress = () => {
+  const onPress = async () => {
     logger.log(
       LogSource.Internals,
       'LOCAL_MUTE',
@@ -95,7 +95,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
         permissionDenied,
       },
     );
-    localMute(MUTE_LOCAL_TYPE.audio);
+    await localMute(MUTE_LOCAL_TYPE.audio);
   };
   const audioLabel = permissionDenied
     ? micButtonLabel(I18nDeviceStatus.PERMISSION_DENIED)
