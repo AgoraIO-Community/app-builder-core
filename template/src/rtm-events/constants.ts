@@ -65,4 +65,12 @@ const EventNames = {
 };
 /** ***** EVENT NAMES ENDS ***** */
 
-export {EventActions, EventNames};
+/** SCOPE OF EVENTS */
+const RTM_GLOBAL_SCOPE_EVENTS = [EventNames.NAME_ATTRIBUTE];
+
+enum RTM_EVENT_SCOPE {
+  GLOBAL = 'GLOBAL',
+  LOCAL = 'LOCAL',
+}
+
+export {EventActions, EventNames, RTM_GLOBAL_SCOPE_EVENTS, RTM_EVENT_SCOPE};

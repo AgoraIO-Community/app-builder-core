@@ -13,7 +13,11 @@
 ('use strict');
 import {type RTMClient} from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
-import {EventUtils} from '../rtm-events';
+import {
+  EventUtils,
+  RTM_EVENT_SCOPE,
+  RTM_GLOBAL_SCOPE_EVENTS,
+} from '../rtm-events';
 import {
   ReceiverUid,
   EventCallback,
@@ -24,6 +28,12 @@ import {
 import {adjustUID} from '../rtm/utils';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {nativeChannelTypeMapping} from '../../bridge/rtm/web/Types';
+
+function getRTMEventScope(eventName: string): RTM_EVENT_SCOPE {
+  return RTM_GLOBAL_SCOPE_EVENTS.includes(eventName)
+    ? RTM_EVENT_SCOPE.GLOBAL
+    : RTM_EVENT_SCOPE.LOCAL;
+}
 
 class Events {
   private source: EventSource = EventSource.core;
@@ -110,7 +120,7 @@ class Events {
   private _send = async (
     rtmPayload: RTMAttributePayload,
     toUid?: ReceiverUid,
-    channelId?: string,
+    targetChannelId?: string,
   ) => {
     const to = typeof toUid === 'string' ? parseInt(toUid, 10) : toUid;
 
@@ -133,15 +143,6 @@ class Events {
         'case 1 executed - sending in channel',
       );
       try {
-        const targetChannelId =
-          channelId || RTMEngine.getInstance().getActiveChannel();
-        console.log('supriya targetChannelId', targetChannelId);
-        logger.debug(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'event is sent to targetChannelId ->',
-          targetChannelId,
-        );
         logger.debug(
           LogSource.Events,
           'CUSTOM_EVENTS',
@@ -235,7 +236,7 @@ class Events {
 
   private _sendAsChannelAttribute = async (
     rtmPayload: RTMAttributePayload,
-    channelId?: string,
+    targetChannelId?: string,
   ) => {
     // Case 1: send to channel
     logger.debug(
@@ -250,8 +251,7 @@ class Events {
       }
       const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
 
-      const targetChannelId = RTMEngine.getInstance().getActiveChannel();
-      if (!targetChannelId || targetChannelId.trim() === '') {
+      if (!targetChannelId) {
         throw new Error('Channel ID is not set. Cannot send channel messages.');
       }
 
@@ -386,10 +386,18 @@ class Events {
       return; // Don't throw - just log and return
     }
 
+    /** Check if this is a global scoped event */
+    let currentEventScope = getRTMEventScope(eventName);
+
+    const targetChannelId =
+      channelId || RTMEngine.getInstance().getActiveChannel();
+
     const persistValue = JSON.stringify({
       payload,
       persistLevel,
       source: this.source,
+      _scope: currentEventScope,
+      _channelId: targetChannelId,
     });
 
     const rtmPayload: RTMAttributePayload = {
@@ -416,9 +424,9 @@ class Events {
         persistValue,
       );
       if (persistLevel === PersistanceLevel.Channel) {
-        await this._sendAsChannelAttribute(rtmPayload, channelId);
+        await this._sendAsChannelAttribute(rtmPayload, targetChannelId);
       } else {
-        await this._send(rtmPayload, receiver, channelId);
+        await this._send(rtmPayload, receiver, targetChannelId);
       }
     } catch (error) {
       logger.error(

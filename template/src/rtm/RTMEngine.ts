@@ -185,6 +185,7 @@ class RTMEngine {
     if (!this._engine) {
       return;
     }
+    console.log('supriya-rtm-lifecycle unsubscribing from all channel');
 
     // Unsubscribe from all tracked channels
     for (const channel of this.allChannels) {
@@ -197,7 +198,9 @@ class RTMEngine {
 
     // 2. Remove all listeners if supported
     try {
-      this._engine.removeAllListeners?.();
+      console.log('supriya-rtm-lifecycle remove all listeners ');
+
+      await this._engine.removeAllListeners?.();
     } catch {
       console.warn('Failed to remove listeners:');
     }
@@ -205,11 +208,17 @@ class RTMEngine {
     // 3. Logout and release resources
     try {
       await this._engine.logout();
+      console.log('supriya-rtm-lifecycle logged out ');
       if (isAndroid() || isIOS()) {
         this._engine.release();
       }
-    } catch (err) {
-      console.warn('RTM logout/release failed:', err);
+    } catch (logoutErrorState) {
+      // Logout of Signaling
+      const {operation, reason, errorCode} = logoutErrorState;
+      console.log(
+        `${operation} supriya-rtm-lifecycle logged out failed, the error code is ${errorCode}, because of: ${reason}.`,
+      );
+      console.warn('RTM logout/release failed:', logoutErrorState);
     }
   }
 
@@ -220,12 +229,15 @@ class RTMEngine {
         return;
       }
       await this.destroyClientInstance();
+      console.log('supriya-rtm-lifecycle destruction completed ');
+
       this.channelMap.clear();
       // Reset state
       this.localUID = '';
       this.activeChannelName = RTM_ROOMS.MAIN;
       this._engine = undefined;
       RTMEngine._instance = null;
+      console.log('supriya-rtm-lifecycle setting engine instance as null');
     } catch (error) {
       console.error('Error destroying RTM instance:', error);
       // Don't re-throw - destruction should be a best-effort cleanup
