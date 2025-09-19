@@ -16,7 +16,7 @@ import events from '../../rtm-events-api';
 import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/state/types';
 import {CallbacksInterface, RtcPropsInterface} from '../../../agora-rn-uikit';
 import VideoCall from '../VideoCall';
-import BreakoutVideoCallContent from './BreakoutVideoCallContent';
+import BreakoutVideoCall from './BreakoutVideoCall';
 import {BreakoutRoomEventNames} from '../../components/breakout-room/events/constants';
 import BreakoutRoomTransition from '../../components/breakout-room/ui/BreakoutRoomTransition';
 import Toast from '../../../react-native-toast-message';
@@ -178,7 +178,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
       {isBreakoutMode ? (
         breakoutChannelDetails?.channel ? (
           // Breakout Room Mode - Fresh component instance
-          <BreakoutVideoCallContent
+          <BreakoutVideoCall
             key={`breakout-${breakoutChannelDetails.channel}`}
             breakoutChannelDetails={breakoutChannelDetails}
             onLeave={handleLeaveBreakout}

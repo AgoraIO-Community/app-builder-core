@@ -56,13 +56,13 @@ import {
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
 import {RTM_ROOMS} from '../../rtm/constants';
 
-interface BreakoutVideoCallContentProps extends VideoCallContentProps {
+interface BreakoutVideoCallProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
   breakoutChannelDetails: BreakoutChannelDetails;
   onLeave: () => void;
 }
 
-const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
+const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
   rtcProps,
   breakoutChannelDetails,
   onLeave,
@@ -199,4 +199,4 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   );
 };
 
-export default BreakoutVideoCallContent;
+export default BreakoutVideoCall;
