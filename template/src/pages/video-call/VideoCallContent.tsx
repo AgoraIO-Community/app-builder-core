@@ -109,6 +109,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           }
           setTimeout(() => {
             Toast.show({
+              leadingIconName: 'open-room',
               type: 'success',
               text1: joinMessage,
               visibilityTime: 3000,

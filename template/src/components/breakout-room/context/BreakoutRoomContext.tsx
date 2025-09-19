@@ -1970,7 +1970,7 @@ const BreakoutRoomProvider = ({
       if (switch_room && !prevSwitchRoom) {
         console.log('supriya-toast 1');
         showDeduplicatedToast('switch-room-toggle', {
-          leadingIconName: 'info',
+          leadingIconName: 'open-room',
           type: 'info',
           text1: `Host:${senderName} has opened breakout rooms.`,
           text2: 'Please choose a room to join.',
@@ -1995,7 +1995,7 @@ const BreakoutRoomProvider = ({
 
         if (!roomStillExists) {
           showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
-            leadingIconName: 'alert',
+            leadingIconName: 'close-room',
             type: 'error',
             text1: `Host: ${senderName} has closed "${
               prevRoom?.name || ''
@@ -2025,7 +2025,7 @@ const BreakoutRoomProvider = ({
         if (prevRoomId) {
           // User was in a breakout room - returning to main
           showDeduplicatedToast('all-rooms-closed', {
-            leadingIconName: 'close',
+            leadingIconName: 'close-room',
             type: 'info',
             text1: `Host: ${senderName} has closed all breakout rooms.`,
             text2: 'Returning to the main room...',
@@ -2035,7 +2035,7 @@ const BreakoutRoomProvider = ({
         } else {
           // User was already in main room - just notify about closure
           showDeduplicatedToast('all-rooms-closed', {
-            leadingIconName: 'close',
+            leadingIconName: 'close-room',
             type: 'info',
             text1: `Host: ${senderName} has closed all breakout rooms`,
             visibilityTime: 4000,
