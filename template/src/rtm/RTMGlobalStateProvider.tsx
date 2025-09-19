@@ -28,12 +28,7 @@ import RTMEngine from '../rtm/RTMEngine';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {RECORDING_BOT_UID} from '../utils/constants';
 import {useRTMCore} from './RTMCoreProvider';
-import {
-  ContentInterface,
-  RtcPropsInterface,
-  UidType,
-  useLocalUid,
-} from '../../agora-rn-uikit';
+import {RtcPropsInterface, UidType} from '../../agora-rn-uikit';
 import {
   nativePresenceEventTypeMapping,
   nativeStorageEventTypeMapping,
@@ -92,7 +87,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   mainChannelRtcProps,
 }) => {
   const mainChannelName = mainChannelRtcProps.channel;
-  const localUid = useLocalUid();
+  const localUid = mainChannelRtcProps.uid;
   const {client, isLoggedIn, registerCallbacks, unregisterCallbacks} =
     useRTMCore();
   // Main room RTM users (RTM-specific data only)
@@ -303,16 +298,34 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
             'rudra-core-client: RTM presence.getOnlineUsers data received',
             data,
           );
+          console.log('supriya rtm online users', data);
           await Promise.all(
             data.occupants?.map(async member => {
+              console.log('surpiya rtm member: ', member);
+              // const removedAttr = await client.storage.removeUserMetadata();
+              // console.log('supriya rtm removedAttr: ', removedAttr);
               try {
                 const backoffAttributes =
-                  await fetchUserAttributesWithBackoffRetry(member.userId);
-
+                  await fetchUserAttributesWithBackoffRetry(
+                    member.userId,
+                    retryAttr => {
+                      // 👈 called later if name arrives
+                      processUserUidAttributes(retryAttr, member.userId);
+                    },
+                  );
+                console.log(
+                  `supriya rtm backoffAttributes for ${member.userId}`,
+                  backoffAttributes,
+                );
                 await processUserUidAttributes(
                   backoffAttributes,
                   member.userId,
                 );
+                console.log(
+                  `supriya rtm backoffAttributes for ${member.userId}`,
+                  backoffAttributes,
+                );
+
                 // setting screenshare data
                 // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
                 // isActive to identify all active screenshare users in the call
@@ -368,9 +381,21 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
   };
 
+  /**
+   *
+   * @param userId
+   * @returns
+   * Step 1: Fetch attributes.
+   * Step 2: If attributes exist and have any non-empty values → return them immediately (so you don’t block isHost, screenUid, etc.).
+   * Step 3: If name is missing → keep retrying in the background for up to 30 seconds.
+   * Step 4: If name shows up within 30s, update again. If not, stop retrying.
+   */
   const fetchUserAttributesWithBackoffRetry = async (
     userId: string,
+    onNameFound?: (attr: GetUserMetadataResponse) => void,
   ): Promise<GetUserMetadataResponse> => {
+    const start = Date.now();
+
     return backOff(
       async () => {
         console.log(
@@ -378,36 +403,98 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
           userId,
         );
 
+        if (Date.now() - start > 30000) {
+          throw new Error(
+            `Timeout: name not found for user ${userId} within 30s`,
+          );
+        }
+
         const attr: GetUserMetadataResponse =
-          await client.storage.getUserMetadata({
-            userId: userId,
-          });
-
-        if (!attr || !attr.items) {
+          await client.storage.getUserMetadata({userId});
+        console.log('[user attributes', attr);
+        // 1. Check if attributes exist
+        if (!attr || !attr.items || attr.items.length === 0) {
           console.log('rudra-core-client: RTM attributes for member not found');
-          throw attr;
+          throw new Error('No attribute items found');
         }
+        console.log('sup-attribute-check attributes', attr);
+        // 2. Partial update allowed (screenUid, isHost, etc.)
+        const hasAny = attr.items.some(i => i.value);
+        if (!hasAny) {
+          throw new Error('No usable attributes yet');
+        }
+        console.log('sup-attribute-check hasAny', hasAny);
 
-        console.log(
-          'rudra-core-client: RTM getUserMetadata for member received',
-          userId,
-          attr,
+        // 3. If name exists, return immediately
+        const hasNameAttribute = attr.items.find(
+          i => i.key === 'name' && i.value,
         );
-
-        if (attr.items && attr.items.length > 0) {
+        console.log('sup-attribute-check name', hasNameAttribute);
+        if (hasNameAttribute) {
           return attr;
-        } else {
-          throw attr;
         }
+        // 4. Background retry for name only
+        (async () => {
+          await backOff(
+            async () => {
+              if (Date.now() - start > 30000) {
+                throw new Error(`Timeout: name not found for ${userId}`);
+              }
+              // 🔒 Stop if unmounted
+              if (!isRTMMounted.current) {
+                throw new Error(`Component unmounted while retrying ${userId}`);
+              }
+              console.log('sup-attribute-check inside name backoff');
+
+              const retriedAttributes: GetUserMetadataResponse =
+                await client.storage.getUserMetadata({userId});
+              console.log(
+                'sup-attribute-check retriedAttributes',
+                retriedAttributes,
+              );
+
+              const hasNameAttributeRetry = retriedAttributes.items.find(
+                i => i.key === 'name' && i.value,
+              );
+              console.log(
+                'sup-attribute-check hasNameAttributeRetry',
+                hasNameAttributeRetry,
+              );
+
+              if (!hasNameAttributeRetry) {
+                throw new Error('Name still not found');
+              }
+              if (isRTMMounted.current) {
+                console.log('sup-attribute-check onNameFound');
+
+                onNameFound?.(retriedAttributes);
+              }
+              return retriedAttributes;
+            },
+            {
+              startingDelay: 500,
+              timeMultiple: 2,
+              maxDelay: 30000,
+              retry: () => true,
+            },
+          ).catch(() => {
+            console.log(
+              `Name not found for ${userId} within 30s, giving up further retries`,
+            );
+          });
+        })();
+
+        return attr;
       },
       {
+        startingDelay: 500,
+        timeMultiple: 2,
+        maxDelay: 30000,
         retry: (e, idx) => {
-          console.log(
-            'rudra-core-client: RTM [retrying] Attempt',
-            idx,
-            'Fetching',
-            userId,
-            'attributes',
+          logger.debug(
+            LogSource.AgoraSDK,
+            'Log',
+            `[retrying] Attempt ${idx}. Fetching ${userId}'s name`,
             e,
           );
           return true;
@@ -446,7 +533,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
       const rtmUserData: RTMUserData = {
         uid,
         type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
-        screenUid: screenUid,
+        screenUid,
         name: userName,
         offline: false,
         isHost: isHostItem?.value || 'false',
@@ -508,6 +595,10 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
       try {
         const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
           presence.publisher,
+          retryAttr => {
+            // 👈 called later if name arrives
+            processUserUidAttributes(retryAttr, presence.publisher);
+          },
         );
         await processUserUidAttributes(backoffAttributes, presence.publisher);
       } catch (error) {
@@ -545,7 +636,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         }
 
         // Also mark screenshare as offline if exists
-        const screenUid = prev[uid]?.screenUid;
+        // const screenUid = prev[uid]?.screenUid;
         // if (screenUid && updated[screenUid]) {
         //   updated[screenUid] = {
         //     ...updated[screenUid],
@@ -556,7 +647,6 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         console.log(
           'rudra-core-client: RTM marked user as offline in main room',
           uid,
-          screenUid ? `and screenshare ${screenUid}` : '',
         );
         return updated;
       });
