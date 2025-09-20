@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useEffect, SetStateAction, useMemo} from 'react';
+import React, {useState} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
@@ -109,7 +109,7 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
                           <ScreenShareProvider>
                             <RTMConfigureBreakoutRoomProvider
                               callActive={callActive}
-                              channelName={breakoutRoomRTCProps.channel}>
+                              currentChannel={breakoutRoomRTCProps.channel}>
                               <RtmConfigure room={RTM_ROOMS.BREAKOUT}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>

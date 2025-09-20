@@ -162,7 +162,7 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                           <ScreenShareProvider>
                             <RTMConfigureMainRoomProvider
                               callActive={callActive}
-                              channelName={rtcProps.channel}>
+                              currentChannel={rtcProps.channel}>
                               <RtmConfigure room={RTM_ROOMS.MAIN}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>

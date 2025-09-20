@@ -18,34 +18,24 @@ import React, {
   createContext,
   useCallback,
 } from 'react';
-import {
-  type GetChannelMetadataResponse,
-  type GetOnlineUsersResponse,
-  type LinkStateEvent,
-  type MessageEvent,
-  type Metadata,
-  type PresenceEvent,
-  type SetOrUpdateUserMetadataOptions,
-  type StorageEvent,
-  type RTMClient,
-  type GetUserMetadataResponse,
-} from 'agora-react-native-rtm';
+import {type MessageEvent, type StorageEvent} from 'agora-react-native-rtm';
 import {
   ContentInterface,
   DispatchContext,
-  PropsContext,
-  UidType,
   useLocalUid,
 } from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
-import {isAndroid, isIOS, isWebInternal} from '../utils/common';
+import {isAndroid, isIOS} from '../utils/common';
 import {useContent} from 'customization-api';
-import {safeJsonParse, getMessageTime, get32BitUid} from './utils';
-import {EventUtils, EventsQueue} from '../rtm-events';
+import {
+  safeJsonParse,
+  getMessageTime,
+  get32BitUid,
+  isEventForActiveChannel,
+} from './utils';
+import {EventUtils, EventsQueue, RTM_EVENT_SCOPE} from '../rtm-events';
 import RTMEngine from './RTMEngine';
 import {filterObject} from '../utils';
-import SDKEvents from '../utils/SdkEvents';
-import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
 import {
   WaitingRoomStatus,
@@ -99,13 +89,13 @@ export const useRTMConfigureMain = () => {
 
 interface RTMConfigureMainRoomProviderProps {
   callActive: boolean;
-  channelName: string;
+  currentChannel: string;
   children: React.ReactNode;
 }
 
 const RTMConfigureMainRoomProvider: React.FC<
   RTMConfigureMainRoomProviderProps
-> = ({callActive, channelName, children}) => {
+> = ({callActive, currentChannel, children}) => {
   const rtmInitTimstamp = new Date().getTime();
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids} = useContent();
@@ -159,14 +149,6 @@ const RTMConfigureMainRoomProvider: React.FC<
   }, [defaultContent]);
 
   const {rtcTracksReady} = useRtc();
-
-  // Set main room as active channel when this provider mounts again active
-  useEffect(() => {
-    const rtmEngine = RTMEngine.getInstance();
-    if (rtmEngine.hasChannel(RTM_ROOMS.MAIN)) {
-      rtmEngine.setActiveChannel(RTM_ROOMS.MAIN);
-    }
-  }, []);
 
   // Apply user preferences when main room mounts
   useEffect(() => {
@@ -293,6 +275,8 @@ const RTMConfigureMainRoomProvider: React.FC<
   }, [mainRoomRTMUsers, dispatch]);
 
   const init = async () => {
+    // Set main room as active channel when this provider mounts again active
+    RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.MAIN);
     setHasUserJoinedRTM(true);
     await runQueuedEvents();
     setIsInitialQueueCompleted(true);
@@ -415,8 +399,19 @@ const RTMConfigureMainRoomProvider: React.FC<
         );
         return;
       }
-      const {payload, persistLevel, source} = parsedValue;
-
+      const {payload, persistLevel, source, _scope, _channelId} = parsedValue;
+      console.log(
+        'supriya-screenshare [MAIN] _scope and _channelId: ',
+        source,
+        _scope,
+        _channelId,
+        currentChannel,
+        payload,
+      );
+      // Filter if its for this channel
+      if (!isEventForActiveChannel(_scope, _channelId, currentChannel)) {
+        return;
+      }
       // Step 2: Emit the event (no metadata persistence - handled by RTMGlobalStateProvider)
       console.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ', evt);
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
@@ -523,7 +518,7 @@ const RTMConfigureMainRoomProvider: React.FC<
     };
 
     const handleMainChannelMessageEvent = (message: MessageEvent) => {
-      console.log('supriya current message channel: ', channelName);
+      console.log('supriya current message channel: ', currentChannel);
       console.log('supriya message event is', message);
       // message - 1 (channel)
       if (message.channelType === nativeChannelTypeMapping.MESSAGE) {
@@ -534,12 +529,7 @@ const RTMConfigureMainRoomProvider: React.FC<
           'messageEvent of type [1 - CHANNEL] (channelMessageReceived)',
           message,
         );
-        const {
-          publisher: uid,
-          channelName,
-          message: text,
-          timestamp: ts,
-        } = message;
+        const {publisher: uid, message: text, timestamp: ts} = message;
         //whiteboard upload
         if (parseInt(uid, 10) === 1010101) {
           const [err, res] = safeJsonParse(text);
@@ -634,11 +624,12 @@ const RTMConfigureMainRoomProvider: React.FC<
         'RTMConfigureMainRoom: Unregistered main channel message handler',
       );
     };
-  }, [client, channelName]);
+  }, [client, currentChannel]);
 
   useAsyncEffect(async () => {
     try {
-      if (isLoggedIn && callActive) {
+      if (client && isLoggedIn && callActive && currentChannel) {
+        // Set main room as active channel when this provider mounts again active
         await init();
       }
     } catch (error) {
@@ -653,7 +644,7 @@ const RTMConfigureMainRoomProvider: React.FC<
       setIsInitialQueueCompleted(false);
       logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
     };
-  }, [isLoggedIn, callActive, channelName]);
+  }, [client, isLoggedIn, callActive, currentChannel]);
 
   // Provide context data to children
   const contextValue: RTMMainRoomData = {

@@ -9,6 +9,8 @@ import {
   type GetUserMetadataResponse as NativeGetUserMetadataResponse,
   type GetChannelMetadataResponse as NativeGetChannelMetadataResponse,
   type SetOrUpdateUserMetadataOptions as NativeSetOrUpdateUserMetadataOptions,
+  type RemoveUserMetadataOptions as NativeRemoveUserMetadataOptions,
+  type RemoveUserMetadataResponse as NativeRemoveUserMetadataResponse,
   type IMetadataOptions as NativeIMetadataOptions,
   type StorageEvent as NativeStorageEvent,
   type PresenceEvent as NativePresenceEvent,
@@ -219,6 +221,11 @@ export class RTMWebClient {
           timestamp: webResponse.timestamp,
         };
         return nativeResponse;
+      },
+
+      removeUserMetadata: (): Promise<NativeRemoveUserMetadataResponse> => {
+        // Map native signature to web signature
+        return this.client.storage.removeUserMetadata();
       },
 
       setChannelMetadata: async (

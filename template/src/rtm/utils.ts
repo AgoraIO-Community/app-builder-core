@@ -1,5 +1,9 @@
+import {RTM_EVENT_SCOPE} from '../rtm-events';
+
 export const hasJsonStructure = (str: string) => {
-  if (typeof str !== 'string') return false;
+  if (typeof str !== 'string') {
+    return false;
+  }
   try {
     const result = JSON.parse(str);
     const type = Object.prototype.toString.call(result);
@@ -42,3 +46,31 @@ export const get32BitUid = (peerId: string) => {
   arr[0] = parseInt(peerId);
   return arr[0];
 };
+
+export function isEventForActiveChannel(
+  scope: RTM_EVENT_SCOPE,
+  eventChannelId: string | undefined,
+  currentChannel: string,
+): boolean {
+  // Case 1: Global events always pass
+  if (scope === RTM_EVENT_SCOPE.GLOBAL) {
+    return true;
+  }
+  // Case 2: Events without scope/channel → assume SERVER event → always pass
+  if (!scope && !eventChannelId) {
+    console.log(
+      'isEventForActiveChannel: passing server event (no scope/channel)',
+    );
+    return true;
+  }
+
+  // Case 3: Local scope must match current channel
+  if (scope === RTM_EVENT_SCOPE.LOCAL && eventChannelId !== currentChannel) {
+    console.log(
+      `isEventForActiveChannel: skipped local event (expected=${currentChannel}, got=${eventChannelId})`,
+    );
+    return false;
+  }
+  // Default: allow
+  return true;
+}
