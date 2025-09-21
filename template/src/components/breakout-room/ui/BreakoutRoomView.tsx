@@ -28,7 +28,6 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     closeAllRooms,
     permissions,
     isBreakoutUpdateInFlight,
-    isAnotherHostOperating,
   } = useBreakoutRoom();
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
   }, []);
 
   // Disable all actions when API is in flight or another host is operating
-  const disableAllActions = isBreakoutUpdateInFlight || isAnotherHostOperating;
+  const disableAllActions = isBreakoutUpdateInFlight;
 
   return (
     <>

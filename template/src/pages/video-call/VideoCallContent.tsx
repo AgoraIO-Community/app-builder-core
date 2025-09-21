@@ -21,6 +21,10 @@ import {BreakoutRoomEventNames} from '../../components/breakout-room/events/cons
 import BreakoutRoomTransition from '../../components/breakout-room/ui/BreakoutRoomTransition';
 import Toast from '../../../react-native-toast-message';
 import {useMainRoomUserDisplayName} from '../../rtm/hooks/useMainRoomUserDisplayName';
+import {
+  useSetBreakoutRoomInfo,
+  BreakoutRoomInfoProvider,
+} from '../../components/room-info/useSetBreakoutRoomInfo';
 
 export interface BreakoutChannelDetails {
   channel: string;
@@ -44,6 +48,10 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const {phrase} = useParams<{phrase: string}>();
   const location = useLocation();
   const history = useHistory();
+
+  // Room Info:
+  const {setBreakoutRoomChannelInfo, clearBreakoutRoomChannelInfo} =
+    useSetBreakoutRoomInfo();
 
   // Parse URL to determine current mode
   const searchParams = new URLSearchParams(location.search);
@@ -87,6 +95,8 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
             screenShareUid: screenShare.uid,
             rtmToken: mainUser.rtm,
           };
+          // Set breakout room info using the new system
+          setBreakoutRoomChannelInfo(data);
           // Set breakout state active
           history.push(`/${phrase}?breakout=true`);
           setBreakoutChannelDetails(null);
@@ -148,6 +158,10 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   // Handle leaving breakout room
   const handleLeaveBreakout = useCallback(() => {
     console.log('Leaving breakout room, returning to main room');
+
+    // Clear breakout room info to return to main room
+    clearBreakoutRoomChannelInfo();
+
     // Set direction for exiting
     setTransitionDirection('exit');
     // Clear breakout channel details to show transition
@@ -156,7 +170,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
     setTimeout(() => {
       history.push(`/${phrase}`);
     }, 800);
-  }, [history, phrase]);
+  }, [history, phrase, clearBreakoutRoomChannelInfo]);
 
   // Route protection: Prevent direct navigation to breakout route
   useEffect(() => {
@@ -178,12 +192,14 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
       {isBreakoutMode ? (
         breakoutChannelDetails?.channel ? (
           // Breakout Room Mode - Fresh component instance
-          <BreakoutVideoCall
-            key={`breakout-${breakoutChannelDetails.channel}`}
-            breakoutChannelDetails={breakoutChannelDetails}
-            onLeave={handleLeaveBreakout}
-            {...props}
-          />
+          <BreakoutRoomInfoProvider>
+            <BreakoutVideoCall
+              key={`breakout-${breakoutChannelDetails.channel}`}
+              breakoutChannelDetails={breakoutChannelDetails}
+              onLeave={handleLeaveBreakout}
+              {...props}
+            />
+          </BreakoutRoomInfoProvider>
         ) : (
           <BreakoutRoomTransition
             direction={transitionDirection}
