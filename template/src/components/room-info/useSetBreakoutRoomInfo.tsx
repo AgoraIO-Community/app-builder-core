@@ -1,35 +1,14 @@
 import React, {createContext, useContext, useState} from 'react';
-import {RoomData} from './useRoomInfo';
 import {BreakoutChannelJoinEventPayload} from '../breakout-room/state/types';
-import {useLocalUid} from 'customization-api';
 
-const normalizeBreakoutInfo = (
-  payload: BreakoutChannelJoinEventPayload,
-  localUid: number,
-): RoomData => {
-  return {
-    isHost: payload.data.data.mainUser.uid === localUid,
-    meetingTitle: payload.data.data.room_name,
-    roomId: {attendee: String(payload.data.data.room_id)},
-    channel: payload.data.data.channel_name,
-    uid: payload.data.data.mainUser.uid,
-    token: payload.data.data.mainUser.rtc,
-    rtmToken: payload.data.data.mainUser.rtm,
-    screenShareUid: String(payload.data.data.screenShare.uid),
-    screenShareToken: payload.data.data.screenShare.rtc,
-    chat: {
-      user_token: payload.data.data.chat.userToken,
-      group_id: payload.data.data.chat.groupId,
-      is_group_owner: payload.data.data.chat.isGroupOwner,
-    },
-    isSeparateHostLink: false,
-  };
+type BreakoutRoomData = BreakoutChannelJoinEventPayload['data']['data'] & {
+  isBreakoutMode: boolean;
 };
 
 interface BreakoutRoomInfoContextValue {
-  breakoutRoomChannelData: RoomData | null;
+  breakoutRoomChannelData: BreakoutRoomData | null;
   setBreakoutRoomChannelData: React.Dispatch<
-    React.SetStateAction<RoomData | null>
+    React.SetStateAction<BreakoutRoomData | null>
   >;
 }
 
@@ -46,7 +25,7 @@ export const BreakoutRoomInfoProvider: React.FC<
   BreakoutRoomInfoProviderProps
 > = ({children}) => {
   const [breakoutRoomChannelData, setBreakoutRoomChannelData] =
-    useState<RoomData | null>(null);
+    useState<BreakoutRoomData | null>(null);
 
   return (
     <BreakoutRoomInfoContext.Provider
@@ -62,13 +41,15 @@ export const useBreakoutRoomInfo = () => {
 
 export const useSetBreakoutRoomInfo = () => {
   const {setBreakoutRoomChannelData} = useBreakoutRoomInfo();
-  const localUid = useLocalUid();
 
   const setBreakoutRoomChannelInfo = (
     payload: BreakoutChannelJoinEventPayload,
   ) => {
-    const normalizedData = normalizeBreakoutInfo(payload, localUid);
-    setBreakoutRoomChannelData(normalizedData);
+    const breakoutData: BreakoutRoomData = {
+      ...payload.data.data,
+      isBreakoutMode: true,
+    };
+    setBreakoutRoomChannelData(breakoutData);
   };
 
   const clearBreakoutRoomChannelInfo = () => {

@@ -43,7 +43,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   } = useRoomInfo();
   const localUid = useLocalUid();
   const {sendChatSDKMessage} = useChatConfigure();
-  const {isHandRaised} = useRaiseHand();
+  const {isUserHandRaised} = useRaiseHand();
 
   const {
     breakoutGroups,
@@ -53,7 +53,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     closeRoom,
     updateRoomName,
     canUserSwitchRoom,
-    raisedHands,
     permissions,
   } = useBreakoutRoom();
 
@@ -117,9 +116,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
 
     const memberRef = memberMoreMenuRefs.current[memberUId];
     const isMenuVisible = actionMenuVisible[memberUId] || false;
-    const hasRaisedHand =
-      permissions?.canSeeRaisedHands &&
-      raisedHands.some(hand => hand.uid === memberUId);
 
     return (
       <View key={memberUId} style={[styles.memberItem]}>
@@ -135,7 +131,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         </View>
 
         <View style={styles.memberMenu}>
-          {isHandRaised ? (
+          {isUserHandRaised(memberUId) ? (
             <View style={styles.memberRaiseHand}>
               <ImageIcon
                 iconSize={18}

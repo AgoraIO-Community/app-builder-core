@@ -44,6 +44,8 @@ const SPOTLIGHT_USER_CHANGED = 'SPOTLIGHT_USER_CHANGED';
 // 9. General raise hand
 // Later on we will only have one raise hand i.e which will tied with livestream ad breakout
 const BREAKOUT_RAISE_HAND_ATTRIBUTE = 'breakout_raise_hand';
+// 10. Cross-room raise hand notifications (messages, not attributes)
+const CROSS_ROOM_RAISE_HAND_NOTIFICATION = 'cross_room_raise_hand_notification';
 
 const EventNames = {
   RECORDING_STATE_ATTRIBUTE,
@@ -67,6 +69,7 @@ const EventNames = {
   RECORDING_DELETED,
   SPOTLIGHT_USER_CHANGED,
   BREAKOUT_RAISE_HAND_ATTRIBUTE,
+  CROSS_ROOM_RAISE_HAND_NOTIFICATION,
 };
 /** ***** EVENT NAMES ENDS ***** */
 

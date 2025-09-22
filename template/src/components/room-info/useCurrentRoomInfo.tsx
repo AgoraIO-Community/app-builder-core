@@ -11,10 +11,15 @@
 */
 
 import {useLocation} from '../Router';
-import {RoomInfoContextInterface, useRoomInfo} from './useRoomInfo';
+import {useRoomInfo} from './useRoomInfo';
 import {useBreakoutRoomInfo} from './useSetBreakoutRoomInfo';
 
-export const useCurrentRoomInfo = (): RoomInfoContextInterface => {
+export interface CurrentRoomInfoContextInterface {
+  isInBreakoutRoute: boolean;
+  channelId: string;
+}
+
+export const useCurrentRoomInfo = (): CurrentRoomInfoContextInterface => {
   const mainRoomInfo = useRoomInfo(); // Always call - keeps public API intact
   const {breakoutRoomChannelData} = useBreakoutRoomInfo(); // Always call - follows Rules of Hooks
   const location = useLocation();
@@ -22,13 +27,16 @@ export const useCurrentRoomInfo = (): RoomInfoContextInterface => {
   const isBreakoutMode =
     new URLSearchParams(location.search).get('breakout') === 'true';
 
-  // Return appropriate room info based on current mode
+  // Return overlapping data structure
   if (isBreakoutMode && breakoutRoomChannelData) {
     return {
-      ...mainRoomInfo,
-      data: breakoutRoomChannelData,
+      isInBreakoutRoute: true,
+      channelId: breakoutRoomChannelData.channel_name,
     };
   }
 
-  return mainRoomInfo;
+  return {
+    isInBreakoutRoute: false,
+    channelId: mainRoomInfo.data.channel,
+  };
 };

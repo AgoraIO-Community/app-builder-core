@@ -71,7 +71,7 @@ import {
 import {useRTMCore} from '../rtm/RTMCoreProvider';
 import {
   RTM_ROOMS,
-  RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
+  RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
 } from './constants';
 import {useUserGlobalPreferences} from '../components/UserGlobalPreferenceProvider';
 import {ToggleState} from '../../agora-rn-uikit';
@@ -265,10 +265,12 @@ const RTMConfigureBreakoutRoomProvider = (
         try {
           await client?.storage.removeUserMetadata({
             data: {
-              items: RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES.map(key => ({
-                key,
-                value: '',
-              })),
+              items: RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES.map(
+                key => ({
+                  key,
+                  value: '',
+                }),
+              ),
             },
           });
         } catch (error) {

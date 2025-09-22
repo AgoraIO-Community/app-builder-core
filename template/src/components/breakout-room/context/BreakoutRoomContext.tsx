@@ -319,6 +319,13 @@ const BreakoutRoomProvider = ({
 
   // Timestamp tracking for event ordering
   const lastProcessedTimestampRef = useRef(0);
+  const lastSyncedSnapshotRef = useRef<{
+    session_id: string;
+    switch_room: boolean;
+    assignment_type: string;
+    breakout_room: BreakoutGroup[];
+  } | null>(null);
+
   // Breakout sync queue (latest-event-wins)
   const breakoutSyncQueueRef = useRef<{
     latestTask: {
@@ -1374,41 +1381,57 @@ const BreakoutRoomProvider = ({
     return userRoom ?? null;
   }, [localUid, breakoutRoomVersion]);
 
+  const findUserRoomId = (uid: UidType, groups: BreakoutGroup[] = []) =>
+    groups.find(g => {
+      const hosts = Array.isArray(g?.participants?.hosts)
+        ? g.participants.hosts
+        : [];
+      const attendees = Array.isArray(g?.participants?.attendees)
+        ? g.participants.attendees
+        : [];
+      return hosts.includes(uid) || attendees.includes(uid);
+    })?.id ?? null;
+    
   // Permissions
   useEffect(() => {
-    const current = stateRef.current;
+    if (lastSyncedSnapshotRef.current) {
+      const current = lastSyncedSnapshotRef.current;
 
-    const currentlyInRoom = isUserInRoom();
-    const hasAvailableRooms = current.breakoutGroups.length > 0;
-    const allowAttendeeSwitch = current.canUserSwitchRoom;
-
-    const nextPermissions: BreakoutRoomPermissions = {
-      canJoinRoom:
-        hasAvailableRooms && (isHostRef.current || allowAttendeeSwitch),
-      canExitRoom: isBreakoutMode && currentlyInRoom,
-      canSwitchBetweenRooms:
-        currentlyInRoom &&
-        hasAvailableRooms &&
-        (isHostRef.current || allowAttendeeSwitch),
-      canScreenshare: isHostRef.current
-        ? true
-        : currentlyInRoom
-        ? canIPresent
-        : true,
-      canRaiseHands:
-        !isHostRef.current && !!current.breakoutSessionId && currentlyInRoom,
-      canSeeRaisedHands: true,
-      canAssignParticipants: isHostRef.current && !currentlyInRoom,
-      canHostManageMainRoom: isHostRef.current,
-      canCreateRooms: isHostRef.current,
-      canMoveUsers: isHostRef.current,
-      canCloseRooms:
-        isHostRef.current && hasAvailableRooms && !!current.breakoutSessionId,
-      canMakePresenter: isHostRef.current,
-    };
-
-    setPermissions(nextPermissions);
-  }, [breakoutRoomVersion, canIPresent, isBreakoutMode]);
+      const currentlyInRoom = !!findUserRoomId(localUid, current.breakout_room);
+      const hasAvailableRooms = current.breakout_room?.length > 0;
+      const allowAttendeeSwitch = current.switch_room;
+      console.log(
+        'supriya-canraisehands',
+        !isHostRef.current && !!current.session_id && currentlyInRoom,
+        localUid,
+        current.breakout_room,
+      );
+      const nextPermissions: BreakoutRoomPermissions = {
+        canJoinRoom:
+          hasAvailableRooms && (isHostRef.current || allowAttendeeSwitch),
+        canExitRoom: isBreakoutMode && currentlyInRoom,
+        canSwitchBetweenRooms:
+          currentlyInRoom &&
+          hasAvailableRooms &&
+          (isHostRef.current || allowAttendeeSwitch),
+        canScreenshare: isHostRef.current
+          ? true
+          : currentlyInRoom
+          ? canIPresent
+          : true,
+        canRaiseHands: !isHostRef.current && !!current.session_id,
+        canSeeRaisedHands: true,
+        canAssignParticipants: isHostRef.current && !currentlyInRoom,
+        canHostManageMainRoom: isHostRef.current,
+        canCreateRooms: isHostRef.current,
+        canMoveUsers: isHostRef.current,
+        canCloseRooms:
+          isHostRef.current && hasAvailableRooms && !!current.session_id,
+        canMakePresenter: isHostRef.current,
+      };
+      setPermissions(nextPermissions);
+    }
+  }, [breakoutRoomVersion, canIPresent, isBreakoutMode, localUid]);
 
   const joinRoom = (
     toRoomId: string,
@@ -2226,7 +2249,6 @@ const BreakoutRoomProvider = ({
     }
   }, [lastAction]);
 
-  // Queue
   const _handleBreakoutRoomSyncState = useCallback(
     async (
       payload: BreakoutRoomSyncStateEventPayload['data'],
@@ -2263,10 +2285,6 @@ const BreakoutRoomProvider = ({
         },
       );
 
-      // Snapshot before applying
-      const prevGroups = stateRef.current.breakoutGroups;
-      const prevSwitchRoom = stateRef.current.canUserSwitchRoom;
-
       const findUserRoomId = (uid: UidType, groups: BreakoutGroup[] = []) =>
         groups.find(g => {
           const hosts = Array.isArray(g?.participants?.hosts)
@@ -2278,48 +2296,47 @@ const BreakoutRoomProvider = ({
           return hosts.includes(uid) || attendees.includes(uid);
         })?.id ?? null;
 
+      // Snapshot before applying
+      const prevSnapshot = lastSyncedSnapshotRef?.current;
+      const prevGroups = prevSnapshot?.breakout_room || [];
+      const prevSwitchRoom = prevSnapshot?.switch_room ?? true;
       const prevRoomId = findUserRoomId(localUid, prevGroups);
       const nextRoomId = findUserRoomId(localUid, breakout_room);
 
+      // 1. !prevRoomId && nextRoomId = Main → Breakout (joining)
+      // 2. prevRoomId && nextRoomId && prevRoomId !== nextRoomId = Breakout A → Breakout B (switching)
+      // 3. prevRoomId && !nextRoomId = Breakout → Main (leaving)
+      // 4. !prevRoomId && !nextRoomId = Main → Main (no change)
+
+      const userMovedBetweenRooms =
+        prevRoomId && nextRoomId && prevRoomId !== nextRoomId;
+      const userLeftBreakoutRoom = prevRoomId && !nextRoomId;
+
+      console.log(
+        'supriya-sync-ordering prevRoomId nextRoomId and new  breakout_room',
+        prevRoomId,
+        nextRoomId,
+        breakout_room,
+      );
+
       const senderName = getDisplayName(srcuid);
 
-      // 🟢 Toast logic
-      if (switch_room && !prevSwitchRoom) {
-        showDeduplicatedToast('switch-room-toggle', {
-          leadingIconName: 'open-room',
-          type: 'info',
-          text1: `Host:${senderName} has opened breakout rooms.`,
-          text2: 'Please choose a room to join.',
-          visibilityTime: 3000,
-        });
-      }
+      // ---- SCREEN SHARE CLEANUP ----
+      // Stop screen share if user is moving between rooms or leaving breakout
+      // if (
+      //   (userMovedBetweenRooms || userLeftBreakoutRoom) &&
+      //   isScreenshareActive
+      // ) {
+      //   console.log(
+      //     'supriya-sync-ordering: stopping screenshare due to room change',
+      //   );
+      //   stopScreenshare();
+      // }
 
-      if (prevRoomId && !nextRoomId) {
-        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
-        const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
-
-        if (!roomStillExists) {
-          showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
-            leadingIconName: 'close-room',
-            type: 'error',
-            text1: `Host: ${senderName} has closed "${
-              prevRoom?.name || ''
-            }" room.`,
-            text2: 'Returning to main room...',
-            visibilityTime: 3000,
-          });
-        } else {
-          showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
-            leadingIconName: 'arrow-up',
-            type: 'info',
-            text1: `Host: ${senderName} has moved you to main room.`,
-            visibilityTime: 3000,
-          });
-        }
-        return exitRoom(true);
-      }
-
+      // ---- PRIORITY ORDER ----
+      // 1. Room closed
       if (breakout_room.length === 0 && prevGroups.length > 0) {
+        console.log('supriya-sync-ordering 1. all room closed: ');
         if (prevRoomId) {
           showDeduplicatedToast('all-rooms-closed', {
             leadingIconName: 'close-room',
@@ -2339,9 +2356,72 @@ const BreakoutRoomProvider = ({
         }
       }
 
+      // 2. User’s room deleted (they were in a room → now not)
+      if (userLeftBreakoutRoom) {
+        console.log('supriya-sync-ordering 2. they were in a room → now not: ');
+
+        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
+        const roomStillExists = breakout_room.some(r => r.id === prevRoomId);
+        //  Case A: Room deleted
+        if (!roomStillExists) {
+          showDeduplicatedToast(`current-room-closed-${prevRoomId}`, {
+            leadingIconName: 'close-room',
+            type: 'error',
+            text1: `Host: ${senderName} has closed "${
+              prevRoom?.name || ''
+            }" room.`,
+            text2: 'Returning to main room...',
+            visibilityTime: 3000,
+          });
+        } else {
+          // Host removed user from room (handled here)
+          // (Room still exists for others, but you were unassigned)
+          showDeduplicatedToast(`moved-to-main-${prevRoomId}`, {
+            leadingIconName: 'arrow-up',
+            type: 'info',
+            text1: `Host: ${senderName} has moved you to main room.`,
+            visibilityTime: 3000,
+          });
+        }
+        return exitRoom(true);
+      }
+
+      // 3. User moved between breakout rooms
+      if (userMovedBetweenRooms) {
+        console.log(
+          'supriya-sync-ordering 3. user moved between breakout rooms',
+        );
+        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
+        const nextRoom = breakout_room.find(r => r.id === nextRoomId);
+
+        showDeduplicatedToast(`user-moved-${prevRoomId}-${nextRoomId}`, {
+          leadingIconName: 'arrow-right',
+          type: 'info',
+          text1: `Host: ${senderName} has moved you to "${
+            nextRoom?.name || nextRoomId
+          }".`,
+          text2: `From "${prevRoom?.name || prevRoomId}"`,
+          visibilityTime: 3000,
+        });
+      }
+
+      // 4. Rooms control switched
+      if (switch_room && !prevSwitchRoom) {
+        console.log('supriya-sync-ordering 4. switch_room changed: ');
+        showDeduplicatedToast('switch-room-toggle', {
+          leadingIconName: 'open-room',
+          type: 'info',
+          text1: `Host:${senderName} has opened breakout rooms.`,
+          text2: 'Please choose a room to join.',
+          visibilityTime: 3000,
+        });
+      }
+
+      // 5. Group renamed
       prevGroups.forEach(prevRoom => {
         const after = breakout_room.find(r => r.id === prevRoom.id);
         if (after && after.name !== prevRoom.name) {
+          console.log('supriya-sync-ordering 5. group renamed ');
           showDeduplicatedToast(`room-renamed-${after.id}`, {
             type: 'info',
             text1: `Host: ${senderName} has renamed room "${prevRoom.name}" to "${after.name}".`,
@@ -2349,10 +2429,6 @@ const BreakoutRoomProvider = ({
           });
         }
       });
-
-      if (!prevRoomId && !nextRoomId) {
-        return exitRoom(true);
-      }
 
       dispatch({
         type: BreakoutGroupActionTypes.SYNC_STATE,
@@ -2379,7 +2455,6 @@ const BreakoutRoomProvider = ({
   const enqueueBreakoutSyncEvent = useCallback(
     (payload: BreakoutRoomSyncStateEventPayload['data'], timestamp: number) => {
       const queue = breakoutSyncQueueRef.current;
-
       // Always keep the freshest event only
       if (
         !queue.latestTask ||
@@ -2410,8 +2485,9 @@ const BreakoutRoomProvider = ({
         queue.latestTask = null;
 
         try {
-          // Reuse your existing sync logic
           await _handleBreakoutRoomSyncState(payload, timestamp);
+          // Store the snap of this
+          lastSyncedSnapshotRef.current = payload.data;
         } catch (err) {
           console.error('[BreakoutSync] Error processing sync event', err);
           // Continue processing other events even if one fails

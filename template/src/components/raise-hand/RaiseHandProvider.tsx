@@ -23,6 +23,7 @@ import events, {PersistanceLevel} from '../../rtm-events-api';
 import Toast from '../../../react-native-toast-message';
 import {useMainRoomUserDisplayName} from '../../rtm/hooks/useMainRoomUserDisplayName';
 import {EventNames} from '../../rtm-events';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 
 interface RaiseHandData {
   raised: boolean;
@@ -61,9 +62,11 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
     {},
   );
   const localUid = useLocalUid();
-  const roomInfo = useCurrentRoomInfo();
   const getDisplayName = useMainRoomUserDisplayName();
-
+  const {
+    data: {channel: mainChannelId},
+  } = useRoomInfo();
+  const {isInBreakoutRoute} = useCurrentRoomInfo();
   // Get current user's hand state
   const isHandRaised = raisedHands[localUid]?.raised || false;
 
@@ -82,10 +85,12 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
     } // Already raised
 
     const timestamp = Date.now();
+    const userName = getDisplayName(localUid) || `User ${localUid}`;
+
     // Update local state immediately
     setRaisedHands(prev => ({...prev, [localUid]: {raised: true, timestamp}}));
 
-    // Send RTM event
+    // 1. Send RTM attribute event (for current room UI)
     events.send(
       EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE,
       JSON.stringify({
@@ -96,13 +101,44 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
       PersistanceLevel.Sender,
     );
 
+    // 2. Send cross-room notification to main room (if in breakout room)
+    if (isInBreakoutRoute) {
+      try {
+        // Get current active channel to restore later
+        events.send(
+          EventNames.CROSS_ROOM_RAISE_HAND_NOTIFICATION,
+          JSON.stringify({
+            type: 'raise_hand',
+            uid: localUid,
+            userName: userName,
+            roomName: 'dummy',
+            timestamp,
+          }),
+          PersistanceLevel.None,
+          -1, // send in channel
+          mainChannelId, // send to main channel
+        );
+      } catch (error) {
+        console.error(
+          'Failed to send cross-room raise hand notification:',
+          error,
+        );
+      }
+    }
+
     // Show toast notification
     Toast.show({
       type: 'success',
       text1: 'Hand raised',
       visibilityTime: 2000,
     });
-  }, [isHandRaised, localUid]);
+  }, [
+    isHandRaised,
+    localUid,
+    getDisplayName,
+    isInBreakoutRoute,
+    mainChannelId,
+  ]);
 
   // Lower hand action
   const lowerHand = useCallback(() => {
@@ -174,22 +210,51 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
       }
     };
 
-    // Register event listener
+    const handleCrossRoomNotification = (data: any) => {
+      try {
+        const {payload} = data;
+        const eventData = JSON.parse(payload);
+        const {type, uid, userName, roomName} = eventData;
+
+        // Only show notifications for other users and only in main room
+        if (uid !== localUid && !isInBreakoutRoute) {
+          if (type === 'raise_hand') {
+            Toast.show({
+              type: 'info',
+              text1: `${userName} raised hand in ${roomName}`,
+              visibilityTime: 4000,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to process cross-room notification:', error);
+      }
+    };
+
+    // Register event listeners
     events.on(EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE, handleRaiseHandEvent);
+    events.on(
+      EventNames.CROSS_ROOM_RAISE_HAND_NOTIFICATION,
+      handleCrossRoomNotification,
+    );
 
     return () => {
-      // Cleanup event listener
+      // Cleanup event listeners
       events.off(
         EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE,
         handleRaiseHandEvent,
       );
+      events.off(
+        EventNames.CROSS_ROOM_RAISE_HAND_NOTIFICATION,
+        handleCrossRoomNotification,
+      );
     };
-  }, [localUid, getDisplayName]);
+  }, [localUid, getDisplayName, isInBreakoutRoute]);
 
   // Clear raised hands when room changes (optional: could be handled by RTM attribute clearing)
   useEffect(() => {
     setRaisedHands({});
-  }, [roomInfo.data?.channel]);
+  }, []);
 
   const contextValue: RaiseHandState = {
     raisedHands,

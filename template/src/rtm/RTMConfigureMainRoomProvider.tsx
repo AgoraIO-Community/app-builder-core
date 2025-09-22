@@ -58,7 +58,7 @@ import {ToggleState} from '../../agora-rn-uikit';
 import useMuteToggleLocal from '../utils/useMuteToggleLocal';
 import {
   RTM_ROOMS,
-  RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
+  RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
 } from './constants';
 import {useRtc} from 'customization-api';
 
@@ -280,13 +280,16 @@ const RTMConfigureMainRoomProvider: React.FC<
 
   const init = async () => {
     // Set main room as active channel when this provider mounts again active
-    RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.MAIN);
+    const currentActiveChannel = RTMEngine.getInstance().getActiveChannelName();
+    if (currentActiveChannel !== RTM_ROOMS.MAIN) {
+      RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.MAIN);
+    }
 
     // Clear room-scoped RTM attributes to ensure fresh state
     try {
       await client?.storage.removeUserMetadata({
         data: {
-          items: RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES.map(key => ({
+          items: RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES.map(key => ({
             key,
             value: '',
           })),
