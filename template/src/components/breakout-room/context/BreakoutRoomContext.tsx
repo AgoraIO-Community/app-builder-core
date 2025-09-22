@@ -507,7 +507,7 @@ const BreakoutRoomProvider = ({
 
   // Common operation lock for API-triggering actions with multi-host coordination
   const acquireOperationLock = useCallback(
-    (operationName: string, showToast = true): boolean => {
+    (operationName: string): boolean => {
       // Check if another host is operating
       console.log('supriya-state-sync acquiring lock step 1');
 
@@ -522,14 +522,6 @@ const BreakoutRoomProvider = ({
             currentlyInFlight: isBreakoutUpdateInFlight,
           },
         );
-
-        if (showToast) {
-          showDeduplicatedToast(`operation-blocked-${operationName}`, {
-            type: 'info',
-            text1: 'Please wait for current operation to complete',
-            visibilityTime: 3000,
-          });
-        }
         return false;
       }
 
@@ -538,6 +530,7 @@ const BreakoutRoomProvider = ({
         'supriya-state-sync broadcasting host operation start',
         operationName,
       );
+      setBreakoutUpdateInFlight(true);
       broadcastHostOperationStart(operationName);
 
       logger.log(
@@ -550,8 +543,8 @@ const BreakoutRoomProvider = ({
     },
     [
       isBreakoutUpdateInFlight,
-      showDeduplicatedToast,
       broadcastHostOperationStart,
+      setBreakoutUpdateInFlight,
     ],
   );
 
@@ -1141,7 +1134,9 @@ const BreakoutRoomProvider = ({
   };
 
   const createBreakoutRoomGroup = () => {
-    if (!acquireOperationLock('CREATE_GROUP')) return;
+    if (!acquireOperationLock('CREATE_GROUP')) {
+      return;
+    }
 
     logger.log(
       LogSource.Internals,
@@ -1211,7 +1206,7 @@ const BreakoutRoomProvider = ({
       }
 
       // 🛡️ Check for API operation conflicts first
-      if (!acquireOperationLock('MOVE_PARTICIPANT_TO_MAIN', false)) {
+      if (!acquireOperationLock('MOVE_PARTICIPANT_TO_MAIN')) {
         return;
       }
 
@@ -1283,7 +1278,7 @@ const BreakoutRoomProvider = ({
       }
 
       // 🛡️ Check for API operation conflicts first
-      if (!acquireOperationLock('MOVE_PARTICIPANT_TO_GROUP', false)) {
+      if (!acquireOperationLock('MOVE_PARTICIPANT_TO_GROUP')) {
         return;
       }
 
@@ -1557,7 +1552,9 @@ const BreakoutRoomProvider = ({
   };
 
   const closeAllRooms = () => {
-    if (!acquireOperationLock('CLOSE_ALL_GROUPS')) return;
+    if (!acquireOperationLock('CLOSE_ALL_GROUPS')) {
+      return;
+    }
 
     logger.log(
       LogSource.Internals,
@@ -1605,7 +1602,9 @@ const BreakoutRoomProvider = ({
   };
 
   const updateRoomName = (newRoomName: string, roomIdToEdit: string) => {
-    if (!acquireOperationLock('RENAME_GROUP')) return;
+    if (!acquireOperationLock('RENAME_GROUP')) {
+      return;
+    }
 
     const roomToRename = stateRef.current.breakoutGroups.find(
       r => r.id === roomIdToEdit,

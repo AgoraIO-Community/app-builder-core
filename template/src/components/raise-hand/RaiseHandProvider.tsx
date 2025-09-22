@@ -163,12 +163,12 @@ export const RaiseHandProvider: React.FC<RaiseHandProviderProps> = ({
       PersistanceLevel.Sender,
     );
 
-    // Show toast notification
-    Toast.show({
-      type: 'info',
-      text1: 'Hand lowered',
-      visibilityTime: 2000,
-    });
+    // // Show toast notification
+    // Toast.show({
+    //   type: 'info',
+    //   text1: 'Hand lowered',
+    //   visibilityTime: 2000,
+    // });
   }, [isHandRaised, localUid]);
 
   // Toggle hand action
