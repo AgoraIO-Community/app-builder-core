@@ -301,7 +301,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   // only Host is authorized to start/stop stt
   isHost &&
     actionMenuitems.push({
-      icon: 'lang-select',
+      icon: 'globe',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: changeSpokenLangLabel + ' ',

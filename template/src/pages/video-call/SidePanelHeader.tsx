@@ -42,6 +42,7 @@ import {
   chatPanelPrivateTabText,
   peoplePanelHeaderText,
   sttChangeSpokenLanguageText,
+  sttChangeTranslationLanguageText,
   sttDownloadTranscriptBtnText,
   sttTranscriptPanelHeaderText,
 } from '../../language/default-labels/videoCallScreenLabels';
@@ -285,9 +286,12 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const changeSpokenLanguage = useString<boolean>(
     sttChangeSpokenLanguageText,
   )();
+  const changeTranslationLanguage = useString<boolean>(
+    sttChangeTranslationLanguageText,
+  )();
   isHost &&
     actionMenuitems.push({
-      icon: 'lang-select',
+      icon: 'globe',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: changeSpokenLanguage + ' ',
@@ -302,7 +306,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Change Translate Language',
+    title: changeTranslationLanguage,
     disabled: false,
     onPress: () => {
       setActionMenuVisible(false);

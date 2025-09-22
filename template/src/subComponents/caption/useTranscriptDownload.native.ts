@@ -8,7 +8,7 @@ import {LogSource, logger} from '../../logger/AppBuilderLogger';
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
 } => {
-  const {meetingTranscript} = useCaption();
+  const {meetingTranscript, selectedTranslationLanguage} = useCaption();
   const {defaultContent} = useContent();
   const {
     data: {meetingTitle},
@@ -26,6 +26,7 @@ const useTranscriptDownload = (): {
           meetingTranscript,
           meetingTitle,
           defaultContent,
+          selectedTranslationLanguage,
         );
 
         // get path to the Documents directory, don't have access to Downloads folder so saving in documents 1

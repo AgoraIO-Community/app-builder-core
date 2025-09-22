@@ -42,15 +42,7 @@ export const TranscriptText = ({
       return currentTranslation.text;
     }
     
-    //  show the  recent translation available :TODO test
-    if (translations && translations.length > 0) {
-      const latestTranslation = translations.find(t => t.text && t.text.length > 0);
-      if (latestTranslation?.text) {
-        return latestTranslation.text;
-      }
-    }
-    
-    // if no translations exist
+    // if selected language not available, show original
     return value;
   };
   
