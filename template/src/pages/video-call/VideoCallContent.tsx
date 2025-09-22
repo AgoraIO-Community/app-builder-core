@@ -86,6 +86,11 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         if (data?.data?.act === 'CHAN_JOIN') {
           const {channel_name, mainUser, screenShare, chat, room_name} =
             data.data.data;
+
+          // Set transition flag - component will unmount/remount when entering breakout
+          sessionStorage.setItem('breakout_room_transition', 'true');
+          console.log('Set breakout transition flag for channel join');
+
           // Extract breakout channel details
           const breakoutDetails: BreakoutChannelDetails = {
             channel: channel_name,
@@ -144,7 +149,13 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
         handleBreakoutJoin,
       );
     };
-  }, [phrase, getDisplayName, mainRoomLocalUid]);
+  }, [
+    phrase,
+    getDisplayName,
+    mainRoomLocalUid,
+    setBreakoutRoomChannelInfo,
+    history,
+  ]);
 
   // Cleanup on unmount
   useEffect(() => {

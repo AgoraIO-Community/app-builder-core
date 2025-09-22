@@ -852,9 +852,21 @@ const BreakoutRoomProvider = ({
     const loadInitialData = async () => {
       await checkIfBreakoutRoomSessionExistsAPI();
     };
+
+    // Check if we just transitioned to breakout mode
+    const justEnteredBreakout = sessionStorage.getItem(
+      'breakout_room_transition',
+    );
+    const delay = justEnteredBreakout ? 3000 : 1200;
+
+    if (justEnteredBreakout) {
+      sessionStorage.removeItem('breakout_room_transition'); // Clear flag
+      console.log('Using extended delay for breakout transition');
+    }
+
     const timeoutId = setTimeout(() => {
       loadInitialData();
-    }, 1200);
+    }, delay);
 
     return () => {
       clearTimeout(timeoutId);
@@ -1372,15 +1384,6 @@ const BreakoutRoomProvider = ({
     [localUid, breakoutRoomVersion],
   );
 
-  const getCurrentRoom = useCallback((): BreakoutGroup | null => {
-    const userRoom = stateRef.current.breakoutGroups.find(
-      group =>
-        group.participants.hosts.includes(localUid) ||
-        group.participants.attendees.includes(localUid),
-    );
-    return userRoom ?? null;
-  }, [localUid, breakoutRoomVersion]);
-
   const findUserRoomId = (uid: UidType, groups: BreakoutGroup[] = []) =>
     groups.find(g => {
       const hosts = Array.isArray(g?.participants?.hosts)
@@ -1391,7 +1394,7 @@ const BreakoutRoomProvider = ({
         : [];
       return hosts.includes(uid) || attendees.includes(uid);
     })?.id ?? null;
-    
+
   // Permissions
   useEffect(() => {
     if (lastSyncedSnapshotRef.current) {
@@ -2285,17 +2288,6 @@ const BreakoutRoomProvider = ({
         },
       );
 
-      const findUserRoomId = (uid: UidType, groups: BreakoutGroup[] = []) =>
-        groups.find(g => {
-          const hosts = Array.isArray(g?.participants?.hosts)
-            ? g.participants.hosts
-            : [];
-          const attendees = Array.isArray(g?.participants?.attendees)
-            ? g.participants.attendees
-            : [];
-          return hosts.includes(uid) || attendees.includes(uid);
-        })?.id ?? null;
-
       // Snapshot before applying
       const prevSnapshot = lastSyncedSnapshotRef?.current;
       const prevGroups = prevSnapshot?.breakout_room || [];
@@ -2337,6 +2329,7 @@ const BreakoutRoomProvider = ({
       // 1. Room closed
       if (breakout_room.length === 0 && prevGroups.length > 0) {
         console.log('supriya-sync-ordering 1. all room closed: ');
+        // 1. User is in breakout toom and the exits
         if (prevRoomId) {
           showDeduplicatedToast('all-rooms-closed', {
             leadingIconName: 'close-room',
@@ -2345,8 +2338,11 @@ const BreakoutRoomProvider = ({
             text2: 'Returning to the main room...',
             visibilityTime: 3000,
           });
+          // Set transition flag - user will remount in main room and need fresh data
+          sessionStorage.setItem('breakout_room_transition', 'true');
           return exitRoom(true);
         } else {
+          // 2. User is in main room recevies just notification
           showDeduplicatedToast('all-rooms-closed', {
             leadingIconName: 'close-room',
             type: 'info',
@@ -2356,7 +2352,7 @@ const BreakoutRoomProvider = ({
         }
       }
 
-      // 2. User’s room deleted (they were in a room → now not)
+      // 2. User's room deleted (they were in a room → now not)
       if (userLeftBreakoutRoom) {
         console.log('supriya-sync-ordering 2. they were in a room → now not: ');
 
@@ -2383,6 +2379,9 @@ const BreakoutRoomProvider = ({
             visibilityTime: 3000,
           });
         }
+
+        // Set transition flag - user will remount in main room and need fresh data
+        sessionStorage.setItem('breakout_room_transition', 'true');
         return exitRoom(true);
       }
 
@@ -2391,18 +2390,18 @@ const BreakoutRoomProvider = ({
         console.log(
           'supriya-sync-ordering 3. user moved between breakout rooms',
         );
-        const prevRoom = prevGroups.find(r => r.id === prevRoomId);
-        const nextRoom = breakout_room.find(r => r.id === nextRoomId);
+        // const prevRoom = prevGroups.find(r => r.id === prevRoomId);
+        // const nextRoom = breakout_room.find(r => r.id === nextRoomId);
 
-        showDeduplicatedToast(`user-moved-${prevRoomId}-${nextRoomId}`, {
-          leadingIconName: 'arrow-right',
-          type: 'info',
-          text1: `Host: ${senderName} has moved you to "${
-            nextRoom?.name || nextRoomId
-          }".`,
-          text2: `From "${prevRoom?.name || prevRoomId}"`,
-          visibilityTime: 3000,
-        });
+        // showDeduplicatedToast(`user-moved-${prevRoomId}-${nextRoomId}`, {
+        //   leadingIconName: 'arrow-right',
+        //   type: 'info',
+        //   text1: `Host: ${senderName} has moved you to "${
+        //     nextRoom?.name || nextRoomId
+        //   }".`,
+        //   text2: `From "${prevRoom?.name || prevRoomId}"`,
+        //   visibilityTime: 3000,
+        // });
       }
 
       // 4. Rooms control switched
