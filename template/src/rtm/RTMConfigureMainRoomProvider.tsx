@@ -34,6 +34,7 @@ import {
   isEventForActiveChannel,
 } from './utils';
 import {EventUtils, EventsQueue, RTM_EVENT_SCOPE} from '../rtm-events';
+import {EventNames} from '../rtm-events';
 import RTMEngine from './RTMEngine';
 import {filterObject} from '../utils';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
@@ -55,7 +56,10 @@ import {RTMUserData, useRTMGlobalState} from './RTMGlobalStateProvider';
 import {useUserGlobalPreferences} from '../components/UserGlobalPreferenceProvider';
 import {ToggleState} from '../../agora-rn-uikit';
 import useMuteToggleLocal from '../utils/useMuteToggleLocal';
-import {RTM_ROOMS} from './constants';
+import {
+  RTM_ROOMS,
+  RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
+} from './constants';
 import {useRtc} from 'customization-api';
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
@@ -277,6 +281,26 @@ const RTMConfigureMainRoomProvider: React.FC<
   const init = async () => {
     // Set main room as active channel when this provider mounts again active
     RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.MAIN);
+
+    // Clear room-scoped RTM attributes to ensure fresh state
+    try {
+      await client?.storage.removeUserMetadata({
+        data: {
+          items: RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES.map(key => ({
+            key,
+            value: '',
+          })),
+        },
+      });
+    } catch (error) {
+      logger.error(
+        LogSource.AgoraSDK,
+        'RTMConfigure',
+        'Failed to clear room-scoped attributes in main room',
+        {error},
+      );
+    }
+
     setHasUserJoinedRTM(true);
     await runQueuedEvents();
     setIsInitialQueueCompleted(true);

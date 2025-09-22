@@ -47,6 +47,7 @@ import {
   isEventForActiveChannel,
 } from '../rtm/utils';
 import {EventUtils, EventsQueue} from '../rtm-events';
+import {EventNames} from '../rtm-events';
 import {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
@@ -68,7 +69,10 @@ import {
   nativeStorageEventTypeMapping,
 } from '../../bridge/rtm/web/Types';
 import {useRTMCore} from '../rtm/RTMCoreProvider';
-import {RTM_ROOMS} from './constants';
+import {
+  RTM_ROOMS,
+  RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
+} from './constants';
 import {useUserGlobalPreferences} from '../components/UserGlobalPreferenceProvider';
 import {ToggleState} from '../../agora-rn-uikit';
 import useMuteToggleLocal from '../utils/useMuteToggleLocal';
@@ -256,6 +260,26 @@ const RTMConfigureBreakoutRoomProvider = (
         console.log('setting primary channel', currentChannel);
         RTMEngine.getInstance().addChannel(RTM_ROOMS.BREAKOUT, currentChannel);
         RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.BREAKOUT);
+
+        // Clear room-scoped RTM attributes to ensure fresh state
+        try {
+          await client?.storage.removeUserMetadata({
+            data: {
+              items: RTM_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES.map(key => ({
+                key,
+                value: '',
+              })),
+            },
+          });
+        } catch (error) {
+          logger.error(
+            LogSource.AgoraSDK,
+            'RTMConfigure',
+            'Failed to clear room-scoped attributes in breakout room',
+            {error},
+          );
+        }
+
         logger.log(
           LogSource.AgoraSDK,
           'API',
