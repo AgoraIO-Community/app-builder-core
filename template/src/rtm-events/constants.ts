@@ -16,6 +16,7 @@ const RECORDING_STATE_ATTRIBUTE = 'recording_state';
 const RECORDING_STARTED_BY_ATTRIBUTE = 'recording_started_by';
 // 2. SCREENSHARE
 const SCREENSHARE_ATTRIBUTE = 'screenshare';
+
 // 2. LIVE STREAMING
 const RAISED_ATTRIBUTE = 'raised';
 const ROLE_ATTRIBUTE = 'role';
@@ -40,6 +41,9 @@ const BOARD_COLOR_CHANGED = 'BOARD_COLOR_CHANGED';
 const WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION = 'WHITEBOARD_L_I_U_P';
 const RECORDING_DELETED = 'RECORDING_DELETED';
 const SPOTLIGHT_USER_CHANGED = 'SPOTLIGHT_USER_CHANGED';
+// 9. General raise hand
+// Later on we will only have one raise hand i.e which will tied with livestream ad breakout
+const BREAKOUT_RAISE_HAND_ATTRIBUTE = 'breakout_raise_hand';
 
 const EventNames = {
   RECORDING_STATE_ATTRIBUTE,
@@ -62,6 +66,7 @@ const EventNames = {
   WHITEBOARD_LAST_IMAGE_UPLOAD_POSITION,
   RECORDING_DELETED,
   SPOTLIGHT_USER_CHANGED,
+  BREAKOUT_RAISE_HAND_ATTRIBUTE,
 };
 /** ***** EVENT NAMES ENDS ***** */
 

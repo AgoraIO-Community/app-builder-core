@@ -35,6 +35,7 @@ import {
 } from '../../chat-messages/useChatMessages';
 import {isWeb} from '../../../utils/common';
 import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
+import {useRaiseHand} from '../../raise-hand';
 
 const BreakoutRoomGroupSettings: React.FC = () => {
   const {
@@ -42,6 +43,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   } = useRoomInfo();
   const localUid = useLocalUid();
   const {sendChatSDKMessage} = useChatConfigure();
+  const {isHandRaised} = useRaiseHand();
 
   const {
     breakoutGroups,
@@ -133,7 +135,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         </View>
 
         <View style={styles.memberMenu}>
-          {hasRaisedHand ? (
+          {isHandRaised ? (
             <View style={styles.memberRaiseHand}>
               <ImageIcon
                 iconSize={18}

@@ -48,6 +48,7 @@ import {ChatMessagesProvider} from '../../components/chat-messages/useChatMessag
 import VideoCallScreenWrapper from './../video-call/VideoCallScreenWrapper';
 import {BeautyEffectProvider} from '../../components/beauty-effect/useBeautyEffects';
 import {UserActionMenuProvider} from '../../components/useUserActionMenu';
+import {RaiseHandProvider} from '../../components/raise-hand';
 import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
 import {
   BreakoutChannelDetails,
@@ -151,20 +152,22 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
                                                             <VideoMeetingDataProvider>
                                                               <VideoCallProvider>
                                                                 <DisableChatProvider>
-                                                                  <BreakoutRoomProvider
-                                                                    mainChannel={
-                                                                      rtcProps.channel
-                                                                    }
-                                                                    handleLeaveBreakout={
-                                                                      onLeave
-                                                                    }>
-                                                                    <BreakoutRoomEventsConfigure
-                                                                      mainChannelName={
+                                                                  <RaiseHandProvider>
+                                                                    <BreakoutRoomProvider
+                                                                      mainChannel={
                                                                         rtcProps.channel
+                                                                      }
+                                                                      handleLeaveBreakout={
+                                                                        onLeave
                                                                       }>
-                                                                      <VideoCallScreenWrapper />
-                                                                    </BreakoutRoomEventsConfigure>
-                                                                  </BreakoutRoomProvider>
+                                                                      <BreakoutRoomEventsConfigure
+                                                                        mainChannelName={
+                                                                          rtcProps.channel
+                                                                        }>
+                                                                        <VideoCallScreenWrapper />
+                                                                      </BreakoutRoomEventsConfigure>
+                                                                    </BreakoutRoomProvider>
+                                                                  </RaiseHandProvider>
                                                                 </DisableChatProvider>
                                                               </VideoCallProvider>
                                                             </VideoMeetingDataProvider>
