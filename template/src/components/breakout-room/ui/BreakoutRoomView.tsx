@@ -35,7 +35,13 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
       try {
         setIsInitializing(true);
         const activeSession = await checkIfBreakoutRoomSessionExistsAPI();
+        console.log('supriya-sync-queue  activeSession: ', activeSession);
         if (!activeSession && isHost) {
+          console.log(
+            'supriya-sync-queue  callubg upsertBreakoutRoomAPI: ',
+            activeSession,
+          );
+
           await upsertBreakoutRoomAPI('START');
         }
       } catch (error) {

@@ -75,10 +75,22 @@ const EventNames = {
 
 /** SCOPE OF EVENTS */
 const RTM_GLOBAL_SCOPE_EVENTS = [EventNames.NAME_ATTRIBUTE];
+const RTM_SESSION_SCOPE_EVENTS = [];
+// const RTM_SESSION_SCOPE_EVENTS = [
+//   EventNames.RECORDING_STATE_ATTRIBUTE,
+//   EventNames.RECORDING_STARTED_BY_ATTRIBUTE,
+// ];
 
 enum RTM_EVENT_SCOPE {
-  GLOBAL = 'GLOBAL',
-  LOCAL = 'LOCAL',
+  GLOBAL = 'GLOBAL', // These event-attributes dont change ex: name, screenuid even when room chanes (main -> breakout)
+  SESSION = 'SESSION', // These event-attributes are stored as per channel but there needs to be persistance..when user returns to main room..he should have the state of that channel ex: recording, whiteboard active
+  LOCAL = 'LOCAL', // These event-attributes are specific to channel and can be reseted or removed, ex: raise_hand, screenshare
 }
 
-export {EventActions, EventNames, RTM_GLOBAL_SCOPE_EVENTS, RTM_EVENT_SCOPE};
+export {
+  EventActions,
+  EventNames,
+  RTM_GLOBAL_SCOPE_EVENTS,
+  RTM_EVENT_SCOPE,
+  RTM_SESSION_SCOPE_EVENTS,
+};

@@ -12,7 +12,6 @@
 
 import React, {useState, useEffect, useRef} from 'react';
 import {
-  type GetChannelMetadataResponse,
   type PresenceEvent,
   type StorageEvent,
   type SetOrUpdateUserMetadataOptions,
@@ -30,9 +29,11 @@ import {
 } from '../../bridge/rtm/web/Types';
 import {RTM_ROOMS} from './constants';
 import {
-  fetchAllOnlineMembersWithRetries,
-  fetchUserAttributesWithBackoffRetry,
-  processUserUidAttributes,
+  fetchOnlineMembersWithRetries,
+  fetchUserAttributesWithRetries,
+  mapUserAttributesToState,
+  fetchChannelAttributesWithRetries,
+  processUserAttributeForQueue,
 } from './rtm-presence-utils';
 
 export enum UserType {
@@ -51,8 +52,6 @@ export interface RTMUserData {
   isInWaitingRoom?: boolean; // Waiting room status (RTM-based feature state)
   isHost: string; // Host privileges (stored in RTM user metadata as 'isHost')
 }
-
-const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 interface RTMGlobalStateProviderProps {
   children: React.ReactNode;
@@ -95,20 +94,22 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     [uid: number]: RTMUserData;
   }>({});
 
-  const hasInitRef = useRef(false);
   // Timeout Refs
+  const isRTMMounted = useRef(true);
+  const hasInitRef = useRef(false);
+
   const subscribeTimerRef: any = useRef(5);
-  const channelAttributesTimerRef: any = useRef(5);
-  const membersTimerRef: any = useRef(5);
   const subscribeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+
+  const channelAttributesTimerRef: any = useRef(5);
   const channelAttributesTimeoutRef = useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
-  const membersTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isRTMMounted = useRef(true);
+  const membersTimerRef: any = useRef(5);
+  const membersTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Message handler registration for main channel
   const messageHandlerRef = useRef<((message: MessageEvent) => void) | null>(
@@ -127,7 +128,6 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
     messageHandlerRef.current = handler;
   };
-
   const unregisterMainChannelMessageHandler = () => {
     console.log(
       'rudra-core-client: RTM unregistering main channel message handler',
@@ -139,7 +139,6 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   const storageHandlerRef = useRef<((storage: StorageEvent) => void) | null>(
     null,
   );
-
   const registerMainChannelStorageHandler = (
     handler: (storage: StorageEvent) => void,
   ) => {
@@ -153,7 +152,6 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
     storageHandlerRef.current = handler;
   };
-
   const unregisterMainChannelStorageHandler = () => {
     console.log(
       'rudra-core-client: RTM unregistering main channel storage handler',
@@ -161,31 +159,15 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     storageHandlerRef.current = null;
   };
 
-  useEffect(() => {
-    return () => {
-      isRTMMounted.current = false;
-      // Clear all pending timeouts on unmount
-      for (const timeout of eventTimeouts.values()) {
-        clearTimeout(timeout);
-      }
-      eventTimeouts.clear();
+  // Update main rtm users state
+  const updateMainRoomUser = (uid: number, data: RTMUserData) => {
+    setMainRoomRTMUsers(prev => ({
+      ...prev,
+      [uid]: {...(prev[uid] || {}), ...data},
+    }));
+  };
 
-      // Clear timer-based retry timeouts
-      if (subscribeTimeoutRef.current) {
-        clearTimeout(subscribeTimeoutRef.current);
-        subscribeTimeoutRef.current = null;
-      }
-      if (channelAttributesTimeoutRef.current) {
-        clearTimeout(channelAttributesTimeoutRef.current);
-        channelAttributesTimeoutRef.current = null;
-      }
-      if (membersTimeoutRef.current) {
-        clearTimeout(membersTimeoutRef.current);
-        membersTimeoutRef.current = null;
-      }
-    };
-  }, []);
-
+  // Init cycle starts
   const init = async () => {
     try {
       console.log('rudra-core-client: Starting RTM init for main channel');
@@ -198,16 +180,9 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
   };
 
-  const updateMainRoomUser = (uid: number, data: RTMUserData) => {
-    setMainRoomRTMUsers(prev => ({
-      ...prev,
-      [uid]: {...(prev[uid] || {}), ...data},
-    }));
-  };
-
   const subscribeChannel = async () => {
     try {
-      if (RTMEngine.getInstance().allChannels.includes(mainChannelName)) {
+      if (RTMEngine.getInstance().allChannelIds.includes(mainChannelName)) {
         console.log('rudra- main channel already subsribed');
       } else {
         console.log('rudra- subscribing...');
@@ -220,7 +195,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         console.log('rudra-  subscribed main channel', mainChannelName);
 
         RTMEngine.getInstance().addChannel(RTM_ROOMS.MAIN, mainChannelName);
-        RTMEngine.getInstance().setActiveChannel(RTM_ROOMS.MAIN);
+        RTMEngine.getInstance().setActiveChannelName(RTM_ROOMS.MAIN);
         subscribeTimerRef.current = 5;
         // Clear any pending retry timeout since we succeeded
         if (subscribeTimeoutRef.current) {
@@ -242,147 +217,91 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
   };
 
-  const getChannelAttributes = async () => {
-    try {
-      await client.storage
-        .getChannelMetadata(mainChannelName, 1)
-        .then(async (data: GetChannelMetadataResponse) => {
-          for (const item of data.items) {
-            try {
-              const {key, value, authorUserId, updateTs} = item;
-              if (hasJsonStructure(value as string)) {
-                const evtData = {
-                  evt: key,
-                  value,
-                };
-                // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
-                EventsQueue.enqueue({
-                  data: evtData,
-                  uid: authorUserId,
-                  ts: updateTs,
-                });
-              }
-            } catch (error) {
-              console.log(
-                'rudra-core-client: RTM Failed to process channel attribute item',
-                item,
-                error,
-              );
-              // Continue processing other items
-            }
-          }
-          console.log(
-            'rudra-core-client: RTM storage.getChannelMetadata data received',
-            data,
-          );
-        });
-      channelAttributesTimerRef.current = 5;
-      // Clear any pending retry timeout since we succeeded
-      if (channelAttributesTimeoutRef.current) {
-        clearTimeout(channelAttributesTimeoutRef.current);
-        channelAttributesTimeoutRef.current = null;
-      }
-    } catch (error) {
-      channelAttributesTimeoutRef.current = setTimeout(async () => {
-        // Cap the timer to prevent excessive delays (max 30 seconds)
-        channelAttributesTimerRef.current = Math.min(
-          channelAttributesTimerRef.current * 2,
-          30,
-        );
-        await getChannelAttributes();
-      }, channelAttributesTimerRef.current * 1000);
-    }
-  };
-
   const getMembersWithAttributes = async () => {
     try {
       console.log(
         'rudra-core-client: RTM presence.getOnlineUsers(getMembers) start',
       );
-      const {allMembers, totalOccupancy} =
-        await fetchAllOnlineMembersWithRetries(client, mainChannelName);
-
-      console.log('rudra-core-client: totalOccupancy: ', totalOccupancy);
-      console.log('rudra-core-client: allMembers: ', allMembers);
-
-      // await client.presence
-      //   .getOnlineUsers(mainChannelName, 1)
-      //   .then(async (data: GetOnlineUsersResponse) => {
-      //     console.log(
-      //       'rudra-core-client: RTM presence.getOnlineUsers data received',
-      //       data,
-      //     );
-      //     console.log('supriya rtm online users', data);
-      await Promise.all(
-        allMembers.map(async member => {
-          console.log('surpiya rtm member: ', member);
-          // const removedAttr = await client.storage.removeUserMetadata();
-          // console.log('supriya rtm removedAttr: ', removedAttr);
-          try {
-            const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
-              client,
-              member.userId,
-              {
-                isMounted: () => isRTMMounted.current,
-                // 👈 called later if name arrives
-                onNameFound: async retryAttr =>
-                  processUserUidAttributes(
-                    retryAttr,
+      const {allMembers, totalOccupancy} = await fetchOnlineMembersWithRetries(
+        client,
+        mainChannelName,
+        {
+          onPage: async ({occupants, total, pageToken}) => {
+            console.log(
+              'rudra-core-client: fetching user attributes for page: ',
+              pageToken,
+              occupants,
+            );
+            await Promise.all(
+              occupants.map(async member => {
+                try {
+                  const userAttributes = await fetchUserAttributesWithRetries(
+                    client,
+                    member.userId,
+                    {
+                      isMounted: () => isRTMMounted.current,
+                      // called later if name arrives
+                      onNameFound: async retryAttr =>
+                        mapUserAttributesToState(
+                          retryAttr,
+                          member.userId,
+                          updateMainRoomUser,
+                        ),
+                    },
+                  );
+                  console.log(
+                    `supriya rtm backoffAttributes for ${member.userId}`,
+                    userAttributes,
+                  );
+                  mapUserAttributesToState(
+                    userAttributes,
                     member.userId,
                     updateMainRoomUser,
-                  ),
-              },
-            );
-            console.log(
-              `supriya rtm backoffAttributes for ${member.userId}`,
-              backoffAttributes,
-            );
-            processUserUidAttributes(
-              backoffAttributes,
-              member.userId,
-              updateMainRoomUser,
-            );
-            console.log(
-              `supriya rtm backoffAttributes for ${member.userId}`,
-              backoffAttributes,
-            );
+                  );
+                  console.log(
+                    `supriya rtm backoffAttributes for ${member.userId}`,
+                    userAttributes,
+                  );
 
-            // setting screenshare data
-            // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
-            // isActive to identify all active screenshare users in the call
-            backoffAttributes?.items?.forEach(item => {
-              try {
-                if (hasJsonStructure(item.value as string)) {
-                  const data = {
-                    evt: item.key, // Use item.key instead of key
-                    value: item.value, // Use item.value instead of value
-                  };
-                  // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
-                  EventsQueue.enqueue({
-                    data: data,
-                    uid: member.userId,
-                    ts: timeNow(),
+                  // setting screenshare data
+                  // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
+                  // isActive to identify all active screenshare users in the call
+                  console.log(
+                    'supriya-session-test userAttributes',
+                    userAttributes,
+                  );
+                  userAttributes?.items?.forEach(item => {
+                    processUserAttributeForQueue(
+                      item,
+                      member.userId,
+                      RTM_ROOMS.MAIN,
+                      (eventKey, value, userId) => {
+                        const data = {evt: eventKey, value};
+                        console.log(
+                          'supriya-session-test adding to queue',
+                          data,
+                        );
+                        EventsQueue.enqueue({
+                          data,
+                          uid: userId,
+                          ts: timeNow(),
+                        });
+                      },
+                    );
                   });
+                } catch (e) {
+                  console.log(
+                    'rudra-core-client: RTM Could not retrieve name of',
+                    member.userId,
+                    e,
+                  );
                 }
-              } catch (error) {
-                console.log(
-                  'rudra-core-client: RTM Failed to process user attribute item for',
-                  member.userId,
-                  item,
-                  error,
-                );
-                // Continue processing other items
-              }
-            });
-          } catch (e) {
-            console.log(
-              'rudra-core-client: RTM Could not retrieve name of',
-              member.userId,
-              e,
+              }),
             );
-          }
-        }),
+          },
+        },
       );
+
       membersTimerRef.current = 5;
       // Clear any pending retry timeout since we succeeded
       if (membersTimeoutRef.current) {
@@ -402,196 +321,36 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
   };
 
-  /**
-   *
-   * @param userId
-   * @returns
-   * Step 1: Fetch attributes.
-   * Step 2: If attributes exist and have any non-empty values → return them immediately (so you don’t block isHost, screenUid, etc.).
-   * Step 3: If name is missing → keep retrying in the background for up to 30 seconds.
-   * Step 4: If name shows up within 30s, update again. If not, stop retrying.
-   */
-  // const fetchUserAttributesWithBackoffRetry = async (
-  //   userId: string,
-  //   onNameFound?: (attr: GetUserMetadataResponse) => void,
-  // ): Promise<GetUserMetadataResponse> => {
-  //   const start = Date.now();
+  const getChannelAttributes = async () => {
+    try {
+      await fetchChannelAttributesWithRetries(
+        client,
+        mainChannelName,
+        eventData => EventsQueue.enqueue(eventData),
+      );
+      channelAttributesTimerRef.current = 5;
+      // Clear any pending retry timeout since we succeeded
+      if (channelAttributesTimeoutRef.current) {
+        clearTimeout(channelAttributesTimeoutRef.current);
+        channelAttributesTimeoutRef.current = null;
+      }
+    } catch (error) {
+      console.log(
+        'rudra-core-client: RTM getchannelattributes failed..Trying again',
+        error,
+      );
+      channelAttributesTimeoutRef.current = setTimeout(async () => {
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        channelAttributesTimerRef.current = Math.min(
+          channelAttributesTimerRef.current * 2,
+          30,
+        );
+        getChannelAttributes();
+      }, channelAttributesTimerRef.current * 1000);
+    }
+  };
 
-  //   return backOff(
-  //     async () => {
-  //       console.log(
-  //         'rudra-core-client: RTM fetching getUserMetadata for member',
-  //         userId,
-  //       );
-
-  //       if (Date.now() - start > 30000) {
-  //         throw new Error(
-  //           `Timeout: name not found for user ${userId} within 30s`,
-  //         );
-  //       }
-
-  //       const attr: GetUserMetadataResponse =
-  //         await client.storage.getUserMetadata({userId});
-  //       console.log('[user attributes', attr);
-  //       // 1. Check if attributes exist
-  //       if (!attr || !attr.items || attr.items.length === 0) {
-  //         console.log('rudra-core-client: RTM attributes for member not found');
-  //         throw new Error('No attribute items found');
-  //       }
-  //       console.log('sup-attribute-check attributes', attr);
-  //       // 2. Partial update allowed (screenUid, isHost, etc.)
-  //       const hasAny = attr.items.some(i => i.value);
-  //       if (!hasAny) {
-  //         throw new Error('No usable attributes yet');
-  //       }
-  //       console.log('sup-attribute-check hasAny', hasAny);
-
-  //       // 3. If name exists, return immediately
-  //       const hasNameAttribute = attr.items.find(
-  //         i => i.key === 'name' && i.value,
-  //       );
-  //       console.log('sup-attribute-check name', hasNameAttribute);
-  //       if (hasNameAttribute) {
-  //         return attr;
-  //       }
-  //       // 4. Background retry for name only
-  //       (async () => {
-  //         await backOff(
-  //           async () => {
-  //             if (Date.now() - start > 30000) {
-  //               throw new Error(`Timeout: name not found for ${userId}`);
-  //             }
-  //             // 🔒 Stop if unmounted
-  //             if (!isRTMMounted.current) {
-  //               throw new Error(`Component unmounted while retrying ${userId}`);
-  //             }
-  //             console.log('sup-attribute-check inside name backoff');
-
-  //             const retriedAttributes: GetUserMetadataResponse =
-  //               await client.storage.getUserMetadata({userId});
-  //             console.log(
-  //               'sup-attribute-check retriedAttributes',
-  //               retriedAttributes,
-  //             );
-
-  //             const hasNameAttributeRetry = retriedAttributes.items.find(
-  //               i => i.key === 'name' && i.value,
-  //             );
-  //             console.log(
-  //               'sup-attribute-check hasNameAttributeRetry',
-  //               hasNameAttributeRetry,
-  //             );
-
-  //             if (!hasNameAttributeRetry) {
-  //               throw new Error('Name still not found');
-  //             }
-  //             if (isRTMMounted.current) {
-  //               console.log('sup-attribute-check onNameFound');
-
-  //               onNameFound?.(retriedAttributes);
-  //             }
-  //             return retriedAttributes;
-  //           },
-  //           {
-  //             startingDelay: 500,
-  //             timeMultiple: 2,
-  //             maxDelay: 30000,
-  //             retry: () => true,
-  //           },
-  //         ).catch(() => {
-  //           console.log(
-  //             `Name not found for ${userId} within 30s, giving up further retries`,
-  //           );
-  //         });
-  //       })();
-
-  //       return attr;
-  //     },
-  //     {
-  //       startingDelay: 500,
-  //       timeMultiple: 2,
-  //       maxDelay: 30000,
-  //       retry: (e, idx) => {
-  //         logger.debug(
-  //           LogSource.AgoraSDK,
-  //           'Log',
-  //           `[retrying] Attempt ${idx}. Fetching ${userId}'s name`,
-  //           e,
-  //         );
-  //         return true;
-  //       },
-  //     },
-  //   );
-  // };
-
-  // const processUserUidAttributes = async (
-  //   attr: GetUserMetadataResponse,
-  //   userId: string,
-  // ) => {
-  //   try {
-  //     console.log('rudra-core-client: [user attributes]:', attr);
-  //     const uid = parseInt(userId, 10);
-  //     const screenUidItem = attr?.items?.find(item => item.key === 'screenUid');
-  //     const isHostItem = attr?.items?.find(item => item.key === 'isHost');
-  //     const nameItem = attr?.items?.find(item => item.key === 'name');
-  //     const screenUid = screenUidItem?.value
-  //       ? parseInt(screenUidItem.value, 10)
-  //       : undefined;
-
-  //     let userName = '';
-  //     if (nameItem?.value) {
-  //       try {
-  //         const parsedValue = JSON.parse(nameItem.value);
-  //         const payloadString = parsedValue.payload;
-  //         if (payloadString) {
-  //           const payload = JSON.parse(payloadString);
-  //           userName = payload.name;
-  //         }
-  //       } catch (parseError) {
-  //         // ignore parse errors
-  //       }
-  //     }
-
-  //     //start - updating RTM user data
-  //     const rtmUserData: RTMUserData = {
-  //       uid,
-  //       type: uid === parseInt(RECORDING_BOT_UID, 10) ? 'bot' : 'rtc',
-  //       screenUid,
-  //       name: userName,
-  //       offline: false,
-  //       isHost: isHostItem?.value || 'false',
-  //       lastMessageTimeStamp: 0,
-  //     };
-  //     console.log('rudra-core-client: new RTM user joined', uid, rtmUserData);
-  //     setMainRoomRTMUsers(prev => ({
-  //       ...prev,
-  //       [uid]: {...(prev[uid] || {}), ...rtmUserData},
-  //     }));
-  //     //end- updating RTM user data
-
-  //     //start - updating screenshare RTM data
-  //     if (screenUid) {
-  //       // @ts-ignore
-  //       const screenShareRTMData: RTMUserData = {
-  //         type: 'screenshare',
-  //         parentUid: uid,
-  //         // Note: screenUid itself doesn't need screenUid field, parentUid will be handled in RTC layer
-  //       };
-  //       setMainRoomRTMUsers(prev => ({
-  //         ...prev,
-  //         [screenUid]: {...(prev[screenUid] || {}), ...screenShareRTMData},
-  //       }));
-  //     }
-  //     //end - updating screenshare RTM data
-  //   } catch (e) {
-  //     console.log(
-  //       'rudra-core-client: RTM Failed to process user data for',
-  //       userId,
-  //       e,
-  //     );
-  //   }
-  // };
-
+  // Listeners
   const handleMainChannelPresenceEvent = async (presence: PresenceEvent) => {
     console.log(
       'rudra-core-client: RTM presence event received for different channel',
@@ -616,23 +375,23 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         presence.publisher,
       );
       try {
-        const backoffAttributes = await fetchUserAttributesWithBackoffRetry(
+        const userAttributes = await fetchUserAttributesWithRetries(
           client,
           presence.publisher,
           {
             isMounted: () => isRTMMounted.current,
             // This is called later if name arrives and hence we process that attribute
-            onNameFound: retryAttr =>
-              processUserUidAttributes(
-                retryAttr,
+            onNameFound: retriedAttributes =>
+              mapUserAttributesToState(
+                retriedAttributes,
                 presence.publisher,
                 updateMainRoomUser,
               ),
           },
         );
         // This is called as soon as we receive any attributes
-        processUserUidAttributes(
-          backoffAttributes,
+        mapUserAttributesToState(
+          userAttributes,
           presence.publisher,
           updateMainRoomUser,
         );
@@ -705,79 +464,79 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
         `rudra-core-client: RTM processing ${eventTypeStr} ${storageTypeStr} metadata`,
       );
 
-      // STEP 1: Handle metadata persistence FIRST (core RTM functionality)
-      try {
-        if (storage.data?.items && Array.isArray(storage.data.items)) {
-          for (const item of storage.data.items) {
-            try {
-              if (!item || !item.key) {
-                console.log(
-                  'rudra-core-client: RTM invalid storage item:',
-                  item,
-                );
-                continue;
-              }
+      // // STEP 1: Handle metadata persistence FIRST (core RTM functionality)
+      // try {
+      //   if (storage.data?.items && Array.isArray(storage.data.items)) {
+      //     for (const item of storage.data.items) {
+      //       try {
+      //         if (!item || !item.key) {
+      //           console.log(
+      //             'rudra-core-client: RTM invalid storage item:',
+      //             item,
+      //           );
+      //           continue;
+      //         }
 
-              const {key, value, authorUserId, updateTs} = item;
+      //         const {key, value, authorUserId, updateTs} = item;
 
-              // Parse the value to check persistLevel
-              let parsedValue;
-              try {
-                parsedValue =
-                  typeof value === 'string' ? JSON.parse(value) : value;
-              } catch (parseError) {
-                console.log(
-                  'rudra-core-client: RTM failed to parse storage event value:',
-                  parseError,
-                );
-                continue;
-              }
+      //         // Parse the value to check persistLevel
+      //         let parsedValue;
+      //         try {
+      //           parsedValue =
+      //             typeof value === 'string' ? JSON.parse(value) : value;
+      //         } catch (parseError) {
+      //           console.log(
+      //             'rudra-core-client: RTM failed to parse storage event value:',
+      //             parseError,
+      //           );
+      //           continue;
+      //         }
 
-              const {persistLevel} = parsedValue;
+      //         const {persistLevel} = parsedValue;
 
-              // Handle metadata persistence for Session level events
-              if (persistLevel === PersistanceLevel.Session) {
-                console.log(
-                  'rudra-core-client: RTM setting user metadata for key:',
-                  key,
-                );
+      //         // Handle metadata persistence for Session level events
+      //         if (persistLevel === PersistanceLevel.Session) {
+      //           console.log(
+      //             'rudra-core-client: RTM setting user metadata for key:',
+      //             key,
+      //           );
 
-                const rtmAttribute = {key: key, value: value};
-                const options: SetOrUpdateUserMetadataOptions = {
-                  userId: `${localUid}`,
-                };
+      //           const rtmAttribute = {key: key, value: value};
+      //           const options: SetOrUpdateUserMetadataOptions = {
+      //             userId: `${localUid}`,
+      //           };
 
-                try {
-                  await client.storage.setUserMetadata(
-                    {items: [rtmAttribute]},
-                    options,
-                  );
-                  console.log(
-                    'rudra-core-client: RTM successfully set user metadata for key:',
-                    key,
-                  );
-                } catch (setMetadataError) {
-                  console.log(
-                    'rudra-core-client: RTM failed to set user metadata:',
-                    setMetadataError,
-                  );
-                }
-              }
-            } catch (itemError) {
-              console.log(
-                'rudra-core-client: RTM failed to process storage item:',
-                item,
-                itemError,
-              );
-            }
-          }
-        }
-      } catch (error) {
-        console.log(
-          'rudra-core-client: RTM error processing storage event:',
-          error,
-        );
-      }
+      //           try {
+      //             await client.storage.setUserMetadata(
+      //               {items: [rtmAttribute]},
+      //               options,
+      //             );
+      //             console.log(
+      //               'rudra-core-client: RTM successfully set user metadata for key:',
+      //               key,
+      //             );
+      //           } catch (setMetadataError) {
+      //             console.log(
+      //               'rudra-core-client: RTM failed to set user metadata:',
+      //               setMetadataError,
+      //             );
+      //           }
+      //         }
+      //       } catch (itemError) {
+      //         console.log(
+      //           'rudra-core-client: RTM failed to process storage item:',
+      //           item,
+      //           itemError,
+      //         );
+      //       }
+      //     }
+      //   }
+      // } catch (error) {
+      //   console.log(
+      //     'rudra-core-client: RTM error processing storage event:',
+      //     error,
+      //   );
+      // }
 
       // STEP 2: Forward to application logic AFTER metadata persistence
       if (storageHandlerRef.current) {
@@ -796,11 +555,50 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     }
   };
 
-  const handleMainChannelMessageEvent = (message: MessageEvent) => {
+  const handleMainChannelMessageEvent = async (message: MessageEvent) => {
     console.log(
       'rudra-core-client: RTM main channel message event received',
       message,
     );
+
+    // Check if this is a SESSION-level event and persist it
+    try {
+      if (hasJsonStructure(message.message)) {
+        const parsed = JSON.parse(message.message);
+        const {evt, value} = parsed;
+
+        if (value && hasJsonStructure(value)) {
+          const parsedValue = JSON.parse(value);
+          const {persistLevel, _channelId} = parsedValue;
+
+          // If this is a SESSION-level event from main channel, store it on local user's attributes
+          if (
+            persistLevel === PersistanceLevel.Session &&
+            _channelId === mainChannelName
+          ) {
+            // const roomAwareKey = `${RTM_ROOMS.MAIN}__${evt}`;
+            const rtmAttribute = {key: evt, value: value};
+
+            const options: SetOrUpdateUserMetadataOptions = {
+              userId: `${localUid}`,
+            };
+            await client.storage.setUserMetadata(
+              {items: [rtmAttribute]},
+              options,
+            );
+            // console.log(
+            //   'rudra-core-client: Stored SESSION attribute cross-room',
+            //   roomAwareKey,
+            // );
+          }
+        }
+      }
+    } catch (error) {
+      console.log(
+        'rudra-core-client: RTM error storing session attribute:',
+        error,
+      );
+    }
 
     // Forward to registered message handler (RTMConfigure)
     if (messageHandlerRef.current) {
@@ -840,17 +638,29 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
     );
     init();
     return () => {
-      console.log('rudra-clean up for global state - call unsubscribe');
+      console.log('rudra-core-client: main state cleanup');
       hasInitRef.current = false;
+      isRTMMounted.current = false;
       if (mainChannelName) {
         unregisterCallbacks(mainChannelName);
         if (RTMEngine.getInstance().hasChannel(mainChannelName)) {
           client?.unsubscribe(mainChannelName).catch(() => {});
           RTMEngine.getInstance().removeChannel(mainChannelName);
         }
-        console.log(
-          'rudra-core-client: RTM unregistered callbacks for main channel',
-        );
+      }
+
+      // Clear timer-based retry timeouts
+      if (subscribeTimeoutRef.current) {
+        clearTimeout(subscribeTimeoutRef.current);
+        subscribeTimeoutRef.current = null;
+      }
+      if (membersTimeoutRef.current) {
+        clearTimeout(membersTimeoutRef.current);
+        membersTimeoutRef.current = null;
+      }
+      if (channelAttributesTimeoutRef.current) {
+        clearTimeout(channelAttributesTimeoutRef.current);
+        channelAttributesTimeoutRef.current = null;
       }
     };
   }, [client, isLoggedIn, mainChannelName]);

@@ -1,21 +1,33 @@
+import React from 'react';
 import {backOff} from 'exponential-backoff';
 import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {
   type GetUserMetadataResponse as NativeGetUserMetadataResponse,
   type GetOnlineUsersResponse as NativeGetOnlineUsersResponse,
+  type GetChannelMetadataResponse,
   type RTMClient,
+  type UserState,
+  type MetadataItem,
 } from 'agora-react-native-rtm';
 import {RTMUserData} from './RTMGlobalStateProvider';
 import {RECORDING_BOT_UID} from '../utils/constants';
+import {hasJsonStructure, stripRoomPrefixFromEventKey} from '../rtm/utils';
+import {nativeChannelTypeMapping} from '../../bridge/rtm/web/Types';
+import {PersistanceLevel} from '../rtm-events-api';
 
-export async function fetchAllOnlineMembersWithRetries(
+export const fetchOnlineMembersWithRetries = async (
   client: RTMClient,
   channelName: string,
   {
-    maxPageRetries = 5, // how many times to retry a single page
-    outerBackoffCap = 30000, // cap outer retry at 30s
+    onPage, // 👈 callback so caller can process each page as soon as it's ready
+  }: {
+    onPage?: (page: {
+      occupants: UserState[];
+      total: number;
+      pageToken?: string;
+    }) => void | Promise<void>;
   } = {},
-) {
+) => {
   let allMembers: any[] = [];
   let nextPage: string | undefined;
   let totalOccupancy = 0;
@@ -26,88 +38,62 @@ export async function fetchAllOnlineMembersWithRetries(
         const result: NativeGetOnlineUsersResponse =
           await client.presence.getOnlineUsers(
             channelName,
-            1, // page size
+            nativeChannelTypeMapping.MESSAGE,
             {page: pageNumber}, // cursor for pagination
           );
         return result;
       },
       {
-        startingDelay: 500,
-        timeMultiple: 2,
-        maxDelay: 5000,
-        numOfAttempts: maxPageRetries,
+        numOfAttempts: 3,
         retry: (e, attempt) => {
           console.warn(
-            `[RTM] Page fetch failed (attempt ${attempt}). Retrying…`,
+            `[RTM] Page fetch failed (attempt ${attempt}/3). Retrying…`,
             e,
           );
-          return true;
+          return attempt < 3; // 👈 stop retrying after 3rd attempt
         },
       },
     );
   };
 
-  const runLoop = async () => {
-    do {
+  do {
+    try {
       const result = await fetchPage(nextPage);
       const {totalOccupancy: total, occupants, nextPage: next} = result;
-
       if (occupants) {
         allMembers = allMembers.concat(occupants);
+        // process this page immediately
+        await onPage?.({occupants, total, pageToken: nextPage});
       }
-
       totalOccupancy = total;
       nextPage = next;
-
       console.log(
         `[RTM] Fetched ${allMembers.length}/${totalOccupancy} users, nextPage=${nextPage}`,
       );
-    } while (nextPage && nextPage.trim() !== '');
+    } catch (fetchPageError) {
+      console.error(`[RTM] Page ${nextPage || 'first'} failed`, fetchPageError);
+      // 👉 Skip to next page if this one keeps failing
+      nextPage = undefined;
+    }
+  } while (nextPage && nextPage.trim() !== '');
 
-    return {allMembers, totalOccupancy};
-  };
+  return {allMembers, totalOccupancy};
+};
 
-  // Outer retry for the whole loop
-  return backOff(runLoop, {
-    startingDelay: 2000,
-    timeMultiple: 2,
-    maxDelay: outerBackoffCap,
-    numOfAttempts: Infinity,
-    retry: (e, attempt) => {
-      console.warn(
-        `[RTM] Outer loop failed (attempt ${attempt}). Retrying whole fetch…`,
-        e,
-      );
-      return true;
-    },
-  });
-}
-
-export const fetchUserAttributesWithBackoffRetry = async (
+export const fetchUserAttributesWithRetries = async (
   client: RTMClient,
   userId: string,
   opts?: {
     isMounted?: () => boolean; // <-- injected check
     onNameFound?: (attr: NativeGetUserMetadataResponse) => void;
-    retryTimeoutMs?: number;
   },
-  // onNameFound?: (attr: NativeGetUserMetadataResponse) => void,
 ): Promise<NativeGetUserMetadataResponse> => {
-  const start = Date.now();
-  const timeout = opts?.retryTimeoutMs ?? 30000;
-
   return backOff(
     async () => {
       console.log(
         'rudra-core-client: RTM fetching getUserMetadata for member',
         userId,
       );
-
-      if (Date.now() - start > 30000) {
-        throw new Error(
-          `Timeout: name not found for user ${userId} within 30s`,
-        );
-      }
 
       // Fetch attributes
       const attr: NativeGetUserMetadataResponse =
@@ -140,9 +126,6 @@ export const fetchUserAttributesWithBackoffRetry = async (
       (async () => {
         await backOff(
           async () => {
-            if (Date.now() - start > timeout) {
-              throw new Error(`Timeout: name not found for ${userId}`);
-            }
             // 🔒 Stop if unmounted
             if (opts?.isMounted && !opts?.isMounted) {
               throw new Error(`Component unmounted while retrying ${userId}`);
@@ -175,9 +158,6 @@ export const fetchUserAttributesWithBackoffRetry = async (
             return retriedAttributes;
           },
           {
-            startingDelay: 500,
-            timeMultiple: 2,
-            maxDelay: 30000,
             retry: () => true,
           },
         ).catch(() => {
@@ -190,9 +170,6 @@ export const fetchUserAttributesWithBackoffRetry = async (
       return attr;
     },
     {
-      startingDelay: 500,
-      timeMultiple: 2,
-      maxDelay: 30000,
       retry: (e, idx) => {
         logger.debug(
           LogSource.AgoraSDK,
@@ -206,14 +183,7 @@ export const fetchUserAttributesWithBackoffRetry = async (
   );
 };
 
-/**
- * Process RTM user attributes and update state.
- *
- * @param attr - Agora RTM user metadata response
- * @param userId - User's Agora RTM ID
- * @param setUsers - React state setter (e.g., setMainRoomRTMUsers)
- */
-export const processUserUidAttributes = (
+export const mapUserAttributesToState = (
   attr: NativeGetUserMetadataResponse,
   userId: string,
   updateFn: (uid: number, userData: Partial<RTMUserData>) => void,
@@ -264,5 +234,106 @@ export const processUserUidAttributes = (
     }
   } catch (e) {
     console.log('RTM Failed to process user data for', userId, e);
+  }
+};
+
+export const fetchChannelAttributesWithRetries = async (
+  client: RTMClient,
+  channelName: string,
+  updateFn?: (eventData: {data: any; uid: string; ts: number}) => void,
+) => {
+  try {
+    await client.storage
+      .getChannelMetadata(channelName, nativeChannelTypeMapping.MESSAGE)
+      .then(async (data: GetChannelMetadataResponse) => {
+        console.log('supriya-channel-attributes: ', data);
+        for (const item of data.items) {
+          try {
+            const {key, value, authorUserId, updateTs} = item;
+            if (hasJsonStructure(value as string)) {
+              const evtData = {
+                evt: key,
+                value,
+              };
+              updateFn?.({
+                data: evtData,
+                uid: authorUserId,
+                ts: updateTs,
+              });
+            }
+          } catch (error) {
+            logger.error(
+              LogSource.AgoraSDK,
+              'Log',
+              `RTM Failed to process channel attribute item: ${JSON.stringify(
+                item,
+              )}`,
+              {error},
+            );
+          }
+        }
+      });
+  } catch (error) {}
+};
+
+export const clearRoomScopedUserAttributes = async (
+  client: RTMClient,
+  attributeKeys: readonly string[],
+) => {
+  try {
+    await client?.storage.removeUserMetadata({
+      data: {
+        items: attributeKeys.map(key => ({
+          key,
+          value: '',
+        })),
+      },
+    });
+  } catch (error) {
+    logger.error(
+      LogSource.AgoraSDK,
+      'RTMConfigure',
+      'Failed to clear room-scoped attributes',
+      {error},
+    );
+  }
+};
+
+export const processUserAttributeForQueue = (
+  item: MetadataItem,
+  userId: string,
+  currentRoomKey: string,
+  onProcessedEvent: (eventKey: string, value: string, userId: string) => void,
+) => {
+  try {
+    if (hasJsonStructure(item.value as string)) {
+      let eventKey = item.key;
+      try {
+        // const parsedValue = JSON.parse(item.value);
+        // if (parsedValue.persistLevel === PersistanceLevel.Session) {
+        //   const strippedKey = stripRoomPrefixFromEventKey(
+        //     item.key,
+        //     currentRoomKey,
+        //   );
+        //   if (strippedKey === null) {
+        //     console.log(
+        //       'Skipping SESSION attribute for different room:',
+        //       item.key,
+        //     );
+        //     return;
+        //   }
+        //   eventKey = strippedKey;
+        // }
+
+        onProcessedEvent(eventKey, item.value, userId);
+      } catch (e) {}
+    }
+  } catch (error) {
+    logger.error(
+      LogSource.AgoraSDK,
+      'Log',
+      'RTM Failed to process user attribute item',
+      {error},
+    );
   }
 };
