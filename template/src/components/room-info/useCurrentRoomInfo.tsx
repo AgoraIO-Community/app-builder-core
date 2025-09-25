@@ -31,7 +31,7 @@ export const useCurrentRoomInfo = (): CurrentRoomInfoContextInterface => {
   if (isBreakoutMode && breakoutRoomChannelData) {
     return {
       isInBreakoutRoute: true,
-      channelId: breakoutRoomChannelData.channel_name,
+      channelId: breakoutRoomChannelData.channelId,
     };
   }
 

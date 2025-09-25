@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
@@ -50,6 +50,7 @@ import {BeautyEffectProvider} from '../../components/beauty-effect/useBeautyEffe
 import {UserActionMenuProvider} from '../../components/useUserActionMenu';
 import {RaiseHandProvider} from '../../components/raise-hand';
 import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
+import {useBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
 import {
   BreakoutChannelDetails,
   VideoCallContentProps,
@@ -71,6 +72,7 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
   callbacks,
   styleProps,
 }) => {
+  const {setBreakoutRoomChannelData} = useBreakoutRoomInfo();
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
   const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
@@ -83,6 +85,14 @@ const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
     screenShareUid: breakoutChannelDetails?.screenShareUid as number,
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
+
+  // Set breakout room data when component mounts
+  useEffect(() => {
+    setBreakoutRoomChannelData({
+      channelId: breakoutChannelDetails.channel,
+      isBreakoutMode: true,
+    });
+  }, [breakoutChannelDetails.channel, setBreakoutRoomChannelData]);
 
   return (
     <PropsProvider
