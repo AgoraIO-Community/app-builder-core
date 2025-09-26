@@ -293,13 +293,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const fromText = (
     name: string,
     msgType: ChatMessageType,
-    isAnnouncementText?: boolean,
+    announcement?: AnnouncementText,
   ) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        if (isAnnouncementText) {
-          text = `${name} made an announcement in public chat`;
+        if (announcement?.text) {
+          text = `${announcement.sender}: made an announcement in public chat`;
         } else {
           text = txtToastHeading?.current(name);
         }
@@ -717,14 +717,16 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           : isPrivateMessage
           ? privateMessageLabel?.current()
           : //@ts-ignore
-          defaultContentRef.current.defaultContent[uidAsNumber]?.name
+          announcement?.sender
+          ? announcement.sender
+          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
               trimText(
                 //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               ),
               msgType,
-              isAnnouncementText,
+              announcement,
             )
           : '',
         text2: isPrivateMessage
