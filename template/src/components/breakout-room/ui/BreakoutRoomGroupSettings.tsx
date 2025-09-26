@@ -36,8 +36,9 @@ import {
 import {isWeb} from '../../../utils/common';
 import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 import {useRaiseHand} from '../../raise-hand';
+import Tooltip from '../../../atoms/Tooltip';
 
-const BreakoutRoomGroupSettings: React.FC = () => {
+const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   const {
     data: {isHost, uid, chat},
   } = useRoomInfo();
@@ -198,7 +199,17 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               onPress={() => toggleRoomExpansion(room.id)}
             />
             <View style={styles.roomHeaderInfo}>
-              <Text style={styles.roomName}>{room.name}</Text>
+              <View style={styles.roomNameToolTipContainer}>
+                <Tooltip
+                  fontSize={12}
+                  key={room.id}
+                  scrollY={scrollOffset}
+                  toolTipMessage={room.name}
+                  renderContent={() => {
+                    return <Text style={styles.roomName}>{room.name}</Text>;
+                  }}
+                />
+              </View>
               <Text style={styles.roomMemberCount}>
                 {memberCount > 0 ? memberCount : 'No'} Member
                 {memberCount !== 1 ? 's' : ''}
@@ -423,15 +434,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   roomHeaderInfo: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
   },
+  roomNameToolTipContainer: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
   roomName: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 14,
     fontWeight: '600',
+    maxWidth: '100%',
   },
   roomMemberCount: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,

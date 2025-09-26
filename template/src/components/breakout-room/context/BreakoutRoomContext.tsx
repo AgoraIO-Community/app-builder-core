@@ -1038,10 +1038,34 @@ const BreakoutRoomProvider = ({
   };
 
   const handleAssignParticipants = (strategy: RoomAssignmentStrategy) => {
+    console.log('supriya-assign', stateRef.current);
     if (stateRef.current.breakoutGroups.length === 0) {
       Toast.show({
         type: 'info',
         text1: 'No breakout rooms found.',
+        visibilityTime: 3000,
+      });
+      return;
+    }
+
+    // Check for participants available for assignment based on strategy
+    const availableParticipants =
+      strategy === RoomAssignmentStrategy.AUTO_ASSIGN
+        ? stateRef.current.unassignedParticipants.filter(
+            participant => participant.uid !== localUid,
+          )
+        : stateRef.current.unassignedParticipants;
+
+    if (availableParticipants.length === 0) {
+      const message =
+        strategy === RoomAssignmentStrategy.AUTO_ASSIGN &&
+        stateRef.current.unassignedParticipants.length > 0
+          ? 'No other participants to assign. (Host is excluded from auto-assignment)'
+          : 'No participants left to assign.';
+
+      Toast.show({
+        type: 'info',
+        text1: message,
         visibilityTime: 3000,
       });
       return;
@@ -1539,34 +1563,37 @@ const BreakoutRoomProvider = ({
     }
   }, []);
 
-  const onMakeMePresenter = useCallback((action: 'start' | 'stop') => {
-    logger.log(
-      LogSource.Internals,
-      'BREAKOUT_ROOM',
-      `User became presenter - ${action}`,
-    );
+  const onMakeMePresenter = useCallback(
+    (action: 'start' | 'stop') => {
+      logger.log(
+        LogSource.Internals,
+        'BREAKOUT_ROOM',
+        `User became presenter - ${action}`,
+      );
 
-    if (action === 'start') {
-      setICanPresent(true);
-      // Show toast notification when presenter permission is granted
-      Toast.show({
-        type: 'success',
-        text1: 'You can now present in this breakout room',
-        visibilityTime: 3000,
-      });
-    } else if (action === 'stop') {
-      if (isScreenshareActive) {
-        stopScreenshare();
+      if (action === 'start') {
+        setICanPresent(true);
+        // Show toast notification when presenter permission is granted
+        Toast.show({
+          type: 'success',
+          text1: 'You can now present in this breakout room',
+          visibilityTime: 3000,
+        });
+      } else if (action === 'stop') {
+        if (isScreenshareActive) {
+          stopScreenshare();
+        }
+        setICanPresent(false);
+        // Show toast notification when presenter permission is removed
+        Toast.show({
+          type: 'info',
+          text1: 'Your presenter access has been removed',
+          visibilityTime: 3000,
+        });
       }
-      setICanPresent(false);
-      // Show toast notification when presenter permission is removed
-      Toast.show({
-        type: 'info',
-        text1: 'Your presenter access has been removed',
-        visibilityTime: 3000,
-      });
-    }
-  }, []);
+    },
+    [isScreenshareActive],
+  );
 
   const clearAllPresenters = useCallback(() => {
     setPresenters([]);

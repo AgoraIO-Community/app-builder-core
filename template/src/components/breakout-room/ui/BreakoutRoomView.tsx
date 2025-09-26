@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {useRoomInfo} from '../../room-info/useRoomInfo';
 import {useBreakoutRoom} from './../context/BreakoutRoomContext';
@@ -20,6 +20,13 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
   const {
     data: {isHost},
   } = useRoomInfo();
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [scrollOffset, setScrollOffset] = useState(0);
+
+  const onScroll = event => {
+    setScrollOffset(event.nativeEvent.contentOffset.y);
+  };
 
   const {
     checkIfBreakoutRoomSessionExistsAPI,
@@ -60,6 +67,8 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
     <>
       <BreakoutRoomHeader />
       <ScrollView
+        ref={scrollViewRef}
+        onScroll={onScroll}
         style={[style.pannelOuterBody]}
         contentContainerStyle={
           isInitializing ? style.contentCenter : style.contentStart
@@ -83,9 +92,9 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
             permissions.canAssignParticipants ? (
               <BreakoutRoomSettings />
             ) : (
-              <BreakoutRoomMainRoomUsers />
+              <BreakoutRoomMainRoomUsers scrollOffset={scrollOffset} />
             )}
-            <BreakoutRoomGroupSettings />
+            <BreakoutRoomGroupSettings scrollOffset={scrollOffset} />
             {permissions?.canHostManageMainRoom &&
             permissions?.canCreateRooms ? (
               <TertiaryButton
