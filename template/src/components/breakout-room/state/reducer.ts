@@ -161,14 +161,14 @@ export type BreakoutRoomAction =
   | {
       type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN;
       payload: {
-        user: ContentInterface;
+        uid: UidType;
         fromGroupId: string;
       };
     }
   | {
       type: typeof BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP;
       payload: {
-        user: ContentInterface;
+        uid: UidType;
         fromGroupId: string;
         toGroupId: string;
       };
@@ -434,7 +434,7 @@ export const breakoutRoomReducer = (
     }
 
     case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN: {
-      const {user, fromGroupId} = action.payload;
+      const {uid, fromGroupId} = action.payload;
       return {
         ...state,
         breakoutGroups: state.breakoutGroups.map(group => {
@@ -444,9 +444,9 @@ export const breakoutRoomReducer = (
               ...group,
               participants: {
                 ...group.participants,
-                hosts: group.participants.hosts.filter(id => id !== user.uid),
+                hosts: group.participants.hosts.filter(id => id !== uid),
                 attendees: group.participants.attendees.filter(
-                  id => id !== user.uid,
+                  id => id !== uid,
                 ),
               },
             };
@@ -457,7 +457,17 @@ export const breakoutRoomReducer = (
     }
 
     case BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP: {
-      const {user, fromGroupId, toGroupId} = action.payload;
+      const {uid, fromGroupId, toGroupId} = action.payload;
+
+      // Determine if user was a host or attendee in their previous group
+      let wasHost = false;
+      if (fromGroupId) {
+        const sourceGroup = state.breakoutGroups.find(
+          group => group.id === fromGroupId,
+        );
+        wasHost = sourceGroup?.participants.hosts.includes(uid) || false;
+      }
+
       return {
         ...state,
         breakoutGroups: state.breakoutGroups.map(group => {
@@ -467,25 +477,24 @@ export const breakoutRoomReducer = (
               ...group,
               participants: {
                 ...group.participants,
-                hosts: group.participants.hosts.filter(id => id !== user.uid),
+                hosts: group.participants.hosts.filter(id => id !== uid),
                 attendees: group.participants.attendees.filter(
-                  id => id !== user.uid,
+                  id => id !== uid,
                 ),
               },
             };
           }
-          // Add to target group
+          // Add to target group with same role as previous group
           if (group.id === toGroupId) {
-            const isHost = user.isHost === 'true';
             return {
               ...group,
               participants: {
                 ...group.participants,
-                hosts: isHost
-                  ? [...group.participants.hosts, user.uid]
+                hosts: wasHost
+                  ? [...group.participants.hosts, uid]
                   : group.participants.hosts,
-                attendees: !isHost
-                  ? [...group.participants.attendees, user.uid]
+                attendees: !wasHost
+                  ? [...group.participants.attendees, uid]
                   : group.participants.attendees,
               },
             };

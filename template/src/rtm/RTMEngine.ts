@@ -188,7 +188,7 @@ class RTMEngine {
     console.log('supriya-rtm-lifecycle unsubscribing from all channel');
 
     // Unsubscribe from all tracked channels
-    for (const channel of this.allChannels) {
+    for (const channel of this.allChannelIds) {
       try {
         await this._engine.unsubscribe(channel);
       } catch (err) {

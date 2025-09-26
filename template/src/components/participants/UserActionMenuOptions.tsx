@@ -155,8 +155,6 @@ export default function UserActionMenuOptionsOptions(
   const moreBtnSpotlightLabel = useString(moreBtnSpotlight);
   const {chatConnectionStatus} = useChatUIControls();
   const chatErrNotConnectedText = useString(chatErrorNotConnected)();
-  const {getRoomMemberDropdownOptions, presenters: breakoutRoomPresenters} =
-    useBreakoutRoom();
 
   useEffect(() => {
     customEvents.on('DisableChat', data => {
@@ -176,25 +174,6 @@ export default function UserActionMenuOptionsOptions(
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
-    if (from === 'breakout-room' && $config.ENABLE_BREAKOUT_ROOM) {
-      const memberOptions = getRoomMemberDropdownOptions(user.uid);
-      // Transform to your UI format
-      const breakoutRoomMenuDropdowItems = memberOptions.map(
-        (option: MemberDropdownOption, index) => ({
-          order: index + 1,
-          icon: option.icon,
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: option.title,
-          onPress: () => {
-            setActionMenuVisible(false);
-            option?.onOptionPress();
-          },
-        }),
-      );
-      setActionMenuitems(breakoutRoomMenuDropdowItems);
-      return;
-    }
 
     //Context of current user role
     const isSelf = user.uid === localuid;

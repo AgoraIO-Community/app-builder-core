@@ -1101,13 +1101,13 @@ const BreakoutRoomProvider = ({
     }
   };
 
-  const moveUserToMainRoom = (user: ContentInterface) => {
+  const moveUserToMainRoom = (uid: UidType) => {
     try {
-      if (!user) {
+      if (!uid) {
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Move to main room failed - no user provided',
+          'Move to main room failed - no uid provided',
         );
         return;
       }
@@ -1117,14 +1117,12 @@ const BreakoutRoomProvider = ({
         return;
       }
 
-      const operation = 'moveToMain';
-
       // 🛡️ Use fresh state to avoid race conditions
       const currentState = stateRef.current;
       const currentGroup = currentState.breakoutGroups.find(
         group =>
-          group.participants.hosts.includes(user.uid) ||
-          group.participants.attendees.includes(user.uid),
+          group.participants.hosts.includes(uid) ||
+          group.participants.attendees.includes(uid),
       );
 
       logger.log(
@@ -1132,8 +1130,7 @@ const BreakoutRoomProvider = ({
         'BREAKOUT_ROOM',
         'Moving user to main room',
         {
-          userId: user.uid,
-          userName: user.name,
+          userId: uid,
           fromGroupId: currentGroup?.id,
           fromGroupName: currentGroup?.name,
         },
@@ -1143,7 +1140,7 @@ const BreakoutRoomProvider = ({
         dispatch({
           type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_MAIN,
           payload: {
-            user,
+            uid,
             fromGroupId: currentGroup.id,
           },
         });
@@ -1154,21 +1151,20 @@ const BreakoutRoomProvider = ({
         'BREAKOUT_ROOM',
         'Error moving user to main room',
         {
-          userId: user.uid,
-          userName: user.name,
+          userId: uid,
           error: error.message,
         },
       );
     }
   };
 
-  const moveUserIntoGroup = (user: ContentInterface, toGroupId: string) => {
+  const moveUserIntoGroup = (uid: UidType, toGroupId: string) => {
     try {
-      if (!user) {
+      if (!uid) {
         logger.log(
           LogSource.Internals,
           'BREAKOUT_ROOM',
-          'Move to group failed - no user provided',
+          'Move to group failed - no uid provided',
           {toGroupId},
         );
         return;
@@ -1179,14 +1175,12 @@ const BreakoutRoomProvider = ({
         return;
       }
 
-      const operation = `moveToGroup-${toGroupId}`;
-
       // 🛡️ Use fresh state to avoid race conditions
       const currentState = stateRef.current;
       const currentGroup = currentState.breakoutGroups.find(
         group =>
-          group.participants.hosts.includes(user.uid) ||
-          group.participants.attendees.includes(user.uid),
+          group.participants.hosts.includes(uid) ||
+          group.participants.attendees.includes(uid),
       );
       const targetGroup = currentState.breakoutGroups.find(
         group => group.id === toGroupId,
@@ -1198,8 +1192,7 @@ const BreakoutRoomProvider = ({
           'BREAKOUT_ROOM',
           'Target group not found',
           {
-            userId: user.uid,
-            userName: user.name,
+            userId: uid,
             toGroupId,
           },
         );
@@ -1212,8 +1205,7 @@ const BreakoutRoomProvider = ({
         'BREAKOUT_ROOM',
         'Moving user between groups',
         {
-          userId: user.uid,
-          userName: user.name,
+          userId: uid,
           fromGroupId: currentGroup?.id,
           fromGroupName: currentGroup?.name,
           toGroupId,
@@ -1224,7 +1216,7 @@ const BreakoutRoomProvider = ({
       dispatch({
         type: BreakoutGroupActionTypes.MOVE_PARTICIPANT_TO_GROUP,
         payload: {
-          user,
+          uid,
           fromGroupId: currentGroup?.id,
           toGroupId,
         },
@@ -1235,8 +1227,7 @@ const BreakoutRoomProvider = ({
         'BREAKOUT_ROOM',
         'Error moving user to breakout room',
         {
-          userId: user.uid,
-          userName: user.name,
+          userId: uid,
           toGroupId,
           error: error.message,
         },
@@ -1332,8 +1323,7 @@ const BreakoutRoomProvider = ({
       );
       return;
     }
-    const user = defaultContentRef.current[localUid];
-    if (!user) {
+    if (!localUid) {
       logger.log(
         LogSource.Internals,
         'BREAKOUT_ROOM',
@@ -1345,13 +1335,12 @@ const BreakoutRoomProvider = ({
 
     logger.log(LogSource.Internals, 'BREAKOUT_ROOM', 'User joining room', {
       userId: localUid,
-      userName: user.name,
       toRoomId,
       toRoomName: stateRef.current.breakoutGroups.find(r => r.id === toRoomId)
         ?.name,
     });
 
-    moveUserIntoGroup(user, toRoomId);
+    moveUserIntoGroup(localUid, toRoomId);
     if (!isHostRef.current) {
       setSelfJoinRoomId(toRoomId);
     }
@@ -1500,35 +1489,36 @@ const BreakoutRoomProvider = ({
   );
 
   // User wants to start presenting
-  const makePresenter = (user: ContentInterface, action: 'start' | 'stop') => {
+  const makePresenter = (uid: UidType, action: 'start' | 'stop') => {
     logger.log(
       LogSource.Internals,
       'BREAKOUT_ROOM',
       `Make presenter - ${action}`,
       {
-        targetUserId: user.uid,
-        targetUserName: user.name,
+        targetUserId: uid,
         action,
         isHost: isHostRef.current,
       },
     );
-
+    if (!uid) {
+      return;
+    }
     try {
       // Host can make someone a presenter
       events.send(
         BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
         JSON.stringify({
-          uid: user.uid,
+          uid: uid,
           timestamp: Date.now(),
           action,
         }),
         PersistanceLevel.None,
-        user.uid,
+        uid,
       );
       if (action === 'start') {
-        addPresenter(user.uid);
+        addPresenter(uid);
       } else if (action === 'stop') {
-        removePresenter(user.uid);
+        removePresenter(uid);
       }
     } catch (error) {
       logger.log(
@@ -1536,8 +1526,7 @@ const BreakoutRoomProvider = ({
         'BREAKOUT_ROOM',
         'Error making user presenter',
         {
-          targetUserId: user.uid,
-          targetUserName: user.name,
+          targetUserId: uid,
           action,
           error: error.message,
         },
@@ -1604,8 +1593,7 @@ const BreakoutRoomProvider = ({
       const options: MemberDropdownOption[] = [];
       // Find which room the user is currently in
 
-      const memberUser = defaultContentRef.current[memberUid];
-      if (!memberUser) {
+      if (!memberUid) {
         return options;
       }
 
@@ -1625,7 +1613,7 @@ const BreakoutRoomProvider = ({
         icon: 'double-up-arrow',
         type: 'move-to-main',
         title: 'Move to Main Room',
-        onOptionPress: () => moveUserToMainRoom(memberUser),
+        onOptionPress: () => moveUserToMainRoom(memberUid),
       });
       // Move to other breakout rooms (exclude current room)
       stateRef.current.breakoutGroups
@@ -1634,18 +1622,19 @@ const BreakoutRoomProvider = ({
           options.push({
             type: 'move-to-room',
             icon: 'move-up',
-            title: `Shift to ${group.name}`,
+            title: `Shift to : ${group.name}`,
             roomId: group.id,
             roomName: group.name,
-            onOptionPress: () => moveUserIntoGroup(memberUser, group.id),
+            onOptionPress: () => moveUserIntoGroup(memberUid, group.id),
           });
         });
 
       // Make presenter option is available only for host
       // and if the incoming member is also a host we dont
       // need to show this option as they can already present
-      console.log('supriya-dropdown optopn', defaultContentRef[memberUid]);
-      if (defaultContentRef.current[memberUid]?.isHost === 'true') {
+      const isUserHost =
+        currentRoom?.participants.hosts.includes(memberUid) || false;
+      if (isUserHost) {
         return options;
       }
       if (isHostRef.current) {
@@ -1656,12 +1645,12 @@ const BreakoutRoomProvider = ({
           type: 'make-presenter',
           icon: 'promote-filled',
           title,
-          onOptionPress: () => makePresenter(memberUser, action),
+          onOptionPress: () => makePresenter(memberUid, action),
         });
       }
       return options;
     },
-    [isUserPresenting, isHostRef.current, presenters, breakoutRoomVersion],
+    [isUserPresenting, presenters, breakoutRoomVersion],
   );
 
   // const handleBreakoutRoomSyncState = useCallback(

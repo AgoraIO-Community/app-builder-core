@@ -1,4 +1,7 @@
 /** ***** EVENTS ACTIONS BEGINS***** */
+
+import {BreakoutRoomEventNames} from '../components/breakout-room/events/constants';
+
 // 1. SCREENSHARE
 const SCREENSHARE_STARTED = 'SCREENSHARE_STARTED';
 const SCREENSHARE_STOPPED = 'SCREENSHARE_STOPPED';
@@ -77,6 +80,7 @@ const EventNames = {
 const RTM_GLOBAL_SCOPE_EVENTS = [
   EventNames.NAME_ATTRIBUTE,
   EventNames.CROSS_ROOM_RAISE_HAND_NOTIFICATION,
+  BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
 ];
 const RTM_SESSION_SCOPE_EVENTS = [];
 // const RTM_SESSION_SCOPE_EVENTS = [

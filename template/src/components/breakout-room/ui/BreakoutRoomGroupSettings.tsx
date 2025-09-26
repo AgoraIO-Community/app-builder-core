@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
@@ -18,9 +18,8 @@ import {UidType, useLocalUid} from '../../../../agora-rn-uikit';
 import UserAvatar from '../../../atoms/UserAvatar';
 import ImageIcon from '../../../atoms/ImageIcon';
 import {BreakoutGroup} from '../state/reducer';
-import {useContent} from 'customization-api';
-import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
 import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
+import BreakoutRoomMemberActionMenu from './BreakoutRoomMemberActionMenu';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
 import {useModal} from '../../../utils/useModal';
@@ -60,11 +59,10 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   const disableJoinBtn = !isHost && !canUserSwitchRoom;
 
   // Render room card
-  const {defaultContent} = useContent();
   const {mainRoomRTMUsers} = useRTMGlobalState();
   // Use hook to get display names with fallback to main room users
   const getDisplayName = useMainRoomUserDisplayName();
-  const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
+
   const {
     modalOpen: isAnnoucementModalOpen,
     setModalOpen: setAnnouncementModal,
@@ -77,17 +75,6 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   const [roomToEdit, setRoomToEdit] = useState<{id: string; name: string}>(
     null,
   );
-
-  const [actionMenuVisible, setActionMenuVisible] = useState<{
-    [key: string]: boolean;
-  }>({});
-
-  const showModal = (memberUId: UidType) => {
-    setActionMenuVisible(prev => ({
-      ...prev,
-      [memberUId]: !prev[memberUId],
-    }));
-  };
 
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
 
@@ -109,14 +96,6 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
     if (rtmMemberData && rtmMemberData?.offline) {
       return null;
     }
-
-    // Create or get ref for this specific member
-    if (!memberMoreMenuRefs.current[memberUId]) {
-      memberMoreMenuRefs.current[memberUId] = React.createRef();
-    }
-
-    const memberRef = memberMoreMenuRefs.current[memberUId];
-    const isMenuVisible = actionMenuVisible[memberUId] || false;
 
     return (
       <View key={memberUId} style={[styles.memberItem]}>
@@ -146,29 +125,7 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
           )}
           {permissions.canHostManageMainRoom && memberUId !== localUid ? (
             <View style={styles.memberMenuMoreIcon}>
-              <View ref={memberRef} collapsable={false}>
-                <IconButton
-                  iconProps={{
-                    iconType: 'plain',
-                    name: 'more-menu',
-                    iconSize: 20,
-                    tintColor: $config.SECONDARY_ACTION_COLOR,
-                  }}
-                  onPress={() => showModal(memberUId)}
-                />
-              </View>
-              <UserActionMenuOptionsOptions
-                actionMenuVisible={isMenuVisible}
-                setActionMenuVisible={visible =>
-                  setActionMenuVisible(prev => ({
-                    ...prev,
-                    [memberUId]: visible,
-                  }))
-                }
-                user={defaultContent[memberUId]}
-                btnRef={memberRef}
-                from={'breakout-room'}
-              />
+              <BreakoutRoomMemberActionMenu memberUid={memberUId} />
             </View>
           ) : (
             <></>
