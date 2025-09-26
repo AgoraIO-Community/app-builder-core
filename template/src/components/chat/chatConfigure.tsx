@@ -272,15 +272,14 @@ const ChatConfigure = ({children}) => {
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
-              const isAnnouncementText =
-                message.ext?.isAnnouncementText || false;
+
               showMessageNotification(
                 message.msg,
                 fromUser,
                 false,
                 message.type,
                 false,
-                isAnnouncementText,
+                message.ext?.announcement,
               );
               addMessageToStore(Number(fromUser), {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
@@ -289,7 +288,7 @@ const ChatConfigure = ({children}) => {
                 isDeleted: false,
                 type: ChatMessageType.TXT,
                 replyToMsgId: message.ext?.replyToMsgId,
-                isAnnouncementText,
+                isAnnouncementText: !!message.ext?.announcement?.text,
               });
             }
 
@@ -423,7 +422,7 @@ const ChatConfigure = ({children}) => {
             ext: option?.ext?.file_ext,
             fileName: option?.ext?.file_name,
             replyToMsgId: option?.ext?.replyToMsgId,
-            isAnnouncementText: option?.ext?.isAnnouncementText,
+            isAnnouncementText: !!option?.ext?.announcement?.text,
           };
 
           // update local user message store

@@ -85,6 +85,10 @@ export enum ChatMessageType {
   COMBINE = 'combine',
 }
 
+type AnnouncementText = {
+  text: string;
+  sender: string;
+};
 export interface messageInterface {
   createdTimestamp: number;
   updatedTimestamp?: number;
@@ -123,7 +127,7 @@ export interface ChatOption {
     channel?: string;
     msg?: string;
     replyToMsgId?: string;
-    isAnnouncementText?: boolean;
+    announcement?: AnnouncementText;
   };
   url?: string;
 }
@@ -181,7 +185,7 @@ interface ChatMessagesInterface {
     isPrivateMessage?: boolean,
     msgType?: ChatMessageType,
     forceStop?: boolean,
-    isAnnouncementText?: boolean,
+    announcement?: AnnouncementText,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
   removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
@@ -284,13 +288,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const fromText = (
     name: string,
     msgType: ChatMessageType,
-    isAnnouncementText?: boolean,
+    announcement?: AnnouncementText,
   ) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        if (isAnnouncementText) {
-          text = `${name} made an announcement in public chat`;
+        if (announcement?.text) {
+          text = `${announcement.sender}: made an announcement in public chat`;
         } else {
           text = txtToastHeading?.current(name);
         }
@@ -537,7 +541,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     isPrivateMessage: boolean = false,
     msgType: ChatMessageType,
     forceStop: boolean = false,
-    isAnnouncementText?: boolean,
+    announcement: AnnouncementText,
   ) => {
     if (isUserBanedRef.current.isUserBaned) {
       return;
@@ -702,18 +706,20 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         primaryBtn: null,
         secondaryBtn: null,
         type: 'info',
-        leadingIconName: isAnnouncementText ? 'announcement' : 'chat-nav',
+        leadingIconName: announcement?.text ? 'announcement' : 'chat-nav',
         text1: isPrivateMessage
           ? privateMessageLabel?.current()
           : //@ts-ignore
-          defaultContentRef.current.defaultContent[uidAsNumber]?.name
+          announcement?.sender
+          ? announcement.sender
+          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
               trimText(
                 //@ts-ignore
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               ),
               msgType,
-              isAnnouncementText,
+              announcement,
             )
           : '',
         text2: isPrivateMessage
