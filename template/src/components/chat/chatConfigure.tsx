@@ -273,6 +273,8 @@ const ChatConfigure = ({children}) => {
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
+              const isAnnouncementText =
+                message.ext?.isAnnouncementText || false;
               showMessageNotification(
                 message.msg,
                 fromUser,

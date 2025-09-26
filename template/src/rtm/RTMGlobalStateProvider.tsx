@@ -109,6 +109,9 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   const [customRTMMainRoomData, setCustomRTMMainRoomData] = useState<{
     [key: string]: any;
   }>({});
+  useEffect(() => {
+    console.log('mainRoomRTMUsers user-attributes changed', mainRoomRTMUsers);
+  }, [mainRoomRTMUsers]);
 
   // Timeout Refs
   const isRTMMounted = useRef(true);
@@ -268,7 +271,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
                     },
                   );
                   console.log(
-                    `supriya rtm backoffAttributes for ${member.userId}`,
+                    `supriya rtm backoffAttributes user-attributes for ${member.userId}`,
                     userAttributes,
                   );
                   mapUserAttributesToState(
@@ -276,18 +279,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
                     member.userId,
                     updateMainRoomUser,
                   );
-                  console.log(
-                    `supriya rtm backoffAttributes for ${member.userId}`,
-                    userAttributes,
-                  );
 
-                  // setting screenshare data
-                  // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
-                  // isActive to identify all active screenshare users in the call
-                  console.log(
-                    'supriya-session-test userAttributes',
-                    userAttributes,
-                  );
                   userAttributes?.items?.forEach(item => {
                     processUserAttributeForQueue(
                       item,

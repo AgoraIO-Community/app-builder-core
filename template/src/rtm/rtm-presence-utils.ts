@@ -105,20 +105,20 @@ export const fetchUserAttributesWithRetries = async (
         console.log('rudra-core-client: RTM attributes for member not found');
         throw new Error('No attribute items found');
       }
-      console.log('sup-attribute-check attributes', attr);
+      console.log('sup-attribute-check user-attributes', attr);
 
       // 2. Partial update allowed (screenUid, isHost, etc.)
       const hasAny = attr.items.some(i => i.value);
       if (!hasAny) {
-        throw new Error('No usable attributes yet');
+        throw new Error('No usable user-attributes yet');
       }
-      console.log('sup-attribute-check hasAny', hasAny);
+      console.log('sup-attribute-check user-attributes hasAny', hasAny);
 
       // 3. If name exists, return immediately
       const hasNameAttribute = attr.items.find(
         i => i.key === 'name' && i.value,
       );
-      console.log('sup-attribute-check name', hasNameAttribute);
+      console.log('sup-attribute-check user-attributes name', hasNameAttribute);
       if (hasNameAttribute) {
         return attr;
       }
@@ -130,12 +130,14 @@ export const fetchUserAttributesWithRetries = async (
             if (opts?.isMounted && !opts?.isMounted) {
               throw new Error(`Component unmounted while retrying ${userId}`);
             }
-            console.log('sup-attribute-check inside name backoff');
+            console.log(
+              'sup-attribute-check user-attributes inside name backoff',
+            );
 
             const retriedAttributes: NativeGetUserMetadataResponse =
               await client.storage.getUserMetadata({userId});
             console.log(
-              'sup-attribute-check retriedAttributes',
+              'sup-attribute-check user-attributes retriedAttributes',
               retriedAttributes,
             );
 
@@ -143,22 +145,27 @@ export const fetchUserAttributesWithRetries = async (
               i => i.key === 'name' && i.value,
             );
             console.log(
-              'sup-attribute-check hasNameAttributeRetry',
+              'sup-attribute-check user-attributes hasNameAttributeRetry',
               hasNameAttributeRetry,
             );
 
             if (!hasNameAttributeRetry) {
-              throw new Error('Name still not found');
+              throw new Error('user-attributes Name still not found');
             }
 
             if (opts?.isMounted) {
-              console.log('sup-attribute-check onNameFound');
+              console.log(
+                'sup-attribute-check user-attributes onNameFound',
+                retriedAttributes,
+              );
               opts?.onNameFound?.(retriedAttributes);
             }
             return retriedAttributes;
           },
           {
             retry: () => true,
+            maxDelay: Infinity, // No maximum delay limit for name
+            numOfAttempts: Infinity, // Infinite attempts for name
           },
         ).catch(() => {
           console.log(
