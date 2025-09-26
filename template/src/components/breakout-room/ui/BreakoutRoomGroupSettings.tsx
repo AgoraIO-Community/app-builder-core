@@ -43,6 +43,7 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
     data: {isHost, uid, chat},
   } = useRoomInfo();
   const localUid = useLocalUid();
+  const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
   const {isUserHandRaised} = useRaiseHand();
   const {defaultContent} = useContent();
