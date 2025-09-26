@@ -1,22 +1,18 @@
 import React, {SetStateAction, Dispatch, useState} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, ScrollView, TextInput} from 'react-native';
 import GenericModal from '../../common/GenericModal';
-import {TableBody, TableHeader} from '../../common/data-table';
-import Loading from '../../../subComponents/Loading';
 import ThemeConfig from '../../../theme';
 import ImageIcon from '../../../atoms/ImageIcon';
 import Checkbox from '../../../atoms/Checkbox';
 import Dropdown from '../../../atoms/Dropdown';
+import UserAvatar from '../../../atoms/UserAvatar';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
-import {
-  ContentInterface,
-  UidType,
-  useLocalUid,
-} from '../../../../agora-rn-uikit';
+import {UidType, useLocalUid} from '../../../../agora-rn-uikit';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import {
   ManualParticipantAssignment,
   RoomAssignmentStrategy,
+  BreakoutRoomUser,
 } from '../state/reducer';
 
 function EmptyParticipantsState() {
@@ -31,9 +27,7 @@ function EmptyParticipantsState() {
         />
       </View>
       <View>
-        <Text style={[style.infoText]}>
-          No text-tracks found for this meeting
-        </Text>
+        <Text style={[style.infoText]}>No participants found</Text>
       </View>
     </View>
   );
@@ -47,7 +41,7 @@ function ParticipantRow({
   onSelectionChange,
   localUid,
 }: {
-  participant: {uid: UidType; user: ContentInterface};
+  participant: {uid: UidType; user: BreakoutRoomUser};
   assignment: ManualParticipantAssignment;
   rooms: {label: string; value: string}[];
   onAssignmentChange: (uid: UidType, roomId: string | null) => void;
@@ -56,33 +50,49 @@ function ParticipantRow({
 }) {
   const selectedValue = assignment?.roomId || 'unassigned';
   const displayName =
-    participant?.uid === localUid
-      ? `${participant?.user?.name} (me)`
-      : participant?.user?.name;
+    participant.uid === localUid
+      ? `${participant.user.name} (me)`
+      : participant.user.name;
 
   return (
-    <View style={style.tbrow} key={participant.uid}>
-      <View style={[style.td]}>
+    <View style={style.participantBodyRow} key={participant.uid}>
+      <View style={[style.participantBodytRowCell, style.checkboxCell]}>
         <Checkbox
           disabled={false}
           checked={assignment?.isSelected || false}
           onChange={() => onSelectionChange(participant.uid)}
-          label={displayName}
+          label={''}
+          checkBoxStyle={style.checkboxIcon}
         />
       </View>
-      <View style={[style.td]}>
-        <Dropdown
-          enabled={true}
-          label={selectedValue}
-          data={rooms}
-          onSelect={({_, value}) => {
-            onAssignmentChange(
-              participant.uid,
-              value === 'unassigned' ? null : value,
-            );
-          }}
-          selectedValue={selectedValue}
-        />
+      <View style={style.participantBodytRowCell}>
+        <View style={style.participantInfo}>
+          <UserAvatar
+            name={displayName}
+            containerStyle={style.participantAvatar}
+            textStyle={style.participantAvatarText}
+          />
+          <Text style={style.participantName} numberOfLines={1}>
+            {displayName}
+          </Text>
+        </View>
+      </View>
+      <View style={style.participantBodytRowCell}>
+        <View style={style.participantDropdown}>
+          <Dropdown
+            enabled={true}
+            label={selectedValue}
+            data={rooms}
+            onSelect={({_, value}) => {
+              onAssignmentChange(
+                participant.uid,
+                value === 'unassigned' ? null : value,
+              );
+            }}
+            containerStyle={style.dropdownContainer}
+            selectedValue={selectedValue}
+          />
+        </View>
       </View>
     </View>
   );
@@ -106,6 +116,7 @@ export default function ParticipantManualAssignmentModal(
   } = useBreakoutRoom();
 
   // Local state for assignments
+  const [searchQuery, setSearchQuery] = useState('');
   const [localAssignments, setLocalAssignments] = useState<
     ManualParticipantAssignment[]
   >(() => {
@@ -118,7 +129,7 @@ export default function ParticipantManualAssignmentModal(
     return unassignedParticipants.map(participant => ({
       uid: participant.uid,
       roomId: null, // Start unassigned
-      isHost: participant.user?.isHost || false,
+      isHost: participant.user.isHost,
       isSelected: false,
     }));
   });
@@ -232,6 +243,16 @@ export default function ParticipantManualAssignmentModal(
   };
 
   const selectedCount = localAssignments.filter(a => a.isSelected).length;
+  const unassignedCount = localAssignments.filter(a => !a.roomId).length;
+
+  // Filter participants based on search query
+  const filteredParticipants = unassignedParticipants.filter(participant => {
+    const displayName =
+      participant.uid === localUid
+        ? `${participant.user.name} (me)`
+        : participant.user.name;
+    return displayName.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <GenericModal
@@ -243,32 +264,46 @@ export default function ParticipantManualAssignmentModal(
       contentContainerStyle={style.contentContainer}>
       <View style={style.fullBody}>
         <View style={style.mbody}>
-          <View
-            style={[
-              style.titleContainer,
-              unassignedParticipants?.length > 0 ? {} : style.titleLowOpacity,
-            ]}>
-            <View>
+          {/* Search Bar */}
+          <View style={style.searchContainer}>
+            <TextInput
+              style={style.searchInput}
+              placeholder="Search participants..."
+              placeholderTextColor={$config.FONT_COLOR + '80'}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <View style={style.searchIcon}>
+              <ImageIcon
+                iconType="plain"
+                name="search"
+                tintColor={$config.FONT_COLOR + '80'}
+                iconSize={16}
+              />
+            </View>
+          </View>
+
+          {/* Participant Count */}
+          <View style={style.participantSummaryContainer}>
+            <View style={style.participantCountContainer}>
               <ImageIcon
                 iconType="plain"
                 name="people"
                 tintColor={$config.FONT_COLOR}
-                iconSize={20}
+                iconSize={16}
               />
-            </View>
-            <Text style={style.title}>{localAssignments.length}</Text>
-            <Text style={[style.title, style.titleLowOpacity]}>
-              ({localAssignments.filter(a => !a.roomId).length} Unassigned)
-            </Text>
-          </View>
-          <View style={style.participantTableControls}>
-            <View>
-              <Checkbox
-                disabled={localAssignments.length === 0}
-                checked={allSelected}
-                onChange={() => toggleSelectAll()}
-                label={getSelectAllLabel()}
-              />
+              <View style={style.participantCountTextContainer}>
+                <Text style={style.participantCount}>
+                  {localAssignments.length}
+                </Text>
+                <Text
+                  style={[
+                    style.participantCount,
+                    style.participantCountLowOpacity,
+                  ]}>
+                  ({unassignedCount} Unassigned)
+                </Text>
+              </View>
             </View>
             <View>
               {selectedCount > 0 && (
@@ -279,39 +314,62 @@ export default function ParticipantManualAssignmentModal(
               )}
             </View>
           </View>
+
+          {/* Select All Controls */}
           <View style={style.participantTable}>
-            <TableHeader
-              columns={['Name', 'Room']}
-              containerStyle={style.tHeadRow}
-            />
-            <TableBody
-              status="resolved"
-              items={unassignedParticipants}
-              loadingComponent={
-                <Loading
-                  background="transparent"
-                  text="Fetching participants"
-                />
-              }
-              bodyStyle={style.tbodyContainer}
-              renderRow={participant => {
-                const assignment = localAssignments.find(
-                  a => a.uid === participant.uid,
-                );
-                return (
-                  <ParticipantRow
-                    key={participant.uid}
-                    participant={participant}
-                    assignment={assignment}
-                    rooms={rooms}
-                    onAssignmentChange={handleRoomDropdownChange}
-                    onSelectionChange={toggleParticipantSelection}
-                    localUid={localUid}
+            <View style={style.participantTableHeader}>
+              <View style={style.participantTableHeaderRow}>
+                <View
+                  style={[
+                    style.participantTableHeaderRowCell,
+                    style.checkboxCell,
+                  ]}>
+                  <Checkbox
+                    disabled={localAssignments.length === 0}
+                    checked={allSelected}
+                    onChange={() => toggleSelectAll()}
+                    label={''}
+                    checkBoxStyle={style.checkboxIcon}
+                    // label={getSelectAllLabel()}
                   />
-                );
-              }}
-              emptyComponent={<EmptyParticipantsState />}
-            />
+                </View>
+                <View style={style.participantTableHeaderRowCell}>
+                  <Text style={style.participantTableHeaderRowCellText}>
+                    Name
+                  </Text>
+                </View>
+                <View style={style.participantTableHeaderRowCell}>
+                  <Text style={style.participantTableHeaderRowCellText}>
+                    Room
+                  </Text>
+                </View>
+              </View>
+            </View>
+            {/* Participants List */}
+            <View style={style.participantsList}>
+              {filteredParticipants.length === 0 ? (
+                <EmptyParticipantsState />
+              ) : (
+                <ScrollView style={style.participantsScrollView}>
+                  {filteredParticipants.map(participant => {
+                    const assignment = localAssignments.find(
+                      a => a.uid === participant.uid,
+                    );
+                    return (
+                      <ParticipantRow
+                        key={participant.uid}
+                        participant={participant}
+                        assignment={assignment}
+                        rooms={rooms}
+                        onAssignmentChange={handleRoomDropdownChange}
+                        onSelectionChange={toggleParticipantSelection}
+                        localUid={localUid}
+                      />
+                    );
+                  })}
+                </ScrollView>
+              )}
+            </View>
           </View>
         </View>
         <View style={style.mfooter}>
@@ -356,7 +414,8 @@ const style = StyleSheet.create({
   },
   mbody: {
     flex: 1,
-    padding: 12,
+    padding: 20,
+    gap: 16,
     borderTopColor: $config.CARD_LAYER_3_COLOR,
     borderTopWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
@@ -374,66 +433,182 @@ const style = StyleSheet.create({
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
   },
-  titleLowOpacity: {
-    opacity: 0.2,
+  // Search Container
+  searchContainer: {
+    position: 'relative',
+    width: '100%',
   },
-  titleContainer: {
+  searchIcon: {
+    position: 'absolute',
+    left: 8,
+    top: 12,
+  },
+  searchInput: {
+    height: 36,
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingLeft: 30,
+    fontSize: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+  },
+
+  // Participant Count
+  participantSummaryContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  participantCountContainer: {
     display: 'flex',
     flexDirection: 'row',
     gap: 4,
     alignItems: 'center',
-    paddingVertical: 16,
   },
-  title: {
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 16,
-    fontWeight: '500',
-  },
-  infotextContainer: {
+  participantCountTextContainer: {
     display: 'flex',
-    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
   },
-  infoText: {
-    fontSize: 14,
+  participantCount: {
+    fontSize: ThemeConfig.FontSize.small,
     fontWeight: '500',
-    fontFamily: 'Source Sans Pro',
+    lineHeight: 16,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+  },
+  participantCountLowOpacity: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
   },
-  participantTableControls: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    paddingBottom: 12,
+  dropdownContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 4,
+    borderWidth: 0,
+  },
+  checkboxIconContainer: {
+    paddingRight: 24,
+  },
+  checkboxIcon: {
+    width: 17,
+    height: 17,
   },
   participantTable: {
     flex: 1,
-    backgroundColor: $config.BACKGROUND_COLOR,
   },
-  tHeadRow: {
+  participantTableHeader: {
+    display: 'flex',
+    flexShrink: 0,
+    alignItems: 'center',
+    flexDirection: 'row',
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    paddingHorizontal: 8,
+    height: 40,
   },
-  tbodyContainer: {
+  participantTableHeaderRow: {
+    flex: 1,
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+  },
+  participantTableHeaderRowCell: {
+    flex: 1,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+  },
+  participantTableHeaderRowCellText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    fontSize: ThemeConfig.FontSize.small,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    lineHeight: 16,
+  },
+  // Participants List
+  participantsList: {
+    flex: 1,
+    padding: 8,
+    paddingBottom: 0,
     backgroundColor: $config.BACKGROUND_COLOR,
-    borderRadius: 2,
   },
-  tbrow: {
+  participantsScrollView: {
+    flex: 1,
+  },
+  // Participant Row
+  participantRow: {
+    // display: 'flex',
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // justifyContent: 'space-between',
+    // paddingHorizontal: 16,
+    // paddingVertical: 12,
+    // borderBottomWidth: 1,
+    // borderBottomColor: $config.CARD_LAYER_3_COLOR + '40',
+    // minHeight: 60,
+  },
+  participantBodyRow: {
     display: 'flex',
     alignSelf: 'stretch',
-    minHeight: 48,
+    // minHeight: 50,
     flexDirection: 'row',
-    paddingVertical: 8,
+    paddingBottom: 8,
+    // paddingTop: 20,
   },
-  td: {
+  participantBodytRowCell: {
     flex: 1,
     alignSelf: 'center',
     justifyContent: 'center',
     gap: 10,
   },
+  checkboxCell: {
+    maxWidth: 50,
+  },
+  participantInfo: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  participantAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+  },
+  participantAvatarText: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontWeight: '600',
+    color: $config.BACKGROUND_COLOR,
+  },
+  participantName: {
+    flex: 1,
+    fontSize: ThemeConfig.FontSize.small,
+    fontWeight: '400',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+  },
+  participantDropdown: {
+    minWidth: 120,
+  },
+  // Empty State
+  infotextContainer: {
+    display: 'flex',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 32,
+    gap: 12,
+  },
+  infoText: {
+    fontSize: ThemeConfig.FontSize.small,
+    fontWeight: '500',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+    textAlign: 'center',
+  },
+  // Buttons
   actionBtnText: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontSize: ThemeConfig.FontSize.small,

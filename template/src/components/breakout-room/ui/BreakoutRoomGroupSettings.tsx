@@ -36,12 +36,14 @@ import {isWeb} from '../../../utils/common';
 import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
 import {useRaiseHand} from '../../raise-hand';
 import Tooltip from '../../../atoms/Tooltip';
+import {useContent} from 'customization-api';
 
 const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   const {
     data: {isHost, uid, chat},
   } = useRoomInfo();
   const localUid = useLocalUid();
+  const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
   const {isUserHandRaised} = useRaiseHand();
 
@@ -251,7 +253,10 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
         to: chat.group_id,
         ext: {
           from_platform: isWeb() ? 'web' : 'native',
-          isAnnouncementText: true,
+          announcement: {
+            sender: defaultContent[localUid]?.name || 'user',
+            text: announcement,
+          },
         },
       };
       sendChatSDKMessage(option);
