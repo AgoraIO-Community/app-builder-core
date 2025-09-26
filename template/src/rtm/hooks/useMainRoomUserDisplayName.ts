@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {useCallback} from 'react';
 import {videoRoomUserFallbackText} from '../../language/default-labels/videoCallScreenLabels';
 import {useString} from '../../utils/useString';
 import {UidType} from '../../../agora-rn-uikit';
@@ -23,13 +24,20 @@ export const useMainRoomUserDisplayName = () => {
   const {defaultContent} = useContent();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
 
-  return (uid: UidType): string => {
-    // Priority: Local defaultContent → Global mainRoomRTMUsers → UID fallback
-    // TODO:SUP add trimText
-    return (
-      defaultContent?.[uid]?.name ||
-      mainRoomRTMUsers?.[uid]?.name ||
-      remoteUserDefaultLabel
-    );
-  };
+  const sanitize = (name?: string) => name?.trim() || undefined;
+
+  // 👇 useCallback ensures the returned function updates whenever
+  // defaultContent or mainRoomRTMUsers change
+  return useCallback(
+    (uid: UidType): string => {
+      console.log('supriya-name defaultContent', defaultContent);
+      console.log('supriya-name mainRoomRTMUsers', mainRoomRTMUsers);
+      return (
+        sanitize(defaultContent?.[uid]?.name) ||
+        sanitize(mainRoomRTMUsers?.[uid]?.name) ||
+        remoteUserDefaultLabel
+      );
+    },
+    [defaultContent, mainRoomRTMUsers, remoteUserDefaultLabel],
+  );
 };
