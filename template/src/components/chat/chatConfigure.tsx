@@ -272,11 +272,15 @@ const ChatConfigure = ({children}) => {
 
             if (message.chatType === SDKChatType.GROUP_CHAT) {
               // show to notifcation- group msg received
+              const isAnnouncementText =
+                message.ext?.isAnnouncementText || false;
               showMessageNotification(
                 message.msg,
                 fromUser,
                 false,
                 message.type,
+                false,
+                isAnnouncementText,
               );
               addMessageToStore(Number(fromUser), {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
@@ -285,7 +289,7 @@ const ChatConfigure = ({children}) => {
                 isDeleted: false,
                 type: ChatMessageType.TXT,
                 replyToMsgId: message.ext?.replyToMsgId,
-                isAnnouncementText: message.ext?.isAnnouncementText || false,
+                isAnnouncementText,
               });
             }
 

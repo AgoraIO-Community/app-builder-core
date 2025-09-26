@@ -180,6 +180,8 @@ interface ChatMessagesInterface {
     uid: string,
     isPrivateMessage?: boolean,
     msgType?: ChatMessageType,
+    forceStop?: boolean,
+    isAnnouncementText?: boolean,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
   removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
@@ -279,11 +281,20 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string, msgType: ChatMessageType) => {
+  const fromText = (
+    name: string,
+    msgType: ChatMessageType,
+    isAnnouncementText?: boolean,
+  ) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        text = txtToastHeading?.current(name);
+        if (isAnnouncementText) {
+          text = `${name} made an announcement in public chat`;
+        } else {
+          text = txtToastHeading?.current(name);
+        }
+
         break;
       case ChatMessageType.IMAGE:
         text = imgToastHeading?.current(name);
@@ -526,6 +537,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     isPrivateMessage: boolean = false,
     msgType: ChatMessageType,
     forceStop: boolean = false,
+    isAnnouncementText?: boolean,
   ) => {
     if (isUserBanedRef.current.isUserBaned) {
       return;
@@ -690,7 +702,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         primaryBtn: null,
         secondaryBtn: null,
         type: 'info',
-        leadingIconName: 'chat-nav',
+        leadingIconName: isAnnouncementText ? 'announcement' : 'chat-nav',
         text1: isPrivateMessage
           ? privateMessageLabel?.current()
           : //@ts-ignore
@@ -701,6 +713,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
                 defaultContentRef.current.defaultContent[uidAsNumber]?.name,
               ),
               msgType,
+              isAnnouncementText,
             )
           : '',
         text2: isPrivateMessage

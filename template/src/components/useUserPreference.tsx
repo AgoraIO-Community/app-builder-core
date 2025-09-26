@@ -189,6 +189,7 @@ const UserPreferenceProvider = (props: {
       name: getScreenShareName(displayName || userText),
       type: 'screenshare',
     });
+    console.log('user-attribute name check displayName 1', displayName);
 
     if (hasUserJoinedRTM && callActive) {
       //set local uids
@@ -201,9 +202,14 @@ const UserPreferenceProvider = (props: {
           },
         };
       });
+      console.log('user-attribute name check displayName 2', displayName);
+
+      syncUserState(localUid, {name: displayName || userText});
     }
 
     if (hasUserJoinedRTM) {
+      console.log('user-attribute name check displayName 3', displayName);
+
       //update remote state for user and screenshare
       events.send(
         EventNames.NAME_ATTRIBUTE,

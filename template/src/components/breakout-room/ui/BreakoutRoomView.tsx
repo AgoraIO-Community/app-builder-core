@@ -69,6 +69,7 @@ export default function BreakoutRoomView({closeSidePanel}: Props) {
       <ScrollView
         ref={scrollViewRef}
         onScroll={onScroll}
+        scrollEventThrottle={64}
         style={[style.pannelOuterBody]}
         contentContainerStyle={
           isInitializing ? style.contentCenter : style.contentStart
