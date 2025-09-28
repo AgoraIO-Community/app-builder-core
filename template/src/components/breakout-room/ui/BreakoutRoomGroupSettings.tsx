@@ -91,48 +91,61 @@ const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   };
 
   const renderMember = (memberUId: UidType) => {
-    // Hide offline users from UI - check mainRoomRTMUsers for offline status
+    // Check for offline status using mainRoomRTMUsers
     const rtmMemberData = mainRoomRTMUsers[memberUId];
-
-    // If user is offline in RTM data, don't render them
-    if (rtmMemberData && rtmMemberData?.offline) {
-      return null;
-    }
+    const isOffline = rtmMemberData?.offline;
 
     return (
-      <View key={memberUId} style={[styles.memberItem]}>
+      <View
+        key={memberUId}
+        style={[styles.memberItem, isOffline && styles.memberItemOffline]}>
         <View style={styles.memberInfo}>
           <UserAvatar
             name={getDisplayName(memberUId)}
-            containerStyle={styles.userAvatarContainer}
-            textStyle={styles.userAvatarText}
+            containerStyle={[
+              styles.userAvatarContainer,
+              isOffline && styles.userAvatarOffline,
+            ]}
+            textStyle={[
+              styles.userAvatarText,
+              isOffline && styles.userAvatarTextOffline,
+            ]}
           />
-          <Text style={styles.memberName} numberOfLines={1}>
-            {getDisplayName(memberUId)}
-          </Text>
+          <View style={styles.memberNameContainer}>
+            <Text
+              style={[styles.memberName, isOffline && styles.memberNameOffline]}
+              numberOfLines={1}>
+              {getDisplayName(memberUId)}
+            </Text>
+            {isOffline && (
+              <Text style={styles.memberOfflineStatus}>(user is offline)</Text>
+            )}
+          </View>
         </View>
 
-        <View style={styles.memberMenu}>
-          {isUserHandRaised(memberUId) ? (
-            <View style={styles.memberRaiseHand}>
-              <ImageIcon
-                iconSize={18}
-                iconType="plain"
-                name="raise-hand"
-                tintColor={$config.SEMANTIC_WARNING}
-              />
-            </View>
-          ) : (
-            <></>
-          )}
-          {permissions.canHostManageMainRoom && memberUId !== localUid ? (
-            <View style={styles.memberMenuMoreIcon}>
-              <BreakoutRoomMemberActionMenu memberUid={memberUId} />
-            </View>
-          ) : (
-            <></>
-          )}
-        </View>
+        {!isOffline && (
+          <View style={styles.memberMenu}>
+            {isUserHandRaised(memberUId) ? (
+              <View style={styles.memberRaiseHand}>
+                <ImageIcon
+                  iconSize={18}
+                  iconType="plain"
+                  name="raise-hand"
+                  tintColor={$config.SEMANTIC_WARNING}
+                />
+              </View>
+            ) : (
+              <></>
+            )}
+            {permissions.canHostManageMainRoom && memberUId !== localUid ? (
+              <View style={styles.memberMenuMoreIcon}>
+                <BreakoutRoomMemberActionMenu memberUid={memberUId} />
+              </View>
+            ) : (
+              <></>
+            )}
+          </View>
+        )}
       </View>
     );
   };
@@ -448,11 +461,19 @@ const styles = StyleSheet.create({
     minHeight: 64,
     gap: 8,
   },
+  memberItemOffline: {
+    opacity: 0.5,
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+  },
   memberInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
     gap: 8,
+  },
+  memberNameContainer: {
+    flex: 1,
+    flexDirection: 'column',
   },
   memberDragHandle: {
     marginRight: 12,
@@ -478,11 +499,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   memberName: {
-    flex: 1,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 20,
     fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
+  },
+  memberNameOffline: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
+  memberOfflineStatus: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 14,
+    fontWeight: '400',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   memberMenu: {
     padding: 8,
@@ -522,11 +553,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  userAvatarOffline: {
+    backgroundColor: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,
+  },
   userAvatarText: {
     fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 12,
     fontWeight: '600',
     color: $config.BACKGROUND_COLOR,
+  },
+  userAvatarTextOffline: {
+    color: $config.BACKGROUND_COLOR + '80',
   },
   expandIcon: {
     width: 32,
