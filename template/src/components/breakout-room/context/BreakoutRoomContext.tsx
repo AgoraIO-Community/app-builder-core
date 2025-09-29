@@ -21,6 +21,7 @@ import {
   initialBreakoutRoomState,
   RoomAssignmentStrategy,
   ManualParticipantAssignment,
+  BreakoutRoomUser,
 } from '../state/reducer';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useContent} from '../../../../customization-api';
@@ -40,8 +41,6 @@ import {
 } from '../../../rtm/RTMGlobalStateProvider';
 import {useScreenshare} from '../../../subComponents/screenshare/useScreenshare';
 
-const BREAKOUT_LOCK_TIMEOUT_MS = 5000;
-
 const HOST_BROADCASTED_OPERATIONS = [
   BreakoutGroupActionTypes.SET_ALLOW_PEOPLE_TO_SWITCH_ROOM,
   BreakoutGroupActionTypes.CREATE_GROUP,
@@ -57,6 +56,7 @@ const HOST_BROADCASTED_OPERATIONS = [
 
 const getSanitizedPayload = (
   payload: BreakoutGroup[],
+  defaultContentRef: any,
   mainRoomRTMUsers: {[uid: number]: RTMUserData},
 ) => {
   return payload.map(({id, ...rest}) => {
@@ -67,15 +67,19 @@ const getSanitizedPayload = (
       ...group,
       participants: {
         hosts: group.participants.hosts.filter(uid => {
-          // Check defaultContent first
           let user = mainRoomRTMUsers[uid];
+          if (defaultContentRef[uid]) {
+            user = defaultContentRef[uid];
+          }
           if (user) {
             return !user.offline && user.type === 'rtc';
           }
         }),
         attendees: group.participants.attendees.filter(uid => {
-          // Check defaultContent first
           let user = mainRoomRTMUsers[uid];
+          if (defaultContentRef[uid]) {
+            user = defaultContentRef[uid];
+          }
           if (user) {
             return !user.offline && user.type === 'rtc';
           }
@@ -92,20 +96,20 @@ const getSanitizedPayload = (
   });
 };
 
-const validateRollbackState = (state: BreakoutRoomState): boolean => {
-  return (
-    Array.isArray(state.breakoutGroups) &&
-    typeof state.breakoutSessionId === 'string' &&
-    typeof state.canUserSwitchRoom === 'boolean' &&
-    state.breakoutGroups.every(
-      group =>
-        typeof group.id === 'string' &&
-        typeof group.name === 'string' &&
-        Array.isArray(group.participants?.hosts) &&
-        Array.isArray(group.participants?.attendees),
-    )
-  );
-};
+// const validateRollbackState = (state: BreakoutRoomState): boolean => {
+//   return (
+//     Array.isArray(state.breakoutGroups) &&
+//     typeof state.breakoutSessionId === 'string' &&
+//     typeof state.canUserSwitchRoom === 'boolean' &&
+//     state.breakoutGroups.every(
+//       group =>
+//         typeof group.id === 'string' &&
+//         typeof group.name === 'string' &&
+//         Array.isArray(group.participants?.hosts) &&
+//         Array.isArray(group.participants?.attendees),
+//     )
+//   );
+// };
 
 export const deepCloneBreakoutGroups = (
   groups: BreakoutGroup[] = [],
@@ -179,7 +183,7 @@ interface BreakoutRoomContextValue {
   assignmentStrategy: RoomAssignmentStrategy;
   canUserSwitchRoom: boolean;
   toggleRoomSwitchingAllowed: (value: boolean) => void;
-  unassignedParticipants: {uid: UidType; user: ContentInterface}[];
+  unassignedParticipants: {uid: UidType; user: BreakoutRoomUser}[];
   manualAssignments: ManualParticipantAssignment[];
   setManualAssignments: (assignments: ManualParticipantAssignment[]) => void;
   clearManualAssignments: () => void;
@@ -428,7 +432,7 @@ const BreakoutRoomProvider = ({
         return;
       }
 
-      const hostName = defaultContentRef.current[localUid]?.name || 'Host';
+      const hostName = getDisplayName(localUid);
 
       logger.log(
         LogSource.Internals,
@@ -456,7 +460,7 @@ const BreakoutRoomProvider = ({
         return;
       }
 
-      const hostName = defaultContentRef.current[localUid]?.name || 'Host';
+      const hostName = getDisplayName(localUid);
 
       logger.log(
         LogSource.Internals,
@@ -527,34 +531,45 @@ const BreakoutRoomProvider = ({
       return;
     }
 
-    // Get currently assigned participants from all rooms
-    // Filter active UIDs to exclude:
-    // 1. Custom content (not type 'rtc')
-    // 2. Screenshare UIDs
-    // 3. Offline users
-    const filteredParticipants = activeUids
-      .map(uid => ({
-        uid,
-        user: defaultContent[uid],
-      }))
-      .filter(({uid, user}) => {
-        console.log('supriya-breakoutSessionId user: ', user);
-        if (!user) {
-          return false;
-        }
+    // Filter users from defaultContent first, then check if they're in activeUids
+    // This follows the legacy RTM pattern: start with defaultContent, then filter by activeUids
+    const filteredParticipants = Object.entries(defaultContent)
+      .filter(([k, v]) => {
         // Only include RTC users
-        if (user.type !== 'rtc') {
+        if (v?.type !== 'rtc') {
           return false;
         }
         // Exclude offline users
-        if (user.offline) {
+        if (v?.offline) {
           return false;
         }
         // Exclude screenshare UIDs (they typically have a parentUid)
-        if (user.parentUid) {
+        if (v?.parentUid) {
+          return false;
+        }
+        // KEY CHECK: Only include users who are in activeUids (actually in the call)
+        const uid = parseInt(k);
+        if (activeUids.indexOf(uid) === -1) {
           return false;
         }
         return true;
+      })
+      .map(([k, v]) => {
+        const uid = parseInt(k);
+
+        // Get additional RTM data if available for cross-room scenarios
+        const rtmUser = mainRoomRTMUsers[uid];
+        const user = v || rtmUser;
+
+        console.log('supriya-breakoutSessionId user: ', user);
+
+        // Create BreakoutRoomUser object with proper fallback
+        const breakoutRoomUser: BreakoutRoomUser = {
+          name: user?.name || rtmUser?.name || '',
+          isHost: user?.isHost === 'true',
+        };
+
+        return {uid, user: breakoutRoomUser};
       });
 
     // Sort participants to show local user first
@@ -598,7 +613,14 @@ const BreakoutRoomProvider = ({
         unassignedParticipants: filteredParticipants,
       },
     });
-  }, [defaultContent, activeUids, localUid, dispatch, state.breakoutSessionId]);
+  }, [
+    defaultContent,
+    activeUids,
+    localUid,
+    dispatch,
+    state.breakoutSessionId,
+    mainRoomRTMUsers,
+  ]);
 
   // Increment version when breakout group assignments change
   useEffect(() => {
@@ -791,9 +813,14 @@ const BreakoutRoomProvider = ({
           assignment_type: stateRef.current.assignmentStrategy,
           breakout_room:
             type === 'START'
-              ? getSanitizedPayload(initialBreakoutGroups, mainRoomRTMUsers)
+              ? getSanitizedPayload(
+                  initialBreakoutGroups,
+                  defaultContentRef,
+                  mainRoomRTMUsers,
+                )
               : getSanitizedPayload(
                   stateRef.current.breakoutGroups,
+                  defaultContentRef,
                   mainRoomRTMUsers,
                 ),
         };
@@ -1362,6 +1389,9 @@ const BreakoutRoomProvider = ({
         return;
       }
 
+      // If u are reciving or calling this tha means u will have
+      // valid data in defaultcontent as u cannot exit from the room
+      // you are not in
       const localUser = defaultContentRef.current[localUid];
 
       try {
@@ -2069,6 +2099,7 @@ const BreakoutRoomProvider = ({
       );
 
       const senderName = getDisplayName(srcuid);
+      console.log('supriya-senderName: ', senderName, srcuid);
 
       // ---- SCREEN SHARE CLEANUP ----
       // Stop screen share if user is moving between rooms or leaving breakout

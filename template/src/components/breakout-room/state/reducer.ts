@@ -13,6 +13,11 @@ export interface ManualParticipantAssignment {
   isSelected: boolean;
 }
 
+export interface BreakoutRoomUser {
+  name: string;
+  isHost: boolean;
+}
+
 export interface BreakoutGroup {
   id: string;
   name: string;
@@ -24,7 +29,7 @@ export interface BreakoutGroup {
 export interface BreakoutRoomState {
   breakoutSessionId: string;
   breakoutGroups: BreakoutGroup[];
-  unassignedParticipants: {uid: UidType; user: ContentInterface}[];
+  unassignedParticipants: {uid: UidType; user: BreakoutRoomUser}[];
   manualAssignments: ManualParticipantAssignment[];
   assignmentStrategy: RoomAssignmentStrategy;
   canUserSwitchRoom: boolean;
@@ -143,7 +148,7 @@ export type BreakoutRoomAction =
   | {
       type: typeof BreakoutGroupActionTypes.UPDATE_UNASSIGNED_PARTICIPANTS;
       payload: {
-        unassignedParticipants: {uid: UidType; user: ContentInterface}[];
+        unassignedParticipants: {uid: UidType; user: BreakoutRoomUser}[];
       };
     }
   | {
@@ -318,7 +323,7 @@ export const breakoutRoomReducer = (
         const currentRoomId = roomIds[roomIndex];
         const roomAssignment = roomAssignments.get(currentRoomId)!;
         // Assign participant based on their isHost status (string "true"/"false")
-        if (participant.user?.isHost === 'true') {
+        if (participant.user?.isHost) {
           roomAssignment.hosts.push(participant.uid);
         } else {
           roomAssignment.attendees.push(participant.uid);
