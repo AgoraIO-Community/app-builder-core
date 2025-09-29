@@ -1,69 +1,55 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the "Materials") are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.'s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the "Materials") are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.'s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {View, useWindowDimensions} from 'react-native';
 import ActionMenu, {ActionMenuItem} from '../../../atoms/ActionMenu';
-import IconButton from '../../../atoms/IconButton';
 import {calculatePosition} from '../../../utils/common';
-import {useRoomInfo} from 'customization-api';
+import {useBreakoutRoom} from '../context/BreakoutRoomContext';
+import {UidType} from '../../../../agora-rn-uikit';
+import IconButton from '../../../atoms/IconButton';
 
-interface RoomActionMenuProps {
-  onDeleteRoom: () => void;
-  onRenameRoom: () => void;
+interface BreakoutRoomMemberActionMenuProps {
+  memberUid: UidType;
 }
 
-const BreakoutRoomActionMenu: React.FC<RoomActionMenuProps> = ({
-  onDeleteRoom,
-  onRenameRoom,
-}) => {
+const BreakoutRoomMemberActionMenu: React.FC<
+  BreakoutRoomMemberActionMenuProps
+> = ({memberUid}) => {
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [isPosCalculated, setIsPosCalculated] = useState(false);
   const [modalPosition, setModalPosition] = useState({});
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const moreIconRef = useRef(null);
 
-  const {
-    data: {isHost},
-  } = useRoomInfo();
+  const {getRoomMemberDropdownOptions} = useBreakoutRoom();
 
-  // Build action menu items based on context
-  const actionMenuItems: ActionMenuItem[] = [];
+  // Get member-specific dropdown options using breakout room context
+  const memberOptions = getRoomMemberDropdownOptions(memberUid);
 
-  //  ACTION - Only show for hosts
-  if (isHost) {
-    actionMenuItems.push({
-      order: 1,
-      icon: 'pencil-filled',
+  // Transform to ActionMenuItem format
+  const actionMenuItems: ActionMenuItem[] = memberOptions.map(
+    (option, index) => ({
+      order: index + 1,
+      icon: option.icon,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.SECONDARY_ACTION_COLOR,
-      title: 'Rename Room',
+      title: option.title,
       onPress: () => {
-        onRenameRoom();
+        option.onOptionPress();
         setActionMenuVisible(false);
       },
-    });
-    actionMenuItems.push({
-      order: 2,
-      icon: 'delete',
-      iconColor: $config.SEMANTIC_ERROR,
-      textColor: $config.SEMANTIC_ERROR,
-      title: 'Delete Room',
-      onPress: () => {
-        onDeleteRoom();
-        setActionMenuVisible(false);
-      },
-    });
-  }
+    }),
+  );
 
   // Calculate position when menu becomes visible
   useEffect(() => {
@@ -100,7 +86,7 @@ const BreakoutRoomActionMenu: React.FC<RoomActionMenuProps> = ({
   return (
     <>
       <ActionMenu
-        from={'breakout-room-header-actions'}
+        from={'breakout-room-member-actions'}
         actionMenuVisible={actionMenuVisible && isPosCalculated}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={modalPosition}
@@ -133,4 +119,4 @@ const BreakoutRoomActionMenu: React.FC<RoomActionMenuProps> = ({
   );
 };
 
-export default BreakoutRoomActionMenu;
+export default BreakoutRoomMemberActionMenu;

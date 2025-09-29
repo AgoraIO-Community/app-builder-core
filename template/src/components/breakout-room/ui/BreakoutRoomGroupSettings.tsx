@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
@@ -18,9 +18,8 @@ import {UidType, useLocalUid} from '../../../../agora-rn-uikit';
 import UserAvatar from '../../../atoms/UserAvatar';
 import ImageIcon from '../../../atoms/ImageIcon';
 import {BreakoutGroup} from '../state/reducer';
-import {useContent} from 'customization-api';
-import UserActionMenuOptionsOptions from '../../participants/UserActionMenuOptions';
 import BreakoutRoomActionMenu from './BreakoutRoomActionMenu';
+import BreakoutRoomMemberActionMenu from './BreakoutRoomMemberActionMenu';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import BreakoutRoomAnnouncementModal from './BreakoutRoomAnnouncementModal';
 import {useModal} from '../../../utils/useModal';
@@ -35,13 +34,16 @@ import {
 } from '../../chat-messages/useChatMessages';
 import {isWeb} from '../../../utils/common';
 import {useRTMGlobalState} from '../../../rtm/RTMGlobalStateProvider';
+import {useRaiseHand} from '../../raise-hand';
+import Tooltip from '../../../atoms/Tooltip';
 
-const BreakoutRoomGroupSettings: React.FC = () => {
+const BreakoutRoomGroupSettings = ({scrollOffset}) => {
   const {
     data: {isHost, uid, chat},
   } = useRoomInfo();
   const localUid = useLocalUid();
   const {sendChatSDKMessage} = useChatConfigure();
+  const {isUserHandRaised} = useRaiseHand();
 
   const {
     breakoutGroups,
@@ -51,18 +53,16 @@ const BreakoutRoomGroupSettings: React.FC = () => {
     closeRoom,
     updateRoomName,
     canUserSwitchRoom,
-    raisedHands,
     permissions,
   } = useBreakoutRoom();
 
   const disableJoinBtn = !isHost && !canUserSwitchRoom;
 
   // Render room card
-  const {defaultContent} = useContent();
   const {mainRoomRTMUsers} = useRTMGlobalState();
   // Use hook to get display names with fallback to main room users
   const getDisplayName = useMainRoomUserDisplayName();
-  const memberMoreMenuRefs = useRef<{[key: string]: any}>({});
+
   const {
     modalOpen: isAnnoucementModalOpen,
     setModalOpen: setAnnouncementModal,
@@ -75,17 +75,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
   const [roomToEdit, setRoomToEdit] = useState<{id: string; name: string}>(
     null,
   );
-
-  const [actionMenuVisible, setActionMenuVisible] = useState<{
-    [key: string]: boolean;
-  }>({});
-
-  const showModal = (memberUId: UidType) => {
-    setActionMenuVisible(prev => ({
-      ...prev,
-      [memberUId]: !prev[memberUId],
-    }));
-  };
 
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
 
@@ -108,17 +97,6 @@ const BreakoutRoomGroupSettings: React.FC = () => {
       return null;
     }
 
-    // Create or get ref for this specific member
-    if (!memberMoreMenuRefs.current[memberUId]) {
-      memberMoreMenuRefs.current[memberUId] = React.createRef();
-    }
-
-    const memberRef = memberMoreMenuRefs.current[memberUId];
-    const isMenuVisible = actionMenuVisible[memberUId] || false;
-    const hasRaisedHand =
-      permissions?.canSeeRaisedHands &&
-      raisedHands.some(hand => hand.uid === memberUId);
-
     return (
       <View key={memberUId} style={[styles.memberItem]}>
         <View style={styles.memberInfo}>
@@ -133,7 +111,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
         </View>
 
         <View style={styles.memberMenu}>
-          {hasRaisedHand ? (
+          {isUserHandRaised(memberUId) ? (
             <View style={styles.memberRaiseHand}>
               <ImageIcon
                 iconSize={18}
@@ -147,29 +125,7 @@ const BreakoutRoomGroupSettings: React.FC = () => {
           )}
           {permissions.canHostManageMainRoom && memberUId !== localUid ? (
             <View style={styles.memberMenuMoreIcon}>
-              <View ref={memberRef} collapsable={false}>
-                <IconButton
-                  iconProps={{
-                    iconType: 'plain',
-                    name: 'more-menu',
-                    iconSize: 20,
-                    tintColor: $config.SECONDARY_ACTION_COLOR,
-                  }}
-                  onPress={() => showModal(memberUId)}
-                />
-              </View>
-              <UserActionMenuOptionsOptions
-                actionMenuVisible={isMenuVisible}
-                setActionMenuVisible={visible =>
-                  setActionMenuVisible(prev => ({
-                    ...prev,
-                    [memberUId]: visible,
-                  }))
-                }
-                user={defaultContent[memberUId]}
-                btnRef={memberRef}
-                from={'breakout-room'}
-              />
+              <BreakoutRoomMemberActionMenu memberUid={memberUId} />
             </View>
           ) : (
             <></>
@@ -200,7 +156,17 @@ const BreakoutRoomGroupSettings: React.FC = () => {
               onPress={() => toggleRoomExpansion(room.id)}
             />
             <View style={styles.roomHeaderInfo}>
-              <Text style={styles.roomName}>{room.name}</Text>
+              <View style={styles.roomNameToolTipContainer}>
+                <Tooltip
+                  fontSize={12}
+                  key={room.id}
+                  scrollY={scrollOffset}
+                  toolTipMessage={room.name}
+                  renderContent={() => {
+                    return <Text style={styles.roomName}>{room.name}</Text>;
+                  }}
+                />
+              </View>
               <Text style={styles.roomMemberCount}>
                 {memberCount > 0 ? memberCount : 'No'} Member
                 {memberCount !== 1 ? 's' : ''}
@@ -425,15 +391,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   roomHeaderInfo: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
   },
+  roomNameToolTipContainer: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
   roomName: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 14,
     fontWeight: '600',
+    maxWidth: '100%',
   },
   roomMemberCount: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.low,

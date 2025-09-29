@@ -9,6 +9,8 @@ import {
   type GetUserMetadataResponse as NativeGetUserMetadataResponse,
   type GetChannelMetadataResponse as NativeGetChannelMetadataResponse,
   type SetOrUpdateUserMetadataOptions as NativeSetOrUpdateUserMetadataOptions,
+  type RemoveUserMetadataOptions as NativeRemoveUserMetadataOptions,
+  type RemoveUserMetadataResponse as NativeRemoveUserMetadataResponse,
   type IMetadataOptions as NativeIMetadataOptions,
   type StorageEvent as NativeStorageEvent,
   type PresenceEvent as NativePresenceEvent,
@@ -23,6 +25,7 @@ import AgoraRTM, {
   PublishOptions,
   ChannelType,
   MetaDataDetail,
+  RemoveUserMetadataOptions,
 } from 'agora-rtm-sdk';
 import {
   linkStatusReasonCodeMapping,
@@ -219,6 +222,33 @@ export class RTMWebClient {
           timestamp: webResponse.timestamp,
         };
         return nativeResponse;
+      },
+
+      removeUserMetadata: async (
+        options?: NativeRemoveUserMetadataOptions,
+      ): Promise<NativeRemoveUserMetadataResponse> => {
+        // Build the options object for the web SDK call
+        const webOptions: RemoveUserMetadataOptions = {};
+
+        // Add userId if provided (for removing another user's metadata, defaults to self if not provided)
+        if (options?.userId && typeof options.userId === 'string') {
+          webOptions.userId = options.userId;
+        }
+
+        // Convert native Metadata to web MetadataItem[] format if provided
+        if (
+          options?.data &&
+          options.data.items &&
+          Array.isArray(options.data.items) &&
+          options.data.items.length > 0
+        ) {
+          webOptions.data = options.data.items.map(item => ({
+            key: item.key,
+            value: item.value || '', // Require not used for remove.we use keys
+          }));
+        }
+
+        return await this.client.storage.removeUserMetadata(webOptions);
       },
 
       setChannelMetadata: async (

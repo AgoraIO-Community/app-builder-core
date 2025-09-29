@@ -109,7 +109,6 @@ const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    outline: 'none',
   },
   actionBtnText: {
     color: $config.SECONDARY_ACTION_COLOR,

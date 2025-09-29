@@ -17,6 +17,7 @@ import {
   EventUtils,
   RTM_EVENT_SCOPE,
   RTM_GLOBAL_SCOPE_EVENTS,
+  RTM_SESSION_SCOPE_EVENTS,
 } from '../rtm-events';
 import {
   ReceiverUid,
@@ -30,9 +31,13 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {nativeChannelTypeMapping} from '../../bridge/rtm/web/Types';
 
 function getRTMEventScope(eventName: string): RTM_EVENT_SCOPE {
-  return RTM_GLOBAL_SCOPE_EVENTS.includes(eventName)
-    ? RTM_EVENT_SCOPE.GLOBAL
-    : RTM_EVENT_SCOPE.LOCAL;
+  if (RTM_GLOBAL_SCOPE_EVENTS.includes(eventName)) {
+    return RTM_EVENT_SCOPE.GLOBAL;
+  }
+  if (RTM_SESSION_SCOPE_EVENTS.includes(eventName)) {
+    return RTM_EVENT_SCOPE.SESSION;
+  }
+  return RTM_EVENT_SCOPE.LOCAL;
 }
 
 class Events {
@@ -51,10 +56,16 @@ class Events {
    * @param {String} payload to be stored in rtm Attribute value
    * @api private
    */
-  private _persist = async (evt: string, payload: string) => {
+  private _persist = async (evt: string, payload: string, roomKey?: string) => {
     const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
     const userId = RTMEngine.getInstance().localUid;
     try {
+      // const roomAwareKey = roomKey ? `${roomKey}__${evt}` : evt;
+      // console.log(
+      //   'session-attributes setting roomAwareKey as: ',
+      //   roomAwareKey,
+      //   evt,
+      // );
       const rtmAttribute = {key: evt, value: payload};
       // Step 1: Call RTM API to update local attributes
       await rtmEngine.storage.setUserMetadata(
@@ -120,7 +131,7 @@ class Events {
   private _send = async (
     rtmPayload: RTMAttributePayload,
     toUid?: ReceiverUid,
-    targetChannelId?: string,
+    toChannelId?: string,
   ) => {
     const to = typeof toUid === 'string' ? parseInt(toUid, 10) : toUid;
 
@@ -147,14 +158,14 @@ class Events {
           LogSource.Events,
           'CUSTOM_EVENTS',
           'event is sent to targetChannelId ->',
-          targetChannelId,
+          toChannelId,
         );
-        if (!targetChannelId || targetChannelId.trim() === '') {
+        if (!toChannelId || toChannelId.trim() === '') {
           throw new Error(
             'Channel ID is not set. Cannot send channel messages.',
           );
         }
-        await rtmEngine.publish(targetChannelId, text, {
+        await rtmEngine.publish(toChannelId, text, {
           channelType: nativeChannelTypeMapping.MESSAGE, // 1 is message
         });
       } catch (error) {
@@ -236,7 +247,7 @@ class Events {
 
   private _sendAsChannelAttribute = async (
     rtmPayload: RTMAttributePayload,
-    targetChannelId?: string,
+    toChannelId?: string,
   ) => {
     // Case 1: send to channel
     logger.debug(
@@ -251,13 +262,17 @@ class Events {
       }
       const rtmEngine: RTMClient = RTMEngine.getInstance().engine;
 
-      if (!targetChannelId) {
+      if (!toChannelId) {
         throw new Error('Channel ID is not set. Cannot send channel messages.');
       }
 
       const rtmAttribute = [{key: rtmPayload.evt, value: rtmPayload.value}];
+      console.log(
+        'supriya-channel-attrbiutes setting channel attrbiytes: ',
+        rtmAttribute,
+      );
       await rtmEngine.storage.setChannelMetadata(
-        targetChannelId,
+        toChannelId,
         nativeChannelTypeMapping.MESSAGE,
         {
           items: rtmAttribute,
@@ -370,7 +385,7 @@ class Events {
     payload: string = '',
     persistLevel: PersistanceLevel = PersistanceLevel.None,
     receiver: ReceiverUid = -1,
-    channelId?: string,
+    toChannelId?: string,
   ) => {
     try {
       if (!this._validateEvt(eventName)) {
@@ -386,20 +401,18 @@ class Events {
       return; // Don't throw - just log and return
     }
 
-    /** Check if this is a global scoped event */
+    // Add meta data
     let currentEventScope = getRTMEventScope(eventName);
-
-    const targetChannelId =
-      channelId || RTMEngine.getInstance().getActiveChannel();
+    let currentChannelId = RTMEngine.getInstance().getActiveChannelId();
+    let currentRoomKey = RTMEngine.getInstance().getActiveChannelName();
 
     const persistValue = JSON.stringify({
       payload,
       persistLevel,
       source: this.source,
       _scope: currentEventScope,
-      _channelId: targetChannelId,
+      _channelId: currentChannelId,
     });
-
     const rtmPayload: RTMAttributePayload = {
       evt: eventName,
       value: persistValue,
@@ -410,7 +423,13 @@ class Events {
       persistLevel === PersistanceLevel.Session
     ) {
       try {
-        await this._persist(eventName, persistValue);
+        await this._persist(
+          eventName,
+          persistValue,
+          persistLevel === PersistanceLevel.Session
+            ? currentRoomKey
+            : undefined,
+        );
       } catch (error) {
         logger.error(LogSource.Events, 'CUSTOM_EVENTS', 'persist error', error);
         // don't throw - just log the error, application should continue running
@@ -423,6 +442,7 @@ class Events {
         `sending event -> ${eventName}`,
         persistValue,
       );
+      const targetChannelId = toChannelId || currentChannelId;
       if (persistLevel === PersistanceLevel.Channel) {
         await this._sendAsChannelAttribute(rtmPayload, targetChannelId);
       } else {

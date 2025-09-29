@@ -18,34 +18,25 @@ import React, {
   createContext,
   useCallback,
 } from 'react';
-import {
-  type GetChannelMetadataResponse,
-  type GetOnlineUsersResponse,
-  type LinkStateEvent,
-  type MessageEvent,
-  type Metadata,
-  type PresenceEvent,
-  type SetOrUpdateUserMetadataOptions,
-  type StorageEvent,
-  type RTMClient,
-  type GetUserMetadataResponse,
-} from 'agora-react-native-rtm';
+import {type MessageEvent, type StorageEvent} from 'agora-react-native-rtm';
 import {
   ContentInterface,
   DispatchContext,
-  PropsContext,
-  UidType,
   useLocalUid,
 } from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
-import {isAndroid, isIOS, isWebInternal} from '../utils/common';
+import {isAndroid, isIOS} from '../utils/common';
 import {useContent} from 'customization-api';
-import {safeJsonParse, getMessageTime, get32BitUid} from './utils';
+import {
+  safeJsonParse,
+  getMessageTime,
+  get32BitUid,
+  isEventForActiveChannel,
+} from './utils';
 import {EventUtils, EventsQueue} from '../rtm-events';
+import {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from './RTMEngine';
 import {filterObject} from '../utils';
-import SDKEvents from '../utils/SdkEvents';
-import isSDK from '../utils/isSDK';
 import {useAsyncEffect} from '../utils/useAsyncEffect';
 import {
   WaitingRoomStatus,
@@ -65,8 +56,15 @@ import {RTMUserData, useRTMGlobalState} from './RTMGlobalStateProvider';
 import {useUserGlobalPreferences} from '../components/UserGlobalPreferenceProvider';
 import {ToggleState} from '../../agora-rn-uikit';
 import useMuteToggleLocal from '../utils/useMuteToggleLocal';
-import {RTM_ROOMS} from './constants';
+import {
+  RTM_ROOMS,
+  RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
+} from './constants';
 import {useRtc} from 'customization-api';
+import {
+  fetchChannelAttributesWithRetries,
+  clearRoomScopedUserAttributes,
+} from './rtm-presence-utils';
 
 const eventTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -99,13 +97,13 @@ export const useRTMConfigureMain = () => {
 
 interface RTMConfigureMainRoomProviderProps {
   callActive: boolean;
-  channelName: string;
+  currentChannel: string;
   children: React.ReactNode;
 }
 
 const RTMConfigureMainRoomProvider: React.FC<
   RTMConfigureMainRoomProviderProps
-> = ({callActive, channelName, children}) => {
+> = ({callActive, currentChannel, children}) => {
   const rtmInitTimstamp = new Date().getTime();
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent, activeUids} = useContent();
@@ -117,6 +115,7 @@ const RTMConfigureMainRoomProvider: React.FC<
   const {applyUserPreferences, syncUserPreferences} =
     useUserGlobalPreferences();
   const toggleMute = useMuteToggleLocal();
+  const {rtcTracksReady} = useRtc();
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [isInitialQueueCompleted, setIsInitialQueueCompleted] = useState(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
@@ -133,10 +132,13 @@ const RTMConfigureMainRoomProvider: React.FC<
     unregisterMainChannelStorageHandler,
   } = useRTMGlobalState();
 
-  /**
-   * inside event callback state won't have latest value.
-   * so creating ref to access the state
-   */
+  // refs
+  const isRTMMounted = useRef(true);
+  const channelAttributesTimerRef: any = useRef(5);
+  const channelAttributesTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
   const isHostRef = useRef({isHost: isHost});
   useEffect(() => {
     isHostRef.current.isHost = isHost;
@@ -158,26 +160,31 @@ const RTMConfigureMainRoomProvider: React.FC<
     defaultContentRef.current = defaultContent;
   }, [defaultContent]);
 
-  const {rtcTracksReady} = useRtc();
+  // Set online users
+  React.useEffect(() => {
+    setTotalOnlineUsers(
+      Object.keys(
+        filterObject(
+          defaultContent,
+          ([k, v]) =>
+            v?.type === 'rtc' &&
+            !v.offline &&
+            activeUidsRef.current.activeUids.indexOf(v?.uid) !== -1,
+        ),
+      ).length,
+    );
+  }, [defaultContent, activeUids]);
 
-  // Set main room as active channel when this provider mounts again active
+  // Set user preferences when main room mounts
   useEffect(() => {
-    const rtmEngine = RTMEngine.getInstance();
-    if (rtmEngine.hasChannel(RTM_ROOMS.MAIN)) {
-      rtmEngine.setActiveChannel(RTM_ROOMS.MAIN);
-    }
-  }, []);
-
-  // Apply user preferences when main room mounts
-  useEffect(() => {
-    if (rtcTracksReady) {
+    if (rtcTracksReady && localUid) {
       console.log(
         'UP: trackesready',
         JSON.stringify(defaultContentRef.current[localUid]),
       );
       applyUserPreferences(defaultContentRef.current[localUid], toggleMute);
     }
-  }, [rtcTracksReady]);
+  }, [rtcTracksReady, localUid]);
 
   // Sync current audio/video state audio video changes
   useEffect(() => {
@@ -193,20 +200,7 @@ const RTMConfigureMainRoomProvider: React.FC<
     }
   }, [defaultContent, localUid, syncUserPreferences, rtcTracksReady]);
 
-  // Eventdispatcher timeout refs clean
-  const isRTMMounted = useRef(true);
-  useEffect(() => {
-    return () => {
-      isRTMMounted.current = false;
-      // Clear all pending timeouts on unmount
-      for (const timeout of eventTimeouts.values()) {
-        clearTimeout(timeout);
-      }
-      eventTimeouts.clear();
-    };
-  }, []);
-
-  // Main room specific syncUserState function
+  // Set Main room specific syncUserState function
   const syncUserState = useCallback(
     (uid: number, data: any) => {
       // Extract only RTM-related fields that are actually passed
@@ -256,21 +250,6 @@ const RTMConfigureMainRoomProvider: React.FC<
     [setMainRoomRTMUsers],
   );
 
-  // Set online users
-  React.useEffect(() => {
-    setTotalOnlineUsers(
-      Object.keys(
-        filterObject(
-          defaultContent,
-          ([k, v]) =>
-            v?.type === 'rtc' &&
-            !v.offline &&
-            activeUidsRef.current.activeUids.indexOf(v?.uid) !== -1,
-        ),
-      ).length,
-    );
-  }, [defaultContent, activeUids]);
-
   useEffect(() => {
     Object.entries(mainRoomRTMUsers).forEach(([uidStr, rtmUser]) => {
       const uid = parseInt(uidStr, 10);
@@ -292,16 +271,99 @@ const RTMConfigureMainRoomProvider: React.FC<
     });
   }, [mainRoomRTMUsers, dispatch]);
 
+  const rehydrateSessionAttributes = async () => {
+    try {
+      const uid = localUid.toString();
+      const attr = await client.storage.getUserMetadata({userId: uid});
+      console.log('supriya-wasInBreakoutRoom: attr: ', attr);
+
+      if (!attr?.items) {
+        return;
+      }
+
+      attr.items.forEach(item => {
+        try {
+          // Check if this is a room-aware session attribute for current room
+          if (item.key && item.key.startsWith(`${RTM_ROOMS.MAIN}__`)) {
+            const parsed = JSON.parse(item.value);
+            if (parsed.persistLevel === PersistanceLevel.Session) {
+              // Replay into eventDispatcher so state gets rebuilt
+              eventDispatcher(
+                {evt: item.key, value: item.value},
+                uid,
+                Date.now(),
+              );
+            }
+          }
+        } catch (e) {
+          console.log('Failed to rehydrate session attribute', item.key, e);
+        }
+      });
+    } catch (error) {
+      console.log('Failed to rehydrate session attributes', error);
+    }
+  };
+
   const init = async () => {
+    // Set main room as active channel when this provider mounts again active
+    const currentActiveChannel = RTMEngine.getInstance().getActiveChannelName();
+    const wasInBreakoutRoom = currentActiveChannel === RTM_ROOMS.BREAKOUT;
+
+    if (currentActiveChannel !== RTM_ROOMS.MAIN) {
+      RTMEngine.getInstance().setActiveChannelName(RTM_ROOMS.MAIN);
+    }
+    // Clear room-scoped RTM attributes to ensure fresh state
+    await clearRoomScopedUserAttributes(
+      client,
+      RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES,
+    );
+
+    // Rehydrate session attributes ONLY when returning from breakout room
+    if (wasInBreakoutRoom) {
+      await rehydrateSessionAttributes();
+    }
+
+    await getChannelAttributes();
+
     setHasUserJoinedRTM(true);
     await runQueuedEvents();
     setIsInitialQueueCompleted(true);
+  };
+
+  const getChannelAttributes = async () => {
+    try {
+      await fetchChannelAttributesWithRetries(
+        client,
+        currentChannel,
+        eventData => EventsQueue.enqueue(eventData),
+      );
+      channelAttributesTimerRef.current = 5;
+      // Clear any pending retry timeout since we succeeded
+      if (channelAttributesTimeoutRef.current) {
+        clearTimeout(channelAttributesTimeoutRef.current);
+        channelAttributesTimeoutRef.current = null;
+      }
+    } catch (error) {
+      console.log(
+        'rudra-core-client: RTM getchannelattributes failed..Trying again',
+        error,
+      );
+      channelAttributesTimeoutRef.current = setTimeout(async () => {
+        // Cap the timer to prevent excessive delays (max 30 seconds)
+        channelAttributesTimerRef.current = Math.min(
+          channelAttributesTimerRef.current * 2,
+          30,
+        );
+        getChannelAttributes();
+      }, channelAttributesTimerRef.current * 1000);
+    }
   };
 
   const runQueuedEvents = async () => {
     try {
       while (!EventsQueue.isEmpty()) {
         const currEvt = EventsQueue.dequeue();
+        console.log('supriya-session inside queue currEvt: ', currEvt);
         await eventDispatcher(currEvt.data, `${currEvt.uid}`, currEvt.ts);
       }
     } catch (error) {
@@ -415,7 +477,20 @@ const RTMConfigureMainRoomProvider: React.FC<
         );
         return;
       }
-      const {payload, persistLevel, source} = parsedValue;
+      const {payload, persistLevel, source, _scope, _channelId} = parsedValue;
+      console.log(
+        'supriya-session-attributes [MAIN] _scope and _channelId: ',
+        source,
+        _scope,
+        _channelId,
+        currentChannel,
+        payload,
+      );
+      // Filter if its for this channel
+      if (!isEventForActiveChannel(_scope, _channelId, currentChannel)) {
+        console.log('supriya-session-attributes SKIPPING', payload);
+        return;
+      }
 
       // Step 2: Emit the event (no metadata persistence - handled by RTMGlobalStateProvider)
       console.log(LogSource.Events, 'CUSTOM_EVENTS', 'emiting event..: ', evt);
@@ -454,145 +529,100 @@ const RTMConfigureMainRoomProvider: React.FC<
     }
   };
 
-  // Register listeners when client is created
-  useEffect(() => {
-    if (!client) {
-      return;
-    }
-
-    const handleMainChannelStorageEvent = (storage: StorageEvent) => {
-      // when remote user sets/updates metadata - 3
-      if (
-        storage.eventType === nativeStorageEventTypeMapping.SET ||
-        storage.eventType === nativeStorageEventTypeMapping.UPDATE
-      ) {
-        const storageTypeStr = storage.storageType === 1 ? 'user' : 'channel';
-        const eventTypeStr = storage.eventType === 2 ? 'SET' : 'UPDATE';
-        logger.log(
-          LogSource.AgoraSDK,
-          'Event',
-          `RTM storage event of type: [${eventTypeStr} ${storageTypeStr} metadata]`,
-          storage,
-        );
-        try {
-          if (storage.data?.items && Array.isArray(storage.data.items)) {
-            storage.data.items.forEach(item => {
-              try {
-                if (!item || !item.key) {
-                  logger.warn(
-                    LogSource.Events,
-                    'CUSTOM_EVENTS',
-                    'Invalid storage item:',
-                    item,
-                  );
-                  return;
-                }
-
-                const {key, value, authorUserId, updateTs} = item;
-                const timestamp = getMessageTime(updateTs);
-                const sender = Platform.OS
-                  ? get32BitUid(authorUserId)
-                  : parseInt(authorUserId, 10);
-                eventDispatcher(
-                  {
-                    evt: key,
-                    value,
-                  },
-                  `${sender}`,
-                  timestamp,
-                );
-              } catch (error) {
-                logger.error(
+  // Listeners
+  const handleMainChannelStorageEvent = (storage: StorageEvent) => {
+    // when remote user sets/updates metadata - 3
+    if (
+      storage.eventType === nativeStorageEventTypeMapping.SET ||
+      storage.eventType === nativeStorageEventTypeMapping.UPDATE
+    ) {
+      const storageTypeStr = storage.storageType === 1 ? 'user' : 'channel';
+      const eventTypeStr = storage.eventType === 2 ? 'SET' : 'UPDATE';
+      logger.log(
+        LogSource.AgoraSDK,
+        'Event',
+        `RTM storage event of type: [${eventTypeStr} ${storageTypeStr} metadata]`,
+        storage,
+      );
+      try {
+        if (storage.data?.items && Array.isArray(storage.data.items)) {
+          storage.data.items.forEach(item => {
+            try {
+              if (!item || !item.key) {
+                logger.warn(
                   LogSource.Events,
                   'CUSTOM_EVENTS',
-                  `Failed to process storage item: ${JSON.stringify(item)}`,
-                  {error},
+                  'Invalid storage item:',
+                  item,
                 );
+                return;
               }
-            });
-          }
-        } catch (error) {
+
+              const {key, value, authorUserId, updateTs} = item;
+              const timestamp = getMessageTime(updateTs);
+              const sender = Platform.OS
+                ? get32BitUid(authorUserId)
+                : parseInt(authorUserId, 10);
+              eventDispatcher(
+                {
+                  evt: key,
+                  value,
+                },
+                `${sender}`,
+                timestamp,
+              );
+            } catch (error) {
+              logger.error(
+                LogSource.Events,
+                'CUSTOM_EVENTS',
+                `Failed to process storage item: ${JSON.stringify(item)}`,
+                {error},
+              );
+            }
+          });
+        }
+      } catch (error) {
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'error while dispatching through eventDispatcher',
+          {error},
+        );
+      }
+    }
+  };
+
+  const handleMainChannelMessageEvent = (message: MessageEvent) => {
+    console.log('supriya current message channel: ', currentChannel);
+    console.log('supriya message event is', message);
+    // message - 1 (channel)
+    if (message.channelType === nativeChannelTypeMapping.MESSAGE) {
+      // here the channel name will be the channel name
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'messageEvent of type [1 - CHANNEL] (channelMessageReceived)',
+        message,
+      );
+      const {publisher: uid, message: text, timestamp: ts} = message;
+      //whiteboard upload
+      if (parseInt(uid, 10) === 1010101) {
+        const [err, res] = safeJsonParse(text);
+        if (err) {
           logger.error(
             LogSource.Events,
             'CUSTOM_EVENTS',
-            'error while dispatching through eventDispatcher',
-            {error},
+            'JSON payload incorrect, Error while parsing the payload',
+            {error: err},
           );
         }
-      }
-    };
-
-    const handleMainChannelMessageEvent = (message: MessageEvent) => {
-      console.log('supriya current message channel: ', channelName);
-      console.log('supriya message event is', message);
-      // message - 1 (channel)
-      if (message.channelType === nativeChannelTypeMapping.MESSAGE) {
-        // here the channel name will be the channel name
-        logger.debug(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'messageEvent of type [1 - CHANNEL] (channelMessageReceived)',
-          message,
-        );
-        const {
-          publisher: uid,
-          channelName,
-          message: text,
-          timestamp: ts,
-        } = message;
-        //whiteboard upload
-        if (parseInt(uid, 10) === 1010101) {
-          const [err, res] = safeJsonParse(text);
-          if (err) {
-            logger.error(
-              LogSource.Events,
-              'CUSTOM_EVENTS',
-              'JSON payload incorrect, Error while parsing the payload',
-              {error: err},
-            );
-          }
-          if (res?.data?.data?.images) {
-            LocalEventEmitter.emit(
-              LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
-              res?.data?.data?.images,
-            );
-          }
-        } else {
-          const [err, msg] = safeJsonParse(text);
-          if (err) {
-            logger.error(
-              LogSource.Events,
-              'CUSTOM_EVENTS',
-              'JSON payload incorrect, Error while parsing the payload',
-              {error: err},
-            );
-          }
-
-          const timestamp = getMessageTime(ts);
-          const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid, 10);
-          try {
-            eventDispatcher(msg, `${sender}`, timestamp);
-          } catch (error) {
-            logger.error(
-              LogSource.Events,
-              'CUSTOM_EVENTS',
-              'error while dispatching through eventDispatcher',
-              {error},
-            );
-          }
+        if (res?.data?.data?.images) {
+          LocalEventEmitter.emit(
+            LocalEventsEnum.WHITEBOARD_FILE_UPLOAD,
+            res?.data?.data?.images,
+          );
         }
-      }
-
-      // message - 3 (user)
-      if (message.channelType === nativeChannelTypeMapping.USER) {
-        logger.debug(
-          LogSource.Events,
-          'CUSTOM_EVENTS',
-          'messageEvent of type [3- USER] (messageReceived)',
-          message,
-        );
-        // here the  (message.channelname) channel name will be the to UID
-        const {publisher: peerId, timestamp: ts, message: text} = message;
+      } else {
         const [err, msg] = safeJsonParse(text);
         if (err) {
           logger.error(
@@ -604,9 +634,7 @@ const RTMConfigureMainRoomProvider: React.FC<
         }
 
         const timestamp = getMessageTime(ts);
-
-        const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId, 10);
-
+        const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid, 10);
         try {
           eventDispatcher(msg, `${sender}`, timestamp);
         } catch (error) {
@@ -618,42 +646,78 @@ const RTMConfigureMainRoomProvider: React.FC<
           );
         }
       }
-    };
+    }
 
-    // Register with RTMGlobalStateProvider for main channel message handling
-    registerMainChannelMessageHandler(handleMainChannelMessageEvent);
-    registerMainChannelStorageHandler(handleMainChannelStorageEvent);
-    console.log(
-      'RTMConfigureMainRoom: Registered main channel message handler',
-    );
-
-    return () => {
-      unregisterMainChannelMessageHandler();
-      unregisterMainChannelStorageHandler();
-      console.log(
-        'RTMConfigureMainRoom: Unregistered main channel message handler',
+    // message - 3 (user)
+    if (message.channelType === nativeChannelTypeMapping.USER) {
+      logger.debug(
+        LogSource.Events,
+        'CUSTOM_EVENTS',
+        'messageEvent of type [3- USER] (messageReceived)',
+        message,
       );
-    };
-  }, [client, channelName]);
+      // here the  (message.channelname) channel name will be the to UID
+      const {publisher: peerId, timestamp: ts, message: text} = message;
+      const [err, msg] = safeJsonParse(text);
+      if (err) {
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'JSON payload incorrect, Error while parsing the payload',
+          {error: err},
+        );
+      }
+
+      const timestamp = getMessageTime(ts);
+
+      const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId, 10);
+
+      try {
+        eventDispatcher(msg, `${sender}`, timestamp);
+      } catch (error) {
+        logger.error(
+          LogSource.Events,
+          'CUSTOM_EVENTS',
+          'error while dispatching through eventDispatcher',
+          {error},
+        );
+      }
+    }
+  };
 
   useAsyncEffect(async () => {
     try {
-      if (isLoggedIn && callActive) {
+      if (client && isLoggedIn && callActive && currentChannel) {
+        registerMainChannelMessageHandler(handleMainChannelMessageEvent);
+        registerMainChannelStorageHandler(handleMainChannelStorageEvent);
         await init();
       }
     } catch (error) {
       logger.error(LogSource.AgoraSDK, 'Log', 'RTM init failed', {error});
     }
     return async () => {
+      isRTMMounted.current = false;
       logger.log(LogSource.AgoraSDK, 'API', 'RTM destroy done');
+      unregisterMainChannelMessageHandler();
+      unregisterMainChannelStorageHandler();
       if (isIOS() || isAndroid()) {
         EventUtils.clear();
+      }
+      // Clear all pending timeouts on unmount
+      for (const timeout of eventTimeouts.values()) {
+        clearTimeout(timeout);
+      }
+      eventTimeouts.clear();
+      // Clear timer-based retry timeouts
+      if (channelAttributesTimeoutRef.current) {
+        clearTimeout(channelAttributesTimeoutRef.current);
+        channelAttributesTimeoutRef.current = null;
       }
       setHasUserJoinedRTM(false);
       setIsInitialQueueCompleted(false);
       logger.debug(LogSource.AgoraSDK, 'Log', 'RTM cleanup done');
     };
-  }, [isLoggedIn, callActive, channelName]);
+  }, [client, isLoggedIn, callActive, currentChannel]);
 
   // Provide context data to children
   const contextValue: RTMMainRoomData = {

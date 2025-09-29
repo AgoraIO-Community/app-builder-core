@@ -76,7 +76,7 @@ class RTMEngine {
       throw new Error('addChannel: channelID must be a non-empty string');
     }
     this.channelMap.set(name, channelID);
-    this.setActiveChannel(name);
+    this.setActiveChannelName(name);
   }
 
   removeChannel(name: string) {
@@ -87,14 +87,14 @@ class RTMEngine {
     return this.localUID;
   }
 
-  getChannel(name?: string): string {
+  getChannelId(name?: string): string {
     // Default to active channel if no name provided
     const channelName = name || this.activeChannelName;
     console.log('supriya channelName: ', this.channelMap.get(channelName));
     return this.channelMap.get(channelName) || '';
   }
 
-  get allChannels(): string[] {
+  get allChannelIds(): string[] {
     return Array.from(this.channelMap.values()).filter(
       channel => channel.trim() !== '',
     );
@@ -109,7 +109,7 @@ class RTMEngine {
   }
 
   /** Set the active channel for default operations */
-  setActiveChannel(name: string): void {
+  setActiveChannelName(name: string): void {
     if (!name || typeof name !== 'string' || name.trim() === '') {
       throw new Error('setActiveChannel: name must be a non-empty string');
     }
@@ -120,13 +120,13 @@ class RTMEngine {
     }
     this.activeChannelName = name;
     console.log(
-      `RTMEngine: Active channel set to '${name}' (${this.getChannel(name)})`,
+      `RTMEngine: Active channel set to '${name}' (${this.getChannelId(name)})`,
     );
   }
 
   /** Get the current active channel ID */
-  getActiveChannel(): string {
-    return this.getChannel(this.activeChannelName);
+  getActiveChannelId(): string {
+    return this.getChannelId(this.activeChannelName);
   }
 
   /** Get the current active channel name */
@@ -188,7 +188,7 @@ class RTMEngine {
     console.log('supriya-rtm-lifecycle unsubscribing from all channel');
 
     // Unsubscribe from all tracked channels
-    for (const channel of this.allChannels) {
+    for (const channel of this.allChannelIds) {
       try {
         await this._engine.unsubscribe(channel);
       } catch (err) {

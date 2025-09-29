@@ -157,13 +157,14 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
   // Global event listeners - centralized in RTMCoreProvider
   useEffect(() => {
-    if (!client) {
+    if (!client || !userInfo?.localUid) {
       return;
     }
     const handleGlobalStorageEvent = (storage: StorageEvent) => {
       console.log(
         'rudra-core-client ********************** ---StorageEvent event: ',
         storage,
+        callbackRegistry,
       );
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
@@ -181,6 +182,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       console.log(
         'rudra-core-client @@@@@@@@@@@@@@@@@@@@@@@  ---PresenceEvent: ',
         presence,
+        callbackRegistry,
       );
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
@@ -201,8 +203,9 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       );
       if (String(userInfo.localUid) === message.publisher) {
         console.log(
-          'rudra-core-client ######################## SKIPPING this message event ',
+          'rudra-core-client ######################## SKIPPING this message event as it is local',
           message,
+          callbackRegistry,
         );
         return;
       }
@@ -228,7 +231,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       client.removeEventListener('presence', handleGlobalPresenceEvent);
       client.removeEventListener('message', handleGlobalMessageEvent);
     };
-  }, [client]);
+  }, [client, userInfo?.localUid]);
 
   useEffect(() => {
     if (client) {
