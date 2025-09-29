@@ -1,29 +1,20 @@
 import React, {useEffect, useRef} from 'react';
 import events from '../../../rtm-events-api';
 import {BreakoutRoomEventNames} from './constants';
-import Toast from '../../../../react-native-toast-message';
 import {useBreakoutRoom} from '../context/BreakoutRoomContext';
-import {
-  BreakoutRoomAnnouncementEventPayload,
-  BreakoutRoomSyncStateEventPayload,
-} from '../state/types';
+import {BreakoutRoomSyncStateEventPayload} from '../state/types';
 import {useLocalUid} from '../../../../agora-rn-uikit';
 import {useRoomInfo} from '../../../components/room-info/useRoomInfo';
 import {logger, LogSource} from '../../../logger/AppBuilderLogger';
 
 interface Props {
   children: React.ReactNode;
-  mainChannelName: string;
 }
 
-const BreakoutRoomEventsConfigure: React.FC<Props> = ({
-  children,
-  mainChannelName,
-}) => {
+const BreakoutRoomEventsConfigure: React.FC<Props> = ({children}) => {
   const {
     onMakeMePresenter,
     handleBreakoutRoomSyncState,
-    onRaiseHand,
     handleHostOperationStart,
     handleHostOperationEnd,
   } = useBreakoutRoom();
@@ -33,7 +24,6 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   } = useRoomInfo();
   const isHostRef = React.useRef(isHost);
   const localUidRef = React.useRef(localUid);
-  const onRaiseHandRef = useRef(onRaiseHand);
   const onMakeMePresenterRef = useRef(onMakeMePresenter);
   const handleBreakoutRoomSyncStateRef = useRef(handleBreakoutRoomSyncState);
   const handleHostOperationStartRef = useRef(handleHostOperationStart);
@@ -45,9 +35,6 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
   useEffect(() => {
     localUidRef.current = localUid;
   }, [localUid]);
-  useEffect(() => {
-    onRaiseHandRef.current = onRaiseHand;
-  }, [onRaiseHand]);
   useEffect(() => {
     onMakeMePresenterRef.current = onMakeMePresenter;
   }, [onMakeMePresenter]);
@@ -77,55 +64,6 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
         const data = JSON.parse(payload);
         if (data.action === 'start' || data.action === 'stop') {
           onMakeMePresenterRef.current(data.action);
-        }
-      } catch (error) {}
-    };
-
-    const handleRaiseHandEvent = (evtData: any) => {
-      logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'BREAKOUT_ROOM_ATTENDEE_RAISE_HAND event recevied',
-        evtData,
-      );
-      try {
-        const {sender, payload} = evtData;
-        if (!isHostRef.current) {
-          return;
-        }
-        if (sender === `${localUidRef.current}`) {
-          return;
-        }
-        const data = JSON.parse(payload);
-        if (data.action === 'raise' || data.action === 'lower') {
-          onRaiseHandRef.current?.(data.action, data.uid);
-        }
-      } catch (error) {}
-    };
-
-    const handleAnnouncementEvent = (evtData: any) => {
-      logger.log(
-        LogSource.Internals,
-        'BREAKOUT_ROOM',
-        'BREAKOUT_ROOM_ANNOUNCEMENT event recevied',
-        evtData,
-      );
-      try {
-        const {_, payload, sender} = evtData;
-        const data: BreakoutRoomAnnouncementEventPayload = JSON.parse(payload);
-        if (sender === `${localUidRef.current}`) {
-          return;
-        }
-        if (data.announcement) {
-          Toast.show({
-            leadingIconName: 'speaker',
-            type: 'info',
-            text1: `Message from host: :${data.announcement}`,
-            visibilityTime: 3000,
-            primaryBtn: null,
-            secondaryBtn: null,
-            leadingIcon: null,
-          });
         }
       } catch (error) {}
     };
@@ -211,17 +149,13 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
       }
     };
 
-    events.on(
-      BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
-      handleAnnouncementEvent,
-    );
+    // events.on(
+    //   BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT,
+    //   handleAnnouncementEvent,
+    // );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
       handlePresenterStatusEvent,
-    );
-    events.on(
-      BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
-      handleRaiseHandEvent,
     );
     events.on(
       BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,
@@ -237,14 +171,10 @@ const BreakoutRoomEventsConfigure: React.FC<Props> = ({
     );
 
     return () => {
-      events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
+      // events.off(BreakoutRoomEventNames.BREAKOUT_ROOM_ANNOUNCEMENT);
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_MAKE_PRESENTER,
         handlePresenterStatusEvent,
-      );
-      events.off(
-        BreakoutRoomEventNames.BREAKOUT_ROOM_ATTENDEE_RAISE_HAND,
-        handleRaiseHandEvent,
       );
       events.off(
         BreakoutRoomEventNames.BREAKOUT_ROOM_SYNC_STATE,

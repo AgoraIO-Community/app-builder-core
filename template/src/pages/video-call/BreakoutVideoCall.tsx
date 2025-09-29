@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useEffect, SetStateAction, useMemo} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   RtcConfigure,
   PropsProvider,
@@ -48,7 +48,9 @@ import {ChatMessagesProvider} from '../../components/chat-messages/useChatMessag
 import VideoCallScreenWrapper from './../video-call/VideoCallScreenWrapper';
 import {BeautyEffectProvider} from '../../components/beauty-effect/useBeautyEffects';
 import {UserActionMenuProvider} from '../../components/useUserActionMenu';
+import {RaiseHandProvider} from '../../components/raise-hand';
 import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
+import {useBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
 import {
   BreakoutChannelDetails,
   VideoCallContentProps,
@@ -56,13 +58,13 @@ import {
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
 import {RTM_ROOMS} from '../../rtm/constants';
 
-interface BreakoutVideoCallContentProps extends VideoCallContentProps {
+interface BreakoutVideoCallProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
   breakoutChannelDetails: BreakoutChannelDetails;
   onLeave: () => void;
 }
 
-const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
+const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
   rtcProps,
   breakoutChannelDetails,
   onLeave,
@@ -70,6 +72,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   callbacks,
   styleProps,
 }) => {
+  const {setBreakoutRoomChannelData} = useBreakoutRoomInfo();
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
   const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
@@ -82,6 +85,14 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
     screenShareUid: breakoutChannelDetails?.screenShareUid as number,
     screenShareToken: breakoutChannelDetails?.screenShareToken || '',
   });
+
+  // Set breakout room data when component mounts
+  useEffect(() => {
+    setBreakoutRoomChannelData({
+      channelId: breakoutChannelDetails.channel,
+      isBreakoutMode: true,
+    });
+  }, [breakoutChannelDetails.channel, setBreakoutRoomChannelData]);
 
   return (
     <PropsProvider
@@ -109,7 +120,7 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                           <ScreenShareProvider>
                             <RTMConfigureBreakoutRoomProvider
                               callActive={callActive}
-                              channelName={breakoutRoomRTCProps.channel}>
+                              currentChannel={breakoutRoomRTCProps.channel}>
                               <RtmConfigure room={RTM_ROOMS.BREAKOUT}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>
@@ -151,20 +162,22 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
                                                             <VideoMeetingDataProvider>
                                                               <VideoCallProvider>
                                                                 <DisableChatProvider>
-                                                                  <BreakoutRoomProvider
-                                                                    mainChannel={
-                                                                      rtcProps.channel
-                                                                    }
-                                                                    handleLeaveBreakout={
-                                                                      onLeave
-                                                                    }>
-                                                                    <BreakoutRoomEventsConfigure
-                                                                      mainChannelName={
+                                                                  <RaiseHandProvider>
+                                                                    <BreakoutRoomProvider
+                                                                      mainChannel={
                                                                         rtcProps.channel
+                                                                      }
+                                                                      handleLeaveBreakout={
+                                                                        onLeave
                                                                       }>
-                                                                      <VideoCallScreenWrapper />
-                                                                    </BreakoutRoomEventsConfigure>
-                                                                  </BreakoutRoomProvider>
+                                                                      <BreakoutRoomEventsConfigure
+                                                                        mainChannelName={
+                                                                          rtcProps.channel
+                                                                        }>
+                                                                        <VideoCallScreenWrapper />
+                                                                      </BreakoutRoomEventsConfigure>
+                                                                    </BreakoutRoomProvider>
+                                                                  </RaiseHandProvider>
                                                                 </DisableChatProvider>
                                                               </VideoCallProvider>
                                                             </VideoMeetingDataProvider>
@@ -199,4 +212,4 @@ const BreakoutVideoCallContent: React.FC<BreakoutVideoCallContentProps> = ({
   );
 };
 
-export default BreakoutVideoCallContent;
+export default BreakoutVideoCall;

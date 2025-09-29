@@ -20,6 +20,7 @@ import {UidType} from '../../agora-rn-uikit';
 import RTMEngine from '../rtm/RTMEngine';
 import {isWeb, isWebInternal} from '../utils/common';
 import isSDK from '../utils/isSDK';
+import {useAsyncEffect} from '../utils/useAsyncEffect';
 
 // Event callback types
 type MessageCallback = (message: MessageEvent) => void;
@@ -135,6 +136,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       const options: SetOrUpdateUserMetadataOptions = {
         userId: `${userInfo.localUid}`,
       };
+      await rtmClient.storage.removeUserMetadata();
       await rtmClient.storage.setUserMetadata(data, options);
     } catch (setAttributeError) {
       console.log('setAttributeError: ', setAttributeError);
@@ -155,13 +157,14 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
 
   // Global event listeners - centralized in RTMCoreProvider
   useEffect(() => {
-    if (!client) {
+    if (!client || !userInfo?.localUid) {
       return;
     }
     const handleGlobalStorageEvent = (storage: StorageEvent) => {
       console.log(
         'rudra-core-client ********************** ---StorageEvent event: ',
         storage,
+        callbackRegistry,
       );
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
@@ -179,6 +182,7 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       console.log(
         'rudra-core-client @@@@@@@@@@@@@@@@@@@@@@@  ---PresenceEvent: ',
         presence,
+        callbackRegistry,
       );
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
@@ -197,6 +201,14 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
         'rudra-core-client ######################## ---MessageEvent event: ',
         message,
       );
+      if (String(userInfo.localUid) === message.publisher) {
+        console.log(
+          'rudra-core-client ######################## SKIPPING this message event as it is local',
+          message,
+          callbackRegistry,
+        );
+        return;
+      }
       // Distribute to all registered callbacks
       callbackRegistry.current.forEach((callbacks, channelName) => {
         if (callbacks.message) {
@@ -219,13 +231,14 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
       client.removeEventListener('presence', handleGlobalPresenceEvent);
       client.removeEventListener('message', handleGlobalMessageEvent);
     };
-  }, [client]);
+  }, [client, userInfo?.localUid]);
 
   useEffect(() => {
     if (client) {
       return;
     }
     const initializeRTM = async () => {
+      console.log('supriya-rtm-lifecycle init');
       // 1, Check if engine is already connected
       // 2. Initialize RTM Engine
       if (!RTMEngine.getInstance()?.isEngineReady) {
@@ -269,50 +282,70 @@ export const RTMCoreProvider: React.FC<RTMCoreProviderProps> = ({
     };
 
     initializeRTM();
-
-    return () => {
-      // Cleanup
-      console.log('supriya-rtm RTM cleanup is happening');
-      if (client) {
-        console.log('supriya RTM cleanup is happening');
-        RTMEngine.getInstance().destroy();
-        setClient(null);
-      }
-    };
   }, [client, stableUserInfo, setAttribute]);
 
+  const cleanupRTM = async () => {
+    try {
+      const engine = RTMEngine.getInstance();
+      if (engine?.engine) {
+        console.log('RTM cleanup: destroying engine...');
+        await engine.destroy();
+        console.log('RTM cleanup: engine destroyed.');
+      }
+      setClient(null);
+    } catch (err) {
+      console.error('RTM cleanup failed:', err);
+    }
+  };
+
+  useAsyncEffect(() => {
+    return async () => {
+      // Cleanup
+      console.log('supriya-rtm-lifecycle cleanup');
+      await cleanupRTM();
+      // if (currentClient) {
+      //   console.log('supriya-rtm-lifecycle cleanup calling destroy');
+      //   await RTMEngine.getInstance().destroy();
+      //   console.log(
+      //     'supriya-rtm-lifecycle setting client null',
+      //     RTMEngine.getInstance().engine,
+      //   );
+      //   setClient(null);
+      // }
+    };
+  }, []);
   // Handle browser close/reload events for RTM cleanup
   useEffect(() => {
-    if (!$config.ENABLE_CONVERSATIONAL_AI) {
+    if (!$config.ENABLE_CONVERSATIONAL_AI && isWebInternal()) {
       const handleBrowserClose = (ev: BeforeUnloadEvent) => {
         ev.preventDefault();
         return (ev.returnValue = 'Are you sure you want to exit?');
       };
 
-      const handleRTMLogout = () => {
-        if (client && isLoggedIn) {
-          console.log('Browser closing, logging out from RTM');
-          client.logout().catch(() => {});
-        }
+      const handleRTMCleanup = () => {
+        console.log('Browser closing: calling cleanupRTM()');
+        // Fire-and-forget, no await because page is unloading
+        cleanupRTM();
+        // Optional: add beacon for debugging
+        // navigator.sendBeacon?.(
+        //   '/cleanup-log',
+        //   JSON.stringify({msg: 'RTM cleanup triggered on pagehide'}),
+        // );
       };
-
-      if (!isWebInternal()) {
-        return;
-      }
 
       window.addEventListener(
         'beforeunload',
         isWeb() && !isSDK() ? handleBrowserClose : () => {},
       );
 
-      window.addEventListener('pagehide', handleRTMLogout);
+      window.addEventListener('pagehide', handleRTMCleanup);
 
       return () => {
         window.removeEventListener(
           'beforeunload',
           isWeb() && !isSDK() ? handleBrowserClose : () => {},
         );
-        window.removeEventListener('pagehide', handleRTMLogout);
+        window.removeEventListener('pagehide', handleRTMCleanup);
       };
     }
   }, [client, isLoggedIn]);

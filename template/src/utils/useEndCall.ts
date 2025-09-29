@@ -69,7 +69,6 @@ const useEndCall = () => {
     if ($config.CHAT) {
       deleteChatUser();
     }
-    RTMEngine.getInstance().destroy();
     if (!ENABLE_AUTH) {
       // await authLogout();
       await authLogin();

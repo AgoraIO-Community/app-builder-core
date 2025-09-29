@@ -99,6 +99,7 @@ export interface messageInterface {
   reactions?: Reaction[];
   replyToMsgId?: string;
   hide?: boolean;
+  isAnnouncementText?: boolean;
 }
 
 export enum SDKChatType {
@@ -122,6 +123,7 @@ export interface ChatOption {
     channel?: string;
     msg?: string;
     replyToMsgId?: string;
+    isAnnouncementText?: boolean;
   };
   url?: string;
 }
@@ -356,6 +358,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           fileName: body?.fileName,
           replyToMsgId: body?.replyToMsgId,
           hide: false,
+          isAnnouncementText: body?.isAnnouncementText,
         },
       ];
     });

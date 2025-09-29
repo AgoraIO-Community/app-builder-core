@@ -13,7 +13,7 @@ interface MainRoomUser {
   name: string;
 }
 
-const BreakoutRoomMainRoomUsers: React.FC = () => {
+const BreakoutRoomMainRoomUsers = ({scrollOffset}) => {
   const {mainRoomRTMUsers} = useRTMGlobalState();
   const {breakoutGroups, breakoutRoomVersion} = useBreakoutRoom();
   const remoteUserDefaultLabel = useString(videoRoomUserFallbackText)();
@@ -60,6 +60,8 @@ const BreakoutRoomMainRoomUsers: React.FC = () => {
           {mainRoomOnlyUsers.map(user => (
             <View key={user.uid}>
               <Tooltip
+                key={user.uid}
+                scrollY={scrollOffset}
                 toolTipMessage={user.name}
                 renderContent={() => {
                   return (

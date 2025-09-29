@@ -59,6 +59,7 @@ import {
 } from '../language/default-labels/videoCallScreenLabels';
 import CommonStyles from '../components/CommonStyles';
 import PinnedMessage from './chat/PinnedMessage';
+import ChatAnnouncementView from './chat/ChatAnnouncementView';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -252,7 +253,13 @@ const ChatContainer = (props?: {
                     </Text>
                   </View>
                 ) : null}
-                {!message?.hide ? (
+
+                {message?.isAnnouncementText ? (
+                  <ChatAnnouncementView
+                    message={message.msg}
+                    uid={message.uid}
+                  />
+                ) : !message?.hide ? (
                   <ChatBubbleComponent
                     isLocal={localUid === message.uid}
                     isSameUser={

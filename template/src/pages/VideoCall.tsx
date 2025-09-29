@@ -80,6 +80,7 @@ import {LogSource, logger} from '../logger/AppBuilderLogger';
 import {useCustomization} from 'customization-implementation';
 import {BeautyEffectProvider} from '../components/beauty-effect/useBeautyEffects';
 import {UserActionMenuProvider} from '../components/useUserActionMenu';
+import {RaiseHandProvider} from '../components/raise-hand';
 import Toast from '../../react-native-toast-message';
 import {AuthErrorCodes} from '../utils/common';
 import {BreakoutRoomProvider} from '../components/breakout-room/context/BreakoutRoomContext';
@@ -162,7 +163,7 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                           <ScreenShareProvider>
                             <RTMConfigureMainRoomProvider
                               callActive={callActive}
-                              channelName={rtcProps.channel}>
+                              currentChannel={rtcProps.channel}>
                               <RtmConfigure room={RTM_ROOMS.MAIN}>
                                 <UserPreferenceProvider callActive={callActive}>
                                   <CaptionProvider>
@@ -209,20 +210,22 @@ const VideoCall = (videoCallProps: VideoCallProps) => {
                                                               <VideoMeetingDataProvider>
                                                                 <VideoCallProvider>
                                                                   <DisableChatProvider>
-                                                                    <BreakoutRoomProvider
-                                                                      mainChannel={
-                                                                        rtcProps.channel
-                                                                      }
-                                                                      handleLeaveBreakout={
-                                                                        null
-                                                                      }>
-                                                                      <BreakoutRoomEventsConfigure
-                                                                        mainChannelName={
+                                                                    <RaiseHandProvider>
+                                                                      <BreakoutRoomProvider
+                                                                        mainChannel={
                                                                           rtcProps.channel
+                                                                        }
+                                                                        handleLeaveBreakout={
+                                                                          null
                                                                         }>
-                                                                        <VideoCallScreenWrapper />
-                                                                      </BreakoutRoomEventsConfigure>
-                                                                    </BreakoutRoomProvider>
+                                                                        <BreakoutRoomEventsConfigure
+                                                                          mainChannelName={
+                                                                            rtcProps.channel
+                                                                          }>
+                                                                          <VideoCallScreenWrapper />
+                                                                        </BreakoutRoomEventsConfigure>
+                                                                      </BreakoutRoomProvider>
+                                                                    </RaiseHandProvider>
                                                                   </DisableChatProvider>
                                                                 </VideoCallProvider>
                                                               </VideoMeetingDataProvider>
