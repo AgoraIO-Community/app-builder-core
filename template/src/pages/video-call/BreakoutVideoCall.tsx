@@ -50,49 +50,47 @@ import {BeautyEffectProvider} from '../../components/beauty-effect/useBeautyEffe
 import {UserActionMenuProvider} from '../../components/useUserActionMenu';
 import {RaiseHandProvider} from '../../components/raise-hand';
 import {BreakoutRoomProvider} from '../../components/breakout-room/context/BreakoutRoomContext';
-import {useBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
-import {
-  BreakoutChannelDetails,
-  VideoCallContentProps,
-} from './VideoCallContent';
+import {useSetBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
+import {VideoCallContentProps} from './VideoCallContent';
 import BreakoutRoomEventsConfigure from '../../components/breakout-room/events/BreakoutRoomEventsConfigure';
 import {RTM_ROOMS} from '../../rtm/constants';
+import {BreakoutChannelJoinEventPayload} from '../../components/breakout-room/state/types';
 
 interface BreakoutVideoCallProps extends VideoCallContentProps {
   rtcProps: RtcPropsInterface;
-  breakoutChannelDetails: BreakoutChannelDetails;
+  breakoutJoinChannelDetails: BreakoutChannelJoinEventPayload['data']['data'];
   onLeave: () => void;
 }
 
 const BreakoutVideoCall: React.FC<BreakoutVideoCallProps> = ({
   rtcProps,
-  breakoutChannelDetails,
+  breakoutJoinChannelDetails,
   onLeave,
   callActive,
   callbacks,
   styleProps,
 }) => {
-  const {setBreakoutRoomChannelData} = useBreakoutRoomInfo();
+  const {setBreakoutRoomChannelInfo} = useSetBreakoutRoomInfo();
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [sttAutoStarted, setSttAutoStarted] = useState(false);
   const [recordingAutoStarted, setRecordingAutoStarted] = useState(false);
   const [breakoutRoomRTCProps, setBreakoutRoomRtcProps] = useState({
     ...rtcProps,
-    channel: breakoutChannelDetails.channel,
-    uid: breakoutChannelDetails.uid as number,
-    token: breakoutChannelDetails.token,
-    rtm: breakoutChannelDetails.rtmToken,
-    screenShareUid: breakoutChannelDetails?.screenShareUid as number,
-    screenShareToken: breakoutChannelDetails?.screenShareToken || '',
+    channel: breakoutJoinChannelDetails.channel_name,
+    uid: breakoutJoinChannelDetails.mainUser.uid as number,
+    token: breakoutJoinChannelDetails.mainUser.rtc,
+    rtm: breakoutJoinChannelDetails.mainUser.rtm,
+    screenShareUid: breakoutJoinChannelDetails?.screenShare.uid as number,
+    screenShareToken: breakoutJoinChannelDetails?.screenShare.rtc,
   });
 
   // Set breakout room data when component mounts
   useEffect(() => {
-    setBreakoutRoomChannelData({
-      channelId: breakoutChannelDetails.channel,
+    setBreakoutRoomChannelInfo({
       isBreakoutMode: true,
+      ...breakoutJoinChannelDetails,
     });
-  }, [breakoutChannelDetails.channel, setBreakoutRoomChannelData]);
+  }, [breakoutJoinChannelDetails]);
 
   return (
     <PropsProvider

@@ -1,10 +1,8 @@
 import React, {createContext, useContext, useState} from 'react';
 import {BreakoutChannelJoinEventPayload} from '../breakout-room/state/types';
 
-type BreakoutRoomData = {
+type BreakoutRoomData = BreakoutChannelJoinEventPayload['data']['data'] & {
   isBreakoutMode: boolean;
-  channelId: string;
-  breakoutRoomName: string;
 };
 
 interface BreakoutRoomInfoContextValue {
@@ -46,12 +44,11 @@ export const useSetBreakoutRoomInfo = () => {
   const {setBreakoutRoomChannelData} = useBreakoutRoomInfo();
 
   const setBreakoutRoomChannelInfo = (
-    payload: BreakoutChannelJoinEventPayload,
+    breakoutJoinChannelDetails: BreakoutRoomData,
   ) => {
     const breakoutData: BreakoutRoomData = {
-      breakoutRoomName: payload.data.data.room_name,
-      channelId: payload.data.data.channel_name,
       isBreakoutMode: true,
+      ...breakoutJoinChannelDetails,
     };
     setBreakoutRoomChannelData(breakoutData);
   };

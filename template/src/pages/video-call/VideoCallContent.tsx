@@ -26,15 +26,6 @@ import {
   BreakoutRoomInfoProvider,
 } from '../../components/room-info/useSetBreakoutRoomInfo';
 
-export interface BreakoutChannelDetails {
-  channel: string;
-  uid: number | string;
-  token: string;
-  screenShareUid: number | string;
-  screenShareToken: string;
-  rtmToken: string;
-}
-
 export interface VideoCallContentProps {
   callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
@@ -63,8 +54,9 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
   const getDisplayName = useMainRoomUserDisplayName();
 
   // Breakout channel details (populated by RTM events)
-  const [breakoutChannelDetails, setBreakoutChannelDetails] =
-    useState<BreakoutChannelDetails | null>(null);
+  const [breakoutJoinChannelDetails, setBreakoutJoinChannelDetails] = useState<
+    BreakoutChannelJoinEventPayload['data']['data'] | null
+  >(null);
 
   // Track transition direction for better UX
   const [transitionDirection, setTransitionDirection] = useState<
@@ -91,26 +83,15 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           sessionStorage.setItem('breakout_room_transition', 'true');
           console.log('Set breakout transition flag for channel join');
 
-          // Extract breakout channel details
-          const breakoutDetails: BreakoutChannelDetails = {
-            channel: channel_name,
-            token: mainUser.rtc,
-            uid: mainUser?.uid || 0,
-            screenShareToken: screenShare.rtc,
-            screenShareUid: screenShare.uid,
-            rtmToken: mainUser.rtm,
-          };
-          // Set breakout room info using the new system
-          setBreakoutRoomChannelInfo(data);
           // Set breakout state active
           history.push(`/${phrase}?breakout=true`);
-          setBreakoutChannelDetails(null);
+          setBreakoutJoinChannelDetails(null);
           setTransitionDirection('enter'); // Set direction for entering
           // Add state after a delay to show transitioning screen
           breakoutTimeoutRef.current = setTimeout(() => {
-            setBreakoutChannelDetails(prev => ({
+            setBreakoutJoinChannelDetails(prev => ({
               ...prev,
-              ...breakoutDetails,
+              ...data.data.data,
             }));
             breakoutTimeoutRef.current = null;
           }, 800);
@@ -176,7 +157,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
     // Set direction for exiting
     setTransitionDirection('exit');
     // Clear breakout channel details to show transition
-    setBreakoutChannelDetails(null);
+    setBreakoutJoinChannelDetails(null);
     // Navigate back to main room after a delay
     setTimeout(() => {
       history.push(`/${phrase}`);
@@ -185,7 +166,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
 
   // Route protection: Prevent direct navigation to breakout route
   useEffect(() => {
-    if (isBreakoutMode && !breakoutChannelDetails) {
+    if (isBreakoutMode && !breakoutJoinChannelDetails) {
       // If user navigated to breakout route without valid channel details,
       // redirect to main room after a short delay to prevent infinite loops
       const redirectTimer = setTimeout(() => {
@@ -195,18 +176,18 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
 
       return () => clearTimeout(redirectTimer);
     }
-  }, [isBreakoutMode, breakoutChannelDetails, history, phrase]);
+  }, [isBreakoutMode, breakoutJoinChannelDetails, history, phrase]);
 
   // Conditional rendering based on URL params
   return (
     <>
       {isBreakoutMode ? (
-        breakoutChannelDetails?.channel ? (
+        breakoutJoinChannelDetails?.channel_name ? (
           // Breakout Room Mode - Fresh component instance
           <BreakoutRoomInfoProvider>
             <BreakoutVideoCall
-              key={`breakout-${breakoutChannelDetails.channel}`}
-              breakoutChannelDetails={breakoutChannelDetails}
+              key={`breakout-${breakoutJoinChannelDetails.channel_name}`}
+              breakoutJoinChannelDetails={breakoutJoinChannelDetails}
               onLeave={handleLeaveBreakout}
               {...props}
             />
@@ -215,7 +196,7 @@ const VideoCallContent: React.FC<VideoCallContentProps> = props => {
           <BreakoutRoomTransition
             direction={transitionDirection}
             onTimeout={() => {
-              setBreakoutChannelDetails(null);
+              setBreakoutJoinChannelDetails(null);
             }}
           />
         )
