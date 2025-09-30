@@ -2,17 +2,15 @@ import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
-import {useMainRoomUserDisplayName} from '../../rtm/hooks/useMainRoomUserDisplayName';
+import {AnnouncementMessage} from '../../components/chat-messages/useChatMessages';
 
 export default function ChatAnnouncementView({
   message,
-  uid,
+  announcement,
 }: {
   message: string;
-  uid;
+  announcement: AnnouncementMessage;
 }) {
-  const getDisplayName = useMainRoomUserDisplayName();
-  const senderName = getDisplayName(uid);
   return (
     <View style={style.announcementView}>
       <ImageIcon
@@ -23,7 +21,7 @@ export default function ChatAnnouncementView({
       />
       <View style={style.announcementMessage}>
         <Text style={style.announcementMessageHeader}>
-          Message from host: {senderName}
+          Message from host: {announcement.sender}
         </Text>
         <Text style={style.announcementMessageBody}>{message}</Text>
       </View>

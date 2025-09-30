@@ -46,6 +46,11 @@ interface ChatMessagesProviderProps {
   children: React.ReactNode;
   callActive: boolean;
 }
+
+export enum ChatNotificationType {
+  ANNOUNCEMENT = 'ANNOUNCEMENT',
+}
+
 export enum ChatMessageType {
   /**
    * Text message.
@@ -85,6 +90,10 @@ export enum ChatMessageType {
   COMBINE = 'combine',
 }
 
+export interface AnnouncementMessage {
+  sender: string;
+  heading: string;
+}
 export interface messageInterface {
   createdTimestamp: number;
   updatedTimestamp?: number;
@@ -99,7 +108,7 @@ export interface messageInterface {
   reactions?: Reaction[];
   replyToMsgId?: string;
   hide?: boolean;
-  isAnnouncementText?: boolean;
+  announcement?: AnnouncementMessage;
 }
 
 export enum SDKChatType {
@@ -123,7 +132,7 @@ export interface ChatOption {
     channel?: string;
     msg?: string;
     replyToMsgId?: string;
-    isAnnouncementText?: boolean;
+    announcement?: AnnouncementMessage;
   };
   url?: string;
 }
@@ -180,6 +189,8 @@ interface ChatMessagesInterface {
     uid: string,
     isPrivateMessage?: boolean,
     msgType?: ChatMessageType,
+    forceStop?: boolean,
+    notificationType?: ChatNotificationType,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
   removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
@@ -358,7 +369,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           fileName: body?.fileName,
           replyToMsgId: body?.replyToMsgId,
           hide: false,
-          isAnnouncementText: body?.isAnnouncementText,
+          announcement: body?.announcement,
         },
       ];
     });
@@ -526,6 +537,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     isPrivateMessage: boolean = false,
     msgType: ChatMessageType,
     forceStop: boolean = false,
+    announcement: AnnouncementMessage,
   ) => {
     if (isUserBanedRef.current.isUserBaned) {
       return;
@@ -690,8 +702,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         primaryBtn: null,
         secondaryBtn: null,
         type: 'info',
-        leadingIconName: 'chat-nav',
-        text1: isPrivateMessage
+        leadingIconName: announcement ? 'announcement' : 'chat-nav',
+        text1: announcement
+          ? announcement.heading
+          : isPrivateMessage
           ? privateMessageLabel?.current()
           : //@ts-ignore
           defaultContentRef.current.defaultContent[uidAsNumber]?.name

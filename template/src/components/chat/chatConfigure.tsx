@@ -7,6 +7,7 @@ import {useLocalUid} from '../../../agora-rn-uikit';
 import {UidType, useContent} from 'customization-api';
 import {
   ChatMessageType,
+  ChatNotificationType,
   ChatOption,
   SDKChatType,
   useChatMessages,
@@ -277,6 +278,8 @@ const ChatConfigure = ({children}) => {
                 fromUser,
                 false,
                 message.type,
+                false,
+                message.ext?.announcement,
               );
               addMessageToStore(Number(fromUser), {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
@@ -285,7 +288,7 @@ const ChatConfigure = ({children}) => {
                 isDeleted: false,
                 type: ChatMessageType.TXT,
                 replyToMsgId: message.ext?.replyToMsgId,
-                isAnnouncementText: message.ext?.isAnnouncementText || false,
+                announcement: message.ext?.announcement,
               });
             }
 
@@ -419,7 +422,7 @@ const ChatConfigure = ({children}) => {
             ext: option?.ext?.file_ext,
             fileName: option?.ext?.file_name,
             replyToMsgId: option?.ext?.replyToMsgId,
-            isAnnouncementText: option?.ext?.isAnnouncementText,
+            announcement: option?.ext?.announcement,
           };
 
           // update local user message store

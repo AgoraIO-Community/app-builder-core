@@ -254,10 +254,10 @@ const ChatContainer = (props?: {
                   </View>
                 ) : null}
 
-                {message?.isAnnouncementText ? (
+                {message?.announcement ? (
                   <ChatAnnouncementView
                     message={message.msg}
-                    uid={message.uid}
+                    announcement={message.announcement}
                   />
                 ) : !message?.hide ? (
                   <ChatBubbleComponent
