@@ -18,6 +18,7 @@ export enum ChatType {
   //todo confirm memberlist with vineeth
   MemberList,
   Private,
+  BreakoutGroupChat,
 }
 
 export enum UploadStatus {
@@ -43,9 +44,11 @@ export type ChatConnectionStatus = 'loading' | 'connected' | 'failed';
 export interface ChatUIControlsInterface {
   chatType: ChatType;
   privateChatUser: UidType;
+  currentGroupChatId: string | null;
   inputActive?: boolean;
   setChatType: (chatType: ChatType) => void;
   setPrivateChatUser: React.Dispatch<SetStateAction<UidType>>;
+  setCurrentGroupChatId: React.Dispatch<SetStateAction<string | null>>;
   setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
@@ -73,9 +76,11 @@ export interface ChatUIControlsInterface {
 const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
   chatType: ChatType.Group,
   privateChatUser: 0,
+  currentGroupChatId: null,
   message: '',
   setChatType: () => {},
   setPrivateChatUser: () => {},
+  setCurrentGroupChatId: () => {},
   setMessage: () => {},
   inputActive: false,
   inputHeight: 0,
@@ -120,6 +125,9 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
   const [chatType, setChatType] = useState<ChatType>(ChatType.Group);
   const [inputActive, setInputActive] = useState(false);
   const [privateChatUser, setPrivateChatUser] = useState<UidType>(0);
+  const [currentGroupChatId, setCurrentGroupChatId] = useState<string | null>(
+    null,
+  );
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
@@ -170,6 +178,8 @@ const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
         setChatType,
         privateChatUser,
         setPrivateChatUser,
+        currentGroupChatId,
+        setCurrentGroupChatId,
         message,
         setMessage,
         inputHeight,

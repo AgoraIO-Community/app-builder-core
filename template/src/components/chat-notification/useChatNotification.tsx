@@ -22,6 +22,8 @@ export interface ChatNotificationInterface {
   setUnreadGroupMessageCount: React.Dispatch<SetStateAction<number>>;
   unreadPrivateMessageCount: number;
   setUnreadPrivateMessageCount: React.Dispatch<SetStateAction<number>>;
+  unreadBreakoutMessageCount: number;
+  setUnreadBreakoutMessageCount: React.Dispatch<SetStateAction<number>>;
   unreadIndividualMessageCount: individualUnreadMessageCount;
   setUnreadIndividualMessageCount: React.Dispatch<
     SetStateAction<individualUnreadMessageCount>
@@ -32,10 +34,12 @@ const ChatNotificationContext = React.createContext<ChatNotificationInterface>({
   totalUnreadCount: 0,
   unreadGroupMessageCount: 0,
   unreadPrivateMessageCount: 0,
+  unreadBreakoutMessageCount: 0,
   unreadIndividualMessageCount: {},
   setUnreadGroupMessageCount: () => {},
-  setUnreadIndividualMessageCount: () => {},
   setUnreadPrivateMessageCount: () => {},
+  setUnreadBreakoutMessageCount: () => {},
+  setUnreadIndividualMessageCount: () => {},
 });
 
 interface ChatNotificationProviderProps {
@@ -45,6 +49,8 @@ interface ChatNotificationProviderProps {
 const ChatNotificationProvider = (props: ChatNotificationProviderProps) => {
   const [unreadGroupMessageCount, setUnreadGroupMessageCount] = useState(0);
   const [unreadPrivateMessageCount, setUnreadPrivateMessageCount] = useState(0);
+  const [unreadBreakoutMessageCount, setUnreadBreakoutMessageCount] =
+    useState(0);
   const [unreadIndividualMessageCount, setUnreadIndividualMessageCount] =
     useState<individualUnreadMessageCount>({});
 
@@ -60,11 +66,16 @@ const ChatNotificationProvider = (props: ChatNotificationProviderProps) => {
   return (
     <ChatNotificationContext.Provider
       value={{
-        totalUnreadCount: unreadGroupMessageCount + unreadPrivateMessageCount,
+        totalUnreadCount:
+          unreadGroupMessageCount +
+          unreadPrivateMessageCount +
+          unreadBreakoutMessageCount,
         unreadGroupMessageCount,
         setUnreadGroupMessageCount,
         unreadPrivateMessageCount,
         setUnreadPrivateMessageCount,
+        unreadBreakoutMessageCount,
+        setUnreadBreakoutMessageCount,
         unreadIndividualMessageCount,
         setUnreadIndividualMessageCount,
       }}>

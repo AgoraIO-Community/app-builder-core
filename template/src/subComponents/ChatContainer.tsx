@@ -48,7 +48,6 @@ import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import {
-  messageInterface,
   messageStoreInterface,
   useChatMessages,
 } from '../components/chat-messages/useChatMessages';
@@ -74,15 +73,19 @@ const ChatContainer = (props?: {
   const {dispatch} = useContext(DispatchContext);
   const {syncUserState} = useContext(ChatContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
+  const [breakoutUnreadCount, setBreakoutUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {defaultContent} = useContent();
-  const {privateMessageStore, messageStore} = useChatMessages();
+  const {privateMessageStore, messageStore, breakoutMessageStore} =
+    useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
+  const breakoutMessageStoreLengthRef = useRef(breakoutMessageStore.length);
   const {height, width} = useWindowDimensions();
   const {
     chatType,
     setChatType,
     privateChatUser,
+    currentGroupChatId,
     inputActive,
     showEmojiPicker,
     pinMsgId,
@@ -98,6 +101,8 @@ const ChatContainer = (props?: {
     unreadGroupMessageCount,
     unreadIndividualMessageCount,
     setUnreadIndividualMessageCount,
+    unreadBreakoutMessageCount,
+    setUnreadBreakoutMessageCount,
   } = useChatNotification();
   const localUid = useLocalUid();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -106,6 +111,9 @@ const ChatContainer = (props?: {
     if (chatType === ChatType.Group) {
       setGrpUnreadCount(unreadGroupMessageCount);
       setUnreadGroupMessageCount(0);
+    } else if (chatType === ChatType.BreakoutGroupChat) {
+      setBreakoutUnreadCount(unreadBreakoutMessageCount);
+      setUnreadBreakoutMessageCount(0);
     }
   }, [chatType]);
 
@@ -175,12 +183,15 @@ const ChatContainer = (props?: {
   //if we don't have unread count then enable scroll to end
   useEffect(() => {
     const isPrivateActive = chatType === ChatType.Private;
-    if (!isPrivateActive && !grpUnreadCount) {
+    const isBreakoutActive = chatType === ChatType.BreakoutGroupChat;
+    if (!isPrivateActive && !isBreakoutActive && !grpUnreadCount) {
+      setScrollToEnd(true);
+    } else if (isBreakoutActive && !breakoutUnreadCount) {
       setScrollToEnd(true);
     } else if (isPrivateActive && !privateUnreadCount) {
       setScrollToEnd(true);
     }
-  }, [chatType, grpUnreadCount, privateUnreadCount]);
+  }, [chatType, grpUnreadCount, breakoutUnreadCount, privateUnreadCount]);
 
   const onContentSizeChange = useCallback(() => {
     if (scrollToEnd) {
@@ -296,6 +307,80 @@ const ChatContainer = (props?: {
                 ) : null}
               </React.Fragment>
             ))}
+          </>
+        ) : null}
+        {chatType === ChatType.BreakoutGroupChat && currentGroupChatId ? (
+          <>
+            <View style={style.defaultMessageContainer}>
+              <Text style={style.defaultMessageText}>
+                {info1(breakoutMessageStore?.length ? false : true)}
+              </Text>
+            </View>
+
+            {breakoutMessageStore.map(
+              (message: messageStoreInterface, index) => (
+                <React.Fragment key={`message-group-${message.msgId}`}>
+                  {breakoutMessageStoreLengthRef.current ===
+                    breakoutMessageStore.length &&
+                  breakoutUnreadCount &&
+                  breakoutMessageStore.length - breakoutUnreadCount ===
+                    index ? (
+                    <View
+                      style={[
+                        style.unreadMessageContainer,
+                        index === 0 && {marginTop: 8, marginBottom: 0},
+                      ]}
+                      onLayout={unreadViewOnLayout}>
+                      <Text style={style.unreadMessageText}>
+                        {breakoutUnreadCount} {unreadMessageLabel}
+                      </Text>
+                    </View>
+                  ) : null}
+
+                  {message?.isAnnouncementText ? (
+                    <ChatAnnouncementView
+                      message={message.msg}
+                      uid={message.uid}
+                    />
+                  ) : !message?.hide ? (
+                    <ChatBubbleComponent
+                      isLocal={localUid === message.uid}
+                      isSameUser={
+                        index !== 0 &&
+                        breakoutMessageStore[index - 1].uid === message.uid
+                          ? true
+                          : false
+                      }
+                      previousMessageCreatedTimestamp={
+                        index !== 0
+                          ? (breakoutMessageStore[index - 1]
+                              .createdTimestamp as unknown as string)
+                          : ''
+                      }
+                      message={message.msg}
+                      createdTimestamp={message.createdTimestamp}
+                      updatedTimestamp={message.updatedTimestamp}
+                      uid={message.uid}
+                      key={message.msgId}
+                      msgId={message.msgId}
+                      isDeleted={message.isDeleted}
+                      type={message.type}
+                      url={message?.url}
+                      thumb={message?.thumb}
+                      fileName={message?.fileName}
+                      ext={message?.ext}
+                      reactions={message?.reactions}
+                      scrollOffset={scrollOffset}
+                      replyToMsgId={message?.replyToMsgId}
+                      isLastMsg={breakoutMessageStore.length - 1 === index}
+                    />
+                  ) : null}
+                  {breakoutMessageStore?.length - 1 === index ? (
+                    <Spacer size={10} />
+                  ) : null}
+                </React.Fragment>
+              ),
+            )}
           </>
         ) : null}
         {chatType === ChatType.Private &&

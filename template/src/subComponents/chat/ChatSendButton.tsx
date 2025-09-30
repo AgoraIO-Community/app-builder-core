@@ -7,6 +7,7 @@ import {
   UploadStatus,
   useChatUIControls,
   MAX_TEXT_MESSAGE_SIZE,
+  ChatType,
 } from '../../components/chat-ui/useChatUIControls';
 import {useRoomInfo} from 'customization-api';
 import {
@@ -31,6 +32,8 @@ export interface ChatSendButtonProps {
 export const handleChatSend = ({
   sendChatSDKMessage,
   selectedUserId,
+  currentGroupChatId,
+  chatType,
   message,
   setMessage,
   inputActive,
@@ -47,6 +50,7 @@ export const handleChatSend = ({
   setReplyToMsgId,
   addMessageToStore,
   addMessageToPrivateStore,
+  addMessageToBreakoutStore,
 }) => {
   const isAllFilesUploaded =
     uploadedFiles.length > 0 &&
@@ -73,19 +77,34 @@ export const handleChatSend = ({
 
   // Text message sent update sender side ui
   const sendTextMessage = () => {
+    let chatSDKType, toId;
+
+    if (chatType === ChatType.BreakoutGroupChat && currentGroupChatId) {
+      // Breakout room message
+      chatSDKType = SDKChatType.GROUP_CHAT;
+      toId = currentGroupChatId;
+    } else if (selectedUserId) {
+      // Private message
+      chatSDKType = SDKChatType.SINGLE_CHAT;
+      toId = selectedUserId.toString();
+    } else {
+      // Group message
+      chatSDKType = SDKChatType.GROUP_CHAT;
+      toId = groupID;
+    }
+
     const option = {
-      chatType: selectedUserId
-        ? SDKChatType.SINGLE_CHAT
-        : SDKChatType.GROUP_CHAT,
+      chatType: chatSDKType,
       type: ChatMessageType.TXT,
       msg: message,
       from: data.uid.toString(),
-      to: selectedUserId ? selectedUserId.toString() : groupID,
+      to: toId,
       ext: {
         from_platform: isWeb() ? 'web' : 'native',
         replyToMsgId: replyToMsgId,
       },
     };
+    console.log('supriya-chatdetails option', option);
     const onProgress = (localMsgId: string, progress: number) => {
       console.warn('chat msg in progress', progress);
     };
@@ -104,8 +123,10 @@ export const handleChatSend = ({
         replyToMsgId: message.attributes?.replyToMsgId,
       };
       console.warn('message data', messageData);
-      // this is local user messages
-      if (message.chatType === ChatMessageChatType.PeerChat) {
+      // this is local user messages ui view
+      if (chatType === ChatType.BreakoutGroupChat && currentGroupChatId) {
+        addMessageToBreakoutStore(Number(message.from), messageData);
+      } else if (message.chatType === ChatMessageChatType.PeerChat) {
         addMessageToPrivateStore(Number(message.to), messageData, true);
       } else {
         addMessageToStore(Number(message.from), messageData);
@@ -125,13 +146,27 @@ export const handleChatSend = ({
         file_url = '',
       } = file;
 
+      let fileChatSDKType, fileToId;
+
+      if (chatType === ChatType.BreakoutGroupChat && currentGroupChatId) {
+        // Breakout room file
+        fileChatSDKType = SDKChatType.GROUP_CHAT;
+        fileToId = currentGroupChatId;
+      } else if (selectedUserId) {
+        // Private file
+        fileChatSDKType = SDKChatType.SINGLE_CHAT;
+        fileToId = selectedUserId.toString();
+      } else {
+        // Group file
+        fileChatSDKType = SDKChatType.GROUP_CHAT;
+        fileToId = groupID;
+      }
+
       const option = {
-        chatType: selectedUserId
-          ? SDKChatType.SINGLE_CHAT
-          : SDKChatType.GROUP_CHAT,
+        chatType: fileChatSDKType,
         type: msgType as ChatMessageType,
         from: data.uid.toString(),
-        to: selectedUserId ? selectedUserId.toString() : groupID,
+        to: fileToId,
         ext: {
           file_length,
           file_ext,
@@ -163,9 +198,11 @@ export const handleChatSend = ({
 const ChatSendButton = (props: ChatSendButtonProps) => {
   const {sendChatSDKMessage} = useChatConfigure();
   const {setShowEmojiPicker} = useChatUIControls();
-  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
+  const {addMessageToPrivateStore, addMessageToStore, addMessageToBreakoutStore} = useChatMessages();
   const {
     privateChatUser: selectedUserId,
+    currentGroupChatId,
+    chatType,
     message,
     setMessage,
     inputActive,
@@ -193,6 +230,8 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
     handleChatSend({
       sendChatSDKMessage,
       selectedUserId,
+      currentGroupChatId,
+      chatType,
       message,
       setMessage,
       inputActive,
@@ -209,6 +248,7 @@ const ChatSendButton = (props: ChatSendButtonProps) => {
       setReplyToMsgId,
       addMessageToPrivateStore,
       addMessageToStore,
+      addMessageToBreakoutStore,
     });
 
   return props?.render ? (

@@ -7,6 +7,8 @@ import {useUserPreference} from '../../components/useUserPreference';
 import WhiteboardConfigure from '../../components/whiteboard/WhiteboardConfigure';
 import ChatConfigure from '../../components/chat/chatConfigure';
 import {useControlPermissionMatrix} from '../../components/controls/useControlPermissionMatrix';
+import {useBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
+import {BreakoutChatInitializer} from '../../components/breakout-room/chat';
 import {useContent, useEndCall} from 'customization-api';
 
 const VideoCallScreenWithRecordingBot: React.FC = () => {
@@ -27,6 +29,7 @@ const VideoCallScreenWrapper: React.FC = () => {
 
   const {isUserBaned} = useContent();
   const endCall = useEndCall();
+  const {breakoutRoomChannelData} = useBreakoutRoomInfo();
 
   useEffect(() => {
     if (isUserBaned) {
@@ -41,14 +44,27 @@ const VideoCallScreenWrapper: React.FC = () => {
   );
 
   const canAccessChat = useControlPermissionMatrix('chatControl');
+  const isBreakoutMode = breakoutRoomChannelData?.isBreakoutMode;
+
+  // Wrap with BreakoutChatInitializer if in breakout mode and chat is enabled
+  const videoWithBreakoutChat =
+    canAccessChat && isBreakoutMode ? (
+      <>
+        <BreakoutChatInitializer />
+        {videoComponent}
+      </>
+    ) : (
+      videoComponent
+    );
+
   if (canAccessChat && $config.ENABLE_WHITEBOARD) {
     configComponent = (
       <ChatConfigure>
-        <WhiteboardConfigure>{videoComponent}</WhiteboardConfigure>
+        <WhiteboardConfigure>{videoWithBreakoutChat}</WhiteboardConfigure>
       </ChatConfigure>
     );
   } else if (canAccessChat) {
-    configComponent = <ChatConfigure>{videoComponent}</ChatConfigure>;
+    configComponent = <ChatConfigure>{videoWithBreakoutChat}</ChatConfigure>;
   } else if ($config.ENABLE_WHITEBOARD) {
     configComponent = (
       <WhiteboardConfigure>{videoComponent}</WhiteboardConfigure>

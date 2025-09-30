@@ -71,6 +71,8 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
     setReplyToMsgId,
     pinMsgId,
     pinnedByUser,
+    chatType: currentChatType,
+    currentGroupChatId,
   } = useChatUIControls();
 
   const actionMenuitems: ActionMenuItem[] = [];
@@ -81,8 +83,11 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const {downloadAttachment, deleteAttachment, pinMessage, unPinMessage} =
     useChatConfigure();
-  const {removeMessageFromPrivateStore, removeMessageFromStore} =
-    useChatMessages();
+  const {
+    removeMessageFromPrivateStore,
+    removeMessageFromStore,
+    removeMessageFromBreakoutStore,
+  } = useChatMessages();
   const {defaultContent} = useContent();
 
   const {
@@ -93,7 +98,14 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
   const chatType = privateChatUser
     ? SDKChatType.SINGLE_CHAT
     : SDKChatType.GROUP_CHAT;
-  const recallFromUser = privateChatUser ? privateChatUser : groupID;
+
+  // Use current group chat ID if in breakout room, otherwise use main room group ID
+  const currentGroupID =
+    currentChatType === ChatType.BreakoutGroupChat && currentGroupChatId
+      ? currentGroupChatId
+      : groupID;
+
+  const recallFromUser = privateChatUser ? privateChatUser : currentGroupID;
   const cancelTxt = useString(cancelText)();
   const cancelLabel =
     cancelTxt.charAt(0).toUpperCase() + cancelTxt.slice(1).toLowerCase();
@@ -109,6 +121,22 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
   }
   const copiedToClipboardTextLabel = useString(copiedToClipboardText)();
   const isMsgPinned = pinMsgId === msgId && pinnedByUser === userId;
+
+  const handleRemoveMessage = () => {
+    if (chatType === SDKChatType.SINGLE_CHAT) {
+      removeMessageFromPrivateStore(msgId, isLocal);
+    } else if (chatType === SDKChatType.GROUP_CHAT) {
+      // Check if we're in a breakout room
+      if (
+        currentChatType === ChatType.BreakoutGroupChat &&
+        currentGroupChatId
+      ) {
+        removeMessageFromBreakoutStore(msgId, isLocal);
+      } else {
+        removeMessageFromStore(msgId, isLocal);
+      }
+    }
+  };
 
   actionMenuitems.push({
     icon: 'reply',
@@ -191,12 +219,7 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
         setShowDeleteMessageModal(true);
         //deleteAttachment(msgId, recallFromUser.toString(), chatType);
       } else {
-        if (chatType === SDKChatType.SINGLE_CHAT) {
-          removeMessageFromPrivateStore(msgId, isLocal);
-        }
-        if (chatType === SDKChatType.GROUP_CHAT) {
-          removeMessageFromStore(msgId, isLocal);
-        }
+        handleRemoveMessage();
       }
       setActionMenuVisible(false);
     },
@@ -242,12 +265,7 @@ export const ChatActionMenu = (props: ChatActionMenuProps) => {
           confirmLabelStyle={{color: $config.SEMANTIC_ERROR}}
           onConfirmClick={() => {
             deleteAttachment(msgId, recallFromUser.toString(), chatType);
-            if (chatType === SDKChatType.SINGLE_CHAT) {
-              removeMessageFromPrivateStore(msgId, isLocal);
-            }
-            if (chatType === SDKChatType.GROUP_CHAT) {
-              removeMessageFromStore(msgId, isLocal);
-            }
+            handleRemoveMessage();
             setShowDeleteMessageModal(false);
           }}
         />

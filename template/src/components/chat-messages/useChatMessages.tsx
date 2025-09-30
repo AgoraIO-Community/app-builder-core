@@ -34,12 +34,16 @@ import {
   publicChatToastHeading,
   publicChatFileToastHeading,
   publicChatImgToastHeading,
+  breakoutChatToastHeading,
+  breakoutChatFileToastHeading,
+  breakoutChatImgToastHeading,
   multiplePublicChatToastHeading,
   multiplePrivateChatToastHeading,
   privateChatToastHeading,
   multiplePublicAndPrivateChatToastHeading,
   multiplePublicAndPrivateChatToastSubHeading,
   multiplePublicChatToastSubHeading,
+  multipleBreakoutChatToastSubHeading,
 } from '../../language/default-labels/videoCallScreenLabels';
 
 interface ChatMessagesProviderProps {
@@ -169,21 +173,28 @@ export interface messageStoreInterface extends messageInterface {
 interface ChatMessagesInterface {
   messageStore: messageStoreInterface[];
   privateMessageStore: {[key: string]: messageStoreInterface[]};
+  breakoutMessageStore: messageStoreInterface[];
   addMessageToPrivateStore: (
     uid: UidType,
     body: messageInterface,
     local: boolean,
   ) => void;
   addMessageToStore: (uid: UidType, body: messageInterface) => void;
+  addMessageToBreakoutStore: (uid: UidType, body: messageInterface) => void;
   showMessageNotification: (
     msg: string,
     uid: string,
-    isPrivateMessage?: boolean,
+    chatType: ChatType,
     msgType?: ChatMessageType,
+    forceStop?: boolean,
   ) => void;
   openPrivateChat: (toUid: UidType) => void;
   removeMessageFromStore: (msgId: string, isMsgRecalled: boolean) => void;
   removeMessageFromPrivateStore: (
+    msgId: string,
+    isMsgRecalled: boolean,
+  ) => void;
+  removeMessageFromBreakoutStore: (
     msgId: string,
     isMsgRecalled: boolean,
   ) => void;
@@ -193,19 +204,24 @@ interface ChatMessagesInterface {
     msgId: string,
     reaction: Reaction[],
   ) => void;
+  addReactionToBreakoutStore: (msgId: string, reaction: Reaction[]) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   messageStore: [],
   privateMessageStore: {},
+  breakoutMessageStore: [],
   addMessageToStore: () => {},
   addMessageToPrivateStore: () => {},
+  addMessageToBreakoutStore: () => {},
   showMessageNotification: () => {},
   openPrivateChat: () => {},
   removeMessageFromStore: () => {},
   removeMessageFromPrivateStore: () => {},
+  removeMessageFromBreakoutStore: () => {},
   addReactionToStore: () => {},
   addReactionToPrivateStore: () => {},
+  addReactionToBreakoutStore: () => {},
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
@@ -222,14 +238,21 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {setSidePanel, sidePanel} = useSidePanel();
   const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
     useChatUIControls();
-  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
-    useChatNotification();
+  const {
+    setUnreadGroupMessageCount,
+    setUnreadIndividualMessageCount,
+    setUnreadBreakoutMessageCount,
+  } = useChatNotification();
   // to store group msgs
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   // to store private msgs
   const [privateMessageStore, setPrivateMessageStore] = useState<{
     [key: string]: messageStoreInterface[];
   }>({});
+  // to store breakout room msgs
+  const [breakoutMessageStore, setBreakoutMessageStore] = useState<
+    messageStoreInterface[]
+  >([]);
 
   const defaultContentRef = useRef({defaultContent: defaultContent});
   const isUserBanedRef = useRef({isUserBaned: isUserBaned});
@@ -238,6 +261,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const callActiveRef = useRef({callActive: callActive});
 
   const groupActiveRef = useRef<boolean>(false);
+  const breakoutActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
   //i18 labels:
@@ -251,6 +275,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     count: number;
     from: string;
   }>(multiplePublicChatToastSubHeading);
+  const multipleBreakoutChatToastSubHeadingTT = useStringRef<{
+    count: number;
+    from: string;
+  }>(multipleBreakoutChatToastSubHeading);
 
   //private single
   const privateMessageLabel = useStringRef(privateChatToastHeading);
@@ -277,22 +305,39 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const imgToastHeading = useStringRef(publicChatImgToastHeading);
   const fileToastHeading = useStringRef(publicChatFileToastHeading);
 
+  //breakout room single
+  const breakoutTxtToastHeading = useStringRef(breakoutChatToastHeading);
+  const breakoutImgToastHeading = useStringRef(breakoutChatImgToastHeading);
+  const breakoutFileToastHeading = useStringRef(breakoutChatFileToastHeading);
+
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string, msgType: ChatMessageType) => {
+  const fromText = (
+    name: string,
+    msgType: ChatMessageType,
+    isBreakoutRoomMessage: boolean = false,
+  ) => {
     let text = '';
     switch (msgType) {
       case ChatMessageType.TXT:
-        text = txtToastHeading?.current(name);
+        text = isBreakoutRoomMessage
+          ? breakoutTxtToastHeading?.current(name)
+          : txtToastHeading?.current(name);
         break;
       case ChatMessageType.IMAGE:
-        text = imgToastHeading?.current(name);
+        text = isBreakoutRoomMessage
+          ? breakoutImgToastHeading?.current(name)
+          : imgToastHeading?.current(name);
         break;
       case ChatMessageType.FILE:
-        text = fileToastHeading?.current(name);
+        text = isBreakoutRoomMessage
+          ? breakoutFileToastHeading?.current(name)
+          : fileToastHeading?.current(name);
         break;
       default:
-        text = txtToastHeading?.current(name);
+        text = isBreakoutRoomMessage
+          ? breakoutTxtToastHeading?.current(name)
+          : txtToastHeading?.current(name);
         break;
     }
     return text;
@@ -316,6 +361,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   useEffect(() => {
     groupActiveRef.current =
       chatType === ChatType.Group && sidePanel === SidePanelType.Chat;
+    breakoutActiveRef.current =
+      chatType === ChatType.BreakoutGroupChat &&
+      sidePanel === SidePanelType.Chat;
   }, [chatType, sidePanel]);
 
   useEffect(() => {
@@ -345,6 +393,29 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     setMessageStore((m: messageStoreInterface[]) => {
       return [
         ...m,
+        {
+          createdTimestamp: body.createdTimestamp,
+          uid,
+          msg: body.msg,
+          msgId: body.msgId,
+          isDeleted: body.isDeleted,
+          type: body.type,
+          thumb: body?.thumb,
+          url: body?.url,
+          ext: body?.ext,
+          fileName: body?.fileName,
+          replyToMsgId: body?.replyToMsgId,
+          hide: false,
+          isAnnouncementText: body?.isAnnouncementText,
+        },
+      ];
+    });
+  };
+
+  const addMessageToBreakoutStore = (uid: UidType, body: messageInterface) => {
+    setBreakoutMessageStore((prevStore: messageStoreInterface[]) => {
+      return [
+        ...prevStore,
         {
           createdTimestamp: body.createdTimestamp,
           uid,
@@ -450,6 +521,18 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     });
   };
 
+  const removeMessageFromBreakoutStore = (msgID, isMsgRecalled) => {
+    setBreakoutMessageStore(prev => {
+      const recalledMsgIndex = prev.findIndex(msg => msg.msgId === msgID);
+      if (recalledMsgIndex === -1) return prev;
+
+      const updatedMessages = [...prev];
+      updatedMessages[recalledMsgIndex][isMsgRecalled ? 'isDeleted' : 'hide'] =
+        true;
+      return updatedMessages;
+    });
+  };
+
   const addReactionToStore = (msgId: string, newReactions: Reaction[]) => {
     setMessageStore(prev => {
       const msgIndex = prev.findIndex(msg => msg.msgId === msgId);
@@ -520,17 +603,50 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     });
   };
 
+  const addReactionToBreakoutStore = (
+    msgId: string,
+    newReactions: Reaction[],
+  ) => {
+    setBreakoutMessageStore(prev => {
+      const msgIndex = prev.findIndex(msg => msg.msgId === msgId);
+      if (msgIndex !== -1) {
+        const updatedMessages = [...prev];
+        const message = updatedMessages[msgIndex];
+
+        // Merge reactions
+        const existingReactions = message.reactions || [];
+        newReactions.forEach(newReaction => {
+          const reactionIndex = existingReactions.findIndex(
+            r => r.reaction === newReaction.reaction,
+          );
+          if (reactionIndex !== -1) {
+            // Update existing reaction
+            existingReactions[reactionIndex] = newReaction;
+          } else {
+            // Add new reaction
+            existingReactions.push(newReaction);
+          }
+        });
+
+        // Update the message with merged reactions
+        message.reactions = [...existingReactions];
+        return updatedMessages;
+      }
+      return prev;
+    });
+  };
+
   const showMessageNotification = (
     msg: string,
     uid: string,
-    isPrivateMessage: boolean = false,
+    ipChatType: ChatType,
     msgType: ChatMessageType,
     forceStop: boolean = false,
   ) => {
     if (isUserBanedRef.current.isUserBaned) {
       return;
     }
-    if (isPrivateMessage) {
+    if (ipChatType === ChatType.Private) {
       // update notification count
       if (!(individualActiveRef.current === Number(uid))) {
         setUnreadIndividualMessageCount(prevState => {
@@ -541,7 +657,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           };
         });
       }
+    } else if (ipChatType === ChatType.BreakoutGroupChat) {
+      // Handle breakout room message notifications
+      if (!breakoutActiveRef.current) {
+        setUnreadBreakoutMessageCount(prevState => prevState + 1);
+      }
     } else {
+      // Handle main room group message notifications (ChatType.Group)
       if (!groupActiveRef.current) {
         setUnreadGroupMessageCount(prevState => {
           return prevState + 1;
@@ -550,12 +672,22 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     }
 
     //don't show group message notification if group chat is open
-    if (!isPrivateMessage && groupActiveRef.current) {
+    if (ipChatType === ChatType.Group && groupActiveRef.current) {
+      return;
+    }
+    //don't show breakout room message notification if breakout room chat is open
+    if (
+      ipChatType === ChatType.BreakoutGroupChat &&
+      breakoutActiveRef.current
+    ) {
       return;
     }
     const uidAsNumber = parseInt(uid);
     //don't show private message notification if private chat is open
-    if (isPrivateMessage && uidAsNumber === individualActiveRef.current) {
+    if (
+      ipChatType === ChatType.Private &&
+      uidAsNumber === individualActiveRef.current
+    ) {
       return;
     }
     if (forceStop) {
@@ -569,10 +701,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     }, 3000);
 
     previousNotificationRef.current.push({
-      isPrivateMessage: isPrivateMessage,
-      fromUid: isPrivateMessage ? uidAsNumber : 0,
+      chatType: ipChatType,
+      fromUid: ipChatType === ChatType.Private ? uidAsNumber : 0,
       from:
-        !isPrivateMessage &&
+        ipChatType !== ChatType.Private &&
         //@ts-ignore
         defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? trimText(
@@ -583,10 +715,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     });
 
     const privateMessages = previousNotificationRef.current.filter(
-      i => i.isPrivateMessage,
+      i => i.chatType === ChatType.Private,
     );
     const publicMessages = previousNotificationRef.current.filter(
-      i => !i.isPrivateMessage,
+      i => i.chatType === ChatType.Group,
+    );
+    const breakoutMessages = previousNotificationRef.current.filter(
+      i => i.chatType === ChatType.BreakoutGroupChat,
     );
 
     //if 1 or more public and private messages
@@ -637,7 +772,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
               }),
         visibilityTime: 3000,
         onPress: () => {
-          if (isPrivateMessage) {
+          if (chatType === ChatType.Private) {
             openPrivateChat(uidAsNumber);
           } else {
             //move this logic into ChatContainer
@@ -691,30 +826,33 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         secondaryBtn: null,
         type: 'info',
         leadingIconName: 'chat-nav',
-        text1: isPrivateMessage
-          ? privateMessageLabel?.current()
-          : //@ts-ignore
-          defaultContentRef.current.defaultContent[uidAsNumber]?.name
-          ? fromText(
-              trimText(
-                //@ts-ignore
-                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
-              ),
-              msgType,
-            )
-          : '',
-        text2: isPrivateMessage
-          ? ''
-          : msg.length > 30
-          ? msg.slice(0, 30) + '...'
-          : msg,
+        text1:
+          ipChatType === ChatType.Private
+            ? privateMessageLabel?.current()
+            : //@ts-ignore
+            defaultContentRef.current.defaultContent[uidAsNumber]?.name
+            ? fromText(
+                trimText(
+                  //@ts-ignore
+                  defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+                ),
+                msgType,
+                ipChatType === ChatType.BreakoutGroupChat,
+              )
+            : '',
+        text2:
+          ipChatType === ChatType.Private
+            ? ''
+            : msg.length > 30
+            ? msg.slice(0, 30) + '...'
+            : msg,
         visibilityTime: 3000,
         onPress: () => {
-          if (isPrivateMessage) {
+          if (ipChatType === ChatType.Private) {
             openPrivateChat(uidAsNumber);
           } else {
             setPrivateChatUser(0);
-            setChatType(ChatType.Group);
+            setChatType(ipChatType); // Navigate to the appropriate chat type
             setSidePanel(SidePanelType.Chat);
           }
         },
@@ -727,14 +865,18 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       value={{
         messageStore,
         privateMessageStore,
+        breakoutMessageStore,
         addMessageToStore,
         addMessageToPrivateStore,
+        addMessageToBreakoutStore,
         removeMessageFromStore,
         removeMessageFromPrivateStore,
+        removeMessageFromBreakoutStore,
         showMessageNotification,
         openPrivateChat,
         addReactionToStore,
         addReactionToPrivateStore,
+        addReactionToBreakoutStore,
       }}>
       {props.children}
     </ChatMessagesContext.Provider>

@@ -17,6 +17,7 @@ import {
   File,
   UploadStatus,
   useChatUIControls,
+  ChatType,
 } from '../../components/chat-ui/useChatUIControls';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
 
@@ -43,6 +44,7 @@ interface chatConfigureContextInterface {
   removeReaction: (messageId: string, reaction: string) => void;
   pinMessage: (messageId: string) => void;
   unPinMessage: (messageId: string) => void;
+  leaveGroupChat: (groupId: string) => Promise<any>;
 }
 
 export const chatConfigureContext =
@@ -58,6 +60,7 @@ export const chatConfigureContext =
     removeReaction: () => {},
     pinMessage: () => {},
     unPinMessage: () => {},
+    leaveGroupChat: async () => {},
   });
 
 const ChatConfigure = ({children}) => {
@@ -73,6 +76,8 @@ const ChatConfigure = ({children}) => {
     setPinMsgId,
     setPinnedByUser,
     setChatConnectionStatus,
+    chatType,
+    currentGroupChatId,
   } = useChatUIControls();
   const localUid = useLocalUid();
   const defaultContentRef = React.useRef(defaultContent);
@@ -80,10 +85,12 @@ const ChatConfigure = ({children}) => {
     addMessageToPrivateStore,
     showMessageNotification,
     addMessageToStore,
+    addMessageToBreakoutStore,
     removeMessageFromPrivateStore,
     removeMessageFromStore,
     addReactionToStore,
     addReactionToPrivateStore,
+    addReactionToBreakoutStore,
   } = useChatMessages();
   const {store} = React.useContext(StorageContext);
 
@@ -151,11 +158,13 @@ const ChatConfigure = ({children}) => {
               showMessageNotification(
                 message.ext.file_name,
                 fromUser,
-                false,
+                message.to === data.chat.group_id
+                  ? ChatType.Group
+                  : ChatType.BreakoutGroupChat,
                 message.type,
               );
 
-              addMessageToStore(Number(fromUser), {
+              const messageData = {
                 msg: message?.ext?.msg,
                 createdTimestamp: message.time,
                 msgId,
@@ -165,13 +174,21 @@ const ChatConfigure = ({children}) => {
                 ext: message.ext.file_ext,
                 fileName: message.ext.file_name,
                 replyToMsgId: message.ext?.replyToMsgId,
-              });
+              };
+
+              if (message.to === data.chat.group_id) {
+                // This is a public main room file message
+                addMessageToStore(Number(fromUser), messageData);
+              } else {
+                // This is a breakout room file message
+                addMessageToBreakoutStore(Number(fromUser), messageData);
+              }
             }
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
               showMessageNotification(
                 message.ext.file_name,
                 fromUser,
-                true,
+                ChatType.Private,
                 message.type,
               );
               addMessageToPrivateStore(
@@ -214,10 +231,12 @@ const ChatConfigure = ({children}) => {
               showMessageNotification(
                 message.ext.file_name,
                 fromUser,
-                false,
+                message.to === data.chat.group_id
+                  ? ChatType.Group
+                  : ChatType.BreakoutGroupChat,
                 message.type,
               );
-              addMessageToStore(Number(fromUser), {
+              const messageData = {
                 msg: message?.ext?.msg,
                 createdTimestamp: message.time,
                 msgId,
@@ -227,14 +246,22 @@ const ChatConfigure = ({children}) => {
                 url: fileUrl,
                 fileName: message.ext?.file_name,
                 replyToMsgId: message.ext?.replyToMsgId,
-              });
+              };
+
+              if (message.to === data.chat.group_id) {
+                // This is a main room image message
+                addMessageToStore(Number(fromUser), messageData);
+              } else {
+                // This is a breakout room image message
+                addMessageToBreakoutStore(Number(fromUser), messageData);
+              }
             }
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
               // show to notifcation- privat msg received
               showMessageNotification(
                 message.ext.file_name,
                 fromUser,
-                true,
+                ChatType.Private,
                 message.type,
               );
               // this is remote user messages
@@ -275,10 +302,13 @@ const ChatConfigure = ({children}) => {
               showMessageNotification(
                 message.msg,
                 fromUser,
-                false,
+                message.to === data.chat.group_id
+                  ? ChatType.Group
+                  : ChatType.BreakoutGroupChat,
                 message.type,
               );
-              addMessageToStore(Number(fromUser), {
+
+              const messageData = {
                 msg: message.msg.replace(/^(\n)+|(\n)+$/g, ''),
                 createdTimestamp: message.time,
                 msgId,
@@ -286,7 +316,15 @@ const ChatConfigure = ({children}) => {
                 type: ChatMessageType.TXT,
                 replyToMsgId: message.ext?.replyToMsgId,
                 isAnnouncementText: message.ext?.isAnnouncementText || false,
-              });
+              };
+
+              if (message.to === data.chat.group_id) {
+                // This is a main room message
+                addMessageToStore(Number(fromUser), messageData);
+              } else {
+                // This is a breakout room message (any group ID that's not the main room)
+                addMessageToBreakoutStore(Number(fromUser), messageData);
+              }
             }
 
             if (message.chatType === SDKChatType.SINGLE_CHAT) {
@@ -294,7 +332,7 @@ const ChatConfigure = ({children}) => {
               showMessageNotification(
                 message.msg,
                 fromUser,
-                true,
+                ChatType.Private,
                 message.type,
               );
               // this is remote user messages
@@ -340,7 +378,14 @@ const ChatConfigure = ({children}) => {
           onReactionChange: reactionMsg => {
             const {chatType, messageId, to, reactions, from} = reactionMsg;
             if (chatType === SDKChatType.GROUP_CHAT) {
-              addReactionToStore(messageId, reactions);
+              // Check if this is main room or breakout room reaction
+              if (to === data.chat.group_id) {
+                // Main room reaction
+                addReactionToStore(messageId, reactions);
+              } else {
+                // Breakout room reaction
+                addReactionToBreakoutStore(messageId, reactions);
+              }
             }
             if (chatType === SDKChatType.SINGLE_CHAT) {
               const uid = localUid === Number(from) ? to : from;
@@ -351,6 +396,7 @@ const ChatConfigure = ({children}) => {
           },
         });
         connRef.current = newConn;
+        console.log('supriya-chatdetails connRef created: ', connRef);
       } catch (error) {
         logger.error(
           LogSource.Internals,
@@ -389,13 +435,22 @@ const ChatConfigure = ({children}) => {
     option: ChatOption,
     messageStatusCallback?: any,
   ) => {
+    console.log('supriya-chatdetails sendChatSDKMessage option', option);
     if (connRef.current) {
+      console.log('supriya-chatdetails connRef: ', connRef);
       //TODO thumb and url of actual image uploaded available in file upload complete
       //add channel name so to prevent cross channel message mixup when same user joins two diff channels
       // this is filtered on msgRecived event
+      console.log(
+        'supriya-chatdetails connRef: ',
+        option,
+        option.ext,
+        data?.channel,
+      );
       option.ext = {...option?.ext, channel: data?.channel};
       //@ts-ignore
       const msg = AgoraChat.message.create(option);
+      console.log('supriya-chatdetails msg: ', msg);
       connRef.current
         .send(msg)
         .then(res => {
@@ -421,12 +476,24 @@ const ChatConfigure = ({children}) => {
             replyToMsgId: option?.ext?.replyToMsgId,
             isAnnouncementText: option?.ext?.isAnnouncementText,
           };
+          console.log(
+            'supriya-chatdetails messageData after send: ',
+            messageData,
+          );
+          console.log(
+            'supriya-chatdetails messageData after send option ext: ',
+            option?.ext,
+          );
 
           // update local user message store
           if (option.chatType === SDKChatType.SINGLE_CHAT) {
             addMessageToPrivateStore(Number(option?.to), messageData, true);
-          } else {
+          } else if (option.to === data.chat.group_id) {
+            // Regular group chat messages (main room)
             addMessageToStore(Number(option?.from), messageData);
+          } else {
+            // This is a breakout room message (different group ID than main room)
+            addMessageToBreakoutStore(Number(option?.from), messageData);
           }
         })
         .catch(error => {
@@ -628,9 +695,15 @@ const ChatConfigure = ({children}) => {
 
   const pinMessage = (messageId: string) => {
     if (connRef.current) {
+      // Use breakout room group ID if in breakout room, otherwise use main room group ID
+      const conversationId =
+        chatType === ChatType.BreakoutGroupChat && currentGroupChatId
+          ? currentGroupChatId
+          : data.chat.group_id;
+
       connRef.current
         .pinMessage({
-          conversationId: data.chat.group_id,
+          conversationId,
           conversationType: SDKChatType.GROUP_CHAT,
           messageId,
         })
@@ -658,9 +731,15 @@ const ChatConfigure = ({children}) => {
 
   const unPinMessage = (messageId: string) => {
     if (connRef.current) {
+      // Use breakout room group ID if in breakout room, otherwise use main room group ID
+      const conversationId =
+        chatType === ChatType.BreakoutGroupChat && currentGroupChatId
+          ? currentGroupChatId
+          : data.chat.group_id;
+
       connRef.current
         .unpinMessage({
-          conversationId: data.chat.group_id,
+          conversationId,
           conversationType: SDKChatType.GROUP_CHAT,
           messageId,
         })
@@ -669,7 +748,7 @@ const ChatConfigure = ({children}) => {
           logger.debug(
             LogSource.Internals,
             'CHAT',
-            `Successfully Pinned message with id ${messageId}`,
+            `Successfully Unpinned message with id ${messageId}`,
             res,
           );
         })
@@ -677,7 +756,7 @@ const ChatConfigure = ({children}) => {
           logger.debug(
             LogSource.Internals,
             'CHAT',
-            `Failed to Pin Message with id ${messageId}`,
+            `Failed to Unpin Message with id ${messageId}`,
             err,
           );
         });
@@ -687,6 +766,122 @@ const ChatConfigure = ({children}) => {
   const blockGroupMember = () => {};
 
   const unBlockGroupMember = () => {};
+
+  // const createGroupChat = async (groupId: string, groupName: string) => {
+  //   console.log(
+  //     'supriya-chatdetails createGroupChat groupId: ',
+  //     groupId,
+  //     groupName,
+  //   );
+  //   try {
+  //     // const myresponse = await connRef.current.getPublicGroups();
+  //     // console.log(
+  //     //   'supriya-chatdetails current public groups result: ',
+  //     //   myresponse,
+  //     // );
+  //     // return;
+  //     const result = await connRef.current.createGroup({
+  //       data: {
+  //         groupname: groupName,
+  //         desc: `Breakout room chat for ${groupName}`,
+  //         members: [],
+  //         public: false,
+  //         approval: false,
+  //         allowinvites: true,
+  //         inviteNeedConfirm: false,
+  //         maxusers: 200, // Adding required maxusers parameter
+  //       },
+  //     });
+  //     console.log('supriya-chatdetails result create group: ', result);
+  //     logger.log(
+  //       LogSource.Internals,
+  //       'CHAT',
+  //       `Created breakout group chat: ${groupId}`,
+  //       result,
+  //     );
+  //     return result;
+  //   } catch (error) {
+  //     // Check if group already exists
+  //     if (
+  //       error.error_description?.includes('already exists') ||
+  //       error.error_description?.includes('duplicate')
+  //     ) {
+  //       logger.log(
+  //         LogSource.Internals,
+  //         'CHAT',
+  //         `Breakout group chat already exists: ${groupId}`,
+  //       );
+  //       return {success: true, alreadyExists: true};
+  //     }
+
+  //     logger.error(
+  //       LogSource.Internals,
+  //       'CHAT',
+  //       `Failed to create breakout group chat: ${groupId}`,
+  //       error,
+  //     );
+  //     throw error;
+  //   }
+  // };
+
+  // const joinGroupChat = async (groupId: string) => {
+  //   try {
+  //     const result = await connRef.current.joinGroup({
+  //       groupId: groupId,
+  //     });
+  //     logger.log(
+  //       LogSource.Internals,
+  //       'CHAT',
+  //       `Joined breakout group chat: ${groupId}`,
+  //       result,
+  //     );
+  //     return result;
+  //   } catch (error) {
+  //     // Check if user is already in the group
+  //     if (
+  //       error.error === 'forbidden_op' &&
+  //       error.error_description?.includes('already in group')
+  //     ) {
+  //       logger.log(
+  //         LogSource.Internals,
+  //         'CHAT',
+  //         `User already in breakout group chat: ${groupId}`,
+  //       );
+  //       return {success: true, alreadyMember: true};
+  //     }
+
+  //     logger.error(
+  //       LogSource.Internals,
+  //       'CHAT',
+  //       `Failed to join breakout group chat: ${groupId}`,
+  //       error,
+  //     );
+  //     throw error;
+  //   }
+  // };
+
+  const leaveGroupChat = async (groupId: string) => {
+    try {
+      const result = await connRef.current.leaveGroup({
+        groupId: groupId,
+      });
+      logger.log(
+        LogSource.Internals,
+        'CHAT',
+        `Left breakout group chat: ${groupId}`,
+        result,
+      );
+      return result;
+    } catch (error) {
+      logger.error(
+        LogSource.Internals,
+        'CHAT',
+        `Failed to leave breakout group chat: ${groupId}`,
+        error,
+      );
+      throw error;
+    }
+  };
   return (
     <chatConfigureContext.Provider
       value={{
@@ -701,6 +896,7 @@ const ChatConfigure = ({children}) => {
         removeReaction,
         pinMessage,
         unPinMessage,
+        leaveGroupChat,
       }}>
       {children}
     </chatConfigureContext.Provider>

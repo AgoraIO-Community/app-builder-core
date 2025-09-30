@@ -337,9 +337,15 @@ export const publicChatToastHeading = 'publicChatToastHeading';
 export const publicChatImgToastHeading = 'publicChatImgToastHeading';
 export const publicChatFileToastHeading = 'publicChatFileToastHeading';
 
+export const breakoutChatToastHeading = 'breakoutChatToastHeading';
+export const breakoutChatImgToastHeading = 'breakoutChatImgToastHeading';
+export const breakoutChatFileToastHeading = 'breakoutChatFileToastHeading';
+
 export const multiplePublicChatToastHeading = 'multiplePublicChatToastHeading';
 export const multiplePublicChatToastSubHeading =
   'multiplePublicChatToastSubHeading';
+export const multipleBreakoutChatToastSubHeading =
+  'multipleBreakoutChatToastSubHeading';
 
 export const privateChatToastHeading = 'privateChatToastHeading';
 export const multiplePrivateChatToastHeading =
@@ -735,8 +741,13 @@ export interface I18nVideoCallScreenLabelsInterface {
   [publicChatImgToastHeading]?: I18nBaseType;
   [publicChatFileToastHeading]?: I18nBaseType;
 
+  [breakoutChatToastHeading]?: I18nBaseType;
+  [breakoutChatImgToastHeading]?: I18nBaseType;
+  [breakoutChatFileToastHeading]?: I18nBaseType;
+
   [multiplePublicChatToastHeading]?: I18nBaseType;
   [multiplePublicChatToastSubHeading]?: I18nBaseType<publicChatToastSubHeadingDataInterface>;
+  [multipleBreakoutChatToastSubHeading]?: I18nBaseType<publicChatToastSubHeadingDataInterface>;
 
   [privateChatToastHeading]?: I18nBaseType;
   [multiplePrivateChatToastHeading]?: I18nBaseType<privateChatToastHeadingDataInterface>;
@@ -1164,9 +1175,21 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   [publicChatFileToastHeading]: (name: string) =>
     `${name} sent a file in the public chat`,
 
+  [breakoutChatToastHeading]: (name: string) =>
+    `${name} commented in the breakout room chat`,
+
+  [breakoutChatImgToastHeading]: (name: string) =>
+    `${name} sent an image in the breakout room chat`,
+
+  [breakoutChatFileToastHeading]: (name: string) =>
+    `${name} sent a file in the breakout room chat`,
+
   [multiplePublicChatToastHeading]: 'New messages in Public Chat',
   [multiplePublicChatToastSubHeading]: ({count, from}) =>
     `You have ${count} new messages from ${from}`,
+
+  [multipleBreakoutChatToastSubHeading]: ({count, from}) =>
+    `You have ${count} new messages from ${from} in breakout room`,
 
   [privateChatToastHeading]: 'You’ve received a private message',
 

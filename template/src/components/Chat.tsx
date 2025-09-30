@@ -185,7 +185,8 @@ const Chat = (props?: ChatProps) => {
           <>
             <ChatBeforeView />
             {showHeader && <ChatHeader />}
-            {chatType === ChatType.Group ? (
+            {chatType === ChatType.Group ||
+            chatType === ChatType.BreakoutGroupChat ? (
               <>
                 <ChatContainer {...props} />
                 {isRecordingBot ? (

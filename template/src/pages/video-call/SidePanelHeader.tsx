@@ -47,6 +47,7 @@ import {
   sttTranscriptPanelHeaderText,
 } from '../../language/default-labels/videoCallScreenLabels';
 import {logger, LogSource} from '../../logger/AppBuilderLogger';
+import {useBreakoutRoomInfo} from '../../components/room-info/useSetBreakoutRoomInfo';
 
 export const SettingsHeader = props => {
   const {setSidePanel} = useSidePanel();
@@ -115,6 +116,7 @@ export const ChatHeader = () => {
     unreadGroupMessageCount,
     setUnreadGroupMessageCount,
     unreadPrivateMessageCount,
+    unreadBreakoutMessageCount,
     setUnreadPrivateMessageCount,
     setUnreadIndividualMessageCount,
     unreadIndividualMessageCount,
@@ -124,8 +126,10 @@ export const ChatHeader = () => {
   const groupChatLabel = useString(chatPanelGroupTabText)();
   const privateChatLabel = useString(chatPanelPrivateTabText)();
 
-  const {chatType, setChatType, setPrivateChatUser, showEmojiPicker} =
+  const {chatType, setChatType, setPrivateChatUser, setCurrentGroupChatId} =
     useChatUIControls();
+
+  const {breakoutRoomChannelData} = useBreakoutRoomInfo();
 
   const selectGroup = () => {
     setChatType(ChatType.Group);
@@ -137,8 +141,17 @@ export const ChatHeader = () => {
     setPrivateChatUser(0);
     setChatType(ChatType.MemberList);
   };
+
+  const selectBreakoutRoom = () => {
+    setChatType(ChatType.BreakoutGroupChat);
+    setCurrentGroupChatId(breakoutRoomChannelData.chat.groupId);
+    setPrivateChatUser(0);
+  };
+
   const isPrivateActive = chatType === ChatType.Private;
   const isGroupActive = chatType === ChatType.Group;
+  const isBreakoutRoomActive = chatType === ChatType.BreakoutGroupChat;
+
   return (
     <SidePanelHeader
       isChat={true}
@@ -166,10 +179,34 @@ export const ChatHeader = () => {
               {groupChatLabel}
             </Text>
           </TouchableOpacity>
+
+          {/* Breakout Room Tab - only show if user is in a breakout room */}
+          {breakoutRoomChannelData?.isBreakoutMode && (
+            <TouchableOpacity
+              onPress={() => selectBreakoutRoom()}
+              style={
+                isBreakoutRoomActive
+                  ? styles.activeContainer
+                  : styles.nonActiveContainer
+              }>
+              {unreadBreakoutMessageCount !== 0 ? (
+                <View style={styles.chatNotification} />
+              ) : null}
+              <Text
+                style={
+                  isBreakoutRoomActive
+                    ? styles.activeText
+                    : styles.nonActiveText
+                }>
+                {breakoutRoomChannelData?.room_name}
+              </Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             onPress={selectPrivate}
             style={
-              !isGroupActive
+              !isGroupActive && !isBreakoutRoomActive
                 ? [styles.activeContainer]
                 : [styles.nonActiveContainer]
             }>
@@ -177,7 +214,11 @@ export const ChatHeader = () => {
               <View style={styles.chatNotification} />
             ) : null}
             <Text
-              style={!isGroupActive ? styles.activeText : styles.nonActiveText}>
+              style={
+                !isGroupActive && !isBreakoutRoomActive
+                  ? styles.activeText
+                  : styles.nonActiveText
+              }>
               {privateChatLabel}
             </Text>
           </TouchableOpacity>

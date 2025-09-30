@@ -8,6 +8,7 @@ import {
   useChatUIControls,
   UploadStatus,
   MAX_UPLOAD_SIZE,
+  ChatType,
 } from '../../components/chat-ui/useChatUIControls';
 import {useChatConfigure} from '../../components/chat/chatConfigure.native';
 import {
@@ -48,11 +49,21 @@ interface ExtendedChatMessage extends ChatMessage {
 }
 
 export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
-  const {privateChatUser, setUploadStatus, replyToMsgId} = useChatUIControls();
+  const {
+    privateChatUser,
+    setUploadStatus,
+    replyToMsgId,
+    chatType,
+    currentGroupChatId,
+  } = useChatUIControls();
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
 
-  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
+  const {
+    addMessageToPrivateStore,
+    addMessageToStore,
+    addMessageToBreakoutStore,
+  } = useChatMessages();
 
   const toastHeadingType = useString(chatUploadErrorToastHeading)();
   const toastHeadingSize = useString(chatUploadErrorFileSizeToastHeading)();
@@ -126,13 +137,27 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
       }
 
       if (isImageUploaded || isFileUploaded) {
+        let chatSDKType, toId;
+
+        if (chatType === ChatType.BreakoutGroupChat && currentGroupChatId) {
+          // Breakout room attachment
+          chatSDKType = SDKChatType.GROUP_CHAT;
+          toId = currentGroupChatId;
+        } else if (privateChatUser) {
+          // Private attachment
+          chatSDKType = SDKChatType.SINGLE_CHAT;
+          toId = privateChatUser.toString();
+        } else {
+          // Group attachment (main room)
+          chatSDKType = SDKChatType.GROUP_CHAT;
+          toId = groupID;
+        }
+
         const option = {
           type: isImageUploaded ? ChatMessageType.IMAGE : ChatMessageType.FILE,
           url: filePath,
-          to: privateChatUser ? privateChatUser.toString() : groupID,
-          chatType: privateChatUser
-            ? SDKChatType.SINGLE_CHAT
-            : SDKChatType.GROUP_CHAT,
+          to: toId,
+          chatType: chatSDKType,
           from: data.uid.toString(),
           fileName: result[0].name,
           ext: {
@@ -174,8 +199,12 @@ export const ChatAttachmentButton = (props: ChatAttachmentButtonProps) => {
           // this is local user messages
           if (message.chatType === ChatMessageChatType.PeerChat) {
             addMessageToPrivateStore(Number(message.to), messageData, true);
-          } else {
+          } else if (message.to === data.chat.group_id) {
+            // Main room attachment
             addMessageToStore(Number(message.from), messageData);
+          } else {
+            // Breakout room attachment
+            addMessageToBreakoutStore(Number(message.from), messageData);
           }
 
           setUploadStatus(UploadStatus.SUCCESS);

@@ -115,6 +115,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const {defaultContent} = useContent();
   const {sendChatSDKMessage} = useChatConfigure();
   const {data} = useRoomInfo();
+  const {currentGroupChatId} = useChatUIControls();
   const [name] = useUserName();
   const groupChatInputPlaceHolder = $config.EVENT_MODE
     ? useString(groupChatLiveInputPlaceHolderText)
@@ -123,7 +124,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     privateChatInputPlaceHolderText,
   );
 
-  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
+  const {
+    addMessageToPrivateStore,
+    addMessageToStore,
+    addMessageToBreakoutStore,
+  } = useChatMessages();
 
   // React.useEffect(() => {
   //   if (message.length === 0) {
@@ -169,14 +174,27 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       return;
     }
 
-    const groupID = data.chat.group_id;
+    let chatSDKType, toId;
+
+    if (chatType === ChatType.BreakoutGroupChat && currentGroupChatId) {
+      // Breakout room message
+      chatSDKType = SDKChatType.GROUP_CHAT;
+      toId = currentGroupChatId;
+    } else if (privateChatUser) {
+      // Private message
+      chatSDKType = SDKChatType.SINGLE_CHAT;
+      toId = privateChatUser.toString();
+    } else {
+      // Group message (main room)
+      chatSDKType = SDKChatType.GROUP_CHAT;
+      toId = data.chat.group_id;
+    }
+
     const option = {
-      chatType: privateChatUser
-        ? SDKChatType.SINGLE_CHAT
-        : SDKChatType.GROUP_CHAT,
+      chatType: chatSDKType,
       type: ChatMessageType.TXT,
       from: data.uid.toString(),
-      to: privateChatUser ? privateChatUser.toString() : groupID,
+      to: toId,
       msg: message,
       ext: {
         replyToMsgId,
@@ -203,8 +221,12 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       // this is local user messages
       if (message.chatType === ChatMessageChatType.PeerChat) {
         addMessageToPrivateStore(Number(message.to), messageData, true);
-      } else {
+      } else if (message.to === data.chat.group_id) {
+        // Main room message
         addMessageToStore(Number(message.from), messageData);
+      } else {
+        // Breakout room message
+        addMessageToBreakoutStore(Number(message.from), messageData);
       }
     };
     sendChatSDKMessage(option, {onProgress, onError, onSuccess});

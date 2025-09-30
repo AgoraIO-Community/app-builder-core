@@ -2,6 +2,7 @@ import {createHook} from 'customization-implementation';
 import React, {createContext, useEffect, useState} from 'react';
 import {useRoomInfo} from '../room-info/useRoomInfo';
 import {useChatUIControls, useContent} from 'customization-api';
+import {ChatType} from '../chat-ui/useChatUIControls';
 import {
   ChatClient,
   ChatConnectEventListener,
@@ -84,8 +85,10 @@ const ChatConfigure = ({children}) => {
     addMessageToPrivateStore,
     showMessageNotification,
     addMessageToStore,
+    addMessageToBreakoutStore,
     removeMessageFromStore,
     removeMessageFromPrivateStore,
+    removeMessageFromBreakoutStore,
     addReactionToPrivateStore,
     addReactionToStore,
   } = useChatMessages();
@@ -129,11 +132,18 @@ const ChatConfigure = ({children}) => {
       const msgListerner: ChatMessageEventListener = {
         onMessagesRecalled: (messages: ChatMessage[]) => {
           console.warn('on msg recalled', messages);
-          const isGroupChat = messages[0].to === data.chat.group_id;
+          const message = messages[0];
+          const isMainRoomGroup = message.to === data.chat.group_id;
+          const isGroupChat = message.chatType === ChatMessageChatType.GroupChat;
+
           if (isGroupChat) {
-            removeMessageFromStore(messages[0].msgId.toString(), true);
+            if (isMainRoomGroup) {
+              removeMessageFromStore(message.msgId.toString(), true);
+            } else {
+              removeMessageFromBreakoutStore(message.msgId.toString(), true);
+            }
           } else {
-            removeMessageFromPrivateStore(messages[0].msgId.toString(), true);
+            removeMessageFromPrivateStore(message.msgId.toString(), true);
           }
         },
         onMessagesReceived: (messages: ChatMessage[]) => {
@@ -145,6 +155,7 @@ const ChatConfigure = ({children}) => {
               message.chatType === ChatMessageChatType.GroupChat;
             const isPeerChat =
               message.chatType === ChatMessageChatType.PeerChat;
+            const isMainRoom = message.to === data.chat.group_id;
             const {msgId, from, body, localTime} = message;
             const chatType = body.type;
             const fromUser = from;
@@ -168,18 +179,27 @@ const ChatConfigure = ({children}) => {
                 //@ts-ignore
                 const chatContent = body.content;
                 if (isGroupChat) {
-                  showMessageNotification(chatContent, fromUser, false);
-                  addMessageToStore(Number(fromUser), {
+                  showMessageNotification(
+                    chatContent,
+                    fromUser,
+                    isMainRoom ? ChatType.Group : ChatType.BreakoutGroupChat,
+                  );
+                  const messageData = {
                     msg: chatContent.replace(/^(\n)+|(\n)+$/g, ''),
                     createdTimestamp: localTime,
                     msgId: msgId,
                     isDeleted: false,
                     type: ChatMessageType.TXT,
                     replyToMsgId,
-                  });
+                  };
+                  if (isMainRoom) {
+                    addMessageToStore(Number(fromUser), messageData);
+                  } else {
+                    addMessageToBreakoutStore(Number(fromUser), messageData);
+                  }
                 }
                 if (isPeerChat) {
-                  showMessageNotification(chatContent, fromUser, true);
+                  showMessageNotification(chatContent, fromUser, ChatType.Private);
                   addMessageToPrivateStore(
                     Number(fromUser),
                     {
@@ -211,10 +231,10 @@ const ChatConfigure = ({children}) => {
                   showMessageNotification(
                     file_name,
                     fromUser,
-                    false,
+                    isMainRoom ? ChatType.Group : ChatType.BreakoutGroupChat,
                     ChatMessageType.IMAGE,
                   );
-                  addMessageToStore(Number(fromUser), {
+                  const messageData = {
                     msg: msg,
                     createdTimestamp: localTime,
                     msgId: msgId,
@@ -224,13 +244,18 @@ const ChatConfigure = ({children}) => {
                     url: url,
                     fileName: file_name,
                     replyToMsgId,
-                  });
+                  };
+                  if (isMainRoom) {
+                    addMessageToStore(Number(fromUser), messageData);
+                  } else {
+                    addMessageToBreakoutStore(Number(fromUser), messageData);
+                  }
                 }
                 if (isPeerChat) {
                   showMessageNotification(
                     'You got a private image message',
                     fromUser,
-                    true,
+                    ChatType.Private,
                     ChatMessageType.IMAGE,
                   );
                   addMessageToPrivateStore(
@@ -258,10 +283,10 @@ const ChatConfigure = ({children}) => {
                   showMessageNotification(
                     file_name,
                     fromUser,
-                    false,
+                    isMainRoom ? ChatType.Group : ChatType.BreakoutGroupChat,
                     ChatMessageType.FILE,
                   );
-                  addMessageToStore(Number(fromUser), {
+                  const messageData = {
                     msg: msg,
                     createdTimestamp: localTime,
                     msgId: msgId,
@@ -271,13 +296,18 @@ const ChatConfigure = ({children}) => {
                     ext: file_ext,
                     fileName: file_name,
                     replyToMsgId,
-                  });
+                  };
+                  if (isMainRoom) {
+                    addMessageToStore(Number(fromUser), messageData);
+                  } else {
+                    addMessageToBreakoutStore(Number(fromUser), messageData);
+                  }
                 }
                 if (isPeerChat) {
                   showMessageNotification(
                     file_name,
                     fromUser,
-                    true,
+                    ChatType.Private,
                     ChatMessageType.FILE,
                   );
                   addMessageToPrivateStore(

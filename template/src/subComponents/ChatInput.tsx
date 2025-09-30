@@ -79,6 +79,7 @@ export interface ChatTextInputProps {
 export const ChatTextInput = (props: ChatTextInputProps) => {
   const {
     privateChatUser: selectedUserId,
+    currentGroupChatId,
     message,
     setMessage,
     inputActive,
@@ -99,7 +100,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   } = useChatUIControls();
   const {defaultContent} = useContent();
   const {sendChatSDKMessage, uploadAttachment} = useChatConfigure();
-  const {addMessageToPrivateStore, addMessageToStore} = useChatMessages();
+  const {
+    addMessageToPrivateStore,
+    addMessageToStore,
+    addMessageToBreakoutStore,
+  } = useChatMessages();
 
   React.useEffect(() => {
     if (message.length === 0) {
@@ -147,6 +152,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     handleChatSend({
       sendChatSDKMessage,
       selectedUserId,
+      currentGroupChatId,
+      chatType,
       message,
       setMessage,
       inputActive,
@@ -163,6 +170,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       setReplyToMsgId,
       addMessageToStore,
       addMessageToPrivateStore,
+      addMessageToBreakoutStore,
     });
   };
 
