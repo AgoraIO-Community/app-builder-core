@@ -35,6 +35,7 @@ import {
   fetchChannelAttributesWithRetries,
   processUserAttributeForQueue,
 } from './rtm-presence-utils';
+import {SDKEvents} from '../utils/eventEmitter';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -199,6 +200,8 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
 
         RTMEngine.getInstance().addChannel(RTM_ROOMS.MAIN, mainChannelName);
         RTMEngine.getInstance().setActiveChannelName(RTM_ROOMS.MAIN);
+        SDKEvents.emit('_rtm-joined', mainChannelName);
+
         subscribeTimerRef.current = 5;
         // Clear any pending retry timeout since we succeeded
         if (subscribeTimeoutRef.current) {
@@ -420,7 +423,7 @@ const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
       if (!uid) {
         return;
       }
-
+      SDKEvents.emit('_rtm-left', uid);
       // Mark user as offline (matching legacy channelMemberLeft behavior)
       setMainRoomRTMUsers(prev => {
         const updated = {...prev};
