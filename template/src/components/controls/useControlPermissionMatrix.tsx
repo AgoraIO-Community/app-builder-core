@@ -65,7 +65,8 @@ export const controlPermissionMatrix: Record<
     $config.ENABLE_BREAKOUT_ROOM &&
     ENABLE_AUTH &&
     !$config.ENABLE_CONVERSATIONAL_AI &&
-    !$config.EVENT_MODE,
+    !$config.EVENT_MODE &&
+    !$config.RAISE_HAND,
 };
 
 export const useControlPermissionMatrix = (
