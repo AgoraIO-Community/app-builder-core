@@ -57,8 +57,9 @@ function RecordingsDateTable(props) {
   const [currentPage, setCurrentPage] = useState(defaultPageNumber);
 
   const {fetchRecordings} = useRecording();
-  const canAccessAllTextTracks =
-    useControlPermissionMatrix('viewAllTextTracks');
+  const canAccessAllTextTracks = useControlPermissionMatrix(
+    'viewAllTextTracksControl',
+  );
 
   // message for any download‐error popup
   const [errorSnack, setErrorSnack] = React.useState<string | undefined>();

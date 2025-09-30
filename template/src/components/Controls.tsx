@@ -486,7 +486,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       : false;
 
   // 2. whiteboard ends
-  if (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) {
+  const canAccessWhiteboard = useControlPermissionMatrix('whiteboardControl');
+  if (canAccessWhiteboard) {
     actionMenuitems.push({
       componentName: 'whiteboard',
       order: 2,
@@ -528,7 +529,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 3. host can see stt options and attendee can view only when stt is enabled by a host in the channel
-  if ($config.ENABLE_STT && $config.ENABLE_CAPTION) {
+  const canAccessCaption = useControlPermissionMatrix('captionsControl');
+  const canAccessTranscripts = useControlPermissionMatrix('transcriptsControl');
+  if (canAccessCaption) {
     actionMenuitems.push({
       componentName: 'caption',
       order: 3,
@@ -558,7 +561,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
       },
     });
     // 4. Meeting transcript
-    if ($config.ENABLE_MEETING_TRANSCRIPT) {
+
+    if (canAccessTranscripts) {
       actionMenuitems.push({
         componentName: 'transcript',
         order: 4,
@@ -595,7 +599,8 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 5. view recordings
-  if (isHost && $config.CLOUD_RECORDING && isWeb()) {
+  const canAccessViewRecording = useControlPermissionMatrix('recordingControl');
+  if (canAccessViewRecording && isWeb()) {
     actionMenuitems.push({
       componentName: 'view-recordings',
       order: 5,
@@ -682,7 +687,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
 
   // 8. Screenshare
   const {permissions} = useBreakoutRoom();
-  const canAccessBreakoutRoom = useControlPermissionMatrix('breakoutRoom');
+  const canAccessBreakoutRoom = useControlPermissionMatrix(
+    'breakoutRoomControl',
+  );
   const canScreenshareInBreakoutRoom = permissions?.canScreenshare;
 
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
@@ -725,7 +732,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 9. Recording
-  if (isHost && $config.CLOUD_RECORDING) {
+  const canAccessRecording = useControlPermissionMatrix('recordingControl');
+  console.log('supriya-canAccessRecording: ', canAccessRecording);
+  if (canAccessRecording) {
     actionMenuitems.push({
       hide: w => {
         return w >= BREAKPOINTS.sm ? true : false;
@@ -828,9 +837,9 @@ const MoreButton = (props: {fields: ToolbarMoreButtonDefaultFields}) => {
   }
 
   // 13. Text-tracks to download
-  const canAccessAllTextTracks =
-    useControlPermissionMatrix('viewAllTextTracks');
-
+  const canAccessAllTextTracks = useControlPermissionMatrix(
+    'viewAllTextTracksControl',
+  );
   if (canAccessAllTextTracks) {
     actionMenuitems.push({
       componentName: 'view-all-text-tracks',
@@ -1160,18 +1169,18 @@ export const MoreButtonToolbarItem = (props?: {
     forceUpdate();
   }, [isHost]);
 
+  const canAccessRecording = useControlPermissionMatrix('recordingControl');
+  const canAccessWhiteboard = useControlPermissionMatrix('whiteboardControl');
+  const canAccessCaptions = useControlPermissionMatrix('captionsControl');
   return width < BREAKPOINTS.lg ||
-    ($config.ENABLE_STT &&
-      $config.ENABLE_CAPTION &&
-      (isHost || (!isHost && isSTTActive))) ||
+    (canAccessCaptions && (isHost || (!isHost && isSTTActive))) ||
     $config.ENABLE_NOISE_CANCELLATION ||
-    (isHost && $config.CLOUD_RECORDING && isWeb()) ||
+    (canAccessRecording && isWeb()) ||
     ($config.ENABLE_VIRTUAL_BACKGROUND && !$config.AUDIO_ROOM) ||
-    (isHost && $config.ENABLE_WHITEBOARD && isWebInternal()) ? (
+    canAccessWhiteboard ? (
     <ToolbarItem testID="more-btn" toolbarProps={props}>
       {((!$config.AUTO_CONNECT_RTM && !isHost) || $config.AUTO_CONNECT_RTM) &&
-      $config.ENABLE_WHITEBOARD &&
-      isWebInternal() ? (
+      canAccessWhiteboard ? (
         <WhiteboardListener />
       ) : (
         <></>
@@ -1314,6 +1323,8 @@ const Controls = (props: ControlsProps) => {
 
   const canAccessInvite = useControlPermissionMatrix('inviteControl');
   const canAccessScreenshare = useControlPermissionMatrix('screenshareControl');
+  const canAccessRecordings = useControlPermissionMatrix('recordingControl');
+
   const canAccessExitBreakoutRoomBtn = permissions?.canExitRoom;
 
   const defaultItems: ToolbarPresetProps['items'] = React.useMemo(() => {
@@ -1364,7 +1375,7 @@ const Controls = (props: ControlsProps) => {
       },
       recording: {
         align: 'center',
-        component: RecordingToolbarItem,
+        component: canAccessRecordings ? RecordingToolbarItem : null,
         order: 5,
         hide: w => {
           return w < BREAKPOINTS.sm ? true : false;
