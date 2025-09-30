@@ -55,7 +55,10 @@ export interface RTMUserData {
 
 interface RTMGlobalStateProviderProps {
   children: React.ReactNode;
-  mainChannelRtcProps: Partial<RtcPropsInterface>;
+  rtmLoginInfo: {
+    uid: UidType;
+    channel: string;
+  };
 }
 
 // Context for message and storage handler registration
@@ -83,10 +86,10 @@ const RTMGlobalStateContext = React.createContext<{
 
 const RTMGlobalStateProvider: React.FC<RTMGlobalStateProviderProps> = ({
   children,
-  mainChannelRtcProps,
+  rtmLoginInfo,
 }) => {
-  const mainChannelName = mainChannelRtcProps.channel;
-  const localUid = mainChannelRtcProps.uid;
+  const mainChannelName = rtmLoginInfo.channel;
+  const localUid = rtmLoginInfo.uid;
   const {client, isLoggedIn, registerCallbacks, unregisterCallbacks} =
     useRTMCore();
   // Main room RTM users (RTM-specific data only)

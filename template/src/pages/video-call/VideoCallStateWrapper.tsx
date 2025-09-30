@@ -418,7 +418,11 @@ const VideoCallStateWrapper = () => {
               isHost: rtcProps.role === ClientRoleType.ClientRoleBroadcaster,
               rtmToken: rtcProps.rtm,
             }}>
-            <RTMGlobalStateProvider mainChannelRtcProps={{...rtcProps}}>
+            <RTMGlobalStateProvider
+              rtmLoginInfo={{
+                uid: rtcProps.uid,
+                channel: rtcProps.channel,
+              }}>
               <UserGlobalPreferenceProvider>
                 <VideoCallContent
                   callActive={callActive}
