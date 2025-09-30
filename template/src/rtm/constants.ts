@@ -11,5 +11,4 @@ export const RTM_EVENTS_ATTRIBUTES_TO_RESET_WHEN_ROOM_CHANGES = [
   EventNames.BREAKOUT_RAISE_HAND_ATTRIBUTE, // Breakout room raise hand ( will be made into independent)
   EventNames.STT_ACTIVE,
   EventNames.STT_LANGUAGE,
-  EventNames.ROLE_ATTRIBUTE,
 ] as const;
